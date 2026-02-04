@@ -1,14 +1,24 @@
 import { Search } from "lucide-react";
 import { useState } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
 import earthVideo from "@/assets/earth-morocco-zoom.mp4";
 
 const HeroSection = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const { t } = useLanguage();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Searching for:", searchQuery);
   };
+
+  const tags = [
+    { key: "artisans", label: t("hero.tags.artisans") },
+    { key: "homeServices", label: t("hero.tags.homeServices") },
+    { key: "teaching", label: t("hero.tags.teaching") },
+    { key: "healthcare", label: t("hero.tags.healthcare") },
+    { key: "construction", label: t("hero.tags.construction") },
+  ];
 
   return (
     <section className="relative h-screen w-full overflow-hidden">
@@ -31,10 +41,10 @@ const HeroSection = () => {
         {/* Logo/Title */}
         <div className="mb-8 text-center">
           <h1 className="mb-2 font-serif text-5xl font-bold tracking-tight text-white md:text-7xl">
-            <span className="text-gold">Solidarity</span> Morocco
+            <span className="text-gold">{t("hero.title")}</span> {t("hero.titleSuffix")}
           </h1>
           <p className="text-lg text-white/90 md:text-xl">
-            Connecting communities through work & services
+            {t("hero.subtitle")}
           </p>
         </div>
 
@@ -46,7 +56,7 @@ const HeroSection = () => {
               <Search className="ml-5 h-6 w-6 text-muted-foreground" />
               <input
                 type="text"
-                placeholder="Search for jobs, services, or skills..."
+                placeholder={t("hero.searchPlaceholder")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="flex-1 bg-transparent px-4 py-5 text-lg text-foreground placeholder:text-muted-foreground focus:outline-none"
@@ -55,7 +65,7 @@ const HeroSection = () => {
                 type="submit"
                 className="m-2 rounded-lg bg-primary px-8 py-3 font-semibold text-primary-foreground transition-all hover:bg-primary/90 hover:shadow-lg"
               >
-                Search
+                {t("hero.searchButton")}
               </button>
             </div>
           </div>
@@ -63,12 +73,12 @@ const HeroSection = () => {
 
         {/* Quick Tags */}
         <div className="mt-6 flex flex-wrap justify-center gap-2">
-          {["Artisans", "Home Services", "Teaching", "Healthcare", "Construction"].map((tag) => (
+          {tags.map((tag) => (
             <span
-              key={tag}
+              key={tag.key}
               className="cursor-pointer rounded-full border border-white/30 bg-white/10 px-4 py-2 text-sm text-white backdrop-blur-sm transition-all hover:border-gold hover:bg-gold/20"
             >
-              {tag}
+              {tag.label}
             </span>
           ))}
         </div>
@@ -76,7 +86,7 @@ const HeroSection = () => {
         {/* Scroll Indicator */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
           <div className="flex flex-col items-center text-white/70">
-            <span className="mb-2 text-sm">Explore Services</span>
+            <span className="mb-2 text-sm">{t("hero.scrollText")}</span>
             <svg
               className="h-6 w-6"
               fill="none"
