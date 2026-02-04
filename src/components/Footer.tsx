@@ -1,6 +1,9 @@
 import { Globe, Facebook, Instagram, Twitter, Mail, Phone, MapPin } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const Footer = () => {
+  const { t } = useLanguage();
+
   return (
     <footer className="bg-foreground text-background">
       <div className="container mx-auto px-4 py-16">
@@ -14,7 +17,7 @@ const Footer = () => {
               </span>
             </div>
             <p className="mb-6 text-background/70">
-              Empowering Moroccan communities through accessible work opportunities and trusted services.
+              {t("footer.description")}
             </p>
             <div className="flex gap-4">
               <a href="#" className="text-background/60 transition-colors hover:text-gold">
@@ -31,33 +34,33 @@ const Footer = () => {
 
           {/* Services */}
           <div>
-            <h4 className="mb-4 font-semibold text-gold">Services</h4>
+            <h4 className="mb-4 font-semibold text-gold">{t("footer.services")}</h4>
             <ul className="space-y-2 text-background/70">
-              <li><a href="#" className="transition-colors hover:text-gold">Find Services</a></li>
-              <li><a href="#" className="transition-colors hover:text-gold">Post a Job</a></li>
-              <li><a href="#" className="transition-colors hover:text-gold">Become a Provider</a></li>
-              <li><a href="#" className="transition-colors hover:text-gold">Business Solutions</a></li>
+              <li><a href="#" className="transition-colors hover:text-gold">{t("footer.findServices")}</a></li>
+              <li><a href="#" className="transition-colors hover:text-gold">{t("footer.postJob")}</a></li>
+              <li><a href="#" className="transition-colors hover:text-gold">{t("footer.becomeProvider")}</a></li>
+              <li><a href="#" className="transition-colors hover:text-gold">{t("footer.businessSolutions")}</a></li>
             </ul>
           </div>
 
           {/* Company */}
           <div>
-            <h4 className="mb-4 font-semibold text-gold">Company</h4>
+            <h4 className="mb-4 font-semibold text-gold">{t("footer.company")}</h4>
             <ul className="space-y-2 text-background/70">
-              <li><a href="#" className="transition-colors hover:text-gold">About Us</a></li>
-              <li><a href="#" className="transition-colors hover:text-gold">Our Mission</a></li>
-              <li><a href="#" className="transition-colors hover:text-gold">Careers</a></li>
-              <li><a href="#" className="transition-colors hover:text-gold">Press</a></li>
+              <li><a href="#" className="transition-colors hover:text-gold">{t("footer.aboutUs")}</a></li>
+              <li><a href="#" className="transition-colors hover:text-gold">{t("footer.ourMission")}</a></li>
+              <li><a href="#" className="transition-colors hover:text-gold">{t("footer.careers")}</a></li>
+              <li><a href="#" className="transition-colors hover:text-gold">{t("footer.press")}</a></li>
             </ul>
           </div>
 
           {/* Contact */}
           <div>
-            <h4 className="mb-4 font-semibold text-gold">Contact</h4>
+            <h4 className="mb-4 font-semibold text-gold">{t("footer.contact")}</h4>
             <ul className="space-y-3 text-background/70">
               <li className="flex items-center gap-2">
                 <MapPin className="h-4 w-4 text-gold" />
-                Casablanca, Morocco
+                {t("footer.location")}
               </li>
               <li className="flex items-center gap-2">
                 <Phone className="h-4 w-4 text-gold" />
@@ -74,12 +77,12 @@ const Footer = () => {
         {/* Bottom */}
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-background/10 pt-8 md:flex-row">
           <p className="text-sm text-background/50">
-            © 2024 SolidarityMA. All rights reserved.
+            © 2024 SolidarityMA. {t("footer.rights")}
           </p>
           <div className="flex gap-6 text-sm text-background/50">
-            <a href="#" className="transition-colors hover:text-gold">Privacy Policy</a>
-            <a href="#" className="transition-colors hover:text-gold">Terms of Service</a>
-            <a href="#" className="transition-colors hover:text-gold">Cookie Policy</a>
+            <a href="#" className="transition-colors hover:text-gold">{t("footer.privacy")}</a>
+            <a href="#" className="transition-colors hover:text-gold">{t("footer.terms")}</a>
+            <a href="#" className="transition-colors hover:text-gold">{t("footer.cookies")}</a>
           </div>
         </div>
       </div>

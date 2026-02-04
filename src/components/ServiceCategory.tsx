@@ -6,6 +6,7 @@ interface ServiceCategoryProps {
   description: string;
   count: number;
   color: "terracotta" | "majorelle" | "atlas" | "gold";
+  providersLabel?: string;
 }
 
 const colorClasses = {
@@ -22,7 +23,7 @@ const iconColorClasses = {
   gold: "bg-gold text-gold-foreground",
 };
 
-const ServiceCategory = ({ icon: Icon, title, description, count, color }: ServiceCategoryProps) => {
+const ServiceCategory = ({ icon: Icon, title, description, count, color, providersLabel = "providers" }: ServiceCategoryProps) => {
   return (
     <div
       className={`group min-w-[280px] cursor-pointer rounded-2xl border-2 p-6 transition-all duration-300 hover:scale-105 hover:shadow-xl ${colorClasses[color]}`}
@@ -33,7 +34,7 @@ const ServiceCategory = ({ icon: Icon, title, description, count, color }: Servi
       <h3 className="mb-2 text-xl font-bold">{title}</h3>
       <p className="mb-3 text-sm opacity-80">{description}</p>
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium">{count} providers</span>
+        <span className="text-sm font-medium">{count} {providersLabel}</span>
         <svg
           className="h-5 w-5 transition-transform group-hover:translate-x-1"
           fill="none"

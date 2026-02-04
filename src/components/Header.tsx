@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { Menu, X, User, Globe } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { t } = useLanguage();
 
   return (
     <header className="fixed left-0 right-0 top-0 z-50 bg-black/20 backdrop-blur-md">
@@ -18,27 +21,28 @@ const Header = () => {
         {/* Desktop Nav */}
         <nav className="hidden items-center gap-8 md:flex">
           <a href="#services" className="text-white/90 transition-colors hover:text-gold">
-            Services
+            {t("nav.services")}
           </a>
           <a href="#jobs" className="text-white/90 transition-colors hover:text-gold">
-            Jobs
+            {t("nav.jobs")}
           </a>
           <a href="#about" className="text-white/90 transition-colors hover:text-gold">
-            About
+            {t("nav.about")}
           </a>
           <a href="#contact" className="text-white/90 transition-colors hover:text-gold">
-            Contact
+            {t("nav.contact")}
           </a>
         </nav>
 
         {/* Actions */}
         <div className="hidden items-center gap-4 md:flex">
+          <LanguageSwitcher />
           <button className="flex items-center gap-2 rounded-lg border border-white/30 px-4 py-2 text-white transition-all hover:border-gold hover:text-gold">
             <User className="h-4 w-4" />
-            Sign In
+            {t("nav.signIn")}
           </button>
           <button className="rounded-lg bg-gold px-4 py-2 font-semibold text-gold-foreground transition-all hover:bg-gold/90">
-            Join Now
+            {t("nav.joinNow")}
           </button>
         </div>
 
@@ -56,24 +60,27 @@ const Header = () => {
         <div className="border-t border-white/10 bg-black/90 backdrop-blur-lg md:hidden">
           <nav className="container mx-auto flex flex-col gap-4 px-4 py-6">
             <a href="#services" className="text-white/90 transition-colors hover:text-gold">
-              Services
+              {t("nav.services")}
             </a>
             <a href="#jobs" className="text-white/90 transition-colors hover:text-gold">
-              Jobs
+              {t("nav.jobs")}
             </a>
             <a href="#about" className="text-white/90 transition-colors hover:text-gold">
-              About
+              {t("nav.about")}
             </a>
             <a href="#contact" className="text-white/90 transition-colors hover:text-gold">
-              Contact
+              {t("nav.contact")}
             </a>
             <hr className="border-white/20" />
+            <div className="flex justify-center">
+              <LanguageSwitcher />
+            </div>
             <button className="flex items-center justify-center gap-2 rounded-lg border border-white/30 px-4 py-2 text-white">
               <User className="h-4 w-4" />
-              Sign In
+              {t("nav.signIn")}
             </button>
             <button className="rounded-lg bg-gold px-4 py-2 font-semibold text-gold-foreground">
-              Join Now
+              {t("nav.joinNow")}
             </button>
           </nav>
         </div>
