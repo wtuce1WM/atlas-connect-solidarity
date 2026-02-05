@@ -55,8 +55,19 @@ const HeroSection = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<SearchResult | null>(null);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
   const { t, language } = useLanguage();
   const { toast } = useToast();
+
+  // Extract unique subcategories from results
+  const availableSubcategories = result?.businesses
+    ? [...new Set(result.businesses.flatMap(b => b.categories || []))]
+    : [];
+
+  // Filter businesses by selected subcategory
+  const filteredBusinesses = selectedSubcategory
+    ? result?.businesses.filter(b => b.categories?.includes(selectedSubcategory)) || []
+    : result?.businesses || [];
 
   // Get user location on mount
   useEffect(() => {
@@ -239,14 +250,45 @@ const HeroSection = () => {
                 </div>
               )}
 
+              {/* Subcategories filter */}
+              {availableSubcategories.length > 0 && (
+                <div className="mb-4 flex flex-wrap items-center justify-center gap-2">
+                  <Badge
+                    variant={selectedSubcategory === null ? "default" : "outline"}
+                    className={`cursor-pointer transition-all ${
+                      selectedSubcategory === null
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-white/80 hover:bg-white text-foreground"
+                    }`}
+                    onClick={() => setSelectedSubcategory(null)}
+                  >
+                    {language === "fr" ? "Tous" : language === "ar" ? "الكل" : "All"}
+                  </Badge>
+                  {availableSubcategories.map((subcat) => (
+                    <Badge
+                      key={subcat}
+                      variant={selectedSubcategory === subcat ? "default" : "outline"}
+                      className={`cursor-pointer transition-all ${
+                        selectedSubcategory === subcat
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-white/80 hover:bg-white text-foreground"
+                      }`}
+                      onClick={() => setSelectedSubcategory(subcat)}
+                    >
+                      {subcat}
+                    </Badge>
+                  ))}
+                </div>
+              )}
+
               {/* Results Count */}
               <p className="mb-4 text-center text-sm text-white/80">
-                {result.totalResults} {t("directory.resultsFound")}
+                {filteredBusinesses.length} {t("directory.resultsFound")}
               </p>
 
               {/* Business Cards Grid */}
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {result.businesses.map((business) => (
+                {filteredBusinesses.map((business) => (
                   <Link to={`/business/${business.id}`} key={business.id}>
                     <Card className="group overflow-hidden bg-white/95 backdrop-blur-sm transition-all hover:shadow-lg hover:border-primary/50 h-full">
                       <CardContent className="p-4">
