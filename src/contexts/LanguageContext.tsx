@@ -72,6 +72,21 @@ const translations = {
     "stats.satisfaction": "Satisfaction Rate",
     
     // Footer
+     // Hotel Search
+     "hotel.title": "Find",
+     "hotel.titleHighlight": "Hotel Booking Links",
+     "hotel.description": "Search for any hotel to find booking links across multiple platforms including Booking.com, Expedia, Hotels.com, and more.",
+     "hotel.namePlaceholder": "Hotel name (e.g., Four Seasons Marrakech)",
+     "hotel.locationPlaceholder": "Location (optional)",
+     "hotel.searchButton": "Search Hotels",
+     "hotel.error": "Error",
+     "hotel.nameRequired": "Please enter a hotel name",
+     "hotel.searchFailed": "Failed to search for hotel. Please try again.",
+     "hotel.foundOn": "Found on",
+     "hotel.platforms": "platforms",
+     "hotel.noResults": "No booking links found for this hotel. Try a more specific name or check the spelling.",
+ 
+     // Footer
     "footer.description": "Empowering Moroccan communities through accessible work opportunities and trusted services.",
     "footer.services": "Services",
     "footer.findServices": "Find Services",
@@ -153,6 +168,21 @@ const translations = {
     "stats.satisfaction": "Taux de satisfaction",
     
     // Footer
+     // Hotel Search
+     "hotel.title": "Trouvez",
+     "hotel.titleHighlight": "Liens de Réservation d'Hôtel",
+     "hotel.description": "Recherchez n'importe quel hôtel pour trouver des liens de réservation sur plusieurs plateformes, notamment Booking.com, Expedia, Hotels.com, et plus.",
+     "hotel.namePlaceholder": "Nom de l'hôtel (ex: Four Seasons Marrakech)",
+     "hotel.locationPlaceholder": "Lieu (optionnel)",
+     "hotel.searchButton": "Rechercher",
+     "hotel.error": "Erreur",
+     "hotel.nameRequired": "Veuillez entrer un nom d'hôtel",
+     "hotel.searchFailed": "Échec de la recherche d'hôtel. Veuillez réessayer.",
+     "hotel.foundOn": "Trouvé sur",
+     "hotel.platforms": "plateformes",
+     "hotel.noResults": "Aucun lien de réservation trouvé pour cet hôtel. Essayez un nom plus spécifique ou vérifiez l'orthographe.",
+ 
+     // Footer
     "footer.description": "Autonomiser les communautés marocaines grâce à des opportunités de travail accessibles et des services de confiance.",
     "footer.services": "Services",
     "footer.findServices": "Trouver des services",
