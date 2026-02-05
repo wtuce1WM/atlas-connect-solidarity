@@ -1,5 +1,6 @@
-import { Globe, Facebook, Instagram, Twitter, Mail, Phone, MapPin } from "lucide-react";
+import { Facebook, Instagram, Twitter, Mail, Phone, MapPin } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import logoGold from "@/assets/logoGOLD.webp";
 
 const Footer = () => {
   const { t } = useLanguage();
@@ -11,9 +12,9 @@ const Footer = () => {
           {/* Brand */}
           <div>
             <div className="mb-4 flex items-center gap-2">
-              <Globe className="h-8 w-8 text-gold" />
+              <img src={logoGold} alt="WTUCEMA Logo" className="h-10 w-10 object-contain" />
               <span className="font-serif text-xl font-bold">
-                Solidarity<span className="text-gold">MA</span>
+                WTUCE<span className="text-gold">MA</span>
               </span>
             </div>
             <p className="mb-6 text-background/70">
