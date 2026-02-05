@@ -331,14 +331,9 @@ const HeroSection = () => {
                         </div>
 
                         {business.description && (
-                          <div className="mb-2">
-                            {business.wtuce_status === "verified" && (
-                              <span className="font-bold text-xs text-foreground">A propos : </span>
-                            )}
-                            <span className="text-xs text-muted-foreground line-clamp-2">
-                              {business.description}
-                            </span>
-                          </div>
+                          <p className={`mb-2 text-xs text-muted-foreground line-clamp-2 ${business.wtuce_status === "verified" ? "font-bold" : ""}`}>
+                            {business.description}
+                          </p>
                         )}
 
                         {/* Categories */}
