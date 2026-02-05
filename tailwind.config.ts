@@ -74,6 +74,10 @@ export default {
           DEFAULT: "hsl(var(--gold))",
           foreground: "hsl(var(--gold-foreground))",
         },
+        "wtuce-blue": {
+          DEFAULT: "hsl(var(--wtuce-blue))",
+          foreground: "hsl(var(--wtuce-blue-foreground))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

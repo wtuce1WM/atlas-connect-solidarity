@@ -7,8 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-
 import GoogleMapEmbed from "@/components/GoogleMapEmbed";
+import logoGold from "@/assets/logoGOLD.webp";
 
 interface Business {
   id: string;
@@ -82,8 +82,10 @@ const BusinessDetail = () => {
     );
   }
 
+  const isVerified = business.wtuce_status === "verified";
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className={`min-h-screen ${isVerified ? "bg-wtuce-blue" : "bg-background"}`}>
       <Header />
       
       <main className="container mx-auto px-4 py-24">
@@ -163,6 +165,17 @@ const BusinessDetail = () => {
 
           {/* Sidebar - Contact & Map */}
           <div className="space-y-6">
+            {/* WTUCE Logo for verified businesses */}
+            {isVerified && (
+              <div className="flex justify-center">
+                <img 
+                  src={logoGold} 
+                  alt="WTUCE Vérifié" 
+                  className="w-[250px] h-[225px] object-contain"
+                />
+              </div>
+            )}
+            
             {/* Google Maps */}
             <GoogleMapEmbed
               address={business.address || `${business.city}, ${business.region}`}
