@@ -86,6 +86,26 @@ const translations = {
      "hotel.platforms": "platforms",
      "hotel.noResults": "No booking links found for this hotel. Try a more specific name or check the spelling.",
  
+     // Google Hotel Reviews
+     "googleReviews.title": "Discover Hotels with",
+     "googleReviews.titleHighlight": "Google Reviews",
+     "googleReviews.description": "Search for hotels by location and see authentic Google Reviews to help you make the best choice.",
+     "googleReviews.locationLabel": "Location",
+     "googleReviews.locationPlaceholder": "e.g., Marrakech, Paris, Bangkok",
+     "googleReviews.checkIn": "Check-in",
+     "googleReviews.checkOut": "Check-out",
+     "googleReviews.adults": "Adults",
+     "googleReviews.searchButton": "Search Hotels",
+     "googleReviews.error": "Error",
+     "googleReviews.locationRequired": "Please enter a location",
+     "googleReviews.searchFailed": "Failed to search for hotels. Please try again.",
+     "googleReviews.reviewsCount": "reviews",
+     "googleReviews.perNight": "night",
+     "googleReviews.total": "total",
+     "googleReviews.guestReviews": "Guest Reviews",
+     "googleReviews.hotelResponse": "Response from hotel:",
+     "googleReviews.noResults": "No hotels found for this location. Try a different search.",
+ 
      // Footer
     "footer.description": "Empowering Moroccan communities through accessible work opportunities and trusted services.",
     "footer.services": "Services",
@@ -181,6 +201,26 @@ const translations = {
      "hotel.foundOn": "Trouvé sur",
      "hotel.platforms": "plateformes",
      "hotel.noResults": "Aucun lien de réservation trouvé pour cet hôtel. Essayez un nom plus spécifique ou vérifiez l'orthographe.",
+ 
+     // Google Hotel Reviews
+     "googleReviews.title": "Découvrez les hôtels avec",
+     "googleReviews.titleHighlight": "les avis Google",
+     "googleReviews.description": "Recherchez des hôtels par lieu et consultez les avis Google authentiques pour vous aider à faire le meilleur choix.",
+     "googleReviews.locationLabel": "Lieu",
+     "googleReviews.locationPlaceholder": "ex: Marrakech, Paris, Bangkok",
+     "googleReviews.checkIn": "Arrivée",
+     "googleReviews.checkOut": "Départ",
+     "googleReviews.adults": "Adultes",
+     "googleReviews.searchButton": "Rechercher",
+     "googleReviews.error": "Erreur",
+     "googleReviews.locationRequired": "Veuillez entrer un lieu",
+     "googleReviews.searchFailed": "Échec de la recherche d'hôtels. Veuillez réessayer.",
+     "googleReviews.reviewsCount": "avis",
+     "googleReviews.perNight": "nuit",
+     "googleReviews.total": "total",
+     "googleReviews.guestReviews": "Avis des clients",
+     "googleReviews.hotelResponse": "Réponse de l'hôtel:",
+     "googleReviews.noResults": "Aucun hôtel trouvé pour ce lieu. Essayez une autre recherche.",
  
      // Footer
     "footer.description": "Autonomiser les communautés marocaines grâce à des opportunités de travail accessibles et des services de confiance.",
