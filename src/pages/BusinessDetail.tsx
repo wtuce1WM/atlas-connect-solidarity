@@ -8,6 +8,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
+import GoogleMapEmbed from "@/components/GoogleMapEmbed";
+
 interface Business {
   id: string;
   name: string;
@@ -22,6 +24,8 @@ interface Business {
   website: string | null;
   wtuce_status: "verified" | "pending" | null;
   logo_url: string | null;
+  latitude: number | null;
+  longitude: number | null;
 }
 
 const BusinessDetail = () => {
@@ -157,8 +161,16 @@ const BusinessDetail = () => {
             )}
           </div>
 
-          {/* Sidebar - Contact */}
+          {/* Sidebar - Contact & Map */}
           <div className="space-y-6">
+            {/* Google Maps */}
+            <GoogleMapEmbed
+              address={business.address || `${business.city}, ${business.region}`}
+              businessName={business.name}
+              latitude={business.latitude}
+              longitude={business.longitude}
+            />
+
             <Card>
               <CardContent className="p-6">
                 <h2 className="text-xl font-semibold mb-4">Contact</h2>
