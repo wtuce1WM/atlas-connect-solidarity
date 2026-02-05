@@ -1,7 +1,6 @@
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 import ServicesSection from "@/components/ServicesSection";
-import GoogleHotelReviews from "@/components/GoogleHotelReviews";
 import Footer from "@/components/Footer";
 
 const Index = () => {
@@ -10,7 +9,6 @@ const Index = () => {
       <Header />
       <HeroSection />
       <ServicesSection />
-      <GoogleHotelReviews />
       <Footer />
     </div>
   );
