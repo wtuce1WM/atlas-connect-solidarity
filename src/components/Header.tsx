@@ -1,7 +1,9 @@
 import { useState } from "react";
-import { Menu, X, User, Globe } from "lucide-react";
+import { Menu, X, User } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import LanguageSwitcher from "./LanguageSwitcher";
+import logoGold from "@/assets/logoGOLD.webp";
+
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const {
@@ -11,7 +13,7 @@ const Header = () => {
       <div className="container mx-auto flex items-center justify-between px-4 py-4">
         {/* Logo */}
         <a href="/" className="flex items-center gap-2">
-          <Globe className="h-8 w-8 text-gold" />
+          <img src={logoGold} alt="WTUCEMA Logo" className="h-10 w-10 object-contain" />
           <span className="font-serif text-xl font-bold text-white">WTUCE<span className="text-gold">MA</span>
           </span>
         </a>
