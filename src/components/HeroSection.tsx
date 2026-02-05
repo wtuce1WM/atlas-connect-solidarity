@@ -127,7 +127,7 @@ const HeroSection = () => {
       <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/70" />
 
       {/* Content */}
-      <div className="relative z-10 flex min-h-screen flex-col items-center justify-start px-4 pt-32 pb-12">
+      <div className="relative z-10 flex min-h-screen flex-col items-center justify-center px-4 py-12">
         {/* Logo/Title */}
         <div className="mb-8 text-center">
           <h1 className="mb-2 font-serif text-5xl font-bold tracking-tight text-white md:text-7xl">
