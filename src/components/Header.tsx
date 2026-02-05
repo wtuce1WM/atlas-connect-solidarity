@@ -20,12 +20,6 @@ const Header = () => {
 
         {/* Desktop Nav */}
         <nav className="hidden items-center gap-8 md:flex">
-          <a href="#services" className="text-white/90 transition-colors hover:text-gold">
-            {t("nav.services")}
-          </a>
-          <a href="#jobs" className="text-white/90 transition-colors hover:text-gold">
-            {t("nav.jobs")}
-          </a>
           <a href="#about" className="text-white/90 transition-colors hover:text-gold">
             {t("nav.about")}
           </a>
@@ -55,12 +49,6 @@ const Header = () => {
       {/* Mobile Menu */}
       {isMenuOpen && <div className="border-t border-white/10 bg-black/90 backdrop-blur-lg md:hidden">
           <nav className="container mx-auto flex flex-col gap-4 px-4 py-6">
-            <a href="#services" className="text-white/90 transition-colors hover:text-gold">
-              {t("nav.services")}
-            </a>
-            <a href="#jobs" className="text-white/90 transition-colors hover:text-gold">
-              {t("nav.jobs")}
-            </a>
             <a href="#about" className="text-white/90 transition-colors hover:text-gold">
               {t("nav.about")}
             </a>
