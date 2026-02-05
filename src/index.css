@@ -34,6 +34,10 @@ All colors MUST be HSL.
     --gold: 43 75% 55%;
     --gold-foreground: 0 0% 5%;
 
+    /* WTUCE Blue */
+    --wtuce-blue: 220 100% 40%;
+    --wtuce-blue-foreground: 0 0% 100%;
+
     --muted: 30 15% 92%;
     --muted-foreground: 0 0% 35%;
 
