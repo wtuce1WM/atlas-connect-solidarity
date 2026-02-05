@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import earthVideo from "@/assets/earth-morocco-zoom.mp4";
+import logoGold from "@/assets/logoGOLD.webp";
 
 interface Business {
   id: string;
@@ -290,8 +291,20 @@ const HeroSection = () => {
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {filteredBusinesses.map((business) => (
                   <Link to={`/business/${business.id}`} key={business.id}>
-                    <Card className="group overflow-hidden bg-white/95 backdrop-blur-sm transition-all hover:shadow-lg hover:border-primary/50 h-full">
-                      <CardContent className="p-4">
+                    <Card className="group overflow-hidden bg-white/95 backdrop-blur-sm transition-all hover:shadow-lg hover:border-primary/50 h-full relative">
+                      {/* Background logo for verified businesses */}
+                      {business.wtuce_status === "verified" && (
+                        <div 
+                          className="absolute inset-0 opacity-5 pointer-events-none"
+                          style={{
+                            backgroundImage: `url(${logoGold})`,
+                            backgroundSize: '120px',
+                            backgroundPosition: 'center',
+                            backgroundRepeat: 'no-repeat',
+                          }}
+                        />
+                      )}
+                      <CardContent className="p-4 relative z-10">
                         <div className="mb-2 flex items-start justify-between">
                           <div className="flex-1">
                             <div className="flex items-center gap-2">
