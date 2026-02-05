@@ -295,7 +295,7 @@ const HeroSection = () => {
                       {/* Background logo for verified businesses */}
                       {business.wtuce_status === "verified" && (
                         <div 
-                          className="absolute inset-0 opacity-40 pointer-events-none"
+                          className="absolute inset-0 opacity-60 pointer-events-none"
                           style={{
                             backgroundImage: `url(${logoGold})`,
                             backgroundSize: '120px',
