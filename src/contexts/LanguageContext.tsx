@@ -107,6 +107,18 @@ const translations = {
      "googleReviews.hotelResponse": "Response from hotel:",
      "googleReviews.noResults": "No hotels found for this location. Try a different search.",
  
+     // Directory Search
+     "directory.title": "WTUCE",
+     "directory.titleHighlight": "Business Directory",
+     "directory.description": "Find trusted businesses affiliated with the WTUCE charter. Search by service, category or location.",
+     "directory.searchPlaceholder": "Search services, categories...",
+     "directory.cityPlaceholder": "City (e.g., Marrakech)",
+     "directory.searchButton": "Search",
+     "directory.error": "Error",
+     "directory.searchFailed": "Search failed. Please try again.",
+     "directory.resultsFound": "results found",
+     "directory.visitWebsite": "Visit website",
+
      // Footer
     "footer.description": "Empowering Moroccan communities through accessible work opportunities and trusted services.",
     "footer.services": "Services",
@@ -223,6 +235,18 @@ const translations = {
      "googleReviews.hotelResponse": "Réponse de l'hôtel:",
      "googleReviews.noResults": "Aucun hôtel trouvé pour ce lieu. Essayez une autre recherche.",
  
+     // Directory Search
+     "directory.title": "Annuaire",
+     "directory.titleHighlight": "WTUCE",
+     "directory.description": "Trouvez des entreprises de confiance affiliées à la charte WTUCE. Recherchez par service, catégorie ou lieu.",
+     "directory.searchPlaceholder": "Rechercher services, catégories...",
+     "directory.cityPlaceholder": "Ville (ex: Marrakech)",
+     "directory.searchButton": "Rechercher",
+     "directory.error": "Erreur",
+     "directory.searchFailed": "La recherche a échoué. Veuillez réessayer.",
+     "directory.resultsFound": "résultats trouvés",
+     "directory.visitWebsite": "Visiter le site",
+
      // Footer
     "footer.description": "Autonomiser les communautés marocaines grâce à des opportunités de travail accessibles et des services de confiance.",
     "footer.services": "Services",
@@ -338,6 +362,18 @@ const translations = {
      "googleReviews.hotelResponse": "رد الفندق:",
      "googleReviews.noResults": "لم يتم العثور على فنادق في هذا الموقع. جرب بحثًا مختلفًا.",
  
+     // Directory Search
+     "directory.title": "دليل",
+     "directory.titleHighlight": "WTUCE",
+     "directory.description": "ابحث عن الشركات الموثوقة المنتسبة لميثاق WTUCE. ابحث حسب الخدمة أو الفئة أو الموقع.",
+     "directory.searchPlaceholder": "ابحث عن خدمات، فئات...",
+     "directory.cityPlaceholder": "المدينة (مثال: مراكش)",
+     "directory.searchButton": "بحث",
+     "directory.error": "خطأ",
+     "directory.searchFailed": "فشل البحث. يرجى المحاولة مرة أخرى.",
+     "directory.resultsFound": "نتائج موجودة",
+     "directory.visitWebsite": "زيارة الموقع",
+
      // Footer
      "footer.description": "تمكين المجتمعات المغربية من خلال فرص العمل المتاحة والخدمات الموثوقة.",
      "footer.services": "الخدمات",

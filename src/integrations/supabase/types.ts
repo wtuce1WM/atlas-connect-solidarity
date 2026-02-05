@@ -14,16 +14,95 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      businesses: {
+        Row: {
+          address: string | null
+          categories: string[] | null
+          city: string
+          country: string | null
+          created_at: string
+          description: string | null
+          email: string | null
+          id: string
+          is_featured: boolean | null
+          keywords: string[] | null
+          latitude: number | null
+          logo_url: string | null
+          longitude: number | null
+          name: string
+          phone: string | null
+          priority_score: number | null
+          region: string
+          search_vector: unknown
+          services: string[] | null
+          updated_at: string
+          website: string | null
+          wtuce_status: Database["public"]["Enums"]["wtuce_status"] | null
+        }
+        Insert: {
+          address?: string | null
+          categories?: string[] | null
+          city: string
+          country?: string | null
+          created_at?: string
+          description?: string | null
+          email?: string | null
+          id?: string
+          is_featured?: boolean | null
+          keywords?: string[] | null
+          latitude?: number | null
+          logo_url?: string | null
+          longitude?: number | null
+          name: string
+          phone?: string | null
+          priority_score?: number | null
+          region: string
+          search_vector?: unknown
+          services?: string[] | null
+          updated_at?: string
+          website?: string | null
+          wtuce_status?: Database["public"]["Enums"]["wtuce_status"] | null
+        }
+        Update: {
+          address?: string | null
+          categories?: string[] | null
+          city?: string
+          country?: string | null
+          created_at?: string
+          description?: string | null
+          email?: string | null
+          id?: string
+          is_featured?: boolean | null
+          keywords?: string[] | null
+          latitude?: number | null
+          logo_url?: string | null
+          longitude?: number | null
+          name?: string
+          phone?: string | null
+          priority_score?: number | null
+          region?: string
+          search_vector?: unknown
+          services?: string[] | null
+          updated_at?: string
+          website?: string | null
+          wtuce_status?: Database["public"]["Enums"]["wtuce_status"] | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      calculate_distance: {
+        Args: { lat1: number; lat2: number; lon1: number; lon2: number }
+        Returns: number
+      }
+      show_limit: { Args: never; Returns: number }
+      show_trgm: { Args: { "": string }; Returns: string[] }
     }
     Enums: {
-      [_ in never]: never
+      wtuce_status: "verified" | "pending"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +229,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      wtuce_status: ["verified", "pending"],
+    },
   },
 } as const
