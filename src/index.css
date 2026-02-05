@@ -119,3 +119,17 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+ 
+ /* Arabic font support */
+ .font-arabic {
+   font-family: 'Noto Sans Arabic', 'Segoe UI', Tahoma, sans-serif;
+ }
+ 
+ /* RTL-specific adjustments */
+ [dir="rtl"] {
+   text-align: right;
+ }
+ 
+ [dir="rtl"] .flex-row {
+   flex-direction: row-reverse;
+ }
