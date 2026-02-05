@@ -11,6 +11,7 @@ interface SearchParams {
   query?: string;
   city?: string;
   region?: string;
+  category?: string;
   latitude?: number;
   longitude?: number;
   radiusKm?: number;
@@ -111,18 +112,19 @@ serve(async (req) => {
       query,
       city,
       region,
+      category,
       latitude,
       longitude,
       radiusKm = 30,
-      limit = 20,
+      limit = 50,
       language = "fr",
     }: SearchParams & { language?: string } = await req.json();
 
     let businesses: Business[] = [];
     let searchLevel = "exact";
 
-    // Level 1: Exact full-text search with city filter
-    if (query || city) {
+    // Level 1: Exact full-text search with city and category filter
+    if (query || city || category) {
       const expandedQuery = query ? expandQuery(query) : null;
 
       let queryBuilder = supabase.from("businesses").select("*");
@@ -136,6 +138,10 @@ serve(async (req) => {
 
       if (city) {
         queryBuilder = queryBuilder.ilike("city", city);
+      }
+
+      if (category) {
+        queryBuilder = queryBuilder.eq("main_category", category);
       }
 
       queryBuilder = queryBuilder

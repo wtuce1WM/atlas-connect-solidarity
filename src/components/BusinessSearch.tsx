@@ -1,10 +1,17 @@
 import { useState, useEffect } from "react";
-import { Search, MapPin, Loader2, BadgeCheck, Navigation, Building2 } from "lucide-react";
+import { Search, MapPin, Loader2, BadgeCheck, Navigation, Building2, Filter } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Business {
   id: string;
@@ -33,9 +40,16 @@ interface SearchResult {
   totalResults: number;
 }
 
+const CATEGORIES = [
+  { value: "all", labelFr: "Toutes les catégories", labelEn: "All categories", labelAr: "جميع الفئات" },
+  { value: "Santé", labelFr: "Santé", labelEn: "Health", labelAr: "صحة" },
+  { value: "Hébergement & Tourisme", labelFr: "Hébergement & Tourisme", labelEn: "Accommodation & Tourism", labelAr: "إقامة وسياحة" },
+];
+
 const BusinessSearch = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [cityQuery, setCityQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<SearchResult | null>(null);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
@@ -65,7 +79,7 @@ const BusinessSearch = () => {
   }, []);
 
   const handleSearch = async (isInitial = false) => {
-    if (!isInitial && !searchQuery.trim() && !cityQuery.trim()) {
+    if (!isInitial && !searchQuery.trim() && !cityQuery.trim() && categoryFilter === "all") {
       return;
     }
 
@@ -76,6 +90,7 @@ const BusinessSearch = () => {
         body: {
           query: searchQuery || undefined,
           city: cityQuery || undefined,
+          category: categoryFilter !== "all" ? categoryFilter : undefined,
           latitude: userLocation?.lat,
           longitude: userLocation?.lng,
           language,
@@ -125,40 +140,57 @@ const BusinessSearch = () => {
         </div>
 
         {/* Search Form */}
-        <form onSubmit={handleSubmit} className="mx-auto mb-8 max-w-3xl">
-          <div className="flex flex-col gap-4 md:flex-row">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder={t("directory.searchPlaceholder")}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-lg border border-border bg-background py-3 pl-10 pr-4 text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              />
+        <form onSubmit={handleSubmit} className="mx-auto mb-8 max-w-4xl">
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4 md:flex-row">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder={t("directory.searchPlaceholder")}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full rounded-lg border border-border bg-background py-3 pl-10 pr-4 text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                />
+              </div>
+              <div className="relative flex-1">
+                <MapPin className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder={t("directory.cityPlaceholder")}
+                  value={cityQuery}
+                  onChange={(e) => setCityQuery(e.target.value)}
+                  className="w-full rounded-lg border border-border bg-background py-3 pl-10 pr-4 text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                />
+              </div>
             </div>
-            <div className="relative flex-1">
-              <MapPin className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder={t("directory.cityPlaceholder")}
-                value={cityQuery}
-                onChange={(e) => setCityQuery(e.target.value)}
-                className="w-full rounded-lg border border-border bg-background py-3 pl-10 pr-4 text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              />
+            <div className="flex flex-col gap-4 md:flex-row md:items-center">
+              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                <SelectTrigger className="w-full md:w-64">
+                  <Filter className="mr-2 h-4 w-4 text-muted-foreground" />
+                  <SelectValue placeholder={language === "fr" ? "Catégorie" : language === "ar" ? "فئة" : "Category"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {CATEGORIES.map((cat) => (
+                    <SelectItem key={cat.value} value={cat.value}>
+                      {language === "fr" ? cat.labelFr : language === "ar" ? cat.labelAr : cat.labelEn}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="flex items-center justify-center gap-2 rounded-lg bg-primary px-8 py-3 font-semibold text-primary-foreground transition-all hover:bg-primary/90 disabled:opacity-50"
+              >
+                {isLoading ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <Search className="h-5 w-5" />
+                )}
+                {t("directory.searchButton")}
+              </button>
             </div>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="flex items-center justify-center gap-2 rounded-lg bg-primary px-8 py-3 font-semibold text-primary-foreground transition-all hover:bg-primary/90 disabled:opacity-50"
-            >
-              {isLoading ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
-              ) : (
-                <Search className="h-5 w-5" />
-              )}
-              {t("directory.searchButton")}
-            </button>
           </div>
         </form>
 
