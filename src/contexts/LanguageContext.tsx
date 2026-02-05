@@ -19,8 +19,8 @@ const translations = {
     "nav.joinNow": "Join Now",
     
     // Hero
-    "hero.title": "ONE WORLD",
-    "hero.titleSuffix": "Morocco",
+    "hero.title": "MOROCCO",
+    "hero.titleSuffix": "",
     "hero.subtitle": "Connecting communities through work & services",
     "hero.searchPlaceholder": "Search for jobs, services, or skills...",
     "hero.searchButton": "Search",
@@ -115,8 +115,8 @@ const translations = {
     "nav.joinNow": "Rejoindre",
     
     // Hero
-    "hero.title": "ONE WORLD",
-    "hero.titleSuffix": "Maroc",
+    "hero.title": "MOROCCO",
+    "hero.titleSuffix": "",
     "hero.subtitle": "Connecter les communautés par le travail et les services",
     "hero.searchPlaceholder": "Rechercher des emplois, services ou compétences...",
     "hero.searchButton": "Rechercher",
