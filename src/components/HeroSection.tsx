@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Search, MapPin, Loader2, BadgeCheck, Navigation, Building2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -200,73 +201,58 @@ const HeroSection = () => {
             {/* Business Cards Grid */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {result.businesses.map((business) => (
-                <Card
-                  key={business.id}
-                  className="group overflow-hidden bg-white/95 backdrop-blur-sm transition-all hover:shadow-lg hover:border-primary/50"
-                >
-                  <CardContent className="p-4">
-                    <div className="mb-2 flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
-                            {business.name}
-                          </h3>
-                          {business.wtuce_status === "verified" && (
-                            <Badge className="bg-primary/10 text-primary border-primary/20 flex items-center gap-1 text-xs">
-                              <BadgeCheck className="h-3 w-3" />
-                              WTUCE
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
-                          <MapPin className="h-3 w-3" />
-                          {business.city}, {business.region}
-                          {business.distance_km !== null && (
-                            <span className="ml-1 text-primary font-medium">
-                              ({business.distance_km} km)
-                            </span>
-                          )}
+                <Link to={`/business/${business.id}`} key={business.id}>
+                  <Card className="group overflow-hidden bg-white/95 backdrop-blur-sm transition-all hover:shadow-lg hover:border-primary/50 h-full">
+                    <CardContent className="p-4">
+                      <div className="mb-2 flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
+                              {business.name}
+                            </h3>
+                            {business.wtuce_status === "verified" && (
+                              <Badge className="bg-primary/10 text-primary border-primary/20 flex items-center gap-1 text-xs">
+                                <BadgeCheck className="h-3 w-3" />
+                                WTUCE
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
+                            <MapPin className="h-3 w-3" />
+                            {business.city}, {business.region}
+                            {business.distance_km !== null && (
+                              <span className="ml-1 text-primary font-medium">
+                                ({business.distance_km} km)
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    {business.description && (
-                      <p className="mb-2 text-xs text-muted-foreground line-clamp-2">
-                        {business.description}
-                      </p>
-                    )}
+                      {business.description && (
+                        <p className="mb-2 text-xs text-muted-foreground line-clamp-2">
+                          {business.description}
+                        </p>
+                      )}
 
-                    {/* Categories */}
-                    <div className="mb-2 flex flex-wrap gap-1">
-                      {business.categories.slice(0, 2).map((category, idx) => (
-                        <Badge key={idx} variant="secondary" className="text-xs py-0">
-                          {category}
-                        </Badge>
-                      ))}
-                    </div>
-
-                    {/* Contact */}
-                    {(business.phone || business.website) && (
-                      <div className="flex items-center gap-2 pt-2 border-t border-border text-xs">
-                        {business.phone && (
-                          <a href={`tel:${business.phone}`} className="text-primary hover:underline">
-                            {business.phone}
-                          </a>
-                        )}
-                        {business.website && (
-                          <a
-                            href={business.website}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-primary hover:underline"
-                          >
-                            {t("directory.visitWebsite")}
-                          </a>
-                        )}
+                      {/* Categories */}
+                      <div className="mb-2 flex flex-wrap gap-1">
+                        {business.categories.slice(0, 2).map((category, idx) => (
+                          <Badge key={idx} variant="secondary" className="text-xs py-0">
+                            {category}
+                          </Badge>
+                        ))}
                       </div>
-                    )}
-                  </CardContent>
-                </Card>
+
+                      {/* Contact hint */}
+                      {(business.phone || business.website) && (
+                        <div className="flex items-center gap-2 pt-2 border-t border-border text-xs">
+                          <span className="text-primary">Voir les détails →</span>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </Link>
               ))}
             </div>
           </div>
