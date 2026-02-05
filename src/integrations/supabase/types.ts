@@ -25,10 +25,12 @@ export type Database = {
           email: string | null
           id: string
           is_featured: boolean | null
+          is_regulated_activity: boolean | null
           keywords: string[] | null
           latitude: number | null
           logo_url: string | null
           longitude: number | null
+          main_category: string | null
           name: string
           phone: string | null
           priority_score: number | null
@@ -49,10 +51,12 @@ export type Database = {
           email?: string | null
           id?: string
           is_featured?: boolean | null
+          is_regulated_activity?: boolean | null
           keywords?: string[] | null
           latitude?: number | null
           logo_url?: string | null
           longitude?: number | null
+          main_category?: string | null
           name: string
           phone?: string | null
           priority_score?: number | null
@@ -73,10 +77,12 @@ export type Database = {
           email?: string | null
           id?: string
           is_featured?: boolean | null
+          is_regulated_activity?: boolean | null
           keywords?: string[] | null
           latitude?: number | null
           logo_url?: string | null
           longitude?: number | null
+          main_category?: string | null
           name?: string
           phone?: string | null
           priority_score?: number | null
