@@ -13,8 +13,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import earthVideo from "@/assets/earth-morocco-zoom.mp4";
 import logoGold from "@/assets/logoGOLD.webp";
+import Logo3D from "@/components/Logo3D";
 
 interface Business {
   id: string;
@@ -143,19 +143,11 @@ const HeroSection = () => {
 
   return (
     <section className="relative min-h-screen w-full overflow-hidden">
-      {/* Video Background */}
-      <video
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="absolute inset-0 h-full w-full object-cover"
-      >
-        <source src={earthVideo} type="video/mp4" />
-      </video>
+      {/* 3D Logo Background */}
+      <Logo3D />
 
       {/* Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/70" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-black/60" />
 
       {/* Content */}
       <div className="relative z-10 flex min-h-screen flex-col items-center px-4 py-24">
