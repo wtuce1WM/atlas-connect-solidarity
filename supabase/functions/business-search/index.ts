@@ -141,7 +141,8 @@ serve(async (req) => {
       }
 
       if (category) {
-        queryBuilder = queryBuilder.eq("main_category", category);
+        // Search in main_category OR in the categories array
+        queryBuilder = queryBuilder.or(`main_category.eq.${category},categories.cs.{"${category}"}`);
       }
 
       queryBuilder = queryBuilder
