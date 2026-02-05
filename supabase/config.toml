@@ -1,7 +1,10 @@
 project_id = "plnphgdrawpsnumnejzc"
- 
- [functions.hotel-meta-search]
- verify_jwt = false
- 
- [functions.google-hotel-reviews]
- verify_jwt = false
+
+[functions.hotel-meta-search]
+verify_jwt = false
+
+[functions.google-hotel-reviews]
+verify_jwt = false
+
+[functions.business-search]
+verify_jwt = false
