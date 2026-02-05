@@ -1,11 +1,12 @@
 import { createContext, useContext, useState, ReactNode } from "react";
 
-type Language = "en" | "fr";
+ type Language = "en" | "fr" | "ar";
 
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
   t: (key: string) => string;
+   isRTL: boolean;
 }
 
 const translations = {
@@ -241,6 +242,121 @@ const translations = {
     "footer.terms": "Conditions d'utilisation",
     "footer.cookies": "Politique des cookies",
   },
+   ar: {
+     // Header
+     "nav.services": "الخدمات",
+     "nav.jobs": "الوظائف",
+     "nav.about": "من نحن",
+     "nav.contact": "اتصل بنا",
+     "nav.signIn": "تسجيل الدخول",
+     "nav.joinNow": "انضم الآن",
+     
+     // Hero
+     "hero.title": "ONE WORLD",
+     "hero.titleSuffix": "المغرب",
+     "hero.subtitle": "ربط المجتمعات من خلال العمل والخدمات",
+     "hero.searchPlaceholder": "ابحث عن وظائف، خدمات، أو مهارات...",
+     "hero.searchButton": "بحث",
+     "hero.scrollText": "استكشف الخدمات",
+     "hero.tags.artisans": "حرفيون",
+     "hero.tags.homeServices": "خدمات منزلية",
+     "hero.tags.teaching": "تعليم",
+     "hero.tags.healthcare": "رعاية صحية",
+     "hero.tags.construction": "بناء",
+     
+     // Services Section
+     "services.title": "استكشف",
+     "services.titleServices": "الخدمات",
+     "services.titleAnd": "و",
+     "services.titleJobs": "الوظائف",
+     "services.description": "تصفح الفئات للعثور على محترفين مهرة أو اكتشف فرصًا لمشاركة مواهبك مع مجتمعك.",
+     "services.providers": "مقدمي الخدمات",
+     
+     // Service Categories
+     "category.construction": "البناء",
+     "category.construction.desc": "بناؤون وعمال البناء",
+     "category.healthcare": "الرعاية الصحية",
+     "category.healthcare.desc": "ممرضون ومقدمو الرعاية",
+     "category.education": "التعليم",
+     "category.education.desc": "معلمون ومدرسون خصوصيون",
+     "category.artisans": "الحرفيون",
+     "category.artisans.desc": "الحرف التقليدية والمنتجات اليدوية",
+     "category.repairs": "الإصلاحات",
+     "category.repairs.desc": "سباكة، كهرباء، وأجهزة",
+     "category.transport": "النقل",
+     "category.transport.desc": "خدمات التوصيل والنقل",
+     "category.agriculture": "الزراعة",
+     "category.agriculture.desc": "خدمات الزراعة والحدائق",
+     "category.catering": "التموين",
+     "category.catering.desc": "طباخون وإعداد الطعام",
+     "category.photography": "التصوير",
+     "category.photography.desc": "تصوير المناسبات والبورتريه",
+     "category.beauty": "الجمال",
+     "category.beauty.desc": "تصفيف الشعر والمكياج والعناية",
+     "category.cleaning": "التنظيف",
+     "category.cleaning.desc": "تنظيف المنازل والمكاتب",
+     "category.business": "الأعمال",
+     "category.business.desc": "دعم إداري ومكتبي",
+     
+     // Stats
+     "stats.providers": "مقدمو الخدمات",
+     "stats.cities": "مدن مغطاة",
+     "stats.jobs": "أعمال منجزة",
+     "stats.satisfaction": "نسبة الرضا",
+     
+     // Hotel Search
+     "hotel.title": "ابحث عن",
+     "hotel.titleHighlight": "روابط حجز الفنادق",
+     "hotel.description": "ابحث عن أي فندق للعثور على روابط الحجز عبر منصات متعددة بما في ذلك Booking.com وExpedia وHotels.com والمزيد.",
+     "hotel.namePlaceholder": "اسم الفندق (مثال: فور سيزونز مراكش)",
+     "hotel.locationPlaceholder": "الموقع (اختياري)",
+     "hotel.searchButton": "بحث الفنادق",
+     "hotel.error": "خطأ",
+     "hotel.nameRequired": "يرجى إدخال اسم الفندق",
+     "hotel.searchFailed": "فشل البحث عن الفندق. يرجى المحاولة مرة أخرى.",
+     "hotel.foundOn": "موجود على",
+     "hotel.platforms": "منصات",
+     "hotel.noResults": "لم يتم العثور على روابط حجز لهذا الفندق. جرب اسمًا أكثر تحديدًا أو تحقق من الإملاء.",
+ 
+     // Google Hotel Reviews
+     "googleReviews.title": "اكتشف الفنادق مع",
+     "googleReviews.titleHighlight": "تقييمات Google",
+     "googleReviews.description": "ابحث عن الفنادق حسب الموقع واطلع على تقييمات Google الحقيقية لمساعدتك في اتخاذ أفضل قرار.",
+     "googleReviews.locationLabel": "الموقع",
+     "googleReviews.locationPlaceholder": "مثال: مراكش، باريس، بانكوك",
+     "googleReviews.checkIn": "تسجيل الوصول",
+     "googleReviews.checkOut": "تسجيل المغادرة",
+     "googleReviews.adults": "البالغون",
+     "googleReviews.searchButton": "بحث",
+     "googleReviews.error": "خطأ",
+     "googleReviews.locationRequired": "يرجى إدخال موقع",
+     "googleReviews.searchFailed": "فشل البحث عن الفنادق. يرجى المحاولة مرة أخرى.",
+     "googleReviews.reviewsCount": "تقييم",
+     "googleReviews.perNight": "ليلة",
+     "googleReviews.total": "الإجمالي",
+     "googleReviews.guestReviews": "تقييمات الضيوف",
+     "googleReviews.hotelResponse": "رد الفندق:",
+     "googleReviews.noResults": "لم يتم العثور على فنادق في هذا الموقع. جرب بحثًا مختلفًا.",
+ 
+     // Footer
+     "footer.description": "تمكين المجتمعات المغربية من خلال فرص العمل المتاحة والخدمات الموثوقة.",
+     "footer.services": "الخدمات",
+     "footer.findServices": "البحث عن خدمات",
+     "footer.postJob": "نشر وظيفة",
+     "footer.becomeProvider": "كن مقدم خدمة",
+     "footer.businessSolutions": "حلول الأعمال",
+     "footer.company": "الشركة",
+     "footer.aboutUs": "من نحن",
+     "footer.ourMission": "مهمتنا",
+     "footer.careers": "الوظائف",
+     "footer.press": "الصحافة",
+     "footer.contact": "اتصل بنا",
+     "footer.location": "الدار البيضاء، المغرب",
+     "footer.rights": "جميع الحقوق محفوظة.",
+     "footer.privacy": "سياسة الخصوصية",
+     "footer.terms": "شروط الخدمة",
+     "footer.cookies": "سياسة ملفات تعريف الارتباط",
+   },
 };
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -252,8 +368,10 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     return translations[language][key as keyof typeof translations.en] || key;
   };
 
+   const isRTL = language === "ar";
+ 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+     <LanguageContext.Provider value={{ language, setLanguage, t, isRTL }}>
       {children}
     </LanguageContext.Provider>
   );
