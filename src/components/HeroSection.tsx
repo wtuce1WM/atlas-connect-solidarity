@@ -149,8 +149,8 @@ const HeroSection = () => {
       <div className="relative z-10 flex min-h-screen flex-col items-center px-4 py-24">
         {/* Logo/Title */}
         <div className="mb-8 text-center">
-          <h1 className="mb-2 font-serif text-5xl font-bold tracking-tight text-white md:text-7xl">
-            <span className="text-gold">{t("hero.title")}</span> {t("hero.titleSuffix")}
+          <h1 className="mb-2 font-serif text-5xl font-bold uppercase tracking-tight text-white md:text-7xl">
+            <span className="text-gold">ONE WORLD</span> MOROCCO
           </h1>
           <p className="text-lg text-white/90 md:text-xl">
             {t("hero.subtitle")}
