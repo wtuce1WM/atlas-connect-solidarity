@@ -13,9 +13,9 @@ const Footer = () => {
           <div>
             <div className="mb-4 flex items-center gap-2">
               <img src={logoGold} alt="WTUCEMA Logo" className="h-10 w-10 object-contain" />
-              <span className="font-serif text-xl font-bold">
-                WTUCE<span className="text-gold">MA</span>
-              </span>
+            <span className="font-serif text-xl font-bold">
+              ONE WORLD <span className="text-gold">MOROCCO</span>
+            </span>
             </div>
             <p className="mb-6 text-background/70">
               {t("footer.description")}
