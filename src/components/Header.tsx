@@ -14,7 +14,7 @@ const Header = () => {
         {/* Logo */}
         <a href="/" className="flex items-center gap-2">
           <img src={logoGold} alt="WTUCEMA Logo" className="h-10 w-10 object-contain" />
-          <span className="font-serif text-xl font-bold text-white">ONE WORLD <span className="text-gold">MOROCCO</span>
+          <span className="font-serif text-xl font-bold"><span className="text-gold">ONE WORLD</span> <span className="text-white">MOROCCO</span>
           </span>
         </a>
 
