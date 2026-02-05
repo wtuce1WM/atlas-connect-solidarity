@@ -2,7 +2,7 @@
  
  const corsHeaders = {
    'Access-Control-Allow-Origin': '*',
-   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
  };
  
  serve(async (req) => {
@@ -36,7 +36,7 @@
  
      console.log(`Searching hotels in: ${location}, check_in: ${check_in}, check_out: ${check_out}`);
  
-     const params = new URLSearchParams({ location, check_in, check_out });
+     const params = new URLSearchParams({ query: location, check_in, check_out });
      if (adults) params.append('adults', adults.toString());
      if (currency) params.append('currency', currency);
      if (min_rating) params.append('min_rating', min_rating.toString());
@@ -45,7 +45,7 @@
      const response = await fetch(`https://api.stayapi.com/v1/google_reviews/search-and-review?${params.toString()}`, {
        method: 'GET',
        headers: {
-         'x-api-key': STAYAPI_KEY,
+         'X-API-Key': STAYAPI_KEY,
          'Content-Type': 'application/json',
        },
      });
