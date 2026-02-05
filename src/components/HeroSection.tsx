@@ -291,7 +291,7 @@ const HeroSection = () => {
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {filteredBusinesses.map((business) => (
                   <Link to={`/business/${business.id}`} key={business.id}>
-                    <Card className="group overflow-hidden bg-white/95 backdrop-blur-sm transition-all hover:shadow-lg hover:border-primary/50 h-full relative">
+                    <Card className="group overflow-hidden bg-white/80 backdrop-blur-sm transition-all hover:shadow-lg hover:border-primary/50 h-full relative">
                       {/* Background logo for verified businesses */}
                       {business.wtuce_status === "verified" && (
                         <div 
