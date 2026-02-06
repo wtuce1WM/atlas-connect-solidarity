@@ -334,7 +334,7 @@ const CityMap = () => {
             </div>
 
             {/* Business list */}
-            <div className="max-h-[600px] overflow-y-auto space-y-3">
+            <div className="max-h-[800px] overflow-y-auto space-y-3">
               <h2 className="text-lg font-semibold text-foreground sticky top-0 bg-background py-2 z-10">
                 Entreprises ({filteredBusinesses.length})
               </h2>
