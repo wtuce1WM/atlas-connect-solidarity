@@ -387,9 +387,10 @@ const BusinessSearch = () => {
                     </div>
 
                     {business.description && (
-                      <p className="mb-3 text-sm text-muted-foreground line-clamp-2">
-                        {business.description.replace(/<[^>]*>/g, '')}
-                      </p>
+                      <div 
+                        className="mb-3 text-sm text-muted-foreground line-clamp-2 prose prose-sm max-w-none prose-p:m-0 prose-headings:m-0"
+                        dangerouslySetInnerHTML={{ __html: business.description }}
+                      />
                     )}
 
                     {/* Categories */}
