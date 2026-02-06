@@ -179,11 +179,11 @@ const CitiesSection = () => {
                       </h3>
                     </div>
                     {city.region && (
-                      <p className="text-xs text-muted-foreground mb-2 truncate">
+                      <p className="text-xs text-gray-400 mb-2 truncate">
                         {city.region}
                       </p>
                     )}
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-1 text-xs text-gray-400">
                       <Building2 className="h-3 w-3" />
                       <span>
                         {city.businessCount}{" "}
