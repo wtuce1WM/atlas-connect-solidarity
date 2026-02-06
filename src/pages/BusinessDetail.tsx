@@ -85,7 +85,7 @@ const BusinessDetail = () => {
   const isVerified = business.wtuce_status === "verified";
 
   return (
-    <div className={`min-h-screen ${isVerified ? "bg-gradient-to-b from-black to-gold" : "bg-background"}`}>
+    <div className={`min-h-screen ${isVerified ? "bg-gradient-to-b from-black from-50% to-gold" : "bg-background"}`}>
       <Header />
       
       <main className="container mx-auto px-4 py-24">
