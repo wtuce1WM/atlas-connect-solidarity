@@ -201,6 +201,7 @@ export type Database = {
           name_ar: string | null
           name_en: string | null
           name_fr: string
+          priority_score: number | null
           region: string | null
           sort_order: number | null
           updated_at: string | null
@@ -214,6 +215,7 @@ export type Database = {
           name_ar?: string | null
           name_en?: string | null
           name_fr: string
+          priority_score?: number | null
           region?: string | null
           sort_order?: number | null
           updated_at?: string | null
@@ -227,6 +229,7 @@ export type Database = {
           name_ar?: string | null
           name_en?: string | null
           name_fr?: string
+          priority_score?: number | null
           region?: string | null
           sort_order?: number | null
           updated_at?: string | null
