@@ -557,7 +557,59 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Logo */}
+        {/* Status, Priority & Featured - Section principale */}
+        <div className="p-4 border rounded-lg bg-muted/30 space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="wtuce_status">Statut</Label>
+              <Select
+                value={formData.wtuce_status}
+                onValueChange={(value) => handleChange("wtuce_status", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pending">En attente</SelectItem>
+                  <SelectItem value="verified">Vérifié</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="priority_score">Score de priorité</Label>
+              <Input
+                id="priority_score"
+                type="number"
+                value={formData.priority_score}
+                onChange={(e) => handleChange("priority_score", e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="logo_url">URL du logo</Label>
+              <Input
+                id="logo_url"
+                value={formData.logo_url}
+                onChange={(e) => handleChange("logo_url", e.target.value)}
+                placeholder="https://"
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="is_featured"
+              checked={formData.is_featured}
+              onChange={(e) => handleChange("is_featured", e.target.checked)}
+              className="h-4 w-4"
+            />
+            <Label htmlFor="is_featured">Entreprise mise en avant</Label>
+          </div>
+        </div>
+
+        {/* Logo Upload */}
         <div className="space-y-2">
           <Label className="text-base font-semibold">Logo</Label>
           <LogoUploader
@@ -1118,55 +1170,6 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
           />
         </div>
 
-        {/* Status & Priority */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="wtuce_status">Statut</Label>
-            <Select
-              value={formData.wtuce_status}
-              onValueChange={(value) => handleChange("wtuce_status", value)}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="pending">En attente</SelectItem>
-                <SelectItem value="verified">Vérifié</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="priority_score">Score de priorité</Label>
-            <Input
-              id="priority_score"
-              type="number"
-              value={formData.priority_score}
-              onChange={(e) => handleChange("priority_score", e.target.value)}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="logo_url">URL du logo</Label>
-            <Input
-              id="logo_url"
-              value={formData.logo_url}
-              onChange={(e) => handleChange("logo_url", e.target.value)}
-              placeholder="https://"
-            />
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            id="is_featured"
-            checked={formData.is_featured}
-            onChange={(e) => handleChange("is_featured", e.target.checked)}
-            className="h-4 w-4"
-          />
-          <Label htmlFor="is_featured">Entreprise mise en avant</Label>
-        </div>
 
         {/* Actions */}
         <div className="flex justify-end gap-4 pt-4 border-t">
