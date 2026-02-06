@@ -76,19 +76,26 @@ const BusinessSearch = () => {
   const { t, language } = useLanguage();
   const { toast } = useToast();
 
-  // Load available categories from database
+  // Load available categories from database using RPC or direct query
   useEffect(() => {
     const fetchCategories = async () => {
+      // Use a more efficient approach: select distinct main_category
+      // We need to fetch all rows but only the main_category column
       const { data, error } = await supabase
         .from("businesses")
         .select("main_category")
-        .not("main_category", "is", null);
+        .not("main_category", "is", null)
+        .order("main_category");
       
       if (!error && data) {
-        const uniqueCategories = [...new Set(data.map(b => b.main_category).filter(Boolean))] as string[];
-        // Sort alphabetically
+        // Get unique values - need Set because Supabase doesn't support DISTINCT in JS client
+        const uniqueCategories = [...new Set(data.map(b => b.main_category))] as string[];
+        console.log("Fetched categories:", uniqueCategories);
+        // Sort alphabetically with French locale
         uniqueCategories.sort((a, b) => a.localeCompare(b, 'fr'));
         setAvailableCategories(uniqueCategories);
+      } else if (error) {
+        console.error("Error fetching categories:", error);
       }
     };
     fetchCategories();
