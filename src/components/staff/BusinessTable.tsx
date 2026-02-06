@@ -1,0 +1,126 @@
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Edit, Trash2, ExternalLink } from "lucide-react";
+import type { Tables } from "@/integrations/supabase/types";
+
+type Business = Tables<"businesses">;
+
+interface BusinessTableProps {
+  businesses: Business[];
+  loading: boolean;
+  onEdit: (business: Business) => void;
+  onDelete: (id: string) => void;
+}
+
+const BusinessTable = ({ businesses, loading, onEdit, onDelete }: BusinessTableProps) => {
+  if (loading) {
+    return (
+      <div className="bg-background rounded-lg border p-8 text-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gold mx-auto"></div>
+        <p className="text-muted-foreground mt-4">Chargement des entreprises...</p>
+      </div>
+    );
+  }
+
+  if (businesses.length === 0) {
+    return (
+      <div className="bg-background rounded-lg border p-8 text-center">
+        <p className="text-muted-foreground">Aucune entreprise trouvée.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-background rounded-lg border overflow-hidden">
+      <div className="overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Nom</TableHead>
+              <TableHead>Ville</TableHead>
+              <TableHead>Catégorie</TableHead>
+              <TableHead>Statut</TableHead>
+              <TableHead>Contact</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {businesses.map((business) => (
+              <TableRow key={business.id}>
+                <TableCell>
+                  <div className="font-medium">{business.name}</div>
+                  {business.website && (
+                    <a
+                      href={business.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-gold hover:underline inline-flex items-center gap-1"
+                    >
+                      Site web <ExternalLink className="h-3 w-3" />
+                    </a>
+                  )}
+                </TableCell>
+                <TableCell>
+                  <div>{business.city}</div>
+                  <div className="text-sm text-muted-foreground">{business.region}</div>
+                </TableCell>
+                <TableCell>
+                  {business.main_category || "-"}
+                </TableCell>
+                <TableCell>
+                  <Badge
+                    variant={business.wtuce_status === "verified" ? "default" : "secondary"}
+                    className={
+                      business.wtuce_status === "verified"
+                        ? "bg-green-500/10 text-green-600 hover:bg-green-500/20"
+                        : "bg-orange-500/10 text-orange-600 hover:bg-orange-500/20"
+                    }
+                  >
+                    {business.wtuce_status === "verified" ? "Vérifié" : "En attente"}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  <div className="text-sm">
+                    {business.phone && <div>{business.phone}</div>}
+                    {business.email && (
+                      <div className="text-muted-foreground">{business.email}</div>
+                    )}
+                  </div>
+                </TableCell>
+                <TableCell className="text-right">
+                  <div className="flex justify-end gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onEdit(business)}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onDelete(business.id)}
+                      className="text-destructive hover:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  );
+};
+
+export default BusinessTable;
