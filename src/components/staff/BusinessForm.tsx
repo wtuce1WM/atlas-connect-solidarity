@@ -80,6 +80,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
     is_featured: business?.is_featured || false,
     priority_score: business?.priority_score?.toString() || "0",
     logo_url: business?.logo_url || "",
+    ice: (business as any)?.ice || "",
   });
 
   const handleChange = (field: string, value: string | boolean) => {
@@ -110,6 +111,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
       is_featured: formData.is_featured,
       priority_score: parseInt(formData.priority_score) || 0,
       logo_url: formData.logo_url || null,
+      ice: formData.ice || null,
     };
 
     try {
@@ -178,23 +180,39 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="main_category">Catégorie principale</Label>
-            <Select
-              value={formData.main_category}
-              onValueChange={(value) => handleChange("main_category", value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Sélectionner..." />
-              </SelectTrigger>
-              <SelectContent>
-                {CATEGORIES.map((cat) => (
-                  <SelectItem key={cat} value={cat}>
-                    {cat}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Label htmlFor="ice">ICE (max 20 chiffres)</Label>
+            <Input
+              id="ice"
+              value={formData.ice}
+              onChange={(e) => {
+                const value = e.target.value.replace(/\D/g, "").slice(0, 20);
+                handleChange("ice", value);
+              }}
+              placeholder="000000000000000"
+              maxLength={20}
+              pattern="[0-9]*"
+              inputMode="numeric"
+            />
           </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="main_category">Catégorie principale</Label>
+          <Select
+            value={formData.main_category}
+            onValueChange={(value) => handleChange("main_category", value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Sélectionner..." />
+            </SelectTrigger>
+            <SelectContent>
+              {CATEGORIES.map((cat) => (
+                <SelectItem key={cat} value={cat}>
+                  {cat}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="space-y-2">
