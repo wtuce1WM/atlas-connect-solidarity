@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, MapPin, Phone, Mail, Globe, BadgeCheck, Loader2, ChevronLeft, ChevronRight, FileText, Download, ShoppingBag } from "lucide-react";
+import { ArrowLeft, MapPin, Phone, Mail, Globe, BadgeCheck, Loader2, ChevronLeft, ChevronRight, FileText, Download, ShoppingBag, Facebook, Instagram, Linkedin, Youtube, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Badge } from "@/components/ui/badge";
@@ -33,6 +33,16 @@ interface Business {
   pdf_url: string | null;
   label1_url: string | null;
   online_shop_url: string | null;
+  facebook_url: string | null;
+  instagram_url: string | null;
+  twitter_url: string | null;
+  linkedin_url: string | null;
+  youtube_url: string | null;
+  tiktok_url: string | null;
+  whatsapp: string | null;
+  tripadvisor_url: string | null;
+  booking_url: string | null;
+  google_maps_url: string | null;
 }
 
 const BusinessDetail = () => {
@@ -375,6 +385,98 @@ const BusinessDetail = () => {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Social Media */}
+            {(business.facebook_url || business.instagram_url || business.linkedin_url || business.youtube_url || business.tiktok_url || business.whatsapp || business.twitter_url) && (
+              <Card>
+                <CardContent className="p-6">
+                  <h2 className="text-xl font-semibold mb-4">Réseaux sociaux</h2>
+                  <div className="flex flex-wrap gap-3">
+                    {business.facebook_url && (
+                      <a
+                        href={business.facebook_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center w-10 h-10 rounded-full bg-[#1877F2] text-white hover:opacity-80 transition-opacity"
+                        title="Facebook"
+                      >
+                        <Facebook className="h-5 w-5" />
+                      </a>
+                    )}
+                    {business.instagram_url && (
+                      <a
+                        href={business.instagram_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] text-white hover:opacity-80 transition-opacity"
+                        title="Instagram"
+                      >
+                        <Instagram className="h-5 w-5" />
+                      </a>
+                    )}
+                    {business.linkedin_url && (
+                      <a
+                        href={business.linkedin_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center w-10 h-10 rounded-full bg-[#0A66C2] text-white hover:opacity-80 transition-opacity"
+                        title="LinkedIn"
+                      >
+                        <Linkedin className="h-5 w-5" />
+                      </a>
+                    )}
+                    {business.youtube_url && (
+                      <a
+                        href={business.youtube_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center w-10 h-10 rounded-full bg-[#FF0000] text-white hover:opacity-80 transition-opacity"
+                        title="YouTube"
+                      >
+                        <Youtube className="h-5 w-5" />
+                      </a>
+                    )}
+                    {business.tiktok_url && (
+                      <a
+                        href={business.tiktok_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center w-10 h-10 rounded-full bg-black text-white hover:opacity-80 transition-opacity"
+                        title="TikTok"
+                      >
+                        <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1-.1z"/>
+                        </svg>
+                      </a>
+                    )}
+                    {business.twitter_url && (
+                      <a
+                        href={business.twitter_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center w-10 h-10 rounded-full bg-black text-white hover:opacity-80 transition-opacity"
+                        title="X (Twitter)"
+                      >
+                        <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                        </svg>
+                      </a>
+                    )}
+                    {business.whatsapp && (
+                      <a
+                        href={`https://wa.me/${business.whatsapp.replace(/[^0-9]/g, '')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center w-10 h-10 rounded-full bg-[#25D366] text-white hover:opacity-80 transition-opacity"
+                        title="WhatsApp"
+                      >
+                        <MessageCircle className="h-5 w-5" />
+                      </a>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {/* CTA */}
             {business.website && (
