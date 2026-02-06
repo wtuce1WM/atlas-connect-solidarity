@@ -171,8 +171,8 @@ const HeroSection = () => {
         style={{ backgroundImage: `url(${heroBackground})` }}
       />
 
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-black/60" />
+      {/* Overlay with gradient to black at bottom */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-black" />
 
       {/* Content */}
       <div className="relative z-10 flex min-h-screen flex-col items-center px-4 py-24">
