@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, MapPin, Phone, Mail, Globe, BadgeCheck, Loader2, ChevronLeft, ChevronRight, FileText, Download, ShoppingBag, Facebook, Instagram, Linkedin, Youtube, MessageCircle } from "lucide-react";
+import { ArrowLeft, MapPin, Phone, Mail, Globe, BadgeCheck, Loader2, ChevronLeft, ChevronRight, FileText, Download, ShoppingBag, Facebook, Instagram, Linkedin, Youtube, MessageCircle, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +12,22 @@ import GoogleMapEmbed from "@/components/GoogleMapEmbed";
 import ImageLightbox from "@/components/ImageLightbox";
 import logoGold from "@/assets/logoGOLD.webp";
 import relaisChateauxLogo from "@/assets/relais-chateaux-logo.png";
+
+interface OpeningHour {
+  open: string;
+  close: string;
+  closed: boolean;
+}
+
+interface OpeningHours {
+  monday?: OpeningHour;
+  tuesday?: OpeningHour;
+  wednesday?: OpeningHour;
+  thursday?: OpeningHour;
+  friday?: OpeningHour;
+  saturday?: OpeningHour;
+  sunday?: OpeningHour;
+}
 
 interface Business {
   id: string;
@@ -44,6 +60,7 @@ interface Business {
   booking_url: string | null;
   google_maps_url: string | null;
   video_1_url: string | null;
+  opening_hours: OpeningHours | null;
 }
 
 // Helper to convert video URL to embeddable format
@@ -86,7 +103,10 @@ const BusinessDetail = () => {
       if (error) {
         console.error("Error fetching business:", error);
       } else {
-        setBusiness(data);
+        setBusiness({
+          ...data,
+          opening_hours: data.opening_hours as OpeningHours | null
+        });
       }
       setIsLoading(false);
     };
@@ -539,6 +559,60 @@ const BusinessDetail = () => {
                 Réserver maintenant
               </a>
             )}
+
+            {/* Opening Hours */}
+            {business.opening_hours && Object.keys(business.opening_hours).length > 0 && (() => {
+              const dayNames: { [key: string]: string } = {
+                monday: "Lundi",
+                tuesday: "Mardi",
+                wednesday: "Mercredi",
+                thursday: "Jeudi",
+                friday: "Vendredi",
+                saturday: "Samedi",
+                sunday: "Dimanche"
+              };
+              const dayOrder = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+              const hours = business.opening_hours as OpeningHours;
+              
+              // Check if at least one day has data
+              const hasAnyHours = dayOrder.some(day => {
+                const dayHours = hours[day as keyof OpeningHours];
+                return dayHours && (dayHours.closed || (dayHours.open && dayHours.close));
+              });
+              
+              if (!hasAnyHours) return null;
+              
+              return (
+                <Card>
+                  <CardContent className="p-6">
+                    <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                      <Clock className="h-5 w-5" />
+                      Horaires d'ouverture
+                    </h2>
+                    <div className="space-y-2">
+                      {dayOrder.map(day => {
+                        const dayHours = hours[day as keyof OpeningHours];
+                        if (!dayHours) return null;
+                        
+                        return (
+                          <div key={day} className="flex justify-between text-sm">
+                            <span className="font-medium">{dayNames[day]}</span>
+                            <span className="text-muted-foreground">
+                              {dayHours.closed 
+                                ? "Fermé" 
+                                : dayHours.open && dayHours.close 
+                                  ? `${dayHours.open} - ${dayHours.close}`
+                                  : "—"
+                              }
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })()}
           </div>
         </div>
       </main>
