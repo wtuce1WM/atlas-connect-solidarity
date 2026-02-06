@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import logoGold from "@/assets/logoGOLD.webp";
+import logoGoldOverlay from "@/assets/logoGOLD-overlay.webp";
 import heroBackground from "@/assets/hero-marrakech.jpg";
 
 interface Business {
@@ -173,6 +174,15 @@ const HeroSection = () => {
 
       {/* Overlay with gradient to black at bottom */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-black" />
+
+      {/* Centered Gold Logo Overlay */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <img 
+          src={logoGoldOverlay} 
+          alt="" 
+          className="w-[400px] h-[400px] md:w-[500px] md:h-[500px] object-contain opacity-30"
+        />
+      </div>
 
       {/* Content */}
       <div className="relative z-10 flex min-h-screen flex-col items-center px-4 py-24">
