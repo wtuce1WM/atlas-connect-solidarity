@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -75,152 +75,7 @@ const CATEGORIES = [
   "Technologie",
 ];
 
-const SUBCATEGORIES: Record<string, string[]> = {
-  "Hôtellerie": [
-    "Hôtel de luxe",
-    "Riad",
-    "Maison d'hôtes",
-    "Auberge",
-    "Resort",
-    "Appartement meublé",
-    "Camping",
-    "Éco-lodge",
-  ],
-  "Restauration": [
-    "Restaurant gastronomique",
-    "Restaurant traditionnel",
-    "Café",
-    "Fast-food",
-    "Pâtisserie",
-    "Traiteur",
-    "Bar à jus",
-    "Food truck",
-  ],
-  "Transport": [
-    "Location de voitures",
-    "Taxi",
-    "VTC",
-    "Transport touristique",
-    "Navette aéroport",
-    "Location de motos/scooters",
-    "Chauffeur privé",
-  ],
-  "Artisanat": [
-    "Poterie",
-    "Tapis",
-    "Cuir",
-    "Bijouterie",
-    "Bois",
-    "Fer forgé",
-    "Textile",
-    "Zellige",
-  ],
-  "Commerce": [
-    "Épicerie fine",
-    "Boutique mode",
-    "Librairie",
-    "Galerie d'art",
-    "Souk",
-    "Centre commercial",
-    "E-commerce",
-  ],
-  "Services": [
-    "Conciergerie",
-    "Traduction",
-    "Guide touristique",
-    "Photographe",
-    "Événementiel",
-    "Consulting",
-    "Assurance",
-    "Banque",
-  ],
-  "Tourisme": [
-    "Agence de voyage",
-    "Excursions",
-    "Circuits",
-    "Trekking",
-    "Safari désert",
-    "Quad/Buggy",
-    "Parapente",
-    "Croisière",
-  ],
-  "Agriculture": [
-    "Ferme bio",
-    "Coopérative agricole",
-    "Huile d'argan",
-    "Miel",
-    "Dattes",
-    "Olives",
-    "Safran",
-    "Produits du terroir",
-  ],
-  "Industrie": [
-    "Agroalimentaire",
-    "Textile industriel",
-    "BTP",
-    "Énergie renouvelable",
-    "Métallurgie",
-    "Chimie",
-  ],
-  "Éducation": [
-    "École de langues",
-    "École de cuisine",
-    "Formation professionnelle",
-    "Université",
-    "Centre culturel",
-    "Bibliothèque",
-  ],
-  "Santé": [
-    "Clinique",
-    "Cabinet médical",
-    "Pharmacie",
-    "Laboratoire d'analyses",
-    "Centre de radiologie",
-    "Dentiste",
-    "Ophtalmologue",
-    "Kinésithérapeute",
-  ],
-  "Sport & Loisirs": [
-    "Golf",
-    "Surf",
-    "Kitesurf",
-    "Équitation",
-    "Tennis",
-    "Fitness",
-    "Piscine",
-    "Randonnée",
-    "Yoga",
-    "Plongée",
-  ],
-  "Bien-être": [
-    "Spa",
-    "Hammam",
-    "Massage",
-    "Soins beauté",
-    "Coiffure",
-    "Centre de thalasso",
-    "Médecine traditionnelle",
-    "Naturopathie",
-  ],
-  "Culture": [
-    "Musée",
-    "Galerie",
-    "Théâtre",
-    "Festival",
-    "Artiste",
-    "Musicien",
-    "Danse",
-    "Patrimoine",
-  ],
-  "Technologie": [
-    "Développement web",
-    "Marketing digital",
-    "Startup",
-    "Coworking",
-    "E-services",
-    "IT Consulting",
-  ],
-};
+// Subcategories and services are now fetched from the database
 
 const SERVICES: Record<string, string[]> = {
   "Hôtellerie": [
@@ -385,6 +240,28 @@ const SERVICES: Record<string, string[]> = {
 const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  
+  // Dynamic subcategories and services from database
+  const [dbCategories, setDbCategories] = useState<Array<{ id: string; name_fr: string }>>([]);
+  const [dbSubcategories, setDbSubcategories] = useState<Array<{ id: string; name_fr: string; category_id: string }>>([]);
+  const [dbServices, setDbServices] = useState<Array<{ id: string; name_fr: string; subcategory_id: string }>>([]);
+
+  // Fetch categories, subcategories, and services from database
+  useEffect(() => {
+    const fetchTaxonomy = async () => {
+      const [catRes, subRes, servRes] = await Promise.all([
+        supabase.from("categories").select("id, name_fr").order("sort_order"),
+        supabase.from("subcategories").select("id, name_fr, category_id").order("sort_order"),
+        supabase.from("services").select("id, name_fr, subcategory_id").order("sort_order"),
+      ]);
+      
+      if (catRes.data) setDbCategories(catRes.data);
+      if (subRes.data) setDbSubcategories(subRes.data);
+      if (servRes.data) setDbServices(servRes.data);
+    };
+    
+    fetchTaxonomy();
+  }, []);
 
   const [formData, setFormData] = useState({
     name: business?.name || "",
@@ -455,12 +332,21 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
     });
   };
 
-  const availableSubcategories = formData.main_category
-    ? SUBCATEGORIES[formData.main_category] || []
+  // Find the category ID for the selected main_category
+  const selectedCategory = dbCategories.find(c => c.name_fr === formData.main_category);
+  
+  // Get subcategories for selected category from database
+  const availableSubcategories = selectedCategory
+    ? dbSubcategories.filter(sub => sub.category_id === selectedCategory.id).map(sub => sub.name_fr)
     : [];
 
-  const availableServices = formData.main_category
-    ? SERVICES[formData.main_category] || []
+  // Get services for selected subcategories from database
+  const selectedSubcategoryIds = dbSubcategories
+    .filter(sub => formData.categories.includes(sub.name_fr))
+    .map(sub => sub.id);
+  
+  const availableServices = selectedSubcategoryIds.length > 0
+    ? dbServices.filter(srv => selectedSubcategoryIds.includes(srv.subcategory_id)).map(srv => srv.name_fr)
     : [];
 
   const handleSubmit = async (e: React.FormEvent) => {
