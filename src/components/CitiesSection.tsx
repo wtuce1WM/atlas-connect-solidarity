@@ -111,11 +111,11 @@ const CitiesSection = () => {
   if (cities.length === 0) return null;
 
   return (
-    <section className="bg-background py-12">
+    <section className="bg-black py-12">
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <div className="mb-8 text-center">
-          <h2 className="mb-2 text-3xl font-bold text-foreground">
+          <h2 className="mb-2 text-3xl font-bold text-white">
             {language === "fr"
               ? "Explorez nos "
               : language === "ar"
@@ -125,7 +125,7 @@ const CitiesSection = () => {
               {language === "fr" ? "Villes" : language === "ar" ? "مدننا" : "Cities"}
             </span>
           </h2>
-          <p className="mx-auto max-w-2xl text-muted-foreground">
+          <p className="mx-auto max-w-2xl text-gray-400">
             {language === "fr"
               ? "Découvrez les meilleures adresses dans chaque ville du Maroc"
               : language === "ar"
