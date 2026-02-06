@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import CityWeather from "@/components/CityWeather";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -228,15 +229,20 @@ const CityMap = () => {
           Retour à l'accueil
         </Link>
 
-        {/* Title */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
-            <MapPin className="h-8 w-8 text-primary" />
-            Entreprises à {decodedCity}
-          </h1>
-          <p className="text-muted-foreground mt-2">
-            {businesses.length} entreprise{businesses.length > 1 ? "s" : ""} dans l'annuaire WTUCE
-          </p>
+        {/* Title + Weather */}
+        <div className="mb-8 flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
+              <MapPin className="h-8 w-8 text-primary" />
+              Entreprises à {decodedCity}
+            </h1>
+            <p className="text-muted-foreground mt-2">
+              {businesses.length} entreprise{businesses.length > 1 ? "s" : ""} dans l'annuaire WTUCE
+            </p>
+          </div>
+          <div className="lg:w-72">
+            <CityWeather city={decodedCity} />
+          </div>
         </div>
 
         <div className="grid gap-8 lg:grid-cols-3">
