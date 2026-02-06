@@ -30,6 +30,7 @@ interface Business {
   longitude: number | null;
   images: string[] | null;
   pdf_url: string | null;
+  label1_url: string | null;
 }
 
 const BusinessDetail = () => {
@@ -130,6 +131,13 @@ const BusinessDetail = () => {
                     src={relaisChateauxLogo} 
                     alt="Relais & Châteaux" 
                     className="h-20 object-contain"
+                  />
+                )}
+                {business.label1_url && (
+                  <img 
+                    src={business.label1_url} 
+                    alt="Label1" 
+                    className="h-16 object-contain"
                   />
                 )}
               </div>

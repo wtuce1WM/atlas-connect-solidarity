@@ -17,6 +17,7 @@ import RichTextEditor from "./RichTextEditor";
 import ImageUploader from "./ImageUploader";
 import PDFUploader from "./PDFUploader";
 import LogoUploader from "./LogoUploader";
+import LabelUploader from "./LabelUploader";
 import {
   FacebookIcon,
   InstagramIcon,
@@ -420,6 +421,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
     airbnb_url: (business as any)?.airbnb_url || "",
     images: (business as any)?.images || [] as string[],
     pdf_url: (business as any)?.pdf_url || "",
+    label1_url: (business as any)?.label1_url || "",
   });
 
   const handleChange = (field: string, value: string | boolean | string[]) => {
@@ -497,6 +499,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
       airbnb_url: formData.airbnb_url || null,
       images: formData.images.length > 0 ? formData.images : [],
       pdf_url: formData.pdf_url || null,
+      label1_url: formData.label1_url || null,
     };
 
     try {
@@ -656,6 +659,18 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
             pdfUrl={formData.pdf_url}
             onChange={(url) => handleChange("pdf_url", url)}
             businessId={business?.id}
+          />
+        </div>
+
+        {/* Label1 */}
+        <div className="space-y-2">
+          <Label className="text-base font-semibold">Label1</Label>
+          <LabelUploader
+            labelUrl={formData.label1_url}
+            onChange={(url) => handleChange("label1_url", url)}
+            businessId={business?.id}
+            label="Label1"
+            labelKey="label1"
           />
         </div>
 
