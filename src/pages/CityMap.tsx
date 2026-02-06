@@ -1,12 +1,19 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Loader2, MapPin, X } from "lucide-react";
+import { ArrowLeft, Loader2, MapPin, X, ChevronDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Business {
   id: string;
@@ -15,6 +22,7 @@ interface Business {
   region: string;
   address: string | null;
   main_category: string | null;
+  categories: string[] | null;
   latitude: number | null;
   longitude: number | null;
   wtuce_status: "verified" | "pending" | null;
@@ -25,26 +33,70 @@ const CityMap = () => {
   const { city } = useParams<{ city: string }>();
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedSubcategory, setSelectedSubcategory] = useState<string>("");
   const [selectedActivities, setSelectedActivities] = useState<string[]>([]);
 
   const decodedCity = city ? decodeURIComponent(city) : "";
 
-  // Extract unique activities from businesses
-  const availableActivities = useMemo(() => {
-    const activities = new Set<string>();
+  // Extract unique main categories from businesses
+  const availableCategories = useMemo(() => {
+    const categories = new Set<string>();
     businesses.forEach((business) => {
-      business.services?.forEach((service) => activities.add(service));
+      if (business.main_category) categories.add(business.main_category);
     });
-    return Array.from(activities).sort();
+    return Array.from(categories).sort((a, b) => a.localeCompare(b, "fr"));
   }, [businesses]);
 
-  // Filter businesses by selected activities
+  // Extract unique subcategories based on selected category
+  const availableSubcategories = useMemo(() => {
+    const subcategories = new Set<string>();
+    const filteredByCategory = selectedCategory
+      ? businesses.filter((b) => b.main_category === selectedCategory)
+      : businesses;
+    
+    filteredByCategory.forEach((business) => {
+      business.categories?.forEach((cat) => subcategories.add(cat));
+    });
+    return Array.from(subcategories).sort((a, b) => a.localeCompare(b, "fr"));
+  }, [businesses, selectedCategory]);
+
+  // Extract unique activities from filtered businesses
+  const availableActivities = useMemo(() => {
+    const activities = new Set<string>();
+    let filtered = businesses;
+    
+    if (selectedCategory) {
+      filtered = filtered.filter((b) => b.main_category === selectedCategory);
+    }
+    if (selectedSubcategory) {
+      filtered = filtered.filter((b) => b.categories?.includes(selectedSubcategory));
+    }
+    
+    filtered.forEach((business) => {
+      business.services?.forEach((service) => activities.add(service));
+    });
+    return Array.from(activities).sort((a, b) => a.localeCompare(b, "fr"));
+  }, [businesses, selectedCategory, selectedSubcategory]);
+
+  // Filter businesses by all criteria
   const filteredBusinesses = useMemo(() => {
-    if (selectedActivities.length === 0) return businesses;
-    return businesses.filter((business) =>
-      selectedActivities.some((activity) => business.services?.includes(activity))
-    );
-  }, [businesses, selectedActivities]);
+    let result = businesses;
+    
+    if (selectedCategory) {
+      result = result.filter((b) => b.main_category === selectedCategory);
+    }
+    if (selectedSubcategory) {
+      result = result.filter((b) => b.categories?.includes(selectedSubcategory));
+    }
+    if (selectedActivities.length > 0) {
+      result = result.filter((business) =>
+        selectedActivities.some((activity) => business.services?.includes(activity))
+      );
+    }
+    
+    return result;
+  }, [businesses, selectedCategory, selectedSubcategory, selectedActivities]);
 
   const toggleActivity = (activity: string) => {
     setSelectedActivities((prev) =>
@@ -54,7 +106,20 @@ const CityMap = () => {
     );
   };
 
-  const clearActivities = () => {
+  const clearAllFilters = () => {
+    setSelectedCategory("");
+    setSelectedSubcategory("");
+    setSelectedActivities([]);
+  };
+
+  const handleCategoryChange = (value: string) => {
+    setSelectedCategory(value === "all" ? "" : value);
+    setSelectedSubcategory("");
+    setSelectedActivities([]);
+  };
+
+  const handleSubcategoryChange = (value: string) => {
+    setSelectedSubcategory(value === "all" ? "" : value);
     setSelectedActivities([]);
   };
 
@@ -64,7 +129,7 @@ const CityMap = () => {
 
       const { data, error } = await supabase
         .from("businesses")
-        .select("id, name, city, region, address, main_category, latitude, longitude, wtuce_status, services")
+        .select("id, name, city, region, address, main_category, categories, latitude, longitude, wtuce_status, services")
         .ilike("city", decodedCity);
 
       if (error) {
@@ -137,42 +202,87 @@ const CityMap = () => {
           </p>
         </div>
 
-        {/* Activity Filters */}
-        {availableActivities.length > 0 && (
-          <div className="mb-6">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-medium text-foreground">Filtrer par activité</h3>
-              {selectedActivities.length > 0 && (
+        {/* Category & Subcategory Filters */}
+        <div className="mb-6 space-y-4">
+          <div className="flex flex-wrap gap-4">
+            {/* Main Category Filter */}
+            <div className="w-full sm:w-auto">
+              <label className="text-sm font-medium text-foreground mb-1.5 block">Catégorie</label>
+              <Select value={selectedCategory || "all"} onValueChange={handleCategoryChange}>
+                <SelectTrigger className="w-full sm:w-[200px]">
+                  <SelectValue placeholder="Toutes les catégories" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Toutes les catégories</SelectItem>
+                  {availableCategories.map((category) => (
+                    <SelectItem key={category} value={category}>
+                      {category}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Subcategory Filter */}
+            {availableSubcategories.length > 0 && (
+              <div className="w-full sm:w-auto">
+                <label className="text-sm font-medium text-foreground mb-1.5 block">Sous-catégorie</label>
+                <Select value={selectedSubcategory || "all"} onValueChange={handleSubcategoryChange}>
+                  <SelectTrigger className="w-full sm:w-[200px]">
+                    <SelectValue placeholder="Toutes les sous-catégories" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Toutes les sous-catégories</SelectItem>
+                    {availableSubcategories.map((subcategory) => (
+                      <SelectItem key={subcategory} value={subcategory}>
+                        {subcategory}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {/* Clear All Button */}
+            {(selectedCategory || selectedSubcategory || selectedActivities.length > 0) && (
+              <div className="flex items-end">
                 <button
-                  onClick={clearActivities}
-                  className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
+                  onClick={clearAllFilters}
+                  className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1 h-10 px-3"
                 >
-                  <X className="h-3 w-3" />
-                  Effacer
+                  <X className="h-4 w-4" />
+                  Effacer les filtres
                 </button>
-              )}
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {availableActivities.slice(0, 10).map((activity) => (
-                <label
-                  key={activity}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-full border cursor-pointer transition-colors text-sm ${
-                    selectedActivities.includes(activity)
-                      ? "bg-primary/10 border-primary text-primary"
-                      : "bg-background border-border text-muted-foreground hover:border-primary/50"
-                  }`}
-                >
-                  <Checkbox
-                    checked={selectedActivities.includes(activity)}
-                    onCheckedChange={() => toggleActivity(activity)}
-                    className="h-3.5 w-3.5"
-                  />
-                  {activity}
-                </label>
-              ))}
-            </div>
+              </div>
+            )}
           </div>
-        )}
+
+          {/* Activity Filters */}
+          {availableActivities.length > 0 && (
+            <div>
+              <h3 className="text-sm font-medium text-foreground mb-2">Filtrer par activité</h3>
+              <div className="flex flex-wrap gap-2">
+                {availableActivities.slice(0, 10).map((activity) => (
+                  <label
+                    key={activity}
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-full border cursor-pointer transition-colors text-sm ${
+                      selectedActivities.includes(activity)
+                        ? "bg-primary/10 border-primary text-primary"
+                        : "bg-background border-border text-muted-foreground hover:border-primary/50"
+                    }`}
+                  >
+                    <Checkbox
+                      checked={selectedActivities.includes(activity)}
+                      onCheckedChange={() => toggleActivity(activity)}
+                      className="h-3.5 w-3.5"
+                    />
+                    {activity}
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
 
         <div className="grid gap-8 lg:grid-cols-3">
           {/* Map */}
