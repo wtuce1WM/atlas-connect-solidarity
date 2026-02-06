@@ -92,7 +92,6 @@ const BusinessDetail = () => {
   }
 
   const isVerified = business.wtuce_status === "verified";
-  const isRelaisChateaux = business.categories?.includes("Relais & Châteaux");
   return (
     <div className={`min-h-screen ${isVerified ? "bg-gradient-to-b from-black from-50% to-gold" : "bg-background"}`}>
       <Header />
@@ -128,13 +127,6 @@ const BusinessDetail = () => {
                     <BadgeCheck className="h-4 w-4" />
                     WTUCE Vérifié
                   </Badge>
-                )}
-                {isRelaisChateaux && (
-                  <img 
-                    src={relaisChateauxLogo} 
-                    alt="Relais & Châteaux" 
-                    className="h-20 object-contain"
-                  />
                 )}
                 {business.label1_url && (
                   <img 
