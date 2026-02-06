@@ -14,6 +14,15 @@ import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Save } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 import RichTextEditor from "./RichTextEditor";
+import {
+  FacebookIcon,
+  InstagramIcon,
+  TwitterIcon,
+  LinkedInIcon,
+  YouTubeIcon,
+  TikTokIcon,
+  WhatsAppIcon,
+} from "./SocialMediaIcons";
 
 type Business = Tables<"businesses">;
 
@@ -81,6 +90,13 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
     priority_score: business?.priority_score?.toString() || "0",
     logo_url: business?.logo_url || "",
     ice: (business as any)?.ice || "",
+    facebook_url: (business as any)?.facebook_url || "",
+    instagram_url: (business as any)?.instagram_url || "",
+    twitter_url: (business as any)?.twitter_url || "",
+    linkedin_url: (business as any)?.linkedin_url || "",
+    youtube_url: (business as any)?.youtube_url || "",
+    tiktok_url: (business as any)?.tiktok_url || "",
+    whatsapp: (business as any)?.whatsapp || "",
   });
 
   const handleChange = (field: string, value: string | boolean) => {
@@ -112,6 +128,13 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
       priority_score: parseInt(formData.priority_score) || 0,
       logo_url: formData.logo_url || null,
       ice: formData.ice || null,
+      facebook_url: formData.facebook_url || null,
+      instagram_url: formData.instagram_url || null,
+      twitter_url: formData.twitter_url || null,
+      linkedin_url: formData.linkedin_url || null,
+      youtube_url: formData.youtube_url || null,
+      tiktok_url: formData.tiktok_url || null,
+      whatsapp: formData.whatsapp || null,
     };
 
     try {
@@ -320,6 +343,103 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
               onChange={(e) => handleChange("website", e.target.value)}
               placeholder="https://"
             />
+          </div>
+        </div>
+
+        {/* Social Media */}
+        <div className="space-y-4">
+          <Label className="text-base font-semibold">Réseaux sociaux</Label>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="facebook_url" className="flex items-center gap-2">
+                <FacebookIcon className="text-[#1877F2]" />
+                Facebook
+              </Label>
+              <Input
+                id="facebook_url"
+                value={formData.facebook_url}
+                onChange={(e) => handleChange("facebook_url", e.target.value)}
+                placeholder="https://facebook.com/..."
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="instagram_url" className="flex items-center gap-2">
+                <InstagramIcon className="text-[#E4405F]" />
+                Instagram
+              </Label>
+              <Input
+                id="instagram_url"
+                value={formData.instagram_url}
+                onChange={(e) => handleChange("instagram_url", e.target.value)}
+                placeholder="https://instagram.com/..."
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="twitter_url" className="flex items-center gap-2">
+                <TwitterIcon className="text-foreground" />
+                X (Twitter)
+              </Label>
+              <Input
+                id="twitter_url"
+                value={formData.twitter_url}
+                onChange={(e) => handleChange("twitter_url", e.target.value)}
+                placeholder="https://x.com/..."
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="linkedin_url" className="flex items-center gap-2">
+                <LinkedInIcon className="text-[#0A66C2]" />
+                LinkedIn
+              </Label>
+              <Input
+                id="linkedin_url"
+                value={formData.linkedin_url}
+                onChange={(e) => handleChange("linkedin_url", e.target.value)}
+                placeholder="https://linkedin.com/company/..."
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="youtube_url" className="flex items-center gap-2">
+                <YouTubeIcon className="text-[#FF0000]" />
+                YouTube
+              </Label>
+              <Input
+                id="youtube_url"
+                value={formData.youtube_url}
+                onChange={(e) => handleChange("youtube_url", e.target.value)}
+                placeholder="https://youtube.com/@..."
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="tiktok_url" className="flex items-center gap-2">
+                <TikTokIcon className="text-foreground" />
+                TikTok
+              </Label>
+              <Input
+                id="tiktok_url"
+                value={formData.tiktok_url}
+                onChange={(e) => handleChange("tiktok_url", e.target.value)}
+                placeholder="https://tiktok.com/@..."
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="whatsapp" className="flex items-center gap-2">
+                <WhatsAppIcon className="text-[#25D366]" />
+                WhatsApp
+              </Label>
+              <Input
+                id="whatsapp"
+                value={formData.whatsapp}
+                onChange={(e) => handleChange("whatsapp", e.target.value)}
+                placeholder="+212 6XX-XXXXXX"
+              />
+            </div>
           </div>
         </div>
 
