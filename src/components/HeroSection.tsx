@@ -15,7 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import logoGold from "@/assets/logoGOLD.webp";
-import Logo3D from "@/components/Logo3D";
+import heroBackground from "@/assets/hero-marrakech.jpg";
 
 interface Business {
   id: string;
@@ -157,8 +157,11 @@ const HeroSection = () => {
 
   return (
     <section className="relative min-h-screen w-full overflow-hidden">
-      {/* 3D Logo Background */}
-      <Logo3D />
+      {/* Hero Background Image */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url(${heroBackground})` }}
+      />
 
       {/* Overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-black/60" />
