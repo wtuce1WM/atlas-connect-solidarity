@@ -29,9 +29,14 @@ interface Business {
   services: string[] | null;
 }
 
+interface CityInfo {
+  description: string | null;
+}
+
 const CityMap = () => {
   const { city } = useParams<{ city: string }>();
   const [businesses, setBusinesses] = useState<Business[]>([]);
+  const [cityInfo, setCityInfo] = useState<CityInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [selectedSubcategory, setSelectedSubcategory] = useState<string>("");
@@ -124,23 +129,38 @@ const CityMap = () => {
   };
 
   useEffect(() => {
-    const fetchBusinesses = async () => {
+    const fetchData = async () => {
       if (!decodedCity) return;
 
-      const { data, error } = await supabase
+      // Fetch businesses
+      const { data: businessData, error: businessError } = await supabase
         .from("businesses")
         .select("id, name, city, region, address, main_category, categories, latitude, longitude, wtuce_status, services")
         .ilike("city", decodedCity);
 
-      if (error) {
-        console.error("Error fetching businesses:", error);
+      if (businessError) {
+        console.error("Error fetching businesses:", businessError);
       } else {
-        setBusinesses(data || []);
+        setBusinesses(businessData || []);
       }
+
+      // Fetch city info
+      const { data: cityData, error: cityError } = await supabase
+        .from("cities")
+        .select("description")
+        .ilike("name_fr", decodedCity)
+        .single();
+
+      if (cityError) {
+        console.error("Error fetching city info:", cityError);
+      } else {
+        setCityInfo(cityData);
+      }
+
       setIsLoading(false);
     };
 
-    fetchBusinesses();
+    fetchData();
   }, [decodedCity]);
 
   // Build Google Maps embed URL with all business markers
@@ -204,7 +224,7 @@ const CityMap = () => {
 
         <div className="grid gap-8 lg:grid-cols-3">
           {/* Map */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 space-y-6">
             <Card>
               <CardContent className="p-0">
                 <iframe
@@ -217,6 +237,18 @@ const CityMap = () => {
                 />
               </CardContent>
             </Card>
+
+            {/* City Description */}
+            {cityInfo?.description && (
+              <Card>
+                <CardContent className="p-6">
+                  <div 
+                    className="prose prose-sm max-w-none text-foreground"
+                    dangerouslySetInnerHTML={{ __html: cityInfo.description }}
+                  />
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           {/* Filters + Business list */}
