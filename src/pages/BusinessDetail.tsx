@@ -35,6 +35,7 @@ interface Business {
   description: string | null;
   categories: string[] | null;
   services: string[] | null;
+  keywords: string[] | null;
   city: string;
   region: string;
   address: string | null;
@@ -316,6 +317,34 @@ const BusinessDetail = () => {
               />
             )}
 
+            {/* Sous-catégories, Services, Mots-clés */}
+            {((business.categories && business.categories.length > 0) || 
+              (business.services && business.services.length > 0) || 
+              (business.keywords && business.keywords.length > 0)) && (
+              <Card>
+                <CardContent className="p-6 space-y-4">
+                  {business.categories && business.categories.length > 0 && (
+                    <div>
+                      <h3 className="text-sm font-medium text-muted-foreground mb-2">Sous-catégories</h3>
+                      <p className="text-foreground">{business.categories.join(", ")}</p>
+                    </div>
+                  )}
+                  {business.services && business.services.length > 0 && (
+                    <div>
+                      <h3 className="text-sm font-medium text-muted-foreground mb-2">Services</h3>
+                      <p className="text-foreground">{business.services.join(", ")}</p>
+                    </div>
+                  )}
+                  {business.keywords && business.keywords.length > 0 && (
+                    <div>
+                      <h3 className="text-sm font-medium text-muted-foreground mb-2">Mots-clés</h3>
+                      <p className="text-foreground">{business.keywords.join(", ")}</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
             {/* Description */}
             {business.description && (
               <Card>
@@ -328,39 +357,6 @@ const BusinessDetail = () => {
                 </CardContent>
               </Card>
             )}
-
-            {/* Services */}
-            {business.services && business.services.length > 0 && (
-              <Card>
-                <CardContent className="p-6">
-                  <h2 className="text-xl font-semibold mb-4">Services</h2>
-                  <div className="flex flex-wrap gap-2">
-                    {business.services.map((service, idx) => (
-                      <Badge key={idx} variant="secondary" className="px-3 py-1">
-                        {service}
-                      </Badge>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Categories */}
-            {business.categories && business.categories.length > 0 && (
-              <Card>
-                <CardContent className="p-6">
-                  <h2 className="text-xl font-semibold mb-4">Catégories</h2>
-                  <div className="flex flex-wrap gap-2">
-                    {business.categories.map((category, idx) => (
-                      <Badge key={idx} variant="outline" className="px-3 py-1">
-                        {category}
-                      </Badge>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
             {/* PDF */}
             {business.pdf_url && (
               <Card>
