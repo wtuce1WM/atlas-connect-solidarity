@@ -202,88 +202,6 @@ const CityMap = () => {
           </p>
         </div>
 
-        {/* Category & Subcategory Filters */}
-        <div className="mb-6 space-y-4">
-          <div className="flex flex-wrap gap-4">
-            {/* Main Category Filter */}
-            <div className="w-full sm:w-auto">
-              <label className="text-sm font-medium text-foreground mb-1.5 block">Catégorie</label>
-              <Select value={selectedCategory || "all"} onValueChange={handleCategoryChange}>
-                <SelectTrigger className="w-full sm:w-[200px]">
-                  <SelectValue placeholder="Toutes les catégories" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Toutes les catégories</SelectItem>
-                  {availableCategories.map((category) => (
-                    <SelectItem key={category} value={category}>
-                      {category}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Subcategory Filter */}
-            {availableSubcategories.length > 0 && (
-              <div className="w-full sm:w-auto">
-                <label className="text-sm font-medium text-foreground mb-1.5 block">Sous-catégorie</label>
-                <Select value={selectedSubcategory || "all"} onValueChange={handleSubcategoryChange}>
-                  <SelectTrigger className="w-full sm:w-[200px]">
-                    <SelectValue placeholder="Toutes les sous-catégories" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Toutes les sous-catégories</SelectItem>
-                    {availableSubcategories.map((subcategory) => (
-                      <SelectItem key={subcategory} value={subcategory}>
-                        {subcategory}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-
-            {/* Clear All Button */}
-            {(selectedCategory || selectedSubcategory || selectedActivities.length > 0) && (
-              <div className="flex items-end">
-                <button
-                  onClick={clearAllFilters}
-                  className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1 h-10 px-3"
-                >
-                  <X className="h-4 w-4" />
-                  Effacer les filtres
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* Activity Filters */}
-          {availableActivities.length > 0 && (
-            <div>
-              <h3 className="text-sm font-medium text-foreground mb-2">Filtrer par activité</h3>
-              <div className="flex flex-wrap gap-2">
-                {availableActivities.slice(0, 10).map((activity) => (
-                  <label
-                    key={activity}
-                    className={`flex items-center gap-2 px-3 py-1.5 rounded-full border cursor-pointer transition-colors text-sm ${
-                      selectedActivities.includes(activity)
-                        ? "bg-primary/10 border-primary text-primary"
-                        : "bg-background border-border text-muted-foreground hover:border-primary/50"
-                    }`}
-                  >
-                    <Checkbox
-                      checked={selectedActivities.includes(activity)}
-                      onCheckedChange={() => toggleActivity(activity)}
-                      className="h-3.5 w-3.5"
-                    />
-                    {activity}
-                  </label>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
         <div className="grid gap-8 lg:grid-cols-3">
           {/* Map */}
           <div className="lg:col-span-2">
@@ -301,46 +219,129 @@ const CityMap = () => {
             </Card>
           </div>
 
-          {/* Business list */}
-          <div className="space-y-4 max-h-[500px] overflow-y-auto">
-            <h2 className="text-lg font-semibold text-foreground sticky top-0 bg-background py-2">
-              Liste des entreprises ({filteredBusinesses.length})
-            </h2>
-            {filteredBusinesses.map((business) => (
-              <Link key={business.id} to={`/business/${business.id}`}>
-                <Card className="cursor-pointer hover:bg-muted/50 transition-colors">
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <span className="font-medium text-foreground hover:text-primary transition-colors">
-                          {business.name}
-                        </span>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {business.address || business.city}
-                        </p>
-                        {business.main_category && (
-                          <Badge variant="secondary" className="mt-2 text-xs">
-                            {business.main_category}
+          {/* Filters + Business list */}
+          <div className="space-y-4">
+            {/* Category & Subcategory Filters */}
+            <div className="space-y-3">
+              <div className="flex flex-wrap gap-3">
+                {/* Main Category Filter */}
+                <div className="flex-1 min-w-[140px]">
+                  <label className="text-sm font-medium text-foreground mb-1.5 block">Catégorie</label>
+                  <Select value={selectedCategory || "all"} onValueChange={handleCategoryChange}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Toutes" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Toutes les catégories</SelectItem>
+                      {availableCategories.map((category) => (
+                        <SelectItem key={category} value={category}>
+                          {category}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Subcategory Filter */}
+                {availableSubcategories.length > 0 && (
+                  <div className="flex-1 min-w-[140px]">
+                    <label className="text-sm font-medium text-foreground mb-1.5 block">Sous-catégorie</label>
+                    <Select value={selectedSubcategory || "all"} onValueChange={handleSubcategoryChange}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Toutes" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Toutes</SelectItem>
+                        {availableSubcategories.map((subcategory) => (
+                          <SelectItem key={subcategory} value={subcategory}>
+                            {subcategory}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+              </div>
+
+              {/* Clear All Button */}
+              {(selectedCategory || selectedSubcategory || selectedActivities.length > 0) && (
+                <button
+                  onClick={clearAllFilters}
+                  className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1"
+                >
+                  <X className="h-4 w-4" />
+                  Effacer les filtres
+                </button>
+              )}
+
+              {/* Activity Filters */}
+              {availableActivities.length > 0 && (
+                <div>
+                  <h3 className="text-sm font-medium text-foreground mb-2">Activités</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {availableActivities.slice(0, 8).map((activity) => (
+                      <label
+                        key={activity}
+                        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border cursor-pointer transition-colors text-xs ${
+                          selectedActivities.includes(activity)
+                            ? "bg-primary/10 border-primary text-primary"
+                            : "bg-background border-border text-muted-foreground hover:border-primary/50"
+                        }`}
+                      >
+                        <Checkbox
+                          checked={selectedActivities.includes(activity)}
+                          onCheckedChange={() => toggleActivity(activity)}
+                          className="h-3 w-3"
+                        />
+                        {activity}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Business list */}
+            <div className="max-h-[400px] overflow-y-auto space-y-3">
+              <h2 className="text-lg font-semibold text-foreground sticky top-0 bg-background py-2 z-10">
+                Entreprises ({filteredBusinesses.length})
+              </h2>
+              {filteredBusinesses.map((business) => (
+                <Link key={business.id} to={`/business/${business.id}`}>
+                  <Card className="cursor-pointer hover:bg-muted/50 transition-colors">
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <span className="font-medium text-foreground hover:text-primary transition-colors">
+                            {business.name}
+                          </span>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            {business.address || business.city}
+                          </p>
+                          {business.main_category && (
+                            <Badge variant="secondary" className="mt-2 text-xs">
+                              {business.main_category}
+                            </Badge>
+                          )}
+                        </div>
+                        {business.wtuce_status === "verified" && (
+                          <Badge className="bg-primary/10 text-primary text-xs shrink-0">
+                            Vérifié
                           </Badge>
                         )}
                       </div>
-                      {business.wtuce_status === "verified" && (
-                        <Badge className="bg-primary/10 text-primary text-xs shrink-0">
-                          Vérifié
-                        </Badge>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
-            {filteredBusinesses.length === 0 && (
-              <p className="text-muted-foreground text-center py-8">
-                {selectedActivities.length > 0
-                  ? "Aucune entreprise pour ces activités"
-                  : `Aucune entreprise trouvée à ${decodedCity}`}
-              </p>
-            )}
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+              {filteredBusinesses.length === 0 && (
+                <p className="text-muted-foreground text-center py-8">
+                  {selectedActivities.length > 0
+                    ? "Aucune entreprise pour ces activités"
+                    : `Aucune entreprise trouvée à ${decodedCity}`}
+                </p>
+              )}
+            </div>
           </div>
         </div>
       </main>
