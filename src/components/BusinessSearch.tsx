@@ -1,5 +1,9 @@
 import { useState, useEffect, useMemo } from "react";
-import { Search, MapPin, Loader2, BadgeCheck, Navigation, Building2, Filter, X } from "lucide-react";
+import { 
+  Search, MapPin, Loader2, BadgeCheck, Navigation, Building2, Filter, X,
+  Hotel, UtensilsCrossed, Car, Palette, ShoppingBag, Briefcase, Plane,
+  Wheat, Factory, GraduationCap, Heart, Dumbbell, Sparkles, Theater, Cpu, LayoutGrid
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
@@ -42,22 +46,22 @@ interface SearchResult {
 }
 
 const CATEGORIES = [
-  { value: "all", labelFr: "Toutes les catégories", labelEn: "All categories", labelAr: "جميع الفئات" },
-  { value: "Hôtellerie", labelFr: "Hôtellerie", labelEn: "Hospitality", labelAr: "فندقة" },
-  { value: "Restauration", labelFr: "Restauration", labelEn: "Restaurants", labelAr: "مطاعم" },
-  { value: "Transport", labelFr: "Transport", labelEn: "Transport", labelAr: "نقل" },
-  { value: "Artisanat", labelFr: "Artisanat", labelEn: "Crafts", labelAr: "حرف يدوية" },
-  { value: "Commerce", labelFr: "Commerce", labelEn: "Retail", labelAr: "تجارة" },
-  { value: "Services", labelFr: "Services", labelEn: "Services", labelAr: "خدمات" },
-  { value: "Tourisme", labelFr: "Tourisme", labelEn: "Tourism", labelAr: "سياحة" },
-  { value: "Agriculture", labelFr: "Agriculture", labelEn: "Agriculture", labelAr: "فلاحة" },
-  { value: "Industrie", labelFr: "Industrie", labelEn: "Industry", labelAr: "صناعة" },
-  { value: "Éducation", labelFr: "Éducation", labelEn: "Education", labelAr: "تعليم" },
-  { value: "Santé", labelFr: "Santé", labelEn: "Health", labelAr: "صحة" },
-  { value: "Sport & Loisirs", labelFr: "Sport & Loisirs", labelEn: "Sports & Leisure", labelAr: "رياضة وترفيه" },
-  { value: "Bien-être", labelFr: "Bien-être", labelEn: "Wellness", labelAr: "رفاهية" },
-  { value: "Culture", labelFr: "Culture", labelEn: "Culture", labelAr: "ثقافة" },
-  { value: "Technologie", labelFr: "Technologie", labelEn: "Technology", labelAr: "تكنولوجيا" },
+  { value: "all", labelFr: "Toutes les catégories", labelEn: "All categories", labelAr: "جميع الفئات", icon: LayoutGrid },
+  { value: "Hôtellerie", labelFr: "Hôtellerie", labelEn: "Hospitality", labelAr: "فندقة", icon: Hotel },
+  { value: "Restauration", labelFr: "Restauration", labelEn: "Restaurants", labelAr: "مطاعم", icon: UtensilsCrossed },
+  { value: "Transport", labelFr: "Transport", labelEn: "Transport", labelAr: "نقل", icon: Car },
+  { value: "Artisanat", labelFr: "Artisanat", labelEn: "Crafts", labelAr: "حرف يدوية", icon: Palette },
+  { value: "Commerce", labelFr: "Commerce", labelEn: "Retail", labelAr: "تجارة", icon: ShoppingBag },
+  { value: "Services", labelFr: "Services", labelEn: "Services", labelAr: "خدمات", icon: Briefcase },
+  { value: "Tourisme", labelFr: "Tourisme", labelEn: "Tourism", labelAr: "سياحة", icon: Plane },
+  { value: "Agriculture", labelFr: "Agriculture", labelEn: "Agriculture", labelAr: "فلاحة", icon: Wheat },
+  { value: "Industrie", labelFr: "Industrie", labelEn: "Industry", labelAr: "صناعة", icon: Factory },
+  { value: "Éducation", labelFr: "Éducation", labelEn: "Education", labelAr: "تعليم", icon: GraduationCap },
+  { value: "Santé", labelFr: "Santé", labelEn: "Health", labelAr: "صحة", icon: Heart },
+  { value: "Sport & Loisirs", labelFr: "Sport & Loisirs", labelEn: "Sports & Leisure", labelAr: "رياضة وترفيه", icon: Dumbbell },
+  { value: "Bien-être", labelFr: "Bien-être", labelEn: "Wellness", labelAr: "رفاهية", icon: Sparkles },
+  { value: "Culture", labelFr: "Culture", labelEn: "Culture", labelAr: "ثقافة", icon: Theater },
+  { value: "Technologie", labelFr: "Technologie", labelEn: "Technology", labelAr: "تكنولوجيا", icon: Cpu },
 ];
 
 const BusinessSearch = () => {
@@ -212,16 +216,26 @@ const BusinessSearch = () => {
             </div>
             <div className="flex flex-col gap-4 md:flex-row md:items-center">
               <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                <SelectTrigger className="w-full md:w-64">
-                  <Filter className="mr-2 h-4 w-4 text-muted-foreground" />
+                <SelectTrigger className="w-full md:w-72">
+                  {(() => {
+                    const selectedCat = CATEGORIES.find(c => c.value === categoryFilter);
+                    const IconComponent = selectedCat?.icon || Filter;
+                    return <IconComponent className="mr-2 h-4 w-4 text-muted-foreground" />;
+                  })()}
                   <SelectValue placeholder={language === "fr" ? "Catégorie" : language === "ar" ? "فئة" : "Category"} />
                 </SelectTrigger>
-                <SelectContent>
-                  {CATEGORIES.map((cat) => (
-                    <SelectItem key={cat.value} value={cat.value}>
-                      {language === "fr" ? cat.labelFr : language === "ar" ? cat.labelAr : cat.labelEn}
-                    </SelectItem>
-                  ))}
+                <SelectContent className="bg-background border border-border shadow-lg">
+                  {CATEGORIES.map((cat) => {
+                    const IconComponent = cat.icon;
+                    return (
+                      <SelectItem key={cat.value} value={cat.value}>
+                        <div className="flex items-center gap-2">
+                          <IconComponent className="h-4 w-4 text-muted-foreground" />
+                          <span>{language === "fr" ? cat.labelFr : language === "ar" ? cat.labelAr : cat.labelEn}</span>
+                        </div>
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
               <button
