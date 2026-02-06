@@ -45,24 +45,24 @@ interface SearchResult {
   totalResults: number;
 }
 
-const CATEGORIES = [
-  { value: "all", labelFr: "Toutes les catégories", labelEn: "All categories", labelAr: "جميع الفئات", icon: LayoutGrid },
-  { value: "Hôtellerie", labelFr: "Hôtellerie", labelEn: "Hospitality", labelAr: "فندقة", icon: Hotel },
-  { value: "Restauration", labelFr: "Restauration", labelEn: "Restaurants", labelAr: "مطاعم", icon: UtensilsCrossed },
-  { value: "Transport", labelFr: "Transport", labelEn: "Transport", labelAr: "نقل", icon: Car },
-  { value: "Artisanat", labelFr: "Artisanat", labelEn: "Crafts", labelAr: "حرف يدوية", icon: Palette },
-  { value: "Commerce", labelFr: "Commerce", labelEn: "Retail", labelAr: "تجارة", icon: ShoppingBag },
-  { value: "Services", labelFr: "Services", labelEn: "Services", labelAr: "خدمات", icon: Briefcase },
-  { value: "Tourisme", labelFr: "Tourisme", labelEn: "Tourism", labelAr: "سياحة", icon: Plane },
-  { value: "Agriculture", labelFr: "Agriculture", labelEn: "Agriculture", labelAr: "فلاحة", icon: Wheat },
-  { value: "Industrie", labelFr: "Industrie", labelEn: "Industry", labelAr: "صناعة", icon: Factory },
-  { value: "Éducation", labelFr: "Éducation", labelEn: "Education", labelAr: "تعليم", icon: GraduationCap },
-  { value: "Santé", labelFr: "Santé", labelEn: "Health", labelAr: "صحة", icon: Heart },
-  { value: "Sport & Loisirs", labelFr: "Sport & Loisirs", labelEn: "Sports & Leisure", labelAr: "رياضة وترفيه", icon: Dumbbell },
-  { value: "Bien-être", labelFr: "Bien-être", labelEn: "Wellness", labelAr: "رفاهية", icon: Sparkles },
-  { value: "Culture", labelFr: "Culture", labelEn: "Culture", labelAr: "ثقافة", icon: Theater },
-  { value: "Technologie", labelFr: "Technologie", labelEn: "Technology", labelAr: "تكنولوجيا", icon: Cpu },
-];
+// Static category definitions with icons and translations
+const CATEGORY_CONFIG: Record<string, { labelFr: string; labelEn: string; labelAr: string; icon: React.ComponentType<any> }> = {
+  "Hôtellerie": { labelFr: "Hôtellerie", labelEn: "Hospitality", labelAr: "فندقة", icon: Hotel },
+  "Restauration": { labelFr: "Restauration", labelEn: "Restaurants", labelAr: "مطاعم", icon: UtensilsCrossed },
+  "Transport": { labelFr: "Transport", labelEn: "Transport", labelAr: "نقل", icon: Car },
+  "Artisanat": { labelFr: "Artisanat", labelEn: "Crafts", labelAr: "حرف يدوية", icon: Palette },
+  "Commerce": { labelFr: "Commerce", labelEn: "Retail", labelAr: "تجارة", icon: ShoppingBag },
+  "Services": { labelFr: "Services", labelEn: "Services", labelAr: "خدمات", icon: Briefcase },
+  "Tourisme": { labelFr: "Tourisme", labelEn: "Tourism", labelAr: "سياحة", icon: Plane },
+  "Agriculture": { labelFr: "Agriculture", labelEn: "Agriculture", labelAr: "فلاحة", icon: Wheat },
+  "Industrie": { labelFr: "Industrie", labelEn: "Industry", labelAr: "صناعة", icon: Factory },
+  "Éducation": { labelFr: "Éducation", labelEn: "Education", labelAr: "تعليم", icon: GraduationCap },
+  "Santé": { labelFr: "Santé", labelEn: "Health", labelAr: "صحة", icon: Heart },
+  "Sport & Loisirs": { labelFr: "Sport & Loisirs", labelEn: "Sports & Leisure", labelAr: "رياضة وترفيه", icon: Dumbbell },
+  "Bien-être": { labelFr: "Bien-être", labelEn: "Wellness", labelAr: "رفاهية", icon: Sparkles },
+  "Culture": { labelFr: "Culture", labelEn: "Culture", labelAr: "ثقافة", icon: Theater },
+  "Technologie": { labelFr: "Technologie", labelEn: "Technology", labelAr: "تكنولوجيا", icon: Cpu },
+};
 
 const BusinessSearch = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -72,8 +72,27 @@ const BusinessSearch = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<SearchResult | null>(null);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [availableCategories, setAvailableCategories] = useState<string[]>([]);
   const { t, language } = useLanguage();
   const { toast } = useToast();
+
+  // Load available categories from database
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const { data, error } = await supabase
+        .from("businesses")
+        .select("main_category")
+        .not("main_category", "is", null);
+      
+      if (!error && data) {
+        const uniqueCategories = [...new Set(data.map(b => b.main_category).filter(Boolean))] as string[];
+        // Sort alphabetically
+        uniqueCategories.sort((a, b) => a.localeCompare(b, 'fr'));
+        setAvailableCategories(uniqueCategories);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   // Extract unique activities from results
   const availableActivities = useMemo(() => {
@@ -218,20 +237,32 @@ const BusinessSearch = () => {
               <Select value={categoryFilter} onValueChange={setCategoryFilter}>
                 <SelectTrigger className="w-full md:w-72">
                   {(() => {
-                    const selectedCat = CATEGORIES.find(c => c.value === categoryFilter);
-                    const IconComponent = selectedCat?.icon || Filter;
+                    const config = categoryFilter !== "all" ? CATEGORY_CONFIG[categoryFilter] : null;
+                    const IconComponent = config?.icon || LayoutGrid;
                     return <IconComponent className="mr-2 h-4 w-4 text-muted-foreground" />;
                   })()}
                   <SelectValue placeholder={language === "fr" ? "Catégorie" : language === "ar" ? "فئة" : "Category"} />
                 </SelectTrigger>
-                <SelectContent className="bg-background border border-border shadow-lg">
-                  {CATEGORIES.map((cat) => {
-                    const IconComponent = cat.icon;
+                <SelectContent className="bg-background border border-border shadow-lg z-50">
+                  {/* All categories option */}
+                  <SelectItem value="all">
+                    <div className="flex items-center gap-2">
+                      <LayoutGrid className="h-4 w-4 text-muted-foreground" />
+                      <span>{language === "fr" ? "Toutes les catégories" : language === "ar" ? "جميع الفئات" : "All categories"}</span>
+                    </div>
+                  </SelectItem>
+                  {/* Dynamic categories from database */}
+                  {availableCategories.map((catValue) => {
+                    const config = CATEGORY_CONFIG[catValue];
+                    const IconComponent = config?.icon || Filter;
+                    const label = config 
+                      ? (language === "fr" ? config.labelFr : language === "ar" ? config.labelAr : config.labelEn)
+                      : catValue;
                     return (
-                      <SelectItem key={cat.value} value={cat.value}>
+                      <SelectItem key={catValue} value={catValue}>
                         <div className="flex items-center gap-2">
                           <IconComponent className="h-4 w-4 text-muted-foreground" />
-                          <span>{language === "fr" ? cat.labelFr : language === "ar" ? cat.labelAr : cat.labelEn}</span>
+                          <span>{label}</span>
                         </div>
                       </SelectItem>
                     );
