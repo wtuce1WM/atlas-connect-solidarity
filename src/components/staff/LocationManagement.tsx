@@ -54,6 +54,7 @@ interface City {
   latitude: number | null;
   longitude: number | null;
   sort_order: number | null;
+  priority_score: number | null;
 }
 
 const LocationManagement = () => {
@@ -86,6 +87,7 @@ const LocationManagement = () => {
     latitude: "",
     longitude: "",
     sort_order: 0,
+    priority_score: 0,
   });
 
   useEffect(() => {
@@ -204,6 +206,7 @@ const LocationManagement = () => {
       latitude: cityForm.latitude ? parseFloat(cityForm.latitude) : null,
       longitude: cityForm.longitude ? parseFloat(cityForm.longitude) : null,
       sort_order: cityForm.sort_order,
+      priority_score: cityForm.priority_score,
     };
 
     let error;
@@ -248,6 +251,7 @@ const LocationManagement = () => {
       latitude: city.latitude?.toString() || "",
       longitude: city.longitude?.toString() || "",
       sort_order: city.sort_order || 0,
+      priority_score: city.priority_score || 0,
     });
     setIsCityDialogOpen(true);
   };
@@ -269,6 +273,7 @@ const LocationManagement = () => {
       latitude: "",
       longitude: "",
       sort_order: 0,
+      priority_score: 0,
     });
   };
 
@@ -451,6 +456,7 @@ const LocationManagement = () => {
                               <TableRow>
                                 <TableHead>Ville</TableHead>
                                 <TableHead>Région</TableHead>
+                                <TableHead>Score</TableHead>
                                 <TableHead>Coordonnées</TableHead>
                                 <TableHead className="text-right">Actions</TableHead>
                               </TableRow>
@@ -466,6 +472,11 @@ const LocationManagement = () => {
                                   </TableCell>
                                   <TableCell className="text-muted-foreground">
                                     {city.region || "—"}
+                                  </TableCell>
+                                  <TableCell>
+                                    <span className="inline-flex items-center justify-center min-w-[2rem] px-2 py-0.5 bg-gold/10 text-gold rounded text-sm font-medium">
+                                      {city.priority_score || 0}
+                                    </span>
                                   </TableCell>
                                   <TableCell className="text-muted-foreground text-sm">
                                     {city.latitude && city.longitude
@@ -580,13 +591,26 @@ const LocationManagement = () => {
                 />
               </div>
             </div>
-            <div className="space-y-2">
-              <Label>Ordre d'affichage</Label>
-              <Input
-                type="number"
-                value={cityForm.sort_order}
-                onChange={(e) => setCityForm({ ...cityForm, sort_order: parseInt(e.target.value) || 0 })}
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Score de priorité</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={cityForm.priority_score}
+                  onChange={(e) => setCityForm({ ...cityForm, priority_score: parseInt(e.target.value) || 0 })}
+                  placeholder="0-100"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Ordre d'affichage</Label>
+                <Input
+                  type="number"
+                  value={cityForm.sort_order}
+                  onChange={(e) => setCityForm({ ...cityForm, sort_order: parseInt(e.target.value) || 0 })}
+                />
+              </div>
             </div>
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setIsCityDialogOpen(false)}>
