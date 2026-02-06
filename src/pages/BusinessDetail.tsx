@@ -294,7 +294,7 @@ const BusinessDetail = () => {
                   <h2 className="text-lg font-semibold mb-3">PDF</h2>
                   <div className="space-y-3">
                     {/* PDF Preview */}
-                    <div className="aspect-[3/4] w-1/2 rounded-lg overflow-hidden border bg-muted">
+                    <div className="aspect-[3/4] w-full rounded-lg overflow-hidden border bg-muted">
                       <iframe
                         src={`${business.pdf_url}#toolbar=0&navpanes=0`}
                         className="w-full h-full"
