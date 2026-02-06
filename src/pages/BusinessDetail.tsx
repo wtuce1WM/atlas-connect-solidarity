@@ -43,7 +43,27 @@ interface Business {
   tripadvisor_url: string | null;
   booking_url: string | null;
   google_maps_url: string | null;
+  video_1_url: string | null;
 }
+
+// Helper to convert video URL to embeddable format
+const getEmbedUrl = (url: string): string | null => {
+  // YouTube
+  const youtubeMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  if (youtubeMatch) {
+    return `https://www.youtube.com/embed/${youtubeMatch[1]}`;
+  }
+  // Vimeo
+  const vimeoMatch = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+  if (vimeoMatch) {
+    return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
+  }
+  // Direct video link
+  if (url.match(/\.(mp4|webm|ogg)$/i)) {
+    return url;
+  }
+  return null;
+};
 
 const BusinessDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -164,6 +184,36 @@ const BusinessDetail = () => {
         <div className="grid gap-8 lg:grid-cols-3">
           {/* Main content */}
           <div className="lg:col-span-2 space-y-6">
+            {/* Video */}
+            {business.video_1_url && (() => {
+              const embedUrl = getEmbedUrl(business.video_1_url);
+              if (!embedUrl) return null;
+              
+              const isDirectVideo = business.video_1_url.match(/\.(mp4|webm|ogg)$/i);
+              
+              return (
+                <Card className="overflow-hidden">
+                  <div className="aspect-video">
+                    {isDirectVideo ? (
+                      <video
+                        src={embedUrl}
+                        controls
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <iframe
+                        src={embedUrl}
+                        className="w-full h-full"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        title="Vidéo de présentation"
+                      />
+                    )}
+                  </div>
+                </Card>
+              );
+            })()}
+
             {/* Image Gallery */}
             {business.images && business.images.length > 0 && (
               <Card className="overflow-hidden">
