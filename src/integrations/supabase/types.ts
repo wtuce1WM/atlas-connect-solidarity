@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           account_type: string | null
           address: string | null
+          airbnb_url: string | null
           booking_url: string | null
           categories: string[] | null
           city: string
@@ -26,6 +27,7 @@ export type Database = {
           description: string | null
           email: string | null
           facebook_url: string | null
+          google_maps_url: string | null
           ice: string | null
           id: string
           instagram_url: string | null
@@ -57,6 +59,7 @@ export type Database = {
         Insert: {
           account_type?: string | null
           address?: string | null
+          airbnb_url?: string | null
           booking_url?: string | null
           categories?: string[] | null
           city: string
@@ -65,6 +68,7 @@ export type Database = {
           description?: string | null
           email?: string | null
           facebook_url?: string | null
+          google_maps_url?: string | null
           ice?: string | null
           id?: string
           instagram_url?: string | null
@@ -96,6 +100,7 @@ export type Database = {
         Update: {
           account_type?: string | null
           address?: string | null
+          airbnb_url?: string | null
           booking_url?: string | null
           categories?: string[] | null
           city?: string
@@ -104,6 +109,7 @@ export type Database = {
           description?: string | null
           email?: string | null
           facebook_url?: string | null
+          google_maps_url?: string | null
           ice?: string | null
           id?: string
           instagram_url?: string | null

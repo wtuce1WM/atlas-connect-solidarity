@@ -24,6 +24,8 @@ import {
   WhatsAppIcon,
   TripAdvisorIcon,
   BookingIcon,
+  GoogleMapsIcon,
+  AirbnbIcon,
 } from "./SocialMediaIcons";
 
 type Business = Tables<"businesses">;
@@ -411,6 +413,8 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
     account_type: (business as any)?.account_type || "",
     internal_notes: (business as any)?.internal_notes || "",
     video_1_url: (business as any)?.video_1_url || "",
+    google_maps_url: (business as any)?.google_maps_url || "",
+    airbnb_url: (business as any)?.airbnb_url || "",
   });
 
   const handleChange = (field: string, value: string | boolean | string[]) => {
@@ -484,6 +488,8 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
       account_type: formData.account_type || null,
       internal_notes: formData.internal_notes ? formData.internal_notes.slice(0, 5000) : null,
       video_1_url: formData.video_1_url || null,
+      google_maps_url: formData.google_maps_url || null,
+      airbnb_url: formData.airbnb_url || null,
     };
 
     try {
@@ -833,6 +839,32 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
                 value={formData.booking_url}
                 onChange={(e) => handleChange("booking_url", e.target.value)}
                 placeholder="https://booking.com/hotel/..."
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="google_maps_url" className="flex items-center gap-2">
+                <GoogleMapsIcon className="text-[#4285F4]" />
+                Google Maps
+              </Label>
+              <Input
+                id="google_maps_url"
+                value={formData.google_maps_url}
+                onChange={(e) => handleChange("google_maps_url", e.target.value)}
+                placeholder="https://maps.google.com/..."
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="airbnb_url" className="flex items-center gap-2">
+                <AirbnbIcon className="text-[#FF5A5F]" />
+                Airbnb
+              </Label>
+              <Input
+                id="airbnb_url"
+                value={formData.airbnb_url}
+                onChange={(e) => handleChange("airbnb_url", e.target.value)}
+                placeholder="https://airbnb.com/rooms/..."
               />
             </div>
           </div>
