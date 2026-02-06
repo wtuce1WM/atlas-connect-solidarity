@@ -58,6 +58,14 @@ interface City {
   wikipedia_fr: string | null;
   wikipedia_en: string | null;
   wikipedia_ar: string | null;
+  official_site_1_name: string | null;
+  official_site_1_url: string | null;
+  official_site_2_name: string | null;
+  official_site_2_url: string | null;
+  official_site_3_name: string | null;
+  official_site_3_url: string | null;
+  official_site_4_name: string | null;
+  official_site_4_url: string | null;
 }
 
 const LocationManagement = () => {
@@ -95,6 +103,14 @@ const LocationManagement = () => {
     wikipedia_fr: "",
     wikipedia_en: "",
     wikipedia_ar: "",
+    official_site_1_name: "",
+    official_site_1_url: "",
+    official_site_2_name: "",
+    official_site_2_url: "",
+    official_site_3_name: "",
+    official_site_3_url: "",
+    official_site_4_name: "",
+    official_site_4_url: "",
   });
 
   useEffect(() => {
@@ -229,6 +245,14 @@ const LocationManagement = () => {
       wikipedia_fr: cityForm.wikipedia_fr.trim() || null,
       wikipedia_en: cityForm.wikipedia_en.trim() || null,
       wikipedia_ar: cityForm.wikipedia_ar.trim() || null,
+      official_site_1_name: cityForm.official_site_1_name.trim() || null,
+      official_site_1_url: cityForm.official_site_1_url.trim() || null,
+      official_site_2_name: cityForm.official_site_2_name.trim() || null,
+      official_site_2_url: cityForm.official_site_2_url.trim() || null,
+      official_site_3_name: cityForm.official_site_3_name.trim() || null,
+      official_site_3_url: cityForm.official_site_3_url.trim() || null,
+      official_site_4_name: cityForm.official_site_4_name.trim() || null,
+      official_site_4_url: cityForm.official_site_4_url.trim() || null,
     };
 
     let error;
@@ -277,6 +301,14 @@ const LocationManagement = () => {
       wikipedia_fr: city.wikipedia_fr || "",
       wikipedia_en: city.wikipedia_en || "",
       wikipedia_ar: city.wikipedia_ar || "",
+      official_site_1_name: city.official_site_1_name || "",
+      official_site_1_url: city.official_site_1_url || "",
+      official_site_2_name: city.official_site_2_name || "",
+      official_site_2_url: city.official_site_2_url || "",
+      official_site_3_name: city.official_site_3_name || "",
+      official_site_3_url: city.official_site_3_url || "",
+      official_site_4_name: city.official_site_4_name || "",
+      official_site_4_url: city.official_site_4_url || "",
     });
     setShowCityForm(true);
   };
@@ -302,6 +334,14 @@ const LocationManagement = () => {
       wikipedia_fr: "",
       wikipedia_en: "",
       wikipedia_ar: "",
+      official_site_1_name: "",
+      official_site_1_url: "",
+      official_site_2_name: "",
+      official_site_2_url: "",
+      official_site_3_name: "",
+      official_site_3_url: "",
+      official_site_4_name: "",
+      official_site_4_url: "",
     });
   };
 
@@ -745,6 +785,36 @@ const LocationManagement = () => {
                         placeholder="https://ar.wikipedia.org/wiki/..."
                       />
                     </div>
+                  </div>
+                </div>
+
+                {/* Official Sites */}
+                <div className="space-y-4">
+                  <h3 className="font-medium text-lg flex items-center gap-2">
+                    <Globe className="h-4 w-4" />
+                    Sites officiels
+                  </h3>
+                  <div className="space-y-4">
+                    {[1, 2, 3, 4].map((num) => (
+                      <div key={num} className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border rounded-lg">
+                        <div className="space-y-2 md:col-span-1">
+                          <Label>Nom du site {num}</Label>
+                          <Input
+                            value={(cityForm as any)[`official_site_${num}_name`]}
+                            onChange={(e) => setCityForm({ ...cityForm, [`official_site_${num}_name`]: e.target.value })}
+                            placeholder={`Ex: Office du tourisme`}
+                          />
+                        </div>
+                        <div className="space-y-2 md:col-span-2">
+                          <Label>URL du site {num}</Label>
+                          <Input
+                            value={(cityForm as any)[`official_site_${num}_url`]}
+                            onChange={(e) => setCityForm({ ...cityForm, [`official_site_${num}_url`]: e.target.value })}
+                            placeholder="https://..."
+                          />
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </CardContent>
