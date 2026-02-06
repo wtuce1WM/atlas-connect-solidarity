@@ -212,6 +212,166 @@ const SUBCATEGORIES: Record<string, string[]> = {
   ],
 };
 
+const SERVICES: Record<string, string[]> = {
+  "Hôtellerie": [
+    "WiFi",
+    "Piscine",
+    "Spa",
+    "Restaurant",
+    "Bar",
+    "Room service",
+    "Parking",
+    "Climatisation",
+    "Petit-déjeuner inclus",
+    "Transfert aéroport",
+    "Conciergerie",
+    "Salle de sport",
+    "Terrasse",
+    "Vue mer",
+    "Vue montagne",
+  ],
+  "Restauration": [
+    "Terrasse",
+    "Climatisation",
+    "WiFi",
+    "Livraison",
+    "À emporter",
+    "Réservation",
+    "Parking",
+    "Menu végétarien",
+    "Menu halal",
+    "Carte des vins",
+    "Musique live",
+    "Espace fumeur",
+  ],
+  "Transport": [
+    "Climatisation",
+    "GPS",
+    "Siège bébé",
+    "Assurance incluse",
+    "Chauffeur",
+    "24h/24",
+    "Réservation en ligne",
+    "Paiement carte",
+    "Multilingue",
+  ],
+  "Artisanat": [
+    "Fabrication sur mesure",
+    "Livraison",
+    "Atelier visitable",
+    "Démonstration",
+    "Cours/Initiation",
+    "Certificat d'authenticité",
+    "Export",
+  ],
+  "Commerce": [
+    "Paiement carte",
+    "Livraison",
+    "Click & Collect",
+    "Parking",
+    "Climatisation",
+    "Service client",
+    "Retours acceptés",
+  ],
+  "Services": [
+    "Devis gratuit",
+    "Sur rendez-vous",
+    "À domicile",
+    "En ligne",
+    "Multilingue",
+    "24h/24",
+    "Urgence",
+  ],
+  "Tourisme": [
+    "Guide multilingue",
+    "Transport inclus",
+    "Repas inclus",
+    "Équipement fourni",
+    "Assurance incluse",
+    "Photos/Vidéos",
+    "Petit groupe",
+    "Sur mesure",
+  ],
+  "Agriculture": [
+    "Bio",
+    "Commerce équitable",
+    "Visite de ferme",
+    "Vente directe",
+    "Livraison",
+    "Export",
+    "Dégustation",
+  ],
+  "Industrie": [
+    "Certifié ISO",
+    "Export",
+    "Sur mesure",
+    "Livraison",
+    "SAV",
+    "Formation",
+  ],
+  "Éducation": [
+    "Certificat",
+    "En ligne",
+    "Présentiel",
+    "Tous niveaux",
+    "Cours particuliers",
+    "Cours collectifs",
+    "Stage intensif",
+    "Matériel fourni",
+  ],
+  "Santé": [
+    "Rendez-vous en ligne",
+    "Urgences",
+    "Tiers payant",
+    "Parking",
+    "Accès PMR",
+    "Multilingue",
+    "Téléconsultation",
+  ],
+  "Sport & Loisirs": [
+    "Cours débutant",
+    "Cours avancé",
+    "Location matériel",
+    "Encadrement certifié",
+    "Vestiaires",
+    "Douches",
+    "Cours particuliers",
+    "Cours collectifs",
+    "Stage",
+    "Enfants acceptés",
+  ],
+  "Bien-être": [
+    "Sur rendez-vous",
+    "Sans rendez-vous",
+    "Produits bio",
+    "Forfaits",
+    "Carte de fidélité",
+    "Couples",
+    "Privatisation",
+    "Vestiaires",
+  ],
+  "Culture": [
+    "Visite guidée",
+    "Audioguide",
+    "Boutique",
+    "Café",
+    "Accès PMR",
+    "Groupes",
+    "Scolaires",
+    "Événements privés",
+  ],
+  "Technologie": [
+    "Devis gratuit",
+    "Support 24/7",
+    "Formation",
+    "Maintenance",
+    "Hébergement",
+    "SEO",
+    "E-commerce",
+    "Application mobile",
+  ],
+};
+
 const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
@@ -228,7 +388,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
     website: business?.website || "",
     main_category: business?.main_category || "",
     categories: business?.categories || [] as string[],
-    services: business?.services?.join(", ") || "",
+    services: business?.services || [] as string[],
     keywords: business?.keywords?.join(", ") || "",
     latitude: business?.latitude?.toString() || "",
     longitude: business?.longitude?.toString() || "",
@@ -262,8 +422,23 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
     });
   };
 
+  const handleServiceToggle = (service: string) => {
+    setFormData((prev) => {
+      const currentServices = prev.services;
+      if (currentServices.includes(service)) {
+        return { ...prev, services: currentServices.filter((s) => s !== service) };
+      } else {
+        return { ...prev, services: [...currentServices, service] };
+      }
+    });
+  };
+
   const availableSubcategories = formData.main_category
     ? SUBCATEGORIES[formData.main_category] || []
+    : [];
+
+  const availableServices = formData.main_category
+    ? SERVICES[formData.main_category] || []
     : [];
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -282,7 +457,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
       website: formData.website || null,
       main_category: formData.main_category || null,
       categories: formData.categories.length > 0 ? formData.categories : [],
-      services: formData.services ? formData.services.split(",").map((s) => s.trim()) : [],
+      services: formData.services.length > 0 ? formData.services : [],
       keywords: formData.keywords ? formData.keywords.split(",").map((k) => k.trim()) : [],
       latitude: formData.latitude ? parseFloat(formData.latitude) : null,
       longitude: formData.longitude ? parseFloat(formData.longitude) : null,
@@ -679,14 +854,55 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
           )}
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="services">Services (séparés par virgule)</Label>
-          <Input
-            id="services"
-            value={formData.services}
-            onChange={(e) => handleChange("services", e.target.value)}
-            placeholder="Piscine, WiFi, Parking"
-          />
+        <div className="space-y-3">
+          <Label>Services</Label>
+          {formData.main_category ? (
+            availableServices.length > 0 ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 p-4 border rounded-lg bg-muted/30">
+                {availableServices.map((service) => (
+                  <label
+                    key={service}
+                    className="flex items-center gap-2 cursor-pointer hover:bg-background p-2 rounded-md transition-colors"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={formData.services.includes(service)}
+                      onChange={() => handleServiceToggle(service)}
+                      className="h-4 w-4 rounded border-input"
+                    />
+                    <span className="text-sm">{service}</span>
+                  </label>
+                ))}
+              </div>
+            ) : (
+              <p className="text-muted-foreground text-sm italic">
+                Aucun service disponible pour cette catégorie.
+              </p>
+            )
+          ) : (
+            <p className="text-muted-foreground text-sm italic">
+              Sélectionnez d'abord une catégorie principale.
+            </p>
+          )}
+          {formData.services.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-2">
+              {formData.services.map((service) => (
+                <span
+                  key={service}
+                  className="inline-flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary rounded-md text-sm"
+                >
+                  {service}
+                  <button
+                    type="button"
+                    onClick={() => handleServiceToggle(service)}
+                    className="hover:text-destructive"
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="space-y-2">
