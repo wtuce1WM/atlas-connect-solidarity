@@ -245,9 +245,10 @@ const BusinessDetail = () => {
               <Card>
                 <CardContent className="p-6">
                   <h2 className="text-xl font-semibold mb-4">À propos</h2>
-                  <p className="text-muted-foreground leading-relaxed">
-                    {business.description}
-                  </p>
+                  <div 
+                    className="text-muted-foreground leading-relaxed prose prose-sm max-w-none prose-headings:text-foreground prose-a:text-primary"
+                    dangerouslySetInnerHTML={{ __html: business.description }}
+                  />
                 </CardContent>
               </Card>
             )}
