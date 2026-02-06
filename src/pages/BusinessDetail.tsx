@@ -9,6 +9,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import GoogleMapEmbed from "@/components/GoogleMapEmbed";
 import logoGold from "@/assets/logoGOLD.webp";
+import relaisChateauxLogo from "@/assets/relais-chateaux-logo.png";
 
 interface Business {
   id: string;
@@ -83,7 +84,7 @@ const BusinessDetail = () => {
   }
 
   const isVerified = business.wtuce_status === "verified";
-
+  const isRelaisChateaux = business.categories?.includes("Relais & Châteaux");
   return (
     <div className={`min-h-screen ${isVerified ? "bg-gradient-to-b from-black from-50% to-gold" : "bg-background"}`}>
       <Header />
@@ -107,6 +108,13 @@ const BusinessDetail = () => {
                 <BadgeCheck className="h-4 w-4" />
                 WTUCE Vérifié
               </Badge>
+            )}
+            {isRelaisChateaux && (
+              <img 
+                src={relaisChateauxLogo} 
+                alt="Relais & Châteaux" 
+                className="h-10 object-contain"
+              />
             )}
           </div>
           <div className="flex items-center gap-2 mt-3 text-muted-foreground">
