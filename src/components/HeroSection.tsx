@@ -71,7 +71,7 @@ const HeroSection = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<SearchResult | null>(null);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const [showAllResults, setShowAllResults] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(RESULTS_PER_PAGE);
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
   const { t, language } = useLanguage();
   const { toast } = useToast();
@@ -87,12 +87,10 @@ const HeroSection = () => {
     ? result?.businesses.filter(b => b.categories?.includes(selectedSubcategory)) || []
     : result?.businesses || [];
 
-  // Limit displayed results
-  const displayedBusinesses = showAllResults 
-    ? allFilteredBusinesses 
-    : allFilteredBusinesses.slice(0, RESULTS_PER_PAGE);
-  
-  const hasMoreResults = allFilteredBusinesses.length > RESULTS_PER_PAGE;
+  // Limit displayed results based on visible count
+  const displayedBusinesses = allFilteredBusinesses.slice(0, visibleCount);
+  const hasMoreResults = allFilteredBusinesses.length > visibleCount;
+  const remainingCount = allFilteredBusinesses.length - visibleCount;
 
   // Get user location on mount
   useEffect(() => {
@@ -395,29 +393,29 @@ const HeroSection = () => {
               </div>
 
               {/* Show More Button */}
-              {hasMoreResults && !showAllResults && (
+              {hasMoreResults && (
                 <div className="mt-6 text-center">
                   <button
-                    onClick={() => setShowAllResults(true)}
+                    onClick={() => setVisibleCount(prev => prev + RESULTS_PER_PAGE)}
                     className="inline-flex items-center gap-2 rounded-lg bg-white/90 px-6 py-3 font-medium text-foreground transition-all hover:bg-white hover:shadow-md"
                   >
                     {language === "fr" 
-                      ? `Voir plus (${allFilteredBusinesses.length - RESULTS_PER_PAGE} restants)` 
+                      ? `Voir plus (${remainingCount} restants)` 
                       : language === "ar" 
-                        ? `عرض المزيد (${allFilteredBusinesses.length - RESULTS_PER_PAGE} متبقي)`
-                        : `Show more (${allFilteredBusinesses.length - RESULTS_PER_PAGE} remaining)`}
+                        ? `عرض المزيد (${remainingCount} متبقي)`
+                        : `Show more (${remainingCount} remaining)`}
                   </button>
                 </div>
               )}
 
               {/* Show Less Button */}
-              {showAllResults && hasMoreResults && (
-                <div className="mt-6 text-center">
+              {visibleCount > RESULTS_PER_PAGE && (
+                <div className="mt-3 text-center">
                   <button
-                    onClick={() => setShowAllResults(false)}
-                    className="inline-flex items-center gap-2 rounded-lg bg-white/90 px-6 py-3 font-medium text-foreground transition-all hover:bg-white hover:shadow-md"
+                    onClick={() => setVisibleCount(RESULTS_PER_PAGE)}
+                    className="inline-flex items-center gap-2 text-sm text-white/70 hover:text-white transition-colors"
                   >
-                    {language === "fr" ? "Voir moins" : language === "ar" ? "عرض أقل" : "Show less"}
+                    {language === "fr" ? "← Réduire" : language === "ar" ? "← تقليص" : "← Show less"}
                   </button>
                 </div>
               )}
