@@ -354,9 +354,10 @@ const HeroSection = () => {
                         </div>
 
                         {business.description && (
-                          <p className={`mb-2 text-xs text-muted-foreground line-clamp-2 ${business.wtuce_status === "verified" ? "font-bold" : ""}`}>
-                            {business.description}
-                          </p>
+                          <div 
+                            className={`mb-2 text-xs text-muted-foreground line-clamp-2 ${business.wtuce_status === "verified" ? "font-bold" : ""}`}
+                            dangerouslySetInnerHTML={{ __html: business.description }}
+                          />
                         )}
 
                         {/* Categories */}
