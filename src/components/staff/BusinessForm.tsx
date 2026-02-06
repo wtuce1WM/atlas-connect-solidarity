@@ -18,6 +18,7 @@ import ImageUploader from "./ImageUploader";
 import PDFUploader from "./PDFUploader";
 import LogoUploader from "./LogoUploader";
 import LabelUploader from "./LabelUploader";
+import OpeningHoursEditor, { OpeningHours, DEFAULT_OPENING_HOURS } from "./OpeningHoursEditor";
 import {
   FacebookIcon,
   InstagramIcon,
@@ -423,6 +424,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
     pdf_url: (business as any)?.pdf_url || "",
     label1_url: (business as any)?.label1_url || "",
     online_shop_url: (business as any)?.online_shop_url || "",
+    opening_hours: (business as any)?.opening_hours as OpeningHours | null,
   });
 
   const handleChange = (field: string, value: string | boolean | string[]) => {
@@ -502,6 +504,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
       pdf_url: formData.pdf_url || null,
       label1_url: formData.label1_url || null,
       online_shop_url: formData.online_shop_url || null,
+      opening_hours: formData.opening_hours ? JSON.parse(JSON.stringify(formData.opening_hours)) : null,
     };
 
     try {
@@ -837,6 +840,12 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
             />
           </div>
         </div>
+
+        {/* Opening Hours */}
+        <OpeningHoursEditor
+          value={formData.opening_hours}
+          onChange={(hours) => handleChange("opening_hours", hours as any)}
+        />
 
         {/* Social Media */}
         <div className="space-y-4">
