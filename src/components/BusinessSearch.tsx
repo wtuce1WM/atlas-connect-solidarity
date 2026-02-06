@@ -388,7 +388,7 @@ const BusinessSearch = () => {
 
                     {business.description && (
                       <p className="mb-3 text-sm text-muted-foreground line-clamp-2">
-                        {business.description}
+                        {business.description.replace(/<[^>]*>/g, '')}
                       </p>
                     )}
 
