@@ -78,7 +78,7 @@ const Footer = () => {
         {/* Bottom */}
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-background/10 pt-8 md:flex-row">
           <p className="text-sm text-background/50">
-            © 2024 SolidarityMA. {t("footer.rights")}
+            © 2026 ZitounMusk. {t("footer.rights")}
           </p>
           <div className="flex gap-6 text-sm text-background/50">
             <a href="#" className="transition-colors hover:text-gold">{t("footer.privacy")}</a>
