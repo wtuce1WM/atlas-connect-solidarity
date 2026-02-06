@@ -409,6 +409,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
     tripadvisor_url: (business as any)?.tripadvisor_url || "",
     booking_url: (business as any)?.booking_url || "",
     account_type: (business as any)?.account_type || "",
+    internal_notes: (business as any)?.internal_notes || "",
   });
 
   const handleChange = (field: string, value: string | boolean | string[]) => {
@@ -480,6 +481,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
       tripadvisor_url: formData.tripadvisor_url || null,
       booking_url: formData.booking_url || null,
       account_type: formData.account_type || null,
+      internal_notes: formData.internal_notes ? formData.internal_notes.slice(0, 5000) : null,
     };
 
     try {
@@ -832,6 +834,28 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
               />
             </div>
           </div>
+        </div>
+
+        {/* Internal Notes */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <Label htmlFor="internal_notes">Note interne (staff uniquement)</Label>
+            <span className="text-xs text-muted-foreground">
+              {formData.internal_notes.replace(/<[^>]*>/g, '').length} / 5000 caractères
+            </span>
+          </div>
+          <RichTextEditor
+            content={formData.internal_notes}
+            onChange={(html) => {
+              const textContent = html.replace(/<[^>]*>/g, '');
+              if (textContent.length <= 5000) {
+                handleChange("internal_notes", html);
+              }
+            }}
+          />
+          <p className="text-xs text-muted-foreground">
+            Ces notes sont visibles uniquement par le staff et ne seront pas affichées publiquement.
+          </p>
         </div>
 
         {/* Metadata */}

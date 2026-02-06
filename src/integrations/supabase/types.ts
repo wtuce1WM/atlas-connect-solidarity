@@ -29,6 +29,7 @@ export type Database = {
           ice: string | null
           id: string
           instagram_url: string | null
+          internal_notes: string | null
           is_featured: boolean | null
           is_regulated_activity: boolean | null
           keywords: string[] | null
@@ -66,6 +67,7 @@ export type Database = {
           ice?: string | null
           id?: string
           instagram_url?: string | null
+          internal_notes?: string | null
           is_featured?: boolean | null
           is_regulated_activity?: boolean | null
           keywords?: string[] | null
@@ -103,6 +105,7 @@ export type Database = {
           ice?: string | null
           id?: string
           instagram_url?: string | null
+          internal_notes?: string | null
           is_featured?: boolean | null
           is_regulated_activity?: boolean | null
           keywords?: string[] | null
