@@ -1,9 +1,25 @@
 import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, X, Loader2, Image as ImageIcon } from "lucide-react";
+import { X, Loader2, Image as ImageIcon, GripVertical } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  rectSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 interface ImageUploaderProps {
   images: string[];
@@ -11,6 +27,68 @@ interface ImageUploaderProps {
   maxImages?: number;
   businessId?: string;
 }
+
+interface SortableImageProps {
+  url: string;
+  index: number;
+  onRemove: (index: number) => void;
+}
+
+const SortableImage = ({ url, index, onRemove }: SortableImageProps) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: url });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={cn(
+        "relative group aspect-square rounded-lg overflow-hidden border bg-muted",
+        isDragging && "opacity-50 z-50"
+      )}
+    >
+      <img
+        src={url}
+        alt={`Image ${index + 1}`}
+        className="w-full h-full object-cover"
+      />
+      
+      {/* Drag handle */}
+      <div
+        {...attributes}
+        {...listeners}
+        className="absolute top-2 left-2 p-1.5 bg-black/60 text-white rounded cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 transition-opacity"
+      >
+        <GripVertical className="h-4 w-4" />
+      </div>
+      
+      {/* Remove button */}
+      <button
+        type="button"
+        onClick={() => onRemove(index)}
+        className="absolute top-2 right-2 p-1 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+      >
+        <X className="h-4 w-4" />
+      </button>
+      
+      {/* Index badge */}
+      <div className="absolute bottom-2 left-2 px-2 py-0.5 bg-black/60 text-white text-xs rounded">
+        {index + 1}
+      </div>
+    </div>
+  );
+};
 
 const ImageUploader = ({ 
   images, 
@@ -20,6 +98,24 @@ const ImageUploader = ({
 }: ImageUploaderProps) => {
   const [uploading, setUploading] = useState(false);
   const { toast } = useToast();
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = images.indexOf(active.id as string);
+      const newIndex = images.indexOf(over.id as string);
+      const newImages = arrayMove(images, oldIndex, newIndex);
+      onChange(newImages);
+    }
+  }, [images, onChange]);
 
   const handleFileUpload = useCallback(async (files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -41,7 +137,6 @@ const ImageUploader = ({
       const uploadedUrls: string[] = [];
 
       for (const file of filesToUpload) {
-        // Validate file type
         if (!file.type.startsWith("image/")) {
           toast({
             variant: "destructive",
@@ -51,7 +146,6 @@ const ImageUploader = ({
           continue;
         }
 
-        // Validate file size (max 5MB)
         if (file.size > 5 * 1024 * 1024) {
           toast({
             variant: "destructive",
@@ -61,12 +155,10 @@ const ImageUploader = ({
           continue;
         }
 
-        // Generate unique filename
         const fileExt = file.name.split(".").pop();
         const fileName = `${businessId || "new"}-${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
         const filePath = `businesses/${fileName}`;
 
-        // Upload to Supabase Storage
         const { error: uploadError } = await supabase.storage
           .from("business-images")
           .upload(filePath, file);
@@ -81,7 +173,6 @@ const ImageUploader = ({
           continue;
         }
 
-        // Get public URL
         const { data: urlData } = supabase.storage
           .from("business-images")
           .getPublicUrl(filePath);
@@ -113,7 +204,6 @@ const ImageUploader = ({
   const handleRemoveImage = useCallback(async (indexToRemove: number) => {
     const imageUrl = images[indexToRemove];
     
-    // Extract file path from URL to delete from storage
     try {
       const urlParts = imageUrl.split("/business-images/");
       if (urlParts.length > 1) {
@@ -124,7 +214,6 @@ const ImageUploader = ({
       console.error("Error deleting from storage:", error);
     }
 
-    // Update state regardless of storage deletion success
     const newImages = images.filter((_, index) => index !== indexToRemove);
     onChange(newImages);
   }, [images, onChange]);
@@ -140,32 +229,32 @@ const ImageUploader = ({
 
   return (
     <div className="space-y-4">
-      {/* Image Grid */}
+      {/* Image Grid with DnD */}
       {images.length > 0 && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {images.map((url, index) => (
-            <div
-              key={index}
-              className="relative group aspect-square rounded-lg overflow-hidden border bg-muted"
-            >
-              <img
-                src={url}
-                alt={`Image ${index + 1}`}
-                className="w-full h-full object-cover"
-              />
-              <button
-                type="button"
-                onClick={() => handleRemoveImage(index)}
-                className="absolute top-2 right-2 p-1 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <X className="h-4 w-4" />
-              </button>
-              <div className="absolute bottom-2 left-2 px-2 py-0.5 bg-black/60 text-white text-xs rounded">
-                {index + 1}
-              </div>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext items={images} strategy={rectSortingStrategy}>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              {images.map((url, index) => (
+                <SortableImage
+                  key={url}
+                  url={url}
+                  index={index}
+                  onRemove={handleRemoveImage}
+                />
+              ))}
             </div>
-          ))}
-        </div>
+          </SortableContext>
+        </DndContext>
+      )}
+
+      {images.length > 0 && (
+        <p className="text-sm text-muted-foreground text-center">
+          Glissez-déposez les images pour les réorganiser
+        </p>
       )}
 
       {/* Upload Zone */}
