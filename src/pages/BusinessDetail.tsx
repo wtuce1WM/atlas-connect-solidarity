@@ -413,6 +413,12 @@ const BusinessDetail = () => {
               <CardContent className="p-6">
                 <h2 className="text-xl font-semibold mb-4">Contact</h2>
                 <div className="space-y-4">
+                  {business.address && (
+                    <div className="flex items-start gap-3 text-foreground">
+                      <MapPin className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
+                      <span>{business.address}, {business.city}</span>
+                    </div>
+                  )}
                   {business.phone && (
                     <a
                       href={`tel:${business.phone}`}
