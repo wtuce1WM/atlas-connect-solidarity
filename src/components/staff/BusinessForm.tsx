@@ -22,6 +22,8 @@ import {
   YouTubeIcon,
   TikTokIcon,
   WhatsAppIcon,
+  TripAdvisorIcon,
+  BookingIcon,
 } from "./SocialMediaIcons";
 
 type Business = Tables<"businesses">;
@@ -404,6 +406,8 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
     youtube_url: (business as any)?.youtube_url || "",
     tiktok_url: (business as any)?.tiktok_url || "",
     whatsapp: (business as any)?.whatsapp || "",
+    tripadvisor_url: (business as any)?.tripadvisor_url || "",
+    booking_url: (business as any)?.booking_url || "",
     account_type: (business as any)?.account_type || "",
   });
 
@@ -473,6 +477,8 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
       youtube_url: formData.youtube_url || null,
       tiktok_url: formData.tiktok_url || null,
       whatsapp: formData.whatsapp || null,
+      tripadvisor_url: formData.tripadvisor_url || null,
+      booking_url: formData.booking_url || null,
       account_type: formData.account_type || null,
     };
 
@@ -797,6 +803,32 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
                 value={formData.whatsapp}
                 onChange={(e) => handleChange("whatsapp", e.target.value)}
                 placeholder="+212 6XX-XXXXXX"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="tripadvisor_url" className="flex items-center gap-2">
+                <TripAdvisorIcon className="text-[#00AF87]" />
+                TripAdvisor
+              </Label>
+              <Input
+                id="tripadvisor_url"
+                value={formData.tripadvisor_url}
+                onChange={(e) => handleChange("tripadvisor_url", e.target.value)}
+                placeholder="https://tripadvisor.com/..."
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="booking_url" className="flex items-center gap-2">
+                <BookingIcon className="text-[#003580]" />
+                Booking.com
+              </Label>
+              <Input
+                id="booking_url"
+                value={formData.booking_url}
+                onChange={(e) => handleChange("booking_url", e.target.value)}
+                placeholder="https://booking.com/hotel/..."
               />
             </div>
           </div>
