@@ -33,7 +33,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Edit, Trash2, Globe, MapPin, Building, ExternalLink } from "lucide-react";
+import { Plus, Edit, Trash2, Globe, MapPin, Building, ExternalLink, ArrowLeft, Save } from "lucide-react";
 
 interface Country {
   id: string;
@@ -68,7 +68,7 @@ const LocationManagement = () => {
   const [editingCountry, setEditingCountry] = useState<Country | null>(null);
   const [editingCity, setEditingCity] = useState<City | null>(null);
   const [isCountryDialogOpen, setIsCountryDialogOpen] = useState(false);
-  const [isCityDialogOpen, setIsCityDialogOpen] = useState(false);
+  const [showCityForm, setShowCityForm] = useState(false);
   const [selectedCountryForCity, setSelectedCountryForCity] = useState<string | null>(null);
   const { toast } = useToast();
 
@@ -245,7 +245,7 @@ const LocationManagement = () => {
     } else {
       toast({ title: "Succès", description: editingCity ? "Ville mise à jour." : "Ville créée." });
       resetCityForm();
-      setIsCityDialogOpen(false);
+      setShowCityForm(false);
       fetchData();
     }
   };
@@ -278,13 +278,13 @@ const LocationManagement = () => {
       wikipedia_en: city.wikipedia_en || "",
       wikipedia_ar: city.wikipedia_ar || "",
     });
-    setIsCityDialogOpen(true);
+    setShowCityForm(true);
   };
 
   const openAddCity = (countryId: string) => {
     resetCityForm();
     setCityForm(prev => ({ ...prev, country_id: countryId }));
-    setIsCityDialogOpen(true);
+    setShowCityForm(true);
   };
 
   const resetCityForm = () => {
@@ -564,146 +564,211 @@ const LocationManagement = () => {
         </CardContent>
       </Card>
 
-      {/* City Dialog */}
-      <Dialog open={isCityDialogOpen} onOpenChange={(open) => {
-        setIsCityDialogOpen(open);
-        if (!open) resetCityForm();
-      }}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>{editingCity ? "Modifier la ville" : "Nouvelle ville"}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label>Pays *</Label>
-              <Select
-                value={cityForm.country_id}
-                onValueChange={(val) => setCityForm({ ...cityForm, country_id: val })}
+      {/* City Form Page */}
+      {showCityForm && (
+        <div className="fixed inset-0 z-50 bg-background overflow-y-auto">
+          <div className="container max-w-4xl mx-auto py-6 px-4">
+            {/* Header with Save button */}
+            <div className="flex items-center justify-between mb-6 sticky top-0 bg-background py-4 border-b z-10">
+              <div className="flex items-center gap-4">
+                <Button 
+                  variant="ghost" 
+                  onClick={() => {
+                    resetCityForm();
+                    setShowCityForm(false);
+                  }}
+                >
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Retour
+                </Button>
+                <h2 className="text-xl font-bold">
+                  {editingCity ? `Modifier: ${editingCity.name_fr}` : "Nouvelle ville"}
+                </h2>
+              </div>
+              <Button onClick={handleSaveCity} className="bg-gold hover:bg-gold/90">
+                <Save className="h-4 w-4 mr-2" />
+                Enregistrer
+              </Button>
+            </div>
+
+            {/* Form content */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <MapPin className="h-5 w-5" />
+                  Informations de la ville
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Country selection */}
+                <div className="space-y-2">
+                  <Label>Pays *</Label>
+                  <Select
+                    value={cityForm.country_id}
+                    onValueChange={(val) => setCityForm({ ...cityForm, country_id: val })}
+                  >
+                    <SelectTrigger className="max-w-md">
+                      <SelectValue placeholder="Sélectionner un pays" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {countries.map((c) => (
+                        <SelectItem key={c.id} value={c.id}>{c.name_fr}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Names section */}
+                <div className="space-y-4">
+                  <h3 className="font-medium text-lg">Noms</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <Label>Nom (FR) *</Label>
+                      <Input
+                        value={cityForm.name_fr}
+                        onChange={(e) => setCityForm({ ...cityForm, name_fr: e.target.value })}
+                        placeholder="Casablanca"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Nom (EN)</Label>
+                      <Input
+                        value={cityForm.name_en}
+                        onChange={(e) => setCityForm({ ...cityForm, name_en: e.target.value })}
+                        placeholder="Casablanca"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Nom (AR)</Label>
+                      <Input
+                        value={cityForm.name_ar}
+                        onChange={(e) => setCityForm({ ...cityForm, name_ar: e.target.value })}
+                        placeholder="الدار البيضاء"
+                        dir="rtl"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Region */}
+                <div className="space-y-2">
+                  <Label>Région</Label>
+                  <Input
+                    value={cityForm.region}
+                    onChange={(e) => setCityForm({ ...cityForm, region: e.target.value })}
+                    placeholder="Casablanca-Settat"
+                    className="max-w-md"
+                  />
+                </div>
+
+                {/* Coordinates */}
+                <div className="space-y-4">
+                  <h3 className="font-medium text-lg">Coordonnées GPS</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Latitude</Label>
+                      <Input
+                        type="number"
+                        step="any"
+                        value={cityForm.latitude}
+                        onChange={(e) => setCityForm({ ...cityForm, latitude: e.target.value })}
+                        placeholder="33.5731"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Longitude</Label>
+                      <Input
+                        type="number"
+                        step="any"
+                        value={cityForm.longitude}
+                        onChange={(e) => setCityForm({ ...cityForm, longitude: e.target.value })}
+                        placeholder="-7.5898"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Priority and Sort */}
+                <div className="space-y-4">
+                  <h3 className="font-medium text-lg">Paramètres</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Score de priorité</Label>
+                      <Input
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={cityForm.priority_score}
+                        onChange={(e) => setCityForm({ ...cityForm, priority_score: parseInt(e.target.value) || 0 })}
+                        placeholder="0-100"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Ordre d'affichage</Label>
+                      <Input
+                        type="number"
+                        value={cityForm.sort_order}
+                        onChange={(e) => setCityForm({ ...cityForm, sort_order: parseInt(e.target.value) || 0 })}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Wikipedia Links */}
+                <div className="space-y-4">
+                  <h3 className="font-medium text-lg flex items-center gap-2">
+                    <ExternalLink className="h-4 w-4" />
+                    Liens Wikipedia
+                  </h3>
+                  <div className="grid grid-cols-1 gap-4">
+                    <div className="space-y-2">
+                      <Label>Wikipedia (FR)</Label>
+                      <Input
+                        value={cityForm.wikipedia_fr}
+                        onChange={(e) => setCityForm({ ...cityForm, wikipedia_fr: e.target.value })}
+                        placeholder="https://fr.wikipedia.org/wiki/..."
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Wikipedia (EN)</Label>
+                      <Input
+                        value={cityForm.wikipedia_en}
+                        onChange={(e) => setCityForm({ ...cityForm, wikipedia_en: e.target.value })}
+                        placeholder="https://en.wikipedia.org/wiki/..."
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Wikipedia (AR)</Label>
+                      <Input
+                        value={cityForm.wikipedia_ar}
+                        onChange={(e) => setCityForm({ ...cityForm, wikipedia_ar: e.target.value })}
+                        placeholder="https://ar.wikipedia.org/wiki/..."
+                      />
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Bottom Save button */}
+            <div className="flex justify-end gap-4 mt-6 sticky bottom-0 bg-background py-4 border-t">
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  resetCityForm();
+                  setShowCityForm(false);
+                }}
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="Sélectionner un pays" />
-                </SelectTrigger>
-                <SelectContent>
-                  {countries.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>{c.name_fr}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Nom (FR) *</Label>
-                <Input
-                  value={cityForm.name_fr}
-                  onChange={(e) => setCityForm({ ...cityForm, name_fr: e.target.value })}
-                  placeholder="Casablanca"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Région</Label>
-                <Input
-                  value={cityForm.region}
-                  onChange={(e) => setCityForm({ ...cityForm, region: e.target.value })}
-                  placeholder="Casablanca-Settat"
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Nom (EN)</Label>
-                <Input
-                  value={cityForm.name_en}
-                  onChange={(e) => setCityForm({ ...cityForm, name_en: e.target.value })}
-                  placeholder="Casablanca"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Nom (AR)</Label>
-                <Input
-                  value={cityForm.name_ar}
-                  onChange={(e) => setCityForm({ ...cityForm, name_ar: e.target.value })}
-                  placeholder="الدار البيضاء"
-                  dir="rtl"
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Latitude</Label>
-                <Input
-                  type="number"
-                  step="any"
-                  value={cityForm.latitude}
-                  onChange={(e) => setCityForm({ ...cityForm, latitude: e.target.value })}
-                  placeholder="33.5731"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Longitude</Label>
-                <Input
-                  type="number"
-                  step="any"
-                  value={cityForm.longitude}
-                  onChange={(e) => setCityForm({ ...cityForm, longitude: e.target.value })}
-                  placeholder="-7.5898"
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Score de priorité</Label>
-                <Input
-                  type="number"
-                  min="0"
-                  max="100"
-                  value={cityForm.priority_score}
-                  onChange={(e) => setCityForm({ ...cityForm, priority_score: parseInt(e.target.value) || 0 })}
-                  placeholder="0-100"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Ordre d'affichage</Label>
-                <Input
-                  type="number"
-                  value={cityForm.sort_order}
-                  onChange={(e) => setCityForm({ ...cityForm, sort_order: parseInt(e.target.value) || 0 })}
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label className="flex items-center gap-2">
-                <ExternalLink className="h-4 w-4" />
-                Liens Wikipedia
-              </Label>
-              <div className="grid grid-cols-3 gap-2">
-                <Input
-                  value={cityForm.wikipedia_fr}
-                  onChange={(e) => setCityForm({ ...cityForm, wikipedia_fr: e.target.value })}
-                  placeholder="FR - https://fr.wikipedia.org/..."
-                />
-                <Input
-                  value={cityForm.wikipedia_en}
-                  onChange={(e) => setCityForm({ ...cityForm, wikipedia_en: e.target.value })}
-                  placeholder="EN - https://en.wikipedia.org/..."
-                />
-                <Input
-                  value={cityForm.wikipedia_ar}
-                  onChange={(e) => setCityForm({ ...cityForm, wikipedia_ar: e.target.value })}
-                  placeholder="AR - https://ar.wikipedia.org/..."
-                />
-              </div>
-            </div>
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setIsCityDialogOpen(false)}>
                 Annuler
               </Button>
               <Button onClick={handleSaveCity} className="bg-gold hover:bg-gold/90">
-                {editingCity ? "Mettre à jour" : "Créer"}
+                <Save className="h-4 w-4 mr-2" />
+                Enregistrer
               </Button>
             </div>
           </div>
-        </DialogContent>
-      </Dialog>
+        </div>
+      )}
     </div>
   );
 };
