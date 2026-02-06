@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, MapPin, Phone, Mail, Globe, BadgeCheck, Loader2 } from "lucide-react";
+import { ArrowLeft, MapPin, Phone, Mail, Globe, BadgeCheck, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import GoogleMapEmbed from "@/components/GoogleMapEmbed";
@@ -27,12 +28,14 @@ interface Business {
   logo_url: string | null;
   latitude: number | null;
   longitude: number | null;
+  images: string[] | null;
 }
 
 const BusinessDetail = () => {
   const { id } = useParams<{ id: string }>();
   const [business, setBusiness] = useState<Business | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const { t } = useLanguage();
 
   useEffect(() => {
@@ -133,6 +136,67 @@ const BusinessDetail = () => {
         <div className="grid gap-8 lg:grid-cols-3">
           {/* Main content */}
           <div className="lg:col-span-2 space-y-6">
+            {/* Image Gallery */}
+            {business.images && business.images.length > 0 && (
+              <Card className="overflow-hidden">
+                <div className="relative aspect-video">
+                  <img
+                    src={business.images[currentImageIndex]}
+                    alt={`${business.name} - Image ${currentImageIndex + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                  {business.images.length > 1 && (
+                    <>
+                      <Button
+                        variant="secondary"
+                        size="icon"
+                        className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white"
+                        onClick={() => setCurrentImageIndex((prev) => 
+                          prev === 0 ? business.images!.length - 1 : prev - 1
+                        )}
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        size="icon"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white"
+                        onClick={() => setCurrentImageIndex((prev) => 
+                          prev === business.images!.length - 1 ? 0 : prev + 1
+                        )}
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/60 text-white px-3 py-1 rounded-full text-sm">
+                        {currentImageIndex + 1} / {business.images.length}
+                      </div>
+                    </>
+                  )}
+                </div>
+                {business.images.length > 1 && (
+                  <div className="flex gap-2 p-4 overflow-x-auto">
+                    {business.images.map((url, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setCurrentImageIndex(idx)}
+                        className={`flex-shrink-0 w-16 h-16 rounded-md overflow-hidden border-2 transition-colors ${
+                          idx === currentImageIndex 
+                            ? "border-primary" 
+                            : "border-transparent hover:border-muted-foreground"
+                        }`}
+                      >
+                        <img
+                          src={url}
+                          alt={`Miniature ${idx + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </Card>
+            )}
+
             {/* Description */}
             {business.description && (
               <Card>
