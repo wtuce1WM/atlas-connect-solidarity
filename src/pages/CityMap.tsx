@@ -1,7 +1,8 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Loader2, MapPin, X, ExternalLink } from "lucide-react";
+import { ArrowLeft, Loader2, MapPin, X, ExternalLink, BookOpen } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
@@ -43,10 +44,14 @@ interface CityInfo {
   official_site_5_url: string | null;
   official_site_6_name: string | null;
   official_site_6_url: string | null;
+  wikipedia_fr: string | null;
+  wikipedia_en: string | null;
+  wikipedia_ar: string | null;
 }
 
 const CityMap = () => {
   const { city } = useParams<{ city: string }>();
+  const { language } = useLanguage();
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [cityInfo, setCityInfo] = useState<CityInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -159,7 +164,7 @@ const CityMap = () => {
       // Fetch city info
       const { data: cityData, error: cityError } = await supabase
         .from("cities")
-        .select("description, official_site_1_name, official_site_1_url, official_site_2_name, official_site_2_url, official_site_3_name, official_site_3_url, official_site_4_name, official_site_4_url, official_site_5_name, official_site_5_url, official_site_6_name, official_site_6_url")
+        .select("description, official_site_1_name, official_site_1_url, official_site_2_name, official_site_2_url, official_site_3_name, official_site_3_url, official_site_4_name, official_site_4_url, official_site_5_name, official_site_5_url, official_site_6_name, official_site_6_url, wikipedia_fr, wikipedia_en, wikipedia_ar")
         .ilike("name_fr", decodedCity)
         .maybeSingle();
 
@@ -420,6 +425,37 @@ const CityMap = () => {
                 )}
               </div>
             )}
+
+            {/* Wikipedia Link */}
+            {cityInfo && (() => {
+              const wikipediaUrl = language === "ar" 
+                ? cityInfo.wikipedia_ar 
+                : language === "en" 
+                  ? cityInfo.wikipedia_en 
+                  : cityInfo.wikipedia_fr;
+              
+              if (!wikipediaUrl) return null;
+              
+              const label = language === "ar" 
+                ? "ويكيبيديا" 
+                : language === "en" 
+                  ? "Wikipedia" 
+                  : "Wikipédia";
+              
+              return (
+                <div className="mt-4">
+                  <a
+                    href={wikipediaUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 text-sm text-primary hover:underline"
+                  >
+                    <BookOpen className="h-3.5 w-3.5" />
+                    {label}
+                  </a>
+                </div>
+              );
+            })()}
           </div>
         </div>
       </main>
