@@ -594,6 +594,33 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
           </div>
         </div>
 
+        {/* Taxonomy Summary */}
+        {(formData.categories.length > 0 || formData.services.length > 0 || formData.keywords) && (
+          <div className="p-4 border rounded-lg bg-muted/20 space-y-2">
+            <Label className="text-base font-semibold">Récapitulatif taxonomique</Label>
+            <div className="space-y-1 text-sm">
+              {formData.categories.length > 0 && (
+                <p>
+                  <span className="font-medium text-muted-foreground">Sous-catégories :</span>{" "}
+                  {formData.categories.join(", ")}
+                </p>
+              )}
+              {formData.services.length > 0 && (
+                <p>
+                  <span className="font-medium text-muted-foreground">Services :</span>{" "}
+                  {formData.services.join(", ")}
+                </p>
+              )}
+              {formData.keywords && formData.keywords.trim() && (
+                <p>
+                  <span className="font-medium text-muted-foreground">Mots-clés :</span>{" "}
+                  {formData.keywords}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
         <div className="space-y-2">
           <Label htmlFor="description">Description</Label>
           <RichTextEditor
