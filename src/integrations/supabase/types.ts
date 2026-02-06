@@ -48,6 +48,7 @@ export type Database = {
           tripadvisor_url: string | null
           twitter_url: string | null
           updated_at: string
+          video_1_url: string | null
           website: string | null
           whatsapp: string | null
           wtuce_status: Database["public"]["Enums"]["wtuce_status"] | null
@@ -86,6 +87,7 @@ export type Database = {
           tripadvisor_url?: string | null
           twitter_url?: string | null
           updated_at?: string
+          video_1_url?: string | null
           website?: string | null
           whatsapp?: string | null
           wtuce_status?: Database["public"]["Enums"]["wtuce_status"] | null
@@ -124,6 +126,7 @@ export type Database = {
           tripadvisor_url?: string | null
           twitter_url?: string | null
           updated_at?: string
+          video_1_url?: string | null
           website?: string | null
           whatsapp?: string | null
           wtuce_status?: Database["public"]["Enums"]["wtuce_status"] | null
