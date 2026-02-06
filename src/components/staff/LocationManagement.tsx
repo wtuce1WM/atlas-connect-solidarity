@@ -67,6 +67,10 @@ interface City {
   official_site_3_url: string | null;
   official_site_4_name: string | null;
   official_site_4_url: string | null;
+  official_site_5_name: string | null;
+  official_site_5_url: string | null;
+  official_site_6_name: string | null;
+  official_site_6_url: string | null;
   description: string | null;
 }
 
@@ -113,6 +117,10 @@ const LocationManagement = () => {
     official_site_3_url: "",
     official_site_4_name: "",
     official_site_4_url: "",
+    official_site_5_name: "",
+    official_site_5_url: "",
+    official_site_6_name: "",
+    official_site_6_url: "",
     description: "",
   });
 
@@ -256,6 +264,10 @@ const LocationManagement = () => {
       official_site_3_url: cityForm.official_site_3_url.trim() || null,
       official_site_4_name: cityForm.official_site_4_name.trim() || null,
       official_site_4_url: cityForm.official_site_4_url.trim() || null,
+      official_site_5_name: cityForm.official_site_5_name.trim() || null,
+      official_site_5_url: cityForm.official_site_5_url.trim() || null,
+      official_site_6_name: cityForm.official_site_6_name.trim() || null,
+      official_site_6_url: cityForm.official_site_6_url.trim() || null,
       description: cityForm.description.trim().slice(0, 10000) || null,
     };
 
@@ -313,6 +325,10 @@ const LocationManagement = () => {
       official_site_3_url: city.official_site_3_url || "",
       official_site_4_name: city.official_site_4_name || "",
       official_site_4_url: city.official_site_4_url || "",
+      official_site_5_name: city.official_site_5_name || "",
+      official_site_5_url: city.official_site_5_url || "",
+      official_site_6_name: city.official_site_6_name || "",
+      official_site_6_url: city.official_site_6_url || "",
       description: city.description || "",
     });
     setShowCityForm(true);
@@ -347,6 +363,10 @@ const LocationManagement = () => {
       official_site_3_url: "",
       official_site_4_name: "",
       official_site_4_url: "",
+      official_site_5_name: "",
+      official_site_5_url: "",
+      official_site_6_name: "",
+      official_site_6_url: "",
       description: "",
     });
   };
@@ -801,7 +821,7 @@ const LocationManagement = () => {
                     Sites officiels
                   </h3>
                   <div className="space-y-4">
-                    {[1, 2, 3, 4].map((num) => (
+                    {[1, 2, 3, 4, 5, 6].map((num) => (
                       <div key={num} className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border rounded-lg">
                         <div className="space-y-2 md:col-span-1">
                           <Label>Nom du site {num}</Label>
