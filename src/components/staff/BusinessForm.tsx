@@ -549,14 +549,29 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
 
   return (
     <div className="bg-background rounded-lg border p-6">
-      <div className="flex items-center gap-4 mb-6">
-        <Button variant="ghost" size="sm" onClick={onCancel}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Retour
+      <div className="flex items-center justify-between gap-4 mb-6">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="sm" onClick={onCancel}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Retour
+          </Button>
+          <h2 className="text-xl font-bold">
+            {business ? "Modifier l'entreprise" : "Nouvelle entreprise"}
+          </h2>
+        </div>
+        <Button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            const form = document.querySelector('form');
+            if (form) form.requestSubmit();
+          }}
+          disabled={loading}
+          className="bg-gold hover:bg-gold/90 text-gold-foreground"
+        >
+          <Save className="h-4 w-4 mr-2" />
+          {loading ? "Enregistrement..." : "Enregistrer"}
         </Button>
-        <h2 className="text-xl font-bold">
-          {business ? "Modifier l'entreprise" : "Nouvelle entreprise"}
-        </h2>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
