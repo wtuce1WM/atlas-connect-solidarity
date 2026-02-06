@@ -144,11 +144,20 @@ const UserManagement = () => {
       });
 
       if (response.error) {
-        throw new Error(response.error.message);
+        // Parse the error message from the response
+        const errorBody = response.error.message;
+        if (errorBody.includes("already been registered")) {
+          throw new Error("Un compte existe déjà avec cette adresse email.");
+        }
+        throw new Error(errorBody || "Erreur lors de la création");
       }
 
       if (response.data?.error) {
-        throw new Error(response.data.error);
+        const errorMsg = response.data.error;
+        if (errorMsg.includes("already been registered")) {
+          throw new Error("Un compte existe déjà avec cette adresse email.");
+        }
+        throw new Error(errorMsg);
       }
 
       toast({
