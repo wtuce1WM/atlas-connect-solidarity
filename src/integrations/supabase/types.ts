@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           account_type: string | null
           address: string | null
+          booking_url: string | null
           categories: string[] | null
           city: string
           country: string | null
@@ -43,6 +44,7 @@ export type Database = {
           search_vector: unknown
           services: string[] | null
           tiktok_url: string | null
+          tripadvisor_url: string | null
           twitter_url: string | null
           updated_at: string
           website: string | null
@@ -53,6 +55,7 @@ export type Database = {
         Insert: {
           account_type?: string | null
           address?: string | null
+          booking_url?: string | null
           categories?: string[] | null
           city: string
           country?: string | null
@@ -78,6 +81,7 @@ export type Database = {
           search_vector?: unknown
           services?: string[] | null
           tiktok_url?: string | null
+          tripadvisor_url?: string | null
           twitter_url?: string | null
           updated_at?: string
           website?: string | null
@@ -88,6 +92,7 @@ export type Database = {
         Update: {
           account_type?: string | null
           address?: string | null
+          booking_url?: string | null
           categories?: string[] | null
           city?: string
           country?: string | null
@@ -113,6 +118,7 @@ export type Database = {
           search_vector?: unknown
           services?: string[] | null
           tiktok_url?: string | null
+          tripadvisor_url?: string | null
           twitter_url?: string | null
           updated_at?: string
           website?: string | null
