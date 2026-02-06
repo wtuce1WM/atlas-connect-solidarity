@@ -97,6 +97,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
     youtube_url: (business as any)?.youtube_url || "",
     tiktok_url: (business as any)?.tiktok_url || "",
     whatsapp: (business as any)?.whatsapp || "",
+    account_type: (business as any)?.account_type || "",
   });
 
   const handleChange = (field: string, value: string | boolean) => {
@@ -135,6 +136,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
       youtube_url: formData.youtube_url || null,
       tiktok_url: formData.tiktok_url || null,
       whatsapp: formData.whatsapp || null,
+      account_type: formData.account_type || null,
     };
 
     try {
@@ -219,23 +221,43 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
           </div>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="main_category">Catégorie principale</Label>
-          <Select
-            value={formData.main_category}
-            onValueChange={(value) => handleChange("main_category", value)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Sélectionner..." />
-            </SelectTrigger>
-            <SelectContent>
-              {CATEGORIES.map((cat) => (
-                <SelectItem key={cat} value={cat}>
-                  {cat}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="main_category">Catégorie principale</Label>
+            <Select
+              value={formData.main_category}
+              onValueChange={(value) => handleChange("main_category", value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Sélectionner..." />
+              </SelectTrigger>
+              <SelectContent>
+                {CATEGORIES.map((cat) => (
+                  <SelectItem key={cat} value={cat}>
+                    {cat}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="account_type">Type de compte</Label>
+            <Select
+              value={formData.account_type}
+              onValueChange={(value) => handleChange("account_type", value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Sélectionner..." />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="petite_structure">Petite Structure</SelectItem>
+                <SelectItem value="structure_moyenne">Structure Moyenne</SelectItem>
+                <SelectItem value="grande_structure">Grande Structure</SelectItem>
+                <SelectItem value="corporate_branding">Corporate & Branding</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         <div className="space-y-2">
