@@ -174,7 +174,7 @@ const CitiesSection = () => {
                       <div className={`rounded-full p-2 ${getColorByIndex(index)}`}>
                         <MapPin className="h-5 w-5" />
                       </div>
-                      <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
+                      <h3 className="font-semibold text-white group-hover:text-primary transition-colors">
                         {getCityName(city)}
                       </h3>
                     </div>
