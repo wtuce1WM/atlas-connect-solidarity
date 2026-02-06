@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       businesses: {
         Row: {
+          account_type: string | null
           address: string | null
           categories: string[] | null
           city: string
@@ -50,6 +51,7 @@ export type Database = {
           youtube_url: string | null
         }
         Insert: {
+          account_type?: string | null
           address?: string | null
           categories?: string[] | null
           city: string
@@ -84,6 +86,7 @@ export type Database = {
           youtube_url?: string | null
         }
         Update: {
+          account_type?: string | null
           address?: string | null
           categories?: string[] | null
           city?: string
