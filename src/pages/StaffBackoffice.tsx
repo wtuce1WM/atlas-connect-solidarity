@@ -5,12 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Plus, Search, Edit, Trash2, Eye, Building2, Users, Folder } from "lucide-react";
+import { LogOut, Plus, Search, Edit, Trash2, Eye, Building2, Users, Folder, MapPin } from "lucide-react";
 import logoGold from "@/assets/logoGOLD.webp";
 import BusinessForm from "@/components/staff/BusinessForm";
 import BusinessTable from "@/components/staff/BusinessTable";
 import UserManagement from "@/components/staff/UserManagement";
 import CategoryManagement from "@/components/staff/CategoryManagement";
+import LocationManagement from "@/components/staff/LocationManagement";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Business = Tables<"businesses">;
@@ -192,6 +193,10 @@ const StaffBackoffice = () => {
                 <Folder className="h-4 w-4" />
                 Catégories
               </TabsTrigger>
+              <TabsTrigger value="locations" className="gap-2">
+                <MapPin className="h-4 w-4" />
+                Pays & Villes
+              </TabsTrigger>
               {isAdmin && (
                 <TabsTrigger value="users" className="gap-2">
                   <Users className="h-4 w-4" />
@@ -273,6 +278,10 @@ const StaffBackoffice = () => {
 
             <TabsContent value="categories">
               <CategoryManagement />
+            </TabsContent>
+
+            <TabsContent value="locations">
+              <LocationManagement />
             </TabsContent>
 
             {isAdmin && (

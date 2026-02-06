@@ -191,6 +191,89 @@ export type Database = {
         }
         Relationships: []
       }
+      cities: {
+        Row: {
+          country_id: string
+          created_at: string | null
+          id: string
+          latitude: number | null
+          longitude: number | null
+          name_ar: string | null
+          name_en: string | null
+          name_fr: string
+          region: string | null
+          sort_order: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          country_id: string
+          created_at?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          name_ar?: string | null
+          name_en?: string | null
+          name_fr: string
+          region?: string | null
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          country_id?: string
+          created_at?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          name_ar?: string | null
+          name_en?: string | null
+          name_fr?: string
+          region?: string | null
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cities_country_id_fkey"
+            columns: ["country_id"]
+            isOneToOne: false
+            referencedRelation: "countries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      countries: {
+        Row: {
+          code: string | null
+          created_at: string | null
+          id: string
+          name_ar: string | null
+          name_en: string | null
+          name_fr: string
+          sort_order: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          code?: string | null
+          created_at?: string | null
+          id?: string
+          name_ar?: string | null
+          name_en?: string | null
+          name_fr: string
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          code?: string | null
+          created_at?: string | null
+          id?: string
+          name_ar?: string | null
+          name_en?: string | null
+          name_fr?: string
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       services: {
         Row: {
           created_at: string | null
