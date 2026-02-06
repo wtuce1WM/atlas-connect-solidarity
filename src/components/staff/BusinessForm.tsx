@@ -994,23 +994,55 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
             </p>
           )}
           {formData.categories.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-2">
-              {formData.categories.map((cat) => (
-                <span
-                  key={cat}
-                  className="inline-flex items-center gap-1 px-2 py-1 bg-gold/10 text-gold rounded-md text-sm"
-                >
-                  {cat}
-                  <button
-                    type="button"
-                    onClick={() => handleCategoryToggle(cat)}
-                    className="hover:text-destructive"
+            <>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {formData.categories.map((cat) => (
+                  <span
+                    key={cat}
+                    className="inline-flex items-center gap-1 px-2 py-1 bg-gold/10 text-gold rounded-md text-sm"
                   >
-                    ×
-                  </button>
-                </span>
-              ))}
-            </div>
+                    {cat}
+                    <button
+                      type="button"
+                      onClick={() => handleCategoryToggle(cat)}
+                      className="hover:text-destructive"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+              {formData.categories.length > 1 && (
+                <div className="mt-3 space-y-2">
+                  <Label>Sous-catégorie par défaut</Label>
+                  <Select
+                    value={formData.categories[0] || ""}
+                    onValueChange={(value) => {
+                      // Réorganiser les catégories pour mettre la sélectionnée en premier
+                      const newCategories = [
+                        value,
+                        ...formData.categories.filter((c) => c !== value),
+                      ];
+                      handleChange("categories", newCategories);
+                    }}
+                  >
+                    <SelectTrigger className="w-full md:w-80">
+                      <SelectValue placeholder="Choisir la sous-catégorie par défaut..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {formData.categories.map((cat) => (
+                        <SelectItem key={cat} value={cat}>
+                          {cat}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">
+                    La sous-catégorie par défaut sera affichée en premier sur la fiche.
+                  </p>
+                </div>
+              )}
+            </>
           )}
         </div>
 
