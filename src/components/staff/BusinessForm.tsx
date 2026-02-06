@@ -65,6 +65,153 @@ const CATEGORIES = [
   "Technologie",
 ];
 
+const SUBCATEGORIES: Record<string, string[]> = {
+  "Hôtellerie": [
+    "Hôtel de luxe",
+    "Riad",
+    "Maison d'hôtes",
+    "Auberge",
+    "Resort",
+    "Appartement meublé",
+    "Camping",
+    "Éco-lodge",
+  ],
+  "Restauration": [
+    "Restaurant gastronomique",
+    "Restaurant traditionnel",
+    "Café",
+    "Fast-food",
+    "Pâtisserie",
+    "Traiteur",
+    "Bar à jus",
+    "Food truck",
+  ],
+  "Transport": [
+    "Location de voitures",
+    "Taxi",
+    "VTC",
+    "Transport touristique",
+    "Navette aéroport",
+    "Location de motos/scooters",
+    "Chauffeur privé",
+  ],
+  "Artisanat": [
+    "Poterie",
+    "Tapis",
+    "Cuir",
+    "Bijouterie",
+    "Bois",
+    "Fer forgé",
+    "Textile",
+    "Zellige",
+  ],
+  "Commerce": [
+    "Épicerie fine",
+    "Boutique mode",
+    "Librairie",
+    "Galerie d'art",
+    "Souk",
+    "Centre commercial",
+    "E-commerce",
+  ],
+  "Services": [
+    "Conciergerie",
+    "Traduction",
+    "Guide touristique",
+    "Photographe",
+    "Événementiel",
+    "Consulting",
+    "Assurance",
+    "Banque",
+  ],
+  "Tourisme": [
+    "Agence de voyage",
+    "Excursions",
+    "Circuits",
+    "Trekking",
+    "Safari désert",
+    "Quad/Buggy",
+    "Parapente",
+    "Croisière",
+  ],
+  "Agriculture": [
+    "Ferme bio",
+    "Coopérative agricole",
+    "Huile d'argan",
+    "Miel",
+    "Dattes",
+    "Olives",
+    "Safran",
+    "Produits du terroir",
+  ],
+  "Industrie": [
+    "Agroalimentaire",
+    "Textile industriel",
+    "BTP",
+    "Énergie renouvelable",
+    "Métallurgie",
+    "Chimie",
+  ],
+  "Éducation": [
+    "École de langues",
+    "École de cuisine",
+    "Formation professionnelle",
+    "Université",
+    "Centre culturel",
+    "Bibliothèque",
+  ],
+  "Santé": [
+    "Clinique",
+    "Cabinet médical",
+    "Pharmacie",
+    "Laboratoire d'analyses",
+    "Centre de radiologie",
+    "Dentiste",
+    "Ophtalmologue",
+    "Kinésithérapeute",
+  ],
+  "Sport & Loisirs": [
+    "Golf",
+    "Surf",
+    "Kitesurf",
+    "Équitation",
+    "Tennis",
+    "Fitness",
+    "Piscine",
+    "Randonnée",
+    "Yoga",
+    "Plongée",
+  ],
+  "Bien-être": [
+    "Spa",
+    "Hammam",
+    "Massage",
+    "Soins beauté",
+    "Coiffure",
+    "Centre de thalasso",
+    "Médecine traditionnelle",
+    "Naturopathie",
+  ],
+  "Culture": [
+    "Musée",
+    "Galerie",
+    "Théâtre",
+    "Festival",
+    "Artiste",
+    "Musicien",
+    "Danse",
+    "Patrimoine",
+  ],
+  "Technologie": [
+    "Développement web",
+    "Marketing digital",
+    "Startup",
+    "Coworking",
+    "E-services",
+    "IT Consulting",
+  ],
+};
+
 const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
@@ -80,7 +227,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
     email: business?.email || "",
     website: business?.website || "",
     main_category: business?.main_category || "",
-    categories: business?.categories?.join(", ") || "",
+    categories: business?.categories || [] as string[],
     services: business?.services?.join(", ") || "",
     keywords: business?.keywords?.join(", ") || "",
     latitude: business?.latitude?.toString() || "",
@@ -100,9 +247,24 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
     account_type: (business as any)?.account_type || "",
   });
 
-  const handleChange = (field: string, value: string | boolean) => {
+  const handleChange = (field: string, value: string | boolean | string[]) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
+
+  const handleCategoryToggle = (category: string) => {
+    setFormData((prev) => {
+      const currentCategories = prev.categories;
+      if (currentCategories.includes(category)) {
+        return { ...prev, categories: currentCategories.filter((c) => c !== category) };
+      } else {
+        return { ...prev, categories: [...currentCategories, category] };
+      }
+    });
+  };
+
+  const availableSubcategories = formData.main_category
+    ? SUBCATEGORIES[formData.main_category] || []
+    : [];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -119,7 +281,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
       email: formData.email || null,
       website: formData.website || null,
       main_category: formData.main_category || null,
-      categories: formData.categories ? formData.categories.split(",").map((c) => c.trim()) : [],
+      categories: formData.categories.length > 0 ? formData.categories : [],
       services: formData.services ? formData.services.split(",").map((s) => s.trim()) : [],
       keywords: formData.keywords ? formData.keywords.split(",").map((k) => k.trim()) : [],
       latitude: formData.latitude ? parseFloat(formData.latitude) : null,
@@ -466,14 +628,55 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
         </div>
 
         {/* Metadata */}
-        <div className="space-y-2">
-          <Label htmlFor="categories">Catégories (séparées par virgule)</Label>
-          <Input
-            id="categories"
-            value={formData.categories}
-            onChange={(e) => handleChange("categories", e.target.value)}
-            placeholder="Hôtel, Restaurant, Spa"
-          />
+        <div className="space-y-3">
+          <Label>Sous-catégories</Label>
+          {formData.main_category ? (
+            availableSubcategories.length > 0 ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 p-4 border rounded-lg bg-muted/30">
+                {availableSubcategories.map((subcat) => (
+                  <label
+                    key={subcat}
+                    className="flex items-center gap-2 cursor-pointer hover:bg-background p-2 rounded-md transition-colors"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={formData.categories.includes(subcat)}
+                      onChange={() => handleCategoryToggle(subcat)}
+                      className="h-4 w-4 rounded border-input"
+                    />
+                    <span className="text-sm">{subcat}</span>
+                  </label>
+                ))}
+              </div>
+            ) : (
+              <p className="text-muted-foreground text-sm italic">
+                Aucune sous-catégorie disponible pour cette catégorie.
+              </p>
+            )
+          ) : (
+            <p className="text-muted-foreground text-sm italic">
+              Sélectionnez d'abord une catégorie principale.
+            </p>
+          )}
+          {formData.categories.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-2">
+              {formData.categories.map((cat) => (
+                <span
+                  key={cat}
+                  className="inline-flex items-center gap-1 px-2 py-1 bg-gold/10 text-gold rounded-md text-sm"
+                >
+                  {cat}
+                  <button
+                    type="button"
+                    onClick={() => handleCategoryToggle(cat)}
+                    className="hover:text-destructive"
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="space-y-2">
