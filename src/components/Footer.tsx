@@ -69,7 +69,7 @@ const Footer = () => {
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="h-4 w-4 text-gold" />
-                contact@solidarityma.com
+                info@wtuce.org
               </li>
             </ul>
           </div>
