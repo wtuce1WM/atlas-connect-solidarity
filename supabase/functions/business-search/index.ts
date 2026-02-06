@@ -116,7 +116,7 @@ serve(async (req) => {
       latitude,
       longitude,
       radiusKm = 30,
-      limit = 50,
+      limit = 51,
       language = "fr",
     }: SearchParams & { language?: string } = await req.json();
 
