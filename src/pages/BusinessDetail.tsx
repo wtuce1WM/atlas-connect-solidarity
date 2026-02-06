@@ -65,20 +65,25 @@ interface Business {
 }
 
 // Helper to convert video URL to embeddable format
-const getEmbedUrl = (url: string): string | null => {
+const getEmbedUrl = (url: string): { url: string; type: 'iframe' | 'video' | 'facebook' } | null => {
   // YouTube
   const youtubeMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
   if (youtubeMatch) {
-    return `https://www.youtube.com/embed/${youtubeMatch[1]}`;
+    return { url: `https://www.youtube.com/embed/${youtubeMatch[1]}`, type: 'iframe' };
   }
   // Vimeo
   const vimeoMatch = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
   if (vimeoMatch) {
-    return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
+    return { url: `https://player.vimeo.com/video/${vimeoMatch[1]}`, type: 'iframe' };
+  }
+  // Facebook video (various formats)
+  if (url.includes('facebook.com') || url.includes('fb.watch')) {
+    const encodedUrl = encodeURIComponent(url);
+    return { url: `https://www.facebook.com/plugins/video.php?href=${encodedUrl}&show_text=false`, type: 'facebook' };
   }
   // Direct video link
   if (url.match(/\.(mp4|webm|ogg)$/i)) {
-    return url;
+    return { url, type: 'video' };
   }
   return null;
 };
@@ -207,23 +212,21 @@ const BusinessDetail = () => {
           <div className="lg:col-span-2 space-y-6">
             {/* Video */}
             {business.video_1_url && (() => {
-              const embedUrl = getEmbedUrl(business.video_1_url);
-              if (!embedUrl) return null;
-              
-              const isDirectVideo = business.video_1_url.match(/\.(mp4|webm|ogg)$/i);
+              const embedData = getEmbedUrl(business.video_1_url);
+              if (!embedData) return null;
               
               return (
                 <Card className="overflow-hidden">
                   <div className="aspect-video">
-                    {isDirectVideo ? (
+                    {embedData.type === 'video' ? (
                       <video
-                        src={embedUrl}
+                        src={embedData.url}
                         controls
                         className="w-full h-full object-cover"
                       />
                     ) : (
                       <iframe
-                        src={embedUrl}
+                        src={embedData.url}
                         className="w-full h-full"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
