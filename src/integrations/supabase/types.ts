@@ -36,6 +36,7 @@ export type Database = {
           is_featured: boolean | null
           is_regulated_activity: boolean | null
           keywords: string[] | null
+          label1_url: string | null
           latitude: number | null
           linkedin_url: string | null
           logo_url: string | null
@@ -79,6 +80,7 @@ export type Database = {
           is_featured?: boolean | null
           is_regulated_activity?: boolean | null
           keywords?: string[] | null
+          label1_url?: string | null
           latitude?: number | null
           linkedin_url?: string | null
           logo_url?: string | null
@@ -122,6 +124,7 @@ export type Database = {
           is_featured?: boolean | null
           is_regulated_activity?: boolean | null
           keywords?: string[] | null
+          label1_url?: string | null
           latitude?: number | null
           linkedin_url?: string | null
           logo_url?: string | null
