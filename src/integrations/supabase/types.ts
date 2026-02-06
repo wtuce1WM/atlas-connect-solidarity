@@ -30,6 +30,7 @@ export type Database = {
           google_maps_url: string | null
           ice: string | null
           id: string
+          images: string[] | null
           instagram_url: string | null
           internal_notes: string | null
           is_featured: boolean | null
@@ -71,6 +72,7 @@ export type Database = {
           google_maps_url?: string | null
           ice?: string | null
           id?: string
+          images?: string[] | null
           instagram_url?: string | null
           internal_notes?: string | null
           is_featured?: boolean | null
@@ -112,6 +114,7 @@ export type Database = {
           google_maps_url?: string | null
           ice?: string | null
           id?: string
+          images?: string[] | null
           instagram_url?: string | null
           internal_notes?: string | null
           is_featured?: boolean | null

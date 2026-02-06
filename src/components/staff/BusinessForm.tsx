@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Save } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 import RichTextEditor from "./RichTextEditor";
+import ImageUploader from "./ImageUploader";
 import {
   FacebookIcon,
   InstagramIcon,
@@ -415,6 +416,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
     video_1_url: (business as any)?.video_1_url || "",
     google_maps_url: (business as any)?.google_maps_url || "",
     airbnb_url: (business as any)?.airbnb_url || "",
+    images: (business as any)?.images || [] as string[],
   });
 
   const handleChange = (field: string, value: string | boolean | string[]) => {
@@ -490,6 +492,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
       video_1_url: formData.video_1_url || null,
       google_maps_url: formData.google_maps_url || null,
       airbnb_url: formData.airbnb_url || null,
+      images: formData.images.length > 0 ? formData.images : [],
     };
 
     try {
@@ -618,6 +621,17 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
           <RichTextEditor
             content={formData.description}
             onChange={(html) => handleChange("description", html)}
+          />
+        </div>
+
+        {/* Images */}
+        <div className="space-y-2">
+          <Label className="text-base font-semibold">Images (max 10)</Label>
+          <ImageUploader
+            images={formData.images}
+            onChange={(images) => handleChange("images", images)}
+            maxImages={10}
+            businessId={business?.id}
           />
         </div>
 
