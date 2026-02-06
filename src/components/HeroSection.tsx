@@ -4,6 +4,7 @@ import { Search, MapPin, Loader2, BadgeCheck, Navigation, Building2, Filter } fr
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
+import { useAvailableMainCategories } from "@/hooks/useAvailableMainCategories";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -43,11 +44,23 @@ interface SearchResult {
   totalResults: number;
 }
 
-const CATEGORIES = [
-  { value: "all", labelFr: "Toutes les catégories", labelEn: "All categories", labelAr: "جميع الفئات" },
-  { value: "Santé", labelFr: "Santé", labelEn: "Health", labelAr: "صحة" },
-  { value: "Hébergement & Tourisme", labelFr: "Hébergement & Tourisme", labelEn: "Accommodation & Tourism", labelAr: "إقامة وسياحة" },
-];
+const CATEGORY_LABELS: Record<string, { fr: string; en: string; ar: string }> = {
+  "Hôtellerie": { fr: "Hôtellerie", en: "Hospitality", ar: "فندقة" },
+  "Restauration": { fr: "Restauration", en: "Restaurants", ar: "مطاعم" },
+  "Transport": { fr: "Transport", en: "Transport", ar: "نقل" },
+  "Artisanat": { fr: "Artisanat", en: "Crafts", ar: "حرف يدوية" },
+  "Commerce": { fr: "Commerce", en: "Retail", ar: "تجارة" },
+  "Services": { fr: "Services", en: "Services", ar: "خدمات" },
+  "Tourisme": { fr: "Tourisme", en: "Tourism", ar: "سياحة" },
+  "Agriculture": { fr: "Agriculture", en: "Agriculture", ar: "فلاحة" },
+  "Industrie": { fr: "Industrie", en: "Industry", ar: "صناعة" },
+  "Éducation": { fr: "Éducation", en: "Education", ar: "تعليم" },
+  "Santé": { fr: "Santé", en: "Health", ar: "صحة" },
+  "Sport & Loisirs": { fr: "Sport & Loisirs", en: "Sports & Leisure", ar: "رياضة وترفيه" },
+  "Bien-être": { fr: "Bien-être", en: "Wellness", ar: "رفاهية" },
+  "Culture": { fr: "Culture", en: "Culture", ar: "ثقافة" },
+  "Technologie": { fr: "Technologie", en: "Technology", ar: "تكنولوجيا" },
+};
 
 const HeroSection = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -59,6 +72,7 @@ const HeroSection = () => {
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
   const { t, language } = useLanguage();
   const { toast } = useToast();
+  const { categories: availableCategories } = useAvailableMainCategories();
 
   // Extract unique subcategories from results
   const availableSubcategories = result?.businesses
@@ -204,11 +218,28 @@ const HeroSection = () => {
                     <SelectValue placeholder={language === "fr" ? "Catégorie" : language === "ar" ? "فئة" : "Category"} />
                   </SelectTrigger>
                   <SelectContent>
-                    {CATEGORIES.map((cat) => (
-                      <SelectItem key={cat.value} value={cat.value}>
-                        {language === "fr" ? cat.labelFr : language === "ar" ? cat.labelAr : cat.labelEn}
-                      </SelectItem>
-                    ))}
+                    <SelectItem value="all">
+                      {language === "fr"
+                        ? "Toutes les catégories"
+                        : language === "ar"
+                          ? "جميع الفئات"
+                          : "All categories"}
+                    </SelectItem>
+                    {availableCategories.map((catValue) => {
+                      const labels = CATEGORY_LABELS[catValue];
+                      const label = labels
+                        ? language === "fr"
+                          ? labels.fr
+                          : language === "ar"
+                            ? labels.ar
+                            : labels.en
+                        : catValue;
+                      return (
+                        <SelectItem key={catValue} value={catValue}>
+                          {label}
+                        </SelectItem>
+                      );
+                    })}
                   </SelectContent>
                 </Select>
                 <button
