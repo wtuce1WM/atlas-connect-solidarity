@@ -16,6 +16,7 @@ import type { Tables } from "@/integrations/supabase/types";
 import RichTextEditor from "./RichTextEditor";
 import ImageUploader from "./ImageUploader";
 import PDFUploader from "./PDFUploader";
+import LogoUploader from "./LogoUploader";
 import {
   FacebookIcon,
   InstagramIcon,
@@ -551,6 +552,16 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Logo */}
+        <div className="space-y-2">
+          <Label className="text-base font-semibold">Logo</Label>
+          <LogoUploader
+            logoUrl={formData.logo_url}
+            onChange={(url) => handleChange("logo_url", url)}
+            businessId={business?.id}
+          />
+        </div>
+
         {/* Basic Info */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">

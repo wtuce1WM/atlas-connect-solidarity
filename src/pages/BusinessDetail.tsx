@@ -106,20 +106,34 @@ const BusinessDetail = () => {
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-start gap-4 flex-wrap">
-            <h1 className={`text-4xl font-bold ${isVerified ? "text-white" : "text-foreground"}`}>{business.name}</h1>
-            {business.wtuce_status === "verified" && (
-              <Badge className="bg-primary/10 text-primary border-primary/20 flex items-center gap-1.5 px-3 py-1.5">
-                <BadgeCheck className="h-4 w-4" />
-                WTUCE Vérifié
-              </Badge>
+            {/* Logo */}
+            {business.logo_url && (
+              <div className="w-20 h-20 rounded-lg border bg-white p-2 flex items-center justify-center overflow-hidden flex-shrink-0">
+                <img
+                  src={business.logo_url}
+                  alt={`Logo ${business.name}`}
+                  className="max-w-full max-h-full object-contain"
+                />
+              </div>
             )}
-            {isRelaisChateaux && (
-              <img 
-                src={relaisChateauxLogo} 
-                alt="Relais & Châteaux" 
-                className="h-20 object-contain"
-              />
-            )}
+            <div className="flex-1">
+              <div className="flex items-center gap-3 flex-wrap">
+                <h1 className={`text-4xl font-bold ${isVerified ? "text-white" : "text-foreground"}`}>{business.name}</h1>
+                {business.wtuce_status === "verified" && (
+                  <Badge className="bg-primary/10 text-primary border-primary/20 flex items-center gap-1.5 px-3 py-1.5">
+                    <BadgeCheck className="h-4 w-4" />
+                    WTUCE Vérifié
+                  </Badge>
+                )}
+                {isRelaisChateaux && (
+                  <img 
+                    src={relaisChateauxLogo} 
+                    alt="Relais & Châteaux" 
+                    className="h-20 object-contain"
+                  />
+                )}
+              </div>
+            </div>
           </div>
           <div className="flex items-center gap-2 mt-3 text-muted-foreground">
             <MapPin className="h-5 w-5" />
