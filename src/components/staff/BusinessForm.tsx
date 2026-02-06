@@ -31,6 +31,7 @@ import {
   BookingIcon,
   GoogleMapsIcon,
   AirbnbIcon,
+  PinterestIcon,
 } from "./SocialMediaIcons";
 
 type Business = Tables<"businesses">;
@@ -420,6 +421,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
     video_1_url: (business as any)?.video_1_url || "",
     google_maps_url: (business as any)?.google_maps_url || "",
     airbnb_url: (business as any)?.airbnb_url || "",
+    pinterest_url: (business as any)?.pinterest_url || "",
     images: (business as any)?.images || [] as string[],
     pdf_url: (business as any)?.pdf_url || "",
     label1_url: (business as any)?.label1_url || "",
@@ -500,6 +502,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
       video_1_url: formData.video_1_url || null,
       google_maps_url: formData.google_maps_url || null,
       airbnb_url: formData.airbnb_url || null,
+      pinterest_url: formData.pinterest_url || null,
       images: formData.images.length > 0 ? formData.images : [],
       pdf_url: formData.pdf_url || null,
       label1_url: formData.label1_url || null,
@@ -1006,6 +1009,19 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
                 value={formData.airbnb_url}
                 onChange={(e) => handleChange("airbnb_url", e.target.value)}
                 placeholder="https://airbnb.com/rooms/..."
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="pinterest_url" className="flex items-center gap-2">
+                <PinterestIcon className="text-[#E60023]" />
+                Pinterest
+              </Label>
+              <Input
+                id="pinterest_url"
+                value={formData.pinterest_url}
+                onChange={(e) => handleChange("pinterest_url", e.target.value)}
+                placeholder="https://pinterest.com/..."
               />
             </div>
           </div>
