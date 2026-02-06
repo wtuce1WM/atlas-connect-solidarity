@@ -43,8 +43,21 @@ interface SearchResult {
 
 const CATEGORIES = [
   { value: "all", labelFr: "Toutes les catégories", labelEn: "All categories", labelAr: "جميع الفئات" },
+  { value: "Hôtellerie", labelFr: "Hôtellerie", labelEn: "Hospitality", labelAr: "فندقة" },
+  { value: "Restauration", labelFr: "Restauration", labelEn: "Restaurants", labelAr: "مطاعم" },
+  { value: "Transport", labelFr: "Transport", labelEn: "Transport", labelAr: "نقل" },
+  { value: "Artisanat", labelFr: "Artisanat", labelEn: "Crafts", labelAr: "حرف يدوية" },
+  { value: "Commerce", labelFr: "Commerce", labelEn: "Retail", labelAr: "تجارة" },
+  { value: "Services", labelFr: "Services", labelEn: "Services", labelAr: "خدمات" },
+  { value: "Tourisme", labelFr: "Tourisme", labelEn: "Tourism", labelAr: "سياحة" },
+  { value: "Agriculture", labelFr: "Agriculture", labelEn: "Agriculture", labelAr: "فلاحة" },
+  { value: "Industrie", labelFr: "Industrie", labelEn: "Industry", labelAr: "صناعة" },
+  { value: "Éducation", labelFr: "Éducation", labelEn: "Education", labelAr: "تعليم" },
   { value: "Santé", labelFr: "Santé", labelEn: "Health", labelAr: "صحة" },
-  { value: "Hébergement & Tourisme", labelFr: "Hébergement & Tourisme", labelEn: "Accommodation & Tourism", labelAr: "إقامة وسياحة" },
+  { value: "Sport & Loisirs", labelFr: "Sport & Loisirs", labelEn: "Sports & Leisure", labelAr: "رياضة وترفيه" },
+  { value: "Bien-être", labelFr: "Bien-être", labelEn: "Wellness", labelAr: "رفاهية" },
+  { value: "Culture", labelFr: "Culture", labelEn: "Culture", labelAr: "ثقافة" },
+  { value: "Technologie", labelFr: "Technologie", labelEn: "Technology", labelAr: "تكنولوجيا" },
 ];
 
 const BusinessSearch = () => {
