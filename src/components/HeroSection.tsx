@@ -180,7 +180,7 @@ const HeroSection = () => {
         <img 
           src={logoGoldOverlay} 
           alt="" 
-          className="object-contain opacity-30"
+          className="object-contain opacity-60"
         />
       </div>
 
