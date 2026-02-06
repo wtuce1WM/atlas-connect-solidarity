@@ -15,6 +15,7 @@ import { ArrowLeft, Save } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 import RichTextEditor from "./RichTextEditor";
 import ImageUploader from "./ImageUploader";
+import PDFUploader from "./PDFUploader";
 import {
   FacebookIcon,
   InstagramIcon,
@@ -417,6 +418,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
     google_maps_url: (business as any)?.google_maps_url || "",
     airbnb_url: (business as any)?.airbnb_url || "",
     images: (business as any)?.images || [] as string[],
+    pdf_url: (business as any)?.pdf_url || "",
   });
 
   const handleChange = (field: string, value: string | boolean | string[]) => {
@@ -493,6 +495,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
       google_maps_url: formData.google_maps_url || null,
       airbnb_url: formData.airbnb_url || null,
       images: formData.images.length > 0 ? formData.images : [],
+      pdf_url: formData.pdf_url || null,
     };
 
     try {
@@ -631,6 +634,16 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
             images={formData.images}
             onChange={(images) => handleChange("images", images)}
             maxImages={10}
+            businessId={business?.id}
+          />
+        </div>
+
+        {/* PDF Document */}
+        <div className="space-y-2">
+          <Label className="text-base font-semibold">Document PDF</Label>
+          <PDFUploader
+            pdfUrl={formData.pdf_url}
+            onChange={(url) => handleChange("pdf_url", url)}
             businessId={business?.id}
           />
         </div>

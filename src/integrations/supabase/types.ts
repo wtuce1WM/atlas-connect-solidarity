@@ -42,6 +42,7 @@ export type Database = {
           longitude: number | null
           main_category: string | null
           name: string
+          pdf_url: string | null
           phone: string | null
           priority_score: number | null
           region: string
@@ -84,6 +85,7 @@ export type Database = {
           longitude?: number | null
           main_category?: string | null
           name: string
+          pdf_url?: string | null
           phone?: string | null
           priority_score?: number | null
           region: string
@@ -126,6 +128,7 @@ export type Database = {
           longitude?: number | null
           main_category?: string | null
           name?: string
+          pdf_url?: string | null
           phone?: string | null
           priority_score?: number | null
           region?: string
