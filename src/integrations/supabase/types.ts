@@ -205,6 +205,9 @@ export type Database = {
           region: string | null
           sort_order: number | null
           updated_at: string | null
+          wikipedia_ar: string | null
+          wikipedia_en: string | null
+          wikipedia_fr: string | null
         }
         Insert: {
           country_id: string
@@ -219,6 +222,9 @@ export type Database = {
           region?: string | null
           sort_order?: number | null
           updated_at?: string | null
+          wikipedia_ar?: string | null
+          wikipedia_en?: string | null
+          wikipedia_fr?: string | null
         }
         Update: {
           country_id?: string
@@ -233,6 +239,9 @@ export type Database = {
           region?: string | null
           sort_order?: number | null
           updated_at?: string | null
+          wikipedia_ar?: string | null
+          wikipedia_en?: string | null
+          wikipedia_fr?: string | null
         }
         Relationships: [
           {
