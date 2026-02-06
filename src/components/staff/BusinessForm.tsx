@@ -3,7 +3,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -14,6 +13,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Save } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
+import RichTextEditor from "./RichTextEditor";
 
 type Business = Tables<"businesses">;
 
@@ -217,11 +217,9 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
 
         <div className="space-y-2">
           <Label htmlFor="description">Description</Label>
-          <Textarea
-            id="description"
-            value={formData.description}
-            onChange={(e) => handleChange("description", e.target.value)}
-            rows={3}
+          <RichTextEditor
+            content={formData.description}
+            onChange={(html) => handleChange("description", html)}
           />
         </div>
 
