@@ -33,7 +33,8 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Edit, Trash2, Globe, MapPin, Building, ExternalLink, ArrowLeft, Save } from "lucide-react";
+import { Plus, Edit, Trash2, Globe, MapPin, Building, ExternalLink, ArrowLeft, Save, FileText } from "lucide-react";
+import RichTextEditor from "./RichTextEditor";
 
 interface Country {
   id: string;
@@ -66,6 +67,7 @@ interface City {
   official_site_3_url: string | null;
   official_site_4_name: string | null;
   official_site_4_url: string | null;
+  description: string | null;
 }
 
 const LocationManagement = () => {
@@ -111,6 +113,7 @@ const LocationManagement = () => {
     official_site_3_url: "",
     official_site_4_name: "",
     official_site_4_url: "",
+    description: "",
   });
 
   useEffect(() => {
@@ -253,6 +256,7 @@ const LocationManagement = () => {
       official_site_3_url: cityForm.official_site_3_url.trim() || null,
       official_site_4_name: cityForm.official_site_4_name.trim() || null,
       official_site_4_url: cityForm.official_site_4_url.trim() || null,
+      description: cityForm.description.trim().slice(0, 10000) || null,
     };
 
     let error;
@@ -309,6 +313,7 @@ const LocationManagement = () => {
       official_site_3_url: city.official_site_3_url || "",
       official_site_4_name: city.official_site_4_name || "",
       official_site_4_url: city.official_site_4_url || "",
+      description: city.description || "",
     });
     setShowCityForm(true);
   };
@@ -342,6 +347,7 @@ const LocationManagement = () => {
       official_site_3_url: "",
       official_site_4_name: "",
       official_site_4_url: "",
+      description: "",
     });
   };
 
@@ -816,6 +822,26 @@ const LocationManagement = () => {
                       </div>
                     ))}
                   </div>
+                </div>
+
+                {/* Description */}
+                <div className="space-y-4">
+                  <h3 className="font-medium text-lg flex items-center gap-2">
+                    <FileText className="h-4 w-4" />
+                    Description
+                    <span className="text-sm font-normal text-muted-foreground">
+                      ({cityForm.description.length} / 10 000 caractères)
+                    </span>
+                  </h3>
+                  <RichTextEditor
+                    content={cityForm.description}
+                    onChange={(value) => {
+                      if (value.length <= 10000) {
+                        setCityForm({ ...cityForm, description: value });
+                      }
+                    }}
+                    placeholder="Description de la ville..."
+                  />
                 </div>
               </CardContent>
             </Card>
