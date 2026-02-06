@@ -62,6 +62,8 @@ const CATEGORY_LABELS: Record<string, { fr: string; en: string; ar: string }> = 
   "Technologie": { fr: "Technologie", en: "Technology", ar: "تكنولوجيا" },
 };
 
+const RESULTS_PER_PAGE = 12; // 4 rows x 3 columns
+
 const HeroSection = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [cityQuery, setCityQuery] = useState("");
@@ -69,6 +71,7 @@ const HeroSection = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<SearchResult | null>(null);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [showAllResults, setShowAllResults] = useState(false);
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
   const { t, language } = useLanguage();
   const { toast } = useToast();
@@ -80,9 +83,16 @@ const HeroSection = () => {
     : [];
 
   // Filter businesses by selected subcategory
-  const filteredBusinesses = selectedSubcategory
+  const allFilteredBusinesses = selectedSubcategory
     ? result?.businesses.filter(b => b.categories?.includes(selectedSubcategory)) || []
     : result?.businesses || [];
+
+  // Limit displayed results
+  const displayedBusinesses = showAllResults 
+    ? allFilteredBusinesses 
+    : allFilteredBusinesses.slice(0, RESULTS_PER_PAGE);
+  
+  const hasMoreResults = allFilteredBusinesses.length > RESULTS_PER_PAGE;
 
   // Get user location on mount
   useEffect(() => {
@@ -310,12 +320,12 @@ const HeroSection = () => {
 
               {/* Results Count */}
               <p className="mb-4 text-center text-sm text-white/80">
-                {filteredBusinesses.length} {t("directory.resultsFound")}
+                {allFilteredBusinesses.length} {t("directory.resultsFound")}
               </p>
 
               {/* Business Cards Grid */}
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {filteredBusinesses.map((business) => (
+                {displayedBusinesses.map((business) => (
                   <Link to={`/business/${business.id}`} key={business.id}>
                     <Card className="group overflow-hidden bg-white/80 backdrop-blur-sm transition-all hover:shadow-lg hover:border-primary/50 h-full relative">
                       {/* Background logo for verified businesses */}
@@ -383,6 +393,34 @@ const HeroSection = () => {
                   </Link>
                 ))}
               </div>
+
+              {/* Show More Button */}
+              {hasMoreResults && !showAllResults && (
+                <div className="mt-6 text-center">
+                  <button
+                    onClick={() => setShowAllResults(true)}
+                    className="inline-flex items-center gap-2 rounded-lg bg-white/90 px-6 py-3 font-medium text-foreground transition-all hover:bg-white hover:shadow-md"
+                  >
+                    {language === "fr" 
+                      ? `Voir plus (${allFilteredBusinesses.length - RESULTS_PER_PAGE} restants)` 
+                      : language === "ar" 
+                        ? `عرض المزيد (${allFilteredBusinesses.length - RESULTS_PER_PAGE} متبقي)`
+                        : `Show more (${allFilteredBusinesses.length - RESULTS_PER_PAGE} remaining)`}
+                  </button>
+                </div>
+              )}
+
+              {/* Show Less Button */}
+              {showAllResults && hasMoreResults && (
+                <div className="mt-6 text-center">
+                  <button
+                    onClick={() => setShowAllResults(false)}
+                    className="inline-flex items-center gap-2 rounded-lg bg-white/90 px-6 py-3 font-medium text-foreground transition-all hover:bg-white hover:shadow-md"
+                  >
+                    {language === "fr" ? "Voir moins" : language === "ar" ? "عرض أقل" : "Show less"}
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
