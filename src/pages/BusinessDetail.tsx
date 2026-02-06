@@ -287,18 +287,18 @@ const BusinessDetail = () => {
               </Card>
             )}
 
-            {/* PDF Document */}
+            {/* PDF */}
             {business.pdf_url && (
               <Card>
-                <CardContent className="p-6">
-                  <h2 className="text-xl font-semibold mb-4">Document</h2>
-                  <div className="space-y-4">
+                <CardContent className="p-4">
+                  <h2 className="text-lg font-semibold mb-3">PDF</h2>
+                  <div className="space-y-3">
                     {/* PDF Preview */}
-                    <div className="aspect-[3/4] w-full rounded-lg overflow-hidden border bg-muted">
+                    <div className="aspect-[3/4] w-1/2 rounded-lg overflow-hidden border bg-muted">
                       <iframe
                         src={`${business.pdf_url}#toolbar=0&navpanes=0`}
                         className="w-full h-full"
-                        title="PDF Document"
+                        title="PDF"
                       />
                     </div>
                     {/* Download Button */}
@@ -306,10 +306,10 @@ const BusinessDetail = () => {
                       href={business.pdf_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-2 w-full bg-primary text-primary-foreground py-3 rounded-lg font-medium hover:bg-primary/90 transition-colors"
+                      className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
                     >
-                      <Download className="h-5 w-5" />
-                      Télécharger le PDF
+                      <Download className="h-4 w-4" />
+                      Télécharger
                     </a>
                   </div>
                 </CardContent>
