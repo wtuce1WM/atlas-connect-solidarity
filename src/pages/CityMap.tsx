@@ -307,38 +307,32 @@ const CityMap = () => {
               Liste des entreprises ({filteredBusinesses.length})
             </h2>
             {filteredBusinesses.map((business) => (
-              <Card 
-                key={business.id} 
-                className="cursor-pointer hover:bg-muted/50 transition-colors"
-                onClick={() => handleOpenInMaps(business)}
-              >
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <Link 
-                        to={`/business/${business.id}`}
-                        className="font-medium text-foreground hover:text-primary transition-colors"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        {business.name}
-                      </Link>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {business.address || business.city}
-                      </p>
-                      {business.main_category && (
-                        <Badge variant="secondary" className="mt-2 text-xs">
-                          {business.main_category}
+              <Link key={business.id} to={`/business/${business.id}`}>
+                <Card className="cursor-pointer hover:bg-muted/50 transition-colors">
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <span className="font-medium text-foreground hover:text-primary transition-colors">
+                          {business.name}
+                        </span>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {business.address || business.city}
+                        </p>
+                        {business.main_category && (
+                          <Badge variant="secondary" className="mt-2 text-xs">
+                            {business.main_category}
+                          </Badge>
+                        )}
+                      </div>
+                      {business.wtuce_status === "verified" && (
+                        <Badge className="bg-primary/10 text-primary text-xs shrink-0">
+                          Vérifié
                         </Badge>
                       )}
                     </div>
-                    {business.wtuce_status === "verified" && (
-                      <Badge className="bg-primary/10 text-primary text-xs shrink-0">
-                        Vérifié
-                      </Badge>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </Link>
             ))}
             {filteredBusinesses.length === 0 && (
               <p className="text-muted-foreground text-center py-8">
