@@ -1,11 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Loader2, MapPin } from "lucide-react";
+import { ArrowLeft, Loader2, MapPin, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface Business {
   id: string;
@@ -17,14 +18,45 @@ interface Business {
   latitude: number | null;
   longitude: number | null;
   wtuce_status: "verified" | "pending" | null;
+  services: string[] | null;
 }
 
 const CityMap = () => {
   const { city } = useParams<{ city: string }>();
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedActivities, setSelectedActivities] = useState<string[]>([]);
 
   const decodedCity = city ? decodeURIComponent(city) : "";
+
+  // Extract unique activities from businesses
+  const availableActivities = useMemo(() => {
+    const activities = new Set<string>();
+    businesses.forEach((business) => {
+      business.services?.forEach((service) => activities.add(service));
+    });
+    return Array.from(activities).sort();
+  }, [businesses]);
+
+  // Filter businesses by selected activities
+  const filteredBusinesses = useMemo(() => {
+    if (selectedActivities.length === 0) return businesses;
+    return businesses.filter((business) =>
+      selectedActivities.some((activity) => business.services?.includes(activity))
+    );
+  }, [businesses, selectedActivities]);
+
+  const toggleActivity = (activity: string) => {
+    setSelectedActivities((prev) =>
+      prev.includes(activity)
+        ? prev.filter((a) => a !== activity)
+        : [...prev, activity]
+    );
+  };
+
+  const clearActivities = () => {
+    setSelectedActivities([]);
+  };
 
   useEffect(() => {
     const fetchBusinesses = async () => {
@@ -32,7 +64,7 @@ const CityMap = () => {
 
       const { data, error } = await supabase
         .from("businesses")
-        .select("id, name, city, region, address, main_category, latitude, longitude, wtuce_status")
+        .select("id, name, city, region, address, main_category, latitude, longitude, wtuce_status, services")
         .ilike("city", decodedCity);
 
       if (error) {
@@ -105,6 +137,43 @@ const CityMap = () => {
           </p>
         </div>
 
+        {/* Activity Filters */}
+        {availableActivities.length > 0 && (
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-medium text-foreground">Filtrer par activité</h3>
+              {selectedActivities.length > 0 && (
+                <button
+                  onClick={clearActivities}
+                  className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
+                >
+                  <X className="h-3 w-3" />
+                  Effacer
+                </button>
+              )}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {availableActivities.slice(0, 10).map((activity) => (
+                <label
+                  key={activity}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-full border cursor-pointer transition-colors text-sm ${
+                    selectedActivities.includes(activity)
+                      ? "bg-primary/10 border-primary text-primary"
+                      : "bg-background border-border text-muted-foreground hover:border-primary/50"
+                  }`}
+                >
+                  <Checkbox
+                    checked={selectedActivities.includes(activity)}
+                    onCheckedChange={() => toggleActivity(activity)}
+                    className="h-3.5 w-3.5"
+                  />
+                  {activity}
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="grid gap-8 lg:grid-cols-3">
           {/* Map */}
           <div className="lg:col-span-2">
@@ -125,9 +194,9 @@ const CityMap = () => {
           {/* Business list */}
           <div className="space-y-4 max-h-[500px] overflow-y-auto">
             <h2 className="text-lg font-semibold text-foreground sticky top-0 bg-background py-2">
-              Liste des entreprises
+              Liste des entreprises ({filteredBusinesses.length})
             </h2>
-            {businesses.map((business) => (
+            {filteredBusinesses.map((business) => (
               <Card 
                 key={business.id} 
                 className="cursor-pointer hover:bg-muted/50 transition-colors"
@@ -161,9 +230,11 @@ const CityMap = () => {
                 </CardContent>
               </Card>
             ))}
-            {businesses.length === 0 && (
+            {filteredBusinesses.length === 0 && (
               <p className="text-muted-foreground text-center py-8">
-                Aucune entreprise trouvée à {decodedCity}
+                {selectedActivities.length > 0
+                  ? "Aucune entreprise pour ces activités"
+                  : `Aucune entreprise trouvée à ${decodedCity}`}
               </p>
             )}
           </div>
