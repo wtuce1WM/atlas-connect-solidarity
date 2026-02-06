@@ -74,13 +74,20 @@ const BusinessTable = ({ businesses, loading, onEdit, onDelete }: BusinessTableP
                   <div className="text-sm text-muted-foreground">{business.region}</div>
                 </TableCell>
                 <TableCell>
-                  {business.main_category ? (
-                    <Badge variant="outline" className="font-normal">
-                      {business.main_category}
-                    </Badge>
-                  ) : (
-                    <span className="text-muted-foreground">-</span>
-                  )}
+                  <div className="flex flex-col gap-1">
+                    {business.main_category ? (
+                      <Badge variant="outline" className="font-normal w-fit">
+                        {business.main_category}
+                      </Badge>
+                    ) : (
+                      <span className="text-muted-foreground">-</span>
+                    )}
+                    {business.categories && business.categories.length > 0 && (
+                      <span className="text-xs text-muted-foreground">
+                        → {business.categories[0]}
+                      </span>
+                    )}
+                  </div>
                 </TableCell>
                 <TableCell>
                   {(business as any).account_type ? (
