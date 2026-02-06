@@ -422,6 +422,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
     images: (business as any)?.images || [] as string[],
     pdf_url: (business as any)?.pdf_url || "",
     label1_url: (business as any)?.label1_url || "",
+    online_shop_url: (business as any)?.online_shop_url || "",
   });
 
   const handleChange = (field: string, value: string | boolean | string[]) => {
@@ -500,6 +501,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
       images: formData.images.length > 0 ? formData.images : [],
       pdf_url: formData.pdf_url || null,
       label1_url: formData.label1_url || null,
+      online_shop_url: formData.online_shop_url || null,
     };
 
     try {
@@ -769,6 +771,16 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
               id="website"
               value={formData.website}
               onChange={(e) => handleChange("website", e.target.value)}
+              placeholder="https://"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="online_shop_url">Boutique en ligne</Label>
+            <Input
+              id="online_shop_url"
+              value={formData.online_shop_url}
+              onChange={(e) => handleChange("online_shop_url", e.target.value)}
               placeholder="https://"
             />
           </div>
