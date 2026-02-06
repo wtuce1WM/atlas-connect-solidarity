@@ -113,7 +113,7 @@ const BusinessDetail = () => {
               <img 
                 src={relaisChateauxLogo} 
                 alt="Relais & Châteaux" 
-                className="h-10 object-contain"
+                className="h-20 object-contain"
               />
             )}
           </div>
