@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, MapPin, Phone, Mail, Globe, BadgeCheck, Loader2, ChevronLeft, ChevronRight, FileText, Download } from "lucide-react";
+import { ArrowLeft, MapPin, Phone, Mail, Globe, BadgeCheck, Loader2, ChevronLeft, ChevronRight, FileText, Download, ShoppingBag } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Badge } from "@/components/ui/badge";
@@ -31,6 +31,7 @@ interface Business {
   images: string[] | null;
   pdf_url: string | null;
   label1_url: string | null;
+  online_shop_url: string | null;
 }
 
 const BusinessDetail = () => {
@@ -346,6 +347,17 @@ const BusinessDetail = () => {
                     >
                       <Globe className="h-5 w-5" />
                       Visiter le site web
+                    </a>
+                  )}
+                  {business.online_shop_url && (
+                    <a
+                      href={business.online_shop_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 text-primary hover:underline"
+                    >
+                      <ShoppingBag className="h-5 w-5" />
+                      Boutique en ligne
                     </a>
                   )}
                 </div>
