@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
-import { Search, MapPin, Loader2, BadgeCheck, Navigation, Building2, Filter } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
+import { Search, MapPin, Loader2, BadgeCheck, Navigation, Building2, Filter, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -50,11 +51,43 @@ const BusinessSearch = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [cityQuery, setCityQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
+  const [selectedActivities, setSelectedActivities] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<SearchResult | null>(null);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const { t, language } = useLanguage();
   const { toast } = useToast();
+
+  // Extract unique activities from results
+  const availableActivities = useMemo(() => {
+    if (!result?.businesses) return [];
+    const activities = new Set<string>();
+    result.businesses.forEach((business) => {
+      business.services.forEach((service) => activities.add(service));
+    });
+    return Array.from(activities).sort();
+  }, [result?.businesses]);
+
+  // Filter businesses by selected activities
+  const filteredBusinesses = useMemo(() => {
+    if (!result?.businesses) return [];
+    if (selectedActivities.length === 0) return result.businesses;
+    return result.businesses.filter((business) =>
+      selectedActivities.some((activity) => business.services.includes(activity))
+    );
+  }, [result?.businesses, selectedActivities]);
+
+  const toggleActivity = (activity: string) => {
+    setSelectedActivities((prev) =>
+      prev.includes(activity)
+        ? prev.filter((a) => a !== activity)
+        : [...prev, activity]
+    );
+  };
+
+  const clearActivities = () => {
+    setSelectedActivities([]);
+  };
 
   // Get user location on mount
   useEffect(() => {
@@ -210,14 +243,54 @@ const BusinessSearch = () => {
               </div>
             )}
 
+            {/* Activity Filters */}
+            {availableActivities.length > 0 && (
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-sm font-medium text-foreground">
+                    {language === "fr" ? "Filtrer par activité" : language === "ar" ? "تصفية حسب النشاط" : "Filter by activity"}
+                  </h3>
+                  {selectedActivities.length > 0 && (
+                    <button
+                      onClick={clearActivities}
+                      className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
+                    >
+                      <X className="h-3 w-3" />
+                      {language === "fr" ? "Effacer" : language === "ar" ? "مسح" : "Clear"}
+                    </button>
+                  )}
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {availableActivities.slice(0, 12).map((activity) => (
+                    <label
+                      key={activity}
+                      className={`flex items-center gap-2 px-3 py-1.5 rounded-full border cursor-pointer transition-colors text-sm ${
+                        selectedActivities.includes(activity)
+                          ? "bg-primary/10 border-primary text-primary"
+                          : "bg-background border-border text-muted-foreground hover:border-primary/50"
+                      }`}
+                    >
+                      <Checkbox
+                        checked={selectedActivities.includes(activity)}
+                        onCheckedChange={() => toggleActivity(activity)}
+                        className="h-3.5 w-3.5"
+                      />
+                      {activity}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Results Count */}
             <p className="mb-6 text-center text-sm text-muted-foreground">
-              {result.totalResults} {t("directory.resultsFound")}
+              {filteredBusinesses.length} {t("directory.resultsFound")}
+              {selectedActivities.length > 0 && ` (${result.totalResults} ${language === "fr" ? "au total" : language === "ar" ? "إجمالي" : "total"})`}
             </p>
 
             {/* Business Cards Grid */}
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {result.businesses.map((business) => (
+              {filteredBusinesses.map((business) => (
                 <Card
                   key={business.id}
                   className="group overflow-hidden transition-all hover:shadow-lg hover:border-primary/50"
