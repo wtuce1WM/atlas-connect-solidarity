@@ -987,27 +987,6 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
           </div>
         </div>
 
-        {/* Internal Notes */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <Label htmlFor="internal_notes">Note interne (staff uniquement)</Label>
-            <span className="text-xs text-muted-foreground">
-              {formData.internal_notes.replace(/<[^>]*>/g, '').length} / 5000 caractères
-            </span>
-          </div>
-          <RichTextEditor
-            content={formData.internal_notes}
-            onChange={(html) => {
-              const textContent = html.replace(/<[^>]*>/g, '');
-              if (textContent.length <= 5000) {
-                handleChange("internal_notes", html);
-              }
-            }}
-          />
-          <p className="text-xs text-muted-foreground">
-            Ces notes sont visibles uniquement par le staff et ne seront pas affichées publiquement.
-          </p>
-        </div>
 
         {/* Video */}
         <div className="space-y-4">
@@ -1170,6 +1149,29 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
           />
         </div>
 
+        {/* Internal Notes - Staff Only */}
+        <div className="space-y-2 p-4 border rounded-lg bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800">
+          <div className="flex items-center justify-between">
+            <Label htmlFor="internal_notes" className="text-amber-800 dark:text-amber-200">
+              Note interne (staff uniquement)
+            </Label>
+            <span className="text-xs text-amber-600 dark:text-amber-400">
+              {formData.internal_notes.replace(/<[^>]*>/g, '').length} / 5000 caractères
+            </span>
+          </div>
+          <RichTextEditor
+            content={formData.internal_notes}
+            onChange={(html) => {
+              const textContent = html.replace(/<[^>]*>/g, '');
+              if (textContent.length <= 5000) {
+                handleChange("internal_notes", html);
+              }
+            }}
+          />
+          <p className="text-xs text-amber-600 dark:text-amber-400">
+            Ces notes sont visibles uniquement par le staff et ne seront pas affichées publiquement.
+          </p>
+        </div>
 
         {/* Actions */}
         <div className="flex justify-end gap-4 pt-4 border-t">
