@@ -44,6 +44,7 @@ export type Database = {
           main_category: string | null
           name: string
           online_shop_url: string | null
+          opening_hours: Json | null
           pdf_url: string | null
           phone: string | null
           priority_score: number | null
@@ -89,6 +90,7 @@ export type Database = {
           main_category?: string | null
           name: string
           online_shop_url?: string | null
+          opening_hours?: Json | null
           pdf_url?: string | null
           phone?: string | null
           priority_score?: number | null
@@ -134,6 +136,7 @@ export type Database = {
           main_category?: string | null
           name?: string
           online_shop_url?: string | null
+          opening_hours?: Json | null
           pdf_url?: string | null
           phone?: string | null
           priority_score?: number | null
