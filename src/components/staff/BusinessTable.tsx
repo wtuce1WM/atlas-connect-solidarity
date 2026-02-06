@@ -46,7 +46,8 @@ const BusinessTable = ({ businesses, loading, onEdit, onDelete }: BusinessTableP
             <TableRow>
               <TableHead>Nom</TableHead>
               <TableHead>Ville</TableHead>
-              <TableHead>Catégorie</TableHead>
+              <TableHead>Catégorie principale</TableHead>
+              <TableHead>Type de compte</TableHead>
               <TableHead>Statut</TableHead>
               <TableHead>Contact</TableHead>
               <TableHead className="text-right">Actions</TableHead>
@@ -73,7 +74,36 @@ const BusinessTable = ({ businesses, loading, onEdit, onDelete }: BusinessTableP
                   <div className="text-sm text-muted-foreground">{business.region}</div>
                 </TableCell>
                 <TableCell>
-                  {business.main_category || "-"}
+                  {business.main_category ? (
+                    <Badge variant="outline" className="font-normal">
+                      {business.main_category}
+                    </Badge>
+                  ) : (
+                    <span className="text-muted-foreground">-</span>
+                  )}
+                </TableCell>
+                <TableCell>
+                  {(business as any).account_type ? (
+                    <Badge 
+                      variant="secondary"
+                      className={
+                        (business as any).account_type === "corporate_branding"
+                          ? "bg-gold/10 text-gold"
+                          : (business as any).account_type === "grande_structure"
+                          ? "bg-purple-500/10 text-purple-600"
+                          : (business as any).account_type === "structure_moyenne"
+                          ? "bg-blue-500/10 text-blue-600"
+                          : "bg-muted text-muted-foreground"
+                      }
+                    >
+                      {(business as any).account_type === "petite_structure" && "Petite Structure"}
+                      {(business as any).account_type === "structure_moyenne" && "Structure Moyenne"}
+                      {(business as any).account_type === "grande_structure" && "Grande Structure"}
+                      {(business as any).account_type === "corporate_branding" && "Corporate & Branding"}
+                    </Badge>
+                  ) : (
+                    <span className="text-muted-foreground">-</span>
+                  )}
                 </TableCell>
                 <TableCell>
                   <Badge
