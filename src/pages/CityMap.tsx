@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Loader2, MapPin, X, ChevronDown } from "lucide-react";
+import { ArrowLeft, Loader2, MapPin, X, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -31,6 +31,18 @@ interface Business {
 
 interface CityInfo {
   description: string | null;
+  official_site_1_name: string | null;
+  official_site_1_url: string | null;
+  official_site_2_name: string | null;
+  official_site_2_url: string | null;
+  official_site_3_name: string | null;
+  official_site_3_url: string | null;
+  official_site_4_name: string | null;
+  official_site_4_url: string | null;
+  official_site_5_name: string | null;
+  official_site_5_url: string | null;
+  official_site_6_name: string | null;
+  official_site_6_url: string | null;
 }
 
 const CityMap = () => {
@@ -147,13 +159,13 @@ const CityMap = () => {
       // Fetch city info
       const { data: cityData, error: cityError } = await supabase
         .from("cities")
-        .select("description")
+        .select("description, official_site_1_name, official_site_1_url, official_site_2_name, official_site_2_url, official_site_3_name, official_site_3_url, official_site_4_name, official_site_4_url, official_site_5_name, official_site_5_url, official_site_6_name, official_site_6_url")
         .ilike("name_fr", decodedCity)
-        .single();
+        .maybeSingle();
 
       if (cityError) {
         console.error("Error fetching city info:", cityError);
-      } else {
+      } else if (cityData) {
         setCityInfo(cityData);
       }
 
@@ -374,6 +386,40 @@ const CityMap = () => {
                 </p>
               )}
             </div>
+
+            {/* Official Sites */}
+            {cityInfo && (
+              <div className="mt-6">
+                {[1, 2, 3, 4, 5, 6].some((num) => {
+                  const name = cityInfo[`official_site_${num}_name` as keyof CityInfo];
+                  const url = cityInfo[`official_site_${num}_url` as keyof CityInfo];
+                  return name && url;
+                }) && (
+                  <>
+                    <h3 className="text-sm font-semibold text-foreground mb-3">Sites officiels</h3>
+                    <div className="space-y-2">
+                      {[1, 2, 3, 4, 5, 6].map((num) => {
+                        const name = cityInfo[`official_site_${num}_name` as keyof CityInfo] as string | null;
+                        const url = cityInfo[`official_site_${num}_url` as keyof CityInfo] as string | null;
+                        if (!name || !url) return null;
+                        return (
+                          <a
+                            key={num}
+                            href={url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 text-sm text-primary hover:underline"
+                          >
+                            <ExternalLink className="h-3.5 w-3.5" />
+                            {name}
+                          </a>
+                        );
+                      })}
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </main>
