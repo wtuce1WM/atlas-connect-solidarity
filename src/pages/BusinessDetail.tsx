@@ -121,6 +121,13 @@ const BusinessDetail = () => {
             <MapPin className="h-5 w-5" />
             <span>{business.address || business.city}, {business.region}</span>
           </div>
+          <Link
+            to={`/city/${encodeURIComponent(business.city)}`}
+            className="inline-flex items-center gap-2 mt-2 text-primary hover:underline text-sm"
+          >
+            <MapPin className="h-4 w-4" />
+            Voir toutes les entreprises à {business.city}
+          </Link>
         </div>
 
         <div className="grid gap-8 lg:grid-cols-3">
