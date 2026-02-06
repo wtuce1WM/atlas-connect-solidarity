@@ -23,12 +23,15 @@ export type Database = {
           created_at: string
           description: string | null
           email: string | null
+          facebook_url: string | null
           ice: string | null
           id: string
+          instagram_url: string | null
           is_featured: boolean | null
           is_regulated_activity: boolean | null
           keywords: string[] | null
           latitude: number | null
+          linkedin_url: string | null
           logo_url: string | null
           longitude: number | null
           main_category: string | null
@@ -38,9 +41,13 @@ export type Database = {
           region: string
           search_vector: unknown
           services: string[] | null
+          tiktok_url: string | null
+          twitter_url: string | null
           updated_at: string
           website: string | null
+          whatsapp: string | null
           wtuce_status: Database["public"]["Enums"]["wtuce_status"] | null
+          youtube_url: string | null
         }
         Insert: {
           address?: string | null
@@ -50,12 +57,15 @@ export type Database = {
           created_at?: string
           description?: string | null
           email?: string | null
+          facebook_url?: string | null
           ice?: string | null
           id?: string
+          instagram_url?: string | null
           is_featured?: boolean | null
           is_regulated_activity?: boolean | null
           keywords?: string[] | null
           latitude?: number | null
+          linkedin_url?: string | null
           logo_url?: string | null
           longitude?: number | null
           main_category?: string | null
@@ -65,9 +75,13 @@ export type Database = {
           region: string
           search_vector?: unknown
           services?: string[] | null
+          tiktok_url?: string | null
+          twitter_url?: string | null
           updated_at?: string
           website?: string | null
+          whatsapp?: string | null
           wtuce_status?: Database["public"]["Enums"]["wtuce_status"] | null
+          youtube_url?: string | null
         }
         Update: {
           address?: string | null
@@ -77,12 +91,15 @@ export type Database = {
           created_at?: string
           description?: string | null
           email?: string | null
+          facebook_url?: string | null
           ice?: string | null
           id?: string
+          instagram_url?: string | null
           is_featured?: boolean | null
           is_regulated_activity?: boolean | null
           keywords?: string[] | null
           latitude?: number | null
+          linkedin_url?: string | null
           logo_url?: string | null
           longitude?: number | null
           main_category?: string | null
@@ -92,9 +109,13 @@ export type Database = {
           region?: string
           search_vector?: unknown
           services?: string[] | null
+          tiktok_url?: string | null
+          twitter_url?: string | null
           updated_at?: string
           website?: string | null
+          whatsapp?: string | null
           wtuce_status?: Database["public"]["Enums"]["wtuce_status"] | null
+          youtube_url?: string | null
         }
         Relationships: []
       }
