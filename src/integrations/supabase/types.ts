@@ -178,9 +178,23 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_user_role_by_email: {
+        Args: { _email: string; _role: Database["public"]["Enums"]["app_role"] }
+        Returns: string
+      }
       calculate_distance: {
         Args: { lat1: number; lat2: number; lon1: number; lon2: number }
         Returns: number
+      }
+      get_user_roles_with_emails: {
+        Args: never
+        Returns: {
+          created_at: string
+          email: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }[]
       }
       has_role: {
         Args: {
