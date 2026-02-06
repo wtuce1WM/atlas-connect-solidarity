@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, MapPin, Phone, Mail, Globe, BadgeCheck, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, MapPin, Phone, Mail, Globe, BadgeCheck, Loader2, ChevronLeft, ChevronRight, FileText, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Badge } from "@/components/ui/badge";
@@ -29,6 +29,7 @@ interface Business {
   latitude: number | null;
   longitude: number | null;
   images: string[] | null;
+  pdf_url: string | null;
 }
 
 const BusinessDetail = () => {
@@ -236,6 +237,35 @@ const BusinessDetail = () => {
                         {category}
                       </Badge>
                     ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* PDF Document */}
+            {business.pdf_url && (
+              <Card>
+                <CardContent className="p-6">
+                  <h2 className="text-xl font-semibold mb-4">Document</h2>
+                  <div className="space-y-4">
+                    {/* PDF Preview */}
+                    <div className="aspect-[3/4] w-full rounded-lg overflow-hidden border bg-muted">
+                      <iframe
+                        src={`${business.pdf_url}#toolbar=0&navpanes=0`}
+                        className="w-full h-full"
+                        title="PDF Document"
+                      />
+                    </div>
+                    {/* Download Button */}
+                    <a
+                      href={business.pdf_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2 w-full bg-primary text-primary-foreground py-3 rounded-lg font-medium hover:bg-primary/90 transition-colors"
+                    >
+                      <Download className="h-5 w-5" />
+                      Télécharger le PDF
+                    </a>
                   </div>
                 </CardContent>
               </Card>
