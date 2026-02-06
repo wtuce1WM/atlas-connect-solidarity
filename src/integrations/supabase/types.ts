@@ -201,6 +201,14 @@ export type Database = {
           name_ar: string | null
           name_en: string | null
           name_fr: string
+          official_site_1_name: string | null
+          official_site_1_url: string | null
+          official_site_2_name: string | null
+          official_site_2_url: string | null
+          official_site_3_name: string | null
+          official_site_3_url: string | null
+          official_site_4_name: string | null
+          official_site_4_url: string | null
           priority_score: number | null
           region: string | null
           sort_order: number | null
@@ -218,6 +226,14 @@ export type Database = {
           name_ar?: string | null
           name_en?: string | null
           name_fr: string
+          official_site_1_name?: string | null
+          official_site_1_url?: string | null
+          official_site_2_name?: string | null
+          official_site_2_url?: string | null
+          official_site_3_name?: string | null
+          official_site_3_url?: string | null
+          official_site_4_name?: string | null
+          official_site_4_url?: string | null
           priority_score?: number | null
           region?: string | null
           sort_order?: number | null
@@ -235,6 +251,14 @@ export type Database = {
           name_ar?: string | null
           name_en?: string | null
           name_fr?: string
+          official_site_1_name?: string | null
+          official_site_1_url?: string | null
+          official_site_2_name?: string | null
+          official_site_2_url?: string | null
+          official_site_3_name?: string | null
+          official_site_3_url?: string | null
+          official_site_4_name?: string | null
+          official_site_4_url?: string | null
           priority_score?: number | null
           region?: string | null
           sort_order?: number | null
