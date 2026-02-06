@@ -85,7 +85,7 @@ const BusinessDetail = () => {
   const isVerified = business.wtuce_status === "verified";
 
   return (
-    <div className={`min-h-screen ${isVerified ? "bg-wtuce-blue" : "bg-background"}`}>
+    <div className={`min-h-screen ${isVerified ? "bg-gradient-to-b from-black to-gold" : "bg-background"}`}>
       <Header />
       
       <main className="container mx-auto px-4 py-24">
@@ -101,7 +101,7 @@ const BusinessDetail = () => {
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-start gap-4 flex-wrap">
-            <h1 className="text-4xl font-bold text-foreground">{business.name}</h1>
+            <h1 className={`text-4xl font-bold ${isVerified ? "text-white" : "text-foreground"}`}>{business.name}</h1>
             {business.wtuce_status === "verified" && (
               <Badge className="bg-primary/10 text-primary border-primary/20 flex items-center gap-1.5 px-3 py-1.5">
                 <BadgeCheck className="h-4 w-4" />
