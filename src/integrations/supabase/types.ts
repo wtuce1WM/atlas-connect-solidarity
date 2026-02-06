@@ -47,6 +47,7 @@ export type Database = {
           opening_hours: Json | null
           pdf_url: string | null
           phone: string | null
+          pinterest_url: string | null
           priority_score: number | null
           region: string
           search_vector: unknown
@@ -93,6 +94,7 @@ export type Database = {
           opening_hours?: Json | null
           pdf_url?: string | null
           phone?: string | null
+          pinterest_url?: string | null
           priority_score?: number | null
           region: string
           search_vector?: unknown
@@ -139,6 +141,7 @@ export type Database = {
           opening_hours?: Json | null
           pdf_url?: string | null
           phone?: string | null
+          pinterest_url?: string | null
           priority_score?: number | null
           region?: string
           search_vector?: unknown
