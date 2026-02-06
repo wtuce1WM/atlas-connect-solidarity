@@ -176,11 +176,11 @@ const HeroSection = () => {
       <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-black" />
 
       {/* Centered Gold Logo Overlay */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+      <div className="absolute inset-x-0 top-32 flex justify-center pointer-events-none">
         <img 
           src={logoGoldOverlay} 
           alt="" 
-          className="w-[400px] h-[400px] md:w-[500px] md:h-[500px] object-contain opacity-30"
+          className="object-contain opacity-30"
         />
       </div>
 
