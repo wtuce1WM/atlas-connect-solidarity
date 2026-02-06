@@ -256,12 +256,13 @@ const CategoryManagement = () => {
     );
   }
 
-  const EditForm = () => (
+  const renderEditForm = (showIcon: boolean = false) => (
     <div className="space-y-3 p-4 bg-muted/50 rounded-lg border">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         <div>
           <label className="text-xs font-medium text-muted-foreground">Français *</label>
           <Input
+            autoFocus
             value={editForm.name_fr}
             onChange={(e) => setEditForm(prev => ({ ...prev, name_fr: e.target.value }))}
             placeholder="Nom en français"
@@ -285,7 +286,7 @@ const CategoryManagement = () => {
           />
         </div>
       </div>
-      {editMode?.type === "category" && (
+      {showIcon && (
         <div className="max-w-xs">
           <label className="text-xs font-medium text-muted-foreground">Icône (nom Lucide)</label>
           <Input
@@ -319,7 +320,7 @@ const CategoryManagement = () => {
       </div>
 
       {/* New category form */}
-      {editMode?.type === "category" && editMode.id === null && <EditForm />}
+      {editMode?.type === "category" && editMode.id === null && renderEditForm(true)}
 
       {/* Categories list */}
       <div className="space-y-2">
@@ -385,7 +386,7 @@ const CategoryManagement = () => {
 
                 {isEditing && (
                   <div className="px-3 pb-3">
-                    <EditForm />
+                    {renderEditForm(true)}
                   </div>
                 )}
 
@@ -405,7 +406,7 @@ const CategoryManagement = () => {
 
                     {/* New subcategory form */}
                     {editMode?.type === "subcategory" && editMode.id === null && editMode.parentId === category.id && (
-                      <EditForm />
+                      renderEditForm(false)
                     )}
 
                     {subs.map((sub) => {
@@ -463,7 +464,7 @@ const CategoryManagement = () => {
 
                             {subIsEditing && (
                               <div className="px-2 pb-2">
-                                <EditForm />
+                                {renderEditForm(false)}
                               </div>
                             )}
 
@@ -487,7 +488,7 @@ const CategoryManagement = () => {
 
                                 {/* New service form */}
                                 {editMode?.type === "service" && editMode.id === null && editMode.parentId === sub.id && (
-                                  <EditForm />
+                                  renderEditForm(false)
                                 )}
 
                                 {svcs.map((svc) => {
@@ -496,7 +497,7 @@ const CategoryManagement = () => {
                                   return (
                                     <div key={svc.id} className="ml-2">
                                       {svcIsEditing ? (
-                                        <EditForm />
+                                        renderEditForm(false)
                                       ) : (
                                         <div className="flex items-center gap-2 p-1.5 rounded hover:bg-muted/50 group">
                                           <span className="text-xs flex-1">
