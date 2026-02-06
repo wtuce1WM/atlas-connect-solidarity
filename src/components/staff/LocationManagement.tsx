@@ -60,6 +60,7 @@ interface City {
 const LocationManagement = () => {
   const [countries, setCountries] = useState<Country[]>([]);
   const [cities, setCities] = useState<City[]>([]);
+  const [businessCounts, setBusinessCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [editingCountry, setEditingCountry] = useState<Country | null>(null);
   const [editingCity, setEditingCity] = useState<City | null>(null);
@@ -97,9 +98,10 @@ const LocationManagement = () => {
   const fetchData = async () => {
     setLoading(true);
     
-    const [countriesRes, citiesRes] = await Promise.all([
+    const [countriesRes, citiesRes, businessesRes] = await Promise.all([
       supabase.from("countries").select("*").order("sort_order"),
       supabase.from("cities").select("*").order("sort_order"),
+      supabase.from("businesses").select("city"),
     ]);
 
     if (countriesRes.error) {
@@ -112,6 +114,17 @@ const LocationManagement = () => {
       toast({ variant: "destructive", title: "Erreur", description: "Impossible de charger les villes." });
     } else {
       setCities(citiesRes.data || []);
+    }
+
+    // Count businesses per city
+    if (!businessesRes.error && businessesRes.data) {
+      const counts: Record<string, number> = {};
+      businessesRes.data.forEach((b) => {
+        if (b.city) {
+          counts[b.city] = (counts[b.city] || 0) + 1;
+        }
+      });
+      setBusinessCounts(counts);
     }
 
     setLoading(false);
@@ -455,6 +468,7 @@ const LocationManagement = () => {
                             <TableHeader>
                               <TableRow>
                                 <TableHead>Ville</TableHead>
+                                <TableHead>Entreprises</TableHead>
                                 <TableHead>Région</TableHead>
                                 <TableHead>Score</TableHead>
                                 <TableHead>Coordonnées</TableHead>
@@ -469,6 +483,11 @@ const LocationManagement = () => {
                                       <MapPin className="h-4 w-4 text-muted-foreground" />
                                       <span className="font-medium">{city.name_fr}</span>
                                     </div>
+                                  </TableCell>
+                                  <TableCell>
+                                    <span className="inline-flex items-center justify-center min-w-[2rem] px-2 py-0.5 bg-primary/10 text-primary rounded text-sm font-medium">
+                                      {businessCounts[city.name_fr] || 0}
+                                    </span>
                                   </TableCell>
                                   <TableCell className="text-muted-foreground">
                                     {city.region || "—"}
