@@ -64,25 +64,32 @@ const UserManagement = () => {
   const fetchUsers = async () => {
     setLoading(true);
     
-    // Fetch user roles - we need to use a different approach since we can't join auth.users directly
-    const { data: roles, error } = await supabase
-      .from("user_roles")
-      .select("*")
-      .order("created_at", { ascending: false });
+    try {
+      // Use the security definer function to get roles with emails
+      const { data, error } = await supabase.rpc('get_user_roles_with_emails' as any);
 
-    if (error) {
+      if (error) {
+        // Fallback to regular query if function doesn't exist or user is not admin
+        const { data: roles, error: rolesError } = await supabase
+          .from("user_roles")
+          .select("*")
+          .order("created_at", { ascending: false });
+
+        if (rolesError) {
+          throw rolesError;
+        }
+        setUsers(roles || []);
+      } else {
+        setUsers(data || []);
+      }
+    } catch (error: any) {
       toast({
         variant: "destructive",
         title: "Erreur",
         description: "Impossible de charger les utilisateurs.",
       });
-      setLoading(false);
-      return;
     }
-
-    // For now, we'll display the user_id and let admins know the email when adding
-    // In production, you'd typically have a profiles table with email
-    setUsers(roles || []);
+    
     setLoading(false);
   };
 
@@ -99,25 +106,14 @@ const UserManagement = () => {
     setAdding(true);
 
     try {
-      // We need to find the user by email using an edge function or admin API
-      // For now, we'll create a simple approach where the user must already exist
-      const { data, error } = await supabase.rpc('add_user_role_by_email', {
+      // Use the security definer function to add the role
+      const { data, error } = await supabase.rpc('add_user_role_by_email' as any, {
         _email: newUserEmail.trim().toLowerCase(),
         _role: newUserRole
       });
 
       if (error) {
-        // If RPC doesn't exist, show a message
-        if (error.message.includes('does not exist')) {
-          toast({
-            variant: "destructive",
-            title: "Fonction non disponible",
-            description: "La fonction d'ajout par email n'est pas configurée. Utilisez l'ID utilisateur.",
-          });
-        } else {
-          throw error;
-        }
-        return;
+        throw error;
       }
 
       toast({
@@ -272,10 +268,10 @@ const UserManagement = () => {
       </div>
 
       {/* Info Box */}
-      <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-        <p className="text-sm text-blue-800 dark:text-blue-200">
-          <strong>Note :</strong> Pour ajouter un utilisateur, celui-ci doit d'abord créer un compte 
-          sur <code className="bg-blue-100 dark:bg-blue-900 px-1 rounded">/staff/login</code>. 
+      <div className="bg-muted border border-border rounded-lg p-4">
+        <p className="text-sm text-muted-foreground">
+          <strong className="text-foreground">Note :</strong> Pour ajouter un utilisateur, celui-ci doit d'abord créer un compte 
+          sur <code className="bg-background px-1 rounded border">/staff/login</code>. 
           Ensuite, vous pouvez lui attribuer un rôle ici.
         </p>
       </div>
@@ -285,7 +281,7 @@ const UserManagement = () => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>ID Utilisateur</TableHead>
+              <TableHead>Email / ID Utilisateur</TableHead>
               <TableHead>Rôle</TableHead>
               <TableHead>Date d'ajout</TableHead>
               <TableHead className="text-right">Actions</TableHead>
@@ -307,11 +303,19 @@ const UserManagement = () => {
             ) : (
               users.map((user) => (
                 <TableRow key={user.id}>
-                  <TableCell className="font-mono text-sm">
-                    {user.user_id.slice(0, 8)}...
-                    {user.user_id === currentUserId && (
-                      <Badge variant="outline" className="ml-2">Vous</Badge>
-                    )}
+                  <TableCell>
+                    <div className="flex flex-col">
+                      {user.email ? (
+                        <span className="font-medium">{user.email}</span>
+                      ) : (
+                        <span className="font-mono text-sm text-muted-foreground">
+                          {user.user_id.slice(0, 8)}...
+                        </span>
+                      )}
+                      {user.user_id === currentUserId && (
+                        <Badge variant="outline" className="w-fit mt-1">Vous</Badge>
+                      )}
+                    </div>
                   </TableCell>
                   <TableCell>
                     <Badge

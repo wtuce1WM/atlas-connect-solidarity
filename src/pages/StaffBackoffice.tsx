@@ -3,22 +3,26 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Plus, Search, Edit, Trash2, Eye, Building2 } from "lucide-react";
+import { LogOut, Plus, Search, Edit, Trash2, Eye, Building2, Users } from "lucide-react";
 import logoGold from "@/assets/logoGOLD.webp";
 import BusinessForm from "@/components/staff/BusinessForm";
 import BusinessTable from "@/components/staff/BusinessTable";
+import UserManagement from "@/components/staff/UserManagement";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Business = Tables<"businesses">;
 
 const StaffBackoffice = () => {
   const [user, setUser] = useState<any>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editingBusiness, setEditingBusiness] = useState<Business | null>(null);
+  const [activeTab, setActiveTab] = useState("businesses");
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -43,6 +47,9 @@ const StaffBackoffice = () => {
         return;
       }
 
+      // Check if user is admin
+      const hasAdminRole = roles.some(r => r.role === "admin");
+      setIsAdmin(hasAdminRole);
       setUser(session.user);
       fetchBusinesses();
     };
@@ -174,76 +181,97 @@ const StaffBackoffice = () => {
             }}
           />
         ) : (
-          <>
-            {/* Actions Bar */}
-            <div className="flex flex-col md:flex-row gap-4 mb-6">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Rechercher par nom, ville ou catégorie..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-              <Button
-                onClick={() => setShowForm(true)}
-                className="bg-gold hover:bg-gold/90 text-gold-foreground"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Nouvelle entreprise
-              </Button>
-            </div>
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="mb-6">
+              <TabsTrigger value="businesses" className="gap-2">
+                <Building2 className="h-4 w-4" />
+                Entreprises
+              </TabsTrigger>
+              {isAdmin && (
+                <TabsTrigger value="users" className="gap-2">
+                  <Users className="h-4 w-4" />
+                  Utilisateurs
+                </TabsTrigger>
+              )}
+            </TabsList>
 
-            {/* Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <div className="bg-background rounded-lg p-4 border">
-                <div className="flex items-center gap-3">
-                  <div className="bg-gold/10 p-3 rounded-lg">
-                    <Building2 className="h-6 w-6 text-gold" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold">{businesses.length}</p>
-                    <p className="text-muted-foreground text-sm">Entreprises totales</p>
-                  </div>
+            <TabsContent value="businesses" className="space-y-6">
+              {/* Actions Bar */}
+              <div className="flex flex-col md:flex-row gap-4">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Rechercher par nom, ville ou catégorie..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10"
+                  />
                 </div>
+                <Button
+                  onClick={() => setShowForm(true)}
+                  className="bg-gold hover:bg-gold/90 text-gold-foreground"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Nouvelle entreprise
+                </Button>
               </div>
-              <div className="bg-background rounded-lg p-4 border">
-                <div className="flex items-center gap-3">
-                  <div className="bg-green-500/10 p-3 rounded-lg">
-                    <Eye className="h-6 w-6 text-green-500" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold">
-                      {businesses.filter(b => b.wtuce_status === "verified").length}
-                    </p>
-                    <p className="text-muted-foreground text-sm">Vérifiées</p>
-                  </div>
-                </div>
-              </div>
-              <div className="bg-background rounded-lg p-4 border">
-                <div className="flex items-center gap-3">
-                  <div className="bg-orange-500/10 p-3 rounded-lg">
-                    <Edit className="h-6 w-6 text-orange-500" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold">
-                      {businesses.filter(b => b.wtuce_status === "pending").length}
-                    </p>
-                    <p className="text-muted-foreground text-sm">En attente</p>
-                  </div>
-                </div>
-              </div>
-            </div>
 
-            {/* Table */}
-            <BusinessTable
-              businesses={filteredBusinesses}
-              loading={loading}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-            />
-          </>
+              {/* Stats */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-background rounded-lg p-4 border">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-gold/10 p-3 rounded-lg">
+                      <Building2 className="h-6 w-6 text-gold" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold">{businesses.length}</p>
+                      <p className="text-muted-foreground text-sm">Entreprises totales</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-background rounded-lg p-4 border">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-primary/10 p-3 rounded-lg">
+                      <Eye className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold">
+                        {businesses.filter(b => b.wtuce_status === "verified").length}
+                      </p>
+                      <p className="text-muted-foreground text-sm">Vérifiées</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-background rounded-lg p-4 border">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-secondary p-3 rounded-lg">
+                      <Edit className="h-6 w-6 text-secondary-foreground" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold">
+                        {businesses.filter(b => b.wtuce_status === "pending").length}
+                      </p>
+                      <p className="text-muted-foreground text-sm">En attente</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Table */}
+              <BusinessTable
+                businesses={filteredBusinesses}
+                loading={loading}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+              />
+            </TabsContent>
+
+            {isAdmin && (
+              <TabsContent value="users">
+                <UserManagement />
+              </TabsContent>
+            )}
+          </Tabs>
         )}
       </main>
     </div>
