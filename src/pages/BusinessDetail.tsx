@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import GoogleMapEmbed from "@/components/GoogleMapEmbed";
+import ImageLightbox from "@/components/ImageLightbox";
 import logoGold from "@/assets/logoGOLD.webp";
 import relaisChateauxLogo from "@/assets/relais-chateaux-logo.png";
 
@@ -39,6 +40,7 @@ const BusinessDetail = () => {
   const [business, setBusiness] = useState<Business | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const { t } = useLanguage();
 
   useEffect(() => {
@@ -167,7 +169,8 @@ const BusinessDetail = () => {
                   <img
                     src={business.images[currentImageIndex]}
                     alt={`${business.name} - Image ${currentImageIndex + 1}`}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                    onClick={() => setIsLightboxOpen(true)}
                   />
                   {business.images.length > 1 && (
                     <>
@@ -219,6 +222,22 @@ const BusinessDetail = () => {
                   </div>
                 )}
               </Card>
+            )}
+
+            {/* Lightbox */}
+            {business.images && business.images.length > 0 && (
+              <ImageLightbox
+                images={business.images}
+                currentIndex={currentImageIndex}
+                isOpen={isLightboxOpen}
+                onClose={() => setIsLightboxOpen(false)}
+                onPrevious={() => setCurrentImageIndex((prev) => 
+                  prev === 0 ? business.images!.length - 1 : prev - 1
+                )}
+                onNext={() => setCurrentImageIndex((prev) => 
+                  prev === business.images!.length - 1 ? 0 : prev + 1
+                )}
+              />
             )}
 
             {/* Description */}
