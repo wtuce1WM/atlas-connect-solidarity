@@ -67,6 +67,7 @@ const RelatedEstablishments = ({ currentBusinessId, ice }: RelatedEstablishments
             <Link
               key={business.id}
               to={`/business/${business.id}`}
+              onClick={() => window.scrollTo(0, 0)}
               className="flex items-start gap-3 p-3 rounded-lg border bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer"
             >
               {business.logo_url && (
