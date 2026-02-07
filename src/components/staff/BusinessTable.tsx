@@ -50,6 +50,7 @@ const BusinessTable = ({ businesses, loading, onEdit, onDelete, onDuplicate }: B
               <TableHead>Catégorie principale</TableHead>
               <TableHead>Type de compte</TableHead>
               <TableHead>Statut</TableHead>
+              <TableHead>Actif</TableHead>
               <TableHead>Contact</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
@@ -133,6 +134,18 @@ const BusinessTable = ({ businesses, loading, onEdit, onDelete, onDuplicate }: B
                     }
                   >
                     {business.wtuce_status === "verified" ? "Vérifié" : "En attente"}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  <Badge
+                    variant={(business as any).is_active !== false ? "default" : "secondary"}
+                    className={
+                      (business as any).is_active !== false
+                        ? "bg-green-500/10 text-green-600 hover:bg-green-500/20"
+                        : "bg-red-500/10 text-red-600 hover:bg-red-500/20"
+                    }
+                  >
+                    {(business as any).is_active !== false ? "Oui" : "Non"}
                   </Badge>
                 </TableCell>
                 <TableCell>

@@ -84,6 +84,7 @@ const BusinessSearch = () => {
       const { data, error } = await supabase
         .from("businesses")
         .select("main_category")
+        .eq("is_active", true)
         .not("main_category", "is", null)
         .order("main_category");
       
