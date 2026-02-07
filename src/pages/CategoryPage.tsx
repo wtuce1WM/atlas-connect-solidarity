@@ -313,17 +313,6 @@ const CategoryPage = () => {
                 {paginatedBusinesses.map((business) => (
                   <Link key={business.id} to={`/business/${business.id}`}>
                     <Card className="group h-full overflow-hidden bg-card border-border hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 relative">
-                      {/* Watermark logo for verified businesses */}
-                      {business.wtuce_status === "verified" && (
-                        <div className="absolute inset-0 pointer-events-none z-10 flex items-center justify-center overflow-hidden">
-                          <img 
-                            src="/lovable-uploads/1c0e9d04-40f8-4f5a-bfc0-0fb4cab5def8.png" 
-                            alt="" 
-                            className="w-32 h-32 object-contain opacity-40"
-                          />
-                        </div>
-                      )}
-                      
                       {/* Image - 16:9 aspect ratio */}
                       <div className="aspect-video overflow-hidden bg-muted">
                         <img
@@ -336,7 +325,15 @@ const CategoryPage = () => {
                         />
                       </div>
                       
-                      <CardContent className="p-4 relative z-20">
+                      <CardContent className="p-4 relative">
+                        {/* Watermark logo for verified businesses - bottom right of white area */}
+                        {business.wtuce_status === "verified" && (
+                          <img 
+                            src="/lovable-uploads/1c0e9d04-40f8-4f5a-bfc0-0fb4cab5def8.png" 
+                            alt="" 
+                            className="absolute bottom-2 right-2 w-16 h-16 object-contain opacity-80 pointer-events-none"
+                          />
+                        )}
                         {/* Badges */}
                         <div className="flex flex-wrap gap-2 mb-3">
                           {business.wtuce_status === "verified" && (
