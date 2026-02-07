@@ -123,7 +123,7 @@ const TopCityBusinesses = ({ businesses, cityName }: TopCityBusinessesProps) => 
                   )}
 
                   {/* Name */}
-                  <h3 className="text-base font-semibold text-white group-hover:text-gold transition-colors mb-2 line-clamp-2">
+                  <h3 className="text-base font-semibold text-gold group-hover:text-white transition-colors mb-2 line-clamp-2">
                     {business.name}
                   </h3>
 
