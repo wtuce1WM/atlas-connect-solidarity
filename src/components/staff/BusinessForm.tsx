@@ -341,18 +341,24 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
   // Find the category ID for the selected main_category
   const selectedCategory = dbCategories.find(c => c.name_fr === formData.main_category);
   
-  // Get subcategories for selected category from database
+  // Get subcategories for selected category from database (sorted alphabetically)
   const availableSubcategories = selectedCategory
-    ? dbSubcategories.filter(sub => sub.category_id === selectedCategory.id).map(sub => sub.name_fr)
+    ? dbSubcategories
+        .filter(sub => sub.category_id === selectedCategory.id)
+        .map(sub => sub.name_fr)
+        .sort((a, b) => a.localeCompare(b, 'fr'))
     : [];
 
-  // Get services for selected subcategories from database
+  // Get services for selected subcategories from database (sorted alphabetically)
   const selectedSubcategoryIds = dbSubcategories
     .filter(sub => formData.categories.includes(sub.name_fr))
     .map(sub => sub.id);
   
   const availableServices = selectedSubcategoryIds.length > 0
-    ? dbServices.filter(srv => selectedSubcategoryIds.includes(srv.subcategory_id)).map(srv => srv.name_fr)
+    ? dbServices
+        .filter(srv => selectedSubcategoryIds.includes(srv.subcategory_id))
+        .map(srv => srv.name_fr)
+        .sort((a, b) => a.localeCompare(b, 'fr'))
     : [];
 
   const handleSubmit = async (e: React.FormEvent) => {
