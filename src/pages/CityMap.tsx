@@ -408,7 +408,7 @@ const CityMap = () => {
                   return name && url;
                 }) && (
                   <>
-                    <h3 className="text-sm font-semibold text-foreground mb-3">Sites officiels</h3>
+                    <h3 className="text-sm font-semibold text-white mb-3">Sites officiels</h3>
                     <div className="space-y-2">
                       {[1, 2, 3, 4, 5, 6].map((num) => {
                         const name = cityInfo[`official_site_${num}_name` as keyof CityInfo] as string | null;
