@@ -18,7 +18,7 @@ const Header = () => {
           </span>
         </a>
 
-        {/* Desktop Nav */}
+        {/* Desktop Nav - DISABLED
         <nav className="hidden items-center gap-8 md:flex">
           <a href="#about" className="text-white/90 transition-colors hover:text-gold">
             {t("nav.about")}
@@ -27,10 +27,13 @@ const Header = () => {
             {t("nav.contact")}
           </a>
         </nav>
+        */}
 
         {/* Actions */}
         <div className="hidden items-center gap-4 md:flex">
+          {/* Language Switcher - DISABLED
           <LanguageSwitcher />
+          */}
           <button className="flex items-center gap-2 rounded-lg border border-white/30 px-4 py-2 text-white transition-all hover:border-gold hover:text-gold">
             <User className="h-4 w-4" />
             {t("nav.signIn")}
@@ -49,6 +52,7 @@ const Header = () => {
       {/* Mobile Menu */}
       {isMenuOpen && <div className="border-t border-white/10 bg-black/90 backdrop-blur-lg md:hidden">
           <nav className="container mx-auto flex flex-col gap-4 px-4 py-6">
+            {/* Nav links - DISABLED
             <a href="#about" className="text-white/90 transition-colors hover:text-gold">
               {t("nav.about")}
             </a>
@@ -56,9 +60,12 @@ const Header = () => {
               {t("nav.contact")}
             </a>
             <hr className="border-white/20" />
+            */}
+            {/* Language Switcher - DISABLED
             <div className="flex justify-center">
               <LanguageSwitcher />
             </div>
+            */}
             <button className="flex items-center justify-center gap-2 rounded-lg border border-white/30 px-4 py-2 text-white">
               <User className="h-4 w-4" />
               {t("nav.signIn")}
