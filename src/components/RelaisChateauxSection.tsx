@@ -11,7 +11,7 @@ interface Business {
   name: string;
   city: string;
   region: string;
-  logo_url: string | null;
+  images: string[] | null;
   rating: number | null;
   description: string | null;
 }
@@ -34,7 +34,7 @@ const RelaisChateauxSection = () => {
       try {
         const { data, error } = await supabase
           .from("businesses")
-          .select("id, name, city, region, logo_url, rating, description")
+          .select("id, name, city, region, images, rating, description")
           .eq("is_active", true)
           .in("name", RELAIS_CHATEAUX_NAMES)
           .order("priority_score", { ascending: false });
@@ -102,35 +102,37 @@ const RelaisChateauxSection = () => {
               className="group"
             >
               <Card className="h-full bg-gradient-to-b from-gray-900 to-black border border-gold/30 overflow-hidden transition-all duration-300 hover:border-gold hover:shadow-lg hover:shadow-gold/20">
-                <CardContent className="p-6 flex flex-col items-center text-center">
-                  {/* Logo */}
-                  {business.logo_url && (
-                    <div className="w-24 h-24 mb-4 rounded-full overflow-hidden border-2 border-gold/50 bg-white p-2 flex items-center justify-center">
+                <CardContent className="p-0 flex flex-col">
+                  {/* First Image */}
+                  {business.images && business.images.length > 0 && (
+                    <div className="aspect-[4/3] w-full overflow-hidden">
                       <img
-                        src={business.logo_url}
+                        src={business.images[0]}
                         alt={business.name}
-                        className="max-w-full max-h-full object-contain"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                     </div>
                   )}
 
-                  {/* Rating */}
-                  {business.rating && (
-                    <div className="flex items-center gap-1 mb-2">
+                  <div className="p-4 text-center">
+                    {/* Rating */}
+                    {business.rating && (
+                      <div className="flex items-center justify-center gap-1 mb-2">
                       <Star className="h-4 w-4 fill-gold text-gold" />
                       <span className="text-gold font-bold">{business.rating}/20</span>
                     </div>
                   )}
 
-                  {/* Name */}
-                  <h3 className="text-lg font-semibold text-white group-hover:text-gold transition-colors mb-2">
-                    {business.name}
-                  </h3>
+                    {/* Name */}
+                    <h3 className="text-lg font-semibold text-white group-hover:text-gold transition-colors mb-2">
+                      {business.name}
+                    </h3>
 
-                  {/* Location */}
-                  <div className="flex items-center gap-1 text-sm text-gray-400">
-                    <MapPin className="h-3 w-3" />
-                    <span>{business.city}</span>
+                    {/* Location */}
+                    <div className="flex items-center justify-center gap-1 text-sm text-gray-400">
+                      <MapPin className="h-3 w-3" />
+                      <span>{business.city}</span>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
