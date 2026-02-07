@@ -10,6 +10,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import GoogleMapEmbed from "@/components/GoogleMapEmbed";
 import ImageLightbox from "@/components/ImageLightbox";
+import RelatedEstablishments from "@/components/RelatedEstablishments";
 import logoGold from "@/assets/logoGOLD.webp";
 import relaisChateauxLogo from "@/assets/relais-chateaux-logo.png";
 
@@ -67,6 +68,7 @@ interface Business {
   rating: number | null;
   reserve_now_url: string | null;
   show_opening_hours: boolean | null;
+  ice: string | null;
 }
 
 // Helper to convert video URL to embeddable format
@@ -622,6 +624,14 @@ const BusinessDetail = () => {
               >
                 Réserver maintenant
               </a>
+            )}
+
+            {/* Related Establishments (same ICE) */}
+            {business.ice && (
+              <RelatedEstablishments
+                currentBusinessId={business.id}
+                ice={business.ice}
+              />
             )}
 
             {/* Opening Hours */}
