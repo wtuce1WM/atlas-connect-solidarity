@@ -307,7 +307,7 @@ const HeroSection = () => {
               </div>
             </div>
 
-            {/* Relais & Châteaux Section */}
+            {/* Relais & Châteaux Section - DISABLED
             {relaisCount > 0 && (
               <div className="text-center">
                 <div className="mb-4 flex items-center justify-center gap-2">
@@ -331,6 +331,7 @@ const HeroSection = () => {
                 </a>
               </div>
             )}
+            */}
           </div>
         )}
       </div>
