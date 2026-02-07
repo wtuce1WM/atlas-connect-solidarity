@@ -358,10 +358,10 @@ const CityMap = () => {
             </div>
 
             {/* Business list */}
+            <h2 className="text-lg font-semibold text-white mb-3">
+              Entreprises ({filteredBusinesses.length})
+            </h2>
             <div className="bg-gold/90 rounded-lg p-4 max-h-[800px] overflow-y-auto space-y-3">
-              <h2 className="text-lg font-semibold text-gold-foreground sticky top-0 bg-gold/90 py-2 z-10">
-                Entreprises ({filteredBusinesses.length})
-              </h2>
               {filteredBusinesses.map((business) => (
                 <Link key={business.id} to={`/business/${business.id}`}>
                   <Card className="cursor-pointer hover:bg-white/90 transition-colors bg-white/80">
