@@ -508,16 +508,6 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
                 placeholder="Ex: 18.5"
               />
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="logo_url">URL du logo</Label>
-              <Input
-                id="logo_url"
-                value={formData.logo_url}
-                onChange={(e) => handleChange("logo_url", e.target.value)}
-                placeholder="https://"
-              />
-            </div>
           </div>
 
           <div className="flex items-center gap-2">
