@@ -7,6 +7,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import CityWeather from "@/components/CityWeather";
 import TopCityBusinesses from "@/components/TopCityBusinesses";
+import symboleMaroc from "@/assets/symbole-maroc.webp";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -223,10 +224,21 @@ const CityMap = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-morocco-red to-morocco-green">
+    <div className="min-h-screen bg-gradient-to-b from-morocco-red to-morocco-green relative">
+      {/* Background decorative emblem */}
+      <div 
+        className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] opacity-10 pointer-events-none"
+        style={{
+          backgroundImage: `url(${symboleMaroc})`,
+          backgroundSize: 'contain',
+          backgroundPosition: 'center top',
+          backgroundRepeat: 'no-repeat'
+        }}
+      />
+      
       <Header variant="morocco" />
 
-      <main className="container mx-auto px-4 py-24">
+      <main className="container mx-auto px-4 py-24 relative z-10">
         {/* Back link */}
         <Link
           to="/"
