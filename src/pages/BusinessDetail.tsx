@@ -61,6 +61,7 @@ interface Business {
   booking_url: string | null;
   google_maps_url: string | null;
   pinterest_url: string | null;
+  airbnb_url: string | null;
   video_1_url: string | null;
   opening_hours: OpeningHours | null;
   rating: number | null;
@@ -558,6 +559,56 @@ const BusinessDetail = () => {
                       >
                         <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
                           <path d="M12 0C5.373 0 0 5.372 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 0 1 .083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.632-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12 0-6.628-5.373-12-12-12z"/>
+                        </svg>
+                      </a>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Plateformes de réservation */}
+            {(business.booking_url || business.tripadvisor_url || business.airbnb_url) && (
+              <Card>
+                <CardContent className="p-6">
+                  <h2 className="text-xl font-semibold mb-4">Plateformes de réservation</h2>
+                  <div className="flex flex-wrap gap-3">
+                    {business.booking_url && (
+                      <a
+                        href={business.booking_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center w-10 h-10 rounded-full bg-[#003580] text-white hover:opacity-80 transition-opacity"
+                        title="Booking.com"
+                      >
+                        <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M2.273 0v24h10.715c6.066 0 8.739-3.098 8.739-7.133 0-2.829-1.558-5.203-4.107-6.174v-.078c1.908-.893 3.136-2.789 3.136-5.066C20.756 2.36 18.238 0 13.183 0H2.273zm5.882 4.344h3.885c2.127 0 3.156.975 3.156 2.477 0 1.658-1.263 2.593-3.506 2.593H8.155V4.344zm0 9.16h4.274c2.594 0 3.786 1.092 3.786 2.789 0 1.736-1.23 2.672-3.786 2.672H8.155v-5.461z"/>
+                        </svg>
+                      </a>
+                    )}
+                    {business.tripadvisor_url && (
+                      <a
+                        href={business.tripadvisor_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center w-10 h-10 rounded-full bg-[#00AF87] text-white hover:opacity-80 transition-opacity"
+                        title="TripAdvisor"
+                      >
+                        <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M12.006 4.295c-2.67 0-5.338.784-7.645 2.353H0l1.963 2.135a5.997 5.997 0 0 0 4.04 10.43 5.976 5.976 0 0 0 4.075-1.6L12 19.705l1.922-2.09a5.972 5.972 0 0 0 4.075 1.598 5.997 5.997 0 0 0 4.04-10.43L24 6.648h-4.35a13.573 13.573 0 0 0-7.644-2.353zM12 6.758c1.91.216 3.716.974 5.198 2.24a5.97 5.97 0 0 0-1.198.754A7.48 7.48 0 0 0 12 8.76a7.48 7.48 0 0 0-4 .992 5.97 5.97 0 0 0-1.198-.754A9.473 9.473 0 0 1 12 6.758zm-6.003 3.02a4.03 4.03 0 1 1 0 8.059 4.03 4.03 0 0 1 0-8.058zm12.006 0a4.03 4.03 0 1 1 0 8.059 4.03 4.03 0 0 1 0-8.058zM5.997 11.29a2.49 2.49 0 1 0 0 4.98 2.49 2.49 0 0 0 0-4.98zm12.006 0a2.49 2.49 0 1 0 0 4.98 2.49 2.49 0 0 0 0-4.98zm-12.006 1a1.49 1.49 0 1 1 0 2.98 1.49 1.49 0 0 1 0-2.98zm12.006 0a1.49 1.49 0 1 1 0 2.98 1.49 1.49 0 0 1 0-2.98z"/>
+                        </svg>
+                      </a>
+                    )}
+                    {business.airbnb_url && (
+                      <a
+                        href={business.airbnb_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center w-10 h-10 rounded-full bg-[#FF5A5F] text-white hover:opacity-80 transition-opacity"
+                        title="Airbnb"
+                      >
+                        <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M12.001 18.275c-.768-1.041-1.497-2.093-2.209-3.155-.717-1.069-1.39-2.164-1.974-3.31-.578-1.138-1.05-2.313-1.05-3.503 0-1.394.575-2.63 1.447-3.501A4.94 4.94 0 0 1 12 3.374c1.353 0 2.63.521 3.567 1.432a4.94 4.94 0 0 1 1.449 3.5c0 1.19-.471 2.366-1.05 3.503-.585 1.147-1.257 2.241-1.974 3.31-.712 1.063-1.441 2.114-2.209 3.155l-.393.521-.389-.52zm.002-8.348a2.033 2.033 0 0 0 2.032-2.032 2.033 2.033 0 0 0-2.032-2.032 2.033 2.033 0 0 0-2.032 2.032c0 1.12.912 2.032 2.032 2.032zM12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0z"/>
                         </svg>
                       </a>
                     )}

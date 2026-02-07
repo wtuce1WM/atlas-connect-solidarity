@@ -880,18 +880,37 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="tripadvisor_url" className="flex items-center gap-2">
-                <TripAdvisorIcon className="text-[#00AF87]" />
-                TripAdvisor
+              <Label htmlFor="google_maps_url" className="flex items-center gap-2">
+                <GoogleMapsIcon className="text-[#4285F4]" />
+                Google Maps
               </Label>
               <Input
-                id="tripadvisor_url"
-                value={formData.tripadvisor_url}
-                onChange={(e) => handleChange("tripadvisor_url", e.target.value)}
-                placeholder="https://tripadvisor.com/..."
+                id="google_maps_url"
+                value={formData.google_maps_url}
+                onChange={(e) => handleChange("google_maps_url", e.target.value)}
+                placeholder="https://maps.google.com/..."
               />
             </div>
 
+            <div className="space-y-2">
+              <Label htmlFor="pinterest_url" className="flex items-center gap-2">
+                <PinterestIcon className="text-[#E60023]" />
+                Pinterest
+              </Label>
+              <Input
+                id="pinterest_url"
+                value={formData.pinterest_url}
+                onChange={(e) => handleChange("pinterest_url", e.target.value)}
+                placeholder="https://pinterest.com/..."
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Plateformes de réservation */}
+        <div className="space-y-4">
+          <Label className="text-base font-semibold">Plateformes de réservation</Label>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="booking_url" className="flex items-center gap-2">
                 <BookingIcon className="text-[#003580]" />
@@ -906,15 +925,15 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="google_maps_url" className="flex items-center gap-2">
-                <GoogleMapsIcon className="text-[#4285F4]" />
-                Google Maps
+              <Label htmlFor="tripadvisor_url" className="flex items-center gap-2">
+                <TripAdvisorIcon className="text-[#00AF87]" />
+                TripAdvisor
               </Label>
               <Input
-                id="google_maps_url"
-                value={formData.google_maps_url}
-                onChange={(e) => handleChange("google_maps_url", e.target.value)}
-                placeholder="https://maps.google.com/..."
+                id="tripadvisor_url"
+                value={formData.tripadvisor_url}
+                onChange={(e) => handleChange("tripadvisor_url", e.target.value)}
+                placeholder="https://tripadvisor.com/..."
               />
             </div>
 
@@ -928,19 +947,6 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
                 value={formData.airbnb_url}
                 onChange={(e) => handleChange("airbnb_url", e.target.value)}
                 placeholder="https://airbnb.com/rooms/..."
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="pinterest_url" className="flex items-center gap-2">
-                <PinterestIcon className="text-[#E60023]" />
-                Pinterest
-              </Label>
-              <Input
-                id="pinterest_url"
-                value={formData.pinterest_url}
-                onChange={(e) => handleChange("pinterest_url", e.target.value)}
-                placeholder="https://pinterest.com/..."
               />
             </div>
           </div>
