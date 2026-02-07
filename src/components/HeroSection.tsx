@@ -164,12 +164,12 @@ const HeroSection = () => {
         href="https://www.royalairmaroc.com/fr-fr" 
         target="_blank" 
         rel="noopener noreferrer"
-        className="absolute bottom-8 right-8 z-20 transition-opacity hover:opacity-80"
+        className="absolute inset-x-0 bottom-8 z-20 flex justify-center transition-opacity hover:opacity-80"
       >
         <img 
           src={royalAirMarocLogo} 
           alt="Royal Air Maroc" 
-          className="h-16 w-auto object-contain opacity-70 hover:opacity-100 transition-opacity"
+          className="w-full max-w-md object-contain opacity-70 hover:opacity-100 transition-opacity"
         />
       </a>
 
