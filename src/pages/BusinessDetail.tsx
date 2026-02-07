@@ -63,6 +63,7 @@ interface Business {
   pinterest_url: string | null;
   video_1_url: string | null;
   opening_hours: OpeningHours | null;
+  rating: number | null;
 }
 
 // Helper to convert video URL to embeddable format
@@ -382,9 +383,14 @@ const BusinessDetail = () => {
 
           {/* Sidebar - Contact & Map */}
           <div className="space-y-6">
-            {/* WTUCE Logo for verified businesses */}
+            {/* Rating and WTUCE Logo for verified businesses */}
             {isVerified && (
-              <div className="flex justify-center">
+              <div className="flex flex-col items-center">
+                {business.rating !== null && business.rating !== undefined && (
+                  <div className="text-gold font-bold text-3xl mb-2">
+                    {business.rating}/20
+                  </div>
+                )}
                 <img 
                   src={logoGold} 
                   alt="WTUCE Vérifié" 

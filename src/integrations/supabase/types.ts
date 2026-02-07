@@ -49,6 +49,7 @@ export type Database = {
           phone: string | null
           pinterest_url: string | null
           priority_score: number | null
+          rating: number | null
           region: string
           search_vector: unknown
           services: string[] | null
@@ -96,6 +97,7 @@ export type Database = {
           phone?: string | null
           pinterest_url?: string | null
           priority_score?: number | null
+          rating?: number | null
           region: string
           search_vector?: unknown
           services?: string[] | null
@@ -143,6 +145,7 @@ export type Database = {
           phone?: string | null
           pinterest_url?: string | null
           priority_score?: number | null
+          rating?: number | null
           region?: string
           search_vector?: unknown
           services?: string[] | null

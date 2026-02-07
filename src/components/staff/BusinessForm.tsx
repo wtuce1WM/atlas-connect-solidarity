@@ -304,6 +304,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
     label1_url: (business as any)?.label1_url || "",
     online_shop_url: (business as any)?.online_shop_url || "",
     opening_hours: (business as any)?.opening_hours as OpeningHours | null,
+    rating: (business as any)?.rating?.toString() || "",
   });
 
   const handleChange = (field: string, value: string | boolean | string[]) => {
@@ -394,6 +395,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
       label1_url: formData.label1_url || null,
       online_shop_url: formData.online_shop_url || null,
       opening_hours: formData.opening_hours ? JSON.parse(JSON.stringify(formData.opening_hours)) : null,
+      rating: formData.rating ? parseFloat(formData.rating) : null,
     };
 
     try {
@@ -490,6 +492,20 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
                 type="number"
                 value={formData.priority_score}
                 onChange={(e) => handleChange("priority_score", e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="rating">Note /20</Label>
+              <Input
+                id="rating"
+                type="number"
+                min="0"
+                max="20"
+                step="0.5"
+                value={formData.rating}
+                onChange={(e) => handleChange("rating", e.target.value)}
+                placeholder="Ex: 18.5"
               />
             </div>
 
