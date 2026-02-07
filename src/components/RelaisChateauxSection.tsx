@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Card, CardContent } from "@/components/ui/card";
 import relaisLogo from "@/assets/relais-chateaux-logo.png";
+import logoWatermark from "@/assets/logoGOLD-watermark.webp";
 
 interface Business {
   id: string;
@@ -14,6 +15,7 @@ interface Business {
   images: string[] | null;
   rating: number | null;
   description: string | null;
+  wtuce_status: string | null;
 }
 
 const RELAIS_CHATEAUX_NAMES = [
@@ -34,7 +36,7 @@ const RelaisChateauxSection = () => {
       try {
         const { data, error } = await supabase
           .from("businesses")
-          .select("id, name, city, region, images, rating, description")
+          .select("id, name, city, region, images, rating, description, wtuce_status")
           .eq("is_active", true)
           .in("name", RELAIS_CHATEAUX_NAMES)
           .order("priority_score", { ascending: false });
@@ -114,14 +116,23 @@ const RelaisChateauxSection = () => {
                     </div>
                   )}
 
-                  <div className="p-4 text-center">
+                  <div className="p-4 text-center relative">
+                    {/* Watermark logo for verified businesses */}
+                    {business.wtuce_status === "verified" && (
+                      <img 
+                        src={logoWatermark} 
+                        alt="" 
+                        className="absolute bottom-2 right-2 w-12 h-12 object-contain opacity-80 pointer-events-none"
+                      />
+                    )}
+
                     {/* Rating */}
                     {business.rating && (
                       <div className="flex items-center justify-center gap-1 mb-2">
-                      <Star className="h-4 w-4 fill-gold text-gold" />
-                      <span className="text-gold font-bold">{business.rating}/20</span>
-                    </div>
-                  )}
+                        <Star className="h-4 w-4 fill-gold text-gold" />
+                        <span className="text-gold font-bold">{business.rating}/20</span>
+                      </div>
+                    )}
 
                     {/* Name */}
                     <h3 className="text-lg font-semibold text-white group-hover:text-gold transition-colors mb-2">
