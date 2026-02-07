@@ -70,7 +70,7 @@ const RelaisChateauxSection = () => {
     <section id="relais-chateaux" className="bg-black py-16 relative overflow-hidden">
       {/* Background decorative emblem */}
       <div 
-        className="absolute bottom-[58px] left-1/2 -translate-x-1/2 w-[600px] h-[600px] opacity-15 pointer-events-none"
+        className="absolute bottom-48 left-1/2 -translate-x-1/2 w-[600px] h-[600px] opacity-15 pointer-events-none"
         style={{
           backgroundImage: `url(${symboleMaroc})`,
           backgroundSize: 'contain',
