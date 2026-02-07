@@ -76,7 +76,7 @@ const TopCityBusinesses = ({ businesses, cityName }: TopCityBusinessesProps) => 
         {/* Left Arrow */}
         <button
           onClick={() => scroll("left")}
-          className="absolute -left-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-gold p-3 shadow-lg transition-all hover:bg-gold/80"
+          className="absolute -left-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-gold p-3 shadow-lg transition-all hover:bg-gold/80"
         >
           <ChevronLeft className="h-6 w-6 text-black" />
         </button>
@@ -84,7 +84,7 @@ const TopCityBusinesses = ({ businesses, cityName }: TopCityBusinessesProps) => 
         {/* Right Arrow */}
         <button
           onClick={() => scroll("right")}
-          className="absolute -right-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-gold p-3 shadow-lg transition-all hover:bg-gold/80"
+          className="absolute -right-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-gold p-3 shadow-lg transition-all hover:bg-gold/80"
         >
           <ChevronRight className="h-6 w-6 text-black" />
         </button>
