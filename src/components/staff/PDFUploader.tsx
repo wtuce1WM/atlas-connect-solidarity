@@ -1,8 +1,8 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, X, Loader2, FileText } from "lucide-react";
+import { Upload, X, Loader2, FileText, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface PDFUploaderProps {
@@ -17,7 +17,27 @@ const PDFUploader = ({
   businessId 
 }: PDFUploaderProps) => {
   const [uploading, setUploading] = useState(false);
+  const [isBroken, setIsBroken] = useState(false);
   const { toast } = useToast();
+
+  // Check if PDF URL is broken
+  useEffect(() => {
+    if (!pdfUrl) {
+      setIsBroken(false);
+      return;
+    }
+
+    const checkUrl = async () => {
+      try {
+        const response = await fetch(pdfUrl, { method: "HEAD" });
+        setIsBroken(!response.ok);
+      } catch {
+        setIsBroken(true);
+      }
+    };
+
+    checkUrl();
+  }, [pdfUrl]);
 
   const handleFileUpload = useCallback(async (files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -126,22 +146,48 @@ const PDFUploader = ({
 
   return (
     <div className="space-y-4">
+      {/* Broken file warning */}
+      {pdfUrl && isBroken && (
+        <div className="flex items-center gap-2 px-4 py-3 bg-amber-500/10 text-amber-600 rounded-lg border border-amber-500/20">
+          <AlertTriangle className="h-5 w-5 flex-shrink-0" />
+          <div>
+            <p className="font-medium">Fichier introuvable</p>
+            <p className="text-sm opacity-80">Ce PDF a été supprimé du stockage. Veuillez le supprimer et en uploader un nouveau.</p>
+          </div>
+        </div>
+      )}
+
       {/* Current PDF */}
       {pdfUrl && (
-        <div className="flex items-center gap-3 p-4 bg-muted rounded-lg">
-          <div className="p-2 bg-primary/10 rounded">
-            <FileText className="h-6 w-6 text-primary" />
+        <div className={cn(
+          "flex items-center gap-3 p-4 bg-muted rounded-lg",
+          isBroken && "ring-2 ring-amber-500"
+        )}>
+          <div className={cn(
+            "p-2 rounded",
+            isBroken ? "bg-amber-500/10" : "bg-primary/10"
+          )}>
+            {isBroken ? (
+              <AlertTriangle className="h-6 w-6 text-amber-500" />
+            ) : (
+              <FileText className="h-6 w-6 text-primary" />
+            )}
           </div>
           <div className="flex-1 min-w-0">
             <p className="font-medium truncate">{getFileName(pdfUrl)}</p>
-            <a 
-              href={pdfUrl} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-sm text-primary hover:underline"
-            >
-              Voir le PDF
-            </a>
+            {!isBroken && (
+              <a 
+                href={pdfUrl} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-sm text-primary hover:underline"
+              >
+                Voir le PDF
+              </a>
+            )}
+            {isBroken && (
+              <span className="text-sm text-amber-600">Fichier introuvable</span>
+            )}
           </div>
           <Button
             type="button"

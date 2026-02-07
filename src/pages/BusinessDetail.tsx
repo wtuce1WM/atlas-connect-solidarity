@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, Navigate } from "react-router-dom";
-import { ArrowLeft, MapPin, Phone, Mail, Globe, BadgeCheck, Loader2, ChevronLeft, ChevronRight, FileText, Download, ShoppingBag, Facebook, Instagram, Linkedin, Youtube, MessageCircle, Clock } from "lucide-react";
+import { ArrowLeft, MapPin, Phone, Mail, Globe, BadgeCheck, Loader2, ChevronLeft, ChevronRight, FileText, Download, ShoppingBag, Facebook, Instagram, Linkedin, Youtube, MessageCircle, Clock, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +11,7 @@ import Footer from "@/components/Footer";
 import GoogleMapEmbed from "@/components/GoogleMapEmbed";
 import ImageLightbox from "@/components/ImageLightbox";
 import RelatedEstablishments from "@/components/RelatedEstablishments";
+import { useValidatedImages, useValidatedUrl } from "@/hooks/useValidatedImages";
 import logoGold from "@/assets/logoGOLD.webp";
 import relaisChateauxLogo from "@/assets/relais-chateaux-logo.png";
 
@@ -102,6 +103,10 @@ const BusinessDetail = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const { t } = useLanguage();
+
+  // Validate images and PDF URLs
+  const { validImages, isValidating: isValidatingImages, brokenCount: brokenImagesCount } = useValidatedImages(business?.images ?? null);
+  const { isValid: isPdfValid, isValidating: isValidatingPdf } = useValidatedUrl(business?.pdf_url ?? null);
 
   useEffect(() => {
     const fetchBusiness = async () => {
@@ -239,23 +244,36 @@ const BusinessDetail = () => {
             })()}
 
             {/* Image Gallery */}
-            {business.images && business.images.length > 0 && (
+            {isValidatingImages && business.images && business.images.length > 0 && (
               <Card className="overflow-hidden">
+                <div className="flex items-center justify-center bg-muted/30 min-h-[200px]">
+                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                </div>
+              </Card>
+            )}
+            {!isValidatingImages && validImages.length > 0 && (
+              <Card className="overflow-hidden">
+                {brokenImagesCount > 0 && (
+                  <div className="flex items-center gap-2 px-4 py-2 bg-amber-500/10 text-amber-600 text-sm border-b">
+                    <AlertTriangle className="h-4 w-4" />
+                    {brokenImagesCount} image(s) indisponible(s)
+                  </div>
+                )}
                 <div className="relative flex items-center justify-center bg-muted/30 min-h-[200px]">
                   <img
-                    src={business.images[currentImageIndex]}
+                    src={validImages[currentImageIndex]}
                     alt={`${business.name} - Image ${currentImageIndex + 1}`}
                     className="max-w-full max-h-[70vh] w-auto h-auto object-contain cursor-pointer hover:opacity-90 transition-opacity"
                     onClick={() => setIsLightboxOpen(true)}
                   />
-                  {business.images.length > 1 && (
+                  {validImages.length > 1 && (
                     <>
                       <Button
                         variant="secondary"
                         size="icon"
                         className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white"
                         onClick={() => setCurrentImageIndex((prev) => 
-                          prev === 0 ? business.images!.length - 1 : prev - 1
+                          prev === 0 ? validImages.length - 1 : prev - 1
                         )}
                       >
                         <ChevronLeft className="h-4 w-4" />
@@ -265,20 +283,20 @@ const BusinessDetail = () => {
                         size="icon"
                         className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white"
                         onClick={() => setCurrentImageIndex((prev) => 
-                          prev === business.images!.length - 1 ? 0 : prev + 1
+                          prev === validImages.length - 1 ? 0 : prev + 1
                         )}
                       >
                         <ChevronRight className="h-4 w-4" />
                       </Button>
                       <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/60 text-white px-3 py-1 rounded-full text-sm">
-                        {currentImageIndex + 1} / {business.images.length}
+                        {currentImageIndex + 1} / {validImages.length}
                       </div>
                     </>
                   )}
                 </div>
-                {business.images.length > 1 && (
+                {validImages.length > 1 && (
                   <div className="flex gap-2 p-4 overflow-x-auto">
-                    {business.images.map((url, idx) => (
+                    {validImages.map((url, idx) => (
                       <button
                         key={idx}
                         onClick={() => setCurrentImageIndex(idx)}
@@ -301,17 +319,17 @@ const BusinessDetail = () => {
             )}
 
             {/* Lightbox */}
-            {business.images && business.images.length > 0 && (
+            {validImages.length > 0 && (
               <ImageLightbox
-                images={business.images}
+                images={validImages}
                 currentIndex={currentImageIndex}
                 isOpen={isLightboxOpen}
                 onClose={() => setIsLightboxOpen(false)}
                 onPrevious={() => setCurrentImageIndex((prev) => 
-                  prev === 0 ? business.images!.length - 1 : prev - 1
+                  prev === 0 ? validImages.length - 1 : prev - 1
                 )}
                 onNext={() => setCurrentImageIndex((prev) => 
-                  prev === business.images!.length - 1 ? 0 : prev + 1
+                  prev === validImages.length - 1 ? 0 : prev + 1
                 )}
               />
             )}
@@ -350,7 +368,7 @@ const BusinessDetail = () => {
               </Card>
             )}
             {/* PDF */}
-            {business.pdf_url && (
+            {business.pdf_url && !isValidatingPdf && isPdfValid && (
               <Card>
                 <CardContent className="p-4">
                   <h2 className="text-lg font-semibold mb-3">PDF</h2>
@@ -373,6 +391,16 @@ const BusinessDetail = () => {
                       <Download className="h-4 w-4" />
                       Télécharger
                     </a>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+            {business.pdf_url && !isValidatingPdf && !isPdfValid && (
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2 text-amber-600">
+                    <AlertTriangle className="h-4 w-4" />
+                    <span className="text-sm">PDF indisponible</span>
                   </div>
                 </CardContent>
               </Card>
