@@ -157,21 +157,11 @@ const CategoriesSection = () => {
         <div className="mb-8 text-center">
           <h2 className="mb-2 text-3xl font-bold text-white">
             {language === "fr"
-              ? "Parcourez nos "
-              : language === "ar"
-                ? "تصفح "
-                : "Browse our "}
-            <span className="text-primary">
-              {language === "fr" ? "Catégories" : language === "ar" ? "فئاتنا" : "Categories"}
-            </span>
-          </h2>
-          <p className="mx-auto max-w-2xl text-gray-400">
-            {language === "fr"
               ? "Trouvez les meilleurs professionnels par secteur d'activité"
               : language === "ar"
                 ? "ابحث عن أفضل المهنيين حسب قطاع النشاط"
                 : "Find the best professionals by industry sector"}
-          </p>
+          </h2>
         </div>
 
         {/* Scrollable Categories */}
