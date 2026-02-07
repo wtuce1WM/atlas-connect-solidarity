@@ -64,9 +64,10 @@ const RelatedEstablishments = ({ currentBusinessId, ice }: RelatedEstablishments
         </p>
         <div className="space-y-4">
           {relatedBusinesses.map((business) => (
-            <div
+            <Link
               key={business.id}
-              className="flex items-start gap-3 p-3 rounded-lg border bg-muted/30 hover:bg-muted/50 transition-colors"
+              to={`/business/${business.id}`}
+              className="flex items-start gap-3 p-3 rounded-lg border bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer"
             >
               {business.logo_url && (
                 <div className="w-12 h-12 rounded-md border bg-white p-1 flex items-center justify-center overflow-hidden flex-shrink-0">
@@ -78,29 +79,28 @@ const RelatedEstablishments = ({ currentBusinessId, ice }: RelatedEstablishments
                 </div>
               )}
               <div className="flex-1 min-w-0">
-                <Link
-                  to={`/business/${business.id}`}
-                  className="font-medium text-foreground hover:text-primary transition-colors line-clamp-1"
-                >
+                <span className="font-medium text-foreground line-clamp-1">
                   {business.name}
-                </Link>
+                </span>
                 <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
                   <MapPin className="h-3 w-3 flex-shrink-0" />
                   <span className="line-clamp-1">{business.address || business.city}</span>
                 </div>
                 {business.google_maps_url && (
-                  <a
-                    href={business.google_maps_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <span
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      window.open(business.google_maps_url!, '_blank');
+                    }}
                     className="inline-flex items-center gap-1 text-xs text-primary hover:underline mt-2"
                   >
                     <ExternalLink className="h-3 w-3" />
                     Voir sur Google Maps
-                  </a>
+                  </span>
                 )}
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </CardContent>
