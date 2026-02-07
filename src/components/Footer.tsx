@@ -10,7 +10,7 @@ const Footer = ({ variant = "default" }: FooterProps) => {
   const { t } = useLanguage();
 
   const footerBg = variant === "morocco" 
-    ? "bg-morocco-green text-white" 
+    ? "bg-transparent text-white" 
     : "bg-black text-white";
 
   return (
