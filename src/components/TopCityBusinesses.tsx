@@ -56,10 +56,10 @@ const TopCityBusinesses = ({ businesses, cityName }: TopCityBusinessesProps) => 
       <div className="mb-6 text-center">
         <h2 className="mb-2 text-2xl font-bold text-white">
           {language === "fr"
-            ? "Découvrez notre sélection des adresses incontournables"
+            ? <>Découvrez notre sélection des <span className="text-gold">adresses incontournables</span></>
             : language === "ar"
-              ? "اكتشف مجموعتنا من العناوين التي لا غنى عنها"
-              : "Discover our selection of must-visit addresses"}
+              ? <>اكتشف مجموعتنا من <span className="text-gold">العناوين التي لا غنى عنها</span></>
+              : <>Discover our selection of <span className="text-gold">must-visit addresses</span></>}
         </h2>
       </div>
 
