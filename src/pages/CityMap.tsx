@@ -467,7 +467,7 @@ const CityMap = () => {
         </div>
       </main>
 
-      <Footer />
+      <Footer variant="morocco" />
     </div>
   );
 };

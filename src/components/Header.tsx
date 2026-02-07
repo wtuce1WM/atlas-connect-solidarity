@@ -15,7 +15,7 @@ const Header = ({ variant = "default" }: HeaderProps) => {
   } = useLanguage();
 
   const headerBg = variant === "morocco" 
-    ? "bg-morocco-green/90 backdrop-blur-md" 
+    ? "bg-morocco-red/90 backdrop-blur-md" 
     : "bg-black/80 backdrop-blur-md";
 
   return <header className={`fixed left-0 right-0 top-0 z-50 ${headerBg}`}>
