@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { LogOut, Plus, Search, Edit, Trash2, Eye, Building2, Users, Folder, MapPin, Copy } from "lucide-react";
-import logoGold from "@/assets/logoGOLD.webp";
+import logoGold from "@/assets/logoGOLDsimple.webp";
 import BusinessForm from "@/components/staff/BusinessForm";
 import BusinessTable from "@/components/staff/BusinessTable";
 import UserManagement from "@/components/staff/UserManagement";

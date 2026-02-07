@@ -2,7 +2,7 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { useTexture, Float } from "@react-three/drei";
 import { useRef, Suspense } from "react";
 import * as THREE from "three";
-import logoGold from "@/assets/logoGOLD.webp";
+import logoGold from "@/assets/logoGOLDsimple.webp";
 
 const LogoPlane = () => {
   const texture = useTexture(logoGold);
