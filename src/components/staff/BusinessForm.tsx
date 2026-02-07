@@ -355,6 +355,12 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
     .filter(sub => formData.categories.includes(sub.name_fr))
     .map(sub => sub.id);
   
+  // Debug: Log to understand the service refresh issue
+  console.log("formData.categories:", formData.categories);
+  console.log("dbSubcategories:", dbSubcategories.map(s => ({ id: s.id, name: s.name_fr })));
+  console.log("selectedSubcategoryIds:", selectedSubcategoryIds);
+  console.log("dbServices for selected subs:", dbServices.filter(srv => selectedSubcategoryIds.includes(srv.subcategory_id)));
+  
   const availableServices = selectedSubcategoryIds.length > 0
     ? dbServices
         .filter(srv => selectedSubcategoryIds.includes(srv.subcategory_id))
