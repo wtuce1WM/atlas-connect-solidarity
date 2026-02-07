@@ -112,7 +112,7 @@ const CitiesSection = () => {
   if (cities.length === 0) return null;
 
   return (
-    <section className="bg-black py-12">
+    <section className="bg-gradient-to-b from-morocco-red to-morocco-green py-12">
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <div className="mb-8 text-center">
