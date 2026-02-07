@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -339,34 +339,40 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
   };
 
   // Find the category ID for the selected main_category
-  const selectedCategory = dbCategories.find(c => c.name_fr === formData.main_category);
+  const selectedCategory = useMemo(() => 
+    dbCategories.find(c => c.name_fr === formData.main_category),
+    [dbCategories, formData.main_category]
+  );
   
   // Get subcategories for selected category from database (sorted alphabetically)
-  const availableSubcategories = selectedCategory
-    ? dbSubcategories
-        .filter(sub => sub.category_id === selectedCategory.id)
-        .map(sub => sub.name_fr)
-        .sort((a, b) => a.localeCompare(b, 'fr'))
-    : [];
+  const availableSubcategories = useMemo(() => 
+    selectedCategory
+      ? dbSubcategories
+          .filter(sub => sub.category_id === selectedCategory.id)
+          .map(sub => sub.name_fr)
+          .sort((a, b) => a.localeCompare(b, 'fr'))
+      : [],
+    [selectedCategory, dbSubcategories]
+  );
 
   // Get services for ALL selected subcategories from database (sorted alphabetically)
   // This includes subcategories from any category, not just the current main category
-  const selectedSubcategoryIds = dbSubcategories
-    .filter(sub => formData.categories.includes(sub.name_fr))
-    .map(sub => sub.id);
+  const selectedSubcategoryIds = useMemo(() => 
+    dbSubcategories
+      .filter(sub => formData.categories.includes(sub.name_fr))
+      .map(sub => sub.id),
+    [dbSubcategories, formData.categories]
+  );
   
-  // Debug: Log to understand the service refresh issue
-  console.log("formData.categories:", formData.categories);
-  console.log("dbSubcategories:", dbSubcategories.map(s => ({ id: s.id, name: s.name_fr })));
-  console.log("selectedSubcategoryIds:", selectedSubcategoryIds);
-  console.log("dbServices for selected subs:", dbServices.filter(srv => selectedSubcategoryIds.includes(srv.subcategory_id)));
-  
-  const availableServices = selectedSubcategoryIds.length > 0
-    ? dbServices
-        .filter(srv => selectedSubcategoryIds.includes(srv.subcategory_id))
-        .map(srv => srv.name_fr)
-        .sort((a, b) => a.localeCompare(b, 'fr'))
-    : [];
+  const availableServices = useMemo(() => 
+    selectedSubcategoryIds.length > 0
+      ? dbServices
+          .filter(srv => selectedSubcategoryIds.includes(srv.subcategory_id))
+          .map(srv => srv.name_fr)
+          .sort((a, b) => a.localeCompare(b, 'fr'))
+      : [],
+    [dbServices, selectedSubcategoryIds]
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
