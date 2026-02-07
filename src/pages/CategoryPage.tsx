@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, MapPin, Phone, Globe, Building2, ShieldCheck, ChevronLeft, ChevronRight } from "lucide-react";
+import { Loader2, MapPin, Phone, Building2, ShieldCheck, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   Hotel,
   Utensils,
@@ -312,7 +312,18 @@ const CategoryPage = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {paginatedBusinesses.map((business) => (
                   <Link key={business.id} to={`/business/${business.id}`}>
-                    <Card className="group h-full overflow-hidden bg-card border-border hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10">
+                    <Card className="group h-full overflow-hidden bg-card border-border hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 relative">
+                      {/* Watermark logo for verified businesses */}
+                      {business.wtuce_status === "verified" && (
+                        <div className="absolute inset-0 pointer-events-none z-10 flex items-center justify-center overflow-hidden">
+                          <img 
+                            src="/lovable-uploads/1c0e9d04-40f8-4f5a-bfc0-0fb4cab5def8.png" 
+                            alt="" 
+                            className="w-32 h-32 object-contain opacity-40"
+                          />
+                        </div>
+                      )}
+                      
                       {/* Image - 16:9 aspect ratio */}
                       <div className="aspect-video overflow-hidden bg-muted">
                         <img
@@ -325,7 +336,7 @@ const CategoryPage = () => {
                         />
                       </div>
                       
-                      <CardContent className="p-4">
+                      <CardContent className="p-4 relative z-20">
                         {/* Badges */}
                         <div className="flex flex-wrap gap-2 mb-3">
                           {business.wtuce_status === "verified" && (
@@ -342,7 +353,7 @@ const CategoryPage = () => {
                         </div>
 
                         {/* Name */}
-                        <h3 className="font-semibold text-lg text-foreground mb-2 line-clamp-2 group-hover:text-primary transition-colors">
+                        <h3 className={`font-semibold text-lg mb-2 line-clamp-2 group-hover:text-primary transition-colors ${business.wtuce_status === "verified" ? "text-foreground font-bold" : "text-foreground"}`}>
                           {business.name}
                         </h3>
 
@@ -353,20 +364,12 @@ const CategoryPage = () => {
                         </div>
 
                         {/* Contact info */}
-                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                          {business.phone && (
-                            <div className="flex items-center gap-1">
-                              <Phone className="h-3 w-3" />
-                              <span className="truncate">{business.phone}</span>
-                            </div>
-                          )}
-                          {business.website && (
-                            <div className="flex items-center gap-1">
-                              <Globe className="h-3 w-3" />
-                              <span>Web</span>
-                            </div>
-                          )}
-                        </div>
+                        {business.phone && (
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <Phone className="h-3 w-3" />
+                            <span className="truncate">{business.phone}</span>
+                          </div>
+                        )}
                       </CardContent>
                     </Card>
                   </Link>
