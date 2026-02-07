@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Lock, Mail, ArrowLeft } from "lucide-react";
-import logoGold from "@/assets/logoGOLD.webp";
+import logoGold from "@/assets/logoGOLDsimple.webp";
 
 const StaffLogin = () => {
   const [email, setEmail] = useState("");

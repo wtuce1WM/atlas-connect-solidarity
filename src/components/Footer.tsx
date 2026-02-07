@@ -1,6 +1,6 @@
 import { Facebook, Instagram, Twitter, Mail, Phone, MapPin } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import logoGold from "@/assets/logoGOLD.webp";
+import logoGold from "@/assets/logoGOLDsimple.webp";
 
 const Footer = () => {
   const { t } = useLanguage();

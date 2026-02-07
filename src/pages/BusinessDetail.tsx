@@ -12,7 +12,7 @@ import GoogleMapEmbed from "@/components/GoogleMapEmbed";
 import ImageLightbox from "@/components/ImageLightbox";
 import RelatedEstablishments from "@/components/RelatedEstablishments";
 import { useValidatedImages, useValidatedUrl } from "@/hooks/useValidatedImages";
-import logoGold from "@/assets/logoGOLD.webp";
+import logoGold from "@/assets/logoGOLDsimple.webp";
 import relaisChateauxLogo from "@/assets/relais-chateaux-logo.png";
 
 interface OpeningHour {

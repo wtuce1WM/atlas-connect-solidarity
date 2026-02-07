@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, Users, Lock, Mail } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import logoGold from "@/assets/logoGOLD.webp";
+import logoGold from "@/assets/logoGOLDsimple.webp";
 
 const AffiliatesLogin = () => {
   const navigate = useNavigate();

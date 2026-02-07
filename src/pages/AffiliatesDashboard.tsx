@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Loader2, Users, LogOut, BarChart3, Link as LinkIcon, DollarSign } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import logoGold from "@/assets/logoGOLD.webp";
+import logoGold from "@/assets/logoGOLDsimple.webp";
 
 const AffiliatesDashboard = () => {
   const navigate = useNavigate();
