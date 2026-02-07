@@ -103,47 +103,46 @@ const RelaisChateauxSection = () => {
               to={`/business/${business.id}`}
               className="group"
             >
-              <Card className="h-full bg-gradient-to-b from-gray-900 to-black border border-gold/30 overflow-hidden transition-all duration-300 hover:border-gold hover:shadow-lg hover:shadow-gold/20">
-                <CardContent className="p-0 flex flex-col">
-                  {/* First Image */}
-                  {business.images && business.images.length > 0 && (
-                    <div className="aspect-[4/3] w-full overflow-hidden">
-                      <img
-                        src={business.images[0]}
-                        alt={business.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
+              <Card className="h-full overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-gold/20 border border-gold/30 relative">
+                {/* Background Image with overlay */}
+                {business.images && business.images.length > 0 && (
+                  <div className="absolute inset-0">
+                    <img
+                      src={business.images[0]}
+                      alt={business.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute inset-0 bg-black/60 group-hover:bg-black/50 transition-colors" />
+                  </div>
+                )}
+
+                <CardContent className="p-6 relative z-10 flex flex-col items-center justify-center min-h-[200px] text-center">
+                  {/* Watermark logo for verified businesses */}
+                  {business.wtuce_status === "verified" && (
+                    <img 
+                      src={logoWatermark} 
+                      alt="" 
+                      className="absolute bottom-2 right-2 w-12 h-12 object-contain opacity-80 pointer-events-none"
+                    />
+                  )}
+
+                  {/* Rating */}
+                  {business.rating && (
+                    <div className="flex items-center justify-center gap-1 mb-2">
+                      <Star className="h-4 w-4 fill-gold text-gold" />
+                      <span className="text-gold font-bold">{business.rating}/20</span>
                     </div>
                   )}
 
-                  <div className="p-4 text-center relative">
-                    {/* Watermark logo for verified businesses */}
-                    {business.wtuce_status === "verified" && (
-                      <img 
-                        src={logoWatermark} 
-                        alt="" 
-                        className="absolute bottom-2 right-2 w-12 h-12 object-contain opacity-80 pointer-events-none"
-                      />
-                    )}
+                  {/* Name */}
+                  <h3 className="text-lg font-semibold text-white group-hover:text-gold transition-colors mb-2">
+                    {business.name}
+                  </h3>
 
-                    {/* Rating */}
-                    {business.rating && (
-                      <div className="flex items-center justify-center gap-1 mb-2">
-                        <Star className="h-4 w-4 fill-gold text-gold" />
-                        <span className="text-gold font-bold">{business.rating}/20</span>
-                      </div>
-                    )}
-
-                    {/* Name */}
-                    <h3 className="text-lg font-semibold text-white group-hover:text-gold transition-colors mb-2">
-                      {business.name}
-                    </h3>
-
-                    {/* Location */}
-                    <div className="flex items-center justify-center gap-1 text-sm text-gray-400">
-                      <MapPin className="h-3 w-3" />
-                      <span>{business.city}</span>
-                    </div>
+                  {/* Location */}
+                  <div className="flex items-center justify-center gap-1 text-sm text-gray-300">
+                    <MapPin className="h-3 w-3" />
+                    <span>{business.city}</span>
                   </div>
                 </CardContent>
               </Card>
