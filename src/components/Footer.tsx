@@ -13,7 +13,7 @@ const Footer = () => {
           <div>
             <div className="mb-4 flex items-center gap-2">
               <img src={logoGold} alt="WTUCEMA Logo" className="h-10 w-10 object-contain" />
-            <span className="font-serif text-xl font-bold">
+            <span className="text-xl font-bold tracking-tight">
               <span className="text-gold">ONE WORLD</span> <span className="text-background">MOROCCO</span>
             </span>
             </div>
