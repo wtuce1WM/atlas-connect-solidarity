@@ -371,7 +371,7 @@ const CityMap = () => {
                           <span className="font-medium text-foreground hover:text-primary transition-colors">
                             {business.name}
                           </span>
-                          <p className="text-sm text-white/80 mt-1">
+                          <p className="text-sm text-muted-foreground mt-1">
                             {business.address || business.city}
                           </p>
                           {business.main_category && (
