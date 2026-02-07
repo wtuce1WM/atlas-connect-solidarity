@@ -66,7 +66,7 @@ const RelaisChateauxSection = () => {
   if (businesses.length === 0) return null;
 
   return (
-    <section id="relais-chateaux" className="bg-black py-16 mt-32">
+    <section id="relais-chateaux" className="bg-black py-16">
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <div className="mb-10 text-center">
