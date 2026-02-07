@@ -32,6 +32,7 @@ interface Business {
   services: string[] | null;
   images: string[] | null;
   rating: number | null;
+  priority_score: number | null;
 }
 
 interface CityInfo {
@@ -153,12 +154,14 @@ const CityMap = () => {
     const fetchData = async () => {
       if (!decodedCity) return;
 
-      // Fetch businesses
+      // Fetch businesses - ordered by verified status then priority score
       const { data: businessData, error: businessError } = await supabase
         .from("businesses")
-        .select("id, name, city, region, address, main_category, categories, latitude, longitude, wtuce_status, services, images, rating")
+        .select("id, name, city, region, address, main_category, categories, latitude, longitude, wtuce_status, services, images, rating, priority_score")
         .eq("is_active", true)
-        .ilike("city", decodedCity);
+        .ilike("city", decodedCity)
+        .order("wtuce_status", { ascending: true, nullsFirst: false })
+        .order("priority_score", { ascending: false });
 
       if (businessError) {
         console.error("Error fetching businesses:", businessError);
