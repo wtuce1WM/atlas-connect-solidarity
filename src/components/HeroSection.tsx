@@ -4,6 +4,7 @@ import { MapPin, Building2, Crown, ChevronRight, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import logoGoldOverlay from "@/assets/logoGOLD-overlay.webp";
 import heroBackground from "@/assets/hero-marrakech.jpg";
 
@@ -13,6 +14,7 @@ interface City {
   name_en: string | null;
   name_ar: string | null;
   region: string | null;
+  businessCount?: number;
 }
 
 interface Category {
@@ -45,7 +47,27 @@ const HeroSection = () => {
           .from("cities")
           .select("id, name_fr, name_en, name_ar, region")
           .order("priority_score", { ascending: false })
-          .limit(8);
+          .limit(12);
+
+        // Fetch business counts per city
+        const { data: businessCounts } = await supabase
+          .from("businesses")
+          .select("city")
+          .eq("is_active", true);
+
+        // Count businesses per city
+        const cityCountMap: Record<string, number> = {};
+        businessCounts?.forEach((b) => {
+          if (b.city) {
+            cityCountMap[b.city] = (cityCountMap[b.city] || 0) + 1;
+          }
+        });
+
+        // Merge counts with cities
+        const citiesWithCounts = (citiesData || []).map((city) => ({
+          ...city,
+          businessCount: cityCountMap[city.name_fr] || 0,
+        }));
 
         // Fetch categories with businesses
         const { data: categoriesData } = await supabase
@@ -60,7 +82,7 @@ const HeroSection = () => {
           .eq("is_active", true)
           .in("name", RELAIS_CHATEAUX_NAMES);
 
-        setCities(citiesData || []);
+        setCities(citiesWithCounts);
         setCategories(categoriesData || []);
         setRelaisCount(count || 0);
       } catch (error) {
@@ -125,8 +147,8 @@ const HeroSection = () => {
         ) : (
           <div className="w-full max-w-5xl space-y-10">
             {/* Cities Section */}
-            <div className="text-center">
-              <div className="mb-4">
+            <div>
+              <div className="mb-4 text-center">
                 <h2 className="text-2xl font-bold text-white">
                   {language === "fr" 
                     ? "Découvrez les meilleures adresses dans chaque ville du Maroc" 
@@ -135,16 +157,40 @@ const HeroSection = () => {
                       : "Discover the best addresses in every city of Morocco"}
                 </h2>
               </div>
-              <div className="flex flex-wrap justify-center gap-3">
+              <div 
+                className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide"
+                style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+              >
                 {cities.map((city) => (
-                  <Link key={city.id} to={`/city/${encodeURIComponent(city.name_fr)}`}>
-                    <Button
-                      variant="outline"
-                      className="bg-white/10 border-white/30 text-white hover:bg-gold hover:text-black hover:border-gold transition-all"
-                    >
-                      {getCityName(city)}
-                      <ChevronRight className="ml-1 h-4 w-4" />
-                    </Button>
+                  <Link 
+                    key={city.id} 
+                    to={`/city/${encodeURIComponent(city.name_fr)}`}
+                    className="flex-shrink-0"
+                  >
+                    <Card className="w-48 bg-white/10 border-white/30 hover:bg-gold/20 hover:border-gold transition-all">
+                      <CardContent className="p-4 text-center">
+                        <div className="flex items-center justify-center gap-1 mb-2">
+                          <MapPin className="h-4 w-4 text-gold" />
+                          <h3 className="font-semibold text-white">
+                            {getCityName(city)}
+                          </h3>
+                        </div>
+                        {city.region && (
+                          <p className="text-xs text-gray-400 mb-2">{city.region}</p>
+                        )}
+                        <div className="flex items-center justify-center gap-1 text-xs text-gray-300">
+                          <Building2 className="h-3 w-3" />
+                          <span>
+                            {city.businessCount || 0}{" "}
+                            {language === "fr" 
+                              ? "établissements" 
+                              : language === "ar" 
+                                ? "مؤسسة" 
+                                : "businesses"}
+                          </span>
+                        </div>
+                      </CardContent>
+                    </Card>
                   </Link>
                 ))}
               </div>
