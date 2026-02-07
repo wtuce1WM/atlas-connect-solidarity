@@ -183,16 +183,8 @@ const CategoryPage = () => {
       <Header />
       
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-black via-gray-900 to-black py-16">
+      <section className="bg-black py-16">
         <div className="container mx-auto px-4">
-          <Link 
-            to="/" 
-            className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-8"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            {t.backToHome}
-          </Link>
-          
           <div className="flex items-center gap-6">
             <div className="rounded-2xl bg-primary/20 p-6 border border-primary/30">
               <IconComponent className="h-12 w-12 text-primary" />
