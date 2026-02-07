@@ -38,6 +38,10 @@ All colors MUST be HSL.
     --wtuce-blue: 220 100% 40%;
     --wtuce-blue-foreground: 0 0% 100%;
 
+    /* Moroccan Flag Colors */
+    --morocco-red: 357 65% 45%;
+    --morocco-green: 155 100% 19%;
+
     --muted: 30 15% 92%;
     --muted-foreground: 0 0% 35%;
 

@@ -78,6 +78,12 @@ export default {
           DEFAULT: "hsl(var(--wtuce-blue))",
           foreground: "hsl(var(--wtuce-blue-foreground))",
         },
+        "morocco-red": {
+          DEFAULT: "hsl(var(--morocco-red))",
+        },
+        "morocco-green": {
+          DEFAULT: "hsl(var(--morocco-green))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
