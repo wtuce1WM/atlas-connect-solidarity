@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Edit, Trash2, ExternalLink } from "lucide-react";
+import { Edit, Trash2, ExternalLink, Copy } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Business = Tables<"businesses">;
@@ -18,9 +18,10 @@ interface BusinessTableProps {
   loading: boolean;
   onEdit: (business: Business) => void;
   onDelete: (id: string) => void;
+  onDuplicate: (business: Business) => void;
 }
 
-const BusinessTable = ({ businesses, loading, onEdit, onDelete }: BusinessTableProps) => {
+const BusinessTable = ({ businesses, loading, onEdit, onDelete, onDuplicate }: BusinessTableProps) => {
   if (loading) {
     return (
       <div className="bg-background rounded-lg border p-8 text-center">
@@ -147,7 +148,16 @@ const BusinessTable = ({ businesses, loading, onEdit, onDelete }: BusinessTableP
                     <Button
                       variant="outline"
                       size="sm"
+                      onClick={() => onDuplicate(business)}
+                      title="Dupliquer"
+                    >
+                      <Copy className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
                       onClick={() => onEdit(business)}
+                      title="Modifier"
                     >
                       <Edit className="h-4 w-4" />
                     </Button>
@@ -156,6 +166,7 @@ const BusinessTable = ({ businesses, loading, onEdit, onDelete }: BusinessTableP
                       size="sm"
                       onClick={() => onDelete(business.id)}
                       className="text-destructive hover:text-destructive"
+                      title="Supprimer"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
