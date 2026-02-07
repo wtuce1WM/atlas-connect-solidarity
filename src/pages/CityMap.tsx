@@ -6,6 +6,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import CityWeather from "@/components/CityWeather";
+import TopCityBusinesses from "@/components/TopCityBusinesses";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -29,6 +30,8 @@ interface Business {
   longitude: number | null;
   wtuce_status: "verified" | "pending" | null;
   services: string[] | null;
+  images: string[] | null;
+  rating: number | null;
 }
 
 interface CityInfo {
@@ -153,7 +156,7 @@ const CityMap = () => {
       // Fetch businesses
       const { data: businessData, error: businessError } = await supabase
         .from("businesses")
-        .select("id, name, city, region, address, main_category, categories, latitude, longitude, wtuce_status, services")
+        .select("id, name, city, region, address, main_category, categories, latitude, longitude, wtuce_status, services, images, rating")
         .eq("is_active", true)
         .ilike("city", decodedCity);
 
@@ -245,6 +248,9 @@ const CityMap = () => {
             <CityWeather city={decodedCity} />
           </div>
         </div>
+
+        {/* Top City Businesses */}
+        <TopCityBusinesses businesses={businesses} cityName={decodedCity} />
 
         <div className="grid gap-8 lg:grid-cols-3">
           {/* Map */}
