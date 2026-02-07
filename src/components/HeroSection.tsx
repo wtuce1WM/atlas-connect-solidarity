@@ -164,7 +164,7 @@ const HeroSection = () => {
         href="https://www.royalairmaroc.com/fr-fr" 
         target="_blank" 
         rel="noopener noreferrer"
-        className="absolute inset-x-0 bottom-[-6rem] z-20 flex justify-center transition-opacity hover:opacity-80"
+        className="absolute inset-x-0 bottom-8 z-20 flex justify-center transition-opacity hover:opacity-80"
       >
         <img 
           src={royalAirMarocLogo} 
