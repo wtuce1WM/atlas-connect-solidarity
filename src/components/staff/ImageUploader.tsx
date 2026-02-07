@@ -1,7 +1,7 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { X, Loader2, Image as ImageIcon, GripVertical } from "lucide-react";
+import { X, Loader2, Image as ImageIcon, GripVertical, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   DndContext,
@@ -32,9 +32,10 @@ interface SortableImageProps {
   url: string;
   index: number;
   onRemove: (index: number) => void;
+  isBroken?: boolean;
 }
 
-const SortableImage = ({ url, index, onRemove }: SortableImageProps) => {
+const SortableImage = ({ url, index, onRemove, isBroken = false }: SortableImageProps) => {
   const {
     attributes,
     listeners,
@@ -55,7 +56,8 @@ const SortableImage = ({ url, index, onRemove }: SortableImageProps) => {
       style={style}
       className={cn(
         "relative group aspect-square rounded-lg overflow-hidden border bg-muted",
-        isDragging && "opacity-50 z-50"
+        isDragging && "opacity-50 z-50",
+        isBroken && "ring-2 ring-amber-500"
       )}
     >
       <img
@@ -63,6 +65,15 @@ const SortableImage = ({ url, index, onRemove }: SortableImageProps) => {
         alt={`Image ${index + 1}`}
         className="w-full h-full object-cover"
       />
+      
+      {/* Broken image warning */}
+      {isBroken && (
+        <div className="absolute inset-0 bg-amber-500/20 flex items-center justify-center">
+          <div className="bg-amber-500 text-white p-2 rounded-full">
+            <AlertTriangle className="h-5 w-5" />
+          </div>
+        </div>
+      )}
       
       {/* Drag handle */}
       <div
@@ -97,7 +108,44 @@ const ImageUploader = ({
   businessId 
 }: ImageUploaderProps) => {
   const [uploading, setUploading] = useState(false);
+  const [brokenUrls, setBrokenUrls] = useState<Set<string>>(new Set());
   const { toast } = useToast();
+
+  // Check for broken image URLs
+  useEffect(() => {
+    if (!images || images.length === 0) {
+      setBrokenUrls(new Set());
+      return;
+    }
+
+    const checkImages = async () => {
+      const broken = new Set<string>();
+      await Promise.all(
+        images.map(async (url) => {
+          try {
+            const response = await fetch(url, { method: "HEAD" });
+            if (!response.ok) {
+              broken.add(url);
+            }
+          } catch {
+            // Try loading as image
+            await new Promise<void>((resolve) => {
+              const img = new Image();
+              img.onload = () => resolve();
+              img.onerror = () => {
+                broken.add(url);
+                resolve();
+              };
+              img.src = url;
+            });
+          }
+        })
+      );
+      setBrokenUrls(broken);
+    };
+
+    checkImages();
+  }, [images]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -229,6 +277,17 @@ const ImageUploader = ({
 
   return (
     <div className="space-y-4">
+      {/* Broken images warning */}
+      {brokenUrls.size > 0 && (
+        <div className="flex items-center gap-2 px-4 py-3 bg-amber-500/10 text-amber-600 rounded-lg border border-amber-500/20">
+          <AlertTriangle className="h-5 w-5 flex-shrink-0" />
+          <div>
+            <p className="font-medium">{brokenUrls.size} fichier(s) introuvable(s)</p>
+            <p className="text-sm opacity-80">Ces images ont été supprimées du stockage. Veuillez les supprimer et en uploader de nouvelles.</p>
+          </div>
+        </div>
+      )}
+
       {/* Image Grid with DnD */}
       {images.length > 0 && (
         <DndContext
@@ -244,6 +303,7 @@ const ImageUploader = ({
                   url={url}
                   index={index}
                   onRemove={handleRemoveImage}
+                  isBroken={brokenUrls.has(url)}
                 />
               ))}
             </div>

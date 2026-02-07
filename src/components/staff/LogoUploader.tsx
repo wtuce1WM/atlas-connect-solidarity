@@ -1,8 +1,8 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { X, Loader2, ImageIcon } from "lucide-react";
+import { X, Loader2, ImageIcon, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface LogoUploaderProps {
@@ -17,7 +17,31 @@ const LogoUploader = ({
   businessId 
 }: LogoUploaderProps) => {
   const [uploading, setUploading] = useState(false);
+  const [isBroken, setIsBroken] = useState(false);
   const { toast } = useToast();
+
+  // Check if logo URL is broken
+  useEffect(() => {
+    if (!logoUrl) {
+      setIsBroken(false);
+      return;
+    }
+
+    const checkUrl = async () => {
+      try {
+        const response = await fetch(logoUrl, { method: "HEAD" });
+        setIsBroken(!response.ok);
+      } catch {
+        // Try loading as image
+        const img = new Image();
+        img.onload = () => setIsBroken(false);
+        img.onerror = () => setIsBroken(true);
+        img.src = logoUrl;
+      }
+    };
+
+    checkUrl();
+  }, [logoUrl]);
 
   const handleFileUpload = useCallback(async (files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -117,15 +141,36 @@ const LogoUploader = ({
 
   return (
     <div className="space-y-4">
+      {/* Broken file warning */}
+      {logoUrl && isBroken && (
+        <div className="flex items-center gap-2 px-4 py-3 bg-amber-500/10 text-amber-600 rounded-lg border border-amber-500/20">
+          <AlertTriangle className="h-5 w-5 flex-shrink-0" />
+          <div>
+            <p className="font-medium">Fichier introuvable</p>
+            <p className="text-sm opacity-80">Ce logo a été supprimé du stockage. Veuillez le supprimer et en uploader un nouveau.</p>
+          </div>
+        </div>
+      )}
+
       {/* Current Logo */}
       {logoUrl && (
         <div className="relative inline-block">
-          <div className="w-32 h-32 rounded-lg border bg-white p-2 flex items-center justify-center overflow-hidden">
-            <img
-              src={logoUrl}
-              alt="Logo"
-              className="max-w-full max-h-full object-contain"
-            />
+          <div className={cn(
+            "w-32 h-32 rounded-lg border bg-white p-2 flex items-center justify-center overflow-hidden",
+            isBroken && "ring-2 ring-amber-500"
+          )}>
+            {isBroken ? (
+              <div className="flex flex-col items-center text-amber-500">
+                <AlertTriangle className="h-8 w-8" />
+                <span className="text-xs mt-1">Introuvable</span>
+              </div>
+            ) : (
+              <img
+                src={logoUrl}
+                alt="Logo"
+                className="max-w-full max-h-full object-contain"
+              />
+            )}
           </div>
           <Button
             type="button"
