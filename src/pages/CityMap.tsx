@@ -381,7 +381,7 @@ const CityMap = () => {
                           )}
                         </div>
                         {business.wtuce_status === "verified" && (
-                          <Badge className="bg-primary/10 text-primary text-xs shrink-0">
+                          <Badge className="bg-white/20 text-white border-white/30 text-xs shrink-0">
                             Vérifié
                           </Badge>
                         )}
