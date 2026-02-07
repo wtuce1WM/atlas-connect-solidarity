@@ -82,7 +82,8 @@ const CategoryManagement = () => {
     name_fr: "",
     name_en: "",
     name_ar: "",
-    icon: ""
+    icon: "",
+    sort_order: 0
   });
   
   const [deleteDialog, setDeleteDialog] = useState<{
@@ -117,16 +118,17 @@ const CategoryManagement = () => {
         name_fr: item.name_fr,
         name_en: item.name_en || "",
         name_ar: item.name_ar || "",
-        icon: (item as Category).icon || ""
+        icon: (item as Category).icon || "",
+        sort_order: item.sort_order || 0
       });
     } else {
-      setEditForm({ name_fr: "", name_en: "", name_ar: "", icon: "" });
+      setEditForm({ name_fr: "", name_en: "", name_ar: "", icon: "", sort_order: 0 });
     }
   };
 
   const cancelEdit = () => {
     setEditMode(null);
-    setEditForm({ name_fr: "", name_en: "", name_ar: "", icon: "" });
+    setEditForm({ name_fr: "", name_en: "", name_ar: "", icon: "", sort_order: 0 });
   };
 
   const saveItem = async () => {
@@ -142,7 +144,8 @@ const CategoryManagement = () => {
           name_fr: editForm.name_fr.trim(),
           name_en: editForm.name_en.trim() || null,
           name_ar: editForm.name_ar.trim() || null,
-          icon: editForm.icon.trim() || null
+          icon: editForm.icon.trim() || null,
+          sort_order: editForm.sort_order
         };
 
         if (editMode.id) {
@@ -153,33 +156,35 @@ const CategoryManagement = () => {
           toast.success("Catégorie créée");
         }
       } else if (editMode.type === "subcategory") {
-        const data = {
+        const subData = {
           category_id: editMode.parentId!,
           name_fr: editForm.name_fr.trim(),
           name_en: editForm.name_en.trim() || null,
-          name_ar: editForm.name_ar.trim() || null
+          name_ar: editForm.name_ar.trim() || null,
+          sort_order: editForm.sort_order
         };
 
         if (editMode.id) {
-          await supabase.from("subcategories").update(data).eq("id", editMode.id);
+          await supabase.from("subcategories").update(subData).eq("id", editMode.id);
           toast.success("Sous-catégorie modifiée");
         } else {
-          await supabase.from("subcategories").insert(data);
+          await supabase.from("subcategories").insert(subData);
           toast.success("Sous-catégorie créée");
         }
       } else if (editMode.type === "service") {
-        const data = {
+        const svcData = {
           subcategory_id: editMode.parentId!,
           name_fr: editForm.name_fr.trim(),
           name_en: editForm.name_en.trim() || null,
-          name_ar: editForm.name_ar.trim() || null
+          name_ar: editForm.name_ar.trim() || null,
+          sort_order: editForm.sort_order
         };
 
         if (editMode.id) {
-          await supabase.from("services").update(data).eq("id", editMode.id);
+          await supabase.from("services").update(svcData).eq("id", editMode.id);
           toast.success("Service modifié");
         } else {
-          await supabase.from("services").insert(data);
+          await supabase.from("services").insert(svcData);
           toast.success("Service créé");
         }
       }
@@ -258,7 +263,7 @@ const CategoryManagement = () => {
 
   const renderEditForm = (showIcon: boolean = false) => (
     <div className="space-y-3 p-4 bg-muted/50 rounded-lg border">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
         <div>
           <label className="text-xs font-medium text-muted-foreground">Français *</label>
           <Input
@@ -283,6 +288,16 @@ const CategoryManagement = () => {
             onChange={(e) => setEditForm(prev => ({ ...prev, name_ar: e.target.value }))}
             placeholder="الاسم بالعربية"
             dir="rtl"
+          />
+        </div>
+        <div>
+          <label className="text-xs font-medium text-muted-foreground">Ordre</label>
+          <Input
+            type="number"
+            value={editForm.sort_order}
+            onChange={(e) => setEditForm(prev => ({ ...prev, sort_order: parseInt(e.target.value) || 0 }))}
+            placeholder="0"
+            min={0}
           />
         </div>
       </div>
