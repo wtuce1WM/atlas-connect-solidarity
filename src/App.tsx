@@ -10,6 +10,8 @@ import CityMap from "./pages/CityMap";
 import CategoryPage from "./pages/CategoryPage";
 import StaffLogin from "./pages/StaffLogin";
 import StaffBackoffice from "./pages/StaffBackoffice";
+import AffiliatesLogin from "./pages/AffiliatesLogin";
+import AffiliatesDashboard from "./pages/AffiliatesDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +32,8 @@ const AppContent = () => {
             <Route path="/category/:categoryName" element={<CategoryPage />} />
             <Route path="/staff/login" element={<StaffLogin />} />
             <Route path="/staff/backoffice" element={<StaffBackoffice />} />
+            <Route path="/affiliates" element={<AffiliatesLogin />} />
+            <Route path="/affiliates/dashboard" element={<AffiliatesDashboard />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
