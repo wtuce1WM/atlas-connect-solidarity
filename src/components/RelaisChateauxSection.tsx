@@ -6,6 +6,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Card, CardContent } from "@/components/ui/card";
 import relaisLogo from "@/assets/relais-chateaux-logo.png";
 import logoWatermark from "@/assets/logoGOLD-watermark.webp";
+import symboleMaroc from "@/assets/symbole-maroc-2.webp";
 
 interface Business {
   id: string;
@@ -66,8 +67,23 @@ const RelaisChateauxSection = () => {
   if (businesses.length === 0) return null;
 
   return (
-    <section id="relais-chateaux" className="bg-black py-16">
-      <div className="container mx-auto px-4">
+    <section id="relais-chateaux" className="bg-black py-16 relative overflow-hidden">
+      {/* Background decorative emblem */}
+      <div 
+        className="absolute inset-0 flex items-center justify-center pointer-events-none"
+      >
+        <div 
+          className="w-[600px] h-[600px] opacity-15"
+          style={{
+            backgroundImage: `url(${symboleMaroc})`,
+            backgroundSize: 'contain',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat'
+          }}
+        />
+      </div>
+      
+      <div className="container mx-auto px-4 relative z-10">
         {/* Section Header */}
         <div className="mb-10 text-center">
           <div className="flex justify-center mb-4">
