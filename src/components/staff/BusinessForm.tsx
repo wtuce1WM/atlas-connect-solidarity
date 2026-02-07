@@ -349,13 +349,11 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
         .sort((a, b) => a.localeCompare(b, 'fr'))
     : [];
 
-  // Get services for selected subcategories from database (sorted alphabetically)
-  // Filter subcategories by BOTH the selected main category AND the selected subcategory names
-  const selectedSubcategoryIds = selectedCategory
-    ? dbSubcategories
-        .filter(sub => sub.category_id === selectedCategory.id && formData.categories.includes(sub.name_fr))
-        .map(sub => sub.id)
-    : [];
+  // Get services for ALL selected subcategories from database (sorted alphabetically)
+  // This includes subcategories from any category, not just the current main category
+  const selectedSubcategoryIds = dbSubcategories
+    .filter(sub => formData.categories.includes(sub.name_fr))
+    .map(sub => sub.id);
   
   const availableServices = selectedSubcategoryIds.length > 0
     ? dbServices
