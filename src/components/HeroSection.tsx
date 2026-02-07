@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import logoGoldOverlay from "@/assets/logoGOLD-overlay.webp";
 import heroBackground from "@/assets/hero-marrakech.jpg";
+import royalAirMarocLogo from "@/assets/royal-air-maroc-logo.png";
 
 interface City {
   id: string;
@@ -157,6 +158,20 @@ const HeroSection = () => {
           className="object-contain opacity-60"
         />
       </div>
+
+      {/* Royal Air Maroc Partner Logo */}
+      <a 
+        href="https://www.royalairmaroc.com/fr-fr" 
+        target="_blank" 
+        rel="noopener noreferrer"
+        className="absolute bottom-8 right-8 z-20 transition-opacity hover:opacity-80"
+      >
+        <img 
+          src={royalAirMarocLogo} 
+          alt="Royal Air Maroc" 
+          className="h-16 w-auto object-contain opacity-70 hover:opacity-100 transition-opacity"
+        />
+      </a>
 
       {/* Content */}
       <div className="relative z-10 flex min-h-screen flex-col items-center px-4 pt-[28rem]">
