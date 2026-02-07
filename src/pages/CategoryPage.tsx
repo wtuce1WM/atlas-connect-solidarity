@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Loader2, MapPin, Phone, Building2, ShieldCheck, ChevronLeft, ChevronRight } from "lucide-react";
+import logoWatermark from "@/assets/logoGOLD-watermark.webp";
 import {
   Hotel,
   Utensils,
@@ -329,7 +330,7 @@ const CategoryPage = () => {
                         {/* Watermark logo for verified businesses - bottom right of white area */}
                         {business.wtuce_status === "verified" && (
                           <img 
-                            src="/lovable-uploads/1c0e9d04-40f8-4f5a-bfc0-0fb4cab5def8.png" 
+                            src={logoWatermark} 
                             alt="" 
                             className="absolute bottom-2 right-2 w-16 h-16 object-contain opacity-80 pointer-events-none"
                           />
