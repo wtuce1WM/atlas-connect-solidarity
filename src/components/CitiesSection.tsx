@@ -42,7 +42,8 @@ const CitiesSection = () => {
         // Fetch business counts per city
         const { data: businessCounts, error: countError } = await supabase
           .from("businesses")
-          .select("city");
+          .select("city")
+          .eq("is_active", true);
 
         if (countError) throw countError;
 

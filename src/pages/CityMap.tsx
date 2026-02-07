@@ -154,6 +154,7 @@ const CityMap = () => {
       const { data: businessData, error: businessError } = await supabase
         .from("businesses")
         .select("id, name, city, region, address, main_category, categories, latitude, longitude, wtuce_status, services")
+        .eq("is_active", true)
         .ilike("city", decodedCity);
 
       if (businessError) {

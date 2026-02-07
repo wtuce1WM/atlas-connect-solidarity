@@ -127,7 +127,7 @@ serve(async (req) => {
     if (query || city || category) {
       const expandedQuery = query ? expandQuery(query) : null;
 
-      let queryBuilder = supabase.from("businesses").select("*");
+      let queryBuilder = supabase.from("businesses").select("*").eq("is_active", true);
 
       if (expandedQuery) {
         queryBuilder = queryBuilder.textSearch("search_vector", expandedQuery, {
@@ -169,6 +169,7 @@ serve(async (req) => {
       const { data, error } = await supabase
         .from("businesses")
         .select("*")
+        .eq("is_active", true)
         .or(
           `name.ilike.%${query}%,description.ilike.%${query}%,categories.cs.{${query}},services.cs.{${query}}`
         )
@@ -193,6 +194,7 @@ serve(async (req) => {
       const { data, error } = await supabase
         .from("businesses")
         .select("*")
+        .eq("is_active", true)
         .not("latitude", "is", null)
         .not("longitude", "is", null);
 
@@ -229,6 +231,7 @@ serve(async (req) => {
       const { data, error } = await supabase
         .from("businesses")
         .select("*")
+        .eq("is_active", true)
         .ilike("region", region)
         .order("wtuce_status", { ascending: true })
         .order("priority_score", { ascending: false })
@@ -251,6 +254,7 @@ serve(async (req) => {
       const { data, error } = await supabase
         .from("businesses")
         .select("*")
+        .eq("is_active", true)
         .or("wtuce_status.eq.verified,is_featured.eq.true")
         .order("is_featured", { ascending: false })
         .order("priority_score", { ascending: false })

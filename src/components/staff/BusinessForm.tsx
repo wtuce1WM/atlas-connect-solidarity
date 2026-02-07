@@ -284,6 +284,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
     longitude: business?.longitude?.toString() || "",
     wtuce_status: business?.wtuce_status || "pending",
     is_featured: business?.is_featured || false,
+    is_active: (business as any)?.is_active ?? true,
     priority_score: business?.priority_score?.toString() || "0",
     logo_url: business?.logo_url || "",
     ice: (business as any)?.ice || "",
@@ -396,6 +397,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
       longitude: formData.longitude ? parseFloat(formData.longitude) : null,
       wtuce_status: formData.wtuce_status as "verified" | "pending",
       is_featured: formData.is_featured,
+      is_active: formData.is_active,
       priority_score: parseInt(formData.priority_score) || 0,
       logo_url: formData.logo_url || null,
       ice: formData.ice || null,
@@ -536,15 +538,29 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              id="is_featured"
-              checked={formData.is_featured}
-              onChange={(e) => handleChange("is_featured", e.target.checked)}
-              className="h-4 w-4"
-            />
-            <Label htmlFor="is_featured">Entreprise mise en avant</Label>
+          <div className="flex flex-wrap items-center gap-6">
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="is_active"
+                checked={formData.is_active}
+                onChange={(e) => handleChange("is_active", e.target.checked)}
+                className="h-4 w-4"
+              />
+              <Label htmlFor="is_active" className="text-green-600 font-medium">
+                Entreprise active (visible sur le site)
+              </Label>
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="is_featured"
+                checked={formData.is_featured}
+                onChange={(e) => handleChange("is_featured", e.target.checked)}
+                className="h-4 w-4"
+              />
+              <Label htmlFor="is_featured">Entreprise mise en avant</Label>
+            </div>
           </div>
         </div>
 

@@ -33,6 +33,7 @@ export type Database = {
           images: string[] | null
           instagram_url: string | null
           internal_notes: string | null
+          is_active: boolean
           is_featured: boolean | null
           is_regulated_activity: boolean | null
           keywords: string[] | null
@@ -83,6 +84,7 @@ export type Database = {
           images?: string[] | null
           instagram_url?: string | null
           internal_notes?: string | null
+          is_active?: boolean
           is_featured?: boolean | null
           is_regulated_activity?: boolean | null
           keywords?: string[] | null
@@ -133,6 +135,7 @@ export type Database = {
           images?: string[] | null
           instagram_url?: string | null
           internal_notes?: string | null
+          is_active?: boolean
           is_featured?: boolean | null
           is_regulated_activity?: boolean | null
           keywords?: string[] | null

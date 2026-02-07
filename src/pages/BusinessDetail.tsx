@@ -109,7 +109,8 @@ const BusinessDetail = () => {
         .from("businesses")
         .select("*")
         .eq("id", id)
-        .single();
+        .eq("is_active", true)
+        .maybeSingle();
 
       if (error) {
         console.error("Error fetching business:", error);
