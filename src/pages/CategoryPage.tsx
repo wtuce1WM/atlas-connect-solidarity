@@ -142,7 +142,12 @@ const CategoryPage = () => {
           .order("priority_score", { ascending: false });
 
         if (error) throw error;
-        setAllBusinesses(businessData || []);
+        
+        // Filter out businesses without images
+        const businessesWithImages = (businessData || []).filter(b => 
+          (b.images && b.images.length > 0)
+        );
+        setAllBusinesses(businessesWithImages);
       } catch (error) {
         console.error("Error fetching category data:", error);
       } finally {
