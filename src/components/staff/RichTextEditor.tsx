@@ -13,7 +13,7 @@ import {
   Undo,
   Redo,
 } from "lucide-react";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 
 interface RichTextEditorProps {
   content: string;
@@ -22,20 +22,23 @@ interface RichTextEditorProps {
 }
 
 const RichTextEditor = ({ content, onChange, placeholder }: RichTextEditorProps) => {
+  // Memoize extensions to prevent duplicate registration on re-renders
+  const extensions = useMemo(() => [
+    StarterKit.configure({
+      heading: {
+        levels: [2, 3],
+      },
+    }),
+    Link.configure({
+      openOnClick: false,
+      HTMLAttributes: {
+        class: "text-primary underline",
+      },
+    }),
+  ], []);
+
   const editor = useEditor({
-    extensions: [
-      StarterKit.configure({
-        heading: {
-          levels: [2, 3],
-        },
-      }),
-      Link.configure({
-        openOnClick: false,
-        HTMLAttributes: {
-          class: "text-primary underline",
-        },
-      }),
-    ],
+    extensions,
     content,
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
