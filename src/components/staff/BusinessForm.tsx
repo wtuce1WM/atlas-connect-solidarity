@@ -319,31 +319,10 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
   const handleCategoryToggle = (category: string) => {
     setFormData((prev) => {
       const currentCategories = prev.categories;
-      let newCategories: string[];
-      
       if (currentCategories.includes(category)) {
-        // Removing a subcategory - also remove its associated services
-        newCategories = currentCategories.filter((c) => c !== category);
-        
-        // Find the subcategory being removed
-        const removedSubcategory = dbSubcategories.find(sub => sub.name_fr === category);
-        
-        // Get services that belong to remaining subcategories
-        const remainingSubcategoryIds = dbSubcategories
-          .filter(sub => newCategories.includes(sub.name_fr))
-          .map(sub => sub.id);
-        
-        // Filter services to only keep those from remaining subcategories
-        const validServices = dbServices
-          .filter(srv => remainingSubcategoryIds.includes(srv.subcategory_id))
-          .map(srv => srv.name_fr);
-        
-        const newServices = prev.services.filter(srv => validServices.includes(srv));
-        
-        return { ...prev, categories: newCategories, services: newServices };
+        return { ...prev, categories: currentCategories.filter((c) => c !== category) };
       } else {
-        newCategories = [...currentCategories, category];
-        return { ...prev, categories: newCategories };
+        return { ...prev, categories: [...currentCategories, category] };
       }
     });
   };
