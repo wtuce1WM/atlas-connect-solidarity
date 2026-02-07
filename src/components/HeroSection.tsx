@@ -245,7 +245,7 @@ const HeroSection = () => {
               </div>
             </div>
 
-            {/* Categories Section - DISABLED
+            {/* Categories Section */}
             <div>
               <div className="mb-4 text-center">
                 <h2 className="text-2xl font-bold text-white">
@@ -257,12 +257,14 @@ const HeroSection = () => {
                 </h2>
               </div>
               <div className="relative">
+                {/* Left Arrow */}
                 <button
                   onClick={() => scrollContainer(categoriesScrollRef, "left")}
                   className="absolute -left-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/20 p-2 shadow-lg transition-all hover:bg-gold hover:text-black backdrop-blur-sm"
                 >
                   <ChevronLeft className="h-5 w-5 text-white" />
                 </button>
+                {/* Right Arrow */}
                 <button
                   onClick={() => scrollContainer(categoriesScrollRef, "right")}
                   className="absolute -right-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/20 p-2 shadow-lg transition-all hover:bg-gold hover:text-black backdrop-blur-sm"
@@ -304,7 +306,6 @@ const HeroSection = () => {
                 </div>
               </div>
             </div>
-            */}
 
             {/* Relais & Châteaux Section - DISABLED
             {relaisCount > 0 && (

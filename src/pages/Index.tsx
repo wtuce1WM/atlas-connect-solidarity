@@ -13,7 +13,9 @@ const Index = () => {
       {/* CitiesSection - DISABLED
       <CitiesSection />
       */}
+      {/* CategoriesSection - DISABLED
       <CategoriesSection />
+      */}
       <RelaisChateauxSection />
       <Footer />
     </div>
