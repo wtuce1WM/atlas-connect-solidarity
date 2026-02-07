@@ -104,7 +104,7 @@ const TopCityBusinesses = ({ businesses, cityName }: TopCityBusinessesProps) => 
                   <div className="absolute inset-0 bg-black/40 group-hover:bg-black/70 transition-colors" />
                 </div>
 
-                <CardContent className="p-5 relative z-10 flex flex-col items-center justify-center min-h-[220px] text-center">
+                <CardContent className="p-5 relative z-10 flex flex-col items-center justify-end min-h-[220px] text-center">
                   {/* Watermark logo for verified businesses */}
                   {business.wtuce_status === "verified" && (
                     <img 
