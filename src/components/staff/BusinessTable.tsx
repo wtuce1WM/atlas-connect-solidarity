@@ -19,8 +19,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Edit, Trash2, ExternalLink, Copy } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Edit, Trash2, ExternalLink, Copy, AlertTriangle } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
+import { useBusinessBrokenFiles } from "@/hooks/useBusinessBrokenFiles";
 
 type Business = Tables<"businesses">;
 
@@ -35,6 +42,7 @@ interface BusinessTableProps {
 const BusinessTable = ({ businesses, loading, onEdit, onDelete, onDuplicate }: BusinessTableProps) => {
   const [duplicateDialogOpen, setDuplicateDialogOpen] = useState(false);
   const [businessToDuplicate, setBusinessToDuplicate] = useState<Business | null>(null);
+  const { brokenFilesMap } = useBusinessBrokenFiles(businesses);
 
   const handleDuplicateClick = (business: Business) => {
     setBusinessToDuplicate(business);
@@ -66,11 +74,13 @@ const BusinessTable = ({ businesses, loading, onEdit, onDelete, onDuplicate }: B
   }
 
   return (
+    <TooltipProvider>
     <div className="bg-background rounded-lg border overflow-hidden">
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead></TableHead>
               <TableHead>Nom</TableHead>
               <TableHead>Ville</TableHead>
               <TableHead>Catégorie principale</TableHead>
@@ -82,8 +92,32 @@ const BusinessTable = ({ businesses, loading, onEdit, onDelete, onDuplicate }: B
             </TableRow>
           </TableHeader>
           <TableBody>
-            {businesses.map((business) => (
+            {businesses.map((business) => {
+              const brokenInfo = brokenFilesMap[business.id];
+              return (
               <TableRow key={business.id}>
+                <TableCell className="w-10">
+                  {brokenInfo && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="flex items-center justify-center p-1.5 bg-amber-500/10 text-amber-600 rounded-full cursor-help">
+                          <AlertTriangle className="h-4 w-4" />
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent side="right" className="max-w-xs">
+                        <p className="font-medium mb-1">{brokenInfo.totalBroken} fichier(s) manquant(s)</p>
+                        <ul className="text-xs space-y-0.5">
+                          {brokenInfo.brokenImages > 0 && (
+                            <li>• {brokenInfo.brokenImages} image(s)</li>
+                          )}
+                          {brokenInfo.brokenLogo && <li>• Logo</li>}
+                          {brokenInfo.brokenPdf && <li>• PDF</li>}
+                          {brokenInfo.brokenLabel && <li>• Label</li>}
+                        </ul>
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+                </TableCell>
                 <TableCell>
                   <div className="font-medium">{business.name}</div>
                   <div className="flex flex-col gap-0.5">
@@ -213,7 +247,8 @@ const BusinessTable = ({ businesses, loading, onEdit, onDelete, onDuplicate }: B
                   </div>
                 </TableCell>
               </TableRow>
-            ))}
+              );
+            })}
           </TableBody>
         </Table>
       </div>
@@ -235,6 +270,7 @@ const BusinessTable = ({ businesses, loading, onEdit, onDelete, onDuplicate }: B
         </AlertDialogContent>
       </AlertDialog>
     </div>
+    </TooltipProvider>
   );
 };
 
