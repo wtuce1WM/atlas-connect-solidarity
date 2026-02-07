@@ -66,6 +66,7 @@ interface Business {
   opening_hours: OpeningHours | null;
   rating: number | null;
   reserve_now_url: string | null;
+  show_opening_hours: boolean | null;
 }
 
 // Helper to convert video URL to embeddable format
@@ -631,7 +632,7 @@ const BusinessDetail = () => {
             )}
 
             {/* Opening Hours */}
-            {business.opening_hours && Object.keys(business.opening_hours).length > 0 && (() => {
+            {business.show_opening_hours !== false && business.opening_hours && Object.keys(business.opening_hours).length > 0 && (() => {
               const dayNames: { [key: string]: string } = {
                 monday: "Lundi",
                 tuesday: "Mardi",
