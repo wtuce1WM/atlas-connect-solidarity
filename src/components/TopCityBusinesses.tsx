@@ -1,0 +1,125 @@
+import { Link } from "react-router-dom";
+import { MapPin, Star } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { Card, CardContent } from "@/components/ui/card";
+import logoWatermark from "@/assets/logoGOLD-watermark.webp";
+
+interface Business {
+  id: string;
+  name: string;
+  city: string;
+  region: string;
+  images: string[] | null;
+  rating: number | null;
+  main_category: string | null;
+  wtuce_status: string | null;
+}
+
+interface TopCityBusinessesProps {
+  businesses: Business[];
+  cityName: string;
+}
+
+const TopCityBusinesses = ({ businesses, cityName }: TopCityBusinessesProps) => {
+  const { language } = useLanguage();
+
+  // Get top 10 businesses sorted by priority (verified first, then by rating)
+  const topBusinesses = [...businesses]
+    .sort((a, b) => {
+      // Verified first
+      if (a.wtuce_status === "verified" && b.wtuce_status !== "verified") return -1;
+      if (b.wtuce_status === "verified" && a.wtuce_status !== "verified") return 1;
+      // Then by rating
+      return (b.rating || 0) - (a.rating || 0);
+    })
+    .slice(0, 10);
+
+  if (topBusinesses.length === 0) return null;
+
+  return (
+    <div className="mb-8">
+      {/* Section Header */}
+      <div className="mb-6 text-center">
+        <h2 className="mb-2 text-2xl font-bold text-white">
+          {language === "fr"
+            ? "Les meilleurs établissements à "
+            : language === "ar"
+              ? "أفضل المؤسسات في "
+              : "Top establishments in "}
+          <span className="text-gold">{cityName}</span>
+        </h2>
+        <p className="mx-auto max-w-2xl text-white/70">
+          {language === "fr"
+            ? "Découvrez notre sélection des adresses incontournables"
+            : language === "ar"
+              ? "اكتشف مجموعتنا من العناوين التي لا غنى عنها"
+              : "Discover our selection of must-visit addresses"}
+        </p>
+      </div>
+
+      {/* Business Cards - Horizontal Scroll */}
+      <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
+        {topBusinesses.map((business) => (
+          <Link
+            key={business.id}
+            to={`/business/${business.id}`}
+            className="group flex-shrink-0"
+          >
+            <Card className="w-56 h-full overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-gold/20 border border-gold/30 relative">
+              {/* Background Image with overlay */}
+              {business.images && business.images.length > 0 ? (
+                <div className="absolute inset-0">
+                  <img
+                    src={business.images[0]}
+                    alt={business.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute inset-0 bg-black/60 group-hover:bg-black/50 transition-colors" />
+                </div>
+              ) : (
+                <div className="absolute inset-0 bg-gradient-to-br from-gold/20 to-morocco-green/20" />
+              )}
+
+              <CardContent className="p-4 relative z-10 flex flex-col items-center justify-center min-h-[180px] text-center">
+                {/* Watermark logo for verified businesses */}
+                {business.wtuce_status === "verified" && (
+                  <img 
+                    src={logoWatermark} 
+                    alt="" 
+                    className="absolute bottom-2 right-2 w-10 h-10 object-contain opacity-80 pointer-events-none"
+                  />
+                )}
+
+                {/* Rating */}
+                {business.rating && (
+                  <div className="flex items-center justify-center gap-1 mb-2">
+                    <Star className="h-4 w-4 fill-gold text-gold" />
+                    <span className="text-gold font-bold text-sm">{business.rating}/20</span>
+                  </div>
+                )}
+
+                {/* Name */}
+                <h3 className="text-sm font-semibold text-white group-hover:text-gold transition-colors mb-1 line-clamp-2">
+                  {business.name}
+                </h3>
+
+                {/* Category */}
+                {business.main_category && (
+                  <span className="text-xs text-gray-300 mb-1">{business.main_category}</span>
+                )}
+
+                {/* Location */}
+                <div className="flex items-center justify-center gap-1 text-xs text-gray-400">
+                  <MapPin className="h-3 w-3" />
+                  <span>{business.city}</span>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default TopCityBusinesses;
