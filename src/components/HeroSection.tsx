@@ -207,16 +207,16 @@ const HeroSection = () => {
                 {/* Left Arrow */}
                 <button
                   onClick={() => scrollContainer(citiesScrollRef, "left")}
-                  className="absolute -left-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/20 p-2 shadow-lg transition-all hover:bg-gold hover:text-black backdrop-blur-sm"
+                  className="absolute -left-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-gold p-2 shadow-lg transition-all hover:bg-white/20 backdrop-blur-sm"
                 >
-                  <ChevronLeft className="h-5 w-5 text-white" />
+                  <ChevronLeft className="h-5 w-5 text-black hover:text-white" />
                 </button>
                 {/* Right Arrow */}
                 <button
                   onClick={() => scrollContainer(citiesScrollRef, "right")}
-                  className="absolute -right-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/20 p-2 shadow-lg transition-all hover:bg-gold hover:text-black backdrop-blur-sm"
+                  className="absolute -right-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-gold p-2 shadow-lg transition-all hover:bg-white/20 backdrop-blur-sm"
                 >
-                  <ChevronRight className="h-5 w-5 text-white" />
+                  <ChevronRight className="h-5 w-5 text-black hover:text-white" />
                 </button>
 
                 <div 
@@ -275,16 +275,16 @@ const HeroSection = () => {
                 {/* Left Arrow */}
                 <button
                   onClick={() => scrollContainer(categoriesScrollRef, "left")}
-                  className="absolute -left-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/20 p-2 shadow-lg transition-all hover:bg-gold hover:text-black backdrop-blur-sm"
+                  className="absolute -left-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-gold p-2 shadow-lg transition-all hover:bg-white/20 backdrop-blur-sm"
                 >
-                  <ChevronLeft className="h-5 w-5 text-white" />
+                  <ChevronLeft className="h-5 w-5 text-black hover:text-white" />
                 </button>
                 {/* Right Arrow */}
                 <button
                   onClick={() => scrollContainer(categoriesScrollRef, "right")}
-                  className="absolute -right-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/20 p-2 shadow-lg transition-all hover:bg-gold hover:text-black backdrop-blur-sm"
+                  className="absolute -right-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-gold p-2 shadow-lg transition-all hover:bg-white/20 backdrop-blur-sm"
                 >
-                  <ChevronRight className="h-5 w-5 text-white" />
+                  <ChevronRight className="h-5 w-5 text-black hover:text-white" />
                 </button>
 
                 <div 
