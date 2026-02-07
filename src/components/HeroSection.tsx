@@ -193,7 +193,7 @@ const HeroSection = () => {
         ) : (
           <div className="w-full max-w-5xl space-y-10">
             {/* Cities Section */}
-            <div>
+            <div className="rounded-xl bg-black/30 backdrop-blur-sm p-4">
               <div className="mb-4 text-center">
                 <h2 className="text-2xl font-bold text-white">
                   {language === "fr" 
@@ -261,7 +261,7 @@ const HeroSection = () => {
             </div>
 
             {/* Categories Section */}
-            <div>
+            <div className="rounded-xl bg-black/30 backdrop-blur-sm p-4">
               <div className="mb-4 text-center">
                 <h2 className="text-2xl font-bold text-white">
                   {language === "fr" 
