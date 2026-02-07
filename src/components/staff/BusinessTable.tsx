@@ -187,14 +187,6 @@ const BusinessTable = ({ businesses, loading, onEdit, onDelete, onDuplicate }: B
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleDuplicateClick(business)}
-                      title="Dupliquer"
-                    >
-                      <Copy className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
                       onClick={() => onEdit(business)}
                       title="Modifier"
                     >
@@ -203,8 +195,17 @@ const BusinessTable = ({ businesses, loading, onEdit, onDelete, onDuplicate }: B
                     <Button
                       variant="outline"
                       size="sm"
+                      onClick={() => handleDuplicateClick(business)}
+                      className="border-orange-500 text-orange-600 hover:bg-orange-50 hover:text-orange-700"
+                      title="Dupliquer"
+                    >
+                      <Copy className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
                       onClick={() => onDelete(business.id)}
-                      className="text-destructive hover:text-destructive"
+                      className="border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700"
                       title="Supprimer"
                     >
                       <Trash2 className="h-4 w-4" />

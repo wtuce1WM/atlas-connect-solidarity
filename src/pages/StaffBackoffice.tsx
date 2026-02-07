@@ -254,7 +254,7 @@ const StaffBackoffice = () => {
                 </div>
                 <Button
                   onClick={() => setShowForm(true)}
-                  className="bg-gold hover:bg-gold/90 text-gold-foreground"
+                  className="bg-green-600 hover:bg-green-700 text-white"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Nouvelle entreprise
