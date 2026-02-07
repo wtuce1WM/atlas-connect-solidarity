@@ -227,7 +227,7 @@ const CityMap = () => {
     <div className="min-h-screen bg-gradient-to-b from-morocco-red to-morocco-green relative">
       {/* Background decorative emblem */}
       <div 
-        className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] opacity-10 pointer-events-none"
+        className="absolute top-32 left-1/2 -translate-x-1/2 w-[600px] h-[600px] opacity-40 pointer-events-none"
         style={{
           backgroundImage: `url(${symboleMaroc})`,
           backgroundSize: 'contain',
