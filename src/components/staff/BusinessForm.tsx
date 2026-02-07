@@ -245,19 +245,22 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
   const [dbCategories, setDbCategories] = useState<Array<{ id: string; name_fr: string }>>([]);
   const [dbSubcategories, setDbSubcategories] = useState<Array<{ id: string; name_fr: string; category_id: string }>>([]);
   const [dbServices, setDbServices] = useState<Array<{ id: string; name_fr: string; subcategory_id: string }>>([]);
+  const [dbCities, setDbCities] = useState<Array<{ id: string; name_fr: string; region: string | null }>>([]);
 
-  // Fetch categories, subcategories, and services from database
+  // Fetch categories, subcategories, services, and cities from database
   useEffect(() => {
     const fetchTaxonomy = async () => {
-      const [catRes, subRes, servRes] = await Promise.all([
+      const [catRes, subRes, servRes, citiesRes] = await Promise.all([
         supabase.from("categories").select("id, name_fr").order("sort_order"),
         supabase.from("subcategories").select("id, name_fr, category_id").order("sort_order"),
         supabase.from("services").select("id, name_fr, subcategory_id").order("sort_order"),
+        supabase.from("cities").select("id, name_fr, region").order("name_fr"),
       ]);
       
       if (catRes.data) setDbCategories(catRes.data);
       if (subRes.data) setDbSubcategories(subRes.data);
       if (servRes.data) setDbServices(servRes.data);
+      if (citiesRes.data) setDbCities(citiesRes.data);
     };
     
     fetchTaxonomy();
@@ -676,12 +679,28 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-2">
             <Label htmlFor="city">Ville *</Label>
-            <Input
-              id="city"
+            <Select
               value={formData.city}
-              onChange={(e) => handleChange("city", e.target.value)}
-              required
-            />
+              onValueChange={(value) => {
+                handleChange("city", value);
+                // Auto-fill region based on selected city
+                const selectedCity = dbCities.find(c => c.name_fr === value);
+                if (selectedCity?.region) {
+                  handleChange("region", selectedCity.region);
+                }
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Sélectionner une ville..." />
+              </SelectTrigger>
+              <SelectContent>
+                {dbCities.map((city) => (
+                  <SelectItem key={city.id} value={city.name_fr}>
+                    {city.name_fr}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">
