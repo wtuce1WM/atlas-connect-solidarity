@@ -93,7 +93,7 @@ const TopCityBusinesses = ({ businesses, cityName }: TopCityBusinessesProps) => 
               to={`/business/${business.id}`}
               className="group flex-shrink-0"
             >
-              <Card className="w-56 h-full overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-gold/20 border border-gold/30 relative">
+              <Card className="w-72 h-full overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-gold/20 border border-gold/30 relative">
                 {/* Background Image with overlay */}
                 <div className="absolute inset-0">
                   <img
@@ -104,7 +104,7 @@ const TopCityBusinesses = ({ businesses, cityName }: TopCityBusinessesProps) => 
                   <div className="absolute inset-0 bg-black/60 group-hover:bg-black/50 transition-colors" />
                 </div>
 
-                <CardContent className="p-4 relative z-10 flex flex-col items-center justify-center min-h-[180px] text-center">
+                <CardContent className="p-5 relative z-10 flex flex-col items-center justify-center min-h-[220px] text-center">
                   {/* Watermark logo for verified businesses */}
                   {business.wtuce_status === "verified" && (
                     <img 
@@ -123,7 +123,7 @@ const TopCityBusinesses = ({ businesses, cityName }: TopCityBusinessesProps) => 
                   )}
 
                   {/* Name */}
-                  <h3 className="text-sm font-semibold text-white group-hover:text-gold transition-colors mb-1 line-clamp-2">
+                  <h3 className="text-base font-semibold text-white group-hover:text-gold transition-colors mb-2 line-clamp-2">
                     {business.name}
                   </h3>
 
