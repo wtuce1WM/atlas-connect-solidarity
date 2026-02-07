@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Plus, Search, Edit, Trash2, Eye, Building2, Users, Folder, MapPin } from "lucide-react";
+import { LogOut, Plus, Search, Edit, Trash2, Eye, Building2, Users, Folder, MapPin, Copy } from "lucide-react";
 import logoGold from "@/assets/logoGOLD.webp";
 import BusinessForm from "@/components/staff/BusinessForm";
 import BusinessTable from "@/components/staff/BusinessTable";
@@ -119,6 +119,41 @@ const StaffBackoffice = () => {
   const handleEdit = (business: Business) => {
     setEditingBusiness(business);
     setShowForm(true);
+  };
+
+  const handleDuplicate = async (business: Business) => {
+    // Create a copy of the business without id and timestamps
+    const { id, created_at, updated_at, ...businessData } = business;
+    
+    const duplicatedBusiness = {
+      ...businessData,
+      name: `${business.name} (copie)`,
+    };
+
+    const { data, error } = await supabase
+      .from("businesses")
+      .insert(duplicatedBusiness)
+      .select()
+      .single();
+
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Impossible de dupliquer l'entreprise.",
+      });
+    } else {
+      toast({
+        title: "Succès",
+        description: "Entreprise dupliquée avec succès.",
+      });
+      fetchBusinesses();
+      // Open the duplicated business for editing
+      if (data) {
+        setEditingBusiness(data);
+        setShowForm(true);
+      }
+    }
   };
 
   const handleFormSuccess = () => {
@@ -273,6 +308,7 @@ const StaffBackoffice = () => {
                 loading={loading}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
+                onDuplicate={handleDuplicate}
               />
             </TabsContent>
 
