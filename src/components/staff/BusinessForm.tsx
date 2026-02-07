@@ -614,11 +614,14 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
                 <SelectValue placeholder="Sélectionner..." />
               </SelectTrigger>
               <SelectContent>
-                {CATEGORIES.map((cat) => (
-                  <SelectItem key={cat} value={cat}>
-                    {cat}
-                  </SelectItem>
-                ))}
+                {dbCategories
+                  .slice()
+                  .sort((a, b) => a.name_fr.localeCompare(b.name_fr, 'fr'))
+                  .map((cat) => (
+                    <SelectItem key={cat.id} value={cat.name_fr}>
+                      {cat.name_fr}
+                    </SelectItem>
+                  ))}
               </SelectContent>
             </Select>
           </div>
