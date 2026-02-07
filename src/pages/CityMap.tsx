@@ -218,7 +218,7 @@ const CityMap = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-morocco-red to-morocco-green">
-      <Header />
+      <Header variant="morocco" />
 
       <main className="container mx-auto px-4 py-24">
         {/* Back link */}

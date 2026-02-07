@@ -4,12 +4,21 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import LanguageSwitcher from "./LanguageSwitcher";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 
-const Header = () => {
+interface HeaderProps {
+  variant?: "default" | "morocco";
+}
+
+const Header = ({ variant = "default" }: HeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const {
     t
   } = useLanguage();
-  return <header className="fixed left-0 right-0 top-0 z-50 bg-black/80 backdrop-blur-md">
+
+  const headerBg = variant === "morocco" 
+    ? "bg-morocco-green/90 backdrop-blur-md" 
+    : "bg-black/80 backdrop-blur-md";
+
+  return <header className={`fixed left-0 right-0 top-0 z-50 ${headerBg}`}>
       <div className="container mx-auto flex items-center justify-between px-4 py-4">
         {/* Logo */}
         <a href="/" className="flex items-center gap-2">
