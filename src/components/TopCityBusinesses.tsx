@@ -56,19 +56,11 @@ const TopCityBusinesses = ({ businesses, cityName }: TopCityBusinessesProps) => 
       <div className="mb-6 text-center">
         <h2 className="mb-2 text-2xl font-bold text-white">
           {language === "fr"
-            ? "Les meilleurs établissements à "
-            : language === "ar"
-              ? "أفضل المؤسسات في "
-              : "Top establishments in "}
-          <span className="text-gold">{cityName}</span>
-        </h2>
-        <p className="mx-auto max-w-2xl text-white/70">
-          {language === "fr"
             ? "Découvrez notre sélection des adresses incontournables"
             : language === "ar"
               ? "اكتشف مجموعتنا من العناوين التي لا غنى عنها"
               : "Discover our selection of must-visit addresses"}
-        </p>
+        </h2>
       </div>
 
       {/* Scrollable Container with Arrows */}
