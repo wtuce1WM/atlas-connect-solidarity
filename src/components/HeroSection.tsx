@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { MapPin, Building2, Crown, ChevronRight, Loader2 } from "lucide-react";
+import { MapPin, Building2, Crown, ChevronRight, ChevronLeft, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
@@ -38,6 +38,19 @@ const HeroSection = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [relaisCount, setRelaisCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  
+  const citiesScrollRef = useRef<HTMLDivElement>(null);
+  const categoriesScrollRef = useRef<HTMLDivElement>(null);
+
+  const scrollContainer = (ref: React.RefObject<HTMLDivElement>, direction: "left" | "right") => {
+    if (ref.current) {
+      const scrollAmount = 320;
+      ref.current.scrollBy({
+        left: direction === "left" ? -scrollAmount : scrollAmount,
+        behavior: "smooth",
+      });
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -175,42 +188,60 @@ const HeroSection = () => {
                       : "Discover the best addresses in every city of Morocco"}
                 </h2>
               </div>
-              <div 
-                className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide"
-                style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-              >
-                {cities.map((city) => (
-                  <Link 
-                    key={city.id} 
-                    to={`/city/${encodeURIComponent(city.name_fr)}`}
-                    className="flex-shrink-0"
-                  >
-                    <Card className="w-48 bg-white/10 border-white/30 hover:bg-gold/20 hover:border-gold transition-all">
-                      <CardContent className="p-4 text-center">
-                        <div className="flex items-center justify-center gap-1 mb-2">
-                          <MapPin className="h-4 w-4 text-gold" />
-                          <h3 className="font-semibold text-white">
-                            {getCityName(city)}
-                          </h3>
-                        </div>
-                        {city.region && (
-                          <p className="text-xs text-gray-400 mb-2">{city.region}</p>
-                        )}
-                        <div className="flex items-center justify-center gap-1 text-xs text-gray-300">
-                          <Building2 className="h-3 w-3" />
-                          <span>
-                            {city.businessCount || 0}{" "}
-                            {language === "fr" 
-                              ? "établissements" 
-                              : language === "ar" 
-                                ? "مؤسسة" 
-                                : "businesses"}
-                          </span>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                ))}
+              <div className="relative">
+                {/* Left Arrow */}
+                <button
+                  onClick={() => scrollContainer(citiesScrollRef, "left")}
+                  className="absolute -left-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/20 p-2 shadow-lg transition-all hover:bg-gold hover:text-black backdrop-blur-sm"
+                >
+                  <ChevronLeft className="h-5 w-5 text-white" />
+                </button>
+                {/* Right Arrow */}
+                <button
+                  onClick={() => scrollContainer(citiesScrollRef, "right")}
+                  className="absolute -right-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/20 p-2 shadow-lg transition-all hover:bg-gold hover:text-black backdrop-blur-sm"
+                >
+                  <ChevronRight className="h-5 w-5 text-white" />
+                </button>
+
+                <div 
+                  ref={citiesScrollRef}
+                  className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide scroll-smooth"
+                  style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+                >
+                  {cities.map((city) => (
+                    <Link 
+                      key={city.id} 
+                      to={`/city/${encodeURIComponent(city.name_fr)}`}
+                      className="flex-shrink-0"
+                    >
+                      <Card className="w-48 bg-white/10 border-white/30 hover:bg-gold/20 hover:border-gold transition-all">
+                        <CardContent className="p-4 text-center">
+                          <div className="flex items-center justify-center gap-1 mb-2">
+                            <MapPin className="h-4 w-4 text-gold" />
+                            <h3 className="font-semibold text-white">
+                              {getCityName(city)}
+                            </h3>
+                          </div>
+                          {city.region && (
+                            <p className="text-xs text-gray-400 mb-2">{city.region}</p>
+                          )}
+                          <div className="flex items-center justify-center gap-1 text-xs text-gray-300">
+                            <Building2 className="h-3 w-3" />
+                            <span>
+                              {city.businessCount || 0}{" "}
+                              {language === "fr" 
+                                ? "établissements" 
+                                : language === "ar" 
+                                  ? "مؤسسة" 
+                                  : "businesses"}
+                            </span>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -225,36 +256,54 @@ const HeroSection = () => {
                       : "Find the best professionals by industry sector"}
                 </h2>
               </div>
-              <div 
-                className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide"
-                style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-              >
-                {categories.map((category) => (
-                  <Link 
-                    key={category.id} 
-                    to={`/category/${encodeURIComponent(category.name_fr)}`}
-                    className="flex-shrink-0"
-                  >
-                    <Card className="w-48 bg-white/10 border-white/30 hover:bg-gold/20 hover:border-gold transition-all">
-                      <CardContent className="p-4 text-center">
-                        <h3 className="font-semibold text-white mb-2">
-                          {getCategoryName(category)}
-                        </h3>
-                        <div className="flex items-center justify-center gap-1 text-xs text-gray-300">
-                          <Building2 className="h-3 w-3" />
-                          <span>
-                            {category.businessCount || 0}{" "}
-                            {language === "fr" 
-                              ? "établissements" 
-                              : language === "ar" 
-                                ? "مؤسسة" 
-                                : "businesses"}
-                          </span>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                ))}
+              <div className="relative">
+                {/* Left Arrow */}
+                <button
+                  onClick={() => scrollContainer(categoriesScrollRef, "left")}
+                  className="absolute -left-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/20 p-2 shadow-lg transition-all hover:bg-gold hover:text-black backdrop-blur-sm"
+                >
+                  <ChevronLeft className="h-5 w-5 text-white" />
+                </button>
+                {/* Right Arrow */}
+                <button
+                  onClick={() => scrollContainer(categoriesScrollRef, "right")}
+                  className="absolute -right-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/20 p-2 shadow-lg transition-all hover:bg-gold hover:text-black backdrop-blur-sm"
+                >
+                  <ChevronRight className="h-5 w-5 text-white" />
+                </button>
+
+                <div 
+                  ref={categoriesScrollRef}
+                  className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide scroll-smooth"
+                  style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+                >
+                  {categories.map((category) => (
+                    <Link 
+                      key={category.id} 
+                      to={`/category/${encodeURIComponent(category.name_fr)}`}
+                      className="flex-shrink-0"
+                    >
+                      <Card className="w-48 bg-white/10 border-white/30 hover:bg-gold/20 hover:border-gold transition-all">
+                        <CardContent className="p-4 text-center">
+                          <h3 className="font-semibold text-white mb-2">
+                            {getCategoryName(category)}
+                          </h3>
+                          <div className="flex items-center justify-center gap-1 text-xs text-gray-300">
+                            <Building2 className="h-3 w-3" />
+                            <span>
+                              {category.businessCount || 0}{" "}
+                              {language === "fr" 
+                                ? "établissements" 
+                                : language === "ar" 
+                                  ? "مؤسسة" 
+                                  : "businesses"}
+                            </span>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  ))}
+                </div>
               </div>
             </div>
 
