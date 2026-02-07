@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, Navigate } from "react-router-dom";
 import { ArrowLeft, MapPin, Phone, Mail, Globe, BadgeCheck, Loader2, ChevronLeft, ChevronRight, FileText, Download, ShoppingBag, Facebook, Instagram, Linkedin, Youtube, MessageCircle, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -139,18 +139,7 @@ const BusinessDetail = () => {
   }
 
   if (!business) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <div className="container mx-auto px-4 py-32 text-center">
-          <h1 className="text-2xl font-bold text-foreground mb-4">Entreprise non trouvée</h1>
-          <Link to="/" className="text-primary hover:underline">
-            Retour à l'accueil
-          </Link>
-        </div>
-        <Footer />
-      </div>
-    );
+    return <Navigate to="/404" replace />;
   }
 
   const isVerified = business.wtuce_status === "verified";
