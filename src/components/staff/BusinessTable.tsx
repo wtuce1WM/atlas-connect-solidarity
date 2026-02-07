@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -8,6 +9,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Edit, Trash2, ExternalLink, Copy } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -22,6 +33,21 @@ interface BusinessTableProps {
 }
 
 const BusinessTable = ({ businesses, loading, onEdit, onDelete, onDuplicate }: BusinessTableProps) => {
+  const [duplicateDialogOpen, setDuplicateDialogOpen] = useState(false);
+  const [businessToDuplicate, setBusinessToDuplicate] = useState<Business | null>(null);
+
+  const handleDuplicateClick = (business: Business) => {
+    setBusinessToDuplicate(business);
+    setDuplicateDialogOpen(true);
+  };
+
+  const handleConfirmDuplicate = () => {
+    if (businessToDuplicate) {
+      onDuplicate(businessToDuplicate);
+    }
+    setDuplicateDialogOpen(false);
+    setBusinessToDuplicate(null);
+  };
   if (loading) {
     return (
       <div className="bg-background rounded-lg border p-8 text-center">
@@ -161,7 +187,7 @@ const BusinessTable = ({ businesses, loading, onEdit, onDelete, onDuplicate }: B
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => onDuplicate(business)}
+                      onClick={() => handleDuplicateClick(business)}
                       title="Dupliquer"
                     >
                       <Copy className="h-4 w-4" />
@@ -190,6 +216,23 @@ const BusinessTable = ({ businesses, loading, onEdit, onDelete, onDuplicate }: B
           </TableBody>
         </Table>
       </div>
+
+      <AlertDialog open={duplicateDialogOpen} onOpenChange={setDuplicateDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Dupliquer cette fiche ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Une copie de la fiche "{businessToDuplicate?.name}" sera créée. Vous pourrez ensuite la modifier.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmDuplicate}>
+              Dupliquer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
