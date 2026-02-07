@@ -54,6 +54,7 @@ export type Database = {
           reserve_now_url: string | null
           search_vector: unknown
           services: string[] | null
+          show_opening_hours: boolean | null
           tiktok_url: string | null
           tripadvisor_url: string | null
           twitter_url: string | null
@@ -103,6 +104,7 @@ export type Database = {
           reserve_now_url?: string | null
           search_vector?: unknown
           services?: string[] | null
+          show_opening_hours?: boolean | null
           tiktok_url?: string | null
           tripadvisor_url?: string | null
           twitter_url?: string | null
@@ -152,6 +154,7 @@ export type Database = {
           reserve_now_url?: string | null
           search_vector?: unknown
           services?: string[] | null
+          show_opening_hours?: boolean | null
           tiktok_url?: string | null
           tripadvisor_url?: string | null
           twitter_url?: string | null

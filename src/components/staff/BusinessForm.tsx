@@ -306,6 +306,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
     opening_hours: (business as any)?.opening_hours as OpeningHours | null,
     rating: (business as any)?.rating?.toString() || "",
     reserve_now_url: (business as any)?.reserve_now_url || "",
+    show_opening_hours: (business as any)?.show_opening_hours ?? true,
   });
 
   const handleChange = (field: string, value: string | boolean | string[]) => {
@@ -398,6 +399,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
       opening_hours: formData.opening_hours ? JSON.parse(JSON.stringify(formData.opening_hours)) : null,
       rating: formData.rating ? parseFloat(formData.rating) : null,
       reserve_now_url: formData.reserve_now_url || null,
+      show_opening_hours: formData.show_opening_hours,
     };
 
     try {
@@ -781,10 +783,23 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
         </div>
 
         {/* Opening Hours */}
-        <OpeningHoursEditor
-          value={formData.opening_hours}
-          onChange={(hours) => handleChange("opening_hours", hours as any)}
-        />
+        <div className="space-y-4">
+          <OpeningHoursEditor
+            value={formData.opening_hours}
+            onChange={(hours) => handleChange("opening_hours", hours as any)}
+          />
+          <div className="flex items-center gap-3 p-3 border rounded-lg bg-muted/30">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={formData.show_opening_hours}
+                onChange={(e) => handleChange("show_opening_hours", e.target.checked)}
+                className="h-4 w-4 rounded border-input"
+              />
+              <span className="text-sm font-medium">Afficher les horaires sur la fiche publique</span>
+            </label>
+          </div>
+        </div>
 
         {/* Social Media */}
         <div className="space-y-4">
