@@ -317,10 +317,9 @@ const BusinessDetail = () => {
               />
             )}
 
-            {/* Sous-catégories, Services, Mots-clés */}
+            {/* Sous-catégories, Services */}
             {((business.categories && business.categories.length > 0) || 
-              (business.services && business.services.length > 0) || 
-              (business.keywords && business.keywords.length > 0)) && (
+              (business.services && business.services.length > 0)) && (
               <Card>
                 <CardContent className="p-6 space-y-4">
                   {business.categories && business.categories.length > 0 && (
@@ -333,12 +332,6 @@ const BusinessDetail = () => {
                     <div>
                       <h3 className="text-sm font-medium text-muted-foreground mb-2">Services</h3>
                       <p className="text-foreground">{business.services.join(", ")}</p>
-                    </div>
-                  )}
-                  {business.keywords && business.keywords.length > 0 && (
-                    <div>
-                      <h3 className="text-sm font-medium text-muted-foreground mb-2">Mots-clés</h3>
-                      <p className="text-foreground">{business.keywords.join(", ")}</p>
                     </div>
                   )}
                 </CardContent>
