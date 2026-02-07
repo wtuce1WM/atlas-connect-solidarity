@@ -305,6 +305,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
     online_shop_url: (business as any)?.online_shop_url || "",
     opening_hours: (business as any)?.opening_hours as OpeningHours | null,
     rating: (business as any)?.rating?.toString() || "",
+    reserve_now_url: (business as any)?.reserve_now_url || "",
   });
 
   const handleChange = (field: string, value: string | boolean | string[]) => {
@@ -396,6 +397,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
       online_shop_url: formData.online_shop_url || null,
       opening_hours: formData.opening_hours ? JSON.parse(JSON.stringify(formData.opening_hours)) : null,
       rating: formData.rating ? parseFloat(formData.rating) : null,
+      reserve_now_url: formData.reserve_now_url || null,
     };
 
     try {
@@ -910,6 +912,23 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
         {/* Plateformes de réservation */}
         <div className="space-y-4">
           <Label className="text-base font-semibold">Plateformes de réservation</Label>
+          
+          {/* Bouton Réserver maintenant */}
+          <div className="space-y-2 p-3 border rounded-lg bg-primary/5">
+            <Label htmlFor="reserve_now_url" className="flex items-center gap-2 font-medium">
+              🔗 Lien du bouton "Réserver maintenant"
+            </Label>
+            <Input
+              id="reserve_now_url"
+              value={formData.reserve_now_url}
+              onChange={(e) => handleChange("reserve_now_url", e.target.value)}
+              placeholder="https://... (lien direct de réservation)"
+            />
+            <p className="text-xs text-muted-foreground">
+              Ce lien sera utilisé pour le bouton CTA "Réserver maintenant" sur la fiche publique
+            </p>
+          </div>
+          
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="booking_url" className="flex items-center gap-2">

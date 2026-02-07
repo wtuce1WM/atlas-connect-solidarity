@@ -51,6 +51,7 @@ export type Database = {
           priority_score: number | null
           rating: number | null
           region: string
+          reserve_now_url: string | null
           search_vector: unknown
           services: string[] | null
           tiktok_url: string | null
@@ -99,6 +100,7 @@ export type Database = {
           priority_score?: number | null
           rating?: number | null
           region: string
+          reserve_now_url?: string | null
           search_vector?: unknown
           services?: string[] | null
           tiktok_url?: string | null
@@ -147,6 +149,7 @@ export type Database = {
           priority_score?: number | null
           rating?: number | null
           region?: string
+          reserve_now_url?: string | null
           search_vector?: unknown
           services?: string[] | null
           tiktok_url?: string | null

@@ -65,6 +65,7 @@ interface Business {
   video_1_url: string | null;
   opening_hours: OpeningHours | null;
   rating: number | null;
+  reserve_now_url: string | null;
 }
 
 // Helper to convert video URL to embeddable format
@@ -618,9 +619,9 @@ const BusinessDetail = () => {
             )}
 
             {/* CTA */}
-            {business.website && (
+            {business.reserve_now_url && (
               <a
-                href={business.website}
+                href={business.reserve_now_url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block w-full bg-primary text-primary-foreground text-center py-4 rounded-xl font-semibold hover:bg-primary/90 transition-colors"
