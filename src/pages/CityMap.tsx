@@ -364,7 +364,7 @@ const CityMap = () => {
             <div className="bg-gold/90 rounded-lg p-4 max-h-[800px] overflow-y-auto space-y-3">
               {filteredBusinesses.map((business) => (
                 <Link key={business.id} to={`/business/${business.id}`}>
-                  <Card className="cursor-pointer hover:bg-white/90 transition-colors bg-white/80">
+                  <Card className="cursor-pointer hover:bg-muted/50 transition-colors bg-white">
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between gap-2">
                         <div>
