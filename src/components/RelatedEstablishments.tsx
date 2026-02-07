@@ -60,7 +60,7 @@ const RelatedEstablishments = ({ currentBusinessId, ice }: RelatedEstablishments
           Autres établissements
         </h2>
         <p className="text-sm text-muted-foreground mb-4">
-          Ces établissements font partie de la même entreprise (ICE: {ice})
+          Ces établissements font partie de la même entreprise
         </p>
         <div className="space-y-4">
           {relatedBusinesses.map((business) => (
