@@ -101,7 +101,7 @@ const TopCityBusinesses = ({ businesses, cityName }: TopCityBusinessesProps) => 
                     alt={business.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
-                  <div className="absolute inset-0 bg-black/60 group-hover:bg-black/50 transition-colors" />
+                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/70 transition-colors" />
                 </div>
 
                 <CardContent className="p-5 relative z-10 flex flex-col items-center justify-center min-h-[220px] text-center">
