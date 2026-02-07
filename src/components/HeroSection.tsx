@@ -152,10 +152,13 @@ const HeroSection = () => {
 
             {/* Categories Section */}
             <div className="text-center">
-              <div className="mb-4 flex items-center justify-center gap-2">
-                <Building2 className="h-6 w-6 text-gold" />
+              <div className="mb-4">
                 <h2 className="text-2xl font-bold text-white">
-                  {language === "fr" ? "Explorer par Catégorie" : language === "ar" ? "استكشف حسب الفئة" : "Explore by Category"}
+                  {language === "fr" 
+                    ? "Trouvez les meilleurs professionnels par secteur d'activité" 
+                    : language === "ar" 
+                      ? "ابحث عن أفضل المهنيين حسب قطاع النشاط" 
+                      : "Find the best professionals by industry sector"}
                 </h2>
               </div>
               <div className="flex flex-wrap justify-center gap-3">
