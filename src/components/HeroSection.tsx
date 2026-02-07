@@ -126,10 +126,13 @@ const HeroSection = () => {
           <div className="w-full max-w-5xl space-y-10">
             {/* Cities Section */}
             <div className="text-center">
-              <div className="mb-4 flex items-center justify-center gap-2">
-                <MapPin className="h-6 w-6 text-gold" />
+              <div className="mb-4">
                 <h2 className="text-2xl font-bold text-white">
-                  {language === "fr" ? "Explorer par Ville" : language === "ar" ? "استكشف حسب المدينة" : "Explore by City"}
+                  {language === "fr" 
+                    ? "Découvrez les meilleures adresses dans chaque ville du Maroc" 
+                    : language === "ar" 
+                      ? "اكتشف أفضل العناوين في كل مدينة بالمغرب" 
+                      : "Discover the best addresses in every city of Morocco"}
                 </h2>
               </div>
               <div className="flex flex-wrap justify-center gap-3">
