@@ -22,6 +22,7 @@ interface Category {
   name_fr: string;
   name_en: string | null;
   name_ar: string | null;
+  businessCount?: number;
 }
 
 const RELAIS_CHATEAUX_NAMES = [
@@ -52,7 +53,7 @@ const HeroSection = () => {
         // Fetch business counts per city
         const { data: businessCounts } = await supabase
           .from("businesses")
-          .select("city")
+          .select("city, main_category")
           .eq("is_active", true);
 
         // Count businesses per city
@@ -69,11 +70,28 @@ const HeroSection = () => {
           businessCount: cityCountMap[city.name_fr] || 0,
         }));
 
-        // Fetch categories with businesses
+        // Fetch categories
         const { data: categoriesData } = await supabase
           .from("categories")
           .select("id, name_fr, name_en, name_ar")
           .order("sort_order", { ascending: true });
+
+        // Count businesses per main_category
+        const categoryCountMap: Record<string, number> = {};
+        businessCounts?.forEach((b) => {
+          const mainCat = (b as any).main_category;
+          if (mainCat) {
+            categoryCountMap[mainCat] = (categoryCountMap[mainCat] || 0) + 1;
+          }
+        });
+
+        // Merge counts with categories (only include categories with businesses)
+        const categoriesWithCounts = (categoriesData || [])
+          .map((cat) => ({
+            ...cat,
+            businessCount: categoryCountMap[cat.name_fr] || 0,
+          }))
+          .filter((cat) => cat.businessCount > 0);
 
         // Count Relais & Châteaux
         const { count } = await supabase
@@ -83,7 +101,7 @@ const HeroSection = () => {
           .in("name", RELAIS_CHATEAUX_NAMES);
 
         setCities(citiesWithCounts);
-        setCategories(categoriesData || []);
+        setCategories(categoriesWithCounts);
         setRelaisCount(count || 0);
       } catch (error) {
         console.error("Error fetching hero data:", error);
@@ -197,8 +215,8 @@ const HeroSection = () => {
             </div>
 
             {/* Categories Section */}
-            <div className="text-center">
-              <div className="mb-4">
+            <div>
+              <div className="mb-4 text-center">
                 <h2 className="text-2xl font-bold text-white">
                   {language === "fr" 
                     ? "Trouvez les meilleurs professionnels par secteur d'activité" 
@@ -207,16 +225,34 @@ const HeroSection = () => {
                       : "Find the best professionals by industry sector"}
                 </h2>
               </div>
-              <div className="flex flex-wrap justify-center gap-3">
-                {categories.slice(0, 8).map((category) => (
-                  <Link key={category.id} to={`/category/${encodeURIComponent(category.name_fr)}`}>
-                    <Button
-                      variant="outline"
-                      className="bg-white/10 border-white/30 text-white hover:bg-gold hover:text-black hover:border-gold transition-all"
-                    >
-                      {getCategoryName(category)}
-                      <ChevronRight className="ml-1 h-4 w-4" />
-                    </Button>
+              <div 
+                className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide"
+                style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+              >
+                {categories.map((category) => (
+                  <Link 
+                    key={category.id} 
+                    to={`/category/${encodeURIComponent(category.name_fr)}`}
+                    className="flex-shrink-0"
+                  >
+                    <Card className="w-48 bg-white/10 border-white/30 hover:bg-gold/20 hover:border-gold transition-all">
+                      <CardContent className="p-4 text-center">
+                        <h3 className="font-semibold text-white mb-2">
+                          {getCategoryName(category)}
+                        </h3>
+                        <div className="flex items-center justify-center gap-1 text-xs text-gray-300">
+                          <Building2 className="h-3 w-3" />
+                          <span>
+                            {category.businessCount || 0}{" "}
+                            {language === "fr" 
+                              ? "établissements" 
+                              : language === "ar" 
+                                ? "مؤسسة" 
+                                : "businesses"}
+                          </span>
+                        </div>
+                      </CardContent>
+                    </Card>
                   </Link>
                 ))}
               </div>
