@@ -205,7 +205,7 @@ const CategoriesSection = () => {
               return (
                 <Link
                   key={category.id}
-                  to={`/?category=${encodeURIComponent(category.name_fr)}`}
+                  to={`/category/${encodeURIComponent(category.name_fr)}`}
                   className="flex-shrink-0"
                 >
                   <Card
