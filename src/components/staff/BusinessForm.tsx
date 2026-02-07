@@ -350,9 +350,12 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
     : [];
 
   // Get services for selected subcategories from database (sorted alphabetically)
-  const selectedSubcategoryIds = dbSubcategories
-    .filter(sub => formData.categories.includes(sub.name_fr))
-    .map(sub => sub.id);
+  // Filter subcategories by BOTH the selected main category AND the selected subcategory names
+  const selectedSubcategoryIds = selectedCategory
+    ? dbSubcategories
+        .filter(sub => sub.category_id === selectedCategory.id && formData.categories.includes(sub.name_fr))
+        .map(sub => sub.id)
+    : [];
   
   const availableServices = selectedSubcategoryIds.length > 0
     ? dbServices
