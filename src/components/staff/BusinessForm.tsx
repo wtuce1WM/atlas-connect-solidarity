@@ -306,7 +306,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
     opening_hours: (business as any)?.opening_hours as OpeningHours | null,
     rating: (business as any)?.rating?.toString() || "",
     reserve_now_url: (business as any)?.reserve_now_url || "",
-    show_opening_hours: (business as any)?.show_opening_hours ?? true,
+    show_opening_hours: (business as any)?.show_opening_hours ?? false,
   });
 
   const handleChange = (field: string, value: string | boolean | string[]) => {
