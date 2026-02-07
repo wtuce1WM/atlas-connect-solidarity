@@ -255,7 +255,7 @@ const CategoryPage = () => {
       <Header />
       
       {/* Hero Section */}
-      <section className="bg-black py-16">
+      <section className="bg-black pt-28 pb-16">
         <div className="container mx-auto px-4">
           <div className="flex items-center gap-6">
             <div className="rounded-2xl bg-primary/20 p-6 border border-primary/30">
