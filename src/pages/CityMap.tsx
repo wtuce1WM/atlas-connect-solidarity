@@ -224,7 +224,7 @@ const CityMap = () => {
         {/* Back link */}
         <Link
           to="/"
-          className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-8 transition-colors"
+          className="inline-flex items-center gap-2 text-white hover:text-gold mb-8 transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
           Retour à l'accueil
@@ -371,7 +371,7 @@ const CityMap = () => {
                           <span className="font-medium text-foreground hover:text-primary transition-colors">
                             {business.name}
                           </span>
-                          <p className="text-sm text-muted-foreground mt-1">
+                          <p className="text-sm text-white/80 mt-1">
                             {business.address || business.city}
                           </p>
                           {business.main_category && (
