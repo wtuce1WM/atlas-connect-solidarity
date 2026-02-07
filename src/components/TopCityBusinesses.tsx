@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { Link } from "react-router-dom";
-import { MapPin, Star, ChevronLeft, ChevronRight } from "lucide-react";
+import { Star, ChevronLeft, ChevronRight } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Card, CardContent } from "@/components/ui/card";
 import logoWatermark from "@/assets/logoGOLD-watermark.webp";
@@ -13,6 +13,7 @@ interface Business {
   images: string[] | null;
   rating: number | null;
   main_category: string | null;
+  categories: string[] | null;
   wtuce_status: string | null;
 }
 
@@ -134,16 +135,10 @@ const TopCityBusinesses = ({ businesses, cityName }: TopCityBusinessesProps) => 
                     {business.name}
                   </h3>
 
-                  {/* Category */}
-                  {business.main_category && (
-                    <span className="text-xs text-gray-300 mb-1">{business.main_category}</span>
+                  {/* Default Subcategory (first in categories array) */}
+                  {business.categories && business.categories.length > 0 && (
+                    <span className="text-xs text-gray-300">{business.categories[0]}</span>
                   )}
-
-                  {/* Location */}
-                  <div className="flex items-center justify-center gap-1 text-xs text-gray-400">
-                    <MapPin className="h-3 w-3" />
-                    <span>{business.city}</span>
-                  </div>
                 </CardContent>
               </Card>
             </Link>
