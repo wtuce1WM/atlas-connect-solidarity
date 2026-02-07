@@ -58,16 +58,26 @@ const BusinessTable = ({ businesses, loading, onEdit, onDelete }: BusinessTableP
               <TableRow key={business.id}>
                 <TableCell>
                   <div className="font-medium">{business.name}</div>
-                  {business.website && (
+                  <div className="flex flex-col gap-0.5">
+                    {business.website && (
+                      <a
+                        href={business.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm text-gold hover:underline inline-flex items-center gap-1"
+                      >
+                        Site web <ExternalLink className="h-3 w-3" />
+                      </a>
+                    )}
                     <a
-                      href={business.website}
+                      href={`/business/${business.id}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm text-gold hover:underline inline-flex items-center gap-1"
+                      className="text-sm text-primary hover:underline inline-flex items-center gap-1"
                     >
-                      Site web <ExternalLink className="h-3 w-3" />
+                      Fiche <ExternalLink className="h-3 w-3" />
                     </a>
-                  )}
+                  </div>
                 </TableCell>
                 <TableCell>
                   <div>{business.city}</div>
