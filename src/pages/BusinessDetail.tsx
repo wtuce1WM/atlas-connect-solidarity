@@ -114,11 +114,14 @@ const BusinessDetail = () => {
 
       if (error) {
         console.error("Error fetching business:", error);
-      } else {
+        setBusiness(null);
+      } else if (data) {
         setBusiness({
           ...data,
           opening_hours: data.opening_hours as OpeningHours | null
         });
+      } else {
+        setBusiness(null);
       }
       setIsLoading(false);
     };
