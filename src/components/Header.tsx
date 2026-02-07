@@ -34,10 +34,12 @@ const Header = () => {
           {/* Language Switcher - DISABLED
           <LanguageSwitcher />
           */}
+          {/* Sign In button - DISABLED
           <button className="flex items-center gap-2 rounded-lg border border-white/30 px-4 py-2 text-white transition-all hover:border-gold hover:text-gold">
             <User className="h-4 w-4" />
             {t("nav.signIn")}
           </button>
+          */}
           <button className="rounded-lg bg-gold px-4 py-2 font-semibold text-gold-foreground transition-all hover:bg-gold/90">
             {t("nav.joinNow")}
           </button>
@@ -66,10 +68,12 @@ const Header = () => {
               <LanguageSwitcher />
             </div>
             */}
+            {/* Sign In button - DISABLED
             <button className="flex items-center justify-center gap-2 rounded-lg border border-white/30 px-4 py-2 text-white">
               <User className="h-4 w-4" />
               {t("nav.signIn")}
             </button>
+            */}
             <button className="rounded-lg bg-gold px-4 py-2 font-semibold text-gold-foreground">
               {t("nav.joinNow")}
             </button>
