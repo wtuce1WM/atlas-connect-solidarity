@@ -246,11 +246,11 @@ const BusinessDetail = () => {
             {/* Image Gallery */}
             {business.images && business.images.length > 0 && (
               <Card className="overflow-hidden">
-                <div className="relative aspect-video">
+                <div className="relative flex items-center justify-center bg-muted/30 min-h-[200px]">
                   <img
                     src={business.images[currentImageIndex]}
                     alt={`${business.name} - Image ${currentImageIndex + 1}`}
-                    className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                    className="max-w-full max-h-[70vh] w-auto h-auto object-contain cursor-pointer hover:opacity-90 transition-opacity"
                     onClick={() => setIsLightboxOpen(true)}
                   />
                   {business.images.length > 1 && (
