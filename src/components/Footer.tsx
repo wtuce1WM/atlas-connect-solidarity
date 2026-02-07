@@ -2,11 +2,19 @@ import { Facebook, Instagram, Twitter, Mail, Phone, MapPin } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 
-const Footer = () => {
+interface FooterProps {
+  variant?: "default" | "morocco";
+}
+
+const Footer = ({ variant = "default" }: FooterProps) => {
   const { t } = useLanguage();
 
+  const footerBg = variant === "morocco" 
+    ? "bg-morocco-green text-white" 
+    : "bg-black text-white";
+
   return (
-    <footer className="bg-black text-white">
+    <footer className={footerBg}>
       <div className="container mx-auto px-4 py-16">
         <div className="grid gap-12 md:grid-cols-4">
           {/* Brand */}
