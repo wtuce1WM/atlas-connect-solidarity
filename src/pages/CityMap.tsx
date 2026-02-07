@@ -358,13 +358,13 @@ const CityMap = () => {
             </div>
 
             {/* Business list */}
-            <div className="max-h-[800px] overflow-y-auto space-y-3">
-              <h2 className="text-lg font-semibold text-foreground sticky top-0 bg-background py-2 z-10">
+            <div className="bg-gold/90 rounded-lg p-4 max-h-[800px] overflow-y-auto space-y-3">
+              <h2 className="text-lg font-semibold text-gold-foreground sticky top-0 bg-gold/90 py-2 z-10">
                 Entreprises ({filteredBusinesses.length})
               </h2>
               {filteredBusinesses.map((business) => (
                 <Link key={business.id} to={`/business/${business.id}`}>
-                  <Card className="cursor-pointer hover:bg-muted/50 transition-colors">
+                  <Card className="cursor-pointer hover:bg-white/90 transition-colors bg-white/80">
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between gap-2">
                         <div>
@@ -391,7 +391,7 @@ const CityMap = () => {
                 </Link>
               ))}
               {filteredBusinesses.length === 0 && (
-                <p className="text-muted-foreground text-center py-8">
+                <p className="text-gold-foreground text-center py-8">
                   {selectedActivities.length > 0
                     ? "Aucune entreprise pour ces activités"
                     : `Aucune entreprise trouvée à ${decodedCity}`}
