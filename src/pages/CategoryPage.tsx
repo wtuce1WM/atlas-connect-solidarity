@@ -84,19 +84,22 @@ const CategoryPage = () => {
   const { language } = useLanguage();
   const [allBusinesses, setAllBusinesses] = useState<Business[]>([]);
   const [categoryInfo, setCategoryInfo] = useState<CategoryInfo | null>(null);
+  const [citiesWithPriority, setCitiesWithPriority] = useState<{ name: string; priority: number }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCity, setSelectedCity] = useState<string>("all");
 
   const decodedCategoryName = categoryName ? decodeURIComponent(categoryName) : "";
 
-  // Extract unique cities from businesses
+  // Get cities available in this category, sorted by priority score
   const availableCities = useMemo(() => {
-    const cities = [...new Set(allBusinesses.map(b => b.city))].sort((a, b) => 
-      a.localeCompare(b, "fr")
-    );
-    return cities;
-  }, [allBusinesses]);
+    const businessCities = new Set(allBusinesses.map(b => b.city));
+    // Filter cities that have businesses, then sort by priority
+    return citiesWithPriority
+      .filter(c => businessCities.has(c.name))
+      .sort((a, b) => b.priority - a.priority)
+      .map(c => c.name);
+  }, [allBusinesses, citiesWithPriority]);
 
   // Filter businesses by city
   const filteredBusinesses = useMemo(() => {
@@ -131,6 +134,18 @@ const CategoryPage = () => {
 
         if (catData) {
           setCategoryInfo(catData);
+        }
+
+        // Fetch cities with priority scores
+        const { data: citiesData } = await supabase
+          .from("cities")
+          .select("name_fr, priority_score")
+          .order("priority_score", { ascending: false });
+
+        if (citiesData) {
+          setCitiesWithPriority(
+            citiesData.map(c => ({ name: c.name_fr, priority: c.priority_score || 0 }))
+          );
         }
 
         // Fetch ALL businesses in this category (no limit)
