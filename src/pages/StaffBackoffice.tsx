@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Plus, Search, Edit, Trash2, Eye, Building2, Users, Folder, MapPin, Copy, Star } from "lucide-react";
+import { LogOut, Plus, Search, Edit, Trash2, Eye, Building2, Users, Folder, MapPin, Copy, Star, UserCheck } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import BusinessForm from "@/components/staff/BusinessForm";
 import BusinessTable from "@/components/staff/BusinessTable";
@@ -13,6 +13,7 @@ import UserManagement from "@/components/staff/UserManagement";
 import CategoryManagement from "@/components/staff/CategoryManagement";
 import LocationManagement from "@/components/staff/LocationManagement";
 import SponsorManagement from "@/components/staff/SponsorManagement";
+import AffiliateManagement from "@/components/staff/AffiliateManagement";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Business = Tables<"businesses">;
@@ -237,6 +238,10 @@ const StaffBackoffice = () => {
                 <Star className="h-4 w-4" />
                 Sponsors
               </TabsTrigger>
+              <TabsTrigger value="affiliates" className="gap-2">
+                <UserCheck className="h-4 w-4" />
+                Affiliés
+              </TabsTrigger>
               {isAdmin && (
                 <TabsTrigger value="users" className="gap-2">
                   <Users className="h-4 w-4" />
@@ -327,6 +332,10 @@ const StaffBackoffice = () => {
 
             <TabsContent value="sponsors">
               <SponsorManagement />
+            </TabsContent>
+
+            <TabsContent value="affiliates">
+              <AffiliateManagement />
             </TabsContent>
 
             {isAdmin && (
