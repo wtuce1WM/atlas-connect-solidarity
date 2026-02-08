@@ -403,7 +403,7 @@ export type Database = {
           url_ar: string | null
           url_en: string | null
           url_fr: string | null
-          zone: string
+          zones: string[]
         }
         Insert: {
           created_at?: string
@@ -429,7 +429,7 @@ export type Database = {
           url_ar?: string | null
           url_en?: string | null
           url_fr?: string | null
-          zone: string
+          zones: string[]
         }
         Update: {
           created_at?: string
@@ -455,7 +455,7 @@ export type Database = {
           url_ar?: string | null
           url_en?: string | null
           url_fr?: string | null
-          zone?: string
+          zones?: string[]
         }
         Relationships: []
       }
