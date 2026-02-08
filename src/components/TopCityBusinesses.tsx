@@ -112,17 +112,17 @@ const TopCityBusinesses = ({ businesses, cityName }: TopCityBusinessesProps) => 
                       className="absolute top-2 right-2 w-10 h-10 object-contain opacity-90 pointer-events-none z-10"
                     />
                   )}
-                </div>
 
-                <CardContent className="p-5 relative z-10 flex flex-col items-center justify-end min-h-[220px] text-center">
-
-                  {/* Rating */}
+                  {/* Rating - top left */}
                   {business.rating && (
-                    <div className="flex items-center justify-center gap-1 mb-2">
+                    <div className="absolute top-2 left-2 flex items-center gap-1 bg-black/60 rounded-full px-2 py-1 z-10">
                       <Star className="h-4 w-4 fill-gold text-gold" />
                       <span className="text-gold font-bold text-sm">{business.rating}/20</span>
                     </div>
                   )}
+                </div>
+
+                <CardContent className="p-5 relative z-10 flex flex-col items-center justify-end min-h-[220px] text-center">
 
                   {/* Name */}
                   <h3 className="text-base font-semibold text-gold group-hover:text-white transition-colors mb-2 line-clamp-2">
