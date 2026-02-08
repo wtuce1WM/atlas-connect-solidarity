@@ -311,6 +311,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
     images: (business as any)?.images || [] as string[],
     pdf_url: (business as any)?.pdf_url || "",
     label1_url: (business as any)?.label1_url || "",
+    label1_link_url: (business as any)?.label1_link_url || "",
     online_shop_url: (business as any)?.online_shop_url || "",
     opening_hours: (business as any)?.opening_hours as OpeningHours | null,
     rating: (business as any)?.rating?.toString() || "",
@@ -427,6 +428,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
       images: formData.images.length > 0 ? formData.images : [],
       pdf_url: formData.pdf_url || null,
       label1_url: formData.label1_url || null,
+      label1_link_url: formData.label1_link_url || null,
       online_shop_url: formData.online_shop_url || null,
       opening_hours: formData.opening_hours ? JSON.parse(JSON.stringify(formData.opening_hours)) : null,
       rating: formData.rating ? parseFloat(formData.rating) : null,
@@ -733,7 +735,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
         </div>
 
         {/* Label1 */}
-        <div className="space-y-2">
+        <div className="space-y-4 p-4 bg-muted rounded-lg">
           <Label className="text-base font-semibold">Label1</Label>
           <LabelUploader
             labelUrl={formData.label1_url}
@@ -742,6 +744,16 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
             label="Label1"
             labelKey="label1"
           />
+          <div className="space-y-2">
+            <Label htmlFor="label1_link_url">Lien du Label1</Label>
+            <Input
+              id="label1_link_url"
+              value={formData.label1_link_url}
+              onChange={(e) => handleChange("label1_link_url", e.target.value)}
+              placeholder="https://..."
+              type="url"
+            />
+          </div>
         </div>
 
         {/* Location */}

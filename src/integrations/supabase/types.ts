@@ -38,6 +38,7 @@ export type Database = {
           is_regulated_activity: boolean | null
           keywords: string[] | null
           kp_regroupement: string | null
+          label1_link_url: string | null
           label1_url: string | null
           latitude: number | null
           linkedin_url: string | null
@@ -92,6 +93,7 @@ export type Database = {
           is_regulated_activity?: boolean | null
           keywords?: string[] | null
           kp_regroupement?: string | null
+          label1_link_url?: string | null
           label1_url?: string | null
           latitude?: number | null
           linkedin_url?: string | null
@@ -146,6 +148,7 @@ export type Database = {
           is_regulated_activity?: boolean | null
           keywords?: string[] | null
           kp_regroupement?: string | null
+          label1_link_url?: string | null
           label1_url?: string | null
           latitude?: number | null
           linkedin_url?: string | null
