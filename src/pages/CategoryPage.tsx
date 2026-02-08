@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select";
 import { Loader2, MapPin, Phone, Building2, ShieldCheck, ChevronLeft, ChevronRight } from "lucide-react";
 import logoWatermark from "@/assets/logoGOLD-watermark.webp";
+import symboleMaroc from "@/assets/symbole-maroc-3.webp";
 import {
   Hotel,
   Utensils,
@@ -276,8 +277,18 @@ const CategoryPage = () => {
       <Header />
       
       {/* Hero Section */}
-      <section className="bg-black pt-28 pb-16">
-        <div className="container mx-auto px-4">
+      <section className="bg-black pt-28 pb-16 relative overflow-hidden">
+        {/* Background decorative emblem */}
+        <div 
+          className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[500px] opacity-10 pointer-events-none"
+          style={{
+            backgroundImage: `url(${symboleMaroc})`,
+            backgroundSize: 'contain',
+            backgroundPosition: 'center top',
+            backgroundRepeat: 'no-repeat'
+          }}
+        />
+        <div className="container mx-auto px-4 relative z-10">
           <div className="flex items-center gap-6">
             <div className="rounded-2xl bg-primary/20 p-6 border border-primary/30">
               <IconComponent className="h-12 w-12 text-primary" />
