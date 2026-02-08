@@ -51,6 +51,7 @@ interface Business {
   images: string[] | null;
   pdf_url: string | null;
   label1_url: string | null;
+  label1_link_url: string | null;
   online_shop_url: string | null;
   facebook_url: string | null;
   instagram_url: string | null;
@@ -192,11 +193,26 @@ const BusinessDetail = () => {
                   </Badge>
                 )}
                 {business.label1_url && (
-                  <img 
-                    src={business.label1_url} 
-                    alt="Label1" 
-                    className="h-16 object-contain"
-                  />
+                  business.label1_link_url ? (
+                    <a 
+                      href={business.label1_link_url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="hover:opacity-80 transition-opacity"
+                    >
+                      <img 
+                        src={business.label1_url} 
+                        alt="Label1" 
+                        className="h-16 object-contain"
+                      />
+                    </a>
+                  ) : (
+                    <img 
+                      src={business.label1_url} 
+                      alt="Label1" 
+                      className="h-16 object-contain"
+                    />
+                  )
                 )}
               </div>
             </div>
