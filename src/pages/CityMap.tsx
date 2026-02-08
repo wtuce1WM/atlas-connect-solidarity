@@ -555,30 +555,28 @@ const CityMap = () => {
         </div>
 
         {/* City Info Section - Full width below directory */}
-        <div className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-          {/* City Description */}
+        <div className="mt-12 space-y-8">
+          {/* City Description - Full width */}
           {cityInfo?.description && (
-            <div className="md:col-span-2">
-              <Card>
-                <CardContent className="p-6">
-                  <h3 className="text-lg font-semibold text-white mb-4">À propos de {decodedCity}</h3>
-                  <div 
-                    className="prose prose-sm max-w-none text-foreground"
-                    dangerouslySetInnerHTML={{ __html: cityInfo.description }}
-                  />
-                </CardContent>
-              </Card>
-            </div>
+            <Card>
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold text-white mb-4">À propos de {decodedCity}</h3>
+                <div 
+                  className="prose prose-sm max-w-none text-foreground"
+                  dangerouslySetInnerHTML={{ __html: cityInfo.description }}
+                />
+              </CardContent>
+            </Card>
           )}
 
-          {/* Weather */}
-          <div>
-            <h3 className="text-lg font-semibold text-white mb-4">Météo</h3>
-            <CityWeather city={decodedCity} />
-          </div>
+          {/* Weather, Official Sites, Wikipedia - 3 columns */}
+          <div className="grid gap-6 md:grid-cols-3">
+            {/* Weather */}
+            <div>
+              <h3 className="text-lg font-semibold text-white mb-4">Météo</h3>
+              <CityWeather city={decodedCity} />
+            </div>
 
-          {/* Official Sites + Wikipedia */}
-          <div className="space-y-6">
             {/* Official Sites */}
             {cityInfo && [1, 2, 3, 4, 5, 6].some((num) => {
               const name = cityInfo[`official_site_${num}_name` as keyof CityInfo];
@@ -587,25 +585,27 @@ const CityMap = () => {
             }) && (
               <div>
                 <h3 className="text-lg font-semibold text-white mb-4">Sites officiels</h3>
-                <div className="space-y-2">
-                  {[1, 2, 3, 4, 5, 6].map((num) => {
-                    const name = cityInfo[`official_site_${num}_name` as keyof CityInfo] as string | null;
-                    const url = cityInfo[`official_site_${num}_url` as keyof CityInfo] as string | null;
-                    if (!name || !url) return null;
-                    return (
-                      <a
-                        key={num}
-                        href={url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-sm text-gold hover:underline"
-                      >
-                        <ExternalLink className="h-3.5 w-3.5" />
-                        {name}
-                      </a>
-                    );
-                  })}
-                </div>
+                <Card>
+                  <CardContent className="p-4 space-y-2">
+                    {[1, 2, 3, 4, 5, 6].map((num) => {
+                      const name = cityInfo[`official_site_${num}_name` as keyof CityInfo] as string | null;
+                      const url = cityInfo[`official_site_${num}_url` as keyof CityInfo] as string | null;
+                      if (!name || !url) return null;
+                      return (
+                        <a
+                          key={num}
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 text-sm text-gold hover:underline"
+                        >
+                          <ExternalLink className="h-3.5 w-3.5" />
+                          {name}
+                        </a>
+                      );
+                    })}
+                  </CardContent>
+                </Card>
               </div>
             )}
 
@@ -628,15 +628,19 @@ const CityMap = () => {
               return (
                 <div>
                   <h3 className="text-lg font-semibold text-white mb-4">En savoir plus</h3>
-                  <a
-                    href={wikipediaUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-sm text-gold hover:underline"
-                  >
-                    <BookOpen className="h-3.5 w-3.5" />
-                    {label}
-                  </a>
+                  <Card>
+                    <CardContent className="p-4">
+                      <a
+                        href={wikipediaUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-sm text-gold hover:underline"
+                      >
+                        <BookOpen className="h-3.5 w-3.5" />
+                        {label}
+                      </a>
+                    </CardContent>
+                  </Card>
                 </div>
               );
             })()}
