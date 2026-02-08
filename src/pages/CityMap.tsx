@@ -402,8 +402,8 @@ const CityMap = () => {
                 </button>
               )}
 
-              {/* Activity Filters */}
-              {availableActivities.length > 0 && (
+              {/* Activity Filters - Only show when category is selected */}
+              {selectedCategory && availableActivities.length > 0 && (
                 <div>
                   <h3 className="text-sm font-medium text-white mb-2">Activités</h3>
                   <div className="flex flex-wrap gap-2">
