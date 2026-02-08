@@ -54,7 +54,7 @@ const TopCityBusinesses = ({ businesses, cityName, onSelectBusiness, selectedBus
   if (topBusinesses.length === 0) return null;
 
   return (
-    <div className="mb-8 bg-black/30 backdrop-blur-sm rounded-xl p-6">
+    <div className="mb-8 bg-black/20 backdrop-blur-sm rounded-xl p-6">
       {/* Section Header */}
       <div className="mb-6 text-center">
         <h2 className="mb-2 text-2xl font-bold text-white">
