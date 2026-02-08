@@ -603,18 +603,17 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="ice">ICE (max 20 chiffres)</Label>
+            <Label htmlFor="ice">ICE (max 20 caractères)</Label>
             <Input
               id="ice"
               value={formData.ice}
               onChange={(e) => {
-                const value = e.target.value.replace(/\D/g, "").slice(0, 20);
+                const value = e.target.value.replace(/[^a-zA-Z0-9]/g, "").slice(0, 20);
                 handleChange("ice", value);
               }}
-              placeholder="000000000000000"
+              placeholder="ABC123..."
               maxLength={20}
-              pattern="[0-9]*"
-              inputMode="numeric"
+              pattern="[a-zA-Z0-9]*"
             />
           </div>
 
