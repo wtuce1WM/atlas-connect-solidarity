@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Trash2, Edit, X, Check, Loader2, Award } from "lucide-react";
+import { Plus, Trash2, Edit, X, Check, Loader2, Award, Link } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface LabelItem {
@@ -13,17 +13,40 @@ interface LabelItem {
   name_fr: string;
   name_en: string | null;
   name_ar: string | null;
+  url_fr: string | null;
+  url_en: string | null;
+  url_ar: string | null;
   image_url: string | null;
   sort_order: number;
   created_at: string;
 }
 
+interface LabelFormState {
+  name_fr: string;
+  name_en: string;
+  name_ar: string;
+  url_fr: string;
+  url_en: string;
+  url_ar: string;
+  image_url: string;
+}
+
+const emptyForm: LabelFormState = {
+  name_fr: "",
+  name_en: "",
+  name_ar: "",
+  url_fr: "",
+  url_en: "",
+  url_ar: "",
+  image_url: "",
+};
+
 const LabelManagement = () => {
   const [labels, setLabels] = useState<LabelItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editForm, setEditForm] = useState({ name_fr: "", name_en: "", name_ar: "", image_url: "" });
-  const [newLabel, setNewLabel] = useState({ name_fr: "", name_en: "", name_ar: "", image_url: "" });
+  const [editForm, setEditForm] = useState<LabelFormState>(emptyForm);
+  const [newLabel, setNewLabel] = useState<LabelFormState>(emptyForm);
   const [showNewForm, setShowNewForm] = useState(false);
   const [uploading, setUploading] = useState(false);
   const { toast } = useToast();
@@ -34,10 +57,9 @@ const LabelManagement = () => {
 
   const fetchLabels = async () => {
     setLoading(true);
-    // Use raw query since the types.ts might not be updated yet
     const { data, error } = await supabase
       .from("labels" as any)
-      .select("id, name_fr, name_en, name_ar, image_url, sort_order, created_at")
+      .select("id, name_fr, name_en, name_ar, url_fr, url_en, url_ar, image_url, sort_order, created_at")
       .order("sort_order", { ascending: true });
 
     if (error) {
@@ -69,6 +91,9 @@ const LabelManagement = () => {
         name_fr: newLabel.name_fr.trim(),
         name_en: newLabel.name_en.trim() || null,
         name_ar: newLabel.name_ar.trim() || null,
+        url_fr: newLabel.url_fr.trim() || null,
+        url_en: newLabel.url_en.trim() || null,
+        url_ar: newLabel.url_ar.trim() || null,
         image_url: newLabel.image_url.trim() || null,
         sort_order: labels.length,
       });
@@ -85,7 +110,7 @@ const LabelManagement = () => {
         title: "Succès",
         description: "Label créé avec succès.",
       });
-      setNewLabel({ name_fr: "", name_en: "", name_ar: "", image_url: "" });
+      setNewLabel(emptyForm);
       setShowNewForm(false);
       fetchLabels();
     }
@@ -107,6 +132,9 @@ const LabelManagement = () => {
         name_fr: editForm.name_fr.trim(),
         name_en: editForm.name_en.trim() || null,
         name_ar: editForm.name_ar.trim() || null,
+        url_fr: editForm.url_fr.trim() || null,
+        url_en: editForm.url_en.trim() || null,
+        url_ar: editForm.url_ar.trim() || null,
         image_url: editForm.image_url.trim() || null,
       })
       .eq("id", id);
@@ -160,6 +188,9 @@ const LabelManagement = () => {
       name_fr: label.name_fr,
       name_en: label.name_en || "",
       name_ar: label.name_ar || "",
+      url_fr: label.url_fr || "",
+      url_en: label.url_en || "",
+      url_ar: label.url_ar || "",
       image_url: label.image_url || "",
     });
   };
@@ -232,6 +263,131 @@ const LabelManagement = () => {
     }
   };
 
+  const renderFormFields = (
+    form: LabelFormState,
+    setForm: (form: LabelFormState) => void,
+    isNew: boolean
+  ) => (
+    <div className="space-y-4">
+      {/* Names */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <Label htmlFor={isNew ? "new-name-fr" : "edit-name-fr"}>Nom (FR) *</Label>
+          <Input
+            id={isNew ? "new-name-fr" : "edit-name-fr"}
+            value={form.name_fr}
+            onChange={(e) => setForm({ ...form, name_fr: e.target.value })}
+            placeholder="Ex: Relais & Châteaux"
+          />
+        </div>
+        <div>
+          <Label htmlFor={isNew ? "new-name-en" : "edit-name-en"}>Nom (EN)</Label>
+          <Input
+            id={isNew ? "new-name-en" : "edit-name-en"}
+            value={form.name_en}
+            onChange={(e) => setForm({ ...form, name_en: e.target.value })}
+            placeholder="Ex: Relais & Châteaux"
+          />
+        </div>
+        <div>
+          <Label htmlFor={isNew ? "new-name-ar" : "edit-name-ar"}>Nom (AR)</Label>
+          <Input
+            id={isNew ? "new-name-ar" : "edit-name-ar"}
+            value={form.name_ar}
+            onChange={(e) => setForm({ ...form, name_ar: e.target.value })}
+            placeholder="الاسم بالعربية"
+            dir="rtl"
+          />
+        </div>
+      </div>
+
+      {/* URLs */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <Label htmlFor={isNew ? "new-url-fr" : "edit-url-fr"} className="flex items-center gap-1">
+            <Link className="h-3 w-3" /> URL (FR)
+          </Label>
+          <Input
+            id={isNew ? "new-url-fr" : "edit-url-fr"}
+            value={form.url_fr}
+            onChange={(e) => setForm({ ...form, url_fr: e.target.value })}
+            placeholder="https://..."
+            type="url"
+          />
+        </div>
+        <div>
+          <Label htmlFor={isNew ? "new-url-en" : "edit-url-en"} className="flex items-center gap-1">
+            <Link className="h-3 w-3" /> URL (EN)
+          </Label>
+          <Input
+            id={isNew ? "new-url-en" : "edit-url-en"}
+            value={form.url_en}
+            onChange={(e) => setForm({ ...form, url_en: e.target.value })}
+            placeholder="https://..."
+            type="url"
+          />
+        </div>
+        <div>
+          <Label htmlFor={isNew ? "new-url-ar" : "edit-url-ar"} className="flex items-center gap-1">
+            <Link className="h-3 w-3" /> URL (AR)
+          </Label>
+          <Input
+            id={isNew ? "new-url-ar" : "edit-url-ar"}
+            value={form.url_ar}
+            onChange={(e) => setForm({ ...form, url_ar: e.target.value })}
+            placeholder="https://..."
+            type="url"
+            dir="rtl"
+          />
+        </div>
+      </div>
+
+      {/* Image */}
+      <div className="flex items-start gap-4">
+        <div className="flex-1">
+          <Label>Image du label</Label>
+          <div className="mt-2 flex items-center gap-4">
+            {form.image_url ? (
+              <div className="relative">
+                <img
+                  src={form.image_url}
+                  alt="Preview"
+                  className="h-16 w-16 object-contain border rounded bg-background p-1"
+                />
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="icon"
+                  className="absolute -top-2 -right-2 h-5 w-5"
+                  onClick={() => setForm({ ...form, image_url: "" })}
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              </div>
+            ) : (
+              <label className="cursor-pointer">
+                <div className="h-16 w-16 border-2 border-dashed rounded flex items-center justify-center hover:border-primary/50 transition-colors">
+                  {uploading ? (
+                    <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                  ) : (
+                    <Plus className="h-5 w-5 text-muted-foreground" />
+                  )}
+                </div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => handleImageUpload(e.target.files, isNew)}
+                  disabled={uploading}
+                />
+              </label>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -269,86 +425,14 @@ const LabelManagement = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <Label htmlFor="new-name-fr">Nom (FR) *</Label>
-                <Input
-                  id="new-name-fr"
-                  value={newLabel.name_fr}
-                  onChange={(e) => setNewLabel({ ...newLabel, name_fr: e.target.value })}
-                  placeholder="Ex: Relais & Châteaux"
-                />
-              </div>
-              <div>
-                <Label htmlFor="new-name-en">Nom (EN)</Label>
-                <Input
-                  id="new-name-en"
-                  value={newLabel.name_en}
-                  onChange={(e) => setNewLabel({ ...newLabel, name_en: e.target.value })}
-                  placeholder="Ex: Relais & Châteaux"
-                />
-              </div>
-              <div>
-                <Label htmlFor="new-name-ar">Nom (AR)</Label>
-                <Input
-                  id="new-name-ar"
-                  value={newLabel.name_ar}
-                  onChange={(e) => setNewLabel({ ...newLabel, name_ar: e.target.value })}
-                  placeholder="الاسم بالعربية"
-                  dir="rtl"
-                />
-              </div>
-            </div>
+            {renderFormFields(newLabel, setNewLabel, true)}
 
-            <div className="flex items-start gap-4">
-              <div className="flex-1">
-                <Label>Image du label</Label>
-                <div className="mt-2 flex items-center gap-4">
-                  {newLabel.image_url ? (
-                    <div className="relative">
-                      <img
-                        src={newLabel.image_url}
-                        alt="Preview"
-                        className="h-16 w-16 object-contain border rounded bg-background p-1"
-                      />
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="icon"
-                        className="absolute -top-2 -right-2 h-5 w-5"
-                        onClick={() => setNewLabel({ ...newLabel, image_url: "" })}
-                      >
-                        <X className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  ) : (
-                    <label className="cursor-pointer">
-                      <div className="h-16 w-16 border-2 border-dashed rounded flex items-center justify-center hover:border-primary/50 transition-colors">
-                        {uploading ? (
-                          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-                        ) : (
-                          <Plus className="h-5 w-5 text-muted-foreground" />
-                        )}
-                      </div>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={(e) => handleImageUpload(e.target.files, true)}
-                        disabled={uploading}
-                      />
-                    </label>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div className="flex justify-end gap-2">
+            <div className="flex justify-end gap-2 pt-2">
               <Button
                 variant="outline"
                 onClick={() => {
                   setShowNewForm(false);
-                  setNewLabel({ name_fr: "", name_en: "", name_ar: "", image_url: "" });
+                  setNewLabel(emptyForm);
                 }}
               >
                 Annuler
@@ -378,70 +462,9 @@ const LabelManagement = () => {
               <CardContent className="py-4">
                 {editingId === label.id ? (
                   <div className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div>
-                        <Label>Nom (FR) *</Label>
-                        <Input
-                          value={editForm.name_fr}
-                          onChange={(e) => setEditForm({ ...editForm, name_fr: e.target.value })}
-                        />
-                      </div>
-                      <div>
-                        <Label>Nom (EN)</Label>
-                        <Input
-                          value={editForm.name_en}
-                          onChange={(e) => setEditForm({ ...editForm, name_en: e.target.value })}
-                        />
-                      </div>
-                      <div>
-                        <Label>Nom (AR)</Label>
-                        <Input
-                          value={editForm.name_ar}
-                          onChange={(e) => setEditForm({ ...editForm, name_ar: e.target.value })}
-                          dir="rtl"
-                        />
-                      </div>
-                    </div>
+                    {renderFormFields(editForm, setEditForm, false)}
 
-                    <div className="flex items-center gap-4">
-                      {editForm.image_url ? (
-                        <div className="relative">
-                          <img
-                            src={editForm.image_url}
-                            alt="Preview"
-                            className="h-16 w-16 object-contain border rounded bg-background p-1"
-                          />
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            size="icon"
-                            className="absolute -top-2 -right-2 h-5 w-5"
-                            onClick={() => setEditForm({ ...editForm, image_url: "" })}
-                          >
-                            <X className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      ) : (
-                        <label className="cursor-pointer">
-                          <div className="h-16 w-16 border-2 border-dashed rounded flex items-center justify-center hover:border-primary/50 transition-colors">
-                            {uploading ? (
-                              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-                            ) : (
-                              <Plus className="h-5 w-5 text-muted-foreground" />
-                            )}
-                          </div>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            className="hidden"
-                            onChange={(e) => handleImageUpload(e.target.files, false)}
-                            disabled={uploading}
-                          />
-                        </label>
-                      )}
-                    </div>
-
-                    <div className="flex justify-end gap-2">
+                    <div className="flex justify-end gap-2 pt-2">
                       <Button variant="outline" onClick={() => setEditingId(null)}>
                         Annuler
                       </Button>
@@ -467,10 +490,16 @@ const LabelManagement = () => {
                       )}
                       <div>
                         <p className="font-medium">{label.name_fr}</p>
-                        <div className="text-sm text-muted-foreground flex gap-2">
+                        <div className="text-sm text-muted-foreground flex flex-wrap gap-x-3 gap-y-1">
                           {label.name_en && <span>EN: {label.name_en}</span>}
                           {label.name_ar && <span dir="rtl">AR: {label.name_ar}</span>}
                         </div>
+                        {(label.url_fr || label.url_en || label.url_ar) && (
+                          <div className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                            <Link className="h-3 w-3" />
+                            <span>URL configurées</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
