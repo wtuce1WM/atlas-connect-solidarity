@@ -71,7 +71,7 @@ const TopCityBusinesses = ({ businesses, cityName, onSelectBusiness, selectedBus
         {/* Left Arrow */}
         <button
           onClick={() => scroll("left")}
-          className="absolute -left-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-morocco-green p-3 shadow-lg transition-all hover:bg-morocco-green/80"
+          className="absolute -left-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-black p-3 shadow-lg transition-all hover:bg-black/80"
         >
           <ChevronLeft className="h-6 w-6 text-white" />
         </button>
@@ -79,7 +79,7 @@ const TopCityBusinesses = ({ businesses, cityName, onSelectBusiness, selectedBus
         {/* Right Arrow */}
         <button
           onClick={() => scroll("right")}
-          className="absolute -right-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-morocco-green p-3 shadow-lg transition-all hover:bg-morocco-green/80"
+          className="absolute -right-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-black p-3 shadow-lg transition-all hover:bg-black/80"
         >
           <ChevronRight className="h-6 w-6 text-white" />
         </button>
