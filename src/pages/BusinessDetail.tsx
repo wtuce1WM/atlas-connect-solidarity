@@ -414,22 +414,16 @@ const BusinessDetail = () => {
             )}
 
             {/* Sous-catégories, Services */}
-            {((business.categories && business.categories.length > 0) || 
-              (business.services && business.services.length > 0)) && (
+            {/* Services */}
+            {business.services && business.services.length > 0 && (
               <Card>
-                <CardContent className="p-6 space-y-4">
-                  {business.categories && business.categories.length > 0 && (
-                    <div>
-                      <h3 className="text-sm font-medium text-muted-foreground mb-2">Sous-catégories</h3>
-                      <p className="text-foreground">{business.categories.join(", ")}</p>
-                    </div>
-                  )}
-                  {business.services && business.services.length > 0 && (
-                    <div>
-                      <h3 className="text-sm font-medium text-muted-foreground mb-2">Services</h3>
-                      <p className="text-foreground">{business.services.join(", ")}</p>
-                    </div>
-                  )}
+                <CardContent className="p-6">
+                  <h3 className="text-sm font-medium text-muted-foreground mb-3">Services</h3>
+                  <ul className="list-disc list-inside space-y-1 text-foreground">
+                    {business.services.map((service, index) => (
+                      <li key={index}>{service}</li>
+                    ))}
+                  </ul>
                 </CardContent>
               </Card>
             )}
