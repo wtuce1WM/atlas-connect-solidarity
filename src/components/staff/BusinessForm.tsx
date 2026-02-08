@@ -741,7 +741,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
 
         {/* Images */}
         <div className="space-y-2">
-          <Label className="text-base font-semibold">Images (max 10)</Label>
+          <Label className="text-base font-semibold">Images (max 12)</Label>
           <ImageUploader
             images={formData.images}
             onChange={(images) => handleChange("images", images)}
