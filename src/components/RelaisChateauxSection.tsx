@@ -138,7 +138,7 @@ const RelaisChateauxSection = () => {
                     <img 
                       src={logoWatermark} 
                       alt="" 
-                      className="absolute bottom-2 right-2 w-12 h-12 object-contain opacity-80 pointer-events-none"
+                      className="absolute bottom-2 right-2 w-10 h-10 object-contain opacity-80 pointer-events-none"
                     />
                   )}
 
