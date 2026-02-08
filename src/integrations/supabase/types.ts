@@ -565,6 +565,9 @@ export type Database = {
       }
       subcategories: {
         Row: {
+          adj_ar: string | null
+          adj_en: string | null
+          adj_fr: string | null
           category_id: string
           created_at: string | null
           id: string
@@ -575,6 +578,9 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          adj_ar?: string | null
+          adj_en?: string | null
+          adj_fr?: string | null
           category_id: string
           created_at?: string | null
           id?: string
@@ -585,6 +591,9 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          adj_ar?: string | null
+          adj_en?: string | null
+          adj_fr?: string | null
           category_id?: string
           created_at?: string | null
           id?: string

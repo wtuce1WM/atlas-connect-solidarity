@@ -53,6 +53,9 @@ interface Subcategory {
   name_fr: string;
   name_en: string | null;
   name_ar: string | null;
+  adj_fr: string | null;
+  adj_en: string | null;
+  adj_ar: string | null;
   sort_order: number;
 }
 
@@ -174,6 +177,9 @@ const CategoryManagement = () => {
           name_fr: editForm.name_fr.trim(),
           name_en: editForm.name_en.trim() || null,
           name_ar: editForm.name_ar.trim() || null,
+          adj_fr: editForm.adj_fr.trim() || null,
+          adj_en: editForm.adj_en.trim() || null,
+          adj_ar: editForm.adj_ar.trim() || null,
           sort_order: editForm.sort_order
         };
 
@@ -462,7 +468,7 @@ const CategoryManagement = () => {
 
                     {/* New subcategory form */}
                     {editMode?.type === "subcategory" && editMode.id === null && editMode.parentId === category.id && (
-                      renderEditForm(false)
+                      renderEditForm(false, true)
                     )}
 
                     {subs.map((sub) => {
@@ -520,7 +526,7 @@ const CategoryManagement = () => {
 
                             {subIsEditing && (
                               <div className="px-2 pb-2">
-                                {renderEditForm(false)}
+                                {renderEditForm(false, true)}
                               </div>
                             )}
 
