@@ -290,6 +290,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
     priority_score: business?.priority_score?.toString() || "0",
     logo_url: business?.logo_url || "",
     ice: (business as any)?.ice || "",
+    kp_regroupement: (business as any)?.kp_regroupement || "",
     facebook_url: (business as any)?.facebook_url || "",
     instagram_url: (business as any)?.instagram_url || "",
     twitter_url: (business as any)?.twitter_url || "",
@@ -405,6 +406,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
       priority_score: parseInt(formData.priority_score) || 0,
       logo_url: formData.logo_url || null,
       ice: formData.ice || null,
+      kp_regroupement: formData.kp_regroupement || null,
       facebook_url: formData.facebook_url || null,
       instagram_url: formData.instagram_url || null,
       twitter_url: formData.twitter_url || null,
@@ -605,6 +607,21 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
               maxLength={20}
               pattern="[0-9]*"
               inputMode="numeric"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="kp_regroupement">KP regroupement (max 20 caractères)</Label>
+            <Input
+              id="kp_regroupement"
+              value={formData.kp_regroupement}
+              onChange={(e) => {
+                const value = e.target.value.replace(/[^a-zA-Z0-9]/g, "").slice(0, 20);
+                handleChange("kp_regroupement", value);
+              }}
+              placeholder="ABC123..."
+              maxLength={20}
+              pattern="[a-zA-Z0-9]*"
             />
           </div>
         </div>
