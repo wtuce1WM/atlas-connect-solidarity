@@ -281,7 +281,7 @@ const HeroSection = () => {
             {/* Cities Section */}
             <div className="rounded-xl bg-black/30 backdrop-blur-sm p-4">
               <div className="mb-4 text-center">
-                <h2 className="text-2xl font-bold text-white">
+                <h2 className="text-lg md:text-2xl font-bold text-white">
                   {language === "fr" 
                     ? "Découvrez les meilleures adresses dans chaque ville du Maroc" 
                     : language === "ar" 
@@ -349,7 +349,7 @@ const HeroSection = () => {
             {/* Categories Section */}
             <div className="rounded-xl bg-black/30 backdrop-blur-sm p-4">
               <div className="mb-4 text-center">
-                <h2 className="text-2xl font-bold text-white">
+                <h2 className="text-lg md:text-2xl font-bold text-white">
                   {language === "fr" 
                     ? "Trouvez les meilleurs professionnels par secteur d'activité" 
                     : language === "ar" 
