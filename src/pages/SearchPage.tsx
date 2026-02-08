@@ -32,6 +32,14 @@ interface Business {
   categories: string[] | null;
   wtuce_status: string | null;
   is_regulated_activity: boolean | null;
+  distance_km: number | null;
+}
+
+interface SearchResult {
+  businesses: Business[];
+  searchLevel: string;
+  message: string;
+  totalResults: number;
 }
 
 const ITEMS_PER_PAGE = 20;
@@ -40,6 +48,7 @@ const SearchPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { language } = useLanguage();
   const [allBusinesses, setAllBusinesses] = useState<Business[]>([]);
+  const [searchMessage, setSearchMessage] = useState<string>("");
   const [citiesWithPriority, setCitiesWithPriority] = useState<{ name: string; priority: number }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -78,6 +87,7 @@ const SearchPage = () => {
     const fetchData = async () => {
       if (!searchQuery.trim()) {
         setAllBusinesses([]);
+        setSearchMessage("");
         setIsLoading(false);
         return;
       }
@@ -96,33 +106,32 @@ const SearchPage = () => {
           );
         }
 
-        // Search businesses using ilike for full-text search
-        const searchTerm = `%${searchQuery.trim()}%`;
-        const { data: businessData, error } = await supabase
-          .from("businesses")
-          .select("id, name, description, city, region, phone, website, logo_url, images, main_category, categories, wtuce_status, is_regulated_activity")
-          .eq("is_active", true)
-          .or(`name.ilike.${searchTerm},description.ilike.${searchTerm},city.ilike.${searchTerm}`)
-          .order("wtuce_status", { ascending: true })
-          .order("priority_score", { ascending: false })
-          .limit(100);
+        // Use edge function for full-text search
+        const { data, error } = await supabase.functions.invoke<SearchResult>("business-search", {
+          body: { 
+            query: searchQuery.trim(),
+            language: language,
+            limit: 100
+          }
+        });
 
         if (error) throw error;
         
-        // Filter out businesses without images
-        const businessesWithImages = (businessData || []).filter(b => 
-          (b.images && b.images.length > 0)
-        );
-        setAllBusinesses(businessesWithImages);
+        if (data) {
+          setAllBusinesses(data.businesses || []);
+          setSearchMessage(data.message || "");
+        }
       } catch (error) {
         console.error("Error fetching search data:", error);
+        setAllBusinesses([]);
+        setSearchMessage("");
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchData();
-  }, [searchQuery]);
+  }, [searchQuery, language]);
 
   const getBusinessImage = (business: Business) => {
     if (business.images && business.images.length > 0) return business.images[0];
@@ -241,9 +250,12 @@ const SearchPage = () => {
               <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2">
                 {t.searchResults} {t.for} "<span className="text-gold">{searchQuery}</span>"
               </h1>
-              <p className="text-base lg:text-xl text-gray-400">
+              <p className="text-base lg:text-xl text-muted-foreground">
                 <span className="text-gold font-semibold">{filteredBusinesses.length}</span> {t.establishments} {t.found}
               </p>
+              {searchMessage && (
+                <p className="text-sm text-muted-foreground mt-2 italic">{searchMessage}</p>
+              )}
             </div>
           )}
         </div>
