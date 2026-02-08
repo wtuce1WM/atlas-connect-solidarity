@@ -14,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, MapPin, Phone, Building2, ShieldCheck, ChevronLeft, ChevronRight, X, Star } from "lucide-react";
 import logoWatermark from "@/assets/logoGOLDsimpleSML.webp";
 import symboleMaroc from "@/assets/symbole-maroc-3.webp";
@@ -50,6 +51,7 @@ interface Business {
   images: string[] | null;
   main_category: string | null;
   categories: string[] | null;
+  services: string[] | null;
   wtuce_status: string | null;
   is_regulated_activity: boolean | null;
   latitude: number | null;
@@ -99,6 +101,7 @@ const CategoryPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCity, setSelectedCity] = useState<string>("all");
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
+  const [selectedServices, setSelectedServices] = useState<string[]>([]);
 
   const decodedCategoryName = categoryName ? decodeURIComponent(categoryName) : "";
 
@@ -112,11 +115,35 @@ const CategoryPage = () => {
       .map(c => c.name);
   }, [allBusinesses, citiesWithPriority]);
 
-  // Filter businesses by city
-  const filteredBusinesses = useMemo(() => {
-    if (selectedCity === "all") return allBusinesses;
-    return allBusinesses.filter(b => b.city === selectedCity);
+  // Get available services based on selected city
+  const availableServices = useMemo(() => {
+    const services = new Set<string>();
+    const businessesToCheck = selectedCity === "all" 
+      ? allBusinesses 
+      : allBusinesses.filter(b => b.city === selectedCity);
+    
+    businessesToCheck.forEach((business) => {
+      business.services?.forEach((service) => services.add(service));
+    });
+    return Array.from(services).sort((a, b) => a.localeCompare(b, "fr"));
   }, [allBusinesses, selectedCity]);
+
+  // Filter businesses by city and services
+  const filteredBusinesses = useMemo(() => {
+    let result = allBusinesses;
+    
+    if (selectedCity !== "all") {
+      result = result.filter(b => b.city === selectedCity);
+    }
+    
+    if (selectedServices.length > 0) {
+      result = result.filter((business) =>
+        selectedServices.some((service) => business.services?.includes(service))
+      );
+    }
+    
+    return result;
+  }, [allBusinesses, selectedCity, selectedServices]);
 
   // Paginate
   const totalPages = Math.ceil(filteredBusinesses.length / ITEMS_PER_PAGE);
@@ -128,7 +155,7 @@ const CategoryPage = () => {
   // Reset page when filter changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedCity]);
+  }, [selectedCity, selectedServices]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -162,7 +189,7 @@ const CategoryPage = () => {
         // Fetch ALL businesses in this category (no limit)
         const { data: businessData, error } = await supabase
           .from("businesses")
-          .select("id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, opening_hours, show_opening_hours, rating")
+          .select("id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, services, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, opening_hours, show_opening_hours, rating")
           .eq("is_active", true)
           .or(`main_category.eq.${decodedCategoryName},categories.cs.{${decodedCategoryName}}`)
           .order("wtuce_status", { ascending: true })
@@ -257,6 +284,19 @@ const CategoryPage = () => {
   const handleCityChange = (city: string) => {
     setSelectedCity(city);
     setSelectedBusiness(null);
+    setSelectedServices([]);
+  };
+
+  const toggleService = (service: string) => {
+    setSelectedServices((prev) =>
+      prev.includes(service)
+        ? prev.filter((s) => s !== service)
+        : [...prev, service]
+    );
+  };
+
+  const clearFilters = () => {
+    setSelectedServices([]);
   };
 
   const goToPage = (page: number) => {
@@ -444,6 +484,44 @@ const CategoryPage = () => {
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+          )}
+
+          {/* Services Filter - Only shown when a city is selected */}
+          {selectedCity !== "all" && availableServices.length > 0 && (
+            <div className="mb-8">
+              <div className="flex items-center justify-between mb-3">
+                <label className="text-sm text-gray-400">
+                  {language === "fr" ? "Services" : language === "ar" ? "الخدمات" : "Services"}:
+                </label>
+                {selectedServices.length > 0 && (
+                  <button
+                    onClick={clearFilters}
+                    className="text-xs text-gray-400 hover:text-white transition-colors"
+                  >
+                    {language === "fr" ? "Effacer les filtres" : language === "ar" ? "مسح الفلاتر" : "Clear filters"}
+                  </button>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {availableServices.map((service) => (
+                  <label
+                    key={service}
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs cursor-pointer border transition-colors ${
+                      selectedServices.includes(service)
+                        ? "bg-primary/10 border-primary text-primary"
+                        : "bg-background border-border text-muted-foreground hover:border-primary/50"
+                    }`}
+                  >
+                    <Checkbox
+                      checked={selectedServices.includes(service)}
+                      onCheckedChange={() => toggleService(service)}
+                      className="h-3 w-3"
+                    />
+                    {service}
+                  </label>
+                ))}
+              </div>
             </div>
           )}
 
