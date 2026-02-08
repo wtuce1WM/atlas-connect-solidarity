@@ -66,6 +66,7 @@ interface Service {
   name_fr: string;
   name_en: string | null;
   name_ar: string | null;
+  icon: string | null;
   sort_order: number;
 }
 
@@ -198,6 +199,7 @@ const CategoryManagement = () => {
           name_fr: editForm.name_fr.trim(),
           name_en: editForm.name_en.trim() || null,
           name_ar: editForm.name_ar.trim() || null,
+          icon: editForm.icon.trim() || null,
           sort_order: editForm.sort_order
         };
 
@@ -552,7 +554,7 @@ const CategoryManagement = () => {
 
                                 {/* New service form */}
                                 {editMode?.type === "service" && editMode.id === null && editMode.parentId === sub.id && (
-                                  renderEditForm(false)
+                                  renderEditForm(true, false)
                                 )}
 
                                 {svcs.map((svc) => {
@@ -561,7 +563,7 @@ const CategoryManagement = () => {
                                   return (
                                     <div key={svc.id} className="ml-2">
                                       {svcIsEditing ? (
-                                        renderEditForm(false)
+                                        renderEditForm(true, false)
                                       ) : (
                                         <div className="flex items-center gap-2 p-1.5 rounded hover:bg-muted/50 group">
                                           <span className="text-xs flex-1">
