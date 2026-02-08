@@ -142,26 +142,27 @@ const RelaisChateauxSection = () => {
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                     <div className="absolute inset-0 bg-black/60 group-hover:bg-black/50 transition-colors" />
+                    
+                    {/* Rating - top left */}
+                    {business.rating && (
+                      <div className="absolute top-2 left-2 flex items-center gap-1 bg-black/60 rounded-full px-2 py-1 z-10">
+                        <Star className="h-4 w-4 fill-gold text-gold" />
+                        <span className="text-gold font-bold text-sm">{business.rating}/20</span>
+                      </div>
+                    )}
+                    
+                    {/* Watermark logo for verified businesses - top right */}
+                    {business.wtuce_status === "verified" && (
+                      <img 
+                        src={logoWatermark} 
+                        alt="" 
+                        className="absolute top-2 right-2 w-10 h-10 object-contain opacity-90 pointer-events-none z-10"
+                      />
+                    )}
                   </div>
                 )}
 
                 <CardContent className="p-6 relative z-10 flex flex-col items-center justify-center min-h-[200px] text-center">
-                  {/* Watermark logo for verified businesses */}
-                  {business.wtuce_status === "verified" && (
-                    <img 
-                      src={logoWatermark} 
-                      alt="" 
-                      className="absolute bottom-2 right-2 w-10 h-10 object-contain opacity-80 pointer-events-none"
-                    />
-                  )}
-
-                  {/* Rating */}
-                  {business.rating && (
-                    <div className="flex items-center justify-center gap-1 mb-2">
-                      <Star className="h-4 w-4 fill-gold text-gold" />
-                      <span className="text-gold font-bold">{business.rating}/20</span>
-                    </div>
-                  )}
 
                   {/* Name */}
                   <h3 className="text-lg font-semibold text-white group-hover:text-gold transition-colors mb-2">
