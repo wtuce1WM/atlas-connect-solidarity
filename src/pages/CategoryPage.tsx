@@ -277,10 +277,10 @@ const CategoryPage = () => {
       <Header />
       
       {/* Hero Section */}
-      <section className="bg-black pt-28 pb-16 relative overflow-hidden">
-        {/* Background decorative emblem */}
+      <section className="bg-black pt-28 pb-8 lg:pb-16 relative overflow-hidden">
+        {/* Background decorative emblem - hidden on mobile and tablet */}
         <div 
-          className="absolute top-28 left-1/2 -translate-x-1/2 w-[120px] h-[120px] opacity-100 pointer-events-none"
+          className="hidden lg:block absolute top-28 left-1/2 -translate-x-1/2 w-[120px] h-[120px] opacity-100 pointer-events-none"
           style={{
             backgroundImage: `url(${symboleMaroc})`,
             backgroundSize: 'contain',
@@ -289,16 +289,16 @@ const CategoryPage = () => {
           }}
         />
         <div className="container mx-auto px-4 relative z-10">
-          <div className="flex items-center gap-6">
-            <div className="rounded-2xl bg-primary/20 p-6 border border-primary/30">
-              <IconComponent className="h-12 w-12 text-primary" />
+          <div className="flex flex-col items-center text-center sm:flex-row sm:items-center sm:text-left gap-4 lg:gap-6">
+            <div className="rounded-xl lg:rounded-2xl bg-gold/20 p-3 lg:p-6 border border-gold/30 flex-shrink-0">
+              <IconComponent className="h-8 w-8 lg:h-12 lg:w-12 text-gold" />
             </div>
             <div>
-              <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">
+              <h1 className="text-2xl md:text-3xl lg:text-5xl font-bold text-white mb-1 lg:mb-2">
                 {getCategoryName()}
               </h1>
-              <p className="text-xl text-gray-400">
-                <span className="text-primary font-semibold">{filteredBusinesses.length}</span> {t.establishments} {t.inCategory}
+              <p className="text-base lg:text-xl text-gray-400">
+                <span className="text-gold font-semibold">{filteredBusinesses.length}</span> {t.establishments} {t.inCategory}
               </p>
             </div>
           </div>
@@ -306,11 +306,11 @@ const CategoryPage = () => {
       </section>
 
       {/* Filters & Results */}
-      <section className="py-12 bg-black">
+      <section className="py-6 lg:py-12 bg-black">
         <div className="container mx-auto px-4">
           {/* City Filter */}
           {availableCities.length > 1 && (
-            <div className="mb-8 flex flex-wrap items-center gap-4">
+            <div className="mb-8 flex flex-col items-center sm:flex-row sm:items-center gap-2 sm:gap-4">
               <label className="text-sm text-gray-400">{t.filterByCity}:</label>
               <Select value={selectedCity} onValueChange={handleCityChange}>
                 <SelectTrigger className="w-[220px] bg-card border-border">
