@@ -359,6 +359,9 @@ export type Database = {
           name_fr: string
           sort_order: number | null
           updated_at: string | null
+          url_ar: string | null
+          url_en: string | null
+          url_fr: string | null
         }
         Insert: {
           created_at?: string | null
@@ -369,6 +372,9 @@ export type Database = {
           name_fr: string
           sort_order?: number | null
           updated_at?: string | null
+          url_ar?: string | null
+          url_en?: string | null
+          url_fr?: string | null
         }
         Update: {
           created_at?: string | null
@@ -379,6 +385,9 @@ export type Database = {
           name_fr?: string
           sort_order?: number | null
           updated_at?: string | null
+          url_ar?: string | null
+          url_en?: string | null
+          url_fr?: string | null
         }
         Relationships: []
       }
