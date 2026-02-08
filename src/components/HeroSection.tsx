@@ -423,8 +423,9 @@ const HeroSection = () => {
             {/* Sponsors Section */}
             {sponsors.length > 0 && (
               <div className="flex flex-col items-center gap-6 pb-4">
-                {/* First sponsor (sort_order=0) - centered on all screens */}
-                {sponsors.slice(0, 1).map((sponsor) => {
+                {/* First sponsor - always centered */}
+                {sponsors[0] && (() => {
+                  const sponsor = sponsors[0];
                   const url = getSponsorUrl(sponsor);
                   const logo = getSponsorLogo(sponsor);
 
@@ -441,7 +442,6 @@ const HeroSection = () => {
                   if (url) {
                     return (
                       <a
-                        key={sponsor.id}
                         href={url}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -453,51 +453,53 @@ const HeroSection = () => {
                   }
 
                   return (
-                    <div key={sponsor.id} className="flex justify-center">
+                    <div className="flex justify-center">
                       {logoElement}
                     </div>
                   );
-                })}
+                })()}
 
-                {/* Other sponsors - row layout */}
+                {/* Other sponsors - horizontal scroll */}
                 {sponsors.length > 1 && (
-                  <div className="flex items-center justify-center gap-8 md:gap-12 overflow-x-auto scrollbar-hide"
+                  <div className="w-full overflow-x-auto scrollbar-hide"
                     style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
                   >
-                    {sponsors.slice(1).map((sponsor) => {
-                      const url = getSponsorUrl(sponsor);
-                      const logo = getSponsorLogo(sponsor);
+                    <div className="flex items-center justify-start gap-8 md:gap-12 px-4 min-w-max">
+                      {sponsors.slice(1).map((sponsor) => {
+                        const url = getSponsorUrl(sponsor);
+                        const logo = getSponsorLogo(sponsor);
 
-                      if (!logo) return null;
+                        if (!logo) return null;
 
-                      const logoElement = (
-                        <img
-                          src={logo}
-                          alt={sponsor.name_fr}
-                          className="h-auto w-auto max-h-20 md:max-h-24 object-contain opacity-100 hover:opacity-80 transition-opacity"
-                        />
-                      );
-
-                      if (url) {
-                        return (
-                          <a
-                            key={sponsor.id}
-                            href={url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex-shrink-0"
-                          >
-                            {logoElement}
-                          </a>
+                        const logoElement = (
+                          <img
+                            src={logo}
+                            alt={sponsor.name_fr}
+                            className="h-auto w-auto max-h-16 md:max-h-20 object-contain opacity-100 hover:opacity-80 transition-opacity"
+                          />
                         );
-                      }
 
-                      return (
-                        <div key={sponsor.id} className="flex-shrink-0">
-                          {logoElement}
-                        </div>
-                      );
-                    })}
+                        if (url) {
+                          return (
+                            <a
+                              key={sponsor.id}
+                              href={url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex-shrink-0"
+                            >
+                              {logoElement}
+                            </a>
+                          );
+                        }
+
+                        return (
+                          <div key={sponsor.id} className="flex-shrink-0">
+                            {logoElement}
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 )}
               </div>
