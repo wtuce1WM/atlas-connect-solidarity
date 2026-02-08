@@ -373,7 +373,9 @@ const CategoryPage = () => {
         : `${selectedBusiness.name}, ${selectedBusiness.city}, Maroc`;
       return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(query)}&zoom=17`;
     }
-    return `https://www.google.com/maps/embed/v1/search?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(decodedCategoryName)}+${selectedCity !== "all" ? encodeURIComponent(selectedCity) : "Maroc"}&zoom=${selectedCity !== "all" ? 13 : 6}`;
+    // Center on Morocco (lat: 31.7917, lng: -7.0926) when no city selected
+    const centerParam = selectedCity !== "all" ? "" : "&center=31.7917,-7.0926";
+    return `https://www.google.com/maps/embed/v1/search?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(decodedCategoryName)}+${selectedCity !== "all" ? encodeURIComponent(selectedCity) : "Maroc"}${centerParam}&zoom=${selectedCity !== "all" ? 13 : 6}`;
   };
 
   if (isLoading) {
