@@ -219,15 +219,15 @@ const ServicePage = () => {
         />
         <div className="container mx-auto px-4 relative z-10">
           <div className="flex items-center gap-6">
-            <div className="rounded-2xl bg-primary/20 p-6 border border-primary/30">
-              <Wrench className="h-12 w-12 text-primary" />
+            <div className="rounded-2xl bg-gold/20 p-6 border border-gold/30">
+              <Wrench className="h-12 w-12 text-gold" />
             </div>
             <div>
               <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">
                 {decodedServiceName}
               </h1>
               <p className="text-xl text-gray-400">
-                <span className="text-primary font-semibold">{filteredBusinesses.length}</span> {t.establishments} {t.withService}
+                <span className="text-gold font-semibold">{filteredBusinesses.length}</span> {t.establishments} {t.withService}
               </p>
             </div>
           </div>
