@@ -261,7 +261,7 @@ const CityMap = () => {
         <div className="mb-8 flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold text-white flex items-center gap-3">
-              <MapPin className="h-8 w-8 text-primary" />
+              <MapPin className="h-8 w-8 text-morocco-green" />
               Entreprises à {decodedCity}
             </h1>
             <p className="text-white/80 mt-2">
