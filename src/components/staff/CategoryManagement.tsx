@@ -302,16 +302,6 @@ const CategoryManagement = () => {
             dir="rtl"
           />
         </div>
-        <div>
-          <label className="text-xs font-medium text-muted-foreground">Ordre</label>
-          <Input
-            type="number"
-            value={editForm.sort_order}
-            onChange={(e) => setEditForm(prev => ({ ...prev, sort_order: parseInt(e.target.value) || 0 }))}
-            placeholder="0"
-            min={0}
-          />
-        </div>
       </div>
       {showAdj && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -352,6 +342,16 @@ const CategoryManagement = () => {
           />
         </div>
       )}
+      <div className="max-w-[120px]">
+        <label className="text-xs font-medium text-muted-foreground">Ordre</label>
+        <Input
+          type="number"
+          value={editForm.sort_order}
+          onChange={(e) => setEditForm(prev => ({ ...prev, sort_order: parseInt(e.target.value) || 0 }))}
+          placeholder="0"
+          min={0}
+        />
+      </div>
       <div className="flex gap-2">
         <Button size="sm" onClick={saveItem} disabled={saving}>
           <Save className="h-4 w-4 mr-1" />
