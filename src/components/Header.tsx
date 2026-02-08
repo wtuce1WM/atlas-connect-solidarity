@@ -32,6 +32,9 @@ const Header = ({ variant = "default" }: HeaderProps) => {
           <a href="/#mission" className="text-white/90 transition-colors hover:text-gold">
             {t("footer.ourMission")}
           </a>
+          <a href="/#contact" className="text-white/90 transition-colors hover:text-gold">
+            {t("footer.contact")}
+          </a>
         </nav>
 
         {/* Actions */}
@@ -61,6 +64,9 @@ const Header = ({ variant = "default" }: HeaderProps) => {
           <nav className="container mx-auto flex flex-col gap-4 px-4 py-6">
             <a href="/#mission" className="text-white/90 transition-colors hover:text-gold">
               {t("footer.ourMission")}
+            </a>
+            <a href="/#contact" className="text-white/90 transition-colors hover:text-gold">
+              {t("footer.contact")}
             </a>
             <hr className="border-white/20" />
             {/* Language Switcher - DISABLED
