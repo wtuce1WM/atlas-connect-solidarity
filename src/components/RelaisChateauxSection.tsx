@@ -19,12 +19,8 @@ interface Business {
   wtuce_status: string | null;
 }
 
-const RELAIS_CHATEAUX_NAMES = [
-  "La Mamounia",
-  "Royal Mansour Marrakech",
-  "Heure Bleue Palais",
-  "Kasbah Tamadot",
-];
+// Label ID for "Relais & Châteaux"
+const RELAIS_CHATEAUX_LABEL_ID = "4be8e4aa-99fb-4502-a531-7eec608efe5a";
 
 const RelaisChateauxSection = () => {
   const { language } = useLanguage();
@@ -35,11 +31,28 @@ const RelaisChateauxSection = () => {
     const fetchRelaisChateaux = async () => {
       setIsLoading(true);
       try {
+        // First, get business IDs that have the Relais & Châteaux label
+        const { data: labelData, error: labelError } = await supabase
+          .from("business_labels")
+          .select("business_id")
+          .eq("label_id", RELAIS_CHATEAUX_LABEL_ID);
+
+        if (labelError) throw labelError;
+
+        const businessIds = labelData?.map((bl) => bl.business_id) || [];
+
+        if (businessIds.length === 0) {
+          setBusinesses([]);
+          setIsLoading(false);
+          return;
+        }
+
+        // Then fetch the businesses with those IDs
         const { data, error } = await supabase
           .from("businesses")
           .select("id, name, city, region, images, rating, description, wtuce_status")
           .eq("is_active", true)
-          .in("name", RELAIS_CHATEAUX_NAMES)
+          .in("id", businessIds)
           .order("priority_score", { ascending: false });
 
         if (error) throw error;
