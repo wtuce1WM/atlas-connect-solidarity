@@ -380,6 +380,7 @@ export type Database = {
       }
       sponsors: {
         Row: {
+          city_ids: string[] | null
           created_at: string
           id: string
           image_big_url_ar: string | null
@@ -406,6 +407,7 @@ export type Database = {
           zones: string[]
         }
         Insert: {
+          city_ids?: string[] | null
           created_at?: string
           id?: string
           image_big_url_ar?: string | null
@@ -432,6 +434,7 @@ export type Database = {
           zones: string[]
         }
         Update: {
+          city_ids?: string[] | null
           created_at?: string
           id?: string
           image_big_url_ar?: string | null
