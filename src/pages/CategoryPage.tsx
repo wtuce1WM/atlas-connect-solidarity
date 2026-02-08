@@ -101,6 +101,7 @@ const CategoryPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCity, setSelectedCity] = useState<string>("all");
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
+  const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
 
   const decodedCategoryName = categoryName ? decodeURIComponent(categoryName) : "";
@@ -115,25 +116,51 @@ const CategoryPage = () => {
       .map(c => c.name);
   }, [allBusinesses, citiesWithPriority]);
 
-  // Get available services based on selected city
-  const availableServices = useMemo(() => {
-    const services = new Set<string>();
+  // Get available subcategories based on selected city
+  const availableSubcategories = useMemo(() => {
+    const subcategories = new Set<string>();
     const businessesToCheck = selectedCity === "all" 
       ? allBusinesses 
       : allBusinesses.filter(b => b.city === selectedCity);
     
     businessesToCheck.forEach((business) => {
+      business.categories?.forEach((cat) => subcategories.add(cat));
+    });
+    return Array.from(subcategories).sort((a, b) => a.localeCompare(b, "fr"));
+  }, [allBusinesses, selectedCity]);
+
+  // Get available services based on selected city and subcategories
+  const availableServices = useMemo(() => {
+    const services = new Set<string>();
+    let businessesToCheck = selectedCity === "all" 
+      ? allBusinesses 
+      : allBusinesses.filter(b => b.city === selectedCity);
+    
+    // Further filter by subcategories if any selected
+    if (selectedSubcategories.length > 0) {
+      businessesToCheck = businessesToCheck.filter((business) =>
+        selectedSubcategories.some((subcat) => business.categories?.includes(subcat))
+      );
+    }
+    
+    businessesToCheck.forEach((business) => {
       business.services?.forEach((service) => services.add(service));
     });
     return Array.from(services).sort((a, b) => a.localeCompare(b, "fr"));
-  }, [allBusinesses, selectedCity]);
+  }, [allBusinesses, selectedCity, selectedSubcategories]);
 
-  // Filter businesses by city and services
+  // Filter businesses by city, subcategories and services
   const filteredBusinesses = useMemo(() => {
     let result = allBusinesses;
     
     if (selectedCity !== "all") {
       result = result.filter(b => b.city === selectedCity);
+    }
+    
+    if (selectedSubcategories.length > 0) {
+      result = result.filter((business) =>
+        selectedSubcategories.some((subcat) => business.categories?.includes(subcat))
+      );
     }
     
     if (selectedServices.length > 0) {
@@ -143,7 +170,7 @@ const CategoryPage = () => {
     }
     
     return result;
-  }, [allBusinesses, selectedCity, selectedServices]);
+  }, [allBusinesses, selectedCity, selectedSubcategories, selectedServices]);
 
   // Paginate
   const totalPages = Math.ceil(filteredBusinesses.length / ITEMS_PER_PAGE);
@@ -155,7 +182,7 @@ const CategoryPage = () => {
   // Reset page when filter changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedCity, selectedServices]);
+  }, [selectedCity, selectedSubcategories, selectedServices]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -284,6 +311,17 @@ const CategoryPage = () => {
   const handleCityChange = (city: string) => {
     setSelectedCity(city);
     setSelectedBusiness(null);
+    setSelectedSubcategories([]);
+    setSelectedServices([]);
+  };
+
+  const toggleSubcategory = (subcategory: string) => {
+    setSelectedSubcategories((prev) =>
+      prev.includes(subcategory)
+        ? prev.filter((s) => s !== subcategory)
+        : [...prev, subcategory]
+    );
+    // Reset services when subcategory changes
     setSelectedServices([]);
   };
 
@@ -296,6 +334,7 @@ const CategoryPage = () => {
   };
 
   const clearFilters = () => {
+    setSelectedSubcategories([]);
     setSelectedServices([]);
   };
 
@@ -487,14 +526,14 @@ const CategoryPage = () => {
             </div>
           )}
 
-          {/* Services Filter - Only shown when a city is selected */}
-          {selectedCity !== "all" && availableServices.length > 0 && (
-            <div className="mb-8">
+          {/* Subcategories Filter - Only shown when a city is selected */}
+          {selectedCity !== "all" && availableSubcategories.length > 0 && (
+            <div className="mb-6">
               <div className="flex items-center justify-between mb-3">
                 <label className="text-sm text-gray-400">
-                  {language === "fr" ? "Services" : language === "ar" ? "الخدمات" : "Services"}:
+                  {language === "fr" ? "Sous-catégories" : language === "ar" ? "الفئات الفرعية" : "Subcategories"}:
                 </label>
-                {selectedServices.length > 0 && (
+                {(selectedSubcategories.length > 0 || selectedServices.length > 0) && (
                   <button
                     onClick={clearFilters}
                     className="text-xs text-gray-400 hover:text-white transition-colors"
@@ -502,6 +541,36 @@ const CategoryPage = () => {
                     {language === "fr" ? "Effacer les filtres" : language === "ar" ? "مسح الفلاتر" : "Clear filters"}
                   </button>
                 )}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {availableSubcategories.map((subcategory) => (
+                  <label
+                    key={subcategory}
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs cursor-pointer border transition-colors ${
+                      selectedSubcategories.includes(subcategory)
+                        ? "bg-primary/10 border-primary text-primary"
+                        : "bg-background border-border text-muted-foreground hover:border-primary/50"
+                    }`}
+                  >
+                    <Checkbox
+                      checked={selectedSubcategories.includes(subcategory)}
+                      onCheckedChange={() => toggleSubcategory(subcategory)}
+                      className="h-3 w-3"
+                    />
+                    {subcategory}
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Services Filter - Only shown when a city is selected */}
+          {selectedCity !== "all" && availableServices.length > 0 && (
+            <div className="mb-8">
+              <div className="mb-3">
+                <label className="text-sm text-gray-400">
+                  {language === "fr" ? "Services" : language === "ar" ? "الخدمات" : "Services"}:
+                </label>
               </div>
               <div className="flex flex-wrap gap-2">
                 {availableServices.map((service) => (
