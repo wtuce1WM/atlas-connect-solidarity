@@ -420,7 +420,7 @@ const BusinessDetail = () => {
                 <CardContent className="p-6">
                   <h3 className="text-sm font-medium text-muted-foreground mb-3">Services</h3>
                   <ul className="list-disc list-inside space-y-1 text-foreground">
-                    {business.services.map((service, index) => (
+                    {[...business.services].sort((a, b) => a.localeCompare(b, 'fr')).map((service, index) => (
                       <li key={index}>{service}</li>
                     ))}
                   </ul>
