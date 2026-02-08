@@ -173,7 +173,7 @@ const BusinessDetail = () => {
         </Link>
 
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-8 px-4 lg:px-0">
           <div className="flex items-start gap-4 flex-wrap">
             {/* Logo */}
             {business.logo_url && (
@@ -218,6 +218,22 @@ const BusinessDetail = () => {
                 )}
               </div>
             </div>
+            
+            {/* Rating and WTUCE Logo for verified businesses - moved to header */}
+            {isVerified && (
+              <div className="flex flex-col items-center flex-shrink-0">
+                {business.rating !== null && business.rating !== undefined && (
+                  <div className="text-gold font-bold text-3xl mb-2">
+                    {business.rating}/20
+                  </div>
+                )}
+                <img 
+                  src={logoGold} 
+                  alt="WTUCE Vérifié" 
+                  className="w-[150px] h-[135px] object-contain"
+                />
+              </div>
+            )}
           </div>
           <div className="flex items-center gap-2 mt-3 text-muted-foreground">
             <MapPin className="h-5 w-5" />
@@ -444,22 +460,6 @@ const BusinessDetail = () => {
 
           {/* Sidebar - Contact & Map */}
           <div className="space-y-6">
-            {/* Rating and WTUCE Logo for verified businesses */}
-            {isVerified && (
-              <div className="flex flex-col items-center">
-                {business.rating !== null && business.rating !== undefined && (
-                  <div className="text-gold font-bold text-3xl mb-2">
-                    {business.rating}/20
-                  </div>
-                )}
-                <img 
-                  src={logoGold} 
-                  alt="WTUCE Vérifié" 
-                  className="w-[250px] h-[225px] object-contain"
-                />
-              </div>
-            )}
-            
             {/* Google Maps */}
             <GoogleMapEmbed
               address={business.address || `${business.city}, ${business.region}`}
