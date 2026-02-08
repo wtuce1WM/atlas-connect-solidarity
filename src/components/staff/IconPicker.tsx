@@ -235,6 +235,9 @@ const ICONS: Record<string, LucideIcon> = {
   Binoculars,
 };
 
+// Export ICONS map for use in other components
+export { ICONS };
+
 interface IconPickerProps {
   value: string;
   onChange: (iconName: string) => void;

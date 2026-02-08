@@ -33,7 +33,14 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import IconPicker from "./IconPicker";
+import IconPicker, { ICONS } from "./IconPicker";
+
+// Helper component to render dynamic icons
+const DynamicIcon = ({ name, className }: { name: string; className?: string }) => {
+  const IconComponent = ICONS[name];
+  if (!IconComponent) return null;
+  return <IconComponent className={className} />;
+};
 
 interface Category {
   id: string;
@@ -421,7 +428,9 @@ const CategoryManagement = () => {
                       <span className="text-muted-foreground text-sm ml-2">({category.name_en})</span>
                     )}
                     {category.icon && (
-                      <Badge variant="outline" className="ml-2 text-xs">{category.icon}</Badge>
+                      <Badge variant="outline" className="ml-2 gap-1">
+                        <DynamicIcon name={category.icon} className="h-3 w-3" />
+                      </Badge>
                     )}
                   </div>
                   
@@ -494,10 +503,13 @@ const CategoryManagement = () => {
                                 </Button>
                               </CollapsibleTrigger>
                               
-                              <div className="flex-1 text-sm">
+                              <div className="flex-1 text-sm flex items-center gap-2">
+                                {sub.icon && (
+                                  <DynamicIcon name={sub.icon} className="h-3.5 w-3.5 text-muted-foreground" />
+                                )}
                                 <span>{sub.name_fr}</span>
                                 {sub.name_en && (
-                                  <span className="text-muted-foreground ml-2">({sub.name_en})</span>
+                                  <span className="text-muted-foreground">({sub.name_en})</span>
                                 )}
                               </div>
                               
@@ -570,6 +582,9 @@ const CategoryManagement = () => {
                                         renderEditForm(true, false)
                                       ) : (
                                         <div className="flex items-center gap-2 p-1.5 rounded hover:bg-muted/50 group">
+                                          {svc.icon && (
+                                            <DynamicIcon name={svc.icon} className="h-3 w-3 text-muted-foreground" />
+                                          )}
                                           <span className="text-xs flex-1">
                                             {svc.name_fr}
                                             {svc.name_en && (
