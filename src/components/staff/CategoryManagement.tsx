@@ -39,6 +39,9 @@ interface Category {
   name_fr: string;
   name_en: string | null;
   name_ar: string | null;
+  adj_fr: string | null;
+  adj_en: string | null;
+  adj_ar: string | null;
   icon: string | null;
   sort_order: number;
 }
@@ -82,6 +85,9 @@ const CategoryManagement = () => {
     name_fr: "",
     name_en: "",
     name_ar: "",
+    adj_fr: "",
+    adj_en: "",
+    adj_ar: "",
     icon: "",
     sort_order: 0
   });
@@ -118,17 +124,20 @@ const CategoryManagement = () => {
         name_fr: item.name_fr,
         name_en: item.name_en || "",
         name_ar: item.name_ar || "",
+        adj_fr: (item as Category).adj_fr || "",
+        adj_en: (item as Category).adj_en || "",
+        adj_ar: (item as Category).adj_ar || "",
         icon: (item as Category).icon || "",
         sort_order: item.sort_order || 0
       });
     } else {
-      setEditForm({ name_fr: "", name_en: "", name_ar: "", icon: "", sort_order: 0 });
+      setEditForm({ name_fr: "", name_en: "", name_ar: "", adj_fr: "", adj_en: "", adj_ar: "", icon: "", sort_order: 0 });
     }
   };
 
   const cancelEdit = () => {
     setEditMode(null);
-    setEditForm({ name_fr: "", name_en: "", name_ar: "", icon: "", sort_order: 0 });
+    setEditForm({ name_fr: "", name_en: "", name_ar: "", adj_fr: "", adj_en: "", adj_ar: "", icon: "", sort_order: 0 });
   };
 
   const saveItem = async () => {
@@ -144,6 +153,9 @@ const CategoryManagement = () => {
           name_fr: editForm.name_fr.trim(),
           name_en: editForm.name_en.trim() || null,
           name_ar: editForm.name_ar.trim() || null,
+          adj_fr: editForm.adj_fr.trim() || null,
+          adj_en: editForm.adj_en.trim() || null,
+          adj_ar: editForm.adj_ar.trim() || null,
           icon: editForm.icon.trim() || null,
           sort_order: editForm.sort_order
         };
@@ -261,7 +273,7 @@ const CategoryManagement = () => {
     );
   }
 
-  const renderEditForm = (showIcon: boolean = false) => (
+  const renderEditForm = (showIcon: boolean = false, showAdj: boolean = false) => (
     <div className="space-y-3 p-4 bg-muted/50 rounded-lg border">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
         <div>
@@ -301,6 +313,35 @@ const CategoryManagement = () => {
           />
         </div>
       </div>
+      {showAdj && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div>
+            <label className="text-xs font-medium text-muted-foreground">Adj. Français</label>
+            <Input
+              value={editForm.adj_fr}
+              onChange={(e) => setEditForm(prev => ({ ...prev, adj_fr: e.target.value }))}
+              placeholder="ex: hôtelier, gastronomique..."
+            />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-muted-foreground">Adj. Anglais</label>
+            <Input
+              value={editForm.adj_en}
+              onChange={(e) => setEditForm(prev => ({ ...prev, adj_en: e.target.value }))}
+              placeholder="e.g. hotel, gastronomic..."
+            />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-muted-foreground">Adj. Arabe</label>
+            <Input
+              value={editForm.adj_ar}
+              onChange={(e) => setEditForm(prev => ({ ...prev, adj_ar: e.target.value }))}
+              placeholder="مثال: فندقي، فنّي..."
+              dir="rtl"
+            />
+          </div>
+        </div>
+      )}
       {showIcon && (
         <div className="max-w-xs">
           <label className="text-xs font-medium text-muted-foreground">Icône (nom Lucide)</label>
@@ -335,7 +376,7 @@ const CategoryManagement = () => {
       </div>
 
       {/* New category form */}
-      {editMode?.type === "category" && editMode.id === null && renderEditForm(true)}
+      {editMode?.type === "category" && editMode.id === null && renderEditForm(true, true)}
 
       {/* Categories list */}
       <div className="space-y-2">
@@ -401,7 +442,7 @@ const CategoryManagement = () => {
 
                 {isEditing && (
                   <div className="px-3 pb-3">
-                    {renderEditForm(true)}
+                    {renderEditForm(true, true)}
                   </div>
                 )}
 
