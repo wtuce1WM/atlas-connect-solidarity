@@ -389,6 +389,7 @@ export type Database = {
           image_small_url_ar: string | null
           image_small_url_en: string | null
           image_small_url_fr: string | null
+          internal_notes: string | null
           is_active: boolean | null
           logo_big_url_ar: string | null
           logo_big_url_en: string | null
@@ -416,6 +417,7 @@ export type Database = {
           image_small_url_ar?: string | null
           image_small_url_en?: string | null
           image_small_url_fr?: string | null
+          internal_notes?: string | null
           is_active?: boolean | null
           logo_big_url_ar?: string | null
           logo_big_url_en?: string | null
@@ -443,6 +445,7 @@ export type Database = {
           image_small_url_ar?: string | null
           image_small_url_en?: string | null
           image_small_url_fr?: string | null
+          internal_notes?: string | null
           is_active?: boolean | null
           logo_big_url_ar?: string | null
           logo_big_url_en?: string | null

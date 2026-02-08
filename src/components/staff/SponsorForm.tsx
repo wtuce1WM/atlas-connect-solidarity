@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Save, Upload, X, Loader2 } from "lucide-react";
@@ -73,6 +74,9 @@ const SponsorForm = ({ sponsor, zone, onSuccess, onCancel }: SponsorFormProps) =
     logo_small_url_ar: sponsor?.logo_small_url_ar || "",
     image_big_url_ar: sponsor?.image_big_url_ar || "",
     image_small_url_ar: sponsor?.image_small_url_ar || "",
+    
+    // Internal
+    internal_notes: sponsor?.internal_notes || "",
   });
 
   const [uploading, setUploading] = useState<string | null>(null);
@@ -393,6 +397,30 @@ const SponsorForm = ({ sponsor, zone, onSuccess, onCancel }: SponsorFormProps) =
                 {formData.city_ids.length} ville(s) sélectionnée(s)
               </p>
             )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Internal Notes Card */}
+      <Card className="border-amber-500/50 bg-amber-50/50">
+        <CardHeader>
+          <CardTitle className="text-amber-800">Note interne</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            <Textarea
+              value={formData.internal_notes}
+              onChange={(e) => {
+                const value = e.target.value.slice(0, 500);
+                handleInputChange("internal_notes", value);
+              }}
+              placeholder="Notes internes (non visibles sur le site)..."
+              className="min-h-[100px] bg-white"
+              maxLength={500}
+            />
+            <p className="text-sm text-muted-foreground text-right">
+              {formData.internal_notes.length}/500 caractères
+            </p>
           </div>
         </CardContent>
       </Card>
