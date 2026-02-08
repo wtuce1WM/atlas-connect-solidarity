@@ -237,7 +237,7 @@ const HeroSection = () => {
         */}
 
         {/* Main Title */}
-        <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white text-center mb-8 max-w-4xl">
+        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white text-center mb-8 max-w-4xl">
           {language === "fr" 
             ? <>Bienvenue sur la 1<sup>ère</sup> place de marché <a href="#mission" className="text-gold hover:underline">solidaire</a></>
             : language === "ar"
