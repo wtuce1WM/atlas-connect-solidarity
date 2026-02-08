@@ -174,7 +174,7 @@ const BusinessDetail = () => {
 
         {/* Header */}
         <div className="mb-8 px-4 lg:px-0">
-          <div className="flex items-center gap-4 flex-wrap">
+          <div className="flex flex-col items-center text-center sm:flex-row sm:items-center sm:text-left gap-4 flex-wrap">
             {/* Logo */}
             {business.logo_url && (
               <div className="w-20 h-20 rounded-lg border bg-white p-2 flex items-center justify-center overflow-hidden flex-shrink-0">
@@ -186,42 +186,64 @@ const BusinessDetail = () => {
               </div>
             )}
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-3 flex-wrap">
-                <h1 className={`text-4xl font-bold ${isVerified ? "text-white" : "text-foreground"}`}>{business.name}</h1>
+              <div className="flex flex-col sm:flex-row items-center gap-3 flex-wrap justify-center sm:justify-start">
+                <h1 className={`text-2xl sm:text-4xl font-bold ${isVerified ? "text-white" : "text-foreground"}`}>{business.name}</h1>
                 {business.wtuce_status === "verified" && (
                   <Badge className="bg-primary/10 text-primary border-primary/20 flex items-center gap-1.5 px-3 py-1.5">
                     <BadgeCheck className="h-4 w-4" />
                     WTUCE Vérifié
                   </Badge>
                 )}
+                {/* Label1 - hidden on mobile */}
                 {business.label1_url && (
-                  business.label1_link_url ? (
-                    <a 
-                      href={business.label1_link_url} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="hover:opacity-80 transition-opacity"
-                    >
+                  <div className="hidden sm:block">
+                    {business.label1_link_url ? (
+                      <a 
+                        href={business.label1_link_url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="hover:opacity-80 transition-opacity"
+                      >
+                        <img 
+                          src={business.label1_url} 
+                          alt="Label1" 
+                          className="h-16 object-contain"
+                        />
+                      </a>
+                    ) : (
                       <img 
                         src={business.label1_url} 
                         alt="Label1" 
                         className="h-16 object-contain"
                       />
-                    </a>
-                  ) : (
-                    <img 
-                      src={business.label1_url} 
-                      alt="Label1" 
-                      className="h-16 object-contain"
-                    />
-                  )
+                    )}
+                  </div>
                 )}
               </div>
+              
+              {/* Rating and WTUCE Logo - below title on mobile, inline on desktop */}
+              {isVerified && (
+                <div className="flex items-center justify-center sm:justify-start gap-3 mt-3 sm:hidden">
+                  {business.rating !== null && business.rating !== undefined && (
+                    <div 
+                      className="text-gold font-bold text-3xl"
+                      style={{ fontFamily: "'Amiri', serif" }}
+                    >
+                      {business.rating}/20
+                    </div>
+                  )}
+                  <img 
+                    src={logoGold} 
+                    alt="WTUCE Vérifié" 
+                    className="w-[60px] h-[54px] object-contain"
+                  />
+                </div>
+              )}
             </div>
             
-            {/* Rating and WTUCE Logo for verified businesses */}
+            {/* Rating and WTUCE Logo for verified businesses - desktop only */}
             {isVerified && (
-              <div className="flex items-center gap-3 flex-shrink-0">
+              <div className="hidden sm:flex items-center gap-3 flex-shrink-0">
                 {business.rating !== null && business.rating !== undefined && (
                   <div 
                     className="text-gold font-bold text-4xl"
@@ -238,17 +260,19 @@ const BusinessDetail = () => {
               </div>
             )}
           </div>
-          <div className="flex items-center gap-2 mt-3 text-muted-foreground">
+          <div className="flex items-center justify-center sm:justify-start gap-2 mt-3 text-muted-foreground">
             <MapPin className="h-5 w-5" />
             <span>{business.address || business.city}, {business.region}</span>
           </div>
-          <Link
-            to={`/city/${encodeURIComponent(business.city)}`}
-            className="inline-flex items-center gap-2 mt-2 text-primary hover:underline text-sm"
-          >
-            <MapPin className="h-4 w-4" />
-            Voir toutes les entreprises à {business.city}
-          </Link>
+          <div className="flex justify-center sm:justify-start">
+            <Link
+              to={`/city/${encodeURIComponent(business.city)}`}
+              className="inline-flex items-center gap-2 mt-2 text-primary hover:underline text-sm"
+            >
+              <MapPin className="h-4 w-4" />
+              Voir toutes les entreprises à {business.city}
+            </Link>
+          </div>
         </div>
 
         <div className="grid gap-8 lg:grid-cols-3">
