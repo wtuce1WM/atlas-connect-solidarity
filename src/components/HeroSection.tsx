@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { MapPin, Building2, Crown, ChevronRight, ChevronLeft, Loader2, Search } from "lucide-react";
+import { MapPin, Building2, Crown, ChevronRight, ChevronLeft, Loader2, Search, Star } from "lucide-react";
 import * as LucideIcons from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -9,6 +9,17 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import logoGoldOverlay from "@/assets/logoGOLDsimple.webp";
 import heroBackground from "@/assets/hero-marrakech.jpg";
+import relaisLogo from "@/assets/relais-chateaux-logo.png";
+import logoWatermark from "@/assets/logoGOLD-watermark.webp";
+
+interface RelaisBusiness {
+  id: string;
+  name: string;
+  city: string;
+  images: string[] | null;
+  rating: number | null;
+  wtuce_status: string | null;
+}
 
 interface Sponsor {
   id: string;
@@ -52,6 +63,7 @@ const HeroSection = () => {
   const [cities, setCities] = useState<City[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [relaisCount, setRelaisCount] = useState(0);
+  const [relaisBusinesses, setRelaisBusinesses] = useState<RelaisBusiness[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [sponsors, setSponsors] = useState<Sponsor[]>([]);
@@ -146,12 +158,13 @@ const HeroSection = () => {
           }))
           .filter((cat) => cat.businessCount > 0);
 
-        // Count Relais & Châteaux
-        const { count } = await supabase
+        // Fetch Relais & Châteaux businesses
+        const { data: relaisData, count } = await supabase
           .from("businesses")
-          .select("id", { count: "exact", head: true })
+          .select("id, name, city, images, rating, wtuce_status", { count: "exact" })
           .eq("is_active", true)
-          .in("name", RELAIS_CHATEAUX_NAMES);
+          .in("name", RELAIS_CHATEAUX_NAMES)
+          .order("priority_score", { ascending: false });
 
         // Fetch sponsors for home zone
         const { data: sponsorsData } = await supabase
@@ -164,6 +177,7 @@ const HeroSection = () => {
         setCities(citiesWithCounts);
         setCategories(categoriesWithCounts);
         setRelaisCount(count || 0);
+        setRelaisBusinesses(relaisData || []);
         setSponsors(sponsorsData || []);
       } catch (error) {
         console.error("Error fetching hero data:", error);
@@ -438,31 +452,78 @@ const HeroSection = () => {
               </div>
             )}
 
-            {/* Relais & Châteaux Section - DISABLED
-            {relaisCount > 0 && (
-              <div className="text-center">
-                <div className="mb-4 flex items-center justify-center gap-2">
-                  <Crown className="h-6 w-6 text-gold" />
-                  <h2 className="text-2xl font-bold text-white">
-                    {language === "fr" ? "Collection Prestige" : language === "ar" ? "مجموعة برستيج" : "Prestige Collection"}
+            {/* Relais & Châteaux Section */}
+            {relaisBusinesses.length > 0 && (
+              <div className="rounded-xl bg-black/30 backdrop-blur-sm p-4">
+                <div className="mb-6 text-center">
+                  <div className="flex justify-center mb-3">
+                    <img 
+                      src={relaisLogo} 
+                      alt="Relais & Châteaux" 
+                      className="h-12 object-contain"
+                    />
+                  </div>
+                  <h2 className="text-xl font-bold text-white">
+                    {language === "fr"
+                      ? "Établissements "
+                      : language === "ar"
+                        ? "مؤسسات "
+                        : ""}
+                    <span className="text-gold">Relais & Châteaux</span>
+                    {language === "en" ? " Establishments" : ""}
                   </h2>
                 </div>
-                <a href="#relais-chateaux">
-                  <Button
-                    size="lg"
-                    className="bg-gradient-to-r from-gold to-yellow-600 text-black font-semibold hover:from-yellow-600 hover:to-gold transition-all shadow-lg shadow-gold/30"
-                  >
-                    <Crown className="mr-2 h-5 w-5" />
-                    {language === "fr" 
-                      ? `Découvrir les ${relaisCount} Relais & Châteaux` 
-                      : language === "ar" 
-                        ? `اكتشف ${relaisCount} Relais & Châteaux`
-                        : `Discover ${relaisCount} Relais & Châteaux`}
-                  </Button>
-                </a>
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {relaisBusinesses.map((business) => (
+                    <Link
+                      key={business.id}
+                      to={`/business/${business.id}`}
+                      className="group"
+                    >
+                      <Card className="h-full overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-gold/20 border border-gold/30 relative">
+                        {business.images && business.images.length > 0 && (
+                          <div className="absolute inset-0">
+                            <img
+                              src={business.images[0]}
+                              alt={business.name}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
+                            <div className="absolute inset-0 bg-black/60 group-hover:bg-black/50 transition-colors" />
+                          </div>
+                        )}
+
+                        <CardContent className="p-4 relative z-10 flex flex-col items-center justify-center min-h-[140px] text-center">
+                          {business.wtuce_status === "verified" && (
+                            <img 
+                              src={logoWatermark} 
+                              alt="" 
+                              className="absolute bottom-2 right-2 w-8 h-8 object-contain opacity-80 pointer-events-none"
+                            />
+                          )}
+
+                          {business.rating && (
+                            <div className="flex items-center justify-center gap-1 mb-1">
+                              <Star className="h-3 w-3 fill-gold text-gold" />
+                              <span className="text-gold font-bold text-sm">{business.rating}/20</span>
+                            </div>
+                          )}
+
+                          <h3 className="text-sm font-semibold text-white group-hover:text-gold transition-colors mb-1">
+                            {business.name}
+                          </h3>
+
+                          <div className="flex items-center justify-center gap-1 text-xs text-gray-300">
+                            <MapPin className="h-3 w-3" />
+                            <span>{business.city}</span>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  ))}
+                </div>
               </div>
             )}
-            */}
           </div>
         )}
       </div>

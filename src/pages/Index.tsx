@@ -2,7 +2,6 @@ import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 import CitiesSection from "@/components/CitiesSection";
 import CategoriesSection from "@/components/CategoriesSection";
-import RelaisChateauxSection from "@/components/RelaisChateauxSection";
 import Footer from "@/components/Footer";
 
 const Index = () => {
@@ -16,7 +15,6 @@ const Index = () => {
       {/* CategoriesSection - DISABLED
       <CategoriesSection />
       */}
-      <RelaisChateauxSection />
       <Footer />
     </div>
   );
