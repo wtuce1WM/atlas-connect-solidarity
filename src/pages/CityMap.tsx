@@ -31,6 +31,7 @@ interface Business {
   categories: string[] | null;
   latitude: number | null;
   longitude: number | null;
+  google_maps_url: string | null;
   wtuce_status: "verified" | "pending" | null;
   services: string[] | null;
   images: string[] | null;
@@ -67,6 +68,7 @@ const CityMap = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [selectedSubcategory, setSelectedSubcategory] = useState<string>("");
   const [selectedActivities, setSelectedActivities] = useState<string[]>([]);
+  const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
 
   const decodedCity = city ? decodeURIComponent(city) : "";
   
@@ -169,7 +171,7 @@ const CityMap = () => {
       // Fetch businesses - ordered by verified status then priority score
       const { data: businessData, error: businessError } = await supabase
         .from("businesses")
-        .select("id, name, city, region, address, phone, main_category, categories, latitude, longitude, wtuce_status, services, images, rating, priority_score")
+        .select("id, name, city, region, address, phone, main_category, categories, latitude, longitude, google_maps_url, wtuce_status, services, images, rating, priority_score")
         .eq("is_active", true)
         .ilike("city", decodedCity)
         .order("wtuce_status", { ascending: true, nullsFirst: false })
@@ -200,8 +202,36 @@ const CityMap = () => {
     fetchData();
   }, [decodedCity]);
 
-  // Build Google Maps embed URL with all business markers
+  // Build Google Maps embed URL - dynamic based on selected business
   const getMapEmbedUrl = () => {
+    // If a business is selected, show its location
+    if (selectedBusiness) {
+      // Try to extract place ID or coordinates from google_maps_url
+      if (selectedBusiness.google_maps_url) {
+        // If URL contains place/, use place mode
+        const placeMatch = selectedBusiness.google_maps_url.match(/place\/([^\/]+)/);
+        if (placeMatch) {
+          const placeName = decodeURIComponent(placeMatch[1].replace(/\+/g, ' '));
+          return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(placeName)}&zoom=17`;
+        }
+        // If URL contains coordinates (@lat,lng)
+        const coordMatch = selectedBusiness.google_maps_url.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+        if (coordMatch) {
+          return `https://www.google.com/maps/embed/v1/view?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&center=${coordMatch[1]},${coordMatch[2]}&zoom=17&maptype=roadmap`;
+        }
+      }
+      // Fallback to lat/lng if available
+      if (selectedBusiness.latitude && selectedBusiness.longitude) {
+        return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${selectedBusiness.latitude},${selectedBusiness.longitude}&zoom=17`;
+      }
+      // Last fallback: search by name and address
+      const query = selectedBusiness.address 
+        ? `${selectedBusiness.name}, ${selectedBusiness.address}`
+        : `${selectedBusiness.name}, ${selectedBusiness.city}, Maroc`;
+      return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(query)}&zoom=17`;
+    }
+
+    // Default: show city overview
     if (businesses.length === 0) {
       return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(decodedCity + ", Maroc")}&zoom=13`;
     }
@@ -213,6 +243,16 @@ const CityMap = () => {
     }
 
     return `https://www.google.com/maps/embed/v1/search?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=entreprises+${encodeURIComponent(decodedCity + ", Maroc")}&zoom=13`;
+  };
+
+  const handleSelectBusiness = (business: Business) => {
+    setSelectedBusiness(business);
+    // Scroll to map
+    window.scrollTo({ top: 300, behavior: 'smooth' });
+  };
+
+  const clearSelectedBusiness = () => {
+    setSelectedBusiness(null);
   };
 
   const handleOpenInMaps = (business: Business) => {
@@ -276,15 +316,27 @@ const CityMap = () => {
         <div className="grid gap-8 lg:grid-cols-3">
           {/* Map + Business list */}
           <div className="lg:col-span-2 space-y-6">
-            <Card>
+            <Card className="relative">
               <CardContent className="p-0">
+                {/* Selected business indicator */}
+                {selectedBusiness && (
+                  <div className="absolute top-2 left-2 right-2 z-10 bg-primary/90 text-primary-foreground px-3 py-2 rounded-md flex items-center justify-between">
+                    <span className="text-sm font-medium truncate">{selectedBusiness.name}</span>
+                    <button 
+                      onClick={clearSelectedBusiness}
+                      className="ml-2 hover:bg-primary-foreground/20 rounded p-1"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                )}
                 <iframe
                   src={getMapEmbedUrl()}
                   className="w-full h-[500px] border-0 rounded-lg"
                   allowFullScreen
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
-                  title={`Carte des entreprises à ${decodedCity}`}
+                  title={selectedBusiness ? `Localisation de ${selectedBusiness.name}` : `Carte des entreprises à ${decodedCity}`}
                 />
               </CardContent>
             </Card>
@@ -429,11 +481,28 @@ const CityMap = () => {
 
                         {/* Contact info */}
                         {business.phone && (
-                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground mb-3">
                             <Phone className="h-3 w-3" />
                             <span className="truncate">{business.phone}</span>
                           </div>
                         )}
+
+                        {/* View on map button */}
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleSelectBusiness(business);
+                          }}
+                          className={`w-full text-xs py-1.5 px-2 rounded transition-colors flex items-center justify-center gap-1 ${
+                            selectedBusiness?.id === business.id
+                              ? "bg-primary text-primary-foreground"
+                              : "bg-muted hover:bg-primary/20 text-muted-foreground hover:text-primary"
+                          }`}
+                        >
+                          <MapPin className="h-3 w-3" />
+                          {selectedBusiness?.id === business.id ? "Affiché sur la carte" : "Voir sur la carte"}
+                        </button>
                       </CardContent>
                     </Card>
                   </Link>
