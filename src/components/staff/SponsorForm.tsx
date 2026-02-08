@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -6,9 +6,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Save, Upload, X, Loader2 } from "lucide-react";
+
+interface City {
+  id: string;
+  name_fr: string;
+  priority_score: number | null;
+}
 
 interface SponsorFormProps {
   sponsor?: any;
@@ -34,8 +41,12 @@ const SponsorForm = ({ sponsor, zone, onSuccess, onCancel }: SponsorFormProps) =
     { value: "city", label: "Ville" },
   ];
   
+  const [cities, setCities] = useState<City[]>([]);
+  const [loadingCities, setLoadingCities] = useState(true);
+
   const [formData, setFormData] = useState({
     zones: sponsor?.zones || (zone ? [zone] : ["home"]),
+    city_ids: sponsor?.city_ids || [],
     sort_order: sponsor?.sort_order || 0,
     is_active: sponsor?.is_active ?? true,
     
@@ -65,6 +76,19 @@ const SponsorForm = ({ sponsor, zone, onSuccess, onCancel }: SponsorFormProps) =
   });
 
   const [uploading, setUploading] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchCities = async () => {
+      setLoadingCities(true);
+      const { data } = await supabase
+        .from('cities')
+        .select('id, name_fr, priority_score')
+        .order('priority_score', { ascending: false });
+      setCities(data || []);
+      setLoadingCities(false);
+    };
+    fetchCities();
+  }, []);
 
   const handleInputChange = (field: string, value: string | number | boolean | string[]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -282,7 +306,7 @@ const SponsorForm = ({ sponsor, zone, onSuccess, onCancel }: SponsorFormProps) =
         <CardHeader>
           <CardTitle>Paramètres</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label>Zones d'affichage</Label>
@@ -327,6 +351,48 @@ const SponsorForm = ({ sponsor, zone, onSuccess, onCancel }: SponsorFormProps) =
                 </span>
               </div>
             </div>
+          </div>
+
+          {/* Cities Selection */}
+          <div className="space-y-2">
+            <Label>Villes ciblées (optionnel)</Label>
+            <p className="text-sm text-muted-foreground mb-2">
+              Sélectionnez les villes où ce sponsor doit apparaître. Laissez vide pour toutes les villes.
+            </p>
+            {loadingCities ? (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Chargement des villes...
+              </div>
+            ) : (
+              <ScrollArea className="h-48 border rounded-md p-3">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                  {cities.map((city) => (
+                    <div key={city.id} className="flex items-center gap-2">
+                      <Checkbox
+                        id={`city-${city.id}`}
+                        checked={formData.city_ids.includes(city.id)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            handleInputChange("city_ids", [...formData.city_ids, city.id]);
+                          } else {
+                            handleInputChange("city_ids", formData.city_ids.filter((id: string) => id !== city.id));
+                          }
+                        }}
+                      />
+                      <Label htmlFor={`city-${city.id}`} className="font-normal cursor-pointer text-sm">
+                        {city.name_fr}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
+            )}
+            {formData.city_ids.length > 0 && (
+              <p className="text-sm text-muted-foreground">
+                {formData.city_ids.length} ville(s) sélectionnée(s)
+              </p>
+            )}
           </div>
         </CardContent>
       </Card>
