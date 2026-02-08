@@ -218,8 +218,8 @@ const ServicePage = () => {
           }}
         />
         <div className="container mx-auto px-4 relative z-10">
-          <div className="flex items-center gap-4 lg:gap-6">
-            <div className="rounded-xl lg:rounded-2xl bg-gold/20 p-3 lg:p-6 border border-gold/30">
+          <div className="flex flex-col items-center text-center sm:flex-row sm:items-center sm:text-left gap-4 lg:gap-6">
+            <div className="rounded-xl lg:rounded-2xl bg-gold/20 p-3 lg:p-6 border border-gold/30 flex-shrink-0">
               <Wrench className="h-8 w-8 lg:h-12 lg:w-12 text-gold" />
             </div>
             <div>
