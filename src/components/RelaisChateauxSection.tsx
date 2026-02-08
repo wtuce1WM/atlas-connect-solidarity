@@ -70,7 +70,7 @@ const RelaisChateauxSection = () => {
     <section id="relais-chateaux" className="bg-black py-16 relative overflow-hidden">
       {/* Background decorative emblem */}
       <div 
-        className="absolute inset-0 flex items-center justify-center pointer-events-none"
+        className="absolute inset-0 flex items-end justify-center pointer-events-none"
       >
         <div 
           className="w-[460px] h-[460px] opacity-15"
