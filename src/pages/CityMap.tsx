@@ -304,7 +304,7 @@ const CityMap = () => {
         {/* Title */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white flex items-center gap-3">
-            <MapPin className="h-8 w-8 text-morocco-green" />
+            <MapPin className="h-8 w-8 text-gold" />
             Entreprises à {decodedCity}
           </h1>
           <p className="text-white/80 mt-2">
