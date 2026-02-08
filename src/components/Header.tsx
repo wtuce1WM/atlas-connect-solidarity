@@ -27,16 +27,12 @@ const Header = ({ variant = "default" }: HeaderProps) => {
           </span>
         </a>
 
-        {/* Desktop Nav - DISABLED
+        {/* Desktop Nav */}
         <nav className="hidden items-center gap-8 md:flex">
-          <a href="#about" className="text-white/90 transition-colors hover:text-gold">
-            {t("nav.about")}
-          </a>
-          <a href="#contact" className="text-white/90 transition-colors hover:text-gold">
-            {t("nav.contact")}
+          <a href="/#mission" className="text-white/90 transition-colors hover:text-gold">
+            {t("footer.ourMission")}
           </a>
         </nav>
-        */}
 
         {/* Actions */}
         <div className="hidden items-center gap-4 md:flex">
@@ -63,15 +59,10 @@ const Header = ({ variant = "default" }: HeaderProps) => {
       {/* Mobile Menu */}
       {isMenuOpen && <div className="border-t border-white/10 bg-black/90 backdrop-blur-lg md:hidden">
           <nav className="container mx-auto flex flex-col gap-4 px-4 py-6">
-            {/* Nav links - DISABLED
-            <a href="#about" className="text-white/90 transition-colors hover:text-gold">
-              {t("nav.about")}
-            </a>
-            <a href="#contact" className="text-white/90 transition-colors hover:text-gold">
-              {t("nav.contact")}
+            <a href="/#mission" className="text-white/90 transition-colors hover:text-gold">
+              {t("footer.ourMission")}
             </a>
             <hr className="border-white/20" />
-            */}
             {/* Language Switcher - DISABLED
             <div className="flex justify-center">
               <LanguageSwitcher />
