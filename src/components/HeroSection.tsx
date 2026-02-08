@@ -9,7 +9,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import logoGoldOverlay from "@/assets/logoGOLDsimple.webp";
 import heroBackground from "@/assets/hero-marrakech.jpg";
-import royalAirMarocLogo from "@/assets/royal-air-maroc-logo.png";
 
 interface City {
   id: string;
@@ -172,20 +171,6 @@ const HeroSection = () => {
       </div>
 
       {/* Search Bar below logo - positioned relative in content flow */}
-
-      {/* Royal Air Maroc Partner Logo */}
-      <a 
-        href="https://www.royalairmaroc.com/fr-fr" 
-        target="_blank" 
-        rel="noopener noreferrer"
-        className="absolute inset-x-0 bottom-8 z-20 flex justify-center transition-opacity hover:opacity-80"
-      >
-        <img 
-          src={royalAirMarocLogo} 
-          alt="Royal Air Maroc" 
-          className="w-full max-w-md object-contain opacity-70 hover:opacity-100 transition-opacity"
-        />
-      </a>
 
       {/* Content */}
       <div className="relative z-10 flex min-h-screen flex-col items-center px-4 pt-[36rem]">
