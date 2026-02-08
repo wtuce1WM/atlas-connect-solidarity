@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { MapPin, Building2, Crown, ChevronRight, ChevronLeft, Loader2 } from "lucide-react";
+import * as LucideIcons from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,7 @@ interface Category {
   name_fr: string;
   name_en: string | null;
   name_ar: string | null;
+  icon: string | null;
   businessCount?: number;
 }
 
@@ -87,7 +89,7 @@ const HeroSection = () => {
         // Fetch categories
         const { data: categoriesData } = await supabase
           .from("categories")
-          .select("id, name_fr, name_en, name_ar")
+          .select("id, name_fr, name_en, name_ar, icon")
           .order("sort_order", { ascending: true });
 
         // Count businesses per main_category
@@ -292,32 +294,44 @@ const HeroSection = () => {
                   className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide scroll-smooth"
                   style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
                 >
-                  {categories.map((category) => (
-                    <Link 
-                      key={category.id} 
-                      to={`/category/${encodeURIComponent(category.name_fr)}`}
-                      className="flex-shrink-0"
-                    >
-                      <Card className="w-48 bg-white/10 border-white/30 hover:bg-gold/20 hover:border-gold transition-all">
-                        <CardContent className="p-4 text-center">
-                          <h3 className="font-semibold text-white mb-2">
-                            {getCategoryName(category)}
-                          </h3>
-                          <div className="flex items-center justify-center gap-1 text-xs text-gray-300">
-                            <Building2 className="h-3 w-3" />
-                            <span>
-                              {category.businessCount || 0}{" "}
-                              {language === "fr" 
-                                ? "établissements" 
-                                : language === "ar" 
-                                  ? "مؤسسة" 
-                                  : "businesses"}
-                            </span>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  ))}
+                  {categories.map((category) => {
+                    // Get the icon component dynamically
+                    const IconComponent = category.icon 
+                      ? (LucideIcons as any)[category.icon] 
+                      : Building2;
+                    
+                    return (
+                      <Link 
+                        key={category.id} 
+                        to={`/category/${encodeURIComponent(category.name_fr)}`}
+                        className="flex-shrink-0"
+                      >
+                        <Card className="w-48 bg-white/10 border-white/30 hover:bg-gold/20 hover:border-gold transition-all">
+                          <CardContent className="p-4 text-center">
+                            {IconComponent && (
+                              <div className="flex justify-center mb-2">
+                                <IconComponent className="h-6 w-6 text-gold" />
+                              </div>
+                            )}
+                            <h3 className="font-semibold text-white mb-2">
+                              {getCategoryName(category)}
+                            </h3>
+                            <div className="flex items-center justify-center gap-1 text-xs text-gray-300">
+                              <Building2 className="h-3 w-3" />
+                              <span>
+                                {category.businessCount || 0}{" "}
+                                {language === "fr" 
+                                  ? "établissements" 
+                                  : language === "ar" 
+                                    ? "مؤسسة" 
+                                    : "businesses"}
+                              </span>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </Link>
+                    );
+                  })}
                 </div>
               </div>
             </div>
