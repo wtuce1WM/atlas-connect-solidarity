@@ -436,8 +436,7 @@ const HeroSection = () => {
                       <img
                         src={logo}
                         alt={sponsor.name_fr}
-                        className="object-contain opacity-100 hover:opacity-80 transition-opacity"
-                        style={{ width: "60%", height: "auto" }}
+                        className="h-16 md:h-20 w-auto object-contain opacity-100 hover:opacity-80 transition-opacity"
                       />
                     );
 
