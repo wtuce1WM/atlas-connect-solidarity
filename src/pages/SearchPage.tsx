@@ -1,0 +1,428 @@
+import { useSearchParams, Link } from "react-router-dom";
+import { useEffect, useState, useMemo } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useLanguage } from "@/contexts/LanguageContext";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Loader2, MapPin, Phone, Building2, ShieldCheck, ChevronLeft, ChevronRight, Search } from "lucide-react";
+import logoWatermark from "@/assets/logoGOLD-watermark.webp";
+
+interface Business {
+  id: string;
+  name: string;
+  description: string | null;
+  city: string;
+  region: string;
+  phone: string | null;
+  website: string | null;
+  logo_url: string | null;
+  images: string[] | null;
+  main_category: string | null;
+  categories: string[] | null;
+  wtuce_status: string | null;
+  is_regulated_activity: boolean | null;
+}
+
+const ITEMS_PER_PAGE = 20;
+
+const SearchPage = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { language } = useLanguage();
+  const [allBusinesses, setAllBusinesses] = useState<Business[]>([]);
+  const [citiesWithPriority, setCitiesWithPriority] = useState<{ name: string; priority: number }[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedCity, setSelectedCity] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
+  const [inputValue, setInputValue] = useState(searchParams.get("q") || "");
+
+  // Get cities available in results, sorted by priority score
+  const availableCities = useMemo(() => {
+    const businessCities = new Set(allBusinesses.map(b => b.city));
+    return citiesWithPriority
+      .filter(c => businessCities.has(c.name))
+      .sort((a, b) => b.priority - a.priority)
+      .map(c => c.name);
+  }, [allBusinesses, citiesWithPriority]);
+
+  // Filter businesses by city
+  const filteredBusinesses = useMemo(() => {
+    if (selectedCity === "all") return allBusinesses;
+    return allBusinesses.filter(b => b.city === selectedCity);
+  }, [allBusinesses, selectedCity]);
+
+  // Paginate
+  const totalPages = Math.ceil(filteredBusinesses.length / ITEMS_PER_PAGE);
+  const paginatedBusinesses = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredBusinesses.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredBusinesses, currentPage]);
+
+  // Reset page when filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedCity, searchQuery]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!searchQuery.trim()) {
+        setAllBusinesses([]);
+        setIsLoading(false);
+        return;
+      }
+      
+      setIsLoading(true);
+      try {
+        // Fetch cities with priority scores
+        const { data: citiesData } = await supabase
+          .from("cities")
+          .select("name_fr, priority_score")
+          .order("priority_score", { ascending: false });
+
+        if (citiesData) {
+          setCitiesWithPriority(
+            citiesData.map(c => ({ name: c.name_fr, priority: c.priority_score || 0 }))
+          );
+        }
+
+        // Search businesses using ilike for full-text search
+        const searchTerm = `%${searchQuery.trim()}%`;
+        const { data: businessData, error } = await supabase
+          .from("businesses")
+          .select("id, name, description, city, region, phone, website, logo_url, images, main_category, categories, wtuce_status, is_regulated_activity")
+          .eq("is_active", true)
+          .or(`name.ilike.${searchTerm},description.ilike.${searchTerm},city.ilike.${searchTerm}`)
+          .order("wtuce_status", { ascending: true })
+          .order("priority_score", { ascending: false })
+          .limit(100);
+
+        if (error) throw error;
+        
+        // Filter out businesses without images
+        const businessesWithImages = (businessData || []).filter(b => 
+          (b.images && b.images.length > 0)
+        );
+        setAllBusinesses(businessesWithImages);
+      } catch (error) {
+        console.error("Error fetching search data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [searchQuery]);
+
+  const getBusinessImage = (business: Business) => {
+    if (business.images && business.images.length > 0) return business.images[0];
+    if (business.logo_url) return business.logo_url;
+    return "/placeholder.svg";
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (inputValue.trim()) {
+      setSearchQuery(inputValue.trim());
+      setSearchParams({ q: inputValue.trim() });
+    }
+  };
+
+  const translations = {
+    fr: {
+      searchResults: "Résultats de recherche",
+      for: "pour",
+      establishments: "établissements",
+      found: "trouvés",
+      noResults: "Aucun établissement trouvé",
+      tryAnother: "Essayez une autre recherche",
+      verified: "Vérifié",
+      regulated: "Réglementé",
+      allCities: "Toutes les villes",
+      filterByCity: "Filtrer par ville",
+      page: "Page",
+      of: "sur",
+      previous: "Précédent",
+      next: "Suivant",
+      showing: "Affichage de",
+      to: "à",
+      results: "résultats",
+      placeholder: "Que cherchez-vous ?"
+    },
+    en: {
+      searchResults: "Search results",
+      for: "for",
+      establishments: "establishments",
+      found: "found",
+      noResults: "No establishments found",
+      tryAnother: "Try another search",
+      verified: "Verified",
+      regulated: "Regulated",
+      allCities: "All cities",
+      filterByCity: "Filter by city",
+      page: "Page",
+      of: "of",
+      previous: "Previous",
+      next: "Next",
+      showing: "Showing",
+      to: "to",
+      results: "results",
+      placeholder: "What are you looking for?"
+    },
+    ar: {
+      searchResults: "نتائج البحث",
+      for: "عن",
+      establishments: "مؤسسة",
+      found: "وجدت",
+      noResults: "لم يتم العثور على مؤسسات",
+      tryAnother: "جرب بحثًا آخر",
+      verified: "موثق",
+      regulated: "منظم",
+      allCities: "جميع المدن",
+      filterByCity: "تصفية حسب المدينة",
+      page: "صفحة",
+      of: "من",
+      previous: "السابق",
+      next: "التالي",
+      showing: "عرض",
+      to: "إلى",
+      results: "نتائج",
+      placeholder: "ماذا تبحث عنه؟"
+    }
+  };
+
+  const t = translations[language] || translations.fr;
+
+  const handleCityChange = (city: string) => {
+    setSelectedCity(city);
+  };
+
+  const goToPage = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const startResult = (currentPage - 1) * ITEMS_PER_PAGE + 1;
+  const endResult = Math.min(currentPage * ITEMS_PER_PAGE, filteredBusinesses.length);
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Header />
+      
+      {/* Hero Section */}
+      <section className="bg-black pt-28 pb-8 lg:pb-16 relative overflow-hidden">
+        <div className="container mx-auto px-4 relative z-10">
+          {/* Search Form */}
+          <form onSubmit={handleSearch} className="max-w-2xl mx-auto mb-8">
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder={t.placeholder}
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                className="w-full pl-12 pr-4 py-6 text-lg bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-full"
+              />
+            </div>
+          </form>
+
+          {searchQuery && (
+            <div className="text-center">
+              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2">
+                {t.searchResults} {t.for} "<span className="text-gold">{searchQuery}</span>"
+              </h1>
+              <p className="text-base lg:text-xl text-gray-400">
+                <span className="text-gold font-semibold">{filteredBusinesses.length}</span> {t.establishments} {t.found}
+              </p>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Filters & Results */}
+      <section className="py-6 lg:py-12 bg-black">
+        <div className="container mx-auto px-4">
+          {/* City Filter */}
+          {availableCities.length > 1 && (
+            <div className="mb-8 flex flex-col items-center sm:flex-row sm:items-center gap-2 sm:gap-4">
+              <label className="text-sm text-gray-400">{t.filterByCity}:</label>
+              <Select value={selectedCity} onValueChange={handleCityChange}>
+                <SelectTrigger className="w-[220px] bg-card border-border">
+                  <SelectValue placeholder={t.allCities} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t.allCities}</SelectItem>
+                  {availableCities.map((city) => (
+                    <SelectItem key={city} value={city}>
+                      {city}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {isLoading ? (
+            <div className="flex items-center justify-center py-16">
+              <Loader2 className="h-12 w-12 animate-spin text-gold" />
+            </div>
+          ) : filteredBusinesses.length === 0 ? (
+            <div className="text-center py-16">
+              <Building2 className="h-16 w-16 text-gray-600 mx-auto mb-4" />
+              <p className="text-xl text-gray-400 mb-2">{t.noResults}</p>
+              <p className="text-sm text-gray-500">{t.tryAnother}</p>
+            </div>
+          ) : (
+            <>
+              {/* Results Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {paginatedBusinesses.map((business) => (
+                  <Link key={business.id} to={`/business/${business.id}`}>
+                    <Card className="group h-full overflow-hidden bg-card border-border hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 relative">
+                      {/* Image - 16:9 aspect ratio */}
+                      <div className="aspect-video overflow-hidden bg-muted">
+                        <img
+                          src={getBusinessImage(business)}
+                          alt={business.name}
+                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = "/placeholder.svg";
+                          }}
+                        />
+                      </div>
+                      
+                      <CardContent className="p-4 relative">
+                        {/* Watermark logo for verified businesses */}
+                        {business.wtuce_status === "verified" && (
+                          <img 
+                            src={logoWatermark} 
+                            alt="" 
+                            className="absolute bottom-2 right-2 w-16 h-16 object-contain opacity-80 pointer-events-none"
+                          />
+                        )}
+                        {/* Badges */}
+                        <div className="flex flex-wrap gap-2 mb-3">
+                          {business.wtuce_status === "verified" && (
+                            <Badge variant="default" className="bg-primary/20 text-primary border-primary/30">
+                              <ShieldCheck className="h-3 w-3 mr-1" />
+                              {t.verified}
+                            </Badge>
+                          )}
+                          {business.is_regulated_activity && (
+                            <Badge variant="secondary" className="bg-blue-500/20 text-blue-400 border-blue-500/30">
+                              {t.regulated}
+                            </Badge>
+                          )}
+                        </div>
+
+                        {/* Name */}
+                        <h3 className={`font-semibold text-lg mb-2 line-clamp-2 group-hover:text-primary transition-colors ${business.wtuce_status === "verified" ? "text-foreground font-bold" : "text-foreground"}`}>
+                          {business.name}
+                        </h3>
+
+                        {/* Location */}
+                        <div className="flex items-center gap-1 text-sm text-muted-foreground mb-2">
+                          <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
+                          <span className="truncate">{business.city}, {business.region}</span>
+                        </div>
+
+                        {/* Contact info */}
+                        {business.phone && (
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <Phone className="h-3 w-3" />
+                            <span className="truncate">{business.phone}</span>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="mt-12 flex flex-col items-center gap-4">
+                  {/* Results count */}
+                  <p className="text-sm text-gray-400">
+                    {t.showing} {startResult} {t.to} {endResult} {t.of} {filteredBusinesses.length} {t.results}
+                  </p>
+                  
+                  {/* Pagination controls */}
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => goToPage(currentPage - 1)}
+                      disabled={currentPage === 1}
+                      className="gap-1"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                      {t.previous}
+                    </Button>
+
+                    <div className="flex items-center gap-1">
+                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                        let pageNum: number;
+                        if (totalPages <= 5) {
+                          pageNum = i + 1;
+                        } else if (currentPage <= 3) {
+                          pageNum = i + 1;
+                        } else if (currentPage >= totalPages - 2) {
+                          pageNum = totalPages - 4 + i;
+                        } else {
+                          pageNum = currentPage - 2 + i;
+                        }
+                        
+                        return (
+                          <Button
+                            key={pageNum}
+                            variant={currentPage === pageNum ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => goToPage(pageNum)}
+                            className="w-10"
+                          >
+                            {pageNum}
+                          </Button>
+                        );
+                      })}
+                    </div>
+
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => goToPage(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                      className="gap-1"
+                    >
+                      {t.next}
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+
+                  {/* Page indicator */}
+                  <p className="text-xs text-gray-500">
+                    {t.page} {currentPage} {t.of} {totalPages}
+                  </p>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      </section>
+
+      <Footer />
+    </div>
+  );
+};
+
+export default SearchPage;
