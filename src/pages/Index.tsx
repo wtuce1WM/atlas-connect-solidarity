@@ -17,7 +17,7 @@ const Index = () => {
       {/* CategoriesSection - DISABLED
       <CategoriesSection />
       */}
-      <SponsorsSection zone="Accueil" />
+      <SponsorsSection zone="home" />
       <RelaisChateauxSection />
       <Footer />
     </div>
