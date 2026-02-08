@@ -4,8 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Save, Upload, X, Loader2 } from "lucide-react";
@@ -27,9 +27,15 @@ const SponsorForm = ({ sponsor, zone, onSuccess, onCancel }: SponsorFormProps) =
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [activeLanguage, setActiveLanguage] = useState("fr");
+
+  const ZONE_OPTIONS = [
+    { value: "home", label: "Accueil" },
+    { value: "category", label: "Catégorie" },
+    { value: "city", label: "Ville" },
+  ];
   
   const [formData, setFormData] = useState({
-    zone: sponsor?.zone || zone,
+    zones: sponsor?.zones || (zone ? [zone] : ["home"]),
     sort_order: sponsor?.sort_order || 0,
     is_active: sponsor?.is_active ?? true,
     
@@ -60,7 +66,7 @@ const SponsorForm = ({ sponsor, zone, onSuccess, onCancel }: SponsorFormProps) =
 
   const [uploading, setUploading] = useState<string | null>(null);
 
-  const handleInputChange = (field: string, value: string | number | boolean) => {
+  const handleInputChange = (field: string, value: string | number | boolean | string[]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -279,20 +285,27 @@ const SponsorForm = ({ sponsor, zone, onSuccess, onCancel }: SponsorFormProps) =
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label>Zone d'affichage</Label>
-              <Select
-                value={formData.zone}
-                onValueChange={(value) => handleInputChange("zone", value)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="home">Accueil</SelectItem>
-                  <SelectItem value="category">Catégorie</SelectItem>
-                  <SelectItem value="city">Ville</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label>Zones d'affichage</Label>
+              <div className="flex flex-col gap-2 pt-1">
+                {ZONE_OPTIONS.map((option) => (
+                  <div key={option.value} className="flex items-center gap-2">
+                    <Checkbox
+                      id={`zone-${option.value}`}
+                      checked={formData.zones.includes(option.value)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          handleInputChange("zones", [...formData.zones, option.value]);
+                        } else {
+                          handleInputChange("zones", formData.zones.filter((z: string) => z !== option.value));
+                        }
+                      }}
+                    />
+                    <Label htmlFor={`zone-${option.value}`} className="font-normal cursor-pointer">
+                      {option.label}
+                    </Label>
+                  </div>
+                ))}
+              </div>
             </div>
             <div className="space-y-2">
               <Label>Ordre d'affichage</Label>

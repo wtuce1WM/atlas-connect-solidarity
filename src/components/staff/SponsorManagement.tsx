@@ -11,7 +11,7 @@ import SponsorForm from "./SponsorForm";
 
 interface Sponsor {
   id: string;
-  zone: string;
+  zones: string[];
   name_fr: string;
   name_en: string | null;
   name_ar: string | null;
@@ -107,7 +107,7 @@ const SponsorManagement = () => {
     setShowForm(true);
   };
 
-  const filteredSponsors = sponsors.filter(s => s.zone === activeZone);
+  const filteredSponsors = sponsors.filter(s => s.zones.includes(activeZone));
 
   const getZoneIcon = (zone: string) => {
     switch (zone) {
@@ -236,21 +236,21 @@ const SponsorManagement = () => {
             <Home className="h-4 w-4" />
             Accueil
             <span className="ml-1 text-xs bg-muted-foreground/20 px-1.5 py-0.5 rounded">
-              {sponsors.filter(s => s.zone === "home").length}
+              {sponsors.filter(s => s.zones.includes("home")).length}
             </span>
           </TabsTrigger>
           <TabsTrigger value="category" className="gap-2">
             <Folder className="h-4 w-4" />
             Catégorie
             <span className="ml-1 text-xs bg-muted-foreground/20 px-1.5 py-0.5 rounded">
-              {sponsors.filter(s => s.zone === "category").length}
+              {sponsors.filter(s => s.zones.includes("category")).length}
             </span>
           </TabsTrigger>
           <TabsTrigger value="city" className="gap-2">
             <MapPin className="h-4 w-4" />
             Ville
             <span className="ml-1 text-xs bg-muted-foreground/20 px-1.5 py-0.5 rounded">
-              {sponsors.filter(s => s.zone === "city").length}
+              {sponsors.filter(s => s.zones.includes("city")).length}
             </span>
           </TabsTrigger>
         </TabsList>
