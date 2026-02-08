@@ -219,6 +219,9 @@ export type Database = {
       }
       categories: {
         Row: {
+          adj_ar: string | null
+          adj_en: string | null
+          adj_fr: string | null
           created_at: string | null
           icon: string | null
           id: string
@@ -229,6 +232,9 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          adj_ar?: string | null
+          adj_en?: string | null
+          adj_fr?: string | null
           created_at?: string | null
           icon?: string | null
           id?: string
@@ -239,6 +245,9 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          adj_ar?: string | null
+          adj_en?: string | null
+          adj_fr?: string | null
           created_at?: string | null
           icon?: string | null
           id?: string
