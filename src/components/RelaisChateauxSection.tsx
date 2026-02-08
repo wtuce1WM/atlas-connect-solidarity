@@ -162,7 +162,7 @@ const RelaisChateauxSection = () => {
                   </div>
                 )}
 
-                <CardContent className="p-6 relative z-10 flex flex-col items-center justify-center min-h-[200px] text-center">
+                <CardContent className="p-6 relative z-10 flex flex-col items-center justify-end min-h-[200px] text-center">
 
                   {/* Name */}
                   <h3 className="text-lg font-semibold text-white group-hover:text-gold transition-colors mb-2">
