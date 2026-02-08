@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, Navigate } from "react-router-dom";
-import { ArrowLeft, MapPin, Phone, Mail, Globe, BadgeCheck, Loader2, ChevronLeft, ChevronRight, FileText, Download, ShoppingBag, Facebook, Instagram, Linkedin, Youtube, MessageCircle, Clock, AlertTriangle } from "lucide-react";
+import { ArrowLeft, MapPin, Phone, Mail, Globe, BadgeCheck, Loader2, ChevronLeft, ChevronRight, FileText, Download, ShoppingBag, Facebook, Instagram, Linkedin, Youtube, MessageCircle, Clock, AlertTriangle, ChevronDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Badge } from "@/components/ui/badge";
@@ -395,31 +395,39 @@ const BusinessDetail = () => {
               />
             )}
 
-            {/* PDF */}
+            {/* PDF - Collapsible */}
             {business.pdf_url && !isValidatingPdf && isPdfValid && (
               <Card>
                 <CardContent className="p-4">
-                  <h2 className="text-lg font-semibold mb-3">PDF</h2>
-                  <div className="space-y-3">
-                    {/* PDF Preview */}
-                    <div className="aspect-[3/4] w-full rounded-lg overflow-hidden border bg-muted">
-                      <iframe
-                        src={`${business.pdf_url}#toolbar=0&navpanes=0`}
-                        className="w-full h-full"
-                        title="PDF"
-                      />
+                  <details className="group">
+                    <summary className="flex items-center justify-between cursor-pointer list-none">
+                      <h2 className="text-lg font-semibold flex items-center gap-2">
+                        <FileText className="h-5 w-5" />
+                        PDF
+                      </h2>
+                      <ChevronDown className="h-5 w-5 text-muted-foreground transition-transform group-open:rotate-180" />
+                    </summary>
+                    <div className="space-y-3 mt-4">
+                      {/* PDF Preview */}
+                      <div className="aspect-[3/4] w-full rounded-lg overflow-hidden border bg-muted">
+                        <iframe
+                          src={`${business.pdf_url}#toolbar=0&navpanes=0`}
+                          className="w-full h-full"
+                          title="PDF"
+                        />
+                      </div>
+                      {/* Download Button */}
+                      <a
+                        href={business.pdf_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
+                      >
+                        <Download className="h-4 w-4" />
+                        Télécharger
+                      </a>
                     </div>
-                    {/* Download Button */}
-                    <a
-                      href={business.pdf_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
-                    >
-                      <Download className="h-4 w-4" />
-                      Télécharger
-                    </a>
-                  </div>
+                  </details>
                 </CardContent>
               </Card>
             )}
