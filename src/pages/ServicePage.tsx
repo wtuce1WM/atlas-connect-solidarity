@@ -206,7 +206,7 @@ const ServicePage = () => {
       <Header />
       
       {/* Hero Section */}
-      <section className="bg-black pt-28 pb-16 relative overflow-hidden">
+      <section className="bg-black pt-28 pb-8 lg:pb-16 relative overflow-hidden">
         {/* Background decorative emblem - hidden on mobile and tablet */}
         <div 
           className="hidden lg:block absolute top-28 left-1/2 -translate-x-1/2 w-[120px] h-[120px] opacity-100 pointer-events-none"
@@ -235,7 +235,7 @@ const ServicePage = () => {
       </section>
 
       {/* Filters & Results */}
-      <section className="py-12 bg-black">
+      <section className="py-6 lg:py-12 bg-black">
         <div className="container mx-auto px-4">
           {/* City Filter */}
           {availableCities.length > 1 && (
