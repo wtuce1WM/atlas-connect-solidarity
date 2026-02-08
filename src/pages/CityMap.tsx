@@ -391,7 +391,7 @@ const CityMap = () => {
                 {(selectedCategory || selectedSubcategory || selectedActivities.length > 0) && (
                   <button
                     onClick={clearAllFilters}
-                    className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1"
+                    className="text-sm text-gray-400 hover:text-gray-200 flex items-center gap-1"
                   >
                     <X className="h-4 w-4" />
                     Effacer les filtres
