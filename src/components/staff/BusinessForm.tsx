@@ -646,6 +646,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
                 <SelectItem value="structure_moyenne">Structure Moyenne</SelectItem>
                 <SelectItem value="grande_structure">Grande Structure</SelectItem>
                 <SelectItem value="corporate_branding">Corporate & Branding</SelectItem>
+                <SelectItem value="institution">Institution</SelectItem>
               </SelectContent>
             </Select>
           </div>
