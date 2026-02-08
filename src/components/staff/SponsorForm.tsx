@@ -223,7 +223,7 @@ const SponsorForm = ({ sponsor, zone, onSuccess, onCancel }: SponsorFormProps) =
             </div>
           </div>
           {value && (
-            <div className="w-20 h-20 border rounded overflow-hidden flex-shrink-0 bg-black">
+            <div className="w-20 h-20 border rounded overflow-hidden flex-shrink-0 bg-muted">
               <img src={value} alt="" className="w-full h-full object-contain" />
             </div>
           )}
