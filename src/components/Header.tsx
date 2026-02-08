@@ -27,8 +27,8 @@ const Header = ({ variant = "default" }: HeaderProps) => {
           </span>
         </a>
 
-        {/* Desktop Nav */}
-        <nav className="hidden items-center gap-8 md:flex">
+        {/* Desktop Nav - Centered */}
+        <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-8 md:flex">
           <a href="/#mission" className="text-white/90 transition-colors hover:text-gold">
             {t("footer.ourMission")}
           </a>
