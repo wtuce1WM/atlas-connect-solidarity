@@ -224,7 +224,7 @@ const HeroSection = () => {
       {/* Search Bar below logo - positioned relative in content flow */}
 
       {/* Content */}
-      <div className="relative z-10 flex min-h-screen flex-col items-center px-4 pt-[22rem]">
+      <div className="relative z-10 flex min-h-screen flex-col items-center px-4 pt-[30rem]">
         {/* Logo/Title - DISABLED
         <div className="mb-12 text-center">
           <h1 className="mb-2 font-serif text-5xl font-bold uppercase tracking-tight text-white md:text-7xl">
