@@ -101,7 +101,7 @@ const SponsorsSection = ({ zone, cityId }: SponsorsSectionProps) => {
     <section className="bg-black py-8">
       <div className="container mx-auto px-4">
         <div 
-          className="flex items-center gap-8 md:gap-12 overflow-x-auto pb-4 scrollbar-hide"
+          className="flex items-center justify-center gap-8 md:gap-12 overflow-x-auto pb-4 scrollbar-hide"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
           {sponsors.map((sponsor) => {
@@ -114,7 +114,7 @@ const SponsorsSection = ({ zone, cityId }: SponsorsSectionProps) => {
               <img
                 src={logo}
                 alt={sponsor.name_fr}
-                className="h-auto w-auto max-h-20 object-contain opacity-70 hover:opacity-100 transition-opacity"
+                className="h-auto w-auto max-h-32 md:max-h-40 object-contain opacity-70 hover:opacity-100 transition-opacity"
               />
             );
 
