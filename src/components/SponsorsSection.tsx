@@ -73,16 +73,14 @@ const SponsorsSection = ({ zone, cityId }: SponsorsSectionProps) => {
   };
 
   const getSponsorLogo = (sponsor: Sponsor) => {
-    // Try big logo first, then small
+    // Use small logo first
     if (language === "ar") {
-      return sponsor.logo_big_url_ar || sponsor.logo_small_url_ar || sponsor.image_big_url_ar ||
-             sponsor.logo_big_url_fr || sponsor.logo_small_url_fr || sponsor.image_big_url_fr;
+      return sponsor.logo_small_url_ar || sponsor.logo_small_url_fr;
     }
     if (language === "en") {
-      return sponsor.logo_big_url_en || sponsor.logo_small_url_en || sponsor.image_big_url_en ||
-             sponsor.logo_big_url_fr || sponsor.logo_small_url_fr || sponsor.image_big_url_fr;
+      return sponsor.logo_small_url_en || sponsor.logo_small_url_fr;
     }
-    return sponsor.logo_big_url_fr || sponsor.logo_small_url_fr || sponsor.image_big_url_fr;
+    return sponsor.logo_small_url_fr;
   };
 
   if (isLoading) {
