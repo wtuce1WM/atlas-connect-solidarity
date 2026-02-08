@@ -375,7 +375,7 @@ const CityMap = () => {
               <h2 className="text-lg font-semibold text-white mb-3">
                 Entreprises ({filteredBusinesses.length})
               </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[800px] overflow-y-auto pr-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[1200px] overflow-y-auto pr-2">
                 {filteredBusinesses.map((business) => (
                   <Link key={business.id} to={`/business/${business.id}`}>
                     <Card className="group h-full overflow-hidden bg-card border-border hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 relative">
