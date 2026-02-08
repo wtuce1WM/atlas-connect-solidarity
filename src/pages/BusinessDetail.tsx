@@ -419,9 +419,20 @@ const BusinessDetail = () => {
               <Card>
                 <CardContent className="p-6">
                   <h3 className="text-sm font-medium text-muted-foreground mb-3">Services</h3>
-                  <ul className="list-disc list-inside space-y-1 text-foreground">
+                  <ul className="space-y-3 text-foreground">
                     {[...business.services].sort((a, b) => a.localeCompare(b, 'fr')).map((service, index) => (
-                      <li key={index}>{service}</li>
+                      <li key={index} className="flex flex-col gap-1">
+                        <span className="flex items-center gap-2">
+                          <span className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
+                          {service}
+                        </span>
+                        <Link
+                          to={`/city/${encodeURIComponent(business.city)}?service=${encodeURIComponent(service)}`}
+                          className="text-xs text-primary hover:underline ml-4"
+                        >
+                          → autres établissements proches avec ce service
+                        </Link>
+                      </li>
                     ))}
                   </ul>
                 </CardContent>
