@@ -221,9 +221,12 @@ const BusinessDetail = () => {
             
             {/* Rating and WTUCE Logo for verified businesses - moved to header */}
             {isVerified && (
-              <div className="flex flex-col items-center flex-shrink-0">
+              <div className="flex items-center gap-4 flex-shrink-0">
                 {business.rating !== null && business.rating !== undefined && (
-                  <div className="text-gold font-bold text-3xl mb-2">
+                  <div 
+                    className="text-gold font-bold text-4xl"
+                    style={{ fontFamily: "'Amiri', serif" }}
+                  >
                     {business.rating}/20
                   </div>
                 )}
