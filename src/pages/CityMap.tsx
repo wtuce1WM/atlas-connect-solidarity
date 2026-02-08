@@ -327,34 +327,34 @@ const CityMap = () => {
               {/* Selected business indicator */}
               {selectedBusiness && (
                 <div className="absolute top-2 left-2 right-2 z-10 bg-white text-black px-4 py-3 rounded-md shadow-lg">
-                  <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center justify-between gap-4">
                     <span className="text-sm font-bold truncate">{selectedBusiness.name}</span>
-                    <button 
-                      onClick={clearSelectedBusiness}
-                      className="ml-2 hover:bg-black/10 rounded p-1"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                  </div>
-                  <div className="flex flex-wrap gap-3 text-xs">
-                    {selectedBusiness.phone && (
-                      <a href={`tel:${selectedBusiness.phone}`} className="flex items-center gap-1 hover:text-primary">
-                        <Phone className="h-3 w-3" />
-                        {selectedBusiness.phone}
-                      </a>
-                    )}
-                    {selectedBusiness.whatsapp && (
-                      <a href={`https://wa.me/${selectedBusiness.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-green-600 hover:text-green-700">
-                        <Phone className="h-3 w-3" />
-                        WhatsApp
-                      </a>
-                    )}
-                    {selectedBusiness.skype && (
-                      <a href={`skype:${selectedBusiness.skype}?chat`} className="flex items-center gap-1 text-[#00AFF0] hover:text-[#00AFF0]/80">
-                        <Phone className="h-3 w-3" />
-                        Skype
-                      </a>
-                    )}
+                    <div className="flex items-center gap-3 text-xs flex-shrink-0">
+                      {selectedBusiness.phone && (
+                        <a href={`tel:${selectedBusiness.phone}`} className="flex items-center gap-1 hover:text-primary">
+                          <Phone className="h-3 w-3" />
+                          {selectedBusiness.phone}
+                        </a>
+                      )}
+                      {selectedBusiness.whatsapp && (
+                        <a href={`https://wa.me/${selectedBusiness.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-green-600 hover:text-green-700 font-bold">
+                          <Phone className="h-3 w-3" />
+                          WhatsApp
+                        </a>
+                      )}
+                      {selectedBusiness.skype && (
+                        <a href={`skype:${selectedBusiness.skype}?chat`} className="flex items-center gap-1 text-[#00AFF0] hover:text-[#00AFF0]/80">
+                          <Phone className="h-3 w-3" />
+                          Skype
+                        </a>
+                      )}
+                      <button 
+                        onClick={clearSelectedBusiness}
+                        className="hover:bg-black/10 rounded p-1"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}
