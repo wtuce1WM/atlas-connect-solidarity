@@ -173,12 +173,14 @@ const SponsorManagement = () => {
           {filteredSponsors.map((sponsor) => (
             <TableRow key={sponsor.id}>
               <TableCell>
-                {sponsor.logo_small_url_fr || sponsor.logo_big_url_fr ? (
-                  <img
-                    src={sponsor.logo_small_url_fr || sponsor.logo_big_url_fr || ""}
-                    alt={sponsor.name_fr}
-                    className="w-12 h-12 object-contain rounded"
-                  />
+              {sponsor.logo_small_url_fr || sponsor.logo_big_url_fr ? (
+                  <div className="w-12 h-12 bg-muted rounded overflow-hidden">
+                    <img
+                      src={sponsor.logo_small_url_fr || sponsor.logo_big_url_fr || ""}
+                      alt={sponsor.name_fr}
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
                 ) : (
                   <div className="w-12 h-12 bg-muted rounded flex items-center justify-center">
                     <Star className="h-5 w-5 text-muted-foreground" />
