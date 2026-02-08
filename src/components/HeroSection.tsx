@@ -171,21 +171,7 @@ const HeroSection = () => {
         />
       </div>
 
-      {/* Search Bar below logo */}
-      <div className="absolute inset-x-0 top-64 sm:top-72 flex justify-center px-4 z-20">
-        <form onSubmit={handleSearch} className="w-full max-w-md">
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder={language === "fr" ? "Que cherchez-vous ?" : language === "ar" ? "ماذا تبحث عنه؟" : "What are you looking for?"}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-6 text-lg bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-full shadow-lg"
-            />
-          </div>
-        </form>
-      </div>
+      {/* Search Bar below logo - positioned relative in content flow */}
 
       {/* Royal Air Maroc Partner Logo */}
       <a 
@@ -213,6 +199,32 @@ const HeroSection = () => {
           </p>
         </div>
         */}
+
+        {/* Search Bar */}
+        <form onSubmit={handleSearch} className="w-full max-w-lg mb-10">
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder={language === "fr" ? "Que cherchez-vous ?" : language === "ar" ? "ماذا تبحث عنه؟" : "What are you looking for?"}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-12 pr-4 py-6 text-lg bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-full shadow-lg"
+              />
+            </div>
+            <Button 
+              type="submit" 
+              size="lg"
+              className="bg-gold hover:bg-gold/90 text-black font-semibold rounded-full px-6 py-6 shadow-lg"
+            >
+              <Search className="h-5 w-5 sm:mr-2" />
+              <span className="hidden sm:inline">
+                {language === "fr" ? "Rechercher" : language === "ar" ? "بحث" : "Search"}
+              </span>
+            </Button>
+          </div>
+        </form>
 
         {isLoading ? (
           <div className="flex justify-center py-12">
