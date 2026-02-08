@@ -535,13 +535,21 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
               <Label htmlFor="rating">Note /20</Label>
               <Input
                 id="rating"
-                type="number"
-                min="0"
-                max="20"
-                step="0.5"
+                type="text"
+                inputMode="decimal"
                 value={formData.rating}
-                onChange={(e) => handleChange("rating", e.target.value)}
-                placeholder="Ex: 18.5"
+                onChange={(e) => {
+                  // Allow digits, dot, and comma - normalize comma to dot for storage
+                  const value = e.target.value.replace(",", ".");
+                  // Only allow valid decimal format
+                  if (value === "" || /^\d*\.?\d*$/.test(value)) {
+                    const numVal = parseFloat(value);
+                    if (value === "" || (numVal >= 0 && numVal <= 20)) {
+                      handleChange("rating", value);
+                    }
+                  }
+                }}
+                placeholder="Ex: 14,6 ou 18.5"
               />
             </div>
           </div>
