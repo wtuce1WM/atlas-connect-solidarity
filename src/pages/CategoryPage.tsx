@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, MapPin, Phone, Building2, ShieldCheck, ChevronLeft, ChevronRight } from "lucide-react";
+import { Loader2, MapPin, Phone, Building2, ShieldCheck, ChevronLeft, ChevronRight, X } from "lucide-react";
 import logoWatermark from "@/assets/logoGOLDsimpleSML.webp";
 import symboleMaroc from "@/assets/symbole-maroc-3.webp";
 import {
@@ -41,6 +41,7 @@ interface Business {
   description: string | null;
   city: string;
   region: string;
+  address: string | null;
   phone: string | null;
   whatsapp: string | null;
   skype: string | null;
@@ -51,6 +52,11 @@ interface Business {
   categories: string[] | null;
   wtuce_status: string | null;
   is_regulated_activity: boolean | null;
+  latitude: number | null;
+  longitude: number | null;
+  google_maps_url: string | null;
+  opening_hours: unknown;
+  show_opening_hours: boolean | null;
 }
 
 interface CategoryInfo {
@@ -91,6 +97,7 @@ const CategoryPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCity, setSelectedCity] = useState<string>("all");
+  const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
 
   const decodedCategoryName = categoryName ? decodeURIComponent(categoryName) : "";
 
@@ -154,7 +161,7 @@ const CategoryPage = () => {
         // Fetch ALL businesses in this category (no limit)
         const { data: businessData, error } = await supabase
           .from("businesses")
-          .select("id, name, description, city, region, phone, whatsapp, skype, website, logo_url, images, main_category, categories, wtuce_status, is_regulated_activity")
+          .select("id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, opening_hours, show_opening_hours")
           .eq("is_active", true)
           .or(`main_category.eq.${decodedCategoryName},categories.cs.{${decodedCategoryName}}`)
           .order("wtuce_status", { ascending: true })
@@ -252,11 +259,45 @@ const CategoryPage = () => {
 
   const handleCityChange = (city: string) => {
     setSelectedCity(city);
+    setSelectedBusiness(null);
   };
 
   const goToPage = (page: number) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleSelectBusiness = (business: Business) => {
+    setSelectedBusiness(business);
+    window.scrollTo({ top: 300, behavior: 'smooth' });
+  };
+
+  const clearSelectedBusiness = () => {
+    setSelectedBusiness(null);
+  };
+
+  const getMapEmbedUrl = () => {
+    if (selectedBusiness) {
+      if (selectedBusiness.google_maps_url) {
+        const placeMatch = selectedBusiness.google_maps_url.match(/place\/([^\/]+)/);
+        if (placeMatch) {
+          const placeName = decodeURIComponent(placeMatch[1].replace(/\+/g, ' '));
+          return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(placeName)}&zoom=17`;
+        }
+        const coordMatch = selectedBusiness.google_maps_url.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+        if (coordMatch) {
+          return `https://www.google.com/maps/embed/v1/view?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&center=${coordMatch[1]},${coordMatch[2]}&zoom=17&maptype=roadmap`;
+        }
+      }
+      if (selectedBusiness.latitude && selectedBusiness.longitude) {
+        return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${selectedBusiness.latitude},${selectedBusiness.longitude}&zoom=17`;
+      }
+      const query = selectedBusiness.address 
+        ? `${selectedBusiness.name}, ${selectedBusiness.address}`
+        : `${selectedBusiness.name}, ${selectedBusiness.city}, Maroc`;
+      return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(query)}&zoom=17`;
+    }
+    return `https://www.google.com/maps/embed/v1/search?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(decodedCategoryName)}+${selectedCity !== "all" ? encodeURIComponent(selectedCity) : "Maroc"}&zoom=${selectedCity !== "all" ? 13 : 6}`;
   };
 
   if (isLoading) {
@@ -311,15 +352,80 @@ const CategoryPage = () => {
       <section className="py-6 lg:py-12 bg-black">
         <div className="container mx-auto px-4">
           {/* Google Maps */}
-          <Card className="mb-8">
+          <Card className="mb-8 relative">
             <CardContent className="p-0">
+              {/* Selected business indicator */}
+              {selectedBusiness && (
+                <div className="absolute top-2 right-2 z-10 bg-white text-black px-4 py-3 rounded shadow-lg max-w-xs">
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <span className="text-sm font-bold">{selectedBusiness.name}</span>
+                    <button 
+                      onClick={clearSelectedBusiness}
+                      className="hover:bg-black/10 rounded p-1 flex-shrink-0"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <div className="space-y-1 text-xs">
+                    {selectedBusiness.address && (
+                      <div className="flex items-start gap-1">
+                        <MapPin className="h-3 w-3 mt-0.5 flex-shrink-0" />
+                        <span>{selectedBusiness.address}</span>
+                      </div>
+                    )}
+                    {selectedBusiness.phone && (
+                      <a href={`tel:${selectedBusiness.phone}`} className="flex items-center gap-1 hover:text-primary">
+                        <Phone className="h-3 w-3 flex-shrink-0" />
+                        {selectedBusiness.phone}
+                      </a>
+                    )}
+                    {selectedBusiness.whatsapp && (
+                      <a href={`https://wa.me/${selectedBusiness.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-green-600 hover:text-green-700 font-bold">
+                        <Phone className="h-3 w-3 flex-shrink-0" />
+                        WhatsApp: {selectedBusiness.whatsapp}
+                      </a>
+                    )}
+                    {selectedBusiness.skype && (
+                      <a href={`skype:${selectedBusiness.skype}?chat`} className="flex items-center gap-1 text-[#00AFF0] hover:text-[#00AFF0]/80">
+                        <Phone className="h-3 w-3 flex-shrink-0" />
+                        Skype: {selectedBusiness.skype}
+                      </a>
+                    )}
+                    {selectedBusiness.show_opening_hours && selectedBusiness.opening_hours && (
+                      <div className="pt-1 border-t border-gray-200 mt-1">
+                        <span className="font-medium">Horaires:</span>
+                        <div className="text-[10px] mt-0.5">
+                          {(() => {
+                            const hours = selectedBusiness.opening_hours as Record<string, { open: string; close: string }>;
+                            const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+                            const dayLabels: Record<string, string> = {
+                              monday: 'Lun', tuesday: 'Mar', wednesday: 'Mer', 
+                              thursday: 'Jeu', friday: 'Ven', saturday: 'Sam', sunday: 'Dim'
+                            };
+                            return days.map(day => {
+                              const dayData = hours[day];
+                              if (!dayData) return null;
+                              return (
+                                <div key={day} className="flex justify-between gap-2">
+                                  <span>{dayLabels[day]}</span>
+                                  <span>{dayData.open && dayData.close ? `${dayData.open}-${dayData.close}` : 'Fermé'}</span>
+                                </div>
+                              );
+                            });
+                          })()}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
               <iframe
-                src={`https://www.google.com/maps/embed/v1/search?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(decodedCategoryName)}+${selectedCity !== "all" ? encodeURIComponent(selectedCity) : "Maroc"}&zoom=${selectedCity !== "all" ? 13 : 6}`}
+                src={getMapEmbedUrl()}
                 className="w-full h-[400px] border-0 rounded-lg"
                 allowFullScreen
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
-                title={`Carte ${getCategoryName()}${selectedCity !== "all" ? ` à ${selectedCity}` : ""}`}
+                title={selectedBusiness ? `Localisation de ${selectedBusiness.name}` : `Carte ${getCategoryName()}${selectedCity !== "all" ? ` à ${selectedCity}` : ""}`}
               />
             </CardContent>
           </Card>
@@ -440,6 +546,25 @@ const CategoryPage = () => {
                             </a>
                           )}
                         </div>
+
+                        {/* View on map button */}
+                        {(business.google_maps_url || (business.latitude && business.longitude)) && (
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleSelectBusiness(business);
+                            }}
+                            className={`mt-3 flex items-center gap-1 text-xs font-bold transition-colors ${
+                              selectedBusiness?.id === business.id
+                                ? "text-gold"
+                                : "text-muted-foreground hover:text-gold"
+                            }`}
+                          >
+                            <MapPin className="h-3 w-3" />
+                            {selectedBusiness?.id === business.id ? "Affiché sur la carte" : "Voir sur la carte"}
+                          </button>
+                        )}
                       </CardContent>
                     </Card>
                   </Link>
