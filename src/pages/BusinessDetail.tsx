@@ -241,7 +241,7 @@ const BusinessDetail = () => {
               if (!embedData) return null;
               
               return (
-                <Card className="overflow-hidden">
+                <Card className="overflow-hidden bg-black border-black">
                   <div className="aspect-video">
                     {embedData.type === 'video' ? (
                       <video
@@ -265,21 +265,21 @@ const BusinessDetail = () => {
 
             {/* Image Gallery */}
             {isValidatingImages && business.images && business.images.length > 0 && (
-              <Card className="overflow-hidden">
-                <div className="flex items-center justify-center bg-muted/30 min-h-[200px]">
-                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              <Card className="overflow-hidden bg-black border-black">
+                <div className="flex items-center justify-center bg-black min-h-[200px]">
+                  <Loader2 className="h-6 w-6 animate-spin text-primary" />
                 </div>
               </Card>
             )}
             {!isValidatingImages && validImages.length > 0 && (
-              <Card className="overflow-hidden">
+              <Card className="overflow-hidden bg-black border-black">
                 {brokenImagesCount > 0 && (
                   <div className="flex items-center gap-2 px-4 py-2 bg-amber-500/10 text-amber-600 text-sm border-b">
                     <AlertTriangle className="h-4 w-4" />
                     {brokenImagesCount} image(s) indisponible(s)
                   </div>
                 )}
-                <div className="relative flex items-center justify-center bg-muted/30 min-h-[200px]">
+                <div className="relative flex items-center justify-center bg-black min-h-[200px]">
                   <img
                     src={validImages[currentImageIndex]}
                     alt={`${business.name} - Image ${currentImageIndex + 1}`}
@@ -315,7 +315,7 @@ const BusinessDetail = () => {
                   )}
                 </div>
                 {validImages.length > 1 && (
-                  <div className="flex gap-2 p-4 overflow-x-auto">
+                  <div className="flex gap-2 p-4 overflow-x-auto bg-black">
                     {validImages.map((url, idx) => (
                       <button
                         key={idx}
