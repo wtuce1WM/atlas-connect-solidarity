@@ -239,7 +239,7 @@ const ServicePage = () => {
         <div className="container mx-auto px-4">
           {/* City Filter */}
           {availableCities.length > 1 && (
-            <div className="mb-8 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+            <div className="mb-8 flex flex-col items-center sm:flex-row sm:items-center gap-2 sm:gap-4">
               <label className="text-sm text-gray-400">{t.filterByCity}:</label>
               <Select value={selectedCity} onValueChange={handleCityChange}>
                 <SelectTrigger className="w-[220px] bg-card border-border">
