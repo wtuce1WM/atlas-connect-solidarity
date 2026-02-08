@@ -275,17 +275,17 @@ const BusinessDetail = () => {
           </div>
         </div>
 
-        <div className="grid gap-8 lg:grid-cols-3">
+        <div className="grid gap-8 lg:grid-cols-3 overflow-x-hidden">
           {/* Main content */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-6 overflow-hidden">
             {/* Video */}
             {business.video_1_url && (() => {
               const embedData = getEmbedUrl(business.video_1_url);
               if (!embedData) return null;
               
               return (
-                <Card className="overflow-hidden bg-black border-black">
-                  <div className="aspect-video">
+                <Card className="overflow-hidden bg-black border-black max-w-full">
+                  <div className="aspect-video w-full">
                     {embedData.type === 'video' ? (
                       <video
                         src={embedData.url}
