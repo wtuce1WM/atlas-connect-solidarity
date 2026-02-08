@@ -112,7 +112,7 @@ const CategoryManagement = () => {
   const fetchData = async () => {
     setLoading(true);
     const [catRes, subRes, svcRes] = await Promise.all([
-      supabase.from("categories").select("*").order("sort_order"),
+      supabase.from("categories").select("*").order("name_fr"),
       supabase.from("subcategories").select("*").order("sort_order"),
       supabase.from("services").select("*").order("sort_order")
     ]);
