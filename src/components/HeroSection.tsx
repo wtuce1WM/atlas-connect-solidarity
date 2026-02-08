@@ -248,7 +248,7 @@ const HeroSection = () => {
 
         {/* Search Bar */}
         <form onSubmit={handleSearch} className="w-full max-w-lg mb-10">
-          <div className="flex gap-2">
+          <div className="flex flex-col md:flex-row gap-2">
             <div className="relative flex-1">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               <Input
@@ -262,10 +262,10 @@ const HeroSection = () => {
             <Button 
               type="submit" 
               size="lg"
-              className="bg-gold hover:bg-gold/90 text-black font-semibold rounded-full px-6 py-6 shadow-lg"
+              className="w-full md:w-auto bg-gold hover:bg-gold/90 text-black font-semibold rounded-full px-6 py-6 shadow-lg"
             >
-              <Search className="h-5 w-5 sm:mr-2" />
-              <span className="hidden sm:inline">
+              <Search className="h-5 w-5 md:mr-2" />
+              <span className="inline md:inline">
                 {language === "fr" ? "Rechercher" : language === "ar" ? "بحث" : "Search"}
               </span>
             </Button>
