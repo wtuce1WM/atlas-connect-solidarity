@@ -33,6 +33,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import IconPicker from "./IconPicker";
 
 interface Category {
   id: string;
@@ -334,11 +335,10 @@ const CategoryManagement = () => {
       )}
       {showIcon && (
         <div className="max-w-xs">
-          <label className="text-xs font-medium text-muted-foreground">Icône (nom Lucide)</label>
-          <Input
+          <label className="text-xs font-medium text-muted-foreground">Icône</label>
+          <IconPicker
             value={editForm.icon}
-            onChange={(e) => setEditForm(prev => ({ ...prev, icon: e.target.value }))}
-            placeholder="ex: Hotel, Utensils, Car..."
+            onChange={(iconName) => setEditForm(prev => ({ ...prev, icon: iconName }))}
           />
         </div>
       )}
