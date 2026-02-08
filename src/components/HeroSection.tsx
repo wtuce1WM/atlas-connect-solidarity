@@ -10,6 +10,17 @@ import { Input } from "@/components/ui/input";
 import logoGoldOverlay from "@/assets/logoGOLDsimple.webp";
 import heroBackground from "@/assets/hero-marrakech.jpg";
 
+interface Sponsor {
+  id: string;
+  name_fr: string;
+  url_fr: string | null;
+  url_en: string | null;
+  url_ar: string | null;
+  logo_small_url_fr: string | null;
+  logo_small_url_en: string | null;
+  logo_small_url_ar: string | null;
+}
+
 interface City {
   id: string;
   name_fr: string;
@@ -43,6 +54,7 @@ const HeroSection = () => {
   const [relaisCount, setRelaisCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [sponsors, setSponsors] = useState<Sponsor[]>([]);
   
   const citiesScrollRef = useRef<HTMLDivElement>(null);
   const categoriesScrollRef = useRef<HTMLDivElement>(null);
@@ -52,6 +64,22 @@ const HeroSection = () => {
     if (searchQuery.trim()) {
       navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
     }
+  };
+
+  const getSponsorUrl = (sponsor: Sponsor) => {
+    if (language === "ar" && sponsor.url_ar) return sponsor.url_ar;
+    if (language === "en" && sponsor.url_en) return sponsor.url_en;
+    return sponsor.url_fr;
+  };
+
+  const getSponsorLogo = (sponsor: Sponsor) => {
+    if (language === "ar") {
+      return sponsor.logo_small_url_ar || sponsor.logo_small_url_fr;
+    }
+    if (language === "en") {
+      return sponsor.logo_small_url_en || sponsor.logo_small_url_fr;
+    }
+    return sponsor.logo_small_url_fr;
   };
 
   const scrollContainer = (ref: React.RefObject<HTMLDivElement>, direction: "left" | "right") => {
@@ -125,9 +153,18 @@ const HeroSection = () => {
           .eq("is_active", true)
           .in("name", RELAIS_CHATEAUX_NAMES);
 
+        // Fetch sponsors for home zone
+        const { data: sponsorsData } = await supabase
+          .from("sponsors")
+          .select("id, name_fr, url_fr, url_en, url_ar, logo_small_url_fr, logo_small_url_en, logo_small_url_ar")
+          .eq("is_active", true)
+          .contains("zones", ["home"])
+          .order("sort_order", { ascending: true });
+
         setCities(citiesWithCounts);
         setCategories(categoriesWithCounts);
         setRelaisCount(count || 0);
+        setSponsors(sponsorsData || []);
       } catch (error) {
         console.error("Error fetching hero data:", error);
       } finally {
@@ -358,6 +395,48 @@ const HeroSection = () => {
                 </div>
               </div>
             </div>
+
+            {/* Sponsors Section */}
+            {sponsors.length > 0 && (
+              <div className="flex items-center justify-center gap-8 md:gap-12 overflow-x-auto pb-4 scrollbar-hide"
+                style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+              >
+                {sponsors.map((sponsor) => {
+                  const url = getSponsorUrl(sponsor);
+                  const logo = getSponsorLogo(sponsor);
+
+                  if (!logo) return null;
+
+                  const logoElement = (
+                    <img
+                      src={logo}
+                      alt={sponsor.name_fr}
+                      className="h-auto w-auto max-h-16 md:max-h-20 object-contain opacity-100 hover:opacity-80 transition-opacity"
+                    />
+                  );
+
+                  if (url) {
+                    return (
+                      <a
+                        key={sponsor.id}
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-shrink-0"
+                      >
+                        {logoElement}
+                      </a>
+                    );
+                  }
+
+                  return (
+                    <div key={sponsor.id} className="flex-shrink-0">
+                      {logoElement}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
 
             {/* Relais & Châteaux Section - DISABLED
             {relaisCount > 0 && (
