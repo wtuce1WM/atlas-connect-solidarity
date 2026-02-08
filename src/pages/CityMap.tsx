@@ -326,8 +326,8 @@ const CityMap = () => {
             <CardContent className="p-0">
               {/* Selected business indicator */}
               {selectedBusiness && (
-                <div className="absolute top-2 left-2 right-2 z-10 bg-white text-black px-4 py-3 rounded-md shadow-lg">
-                  <div className="flex items-center gap-4">
+                <div className="absolute top-2 right-2 z-10 bg-white text-black px-4 py-3 rounded shadow-lg max-w-sm">
+                  <div className="flex items-center gap-3">
                     <span className="text-sm font-bold">{selectedBusiness.name}</span>
                     {selectedBusiness.phone && (
                       <a href={`tel:${selectedBusiness.phone}`} className="flex items-center gap-1 text-xs hover:text-primary">
@@ -349,7 +349,7 @@ const CityMap = () => {
                     )}
                     <button 
                       onClick={clearSelectedBusiness}
-                      className="ml-auto hover:bg-black/10 rounded p-1"
+                      className="hover:bg-black/10 rounded p-1"
                     >
                       <X className="h-4 w-4" />
                     </button>
