@@ -597,7 +597,7 @@ const CityMap = () => {
                           href={url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-2 text-sm text-gold hover:underline"
+                          className="flex items-center gap-2 text-sm text-white hover:underline"
                         >
                           <ExternalLink className="h-3.5 w-3.5" />
                           {name}
@@ -634,7 +634,7 @@ const CityMap = () => {
                         href={wikipediaUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-sm text-gold hover:underline"
+                        className="flex items-center gap-2 text-sm text-white hover:underline"
                       >
                         <BookOpen className="h-3.5 w-3.5" />
                         {label}
