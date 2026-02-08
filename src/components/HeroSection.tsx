@@ -422,86 +422,47 @@ const HeroSection = () => {
 
             {/* Sponsors Section */}
             {sponsors.length > 0 && (
-              <div className="flex flex-col items-center gap-6 pb-4">
-                {/* First sponsor - always centered */}
-                {sponsors[0] && (() => {
-                  const sponsor = sponsors[0];
-                  const url = getSponsorUrl(sponsor);
-                  const logo = getSponsorLogo(sponsor);
+              <div className="w-full overflow-x-auto scrollbar-hide pb-4"
+                style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+              >
+                <div className="flex items-center justify-center gap-8 md:gap-12 min-w-max px-4">
+                  {sponsors.map((sponsor, index) => {
+                    const url = getSponsorUrl(sponsor);
+                    const logo = getSponsorLogo(sponsor);
 
-                  if (!logo) return null;
+                    if (!logo) return null;
 
-                  const logoElement = (
-                    <img
-                      src={logo}
-                      alt={sponsor.name_fr}
-                      className="h-auto w-auto max-h-24 md:max-h-32 object-contain opacity-100 hover:opacity-80 transition-opacity"
-                    />
-                  );
-
-                  if (url) {
-                    return (
-                      <a
-                        href={url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex justify-center"
-                      >
-                        {logoElement}
-                      </a>
+                    const logoElement = (
+                      <img
+                        src={logo}
+                        alt={sponsor.name_fr}
+                        className={`h-auto w-auto object-contain opacity-100 hover:opacity-80 transition-opacity ${
+                          index === 0 ? "max-h-24 md:max-h-32" : "max-h-16 md:max-h-20"
+                        }`}
+                      />
                     );
-                  }
 
-                  return (
-                    <div className="flex justify-center">
-                      {logoElement}
-                    </div>
-                  );
-                })()}
+                    if (url) {
+                      return (
+                        <a
+                          key={sponsor.id}
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-shrink-0"
+                        >
+                          {logoElement}
+                        </a>
+                      );
+                    }
 
-                {/* Other sponsors - horizontal scroll */}
-                {sponsors.length > 1 && (
-                  <div className="w-full overflow-x-auto scrollbar-hide"
-                    style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-                  >
-                    <div className="flex items-center justify-start gap-8 md:gap-12 px-4 min-w-max">
-                      {sponsors.slice(1).map((sponsor) => {
-                        const url = getSponsorUrl(sponsor);
-                        const logo = getSponsorLogo(sponsor);
-
-                        if (!logo) return null;
-
-                        const logoElement = (
-                          <img
-                            src={logo}
-                            alt={sponsor.name_fr}
-                            className="h-auto w-auto max-h-16 md:max-h-20 object-contain opacity-100 hover:opacity-80 transition-opacity"
-                          />
-                        );
-
-                        if (url) {
-                          return (
-                            <a
-                              key={sponsor.id}
-                              href={url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex-shrink-0"
-                            >
-                              {logoElement}
-                            </a>
-                          );
-                        }
-
-                        return (
-                          <div key={sponsor.id} className="flex-shrink-0">
-                            {logoElement}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
+                    return (
+                      <div key={sponsor.id} className="flex-shrink-0">
+                        {logoElement}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             )}
 
