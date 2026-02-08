@@ -366,35 +366,6 @@ const BusinessDetail = () => {
               </Card>
             )}
 
-            {/* Sous-catégories, Services */}
-            {((business.categories && business.categories.length > 0) || 
-              (business.services && business.services.length > 0)) && (
-              <Card>
-                <CardContent className="p-6 space-y-4">
-                  {business.categories && business.categories.length > 0 && (
-                    <div>
-                      <h3 className="text-sm font-medium text-muted-foreground mb-2">Sous-catégories</h3>
-                      <p className="text-foreground">{business.categories.join(", ")}</p>
-                    </div>
-                  )}
-                  {business.services && business.services.length > 0 && (
-                    <div>
-                      <h3 className="text-sm font-medium text-muted-foreground mb-2">Services</h3>
-                      <p className="text-foreground">{business.services.join(", ")}</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Related Establishments (same KP regroupement) */}
-            {business.kp_regroupement && (
-              <RelatedEstablishments
-                currentBusinessId={business.id}
-                kpRegroupement={business.kp_regroupement}
-              />
-            )}
-
             {/* PDF - Collapsible */}
             {business.pdf_url && !isValidatingPdf && isPdfValid && (
               <Card>
@@ -440,6 +411,35 @@ const BusinessDetail = () => {
                   </div>
                 </CardContent>
               </Card>
+            )}
+
+            {/* Sous-catégories, Services */}
+            {((business.categories && business.categories.length > 0) || 
+              (business.services && business.services.length > 0)) && (
+              <Card>
+                <CardContent className="p-6 space-y-4">
+                  {business.categories && business.categories.length > 0 && (
+                    <div>
+                      <h3 className="text-sm font-medium text-muted-foreground mb-2">Sous-catégories</h3>
+                      <p className="text-foreground">{business.categories.join(", ")}</p>
+                    </div>
+                  )}
+                  {business.services && business.services.length > 0 && (
+                    <div>
+                      <h3 className="text-sm font-medium text-muted-foreground mb-2">Services</h3>
+                      <p className="text-foreground">{business.services.join(", ")}</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Related Establishments (same KP regroupement) */}
+            {business.kp_regroupement && (
+              <RelatedEstablishments
+                currentBusinessId={business.id}
+                kpRegroupement={business.kp_regroupement}
+              />
             )}
           </div>
 
