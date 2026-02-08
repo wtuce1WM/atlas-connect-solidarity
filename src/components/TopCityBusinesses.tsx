@@ -141,7 +141,7 @@ const TopCityBusinesses = ({ businesses, cityName }: TopCityBusinessesProps) => 
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
-                      className="flex items-center gap-1 text-xs text-gold font-bold hover:text-white transition-colors"
+                      className="flex items-center gap-1 text-xs text-white font-bold hover:text-gold transition-colors"
                     >
                       <MapPin className="h-3 w-3" />
                       Voir sur la carte
