@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { Link } from "react-router-dom";
-import { Star, ChevronLeft, ChevronRight } from "lucide-react";
+import { Star, ChevronLeft, ChevronRight, MapPin } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Card, CardContent } from "@/components/ui/card";
 import logoWatermark from "@/assets/logoGOLDsimpleSML.webp";
@@ -15,6 +15,7 @@ interface Business {
   main_category: string | null;
   categories: string[] | null;
   wtuce_status: string | null;
+  google_maps_url: string | null;
 }
 
 interface TopCityBusinessesProps {
@@ -130,7 +131,21 @@ const TopCityBusinesses = ({ businesses, cityName }: TopCityBusinessesProps) => 
 
                   {/* Default Subcategory (first in categories array) */}
                   {business.categories && business.categories.length > 0 && (
-                    <span className="text-xs text-gray-300">{business.categories[0]}</span>
+                    <span className="text-xs text-gray-300 mb-2">{business.categories[0]}</span>
+                  )}
+
+                  {/* Google Maps Link */}
+                  {business.google_maps_url && (
+                    <a
+                      href={business.google_maps_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="flex items-center gap-1 text-xs text-gold font-bold hover:text-white transition-colors"
+                    >
+                      <MapPin className="h-3 w-3" />
+                      Voir sur la carte
+                    </a>
                   )}
                 </CardContent>
               </Card>
