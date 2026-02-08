@@ -21,9 +21,11 @@ interface Business {
 interface TopCityBusinessesProps {
   businesses: Business[];
   cityName: string;
+  onSelectBusiness?: (business: Business) => void;
+  selectedBusinessId?: string | null;
 }
 
-const TopCityBusinesses = ({ businesses, cityName }: TopCityBusinessesProps) => {
+const TopCityBusinesses = ({ businesses, cityName, onSelectBusiness, selectedBusinessId }: TopCityBusinessesProps) => {
   const { language } = useLanguage();
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -134,18 +136,23 @@ const TopCityBusinesses = ({ businesses, cityName }: TopCityBusinessesProps) => 
                     <span className="text-xs text-gray-300 mb-2">{business.categories[0]}</span>
                   )}
 
-                  {/* Google Maps Link */}
-                  {business.google_maps_url && (
-                    <a
-                      href={business.google_maps_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={(e) => e.stopPropagation()}
-                      className="flex items-center gap-1 text-xs text-white font-bold hover:text-gold transition-colors"
+                  {/* View on map button */}
+                  {onSelectBusiness && (
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onSelectBusiness(business);
+                      }}
+                      className={`flex items-center gap-1 text-xs font-bold transition-colors ${
+                        selectedBusinessId === business.id
+                          ? "text-gold"
+                          : "text-white hover:text-gold"
+                      }`}
                     >
                       <MapPin className="h-3 w-3" />
-                      Voir sur la carte
-                    </a>
+                      {selectedBusinessId === business.id ? "Affiché sur la carte" : "Voir sur la carte"}
+                    </button>
                   )}
                 </CardContent>
               </Card>

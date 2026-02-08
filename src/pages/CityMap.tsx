@@ -313,7 +313,12 @@ const CityMap = () => {
         </div>
 
         {/* Top City Businesses */}
-        <TopCityBusinesses businesses={businesses} cityName={decodedCity} />
+        <TopCityBusinesses 
+          businesses={businesses} 
+          cityName={decodedCity} 
+          onSelectBusiness={handleSelectBusiness}
+          selectedBusinessId={selectedBusiness?.id}
+        />
 
         <div className="grid gap-8 lg:grid-cols-3">
           {/* Map + Business list */}
