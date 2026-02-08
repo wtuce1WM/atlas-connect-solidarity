@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, MapPin, Phone, Building2, ShieldCheck, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { Loader2, MapPin, Phone, Building2, ShieldCheck, ChevronLeft, ChevronRight, X, Star } from "lucide-react";
 import logoWatermark from "@/assets/logoGOLDsimpleSML.webp";
 import symboleMaroc from "@/assets/symbole-maroc-3.webp";
 import {
@@ -57,6 +57,7 @@ interface Business {
   google_maps_url: string | null;
   opening_hours: unknown;
   show_opening_hours: boolean | null;
+  rating: number | null;
 }
 
 interface CategoryInfo {
@@ -161,7 +162,7 @@ const CategoryPage = () => {
         // Fetch ALL businesses in this category (no limit)
         const { data: businessData, error } = await supabase
           .from("businesses")
-          .select("id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, opening_hours, show_opening_hours")
+          .select("id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, opening_hours, show_opening_hours, rating")
           .eq("is_active", true)
           .or(`main_category.eq.${decodedCategoryName},categories.cs.{${decodedCategoryName}}`)
           .order("wtuce_status", { ascending: true })
@@ -472,6 +473,13 @@ const CategoryPage = () => {
                             (e.target as HTMLImageElement).src = "/placeholder.svg";
                           }}
                         />
+                        {/* Rating - top left */}
+                        {business.rating && (
+                          <div className="absolute top-2 left-2 flex items-center gap-1 bg-black/60 rounded-full px-2 py-1 z-10">
+                            <Star className="h-4 w-4 fill-gold text-gold" />
+                            <span className="text-gold font-bold text-sm">{business.rating}/20</span>
+                          </div>
+                        )}
                         {/* Watermark logo for verified businesses - top right of image */}
                         {business.wtuce_status === "verified" && (
                           <img 
