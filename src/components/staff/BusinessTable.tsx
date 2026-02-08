@@ -25,7 +25,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Edit, Trash2, ExternalLink, Copy, AlertTriangle } from "lucide-react";
+import { Edit, Trash2, ExternalLink, Copy, AlertTriangle, Link2 } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 import { useBusinessBrokenFiles } from "@/hooks/useBusinessBrokenFiles";
 
@@ -119,7 +119,21 @@ const BusinessTable = ({ businesses, loading, onEdit, onDelete, onDuplicate }: B
                   )}
                 </TableCell>
                 <TableCell>
-                  <div className="font-medium">{business.name}</div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">{business.name}</span>
+                    {business.kp_regroupement && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="flex items-center justify-center p-1 bg-primary/10 text-primary rounded-full cursor-help">
+                            <Link2 className="h-3 w-3" />
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent side="top">
+                          <p className="text-xs">KP: {business.kp_regroupement}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
+                  </div>
                   <div className="flex flex-col gap-0.5">
                     {business.website && (
                       <a
