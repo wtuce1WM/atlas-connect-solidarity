@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Card, CardContent } from "@/components/ui/card";
 import relaisLogo from "@/assets/relais-chateaux-logo.png";
-import logoWatermark from "@/assets/logoGOLD-watermark.webp";
+import logoWatermark from "@/assets/logoGOLDsimpleSML.webp";
 import symboleMaroc from "@/assets/symbole-maroc-2.webp";
 
 interface Business {

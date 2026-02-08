@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Star, Building2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
-import logoWatermark from "@/assets/logoGOLD-watermark.webp";
+import logoWatermark from "@/assets/logoGOLDsimpleSML.webp";
 
 interface RelatedBusiness {
   id: string;

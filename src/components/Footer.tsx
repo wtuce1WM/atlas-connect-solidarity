@@ -1,6 +1,6 @@
 import { Facebook, Instagram, Twitter, Mail, Phone, MapPin } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import logoGold from "@/assets/logoGOLDsimple.webp";
+import logoGold from "@/assets/logoGOLDsimpleSML.webp";
 
 interface FooterProps {
   variant?: "default" | "morocco";
