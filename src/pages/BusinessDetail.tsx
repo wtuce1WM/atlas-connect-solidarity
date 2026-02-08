@@ -174,7 +174,7 @@ const BusinessDetail = () => {
 
         {/* Header */}
         <div className="mb-8 px-4 lg:px-0">
-          <div className="flex items-start gap-4 flex-wrap">
+          <div className="flex items-center gap-4 flex-wrap">
             {/* Logo */}
             {business.logo_url && (
               <div className="w-20 h-20 rounded-lg border bg-white p-2 flex items-center justify-center overflow-hidden flex-shrink-0">
@@ -185,7 +185,7 @@ const BusinessDetail = () => {
                 />
               </div>
             )}
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <div className="flex items-center gap-3 flex-wrap">
                 <h1 className={`text-4xl font-bold ${isVerified ? "text-white" : "text-foreground"}`}>{business.name}</h1>
                 {business.wtuce_status === "verified" && (
@@ -219,9 +219,9 @@ const BusinessDetail = () => {
               </div>
             </div>
             
-            {/* Rating and WTUCE Logo for verified businesses - moved to header */}
+            {/* Rating and WTUCE Logo for verified businesses */}
             {isVerified && (
-              <div className="flex items-center gap-4 flex-shrink-0">
+              <div className="flex items-center gap-3 flex-shrink-0">
                 {business.rating !== null && business.rating !== undefined && (
                   <div 
                     className="text-gold font-bold text-4xl"
@@ -233,7 +233,7 @@ const BusinessDetail = () => {
                 <img 
                   src={logoGold} 
                   alt="WTUCE Vérifié" 
-                  className="w-[150px] h-[135px] object-contain"
+                  className="w-[80px] h-[72px] object-contain"
                 />
               </div>
             )}
