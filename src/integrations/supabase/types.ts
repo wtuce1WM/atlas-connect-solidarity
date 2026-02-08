@@ -378,6 +378,87 @@ export type Database = {
           },
         ]
       }
+      sponsors: {
+        Row: {
+          created_at: string
+          id: string
+          image_big_url_ar: string | null
+          image_big_url_en: string | null
+          image_big_url_fr: string | null
+          image_small_url_ar: string | null
+          image_small_url_en: string | null
+          image_small_url_fr: string | null
+          is_active: boolean | null
+          logo_big_url_ar: string | null
+          logo_big_url_en: string | null
+          logo_big_url_fr: string | null
+          logo_small_url_ar: string | null
+          logo_small_url_en: string | null
+          logo_small_url_fr: string | null
+          name_ar: string | null
+          name_en: string | null
+          name_fr: string
+          sort_order: number | null
+          updated_at: string
+          url_ar: string | null
+          url_en: string | null
+          url_fr: string | null
+          zone: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_big_url_ar?: string | null
+          image_big_url_en?: string | null
+          image_big_url_fr?: string | null
+          image_small_url_ar?: string | null
+          image_small_url_en?: string | null
+          image_small_url_fr?: string | null
+          is_active?: boolean | null
+          logo_big_url_ar?: string | null
+          logo_big_url_en?: string | null
+          logo_big_url_fr?: string | null
+          logo_small_url_ar?: string | null
+          logo_small_url_en?: string | null
+          logo_small_url_fr?: string | null
+          name_ar?: string | null
+          name_en?: string | null
+          name_fr: string
+          sort_order?: number | null
+          updated_at?: string
+          url_ar?: string | null
+          url_en?: string | null
+          url_fr?: string | null
+          zone: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_big_url_ar?: string | null
+          image_big_url_en?: string | null
+          image_big_url_fr?: string | null
+          image_small_url_ar?: string | null
+          image_small_url_en?: string | null
+          image_small_url_fr?: string | null
+          is_active?: boolean | null
+          logo_big_url_ar?: string | null
+          logo_big_url_en?: string | null
+          logo_big_url_fr?: string | null
+          logo_small_url_ar?: string | null
+          logo_small_url_en?: string | null
+          logo_small_url_fr?: string | null
+          name_ar?: string | null
+          name_en?: string | null
+          name_fr?: string
+          sort_order?: number | null
+          updated_at?: string
+          url_ar?: string | null
+          url_en?: string | null
+          url_fr?: string | null
+          zone?: string
+        }
+        Relationships: []
+      }
       subcategories: {
         Row: {
           category_id: string
