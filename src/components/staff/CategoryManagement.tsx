@@ -422,10 +422,10 @@ const CategoryManagement = () => {
                     <Folder className="h-5 w-5 text-muted-foreground" />
                   )}
                   
-                  <div className="flex-1">
+                  <div className="flex-1 flex items-center gap-2">
                     <span className="font-medium">{category.name_fr}</span>
                     {category.name_en && (
-                      <span className="text-muted-foreground text-sm ml-2">({category.name_en})</span>
+                      <span className="text-muted-foreground text-sm">({category.name_en})</span>
                     )}
                     {category.icon && (
                       <DynamicIcon name={category.icon} className="h-5 w-5 text-primary" />
