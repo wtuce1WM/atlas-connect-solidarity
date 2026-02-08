@@ -11,6 +11,7 @@ import Footer from "@/components/Footer";
 import GoogleMapEmbed from "@/components/GoogleMapEmbed";
 import ImageLightbox from "@/components/ImageLightbox";
 import RelatedEstablishments from "@/components/RelatedEstablishments";
+import ServiceListItem from "@/components/ServiceListItem";
 import { useValidatedImages, useValidatedUrl } from "@/hooks/useValidatedImages";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import relaisChateauxLogo from "@/assets/relais-chateaux-logo.png";
@@ -421,18 +422,11 @@ const BusinessDetail = () => {
                   <h3 className="text-sm font-medium text-muted-foreground mb-3">Services</h3>
                   <ul className="space-y-3 text-foreground">
                     {[...business.services].sort((a, b) => a.localeCompare(b, 'fr')).map((service, index) => (
-                      <li key={index} className="flex flex-col gap-1">
-                        <span className="flex items-center gap-2">
-                          <span className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
-                          {service}
-                        </span>
-                        <Link
-                          to={`/service/${encodeURIComponent(service)}`}
-                          className="text-xs text-primary hover:underline ml-4"
-                        >
-                          → autres établissements avec ce service
-                        </Link>
-                      </li>
+                      <ServiceListItem 
+                        key={index} 
+                        service={service} 
+                        currentBusinessId={business.id} 
+                      />
                     ))}
                   </ul>
                 </CardContent>
