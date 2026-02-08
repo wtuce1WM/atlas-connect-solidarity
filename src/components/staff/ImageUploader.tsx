@@ -104,7 +104,7 @@ const SortableImage = ({ url, index, onRemove, isBroken = false }: SortableImage
 const ImageUploader = ({ 
   images, 
   onChange, 
-  maxImages = 10, 
+  maxImages = 12, 
   businessId 
 }: ImageUploaderProps) => {
   const [uploading, setUploading] = useState(false);
