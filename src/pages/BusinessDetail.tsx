@@ -352,6 +352,19 @@ const BusinessDetail = () => {
               />
             )}
 
+            {/* Description */}
+            {business.description && (
+              <Card>
+                <CardContent className="p-6">
+                  <h2 className="text-xl font-semibold mb-4">À propos</h2>
+                  <div 
+                    className="text-muted-foreground leading-relaxed prose prose-sm max-w-none prose-headings:text-foreground prose-a:text-primary"
+                    dangerouslySetInnerHTML={{ __html: business.description }}
+                  />
+                </CardContent>
+              </Card>
+            )}
+
             {/* Sous-catégories, Services */}
             {((business.categories && business.categories.length > 0) || 
               (business.services && business.services.length > 0)) && (
@@ -369,19 +382,6 @@ const BusinessDetail = () => {
                       <p className="text-foreground">{business.services.join(", ")}</p>
                     </div>
                   )}
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Description */}
-            {business.description && (
-              <Card>
-                <CardContent className="p-6">
-                  <h2 className="text-xl font-semibold mb-4">À propos</h2>
-                  <div 
-                    className="text-muted-foreground leading-relaxed prose prose-sm max-w-none prose-headings:text-foreground prose-a:text-primary"
-                    dangerouslySetInnerHTML={{ __html: business.description }}
-                  />
                 </CardContent>
               </Card>
             )}
