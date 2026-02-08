@@ -34,9 +34,10 @@ const LabelManagement = () => {
 
   const fetchLabels = async () => {
     setLoading(true);
+    // Use raw query since the types.ts might not be updated yet
     const { data, error } = await supabase
-      .from("labels")
-      .select("*")
+      .from("labels" as any)
+      .select("id, name_fr, name_en, name_ar, image_url, sort_order, created_at")
       .order("sort_order", { ascending: true });
 
     if (error) {
@@ -47,7 +48,7 @@ const LabelManagement = () => {
         description: "Impossible de charger les labels.",
       });
     } else {
-      setLabels(data || []);
+      setLabels((data as unknown as LabelItem[]) || []);
     }
     setLoading(false);
   };
@@ -63,7 +64,7 @@ const LabelManagement = () => {
     }
 
     const { error } = await supabase
-      .from("labels")
+      .from("labels" as any)
       .insert({
         name_fr: newLabel.name_fr.trim(),
         name_en: newLabel.name_en.trim() || null,
@@ -101,7 +102,7 @@ const LabelManagement = () => {
     }
 
     const { error } = await supabase
-      .from("labels")
+      .from("labels" as any)
       .update({
         name_fr: editForm.name_fr.trim(),
         name_en: editForm.name_en.trim() || null,
@@ -133,7 +134,7 @@ const LabelManagement = () => {
     }
 
     const { error } = await supabase
-      .from("labels")
+      .from("labels" as any)
       .delete()
       .eq("id", id);
 
@@ -250,7 +251,7 @@ const LabelManagement = () => {
         </div>
         <Button
           onClick={() => setShowNewForm(true)}
-          className="bg-green-600 hover:bg-green-700 text-white"
+          className="bg-emerald-600 hover:bg-emerald-700 text-white"
           disabled={showNewForm}
         >
           <Plus className="h-4 w-4 mr-2" />
@@ -260,10 +261,10 @@ const LabelManagement = () => {
 
       {/* New Label Form */}
       {showNewForm && (
-        <Card className="border-green-200 bg-green-50/50">
+        <Card className="border-emerald-200 bg-emerald-50/50">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center gap-2">
-              <Award className="h-5 w-5 text-green-600" />
+              <Award className="h-5 w-5 text-emerald-600" />
               Nouveau label
             </CardTitle>
           </CardHeader>
@@ -308,7 +309,7 @@ const LabelManagement = () => {
                       <img
                         src={newLabel.image_url}
                         alt="Preview"
-                        className="h-16 w-16 object-contain border rounded bg-white p-1"
+                        className="h-16 w-16 object-contain border rounded bg-background p-1"
                       />
                       <Button
                         type="button"
@@ -352,7 +353,7 @@ const LabelManagement = () => {
               >
                 Annuler
               </Button>
-              <Button onClick={handleCreate} className="bg-green-600 hover:bg-green-700">
+              <Button onClick={handleCreate} className="bg-emerald-600 hover:bg-emerald-700">
                 <Check className="h-4 w-4 mr-2" />
                 Créer
               </Button>
@@ -408,7 +409,7 @@ const LabelManagement = () => {
                           <img
                             src={editForm.image_url}
                             alt="Preview"
-                            className="h-16 w-16 object-contain border rounded bg-white p-1"
+                            className="h-16 w-16 object-contain border rounded bg-background p-1"
                           />
                           <Button
                             type="button"
@@ -457,7 +458,7 @@ const LabelManagement = () => {
                         <img
                           src={label.image_url}
                           alt={label.name_fr}
-                          className="h-12 w-12 object-contain border rounded bg-white p-1"
+                          className="h-12 w-12 object-contain border rounded bg-background p-1"
                         />
                       ) : (
                         <div className="h-12 w-12 border rounded bg-muted flex items-center justify-center">
