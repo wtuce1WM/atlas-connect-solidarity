@@ -401,7 +401,21 @@ const SponsorForm = ({ sponsor, zone, onSuccess, onCancel }: SponsorFormProps) =
         </CardContent>
       </Card>
 
-      {/* Internal Notes Card */}
+      {/* Language Tabs */}
+      <Tabs value={activeLanguage} onValueChange={setActiveLanguage}>
+        <TabsList>
+          {LANGUAGES.map((lang) => (
+            <TabsTrigger key={lang.code} value={lang.code} className="gap-2">
+              <span>{lang.flag}</span>
+              {lang.label}
+              {lang.required && <span className="text-destructive">*</span>}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+        {LANGUAGES.map(renderLanguageTab)}
+      </Tabs>
+
+      {/* Internal Notes Card - At bottom */}
       <Card className="border-amber-500/50 bg-amber-50/50">
         <CardHeader>
           <CardTitle className="text-amber-800">Note interne</CardTitle>
@@ -424,20 +438,6 @@ const SponsorForm = ({ sponsor, zone, onSuccess, onCancel }: SponsorFormProps) =
           </div>
         </CardContent>
       </Card>
-
-      {/* Language Tabs */}
-      <Tabs value={activeLanguage} onValueChange={setActiveLanguage}>
-        <TabsList>
-          {LANGUAGES.map((lang) => (
-            <TabsTrigger key={lang.code} value={lang.code} className="gap-2">
-              <span>{lang.flag}</span>
-              {lang.label}
-              {lang.required && <span className="text-destructive">*</span>}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-        {LANGUAGES.map(renderLanguageTab)}
-      </Tabs>
 
       {/* Bottom save button */}
       <div className="sticky bottom-0 bg-muted py-4 -mx-4 px-4 border-t">
