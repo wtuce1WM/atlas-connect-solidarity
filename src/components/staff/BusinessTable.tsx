@@ -172,6 +172,8 @@ const BusinessTable = ({ businesses, loading, onEdit, onDelete, onDuplicate }: B
                           ? "bg-purple-500/10 text-purple-600"
                           : (business as any).account_type === "structure_moyenne"
                           ? "bg-blue-500/10 text-blue-600"
+                          : (business as any).account_type === "institution"
+                          ? "bg-emerald-500/10 text-emerald-600"
                           : "bg-muted text-muted-foreground"
                       }
                     >
@@ -179,6 +181,7 @@ const BusinessTable = ({ businesses, loading, onEdit, onDelete, onDuplicate }: B
                       {(business as any).account_type === "structure_moyenne" && "Structure Moyenne"}
                       {(business as any).account_type === "grande_structure" && "Grande Structure"}
                       {(business as any).account_type === "corporate_branding" && "Corporate & Branding"}
+                      {(business as any).account_type === "institution" && "Institution"}
                     </Badge>
                   ) : (
                     <span className="text-muted-foreground">-</span>
