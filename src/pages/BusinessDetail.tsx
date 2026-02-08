@@ -162,7 +162,7 @@ const BusinessDetail = () => {
     <div className={`min-h-screen ${isVerified ? "bg-gradient-to-b from-black from-50% to-gold" : "bg-background"}`}>
       <Header />
       
-      <main className="container mx-auto px-4 py-24">
+      <main className="container mx-auto px-0 md:px-0 lg:px-4 py-24">
         {/* Back link */}
         <Link
           to="/"
