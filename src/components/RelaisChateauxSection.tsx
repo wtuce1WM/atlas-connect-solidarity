@@ -73,7 +73,7 @@ const RelaisChateauxSection = () => {
         className="absolute inset-0 flex items-center justify-center pointer-events-none"
       >
         <div 
-          className="w-[600px] h-[600px] opacity-15"
+          className="w-[420px] h-[420px] opacity-15"
           style={{
             backgroundImage: `url(${symboleMaroc})`,
             backgroundSize: 'contain',
