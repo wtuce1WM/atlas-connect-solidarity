@@ -428,9 +428,7 @@ const CategoryManagement = () => {
                       <span className="text-muted-foreground text-sm ml-2">({category.name_en})</span>
                     )}
                     {category.icon && (
-                      <Badge variant="outline" className="ml-2 gap-1">
-                        <DynamicIcon name={category.icon} className="h-3 w-3" />
-                      </Badge>
+                      <DynamicIcon name={category.icon} className="h-5 w-5 text-primary" />
                     )}
                   </div>
                   
@@ -505,7 +503,7 @@ const CategoryManagement = () => {
                               
                               <div className="flex-1 text-sm flex items-center gap-2">
                                 {sub.icon && (
-                                  <DynamicIcon name={sub.icon} className="h-3.5 w-3.5 text-muted-foreground" />
+                                  <DynamicIcon name={sub.icon} className="h-5 w-5 text-primary" />
                                 )}
                                 <span>{sub.name_fr}</span>
                                 {sub.name_en && (
@@ -583,7 +581,7 @@ const CategoryManagement = () => {
                                       ) : (
                                         <div className="flex items-center gap-2 p-1.5 rounded hover:bg-muted/50 group">
                                           {svc.icon && (
-                                            <DynamicIcon name={svc.icon} className="h-3 w-3 text-muted-foreground" />
+                                            <DynamicIcon name={svc.icon} className="h-5 w-5 text-primary" />
                                           )}
                                           <span className="text-xs flex-1">
                                             {svc.name_fr}
