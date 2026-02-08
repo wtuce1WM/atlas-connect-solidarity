@@ -33,6 +33,7 @@ import {
   AirbnbIcon,
   PinterestIcon,
   SkypeIcon,
+  VimeoIcon,
 } from "./SocialMediaIcons";
 
 type Business = Tables<"businesses">;
@@ -305,6 +306,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
     airbnb_url: (business as any)?.airbnb_url || "",
     pinterest_url: (business as any)?.pinterest_url || "",
     skype: (business as any)?.skype || "",
+    vimeo_url: (business as any)?.vimeo_url || "",
     images: (business as any)?.images || [] as string[],
     pdf_url: (business as any)?.pdf_url || "",
     label1_url: (business as any)?.label1_url || "",
@@ -419,6 +421,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
       airbnb_url: formData.airbnb_url || null,
       pinterest_url: formData.pinterest_url || null,
       skype: formData.skype || null,
+      vimeo_url: formData.vimeo_url || null,
       images: formData.images.length > 0 ? formData.images : [],
       pdf_url: formData.pdf_url || null,
       label1_url: formData.label1_url || null,
@@ -992,6 +995,19 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
                 value={formData.skype}
                 onChange={(e) => handleChange("skype", e.target.value)}
                 placeholder="identifiant.skype"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="vimeo_url" className="flex items-center gap-2">
+                <VimeoIcon className="text-[#1AB7EA]" />
+                Vimeo
+              </Label>
+              <Input
+                id="vimeo_url"
+                value={formData.vimeo_url}
+                onChange={(e) => handleChange("vimeo_url", e.target.value)}
+                placeholder="https://vimeo.com/..."
               />
             </div>
           </div>
