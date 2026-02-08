@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams, Link, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Loader2, MapPin, X, ExternalLink, BookOpen } from "lucide-react";
+import { ArrowLeft, Loader2, MapPin, X, ExternalLink, BookOpen, Phone, ShieldCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
@@ -8,6 +8,7 @@ import Footer from "@/components/Footer";
 import CityWeather from "@/components/CityWeather";
 import TopCityBusinesses from "@/components/TopCityBusinesses";
 import symboleMaroc from "@/assets/symbole-maroc.webp";
+import logoWatermark from "@/assets/logoGOLD-watermark.webp";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -25,6 +26,7 @@ interface Business {
   city: string;
   region: string;
   address: string | null;
+  phone: string | null;
   main_category: string | null;
   categories: string[] | null;
   latitude: number | null;
@@ -167,7 +169,7 @@ const CityMap = () => {
       // Fetch businesses - ordered by verified status then priority score
       const { data: businessData, error: businessError } = await supabase
         .from("businesses")
-        .select("id, name, city, region, address, main_category, categories, latitude, longitude, wtuce_status, services, images, rating, priority_score")
+        .select("id, name, city, region, address, phone, main_category, categories, latitude, longitude, wtuce_status, services, images, rating, priority_score")
         .eq("is_active", true)
         .ilike("city", decodedCity)
         .order("wtuce_status", { ascending: true, nullsFirst: false })
@@ -378,41 +380,76 @@ const CityMap = () => {
               <h2 className="text-lg font-semibold text-white mb-3">
                 Entreprises ({filteredBusinesses.length})
               </h2>
-              <div className="bg-gold/90 rounded-lg p-4 max-h-[600px] overflow-y-auto space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[800px] overflow-y-auto pr-2">
                 {filteredBusinesses.map((business) => (
                   <Link key={business.id} to={`/business/${business.id}`}>
-                    <Card className="cursor-pointer hover:bg-white/15 transition-colors bg-white/5 border-white/20">
-                      <CardContent className="p-4">
-                        <div className="flex items-start justify-between gap-2">
-                          <div>
-                            <span className="font-medium text-foreground hover:text-primary transition-colors">
-                              {business.name}
-                            </span>
-                            <p className="text-sm text-muted-foreground mt-1">
-                              {business.address || business.city}
-                            </p>
-                            {business.main_category && (
-                              <Badge variant="secondary" className="mt-2 text-xs">
-                                {business.main_category}
-                              </Badge>
-                            )}
-                          </div>
+                    <Card className="group h-full overflow-hidden bg-card border-border hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 relative">
+                      {/* Image - 16:9 aspect ratio */}
+                      {business.images && business.images.length > 0 && (
+                        <div className="aspect-video overflow-hidden bg-muted">
+                          <img
+                            src={business.images[0]}
+                            alt={business.name}
+                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = "/placeholder.svg";
+                            }}
+                          />
+                        </div>
+                      )}
+                      
+                      <CardContent className="p-4 relative">
+                        {/* Watermark logo for verified businesses */}
+                        {business.wtuce_status === "verified" && (
+                          <img 
+                            src={logoWatermark} 
+                            alt="" 
+                            className="absolute bottom-2 right-2 w-16 h-16 object-contain opacity-80 pointer-events-none"
+                          />
+                        )}
+                        {/* Badges */}
+                        <div className="flex flex-wrap gap-2 mb-3">
                           {business.wtuce_status === "verified" && (
-                            <Badge className="bg-morocco-green text-white text-xs shrink-0">
+                            <Badge variant="default" className="bg-primary/20 text-primary border-primary/30">
+                              <ShieldCheck className="h-3 w-3 mr-1" />
                               Vérifié
                             </Badge>
                           )}
+                          {business.main_category && (
+                            <Badge variant="secondary" className="text-xs">
+                              {business.main_category}
+                            </Badge>
+                          )}
                         </div>
+
+                        {/* Name */}
+                        <h3 className={`font-semibold text-lg mb-2 line-clamp-2 group-hover:text-primary transition-colors ${business.wtuce_status === "verified" ? "text-foreground font-bold" : "text-foreground"}`}>
+                          {business.name}
+                        </h3>
+
+                        {/* Location */}
+                        <div className="flex items-center gap-1 text-sm text-muted-foreground mb-2">
+                          <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
+                          <span className="truncate">{business.address || business.city}</span>
+                        </div>
+
+                        {/* Contact info */}
+                        {business.phone && (
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <Phone className="h-3 w-3" />
+                            <span className="truncate">{business.phone}</span>
+                          </div>
+                        )}
                       </CardContent>
                     </Card>
                   </Link>
                 ))}
                 {filteredBusinesses.length === 0 && (
-                  <p className="text-gold-foreground text-center py-8">
+                  <div className="col-span-2 text-center py-8 text-muted-foreground">
                     {selectedActivities.length > 0
                       ? "Aucune entreprise pour ces activités"
                       : `Aucune entreprise trouvée à ${decodedCity}`}
-                  </p>
+                  </div>
                 )}
               </div>
             </div>
