@@ -2,6 +2,7 @@ import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 import CitiesSection from "@/components/CitiesSection";
 import CategoriesSection from "@/components/CategoriesSection";
+import RelaisChateauxSection from "@/components/RelaisChateauxSection";
 import ListBusinessSection from "@/components/ListBusinessSection";
 import Footer from "@/components/Footer";
 
@@ -16,6 +17,7 @@ const Index = () => {
       {/* CategoriesSection - DISABLED
       <CategoriesSection />
       */}
+      <RelaisChateauxSection />
       <ListBusinessSection />
       <Footer />
     </div>

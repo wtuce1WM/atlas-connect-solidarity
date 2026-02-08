@@ -462,78 +462,7 @@ const HeroSection = () => {
               </div>
             )}
 
-            {/* Relais & Châteaux Section */}
-            {relaisBusinesses.length > 0 && (
-              <div className="rounded-xl bg-black/30 backdrop-blur-sm p-4">
-                <div className="mb-6 text-center">
-                  <div className="flex justify-center mb-3">
-                    <img 
-                      src={relaisLogo} 
-                      alt="Relais & Châteaux" 
-                      className="h-12 object-contain"
-                    />
-                  </div>
-                  <h2 className="text-xl font-bold text-white">
-                    {language === "fr"
-                      ? "Établissements "
-                      : language === "ar"
-                        ? "مؤسسات "
-                        : ""}
-                    <span className="text-gold">Relais & Châteaux</span>
-                    {language === "en" ? " Establishments" : ""}
-                  </h2>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {relaisBusinesses.map((business) => (
-                    <Link
-                      key={business.id}
-                      to={`/business/${business.id}`}
-                      className="group"
-                    >
-                      <Card className="h-full overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-gold/20 border border-gold/30 relative">
-                        {business.images && business.images.length > 0 && (
-                          <div className="absolute inset-0">
-                            <img
-                              src={business.images[0]}
-                              alt={business.name}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                            />
-                            <div className="absolute inset-0 bg-black/60 group-hover:bg-black/50 transition-colors" />
-                          </div>
-                        )}
-
-                        <CardContent className="p-6 relative z-10 flex flex-col items-center justify-center min-h-[200px] text-center">
-                          {business.wtuce_status === "verified" && (
-                            <img 
-                              src={logoWatermark} 
-                              alt="" 
-                              className="absolute bottom-2 right-2 w-10 h-10 object-contain opacity-80 pointer-events-none"
-                            />
-                          )}
-
-                          {business.rating && (
-                            <div className="flex items-center justify-center gap-1 mb-2">
-                              <Star className="h-4 w-4 fill-gold text-gold" />
-                              <span className="text-gold font-bold">{business.rating}/20</span>
-                            </div>
-                          )}
-
-                          <h3 className="text-lg font-semibold text-white group-hover:text-gold transition-colors mb-2">
-                            {business.name}
-                          </h3>
-
-                          <div className="flex items-center justify-center gap-1 text-sm text-gray-300">
-                            <MapPin className="h-4 w-4" />
-                            <span>{business.city}</span>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
+            {/* Relais & Châteaux Section - MOVED TO SEPARATE COMPONENT */}
           </div>
         )}
       </div>
