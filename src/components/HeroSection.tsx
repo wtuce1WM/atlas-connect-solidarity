@@ -425,7 +425,7 @@ const HeroSection = () => {
               <div className="w-full overflow-x-auto scrollbar-hide pb-4"
                 style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
               >
-                <div className="flex items-center justify-center min-w-max">
+                <div className="flex items-center justify-center min-w-max gap-0">
                   {sponsors.map((sponsor, index) => {
                     const url = getSponsorUrl(sponsor);
                     const logo = getSponsorLogo(sponsor);
