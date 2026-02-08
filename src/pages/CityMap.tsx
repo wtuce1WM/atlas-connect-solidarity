@@ -409,9 +409,9 @@ const CityMap = () => {
                               Vérifié
                             </Badge>
                           )}
-                          {business.main_category && (
+                          {business.categories && business.categories.length > 0 && (
                             <Badge variant="secondary" className="text-xs">
-                              {business.main_category}
+                              {business.categories[0]}
                             </Badge>
                           )}
                         </div>
