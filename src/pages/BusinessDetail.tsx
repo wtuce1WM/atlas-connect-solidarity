@@ -73,6 +73,7 @@ interface Business {
   reserve_now_url: string | null;
   show_opening_hours: boolean | null;
   ice: string | null;
+  kp_regroupement: string | null;
 }
 
 // Helper to convert video URL to embeddable format
@@ -385,6 +386,15 @@ const BusinessDetail = () => {
                 </CardContent>
               </Card>
             )}
+
+            {/* Related Establishments (same KP regroupement) */}
+            {business.kp_regroupement && (
+              <RelatedEstablishments
+                currentBusinessId={business.id}
+                kpRegroupement={business.kp_regroupement}
+              />
+            )}
+
             {/* PDF */}
             {business.pdf_url && !isValidatingPdf && isPdfValid && (
               <Card>
@@ -696,13 +706,6 @@ const BusinessDetail = () => {
               </a>
             )}
 
-            {/* Related Establishments (same ICE) */}
-            {business.ice && (
-              <RelatedEstablishments
-                currentBusinessId={business.id}
-                ice={business.ice}
-              />
-            )}
 
             {/* Opening Hours */}
             {business.show_opening_hours !== false && business.opening_hours && Object.keys(business.opening_hours).length > 0 && (() => {
