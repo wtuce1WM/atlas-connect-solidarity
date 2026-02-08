@@ -102,17 +102,18 @@ const TopCityBusinesses = ({ businesses, cityName }: TopCityBusinessesProps) => 
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                   <div className="absolute inset-0 bg-black/40 group-hover:bg-black/70 transition-colors" />
-                </div>
-
-                <CardContent className="p-5 relative z-10 flex flex-col items-center justify-end min-h-[220px] text-center">
-                  {/* Watermark logo for verified businesses */}
+                  
+                  {/* Watermark logo for verified businesses - top right of image */}
                   {business.wtuce_status === "verified" && (
                     <img 
                       src={logoWatermark} 
                       alt="" 
-                      className="absolute bottom-2 right-2 w-10 h-10 object-contain opacity-80 pointer-events-none"
+                      className="absolute top-2 right-2 w-10 h-10 object-contain opacity-90 pointer-events-none z-10"
                     />
                   )}
+                </div>
+
+                <CardContent className="p-5 relative z-10 flex flex-col items-center justify-end min-h-[220px] text-center">
 
                   {/* Rating */}
                   {business.rating && (
