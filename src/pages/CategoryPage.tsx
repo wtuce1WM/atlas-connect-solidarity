@@ -170,11 +170,7 @@ const CategoryPage = () => {
 
         if (error) throw error;
         
-        // Filter out businesses without images
-        const businessesWithImages = (businessData || []).filter(b => 
-          (b.images && b.images.length > 0)
-        );
-        setAllBusinesses(businessesWithImages);
+        setAllBusinesses(businessData || []);
       } catch (error) {
         console.error("Error fetching category data:", error);
       } finally {
