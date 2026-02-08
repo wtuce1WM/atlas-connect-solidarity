@@ -427,10 +427,10 @@ const BusinessDetail = () => {
                           {service}
                         </span>
                         <Link
-                          to={`/city/${encodeURIComponent(business.city)}?service=${encodeURIComponent(service)}`}
+                          to={`/service/${encodeURIComponent(service)}`}
                           className="text-xs text-primary hover:underline ml-4"
                         >
-                          → autres établissements proches avec ce service
+                          → autres établissements avec ce service
                         </Link>
                       </li>
                     ))}
