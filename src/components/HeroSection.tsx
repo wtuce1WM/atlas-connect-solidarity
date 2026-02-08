@@ -474,7 +474,7 @@ const HeroSection = () => {
                   </h2>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                   {relaisBusinesses.map((business) => (
                     <Link
                       key={business.id}
@@ -493,28 +493,28 @@ const HeroSection = () => {
                           </div>
                         )}
 
-                        <CardContent className="p-4 relative z-10 flex flex-col items-center justify-center min-h-[140px] text-center">
+                        <CardContent className="p-6 relative z-10 flex flex-col items-center justify-center min-h-[200px] text-center">
                           {business.wtuce_status === "verified" && (
                             <img 
                               src={logoWatermark} 
                               alt="" 
-                              className="absolute bottom-2 right-2 w-8 h-8 object-contain opacity-80 pointer-events-none"
+                              className="absolute bottom-3 right-3 w-12 h-12 object-contain opacity-80 pointer-events-none"
                             />
                           )}
 
                           {business.rating && (
-                            <div className="flex items-center justify-center gap-1 mb-1">
-                              <Star className="h-3 w-3 fill-gold text-gold" />
-                              <span className="text-gold font-bold text-sm">{business.rating}/20</span>
+                            <div className="flex items-center justify-center gap-1 mb-2">
+                              <Star className="h-4 w-4 fill-gold text-gold" />
+                              <span className="text-gold font-bold">{business.rating}/20</span>
                             </div>
                           )}
 
-                          <h3 className="text-sm font-semibold text-white group-hover:text-gold transition-colors mb-1">
+                          <h3 className="text-lg font-semibold text-white group-hover:text-gold transition-colors mb-2">
                             {business.name}
                           </h3>
 
-                          <div className="flex items-center justify-center gap-1 text-xs text-gray-300">
-                            <MapPin className="h-3 w-3" />
+                          <div className="flex items-center justify-center gap-1 text-sm text-gray-300">
+                            <MapPin className="h-4 w-4" />
                             <span>{business.city}</span>
                           </div>
                         </CardContent>
