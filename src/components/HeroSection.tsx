@@ -422,10 +422,9 @@ const HeroSection = () => {
 
             {/* Sponsors Section */}
             {sponsors.length > 0 && (
-              <div className="flex items-center justify-center gap-8 md:gap-12 overflow-x-auto pb-4 scrollbar-hide"
-                style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-              >
-                {sponsors.map((sponsor) => {
+              <div className="flex flex-col items-center gap-6 pb-4">
+                {/* First sponsor (sort_order=0) - centered on all screens */}
+                {sponsors.slice(0, 1).map((sponsor) => {
                   const url = getSponsorUrl(sponsor);
                   const logo = getSponsorLogo(sponsor);
 
@@ -446,7 +445,7 @@ const HeroSection = () => {
                         href={url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex-shrink-0"
+                        className="flex justify-center"
                       >
                         {logoElement}
                       </a>
@@ -454,11 +453,53 @@ const HeroSection = () => {
                   }
 
                   return (
-                    <div key={sponsor.id} className="flex-shrink-0">
+                    <div key={sponsor.id} className="flex justify-center">
                       {logoElement}
                     </div>
                   );
                 })}
+
+                {/* Other sponsors - row layout */}
+                {sponsors.length > 1 && (
+                  <div className="flex items-center justify-center gap-8 md:gap-12 overflow-x-auto scrollbar-hide"
+                    style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+                  >
+                    {sponsors.slice(1).map((sponsor) => {
+                      const url = getSponsorUrl(sponsor);
+                      const logo = getSponsorLogo(sponsor);
+
+                      if (!logo) return null;
+
+                      const logoElement = (
+                        <img
+                          src={logo}
+                          alt={sponsor.name_fr}
+                          className="h-auto w-auto max-h-20 md:max-h-24 object-contain opacity-100 hover:opacity-80 transition-opacity"
+                        />
+                      );
+
+                      if (url) {
+                        return (
+                          <a
+                            key={sponsor.id}
+                            href={url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex-shrink-0"
+                          >
+                            {logoElement}
+                          </a>
+                        );
+                      }
+
+                      return (
+                        <div key={sponsor.id} className="flex-shrink-0">
+                          {logoElement}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             )}
 
