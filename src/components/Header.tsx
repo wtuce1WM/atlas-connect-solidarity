@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Menu, X, User } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import LanguageSwitcher from "./LanguageSwitcher";
 import logoGold from "@/assets/logoGOLDsimpleSML.webp";
@@ -43,9 +44,9 @@ const Header = ({ variant = "default" }: HeaderProps) => {
               {t("footer.contact")}
             </a>
             <hr className="w-full border-white/20" />
-            <button className="rounded-lg bg-gold px-4 py-2 font-semibold text-gold-foreground">
+            <Link to="/devenir-affilie" className="rounded-lg bg-gold px-4 py-2 font-semibold text-gold-foreground">
               {t("nav.joinNow")}
-            </button>
+            </Link>
           </nav>
         </div>}
     </header>;
