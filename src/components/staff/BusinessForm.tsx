@@ -32,6 +32,7 @@ import {
   GoogleMapsIcon,
   AirbnbIcon,
   PinterestIcon,
+  SkypeIcon,
 } from "./SocialMediaIcons";
 
 type Business = Tables<"businesses">;
@@ -303,6 +304,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
     google_maps_url: (business as any)?.google_maps_url || "",
     airbnb_url: (business as any)?.airbnb_url || "",
     pinterest_url: (business as any)?.pinterest_url || "",
+    skype: (business as any)?.skype || "",
     images: (business as any)?.images || [] as string[],
     pdf_url: (business as any)?.pdf_url || "",
     label1_url: (business as any)?.label1_url || "",
@@ -416,6 +418,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
       google_maps_url: formData.google_maps_url || null,
       airbnb_url: formData.airbnb_url || null,
       pinterest_url: formData.pinterest_url || null,
+      skype: formData.skype || null,
       images: formData.images.length > 0 ? formData.images : [],
       pdf_url: formData.pdf_url || null,
       label1_url: formData.label1_url || null,
@@ -976,6 +979,19 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
                 value={formData.pinterest_url}
                 onChange={(e) => handleChange("pinterest_url", e.target.value)}
                 placeholder="https://pinterest.com/..."
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="skype" className="flex items-center gap-2">
+                <SkypeIcon className="text-[#00AFF0]" />
+                Skype
+              </Label>
+              <Input
+                id="skype"
+                value={formData.skype}
+                onChange={(e) => handleChange("skype", e.target.value)}
+                placeholder="identifiant.skype"
               />
             </div>
           </div>
