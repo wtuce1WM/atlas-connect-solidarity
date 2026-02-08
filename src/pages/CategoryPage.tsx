@@ -564,8 +564,8 @@ const CategoryPage = () => {
             </div>
           )}
 
-          {/* Services Filter - Only shown when a city is selected */}
-          {selectedCity !== "all" && availableServices.length > 0 && (
+          {/* Services Filter - Only shown when a subcategory is selected */}
+          {selectedCity !== "all" && selectedSubcategories.length > 0 && availableServices.length > 0 && (
             <div className="mb-8">
               <div className="mb-3">
                 <label className="text-sm text-gray-400">
