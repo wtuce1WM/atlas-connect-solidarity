@@ -280,7 +280,7 @@ const CategoryPage = () => {
       <section className="bg-black pt-28 pb-16 relative overflow-hidden">
         {/* Background decorative emblem */}
         <div 
-          className="absolute top-28 left-1/2 -translate-x-1/2 w-[175px] h-[175px] opacity-30 pointer-events-none"
+          className="absolute top-28 left-1/2 -translate-x-1/2 w-[120px] h-[120px] opacity-30 pointer-events-none"
           style={{
             backgroundImage: `url(${symboleMaroc})`,
             backgroundSize: 'contain',
