@@ -259,20 +259,15 @@ const CityMap = () => {
           Retour à l'accueil
         </Link>
 
-        {/* Title + Weather */}
-        <div className="mb-8 flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-white flex items-center gap-3">
-              <MapPin className="h-8 w-8 text-morocco-green" />
-              Entreprises à {decodedCity}
-            </h1>
-            <p className="text-white/80 mt-2">
-              {businesses.length} entreprise{businesses.length > 1 ? "s" : ""} dans l'annuaire WTUCE
-            </p>
-          </div>
-          <div className="lg:w-72">
-            <CityWeather city={decodedCity} />
-          </div>
+        {/* Title */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+            <MapPin className="h-8 w-8 text-morocco-green" />
+            Entreprises à {decodedCity}
+          </h1>
+          <p className="text-white/80 mt-2">
+            {businesses.length} entreprise{businesses.length > 1 ? "s" : ""} dans l'annuaire WTUCE
+          </p>
         </div>
 
         {/* Top City Businesses */}
@@ -467,6 +462,11 @@ const CityMap = () => {
                 </CardContent>
               </Card>
             )}
+
+            {/* Weather */}
+            <div className="mb-6">
+              <CityWeather city={decodedCity} />
+            </div>
 
             {/* Official Sites */}
             {cityInfo && (
