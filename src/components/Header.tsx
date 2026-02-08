@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Menu, X, User } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import LanguageSwitcher from "./LanguageSwitcher";
-import logoGold from "@/assets/logoGOLDsimple.webp";
+import logoGold from "@/assets/logoGOLDsimpleSML.webp";
 
 interface HeaderProps {
   variant?: "default" | "morocco";

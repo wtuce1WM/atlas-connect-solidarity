@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import logoGoldOverlay from "@/assets/logoGOLDsimple.webp";
 import heroBackground from "@/assets/hero-marrakech.jpg";
 import relaisLogo from "@/assets/relais-chateaux-logo.png";
-import logoWatermark from "@/assets/logoGOLD-watermark.webp";
+import logoWatermark from "@/assets/logoGOLDsimpleSML.webp";
 
 interface RelaisBusiness {
   id: string;
