@@ -11,13 +11,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Save } from "lucide-react";
+import { ArrowLeft, Save, Award } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 import RichTextEditor from "./RichTextEditor";
 import ImageUploader from "./ImageUploader";
 import PDFUploader from "./PDFUploader";
 import LogoUploader from "./LogoUploader";
-import LabelUploader from "./LabelUploader";
+import BusinessLabelsEditor from "./BusinessLabelsEditor";
 import OpeningHoursEditor, { OpeningHours, DEFAULT_OPENING_HOURS } from "./OpeningHoursEditor";
 import {
   FacebookIcon,
@@ -310,14 +310,15 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
     vimeo_url: (business as any)?.vimeo_url || "",
     images: (business as any)?.images || [] as string[],
     pdf_url: (business as any)?.pdf_url || "",
-    label1_url: (business as any)?.label1_url || "",
-    label1_link_url: (business as any)?.label1_link_url || "",
     online_shop_url: (business as any)?.online_shop_url || "",
     opening_hours: (business as any)?.opening_hours as OpeningHours | null,
     rating: (business as any)?.rating?.toString() || "",
     reserve_now_url: (business as any)?.reserve_now_url || "",
     show_opening_hours: (business as any)?.show_opening_hours ?? false,
   });
+  
+  // Business labels state (managed separately)
+  const [businessLabels, setBusinessLabels] = useState<Array<{ id?: string; label_id: string; custom_url: string }>>([]);
 
   const handleChange = (field: string, value: string | boolean | string[]) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -427,8 +428,6 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
       vimeo_url: formData.vimeo_url || null,
       images: formData.images.length > 0 ? formData.images : [],
       pdf_url: formData.pdf_url || null,
-      label1_url: formData.label1_url || null,
-      label1_link_url: formData.label1_link_url || null,
       online_shop_url: formData.online_shop_url || null,
       opening_hours: formData.opening_hours ? JSON.parse(JSON.stringify(formData.opening_hours)) : null,
       rating: formData.rating ? parseFloat(formData.rating) : null,
@@ -437,6 +436,8 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
     };
 
     try {
+      let businessId = business?.id;
+      
       if (business) {
         // Update
         const { error } = await supabase
@@ -445,24 +446,49 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
           .eq("id", business.id);
 
         if (error) throw error;
-
-        toast({
-          title: "Succès",
-          description: "Entreprise mise à jour avec succès.",
-        });
       } else {
         // Create
-        const { error } = await supabase
+        const { data: newBusiness, error } = await supabase
           .from("businesses")
-          .insert(businessData);
+          .insert(businessData)
+          .select("id")
+          .single();
 
         if (error) throw error;
-
-        toast({
-          title: "Succès",
-          description: "Entreprise créée avec succès.",
-        });
+        businessId = newBusiness?.id;
       }
+
+      // Save business labels
+      if (businessId) {
+        // Delete existing labels
+        await supabase
+          .from("business_labels" as any)
+          .delete()
+          .eq("business_id", businessId);
+        
+        // Insert new labels
+        if (businessLabels.length > 0) {
+          const labelsToInsert = businessLabels.map((bl, index) => ({
+            business_id: businessId,
+            label_id: bl.label_id,
+            custom_url: bl.custom_url || null,
+            sort_order: index,
+          }));
+          
+          const { error: labelsError } = await supabase
+            .from("business_labels" as any)
+            .insert(labelsToInsert);
+          
+          if (labelsError) {
+            console.error("Error saving labels:", labelsError);
+          }
+        }
+      }
+
+      toast({
+        title: "Succès",
+        description: business ? "Entreprise mise à jour avec succès." : "Entreprise créée avec succès.",
+      });
 
       onSuccess();
     } catch (error: any) {
@@ -734,26 +760,17 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
           />
         </div>
 
-        {/* Label1 */}
+        {/* Labels */}
         <div className="space-y-4 p-4 bg-muted rounded-lg">
-          <Label className="text-base font-semibold">Label1</Label>
-          <LabelUploader
-            labelUrl={formData.label1_url}
-            onChange={(url) => handleChange("label1_url", url)}
+          <Label className="text-base font-semibold flex items-center gap-2">
+            <Award className="h-4 w-4" />
+            Labels / Certifications
+          </Label>
+          <BusinessLabelsEditor
             businessId={business?.id}
-            label="Label1"
-            labelKey="label1"
+            value={businessLabels}
+            onChange={setBusinessLabels}
           />
-          <div className="space-y-2">
-            <Label htmlFor="label1_link_url">Lien du Label1</Label>
-            <Input
-              id="label1_link_url"
-              value={formData.label1_link_url}
-              onChange={(e) => handleChange("label1_link_url", e.target.value)}
-              placeholder="https://..."
-              type="url"
-            />
-          </div>
         </div>
 
         {/* Location */}

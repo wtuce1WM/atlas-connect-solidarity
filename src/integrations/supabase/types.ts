@@ -14,6 +14,41 @@ export type Database = {
   }
   public: {
     Tables: {
+      business_labels: {
+        Row: {
+          business_id: string
+          created_at: string | null
+          custom_url: string | null
+          id: string
+          label_id: string
+          sort_order: number | null
+        }
+        Insert: {
+          business_id: string
+          created_at?: string | null
+          custom_url?: string | null
+          id?: string
+          label_id: string
+          sort_order?: number | null
+        }
+        Update: {
+          business_id?: string
+          created_at?: string | null
+          custom_url?: string | null
+          id?: string
+          label_id?: string
+          sort_order?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_labels_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       businesses: {
         Row: {
           account_type: string | null
