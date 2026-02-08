@@ -1,9 +1,18 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Star } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Plus, Star, Home, Folder, MapPin } from "lucide-react";
 
 const SponsorManagement = () => {
+  const [activeZone, setActiveZone] = useState("home");
+
+  const renderEmptyState = (zoneName: string) => (
+    <p className="text-muted-foreground text-center py-8">
+      Aucun sponsor pour la zone "{zoneName}". Cliquez sur "Nouveau sponsor" pour en ajouter un.
+    </p>
+  );
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -19,19 +28,64 @@ const SponsorManagement = () => {
         </Button>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Star className="h-5 w-5 text-gold" />
-            Sponsors
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground text-center py-8">
-            Aucun sponsor pour le moment. Cliquez sur "Nouveau sponsor" pour en ajouter un.
-          </p>
-        </CardContent>
-      </Card>
+      <Tabs value={activeZone} onValueChange={setActiveZone}>
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="home" className="gap-2">
+            <Home className="h-4 w-4" />
+            Accueil
+          </TabsTrigger>
+          <TabsTrigger value="category" className="gap-2">
+            <Folder className="h-4 w-4" />
+            Catégorie
+          </TabsTrigger>
+          <TabsTrigger value="city" className="gap-2">
+            <MapPin className="h-4 w-4" />
+            Ville
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="home" className="mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Home className="h-5 w-5 text-gold" />
+                Sponsors - Page d'accueil
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {renderEmptyState("Accueil")}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="category" className="mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Folder className="h-5 w-5 text-gold" />
+                Sponsors - Pages Catégories
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {renderEmptyState("Catégorie")}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="city" className="mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MapPin className="h-5 w-5 text-gold" />
+                Sponsors - Pages Villes
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {renderEmptyState("Ville")}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
