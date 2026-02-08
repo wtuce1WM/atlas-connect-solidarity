@@ -273,7 +273,9 @@ const CategoryManagement = () => {
   };
 
   const getServicesForSubcategory = (subcategoryId: string) => {
-    return services.filter(s => s.subcategory_id === subcategoryId);
+    return services
+      .filter(s => s.subcategory_id === subcategoryId)
+      .sort((a, b) => a.name_fr.localeCompare(b.name_fr, 'fr'));
   };
 
   if (loading) {
