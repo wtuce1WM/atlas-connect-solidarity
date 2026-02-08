@@ -745,7 +745,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
           <ImageUploader
             images={formData.images}
             onChange={(images) => handleChange("images", images)}
-            maxImages={10}
+            maxImages={12}
             businessId={business?.id}
           />
         </div>
