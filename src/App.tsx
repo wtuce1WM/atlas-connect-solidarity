@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import BusinessDetail from "./pages/BusinessDetail";
 import CityMap from "./pages/CityMap";
 import CategoryPage from "./pages/CategoryPage";
+import ServicePage from "./pages/ServicePage";
 import StaffLogin from "./pages/StaffLogin";
 import StaffBackoffice from "./pages/StaffBackoffice";
 import AffiliatesLogin from "./pages/AffiliatesLogin";
@@ -30,6 +31,7 @@ const AppContent = () => {
             <Route path="/business/:id" element={<BusinessDetail />} />
             <Route path="/city/:city" element={<CityMap />} />
             <Route path="/category/:categoryName" element={<CategoryPage />} />
+            <Route path="/service/:serviceName" element={<ServicePage />} />
             <Route path="/staff/login" element={<StaffLogin />} />
             <Route path="/staff/backoffice" element={<StaffBackoffice />} />
             <Route path="/affiliates" element={<AffiliatesLogin />} />
