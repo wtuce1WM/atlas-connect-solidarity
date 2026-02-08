@@ -67,10 +67,10 @@ const RelaisChateauxSection = () => {
   if (businesses.length === 0) return null;
 
   return (
-    <section id="relais-chateaux" className="bg-black py-16 relative overflow-hidden">
-      {/* Background decorative emblem */}
+    <section id="relais-chateaux" className="bg-black py-16 relative overflow-visible">
+      {/* Background decorative emblem - positioned to straddle sections */}
       <div 
-        className="absolute inset-0 flex items-end justify-center pointer-events-none"
+        className="absolute left-1/2 -translate-x-1/2 bottom-0 translate-y-1/2 pointer-events-none z-0"
       >
         <div 
           className="w-[460px] h-[460px] opacity-15"
