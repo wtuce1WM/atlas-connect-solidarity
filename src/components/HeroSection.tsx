@@ -236,6 +236,16 @@ const HeroSection = () => {
         </div>
         */}
 
+        {/* Main Title */}
+        <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white text-center mb-8 max-w-4xl">
+          {language === "fr" 
+            ? <>Bienvenue sur la 1<sup>ère</sup> place de marché <a href="#mission" className="text-gold hover:underline">solidaire</a></>
+            : language === "ar"
+              ? <>مرحبًا بكم في أول سوق <a href="#mission" className="text-gold hover:underline">تضامني</a></>
+              : <>Welcome to the 1<sup>st</sup> <a href="#mission" className="text-gold hover:underline">solidarity</a> marketplace</>
+          }
+        </h1>
+
         {/* Search Bar */}
         <form onSubmit={handleSearch} className="w-full max-w-lg mb-10">
           <div className="flex gap-2">
