@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
-import { MapPin, Building2, Crown, ChevronRight, ChevronLeft, Loader2 } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { MapPin, Building2, Crown, ChevronRight, ChevronLeft, Loader2, Search } from "lucide-react";
 import * as LucideIcons from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import logoGoldOverlay from "@/assets/logoGOLDsimple.webp";
 import heroBackground from "@/assets/hero-marrakech.jpg";
 import royalAirMarocLogo from "@/assets/royal-air-maroc-logo.png";
@@ -37,13 +38,22 @@ const RELAIS_CHATEAUX_NAMES = [
 
 const HeroSection = () => {
   const { t, language } = useLanguage();
+  const navigate = useNavigate();
   const [cities, setCities] = useState<City[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [relaisCount, setRelaisCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
   
   const citiesScrollRef = useRef<HTMLDivElement>(null);
   const categoriesScrollRef = useRef<HTMLDivElement>(null);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
 
   const scrollContainer = (ref: React.RefObject<HTMLDivElement>, direction: "left" | "right") => {
     if (ref.current) {
@@ -153,12 +163,28 @@ const HeroSection = () => {
       <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-black" />
 
       {/* Centered Gold Logo Overlay */}
-      <div className="absolute inset-x-0 top-32 flex justify-center pointer-events-none">
+      <div className="absolute inset-x-0 top-32 flex flex-col items-center pointer-events-none">
         <img 
           src={logoGoldOverlay} 
           alt="" 
           className="object-contain opacity-100 w-1/2 max-w-xs"
         />
+      </div>
+
+      {/* Search Bar below logo */}
+      <div className="absolute inset-x-0 top-64 sm:top-72 flex justify-center px-4 z-20">
+        <form onSubmit={handleSearch} className="w-full max-w-md">
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder={language === "fr" ? "Que cherchez-vous ?" : language === "ar" ? "ماذا تبحث عنه؟" : "What are you looking for?"}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-12 pr-4 py-6 text-lg bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-full shadow-lg"
+            />
+          </div>
+        </form>
       </div>
 
       {/* Royal Air Maroc Partner Logo */}
