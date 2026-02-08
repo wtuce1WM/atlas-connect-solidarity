@@ -8,7 +8,7 @@ import Footer from "@/components/Footer";
 import CityWeather from "@/components/CityWeather";
 import TopCityBusinesses from "@/components/TopCityBusinesses";
 import symboleMaroc from "@/assets/symbole-maroc.webp";
-import logoWatermark from "@/assets/logoGOLD-watermark.webp";
+import logoWatermark from "@/assets/logoGOLDsimpleSML.webp";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -386,7 +386,7 @@ const CityMap = () => {
                     <Card className="group h-full overflow-hidden bg-card border-border hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 relative">
                       {/* Image - 16:9 aspect ratio */}
                       {business.images && business.images.length > 0 && (
-                        <div className="aspect-video overflow-hidden bg-muted">
+                        <div className="aspect-video overflow-hidden bg-muted relative">
                           <img
                             src={business.images[0]}
                             alt={business.name}
@@ -395,19 +395,18 @@ const CityMap = () => {
                               (e.target as HTMLImageElement).src = "/placeholder.svg";
                             }}
                           />
+                          {/* Watermark logo for verified businesses - top right of image */}
+                          {business.wtuce_status === "verified" && (
+                            <img 
+                              src={logoWatermark} 
+                              alt="" 
+                              className="absolute top-2 right-2 w-10 h-10 object-contain opacity-90 pointer-events-none"
+                            />
+                          )}
                         </div>
                       )}
                       
-                      <CardContent className="p-4 relative">
-                        {/* Watermark logo for verified businesses */}
-                        {business.wtuce_status === "verified" && (
-                          <img 
-                            src={logoWatermark} 
-                            alt="" 
-                            className="absolute bottom-2 right-2 w-16 h-16 object-contain opacity-80 pointer-events-none"
-                          />
-                        )}
-                        {/* Badges */}
+                      <CardContent className="p-4">
                         <div className="flex flex-wrap gap-2 mb-3">
                           {business.wtuce_status === "verified" && (
                             <Badge variant="default" className="bg-primary/20 text-primary border-primary/30">
