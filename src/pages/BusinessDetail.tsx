@@ -51,8 +51,6 @@ interface Business {
   longitude: number | null;
   images: string[] | null;
   pdf_url: string | null;
-  label1_url: string | null;
-  label1_link_url: string | null;
   online_shop_url: string | null;
   facebook_url: string | null;
   instagram_url: string | null;
@@ -75,6 +73,18 @@ interface Business {
   show_opening_hours: boolean | null;
   ice: string | null;
   kp_regroupement: string | null;
+}
+
+interface BusinessLabel {
+  id: string;
+  label_id: string;
+  custom_url: string | null;
+  label: {
+    id: string;
+    name_fr: string;
+    image_url: string | null;
+    url_fr: string | null;
+  } | null;
 }
 
 // Helper to convert video URL to embeddable format
@@ -104,10 +114,11 @@ const getEmbedUrl = (url: string): { url: string; type: 'iframe' | 'video' | 'fa
 const BusinessDetail = () => {
   const { id } = useParams<{ id: string }>();
   const [business, setBusiness] = useState<Business | null>(null);
+  const [businessLabels, setBusinessLabels] = useState<BusinessLabel[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   // Validate images and PDF URLs
   const { validImages, isValidating: isValidatingImages, brokenCount: brokenImagesCount } = useValidatedImages(business?.images ?? null);
@@ -117,6 +128,7 @@ const BusinessDetail = () => {
     const fetchBusiness = async () => {
       if (!id) return;
 
+      // Fetch business data
       const { data, error } = await supabase
         .from("businesses")
         .select("*")
@@ -132,6 +144,29 @@ const BusinessDetail = () => {
           ...data,
           opening_hours: data.opening_hours as OpeningHours | null
         });
+        
+        // Fetch business labels
+        const { data: labelsData } = await supabase
+          .from("business_labels" as any)
+          .select("id, label_id, custom_url")
+          .eq("business_id", id)
+          .order("sort_order", { ascending: true });
+        
+        if (labelsData && labelsData.length > 0) {
+          // Fetch label details
+          const labelIds = (labelsData as any[]).map(bl => bl.label_id);
+          const { data: labelDetails } = await supabase
+            .from("labels" as any)
+            .select("id, name_fr, image_url, url_fr")
+            .in("id", labelIds);
+          
+          const labelsWithDetails = (labelsData as any[]).map(bl => ({
+            ...bl,
+            label: (labelDetails as any[])?.find(l => l.id === bl.label_id) || null
+          }));
+          
+          setBusinessLabels(labelsWithDetails as BusinessLabel[]);
+        }
       } else {
         setBusiness(null);
       }
@@ -194,29 +229,36 @@ const BusinessDetail = () => {
                     WTUCE Vérifié
                   </Badge>
                 )}
-                {/* Label1 - hidden on mobile */}
-                {business.label1_url && (
-                  <div className="hidden sm:block">
-                    {business.label1_link_url ? (
-                      <a 
-                        href={business.label1_link_url} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="hover:opacity-80 transition-opacity"
-                      >
-                        <img 
-                          src={business.label1_url} 
-                          alt="Label1" 
-                          className="h-16 object-contain"
+                {/* Business Labels - hidden on mobile */}
+                {businessLabels.length > 0 && (
+                  <div className="hidden sm:flex items-center gap-2 flex-wrap">
+                    {businessLabels.map((bl) => {
+                      if (!bl.label?.image_url) return null;
+                      const linkUrl = bl.custom_url || bl.label.url_fr;
+                      
+                      return linkUrl ? (
+                        <a
+                          key={bl.id}
+                          href={linkUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="hover:opacity-80 transition-opacity"
+                        >
+                          <img
+                            src={bl.label.image_url}
+                            alt={bl.label.name_fr}
+                            className="h-14 object-contain"
+                          />
+                        </a>
+                      ) : (
+                        <img
+                          key={bl.id}
+                          src={bl.label.image_url}
+                          alt={bl.label.name_fr}
+                          className="h-14 object-contain"
                         />
-                      </a>
-                    ) : (
-                      <img 
-                        src={business.label1_url} 
-                        alt="Label1" 
-                        className="h-16 object-contain"
-                      />
-                    )}
+                      );
+                    })}
                   </div>
                 )}
               </div>
