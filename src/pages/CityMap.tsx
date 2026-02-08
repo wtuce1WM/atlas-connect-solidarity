@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Loader2, MapPin, X, ExternalLink, BookOpen } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -57,6 +57,7 @@ interface CityInfo {
 
 const CityMap = () => {
   const { city } = useParams<{ city: string }>();
+  const [searchParams] = useSearchParams();
   const { language } = useLanguage();
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [cityInfo, setCityInfo] = useState<CityInfo | null>(null);
@@ -66,6 +67,14 @@ const CityMap = () => {
   const [selectedActivities, setSelectedActivities] = useState<string[]>([]);
 
   const decodedCity = city ? decodeURIComponent(city) : "";
+  
+  // Initialize selectedActivities from URL parameter on mount
+  useEffect(() => {
+    const serviceParam = searchParams.get("service");
+    if (serviceParam) {
+      setSelectedActivities([decodeURIComponent(serviceParam)]);
+    }
+  }, [searchParams]);
 
   // Extract unique main categories from businesses
   const availableCategories = useMemo(() => {
