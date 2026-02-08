@@ -307,9 +307,23 @@ const CategoryPage = () => {
         </div>
       </section>
 
-      {/* Filters & Results */}
+      {/* Map & Filters & Results */}
       <section className="py-6 lg:py-12 bg-black">
         <div className="container mx-auto px-4">
+          {/* Google Maps */}
+          <Card className="mb-8">
+            <CardContent className="p-0">
+              <iframe
+                src={`https://www.google.com/maps/embed/v1/search?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(decodedCategoryName)}+${selectedCity !== "all" ? encodeURIComponent(selectedCity) : "Maroc"}&zoom=${selectedCity !== "all" ? 13 : 6}`}
+                className="w-full h-[400px] border-0 rounded-lg"
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title={`Carte ${getCategoryName()}${selectedCity !== "all" ? ` à ${selectedCity}` : ""}`}
+              />
+            </CardContent>
+          </Card>
+
           {/* City Filter */}
           {availableCities.length > 1 && (
             <div className="mb-8 flex flex-col items-center sm:flex-row sm:items-center gap-2 sm:gap-4">
