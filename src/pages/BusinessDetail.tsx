@@ -511,7 +511,8 @@ const BusinessDetail = () => {
                       <ServiceListItem 
                         key={index} 
                         service={service} 
-                        currentBusinessId={business.id} 
+                        currentBusinessId={business.id}
+                        city={business.city}
                       />
                     ))}
                   </ul>

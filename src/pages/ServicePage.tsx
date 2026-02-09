@@ -50,7 +50,10 @@ const ServicePage = () => {
   const [serviceIcon, setServiceIcon] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedCity, setSelectedCity] = useState<string>("all");
+  const [selectedCity, setSelectedCity] = useState<string>(() => {
+    const params = new URLSearchParams(location.search);
+    return params.get("city") || "all";
+  });
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
   const [gammes, setGammes] = useState<Gamme[]>([]);
 

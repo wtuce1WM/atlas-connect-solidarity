@@ -5,9 +5,10 @@ import { supabase } from "@/integrations/supabase/client";
 interface ServiceListItemProps {
   service: string;
   currentBusinessId: string;
+  city?: string;
 }
 
-const ServiceListItem = ({ service, currentBusinessId }: ServiceListItemProps) => {
+const ServiceListItem = ({ service, currentBusinessId, city }: ServiceListItemProps) => {
   const [otherCount, setOtherCount] = useState<number | null>(null);
 
   useEffect(() => {
@@ -35,7 +36,7 @@ const ServiceListItem = ({ service, currentBusinessId }: ServiceListItemProps) =
       </span>
       {otherCount !== null && otherCount > 0 && (
         <Link
-          to={`/service/${encodeURIComponent(service)}`}
+          to={`/service/${encodeURIComponent(service)}${city ? `?city=${encodeURIComponent(city)}` : ''}`}
           className="text-xs text-primary hover:underline ml-4"
         >
           → autres établissements avec ce service ({otherCount})
