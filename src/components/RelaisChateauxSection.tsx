@@ -103,7 +103,7 @@ const RelaisChateauxSection = () => {
             <img 
               src={relaisLogo} 
               alt="Relais & Châteaux" 
-              className="h-16 object-contain"
+              className="h-24 object-contain"
             />
           </div>
           <h2 className="mb-3 text-3xl font-bold text-white">
