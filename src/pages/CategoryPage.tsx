@@ -1,4 +1,4 @@
-import { useParams, useSearchParams } from "react-router-dom";
+import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Loader2, MapPin, Phone, Building2, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { Loader2, MapPin, Phone, Building2, ChevronLeft, ChevronRight, X, ArrowLeft } from "lucide-react";
 import symboleMaroc from "@/assets/symbole-maroc-3.webp";
 import BusinessCard, { Gamme } from "@/components/BusinessCard";
 import {
@@ -94,6 +94,7 @@ const ITEMS_PER_PAGE = 20;
 
 const CategoryPage = () => {
   const { categoryName } = useParams<{ categoryName: string }>();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { language } = useLanguage();
   const [allBusinesses, setAllBusinesses] = useState<Business[]>([]);
@@ -418,6 +419,13 @@ const CategoryPage = () => {
           }}
         />
         <div className="container mx-auto px-4 relative z-10">
+          <button
+            onClick={() => navigate(-1)}
+            className="inline-flex items-center gap-2 text-white/60 hover:text-gold mb-4 transition-colors text-sm"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Retour
+          </button>
           <div className="flex flex-col items-center text-center sm:flex-row sm:items-center sm:text-left gap-4 lg:gap-6">
             <div className="rounded-xl lg:rounded-2xl bg-gold/20 p-3 lg:p-6 border border-gold/30 flex-shrink-0">
               <IconComponent className="h-8 w-8 lg:h-12 lg:w-12 text-gold" />
