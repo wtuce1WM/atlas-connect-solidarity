@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Plus, Search, Edit, Trash2, Eye, Building2, Users, Folder, MapPin, Copy, Star, UserCheck, Award, Gem } from "lucide-react";
+import { LogOut, Plus, Search, Edit, Trash2, Eye, Building2, Users, Folder, MapPin, Copy, Star, UserCheck, Award, Gem, AlertTriangle } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import BusinessForm from "@/components/staff/BusinessForm";
 import BusinessTable from "@/components/staff/BusinessTable";
@@ -309,14 +309,14 @@ const StaffBackoffice = () => {
                 </div>
                 <div className="bg-background rounded-lg p-4 border">
                   <div className="flex items-center gap-3">
-                    <div className="bg-secondary p-3 rounded-lg">
-                      <Edit className="h-6 w-6 text-secondary-foreground" />
+                    <div className="bg-amber-500/10 p-3 rounded-lg">
+                      <AlertTriangle className="h-6 w-6 text-amber-600" />
                     </div>
                     <div>
                       <p className="text-2xl font-bold">
-                        {businesses.filter(b => b.wtuce_status === "pending").length}
+                        {businesses.filter(b => !b.images || b.images.length === 0).length}
                       </p>
-                      <p className="text-muted-foreground text-sm">En attente</p>
+                      <p className="text-muted-foreground text-sm">Sans images</p>
                     </div>
                   </div>
                 </div>
