@@ -981,24 +981,6 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
           </div>
         </div>
 
-        {/* Opening Hours */}
-        <div className="space-y-4">
-          <OpeningHoursEditor
-            value={formData.opening_hours}
-            onChange={(hours) => handleChange("opening_hours", hours as any)}
-          />
-          <div className="flex items-center gap-3 p-3 border rounded-lg bg-muted/30">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={formData.show_opening_hours}
-                onChange={(e) => handleChange("show_opening_hours", e.target.checked)}
-                className="h-4 w-4 rounded border-input"
-              />
-              <span className="text-sm font-medium">Afficher les horaires sur la fiche publique</span>
-            </label>
-          </div>
-        </div>
 
         {/* Social Media */}
         <div className="space-y-4">
@@ -1354,6 +1336,26 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
             onChange={(e) => handleChange("keywords", e.target.value)}
             placeholder="luxe, traditionnel, médina"
           />
+        </div>
+
+        {/* Opening Hours */}
+        <div className="space-y-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+          <Label className="text-base font-semibold">Horaires d'ouverture</Label>
+          <OpeningHoursEditor
+            value={formData.opening_hours}
+            onChange={(hours) => handleChange("opening_hours", hours as any)}
+          />
+          <div className="flex items-center gap-3 p-3 border rounded-lg bg-white/50">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={formData.show_opening_hours}
+                onChange={(e) => handleChange("show_opening_hours", e.target.checked)}
+                className="h-4 w-4 rounded border-input"
+              />
+              <span className="text-sm font-medium">Afficher les horaires sur la fiche publique</span>
+            </label>
+          </div>
         </div>
 
         {/* Internal Notes - Staff Only */}
