@@ -359,18 +359,6 @@ const AffiliateManagement = () => {
                 </div>
               </div>
 
-              {/* Email de contact */}
-              <div className="space-y-2">
-                <Label htmlFor="contact_email">Email de contact</Label>
-                <Input
-                  id="contact_email"
-                  type="email"
-                  value={formData.contact_email}
-                  onChange={(e) => setFormData({ ...formData, contact_email: e.target.value })}
-                  placeholder="contact@exemple.com"
-                />
-              </div>
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Nom du contact */}
                 <div className="space-y-2">
@@ -393,6 +381,18 @@ const AffiliateManagement = () => {
                     placeholder="+212 6XX-XXXXXX"
                   />
                 </div>
+              </div>
+
+              {/* Email de contact */}
+              <div className="space-y-2">
+                <Label htmlFor="contact_email">Email de contact</Label>
+                <Input
+                  id="contact_email"
+                  type="email"
+                  value={formData.contact_email}
+                  onChange={(e) => setFormData({ ...formData, contact_email: e.target.value })}
+                  placeholder="contact@exemple.com"
+                />
               </div>
 
               {/* Note interne */}
