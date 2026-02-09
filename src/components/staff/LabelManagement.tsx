@@ -17,6 +17,7 @@ interface LabelItem {
   url_en: string | null;
   url_ar: string | null;
   image_url: string | null;
+  logo_url: string | null;
   sort_order: number;
   created_at: string;
 }
@@ -29,6 +30,7 @@ interface LabelFormState {
   url_en: string;
   url_ar: string;
   image_url: string;
+  logo_url: string;
 }
 
 const emptyForm: LabelFormState = {
@@ -39,6 +41,7 @@ const emptyForm: LabelFormState = {
   url_en: "",
   url_ar: "",
   image_url: "",
+  logo_url: "",
 };
 
 const LabelManagement = () => {
@@ -59,7 +62,7 @@ const LabelManagement = () => {
     setLoading(true);
     const { data, error } = await supabase
       .from("labels" as any)
-      .select("id, name_fr, name_en, name_ar, url_fr, url_en, url_ar, image_url, sort_order, created_at")
+      .select("id, name_fr, name_en, name_ar, url_fr, url_en, url_ar, image_url, logo_url, sort_order, created_at")
       .order("sort_order", { ascending: true });
 
     if (error) {
@@ -95,6 +98,7 @@ const LabelManagement = () => {
         url_en: newLabel.url_en.trim() || null,
         url_ar: newLabel.url_ar.trim() || null,
         image_url: newLabel.image_url.trim() || null,
+        logo_url: newLabel.logo_url.trim() || null,
         sort_order: labels.length,
       });
 
@@ -136,6 +140,7 @@ const LabelManagement = () => {
         url_en: editForm.url_en.trim() || null,
         url_ar: editForm.url_ar.trim() || null,
         image_url: editForm.image_url.trim() || null,
+        logo_url: editForm.logo_url.trim() || null,
       })
       .eq("id", id);
 
@@ -192,12 +197,14 @@ const LabelManagement = () => {
       url_en: label.url_en || "",
       url_ar: label.url_ar || "",
       image_url: label.image_url || "",
+      logo_url: label.logo_url || "",
     });
   };
 
   const handleImageUpload = async (
     files: FileList | null,
-    isNew: boolean = false
+    isNew: boolean = false,
+    field: "image_url" | "logo_url" = "image_url"
   ) => {
     if (!files || files.length === 0) return;
 
@@ -242,9 +249,9 @@ const LabelManagement = () => {
 
       if (urlData?.publicUrl) {
         if (isNew) {
-          setNewLabel((prev) => ({ ...prev, image_url: urlData.publicUrl }));
+          setNewLabel((prev) => ({ ...prev, [field]: urlData.publicUrl }));
         } else {
-          setEditForm((prev) => ({ ...prev, image_url: urlData.publicUrl }));
+          setEditForm((prev) => ({ ...prev, [field]: urlData.publicUrl }));
         }
         toast({
           title: "Succès",
@@ -343,9 +350,9 @@ const LabelManagement = () => {
       </div>
 
       {/* Image */}
-      <div className="flex items-start gap-4">
-        <div className="flex-1">
-          <Label>Image du label</Label>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <Label>Image / Icône du label</Label>
           <div className="mt-2 flex items-center gap-4">
             {form.image_url ? (
               <div className="relative">
@@ -377,7 +384,48 @@ const LabelManagement = () => {
                   type="file"
                   accept="image/*"
                   className="hidden"
-                  onChange={(e) => handleImageUpload(e.target.files, isNew)}
+                  onChange={(e) => handleImageUpload(e.target.files, isNew, "image_url")}
+                  disabled={uploading}
+                />
+              </label>
+            )}
+          </div>
+        </div>
+
+        <div>
+          <Label>Logo du label</Label>
+          <div className="mt-2 flex items-center gap-4">
+            {form.logo_url ? (
+              <div className="relative">
+                <img
+                  src={form.logo_url}
+                  alt="Logo preview"
+                  className="h-16 object-contain border rounded bg-background p-1"
+                />
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="icon"
+                  className="absolute -top-2 -right-2 h-5 w-5"
+                  onClick={() => setForm({ ...form, logo_url: "" })}
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              </div>
+            ) : (
+              <label className="cursor-pointer">
+                <div className="h-16 w-16 border-2 border-dashed rounded flex items-center justify-center hover:border-primary/50 transition-colors">
+                  {uploading ? (
+                    <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                  ) : (
+                    <Plus className="h-5 w-5 text-muted-foreground" />
+                  )}
+                </div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => handleImageUpload(e.target.files, isNew, "logo_url")}
                   disabled={uploading}
                 />
               </label>
