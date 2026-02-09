@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { LogOut, Plus, Search, Edit, Trash2, Eye, Building2, Users, Folder, MapPin, Copy, Star, UserCheck, Award, Gem, AlertTriangle } from "lucide-react";
@@ -29,6 +30,8 @@ const StaffBackoffice = () => {
   const [gammes, setGammes] = useState<Gamme[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [cityFilter, setCityFilter] = useState<string>("all");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [showForm, setShowForm] = useState(false);
   const [editingBusiness, setEditingBusiness] = useState<Business | null>(null);
   const [activeTab, setActiveTab] = useState("businesses");
@@ -175,11 +178,25 @@ const StaffBackoffice = () => {
     fetchBusinesses();
   };
 
-  const filteredBusinesses = businesses.filter((business) =>
-    business.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    business.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (business.main_category?.toLowerCase().includes(searchQuery.toLowerCase()))
+  // Derive unique cities and categories for filters
+  const uniqueCities = useMemo(() => 
+    [...new Set(businesses.map(b => b.city))].sort((a, b) => a.localeCompare(b, 'fr')),
+    [businesses]
   );
+  const uniqueCategories = useMemo(() => 
+    [...new Set(businesses.map(b => b.main_category).filter(Boolean) as string[])].sort((a, b) => a.localeCompare(b, 'fr')),
+    [businesses]
+  );
+
+  const filteredBusinesses = businesses.filter((business) => {
+    const matchesSearch = !searchQuery || 
+      business.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      business.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (business.main_category?.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchesCity = cityFilter === "all" || business.city === cityFilter;
+    const matchesCategory = categoryFilter === "all" || business.main_category === categoryFilter;
+    return matchesSearch && matchesCity && matchesCategory;
+  });
 
   if (!user) {
     return (
@@ -281,6 +298,28 @@ const StaffBackoffice = () => {
                     className="pl-10"
                   />
                 </div>
+                <Select value={cityFilter} onValueChange={setCityFilter}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Ville" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Toutes les villes</SelectItem>
+                    {uniqueCities.map(city => (
+                      <SelectItem key={city} value={city}>{city}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue placeholder="Catégorie" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Toutes les catégories</SelectItem>
+                    {uniqueCategories.map(cat => (
+                      <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <Button
                   onClick={() => setShowForm(true)}
                   className="bg-green-600 hover:bg-green-700 text-white"
