@@ -130,6 +130,21 @@ const TopCityBusinesses = ({ businesses, cityName, gammes = [], onSelectBusiness
                       <span className="text-gold font-bold text-sm">{business.rating}/20</span>
                     </div>
                   )}
+
+                  {/* Gamme badge - top center */}
+                  {(() => {
+                    const gamme = business.gamme_id ? gammes.find(g => g.id === business.gamme_id) : null;
+                    return gamme ? (
+                      <div className="absolute top-2 left-1/2 -translate-x-1/2 z-10">
+                        <span 
+                          className="text-xs text-black border border-black rounded-full px-2 py-0.5 whitespace-nowrap"
+                          style={{ backgroundColor: gamme.color_hex || '#666666' }}
+                        >
+                          {gamme.name_fr}
+                        </span>
+                      </div>
+                    ) : null;
+                  })()}
                 </div>
 
                 <CardContent className="p-5 relative z-10 flex flex-col items-center justify-end min-h-[220px] text-center">
@@ -139,23 +154,10 @@ const TopCityBusinesses = ({ businesses, cityName, gammes = [], onSelectBusiness
                     {business.name}
                   </h3>
 
-                  {/* Subcategory & Gamme badges */}
-                  <div className="flex flex-wrap items-center justify-center gap-1 mb-2">
-                    {business.categories && business.categories.length > 0 && (
-                      <span className="text-xs bg-white/20 text-white rounded-full px-2 py-0.5">{business.categories[0]}</span>
-                    )}
-                    {(() => {
-                      const gamme = business.gamme_id ? gammes.find(g => g.id === business.gamme_id) : null;
-                      return gamme ? (
-                        <span 
-                          className="text-xs text-black border border-black rounded-full px-2 py-0.5"
-                          style={{ backgroundColor: gamme.color_hex || '#666666' }}
-                        >
-                          {gamme.name_fr}
-                        </span>
-                      ) : null;
-                    })()}
-                  </div>
+                  {/* Subcategory badge */}
+                  {business.categories && business.categories.length > 0 && (
+                    <span className="text-xs bg-white/20 text-white rounded-full px-2 py-0.5 mb-2">{business.categories[0]}</span>
+                  )}
 
                   {/* View on map button */}
                   {onSelectBusiness && (
