@@ -531,14 +531,14 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Nom - En premier et en gros */}
-        <div className="space-y-2">
-          <Label htmlFor="name" className="text-lg font-semibold">Nom *</Label>
+        <div className="space-y-3">
+          <Label htmlFor="name" className="text-xl font-semibold">Nom *</Label>
           <Input
             id="name"
             value={formData.name}
             onChange={(e) => handleChange("name", e.target.value)}
             required
-            className="text-2xl font-bold h-14"
+            className="text-4xl font-bold h-20 px-4"
           />
         </div>
 
