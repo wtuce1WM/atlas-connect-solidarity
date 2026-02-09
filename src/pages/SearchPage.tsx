@@ -4,8 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -15,8 +13,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, MapPin, Phone, Building2, ShieldCheck, ChevronLeft, ChevronRight, Search } from "lucide-react";
-import logoWatermark from "@/assets/logoGOLD-watermark.webp";
+import { Loader2, Building2, ChevronLeft, ChevronRight, Search } from "lucide-react";
+import BusinessCard, { type BusinessCardData, type Gamme } from "@/components/BusinessCard";
 
 interface Business {
   id: string;
@@ -24,7 +22,10 @@ interface Business {
   description: string | null;
   city: string;
   region: string;
+  address?: string | null;
   phone: string | null;
+  whatsapp: string | null;
+  skype: string | null;
   website: string | null;
   logo_url: string | null;
   images: string[] | null;
@@ -33,6 +34,11 @@ interface Business {
   wtuce_status: string | null;
   is_regulated_activity: boolean | null;
   distance_km: number | null;
+  latitude: number | null;
+  longitude: number | null;
+  google_maps_url: string | null;
+  rating: number | null;
+  gamme_id: string | null;
 }
 
 interface SearchResult {
@@ -50,6 +56,7 @@ const SearchPage = () => {
   const [allBusinesses, setAllBusinesses] = useState<Business[]>([]);
   const [searchMessage, setSearchMessage] = useState<string>("");
   const [citiesWithPriority, setCitiesWithPriority] = useState<{ name: string; priority: number }[]>([]);
+  const [gammes, setGammes] = useState<Gamme[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCity, setSelectedCity] = useState<string>("all");
@@ -82,6 +89,13 @@ const SearchPage = () => {
   useEffect(() => {
     setCurrentPage(1);
   }, [selectedCity, searchQuery]);
+
+  // Fetch gammes on mount
+  useEffect(() => {
+    supabase.from("gammes").select("id, name_fr, color_hex").then(({ data }) => {
+      if (data) setGammes(data);
+    });
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -133,11 +147,7 @@ const SearchPage = () => {
     fetchData();
   }, [searchQuery, language]);
 
-  const getBusinessImage = (business: Business) => {
-    if (business.images && business.images.length > 0) return business.images[0];
-    if (business.logo_url) return business.logo_url;
-    return "/placeholder.svg";
-  };
+  // getBusinessImage removed - handled by BusinessCard
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -299,65 +309,12 @@ const SearchPage = () => {
               {/* Results Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {paginatedBusinesses.map((business) => (
-                  <Link key={business.id} to={`/business/${business.id}`}>
-                    <Card className="group h-full overflow-hidden bg-card border-border hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 relative">
-                      {/* Image - 16:9 aspect ratio */}
-                      <div className="aspect-video overflow-hidden bg-muted">
-                        <img
-                          src={getBusinessImage(business)}
-                          alt={business.name}
-                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = "/placeholder.svg";
-                          }}
-                        />
-                      </div>
-                      
-                      <CardContent className="p-4 relative">
-                        {/* Watermark logo for verified businesses */}
-                        {business.wtuce_status === "verified" && (
-                          <img 
-                            src={logoWatermark} 
-                            alt="" 
-                            className="absolute bottom-2 right-2 w-16 h-16 object-contain opacity-80 pointer-events-none"
-                          />
-                        )}
-                        {/* Badges */}
-                        <div className="flex flex-wrap gap-2 mb-3">
-                          {business.wtuce_status === "verified" && (
-                            <Badge variant="default" className="bg-primary/20 text-primary border-primary/30">
-                              <ShieldCheck className="h-3 w-3 mr-1" />
-                              {t.verified}
-                            </Badge>
-                          )}
-                          {business.is_regulated_activity && (
-                            <Badge variant="secondary" className="bg-blue-500/20 text-blue-400 border-blue-500/30">
-                              {t.regulated}
-                            </Badge>
-                          )}
-                        </div>
-
-                        {/* Name */}
-                        <h3 className={`font-semibold text-lg mb-2 line-clamp-2 group-hover:text-primary transition-colors ${business.wtuce_status === "verified" ? "text-foreground font-bold" : "text-foreground"}`}>
-                          {business.name}
-                        </h3>
-
-                        {/* Location */}
-                        <div className="flex items-center gap-1 text-sm text-muted-foreground mb-2">
-                          <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
-                          <span className="truncate">{business.city}, {business.region}</span>
-                        </div>
-
-                        {/* Contact info */}
-                        {business.phone && (
-                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                            <Phone className="h-3 w-3" />
-                            <span className="truncate">{business.phone}</span>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  </Link>
+                  <BusinessCard
+                    key={business.id}
+                    business={business as BusinessCardData}
+                    gammes={gammes}
+                    verifiedLabel={t.verified}
+                  />
                 ))}
               </div>
 
