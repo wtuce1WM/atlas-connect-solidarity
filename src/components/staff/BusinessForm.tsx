@@ -320,6 +320,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
     hotels_com_url: (business as any)?.hotels_com_url || "",
     trivago_url: (business as any)?.trivago_url || "",
     other_booking_url: (business as any)?.other_booking_url || "",
+    other_booking_name: (business as any)?.other_booking_name || "",
   });
   
   // Business labels state (managed separately)
@@ -442,6 +443,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
       hotels_com_url: formData.hotels_com_url || null,
       trivago_url: formData.trivago_url || null,
       other_booking_url: formData.other_booking_url || null,
+      other_booking_name: formData.other_booking_name || null,
     };
 
     try {
@@ -1224,16 +1226,30 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="other_booking_url" className="flex items-center gap-2">
+            <div className="space-y-2 md:col-span-3">
+              <Label className="flex items-center gap-2">
                 🔗 Autre plateforme
               </Label>
-              <Input
-                id="other_booking_url"
-                value={formData.other_booking_url}
-                onChange={(e) => handleChange("other_booking_url", e.target.value)}
-                placeholder="https://..."
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <Label htmlFor="other_booking_name" className="text-xs text-muted-foreground">Nom</Label>
+                  <Input
+                    id="other_booking_name"
+                    value={formData.other_booking_name}
+                    onChange={(e) => handleChange("other_booking_name", e.target.value)}
+                    placeholder="Ex: Expedia, Viator..."
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="other_booking_url" className="text-xs text-muted-foreground">URL</Label>
+                  <Input
+                    id="other_booking_url"
+                    value={formData.other_booking_url}
+                    onChange={(e) => handleChange("other_booking_url", e.target.value)}
+                    placeholder="https://..."
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </div>

@@ -84,6 +84,7 @@ export type Database = {
           name: string
           online_shop_url: string | null
           opening_hours: Json | null
+          other_booking_name: string | null
           other_booking_url: string | null
           pdf_url: string | null
           phone: string | null
@@ -143,6 +144,7 @@ export type Database = {
           name: string
           online_shop_url?: string | null
           opening_hours?: Json | null
+          other_booking_name?: string | null
           other_booking_url?: string | null
           pdf_url?: string | null
           phone?: string | null
@@ -202,6 +204,7 @@ export type Database = {
           name?: string
           online_shop_url?: string | null
           opening_hours?: Json | null
+          other_booking_name?: string | null
           other_booking_url?: string | null
           pdf_url?: string | null
           phone?: string | null
