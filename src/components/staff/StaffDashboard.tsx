@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   Building2,
   Eye,
@@ -23,6 +23,7 @@ import {
   Tag,
   Video,
   BarChart3,
+  ChevronDown,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -422,17 +423,40 @@ function AlertRow({
   items: Business[];
   onEdit: (b: Business) => void;
 }) {
+  const [expanded, setExpanded] = useState(false);
   if (count === 0) return null;
 
   return (
-    <div className="flex items-center justify-between p-2 rounded-md bg-muted/50">
-      <div className="flex items-center gap-2">
-        <Icon className={`h-4 w-4 ${color}`} />
-        <span className="text-sm">{label}</span>
-      </div>
-      <Badge variant="secondary" className="font-mono">
-        {count}
-      </Badge>
+    <div>
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="flex items-center justify-between w-full p-2 rounded-md bg-muted/50 hover:bg-muted transition-colors"
+      >
+        <div className="flex items-center gap-2">
+          <Icon className={`h-4 w-4 ${color}`} />
+          <span className="text-sm">{label}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Badge variant="secondary" className="font-mono">
+            {count}
+          </Badge>
+          <ChevronDown className={`h-3 w-3 text-muted-foreground transition-transform ${expanded ? "rotate-180" : ""}`} />
+        </div>
+      </button>
+      {expanded && (
+        <div className="mt-1 ml-6 space-y-0.5 max-h-40 overflow-y-auto">
+          {items.map(b => (
+            <button
+              key={b.id}
+              onClick={() => onEdit(b)}
+              className="flex items-center justify-between w-full text-left px-2 py-1 rounded hover:bg-muted/80 transition-colors text-xs"
+            >
+              <span className="truncate">{b.name}</span>
+              <span className="text-muted-foreground whitespace-nowrap ml-2">{b.city}</span>
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
