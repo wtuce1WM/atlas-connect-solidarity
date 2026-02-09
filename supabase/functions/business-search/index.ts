@@ -57,18 +57,23 @@ const synonyms: Record<string, string[]> = {
 };
 
 function expandQuery(query: string): string {
-  const words = query.toLowerCase().split(/\s+/);
-  const expanded: string[] = [...words];
+  const words = query.toLowerCase().split(/\s+/).filter(w => w.length > 0);
 
-  for (const word of words) {
+  // For each word, build a group of (word OR its synonyms)
+  // Then AND the groups together
+  const groups = words.map(word => {
+    const alternatives: string[] = [word];
     for (const [key, values] of Object.entries(synonyms)) {
       if (word === key || values.includes(word)) {
-        expanded.push(key, ...values);
+        alternatives.push(key, ...values);
       }
     }
-  }
+    const unique = [...new Set(alternatives)];
+    // Single word: just return it; multiple: wrap in parens with OR
+    return unique.length === 1 ? unique[0] : `(${unique.join(" | ")})`;
+  });
 
-  return [...new Set(expanded)].join(" | ");
+  return groups.join(" & ");
 }
 
 function getSearchLevelMessage(level: string, language: string = "fr"): string {
