@@ -30,16 +30,18 @@ import type { Tables } from "@/integrations/supabase/types";
 import { useBusinessBrokenFiles } from "@/hooks/useBusinessBrokenFiles";
 
 type Business = Tables<"businesses">;
+type Gamme = { id: string; name_fr: string; color_hex: string | null };
 
 interface BusinessTableProps {
   businesses: Business[];
+  gammes: Gamme[];
   loading: boolean;
   onEdit: (business: Business) => void;
   onDelete: (id: string) => void;
   onDuplicate: (business: Business) => void;
 }
 
-const BusinessTable = ({ businesses, loading, onEdit, onDelete, onDuplicate }: BusinessTableProps) => {
+const BusinessTable = ({ businesses, gammes, loading, onEdit, onDelete, onDuplicate }: BusinessTableProps) => {
   const [duplicateDialogOpen, setDuplicateDialogOpen] = useState(false);
   const [businessToDuplicate, setBusinessToDuplicate] = useState<Business | null>(null);
   const { brokenFilesMap } = useBusinessBrokenFiles(businesses);
@@ -84,6 +86,7 @@ const BusinessTable = ({ businesses, loading, onEdit, onDelete, onDuplicate }: B
               <TableHead>Nom</TableHead>
               <TableHead>Ville</TableHead>
               <TableHead>Catégorie principale</TableHead>
+              <TableHead>Gamme</TableHead>
               <TableHead>Type de compte</TableHead>
               <TableHead>Statut</TableHead>
               <TableHead>Actif</TableHead>
@@ -174,6 +177,20 @@ const BusinessTable = ({ businesses, loading, onEdit, onDelete, onDuplicate }: B
                       </span>
                     )}
                   </div>
+                </TableCell>
+                <TableCell>
+                  {(() => {
+                    const gamme = business.gamme_id ? gammes.find(g => g.id === business.gamme_id) : null;
+                    if (!gamme) return <span className="text-muted-foreground">-</span>;
+                    return (
+                      <Badge
+                        className="text-xs text-black border border-black"
+                        style={{ backgroundColor: gamme.color_hex || '#666666' }}
+                      >
+                        {gamme.name_fr}
+                      </Badge>
+                    );
+                  })()}
                 </TableCell>
                 <TableCell>
                   {(business as any).account_type ? (

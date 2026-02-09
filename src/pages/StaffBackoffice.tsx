@@ -20,10 +20,13 @@ import type { Tables } from "@/integrations/supabase/types";
 
 type Business = Tables<"businesses">;
 
+type Gamme = { id: string; name_fr: string; color_hex: string | null };
+
 const StaffBackoffice = () => {
   const [user, setUser] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [businesses, setBusinesses] = useState<Business[]>([]);
+  const [gammes, setGammes] = useState<Gamme[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [showForm, setShowForm] = useState(false);
@@ -58,6 +61,7 @@ const StaffBackoffice = () => {
       setIsAdmin(hasAdminRole);
       setUser(session.user);
       fetchBusinesses();
+      fetchGammes();
     };
 
     checkAuth();
@@ -88,6 +92,11 @@ const StaffBackoffice = () => {
       setBusinesses(data || []);
     }
     setLoading(false);
+  };
+
+  const fetchGammes = async () => {
+    const { data } = await supabase.from("gammes").select("id, name_fr, color_hex").order("name_fr");
+    if (data) setGammes(data);
   };
 
   const handleLogout = async () => {
@@ -325,6 +334,7 @@ const StaffBackoffice = () => {
               {/* Table */}
               <BusinessTable
                 businesses={filteredBusinesses}
+                gammes={gammes}
                 loading={loading}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
