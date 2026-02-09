@@ -158,10 +158,14 @@ const BusinessCard = ({
           {/* Contact info */}
           <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
             {business.phone && (
-              <div className="flex items-center gap-1">
+              <a
+                href={`tel:${business.phone}`}
+                onClick={(e) => e.stopPropagation()}
+                className="flex items-center gap-1 hover:text-primary transition-colors"
+              >
                 <Phone className="h-3.5 w-3.5" />
                 <span className="truncate max-w-[120px]">{business.phone}</span>
-              </div>
+              </a>
             )}
             {business.whatsapp && (
               <a
