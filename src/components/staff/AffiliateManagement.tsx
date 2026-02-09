@@ -701,6 +701,28 @@ const AffiliateManagement = () => {
         </Card>
       </div>
 
+      {/* Help Section */}
+      <div className="p-4 bg-muted/50 border rounded-lg space-y-2">
+        <p className="font-medium text-sm">Gestion des comptes affiliés :</p>
+        <ul className="text-sm text-muted-foreground space-y-1">
+          <li className="flex items-center gap-2">
+            <UserPlus className="h-4 w-4 text-green-600" />
+            <span><strong>Créer un compte</strong> : bouton vert pour créer des identifiants (email + mot de passe)</span>
+          </li>
+          <li className="flex items-center gap-2">
+            <Key className="h-4 w-4 text-amber-600" />
+            <span><strong>Réinitialiser le mot de passe</strong> : bouton clé orange pour changer le mot de passe</span>
+          </li>
+          <li className="flex items-center gap-2">
+            <UserX className="h-4 w-4 text-red-600" />
+            <span><strong>Supprimer le compte</strong> : bouton rouge pour révoquer l'accès (l'affilié reste dans la base)</span>
+          </li>
+        </ul>
+        <p className="text-xs text-muted-foreground pt-1">
+          La colonne "Compte" indique si l'affilié a un compte actif ou non.
+        </p>
+      </div>
+
       {/* Affiliates Table */}
       <Card>
         <CardHeader>
