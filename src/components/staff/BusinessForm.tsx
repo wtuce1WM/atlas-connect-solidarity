@@ -1013,7 +1013,10 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
               </Select>
             </div>
 
-            <div className="space-y-2">
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="space-y-2 md:col-span-2">
               <Label htmlFor="address">Adresse</Label>
               <Input
                 id="address"
@@ -1021,9 +1024,6 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
                 onChange={(e) => handleChange("address", e.target.value)}
               />
             </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="space-y-2">
               <Label htmlFor="latitude" className="text-xs">Latitude</Label>
               <Input
@@ -1036,7 +1036,6 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
                 className="text-xs h-8"
               />
             </div>
-
             <div className="space-y-2">
               <Label htmlFor="longitude" className="text-xs">Longitude</Label>
               <Input
