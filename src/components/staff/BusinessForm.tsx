@@ -19,6 +19,7 @@ import PDFUploader from "./PDFUploader";
 import LogoUploader from "./LogoUploader";
 import BusinessLabelsEditor from "./BusinessLabelsEditor";
 import OpeningHoursEditor, { OpeningHours, DEFAULT_OPENING_HOURS } from "./OpeningHoursEditor";
+import VacationDatesEditor, { VacationPeriod } from "./VacationDatesEditor";
 import {
   FacebookIcon,
   InstagramIcon,
@@ -315,6 +316,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
     rating: (business as any)?.rating?.toString() || "",
     reserve_now_url: (business as any)?.reserve_now_url || "",
     show_opening_hours: (business as any)?.show_opening_hours ?? false,
+    vacation_dates: ((business as any)?.vacation_dates || []) as VacationPeriod[],
   });
   
   // Business labels state (managed separately)
@@ -433,6 +435,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
       rating: formData.rating ? parseFloat(formData.rating) : null,
       reserve_now_url: formData.reserve_now_url || null,
       show_opening_hours: formData.show_opening_hours,
+      vacation_dates: formData.vacation_dates.length > 0 ? JSON.parse(JSON.stringify(formData.vacation_dates)) : [],
     };
 
     try {
@@ -1356,6 +1359,12 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
               <span className="text-sm font-medium">Afficher les horaires sur la fiche publique</span>
             </label>
           </div>
+          
+          {/* Vacation Dates */}
+          <VacationDatesEditor
+            value={formData.vacation_dates}
+            onChange={(dates) => setFormData(prev => ({ ...prev, vacation_dates: dates }))}
+          />
         </div>
 
         {/* Internal Notes - Staff Only */}
