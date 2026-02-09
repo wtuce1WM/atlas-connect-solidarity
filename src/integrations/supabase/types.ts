@@ -14,6 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      affiliates: {
+        Row: {
+          account_type: string | null
+          contact_email: string | null
+          contact_name: string | null
+          contact_phone: string | null
+          created_at: string
+          ice: string | null
+          id: string
+          internal_notes: string | null
+          is_active: boolean
+          main_category: string | null
+          name: string
+          phone: string | null
+          updated_at: string
+          whatsapp: string | null
+        }
+        Insert: {
+          account_type?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          ice?: string | null
+          id?: string
+          internal_notes?: string | null
+          is_active?: boolean
+          main_category?: string | null
+          name: string
+          phone?: string | null
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Update: {
+          account_type?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          ice?: string | null
+          id?: string
+          internal_notes?: string | null
+          is_active?: boolean
+          main_category?: string | null
+          name?: string
+          phone?: string | null
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Relationships: []
+      }
       business_labels: {
         Row: {
           business_id: string
