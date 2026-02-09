@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { useParams, Link, useSearchParams } from "react-router-dom";
+import { useParams, Link, useSearchParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Loader2, MapPin, X, ExternalLink, BookOpen, Phone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -67,6 +67,7 @@ const CityMap = () => {
   const { city } = useParams<{ city: string }>();
   const [searchParams] = useSearchParams();
   const { language } = useLanguage();
+  const navigate = useNavigate();
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [cityInfo, setCityInfo] = useState<CityInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -307,13 +308,13 @@ const CityMap = () => {
 
       <main className="container mx-auto px-4 py-24 relative z-10">
         {/* Back link */}
-        <Link
-          to="/"
+        <button
+          onClick={() => navigate(-1)}
           className="inline-flex items-center gap-2 text-white hover:text-gold mb-8 transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
-          Retour à l'accueil
-        </Link>
+          Retour
+        </button>
 
         {/* Title */}
         <div className="mb-8">
