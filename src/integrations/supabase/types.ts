@@ -98,6 +98,7 @@ export type Database = {
           tripadvisor_url: string | null
           twitter_url: string | null
           updated_at: string
+          vacation_dates: Json | null
           video_1_url: string | null
           vimeo_url: string | null
           website: string | null
@@ -153,6 +154,7 @@ export type Database = {
           tripadvisor_url?: string | null
           twitter_url?: string | null
           updated_at?: string
+          vacation_dates?: Json | null
           video_1_url?: string | null
           vimeo_url?: string | null
           website?: string | null
@@ -208,6 +210,7 @@ export type Database = {
           tripadvisor_url?: string | null
           twitter_url?: string | null
           updated_at?: string
+          vacation_dates?: Json | null
           video_1_url?: string | null
           vimeo_url?: string | null
           website?: string | null
