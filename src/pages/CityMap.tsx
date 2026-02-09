@@ -512,7 +512,7 @@ const CityMap = () => {
                   selectedBusinessId={selectedBusiness?.id}
                   onSelectBusiness={handleSelectBusiness}
                   showMapButton={true}
-                  mapButtonVariant="button"
+                  mapButtonVariant="text"
                   mapButtonLabels={{
                     view: "Voir sur la carte",
                     shown: "Affiché sur la carte"
