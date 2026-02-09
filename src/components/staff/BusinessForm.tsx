@@ -1254,10 +1254,14 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
           </div>
         </div>
 
-        {/* Metadata */}
-        <div className="space-y-3">
-          <Label>Sous-catégories</Label>
-          {formData.main_category ? (
+        {/* Taxonomie */}
+        <div className="space-y-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+          <Label className="text-base font-semibold">Taxonomie</Label>
+          
+          {/* Sous-catégories */}
+          <div className="space-y-3">
+            <Label>Sous-catégories</Label>
+            {formData.main_category ? (
             availableSubcategories.length > 0 ? (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 p-4 border rounded-lg bg-muted/30">
                 {availableSubcategories.map((subcat) => (
@@ -1387,6 +1391,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
               ))}
             </div>
           )}
+          </div>
         </div>
 
         <div className="space-y-2">
