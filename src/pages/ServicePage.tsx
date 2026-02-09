@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Loader2, MapPin, Phone, Building2, ShieldCheck, ChevronLeft, ChevronRight, Wrench } from "lucide-react";
+import { ICONS } from "@/components/staff/IconPicker";
 import logoWatermark from "@/assets/logoGOLD-watermark.webp";
 import symboleMaroc from "@/assets/symbole-maroc-3.webp";
 
@@ -41,11 +42,15 @@ const ServicePage = () => {
   const { language } = useLanguage();
   const [allBusinesses, setAllBusinesses] = useState<Business[]>([]);
   const [citiesWithPriority, setCitiesWithPriority] = useState<{ name: string; priority: number }[]>([]);
+  const [serviceIcon, setServiceIcon] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCity, setSelectedCity] = useState<string>("all");
 
   const decodedServiceName = serviceName ? decodeURIComponent(serviceName) : "";
+
+  // Get the icon component from the ICONS map
+  const ServiceIconComponent = serviceIcon && ICONS[serviceIcon] ? ICONS[serviceIcon] : Wrench;
 
   // Get cities available for this service, sorted by priority score
   const availableCities = useMemo(() => {
@@ -80,6 +85,17 @@ const ServicePage = () => {
       
       setIsLoading(true);
       try {
+        // Fetch service icon from database
+        const { data: serviceData } = await supabase
+          .from("services")
+          .select("icon")
+          .eq("name_fr", decodedServiceName)
+          .maybeSingle();
+
+        if (serviceData?.icon) {
+          setServiceIcon(serviceData.icon);
+        }
+
         // Fetch cities with priority scores
         const { data: citiesData } = await supabase
           .from("cities")
@@ -220,7 +236,7 @@ const ServicePage = () => {
         <div className="container mx-auto px-4 relative z-10">
           <div className="flex flex-col items-center text-center sm:flex-row sm:items-center sm:text-left gap-4 lg:gap-6">
             <div className="rounded-xl lg:rounded-2xl bg-gold/20 p-3 lg:p-6 border border-gold/30 flex-shrink-0">
-              <Wrench className="h-8 w-8 lg:h-12 lg:w-12 text-gold" />
+              <ServiceIconComponent className="h-8 w-8 lg:h-12 lg:w-12 text-gold" />
             </div>
             <div>
               <h1 className="text-2xl md:text-3xl lg:text-5xl font-bold text-white mb-1 lg:mb-2">
