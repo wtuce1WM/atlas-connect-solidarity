@@ -249,7 +249,7 @@ const BusinessDetail = () => {
                           <img
                             src={bl.label.image_url}
                             alt={bl.label.name_fr}
-                            className="h-14 object-contain"
+                            className="h-20 object-contain"
                           />
                         </a>
                       ) : (
@@ -257,7 +257,7 @@ const BusinessDetail = () => {
                           key={bl.id}
                           src={bl.label.image_url}
                           alt={bl.label.name_fr}
-                          className="h-14 object-contain"
+                          className="h-20 object-contain"
                         />
                       );
                     })}
