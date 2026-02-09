@@ -19,6 +19,7 @@ import DynamicIcon from "@/components/DynamicIcon";
 import symboleMaroc from "@/assets/symbole-maroc-3.webp";
 import BusinessCard, { Gamme } from "@/components/BusinessCard";
 import LabelSection from "@/components/LabelSection";
+import slhLogo from "@/assets/small-luxury-hotels-logo.webp";
 
 interface Business {
   id: string;
@@ -689,7 +690,7 @@ const CategoryPage = () => {
         descriptionFr="Découvrez les établissements marocains membres du prestigieux réseau Small Luxury Hotels of the World"
         descriptionEn="Discover Moroccan establishments that are members of the prestigious Small Luxury Hotels of the World network"
         descriptionAr="اكتشف المؤسسات المغربية الأعضاء في شبكة Small Luxury Hotels of the World المرموقة"
-        logoUrl="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/labels/label-1770571182211.webp"
+        logoUrl={slhLogo}
       />
 
       <Footer />
