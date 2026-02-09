@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,7 +33,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Edit, Trash2, Globe, MapPin, Building, ExternalLink, ArrowLeft, Save, FileText } from "lucide-react";
+import { Plus, Edit, Trash2, Globe, MapPin, Building, ExternalLink, ArrowLeft, Save, FileText, Home } from "lucide-react";
 import RichTextEditor from "./RichTextEditor";
 
 interface Country {
@@ -74,6 +74,13 @@ interface City {
   description: string | null;
 }
 
+interface Neighborhood {
+  id: string;
+  city_id: string;
+  name: string;
+  sort_order: number | null;
+}
+
 const LocationManagement = () => {
   const [countries, setCountries] = useState<Country[]>([]);
   const [cities, setCities] = useState<City[]>([]);
@@ -84,6 +91,10 @@ const LocationManagement = () => {
   const [isCountryDialogOpen, setIsCountryDialogOpen] = useState(false);
   const [showCityForm, setShowCityForm] = useState(false);
   const [selectedCountryForCity, setSelectedCountryForCity] = useState<string | null>(null);
+  const [neighborhoods, setNeighborhoods] = useState<Neighborhood[]>([]);
+  const [neighborhoodName, setNeighborhoodName] = useState("");
+  const [editingNeighborhood, setEditingNeighborhood] = useState<Neighborhood | null>(null);
+  const [expandedCityNeighborhoods, setExpandedCityNeighborhoods] = useState<string | null>(null);
   const { toast } = useToast();
 
   // Country form state
@@ -131,10 +142,11 @@ const LocationManagement = () => {
   const fetchData = async () => {
     setLoading(true);
     
-    const [countriesRes, citiesRes, businessesRes] = await Promise.all([
+    const [countriesRes, citiesRes, businessesRes, neighborhoodsRes] = await Promise.all([
       supabase.from("countries").select("*").order("sort_order"),
       supabase.from("cities").select("*").order("sort_order"),
       supabase.from("businesses").select("city"),
+      supabase.from("neighborhoods").select("*").order("sort_order") as any,
     ]);
 
     if (countriesRes.error) {
@@ -158,6 +170,10 @@ const LocationManagement = () => {
         }
       });
       setBusinessCounts(counts);
+    }
+
+    if (!neighborhoodsRes.error && neighborhoodsRes.data) {
+      setNeighborhoods(neighborhoodsRes.data || []);
     }
 
     setLoading(false);
@@ -375,6 +391,43 @@ const LocationManagement = () => {
     return cities.filter(c => c.country_id === countryId);
   };
 
+  const getNeighborhoodsByCity = (cityId: string) => {
+    return neighborhoods.filter(n => n.city_id === cityId);
+  };
+
+  const handleSaveNeighborhood = async (cityId: string) => {
+    if (!neighborhoodName.trim()) return;
+
+    let error;
+    if (editingNeighborhood) {
+      const res = await (supabase.from("neighborhoods") as any).update({ name: neighborhoodName.trim() }).eq("id", editingNeighborhood.id);
+      error = res.error;
+    } else {
+      const res = await (supabase.from("neighborhoods") as any).insert({ city_id: cityId, name: neighborhoodName.trim() });
+      error = res.error;
+    }
+
+    if (error) {
+      toast({ variant: "destructive", title: "Erreur", description: error.message });
+    } else {
+      toast({ title: "Succès", description: editingNeighborhood ? "Quartier mis à jour." : "Quartier ajouté." });
+      setNeighborhoodName("");
+      setEditingNeighborhood(null);
+      fetchData();
+    }
+  };
+
+  const handleDeleteNeighborhood = async (id: string) => {
+    if (!confirm("Supprimer ce quartier ?")) return;
+    const { error } = await (supabase.from("neighborhoods") as any).delete().eq("id", id);
+    if (error) {
+      toast({ variant: "destructive", title: "Erreur", description: error.message });
+    } else {
+      toast({ title: "Succès", description: "Quartier supprimé." });
+      fetchData();
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -558,65 +611,148 @@ const LocationManagement = () => {
                               </TableRow>
                             </TableHeader>
                             <TableBody>
-                              {countryCities.map((city) => (
-                                <TableRow key={city.id}>
-                                  <TableCell>
-                                    <div className="flex items-center gap-2">
-                                      <MapPin className="h-4 w-4 text-muted-foreground" />
-                                      <span className="font-medium">{city.name_fr}</span>
-                                    </div>
-                                  </TableCell>
-                                  <TableCell>
-                                    <span className="inline-flex items-center justify-center min-w-[2rem] px-2 py-0.5 bg-primary/10 text-primary rounded text-sm font-medium">
-                                      {businessCounts[city.name_fr] || 0}
-                                    </span>
-                                  </TableCell>
-                                  <TableCell className="text-muted-foreground">
-                                    {city.region || "—"}
-                                  </TableCell>
-                                  <TableCell>
-                                    <span className="inline-flex items-center justify-center min-w-[2rem] px-2 py-0.5 bg-gold/10 text-gold rounded text-sm font-medium">
-                                      {city.priority_score || 0}
-                                    </span>
-                                  </TableCell>
-                                  <TableCell>
-                                    <div className="flex gap-1">
-                                      {city.wikipedia_fr && (
-                                        <a href={city.wikipedia_fr} target="_blank" rel="noopener noreferrer" 
-                                           className="text-xs px-1.5 py-0.5 bg-blue-500/10 text-blue-600 rounded hover:bg-blue-500/20 transition-colors">
-                                          FR
-                                        </a>
-                                      )}
-                                      {city.wikipedia_en && (
-                                        <a href={city.wikipedia_en} target="_blank" rel="noopener noreferrer"
-                                           className="text-xs px-1.5 py-0.5 bg-green-500/10 text-green-600 rounded hover:bg-green-500/20 transition-colors">
-                                          EN
-                                        </a>
-                                      )}
-                                      {city.wikipedia_ar && (
-                                        <a href={city.wikipedia_ar} target="_blank" rel="noopener noreferrer"
-                                           className="text-xs px-1.5 py-0.5 bg-orange-500/10 text-orange-600 rounded hover:bg-orange-500/20 transition-colors">
-                                          AR
-                                        </a>
-                                      )}
-                                      {!city.wikipedia_fr && !city.wikipedia_en && !city.wikipedia_ar && "—"}
-                                    </div>
-                                  </TableCell>
-                                  <TableCell className="text-muted-foreground text-sm">
-                                    {city.latitude && city.longitude
-                                      ? `${city.latitude.toFixed(4)}, ${city.longitude.toFixed(4)}`
-                                      : "—"}
-                                  </TableCell>
-                                  <TableCell className="text-right">
-                                    <Button size="sm" variant="ghost" onClick={() => openEditCity(city)}>
-                                      <Edit className="h-4 w-4" />
-                                    </Button>
-                                    <Button size="sm" variant="ghost" className="text-destructive" onClick={() => handleDeleteCity(city.id)}>
-                                      <Trash2 className="h-4 w-4" />
-                                    </Button>
-                                  </TableCell>
-                                </TableRow>
-                              ))}
+                              {countryCities.map((city) => {
+                                const cityNeighborhoods = getNeighborhoodsByCity(city.id);
+                                const isExpanded = expandedCityNeighborhoods === city.id;
+                                return (
+                                  <React.Fragment key={city.id}>
+                                    <TableRow>
+                                      <TableCell>
+                                        <div className="flex items-center gap-2">
+                                          <MapPin className="h-4 w-4 text-muted-foreground" />
+                                          <span className="font-medium">{city.name_fr}</span>
+                                        </div>
+                                      </TableCell>
+                                      <TableCell>
+                                        <span className="inline-flex items-center justify-center min-w-[2rem] px-2 py-0.5 bg-primary/10 text-primary rounded text-sm font-medium">
+                                          {businessCounts[city.name_fr] || 0}
+                                        </span>
+                                      </TableCell>
+                                      <TableCell className="text-muted-foreground">
+                                        {city.region || "—"}
+                                      </TableCell>
+                                      <TableCell>
+                                        <span className="inline-flex items-center justify-center min-w-[2rem] px-2 py-0.5 bg-gold/10 text-gold rounded text-sm font-medium">
+                                          {city.priority_score || 0}
+                                        </span>
+                                      </TableCell>
+                                      <TableCell>
+                                        <div className="flex gap-1">
+                                          {city.wikipedia_fr && (
+                                            <a href={city.wikipedia_fr} target="_blank" rel="noopener noreferrer" 
+                                               className="text-xs px-1.5 py-0.5 bg-blue-500/10 text-blue-600 rounded hover:bg-blue-500/20 transition-colors">
+                                              FR
+                                            </a>
+                                          )}
+                                          {city.wikipedia_en && (
+                                            <a href={city.wikipedia_en} target="_blank" rel="noopener noreferrer"
+                                               className="text-xs px-1.5 py-0.5 bg-green-500/10 text-green-600 rounded hover:bg-green-500/20 transition-colors">
+                                              EN
+                                            </a>
+                                          )}
+                                          {city.wikipedia_ar && (
+                                            <a href={city.wikipedia_ar} target="_blank" rel="noopener noreferrer"
+                                               className="text-xs px-1.5 py-0.5 bg-orange-500/10 text-orange-600 rounded hover:bg-orange-500/20 transition-colors">
+                                              AR
+                                            </a>
+                                          )}
+                                          {!city.wikipedia_fr && !city.wikipedia_en && !city.wikipedia_ar && "—"}
+                                        </div>
+                                      </TableCell>
+                                      <TableCell className="text-muted-foreground text-sm">
+                                        {city.latitude && city.longitude
+                                          ? `${city.latitude.toFixed(4)}, ${city.longitude.toFixed(4)}`
+                                          : "—"}
+                                      </TableCell>
+                                      <TableCell className="text-right">
+                                        <Button
+                                          size="sm"
+                                          variant="ghost"
+                                          onClick={() => {
+                                            setExpandedCityNeighborhoods(isExpanded ? null : city.id);
+                                            setNeighborhoodName("");
+                                            setEditingNeighborhood(null);
+                                          }}
+                                          title="Quartiers"
+                                        >
+                                          <Home className="h-4 w-4" />
+                                          <span className="ml-1 text-xs">{cityNeighborhoods.length}</span>
+                                        </Button>
+                                        <Button size="sm" variant="ghost" onClick={() => openEditCity(city)}>
+                                          <Edit className="h-4 w-4" />
+                                        </Button>
+                                        <Button size="sm" variant="ghost" className="text-destructive" onClick={() => handleDeleteCity(city.id)}>
+                                          <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                      </TableCell>
+                                    </TableRow>
+                                    {isExpanded && (
+                                      <TableRow>
+                                        <TableCell colSpan={7} className="bg-muted/30 p-4">
+                                          <div className="space-y-3">
+                                            <div className="flex items-center gap-2 text-sm font-medium">
+                                              <Home className="h-4 w-4" />
+                                              Quartiers de {city.name_fr}
+                                            </div>
+                                            <div className="flex gap-2">
+                                              <Input
+                                                value={neighborhoodName}
+                                                onChange={(e) => setNeighborhoodName(e.target.value)}
+                                                placeholder="Nom du quartier"
+                                                className="max-w-xs h-8"
+                                                onKeyDown={(e) => {
+                                                  if (e.key === "Enter") handleSaveNeighborhood(city.id);
+                                                }}
+                                              />
+                                              <Button size="sm" onClick={() => handleSaveNeighborhood(city.id)} className="h-8">
+                                                {editingNeighborhood ? "Modifier" : "Ajouter"}
+                                              </Button>
+                                              {editingNeighborhood && (
+                                                <Button size="sm" variant="ghost" className="h-8" onClick={() => {
+                                                  setEditingNeighborhood(null);
+                                                  setNeighborhoodName("");
+                                                }}>
+                                                  Annuler
+                                                </Button>
+                                              )}
+                                            </div>
+                                            {cityNeighborhoods.length === 0 ? (
+                                              <p className="text-muted-foreground text-xs">Aucun quartier</p>
+                                            ) : (
+                                              <div className="flex flex-wrap gap-2">
+                                                {cityNeighborhoods.map((n) => (
+                                                  <div key={n.id} className="flex items-center gap-1 bg-background border rounded px-2 py-1 text-sm">
+                                                    <span>{n.name}</span>
+                                                    <Button
+                                                      size="sm"
+                                                      variant="ghost"
+                                                      className="h-5 w-5 p-0"
+                                                      onClick={() => {
+                                                        setEditingNeighborhood(n);
+                                                        setNeighborhoodName(n.name);
+                                                      }}
+                                                    >
+                                                      <Edit className="h-3 w-3" />
+                                                    </Button>
+                                                    <Button
+                                                      size="sm"
+                                                      variant="ghost"
+                                                      className="h-5 w-5 p-0 text-destructive"
+                                                      onClick={() => handleDeleteNeighborhood(n.id)}
+                                                    >
+                                                      <Trash2 className="h-3 w-3" />
+                                                    </Button>
+                                                  </div>
+                                                ))}
+                                              </div>
+                                            )}
+                                          </div>
+                                        </TableCell>
+                                      </TableRow>
+                                    )}
+                                  </React.Fragment>
+                                );
+                              })}
                             </TableBody>
                           </Table>
                         )}
