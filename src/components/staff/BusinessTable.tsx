@@ -103,12 +103,12 @@ const BusinessTable = ({ businesses, gammes, loading, onEdit, onDelete, onDuplic
                 <TableCell className="w-10">
                   <Button
                     variant="ghost"
-                    size="sm"
+                    size="icon"
                     onClick={() => onEdit(business)}
-                    className="text-green-600 hover:text-green-700 hover:bg-green-50 p-1 h-auto"
+                    className="text-green-600 hover:text-green-700 hover:bg-green-50 h-8 w-8"
                     title="Modifier"
                   >
-                    <Edit className="h-4 w-4" />
+                    <Edit className="h-5 w-5" />
                   </Button>
                 </TableCell>
                 <TableCell className="w-10">
