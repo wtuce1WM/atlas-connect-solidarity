@@ -43,12 +43,11 @@ interface Affiliate {
 }
 
 const ACCOUNT_TYPES = [
-  "Particulier",
-  "Entreprise",
-  "Association",
-  "Institution",
-  "Influenceur",
-  "Agence",
+  { value: "petite_structure", label: "Petite Structure" },
+  { value: "structure_moyenne", label: "Structure Moyenne" },
+  { value: "grande_structure", label: "Grande Structure" },
+  { value: "corporate_branding", label: "Corporate & Branding" },
+  { value: "institution", label: "Institution" },
 ];
 
 const AffiliateManagement = () => {
@@ -266,8 +265,8 @@ const AffiliateManagement = () => {
                   </SelectTrigger>
                   <SelectContent>
                     {ACCOUNT_TYPES.map((type) => (
-                      <SelectItem key={type} value={type}>
-                        {type}
+                      <SelectItem key={type.value} value={type.value}>
+                        {type.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -504,7 +503,7 @@ const AffiliateManagement = () => {
                         )}
                       </TableCell>
                       <TableCell>
-                        {affiliate.account_type || "—"}
+                        {ACCOUNT_TYPES.find(t => t.value === affiliate.account_type)?.label || affiliate.account_type || "—"}
                       </TableCell>
                       <TableCell>
                         {affiliate.main_category || "—"}
