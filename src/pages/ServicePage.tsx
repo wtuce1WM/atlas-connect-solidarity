@@ -99,15 +99,29 @@ const ServicePage = () => {
       
       setIsLoading(true);
       try {
-        // Fetch service icon from database
+        // Fetch service icon from database - prioritize entries with an icon
         const { data: serviceData } = await supabase
           .from("services")
           .select("icon")
           .eq("name_fr", decodedServiceName)
+          .not("icon", "is", null)
+          .limit(1)
           .maybeSingle();
 
         if (serviceData?.icon) {
           setServiceIcon(serviceData.icon);
+        } else {
+          // Fallback: try to get any service with this name (even without icon)
+          const { data: fallbackData } = await supabase
+            .from("services")
+            .select("icon")
+            .eq("name_fr", decodedServiceName)
+            .limit(1)
+            .maybeSingle();
+          
+          if (fallbackData?.icon) {
+            setServiceIcon(fallbackData.icon);
+          }
         }
 
         // Fetch cities with priority scores
