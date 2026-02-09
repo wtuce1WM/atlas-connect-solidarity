@@ -544,8 +544,8 @@ const CategoryPage = () => {
             </div>
           )}
 
-          {/* Subcategories Filter - Only shown when a city is selected */}
-          {selectedCity !== "all" && availableSubcategories.length > 0 && (
+          {/* Subcategories Filter */}
+          {availableSubcategories.length > 0 && (
             <div className="mb-6">
               <div className="flex items-center justify-between mb-3">
                 <label className="text-sm text-gray-400">
@@ -583,7 +583,7 @@ const CategoryPage = () => {
           )}
 
           {/* Services Filter - Only shown when a subcategory is selected */}
-          {selectedCity !== "all" && selectedSubcategories.length > 0 && availableServices.length > 0 && (
+          {selectedSubcategories.length > 0 && availableServices.length > 0 && (
             <div className="mb-8">
               <div className="mb-3">
                 <label className="text-sm text-gray-400">
