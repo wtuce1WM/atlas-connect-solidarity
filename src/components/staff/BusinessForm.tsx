@@ -401,7 +401,9 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
     const gammeIdsForCategory = gammeCategories
       .filter((gc) => gc.category_id === selectedCategory.id)
       .map((gc) => gc.gamme_id);
-    return dbGammes.filter((g) => gammeIdsForCategory.includes(g.id));
+    return dbGammes
+      .filter((g) => gammeIdsForCategory.includes(g.id))
+      .sort((a, b) => a.name_fr.localeCompare(b.name_fr, 'fr'));
   }, [selectedCategory, gammeCategories, dbGammes]);
 
   const handleSubmit = async (e: React.FormEvent) => {
