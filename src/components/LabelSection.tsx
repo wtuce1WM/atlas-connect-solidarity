@@ -16,6 +16,7 @@ interface LabelSectionProps {
   descriptionEn: string;
   descriptionAr: string;
   logoUrl?: string;
+  useLogo2?: boolean;
 }
 
 interface Business {
@@ -38,15 +39,29 @@ const LabelSection = ({
   descriptionEn,
   descriptionAr,
   logoUrl,
+  useLogo2 = false,
 }: LabelSectionProps) => {
   const { language } = useLanguage();
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [resolvedLogoUrl, setResolvedLogoUrl] = useState<string | undefined>(logoUrl);
 
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
+        // Fetch label info for logo if needed
+        if (useLogo2) {
+          const { data: labelInfo } = await supabase
+            .from("labels" as any)
+            .select("logo_url")
+            .eq("id", labelId)
+            .maybeSingle();
+          if (labelInfo && (labelInfo as any).logo_url) {
+            setResolvedLogoUrl((labelInfo as any).logo_url);
+          }
+        }
+
         const { data: labelData, error: labelError } = await supabase
           .from("business_labels")
           .select("business_id")
@@ -113,9 +128,9 @@ const LabelSection = ({
       <div className="container mx-auto px-4 relative z-10">
         {/* Section Header */}
         <div className="mb-10 text-center">
-          {logoUrl && (
+          {resolvedLogoUrl && (
             <div className="flex justify-center mb-4">
-              <img src={logoUrl} alt={title} className="h-16 object-contain" />
+              <img src={resolvedLogoUrl} alt={title} className="h-16 object-contain" />
             </div>
           )}
           <h2 className="mb-3 text-3xl font-bold text-white">

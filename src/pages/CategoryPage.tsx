@@ -691,6 +691,7 @@ const CategoryPage = () => {
         descriptionEn="Discover Moroccan establishments that are members of the prestigious Small Luxury Hotels of the World network"
         descriptionAr="اكتشف المؤسسات المغربية الأعضاء في شبكة Small Luxury Hotels of the World المرموقة"
         logoUrl={slhLogo}
+        useLogo2
       />
 
       <Footer />
