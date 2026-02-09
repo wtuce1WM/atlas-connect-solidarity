@@ -40,9 +40,9 @@ const Header = ({ variant = "default" }: HeaderProps) => {
             <Link to="/mission" className="text-white/90 transition-colors hover:text-gold">
               {t("footer.ourMission")}
             </Link>
-            <a href="/#contact" className="text-white/90 transition-colors hover:text-gold">
+            <Link to="/contact" className="text-white/90 transition-colors hover:text-gold">
               {t("footer.contact")}
-            </a>
+            </Link>
             <hr className="w-full border-white/20" />
             <Link to="/devenir-affilie" className="rounded-lg bg-gold px-4 py-2 font-semibold text-gold-foreground">
               {t("nav.joinNow")}
