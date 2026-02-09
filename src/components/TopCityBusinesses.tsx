@@ -5,6 +5,12 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Card, CardContent } from "@/components/ui/card";
 import logoWatermark from "@/assets/logoGOLDsimpleSML.webp";
 
+interface Gamme {
+  id: string;
+  name_fr: string;
+  color_hex: string | null;
+}
+
 interface Business {
   id: string;
   name: string;
@@ -16,16 +22,18 @@ interface Business {
   categories: string[] | null;
   wtuce_status: string | null;
   google_maps_url: string | null;
+  gamme_id: string | null;
 }
 
 interface TopCityBusinessesProps {
   businesses: Business[];
   cityName: string;
+  gammes?: Gamme[];
   onSelectBusiness?: (business: Business) => void;
   selectedBusinessId?: string | null;
 }
 
-const TopCityBusinesses = ({ businesses, cityName, onSelectBusiness, selectedBusinessId }: TopCityBusinessesProps) => {
+const TopCityBusinesses = ({ businesses, cityName, gammes = [], onSelectBusiness, selectedBusinessId }: TopCityBusinessesProps) => {
   const { language } = useLanguage();
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -131,10 +139,23 @@ const TopCityBusinesses = ({ businesses, cityName, onSelectBusiness, selectedBus
                     {business.name}
                   </h3>
 
-                  {/* Default Subcategory (first in categories array) */}
-                  {business.categories && business.categories.length > 0 && (
-                    <span className="text-xs text-gray-300 mb-2">{business.categories[0]}</span>
-                  )}
+                  {/* Subcategory & Gamme badges */}
+                  <div className="flex flex-wrap items-center justify-center gap-1 mb-2">
+                    {business.categories && business.categories.length > 0 && (
+                      <span className="text-xs bg-white/20 text-white rounded-full px-2 py-0.5">{business.categories[0]}</span>
+                    )}
+                    {(() => {
+                      const gamme = business.gamme_id ? gammes.find(g => g.id === business.gamme_id) : null;
+                      return gamme ? (
+                        <span 
+                          className="text-xs text-black border border-black rounded-full px-2 py-0.5"
+                          style={{ backgroundColor: gamme.color_hex || '#666666' }}
+                        >
+                          {gamme.name_fr}
+                        </span>
+                      ) : null;
+                    })()}
+                  </div>
 
                   {/* View on map button */}
                   {onSelectBusiness && (

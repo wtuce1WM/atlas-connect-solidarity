@@ -331,6 +331,7 @@ const CityMap = () => {
         <TopCityBusinesses 
           businesses={businesses} 
           cityName={decodedCity} 
+          gammes={gammes}
           onSelectBusiness={handleSelectBusiness}
           selectedBusinessId={selectedBusiness?.id}
         />
