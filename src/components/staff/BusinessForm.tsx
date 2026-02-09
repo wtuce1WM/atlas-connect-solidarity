@@ -538,7 +538,8 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
             value={formData.name}
             onChange={(e) => handleChange("name", e.target.value)}
             required
-            className="text-4xl font-bold h-20 px-4"
+            className="!text-4xl font-bold h-20 px-4"
+            style={{ fontSize: '2.25rem', lineHeight: '2.5rem' }}
           />
         </div>
 
