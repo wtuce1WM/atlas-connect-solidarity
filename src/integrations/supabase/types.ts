@@ -63,6 +63,7 @@ export type Database = {
           email: string | null
           facebook_url: string | null
           google_maps_url: string | null
+          hotels_com_url: string | null
           ice: string | null
           id: string
           images: string[] | null
@@ -83,6 +84,7 @@ export type Database = {
           name: string
           online_shop_url: string | null
           opening_hours: Json | null
+          other_booking_url: string | null
           pdf_url: string | null
           phone: string | null
           pinterest_url: string | null
@@ -96,6 +98,7 @@ export type Database = {
           skype: string | null
           tiktok_url: string | null
           tripadvisor_url: string | null
+          trivago_url: string | null
           twitter_url: string | null
           updated_at: string
           vacation_dates: Json | null
@@ -119,6 +122,7 @@ export type Database = {
           email?: string | null
           facebook_url?: string | null
           google_maps_url?: string | null
+          hotels_com_url?: string | null
           ice?: string | null
           id?: string
           images?: string[] | null
@@ -139,6 +143,7 @@ export type Database = {
           name: string
           online_shop_url?: string | null
           opening_hours?: Json | null
+          other_booking_url?: string | null
           pdf_url?: string | null
           phone?: string | null
           pinterest_url?: string | null
@@ -152,6 +157,7 @@ export type Database = {
           skype?: string | null
           tiktok_url?: string | null
           tripadvisor_url?: string | null
+          trivago_url?: string | null
           twitter_url?: string | null
           updated_at?: string
           vacation_dates?: Json | null
@@ -175,6 +181,7 @@ export type Database = {
           email?: string | null
           facebook_url?: string | null
           google_maps_url?: string | null
+          hotels_com_url?: string | null
           ice?: string | null
           id?: string
           images?: string[] | null
@@ -195,6 +202,7 @@ export type Database = {
           name?: string
           online_shop_url?: string | null
           opening_hours?: Json | null
+          other_booking_url?: string | null
           pdf_url?: string | null
           phone?: string | null
           pinterest_url?: string | null
@@ -208,6 +216,7 @@ export type Database = {
           skype?: string | null
           tiktok_url?: string | null
           tripadvisor_url?: string | null
+          trivago_url?: string | null
           twitter_url?: string | null
           updated_at?: string
           vacation_dates?: Json | null
