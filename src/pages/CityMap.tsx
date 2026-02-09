@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams, Link, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Loader2, MapPin, X, ExternalLink, BookOpen, Phone, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Loader2, MapPin, X, ExternalLink, BookOpen, Phone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
@@ -8,9 +8,7 @@ import Footer from "@/components/Footer";
 import CityWeather from "@/components/CityWeather";
 import TopCityBusinesses from "@/components/TopCityBusinesses";
 import symboleMaroc from "@/assets/symbole-maroc.webp";
-import logoWatermark from "@/assets/logoGOLDsimpleSML.webp";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
@@ -19,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import BusinessCard, { Gamme } from "@/components/BusinessCard";
 
 interface Business {
   id: string;
@@ -41,6 +40,8 @@ interface Business {
   priority_score: number | null;
   opening_hours: unknown;
   show_opening_hours: boolean | null;
+  logo_url: string | null;
+  gamme_id: string | null;
 }
 
 interface CityInfo {
@@ -73,6 +74,7 @@ const CityMap = () => {
   const [selectedSubcategory, setSelectedSubcategory] = useState<string>("");
   const [selectedActivities, setSelectedActivities] = useState<string[]>([]);
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
+  const [gammes, setGammes] = useState<Gamme[]>([]);
 
   const decodedCity = city ? decodeURIComponent(city) : "";
   
@@ -172,10 +174,20 @@ const CityMap = () => {
     const fetchData = async () => {
       if (!decodedCity) return;
 
+      // Fetch gammes
+      const { data: gammesData } = await supabase
+        .from("gammes")
+        .select("id, name_fr, color_hex")
+        .order("sort_order", { ascending: true });
+
+      if (gammesData) {
+        setGammes(gammesData);
+      }
+
       // Fetch businesses - ordered by verified status then priority score
       const { data: businessData, error: businessError } = await supabase
         .from("businesses")
-        .select("id, name, city, region, address, phone, whatsapp, skype, main_category, categories, latitude, longitude, google_maps_url, wtuce_status, services, images, rating, priority_score, opening_hours, show_opening_hours")
+        .select("id, name, city, region, address, phone, whatsapp, skype, main_category, categories, latitude, longitude, google_maps_url, wtuce_status, services, images, rating, priority_score, opening_hours, show_opening_hours, logo_url, gamme_id")
         .eq("is_active", true)
         .ilike("city", decodedCity)
         .order("wtuce_status", { ascending: true, nullsFirst: false })
@@ -490,113 +502,21 @@ const CityMap = () => {
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 max-h-[1200px] overflow-y-auto pr-2">
               {filteredBusinesses.map((business) => (
-                <Link key={business.id} to={`/business/${business.id}`}>
-                  <Card className="group h-full overflow-hidden bg-card border-border hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 relative">
-                    {/* Image - 16:9 aspect ratio */}
-                    {business.images && business.images.length > 0 && (
-                      <div className="aspect-video overflow-hidden bg-muted relative">
-                        <img
-                          src={business.images[0]}
-                          alt={business.name}
-                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = "/placeholder.svg";
-                          }}
-                        />
-                        {/* Watermark logo for verified businesses - top right of image */}
-                        {business.wtuce_status === "verified" && (
-                          <img 
-                            src={logoWatermark} 
-                            alt="" 
-                            className="absolute top-2 right-2 w-10 h-10 object-contain opacity-90 pointer-events-none"
-                          />
-                        )}
-                      </div>
-                    )}
-                    
-                    <CardContent className="p-4">
-                      <div className="flex flex-wrap gap-2 mb-3">
-                        {business.wtuce_status === "verified" && (
-                          <Badge variant="default" className="bg-primary/20 text-primary border-primary/30">
-                            <ShieldCheck className="h-3 w-3 mr-1" />
-                            Vérifié
-                          </Badge>
-                        )}
-                        {business.categories && business.categories.length > 0 && (
-                          <Badge variant="secondary" className="text-xs">
-                            {business.categories[0]}
-                          </Badge>
-                        )}
-                      </div>
-
-                      {/* Name */}
-                      <h3 className={`font-semibold text-lg mb-2 line-clamp-2 group-hover:text-primary transition-colors ${business.wtuce_status === "verified" ? "text-foreground font-bold" : "text-foreground"}`}>
-                        {business.name}
-                      </h3>
-
-                      {/* Location */}
-                      <div className="flex items-center gap-1 text-sm text-muted-foreground mb-2">
-                        <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
-                        <span className="truncate">{business.address || business.city}</span>
-                      </div>
-
-                      {/* Contact info */}
-                      <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground mb-3">
-                        {business.phone && (
-                          <div className="flex items-center gap-1">
-                            <Phone className="h-3.5 w-3.5" />
-                            <span className="truncate max-w-[120px]">{business.phone}</span>
-                          </div>
-                        )}
-                        {business.whatsapp && (
-                          <a
-                            href={`https://wa.me/${business.whatsapp.replace(/[^0-9]/g, '')}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={(e) => e.stopPropagation()}
-                            className="flex items-center gap-1.5 text-[#25D366] hover:opacity-80 transition-opacity"
-                            title="WhatsApp"
-                          >
-                            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="#25D366">
-                              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                            </svg>
-                            <span className="text-[#25D366] font-bold">WhatsApp</span>
-                          </a>
-                        )}
-                        {business.skype && (
-                          <a
-                            href={`skype:${business.skype}?chat`}
-                            onClick={(e) => e.stopPropagation()}
-                            className="flex items-center gap-1.5 text-[#00AFF0] hover:opacity-80 transition-opacity"
-                            title="Skype"
-                          >
-                            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="#00AFF0">
-                              <path d="M12.069 18.874c-4.023 0-5.82-1.979-5.82-3.464 0-.765.561-1.296 1.333-1.296 1.723 0 1.273 2.477 4.487 2.477 1.641 0 2.55-.895 2.55-1.811 0-.551-.269-1.16-1.354-1.429l-3.576-.895c-2.88-.724-3.403-2.286-3.403-3.751 0-3.047 2.861-4.191 5.549-4.191 2.471 0 5.393 1.373 5.393 3.199 0 .784-.688 1.24-1.453 1.24-1.469 0-1.198-2.037-4.164-2.037-1.469 0-2.292.664-2.292 1.617s1.153 1.258 2.157 1.487l2.637.587c2.891.649 3.624 2.346 3.624 3.944 0 2.476-1.902 4.324-5.722 4.324m11.084-4.882l-.029.135-.044-.24c.015.045.044.074.059.12.12-.675.181-1.363.181-2.052 0-1.529-.301-3.012-.898-4.42-.569-1.348-1.395-2.562-2.427-3.596-1.049-1.033-2.247-1.856-3.595-2.426-1.318-.631-2.801-.93-4.328-.93-.72 0-1.444.07-2.143.204l.119.06-.239-.033.119-.025C8.91.274 7.829 0 6.731 0c-1.789 0-3.47.698-4.736 1.967C.729 3.235.032 4.923.032 6.716c0 1.143.292 2.265.844 3.258l.02-.124.041.239-.06-.115c-.114.645-.172 1.299-.172 1.955 0 1.53.3 3.017.884 4.416.568 1.362 1.378 2.576 2.427 3.609a11.92 11.92 0 003.58 2.442c1.404.6 2.886.93 4.404.93.599 0 1.229-.06 1.868-.172l-.119-.062.239.033-.119.024c1.002.569 2.126.871 3.294.871 1.783 0 3.459-.69 4.733-1.963 1.259-1.259 1.962-2.951 1.962-4.749 0-1.138-.299-2.262-.853-3.266"/>
-                            </svg>
-                            <span className="text-[#00AFF0] font-bold">Skype</span>
-                          </a>
-                        )}
-                      </div>
-
-                      {/* View on map button */}
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          handleSelectBusiness(business);
-                        }}
-                        className={`w-full text-xs py-1.5 px-2 rounded transition-colors flex items-center justify-center gap-1 ${
-                          selectedBusiness?.id === business.id
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-muted hover:bg-primary/20 text-muted-foreground hover:text-primary"
-                        }`}
-                      >
-                        <MapPin className="h-3 w-3" />
-                        {selectedBusiness?.id === business.id ? "Affiché sur la carte" : "Voir sur la carte"}
-                      </button>
-                    </CardContent>
-                  </Card>
-                </Link>
+                <BusinessCard
+                  key={business.id}
+                  business={business}
+                  gammes={gammes}
+                  verifiedLabel="Vérifié"
+                  selectedBusinessId={selectedBusiness?.id}
+                  onSelectBusiness={handleSelectBusiness}
+                  showMapButton={true}
+                  mapButtonVariant="button"
+                  mapButtonLabels={{
+                    view: "Voir sur la carte",
+                    shown: "Affiché sur la carte"
+                  }}
+                  showAddress={true}
+                />
               ))}
               {filteredBusinesses.length === 0 && (
                 <div className="col-span-full text-center py-8 text-muted-foreground">
