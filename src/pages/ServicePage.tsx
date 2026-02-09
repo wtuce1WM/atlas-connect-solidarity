@@ -103,28 +103,41 @@ const ServicePage = () => {
       
       setIsLoading(true);
       try {
-        // Fetch service icon from database - prioritize entries with an icon
-        const { data: serviceData } = await supabase
-          .from("services")
-          .select("icon")
+        // Check if the name matches a subcategory first
+        const { data: subcategoryMatch } = await supabase
+          .from("subcategories")
+          .select("icon, name_fr")
           .eq("name_fr", decodedServiceName)
-          .not("icon", "is", null)
           .limit(1)
           .maybeSingle();
 
-        if (serviceData?.icon) {
-          setServiceIcon(serviceData.icon);
+        const isSubcategory = !!subcategoryMatch;
+
+        // Fetch icon: from subcategory or service
+        if (subcategoryMatch?.icon) {
+          setServiceIcon(subcategoryMatch.icon);
         } else {
-          // Fallback: try to get any service with this name (even without icon)
-          const { data: fallbackData } = await supabase
+          const { data: serviceData } = await supabase
             .from("services")
             .select("icon")
             .eq("name_fr", decodedServiceName)
+            .not("icon", "is", null)
             .limit(1)
             .maybeSingle();
-          
-          if (fallbackData?.icon) {
-            setServiceIcon(fallbackData.icon);
+
+          if (serviceData?.icon) {
+            setServiceIcon(serviceData.icon);
+          } else {
+            const { data: fallbackData } = await supabase
+              .from("services")
+              .select("icon")
+              .eq("name_fr", decodedServiceName)
+              .limit(1)
+              .maybeSingle();
+            
+            if (fallbackData?.icon) {
+              setServiceIcon(fallbackData.icon);
+            }
           }
         }
 
@@ -150,22 +163,43 @@ const ServicePage = () => {
           setGammes(gammesData);
         }
 
-        // Fetch ALL businesses with this service
-        const { data: businessData, error } = await supabase
-          .from("businesses")
-          .select("id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, opening_hours, show_opening_hours, rating, gamme_id")
-          .eq("is_active", true)
-          .contains("services", [decodedServiceName])
-          .order("wtuce_status", { ascending: true })
-          .order("priority_score", { ascending: false });
+        // Fetch businesses: by subcategory (categories array) OR by service
+        let businessData: Business[] | null = null;
+        let fetchError: Error | null = null;
 
-        if (error) throw error;
+        if (isSubcategory) {
+          // Search in the categories array (subcategories are stored there)
+          const { data, error } = await supabase
+            .from("businesses")
+            .select("id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, opening_hours, show_opening_hours, rating, gamme_id")
+            .eq("is_active", true)
+            .contains("categories", [decodedServiceName])
+            .order("wtuce_status", { ascending: true })
+            .order("priority_score", { ascending: false });
+          
+          businessData = data;
+          if (error) fetchError = error;
+        }
+
+        // If no subcategory match or no results, search by service
+        if (!businessData || businessData.length === 0) {
+          const { data, error } = await supabase
+            .from("businesses")
+            .select("id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, opening_hours, show_opening_hours, rating, gamme_id")
+            .eq("is_active", true)
+            .contains("services", [decodedServiceName])
+            .order("wtuce_status", { ascending: true })
+            .order("priority_score", { ascending: false });
+          
+          if (!businessData || businessData.length === 0) {
+            businessData = data;
+          }
+          if (error) fetchError = error;
+        }
+
+        if (fetchError) throw fetchError;
         
-        // Filter out businesses without images
-        const businessesWithImages = (businessData || []).filter(b => 
-          (b.images && b.images.length > 0)
-        );
-        setAllBusinesses(businessesWithImages);
+        setAllBusinesses(businessData || []);
       } catch (error) {
         console.error("Error fetching service data:", error);
       } finally {
