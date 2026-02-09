@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Plus, Search, Edit, Trash2, Eye, Building2, Users, Folder, MapPin, Copy, Star, UserCheck, Award, Gem, AlertTriangle } from "lucide-react";
+import { LogOut, Plus, Search, Edit, Trash2, Eye, Building2, Users, Folder, MapPin, Copy, Star, UserCheck, Award, Gem, AlertTriangle, LayoutDashboard } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import BusinessForm from "@/components/staff/BusinessForm";
 import BusinessTable from "@/components/staff/BusinessTable";
@@ -17,6 +17,7 @@ import SponsorManagement from "@/components/staff/SponsorManagement";
 import AffiliateManagement from "@/components/staff/AffiliateManagement";
 import LabelManagement from "@/components/staff/LabelManagement";
 import GammeManagement from "@/components/staff/GammeManagement";
+import StaffDashboard from "@/components/staff/StaffDashboard";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Business = Tables<"businesses">;
@@ -34,7 +35,7 @@ const StaffBackoffice = () => {
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [showForm, setShowForm] = useState(false);
   const [editingBusiness, setEditingBusiness] = useState<Business | null>(null);
-  const [activeTab, setActiveTab] = useState("businesses");
+  const [activeTab, setActiveTab] = useState("dashboard");
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -249,7 +250,11 @@ const StaffBackoffice = () => {
           />
         ) : (
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="mb-6">
+            <TabsList className="mb-6 flex-wrap">
+              <TabsTrigger value="dashboard" className="gap-2">
+                <LayoutDashboard className="h-4 w-4" />
+                Dashboard
+              </TabsTrigger>
               <TabsTrigger value="businesses" className="gap-2">
                 <Building2 className="h-4 w-4" />
                 Entreprises
@@ -285,6 +290,15 @@ const StaffBackoffice = () => {
                 </TabsTrigger>
               )}
             </TabsList>
+
+            <TabsContent value="dashboard">
+              <StaffDashboard
+                businesses={businesses}
+                onNavigateTab={setActiveTab}
+                onNewBusiness={() => setShowForm(true)}
+                onEditBusiness={handleEdit}
+              />
+            </TabsContent>
 
             <TabsContent value="businesses" className="space-y-6">
               {/* Actions Bar */}
