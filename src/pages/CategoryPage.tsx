@@ -60,6 +60,13 @@ interface Business {
   opening_hours: unknown;
   show_opening_hours: boolean | null;
   rating: number | null;
+  gamme_id: string | null;
+}
+
+interface Gamme {
+  id: string;
+  name_fr: string;
+  color_hex: string | null;
 }
 
 interface CategoryInfo {
@@ -103,6 +110,7 @@ const CategoryPage = () => {
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
   const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const [gammes, setGammes] = useState<Gamme[]>([]);
 
   const decodedCategoryName = categoryName ? decodeURIComponent(categoryName) : "";
 
@@ -213,10 +221,20 @@ const CategoryPage = () => {
           );
         }
 
+        // Fetch gammes
+        const { data: gammesData } = await supabase
+          .from("gammes")
+          .select("id, name_fr, color_hex")
+          .order("sort_order", { ascending: true });
+
+        if (gammesData) {
+          setGammes(gammesData);
+        }
+
         // Fetch ALL businesses in this category (no limit)
         const { data: businessData, error } = await supabase
           .from("businesses")
-          .select("id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, services, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, opening_hours, show_opening_hours, rating")
+          .select("id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, services, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, opening_hours, show_opening_hours, rating, gamme_id")
           .eq("is_active", true)
           .or(`main_category.eq.${decodedCategoryName},categories.cs.{${decodedCategoryName}}`)
           .order("wtuce_status", { ascending: true })
@@ -251,6 +269,11 @@ const CategoryPage = () => {
     if (business.images && business.images.length > 0) return business.images[0];
     if (business.logo_url) return business.logo_url;
     return "/placeholder.svg";
+  };
+
+  const getBusinessGamme = (business: Business): Gamme | null => {
+    if (!business.gamme_id) return null;
+    return gammes.find(g => g.id === business.gamme_id) || null;
   };
 
   const IconComponent = getCategoryIcon();
@@ -649,6 +672,20 @@ const CategoryPage = () => {
                               {business.categories[0]}
                             </Badge>
                           )}
+                          {(() => {
+                            const gamme = getBusinessGamme(business);
+                            if (gamme) {
+                              return (
+                                <Badge 
+                                  className="text-xs text-black border border-black"
+                                  style={{ backgroundColor: gamme.color_hex || '#666666' }}
+                                >
+                                  {gamme.name_fr}
+                                </Badge>
+                              );
+                            }
+                            return null;
+                          })()}
                         </div>
 
                         {/* Name */}
