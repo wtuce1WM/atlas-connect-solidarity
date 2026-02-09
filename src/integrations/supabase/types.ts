@@ -116,6 +116,7 @@ export type Database = {
           description: string | null
           email: string | null
           facebook_url: string | null
+          gamme_id: string | null
           google_maps_url: string | null
           hotels_com_url: string | null
           ice: string | null
@@ -176,6 +177,7 @@ export type Database = {
           description?: string | null
           email?: string | null
           facebook_url?: string | null
+          gamme_id?: string | null
           google_maps_url?: string | null
           hotels_com_url?: string | null
           ice?: string | null
@@ -236,6 +238,7 @@ export type Database = {
           description?: string | null
           email?: string | null
           facebook_url?: string | null
+          gamme_id?: string | null
           google_maps_url?: string | null
           hotels_com_url?: string | null
           ice?: string | null
@@ -284,7 +287,15 @@ export type Database = {
           wtuce_status?: Database["public"]["Enums"]["wtuce_status"] | null
           youtube_url?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "businesses_gamme_id_fkey"
+            columns: ["gamme_id"]
+            isOneToOne: false
+            referencedRelation: "gammes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       categories: {
         Row: {
@@ -453,6 +464,39 @@ export type Database = {
         Update: {
           code?: string | null
           created_at?: string | null
+          id?: string
+          name_ar?: string | null
+          name_en?: string | null
+          name_fr?: string
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      gammes: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          name_ar: string | null
+          name_en: string | null
+          name_fr: string
+          sort_order: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name_ar?: string | null
+          name_en?: string | null
+          name_fr: string
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
           id?: string
           name_ar?: string | null
           name_en?: string | null
