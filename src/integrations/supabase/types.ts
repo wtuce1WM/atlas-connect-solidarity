@@ -197,6 +197,7 @@ export type Database = {
           label1_url: string | null
           latitude: number | null
           linkedin_url: string | null
+          logo_2_url: string | null
           logo_url: string | null
           longitude: number | null
           main_category: string | null
@@ -260,6 +261,7 @@ export type Database = {
           label1_url?: string | null
           latitude?: number | null
           linkedin_url?: string | null
+          logo_2_url?: string | null
           logo_url?: string | null
           longitude?: number | null
           main_category?: string | null
@@ -323,6 +325,7 @@ export type Database = {
           label1_url?: string | null
           latitude?: number | null
           linkedin_url?: string | null
+          logo_2_url?: string | null
           logo_url?: string | null
           longitude?: number | null
           main_category?: string | null

@@ -1,0 +1,1 @@
+ALTER TABLE public.businesses ADD COLUMN logo_2_url text;
