@@ -493,7 +493,7 @@ const ServicePage = () => {
                             if (gamme) {
                               return (
                                 <Badge 
-                                  className="text-xs text-black border-0"
+                                  className="text-xs text-black border border-black"
                                   style={{ backgroundColor: gamme.color_hex || '#666666' }}
                                 >
                                   {gamme.name_fr}
