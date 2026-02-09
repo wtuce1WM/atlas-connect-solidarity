@@ -317,6 +317,9 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
     reserve_now_url: (business as any)?.reserve_now_url || "",
     show_opening_hours: (business as any)?.show_opening_hours ?? false,
     vacation_dates: ((business as any)?.vacation_dates || []) as VacationPeriod[],
+    hotels_com_url: (business as any)?.hotels_com_url || "",
+    trivago_url: (business as any)?.trivago_url || "",
+    other_booking_url: (business as any)?.other_booking_url || "",
   });
   
   // Business labels state (managed separately)
@@ -436,6 +439,9 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
       reserve_now_url: formData.reserve_now_url || null,
       show_opening_hours: formData.show_opening_hours,
       vacation_dates: formData.vacation_dates.length > 0 ? JSON.parse(JSON.stringify(formData.vacation_dates)) : [],
+      hotels_com_url: formData.hotels_com_url || null,
+      trivago_url: formData.trivago_url || null,
+      other_booking_url: formData.other_booking_url || null,
     };
 
     try {
@@ -1191,6 +1197,42 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
                 value={formData.airbnb_url}
                 onChange={(e) => handleChange("airbnb_url", e.target.value)}
                 placeholder="https://airbnb.com/rooms/..."
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="hotels_com_url" className="flex items-center gap-2">
+                🏨 Hotels.com
+              </Label>
+              <Input
+                id="hotels_com_url"
+                value={formData.hotels_com_url}
+                onChange={(e) => handleChange("hotels_com_url", e.target.value)}
+                placeholder="https://hotels.com/..."
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="trivago_url" className="flex items-center gap-2">
+                🔍 Trivago
+              </Label>
+              <Input
+                id="trivago_url"
+                value={formData.trivago_url}
+                onChange={(e) => handleChange("trivago_url", e.target.value)}
+                placeholder="https://trivago.com/..."
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="other_booking_url" className="flex items-center gap-2">
+                🔗 Autre plateforme
+              </Label>
+              <Input
+                id="other_booking_url"
+                value={formData.other_booking_url}
+                onChange={(e) => handleChange("other_booking_url", e.target.value)}
+                placeholder="https://..."
               />
             </div>
           </div>
