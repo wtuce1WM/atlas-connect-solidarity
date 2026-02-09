@@ -15,6 +15,7 @@ import StaffBackoffice from "./pages/StaffBackoffice";
 import AffiliatesLogin from "./pages/AffiliatesLogin";
 import AffiliatesDashboard from "./pages/AffiliatesDashboard";
 import BecomeAffiliate from "./pages/BecomeAffiliate";
+import Mission from "./pages/Mission";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -40,6 +41,7 @@ const AppContent = () => {
             <Route path="/affiliates" element={<AffiliatesLogin />} />
             <Route path="/affiliates/dashboard" element={<AffiliatesDashboard />} />
             <Route path="/devenir-affilie" element={<BecomeAffiliate />} />
+            <Route path="/mission" element={<Mission />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
