@@ -1135,7 +1135,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
         </div>
 
         {/* Plateformes de réservation */}
-        <div className="space-y-4">
+        <div className="space-y-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
           <Label className="text-base font-semibold">Plateformes de réservation</Label>
           
           {/* Bouton Réserver maintenant */}
