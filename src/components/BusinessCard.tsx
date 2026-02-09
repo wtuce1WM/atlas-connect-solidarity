@@ -107,6 +107,17 @@ const BusinessCard = ({
               <span className="text-gold font-bold text-sm">{business.rating}/20</span>
             </div>
           )}
+          {/* Gamme badge - top center */}
+          {gamme && (
+            <div className="absolute top-2 left-1/2 -translate-x-1/2 z-10">
+              <Badge 
+                className="text-xs text-black border border-black whitespace-nowrap"
+                style={{ backgroundColor: gamme.color_hex || '#666666' }}
+              >
+                {gamme.name_fr}
+              </Badge>
+            </div>
+          )}
           {/* Watermark logo for verified businesses - top right of image */}
           {business.wtuce_status === "verified" && (
             <img 
@@ -129,14 +140,6 @@ const BusinessCard = ({
             {business.categories && business.categories.length > 0 && (
               <Badge variant="secondary" className="text-xs">
                 {business.categories[0]}
-              </Badge>
-            )}
-            {gamme && (
-              <Badge 
-                className="text-xs text-black border border-black"
-                style={{ backgroundColor: gamme.color_hex || '#666666' }}
-              >
-                {gamme.name_fr}
               </Badge>
             )}
           </div>
