@@ -1,0 +1,1 @@
+ALTER TABLE public.businesses ADD COLUMN is_open_24h boolean NOT NULL DEFAULT false;
