@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, MapPin, Phone, Building2, ShieldCheck, ChevronLeft, ChevronRight, Wrench } from "lucide-react";
+import { Loader2, MapPin, Phone, Building2, ShieldCheck, ChevronLeft, ChevronRight, Sun } from "lucide-react";
 import { ICONS } from "@/components/staff/IconPicker";
 import logoWatermark from "@/assets/logoGOLD-watermark.webp";
 import symboleMaroc from "@/assets/symbole-maroc-3.webp";
@@ -50,7 +50,7 @@ const ServicePage = () => {
   const decodedServiceName = serviceName ? decodeURIComponent(serviceName) : "";
 
   // Get the icon component from the ICONS map
-  const ServiceIconComponent = serviceIcon && ICONS[serviceIcon] ? ICONS[serviceIcon] : Wrench;
+  const ServiceIconComponent = serviceIcon && ICONS[serviceIcon] ? ICONS[serviceIcon] : Sun;
 
   // Get cities available for this service, sorted by priority score
   const availableCities = useMemo(() => {
