@@ -620,7 +620,10 @@ const CategoryPage = () => {
             </div>
           ) : (
             <>
-              {/* Results Grid */}
+              {/* Results count + Grid */}
+              <h2 className="text-lg font-semibold text-white mb-3">
+                {t.establishments} ({filteredBusinesses.length})
+              </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {paginatedBusinesses.map((business) => (
                   <BusinessCard
