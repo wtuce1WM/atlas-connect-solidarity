@@ -778,6 +778,54 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
           />
         </div>
 
+        {/* Video */}
+        <div className="space-y-4 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+          <Label className="text-base font-semibold">Vidéo</Label>
+          <div className="space-y-2">
+            <Label htmlFor="video_1_url">URL Vidéo 1 (YouTube, Vimeo, ou lien direct)</Label>
+            <Input
+              id="video_1_url"
+              value={formData.video_1_url}
+              onChange={(e) => handleChange("video_1_url", e.target.value)}
+              placeholder="https://youtube.com/watch?v=... ou https://vimeo.com/..."
+            />
+          </div>
+          {formData.video_1_url && (
+            <div className="space-y-2">
+              <Label>Prévisualisation</Label>
+              <div className="aspect-video w-full max-w-2xl rounded-lg overflow-hidden border bg-muted">
+                {formData.video_1_url.includes('youtube.com') || formData.video_1_url.includes('youtu.be') ? (
+                  <iframe
+                    src={`https://www.youtube.com/embed/${
+                      formData.video_1_url.includes('youtu.be') 
+                        ? formData.video_1_url.split('youtu.be/')[1]?.split('?')[0]
+                        : formData.video_1_url.split('v=')[1]?.split('&')[0]
+                    }`}
+                    className="w-full h-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                ) : formData.video_1_url.includes('vimeo.com') ? (
+                  <iframe
+                    src={`https://player.vimeo.com/video/${formData.video_1_url.split('vimeo.com/')[1]?.split('?')[0]}`}
+                    className="w-full h-full"
+                    allow="autoplay; fullscreen; picture-in-picture"
+                    allowFullScreen
+                  />
+                ) : (
+                  <video
+                    src={formData.video_1_url}
+                    controls
+                    className="w-full h-full object-contain"
+                  >
+                    Votre navigateur ne supporte pas la lecture vidéo.
+                  </video>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* Images */}
         <div className="space-y-2">
           <Label className="text-base font-semibold">Images (max 12)</Label>
@@ -1161,55 +1209,6 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
               />
             </div>
           </div>
-        </div>
-
-
-        {/* Video */}
-        <div className="space-y-4">
-          <Label className="text-base font-semibold">Vidéo</Label>
-          <div className="space-y-2">
-            <Label htmlFor="video_1_url">URL Vidéo 1 (YouTube, Vimeo, ou lien direct)</Label>
-            <Input
-              id="video_1_url"
-              value={formData.video_1_url}
-              onChange={(e) => handleChange("video_1_url", e.target.value)}
-              placeholder="https://youtube.com/watch?v=... ou https://vimeo.com/..."
-            />
-          </div>
-          {formData.video_1_url && (
-            <div className="space-y-2">
-              <Label>Prévisualisation</Label>
-              <div className="aspect-video w-full max-w-2xl rounded-lg overflow-hidden border bg-muted">
-                {formData.video_1_url.includes('youtube.com') || formData.video_1_url.includes('youtu.be') ? (
-                  <iframe
-                    src={`https://www.youtube.com/embed/${
-                      formData.video_1_url.includes('youtu.be') 
-                        ? formData.video_1_url.split('youtu.be/')[1]?.split('?')[0]
-                        : formData.video_1_url.split('v=')[1]?.split('&')[0]
-                    }`}
-                    className="w-full h-full"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                ) : formData.video_1_url.includes('vimeo.com') ? (
-                  <iframe
-                    src={`https://player.vimeo.com/video/${formData.video_1_url.split('vimeo.com/')[1]?.split('?')[0]}`}
-                    className="w-full h-full"
-                    allow="autoplay; fullscreen; picture-in-picture"
-                    allowFullScreen
-                  />
-                ) : (
-                  <video
-                    src={formData.video_1_url}
-                    controls
-                    className="w-full h-full object-contain"
-                  >
-                    Votre navigateur ne supporte pas la lecture vidéo.
-                  </video>
-                )}
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Metadata */}
