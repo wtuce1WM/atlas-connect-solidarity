@@ -1342,7 +1342,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
         </div>
 
         {/* Opening Hours */}
-        <div className="space-y-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+        <div className="space-y-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
           <Label className="text-base font-semibold">Horaires d'ouverture</Label>
           <OpeningHoursEditor
             value={formData.opening_hours}
