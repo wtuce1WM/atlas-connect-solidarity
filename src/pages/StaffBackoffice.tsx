@@ -17,6 +17,7 @@ import SponsorManagement from "@/components/staff/SponsorManagement";
 import AffiliateManagement from "@/components/staff/AffiliateManagement";
 import LabelManagement from "@/components/staff/LabelManagement";
 import GammeManagement from "@/components/staff/GammeManagement";
+import { useBusinessBrokenFiles } from "@/hooks/useBusinessBrokenFiles";
 import StaffDashboard from "@/components/staff/StaffDashboard";
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -38,6 +39,7 @@ const StaffBackoffice = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { brokenFilesMap, isChecking: isCheckingBrokenFiles } = useBusinessBrokenFiles(businesses);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -297,6 +299,8 @@ const StaffBackoffice = () => {
                 onNavigateTab={setActiveTab}
                 onNewBusiness={() => setShowForm(true)}
                 onEditBusiness={handleEdit}
+                brokenFilesMap={brokenFilesMap}
+                isCheckingBrokenFiles={isCheckingBrokenFiles}
               />
             </TabsContent>
 
