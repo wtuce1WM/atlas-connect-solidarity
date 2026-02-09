@@ -322,6 +322,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
     rating: (business as any)?.rating?.toString() || "",
     reserve_now_url: (business as any)?.reserve_now_url || "",
     show_opening_hours: (business as any)?.show_opening_hours ?? false,
+    is_open_24h: (business as any)?.is_open_24h ?? false,
     vacation_dates: ((business as any)?.vacation_dates || []) as VacationPeriod[],
     hotels_com_url: (business as any)?.hotels_com_url || "",
     trivago_url: (business as any)?.trivago_url || "",
@@ -457,6 +458,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
       rating: formData.rating ? parseFloat(formData.rating) : null,
       reserve_now_url: formData.reserve_now_url || null,
       show_opening_hours: formData.show_opening_hours,
+      is_open_24h: formData.is_open_24h,
       vacation_dates: formData.vacation_dates.length > 0 ? JSON.parse(JSON.stringify(formData.vacation_dates)) : [],
       hotels_com_url: formData.hotels_com_url || null,
       trivago_url: formData.trivago_url || null,
@@ -1474,7 +1476,16 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
             value={formData.opening_hours}
             onChange={(hours) => handleChange("opening_hours", hours as any)}
           />
-          <div className="flex items-center gap-3 p-3 border rounded-lg bg-white/50">
+          <div className="flex flex-col gap-2 p-3 border rounded-lg bg-white/50">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={formData.is_open_24h}
+                onChange={(e) => handleChange("is_open_24h", e.target.checked)}
+                className="h-4 w-4 rounded border-input"
+              />
+              <span className="text-sm font-medium">Ouvert 24h/24</span>
+            </label>
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"

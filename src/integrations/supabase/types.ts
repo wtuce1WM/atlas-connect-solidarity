@@ -189,6 +189,7 @@ export type Database = {
           internal_notes: string | null
           is_active: boolean
           is_featured: boolean | null
+          is_open_24h: boolean
           is_regulated_activity: boolean | null
           keywords: string[] | null
           kp_regroupement: string | null
@@ -250,6 +251,7 @@ export type Database = {
           internal_notes?: string | null
           is_active?: boolean
           is_featured?: boolean | null
+          is_open_24h?: boolean
           is_regulated_activity?: boolean | null
           keywords?: string[] | null
           kp_regroupement?: string | null
@@ -311,6 +313,7 @@ export type Database = {
           internal_notes?: string | null
           is_active?: boolean
           is_featured?: boolean | null
+          is_open_24h?: boolean
           is_regulated_activity?: boolean | null
           keywords?: string[] | null
           kp_regroupement?: string | null

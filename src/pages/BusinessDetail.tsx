@@ -71,6 +71,7 @@ interface Business {
   rating: number | null;
   reserve_now_url: string | null;
   show_opening_hours: boolean | null;
+  is_open_24h: boolean | null;
   ice: string | null;
   kp_regroupement: string | null;
 }
@@ -786,7 +787,21 @@ const BusinessDetail = () => {
 
 
             {/* Opening Hours */}
-            {business.show_opening_hours !== false && business.opening_hours && Object.keys(business.opening_hours).length > 0 && (() => {
+            {business.show_opening_hours !== false && (business.is_open_24h || (business.opening_hours && Object.keys(business.opening_hours).length > 0)) && (() => {
+              if (business.is_open_24h) {
+                return (
+                  <Card>
+                    <CardContent className="p-6">
+                      <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                        <Clock className="h-5 w-5" />
+                        Horaires d'ouverture
+                      </h2>
+                      <div className="text-sm font-medium text-primary">Ouvert 24h/24</div>
+                    </CardContent>
+                  </Card>
+                );
+              }
+
               const dayNames: { [key: string]: string } = {
                 monday: "Lundi",
                 tuesday: "Mardi",
@@ -799,7 +814,6 @@ const BusinessDetail = () => {
               const dayOrder = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
               const hours = business.opening_hours as OpeningHours;
               
-              // Check if at least one day has data
               const hasAnyHours = dayOrder.some(day => {
                 const dayHours = hours[day as keyof OpeningHours];
                 return dayHours && (dayHours.closed || (dayHours.open && dayHours.close));
