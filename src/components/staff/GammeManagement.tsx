@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import {
   Table,
@@ -20,7 +21,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
 import { Plus, Edit, Trash2, GripVertical } from "lucide-react";
+
+interface Category {
+  id: string;
+  name_fr: string;
+}
 
 interface Gamme {
   id: string;
@@ -31,8 +38,15 @@ interface Gamme {
   sort_order: number | null;
 }
 
+interface GammeCategory {
+  gamme_id: string;
+  category_id: string;
+}
+
 const GammeManagement = () => {
   const [gammes, setGammes] = useState<Gamme[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [gammeCategories, setGammeCategories] = useState<GammeCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingGamme, setEditingGamme] = useState<Gamme | null>(null);
@@ -43,29 +57,48 @@ const GammeManagement = () => {
     description: "",
     sort_order: 0,
   });
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const { toast } = useToast();
 
   useEffect(() => {
-    fetchGammes();
+    fetchData();
   }, []);
 
-  const fetchGammes = async () => {
+  const fetchData = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("gammes")
-      .select("*")
-      .order("sort_order", { ascending: true });
+    
+    const [gammesRes, categoriesRes, gammeCategoriesRes] = await Promise.all([
+      supabase.from("gammes").select("*").order("sort_order", { ascending: true }),
+      supabase.from("categories").select("id, name_fr").order("name_fr", { ascending: true }),
+      supabase.from("gamme_categories").select("gamme_id, category_id"),
+    ]);
 
-    if (error) {
+    if (gammesRes.error) {
       toast({
         variant: "destructive",
         title: "Erreur",
         description: "Impossible de charger les gammes.",
       });
     } else {
-      setGammes(data || []);
+      setGammes(gammesRes.data || []);
     }
+
+    setCategories(categoriesRes.data || []);
+    setGammeCategories(gammeCategoriesRes.data || []);
     setLoading(false);
+  };
+
+  const getCategoriesForGamme = (gammeId: string): string[] => {
+    return gammeCategories
+      .filter((gc) => gc.gamme_id === gammeId)
+      .map((gc) => gc.category_id);
+  };
+
+  const getCategoryNames = (gammeId: string): string[] => {
+    const categoryIds = getCategoriesForGamme(gammeId);
+    return categories
+      .filter((c) => categoryIds.includes(c.id))
+      .map((c) => c.name_fr);
   };
 
   const resetForm = () => {
@@ -76,6 +109,7 @@ const GammeManagement = () => {
       description: "",
       sort_order: gammes.length,
     });
+    setSelectedCategories([]);
     setEditingGamme(null);
   };
 
@@ -89,10 +123,19 @@ const GammeManagement = () => {
         description: gamme.description || "",
         sort_order: gamme.sort_order || 0,
       });
+      setSelectedCategories(getCategoriesForGamme(gamme.id));
     } else {
       resetForm();
     }
     setIsDialogOpen(true);
+  };
+
+  const handleCategoryToggle = (categoryId: string) => {
+    setSelectedCategories((prev) =>
+      prev.includes(categoryId)
+        ? prev.filter((id) => id !== categoryId)
+        : [...prev, categoryId]
+    );
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -115,6 +158,8 @@ const GammeManagement = () => {
       sort_order: formData.sort_order,
     };
 
+    let gammeId: string;
+
     if (editingGamme) {
       const { error } = await supabase
         .from("gammes")
@@ -127,32 +172,62 @@ const GammeManagement = () => {
           title: "Erreur",
           description: "Impossible de modifier la gamme.",
         });
-      } else {
-        toast({
-          title: "Succès",
-          description: "Gamme modifiée avec succès.",
-        });
-        setIsDialogOpen(false);
-        fetchGammes();
+        return;
       }
-    } else {
-      const { error } = await supabase.from("gammes").insert(gammeData);
+      gammeId = editingGamme.id;
 
-      if (error) {
+      // Delete existing category associations
+      await supabase
+        .from("gamme_categories")
+        .delete()
+        .eq("gamme_id", gammeId);
+    } else {
+      const { data, error } = await supabase
+        .from("gammes")
+        .insert(gammeData)
+        .select()
+        .single();
+
+      if (error || !data) {
         toast({
           variant: "destructive",
           title: "Erreur",
           description: "Impossible de créer la gamme.",
         });
-      } else {
+        return;
+      }
+      gammeId = data.id;
+    }
+
+    // Insert category associations
+    if (selectedCategories.length > 0) {
+      const associations = selectedCategories.map((categoryId) => ({
+        gamme_id: gammeId,
+        category_id: categoryId,
+      }));
+
+      const { error: assocError } = await supabase
+        .from("gamme_categories")
+        .insert(associations);
+
+      if (assocError) {
         toast({
-          title: "Succès",
-          description: "Gamme créée avec succès.",
+          variant: "destructive",
+          title: "Erreur",
+          description: "Impossible d'associer les catégories.",
         });
-        setIsDialogOpen(false);
-        fetchGammes();
+        return;
       }
     }
+
+    toast({
+      title: "Succès",
+      description: editingGamme
+        ? "Gamme modifiée avec succès."
+        : "Gamme créée avec succès.",
+    });
+    setIsDialogOpen(false);
+    fetchData();
   };
 
   const handleDelete = async (id: string) => {
@@ -173,7 +248,7 @@ const GammeManagement = () => {
         title: "Succès",
         description: "Gamme supprimée avec succès.",
       });
-      fetchGammes();
+      fetchData();
     }
   };
 
@@ -183,7 +258,7 @@ const GammeManagement = () => {
         <div>
           <h2 className="text-2xl font-bold">Gestion des Gammes</h2>
           <p className="text-muted-foreground">
-            Gérez les gammes (Luxe, Premium, Standard, etc.) pour classifier les entreprises.
+            Gérez les gammes (Luxe, Premium, Standard, etc.) et leurs catégories associées.
           </p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -196,7 +271,7 @@ const GammeManagement = () => {
               Nouvelle gamme
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-md">
+          <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
                 {editingGamme ? "Modifier la gamme" : "Nouvelle gamme"}
@@ -216,29 +291,31 @@ const GammeManagement = () => {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="name_en">Nom (Anglais)</Label>
-                <Input
-                  id="name_en"
-                  value={formData.name_en}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name_en: e.target.value })
-                  }
-                  placeholder="Ex: Premium"
-                />
-              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name_en">Nom (Anglais)</Label>
+                  <Input
+                    id="name_en"
+                    value={formData.name_en}
+                    onChange={(e) =>
+                      setFormData({ ...formData, name_en: e.target.value })
+                    }
+                    placeholder="Ex: Premium"
+                  />
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="name_ar">Nom (Arabe)</Label>
-                <Input
-                  id="name_ar"
-                  value={formData.name_ar}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name_ar: e.target.value })
-                  }
-                  placeholder="الفاخرة"
-                  dir="rtl"
-                />
+                <div className="space-y-2">
+                  <Label htmlFor="name_ar">Nom (Arabe)</Label>
+                  <Input
+                    id="name_ar"
+                    value={formData.name_ar}
+                    onChange={(e) =>
+                      setFormData({ ...formData, name_ar: e.target.value })
+                    }
+                    placeholder="الفاخرة"
+                    dir="rtl"
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">
@@ -250,7 +327,7 @@ const GammeManagement = () => {
                     setFormData({ ...formData, description: e.target.value })
                   }
                   placeholder="Description de la gamme..."
-                  rows={3}
+                  rows={2}
                 />
               </div>
 
@@ -264,7 +341,37 @@ const GammeManagement = () => {
                     setFormData({ ...formData, sort_order: parseInt(e.target.value) || 0 })
                   }
                   min="0"
+                  className="w-24"
                 />
+              </div>
+
+              {/* Categories selection */}
+              <div className="space-y-3">
+                <Label>Catégories associées</Label>
+                <div className="border rounded-lg p-3 max-h-48 overflow-y-auto space-y-2">
+                  {categories.length === 0 ? (
+                    <p className="text-muted-foreground text-sm">Aucune catégorie disponible</p>
+                  ) : (
+                    categories.map((category) => (
+                      <div key={category.id} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`cat-${category.id}`}
+                          checked={selectedCategories.includes(category.id)}
+                          onCheckedChange={() => handleCategoryToggle(category.id)}
+                        />
+                        <label
+                          htmlFor={`cat-${category.id}`}
+                          className="text-sm cursor-pointer"
+                        >
+                          {category.name_fr}
+                        </label>
+                      </div>
+                    ))
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {selectedCategories.length} catégorie(s) sélectionnée(s)
+                </p>
               </div>
 
               <div className="flex justify-end gap-2 pt-4">
@@ -298,21 +405,20 @@ const GammeManagement = () => {
               <TableHead className="w-12">Ordre</TableHead>
               <TableHead>Nom (FR)</TableHead>
               <TableHead>Nom (EN)</TableHead>
-              <TableHead>Nom (AR)</TableHead>
-              <TableHead>Description</TableHead>
+              <TableHead>Catégories associées</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8">
+                <TableCell colSpan={5} className="text-center py-8">
                   Chargement...
                 </TableCell>
               </TableRow>
             ) : gammes.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8">
+                <TableCell colSpan={5} className="text-center py-8">
                   Aucune gamme définie.
                 </TableCell>
               </TableRow>
@@ -327,9 +433,18 @@ const GammeManagement = () => {
                   </TableCell>
                   <TableCell className="font-medium">{gamme.name_fr}</TableCell>
                   <TableCell>{gamme.name_en || "-"}</TableCell>
-                  <TableCell dir="rtl">{gamme.name_ar || "-"}</TableCell>
-                  <TableCell className="max-w-xs truncate">
-                    {gamme.description || "-"}
+                  <TableCell>
+                    <div className="flex flex-wrap gap-1">
+                      {getCategoryNames(gamme.id).length > 0 ? (
+                        getCategoryNames(gamme.id).map((name) => (
+                          <Badge key={name} variant="secondary" className="text-xs">
+                            {name}
+                          </Badge>
+                        ))
+                      ) : (
+                        <span className="text-muted-foreground text-sm">Aucune</span>
+                      )}
+                    </div>
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
