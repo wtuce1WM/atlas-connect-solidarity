@@ -212,7 +212,7 @@ const BusinessDetail = () => {
           <div className="flex flex-col items-center text-center sm:flex-row sm:items-center sm:text-left gap-4 flex-wrap">
             {/* Logo */}
             {business.logo_url && (
-              <div className="w-20 h-20 rounded-lg border bg-white p-2 flex items-center justify-center overflow-hidden flex-shrink-0">
+              <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-lg border bg-white p-2 flex items-center justify-center overflow-hidden flex-shrink-0">
                 <img
                   src={business.logo_url}
                   alt={`Logo ${business.name}`}
