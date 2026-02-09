@@ -47,8 +47,8 @@ interface SearchResult {
 
 // Synonymes pour améliorer la recherche
 const synonyms: Record<string, string[]> = {
-  hotel: ["hôtel", "riad", "ryad", "hébergement", "guesthouse", "maison d'hôtes"],
-  riad: ["ryad", "riad", "maison d'hôtes", "guesthouse"],
+  hotel: ["hôtel", "riad", "ryad", "hébergement", "guesthouse"],
+  riad: ["ryad", "riad", "guesthouse", "hôtel", "hébergement"],
   restaurant: ["resto", "café", "gastronomie", "cuisine"],
   spa: ["hammam", "bien-être", "massage", "détente"],
   transport: ["taxi", "navette", "transfert", "voiture"],
@@ -56,21 +56,23 @@ const synonyms: Record<string, string[]> = {
   shop: ["boutique", "artisanat", "souvenir", "shopping"],
 };
 
+// Sanitize a term for to_tsquery: remove apostrophes and special chars
+function sanitizeTerm(term: string): string {
+  return term.replace(/['']/g, "").replace(/[^a-zA-Z0-9àâäéèêëïîôùûüÿçœæÀÂÄÉÈÊËÏÎÔÙÛÜŸÇŒÆ]/g, "");
+}
+
 function expandQuery(query: string): string {
   const words = query.toLowerCase().split(/\s+/).filter(w => w.length > 0);
 
-  // For each word, build a group of (word OR its synonyms)
-  // Then AND the groups together
   const groups = words.map(word => {
     const alternatives: string[] = [word];
     for (const [key, values] of Object.entries(synonyms)) {
-      if (word === key || values.includes(word)) {
+      if (word === key || values.some(v => sanitizeTerm(v.toLowerCase()) === sanitizeTerm(word))) {
         alternatives.push(key, ...values);
       }
     }
-    const unique = [...new Set(alternatives)];
-    // Single word: just return it; multiple: wrap in parens with OR
-    return unique.length === 1 ? unique[0] : `(${unique.join(" | ")})`;
+    const sanitized = [...new Set(alternatives)].map(sanitizeTerm).filter(t => t.length > 0);
+    return sanitized.length === 1 ? sanitized[0] : `(${sanitized.join(" | ")})`;
   });
 
   return groups.join(" & ");
@@ -137,7 +139,6 @@ serve(async (req) => {
 
       if (expandedQuery) {
         queryBuilder = queryBuilder.textSearch("search_vector", expandedQuery, {
-          type: "websearch",
           config: "simple",
         });
       }
