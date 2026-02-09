@@ -708,6 +708,35 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
           </div>
         </div>
 
+        {/* Google Maps & WhatsApp - Champs prioritaires */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 border rounded-lg bg-muted/30">
+          <div className="space-y-2">
+            <Label htmlFor="google_maps_url_top" className="flex items-center gap-2">
+              <GoogleMapsIcon className="text-[#4285F4]" />
+              Google Maps
+            </Label>
+            <Input
+              id="google_maps_url_top"
+              value={formData.google_maps_url}
+              onChange={(e) => handleChange("google_maps_url", e.target.value)}
+              placeholder="https://maps.google.com/..."
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="whatsapp_top" className="flex items-center gap-2">
+              <WhatsAppIcon className="text-[#25D366]" />
+              WhatsApp
+            </Label>
+            <Input
+              id="whatsapp_top"
+              value={formData.whatsapp}
+              onChange={(e) => handleChange("whatsapp", e.target.value)}
+              placeholder="+212 6XX-XXXXXX"
+            />
+          </div>
+        </div>
+
         {/* Taxonomy Summary */}
         {(formData.categories.length > 0 || formData.services.length > 0 || formData.keywords) && (
           <div className="p-4 border rounded-lg bg-muted/20 space-y-2">
