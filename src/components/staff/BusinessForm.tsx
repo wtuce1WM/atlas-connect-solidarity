@@ -992,7 +992,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
 
 
         {/* Social Media */}
-        <div className="space-y-4">
+        <div className="space-y-4 p-4 bg-orange-50 border border-orange-200 rounded-lg">
           <Label className="text-base font-semibold">Réseaux sociaux</Label>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
