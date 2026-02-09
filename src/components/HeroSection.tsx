@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { MapPin, Building2, Crown, ChevronRight, ChevronLeft, Loader2, Search, Star } from "lucide-react";
-import * as LucideIcons from "lucide-react";
+import DynamicIcon from "@/components/DynamicIcon";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
@@ -379,11 +379,6 @@ const HeroSection = () => {
                   style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
                 >
                   {categories.map((category) => {
-                    // Get the icon component dynamically
-                    const IconComponent = category.icon 
-                      ? (LucideIcons as any)[category.icon] 
-                      : Building2;
-                    
                     return (
                       <Link 
                         key={category.id} 
@@ -392,11 +387,13 @@ const HeroSection = () => {
                       >
                         <Card className="w-48 bg-white/10 border-white/30 hover:bg-gold/20 hover:border-gold transition-all">
                           <CardContent className="p-4 text-center">
-                            {IconComponent && (
-                              <div className="flex justify-center mb-2">
-                                <IconComponent className="h-6 w-6 text-gold" />
-                              </div>
-                            )}
+                            <div className="flex justify-center mb-2">
+                              {category.icon ? (
+                                <DynamicIcon name={category.icon} className="h-6 w-6 text-gold" fallback={<Building2 className="h-6 w-6 text-gold" />} />
+                              ) : (
+                                <Building2 className="h-6 w-6 text-gold" />
+                              )}
+                            </div>
                             <h3 className="font-semibold text-white mb-2">
                               {getCategoryName(category)}
                             </h3>

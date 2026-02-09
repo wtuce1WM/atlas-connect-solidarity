@@ -7,7 +7,7 @@ import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2, MapPin, Phone, Building2, ChevronLeft, ChevronRight, Sun, X, ArrowLeft } from "lucide-react";
-import { ICONS } from "@/components/staff/IconPicker";
+import DynamicIcon from "@/components/DynamicIcon";
 import symboleMaroc from "@/assets/symbole-maroc-3.webp";
 import BusinessCard, { BusinessCardData, Gamme } from "@/components/BusinessCard";
 
@@ -67,8 +67,7 @@ const ServicePage = () => {
     return "";
   }, [location.pathname]);
 
-  // Get the icon component from the ICONS map
-  const ServiceIconComponent = serviceIcon && ICONS[serviceIcon] ? ICONS[serviceIcon] : Sun;
+  // Icon rendering is now handled by DynamicIcon component
 
   // Get cities available for this service, sorted by priority score
   const availableCities = useMemo(() => {
@@ -358,7 +357,11 @@ const ServicePage = () => {
           </button>
           <div className="flex flex-col items-center text-center sm:flex-row sm:items-center sm:text-left gap-4 lg:gap-6">
             <div className="rounded-xl lg:rounded-2xl bg-gold/20 p-3 lg:p-6 border border-gold/30 flex-shrink-0">
-              <ServiceIconComponent className="h-8 w-8 lg:h-12 lg:w-12 text-gold" />
+              {serviceIcon ? (
+                <DynamicIcon name={serviceIcon} className="h-8 w-8 lg:h-12 lg:w-12 text-gold" fallback={<Sun className="h-8 w-8 lg:h-12 lg:w-12 text-gold" />} />
+              ) : (
+                <Sun className="h-8 w-8 lg:h-12 lg:w-12 text-gold" />
+              )}
             </div>
             <div>
               <h1 className="text-2xl md:text-3xl lg:text-5xl font-bold text-white mb-1 lg:mb-2">

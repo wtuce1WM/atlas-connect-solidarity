@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, MapPin, Phone, Building2, ChevronLeft, ChevronRight, X, ArrowLeft } from "lucide-react";
-import { icons } from "lucide-react";
+import DynamicIcon from "@/components/DynamicIcon";
 import symboleMaroc from "@/assets/symbole-maroc-3.webp";
 import BusinessCard, { Gamme } from "@/components/BusinessCard";
 
@@ -224,17 +224,7 @@ const CategoryPage = () => {
     return categoryInfo.name_fr;
   };
 
-  const getCategoryIcon = () => {
-    if (categoryInfo?.icon) {
-      const LucideIcon = (icons as Record<string, any>)[categoryInfo.icon];
-      if (LucideIcon) return LucideIcon;
-    }
-    return Building2;
-  };
-
   // getBusinessImage is now handled by BusinessCard component
-
-  const IconComponent = getCategoryIcon();
 
   const translations = {
     fr: {
@@ -399,7 +389,11 @@ const CategoryPage = () => {
           </button>
           <div className="flex flex-col items-center text-center sm:flex-row sm:items-center sm:text-left gap-4 lg:gap-6">
             <div className="rounded-xl lg:rounded-2xl bg-gold/20 p-3 lg:p-6 border border-gold/30 flex-shrink-0">
-              <IconComponent className="h-8 w-8 lg:h-12 lg:w-12 text-gold" />
+              {categoryInfo?.icon ? (
+                <DynamicIcon name={categoryInfo.icon} className="h-8 w-8 lg:h-12 lg:w-12 text-gold" fallback={<Building2 className="h-8 w-8 lg:h-12 lg:w-12 text-gold" />} />
+              ) : (
+                <Building2 className="h-8 w-8 lg:h-12 lg:w-12 text-gold" />
+              )}
             </div>
             <div>
               <h1 className="text-2xl md:text-3xl lg:text-5xl font-bold text-white mb-1 lg:mb-2">

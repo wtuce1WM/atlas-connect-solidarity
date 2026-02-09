@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Building2, Loader2 } from "lucide-react";
-import { icons } from "lucide-react";
+import DynamicIcon from "@/components/DynamicIcon";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Card, CardContent } from "@/components/ui/card";
@@ -89,13 +89,7 @@ const CategoriesSection = () => {
     return category.name_fr;
   };
 
-  const getCategoryIcon = (category: Category) => {
-    if (category.icon) {
-      const LucideIcon = (icons as Record<string, any>)[category.icon];
-      if (LucideIcon) return LucideIcon;
-    }
-    return Building2;
-  };
+  // Icon rendering is now handled by DynamicIcon component
 
   const getColorByIndex = (index: number) => {
     const colors = [
@@ -160,7 +154,6 @@ const CategoriesSection = () => {
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
             {categories.map((category, index) => {
-              const IconComponent = getCategoryIcon(category);
               return (
                 <Link
                   key={category.id}
@@ -173,7 +166,11 @@ const CategoriesSection = () => {
                     <CardContent className="p-4">
                       <div className="flex items-center gap-3 mb-2">
                         <div className={`rounded-full p-2 ${getColorByIndex(index)}`}>
-                          <IconComponent className="h-5 w-5" />
+                          {category.icon ? (
+                            <DynamicIcon name={category.icon} className="h-5 w-5" fallback={<Building2 className="h-5 w-5" />} />
+                          ) : (
+                            <Building2 className="h-5 w-5" />
+                          )}
                         </div>
                         <h3 className="font-semibold text-white group-hover:text-primary transition-colors">
                           {getCategoryName(category)}
