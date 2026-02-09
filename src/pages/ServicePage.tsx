@@ -7,13 +7,6 @@ import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Loader2, MapPin, Phone, Building2, ShieldCheck, ChevronLeft, ChevronRight, Sun } from "lucide-react";
 import { ICONS } from "@/components/staff/IconPicker";
 import logoWatermark from "@/assets/logoGOLD-watermark.webp";
@@ -261,23 +254,36 @@ const ServicePage = () => {
       {/* Filters & Results */}
       <section className="py-6 lg:py-12 bg-black">
         <div className="container mx-auto px-4">
-          {/* City Filter */}
+          {/* City Quick Links */}
           {availableCities.length > 1 && (
-            <div className="mb-8 flex flex-col items-center sm:flex-row sm:items-center gap-2 sm:gap-4">
-              <label className="text-sm text-gray-400">{t.filterByCity}:</label>
-              <Select value={selectedCity} onValueChange={handleCityChange}>
-                <SelectTrigger className="w-[220px] bg-card border-border">
-                  <SelectValue placeholder={t.allCities} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t.allCities}</SelectItem>
-                  {availableCities.map((city) => (
-                    <SelectItem key={city} value={city}>
-                      {city}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="mb-6">
+              <div className="flex flex-wrap gap-2 justify-center">
+                <Button
+                  variant={selectedCity === "all" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => handleCityChange("all")}
+                  className={selectedCity === "all" 
+                    ? "bg-gold hover:bg-gold/90 text-black" 
+                    : "border-gold/30 text-gold hover:bg-gold/10 hover:border-gold"
+                  }
+                >
+                  {t.allCities}
+                </Button>
+                {availableCities.map((city) => (
+                  <Button
+                    key={city}
+                    variant={selectedCity === city ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => handleCityChange(city)}
+                    className={selectedCity === city 
+                      ? "bg-gold hover:bg-gold/90 text-black" 
+                      : "border-border text-muted-foreground hover:bg-gold/10 hover:border-gold hover:text-gold"
+                    }
+                  >
+                    {city}
+                  </Button>
+                ))}
+              </div>
             </div>
           )}
 
