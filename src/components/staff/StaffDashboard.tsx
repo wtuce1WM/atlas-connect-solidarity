@@ -14,6 +14,15 @@ import {
   Star,
   Award,
   Gem,
+  CheckCircle2,
+  Globe,
+  Phone as PhoneIcon,
+  Mail,
+  Image,
+  FileText,
+  Tag,
+  Video,
+  BarChart3,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -67,6 +76,33 @@ const StaffDashboard = ({ businesses, onNavigateTab, onNewBusiness, onEditBusine
     const noPhone = businesses.filter(b => !b.phone);
     const noCategory = businesses.filter(b => !b.main_category);
     return { noImages, noDescription, noGPS, noPhone, noCategory };
+  }, [businesses]);
+
+  // === CATALOG QUALITY ===
+  const catalogQuality = useMemo(() => {
+    const total = businesses.length;
+    if (total === 0) return { score: 0, criteria: [] as { label: string; icon: any; count: number; total: number }[] };
+
+    const criteria = [
+      { label: "Avec images", icon: Image, count: businesses.filter(b => b.images && b.images.length > 0).length, total },
+      { label: "Avec description", icon: FileText, count: businesses.filter(b => b.description && b.description.trim().length > 0).length, total },
+      { label: "Avec téléphone", icon: PhoneIcon, count: businesses.filter(b => !!b.phone).length, total },
+      { label: "Avec email", icon: Mail, count: businesses.filter(b => !!b.email).length, total },
+      { label: "Avec site web", icon: Globe, count: businesses.filter(b => !!b.website).length, total },
+      { label: "Avec GPS", icon: MapPin, count: businesses.filter(b => b.latitude && b.longitude).length, total },
+      { label: "Avec catégorie", icon: Tag, count: businesses.filter(b => !!b.main_category).length, total },
+      { label: "Avec logo", icon: Image, count: businesses.filter(b => !!b.logo_url).length, total },
+      { label: "Avec vidéo", icon: Video, count: businesses.filter(b => !!b.video_1_url).length, total },
+      { label: "Avec services", icon: CheckCircle2, count: businesses.filter(b => b.services && b.services.length > 0).length, total },
+    ];
+
+    // Weighted score: images, description, phone, GPS are most important
+    const weights = [20, 20, 15, 5, 5, 15, 10, 5, 2, 3];
+    const score = Math.round(
+      criteria.reduce((acc, c, i) => acc + (c.count / c.total) * weights[i], 0)
+    );
+
+    return { score, criteria };
   }, [businesses]);
 
   // === RECENT ACTIVITY ===
@@ -226,6 +262,78 @@ const StaffDashboard = ({ businesses, onNavigateTab, onNewBusiness, onEditBusine
           </CardContent>
         </Card>
       </div>
+
+      {/* Catalog Quality */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <BarChart3 className="h-5 w-5 text-primary" />
+            Qualité du catalogue
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {/* Global score */}
+          <div className="flex items-center gap-4 mb-6">
+            <div className="relative h-20 w-20 flex-shrink-0">
+              <svg className="h-20 w-20 -rotate-90" viewBox="0 0 36 36">
+                <path
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                  fill="none"
+                  stroke="hsl(var(--muted))"
+                  strokeWidth="3"
+                />
+                <path
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                  fill="none"
+                  stroke={catalogQuality.score >= 70 ? "hsl(var(--primary))" : catalogQuality.score >= 40 ? "hsl(45, 93%, 47%)" : "hsl(0, 84%, 60%)"}
+                  strokeWidth="3"
+                  strokeDasharray={`${catalogQuality.score}, 100`}
+                  strokeLinecap="round"
+                />
+              </svg>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-xl font-bold">{catalogQuality.score}%</span>
+              </div>
+            </div>
+            <div>
+              <p className="text-sm font-medium">
+                Score global de complétion
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Basé sur la présence d'images, descriptions, coordonnées, contacts et taxonomie
+              </p>
+            </div>
+          </div>
+
+          {/* Criteria grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {catalogQuality.criteria.map((c) => {
+              const pct = c.total > 0 ? Math.round((c.count / c.total) * 100) : 0;
+              const Icon = c.icon;
+              return (
+                <div key={c.label} className="flex items-center gap-3 p-2 rounded-md bg-muted/30">
+                  <Icon className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs font-medium truncate">{c.label}</span>
+                      <span className="text-xs text-muted-foreground">{c.count}/{c.total}</span>
+                    </div>
+                    <div className="h-1.5 bg-muted rounded-full">
+                      <div
+                        className="h-1.5 rounded-full transition-all"
+                        style={{
+                          width: `${pct}%`,
+                          backgroundColor: pct >= 80 ? "hsl(var(--primary))" : pct >= 50 ? "hsl(45, 93%, 47%)" : "hsl(0, 84%, 60%)",
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Distribution */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
