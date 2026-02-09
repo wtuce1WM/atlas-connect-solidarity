@@ -1,4 +1,4 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useLocation } from "react-router-dom";
 import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -38,7 +38,7 @@ interface Business {
 const ITEMS_PER_PAGE = 20;
 
 const ServicePage = () => {
-  const { serviceName } = useParams<{ serviceName: string }>();
+  const location = useLocation();
   const { language } = useLanguage();
   const [allBusinesses, setAllBusinesses] = useState<Business[]>([]);
   const [citiesWithPriority, setCitiesWithPriority] = useState<{ name: string; priority: number }[]>([]);
@@ -47,7 +47,15 @@ const ServicePage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCity, setSelectedCity] = useState<string>("all");
 
-  const decodedServiceName = serviceName ? decodeURIComponent(serviceName) : "";
+  // Extract service name from URL path (handles special characters like /, &, etc.)
+  const decodedServiceName = useMemo(() => {
+    const path = location.pathname;
+    const prefix = "/service/";
+    if (path.startsWith(prefix)) {
+      return decodeURIComponent(path.slice(prefix.length));
+    }
+    return "";
+  }, [location.pathname]);
 
   // Get the icon component from the ICONS map
   const ServiceIconComponent = serviceIcon && ICONS[serviceIcon] ? ICONS[serviceIcon] : Sun;
