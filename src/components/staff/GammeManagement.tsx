@@ -36,6 +36,7 @@ interface Gamme {
   name_ar: string | null;
   description: string | null;
   sort_order: number | null;
+  color_hex: string | null;
 }
 
 interface GammeCategory {
@@ -56,6 +57,7 @@ const GammeManagement = () => {
     name_ar: "",
     description: "",
     sort_order: 0,
+    color_hex: "#000000",
   });
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const { toast } = useToast();
@@ -108,6 +110,7 @@ const GammeManagement = () => {
       name_ar: "",
       description: "",
       sort_order: gammes.length,
+      color_hex: "#000000",
     });
     setSelectedCategories([]);
     setEditingGamme(null);
@@ -122,6 +125,7 @@ const GammeManagement = () => {
         name_ar: gamme.name_ar || "",
         description: gamme.description || "",
         sort_order: gamme.sort_order || 0,
+        color_hex: gamme.color_hex || "#000000",
       });
       setSelectedCategories(getCategoriesForGamme(gamme.id));
     } else {
@@ -156,6 +160,7 @@ const GammeManagement = () => {
       name_ar: formData.name_ar.trim() || null,
       description: formData.description.trim() || null,
       sort_order: formData.sort_order,
+      color_hex: formData.color_hex || null,
     };
 
     let gammeId: string;
@@ -331,18 +336,45 @@ const GammeManagement = () => {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="sort_order">Ordre d'affichage</Label>
-                <Input
-                  id="sort_order"
-                  type="number"
-                  value={formData.sort_order}
-                  onChange={(e) =>
-                    setFormData({ ...formData, sort_order: parseInt(e.target.value) || 0 })
-                  }
-                  min="0"
-                  className="w-24"
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="sort_order">Ordre d'affichage</Label>
+                  <Input
+                    id="sort_order"
+                    type="number"
+                    value={formData.sort_order}
+                    onChange={(e) =>
+                      setFormData({ ...formData, sort_order: parseInt(e.target.value) || 0 })
+                    }
+                    min="0"
+                    className="w-24"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="color_hex">Couleur</Label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      id="color_hex"
+                      type="color"
+                      value={formData.color_hex}
+                      onChange={(e) =>
+                        setFormData({ ...formData, color_hex: e.target.value })
+                      }
+                      className="w-12 h-10 p-1 cursor-pointer"
+                    />
+                    <Input
+                      type="text"
+                      value={formData.color_hex}
+                      onChange={(e) =>
+                        setFormData({ ...formData, color_hex: e.target.value })
+                      }
+                      placeholder="#000000"
+                      className="w-28 font-mono text-sm"
+                      maxLength={7}
+                    />
+                  </div>
+                </div>
               </div>
 
               {/* Categories selection */}
@@ -403,6 +435,7 @@ const GammeManagement = () => {
           <TableHeader>
             <TableRow>
               <TableHead className="w-12">Ordre</TableHead>
+              <TableHead>Couleur</TableHead>
               <TableHead>Nom (FR)</TableHead>
               <TableHead>Nom (EN)</TableHead>
               <TableHead>Catégories associées</TableHead>
@@ -412,13 +445,13 @@ const GammeManagement = () => {
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8">
+                <TableCell colSpan={6} className="text-center py-8">
                   Chargement...
                 </TableCell>
               </TableRow>
             ) : gammes.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8">
+                <TableCell colSpan={6} className="text-center py-8">
                   Aucune gamme définie.
                 </TableCell>
               </TableRow>
@@ -430,6 +463,13 @@ const GammeManagement = () => {
                       <GripVertical className="h-4 w-4 text-muted-foreground" />
                       {gamme.sort_order}
                     </div>
+                  </TableCell>
+                  <TableCell>
+                    <div 
+                      className="w-6 h-6 rounded border border-border"
+                      style={{ backgroundColor: gamme.color_hex || '#000000' }}
+                      title={gamme.color_hex || '#000000'}
+                    />
                   </TableCell>
                   <TableCell className="font-medium">{gamme.name_fr}</TableCell>
                   <TableCell>{gamme.name_en || "-"}</TableCell>

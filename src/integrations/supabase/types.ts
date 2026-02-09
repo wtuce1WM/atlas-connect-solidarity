@@ -514,6 +514,7 @@ export type Database = {
       }
       gammes: {
         Row: {
+          color_hex: string | null
           created_at: string | null
           description: string | null
           id: string
@@ -524,6 +525,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          color_hex?: string | null
           created_at?: string | null
           description?: string | null
           id?: string
@@ -534,6 +536,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          color_hex?: string | null
           created_at?: string | null
           description?: string | null
           id?: string
