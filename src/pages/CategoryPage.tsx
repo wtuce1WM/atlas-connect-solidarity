@@ -18,6 +18,7 @@ import { Loader2, MapPin, Phone, Building2, ChevronLeft, ChevronRight, X, ArrowL
 import DynamicIcon from "@/components/DynamicIcon";
 import symboleMaroc from "@/assets/symbole-maroc-3.webp";
 import BusinessCard, { Gamme } from "@/components/BusinessCard";
+import LabelSection from "@/components/LabelSection";
 
 interface Business {
   id: string;
@@ -678,6 +679,18 @@ const CategoryPage = () => {
           )}
         </div>
       </section>
+
+      {/* Label Section - Small Luxury Hotels */}
+      <LabelSection
+        labelId="21bfb697-6785-4afa-84dc-d3c1258d8abd"
+        titleFr="Small Luxury Hotels of the World"
+        titleEn="Small Luxury Hotels of the World"
+        titleAr="Small Luxury Hotels of the World"
+        descriptionFr="Découvrez les établissements marocains membres du prestigieux réseau Small Luxury Hotels of the World"
+        descriptionEn="Discover Moroccan establishments that are members of the prestigious Small Luxury Hotels of the World network"
+        descriptionAr="اكتشف المؤسسات المغربية الأعضاء في شبكة Small Luxury Hotels of the World المرموقة"
+        logoUrl="https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/labels/label-1770571182211.webp"
+      />
 
       <Footer />
     </div>
