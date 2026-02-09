@@ -24,6 +24,8 @@ import {
   Video,
   BarChart3,
   ChevronDown,
+  ImageMinus,
+  Loader2,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -32,14 +34,26 @@ import type { Tables } from "@/integrations/supabase/types";
 
 type Business = Tables<"businesses">;
 
+interface BrokenFilesMap {
+  [businessId: string]: {
+    brokenImages: number;
+    brokenLogo: boolean;
+    brokenPdf: boolean;
+    brokenLabel: boolean;
+    totalBroken: number;
+  };
+}
+
 interface StaffDashboardProps {
   businesses: Business[];
   onNavigateTab: (tab: string) => void;
   onNewBusiness: () => void;
   onEditBusiness: (business: Business) => void;
+  brokenFilesMap: BrokenFilesMap;
+  isCheckingBrokenFiles: boolean;
 }
 
-const StaffDashboard = ({ businesses, onNavigateTab, onNewBusiness, onEditBusiness }: StaffDashboardProps) => {
+const StaffDashboard = ({ businesses, onNavigateTab, onNewBusiness, onEditBusiness, brokenFilesMap, isCheckingBrokenFiles }: StaffDashboardProps) => {
   // === STATISTICS ===
   const stats = useMemo(() => {
     const total = businesses.length;
@@ -192,6 +206,28 @@ const StaffDashboard = ({ businesses, onNavigateTab, onNewBusiness, onEditBusine
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
+            {/* Broken files alert */}
+            {isCheckingBrokenFiles ? (
+              <div className="flex items-center gap-2 p-2 rounded-md bg-muted/50 text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span className="text-sm">Vérification des fichiers…</span>
+              </div>
+            ) : (
+              (() => {
+                const brokenBusinesses = businesses.filter(b => brokenFilesMap[b.id]);
+                const totalBroken = Object.values(brokenFilesMap).reduce((sum, v) => sum + v.totalBroken, 0);
+                return brokenBusinesses.length > 0 ? (
+                  <AlertRow
+                    icon={ImageMinus}
+                    label={`Images/fichiers introuvables (${totalBroken} URLs)`}
+                    count={brokenBusinesses.length}
+                    color="text-destructive"
+                    items={brokenBusinesses}
+                    onEdit={onEditBusiness}
+                  />
+                ) : null;
+              })()
+            )}
             <AlertRow
               icon={ImageOff}
               label="Sans images"
