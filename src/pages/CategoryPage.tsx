@@ -524,52 +524,60 @@ const CategoryPage = () => {
           </Card>
 
           {/* City & Subcategory Filters */}
-          <div className="mb-8 flex flex-col items-center sm:flex-row sm:items-center gap-2 sm:gap-4 flex-wrap">
-            {availableCities.length > 1 && (
-              <>
-                <label className="text-sm text-gray-400">{t.filterByCity}:</label>
-                <Select value={selectedCity} onValueChange={handleCityChange}>
-                  <SelectTrigger className="w-[220px] bg-card border-border">
-                    <SelectValue placeholder={t.allCities} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">{t.allCities}</SelectItem>
-                    {availableCities.map((city) => (
-                      <SelectItem key={city} value={city}>
-                        {city}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </>
-            )}
+          <div className="space-y-3 mb-8">
+            <div className="flex flex-wrap gap-3">
+              {/* City Filter */}
+              {availableCities.length > 1 && (
+                <div className="flex-1 min-w-[140px]">
+                  <label className="text-sm font-medium text-white mb-1.5 block">
+                    {t.filterByCity}
+                  </label>
+                  <Select value={selectedCity} onValueChange={handleCityChange}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder={t.allCities} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">{t.allCities}</SelectItem>
+                      {availableCities.map((city) => (
+                        <SelectItem key={city} value={city}>
+                          {city}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
 
-            {availableSubcategories.length > 0 && (
-              <>
-                <label className="text-sm text-gray-400">
-                  {language === "fr" ? "Sous-catégorie" : language === "ar" ? "الفئة الفرعية" : "Subcategory"}:
-                </label>
-                <Select value={selectedSubcategories[0] || "all"} onValueChange={handleSubcategoryChange}>
-                  <SelectTrigger className="w-[220px] bg-card border-border">
-                    <SelectValue placeholder={language === "fr" ? "Toutes" : language === "ar" ? "الكل" : "All"} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">{language === "fr" ? "Toutes les sous-catégories" : language === "ar" ? "كل الفئات الفرعية" : "All subcategories"}</SelectItem>
-                    {availableSubcategories.map((subcat) => (
-                      <SelectItem key={subcat} value={subcat}>
-                        {subcat}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </>
-            )}
+              {/* Subcategory Filter */}
+              {availableSubcategories.length > 0 && (
+                <div className="flex-1 min-w-[140px]">
+                  <label className="text-sm font-medium text-white mb-1.5 block">
+                    {language === "fr" ? "Sous-catégorie" : language === "ar" ? "الفئة الفرعية" : "Subcategory"}
+                  </label>
+                  <Select value={selectedSubcategories[0] || "all"} onValueChange={handleSubcategoryChange}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder={language === "fr" ? "Toutes" : language === "ar" ? "الكل" : "All"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">{language === "fr" ? "Toutes les sous-catégories" : language === "ar" ? "كل الفئات الفرعية" : "All subcategories"}</SelectItem>
+                      {availableSubcategories.map((subcat) => (
+                        <SelectItem key={subcat} value={subcat}>
+                          {subcat}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+            </div>
 
+            {/* Clear Filters */}
             {(selectedSubcategories.length > 0 || selectedServices.length > 0) && (
               <button
                 onClick={clearFilters}
-                className="text-xs text-gray-400 hover:text-white transition-colors"
+                className="text-sm text-gray-400 hover:text-gray-200 flex items-center gap-1"
               >
+                <X className="h-4 w-4" />
                 {language === "fr" ? "Effacer les filtres" : language === "ar" ? "مسح الفلاتر" : "Clear filters"}
               </button>
             )}
