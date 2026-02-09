@@ -46,7 +46,7 @@ const ServicePage = () => {
   const navigate = useNavigate();
   const { language } = useLanguage();
   const [allBusinesses, setAllBusinesses] = useState<Business[]>([]);
-  const [citiesWithPriority, setCitiesWithPriority] = useState<{ name: string; priority: number }[]>([]);
+  const [citiesWithPriority, setCitiesWithPriority] = useState<{ name: string; priority: number; latitude: number | null; longitude: number | null }[]>([]);
   const [serviceIcon, setServiceIcon] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -131,12 +131,12 @@ const ServicePage = () => {
         // Fetch cities with priority scores
         const { data: citiesData } = await supabase
           .from("cities")
-          .select("name_fr, priority_score")
+          .select("name_fr, priority_score, latitude, longitude")
           .order("priority_score", { ascending: false });
 
         if (citiesData) {
           setCitiesWithPriority(
-            citiesData.map(c => ({ name: c.name_fr, priority: c.priority_score || 0 }))
+            citiesData.map(c => ({ name: c.name_fr, priority: c.priority_score || 0, latitude: c.latitude, longitude: c.longitude }))
           );
         }
 
@@ -266,9 +266,16 @@ const ServicePage = () => {
         : `${selectedBusiness.name}, ${selectedBusiness.city}, Maroc`;
       return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(query)}&zoom=17`;
     }
-    // Center on Morocco (lat: 31.7917, lng: -7.0926) when no city selected
-    const centerParam = selectedCity !== "all" ? "" : "&center=31.7917,-7.0926";
-    return `https://www.google.com/maps/embed/v1/search?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(decodedServiceName)}+${selectedCity !== "all" ? encodeURIComponent(selectedCity) : "Maroc"}${centerParam}&zoom=${selectedCity !== "all" ? 13 : 6}`;
+    // When a city is selected, center on the city; otherwise center on Morocco
+    if (selectedCity !== "all") {
+      const cityData = citiesWithPriority.find(c => c.name === selectedCity);
+      if (cityData?.latitude && cityData?.longitude) {
+        return `https://www.google.com/maps/embed/v1/view?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&center=${cityData.latitude},${cityData.longitude}&zoom=13&maptype=roadmap`;
+      }
+      // Fallback: search by city name
+      return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(selectedCity + ", Maroc")}&zoom=13`;
+    }
+    return `https://www.google.com/maps/embed/v1/view?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&center=31.7917,-7.0926&zoom=6&maptype=roadmap`;
   };
 
   const goToPage = (page: number) => {
