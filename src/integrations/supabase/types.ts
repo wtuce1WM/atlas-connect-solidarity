@@ -473,6 +473,42 @@ export type Database = {
         }
         Relationships: []
       }
+      gamme_categories: {
+        Row: {
+          category_id: string
+          created_at: string | null
+          gamme_id: string
+          id: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string | null
+          gamme_id: string
+          id?: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string | null
+          gamme_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gamme_categories_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gamme_categories_gamme_id_fkey"
+            columns: ["gamme_id"]
+            isOneToOne: false
+            referencedRelation: "gammes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       gammes: {
         Row: {
           created_at: string | null
