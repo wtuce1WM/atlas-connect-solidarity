@@ -249,21 +249,27 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
   const [dbSubcategories, setDbSubcategories] = useState<Array<{ id: string; name_fr: string; category_id: string }>>([]);
   const [dbServices, setDbServices] = useState<Array<{ id: string; name_fr: string; subcategory_id: string }>>([]);
   const [dbCities, setDbCities] = useState<Array<{ id: string; name_fr: string; region: string | null }>>([]);
+  const [dbGammes, setDbGammes] = useState<Array<{ id: string; name_fr: string }>>([]);
+  const [gammeCategories, setGammeCategories] = useState<Array<{ gamme_id: string; category_id: string }>>([]);
 
-  // Fetch categories, subcategories, services, and cities from database
+  // Fetch categories, subcategories, services, cities, gammes and gamme_categories from database
   useEffect(() => {
     const fetchTaxonomy = async () => {
-      const [catRes, subRes, servRes, citiesRes] = await Promise.all([
+      const [catRes, subRes, servRes, citiesRes, gammesRes, gammeCatRes] = await Promise.all([
         supabase.from("categories").select("id, name_fr").order("sort_order"),
         supabase.from("subcategories").select("id, name_fr, category_id").order("sort_order"),
         supabase.from("services").select("id, name_fr, subcategory_id").order("sort_order"),
         supabase.from("cities").select("id, name_fr, region").order("name_fr"),
+        supabase.from("gammes").select("id, name_fr").order("sort_order"),
+        supabase.from("gamme_categories").select("gamme_id, category_id"),
       ]);
       
       if (catRes.data) setDbCategories(catRes.data);
       if (subRes.data) setDbSubcategories(subRes.data);
       if (servRes.data) setDbServices(servRes.data);
       if (citiesRes.data) setDbCities(citiesRes.data);
+      if (gammesRes.data) setDbGammes(gammesRes.data);
+      if (gammeCatRes.data) setGammeCategories(gammeCatRes.data);
     };
     
     fetchTaxonomy();
@@ -321,6 +327,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
     trivago_url: (business as any)?.trivago_url || "",
     other_booking_url: (business as any)?.other_booking_url || "",
     other_booking_name: (business as any)?.other_booking_name || "",
+    gamme_id: (business as any)?.gamme_id || "",
   });
   
   // Business labels state (managed separately)
@@ -388,6 +395,15 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
     [dbServices, selectedSubcategoryIds]
   );
 
+  // Get gammes available for the selected main category
+  const availableGammes = useMemo(() => {
+    if (!selectedCategory) return [];
+    const gammeIdsForCategory = gammeCategories
+      .filter((gc) => gc.category_id === selectedCategory.id)
+      .map((gc) => gc.gamme_id);
+    return dbGammes.filter((g) => gammeIdsForCategory.includes(g.id));
+  }, [selectedCategory, gammeCategories, dbGammes]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -444,6 +460,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
       trivago_url: formData.trivago_url || null,
       other_booking_url: formData.other_booking_url || null,
       other_booking_name: formData.other_booking_name || null,
+      gamme_id: formData.gamme_id || null,
     };
 
     try {
@@ -676,12 +693,16 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-2">
             <Label htmlFor="main_category">Catégorie principale</Label>
             <Select
               value={formData.main_category}
-              onValueChange={(value) => handleChange("main_category", value)}
+              onValueChange={(value) => {
+                handleChange("main_category", value);
+                // Reset gamme_id when category changes
+                handleChange("gamme_id", "");
+              }}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Sélectionner..." />
@@ -695,6 +716,32 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
                       {cat.name_fr}
                     </SelectItem>
                   ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="gamme_id">Gamme</Label>
+            <Select
+              value={formData.gamme_id}
+              onValueChange={(value) => handleChange("gamme_id", value)}
+              disabled={availableGammes.length === 0}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={
+                  !formData.main_category 
+                    ? "Choisir une catégorie d'abord" 
+                    : availableGammes.length === 0 
+                      ? "Aucune gamme disponible" 
+                      : "Sélectionner..."
+                } />
+              </SelectTrigger>
+              <SelectContent>
+                {availableGammes.map((gamme) => (
+                  <SelectItem key={gamme.id} value={gamme.id}>
+                    {gamme.name_fr}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
