@@ -76,7 +76,8 @@ const StaffDashboard = ({ businesses, onNavigateTab, onNewBusiness, onEditBusine
     const noGPS = businesses.filter(b => !b.latitude || !b.longitude);
     const noPhone = businesses.filter(b => !b.phone);
     const noCategory = businesses.filter(b => !b.main_category);
-    return { noImages, noDescription, noGPS, noPhone, noCategory };
+    const noGoogleMaps = businesses.filter(b => !b.google_maps_url);
+    return { noImages, noDescription, noGPS, noPhone, noCategory, noGoogleMaps };
   }, [businesses]);
 
   // === CATALOG QUALITY ===
@@ -221,6 +222,14 @@ const StaffDashboard = ({ businesses, onNavigateTab, onNewBusiness, onEditBusine
               count={alerts.noPhone.length}
               color="text-yellow-600"
               items={alerts.noPhone}
+              onEdit={onEditBusiness}
+            />
+            <AlertRow
+              icon={MapPin}
+              label="Sans Google Maps"
+              count={alerts.noGoogleMaps.length}
+              color="text-blue-600"
+              items={alerts.noGoogleMaps}
               onEdit={onEditBusiness}
             />
             <AlertRow
