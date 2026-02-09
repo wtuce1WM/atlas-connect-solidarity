@@ -47,8 +47,8 @@ interface SearchResult {
 
 // Synonymes pour améliorer la recherche
 const synonyms: Record<string, string[]> = {
-  hotel: ["hôtel", "riad", "ryad", "hébergement", "guesthouse"],
-  riad: ["ryad", "riad", "guesthouse", "hôtel", "hébergement"],
+  hotel: ["hôtel", "hébergement"],
+  riad: ["ryad", "riad"],
   restaurant: ["resto", "café", "gastronomie", "cuisine"],
   spa: ["hammam", "bien-être", "massage", "détente"],
   transport: ["taxi", "navette", "transfert", "voiture"],
