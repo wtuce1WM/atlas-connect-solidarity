@@ -82,6 +82,7 @@ const BusinessTable = ({ businesses, gammes, loading, onEdit, onDelete, onDuplic
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-10"></TableHead>
               <TableHead></TableHead>
               <TableHead>Nom</TableHead>
               <TableHead>Ville</TableHead>
@@ -99,6 +100,17 @@ const BusinessTable = ({ businesses, gammes, loading, onEdit, onDelete, onDuplic
               const brokenInfo = brokenFilesMap[business.id];
               return (
               <TableRow key={business.id}>
+                <TableCell className="w-10">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onEdit(business)}
+                    className="text-green-600 hover:text-green-700 hover:bg-green-50 p-1 h-auto"
+                    title="Modifier"
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                </TableCell>
                 <TableCell className="w-10">
                   {brokenInfo && (
                     <Tooltip>
@@ -252,14 +264,6 @@ const BusinessTable = ({ businesses, gammes, loading, onEdit, onDelete, onDuplic
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => onEdit(business)}
-                      title="Modifier"
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
                     <Button
                       variant="outline"
                       size="sm"
