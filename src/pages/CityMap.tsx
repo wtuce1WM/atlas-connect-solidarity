@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams, Link, useSearchParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Loader2, MapPin, X, ExternalLink, BookOpen, Phone } from "lucide-react";
+import { ArrowLeft, Loader2, MapPin, X, ExternalLink, BookOpen, Phone, ChevronLeft, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
@@ -9,6 +9,7 @@ import CityWeather from "@/components/CityWeather";
 import TopCityBusinesses from "@/components/TopCityBusinesses";
 import symboleMaroc from "@/assets/symbole-maroc.webp";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
@@ -76,6 +77,9 @@ const CityMap = () => {
   const [selectedActivities, setSelectedActivities] = useState<string[]>([]);
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
   const [gammes, setGammes] = useState<Gamme[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const ITEMS_PER_PAGE = 20;
 
   const decodedCity = city ? decodeURIComponent(city) : "";
   
@@ -145,6 +149,26 @@ const CityMap = () => {
     
     return result;
   }, [businesses, selectedCategory, selectedSubcategory, selectedActivities]);
+
+  // Pagination
+  const totalPages = Math.ceil(filteredBusinesses.length / ITEMS_PER_PAGE);
+  const paginatedBusinesses = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredBusinesses.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredBusinesses, currentPage]);
+
+  const startResult = (currentPage - 1) * ITEMS_PER_PAGE + 1;
+  const endResult = Math.min(currentPage * ITEMS_PER_PAGE, filteredBusinesses.length);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedCategory, selectedSubcategory, selectedActivities]);
+
+  const goToPage = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const toggleActivity = (activity: string) => {
     setSelectedActivities((prev) =>
@@ -502,32 +526,99 @@ const CityMap = () => {
             <h2 className="text-lg font-semibold text-white mb-3">
               Entreprises ({filteredBusinesses.length})
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 max-h-[1200px] overflow-y-auto pr-2">
-              {filteredBusinesses.map((business) => (
-                <BusinessCard
-                  key={business.id}
-                  business={business}
-                  gammes={gammes}
-                  verifiedLabel="Vérifié"
-                  selectedBusinessId={selectedBusiness?.id}
-                  onSelectBusiness={handleSelectBusiness}
-                  showMapButton={true}
-                  mapButtonVariant="text"
-                  mapButtonLabels={{
-                    view: "Voir sur la carte",
-                    shown: "Affiché sur la carte"
-                  }}
-                  showAddress={true}
-                />
-              ))}
-              {filteredBusinesses.length === 0 && (
-                <div className="col-span-full text-center py-8 text-muted-foreground">
-                  {selectedActivities.length > 0
-                    ? "Aucune entreprise pour ces activités"
-                    : `Aucune entreprise trouvée à ${decodedCity}`}
+            {filteredBusinesses.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                {selectedActivities.length > 0
+                  ? "Aucune entreprise pour ces activités"
+                  : `Aucune entreprise trouvée à ${decodedCity}`}
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {paginatedBusinesses.map((business) => (
+                    <BusinessCard
+                      key={business.id}
+                      business={business}
+                      gammes={gammes}
+                      verifiedLabel="Vérifié"
+                      selectedBusinessId={selectedBusiness?.id}
+                      onSelectBusiness={handleSelectBusiness}
+                      showMapButton={true}
+                      mapButtonVariant="text"
+                      mapButtonLabels={{
+                        view: "Voir sur la carte",
+                        shown: "Affiché sur la carte"
+                      }}
+                      showAddress={true}
+                    />
+                  ))}
                 </div>
-              )}
-            </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="mt-12 flex flex-col items-center gap-4">
+                    <p className="text-sm text-gray-400">
+                      Affichage de {startResult} à {endResult} sur {filteredBusinesses.length} résultats
+                    </p>
+                    
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => goToPage(currentPage - 1)}
+                        disabled={currentPage === 1}
+                        className="gap-1"
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                        Précédent
+                      </Button>
+
+                      <div className="flex items-center gap-1">
+                        {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                          let pageNum: number;
+                          if (totalPages <= 5) {
+                            pageNum = i + 1;
+                          } else if (currentPage <= 3) {
+                            pageNum = i + 1;
+                          } else if (currentPage >= totalPages - 2) {
+                            pageNum = totalPages - 4 + i;
+                          } else {
+                            pageNum = currentPage - 2 + i;
+                          }
+                          
+                          return (
+                            <Button
+                              key={pageNum}
+                              variant={currentPage === pageNum ? "default" : "outline"}
+                              size="sm"
+                              onClick={() => goToPage(pageNum)}
+                              className="w-10"
+                            >
+                              {pageNum}
+                            </Button>
+                          );
+                        })}
+                      </div>
+
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => goToPage(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                        className="gap-1"
+                      >
+                        Suivant
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    </div>
+
+                    <p className="text-xs text-gray-500">
+                      Page {currentPage} sur {totalPages}
+                    </p>
+                  </div>
+                )}
+              </>
+            )}
           </div>
         </div>
 
