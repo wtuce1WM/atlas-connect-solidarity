@@ -15,25 +15,9 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, MapPin, Phone, Building2, ChevronLeft, ChevronRight, X, ArrowLeft } from "lucide-react";
+import { icons } from "lucide-react";
 import symboleMaroc from "@/assets/symbole-maroc-3.webp";
 import BusinessCard, { Gamme } from "@/components/BusinessCard";
-import {
-  Hotel,
-  Utensils,
-  Car,
-  Palette,
-  ShoppingBag,
-  Wrench,
-  Compass,
-  Wheat,
-  Factory,
-  GraduationCap,
-  Heart,
-  Dumbbell,
-  Sparkles,
-  Theater,
-  Cpu
-} from "lucide-react";
 
 interface Business {
   id: string;
@@ -72,23 +56,7 @@ interface CategoryInfo {
   icon: string | null;
 }
 
-const CATEGORY_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
-  "Hôtellerie": Hotel,
-  "Restauration": Utensils,
-  "Transport": Car,
-  "Artisanat": Palette,
-  "Commerce": ShoppingBag,
-  "Services": Wrench,
-  "Tourisme": Compass,
-  "Agriculture": Wheat,
-  "Industrie": Factory,
-  "Éducation": GraduationCap,
-  "Santé": Heart,
-  "Sport & Loisirs": Dumbbell,
-  "Bien-être": Sparkles,
-  "Culture": Theater,
-  "Technologie": Cpu,
-};
+// No static icon map - icons are fetched from DB via categoryInfo.icon
 
 const ITEMS_PER_PAGE = 20;
 
@@ -257,7 +225,11 @@ const CategoryPage = () => {
   };
 
   const getCategoryIcon = () => {
-    return CATEGORY_ICONS[decodedCategoryName] || Building2;
+    if (categoryInfo?.icon) {
+      const LucideIcon = (icons as Record<string, any>)[categoryInfo.icon];
+      if (LucideIcon) return LucideIcon;
+    }
+    return Building2;
   };
 
   // getBusinessImage is now handled by BusinessCard component
