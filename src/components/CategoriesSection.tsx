@@ -1,24 +1,7 @@
 import { useRef, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { 
-  Building2, 
-  Loader2,
-  Hotel,
-  Utensils,
-  Car,
-  Palette,
-  ShoppingBag,
-  Wrench,
-  Compass,
-  Wheat,
-  Factory,
-  GraduationCap,
-  Heart,
-  Dumbbell,
-  Sparkles,
-  Theater,
-  Cpu
-} from "lucide-react";
+import { Building2, Loader2 } from "lucide-react";
+import { icons } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Card, CardContent } from "@/components/ui/card";
@@ -35,24 +18,6 @@ interface Category {
 interface CategoryWithCount extends Category {
   businessCount: number;
 }
-
-const CATEGORY_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
-  "Hôtellerie": Hotel,
-  "Restauration": Utensils,
-  "Transport": Car,
-  "Artisanat": Palette,
-  "Commerce": ShoppingBag,
-  "Services": Wrench,
-  "Tourisme": Compass,
-  "Agriculture": Wheat,
-  "Industrie": Factory,
-  "Éducation": GraduationCap,
-  "Santé": Heart,
-  "Sport & Loisirs": Dumbbell,
-  "Bien-être": Sparkles,
-  "Culture": Theater,
-  "Technologie": Cpu,
-};
 
 const CategoriesSection = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -124,8 +89,12 @@ const CategoriesSection = () => {
     return category.name_fr;
   };
 
-  const getCategoryIcon = (categoryName: string) => {
-    return CATEGORY_ICONS[categoryName] || Building2;
+  const getCategoryIcon = (category: Category) => {
+    if (category.icon) {
+      const LucideIcon = (icons as Record<string, any>)[category.icon];
+      if (LucideIcon) return LucideIcon;
+    }
+    return Building2;
   };
 
   const getColorByIndex = (index: number) => {
@@ -191,7 +160,7 @@ const CategoriesSection = () => {
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
             {categories.map((category, index) => {
-              const IconComponent = getCategoryIcon(category.name_fr);
+              const IconComponent = getCategoryIcon(category);
               return (
                 <Link
                   key={category.id}
