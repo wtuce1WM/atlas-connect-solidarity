@@ -37,9 +37,9 @@ const Header = ({ variant = "default" }: HeaderProps) => {
       {/* Dropdown Menu - All screen sizes */}
       {isMenuOpen && <div className="border-t border-white/10 bg-black/90 backdrop-blur-lg">
           <nav className="container mx-auto flex flex-col items-center gap-4 px-4 py-6">
-            <a href="/#mission" className="text-white/90 transition-colors hover:text-gold">
+            <Link to="/mission" className="text-white/90 transition-colors hover:text-gold">
               {t("footer.ourMission")}
-            </a>
+            </Link>
             <a href="/#contact" className="text-white/90 transition-colors hover:text-gold">
               {t("footer.contact")}
             </a>

@@ -1,4 +1,5 @@
 import { Facebook, Instagram, Twitter, Mail, Phone, MapPin } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import logoGold from "@/assets/logoGOLDsimpleSML.webp";
 
@@ -57,7 +58,7 @@ const Footer = ({ variant = "default" }: FooterProps) => {
             <h4 className="mb-4 font-semibold text-gold">{t("footer.company")}</h4>
             <ul className="space-y-2 text-background/70">
               <li><a href="#" className="transition-colors hover:text-gold">{t("footer.aboutUs")}</a></li>
-              <li><a href="#" className="transition-colors hover:text-gold">{t("footer.ourMission")}</a></li>
+              <li><Link to="/mission" className="transition-colors hover:text-gold">{t("footer.ourMission")}</Link></li>
               <li><a href="/affiliates" className="transition-colors hover:text-gold">{t("footer.affiliates")}</a></li>
               <li><a href="#" className="transition-colors hover:text-gold">{t("footer.press")}</a></li>
               <li><a href="/staff/login" className="transition-colors hover:text-gold">{t("footer.staff")}</a></li>
