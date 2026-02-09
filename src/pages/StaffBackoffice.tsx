@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Plus, Search, Edit, Trash2, Eye, Building2, Users, Folder, MapPin, Copy, Star, UserCheck, Award } from "lucide-react";
+import { LogOut, Plus, Search, Edit, Trash2, Eye, Building2, Users, Folder, MapPin, Copy, Star, UserCheck, Award, Gem } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import BusinessForm from "@/components/staff/BusinessForm";
 import BusinessTable from "@/components/staff/BusinessTable";
@@ -15,6 +15,7 @@ import LocationManagement from "@/components/staff/LocationManagement";
 import SponsorManagement from "@/components/staff/SponsorManagement";
 import AffiliateManagement from "@/components/staff/AffiliateManagement";
 import LabelManagement from "@/components/staff/LabelManagement";
+import GammeManagement from "@/components/staff/GammeManagement";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Business = Tables<"businesses">;
@@ -231,6 +232,10 @@ const StaffBackoffice = () => {
                 <Award className="h-4 w-4" />
                 Labels
               </TabsTrigger>
+              <TabsTrigger value="gammes" className="gap-2">
+                <Gem className="h-4 w-4" />
+                Gamme
+              </TabsTrigger>
               <TabsTrigger value="categories" className="gap-2">
                 <Folder className="h-4 w-4" />
                 Catégories
@@ -329,6 +334,10 @@ const StaffBackoffice = () => {
 
             <TabsContent value="labels">
               <LabelManagement />
+            </TabsContent>
+
+            <TabsContent value="gammes">
+              <GammeManagement />
             </TabsContent>
 
             <TabsContent value="categories">
