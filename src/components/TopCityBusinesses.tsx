@@ -127,7 +127,7 @@ const TopCityBusinesses = ({ businesses, cityName, onSelectBusiness, selectedBus
                 <CardContent className="p-5 relative z-10 flex flex-col items-center justify-end min-h-[220px] text-center">
 
                   {/* Name */}
-                  <h3 className="text-base font-semibold text-gold group-hover:text-white transition-colors mb-2 line-clamp-2">
+                  <h3 className="text-base font-semibold text-white group-hover:text-gold transition-colors mb-2 line-clamp-2">
                     {business.name}
                   </h3>
 
