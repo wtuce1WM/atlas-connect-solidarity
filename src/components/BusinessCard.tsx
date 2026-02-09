@@ -9,6 +9,7 @@ export interface BusinessCardData {
   name: string;
   city: string;
   region: string;
+  address?: string | null;
   phone: string | null;
   whatsapp: string | null;
   skype: string | null;
@@ -40,6 +41,8 @@ interface BusinessCardProps {
     view: string;
     shown: string;
   };
+  mapButtonVariant?: "text" | "button";
+  showAddress?: boolean;
 }
 
 const WhatsAppIcon = () => (
@@ -72,11 +75,17 @@ const BusinessCard = ({
   selectedBusinessId,
   onSelectBusiness,
   showMapButton = false,
-  mapButtonLabels = { view: "Voir sur la carte", shown: "Affiché sur la carte" }
+  mapButtonLabels = { view: "Voir sur la carte", shown: "Affiché sur la carte" },
+  mapButtonVariant = "text",
+  showAddress = false
 }: BusinessCardProps) => {
   const gamme = getBusinessGamme(business, gammes);
   const isSelected = selectedBusinessId === business.id;
   const hasMapData = business.google_maps_url || (business.latitude && business.longitude);
+
+  const locationText = showAddress && business.address 
+    ? business.address 
+    : `${business.city}, ${business.region}`;
 
   return (
     <Link to={`/business/${business.id}`}>
@@ -140,7 +149,7 @@ const BusinessCard = ({
           {/* Location */}
           <div className="flex items-center gap-1 text-sm text-muted-foreground mb-2">
             <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
-            <span className="truncate">{business.city}, {business.region}</span>
+            <span className="truncate">{locationText}</span>
           </div>
 
           {/* Contact info */}
@@ -179,21 +188,39 @@ const BusinessCard = ({
 
           {/* View on map button */}
           {showMapButton && hasMapData && onSelectBusiness && (
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                onSelectBusiness(business);
-              }}
-              className={`mt-3 flex items-center gap-1 text-xs font-bold transition-colors ${
-                isSelected
-                  ? "text-gold"
-                  : "text-muted-foreground hover:text-gold"
-              }`}
-            >
-              <MapPin className="h-3 w-3" />
-              {isSelected ? mapButtonLabels.shown : mapButtonLabels.view}
-            </button>
+            mapButtonVariant === "button" ? (
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onSelectBusiness(business);
+                }}
+                className={`w-full mt-3 text-xs py-1.5 px-2 rounded transition-colors flex items-center justify-center gap-1 ${
+                  isSelected
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted hover:bg-primary/20 text-muted-foreground hover:text-primary"
+                }`}
+              >
+                <MapPin className="h-3 w-3" />
+                {isSelected ? mapButtonLabels.shown : mapButtonLabels.view}
+              </button>
+            ) : (
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onSelectBusiness(business);
+                }}
+                className={`mt-3 flex items-center gap-1 text-xs font-bold transition-colors ${
+                  isSelected
+                    ? "text-gold"
+                    : "text-muted-foreground hover:text-gold"
+                }`}
+              >
+                <MapPin className="h-3 w-3" />
+                {isSelected ? mapButtonLabels.shown : mapButtonLabels.view}
+              </button>
+            )
           )}
         </CardContent>
       </Card>
