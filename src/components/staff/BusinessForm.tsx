@@ -873,7 +873,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
 
         {/* Coordonnées */}
         <div className="space-y-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-          <Label className="text-base font-semibold">Coordonnées</Label>
+          <Label className="text-xl font-semibold">Coordonnées</Label>
           
           {/* Location */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -995,7 +995,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
 
         {/* Social Media */}
         <div className="space-y-4 p-4 bg-orange-50 border border-orange-200 rounded-lg">
-          <Label className="text-base font-semibold">Réseaux sociaux</Label>
+          <Label className="text-xl font-semibold">Réseaux sociaux</Label>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="facebook_url" className="flex items-center gap-2">
@@ -1144,7 +1144,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
 
         {/* Plateformes de réservation */}
         <div className="space-y-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <Label className="text-base font-semibold">Plateformes de réservation</Label>
+          <Label className="text-xl font-semibold">Plateformes de réservation</Label>
           
           {/* Bouton Réserver maintenant */}
           <div className="space-y-2 p-3 border rounded-lg bg-primary/5">
@@ -1256,7 +1256,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
 
         {/* Taxonomie */}
         <div className="space-y-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
-          <Label className="text-base font-semibold">Taxonomie</Label>
+          <Label className="text-xl font-semibold">Taxonomie</Label>
           
           {/* Sous-catégories */}
           <div className="space-y-3">
@@ -1406,7 +1406,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
 
         {/* Opening Hours */}
         <div className="space-y-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <Label className="text-base font-semibold">Horaires d'ouverture</Label>
+          <Label className="text-xl font-semibold">Horaires d'ouverture</Label>
           <OpeningHoursEditor
             value={formData.opening_hours}
             onChange={(hours) => handleChange("opening_hours", hours as any)}
@@ -1433,7 +1433,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
         {/* Internal Notes - Staff Only */}
         <div className="space-y-2 p-4 border rounded-lg bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800">
           <div className="flex items-center justify-between">
-            <Label htmlFor="internal_notes" className="text-amber-800 dark:text-amber-200">
+            <Label htmlFor="internal_notes" className="text-xl font-semibold text-amber-800 dark:text-amber-200">
               Note interne (staff uniquement)
             </Label>
             <span className="text-xs text-amber-600 dark:text-amber-400">
