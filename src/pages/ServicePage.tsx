@@ -35,6 +35,13 @@ interface Business {
   opening_hours: unknown;
   show_opening_hours: boolean | null;
   rating: number | null;
+  gamme_id: string | null;
+}
+
+interface Gamme {
+  id: string;
+  name_fr: string;
+  color_hex: string | null;
 }
 
 const ITEMS_PER_PAGE = 20;
@@ -49,6 +56,7 @@ const ServicePage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCity, setSelectedCity] = useState<string>("all");
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
+  const [gammes, setGammes] = useState<Gamme[]>([]);
 
   // Extract service name from URL path (handles special characters like /, &, etc.)
   const decodedServiceName = useMemo(() => {
@@ -119,10 +127,20 @@ const ServicePage = () => {
           );
         }
 
+        // Fetch gammes
+        const { data: gammesData } = await supabase
+          .from("gammes")
+          .select("id, name_fr, color_hex")
+          .order("sort_order", { ascending: true });
+
+        if (gammesData) {
+          setGammes(gammesData);
+        }
+
         // Fetch ALL businesses with this service
         const { data: businessData, error } = await supabase
           .from("businesses")
-          .select("id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, opening_hours, show_opening_hours, rating")
+          .select("id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, opening_hours, show_opening_hours, rating, gamme_id")
           .eq("is_active", true)
           .contains("services", [decodedServiceName])
           .order("wtuce_status", { ascending: true })
@@ -149,6 +167,11 @@ const ServicePage = () => {
     if (business.images && business.images.length > 0) return business.images[0];
     if (business.logo_url) return business.logo_url;
     return "/placeholder.svg";
+  };
+
+  const getBusinessGamme = (business: Business): Gamme | null => {
+    if (!business.gamme_id) return null;
+    return gammes.find(g => g.id === business.gamme_id) || null;
   };
 
   const translations = {
@@ -465,6 +488,20 @@ const ServicePage = () => {
                               {business.categories[0]}
                             </Badge>
                           )}
+                          {(() => {
+                            const gamme = getBusinessGamme(business);
+                            if (gamme) {
+                              return (
+                                <Badge 
+                                  className="text-xs text-white border-0"
+                                  style={{ backgroundColor: gamme.color_hex || '#666666' }}
+                                >
+                                  {gamme.name_fr}
+                                </Badge>
+                              );
+                            }
+                            return null;
+                          })()}
                         </div>
 
                         {/* Name */}
