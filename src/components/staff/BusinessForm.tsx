@@ -251,17 +251,19 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
   const [dbCities, setDbCities] = useState<Array<{ id: string; name_fr: string; region: string | null }>>([]);
   const [dbGammes, setDbGammes] = useState<Array<{ id: string; name_fr: string }>>([]);
   const [gammeCategories, setGammeCategories] = useState<Array<{ gamme_id: string; category_id: string }>>([]);
+  const [dbNeighborhoods, setDbNeighborhoods] = useState<Array<{ id: string; name: string; city_id: string }>>([]);
 
   // Fetch categories, subcategories, services, cities, gammes and gamme_categories from database
   useEffect(() => {
     const fetchTaxonomy = async () => {
-      const [catRes, subRes, servRes, citiesRes, gammesRes, gammeCatRes] = await Promise.all([
+      const [catRes, subRes, servRes, citiesRes, gammesRes, gammeCatRes, neighborhoodsRes] = await Promise.all([
         supabase.from("categories").select("id, name_fr").order("sort_order"),
         supabase.from("subcategories").select("id, name_fr, category_id").order("sort_order"),
         supabase.from("services").select("id, name_fr, subcategory_id").order("sort_order"),
         supabase.from("cities").select("id, name_fr, region").order("name_fr"),
         supabase.from("gammes").select("id, name_fr").order("sort_order"),
         supabase.from("gamme_categories").select("gamme_id, category_id"),
+        supabase.from("neighborhoods").select("id, name, city_id").order("name"),
       ]);
       
       if (catRes.data) setDbCategories(catRes.data);
@@ -270,6 +272,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
       if (citiesRes.data) setDbCities(citiesRes.data);
       if (gammesRes.data) setDbGammes(gammesRes.data);
       if (gammeCatRes.data) setGammeCategories(gammeCatRes.data);
+      if (neighborhoodsRes.data) setDbNeighborhoods(neighborhoodsRes.data);
     };
     
     fetchTaxonomy();
@@ -329,6 +332,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
     other_booking_url: (business as any)?.other_booking_url || "",
     other_booking_name: (business as any)?.other_booking_name || "",
     gamme_id: (business as any)?.gamme_id || "",
+    neighborhood: (business as any)?.neighborhood || "",
   });
   
   // Business labels state (managed separately)
@@ -407,6 +411,14 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
       .sort((a, b) => a.name_fr.localeCompare(b.name_fr, 'fr'));
   }, [selectedCategory, gammeCategories, dbGammes]);
 
+  // Get neighborhoods for the selected city
+  const neighborhoodsForCity = useMemo(() => {
+    if (!formData.city) return [];
+    const selectedCity = dbCities.find(c => c.name_fr === formData.city);
+    if (!selectedCity) return [];
+    return dbNeighborhoods.filter(n => n.city_id === selectedCity.id);
+  }, [formData.city, dbCities, dbNeighborhoods]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -465,6 +477,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
       other_booking_url: formData.other_booking_url || null,
       other_booking_name: formData.other_booking_name || null,
       gamme_id: formData.gamme_id || null,
+      neighborhood: formData.neighborhood || null,
     };
 
     try {
@@ -927,7 +940,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
           <Label className="text-xl font-semibold">Coordonnées</Label>
           
           {/* Location */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="space-y-2">
               <Label htmlFor="city">Ville *</Label>
               <Select
@@ -939,6 +952,8 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
                   if (selectedCity?.region) {
                     handleChange("region", selectedCity.region);
                   }
+                  // Reset neighborhood when city changes
+                  handleChange("neighborhood", "");
                 }}
               >
                 <SelectTrigger>
@@ -974,6 +989,31 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
             </div>
 
             <div className="space-y-2">
+              <Label htmlFor="neighborhood">Quartier</Label>
+              <Select
+                value={formData.neighborhood}
+                onValueChange={(value) => handleChange("neighborhood", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={
+                    !formData.city
+                      ? "Choisir une ville d'abord"
+                      : neighborhoodsForCity.length === 0
+                        ? "Aucun quartier"
+                        : "Sélectionner..."
+                  } />
+                </SelectTrigger>
+                <SelectContent>
+                  {neighborhoodsForCity.map((n) => (
+                    <SelectItem key={n.id} value={n.name}>
+                      {n.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
               <Label htmlFor="address">Adresse</Label>
               <Input
                 id="address"
@@ -983,9 +1023,9 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="latitude">Latitude</Label>
+              <Label htmlFor="latitude" className="text-xs">Latitude</Label>
               <Input
                 id="latitude"
                 type="number"
@@ -993,11 +1033,12 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
                 value={formData.latitude}
                 onChange={(e) => handleChange("latitude", e.target.value)}
                 placeholder="31.6295"
+                className="text-xs h-8"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="longitude">Longitude</Label>
+              <Label htmlFor="longitude" className="text-xs">Longitude</Label>
               <Input
                 id="longitude"
                 type="number"
@@ -1005,6 +1046,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
                 value={formData.longitude}
                 onChange={(e) => handleChange("longitude", e.target.value)}
                 placeholder="-7.9811"
+                className="text-xs h-8"
               />
             </div>
           </div>

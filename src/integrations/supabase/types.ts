@@ -201,6 +201,7 @@ export type Database = {
           longitude: number | null
           main_category: string | null
           name: string
+          neighborhood: string | null
           online_shop_url: string | null
           opening_hours: Json | null
           other_booking_name: string | null
@@ -263,6 +264,7 @@ export type Database = {
           longitude?: number | null
           main_category?: string | null
           name: string
+          neighborhood?: string | null
           online_shop_url?: string | null
           opening_hours?: Json | null
           other_booking_name?: string | null
@@ -325,6 +327,7 @@ export type Database = {
           longitude?: number | null
           main_category?: string | null
           name?: string
+          neighborhood?: string | null
           online_shop_url?: string | null
           opening_hours?: Json | null
           other_booking_name?: string | null
