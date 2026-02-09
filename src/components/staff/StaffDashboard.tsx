@@ -153,48 +153,6 @@ const StaffDashboard = ({ businesses, onNavigateTab, onNewBusiness, onEditBusine
         <StatCard icon={Star} label="En vedette" value={stats.featured} color="text-yellow-500 bg-yellow-50" />
       </div>
 
-      {/* Quick Actions */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg">Raccourcis</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-2">
-            <Button onClick={onNewBusiness} className="bg-green-600 hover:bg-green-700 text-white">
-              <Plus className="h-4 w-4 mr-2" />
-              Nouvelle entreprise
-            </Button>
-            <Button variant="outline" onClick={() => onNavigateTab("businesses")}>
-              <Building2 className="h-4 w-4 mr-2" />
-              Entreprises
-            </Button>
-            <Button variant="outline" onClick={() => onNavigateTab("categories")}>
-              <Folder className="h-4 w-4 mr-2" />
-              Catégories
-            </Button>
-            <Button variant="outline" onClick={() => onNavigateTab("locations")}>
-              <MapPin className="h-4 w-4 mr-2" />
-              Pays & Villes
-            </Button>
-            <Button variant="outline" onClick={() => onNavigateTab("labels")}>
-              <Award className="h-4 w-4 mr-2" />
-              Labels
-            </Button>
-            <Button variant="outline" onClick={() => onNavigateTab("gammes")}>
-              <Gem className="h-4 w-4 mr-2" />
-              Gammes
-            </Button>
-            <Button variant="outline" onClick={() => onNavigateTab("sponsors")}>
-              <Star className="h-4 w-4 mr-2" />
-              Sponsors
-            </Button>
-            <Button variant="outline" onClick={() => onNavigateTab("affiliates")}>
-              <UserCheck className="h-4 w-4 mr-2" />
-              Affiliés
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Quality Alerts */}
