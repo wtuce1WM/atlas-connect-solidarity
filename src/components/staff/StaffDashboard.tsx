@@ -173,17 +173,16 @@ const StaffDashboard = ({ businesses, onNavigateTab, onNewBusiness, onEditBusine
             ) : (
               (() => {
                 const brokenBusinesses = businesses.filter(b => brokenFilesMap[b.id]);
-                const totalBroken = Object.values(brokenFilesMap).reduce((sum, v) => sum + v.totalBroken, 0);
-                return brokenBusinesses.length > 0 ? (
+                return (
                   <AlertRow
                     icon={ImageMinus}
-                    label={`Images/fichiers introuvables (${brokenBusinesses.length} entreprises)`}
+                    label={brokenBusinesses.length > 0 ? `Images/fichiers introuvables (${brokenBusinesses.length} entreprises)` : "Images/fichiers introuvables"}
                     count={brokenBusinesses.length}
-                    color="text-destructive"
+                    color={brokenBusinesses.length > 0 ? "text-destructive" : "text-green-600"}
                     items={brokenBusinesses}
                     onEdit={onEditBusiness}
                   />
-                ) : null;
+                );
               })()
             )}
             <AlertRow
@@ -427,13 +426,13 @@ function AlertRow({
   onEdit: (b: Business) => void;
 }) {
   const [expanded, setExpanded] = useState(false);
-  if (count === 0) return null;
+  const hasItems = count > 0;
 
   return (
     <div>
       <button
-        onClick={() => setExpanded(!expanded)}
-        className="flex items-center justify-between w-full p-2 rounded-md bg-muted/50 hover:bg-muted transition-colors"
+        onClick={() => hasItems && setExpanded(!expanded)}
+        className={`flex items-center justify-between w-full p-2 rounded-md bg-muted/50 transition-colors ${hasItems ? "hover:bg-muted cursor-pointer" : "cursor-default"}`}
       >
         <div className="flex items-center gap-2">
           <Icon className={`h-4 w-4 ${color}`} />
@@ -443,7 +442,7 @@ function AlertRow({
           <Badge variant="secondary" className="font-mono">
             {count}
           </Badge>
-          <ChevronDown className={`h-3 w-3 text-muted-foreground transition-transform ${expanded ? "rotate-180" : ""}`} />
+          {hasItems && <ChevronDown className={`h-3 w-3 text-muted-foreground transition-transform ${expanded ? "rotate-180" : ""}`} />}
         </div>
       </button>
       {expanded && (
