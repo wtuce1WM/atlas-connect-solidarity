@@ -25,6 +25,7 @@ export type Database = {
           id: string
           internal_notes: string | null
           is_active: boolean
+          kp_regroupement: string | null
           main_category: string | null
           name: string
           phone: string | null
@@ -41,6 +42,7 @@ export type Database = {
           id?: string
           internal_notes?: string | null
           is_active?: boolean
+          kp_regroupement?: string | null
           main_category?: string | null
           name: string
           phone?: string | null
@@ -57,6 +59,7 @@ export type Database = {
           id?: string
           internal_notes?: string | null
           is_active?: boolean
+          kp_regroupement?: string | null
           main_category?: string | null
           name?: string
           phone?: string | null

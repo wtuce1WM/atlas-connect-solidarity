@@ -30,6 +30,7 @@ interface Affiliate {
   account_type: string | null;
   name: string;
   ice: string | null;
+  kp_regroupement: string | null;
   main_category: string | null;
   whatsapp: string | null;
   phone: string | null;
@@ -63,6 +64,7 @@ const AffiliateManagement = () => {
     account_type: "",
     name: "",
     ice: "",
+    kp_regroupement: "",
     main_category: "",
     whatsapp: "",
     phone: "",
@@ -111,6 +113,7 @@ const AffiliateManagement = () => {
       account_type: "",
       name: "",
       ice: "",
+      kp_regroupement: "",
       main_category: "",
       whatsapp: "",
       phone: "",
@@ -134,6 +137,7 @@ const AffiliateManagement = () => {
       account_type: affiliate.account_type || "",
       name: affiliate.name,
       ice: affiliate.ice || "",
+      kp_regroupement: affiliate.kp_regroupement || "",
       main_category: affiliate.main_category || "",
       whatsapp: affiliate.whatsapp || "",
       phone: affiliate.phone || "",
@@ -161,7 +165,8 @@ const AffiliateManagement = () => {
     const affiliateData = {
       account_type: formData.account_type || null,
       name: formData.name.trim(),
-      ice: formData.ice || null,
+      ice: formData.ice?.slice(0, 20) || null,
+      kp_regroupement: formData.kp_regroupement?.slice(0, 20) || null,
       main_category: formData.main_category || null,
       whatsapp: formData.whatsapp || null,
       phone: formData.phone || null,
@@ -273,26 +278,41 @@ const AffiliateManagement = () => {
                 </Select>
               </div>
 
-              {/* Nom */}
+              {/* Nom Entreprise */}
               <div className="space-y-2">
-                <Label htmlFor="name">Nom *</Label>
+                <Label htmlFor="name">Nom Entreprise *</Label>
                 <Input
                   id="name"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="Nom de l'affilié"
+                  placeholder="Nom de l'entreprise affiliée"
                 />
               </div>
 
-              {/* ICE */}
-              <div className="space-y-2">
-                <Label htmlFor="ice">ICE</Label>
-                <Input
-                  id="ice"
-                  value={formData.ice}
-                  onChange={(e) => setFormData({ ...formData, ice: e.target.value })}
-                  placeholder="Identifiant Commun de l'Entreprise"
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* ICE */}
+                <div className="space-y-2">
+                  <Label htmlFor="ice">ICE (max 20 caractères)</Label>
+                  <Input
+                    id="ice"
+                    value={formData.ice}
+                    onChange={(e) => setFormData({ ...formData, ice: e.target.value.slice(0, 20) })}
+                    placeholder="Identifiant Commun"
+                    maxLength={20}
+                  />
+                </div>
+
+                {/* KP regroupement */}
+                <div className="space-y-2">
+                  <Label htmlFor="kp_regroupement">KP regroupement (max 20 caractères)</Label>
+                  <Input
+                    id="kp_regroupement"
+                    value={formData.kp_regroupement}
+                    onChange={(e) => setFormData({ ...formData, kp_regroupement: e.target.value.slice(0, 20) })}
+                    placeholder="Code KP"
+                    maxLength={20}
+                  />
+                </div>
               </div>
 
               {/* Catégorie principale */}
