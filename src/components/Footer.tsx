@@ -50,6 +50,7 @@ const Footer = ({ variant = "default" }: FooterProps) => {
               <li><a href="#" className="transition-colors hover:text-gold">{t("footer.postJob")}</a></li>
               <li><a href="#" className="transition-colors hover:text-gold">{t("footer.becomeProvider")}</a></li>
               <li><a href="#" className="transition-colors hover:text-gold">{t("footer.businessSolutions")}</a></li>
+              <li><Link to="/blog" className="transition-colors hover:text-gold">{t("footer.blog")}</Link></li>
             </ul>
           </div>
 

@@ -138,6 +138,13 @@ const translations = {
     "footer.privacy": "Privacy Policy",
     "footer.terms": "Terms of Service",
     "footer.cookies": "Cookie Policy",
+    "footer.blog": "Blog",
+    // Blog
+    "blog.title": "Blog",
+    "blog.subtitle": "News, guides and insights about Morocco",
+    "blog.noPosts": "No articles published yet.",
+    "blog.notFound": "Article not found.",
+    "blog.backToList": "Back to blog",
   },
   fr: {
     // Header
@@ -267,6 +274,13 @@ const translations = {
     "footer.privacy": "Politique de confidentialité",
     "footer.terms": "Conditions d'utilisation",
     "footer.cookies": "Politique des cookies",
+    "footer.blog": "Blog",
+    // Blog
+    "blog.title": "Blog",
+    "blog.subtitle": "Actualités, guides et découvertes sur le Maroc",
+    "blog.noPosts": "Aucun article publié pour le moment.",
+    "blog.notFound": "Article introuvable.",
+    "blog.backToList": "Retour au blog",
   },
    ar: {
      // Header
@@ -395,6 +409,13 @@ const translations = {
      "footer.privacy": "سياسة الخصوصية",
      "footer.terms": "شروط الخدمة",
      "footer.cookies": "سياسة ملفات تعريف الارتباط",
+     "footer.blog": "مدونة",
+     // Blog
+     "blog.title": "المدونة",
+     "blog.subtitle": "أخبار وأدلة واكتشافات عن المغرب",
+     "blog.noPosts": "لم يتم نشر أي مقال بعد.",
+     "blog.notFound": "المقال غير موجود.",
+     "blog.backToList": "العودة إلى المدونة",
    },
 };
 

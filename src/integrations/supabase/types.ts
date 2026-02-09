@@ -71,6 +71,66 @@ export type Database = {
         }
         Relationships: []
       }
+      blog_posts: {
+        Row: {
+          author_name: string | null
+          content_ar: string | null
+          content_en: string | null
+          content_fr: string | null
+          cover_image_url: string | null
+          created_at: string
+          excerpt_ar: string | null
+          excerpt_en: string | null
+          excerpt_fr: string | null
+          id: string
+          is_published: boolean
+          published_at: string | null
+          slug: string
+          title_ar: string | null
+          title_en: string | null
+          title_fr: string
+          updated_at: string
+        }
+        Insert: {
+          author_name?: string | null
+          content_ar?: string | null
+          content_en?: string | null
+          content_fr?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          excerpt_ar?: string | null
+          excerpt_en?: string | null
+          excerpt_fr?: string | null
+          id?: string
+          is_published?: boolean
+          published_at?: string | null
+          slug: string
+          title_ar?: string | null
+          title_en?: string | null
+          title_fr: string
+          updated_at?: string
+        }
+        Update: {
+          author_name?: string | null
+          content_ar?: string | null
+          content_en?: string | null
+          content_fr?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          excerpt_ar?: string | null
+          excerpt_en?: string | null
+          excerpt_fr?: string | null
+          id?: string
+          is_published?: boolean
+          published_at?: string | null
+          slug?: string
+          title_ar?: string | null
+          title_en?: string | null
+          title_fr?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       business_labels: {
         Row: {
           business_id: string
