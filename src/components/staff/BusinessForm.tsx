@@ -530,6 +530,18 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Nom - En premier et en gros */}
+        <div className="space-y-2">
+          <Label htmlFor="name" className="text-lg font-semibold">Nom *</Label>
+          <Input
+            id="name"
+            value={formData.name}
+            onChange={(e) => handleChange("name", e.target.value)}
+            required
+            className="text-2xl font-bold h-14"
+          />
+        </div>
+
         {/* Status, Priority & Featured - Section principale */}
         <div className="p-4 border rounded-lg bg-muted/30 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -620,15 +632,6 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
 
         {/* Basic Info */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Nom *</Label>
-            <Input
-              id="name"
-              value={formData.name}
-              onChange={(e) => handleChange("name", e.target.value)}
-              required
-            />
-          </div>
 
           <div className="space-y-2">
             <Label htmlFor="ice">ICE (max 20 caractères)</Label>
