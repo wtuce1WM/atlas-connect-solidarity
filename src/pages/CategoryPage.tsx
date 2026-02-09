@@ -324,13 +324,12 @@ const CategoryPage = () => {
     setSelectedServices([]);
   };
 
-  const toggleSubcategory = (subcategory: string) => {
-    setSelectedSubcategories((prev) =>
-      prev.includes(subcategory)
-        ? prev.filter((s) => s !== subcategory)
-        : [...prev, subcategory]
-    );
-    // Reset services when subcategory changes
+  const handleSubcategoryChange = (subcategory: string) => {
+    if (subcategory === "all") {
+      setSelectedSubcategories([]);
+    } else {
+      setSelectedSubcategories([subcategory]);
+    }
     setSelectedServices([]);
   };
 
@@ -524,63 +523,57 @@ const CategoryPage = () => {
             </CardContent>
           </Card>
 
-          {/* City Filter */}
-          {availableCities.length > 1 && (
-            <div className="mb-8 flex flex-col items-center sm:flex-row sm:items-center gap-2 sm:gap-4">
-              <label className="text-sm text-gray-400">{t.filterByCity}:</label>
-              <Select value={selectedCity} onValueChange={handleCityChange}>
-                <SelectTrigger className="w-[220px] bg-card border-border">
-                  <SelectValue placeholder={t.allCities} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t.allCities}</SelectItem>
-                  {availableCities.map((city) => (
-                    <SelectItem key={city} value={city}>
-                      {city}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
+          {/* City & Subcategory Filters */}
+          <div className="mb-8 flex flex-col items-center sm:flex-row sm:items-center gap-2 sm:gap-4 flex-wrap">
+            {availableCities.length > 1 && (
+              <>
+                <label className="text-sm text-gray-400">{t.filterByCity}:</label>
+                <Select value={selectedCity} onValueChange={handleCityChange}>
+                  <SelectTrigger className="w-[220px] bg-card border-border">
+                    <SelectValue placeholder={t.allCities} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{t.allCities}</SelectItem>
+                    {availableCities.map((city) => (
+                      <SelectItem key={city} value={city}>
+                        {city}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </>
+            )}
 
-          {/* Subcategories Filter */}
-          {availableSubcategories.length > 0 && (
-            <div className="mb-6">
-              <div className="flex items-center justify-between mb-3">
+            {availableSubcategories.length > 0 && (
+              <>
                 <label className="text-sm text-gray-400">
-                  {language === "fr" ? "Sous-catégories" : language === "ar" ? "الفئات الفرعية" : "Subcategories"}:
+                  {language === "fr" ? "Sous-catégorie" : language === "ar" ? "الفئة الفرعية" : "Subcategory"}:
                 </label>
-                {(selectedSubcategories.length > 0 || selectedServices.length > 0) && (
-                  <button
-                    onClick={clearFilters}
-                    className="text-xs text-gray-400 hover:text-white transition-colors"
-                  >
-                    {language === "fr" ? "Effacer les filtres" : language === "ar" ? "مسح الفلاتر" : "Clear filters"}
-                  </button>
-                )}
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {availableSubcategories.map((subcategory) => (
-                  <label
-                    key={subcategory}
-                    className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs cursor-pointer border transition-colors ${
-                      selectedSubcategories.includes(subcategory)
-                        ? "bg-primary/10 border-primary text-primary"
-                        : "bg-background border-border text-muted-foreground hover:border-primary/50"
-                    }`}
-                  >
-                    <Checkbox
-                      checked={selectedSubcategories.includes(subcategory)}
-                      onCheckedChange={() => toggleSubcategory(subcategory)}
-                      className="h-3 w-3"
-                    />
-                    {subcategory}
-                  </label>
-                ))}
-              </div>
-            </div>
-          )}
+                <Select value={selectedSubcategories[0] || "all"} onValueChange={handleSubcategoryChange}>
+                  <SelectTrigger className="w-[220px] bg-card border-border">
+                    <SelectValue placeholder={language === "fr" ? "Toutes" : language === "ar" ? "الكل" : "All"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{language === "fr" ? "Toutes les sous-catégories" : language === "ar" ? "كل الفئات الفرعية" : "All subcategories"}</SelectItem>
+                    {availableSubcategories.map((subcat) => (
+                      <SelectItem key={subcat} value={subcat}>
+                        {subcat}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </>
+            )}
+
+            {(selectedSubcategories.length > 0 || selectedServices.length > 0) && (
+              <button
+                onClick={clearFilters}
+                className="text-xs text-gray-400 hover:text-white transition-colors"
+              >
+                {language === "fr" ? "Effacer les filtres" : language === "ar" ? "مسح الفلاتر" : "Clear filters"}
+              </button>
+            )}
+          </div>
 
           {/* Services Filter - Only shown when a subcategory is selected */}
           {selectedSubcategories.length > 0 && availableServices.length > 0 && (
