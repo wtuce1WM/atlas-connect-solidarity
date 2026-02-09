@@ -1,28 +1,10 @@
 import { useRef } from "react";
-import { Link } from "react-router-dom";
-import { Star, ChevronLeft, ChevronRight, MapPin } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Card, CardContent } from "@/components/ui/card";
-import logoWatermark from "@/assets/logoGOLDsimpleSML.webp";
+import BusinessCard, { BusinessCardData, Gamme } from "@/components/BusinessCard";
 
-interface Gamme {
-  id: string;
-  name_fr: string;
-  color_hex: string | null;
-}
-
-interface Business {
-  id: string;
-  name: string;
-  city: string;
-  region: string;
-  images: string[] | null;
-  rating: number | null;
-  main_category: string | null;
-  categories: string[] | null;
-  wtuce_status: string | null;
-  google_maps_url: string | null;
-  gamme_id: string | null;
+interface Business extends BusinessCardData {
+  main_category?: string | null;
 }
 
 interface TopCityBusinessesProps {
@@ -99,87 +81,21 @@ const TopCityBusinesses = ({ businesses, cityName, gammes = [], onSelectBusiness
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
           {topBusinesses.map((business) => (
-            <Link
-              key={business.id}
-              to={`/business/${business.id}`}
-              className="group flex-shrink-0"
-            >
-              <Card className="w-72 h-full overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-gold/20 border border-gold/30 relative">
-                {/* Background Image with overlay */}
-                <div className="absolute inset-0">
-                  <img
-                    src={business.images![0]}
-                    alt={business.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/70 transition-colors" />
-                  
-                  {/* Watermark logo for verified businesses - top right of image */}
-                  {business.wtuce_status === "verified" && (
-                    <img 
-                      src={logoWatermark} 
-                      alt="" 
-                      className="absolute top-2 right-2 w-10 h-10 object-contain opacity-90 pointer-events-none z-10"
-                    />
-                  )}
-
-                  {/* Rating - top left */}
-                  {business.rating && (
-                    <div className="absolute top-2 left-2 flex items-center gap-1 bg-black/60 rounded-full px-2 py-1 z-10">
-                      <Star className="h-4 w-4 fill-gold text-gold" />
-                      <span className="text-gold font-bold text-sm">{business.rating}/20</span>
-                    </div>
-                  )}
-
-                  {/* Gamme badge - top center */}
-                  {(() => {
-                    const gamme = business.gamme_id ? gammes.find(g => g.id === business.gamme_id) : null;
-                    return gamme ? (
-                      <div className="absolute top-2 left-1/2 -translate-x-1/2 z-10">
-                        <span 
-                          className="text-xs text-black border border-black rounded-full px-2 py-0.5 whitespace-nowrap"
-                          style={{ backgroundColor: gamme.color_hex || '#666666' }}
-                        >
-                          {gamme.name_fr}
-                        </span>
-                      </div>
-                    ) : null;
-                  })()}
-                </div>
-
-                <CardContent className="p-5 relative z-10 flex flex-col items-center justify-end min-h-[220px] text-center">
-
-                  {/* Name */}
-                  <h3 className="text-base font-semibold text-white group-hover:text-gold transition-colors mb-2 line-clamp-2">
-                    {business.name}
-                  </h3>
-
-                  {/* Subcategory badge */}
-                  {business.categories && business.categories.length > 0 && (
-                    <span className="text-xs bg-white/20 text-white rounded-full px-2 py-0.5 mb-2">{business.categories[0]}</span>
-                  )}
-
-                  {/* View on map button */}
-                  {onSelectBusiness && (
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        onSelectBusiness(business);
-                      }}
-                      className={`flex items-center gap-1 text-xs font-bold transition-colors ${
-                        selectedBusinessId === business.id
-                          ? "text-gold"
-                          : "text-white hover:text-gold"
-                      }`}
-                    >
-                      <MapPin className="h-3 w-3" />
-                      {selectedBusinessId === business.id ? "Affiché sur la carte" : "Voir sur la carte"}
-                    </button>
-                  )}
-                </CardContent>
-              </Card>
-            </Link>
+            <div key={business.id} className="flex-shrink-0 w-72">
+              <BusinessCard
+                business={business}
+                gammes={gammes}
+                verifiedLabel={language === "ar" ? "معتمد" : language === "en" ? "Verified" : "Vérifié"}
+                selectedBusinessId={selectedBusinessId}
+                onSelectBusiness={onSelectBusiness as any}
+                showMapButton={!!onSelectBusiness}
+                mapButtonLabels={{
+                  view: language === "ar" ? "عرض على الخريطة" : language === "en" ? "View on map" : "Voir sur la carte",
+                  shown: language === "ar" ? "معروض على الخريطة" : language === "en" ? "Shown on map" : "Affiché sur la carte",
+                }}
+                mapButtonVariant="text"
+              />
+            </div>
           ))}
         </div>
       </div>
