@@ -308,6 +308,32 @@ const BusinessDetail = () => {
             <MapPin className="h-5 w-5" />
             <span>{business.address || business.city}, {business.region}</span>
           </div>
+          {/* Phone & WhatsApp quick links */}
+          {(business.phone || business.whatsapp) && (
+            <div className="flex items-center justify-center sm:justify-start gap-4 mt-3 flex-wrap">
+              {business.phone && (
+                <a
+                  href={`tel:${business.phone}`}
+                  className="inline-flex items-center gap-2 font-semibold text-foreground hover:text-primary transition-colors"
+                >
+                  <Phone className="h-5 w-5" />
+                  {business.phone}
+                </a>
+              )}
+              {business.whatsapp && (
+                <a
+                  href={`https://wa.me/${business.whatsapp.replace(/[^0-9]/g, "")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 font-bold hover:opacity-80 transition-opacity"
+                  style={{ color: "#25D366" }}
+                >
+                  <MessageCircle className="h-5 w-5" />
+                  WhatsApp
+                </a>
+              )}
+            </div>
+          )}
           <div className="flex justify-center sm:justify-start">
             <Link
               to={`/city/${encodeURIComponent(business.city)}`}
