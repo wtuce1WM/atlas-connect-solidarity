@@ -177,7 +177,7 @@ const StaffDashboard = ({ businesses, onNavigateTab, onNewBusiness, onEditBusine
                 return brokenBusinesses.length > 0 ? (
                   <AlertRow
                     icon={ImageMinus}
-                    label={`Images/fichiers introuvables (${totalBroken} URLs)`}
+                    label={`Images/fichiers introuvables (${brokenBusinesses.length} entreprises)`}
                     count={brokenBusinesses.length}
                     color="text-destructive"
                     items={brokenBusinesses}
