@@ -34,7 +34,7 @@ import { Badge } from "@/components/ui/badge";
 interface UserRole {
   id: string;
   user_id: string;
-  role: "admin" | "staff";
+  role: "admin" | "staff" | "affiliate";
   created_at: string;
   email?: string;
 }
@@ -79,6 +79,7 @@ const UserManagement = () => {
         const { data: roles, error: rolesError } = await supabase
           .from("user_roles")
           .select("*")
+          .in("role", ["admin", "staff"])
           .order("created_at", { ascending: false });
 
         if (rolesError) {
@@ -86,7 +87,9 @@ const UserManagement = () => {
         }
         setUsers(roles || []);
       } else {
-        setUsers(data || []);
+        // Filter out affiliates from the result
+        const filteredData = (data || []).filter((u: UserRole) => u.role === "admin" || u.role === "staff");
+        setUsers(filteredData);
       }
     } catch (error: any) {
       toast({
@@ -183,7 +186,8 @@ const UserManagement = () => {
 
   const handleEditUser = (user: UserRole) => {
     setEditingUser(user);
-    setEditRole(user.role);
+    // Cast is safe because we filter out affiliates in fetchUsers
+    setEditRole(user.role as "admin" | "staff");
     setEditDialogOpen(true);
   };
 
