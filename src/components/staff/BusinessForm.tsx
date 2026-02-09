@@ -812,129 +812,124 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
           />
         </div>
 
-        {/* Location */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="city">Ville *</Label>
-            <Select
-              value={formData.city}
-              onValueChange={(value) => {
-                handleChange("city", value);
-                // Auto-fill region based on selected city
-                const selectedCity = dbCities.find(c => c.name_fr === value);
-                if (selectedCity?.region) {
-                  handleChange("region", selectedCity.region);
-                }
-              }}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Sélectionner une ville..." />
-              </SelectTrigger>
-              <SelectContent>
-                {dbCities.map((city) => (
-                  <SelectItem key={city.id} value={city.name_fr}>
-                    {city.name_fr}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+        {/* Coordonnées */}
+        <div className="space-y-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+          <Label className="text-base font-semibold">Coordonnées</Label>
+          
+          {/* Location */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="city">Ville *</Label>
+              <Select
+                value={formData.city}
+                onValueChange={(value) => {
+                  handleChange("city", value);
+                  // Auto-fill region based on selected city
+                  const selectedCity = dbCities.find(c => c.name_fr === value);
+                  if (selectedCity?.region) {
+                    handleChange("region", selectedCity.region);
+                  }
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Sélectionner une ville..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {dbCities.map((city) => (
+                    <SelectItem key={city.id} value={city.name_fr}>
+                      {city.name_fr}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="region">Région *</Label>
+              <Select
+                value={formData.region}
+                onValueChange={(value) => handleChange("region", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Sélectionner..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {REGIONS.map((region) => (
+                    <SelectItem key={region} value={region}>
+                      {region}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="address">Adresse</Label>
+              <Input
+                id="address"
+                value={formData.address}
+                onChange={(e) => handleChange("address", e.target.value)}
+              />
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="region">Région *</Label>
-            <Select
-              value={formData.region}
-              onValueChange={(value) => handleChange("region", value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Sélectionner..." />
-              </SelectTrigger>
-              <SelectContent>
-                {REGIONS.map((region) => (
-                  <SelectItem key={region} value={region}>
-                    {region}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="latitude">Latitude</Label>
+              <Input
+                id="latitude"
+                type="number"
+                step="any"
+                value={formData.latitude}
+                onChange={(e) => handleChange("latitude", e.target.value)}
+                placeholder="31.6295"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="longitude">Longitude</Label>
+              <Input
+                id="longitude"
+                type="number"
+                step="any"
+                value={formData.longitude}
+                onChange={(e) => handleChange("longitude", e.target.value)}
+                placeholder="-7.9811"
+              />
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="address">Adresse</Label>
-            <Input
-              id="address"
-              value={formData.address}
-              onChange={(e) => handleChange("address", e.target.value)}
-            />
-          </div>
-        </div>
+          {/* Contact */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="phone">Téléphone</Label>
+              <Input
+                id="phone"
+                value={formData.phone}
+                onChange={(e) => handleChange("phone", e.target.value)}
+                placeholder="+212 5XX-XXXXXX"
+              />
+            </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="latitude">Latitude</Label>
-            <Input
-              id="latitude"
-              type="number"
-              step="any"
-              value={formData.latitude}
-              onChange={(e) => handleChange("latitude", e.target.value)}
-              placeholder="31.6295"
-            />
-          </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={formData.email}
+                onChange={(e) => handleChange("email", e.target.value)}
+              />
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="longitude">Longitude</Label>
-            <Input
-              id="longitude"
-              type="number"
-              step="any"
-              value={formData.longitude}
-              onChange={(e) => handleChange("longitude", e.target.value)}
-              placeholder="-7.9811"
-            />
-          </div>
-        </div>
-
-        {/* Contact */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="phone">Téléphone</Label>
-            <Input
-              id="phone"
-              value={formData.phone}
-              onChange={(e) => handleChange("phone", e.target.value)}
-              placeholder="+212 5XX-XXXXXX"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              value={formData.email}
-              onChange={(e) => handleChange("email", e.target.value)}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="website">Site web</Label>
-            <Input
-              id="website"
-              value={formData.website}
-              onChange={(e) => handleChange("website", e.target.value)}
-              placeholder="https://"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="online_shop_url">Boutique en ligne</Label>
-            <Input
-              id="online_shop_url"
-              value={formData.online_shop_url}
-              onChange={(e) => handleChange("online_shop_url", e.target.value)}
-              placeholder="https://"
-            />
+            <div className="space-y-2">
+              <Label htmlFor="website">Site web</Label>
+              <Input
+                id="website"
+                value={formData.website}
+                onChange={(e) => handleChange("website", e.target.value)}
+                placeholder="https://"
+              />
+            </div>
           </div>
         </div>
 
