@@ -262,6 +262,10 @@ const StaffBackoffice = () => {
                 <Building2 className="h-4 w-4" />
                 Entreprises
               </TabsTrigger>
+              <TabsTrigger value="kp-groups" className="gap-2">
+                <Crown className="h-4 w-4" />
+                Groupes KP
+              </TabsTrigger>
               <TabsTrigger value="labels" className="gap-2">
                 <Award className="h-4 w-4" />
                 Labels
@@ -269,10 +273,6 @@ const StaffBackoffice = () => {
               <TabsTrigger value="gammes" className="gap-2">
                 <Gem className="h-4 w-4" />
                 Gamme
-              </TabsTrigger>
-              <TabsTrigger value="kp-groups" className="gap-2">
-                <Crown className="h-4 w-4" />
-                Groupes KP
               </TabsTrigger>
               <TabsTrigger value="categories" className="gap-2">
                 <Folder className="h-4 w-4" />
