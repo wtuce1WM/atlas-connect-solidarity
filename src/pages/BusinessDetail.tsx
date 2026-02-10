@@ -253,21 +253,25 @@ const BusinessDetail = () => {
               </div>
             )}
             <div className="flex-1 min-w-0">
-              <div className="flex flex-col sm:flex-row items-center gap-3 flex-wrap justify-center sm:justify-start">
+              <div className="flex flex-col items-center sm:items-start gap-2">
                 <h1 className={`text-2xl sm:text-4xl font-bold ${isVerified ? "text-white" : "text-foreground"}`}>{business.name}</h1>
-                {gamme && (
-                  <Badge 
-                    className="text-xs text-black border border-black whitespace-nowrap self-center"
-                    style={{ backgroundColor: gamme.color_hex || '#666666' }}
-                  >
-                    {gamme.name_fr}
-                  </Badge>
-                )}
-                {business.wtuce_status === "verified" && !isInstitution && (
-                  <Badge className="bg-primary/10 text-primary border-primary/20 flex items-center gap-1.5 px-3 py-1.5">
-                    <BadgeCheck className="h-4 w-4" />
-                    WTUCE Vérifié
-                  </Badge>
+                {(gamme || (business.wtuce_status === "verified" && !isInstitution)) && (
+                  <div className="flex items-center gap-2 flex-wrap justify-center sm:justify-start">
+                    {gamme && (
+                      <Badge 
+                        className="text-xs text-black border border-black whitespace-nowrap"
+                        style={{ backgroundColor: gamme.color_hex || '#666666' }}
+                      >
+                        {gamme.name_fr}
+                      </Badge>
+                    )}
+                    {business.wtuce_status === "verified" && !isInstitution && (
+                      <Badge className="bg-primary/10 text-primary border-primary/20 flex items-center gap-1.5 px-3 py-1.5">
+                        <BadgeCheck className="h-4 w-4" />
+                        WTUCE Vérifié
+                      </Badge>
+                    )}
+                  </div>
                 )}
                 {/* Business Labels - hidden on mobile */}
                 {businessLabels.length > 0 && (
