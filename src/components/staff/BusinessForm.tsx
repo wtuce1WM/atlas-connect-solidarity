@@ -1065,7 +1065,6 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
 
         {/* Hook multilingue - affiché en gros comme Nom */}
         <div className="space-y-3">
-          <Label htmlFor="hook_fr" className="text-xl font-semibold">Hook FR</Label>
           <Input
             id="hook_fr"
             value={formData.hook_fr}
