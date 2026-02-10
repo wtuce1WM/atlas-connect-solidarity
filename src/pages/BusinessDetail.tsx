@@ -259,7 +259,7 @@ const BusinessDetail = () => {
             <div className="flex-1 min-w-0">
               <div className="flex flex-col items-center sm:items-start gap-2">
                 <div className="flex flex-col sm:flex-row items-center gap-3 flex-wrap justify-center sm:justify-start">
-                  <h1 className={`text-2xl sm:text-4xl font-bold ${isVerified ? "text-white" : "text-foreground"}`}>{business.name}</h1>
+                  <h1 className={`text-2xl sm:text-4xl font-semibold ${isVerified ? "text-white" : "text-foreground"}`} style={{ fontFamily: "'Raleway', sans-serif" }}>{business.name}</h1>
                   {/* Business Labels - hidden on mobile */}
                   {businessLabels.length > 0 && (
                     <div className="hidden sm:flex items-center gap-2 flex-wrap">
