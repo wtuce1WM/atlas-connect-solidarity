@@ -45,8 +45,8 @@ const RichTextEditor = ({ content, onChange, placeholder }: RichTextEditorProps)
     },
     editorProps: {
       attributes: {
-        class:
-          "prose prose-sm max-w-none min-h-[300px] p-3 focus:outline-none",
+          class:
+          "prose prose-sm max-w-none min-h-[150px] max-h-[300px] overflow-y-auto p-3 focus:outline-none",
       },
     },
   });
