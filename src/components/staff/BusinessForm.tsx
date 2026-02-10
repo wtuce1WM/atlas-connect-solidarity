@@ -1233,13 +1233,6 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
               <Input id="tiktok_url" value={formData.tiktok_url} onChange={(e) => handleChange("tiktok_url", e.target.value)} placeholder="https://tiktok.com/@..." />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="whatsapp" className="flex items-center gap-2">
-                <WhatsAppIcon className="text-[#25D366]" />
-                WhatsApp
-              </Label>
-              <Input id="whatsapp" value={formData.whatsapp} onChange={(e) => handleChange("whatsapp", e.target.value)} placeholder="+212 6XX-XXXXXX" />
-            </div>
 
             <div className="space-y-2">
               <Label htmlFor="pinterest_url" className="flex items-center gap-2">
