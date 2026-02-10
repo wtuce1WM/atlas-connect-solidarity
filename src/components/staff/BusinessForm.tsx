@@ -984,6 +984,12 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
               onChange={(e) => handleChange("website", e.target.value)}
               placeholder="https://"
             />
+            {formData.website && (
+              <button type="button" className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors mt-1" title="Copier l'URL du site web vers Réserver maintenant" onClick={() => { handleChange("reserve_now_url", formData.website); toast({ title: "URL copiée vers \"Réserver maintenant\"" }); }}>
+                <ArrowDown className="h-3 w-3" />
+                <span>Copier vers Réserver maintenant</span>
+              </button>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -1119,11 +1125,6 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
             onChange={setBusinessLabels}
           />
           </div>
-          {formData.website && (
-            <button type="button" className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors mx-auto" title="Copier l'URL du site web vers Réserver maintenant" onClick={() => { handleChange("reserve_now_url", formData.website); toast({ title: "URL copiée vers \"Réserver maintenant\"" }); }}>
-              <ArrowDown className="h-4 w-4" />
-            </button>
-          )}
 
 
         {/* Social Media */}
