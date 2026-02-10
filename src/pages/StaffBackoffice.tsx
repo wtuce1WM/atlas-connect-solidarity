@@ -40,7 +40,7 @@ const StaffBackoffice = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { brokenFilesMap, isChecking: isCheckingBrokenFiles } = useBusinessBrokenFiles(businesses);
+  const { brokenFilesMap, isChecking: isCheckingBrokenFiles, hasChecked: hasCheckedBrokenFiles, checkBrokenFiles } = useBusinessBrokenFiles(businesses);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -306,6 +306,8 @@ const StaffBackoffice = () => {
                 onEditBusiness={handleEdit}
                 brokenFilesMap={brokenFilesMap}
                 isCheckingBrokenFiles={isCheckingBrokenFiles}
+                hasCheckedBrokenFiles={hasCheckedBrokenFiles}
+                onCheckBrokenFiles={checkBrokenFiles}
               />
             </TabsContent>
 
