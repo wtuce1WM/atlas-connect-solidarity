@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Plus, Search, Edit, Trash2, Eye, Building2, Users, Folder, MapPin, Copy, Star, UserCheck, Award, Gem, AlertTriangle, LayoutDashboard } from "lucide-react";
+import { LogOut, Plus, Search, Edit, Trash2, Eye, Building2, Users, Folder, MapPin, Copy, Star, UserCheck, Award, Gem, AlertTriangle, LayoutDashboard, Crown } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import BusinessForm from "@/components/staff/BusinessForm";
 import BusinessTable from "@/components/staff/BusinessTable";
@@ -17,6 +17,7 @@ import SponsorManagement from "@/components/staff/SponsorManagement";
 import AffiliateManagement from "@/components/staff/AffiliateManagement";
 import LabelManagement from "@/components/staff/LabelManagement";
 import GammeManagement from "@/components/staff/GammeManagement";
+import KPGroupManagement from "@/components/staff/KPGroupManagement";
 import { useBusinessBrokenFiles } from "@/hooks/useBusinessBrokenFiles";
 import StaffDashboard from "@/components/staff/StaffDashboard";
 import type { Tables } from "@/integrations/supabase/types";
@@ -269,6 +270,10 @@ const StaffBackoffice = () => {
                 <Gem className="h-4 w-4" />
                 Gamme
               </TabsTrigger>
+              <TabsTrigger value="kp-groups" className="gap-2">
+                <Crown className="h-4 w-4" />
+                Groupes KP
+              </TabsTrigger>
               <TabsTrigger value="categories" className="gap-2">
                 <Folder className="h-4 w-4" />
                 Catégories
@@ -405,6 +410,10 @@ const StaffBackoffice = () => {
 
             <TabsContent value="gammes">
               <GammeManagement />
+            </TabsContent>
+
+            <TabsContent value="kp-groups">
+              <KPGroupManagement />
             </TabsContent>
 
             <TabsContent value="categories">
