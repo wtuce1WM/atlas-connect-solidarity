@@ -918,7 +918,7 @@ const BusinessDetail = () => {
         </div>
       </main>
 
-      <Footer variant={isVerified ? "morocco" : "default"} />
+      <Footer variant={isVerified ? "verified" : "default"} />
     </div>
   );
 };
