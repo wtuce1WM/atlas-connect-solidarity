@@ -280,13 +280,13 @@ const HeroSection = () => {
           <div className="w-full max-w-5xl space-y-10">
             {/* Cities Section */}
             <div className="rounded-xl bg-black/30 backdrop-blur-sm p-4">
-              <div className="mb-4 text-center">
-                <h2 className="text-lg md:text-2xl font-bold text-white">
+            <div className="mb-10 text-center">
+                <h2 className="mb-3 text-3xl font-bold text-white">
                   {language === "fr" 
-                    ? "Découvrez les meilleures adresses dans chaque ville du Maroc" 
+                    ? <>Découvrez les <span className="text-gold">meilleures adresses</span> dans chaque ville du Maroc</>
                     : language === "ar" 
-                      ? "اكتشف أفضل العناوين في كل مدينة بالمغرب" 
-                      : "Discover the best addresses in every city of Morocco"}
+                      ? <>اكتشف <span className="text-gold">أفضل العناوين</span> في كل مدينة بالمغرب</>
+                      : <>Discover the <span className="text-gold">best addresses</span> in every city of Morocco</>}
                 </h2>
               </div>
               <div className="relative">
