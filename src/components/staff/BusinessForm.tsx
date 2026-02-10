@@ -589,109 +589,27 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Nom - En premier et en gros */}
-        <div className="space-y-3">
-          <Label htmlFor="name" className="text-xl font-semibold">Nom *</Label>
-          <Input
-            id="name"
-            value={formData.name}
-            onChange={(e) => handleChange("name", e.target.value)}
-            required
-            className="!text-4xl font-bold h-20 px-4"
-            style={{ fontSize: '2.25rem', lineHeight: '2.5rem' }}
-          />
-        </div>
-
-        {/* Status, Priority & Featured - Section principale */}
-        <div className="p-4 border rounded-lg bg-muted/30 space-y-4">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-            <div className="space-y-2">
-              <Label>Visibilité</Label>
-              <Select
-                value={formData.is_active ? "online" : "offline"}
-                onValueChange={(value) => handleChange("is_active", value === "online")}
-              >
-                <SelectTrigger className={formData.is_active ? "border-green-500 text-green-700" : "border-red-500 text-red-700"}>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="online">🟢 Online</SelectItem>
-                  <SelectItem value="offline">🔴 Offline</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="wtuce_status">Statut</Label>
-              <Select
-                value={formData.wtuce_status}
-                onValueChange={(value) => handleChange("wtuce_status", value)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="pending">En attente</SelectItem>
-                  <SelectItem value="verified">Vérifié</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="priority_score">Score de priorité</Label>
-              <Input
-                id="priority_score"
-                type="number"
-                value={formData.priority_score}
-                onChange={(e) => handleChange("priority_score", e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="rating">Note /20</Label>
-              <Input
-                id="rating"
-                type="text"
-                inputMode="decimal"
-                value={formData.rating}
-                onChange={(e) => {
-                  const value = e.target.value.replace(",", ".");
-                  if (value === "" || /^\d*\.?\d*$/.test(value)) {
-                    const numVal = parseFloat(value);
-                    if (value === "" || (numVal >= 0 && numVal <= 20)) {
-                      handleChange("rating", value);
-                    }
-                  }
-                }}
-                placeholder="Ex: 14,6 ou 18.5"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Mise en avant</Label>
-              <Select
-                value={formData.is_featured ? "yes" : "no"}
-                onValueChange={(value) => handleChange("is_featured", value === "yes")}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="yes">⭐ Oui</SelectItem>
-                  <SelectItem value="no">Non</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+        {/* Nom + Logo */}
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-4 items-start">
+          <div className="space-y-3">
+            <Label htmlFor="name" className="text-xl font-semibold">Nom *</Label>
+            <Input
+              id="name"
+              value={formData.name}
+              onChange={(e) => handleChange("name", e.target.value)}
+              required
+              className="!text-4xl font-bold h-20 px-4"
+              style={{ fontSize: '2.25rem', lineHeight: '2.5rem' }}
+            />
           </div>
-          <p className="text-xs text-muted-foreground italic">
-            ℹ️ Le <strong>score de priorité</strong> (0-100) détermine l'ordre d'affichage des résultats : plus le score est élevé, plus l'entreprise apparaît haut dans les listes. <strong>Entreprise mise en avant</strong> sert de filet de sécurité national : ces entreprises s'affichent en dernier recours lorsqu'aucun résultat local ne correspond à la recherche de l'utilisateur.
-          </p>
-        </div>
-
-        {/* Logo Upload */}
-        <div className="space-y-2">
-          <Label className="text-base font-semibold">Logo</Label>
-          <LogoUploader
-            logoUrl={formData.logo_url}
-            onChange={(url) => handleChange("logo_url", url)}
-            businessId={business?.id}
-          />
+          <div className="space-y-2">
+            <Label className="text-base font-semibold">Logo</Label>
+            <LogoUploader
+              logoUrl={formData.logo_url}
+              onChange={(url) => handleChange("logo_url", url)}
+              businessId={business?.id}
+            />
+          </div>
         </div>
 
         {/* Basic Info */}
