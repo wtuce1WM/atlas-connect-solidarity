@@ -81,7 +81,7 @@ const TopCityBusinesses = ({ businesses, cityName, gammes = [], onSelectBusiness
           onClick={() => scroll("left")}
           className="absolute -left-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-black p-3 shadow-lg transition-all hover:bg-black/80"
         >
-          <ChevronLeft className="h-6 w-6 text-white" />
+          <ChevronLeft className="h-6 w-6 text-gold" />
         </button>
 
         {/* Right Arrow */}
@@ -89,7 +89,7 @@ const TopCityBusinesses = ({ businesses, cityName, gammes = [], onSelectBusiness
           onClick={() => scroll("right")}
           className="absolute -right-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-black p-3 shadow-lg transition-all hover:bg-black/80"
         >
-          <ChevronRight className="h-6 w-6 text-white" />
+          <ChevronRight className="h-6 w-6 text-gold" />
         </button>
 
         {/* Business Cards - Horizontal Scroll */}
