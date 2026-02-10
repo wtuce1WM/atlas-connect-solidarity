@@ -741,7 +741,30 @@ const BusinessDetail = () => {
             {(business.tripadvisor_review_url || business.restaurant_guru_url || business.google_reviews_url) && (
               <Card className="bg-violet-50 border-violet-200">
                 <CardContent className="p-6">
-                  <h2 className="text-xl font-semibold mb-4">Avis clients</h2>
+                  <h2 className="text-xl font-semibold mb-4">
+                    Avis clients
+                    {(() => {
+                      const ratings: { rating: number; count: number }[] = [];
+                      if (business.google_rating && business.google_review_count) {
+                        ratings.push({ rating: Number(business.google_rating), count: Number(business.google_review_count) });
+                      }
+                      if (business.tripadvisor_rating && business.tripadvisor_review_count) {
+                        ratings.push({ rating: Number(business.tripadvisor_rating), count: Number(business.tripadvisor_review_count) });
+                      }
+                      if (business.restaurant_guru_rating && business.restaurant_guru_review_count) {
+                        ratings.push({ rating: Number(business.restaurant_guru_rating), count: Number(business.restaurant_guru_review_count) });
+                      }
+                      if (ratings.length === 0) return null;
+                      const totalCount = ratings.reduce((sum, r) => sum + r.count, 0);
+                      const weightedAvg = ratings.reduce((sum, r) => sum + (r.rating / 5) * 20 * r.count, 0) / totalCount;
+                      const avg20 = weightedAvg.toFixed(2).replace('.', ',');
+                      return (
+                        <span className="text-gold font-bold italic ml-3" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                          {avg20}/20 <span className="text-base font-normal not-italic text-muted-foreground">sur {totalCount.toLocaleString('fr-FR')} avis</span>
+                        </span>
+                      );
+                    })()}
+                  </h2>
                   <div className="space-y-3">
                     {business.tripadvisor_review_url && (
                       <a
