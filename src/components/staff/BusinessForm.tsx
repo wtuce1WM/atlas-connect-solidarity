@@ -1176,79 +1176,49 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
             <div className="space-y-2">
               <Label htmlFor="facebook_url" className="flex items-center gap-2">
                 <FacebookIcon className="text-[#1877F2]" />
-                Facebook
+                {formData.facebook_url ? <a href={formData.facebook_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">Facebook ↗</a> : "Facebook"}
               </Label>
-              <Input
-                id="facebook_url"
-                value={formData.facebook_url}
-                onChange={(e) => handleChange("facebook_url", e.target.value)}
-                placeholder="https://facebook.com/..."
-              />
+              <Input id="facebook_url" value={formData.facebook_url} onChange={(e) => handleChange("facebook_url", e.target.value)} placeholder="https://facebook.com/..." />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="instagram_url" className="flex items-center gap-2">
                 <InstagramIcon className="text-[#E4405F]" />
-                Instagram
+                {formData.instagram_url ? <a href={formData.instagram_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">Instagram ↗</a> : "Instagram"}
               </Label>
-              <Input
-                id="instagram_url"
-                value={formData.instagram_url}
-                onChange={(e) => handleChange("instagram_url", e.target.value)}
-                placeholder="https://instagram.com/..."
-              />
+              <Input id="instagram_url" value={formData.instagram_url} onChange={(e) => handleChange("instagram_url", e.target.value)} placeholder="https://instagram.com/..." />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="twitter_url" className="flex items-center gap-2">
                 <TwitterIcon className="text-foreground" />
-                X (Twitter)
+                {formData.twitter_url ? <a href={formData.twitter_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">X (Twitter) ↗</a> : "X (Twitter)"}
               </Label>
-              <Input
-                id="twitter_url"
-                value={formData.twitter_url}
-                onChange={(e) => handleChange("twitter_url", e.target.value)}
-                placeholder="https://x.com/..."
-              />
+              <Input id="twitter_url" value={formData.twitter_url} onChange={(e) => handleChange("twitter_url", e.target.value)} placeholder="https://x.com/..." />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="linkedin_url" className="flex items-center gap-2">
                 <LinkedInIcon className="text-[#0A66C2]" />
-                LinkedIn
+                {formData.linkedin_url ? <a href={formData.linkedin_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">LinkedIn ↗</a> : "LinkedIn"}
               </Label>
-              <Input
-                id="linkedin_url"
-                value={formData.linkedin_url}
-                onChange={(e) => handleChange("linkedin_url", e.target.value)}
-                placeholder="https://linkedin.com/company/..."
-              />
+              <Input id="linkedin_url" value={formData.linkedin_url} onChange={(e) => handleChange("linkedin_url", e.target.value)} placeholder="https://linkedin.com/company/..." />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="youtube_url" className="flex items-center gap-2">
                 <YouTubeIcon className="text-[#FF0000]" />
-                YouTube
+                {formData.youtube_url ? <a href={formData.youtube_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">YouTube ↗</a> : "YouTube"}
               </Label>
-              <Input
-                id="youtube_url"
-                value={formData.youtube_url}
-                onChange={(e) => handleChange("youtube_url", e.target.value)}
-                placeholder="https://youtube.com/@..."
-              />
+              <Input id="youtube_url" value={formData.youtube_url} onChange={(e) => handleChange("youtube_url", e.target.value)} placeholder="https://youtube.com/@..." />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="tiktok_url" className="flex items-center gap-2">
                 <TikTokIcon className="text-foreground" />
-                TikTok
+                {formData.tiktok_url ? <a href={formData.tiktok_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">TikTok ↗</a> : "TikTok"}
               </Label>
-              <Input
-                id="tiktok_url"
-                value={formData.tiktok_url}
-                onChange={(e) => handleChange("tiktok_url", e.target.value)}
-                placeholder="https://tiktok.com/@..."
-              />
+              <Input id="tiktok_url" value={formData.tiktok_url} onChange={(e) => handleChange("tiktok_url", e.target.value)} placeholder="https://tiktok.com/@..." />
             </div>
 
             <div className="space-y-2">
@@ -1256,26 +1226,15 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
                 <WhatsAppIcon className="text-[#25D366]" />
                 WhatsApp
               </Label>
-              <Input
-                id="whatsapp"
-                value={formData.whatsapp}
-                onChange={(e) => handleChange("whatsapp", e.target.value)}
-                placeholder="+212 6XX-XXXXXX"
-              />
+              <Input id="whatsapp" value={formData.whatsapp} onChange={(e) => handleChange("whatsapp", e.target.value)} placeholder="+212 6XX-XXXXXX" />
             </div>
-
 
             <div className="space-y-2">
               <Label htmlFor="pinterest_url" className="flex items-center gap-2">
                 <PinterestIcon className="text-[#E60023]" />
-                Pinterest
+                {formData.pinterest_url ? <a href={formData.pinterest_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">Pinterest ↗</a> : "Pinterest"}
               </Label>
-              <Input
-                id="pinterest_url"
-                value={formData.pinterest_url}
-                onChange={(e) => handleChange("pinterest_url", e.target.value)}
-                placeholder="https://pinterest.com/..."
-              />
+              <Input id="pinterest_url" value={formData.pinterest_url} onChange={(e) => handleChange("pinterest_url", e.target.value)} placeholder="https://pinterest.com/..." />
             </div>
 
             <div className="space-y-2">
@@ -1283,25 +1242,15 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
                 <SkypeIcon className="text-[#00AFF0]" />
                 Skype
               </Label>
-              <Input
-                id="skype"
-                value={formData.skype}
-                onChange={(e) => handleChange("skype", e.target.value)}
-                placeholder="identifiant.skype"
-              />
+              <Input id="skype" value={formData.skype} onChange={(e) => handleChange("skype", e.target.value)} placeholder="identifiant.skype" />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="vimeo_url" className="flex items-center gap-2">
                 <VimeoIcon className="text-[#1AB7EA]" />
-                Vimeo
+                {formData.vimeo_url ? <a href={formData.vimeo_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">Vimeo ↗</a> : "Vimeo"}
               </Label>
-              <Input
-                id="vimeo_url"
-                value={formData.vimeo_url}
-                onChange={(e) => handleChange("vimeo_url", e.target.value)}
-                placeholder="https://vimeo.com/..."
-              />
+              <Input id="vimeo_url" value={formData.vimeo_url} onChange={(e) => handleChange("vimeo_url", e.target.value)} placeholder="https://vimeo.com/..." />
             </div>
           </div>
         </div>
