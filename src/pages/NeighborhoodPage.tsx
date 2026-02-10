@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate, useSearchParams, Link } from "react-router-dom";
 import { ArrowLeft, Loader2, MapPin, ChevronLeft, ChevronRight, X, Phone } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
@@ -51,6 +52,8 @@ const NeighborhoodPage = () => {
   const [gammes, setGammes] = useState<Gamme[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedSubcategory, setSelectedSubcategory] = useState<string>("");
+  const [selectedActivities, setSelectedActivities] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
 
@@ -65,10 +68,37 @@ const NeighborhoodPage = () => {
     return Array.from(categories).sort((a, b) => a.localeCompare(b, "fr"));
   }, [businesses]);
 
-  const filteredBusinesses = useMemo(() => {
-    if (!selectedCategory) return businesses;
-    return businesses.filter((b) => b.main_category === selectedCategory);
+  const availableSubcategories = useMemo(() => {
+    const subcategories = new Set<string>();
+    const filtered = selectedCategory
+      ? businesses.filter((b) => b.main_category === selectedCategory)
+      : businesses;
+    filtered.forEach((b) => {
+      b.categories?.forEach((cat) => subcategories.add(cat));
+    });
+    return Array.from(subcategories).sort((a, b) => a.localeCompare(b, "fr"));
   }, [businesses, selectedCategory]);
+
+  const availableActivities = useMemo(() => {
+    const activities = new Set<string>();
+    let filtered = businesses;
+    if (selectedCategory) filtered = filtered.filter((b) => b.main_category === selectedCategory);
+    if (selectedSubcategory) filtered = filtered.filter((b) => b.categories?.includes(selectedSubcategory));
+    filtered.forEach((b) => {
+      b.services?.forEach((s) => activities.add(s));
+    });
+    return Array.from(activities).sort((a, b) => a.localeCompare(b, "fr"));
+  }, [businesses, selectedCategory, selectedSubcategory]);
+
+  const filteredBusinesses = useMemo(() => {
+    let result = businesses;
+    if (selectedCategory) result = result.filter((b) => b.main_category === selectedCategory);
+    if (selectedSubcategory) result = result.filter((b) => b.categories?.includes(selectedSubcategory));
+    if (selectedActivities.length > 0) {
+      result = result.filter((b) => selectedActivities.some((a) => b.services?.includes(a)));
+    }
+    return result;
+  }, [businesses, selectedCategory, selectedSubcategory, selectedActivities]);
 
   const totalPages = Math.ceil(filteredBusinesses.length / ITEMS_PER_PAGE);
   const paginatedBusinesses = useMemo(() => {
@@ -81,7 +111,30 @@ const NeighborhoodPage = () => {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedCategory]);
+  }, [selectedCategory, selectedSubcategory, selectedActivities]);
+
+  const handleCategoryChange = (value: string) => {
+    setSelectedCategory(value === "all" ? "" : value);
+    setSelectedSubcategory("");
+    setSelectedActivities([]);
+  };
+
+  const handleSubcategoryChange = (value: string) => {
+    setSelectedSubcategory(value === "all" ? "" : value);
+    setSelectedActivities([]);
+  };
+
+  const toggleActivity = (activity: string) => {
+    setSelectedActivities((prev) =>
+      prev.includes(activity) ? prev.filter((a) => a !== activity) : [...prev, activity]
+    );
+  };
+
+  const clearAllFilters = () => {
+    setSelectedCategory("");
+    setSelectedSubcategory("");
+    setSelectedActivities([]);
+  };
 
   const goToPage = (page: number) => {
     setCurrentPage(page);
@@ -258,26 +311,80 @@ const NeighborhoodPage = () => {
         </Card>
 
         {/* Filters */}
-        {availableCategories.length > 1 && (
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-foreground mb-1">
-              {language === "fr" ? "Catégorie" : language === "ar" ? "الفئة" : "Category"}
-            </label>
-            <Select value={selectedCategory || "all"} onValueChange={(v) => setSelectedCategory(v === "all" ? "" : v)}>
-              <SelectTrigger className="w-full sm:w-64">
-                <SelectValue placeholder="Toutes les catégories" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">
-                  {language === "fr" ? "Toutes les catégories" : language === "ar" ? "جميع الفئات" : "All categories"}
-                </SelectItem>
-                {availableCategories.map((cat) => (
-                  <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+        <div className="space-y-3 mb-6">
+          <div className="flex flex-wrap gap-3">
+            {/* Main Category Filter */}
+            <div className="flex-1 min-w-[140px]">
+              <label className="text-sm font-medium text-foreground mb-1.5 block">Catégorie</label>
+              <Select value={selectedCategory || "all"} onValueChange={handleCategoryChange}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Toutes" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Toutes les catégories</SelectItem>
+                  {availableCategories.map((category) => (
+                    <SelectItem key={category} value={category}>{category}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Subcategory Filter */}
+            {availableSubcategories.length > 0 && (
+              <div className="flex-1 min-w-[140px]">
+                <label className="text-sm font-medium text-foreground mb-1.5 block">Sous-catégorie</label>
+                <Select value={selectedSubcategory || "all"} onValueChange={handleSubcategoryChange}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Toutes" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Toutes</SelectItem>
+                    {availableSubcategories.map((sub) => (
+                      <SelectItem key={sub} value={sub}>{sub}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
           </div>
-        )}
+
+          {/* Clear All Button */}
+          {(selectedCategory || selectedSubcategory || selectedActivities.length > 0) && (
+            <button
+              onClick={clearAllFilters}
+              className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1"
+            >
+              <X className="h-4 w-4" />
+              Effacer les filtres
+            </button>
+          )}
+
+          {/* Activity Filters */}
+          {selectedCategory && availableActivities.length > 0 && (
+            <div>
+              <h3 className="text-sm font-medium text-foreground mb-2">Activités</h3>
+              <div className="flex flex-wrap gap-2">
+                {availableActivities.slice(0, 8).map((activity) => (
+                  <label
+                    key={activity}
+                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border cursor-pointer transition-colors text-xs ${
+                      selectedActivities.includes(activity)
+                        ? "bg-primary/10 border-primary text-primary"
+                        : "bg-background border-border text-muted-foreground hover:border-primary/50"
+                    }`}
+                  >
+                    <Checkbox
+                      checked={selectedActivities.includes(activity)}
+                      onCheckedChange={() => toggleActivity(activity)}
+                      className="h-3 w-3"
+                    />
+                    {activity}
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* Results count */}
         {filteredBusinesses.length > 0 && (
