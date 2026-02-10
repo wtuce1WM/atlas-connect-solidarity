@@ -759,8 +759,8 @@ const BusinessDetail = () => {
                       const weightedAvg = ratings.reduce((sum, r) => sum + (r.rating / 5) * 20 * r.count, 0) / totalCount;
                       const avg20 = weightedAvg.toFixed(2).replace('.', ',');
                       return (
-                        <span className="text-gold font-bold italic ml-3" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
-                          {avg20}/20 <span className="text-base font-normal not-italic text-muted-foreground">sur {totalCount.toLocaleString('fr-FR')} avis</span>
+                        <span className="text-gold font-bold ml-3">
+                          {avg20}/20 <span className="text-base font-normal text-muted-foreground">sur {totalCount.toLocaleString('fr-FR')} avis</span>
                         </span>
                       );
                     })()}
