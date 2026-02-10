@@ -214,7 +214,7 @@ const BusinessDetail = () => {
         {/* Back link */}
         <button
           onClick={() => navigate(-1)}
-          className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-8 transition-colors"
+          className={`inline-flex items-center gap-2 mb-8 transition-colors ${isVerified ? "text-white/70 hover:text-white" : "text-muted-foreground hover:text-foreground"}`}
         >
           <ArrowLeft className="h-4 w-4" />
           Retour
