@@ -848,7 +848,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
               onChange={(e) => {
                 const val = e.target.value;
                 handleChange("google_maps_url", val);
-                if (val && !formData.google_reviews_url) {
+                if (val) {
                   handleChange("google_reviews_url", val);
                 }
               }}
