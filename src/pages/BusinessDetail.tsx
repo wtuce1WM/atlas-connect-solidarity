@@ -257,7 +257,7 @@ const BusinessDetail = () => {
                 <h1 className={`text-2xl sm:text-4xl font-bold ${isVerified ? "text-white" : "text-foreground"}`}>{business.name}</h1>
                 {gamme && (
                   <Badge 
-                    className="text-xs text-black border border-black whitespace-nowrap"
+                    className="text-xs text-black border border-black whitespace-nowrap self-center"
                     style={{ backgroundColor: gamme.color_hex || '#666666' }}
                   >
                     {gamme.name_fr}
