@@ -218,6 +218,7 @@ export type Database = {
           rating: number | null
           region: string
           reserve_now_url: string | null
+          restaurant_guru_url: string | null
           search_vector: unknown
           services: string[] | null
           show_opening_hours: boolean | null
@@ -287,6 +288,7 @@ export type Database = {
           rating?: number | null
           region: string
           reserve_now_url?: string | null
+          restaurant_guru_url?: string | null
           search_vector?: unknown
           services?: string[] | null
           show_opening_hours?: boolean | null
@@ -356,6 +358,7 @@ export type Database = {
           rating?: number | null
           region?: string
           reserve_now_url?: string | null
+          restaurant_guru_url?: string | null
           search_vector?: unknown
           services?: string[] | null
           show_opening_hours?: boolean | null
