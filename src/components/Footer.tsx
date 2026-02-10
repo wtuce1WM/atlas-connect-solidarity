@@ -81,15 +81,15 @@ const Footer = ({ variant = "default" }: FooterProps) => {
             <h4 className="mb-4 font-semibold text-gold">{t("footer.contact")}</h4>
             <ul className={`space-y-3 ${textSecondary}`}>
               <li className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-gold" />
+                <MapPin className={`h-4 w-4 ${isVerified ? 'text-black' : 'text-gold'}`} />
                 {t("footer.location")}
               </li>
               <li className="flex items-center gap-2">
-                <Phone className="h-4 w-4 text-gold" />
+                <Phone className={`h-4 w-4 ${isVerified ? 'text-black' : 'text-gold'}`} />
                 +212 5XX-XXXXXX
               </li>
               <li className="flex items-center gap-2">
-                <Mail className="h-4 w-4 text-gold" />
+                <Mail className={`h-4 w-4 ${isVerified ? 'text-black' : 'text-gold'}`} />
                 info@wtuce.org
               </li>
             </ul>
