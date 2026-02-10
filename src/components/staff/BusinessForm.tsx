@@ -845,7 +845,13 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
             <Input
               id="google_maps_url_top"
               value={formData.google_maps_url}
-              onChange={(e) => handleChange("google_maps_url", e.target.value)}
+              onChange={(e) => {
+                const val = e.target.value;
+                handleChange("google_maps_url", val);
+                if (val && !formData.google_reviews_url) {
+                  handleChange("google_reviews_url", val);
+                }
+              }}
               placeholder="https://maps.google.com/..."
             />
           </div>
