@@ -1253,8 +1253,17 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
                 variant="outline"
                 size="sm"
                 onClick={async () => {
-                  toast({ title: "Récupération des avis en cours..." });
+                  toast({ title: "Sauvegarde des URLs puis récupération des avis..." });
                   try {
+                    // Save review URLs to DB first so the edge function uses current values
+                    const { error: saveError } = await supabase.from('businesses').update({
+                      tripadvisor_review_url: formData.tripadvisor_review_url || null,
+                      restaurant_guru_url: formData.restaurant_guru_url || null,
+                      google_reviews_url: formData.google_reviews_url || null,
+                      google_maps_url: formData.google_maps_url || null,
+                    }).eq('id', business.id);
+                    if (saveError) throw saveError;
+
                     const { data, error } = await supabase.functions.invoke('fetch-reviews', {
                       body: { business_id: business.id },
                     });
