@@ -638,7 +638,15 @@ const BusinessDetail = () => {
                   {business.neighborhood && (
                     <div className="flex items-start gap-3 text-foreground">
                       <MapPin className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
-                      <span>Autres lieux intéressants de : <strong>{business.neighborhood}</strong></span>
+                      <span>
+                        Autres lieux intéressants de :{" "}
+                        <Link
+                          to={`/neighborhood/${encodeURIComponent(business.neighborhood)}`}
+                          className="font-bold text-primary hover:underline"
+                        >
+                          {business.neighborhood}
+                        </Link>
+                      </span>
                     </div>
                   )}
                   {business.phone && (
