@@ -77,6 +77,7 @@ interface Business {
   ice: string | null;
   kp_regroupement: string | null;
   vacation_dates: VacationDate[] | null;
+  account_type: string | null;
 }
 
 interface VacationDate {
@@ -204,6 +205,7 @@ const BusinessDetail = () => {
   }
 
   const isVerified = business.wtuce_status === "verified";
+  const isInstitution = business.account_type === "Institution";
   return (
     <div className={`min-h-screen ${isVerified ? "bg-gradient-to-b from-black from-50% to-gold" : "bg-background"}`}>
       <Header />
@@ -275,7 +277,7 @@ const BusinessDetail = () => {
               </div>
               
               {/* Rating and WTUCE Logo - below title on mobile, inline on desktop */}
-              {isVerified && (
+              {isVerified && !isInstitution && (
                 <div className="flex items-center justify-center sm:justify-start gap-3 mt-3 sm:hidden">
                   {business.rating !== null && business.rating !== undefined && (
                     <div 
@@ -295,7 +297,7 @@ const BusinessDetail = () => {
             </div>
             
             {/* Rating and WTUCE Logo for verified businesses - desktop only */}
-            {isVerified && (
+            {isVerified && !isInstitution && (
               <div className="hidden sm:flex items-center gap-3 flex-shrink-0">
                 {business.rating !== null && business.rating !== undefined && (
                   <div 
