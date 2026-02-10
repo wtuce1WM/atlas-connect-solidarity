@@ -3,6 +3,8 @@ import { useParams, Link, Navigate, useNavigate } from "react-router-dom";
 import { ArrowLeft, MapPin, Phone, Mail, Globe, BadgeCheck, Loader2, ChevronLeft, ChevronRight, FileText, Download, ShoppingBag, Facebook, Instagram, Linkedin, Youtube, MessageCircle, Clock, AlertTriangle, ChevronDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { format, parseISO } from "date-fns";
+import { fr } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -74,6 +76,12 @@ interface Business {
   is_open_24h: boolean | null;
   ice: string | null;
   kp_regroupement: string | null;
+  vacation_dates: VacationDate[] | null;
+}
+
+interface VacationDate {
+  start_date: string;
+  end_date: string;
 }
 
 interface BusinessLabel {
@@ -144,7 +152,8 @@ const BusinessDetail = () => {
       } else if (data) {
         setBusiness({
           ...data,
-          opening_hours: data.opening_hours as OpeningHours | null
+          opening_hours: data.opening_hours as OpeningHours | null,
+          vacation_dates: (data.vacation_dates as unknown as VacationDate[]) || null,
         });
         
         // Fetch business labels
@@ -878,6 +887,25 @@ const BusinessDetail = () => {
                 </Card>
               );
             })()}
+
+            {/* Vacation Dates */}
+            {business.vacation_dates && business.vacation_dates.length > 0 && (
+              <Card>
+                <CardContent className="p-6">
+                  <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                    <AlertTriangle className="h-5 w-5 text-amber-500" />
+                    Vacances / Fermetures exceptionnelles
+                  </h2>
+                  <div className="space-y-2">
+                    {business.vacation_dates.map((vd, idx) => (
+                      <div key={idx} className="text-sm bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-foreground">
+                        Du {format(parseISO(vd.start_date), "d MMMM yyyy", { locale: fr })} au {format(parseISO(vd.end_date), "d MMMM yyyy", { locale: fr })}
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       </main>
