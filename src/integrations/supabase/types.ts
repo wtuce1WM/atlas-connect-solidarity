@@ -181,6 +181,8 @@ export type Database = {
           facebook_url: string | null
           gamme_id: string | null
           google_maps_url: string | null
+          google_rating: number | null
+          google_review_count: number | null
           google_reviews_url: string | null
           hook_ar: string | null
           hook_en: string | null
@@ -219,12 +221,16 @@ export type Database = {
           rating: number | null
           region: string
           reserve_now_url: string | null
+          restaurant_guru_rating: number | null
+          restaurant_guru_review_count: number | null
           restaurant_guru_url: string | null
           search_vector: unknown
           services: string[] | null
           show_opening_hours: boolean | null
           skype: string | null
           tiktok_url: string | null
+          tripadvisor_rating: number | null
+          tripadvisor_review_count: number | null
           tripadvisor_review_url: string | null
           tripadvisor_url: string | null
           trivago_url: string | null
@@ -252,6 +258,8 @@ export type Database = {
           facebook_url?: string | null
           gamme_id?: string | null
           google_maps_url?: string | null
+          google_rating?: number | null
+          google_review_count?: number | null
           google_reviews_url?: string | null
           hook_ar?: string | null
           hook_en?: string | null
@@ -290,12 +298,16 @@ export type Database = {
           rating?: number | null
           region: string
           reserve_now_url?: string | null
+          restaurant_guru_rating?: number | null
+          restaurant_guru_review_count?: number | null
           restaurant_guru_url?: string | null
           search_vector?: unknown
           services?: string[] | null
           show_opening_hours?: boolean | null
           skype?: string | null
           tiktok_url?: string | null
+          tripadvisor_rating?: number | null
+          tripadvisor_review_count?: number | null
           tripadvisor_review_url?: string | null
           tripadvisor_url?: string | null
           trivago_url?: string | null
@@ -323,6 +335,8 @@ export type Database = {
           facebook_url?: string | null
           gamme_id?: string | null
           google_maps_url?: string | null
+          google_rating?: number | null
+          google_review_count?: number | null
           google_reviews_url?: string | null
           hook_ar?: string | null
           hook_en?: string | null
@@ -361,12 +375,16 @@ export type Database = {
           rating?: number | null
           region?: string
           reserve_now_url?: string | null
+          restaurant_guru_rating?: number | null
+          restaurant_guru_review_count?: number | null
           restaurant_guru_url?: string | null
           search_vector?: unknown
           services?: string[] | null
           show_opening_hours?: boolean | null
           skype?: string | null
           tiktok_url?: string | null
+          tripadvisor_rating?: number | null
+          tripadvisor_review_count?: number | null
           tripadvisor_review_url?: string | null
           tripadvisor_url?: string | null
           trivago_url?: string | null
