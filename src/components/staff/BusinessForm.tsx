@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,6 +36,16 @@ import {
   SkypeIcon,
   VimeoIcon,
 } from "./SocialMediaIcons";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 type Business = Tables<"businesses">;
 
@@ -242,6 +252,8 @@ const SERVICES: Record<string, string[]> = {
 
 const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
   const [loading, setLoading] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
+  const [showLeaveDialog, setShowLeaveDialog] = useState(false);
   const { toast } = useToast();
   
   // Dynamic subcategories and services from database
@@ -347,6 +359,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
 
   const handleChange = (field: string, value: string | boolean | string[]) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    setIsDirty(true);
   };
 
   const handleCategoryToggle = (category: string) => {
@@ -565,7 +578,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
     <div className="bg-background rounded-lg border p-6">
       <div className="flex items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm" onClick={onCancel}>
+          <Button variant="ghost" size="sm" onClick={() => isDirty ? setShowLeaveDialog(true) : onCancel()}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             Retour
           </Button>
@@ -1475,6 +1488,23 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
           </Button>
         </div>
       </form>
+
+      <AlertDialog open={showLeaveDialog} onOpenChange={setShowLeaveDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Modifications non sauvegardées</AlertDialogTitle>
+            <AlertDialogDescription>
+              Vous avez des modifications non sauvegardées. Êtes-vous sûr de vouloir quitter sans enregistrer ?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Rester</AlertDialogCancel>
+            <AlertDialogAction onClick={onCancel} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Quitter sans sauvegarder
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
