@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from "react";
+import restaurantGuruLogo from "@/assets/restaurant-guru-logo.webp";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -1260,7 +1261,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
           </div>
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <span>🍽️</span>
+              <img src={restaurantGuruLogo} alt="Restaurant Guru" className="w-5 h-5 object-contain" />
               {formData.restaurant_guru_url ? <a href={formData.restaurant_guru_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 text-sm font-medium">Restaurant Guru ↗</a> : <span className="text-sm font-medium">Restaurant Guru</span>}
               <Input id="restaurant_guru_url" value={formData.restaurant_guru_url} onChange={(e) => handleChange("restaurant_guru_url", e.target.value)} placeholder="https://fr.restaurantguru.com/..." className="flex-1" />
             </div>
