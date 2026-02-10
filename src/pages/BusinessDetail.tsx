@@ -79,6 +79,13 @@ interface Business {
   vacation_dates: VacationDate[] | null;
   account_type: string | null;
   neighborhood: string | null;
+  gamme_id: string | null;
+}
+
+interface Gamme {
+  id: string;
+  name_fr: string;
+  color_hex: string | null;
 }
 
 interface VacationDate {
@@ -126,6 +133,7 @@ const BusinessDetail = () => {
   const { id } = useParams<{ id: string }>();
   const [business, setBusiness] = useState<Business | null>(null);
   const [businessLabels, setBusinessLabels] = useState<BusinessLabel[]>([]);
+  const [gamme, setGamme] = useState<Gamme | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
@@ -179,6 +187,16 @@ const BusinessDetail = () => {
           }));
           
           setBusinessLabels(labelsWithDetails as BusinessLabel[]);
+        }
+
+        // Fetch gamme if business has gamme_id
+        if (data.gamme_id) {
+          const { data: gammeData } = await supabase
+            .from("gammes")
+            .select("id, name_fr, color_hex")
+            .eq("id", data.gamme_id)
+            .maybeSingle();
+          if (gammeData) setGamme(gammeData as Gamme);
         }
       } else {
         setBusiness(null);
@@ -237,6 +255,14 @@ const BusinessDetail = () => {
             <div className="flex-1 min-w-0">
               <div className="flex flex-col sm:flex-row items-center gap-3 flex-wrap justify-center sm:justify-start">
                 <h1 className={`text-2xl sm:text-4xl font-bold ${isVerified ? "text-white" : "text-foreground"}`}>{business.name}</h1>
+                {gamme && (
+                  <Badge 
+                    className="text-xs text-black border border-black whitespace-nowrap"
+                    style={{ backgroundColor: gamme.color_hex || '#666666' }}
+                  >
+                    {gamme.name_fr}
+                  </Badge>
+                )}
                 {business.wtuce_status === "verified" && !isInstitution && (
                   <Badge className="bg-primary/10 text-primary border-primary/20 flex items-center gap-1.5 px-3 py-1.5">
                     <BadgeCheck className="h-4 w-4" />
