@@ -1189,6 +1189,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
               <Input id="vimeo_url" value={formData.vimeo_url} onChange={(e) => handleChange("vimeo_url", e.target.value)} placeholder="https://vimeo.com/..." />
             </div>
           </div>
+          <Button type="button" variant="outline" size="sm" className="text-xs text-muted-foreground hover:text-destructive" onClick={() => { handleChange("facebook_url", ""); handleChange("instagram_url", ""); handleChange("twitter_url", ""); handleChange("linkedin_url", ""); handleChange("youtube_url", ""); handleChange("tiktok_url", ""); handleChange("pinterest_url", ""); handleChange("vimeo_url", ""); toast({ title: "Réseaux sociaux effacés" }); }}>🗑️ Effacer tous les réseaux sociaux</Button>
         </div>
 
         {/* Plateformes de réservation */}
