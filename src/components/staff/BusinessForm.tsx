@@ -1031,6 +1031,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
           <RichTextEditor
             content={formData.description}
             onChange={(html) => handleChange("description", html)}
+            maxHeight="300px"
           />
         </div>
 
