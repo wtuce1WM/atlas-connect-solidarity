@@ -985,9 +985,17 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
               placeholder="https://"
             />
             {formData.website && (
-              <button type="button" className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors mt-1" title="Copier l'URL du site web vers Réserver maintenant" onClick={() => { handleChange("reserve_now_url", formData.website); toast({ title: "URL copiée vers \"Réserver maintenant\"" }); }}>
-                <ArrowDown className="h-3 w-3" />
-                <span>Copier vers Réserver maintenant</span>
+              <button
+                type="button"
+                className="flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 rounded px-2 py-1 transition-colors mt-1"
+                title="Copier l'URL du site web vers Réserver maintenant"
+                onClick={() => {
+                  handleChange("reserve_now_url", formData.website);
+                  toast({ title: "URL copiée vers \"Réserver maintenant\"" });
+                }}
+              >
+                <ArrowDown className="h-4 w-4" />
+                <span>↓ Copier vers Réserver maintenant</span>
               </button>
             )}
           </div>
