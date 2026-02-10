@@ -347,7 +347,7 @@ const HeroSection = () => {
             </div>
 
             {/* Categories Section */}
-            <div className="rounded-xl bg-black/30 backdrop-blur-sm p-4">
+            <div className="rounded-xl p-4">
             <div className="mb-10 text-center">
                 <h2 className="mb-3 text-3xl font-bold text-white">
                   {language === "fr" 
