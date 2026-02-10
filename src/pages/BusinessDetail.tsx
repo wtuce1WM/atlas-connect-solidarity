@@ -78,6 +78,7 @@ interface Business {
   kp_regroupement: string | null;
   vacation_dates: VacationDate[] | null;
   account_type: string | null;
+  neighborhood: string | null;
 }
 
 interface VacationDate {
@@ -317,7 +318,7 @@ const BusinessDetail = () => {
           </div>
           <div className={`flex items-center justify-center sm:justify-start gap-2 mt-3 ${isVerified ? "text-white/70" : "text-muted-foreground"}`}>
             <MapPin className="h-5 w-5" />
-            <span>{business.address || business.city}, {business.region}</span>
+            <span>{business.address || business.city}{business.neighborhood ? `, ${business.neighborhood}` : ""}, {business.region}</span>
           </div>
           {/* Phone & WhatsApp quick links */}
           {(business.phone || business.whatsapp) && (
