@@ -1246,7 +1246,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
         {/* Avis clients */}
         <div className="space-y-4 p-4 bg-violet-50 border border-violet-200 rounded-lg">
           <div className="flex items-center justify-between">
-            <Label className="text-xl font-semibold">Avis clients</Label>
+            <Label className="text-xl font-semibold">Avis clients / {formData.name || 'Nom Entreprise'}</Label>
             {business?.id && (
               <Button
                 type="button"
