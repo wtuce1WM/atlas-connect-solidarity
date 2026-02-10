@@ -544,7 +544,7 @@ const BusinessDetail = () => {
                     <summary className="flex items-center justify-between cursor-pointer list-none">
                       <h2 className="text-lg font-semibold flex items-center gap-2">
                         <FileText className="h-5 w-5" />
-                        PDF
+                        Documents annexes
                       </h2>
                       <ChevronDown className="h-5 w-5 text-muted-foreground transition-transform group-open:rotate-180" />
                     </summary>
@@ -554,7 +554,7 @@ const BusinessDetail = () => {
                         <iframe
                           src={`${business.pdf_url}#toolbar=0&navpanes=0`}
                           className="w-full h-full"
-                          title="PDF"
+                          title="Documents annexes"
                         />
                       </div>
                       {/* Download Button */}
@@ -577,7 +577,7 @@ const BusinessDetail = () => {
                 <CardContent className="p-4">
                   <div className="flex items-center gap-2 text-amber-600">
                     <AlertTriangle className="h-4 w-4" />
-                    <span className="text-sm">PDF indisponible</span>
+                    <span className="text-sm">Documents annexes indisponibles</span>
                   </div>
                 </CardContent>
               </Card>
