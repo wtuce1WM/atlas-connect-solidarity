@@ -24,7 +24,7 @@ function extractCoordsFromUrl(url: string): { lat: number; lng: number } | null 
   return null;
 }
 
-// Google Places API
+// Google Places API (New)
 async function fetchGoogleReviews(businessName: string, city: string, googleMapsUrl: string | null): Promise<{ rating: number | null; count: number | null }> {
   const apiKey = Deno.env.get('GOOGLE_MAPS_API_KEY');
   if (!apiKey) {
@@ -33,73 +33,38 @@ async function fetchGoogleReviews(businessName: string, city: string, googleMaps
   }
 
   try {
-    let placeId: string | null = null;
+    // Use Text Search (New) API directly — returns rating in one call
+    const simplifiedName = businessName.replace(/\s+by\s+.*/i, '').trim();
+    const queries = [
+      `${businessName} ${city}`,
+      `${simplifiedName} ${city}`,
+    ];
 
-    // 1. Try place_id from URL
-    if (googleMapsUrl) {
-      const placeIdMatch = googleMapsUrl.match(/place_id[=:]([A-Za-z0-9_-]+)/);
-      if (placeIdMatch) {
-        placeId = placeIdMatch[1];
+    for (const q of queries) {
+      console.log(`Google Text Search (New): "${q}"`);
+      const res = await fetch('https://places.googleapis.com/v1/places:searchText', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Goog-Api-Key': apiKey,
+          'X-Goog-FieldMask': 'places.rating,places.userRatingCount,places.displayName',
+        },
+        body: JSON.stringify({ textQuery: q }),
+      });
+      const data = await res.json();
+      console.log(`Google response:`, JSON.stringify(data).substring(0, 500));
+
+      if (data.places && data.places.length > 0) {
+        const place = data.places[0];
+        console.log(`Found: "${place.displayName?.text}" - rating=${place.rating}, count=${place.userRatingCount}`);
+        return {
+          rating: place.rating ?? null,
+          count: place.userRatingCount ?? null,
+        };
       }
     }
 
-    // 2. Try nearby search using coordinates from URL
-    if (!placeId && googleMapsUrl) {
-      const coords = extractCoordsFromUrl(googleMapsUrl);
-      if (coords) {
-        console.log(`Trying nearby search at ${coords.lat},${coords.lng} for "${businessName}"`);
-        const nearbyRes = await fetch(
-          `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${coords.lat},${coords.lng}&radius=100&keyword=${encodeURIComponent(businessName)}&key=${apiKey}`
-        );
-        const nearbyData = await nearbyRes.json();
-        if (nearbyData.results && nearbyData.results.length > 0) {
-          placeId = nearbyData.results[0].place_id;
-          console.log(`Found via nearby search: ${placeId}`);
-        }
-      }
-    }
-
-    // 3. Fallback: text search with name + city
-    if (!placeId) {
-      // Try with simplified name (remove "By ..." parts)
-      const simplifiedName = businessName.replace(/\s+by\s+.*/i, '').trim();
-      const queries = [
-        `${businessName} ${city}`,
-        `${simplifiedName} ${city}`,
-      ];
-
-      for (const q of queries) {
-        console.log(`Trying text search: "${q}"`);
-        const findRes = await fetch(
-          `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${encodeURIComponent(q)}&inputtype=textquery&fields=place_id&key=${apiKey}`
-        );
-        const findData = await findRes.json();
-        if (findData.candidates && findData.candidates.length > 0) {
-          placeId = findData.candidates[0].place_id;
-          console.log(`Found via text search: ${placeId}`);
-          break;
-        }
-      }
-    }
-
-    if (!placeId) {
-      console.log(`No Google Place found for: ${businessName} ${city}`);
-      return { rating: null, count: null };
-    }
-
-    // Get place details
-    const detailsRes = await fetch(
-      `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=rating,user_ratings_total&key=${apiKey}`
-    );
-    const detailsData = await detailsRes.json();
-
-    if (detailsData.result) {
-      console.log(`Google result: rating=${detailsData.result.rating}, count=${detailsData.result.user_ratings_total}`);
-      return {
-        rating: detailsData.result.rating ?? null,
-        count: detailsData.result.user_ratings_total ?? null,
-      };
-    }
+    console.log(`No Google Place found for: ${businessName} ${city}`);
   } catch (e) {
     console.error('Google Places API error:', e);
   }
