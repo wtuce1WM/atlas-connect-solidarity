@@ -6,9 +6,10 @@ import BusinessCard, { BusinessCardData, Gamme } from "./BusinessCard";
 interface RelatedEstablishmentsProps {
   currentBusinessId: string;
   kpRegroupement: string;
+  isVerified?: boolean;
 }
 
-const RelatedEstablishments = ({ currentBusinessId, kpRegroupement }: RelatedEstablishmentsProps) => {
+const RelatedEstablishments = ({ currentBusinessId, kpRegroupement, isVerified = false }: RelatedEstablishmentsProps) => {
   const [relatedBusinesses, setRelatedBusinesses] = useState<BusinessCardData[]>([]);
   const [gammes, setGammes] = useState<Gamme[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -64,10 +65,10 @@ const RelatedEstablishments = ({ currentBusinessId, kpRegroupement }: RelatedEst
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
-        <Building2 className="h-5 w-5 text-primary" />
-        <h2 className="text-xl font-semibold">Autres établissements</h2>
+        <Building2 className={`h-5 w-5 ${isVerified ? 'text-gold' : 'text-primary'}`} />
+        <h2 className={`text-xl font-semibold ${isVerified ? 'text-white' : ''}`}>Autres établissements</h2>
       </div>
-      <p className="text-sm text-muted-foreground">
+      <p className={`text-sm ${isVerified ? 'text-black' : 'text-muted-foreground'}`}>
         Ces établissements font partie de la même entreprise
       </p>
 

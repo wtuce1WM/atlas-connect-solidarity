@@ -608,6 +608,7 @@ const BusinessDetail = () => {
               <RelatedEstablishments
                 currentBusinessId={business.id}
                 kpRegroupement={business.kp_regroupement}
+                isVerified={isVerified}
               />
             )}
           </div>
