@@ -255,6 +255,9 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
   const [loading, setLoading] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [showLeaveDialog, setShowLeaveDialog] = useState(false);
+  const [showClearSocial, setShowClearSocial] = useState(false);
+  const [showClearBooking, setShowClearBooking] = useState(false);
+  const [showClearReviews, setShowClearReviews] = useState(false);
   const { toast } = useToast();
   
   // Dynamic subcategories and services from database
@@ -1189,7 +1192,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
               <Input id="vimeo_url" value={formData.vimeo_url} onChange={(e) => handleChange("vimeo_url", e.target.value)} placeholder="https://vimeo.com/..." />
             </div>
           </div>
-          <Button type="button" variant="outline" size="sm" className="text-xs text-muted-foreground hover:text-destructive" onClick={() => { handleChange("facebook_url", ""); handleChange("instagram_url", ""); handleChange("twitter_url", ""); handleChange("linkedin_url", ""); handleChange("youtube_url", ""); handleChange("tiktok_url", ""); handleChange("pinterest_url", ""); handleChange("vimeo_url", ""); toast({ title: "Réseaux sociaux effacés" }); }}>🗑️ Effacer tous les réseaux sociaux</Button>
+          <Button type="button" variant="outline" size="sm" className="text-xs text-muted-foreground hover:text-destructive" onClick={() => setShowClearSocial(true)}>🗑️ Effacer tous les réseaux sociaux</Button>
         </div>
 
         {/* Plateformes de réservation */}
@@ -1243,7 +1246,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
               <Input id="trivago_url" value={formData.trivago_url} onChange={(e) => handleChange("trivago_url", e.target.value)} placeholder="https://trivago.com/..." className="flex-1" />
             </div>
           </div>
-          <Button type="button" variant="outline" size="sm" className="text-xs text-muted-foreground hover:text-destructive" onClick={() => { handleChange("reserve_now_url", ""); handleChange("booking_url", ""); handleChange("tripadvisor_url", ""); handleChange("airbnb_url", ""); handleChange("hotels_com_url", ""); handleChange("trivago_url", ""); toast({ title: "Plateformes de réservation effacées" }); }}>🗑️ Effacer toutes les plateformes</Button>
+          <Button type="button" variant="outline" size="sm" className="text-xs text-muted-foreground hover:text-destructive" onClick={() => setShowClearBooking(true)}>🗑️ Effacer toutes les plateformes</Button>
         </div>
 
         {/* Avis clients */}
@@ -1334,7 +1337,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
             <span className="text-xs text-muted-foreground">avis</span>
             <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" title="Effacer Google Avis" onClick={() => { handleChange("google_reviews_url", ""); handleChange("google_rating" as any, ""); handleChange("google_review_count" as any, ""); }}>🗑️</Button>
           </div>
-          <Button type="button" variant="outline" size="sm" className="text-xs text-muted-foreground hover:text-destructive" onClick={() => { handleChange("tripadvisor_review_url", ""); handleChange("tripadvisor_rating" as any, ""); handleChange("tripadvisor_review_count" as any, ""); handleChange("restaurant_guru_url", ""); handleChange("restaurant_guru_rating" as any, ""); handleChange("restaurant_guru_review_count" as any, ""); handleChange("google_reviews_url", ""); handleChange("google_rating" as any, ""); handleChange("google_review_count" as any, ""); toast({ title: "Avis clients effacés" }); }}>🗑️ Effacer tous les avis</Button>
+          <Button type="button" variant="outline" size="sm" className="text-xs text-muted-foreground hover:text-destructive" onClick={() => setShowClearReviews(true)}>🗑️ Effacer tous les avis</Button>
         </div>
 
         {/* Taxonomie */}
@@ -1589,6 +1592,45 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
             <AlertDialogAction onClick={onCancel} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
               Quitter sans sauvegarder
             </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={showClearSocial} onOpenChange={setShowClearSocial}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Effacer les réseaux sociaux ?</AlertDialogTitle>
+            <AlertDialogDescription>Tous les liens de réseaux sociaux seront supprimés.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Non</AlertDialogCancel>
+            <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={() => { handleChange("facebook_url", ""); handleChange("instagram_url", ""); handleChange("twitter_url", ""); handleChange("linkedin_url", ""); handleChange("youtube_url", ""); handleChange("tiktok_url", ""); handleChange("pinterest_url", ""); handleChange("vimeo_url", ""); toast({ title: "Réseaux sociaux effacés" }); }}>Oui, effacer</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={showClearBooking} onOpenChange={setShowClearBooking}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Effacer les plateformes de réservation ?</AlertDialogTitle>
+            <AlertDialogDescription>Tous les liens de réservation seront supprimés.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Non</AlertDialogCancel>
+            <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={() => { handleChange("reserve_now_url", ""); handleChange("booking_url", ""); handleChange("tripadvisor_url", ""); handleChange("airbnb_url", ""); handleChange("hotels_com_url", ""); handleChange("trivago_url", ""); toast({ title: "Plateformes de réservation effacées" }); }}>Oui, effacer</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={showClearReviews} onOpenChange={setShowClearReviews}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Effacer tous les avis ?</AlertDialogTitle>
+            <AlertDialogDescription>Toutes les URLs, notes et nombres d'avis seront supprimés.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Non</AlertDialogCancel>
+            <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={() => { handleChange("tripadvisor_review_url", ""); handleChange("tripadvisor_rating" as any, ""); handleChange("tripadvisor_review_count" as any, ""); handleChange("restaurant_guru_url", ""); handleChange("restaurant_guru_rating" as any, ""); handleChange("restaurant_guru_review_count" as any, ""); handleChange("google_reviews_url", ""); handleChange("google_rating" as any, ""); handleChange("google_review_count" as any, ""); toast({ title: "Avis clients effacés" }); }}>Oui, effacer</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
