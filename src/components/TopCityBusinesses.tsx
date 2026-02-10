@@ -67,10 +67,10 @@ const TopCityBusinesses = ({ businesses, cityName, gammes = [], onSelectBusiness
       <div className="mb-6 text-center">
         <h2 className="mb-2 text-2xl font-bold text-black">
           {language === "fr"
-            ? <>Découvrez notre sélection des <span className="text-white">adresses incontournables</span></>
+            ? <>Découvrez notre sélection des <span className="text-gold">adresses incontournables</span></>
             : language === "ar"
-              ? <>اكتشف مجموعتنا من <span className="text-white">العناوين التي لا غنى عنها</span></>
-              : <>Discover our selection of <span className="text-white">must-visit addresses</span></>}
+              ? <>اكتشف مجموعتنا من <span className="text-gold">العناوين التي لا غنى عنها</span></>
+              : <>Discover our selection of <span className="text-gold">must-visit addresses</span></>}
         </h2>
       </div>
 
