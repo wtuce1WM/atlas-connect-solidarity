@@ -675,6 +675,9 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
               <Label htmlFor="is_featured">Entreprise mise en avant</Label>
             </div>
           </div>
+          <p className="text-xs text-muted-foreground italic">
+            ℹ️ Le <strong>score de priorité</strong> (0-100) détermine l'ordre d'affichage des résultats : plus le score est élevé, plus l'entreprise apparaît haut dans les listes. <strong>Entreprise mise en avant</strong> sert de filet de sécurité national : ces entreprises s'affichent en dernier recours lorsqu'aucun résultat local ne correspond à la recherche de l'utilisateur.
+          </p>
         </div>
 
         {/* Logo Upload */}
