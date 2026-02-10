@@ -395,7 +395,7 @@ const BusinessDetail = () => {
               const hook = language === 'ar' ? (business.hook_ar || business.hook_fr) : language === 'en' ? (business.hook_en || business.hook_fr) : business.hook_fr;
               if (!hook) return null;
               return (
-                <p className={`text-2xl md:text-3xl font-semibold italic leading-snug text-center ${isVerified ? 'text-white' : 'text-foreground/80'}`} style={{ fontFamily: "'Playfair Display', serif" }}>
+                <p className={`text-2xl md:text-3xl font-semibold italic leading-snug text-center ${isVerified ? 'text-white' : 'text-foreground/80'}`} style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                   {hook}
                 </p>
               );
