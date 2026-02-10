@@ -13,6 +13,7 @@ export interface BusinessCardData {
   phone: string | null;
   whatsapp: string | null;
   skype: string | null;
+  neighborhood?: string | null;
   logo_url: string | null;
   images: string[] | null;
   categories: string[] | null;
@@ -85,7 +86,9 @@ const BusinessCard = ({
 
   const locationText = showAddress && business.address 
     ? business.address 
-    : `${business.city}, ${business.region}`;
+    : business.neighborhood 
+      ? `${business.city}, ${business.neighborhood}`
+      : `${business.city}, ${business.region}`;
 
   return (
     <Link to={`/business/${business.id}`}>
