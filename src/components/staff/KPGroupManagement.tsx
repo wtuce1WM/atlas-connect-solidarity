@@ -72,6 +72,38 @@ const KPGroupManagement = () => {
     fetchGroups();
   }, []);
 
+  const resetMaster = async (kp: string) => {
+    setSaving("reset-" + kp);
+    const group = groups.find(g => g.kp === kp);
+    if (!group) return;
+
+    const ids = group.businesses.map(b => b.id);
+    const { error } = await supabase
+      .from("businesses")
+      .update({ is_master: false } as any)
+      .in("id", ids);
+
+    if (error) {
+      toast({ variant: "destructive", title: "Erreur", description: "Impossible de réinitialiser." });
+      setSaving(null);
+      return;
+    }
+
+    toast({ title: "Succès", description: "Aucun établissement principal défini." });
+    setGroups(prev =>
+      prev.map(g => {
+        if (g.kp !== kp) return g;
+        return {
+          ...g,
+          businesses: g.businesses
+            .map(b => ({ ...b, is_master: false }))
+            .sort((a, b) => a.name.localeCompare(b.name)),
+        };
+      })
+    );
+    setSaving(null);
+  };
+
   const setMaster = async (kp: string, masterId: string) => {
     setSaving(masterId);
     const group = groups.find(g => g.kp === kp);
@@ -146,14 +178,30 @@ const KPGroupManagement = () => {
         {groups.map(group => (
           <Card key={group.kp}>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                <Badge variant="outline" className="font-mono text-xs">
-                  {group.kp}
-                </Badge>
-                <span className="text-muted-foreground text-sm">
-                  {group.businesses.length} établissements
-                </span>
-              </CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Badge variant="outline" className="font-mono text-xs">
+                    {group.kp}
+                  </Badge>
+                  <span className="text-muted-foreground text-sm">
+                    {group.businesses.length} établissements
+                  </span>
+                </CardTitle>
+                {group.businesses.some(b => b.is_master) && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="text-muted-foreground hover:text-destructive"
+                    disabled={saving !== null}
+                    onClick={() => resetMaster(group.kp)}
+                  >
+                    {saving === "reset-" + group.kp ? (
+                      <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                    ) : null}
+                    Retirer principal
+                  </Button>
+                )}
+              </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
