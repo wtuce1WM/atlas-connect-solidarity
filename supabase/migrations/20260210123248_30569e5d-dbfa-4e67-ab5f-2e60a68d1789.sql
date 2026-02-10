@@ -1,0 +1,1 @@
+ALTER TABLE public.businesses ADD COLUMN tripadvisor_review_url text DEFAULT NULL;
