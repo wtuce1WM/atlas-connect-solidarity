@@ -664,15 +664,20 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
           </div>
 
           <div className="flex flex-wrap items-center gap-6">
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="is_featured"
-                checked={formData.is_featured}
-                onChange={(e) => handleChange("is_featured", e.target.checked)}
-                className="h-4 w-4"
-              />
-              <Label htmlFor="is_featured">Entreprise mise en avant</Label>
+            <div className="space-y-2">
+              <Label>Mise en avant</Label>
+              <Select
+                value={formData.is_featured ? "yes" : "no"}
+                onValueChange={(value) => handleChange("is_featured", value === "yes")}
+              >
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="yes">⭐ Oui</SelectItem>
+                  <SelectItem value="no">Non</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
           <p className="text-xs text-muted-foreground italic">
