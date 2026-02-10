@@ -5,6 +5,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
+import TopCityBusinesses from "@/components/TopCityBusinesses";
 import Footer from "@/components/Footer";
 import BusinessCard, { Gamme } from "@/components/BusinessCard";
 import { Button } from "@/components/ui/button";
@@ -262,6 +263,15 @@ const NeighborhoodPage = () => {
             </p>
           )}
         </div>
+
+        {/* Top Selection Carousel */}
+        <TopCityBusinesses 
+          businesses={businesses} 
+          cityName={cityName} 
+          gammes={gammes}
+          onSelectBusiness={handleSelectBusiness}
+          selectedBusinessId={selectedBusiness?.id}
+        />
 
         {/* Google Maps */}
         <Card className="relative mb-6">
