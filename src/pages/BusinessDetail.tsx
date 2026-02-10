@@ -313,7 +313,7 @@ const BusinessDetail = () => {
               </div>
             )}
           </div>
-          <div className="flex items-center justify-center sm:justify-start gap-2 mt-3 text-muted-foreground">
+          <div className={`flex items-center justify-center sm:justify-start gap-2 mt-3 ${isVerified ? "text-white/70" : "text-muted-foreground"}`}>
             <MapPin className="h-5 w-5" />
             <span>{business.address || business.city}, {business.region}</span>
           </div>
@@ -323,7 +323,7 @@ const BusinessDetail = () => {
               {business.phone && (
                 <a
                   href={`tel:${business.phone}`}
-                  className="inline-flex items-center gap-2 font-semibold text-foreground hover:text-primary transition-colors"
+                  className={`inline-flex items-center gap-2 font-semibold transition-colors ${isVerified ? "text-gold hover:text-gold/80" : "text-foreground hover:text-primary"}`}
                 >
                   <Phone className="h-5 w-5" />
                   {business.phone}
