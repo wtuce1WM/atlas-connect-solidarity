@@ -808,8 +808,9 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
           </div>
         </div>
 
-        {/* Google Maps & WhatsApp - Champs prioritaires */}
-        <div className="p-4 border rounded-lg bg-muted/30 space-y-4">
+        {/* Contact & Localisation */}
+        <div className="p-4 border rounded-lg bg-orange-50 space-y-4">
+          <h3 className="text-sm font-semibold text-orange-800">📍 Contact & Localisation</h3>
           <div className="space-y-2">
             <Label htmlFor="google_maps_url_top" className="flex items-center gap-2">
               <GoogleMapsIcon className="text-[#4285F4]" />
