@@ -1,0 +1,1 @@
+ALTER TABLE public.businesses ADD COLUMN restaurant_guru_url text DEFAULT NULL;
