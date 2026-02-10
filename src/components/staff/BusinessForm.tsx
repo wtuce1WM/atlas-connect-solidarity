@@ -977,7 +977,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
                 }}
               >
                 <MapPinned className="h-3.5 w-3.5" />
-                Récupérer GPS
+                Récupérer GPS depuis Google Maps
               </Button>
             )}
           </div>
