@@ -86,7 +86,7 @@ const Footer = ({ variant = "default" }: FooterProps) => {
               </li>
               <li className="flex items-center gap-2">
                 <Phone className={`h-4 w-4 ${isVerified ? 'text-black' : 'text-gold'}`} />
-                +212 661-439221
+                <a href="tel:+212661439221" className="hover:text-gold transition-colors">+212 661-439221</a>
               </li>
               <li className="flex items-center gap-2">
                 <Mail className={`h-4 w-4 ${isVerified ? 'text-black' : 'text-gold'}`} />
