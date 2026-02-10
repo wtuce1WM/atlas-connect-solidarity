@@ -52,6 +52,7 @@ const NeighborhoodPage = () => {
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [gammes, setGammes] = useState<Gamme[]>([]);
   const [neighborhoods, setNeighborhoods] = useState<string[]>([]);
+  const [cities, setCities] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [selectedSubcategory, setSelectedSubcategory] = useState<string>("");
@@ -153,6 +154,14 @@ const NeighborhoodPage = () => {
         .order("sort_order", { ascending: true });
 
       if (gammesData) setGammes(gammesData);
+
+      // Fetch all cities for the filter
+      const { data: citiesData } = await supabase
+        .from("cities")
+        .select("name_fr, priority_score")
+        .order("priority_score", { ascending: false });
+      
+      if (citiesData) setCities(citiesData.map(c => c.name_fr));
 
       // Fetch neighborhoods for the same city
       if (cityParam) {
@@ -346,6 +355,28 @@ const NeighborhoodPage = () => {
         {/* Filters */}
         <div className="space-y-3 mb-6">
           <div className="flex flex-wrap gap-3">
+            {/* City Filter */}
+            <div className="flex-1 min-w-[140px]">
+              <label className="text-sm font-medium text-foreground mb-1.5 block">Ville</label>
+              <Select value={cityParam || "all"} onValueChange={(value) => {
+                if (value === "all") {
+                  navigate(`/neighborhood/${encodeURIComponent(decodedNeighborhood)}`);
+                } else {
+                  navigate(`/neighborhood/${encodeURIComponent(decodedNeighborhood)}?city=${encodeURIComponent(value)}`);
+                }
+              }}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Toutes les villes" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Toutes les villes</SelectItem>
+                  {cities.map((city) => (
+                    <SelectItem key={city} value={city}>{city}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             {/* Neighborhood Filter */}
             {neighborhoods.length > 1 && (
               <div className="flex-1 min-w-[140px]">
