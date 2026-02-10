@@ -254,7 +254,41 @@ const BusinessDetail = () => {
             )}
             <div className="flex-1 min-w-0">
               <div className="flex flex-col items-center sm:items-start gap-2">
-                <h1 className={`text-2xl sm:text-4xl font-bold ${isVerified ? "text-white" : "text-foreground"}`}>{business.name}</h1>
+                <div className="flex flex-col sm:flex-row items-center gap-3 flex-wrap justify-center sm:justify-start">
+                  <h1 className={`text-2xl sm:text-4xl font-bold ${isVerified ? "text-white" : "text-foreground"}`}>{business.name}</h1>
+                  {/* Business Labels - hidden on mobile */}
+                  {businessLabels.length > 0 && (
+                    <div className="hidden sm:flex items-center gap-2 flex-wrap">
+                      {businessLabels.map((bl) => {
+                        if (!bl.label?.image_url) return null;
+                        const linkUrl = bl.custom_url || bl.label.url_fr;
+                        
+                        return linkUrl ? (
+                          <a
+                            key={bl.id}
+                            href={linkUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:opacity-80 transition-opacity"
+                          >
+                            <img
+                              src={bl.label.image_url}
+                              alt={bl.label.name_fr}
+                              className="h-20 object-contain"
+                            />
+                          </a>
+                        ) : (
+                          <img
+                            key={bl.id}
+                            src={bl.label.image_url}
+                            alt={bl.label.name_fr}
+                            className="h-20 object-contain"
+                          />
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
                 {(gamme || (business.wtuce_status === "verified" && !isInstitution)) && (
                   <div className="flex items-center gap-2 flex-wrap justify-center sm:justify-start">
                     {gamme && (
@@ -271,38 +305,6 @@ const BusinessDetail = () => {
                         WTUCE Vérifié
                       </Badge>
                     )}
-                  </div>
-                )}
-                {/* Business Labels - hidden on mobile */}
-                {businessLabels.length > 0 && (
-                  <div className="hidden sm:flex items-center gap-2 flex-wrap">
-                    {businessLabels.map((bl) => {
-                      if (!bl.label?.image_url) return null;
-                      const linkUrl = bl.custom_url || bl.label.url_fr;
-                      
-                      return linkUrl ? (
-                        <a
-                          key={bl.id}
-                          href={linkUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="hover:opacity-80 transition-opacity"
-                        >
-                          <img
-                            src={bl.label.image_url}
-                            alt={bl.label.name_fr}
-                            className="h-20 object-contain"
-                          />
-                        </a>
-                      ) : (
-                        <img
-                          key={bl.id}
-                          src={bl.label.image_url}
-                          alt={bl.label.name_fr}
-                          className="h-20 object-contain"
-                        />
-                      );
-                    })}
                   </div>
                 )}
               </div>
