@@ -1337,31 +1337,6 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
               />
             </div>
 
-            <div className="space-y-2 md:col-span-3">
-              <Label className="flex items-center gap-2">
-                🔗 Autre plateforme
-              </Label>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <Label htmlFor="other_booking_name" className="text-xs text-muted-foreground">Nom</Label>
-                  <Input
-                    id="other_booking_name"
-                    value={formData.other_booking_name}
-                    onChange={(e) => handleChange("other_booking_name", e.target.value)}
-                    placeholder="Ex: Expedia, Viator..."
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="other_booking_url" className="text-xs text-muted-foreground">URL</Label>
-                  <Input
-                    id="other_booking_url"
-                    value={formData.other_booking_url}
-                    onChange={(e) => handleChange("other_booking_url", e.target.value)}
-                    placeholder="https://..."
-                  />
-                </div>
-              </div>
-            </div>
           </div>
         </div>
 
