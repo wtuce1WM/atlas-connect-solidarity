@@ -598,7 +598,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
 
         {/* Status, Priority & Featured - Section principale */}
         <div className="p-4 border rounded-lg bg-muted/30 space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             <div className="space-y-2">
               <Label>Visibilité</Label>
               <Select
@@ -629,7 +629,6 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
                 </SelectContent>
               </Select>
             </div>
-
             <div className="space-y-2">
               <Label htmlFor="priority_score">Score de priorité</Label>
               <Input
@@ -639,7 +638,6 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
                 onChange={(e) => handleChange("priority_score", e.target.value)}
               />
             </div>
-
             <div className="space-y-2">
               <Label htmlFor="rating">Note /20</Label>
               <Input
@@ -648,9 +646,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
                 inputMode="decimal"
                 value={formData.rating}
                 onChange={(e) => {
-                  // Allow digits, dot, and comma - normalize comma to dot for storage
                   const value = e.target.value.replace(",", ".");
-                  // Only allow valid decimal format
                   if (value === "" || /^\d*\.?\d*$/.test(value)) {
                     const numVal = parseFloat(value);
                     if (value === "" || (numVal >= 0 && numVal <= 20)) {
@@ -661,16 +657,13 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
                 placeholder="Ex: 14,6 ou 18.5"
               />
             </div>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-6">
             <div className="space-y-2">
               <Label>Mise en avant</Label>
               <Select
                 value={formData.is_featured ? "yes" : "no"}
                 onValueChange={(value) => handleChange("is_featured", value === "yes")}
               >
-                <SelectTrigger className="w-[140px]">
+                <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
