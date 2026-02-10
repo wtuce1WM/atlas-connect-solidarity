@@ -19,9 +19,10 @@ interface RichTextEditorProps {
   content: string;
   onChange: (html: string) => void;
   placeholder?: string;
+  maxHeight?: string;
 }
 
-const RichTextEditor = ({ content, onChange, placeholder }: RichTextEditorProps) => {
+const RichTextEditor = ({ content, onChange, placeholder, maxHeight }: RichTextEditorProps) => {
   // Memoize extensions to prevent duplicate registration on re-renders
   const extensions = useMemo(() => [
     StarterKit.configure({
@@ -45,8 +46,9 @@ const RichTextEditor = ({ content, onChange, placeholder }: RichTextEditorProps)
     },
     editorProps: {
       attributes: {
-          class:
-          "prose prose-sm max-w-none min-h-[150px] max-h-[300px] overflow-y-auto p-3 focus:outline-none",
+        class:
+          "prose prose-sm max-w-none min-h-[150px] overflow-y-auto p-3 focus:outline-none",
+        style: maxHeight ? `max-height: ${maxHeight}` : "",
       },
     },
   });
