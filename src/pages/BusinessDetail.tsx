@@ -638,18 +638,15 @@ const BusinessDetail = () => {
           </div>
 
           {/* Sidebar - Contact & Map */}
-          <div className="flex gap-4 overflow-x-auto pb-4 lg:flex-col lg:overflow-x-visible lg:pb-0 lg:gap-6 [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
+          <div className="space-y-6">
             {/* Google Maps */}
-            <div className="flex-shrink-0 w-[85vw] sm:w-80 lg:w-auto">
-              <GoogleMapEmbed
-                address={business.address || `${business.city}, ${business.region}`}
-                businessName={business.name}
-                latitude={business.latitude}
-                longitude={business.longitude}
-              />
-            </div>
+            <GoogleMapEmbed
+              address={business.address || `${business.city}, ${business.region}`}
+              businessName={business.name}
+              latitude={business.latitude}
+              longitude={business.longitude}
+            />
 
-            <div className="flex-shrink-0 min-w-[85vw] sm:min-w-80 lg:min-w-0 lg:flex-shrink">
             <Card>
               <CardContent className="p-6">
                 <h2 className="text-xl font-semibold mb-4">Contact</h2>
@@ -739,11 +736,9 @@ const BusinessDetail = () => {
                 </div>
               </CardContent>
             </Card>
-            </div>
 
             {/* Avis clients */}
             {(business.tripadvisor_review_url || business.restaurant_guru_url || business.google_reviews_url) && (
-              <div className="flex-shrink-0 min-w-[85vw] sm:min-w-80 lg:min-w-0 lg:flex-shrink">
               <Card className="bg-white border">
                 <CardContent className="p-6">
                   <h2 className="text-xl font-bold mb-4 flex items-baseline flex-wrap gap-x-3">
@@ -846,12 +841,10 @@ const BusinessDetail = () => {
                   </div>
                 </CardContent>
               </Card>
-              </div>
             )}
 
             {/* Social Media */}
             {(business.facebook_url || business.instagram_url || business.linkedin_url || business.youtube_url || business.tiktok_url || business.twitter_url || business.pinterest_url || business.vimeo_url) && (
-              <div className="flex-shrink-0 min-w-[85vw] sm:min-w-80 lg:min-w-0 lg:flex-shrink">
               <Card>
                 <CardContent className="p-6">
                   <h2 className="text-xl font-semibold mb-4">Réseaux sociaux</h2>
@@ -955,12 +948,10 @@ const BusinessDetail = () => {
                   </div>
                 </CardContent>
               </Card>
-              </div>
             )}
 
             {/* Plateformes de réservation */}
             {(business.booking_url || business.tripadvisor_url || business.airbnb_url) && (
-              <div className="flex-shrink-0 min-w-[85vw] sm:min-w-80 lg:min-w-0 lg:flex-shrink">
               <Card>
                 <CardContent className="p-6">
                   <h2 className="text-xl font-semibold mb-4">Plateformes de réservation</h2>
@@ -1007,12 +998,10 @@ const BusinessDetail = () => {
                   </div>
                 </CardContent>
               </Card>
-              </div>
             )}
 
             {/* CTA */}
             {business.reserve_now_url && (
-              <div className="flex-shrink-0 min-w-[85vw] sm:min-w-80 lg:min-w-0 lg:flex-shrink">
               <a
                 href={business.reserve_now_url}
                 target="_blank"
@@ -1021,26 +1010,22 @@ const BusinessDetail = () => {
               >
                 Réserver maintenant
               </a>
-              </div>
             )}
 
 
             {/* Opening Hours */}
             {business.show_opening_hours !== false && (business.is_open_24h || (business.opening_hours && Object.keys(business.opening_hours).length > 0)) && (() => {
-              const mobileWrap = "flex-shrink-0 min-w-[85vw] sm:min-w-80 lg:min-w-0 lg:flex-shrink";
               if (business.is_open_24h) {
                 return (
-                  <div className={mobileWrap}>
-                    <Card>
-                      <CardContent className="p-6">
-                        <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                          <Clock className="h-5 w-5" />
-                          Horaires d'ouverture
-                        </h2>
-                        <div className="text-sm font-medium text-primary">Ouvert 24h/24</div>
-                      </CardContent>
-                    </Card>
-                  </div>
+                  <Card>
+                    <CardContent className="p-6">
+                      <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                        <Clock className="h-5 w-5" />
+                        Horaires d'ouverture
+                      </h2>
+                      <div className="text-sm font-medium text-primary">Ouvert 24h/24</div>
+                    </CardContent>
+                  </Card>
                 );
               }
 
@@ -1064,58 +1049,54 @@ const BusinessDetail = () => {
               if (!hasAnyHours) return null;
               
               return (
-                <div className={mobileWrap}>
-                  <Card>
-                    <CardContent className="p-6">
-                      <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                        <Clock className="h-5 w-5" />
-                        Horaires d'ouverture
-                      </h2>
-                      <div className="space-y-2">
-                        {dayOrder.map(day => {
-                          const dayHours = hours[day as keyof OpeningHours];
-                          if (!dayHours) return null;
-                          
-                          return (
-                            <div key={day} className="flex justify-between text-sm">
-                              <span className="font-medium">{dayNames[day]}</span>
-                              <span className="text-muted-foreground">
-                                {dayHours.closed 
-                                  ? "Fermé" 
-                                  : dayHours.open && dayHours.close 
-                                    ? `${dayHours.open} - ${dayHours.close}`
-                                    : "—"
-                                }
-                              </span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
+                <Card>
+                  <CardContent className="p-6">
+                    <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                      <Clock className="h-5 w-5" />
+                      Horaires d'ouverture
+                    </h2>
+                    <div className="space-y-2">
+                      {dayOrder.map(day => {
+                        const dayHours = hours[day as keyof OpeningHours];
+                        if (!dayHours) return null;
+                        
+                        return (
+                          <div key={day} className="flex justify-between text-sm">
+                            <span className="font-medium">{dayNames[day]}</span>
+                            <span className="text-muted-foreground">
+                              {dayHours.closed 
+                                ? "Fermé" 
+                                : dayHours.open && dayHours.close 
+                                  ? `${dayHours.open} - ${dayHours.close}`
+                                  : "—"
+                              }
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </CardContent>
+                </Card>
               );
             })()}
 
             {/* Vacation Dates */}
             {business.vacation_dates && business.vacation_dates.length > 0 && (
-              <div className="flex-shrink-0 min-w-[85vw] sm:min-w-80 lg:min-w-0 lg:flex-shrink">
-                <Card>
-                  <CardContent className="p-6">
-                    <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                      <AlertTriangle className="h-5 w-5 text-amber-500" />
-                      Vacances / Fermetures exceptionnelles
-                    </h2>
-                    <div className="space-y-2">
-                      {business.vacation_dates.map((vd, idx) => (
-                        <div key={idx} className="text-sm bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-foreground">
-                          Du {format(parseISO(vd.start_date), "d MMMM yyyy", { locale: fr })} au {format(parseISO(vd.end_date), "d MMMM yyyy", { locale: fr })}
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+              <Card>
+                <CardContent className="p-6">
+                  <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                    <AlertTriangle className="h-5 w-5 text-amber-500" />
+                    Vacances / Fermetures exceptionnelles
+                  </h2>
+                  <div className="space-y-2">
+                    {business.vacation_dates.map((vd, idx) => (
+                      <div key={idx} className="text-sm bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-foreground">
+                        Du {format(parseISO(vd.start_date), "d MMMM yyyy", { locale: fr })} au {format(parseISO(vd.end_date), "d MMMM yyyy", { locale: fr })}
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
             )}
           </div>
         </div>
