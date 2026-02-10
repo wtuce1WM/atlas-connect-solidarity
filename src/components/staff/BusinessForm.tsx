@@ -1021,7 +1021,11 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="website_top">Site web</Label>
+            {formData.website ? (
+              <Label htmlFor="website_top"><a href={formData.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">Site web ↗</a></Label>
+            ) : (
+              <Label htmlFor="website_top">Site web</Label>
+            )}
             <Input
               id="website_top"
               value={formData.website}
@@ -1031,7 +1035,11 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="reserve_now_url_top">Lien "Réserver maintenant"</Label>
+            {formData.reserve_now_url ? (
+              <Label htmlFor="reserve_now_url_top"><a href={formData.reserve_now_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">Lien "Réserver maintenant" ↗</a></Label>
+            ) : (
+              <Label htmlFor="reserve_now_url_top">Lien "Réserver maintenant"</Label>
+            )}
             <Input
               id="reserve_now_url_top"
               value={formData.reserve_now_url}
@@ -1041,7 +1049,11 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="online_shop_url_top">Boutique en ligne</Label>
+            {formData.online_shop_url ? (
+              <Label htmlFor="online_shop_url_top"><a href={formData.online_shop_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">Boutique en ligne ↗</a></Label>
+            ) : (
+              <Label htmlFor="online_shop_url_top">Boutique en ligne</Label>
+            )}
             <Input
               id="online_shop_url_top"
               value={formData.online_shop_url}
