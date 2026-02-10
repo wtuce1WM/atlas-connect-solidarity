@@ -1245,7 +1245,43 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
 
         {/* Avis clients */}
         <div className="space-y-4 p-4 bg-violet-50 border border-violet-200 rounded-lg">
-          <Label className="text-xl font-semibold">Avis clients</Label>
+          <div className="flex items-center justify-between">
+            <Label className="text-xl font-semibold">Avis clients</Label>
+            {business?.id && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={async () => {
+                  toast({ title: "Récupération des avis en cours..." });
+                  try {
+                    const { data, error } = await supabase.functions.invoke('fetch-reviews', {
+                      body: { business_id: business.id },
+                    });
+                    if (error) throw error;
+                    if (data?.success && data?.data) {
+                      const r = data.data;
+                      if (r.google_rating != null) handleChange("google_rating" as any, String(r.google_rating));
+                      if (r.google_review_count != null) handleChange("google_review_count" as any, String(r.google_review_count));
+                      if (r.tripadvisor_rating != null) handleChange("tripadvisor_rating" as any, String(r.tripadvisor_rating));
+                      if (r.tripadvisor_review_count != null) handleChange("tripadvisor_review_count" as any, String(r.tripadvisor_review_count));
+                      if (r.restaurant_guru_rating != null) handleChange("restaurant_guru_rating" as any, String(r.restaurant_guru_rating));
+                      if (r.restaurant_guru_review_count != null) handleChange("restaurant_guru_review_count" as any, String(r.restaurant_guru_review_count));
+                      toast({ title: "Avis récupérés", description: `Champs mis à jour : ${data.updated?.join(', ') || 'aucun'}` });
+                    } else {
+                      toast({ title: "Aucun avis trouvé", variant: "destructive" });
+                    }
+                  } catch (e: any) {
+                    console.error(e);
+                    toast({ title: "Erreur", description: e.message || "Impossible de récupérer les avis", variant: "destructive" });
+                  }
+                }}
+                className="text-xs"
+              >
+                🔄 Récupérer automatiquement
+              </Button>
+            )}
+          </div>
           <div className="flex items-center gap-2">
             <TripAdvisorIcon className="text-[#00AF87]" />
             {formData.tripadvisor_review_url ? <a href={formData.tripadvisor_review_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 text-sm font-medium">TripAdvisor Avis ↗</a> : <span className="text-sm font-medium">TripAdvisor Avis</span>}
