@@ -231,7 +231,7 @@ const StaffBackoffice = () => {
               variant="outline"
               size="sm"
               onClick={handleLogout}
-              className="border-background/20 text-background hover:bg-destructive hover:text-destructive-foreground hover:border-destructive"
+              className="bg-black text-white border-black hover:bg-destructive hover:text-destructive-foreground hover:border-destructive"
             >
               <LogOut className="h-4 w-4 mr-2" />
               Déconnexion
