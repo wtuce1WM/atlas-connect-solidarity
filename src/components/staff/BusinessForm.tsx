@@ -1281,7 +1281,23 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
                 navigator.clipboard.writeText(text);
                 toast({ title: `"${text}" copié !` });
               }}
-            >Avis clients / {formData.name || 'Nom Entreprise'}</Label>
+            >Avis clients / {formData.name || 'Nom Entreprise'}{(() => {
+              const ratings: { rating: number; count: number }[] = [];
+              if (formData.google_rating && formData.google_review_count) {
+                ratings.push({ rating: Number(formData.google_rating), count: Number(formData.google_review_count) });
+              }
+              if (formData.tripadvisor_rating && formData.tripadvisor_review_count) {
+                ratings.push({ rating: Number(formData.tripadvisor_rating), count: Number(formData.tripadvisor_review_count) });
+              }
+              if (formData.restaurant_guru_rating && formData.restaurant_guru_review_count) {
+                ratings.push({ rating: Number(formData.restaurant_guru_rating), count: Number(formData.restaurant_guru_review_count) });
+              }
+              if (ratings.length === 0) return null;
+              const totalCount = ratings.reduce((sum, r) => sum + r.count, 0);
+              const weightedAvg = ratings.reduce((sum, r) => sum + (r.rating / 5) * 20 * r.count, 0) / totalCount;
+              const avg20 = weightedAvg.toFixed(2).replace('.', ',');
+              return <span className="text-violet-600 font-bold"> / {avg20}/20 sur {totalCount.toLocaleString('fr-FR')} avis clients</span>;
+            })()}</Label>
             {business?.id && (
               <Button
                 type="button"
