@@ -1068,43 +1068,49 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
               variant="outline"
               size="sm"
               className="gap-2 text-xs"
-              onClick={() => {
+              onClick={async () => {
                 const url = formData.google_maps_url;
-                let lat: string | null = null;
-                let lng: string | null = null;
+                
+                // Try local parsing first
+                const tryExtract = (u: string) => {
+                  const atMatch = u.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+                  if (atMatch) return { lat: atMatch[1], lng: atMatch[2] };
+                  const qMatch = u.match(/[?&]q=(-?\d+\.?\d*),(-?\d+\.?\d*)/) ||
+                                 u.match(/place\/(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+                  if (qMatch) return { lat: qMatch[1], lng: qMatch[2] };
+                  const embedMatch = u.match(/!3d(-?\d+\.?\d*).*!4d(-?\d+\.?\d*)/);
+                  if (embedMatch) return { lat: embedMatch[1], lng: embedMatch[2] };
+                  return null;
+                };
 
-                // Try @lat,lng pattern (most common)
-                const atMatch = url.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
-                if (atMatch) {
-                  lat = atMatch[1];
-                  lng = atMatch[2];
+                const local = tryExtract(url);
+                if (local) {
+                  handleChange("latitude", local.lat);
+                  handleChange("longitude", local.lng);
+                  toast({ title: "GPS récupéré", description: `Lat: ${local.lat}, Lng: ${local.lng}` });
+                  return;
                 }
 
-                // Try ?q=lat,lng or place/lat,lng
-                if (!lat) {
-                  const qMatch = url.match(/[?&]q=(-?\d+\.?\d*),(-?\d+\.?\d*)/) ||
-                                 url.match(/place\/(-?\d+\.?\d*),(-?\d+\.?\d*)/);
-                  if (qMatch) {
-                    lat = qMatch[1];
-                    lng = qMatch[2];
+                // Short URL — resolve via edge function
+                try {
+                  toast({ title: "Résolution de l'URL...", description: "Veuillez patienter." });
+                  const { data, error } = await supabase.functions.invoke("resolve-maps-url", {
+                    body: { url },
+                  });
+                  if (error) throw error;
+                  if (data?.lat && data?.lng) {
+                    handleChange("latitude", data.lat);
+                    handleChange("longitude", data.lng);
+                    // Also update google_maps_url with the resolved full URL
+                    if (data.resolvedUrl) {
+                      handleChange("google_maps_url", data.resolvedUrl);
+                    }
+                    toast({ title: "GPS récupéré", description: `Lat: ${data.lat}, Lng: ${data.lng}` });
+                  } else {
+                    toast({ variant: "destructive", title: "Impossible d'extraire les coordonnées", description: "Le format de l'URL Google Maps n'est pas reconnu." });
                   }
-                }
-
-                // Try !3d...!4d... pattern (embed URLs)
-                if (!lat) {
-                  const embedMatch = url.match(/!3d(-?\d+\.?\d*).*!4d(-?\d+\.?\d*)/);
-                  if (embedMatch) {
-                    lat = embedMatch[1];
-                    lng = embedMatch[2];
-                  }
-                }
-
-                if (lat && lng) {
-                  handleChange("latitude", lat);
-                  handleChange("longitude", lng);
-                  toast({ title: "GPS récupéré", description: `Lat: ${lat}, Lng: ${lng}` });
-                } else {
-                  toast({ variant: "destructive", title: "Impossible d'extraire les coordonnées", description: "Le format de l'URL Google Maps n'est pas reconnu." });
+                } catch (err: any) {
+                  toast({ variant: "destructive", title: "Erreur", description: err.message || "Impossible de résoudre l'URL." });
                 }
               }}
             >
