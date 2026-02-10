@@ -858,7 +858,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
         </div>
 
         {/* Site web, Boutique en ligne et Réserver maintenant */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4">
           <div className="space-y-2">
             <Label htmlFor="website_top">Site web</Label>
             <Input
