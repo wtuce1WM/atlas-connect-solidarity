@@ -267,7 +267,8 @@ const NeighborhoodPage = () => {
         {/* Top Selection Carousel */}
         <TopCityBusinesses 
           businesses={businesses} 
-          cityName={cityName} 
+          cityName={cityName}
+          neighborhoodName={neighborhood}
           gammes={gammes}
           onSelectBusiness={handleSelectBusiness}
           selectedBusinessId={selectedBusiness?.id}

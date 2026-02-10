@@ -28,12 +28,13 @@ interface Business {
 interface TopCityBusinessesProps {
   businesses: Business[];
   cityName: string;
+  neighborhoodName?: string;
   gammes?: Gamme[];
   onSelectBusiness?: (business: Business) => void;
   selectedBusinessId?: string | null;
 }
 
-const TopCityBusinesses = ({ businesses, cityName, gammes = [], onSelectBusiness, selectedBusinessId }: TopCityBusinessesProps) => {
+const TopCityBusinesses = ({ businesses, cityName, neighborhoodName, gammes = [], onSelectBusiness, selectedBusinessId }: TopCityBusinessesProps) => {
   const { language } = useLanguage();
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -67,10 +68,10 @@ const TopCityBusinesses = ({ businesses, cityName, gammes = [], onSelectBusiness
       <div className="mb-6 text-center">
         <h2 className="mb-2 text-2xl font-bold text-black">
           {language === "fr"
-            ? <>Découvrez notre sélection des <span className="text-gold">adresses incontournables</span></>
+            ? <>Les <span className="text-gold">adresses incontournables</span> de {cityName}{neighborhoodName ? ` ${neighborhoodName}` : ""}</>
             : language === "ar"
-              ? <>اكتشف مجموعتنا من <span className="text-gold">العناوين التي لا غنى عنها</span></>
-              : <>Discover our selection of <span className="text-gold">must-visit addresses</span></>}
+              ? <><span className="text-gold">العناوين التي لا غنى عنها</span> في {cityName}{neighborhoodName ? ` ${neighborhoodName}` : ""}</>
+              : <>The <span className="text-gold">must-visit addresses</span> of {cityName}{neighborhoodName ? ` ${neighborhoodName}` : ""}</>}
         </h2>
       </div>
 
