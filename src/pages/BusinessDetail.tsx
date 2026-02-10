@@ -64,8 +64,14 @@ interface Business {
   whatsapp: string | null;
   tripadvisor_url: string | null;
   tripadvisor_review_url: string | null;
+  tripadvisor_rating: number | null;
+  tripadvisor_review_count: number | null;
   restaurant_guru_url: string | null;
+  restaurant_guru_rating: number | null;
+  restaurant_guru_review_count: number | null;
   google_reviews_url: string | null;
+  google_rating: number | null;
+  google_review_count: number | null;
   booking_url: string | null;
   google_maps_url: string | null;
   pinterest_url: string | null;
@@ -749,7 +755,16 @@ const BusinessDetail = () => {
                             <path d="M12.006 4.295c-2.67 0-5.338.784-7.645 2.353H0l1.963 2.135a5.997 5.997 0 0 0 4.04 10.43 5.976 5.976 0 0 0 4.075-1.6L12 19.705l1.922-2.09a5.972 5.972 0 0 0 4.075 1.598 5.997 5.997 0 0 0 4.04-10.43L24 6.648h-4.35a13.573 13.573 0 0 0-7.644-2.353zM12 6.758c1.91.216 3.716.974 5.198 2.24a5.97 5.97 0 0 0-1.198.754A7.48 7.48 0 0 0 12 8.76a7.48 7.48 0 0 0-4 .992 5.97 5.97 0 0 0-1.198-.754A9.473 9.473 0 0 1 12 6.758zm-6.003 3.02a4.03 4.03 0 1 1 0 8.059 4.03 4.03 0 0 1 0-8.058zm12.006 0a4.03 4.03 0 1 1 0 8.059 4.03 4.03 0 0 1 0-8.058z"/>
                           </svg>
                         </div>
-                        <span className="font-medium">TripAdvisor Avis ↗</span>
+                        <div className="flex-1">
+                          <span className="font-medium">TripAdvisor Avis ↗</span>
+                          {(business.tripadvisor_rating != null || business.tripadvisor_review_count != null) && (
+                            <div className="text-xs text-muted-foreground">
+                              {business.tripadvisor_rating != null && <span className="font-semibold text-[#00AF87]">{business.tripadvisor_rating}/5</span>}
+                              {business.tripadvisor_rating != null && business.tripadvisor_review_count != null && <span> · </span>}
+                              {business.tripadvisor_review_count != null && <span>{business.tripadvisor_review_count} avis</span>}
+                            </div>
+                          )}
+                        </div>
                       </a>
                     )}
                     {business.restaurant_guru_url && (
@@ -759,8 +774,17 @@ const BusinessDetail = () => {
                         rel="noopener noreferrer"
                         className="flex items-center gap-3 text-foreground hover:text-[#E4322B] transition-colors"
                       >
-                        <img src={restaurantGuruLogo} alt="Restaurant Guru" className="w-8 h-8 rounded-full object-cover flex-shrink-0" />
-                        <span className="font-medium">Restaurant Guru ↗</span>
+                        <img src={restaurantGuruLogo} alt="Restaurant Guru" className="w-8 h-8 object-contain flex-shrink-0" />
+                        <div className="flex-1">
+                          <span className="font-medium">Restaurant Guru ↗</span>
+                          {(business.restaurant_guru_rating != null || business.restaurant_guru_review_count != null) && (
+                            <div className="text-xs text-muted-foreground">
+                              {business.restaurant_guru_rating != null && <span className="font-semibold text-[#E4322B]">{business.restaurant_guru_rating}/5</span>}
+                              {business.restaurant_guru_rating != null && business.restaurant_guru_review_count != null && <span> · </span>}
+                              {business.restaurant_guru_review_count != null && <span>{business.restaurant_guru_review_count} avis</span>}
+                            </div>
+                          )}
+                        </div>
                       </a>
                     )}
                     {business.google_reviews_url && (
@@ -778,7 +802,16 @@ const BusinessDetail = () => {
                             <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                           </svg>
                         </div>
-                        <span className="font-medium">Google Avis ↗</span>
+                        <div className="flex-1">
+                          <span className="font-medium">Google Avis ↗</span>
+                          {(business.google_rating != null || business.google_review_count != null) && (
+                            <div className="text-xs text-muted-foreground">
+                              {business.google_rating != null && <span className="font-semibold text-[#4285F4]">{business.google_rating}/5</span>}
+                              {business.google_rating != null && business.google_review_count != null && <span> · </span>}
+                              {business.google_review_count != null && <span>{business.google_review_count} avis</span>}
+                            </div>
+                          )}
+                        </div>
                       </a>
                     )}
                   </div>
