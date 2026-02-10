@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Save, Award, Trash2, MapPinned } from "lucide-react";
+import { ArrowLeft, ArrowDown, Save, Award, Trash2, MapPinned } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 import RichTextEditor from "./RichTextEditor";
 import ImageUploader from "./ImageUploader";
@@ -1118,8 +1118,12 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
             value={businessLabels}
             onChange={setBusinessLabels}
           />
-        </div>
-
+          </div>
+          {formData.website && (
+            <button type="button" className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors mx-auto" title="Copier l'URL du site web vers Réserver maintenant" onClick={() => { handleChange("reserve_now_url", formData.website); toast({ title: "URL copiée vers \"Réserver maintenant\"" }); }}>
+              <ArrowDown className="h-4 w-4" />
+            </button>
+          )}
 
 
         {/* Social Media */}
