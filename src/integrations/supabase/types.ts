@@ -181,6 +181,7 @@ export type Database = {
           facebook_url: string | null
           gamme_id: string | null
           google_maps_url: string | null
+          google_reviews_url: string | null
           hook_ar: string | null
           hook_en: string | null
           hook_fr: string | null
@@ -251,6 +252,7 @@ export type Database = {
           facebook_url?: string | null
           gamme_id?: string | null
           google_maps_url?: string | null
+          google_reviews_url?: string | null
           hook_ar?: string | null
           hook_en?: string | null
           hook_fr?: string | null
@@ -321,6 +323,7 @@ export type Database = {
           facebook_url?: string | null
           gamme_id?: string | null
           google_maps_url?: string | null
+          google_reviews_url?: string | null
           hook_ar?: string | null
           hook_en?: string | null
           hook_fr?: string | null

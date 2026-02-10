@@ -332,6 +332,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
     trivago_url: (business as any)?.trivago_url || "",
     tripadvisor_review_url: (business as any)?.tripadvisor_review_url || "",
     restaurant_guru_url: (business as any)?.restaurant_guru_url || "",
+    google_reviews_url: (business as any)?.google_reviews_url || "",
     other_booking_url: (business as any)?.other_booking_url || "",
     other_booking_name: (business as any)?.other_booking_name || "",
     gamme_id: (business as any)?.gamme_id || "",
@@ -483,6 +484,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
       trivago_url: formData.trivago_url || null,
       tripadvisor_review_url: (formData as any).tripadvisor_review_url || null,
       restaurant_guru_url: (formData as any).restaurant_guru_url || null,
+      google_reviews_url: (formData as any).google_reviews_url || null,
       other_booking_url: formData.other_booking_url || null,
       other_booking_name: formData.other_booking_name || null,
       gamme_id: formData.gamme_id || null,
@@ -1322,6 +1324,11 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
             <span>🍽️</span>
             {formData.restaurant_guru_url ? <a href={formData.restaurant_guru_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 text-sm font-medium">Restaurant Guru ↗</a> : <span className="text-sm font-medium">Restaurant Guru</span>}
             <Input id="restaurant_guru_url" value={formData.restaurant_guru_url} onChange={(e) => handleChange("restaurant_guru_url", e.target.value)} placeholder="https://fr.restaurantguru.com/..." className="flex-1" />
+          </div>
+          <div className="flex items-center gap-2">
+            <GoogleMapsIcon className="text-[#4285F4]" />
+            {formData.google_reviews_url ? <a href={formData.google_reviews_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 text-sm font-medium">Google Avis ↗</a> : <span className="text-sm font-medium">Google Avis</span>}
+            <Input id="google_reviews_url" value={formData.google_reviews_url} onChange={(e) => handleChange("google_reviews_url", e.target.value)} placeholder="https://g.page/.../review" className="flex-1" />
           </div>
         </div>
 
