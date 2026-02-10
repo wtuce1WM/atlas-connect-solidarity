@@ -1,0 +1,1 @@
+ALTER TABLE public.businesses ADD COLUMN google_reviews_url text DEFAULT NULL;
