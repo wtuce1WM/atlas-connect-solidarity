@@ -1296,7 +1296,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
               const totalCount = ratings.reduce((sum, r) => sum + r.count, 0);
               const weightedAvg = ratings.reduce((sum, r) => sum + (r.rating / 5) * 20 * r.count, 0) / totalCount;
               const avg20 = weightedAvg.toFixed(2).replace('.', ',');
-              return <span className="text-red-600 font-bold"> / {avg20}/20 sur {totalCount.toLocaleString('fr-FR')} avis clients</span>;
+              return <><span className="text-black font-bold"> / </span><span className="text-red-600 font-bold">{avg20}/20 sur {totalCount.toLocaleString('fr-FR')} avis clients</span></>;
             })()}</Label>
             {business?.id && (
               <Button
