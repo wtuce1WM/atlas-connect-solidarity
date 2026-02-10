@@ -823,17 +823,37 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="whatsapp_top" className="flex items-center gap-2">
-              <WhatsAppIcon className="text-[#25D366]" />
-              WhatsApp
-            </Label>
-            <Input
-              id="whatsapp_top"
-              value={formData.whatsapp}
-              onChange={(e) => handleChange("whatsapp", e.target.value)}
-              placeholder="+212 6XX-XXXXXX"
-            />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="whatsapp_top" className="flex items-center gap-2">
+                <WhatsAppIcon className="text-[#25D366]" />
+                WhatsApp
+              </Label>
+              <Input
+                id="whatsapp_top"
+                value={formData.whatsapp}
+                onChange={(e) => handleChange("whatsapp", e.target.value)}
+                placeholder="+212 6XX-XXXXXX"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="phone_top">Téléphone</Label>
+              <Input
+                id="phone_top"
+                value={formData.phone}
+                onChange={(e) => handleChange("phone", e.target.value)}
+                placeholder="+212 5XX-XXXXXX"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email_top">Email</Label>
+              <Input
+                id="email_top"
+                value={formData.email}
+                onChange={(e) => handleChange("email", e.target.value)}
+                placeholder="contact@exemple.com"
+              />
+            </div>
           </div>
         </div>
 
