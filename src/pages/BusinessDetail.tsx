@@ -761,7 +761,7 @@ const BusinessDetail = () => {
                       return (
                         <>
                           <span className="text-gold text-3xl font-bold">{avg20}/20</span>
-                          <span className="text-muted-foreground text-base font-normal">sur {totalCount.toLocaleString('fr-FR')} avis</span>
+                          <span className="text-xl font-bold">sur {totalCount.toLocaleString('fr-FR')} avis</span>
                         </>
                       );
                     })()}
