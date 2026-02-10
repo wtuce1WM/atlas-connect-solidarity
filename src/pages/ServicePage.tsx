@@ -170,7 +170,7 @@ const ServicePage = () => {
           // Search in the categories array (subcategories are stored there)
           const { data, error } = await supabase
             .from("businesses")
-            .select("id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, opening_hours, show_opening_hours, rating, gamme_id")
+            .select("id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, opening_hours, show_opening_hours, rating, gamme_id, neighborhood")
             .eq("is_active", true)
             .contains("categories", [decodedServiceName])
             .order("wtuce_status", { ascending: true })
@@ -184,7 +184,7 @@ const ServicePage = () => {
         if (!businessData || businessData.length === 0) {
           const { data, error } = await supabase
             .from("businesses")
-            .select("id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, opening_hours, show_opening_hours, rating, gamme_id")
+            .select("id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, opening_hours, show_opening_hours, rating, gamme_id, neighborhood")
             .eq("is_active", true)
             .contains("services", [decodedServiceName])
             .order("wtuce_status", { ascending: true })
