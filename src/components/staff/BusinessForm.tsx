@@ -1273,70 +1273,36 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="booking_url" className="flex items-center gap-2">
-                <BookingIcon className="text-[#003580]" />
-                Booking.com
-              </Label>
-              <Input
-                id="booking_url"
-                value={formData.booking_url}
-                onChange={(e) => handleChange("booking_url", e.target.value)}
-                placeholder="https://booking.com/hotel/..."
-              />
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <BookingIcon className="text-[#003580]" />
+              {formData.booking_url ? <a href={formData.booking_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 text-sm font-medium">Booking.com ↗</a> : <span className="text-sm font-medium">Booking.com</span>}
+              <Input id="booking_url" value={formData.booking_url} onChange={(e) => handleChange("booking_url", e.target.value)} placeholder="https://booking.com/hotel/..." className="flex-1" />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="tripadvisor_url" className="flex items-center gap-2">
-                <TripAdvisorIcon className="text-[#00AF87]" />
-                TripAdvisor
-              </Label>
-              <Input
-                id="tripadvisor_url"
-                value={formData.tripadvisor_url}
-                onChange={(e) => handleChange("tripadvisor_url", e.target.value)}
-                placeholder="https://tripadvisor.com/..."
-              />
+            <div className="flex items-center gap-2">
+              <TripAdvisorIcon className="text-[#00AF87]" />
+              {formData.tripadvisor_url ? <a href={formData.tripadvisor_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 text-sm font-medium">TripAdvisor ↗</a> : <span className="text-sm font-medium">TripAdvisor</span>}
+              <Input id="tripadvisor_url" value={formData.tripadvisor_url} onChange={(e) => handleChange("tripadvisor_url", e.target.value)} placeholder="https://tripadvisor.com/..." className="flex-1" />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="airbnb_url" className="flex items-center gap-2">
-                <AirbnbIcon className="text-[#FF5A5F]" />
-                Airbnb
-              </Label>
-              <Input
-                id="airbnb_url"
-                value={formData.airbnb_url}
-                onChange={(e) => handleChange("airbnb_url", e.target.value)}
-                placeholder="https://airbnb.com/rooms/..."
-              />
+            <div className="flex items-center gap-2">
+              <AirbnbIcon className="text-[#FF5A5F]" />
+              {formData.airbnb_url ? <a href={formData.airbnb_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 text-sm font-medium">Airbnb ↗</a> : <span className="text-sm font-medium">Airbnb</span>}
+              <Input id="airbnb_url" value={formData.airbnb_url} onChange={(e) => handleChange("airbnb_url", e.target.value)} placeholder="https://airbnb.com/rooms/..." className="flex-1" />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="hotels_com_url" className="flex items-center gap-2">
-                🏨 Hotels.com
-              </Label>
-              <Input
-                id="hotels_com_url"
-                value={formData.hotels_com_url}
-                onChange={(e) => handleChange("hotels_com_url", e.target.value)}
-                placeholder="https://hotels.com/..."
-              />
+            <div className="flex items-center gap-2">
+              <span>🏨</span>
+              {formData.hotels_com_url ? <a href={formData.hotels_com_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 text-sm font-medium">Hotels.com ↗</a> : <span className="text-sm font-medium">Hotels.com</span>}
+              <Input id="hotels_com_url" value={formData.hotels_com_url} onChange={(e) => handleChange("hotels_com_url", e.target.value)} placeholder="https://hotels.com/..." className="flex-1" />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="trivago_url" className="flex items-center gap-2">
-                🔍 Trivago
-              </Label>
-              <Input
-                id="trivago_url"
-                value={formData.trivago_url}
-                onChange={(e) => handleChange("trivago_url", e.target.value)}
-                placeholder="https://trivago.com/..."
-              />
+            <div className="flex items-center gap-2">
+              <span>🔍</span>
+              {formData.trivago_url ? <a href={formData.trivago_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 text-sm font-medium">Trivago ↗</a> : <span className="text-sm font-medium">Trivago</span>}
+              <Input id="trivago_url" value={formData.trivago_url} onChange={(e) => handleChange("trivago_url", e.target.value)} placeholder="https://trivago.com/..." className="flex-1" />
             </div>
-
           </div>
         </div>
 
