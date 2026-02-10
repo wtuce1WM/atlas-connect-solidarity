@@ -869,11 +869,13 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
           <Input
             id="hook_fr"
             value={formData.hook_fr}
-            onChange={(e) => handleChange("hook_fr", e.target.value)}
+            onChange={(e) => handleChange("hook_fr", e.target.value.slice(0, 120))}
             placeholder="Accroche en français"
+            maxLength={120}
             className="!text-2xl font-semibold h-14 px-4"
             style={{ fontSize: '1.5rem', lineHeight: '2rem' }}
           />
+          <span className="text-xs text-muted-foreground">{formData.hook_fr.length}/120</span>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
@@ -881,19 +883,23 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
             <Input
               id="hook_en"
               value={formData.hook_en}
-              onChange={(e) => handleChange("hook_en", e.target.value)}
+              onChange={(e) => handleChange("hook_en", e.target.value.slice(0, 120))}
               placeholder="Tagline in English"
+              maxLength={120}
             />
+            <span className="text-xs text-muted-foreground">{formData.hook_en.length}/120</span>
           </div>
           <div className="space-y-2">
             <Label htmlFor="hook_ar">Hook AR</Label>
             <Input
               id="hook_ar"
               value={formData.hook_ar}
-              onChange={(e) => handleChange("hook_ar", e.target.value)}
+              onChange={(e) => handleChange("hook_ar", e.target.value.slice(0, 120))}
               placeholder="شعار بالعربية"
+              maxLength={120}
               dir="rtl"
             />
+            <span className="text-xs text-muted-foreground">{formData.hook_ar.length}/120</span>
           </div>
         </div>
 
