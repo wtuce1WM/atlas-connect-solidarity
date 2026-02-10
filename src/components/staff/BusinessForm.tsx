@@ -1252,8 +1252,10 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
               title="Cliquer pour copier le nom"
               onClick={() => {
                 const name = formData.name || 'Nom Entreprise';
-                navigator.clipboard.writeText(name);
-                toast({ title: `"${name}" copié !` });
+                const city = formData.city || '';
+                const text = city ? `${name} ${city}` : name;
+                navigator.clipboard.writeText(text);
+                toast({ title: `"${text}" copié !` });
               }}
             >Avis clients / {formData.name || 'Nom Entreprise'}</Label>
             {business?.id && (
