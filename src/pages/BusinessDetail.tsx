@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, Navigate, useNavigate } from "react-router-dom";
-import { ArrowLeft, MapPin, Phone, Mail, Globe, BadgeCheck, Loader2, ChevronLeft, ChevronRight, FileText, Download, ShoppingBag, Facebook, Instagram, Linkedin, Youtube, MessageCircle, Clock, AlertTriangle, ChevronDown } from "lucide-react";
+import { ArrowLeft, MapPin, Phone, Mail, Globe, BadgeCheck, Loader2, ChevronLeft, ChevronRight, FileText, Download, ShoppingBag, Facebook, Instagram, Linkedin, Youtube, MessageCircle, Clock, AlertTriangle, ChevronDown, Play } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { format, parseISO } from "date-fns";
@@ -137,6 +137,7 @@ const BusinessDetail = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const { t, language } = useLanguage();
   const navigate = useNavigate();
 
@@ -393,13 +394,31 @@ const BusinessDetail = () => {
               
               return (
                 <Card className="overflow-hidden bg-black border-black max-w-full">
-                  <div className="aspect-video w-full">
+                  <div className="aspect-video w-full relative">
                     {embedData.type === 'video' ? (
-                      <video
-                        src={embedData.url}
-                        controls
-                        className="w-full h-full object-cover"
-                      />
+                      <>
+                        <video
+                          src={embedData.url}
+                          controls
+                          className="w-full h-full object-cover"
+                          onPlay={() => setIsVideoPlaying(true)}
+                          onPause={() => setIsVideoPlaying(false)}
+                          onEnded={() => setIsVideoPlaying(false)}
+                        />
+                        {!isVideoPlaying && (
+                          <div
+                            className="absolute inset-0 flex items-center justify-center bg-black/30 cursor-pointer transition-opacity duration-300"
+                            onClick={(e) => {
+                              const video = (e.currentTarget.previousElementSibling) as HTMLVideoElement;
+                              if (video) video.play();
+                            }}
+                          >
+                            <div className="rounded-full bg-white/90 p-4 shadow-lg">
+                              <Play className="h-10 w-10 text-black fill-black" />
+                            </div>
+                          </div>
+                        )}
+                      </>
                     ) : (
                       <iframe
                         src={embedData.url}
