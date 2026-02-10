@@ -550,7 +550,7 @@ const CityMap = () => {
                         view: "Voir sur la carte",
                         shown: "Affiché sur la carte"
                       }}
-                      showAddress={true}
+                      showAddress={false}
                     />
                   ))}
                 </div>
