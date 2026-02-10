@@ -14,7 +14,17 @@ interface ReviewResult {
   restaurant_guru_review_count?: number | null;
 }
 
-// Google Places API - Find Place then get details
+// Extract coordinates from Google Maps URL
+function extractCoordsFromUrl(url: string): { lat: number; lng: number } | null {
+  // Pattern: @31.6254736,-8.0030928
+  const match = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+  if (match) {
+    return { lat: parseFloat(match[1]), lng: parseFloat(match[2]) };
+  }
+  return null;
+}
+
+// Google Places API
 async function fetchGoogleReviews(businessName: string, city: string, googleMapsUrl: string | null): Promise<{ rating: number | null; count: number | null }> {
   const apiKey = Deno.env.get('GOOGLE_MAPS_API_KEY');
   if (!apiKey) {
@@ -23,26 +33,52 @@ async function fetchGoogleReviews(businessName: string, city: string, googleMaps
   }
 
   try {
-    // Try to extract place_id from Google Maps URL first
     let placeId: string | null = null;
-    
+
+    // 1. Try place_id from URL
     if (googleMapsUrl) {
-      // Try place_id pattern
       const placeIdMatch = googleMapsUrl.match(/place_id[=:]([A-Za-z0-9_-]+)/);
       if (placeIdMatch) {
         placeId = placeIdMatch[1];
       }
     }
 
-    // If no place_id found, search by name + city
+    // 2. Try nearby search using coordinates from URL
+    if (!placeId && googleMapsUrl) {
+      const coords = extractCoordsFromUrl(googleMapsUrl);
+      if (coords) {
+        console.log(`Trying nearby search at ${coords.lat},${coords.lng} for "${businessName}"`);
+        const nearbyRes = await fetch(
+          `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${coords.lat},${coords.lng}&radius=100&keyword=${encodeURIComponent(businessName)}&key=${apiKey}`
+        );
+        const nearbyData = await nearbyRes.json();
+        if (nearbyData.results && nearbyData.results.length > 0) {
+          placeId = nearbyData.results[0].place_id;
+          console.log(`Found via nearby search: ${placeId}`);
+        }
+      }
+    }
+
+    // 3. Fallback: text search with name + city
     if (!placeId) {
-      const query = encodeURIComponent(`${businessName} ${city}`);
-      const findRes = await fetch(
-        `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${query}&inputtype=textquery&fields=place_id&key=${apiKey}`
-      );
-      const findData = await findRes.json();
-      if (findData.candidates && findData.candidates.length > 0) {
-        placeId = findData.candidates[0].place_id;
+      // Try with simplified name (remove "By ..." parts)
+      const simplifiedName = businessName.replace(/\s+by\s+.*/i, '').trim();
+      const queries = [
+        `${businessName} ${city}`,
+        `${simplifiedName} ${city}`,
+      ];
+
+      for (const q of queries) {
+        console.log(`Trying text search: "${q}"`);
+        const findRes = await fetch(
+          `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${encodeURIComponent(q)}&inputtype=textquery&fields=place_id&key=${apiKey}`
+        );
+        const findData = await findRes.json();
+        if (findData.candidates && findData.candidates.length > 0) {
+          placeId = findData.candidates[0].place_id;
+          console.log(`Found via text search: ${placeId}`);
+          break;
+        }
       }
     }
 
@@ -58,6 +94,7 @@ async function fetchGoogleReviews(businessName: string, city: string, googleMaps
     const detailsData = await detailsRes.json();
 
     if (detailsData.result) {
+      console.log(`Google result: rating=${detailsData.result.rating}, count=${detailsData.result.user_ratings_total}`);
       return {
         rating: detailsData.result.rating ?? null,
         count: detailsData.result.user_ratings_total ?? null,
@@ -78,6 +115,7 @@ async function fetchTripAdvisorReviews(url: string): Promise<{ rating: number | 
   }
 
   try {
+    console.log(`Scraping TripAdvisor: ${url}`);
     const response = await fetch('https://api.firecrawl.dev/v1/scrape', {
       method: 'POST',
       headers: {
@@ -86,18 +124,29 @@ async function fetchTripAdvisorReviews(url: string): Promise<{ rating: number | 
       },
       body: JSON.stringify({
         url,
-        formats: [{ type: 'json', prompt: 'Extract the overall rating (out of 5) and total number of reviews from this TripAdvisor page. Return as JSON with fields: rating (number), review_count (number).' }],
+        formats: ['extract'],
+        extract: {
+          prompt: 'Extract the overall rating (out of 5, as a decimal like 4.5) and total number of reviews from this TripAdvisor page.',
+          schema: {
+            type: 'object',
+            properties: {
+              rating: { type: 'number', description: 'Overall rating out of 5' },
+              review_count: { type: 'number', description: 'Total number of reviews' },
+            },
+          },
+        },
         waitFor: 3000,
       }),
     });
 
     const data = await response.json();
-    const jsonData = data?.data?.json || data?.json;
+    console.log('TripAdvisor Firecrawl response:', JSON.stringify(data).substring(0, 500));
 
-    if (jsonData) {
+    const extracted = data?.data?.extract;
+    if (extracted) {
       return {
-        rating: jsonData.rating ? parseFloat(jsonData.rating) : null,
-        count: jsonData.review_count ? parseInt(jsonData.review_count) : null,
+        rating: extracted.rating ? parseFloat(String(extracted.rating)) : null,
+        count: extracted.review_count ? parseInt(String(extracted.review_count)) : null,
       };
     }
   } catch (e) {
@@ -108,6 +157,12 @@ async function fetchTripAdvisorReviews(url: string): Promise<{ rating: number | 
 
 // Firecrawl scraping for Restaurant Guru
 async function fetchRestaurantGuruReviews(url: string): Promise<{ rating: number | null; count: number | null }> {
+  // Only process actual restaurant guru URLs
+  if (!url.includes('restaurantguru.com')) {
+    console.log(`Skipping non-Restaurant Guru URL: ${url}`);
+    return { rating: null, count: null };
+  }
+
   const apiKey = Deno.env.get('FIRECRAWL_API_KEY');
   if (!apiKey) {
     console.error('FIRECRAWL_API_KEY not configured');
@@ -115,6 +170,7 @@ async function fetchRestaurantGuruReviews(url: string): Promise<{ rating: number
   }
 
   try {
+    console.log(`Scraping Restaurant Guru: ${url}`);
     const response = await fetch('https://api.firecrawl.dev/v1/scrape', {
       method: 'POST',
       headers: {
@@ -123,18 +179,29 @@ async function fetchRestaurantGuruReviews(url: string): Promise<{ rating: number
       },
       body: JSON.stringify({
         url,
-        formats: [{ type: 'json', prompt: 'Extract the overall rating (out of 5 or out of 10, normalize to out of 5) and total number of reviews from this Restaurant Guru page. Return as JSON with fields: rating (number out of 5), review_count (number).' }],
+        formats: ['extract'],
+        extract: {
+          prompt: 'Extract the overall rating (normalize to out of 5 if needed) and total number of reviews from this Restaurant Guru page.',
+          schema: {
+            type: 'object',
+            properties: {
+              rating: { type: 'number', description: 'Overall rating out of 5' },
+              review_count: { type: 'number', description: 'Total number of reviews' },
+            },
+          },
+        },
         waitFor: 3000,
       }),
     });
 
     const data = await response.json();
-    const jsonData = data?.data?.json || data?.json;
+    console.log('Restaurant Guru Firecrawl response:', JSON.stringify(data).substring(0, 500));
 
-    if (jsonData) {
+    const extracted = data?.data?.extract;
+    if (extracted) {
       return {
-        rating: jsonData.rating ? parseFloat(jsonData.rating) : null,
-        count: jsonData.review_count ? parseInt(jsonData.review_count) : null,
+        rating: extracted.rating ? parseFloat(String(extracted.rating)) : null,
+        count: extracted.review_count ? parseInt(String(extracted.review_count)) : null,
       };
     }
   } catch (e) {
@@ -158,12 +225,10 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Create Supabase client with service role for writing
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Fetch business data
     const { data: business, error: fetchError } = await supabase
       .from('businesses')
       .select('name, city, google_maps_url, google_reviews_url, tripadvisor_review_url, restaurant_guru_url')
@@ -177,12 +242,12 @@ Deno.serve(async (req) => {
       );
     }
 
-    const results: ReviewResult = {};
+    console.log(`Fetching reviews for: "${business.name}" in ${business.city}`);
+    console.log(`URLs: maps=${business.google_maps_url ? 'yes' : 'no'}, tripadvisor=${business.tripadvisor_review_url ? 'yes' : 'no'}, guru=${business.restaurant_guru_url ? 'yes' : 'no'}`);
 
-    // Fetch reviews in parallel
+    const results: ReviewResult = {};
     const promises: Promise<void>[] = [];
 
-    // Google - always try (uses name + city search)
     promises.push(
       fetchGoogleReviews(business.name, business.city, business.google_maps_url).then(r => {
         results.google_rating = r.rating;
@@ -190,7 +255,6 @@ Deno.serve(async (req) => {
       })
     );
 
-    // TripAdvisor - only if URL provided
     if (business.tripadvisor_review_url) {
       promises.push(
         fetchTripAdvisorReviews(business.tripadvisor_review_url).then(r => {
@@ -200,7 +264,6 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Restaurant Guru - only if URL provided
     if (business.restaurant_guru_url) {
       promises.push(
         fetchRestaurantGuruReviews(business.restaurant_guru_url).then(r => {
@@ -212,7 +275,8 @@ Deno.serve(async (req) => {
 
     await Promise.all(promises);
 
-    // Build update object (only non-null values)
+    console.log('Results:', JSON.stringify(results));
+
     const updateData: Record<string, any> = {};
     if (results.google_rating != null) updateData.google_rating = results.google_rating;
     if (results.google_review_count != null) updateData.google_review_count = results.google_review_count;
@@ -221,7 +285,6 @@ Deno.serve(async (req) => {
     if (results.restaurant_guru_rating != null) updateData.restaurant_guru_rating = results.restaurant_guru_rating;
     if (results.restaurant_guru_review_count != null) updateData.restaurant_guru_review_count = results.restaurant_guru_review_count;
 
-    // Update business if we got any data
     if (Object.keys(updateData).length > 0) {
       const { error: updateError } = await supabase
         .from('businesses')
