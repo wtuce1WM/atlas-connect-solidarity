@@ -510,7 +510,7 @@ const BusinessDetail = () => {
               <Card>
                 <CardContent className="p-6">
                   <div 
-                    className="text-muted-foreground leading-relaxed prose prose-sm max-w-none prose-headings:text-foreground prose-a:text-primary [&_p:empty]:min-h-[1em] [&_ul]:list-disc [&_ol]:list-decimal [&_li]:ml-4"
+                    className="text-muted-foreground leading-relaxed prose prose-sm max-w-none prose-headings:text-foreground prose-a:text-primary [&_p:empty]:min-h-[1em] [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:ml-0 [&_li>p]:mb-0"
                     dangerouslySetInnerHTML={{ __html: business.description }}
                   />
                 </CardContent>
