@@ -80,6 +80,9 @@ interface Business {
   account_type: string | null;
   neighborhood: string | null;
   gamme_id: string | null;
+  hook_fr: string | null;
+  hook_en: string | null;
+  hook_ar: string | null;
 }
 
 interface Gamme {
@@ -387,6 +390,17 @@ const BusinessDetail = () => {
         <div className="grid gap-8 lg:grid-cols-3 overflow-x-hidden">
           {/* Main content */}
           <div className="lg:col-span-2 space-y-6 overflow-hidden">
+            {/* Hook */}
+            {(() => {
+              const hook = language === 'ar' ? (business.hook_ar || business.hook_fr) : language === 'en' ? (business.hook_en || business.hook_fr) : business.hook_fr;
+              if (!hook) return null;
+              return (
+                <p className="text-2xl md:text-3xl font-semibold text-foreground/80 italic leading-snug">
+                  {hook}
+                </p>
+              );
+            })()}
+
             {/* Video */}
             {business.video_1_url && (() => {
               const embedData = getEmbedUrl(business.video_1_url);
