@@ -330,6 +330,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
     vacation_dates: ((business as any)?.vacation_dates || []) as VacationPeriod[],
     hotels_com_url: (business as any)?.hotels_com_url || "",
     trivago_url: (business as any)?.trivago_url || "",
+    tripadvisor_review_url: (business as any)?.tripadvisor_review_url || "",
     other_booking_url: (business as any)?.other_booking_url || "",
     other_booking_name: (business as any)?.other_booking_name || "",
     gamme_id: (business as any)?.gamme_id || "",
@@ -479,6 +480,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
       vacation_dates: formData.vacation_dates.length > 0 ? JSON.parse(JSON.stringify(formData.vacation_dates)) : [],
       hotels_com_url: formData.hotels_com_url || null,
       trivago_url: formData.trivago_url || null,
+      tripadvisor_review_url: (formData as any).tripadvisor_review_url || null,
       other_booking_url: formData.other_booking_url || null,
       other_booking_name: formData.other_booking_name || null,
       gamme_id: formData.gamme_id || null,
@@ -1303,6 +1305,16 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
               {formData.trivago_url ? <a href={formData.trivago_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 text-sm font-medium">Trivago ↗</a> : <span className="text-sm font-medium">Trivago</span>}
               <Input id="trivago_url" value={formData.trivago_url} onChange={(e) => handleChange("trivago_url", e.target.value)} placeholder="https://trivago.com/..." className="flex-1" />
             </div>
+          </div>
+        </div>
+
+        {/* Avis clients */}
+        <div className="space-y-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+          <Label className="text-xl font-semibold">Avis clients</Label>
+          <div className="flex items-center gap-2">
+            <TripAdvisorIcon className="text-[#00AF87]" />
+            {formData.tripadvisor_review_url ? <a href={formData.tripadvisor_review_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 text-sm font-medium">TripAdvisor Avis ↗</a> : <span className="text-sm font-medium">TripAdvisor Avis</span>}
+            <Input id="tripadvisor_review_url" value={formData.tripadvisor_review_url} onChange={(e) => handleChange("tripadvisor_review_url", e.target.value)} placeholder="https://tripadvisor.com/.../reviews" className="flex-1" />
           </div>
         </div>
 
