@@ -343,8 +343,14 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
     hotels_com_url: (business as any)?.hotels_com_url || "",
     trivago_url: (business as any)?.trivago_url || "",
     tripadvisor_review_url: (business as any)?.tripadvisor_review_url || "",
+    tripadvisor_rating: (business as any)?.tripadvisor_rating ?? "",
+    tripadvisor_review_count: (business as any)?.tripadvisor_review_count ?? "",
     restaurant_guru_url: (business as any)?.restaurant_guru_url || "",
+    restaurant_guru_rating: (business as any)?.restaurant_guru_rating ?? "",
+    restaurant_guru_review_count: (business as any)?.restaurant_guru_review_count ?? "",
     google_reviews_url: (business as any)?.google_reviews_url || "",
+    google_rating: (business as any)?.google_rating ?? "",
+    google_review_count: (business as any)?.google_review_count ?? "",
     other_booking_url: (business as any)?.other_booking_url || "",
     other_booking_name: (business as any)?.other_booking_name || "",
     gamme_id: (business as any)?.gamme_id || "",
@@ -496,8 +502,14 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
       hotels_com_url: formData.hotels_com_url || null,
       trivago_url: formData.trivago_url || null,
       tripadvisor_review_url: (formData as any).tripadvisor_review_url || null,
+      tripadvisor_rating: (formData as any).tripadvisor_rating !== "" ? parseFloat((formData as any).tripadvisor_rating) : null,
+      tripadvisor_review_count: (formData as any).tripadvisor_review_count !== "" ? parseInt((formData as any).tripadvisor_review_count) : null,
       restaurant_guru_url: (formData as any).restaurant_guru_url || null,
+      restaurant_guru_rating: (formData as any).restaurant_guru_rating !== "" ? parseFloat((formData as any).restaurant_guru_rating) : null,
+      restaurant_guru_review_count: (formData as any).restaurant_guru_review_count !== "" ? parseInt((formData as any).restaurant_guru_review_count) : null,
       google_reviews_url: (formData as any).google_reviews_url || null,
+      google_rating: (formData as any).google_rating !== "" ? parseFloat((formData as any).google_rating) : null,
+      google_review_count: (formData as any).google_review_count !== "" ? parseInt((formData as any).google_review_count) : null,
       other_booking_url: formData.other_booking_url || null,
       other_booking_name: formData.other_booking_name || null,
       gamme_id: formData.gamme_id || null,
@@ -1233,20 +1245,44 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
         {/* Avis clients */}
         <div className="space-y-4 p-4 bg-violet-50 border border-violet-200 rounded-lg">
           <Label className="text-xl font-semibold">Avis clients</Label>
-          <div className="flex items-center gap-2">
-            <TripAdvisorIcon className="text-[#00AF87]" />
-            {formData.tripadvisor_review_url ? <a href={formData.tripadvisor_review_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 text-sm font-medium">TripAdvisor Avis ↗</a> : <span className="text-sm font-medium">TripAdvisor Avis</span>}
-            <Input id="tripadvisor_review_url" value={formData.tripadvisor_review_url} onChange={(e) => handleChange("tripadvisor_review_url", e.target.value)} placeholder="https://tripadvisor.com/.../reviews" className="flex-1" />
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <TripAdvisorIcon className="text-[#00AF87]" />
+              {formData.tripadvisor_review_url ? <a href={formData.tripadvisor_review_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 text-sm font-medium">TripAdvisor Avis ↗</a> : <span className="text-sm font-medium">TripAdvisor Avis</span>}
+              <Input id="tripadvisor_review_url" value={formData.tripadvisor_review_url} onChange={(e) => handleChange("tripadvisor_review_url", e.target.value)} placeholder="https://tripadvisor.com/.../reviews" className="flex-1" />
+            </div>
+            <div className="flex items-center gap-2 ml-8">
+              <Input type="number" step="0.1" min="0" max="5" value={(formData as any).tripadvisor_rating} onChange={(e) => handleChange("tripadvisor_rating" as any, e.target.value)} placeholder="Note /5" className="w-24" />
+              <span className="text-xs text-muted-foreground">/5</span>
+              <Input type="number" min="0" value={(formData as any).tripadvisor_review_count} onChange={(e) => handleChange("tripadvisor_review_count" as any, e.target.value)} placeholder="Nb avis" className="w-24" />
+              <span className="text-xs text-muted-foreground">avis</span>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <span>🍽️</span>
-            {formData.restaurant_guru_url ? <a href={formData.restaurant_guru_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 text-sm font-medium">Restaurant Guru ↗</a> : <span className="text-sm font-medium">Restaurant Guru</span>}
-            <Input id="restaurant_guru_url" value={formData.restaurant_guru_url} onChange={(e) => handleChange("restaurant_guru_url", e.target.value)} placeholder="https://fr.restaurantguru.com/..." className="flex-1" />
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <span>🍽️</span>
+              {formData.restaurant_guru_url ? <a href={formData.restaurant_guru_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 text-sm font-medium">Restaurant Guru ↗</a> : <span className="text-sm font-medium">Restaurant Guru</span>}
+              <Input id="restaurant_guru_url" value={formData.restaurant_guru_url} onChange={(e) => handleChange("restaurant_guru_url", e.target.value)} placeholder="https://fr.restaurantguru.com/..." className="flex-1" />
+            </div>
+            <div className="flex items-center gap-2 ml-8">
+              <Input type="number" step="0.1" min="0" max="5" value={(formData as any).restaurant_guru_rating} onChange={(e) => handleChange("restaurant_guru_rating" as any, e.target.value)} placeholder="Note /5" className="w-24" />
+              <span className="text-xs text-muted-foreground">/5</span>
+              <Input type="number" min="0" value={(formData as any).restaurant_guru_review_count} onChange={(e) => handleChange("restaurant_guru_review_count" as any, e.target.value)} placeholder="Nb avis" className="w-24" />
+              <span className="text-xs text-muted-foreground">avis</span>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <GoogleMapsIcon className="text-[#4285F4]" />
-            {formData.google_reviews_url ? <a href={formData.google_reviews_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 text-sm font-medium">Google Avis ↗</a> : <span className="text-sm font-medium">Google Avis</span>}
-            <Input id="google_reviews_url" value={formData.google_reviews_url} onChange={(e) => handleChange("google_reviews_url", e.target.value)} placeholder="https://g.page/.../review" className="flex-1" />
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <GoogleMapsIcon className="text-[#4285F4]" />
+              {formData.google_reviews_url ? <a href={formData.google_reviews_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 text-sm font-medium">Google Avis ↗</a> : <span className="text-sm font-medium">Google Avis</span>}
+              <Input id="google_reviews_url" value={formData.google_reviews_url} onChange={(e) => handleChange("google_reviews_url", e.target.value)} placeholder="https://g.page/.../review" className="flex-1" />
+            </div>
+            <div className="flex items-center gap-2 ml-8">
+              <Input type="number" step="0.1" min="0" max="5" value={(formData as any).google_rating} onChange={(e) => handleChange("google_rating" as any, e.target.value)} placeholder="Note /5" className="w-24" />
+              <span className="text-xs text-muted-foreground">/5</span>
+              <Input type="number" min="0" value={(formData as any).google_review_count} onChange={(e) => handleChange("google_review_count" as any, e.target.value)} placeholder="Nb avis" className="w-24" />
+              <span className="text-xs text-muted-foreground">avis</span>
+            </div>
           </div>
         </div>
 
