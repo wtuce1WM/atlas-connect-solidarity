@@ -51,6 +51,7 @@ const NeighborhoodPage = () => {
   const navigate = useNavigate();
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [gammes, setGammes] = useState<Gamme[]>([]);
+  const [neighborhoods, setNeighborhoods] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [selectedSubcategory, setSelectedSubcategory] = useState<string>("");
@@ -152,6 +153,27 @@ const NeighborhoodPage = () => {
         .order("sort_order", { ascending: true });
 
       if (gammesData) setGammes(gammesData);
+
+      // Fetch neighborhoods for the same city
+      if (cityParam) {
+        const { data: cityData } = await supabase
+          .from("cities")
+          .select("id")
+          .ilike("name_fr", cityParam)
+          .maybeSingle();
+        
+        if (cityData) {
+          const { data: neighborhoodsData } = await supabase
+            .from("neighborhoods")
+            .select("name")
+            .eq("city_id", cityData.id)
+            .order("sort_order", { ascending: true });
+          
+          if (neighborhoodsData) {
+            setNeighborhoods(neighborhoodsData.map(n => n.name));
+          }
+        }
+      }
 
       let query = supabase
         .from("businesses")
@@ -324,6 +346,23 @@ const NeighborhoodPage = () => {
         {/* Filters */}
         <div className="space-y-3 mb-6">
           <div className="flex flex-wrap gap-3">
+            {/* Neighborhood Filter */}
+            {neighborhoods.length > 1 && (
+              <div className="flex-1 min-w-[140px]">
+                <label className="text-sm font-medium text-foreground mb-1.5 block">Quartier</label>
+                <Select value={decodedNeighborhood} onValueChange={(value) => navigate(`/neighborhood/${encodeURIComponent(value)}?city=${encodeURIComponent(cityParam)}`)}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder={decodedNeighborhood} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {neighborhoods.map((n) => (
+                      <SelectItem key={n} value={n}>{n}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
             {/* Main Category Filter */}
             <div className="flex-1 min-w-[140px]">
               <label className="text-sm font-medium text-foreground mb-1.5 block">Catégorie</label>
