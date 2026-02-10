@@ -741,7 +741,7 @@ const BusinessDetail = () => {
             {(business.tripadvisor_review_url || business.restaurant_guru_url || business.google_reviews_url) && (
               <Card className="bg-white border">
                 <CardContent className="p-6">
-                  <h2 className="text-xl font-semibold mb-4">
+                  <h2 className="text-xl font-bold mb-4">
                     Avis clients
                     {(() => {
                       const ratings: { rating: number; count: number }[] = [];
@@ -759,8 +759,8 @@ const BusinessDetail = () => {
                       const weightedAvg = ratings.reduce((sum, r) => sum + (r.rating / 5) * 20 * r.count, 0) / totalCount;
                       const avg20 = weightedAvg.toFixed(2).replace('.', ',');
                       return (
-                        <span className="text-gold font-bold ml-3 text-2xl">
-                          {avg20}/20 <span className="text-lg font-bold text-muted-foreground">sur {totalCount.toLocaleString('fr-FR')} avis</span>
+                        <span className="text-gold ml-3">
+                          {avg20}/20 <span className="text-muted-foreground">sur {totalCount.toLocaleString('fr-FR')} avis</span>
                         </span>
                       );
                     })()}
