@@ -1308,6 +1308,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
             <span className="text-xs text-muted-foreground">/5</span>
             <Input type="number" min="0" value={(formData as any).tripadvisor_review_count} onChange={(e) => handleChange("tripadvisor_review_count" as any, e.target.value)} placeholder="Nb" className="w-20" />
             <span className="text-xs text-muted-foreground">avis</span>
+            <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" title="Effacer TripAdvisor" onClick={() => { handleChange("tripadvisor_review_url", ""); handleChange("tripadvisor_rating" as any, ""); handleChange("tripadvisor_review_count" as any, ""); }}>🗑️</Button>
           </div>
           <div className="flex items-center gap-2">
             <img src={restaurantGuruLogo} alt="Restaurant Guru" className="w-5 h-5 object-contain" />
@@ -1317,6 +1318,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
             <span className="text-xs text-muted-foreground">/5</span>
             <Input type="number" min="0" value={(formData as any).restaurant_guru_review_count} onChange={(e) => handleChange("restaurant_guru_review_count" as any, e.target.value)} placeholder="Nb" className="w-20" />
             <span className="text-xs text-muted-foreground">avis</span>
+            <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" title="Effacer Restaurant Guru" onClick={() => { handleChange("restaurant_guru_url", ""); handleChange("restaurant_guru_rating" as any, ""); handleChange("restaurant_guru_review_count" as any, ""); }}>🗑️</Button>
           </div>
           <div className="flex items-center gap-2">
             <GoogleMapsIcon className="text-[#4285F4]" />
@@ -1326,6 +1328,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
             <span className="text-xs text-muted-foreground">/5</span>
             <Input type="number" min="0" value={(formData as any).google_review_count} onChange={(e) => handleChange("google_review_count" as any, e.target.value)} placeholder="Nb" className="w-20" />
             <span className="text-xs text-muted-foreground">avis</span>
+            <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" title="Effacer Google Avis" onClick={() => { handleChange("google_reviews_url", ""); handleChange("google_rating" as any, ""); handleChange("google_review_count" as any, ""); }}>🗑️</Button>
           </div>
         </div>
 
