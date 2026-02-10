@@ -641,7 +641,7 @@ const BusinessDetail = () => {
                       <span>
                         Autres lieux intéressants de :{" "}
                         <Link
-                          to={`/neighborhood/${encodeURIComponent(business.neighborhood)}`}
+                          to={`/neighborhood/${encodeURIComponent(business.neighborhood)}?city=${encodeURIComponent(business.city)}`}
                           className="font-bold text-primary hover:underline"
                         >
                           {business.neighborhood}
