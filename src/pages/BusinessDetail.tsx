@@ -205,7 +205,7 @@ const BusinessDetail = () => {
   }
 
   const isVerified = business.wtuce_status === "verified";
-  const isInstitution = business.account_type === "Institution";
+  const isInstitution = business.account_type?.toLowerCase() === "institution";
   return (
     <div className={`min-h-screen ${isVerified ? "bg-gradient-to-b from-black from-50% to-gold" : "bg-background"}`}>
       <Header />
