@@ -870,21 +870,21 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="online_shop_url_top">Boutique en ligne</Label>
-            <Input
-              id="online_shop_url_top"
-              value={formData.online_shop_url}
-              onChange={(e) => handleChange("online_shop_url", e.target.value)}
-              placeholder="https://"
-            />
-          </div>
-
-          <div className="space-y-2">
             <Label htmlFor="reserve_now_url_top">Lien "Réserver maintenant"</Label>
             <Input
               id="reserve_now_url_top"
               value={formData.reserve_now_url}
               onChange={(e) => handleChange("reserve_now_url", e.target.value)}
+              placeholder="https://"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="online_shop_url_top">Boutique en ligne</Label>
+            <Input
+              id="online_shop_url_top"
+              value={formData.online_shop_url}
+              onChange={(e) => handleChange("online_shop_url", e.target.value)}
               placeholder="https://"
             />
           </div>
