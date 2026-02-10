@@ -51,9 +51,11 @@ interface StaffDashboardProps {
   onEditBusiness: (business: Business) => void;
   brokenFilesMap: BrokenFilesMap;
   isCheckingBrokenFiles: boolean;
+  hasCheckedBrokenFiles: boolean;
+  onCheckBrokenFiles: () => void;
 }
 
-const StaffDashboard = ({ businesses, onNavigateTab, onNewBusiness, onEditBusiness, brokenFilesMap, isCheckingBrokenFiles }: StaffDashboardProps) => {
+const StaffDashboard = ({ businesses, onNavigateTab, onNewBusiness, onEditBusiness, brokenFilesMap, isCheckingBrokenFiles, hasCheckedBrokenFiles, onCheckBrokenFiles }: StaffDashboardProps) => {
   // === STATISTICS ===
   const stats = useMemo(() => {
     const total = businesses.length;
@@ -170,6 +172,17 @@ const StaffDashboard = ({ businesses, onNavigateTab, onNewBusiness, onEditBusine
                 <Loader2 className="h-4 w-4 animate-spin" />
                 <span className="text-sm">Vérification des fichiers…</span>
               </div>
+            ) : !hasCheckedBrokenFiles ? (
+              <button
+                onClick={onCheckBrokenFiles}
+                className="flex items-center justify-between w-full p-2 rounded-md bg-muted/50 hover:bg-muted transition-colors cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  <ImageMinus className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm">Images/fichiers introuvables</span>
+                </div>
+                <Badge variant="outline" className="text-xs">Lancer la vérification</Badge>
+              </button>
             ) : (
               (() => {
                 const brokenBusinesses = businesses.filter(b => brokenFilesMap[b.id]);
