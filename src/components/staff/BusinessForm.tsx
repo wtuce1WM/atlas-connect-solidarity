@@ -811,6 +811,86 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
         {/* Contact & Localisation */}
         <div className="p-4 border rounded-lg bg-orange-50 space-y-4">
           <h3 className="text-sm font-semibold text-orange-800">📍 Contact & Localisation</h3>
+          
+          {/* Adresse, Ville, Région, Quartier */}
+          <div className="grid grid-cols-1 md:grid-cols-8 gap-4">
+            <div className="space-y-2 md:col-span-4">
+              <Label htmlFor="address_top">Adresse</Label>
+              <Input
+                id="address_top"
+                value={formData.address}
+                onChange={(e) => handleChange("address", e.target.value)}
+              />
+            </div>
+            <div className="space-y-2 md:col-span-1">
+              <Label htmlFor="city_top">Ville *</Label>
+              <Select
+                value={formData.city}
+                onValueChange={(value) => {
+                  handleChange("city", value);
+                  const selectedCity = dbCities.find(c => c.name_fr === value);
+                  if (selectedCity?.region) {
+                    handleChange("region", selectedCity.region);
+                  }
+                  handleChange("neighborhood", "");
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Ville..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {dbCities.map((city) => (
+                    <SelectItem key={city.id} value={city.name_fr}>
+                      {city.name_fr}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2 md:col-span-2">
+              <Label htmlFor="region_top">Région *</Label>
+              <Select
+                value={formData.region}
+                onValueChange={(value) => handleChange("region", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Région..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {REGIONS.map((region) => (
+                    <SelectItem key={region} value={region}>
+                      {region}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2 md:col-span-1">
+              <Label htmlFor="neighborhood_top">Quartier</Label>
+              <Select
+                value={formData.neighborhood}
+                onValueChange={(value) => handleChange("neighborhood", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={
+                    !formData.city
+                      ? "Ville d'abord"
+                      : neighborhoodsForCity.length === 0
+                        ? "Aucun"
+                        : "Quartier..."
+                  } />
+                </SelectTrigger>
+                <SelectContent>
+                  {neighborhoodsForCity.map((n) => (
+                    <SelectItem key={n.id} value={n.name}>
+                      {n.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="google_maps_url_top" className="flex items-center gap-2">
               <GoogleMapsIcon className="text-[#4285F4]" />
