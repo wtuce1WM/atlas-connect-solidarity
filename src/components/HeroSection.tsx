@@ -420,7 +420,7 @@ const HeroSection = () => {
             {/* Sponsors Section */}
             {sponsors.length > 0 && (
               <div className="w-full pb-4">
-                <h3 className="text-center text-white font-semibold text-lg mb-4">Sponsors</h3>
+                <h2 className="text-center text-white font-bold text-3xl mb-4">Sponsors</h2>
                 <div className="overflow-x-auto scrollbar-hide" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
                 <div className="flex items-center justify-center min-w-max gap-0">
                   {sponsors.map((sponsor, index) => {
