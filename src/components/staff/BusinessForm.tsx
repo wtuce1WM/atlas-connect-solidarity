@@ -1264,18 +1264,6 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="google_maps_url" className="flex items-center gap-2">
-                <GoogleMapsIcon className="text-[#4285F4]" />
-                Google Maps
-              </Label>
-              <Input
-                id="google_maps_url"
-                value={formData.google_maps_url}
-                onChange={(e) => handleChange("google_maps_url", e.target.value)}
-                placeholder="https://maps.google.com/..."
-              />
-            </div>
 
             <div className="space-y-2">
               <Label htmlFor="pinterest_url" className="flex items-center gap-2">
