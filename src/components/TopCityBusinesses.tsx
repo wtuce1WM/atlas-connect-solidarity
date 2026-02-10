@@ -65,7 +65,7 @@ const TopCityBusinesses = ({ businesses, cityName, gammes = [], onSelectBusiness
     <div className="mb-8 bg-black/20 backdrop-blur-sm rounded-xl p-6">
       {/* Section Header */}
       <div className="mb-6 text-center">
-        <h2 className="mb-2 text-2xl font-bold text-white">
+        <h2 className="mb-2 text-2xl font-bold text-black">
           {language === "fr"
             ? <>Découvrez notre sélection des <span className="text-white">adresses incontournables</span></>
             : language === "ar"
