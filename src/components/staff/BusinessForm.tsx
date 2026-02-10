@@ -679,6 +679,9 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
         </div>
 
         {/* Logo Upload */}
+        <p className="text-xs text-muted-foreground italic">
+          ℹ️ <strong>Logo 1</strong> : logo principal affiché sur la fiche de l'entreprise (en-tête et carte). <strong>Logo 2</strong> : logo secondaire affiché à côté du premier (ex : label de groupe, enseigne partenaire, certification propre).
+        </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label className="text-base font-semibold">Logo 1</Label>
