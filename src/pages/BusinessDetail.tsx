@@ -739,7 +739,7 @@ const BusinessDetail = () => {
 
             {/* Avis clients */}
             {(business.tripadvisor_review_url || business.restaurant_guru_url || business.google_reviews_url) && (
-              <Card className="bg-background border">
+              <Card className="bg-white border">
                 <CardContent className="p-6">
                   <h2 className="text-xl font-semibold mb-4">
                     Avis clients
