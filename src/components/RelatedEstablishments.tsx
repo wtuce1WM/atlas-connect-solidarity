@@ -25,7 +25,7 @@ const RelatedEstablishments = ({ currentBusinessId, kpRegroupement, isVerified =
       const [businessesRes, gammesRes] = await Promise.all([
         supabase
           .from("businesses")
-          .select("id, name, city, region, address, phone, whatsapp, skype, logo_url, images, categories, wtuce_status, latitude, longitude, google_maps_url, rating, gamme_id, neighborhood")
+          .select("id, name, city, region, address, phone, whatsapp, skype, logo_url, images, categories, wtuce_status, latitude, longitude, google_maps_url, rating, gamme_id, neighborhood, is_master")
           .eq("kp_regroupement", kpRegroupement)
           .eq("is_active", true)
           .neq("id", currentBusinessId)
@@ -37,7 +37,13 @@ const RelatedEstablishments = ({ currentBusinessId, kpRegroupement, isVerified =
       ]);
 
       if (businessesRes.data && businessesRes.data.length > 0) {
-        setRelatedBusinesses(businessesRes.data as BusinessCardData[]);
+        // Sort: master first, then by status/priority
+        const sorted = [...businessesRes.data].sort((a: any, b: any) => {
+          if (a.is_master && !b.is_master) return -1;
+          if (!a.is_master && b.is_master) return 1;
+          return 0;
+        });
+        setRelatedBusinesses(sorted as BusinessCardData[]);
       }
       if (gammesRes.data) {
         setGammes(gammesRes.data as Gamme[]);
