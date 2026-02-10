@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams, Link } from "react-router-dom";
 import { ArrowLeft, Loader2, MapPin, ChevronLeft, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -43,6 +43,7 @@ const ITEMS_PER_PAGE = 20;
 
 const NeighborhoodPage = () => {
   const { neighborhood } = useParams<{ neighborhood: string }>();
+  const [searchParams] = useSearchParams();
   const { language } = useLanguage();
   const navigate = useNavigate();
   const [businesses, setBusinesses] = useState<Business[]>([]);
@@ -52,6 +53,7 @@ const NeighborhoodPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   const decodedNeighborhood = neighborhood ? decodeURIComponent(neighborhood) : "";
+  const cityParam = searchParams.get("city") ? decodeURIComponent(searchParams.get("city")!) : "";
 
   const availableCategories = useMemo(() => {
     const categories = new Set<string>();
@@ -95,11 +97,17 @@ const NeighborhoodPage = () => {
 
       if (gammesData) setGammes(gammesData);
 
-      const { data: businessData, error } = await supabase
+      let query = supabase
         .from("businesses")
         .select("id, name, city, region, address, phone, whatsapp, skype, main_category, categories, latitude, longitude, google_maps_url, wtuce_status, services, images, rating, priority_score, logo_url, gamme_id, neighborhood")
         .eq("is_active", true)
-        .ilike("neighborhood", decodedNeighborhood)
+        .ilike("neighborhood", decodedNeighborhood);
+
+      if (cityParam) {
+        query = query.ilike("city", cityParam);
+      }
+
+      const { data: businessData, error } = await query
         .order("wtuce_status", { ascending: true, nullsFirst: false })
         .order("priority_score", { ascending: false });
 
@@ -113,7 +121,7 @@ const NeighborhoodPage = () => {
     };
 
     fetchData();
-  }, [decodedNeighborhood]);
+  }, [decodedNeighborhood, cityParam]);
 
   if (isLoading) {
     return (
@@ -128,7 +136,7 @@ const NeighborhoodPage = () => {
   }
 
   // Get the city name from the first business (all should share the same neighborhood)
-  const cityName = businesses.length > 0 ? businesses[0].city : "";
+  const cityName = cityParam || (businesses.length > 0 ? businesses[0].city : "");
 
   return (
     <div className="min-h-screen bg-background">
