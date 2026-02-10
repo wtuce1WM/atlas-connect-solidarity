@@ -598,7 +598,22 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
 
         {/* Status, Priority & Featured - Section principale */}
         <div className="p-4 border rounded-lg bg-muted/30 space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="space-y-2">
+              <Label>Visibilité</Label>
+              <Select
+                value={formData.is_active ? "online" : "offline"}
+                onValueChange={(value) => handleChange("is_active", value === "online")}
+              >
+                <SelectTrigger className={formData.is_active ? "border-green-500 text-green-700" : "border-red-500 text-red-700"}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="online">🟢 Online</SelectItem>
+                  <SelectItem value="offline">🔴 Offline</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             <div className="space-y-2">
               <Label htmlFor="wtuce_status">Statut</Label>
               <Select
@@ -649,18 +664,6 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
           </div>
 
           <div className="flex flex-wrap items-center gap-6">
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="is_active"
-                checked={formData.is_active}
-                onChange={(e) => handleChange("is_active", e.target.checked)}
-                className="h-4 w-4"
-              />
-              <Label htmlFor="is_active" className="text-green-600 font-medium">
-                Entreprise active (visible sur le site)
-              </Label>
-            </div>
             <div className="flex items-center gap-2">
               <input
                 type="checkbox"
