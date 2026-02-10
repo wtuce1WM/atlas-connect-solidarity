@@ -78,7 +78,7 @@ const LabelSection = ({
 
         const { data, error } = await supabase
           .from("businesses")
-          .select("id, name, city, region, images, rating, description, wtuce_status")
+          .select("id, name, city, region, images, rating, description, wtuce_status, neighborhood")
           .eq("is_active", true)
           .in("id", businessIds)
           .order("priority_score", { ascending: false });

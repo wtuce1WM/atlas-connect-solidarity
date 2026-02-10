@@ -200,7 +200,7 @@ const CategoryPage = () => {
         // Fetch ALL businesses in this category (no limit)
         const { data: businessData, error } = await supabase
           .from("businesses")
-          .select("id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, services, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, opening_hours, show_opening_hours, rating, gamme_id")
+          .select("id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, services, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, opening_hours, show_opening_hours, rating, gamme_id, neighborhood")
           .eq("is_active", true)
           .or(`main_category.eq.${decodedCategoryName},categories.cs.{${decodedCategoryName}}`)
           .order("wtuce_status", { ascending: true })
