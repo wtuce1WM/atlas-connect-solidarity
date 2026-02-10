@@ -894,7 +894,13 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
           <div className="space-y-2">
             <Label htmlFor="google_maps_url_top" className="flex items-center gap-2">
               <GoogleMapsIcon className="text-[#4285F4]" />
-              Google Maps
+              {formData.google_maps_url ? (
+                <a href={formData.google_maps_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">
+                  Google Maps ↗
+                </a>
+              ) : (
+                "Google Maps"
+              )}
             </Label>
             <Input
               id="google_maps_url_top"
