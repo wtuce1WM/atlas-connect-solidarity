@@ -348,13 +348,13 @@ const HeroSection = () => {
 
             {/* Categories Section */}
             <div className="rounded-xl bg-black/30 backdrop-blur-sm p-4">
-              <div className="mb-4 text-center">
-                <h2 className="text-lg md:text-2xl font-bold text-white">
+            <div className="mb-10 text-center">
+                <h2 className="mb-3 text-3xl font-bold text-white">
                   {language === "fr" 
-                    ? "Trouvez les meilleurs professionnels par secteur d'activité" 
+                    ? <>Trouvez les <span className="text-gold">meilleurs professionnels</span> par secteur d'activité</>
                     : language === "ar" 
-                      ? "ابحث عن أفضل المهنيين حسب قطاع النشاط" 
-                      : "Find the best professionals by industry sector"}
+                      ? <>ابحث عن <span className="text-gold">أفضل المهنيين</span> حسب قطاع النشاط</>
+                      : <>Find the <span className="text-gold">best professionals</span> by industry sector</>}
                 </h2>
               </div>
               <div className="relative">
