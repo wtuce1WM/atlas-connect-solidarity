@@ -57,7 +57,7 @@ const KPGroupManagement = () => {
 
     const grouped: KPGroup[] = [];
     map.forEach((businesses, kp) => {
-      if (businesses.length >= 2) {
+      if (businesses.length >= 1) {
         businesses.sort((a, b) => (a.is_master === b.is_master ? a.name.localeCompare(b.name) : a.is_master ? -1 : 1));
         grouped.push({ kp, businesses });
       }
