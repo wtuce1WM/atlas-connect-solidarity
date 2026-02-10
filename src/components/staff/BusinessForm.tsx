@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Save, Award, Trash2 } from "lucide-react";
+import { ArrowLeft, Save, Award, Trash2, MapPinned } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 import RichTextEditor from "./RichTextEditor";
 import ImageUploader from "./ImageUploader";
@@ -1061,6 +1061,57 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
               />
             </div>
           </div>
+          {/* Extract GPS from Google Maps URL */}
+          {formData.google_maps_url && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="gap-2 text-xs"
+              onClick={() => {
+                const url = formData.google_maps_url;
+                let lat: string | null = null;
+                let lng: string | null = null;
+
+                // Try @lat,lng pattern (most common)
+                const atMatch = url.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+                if (atMatch) {
+                  lat = atMatch[1];
+                  lng = atMatch[2];
+                }
+
+                // Try ?q=lat,lng or place/lat,lng
+                if (!lat) {
+                  const qMatch = url.match(/[?&]q=(-?\d+\.?\d*),(-?\d+\.?\d*)/) ||
+                                 url.match(/place\/(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+                  if (qMatch) {
+                    lat = qMatch[1];
+                    lng = qMatch[2];
+                  }
+                }
+
+                // Try !3d...!4d... pattern (embed URLs)
+                if (!lat) {
+                  const embedMatch = url.match(/!3d(-?\d+\.?\d*).*!4d(-?\d+\.?\d*)/);
+                  if (embedMatch) {
+                    lat = embedMatch[1];
+                    lng = embedMatch[2];
+                  }
+                }
+
+                if (lat && lng) {
+                  handleChange("latitude", lat);
+                  handleChange("longitude", lng);
+                  toast({ title: "GPS récupéré", description: `Lat: ${lat}, Lng: ${lng}` });
+                } else {
+                  toast({ variant: "destructive", title: "Impossible d'extraire les coordonnées", description: "Le format de l'URL Google Maps n'est pas reconnu." });
+                }
+              }}
+            >
+              <MapPinned className="h-3.5 w-3.5" />
+              Récupérer GPS depuis Google Maps
+            </Button>
+          )}
 
           {/* Contact */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
