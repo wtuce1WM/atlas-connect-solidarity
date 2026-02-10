@@ -1243,6 +1243,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
               <Input id="trivago_url" value={formData.trivago_url} onChange={(e) => handleChange("trivago_url", e.target.value)} placeholder="https://trivago.com/..." className="flex-1" />
             </div>
           </div>
+          <Button type="button" variant="outline" size="sm" className="text-xs text-muted-foreground hover:text-destructive" onClick={() => { handleChange("reserve_now_url", ""); handleChange("booking_url", ""); handleChange("tripadvisor_url", ""); handleChange("airbnb_url", ""); handleChange("hotels_com_url", ""); handleChange("trivago_url", ""); toast({ title: "Plateformes de réservation effacées" }); }}>🗑️ Effacer toutes les plateformes</Button>
         </div>
 
         {/* Avis clients */}
