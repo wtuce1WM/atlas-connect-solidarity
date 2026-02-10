@@ -612,7 +612,7 @@ const BusinessDetail = () => {
             {business.services && business.services.length > 0 && (
               <Card>
                 <CardContent className="p-6">
-                  <h3 className="text-sm font-medium text-muted-foreground mb-3">Services</h3>
+                  <h2 className="text-xl font-semibold mb-3">Services</h2>
                   <ul className="space-y-3 text-foreground max-h-[400px] overflow-y-auto">
                     {[...business.services].sort((a, b) => a.localeCompare(b, 'fr')).map((service, index) => (
                       <ServiceListItem 
