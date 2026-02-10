@@ -43,6 +43,7 @@ interface Business {
   show_opening_hours: boolean | null;
   logo_url: string | null;
   gamme_id: string | null;
+  neighborhood: string | null;
 }
 
 interface CityInfo {
