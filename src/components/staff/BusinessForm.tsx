@@ -299,7 +299,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
     is_active: (business as any)?.is_active ?? true,
     priority_score: business?.priority_score?.toString() || "0",
     logo_url: business?.logo_url || "",
-    logo_2_url: (business as any)?.logo_2_url || "",
+    
     ice: (business as any)?.ice || "",
     kp_regroupement: (business as any)?.kp_regroupement || "",
     facebook_url: (business as any)?.facebook_url || "",
@@ -451,7 +451,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
       is_active: formData.is_active,
       priority_score: parseInt(formData.priority_score) || 0,
       logo_url: formData.logo_url || null,
-      logo_2_url: (formData as any).logo_2_url || null,
+      
       ice: formData.ice || null,
       kp_regroupement: formData.kp_regroupement || null,
       facebook_url: formData.facebook_url || null,
@@ -688,23 +688,13 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
         <p className="text-xs text-muted-foreground italic">
           ℹ️ <strong>Logo 1</strong> : logo principal affiché sur la fiche de l'entreprise (en-tête et carte). <strong>Logo 2</strong> : logo secondaire affiché à côté du premier (ex : label de groupe, enseigne partenaire, certification propre).
         </p>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label className="text-base font-semibold">Logo 1</Label>
-            <LogoUploader
-              logoUrl={formData.logo_url}
-              onChange={(url) => handleChange("logo_url", url)}
-              businessId={business?.id}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label className="text-base font-semibold">Logo 2</Label>
-            <LogoUploader
-              logoUrl={(formData as any).logo_2_url}
-              onChange={(url) => handleChange("logo_2_url", url)}
-              businessId={business?.id}
-            />
-          </div>
+        <div className="space-y-2">
+          <Label className="text-base font-semibold">Logo</Label>
+          <LogoUploader
+            logoUrl={formData.logo_url}
+            onChange={(url) => handleChange("logo_url", url)}
+            businessId={business?.id}
+          />
         </div>
 
         {/* Basic Info */}
