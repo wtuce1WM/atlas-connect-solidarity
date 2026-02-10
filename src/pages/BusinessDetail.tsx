@@ -760,7 +760,7 @@ const BusinessDetail = () => {
                       const avg20 = weightedAvg.toFixed(2).replace('.', ',');
                       return (
                         <span className="text-gold font-bold ml-3">
-                          {avg20}/20 <span className="text-base font-normal text-muted-foreground">sur {totalCount.toLocaleString('fr-FR')} avis</span>
+                          {avg20}/20 <span className="text-base font-bold text-muted-foreground">sur {totalCount.toLocaleString('fr-FR')} avis</span>
                         </span>
                       );
                     })()}
