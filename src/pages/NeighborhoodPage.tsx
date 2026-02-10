@@ -387,15 +387,10 @@ const NeighborhoodPage = () => {
         </div>
 
         {/* Results count */}
-        {filteredBusinesses.length > 0 && (
-          <p className="text-sm text-muted-foreground mb-4">
-            {language === "fr"
-              ? `Affichage ${startResult}-${endResult} sur ${filteredBusinesses.length} résultat${filteredBusinesses.length > 1 ? "s" : ""}`
-              : language === "ar"
-                ? `عرض ${startResult}-${endResult} من ${filteredBusinesses.length} نتيجة`
-                : `Showing ${startResult}-${endResult} of ${filteredBusinesses.length} result${filteredBusinesses.length > 1 ? "s" : ""}`}
-          </p>
-        )}
+        {/* Business count heading */}
+        <h2 className="text-lg font-semibold text-foreground mb-3">
+          Établissements ({filteredBusinesses.length})
+        </h2>
 
         {/* Business Grid */}
         {filteredBusinesses.length === 0 ? (
@@ -410,20 +405,28 @@ const NeighborhoodPage = () => {
             </p>
           </div>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {paginatedBusinesses.map((business) => (
-              <BusinessCard 
-                key={business.id} 
-                business={business} 
-                gammes={gammes} 
-                verifiedLabel="Vérifié"
-                showMapButton
-                onSelectBusiness={handleSelectBusiness}
-                selectedBusinessId={selectedBusiness?.id}
-                mapButtonLabels={{ view: "Voir sur la carte", shown: "Affiché sur la carte" }}
-              />
-            ))}
-          </div>
+          <>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {paginatedBusinesses.map((business) => (
+                <BusinessCard 
+                  key={business.id} 
+                  business={business} 
+                  gammes={gammes} 
+                  verifiedLabel="Vérifié"
+                  showMapButton
+                  onSelectBusiness={handleSelectBusiness}
+                  selectedBusinessId={selectedBusiness?.id}
+                  mapButtonLabels={{ view: "Voir sur la carte", shown: "Affiché sur la carte" }}
+                />
+              ))}
+            </div>
+
+            {filteredBusinesses.length > 0 && (
+              <p className="text-sm text-muted-foreground mt-4">
+                Affichage {startResult}-{endResult} sur {filteredBusinesses.length} résultat{filteredBusinesses.length > 1 ? "s" : ""}
+              </p>
+            )}
+          </>
         )}
 
         {/* Pagination */}
