@@ -1019,6 +1019,18 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
                 placeholder="contact@exemple.com"
               />
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="skype_top" className="flex items-center gap-2">
+                <SkypeIcon className="text-[#00AFF0]" />
+                Skype
+              </Label>
+              <Input
+                id="skype_top"
+                value={formData.skype}
+                onChange={(e) => handleChange("skype", e.target.value)}
+                placeholder="identifiant.skype"
+              />
+            </div>
           </div>
           <div className="space-y-2">
             {formData.website ? (
@@ -1237,13 +1249,6 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
               <Input id="pinterest_url" value={formData.pinterest_url} onChange={(e) => handleChange("pinterest_url", e.target.value)} placeholder="https://pinterest.com/..." />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="skype" className="flex items-center gap-2">
-                <SkypeIcon className="text-[#00AFF0]" />
-                Skype
-              </Label>
-              <Input id="skype" value={formData.skype} onChange={(e) => handleChange("skype", e.target.value)} placeholder="identifiant.skype" />
-            </div>
 
             <div className="space-y-2">
               <Label htmlFor="vimeo_url" className="flex items-center gap-2">
