@@ -1313,7 +1313,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
         </div>
 
         {/* Avis clients */}
-        <div className="space-y-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+        <div className="space-y-4 p-4 bg-violet-50 border border-violet-200 rounded-lg">
           <Label className="text-xl font-semibold">Avis clients</Label>
           <div className="flex items-center gap-2">
             <TripAdvisorIcon className="text-[#00AF87]" />
