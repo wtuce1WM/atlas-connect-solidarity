@@ -317,7 +317,7 @@ const BusinessDetail = () => {
               {isVerified && !isInstitution && (
                 <div className="flex items-center justify-center sm:justify-start gap-3 mt-3 sm:hidden">
                   {business.rating !== null && business.rating !== undefined && (
-                    <div className="text-gold font-bold text-3xl italic" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                    <div className="text-gold font-bold text-4xl italic" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                       {business.rating}/20
                     </div>
                   )}
@@ -334,7 +334,7 @@ const BusinessDetail = () => {
             {isVerified && !isInstitution && (
               <div className="hidden sm:flex items-center gap-3 flex-shrink-0">
                 {business.rating !== null && business.rating !== undefined && (
-                  <div className="text-gold font-bold text-4xl italic" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                  <div className="text-gold font-bold text-5xl italic" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                     {business.rating}/20
                   </div>
                 )}
