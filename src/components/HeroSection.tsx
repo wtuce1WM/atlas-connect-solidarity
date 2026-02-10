@@ -316,19 +316,19 @@ const HeroSection = () => {
                       to={`/city/${encodeURIComponent(city.name_fr)}`}
                       className="flex-shrink-0"
                     >
-                      <Card className="w-48 bg-white/10 border-white/30 hover:bg-gold/20 hover:border-gold transition-all">
-                        <CardContent className="p-4 text-center">
+                      <Card className="w-52 bg-white/10 border-white/30 hover:bg-gold/20 hover:border-gold transition-all">
+                        <CardContent className="p-5 text-center">
                           <div className="flex items-center justify-center gap-1 mb-2">
-                            <MapPin className="h-4 w-4 text-gold" />
-                            <h3 className="font-semibold text-white">
+                            <MapPin className="h-5 w-5 text-gold" />
+                            <h3 className="text-lg font-semibold text-white">
                               {getCityName(city)}
                             </h3>
                           </div>
                           {city.region && (
-                            <p className="text-xs text-gray-400 mb-2">{city.region}</p>
+                            <p className="text-sm text-gray-400 mb-2">{city.region}</p>
                           )}
-                          <div className="flex items-center justify-center gap-1 text-xs text-gray-300">
-                            <Building2 className="h-3 w-3" />
+                          <div className="flex items-center justify-center gap-1 text-sm text-gray-300">
+                            <Building2 className="h-4 w-4" />
                             <span>
                               {city.businessCount || 0}{" "}
                               {language === "fr" 
@@ -385,20 +385,20 @@ const HeroSection = () => {
                         to={`/category/${encodeURIComponent(category.name_fr)}`}
                         className="flex-shrink-0"
                       >
-                        <Card className="w-48 bg-white/10 border-white/30 hover:bg-gold/20 hover:border-gold transition-all">
-                          <CardContent className="p-4 text-center">
+                        <Card className="w-52 bg-white/10 border-white/30 hover:bg-gold/20 hover:border-gold transition-all">
+                          <CardContent className="p-5 text-center">
                             <div className="flex justify-center mb-2">
                               {category.icon ? (
-                                <DynamicIcon name={category.icon} className="h-6 w-6 text-gold" fallback={<Building2 className="h-6 w-6 text-gold" />} />
+                                <DynamicIcon name={category.icon} className="h-7 w-7 text-gold" fallback={<Building2 className="h-7 w-7 text-gold" />} />
                               ) : (
-                                <Building2 className="h-6 w-6 text-gold" />
+                                <Building2 className="h-7 w-7 text-gold" />
                               )}
                             </div>
-                            <h3 className="font-semibold text-white mb-2">
+                            <h3 className="text-lg font-semibold text-white mb-2">
                               {getCategoryName(category)}
                             </h3>
-                            <div className="flex items-center justify-center gap-1 text-xs text-gray-300">
-                              <Building2 className="h-3 w-3" />
+                            <div className="flex items-center justify-center gap-1 text-sm text-gray-300">
+                              <Building2 className="h-4 w-4" />
                               <span>
                                 {category.businessCount || 0}{" "}
                                 {language === "fr" 
