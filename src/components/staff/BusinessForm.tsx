@@ -1246,44 +1246,32 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
         {/* Avis clients */}
         <div className="space-y-4 p-4 bg-violet-50 border border-violet-200 rounded-lg">
           <Label className="text-xl font-semibold">Avis clients</Label>
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <TripAdvisorIcon className="text-[#00AF87]" />
-              {formData.tripadvisor_review_url ? <a href={formData.tripadvisor_review_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 text-sm font-medium">TripAdvisor Avis ↗</a> : <span className="text-sm font-medium">TripAdvisor Avis</span>}
-              <Input id="tripadvisor_review_url" value={formData.tripadvisor_review_url} onChange={(e) => handleChange("tripadvisor_review_url", e.target.value)} placeholder="https://tripadvisor.com/.../reviews" className="flex-1" />
-            </div>
-            <div className="flex items-center gap-2 ml-8">
-              <Input type="number" step="0.1" min="0" max="5" value={(formData as any).tripadvisor_rating} onChange={(e) => handleChange("tripadvisor_rating" as any, e.target.value)} placeholder="Note /5" className="w-24" />
-              <span className="text-xs text-muted-foreground">/5</span>
-              <Input type="number" min="0" value={(formData as any).tripadvisor_review_count} onChange={(e) => handleChange("tripadvisor_review_count" as any, e.target.value)} placeholder="Nb avis" className="w-24" />
-              <span className="text-xs text-muted-foreground">avis</span>
-            </div>
+          <div className="flex items-center gap-2">
+            <TripAdvisorIcon className="text-[#00AF87]" />
+            {formData.tripadvisor_review_url ? <a href={formData.tripadvisor_review_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 text-sm font-medium">TripAdvisor Avis ↗</a> : <span className="text-sm font-medium">TripAdvisor Avis</span>}
+            <Input id="tripadvisor_review_url" value={formData.tripadvisor_review_url} onChange={(e) => handleChange("tripadvisor_review_url", e.target.value)} placeholder="https://tripadvisor.com/.../reviews" className="flex-1" />
+            <Input type="number" step="0.1" min="0" max="5" value={(formData as any).tripadvisor_rating} onChange={(e) => handleChange("tripadvisor_rating" as any, e.target.value)} placeholder="Note" className="w-20" />
+            <span className="text-xs text-muted-foreground">/5</span>
+            <Input type="number" min="0" value={(formData as any).tripadvisor_review_count} onChange={(e) => handleChange("tripadvisor_review_count" as any, e.target.value)} placeholder="Nb" className="w-20" />
+            <span className="text-xs text-muted-foreground">avis</span>
           </div>
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <img src={restaurantGuruLogo} alt="Restaurant Guru" className="w-5 h-5 object-contain" />
-              {formData.restaurant_guru_url ? <a href={formData.restaurant_guru_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 text-sm font-medium">Restaurant Guru ↗</a> : <span className="text-sm font-medium">Restaurant Guru</span>}
-              <Input id="restaurant_guru_url" value={formData.restaurant_guru_url} onChange={(e) => handleChange("restaurant_guru_url", e.target.value)} placeholder="https://fr.restaurantguru.com/..." className="flex-1" />
-            </div>
-            <div className="flex items-center gap-2 ml-8">
-              <Input type="number" step="0.1" min="0" max="5" value={(formData as any).restaurant_guru_rating} onChange={(e) => handleChange("restaurant_guru_rating" as any, e.target.value)} placeholder="Note /5" className="w-24" />
-              <span className="text-xs text-muted-foreground">/5</span>
-              <Input type="number" min="0" value={(formData as any).restaurant_guru_review_count} onChange={(e) => handleChange("restaurant_guru_review_count" as any, e.target.value)} placeholder="Nb avis" className="w-24" />
-              <span className="text-xs text-muted-foreground">avis</span>
-            </div>
+          <div className="flex items-center gap-2">
+            <img src={restaurantGuruLogo} alt="Restaurant Guru" className="w-5 h-5 object-contain" />
+            {formData.restaurant_guru_url ? <a href={formData.restaurant_guru_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 text-sm font-medium">Restaurant Guru ↗</a> : <span className="text-sm font-medium">Restaurant Guru</span>}
+            <Input id="restaurant_guru_url" value={formData.restaurant_guru_url} onChange={(e) => handleChange("restaurant_guru_url", e.target.value)} placeholder="https://fr.restaurantguru.com/..." className="flex-1" />
+            <Input type="number" step="0.1" min="0" max="5" value={(formData as any).restaurant_guru_rating} onChange={(e) => handleChange("restaurant_guru_rating" as any, e.target.value)} placeholder="Note" className="w-20" />
+            <span className="text-xs text-muted-foreground">/5</span>
+            <Input type="number" min="0" value={(formData as any).restaurant_guru_review_count} onChange={(e) => handleChange("restaurant_guru_review_count" as any, e.target.value)} placeholder="Nb" className="w-20" />
+            <span className="text-xs text-muted-foreground">avis</span>
           </div>
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <GoogleMapsIcon className="text-[#4285F4]" />
-              {formData.google_reviews_url ? <a href={formData.google_reviews_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 text-sm font-medium">Google Avis ↗</a> : <span className="text-sm font-medium">Google Avis</span>}
-              <Input id="google_reviews_url" value={formData.google_reviews_url} onChange={(e) => handleChange("google_reviews_url", e.target.value)} placeholder="https://g.page/.../review" className="flex-1" />
-            </div>
-            <div className="flex items-center gap-2 ml-8">
-              <Input type="number" step="0.1" min="0" max="5" value={(formData as any).google_rating} onChange={(e) => handleChange("google_rating" as any, e.target.value)} placeholder="Note /5" className="w-24" />
-              <span className="text-xs text-muted-foreground">/5</span>
-              <Input type="number" min="0" value={(formData as any).google_review_count} onChange={(e) => handleChange("google_review_count" as any, e.target.value)} placeholder="Nb avis" className="w-24" />
-              <span className="text-xs text-muted-foreground">avis</span>
-            </div>
+          <div className="flex items-center gap-2">
+            <GoogleMapsIcon className="text-[#4285F4]" />
+            {formData.google_reviews_url ? <a href={formData.google_reviews_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 text-sm font-medium">Google Avis ↗</a> : <span className="text-sm font-medium">Google Avis</span>}
+            <Input id="google_reviews_url" value={formData.google_reviews_url} onChange={(e) => handleChange("google_reviews_url", e.target.value)} placeholder="https://g.page/.../review" className="flex-1" />
+            <Input type="number" step="0.1" min="0" max="5" value={(formData as any).google_rating} onChange={(e) => handleChange("google_rating" as any, e.target.value)} placeholder="Note" className="w-20" />
+            <span className="text-xs text-muted-foreground">/5</span>
+            <Input type="number" min="0" value={(formData as any).google_review_count} onChange={(e) => handleChange("google_review_count" as any, e.target.value)} placeholder="Nb" className="w-20" />
+            <span className="text-xs text-muted-foreground">avis</span>
           </div>
         </div>
 
