@@ -606,7 +606,7 @@ const BusinessDetail = () => {
                   {business.address && (
                     <div className="flex items-start gap-3 text-foreground">
                       <MapPin className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
-                      <span>{business.address}, {business.city}</span>
+                      <span>{business.address}</span>
                     </div>
                   )}
                   {business.neighborhood && (
