@@ -334,6 +334,9 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
     other_booking_name: (business as any)?.other_booking_name || "",
     gamme_id: (business as any)?.gamme_id || "",
     neighborhood: (business as any)?.neighborhood || "",
+    hook_fr: (business as any)?.hook_fr || "",
+    hook_en: (business as any)?.hook_en || "",
+    hook_ar: (business as any)?.hook_ar || "",
   });
   
   // Business labels state (managed separately)
@@ -480,6 +483,9 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
       other_booking_name: formData.other_booking_name || null,
       gamme_id: formData.gamme_id || null,
       neighborhood: formData.neighborhood || null,
+      hook_fr: formData.hook_fr || null,
+      hook_en: formData.hook_en || null,
+      hook_ar: formData.hook_ar || null,
     };
 
     try {
@@ -853,6 +859,40 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
               value={formData.reserve_now_url}
               onChange={(e) => handleChange("reserve_now_url", e.target.value)}
               placeholder="https://"
+            />
+          </div>
+        </div>
+
+        {/* Hook multilingue - affiché en gros comme Nom */}
+        <div className="space-y-3">
+          <Label htmlFor="hook_fr" className="text-xl font-semibold">Hook FR</Label>
+          <Input
+            id="hook_fr"
+            value={formData.hook_fr}
+            onChange={(e) => handleChange("hook_fr", e.target.value)}
+            placeholder="Accroche en français"
+            className="!text-2xl font-semibold h-14 px-4"
+            style={{ fontSize: '1.5rem', lineHeight: '2rem' }}
+          />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="hook_en">Hook EN</Label>
+            <Input
+              id="hook_en"
+              value={formData.hook_en}
+              onChange={(e) => handleChange("hook_en", e.target.value)}
+              placeholder="Tagline in English"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="hook_ar">Hook AR</Label>
+            <Input
+              id="hook_ar"
+              value={formData.hook_ar}
+              onChange={(e) => handleChange("hook_ar", e.target.value)}
+              placeholder="شعار بالعربية"
+              dir="rtl"
             />
           </div>
         </div>
