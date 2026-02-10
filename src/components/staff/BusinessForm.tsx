@@ -904,6 +904,84 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
             />
           </div>
 
+          {/* Latitude, Longitude & GPS button */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+            <div className="space-y-2">
+              <Label htmlFor="latitude_top" className="text-xs">Latitude</Label>
+              <Input
+                id="latitude_top"
+                type="number"
+                step="any"
+                value={formData.latitude}
+                onChange={(e) => handleChange("latitude", e.target.value)}
+                placeholder="31.6295"
+                className="text-xs h-8"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="longitude_top" className="text-xs">Longitude</Label>
+              <Input
+                id="longitude_top"
+                type="number"
+                step="any"
+                value={formData.longitude}
+                onChange={(e) => handleChange("longitude", e.target.value)}
+                placeholder="-7.9811"
+                className="text-xs h-8"
+              />
+            </div>
+            {formData.google_maps_url && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="gap-2 text-xs h-8"
+                onClick={async () => {
+                  const url = formData.google_maps_url;
+                  const tryExtract = (u: string) => {
+                    const atMatch = u.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+                    if (atMatch) return { lat: atMatch[1], lng: atMatch[2] };
+                    const qMatch = u.match(/[?&]q=(-?\d+\.?\d*),(-?\d+\.?\d*)/) ||
+                                   u.match(/place\/(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+                    if (qMatch) return { lat: qMatch[1], lng: qMatch[2] };
+                    const embedMatch = u.match(/!3d(-?\d+\.?\d*).*!4d(-?\d+\.?\d*)/);
+                    if (embedMatch) return { lat: embedMatch[1], lng: embedMatch[2] };
+                    return null;
+                  };
+                  const local = tryExtract(url);
+                  if (local) {
+                    handleChange("latitude", local.lat);
+                    handleChange("longitude", local.lng);
+                    toast({ title: "GPS récupéré", description: `Lat: ${local.lat}, Lng: ${local.lng}` });
+                    return;
+                  }
+                  try {
+                    toast({ title: "Résolution de l'URL...", description: "Veuillez patienter." });
+                    const { data, error } = await supabase.functions.invoke("resolve-maps-url", {
+                      body: { url },
+                    });
+                    if (error) throw error;
+                    if (data?.lat && data?.lng) {
+                      handleChange("latitude", data.lat);
+                      handleChange("longitude", data.lng);
+                      if (data.resolvedUrl) {
+                        handleChange("google_maps_url", data.resolvedUrl);
+                      }
+                      toast({ title: "GPS récupéré", description: `Lat: ${data.lat}, Lng: ${data.lng}` });
+                    } else {
+                      toast({ variant: "destructive", title: "Impossible d'extraire les coordonnées", description: "Le format de l'URL Google Maps n'est pas reconnu." });
+                    }
+                  } catch (err: any) {
+                    toast({ variant: "destructive", title: "Erreur", description: err.message || "Impossible de résoudre l'URL." });
+                  }
+                }}
+              >
+                <MapPinned className="h-3.5 w-3.5" />
+                Récupérer GPS
+              </Button>
+            )}
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="whatsapp_top" className="flex items-center gap-2">
