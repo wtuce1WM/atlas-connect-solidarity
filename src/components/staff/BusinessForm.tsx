@@ -1258,7 +1258,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
           <Label className="text-xl font-semibold">Plateformes de réservation</Label>
           
           {/* Bouton Réserver maintenant */}
-          <div className="space-y-2 p-3 border rounded-lg bg-primary/5">
+          <div className="space-y-2 p-3 border border-red-200 rounded-lg bg-red-50">
             <Label htmlFor="reserve_now_url" className="flex items-center gap-2 font-medium">
               🔗 Lien du bouton "Réserver maintenant"
             </Label>
