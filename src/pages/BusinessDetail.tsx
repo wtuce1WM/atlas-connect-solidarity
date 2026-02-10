@@ -395,7 +395,7 @@ const BusinessDetail = () => {
               const hook = language === 'ar' ? (business.hook_ar || business.hook_fr) : language === 'en' ? (business.hook_en || business.hook_fr) : business.hook_fr;
               if (!hook) return null;
               return (
-                <p className="text-2xl md:text-3xl font-semibold text-foreground/80 italic leading-snug">
+                <p className={`text-2xl md:text-3xl font-semibold italic leading-snug ${isVerified ? 'text-white' : 'text-foreground/80'}`}>
                   {hook}
                 </p>
               );
