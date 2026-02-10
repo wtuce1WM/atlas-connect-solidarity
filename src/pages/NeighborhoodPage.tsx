@@ -1,12 +1,13 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate, useSearchParams, Link } from "react-router-dom";
-import { ArrowLeft, Loader2, MapPin, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, Loader2, MapPin, ChevronLeft, ChevronRight, X, Phone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import BusinessCard, { Gamme } from "@/components/BusinessCard";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -51,6 +52,7 @@ const NeighborhoodPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
 
   const decodedNeighborhood = neighborhood ? decodeURIComponent(neighborhood) : "";
   const cityParam = searchParams.get("city") ? decodeURIComponent(searchParams.get("city")!) : "";
@@ -138,6 +140,45 @@ const NeighborhoodPage = () => {
   // Get the city name from the first business (all should share the same neighborhood)
   const cityName = cityParam || (businesses.length > 0 ? businesses[0].city : "");
 
+  const getMapEmbedUrl = () => {
+    if (selectedBusiness) {
+      if (selectedBusiness.google_maps_url) {
+        const placeMatch = selectedBusiness.google_maps_url.match(/place\/([^\/]+)/);
+        if (placeMatch) {
+          const placeName = decodeURIComponent(placeMatch[1].replace(/\+/g, ' '));
+          return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(placeName)}&zoom=17`;
+        }
+        const coordMatch = selectedBusiness.google_maps_url.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+        if (coordMatch) {
+          return `https://www.google.com/maps/embed/v1/view?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&center=${coordMatch[1]},${coordMatch[2]}&zoom=17&maptype=roadmap`;
+        }
+      }
+      if (selectedBusiness.latitude && selectedBusiness.longitude) {
+        return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${selectedBusiness.latitude},${selectedBusiness.longitude}&zoom=17`;
+      }
+      const query = selectedBusiness.address 
+        ? `${selectedBusiness.name}, ${selectedBusiness.address}`
+        : `${selectedBusiness.name}, ${cityName}, Maroc`;
+      return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(query)}&zoom=17`;
+    }
+
+    const searchQuery = `${decodedNeighborhood} ${cityName}`;
+    const businessWithCoords = businesses.find(b => b.latitude && b.longitude);
+    if (businessWithCoords) {
+      return `https://www.google.com/maps/embed/v1/search?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(searchQuery)}&center=${businessWithCoords.latitude},${businessWithCoords.longitude}&zoom=15`;
+    }
+    return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(searchQuery + ", Maroc")}&zoom=15`;
+  };
+
+  const handleSelectBusiness = (business: Business) => {
+    setSelectedBusiness(business);
+    window.scrollTo({ top: 300, behavior: 'smooth' });
+  };
+
+  const clearSelectedBusiness = () => {
+    setSelectedBusiness(null);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -168,6 +209,53 @@ const NeighborhoodPage = () => {
             </p>
           )}
         </div>
+
+        {/* Google Maps */}
+        <Card className="relative mb-6">
+          <CardContent className="p-0">
+            {selectedBusiness && (
+              <div className="absolute top-2 right-2 z-10 bg-white text-black px-4 py-3 rounded shadow-lg max-w-xs">
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <span className="text-sm font-bold">{selectedBusiness.name}</span>
+                  <button 
+                    onClick={clearSelectedBusiness}
+                    className="hover:bg-black/10 rounded p-1 flex-shrink-0"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+                <div className="space-y-1 text-xs">
+                  {selectedBusiness.address && (
+                    <div className="flex items-start gap-1">
+                      <MapPin className="h-3 w-3 mt-0.5 flex-shrink-0" />
+                      <span>{selectedBusiness.address}</span>
+                    </div>
+                  )}
+                  {selectedBusiness.phone && (
+                    <a href={`tel:${selectedBusiness.phone}`} className="flex items-center gap-1 hover:text-primary">
+                      <Phone className="h-3 w-3 flex-shrink-0" />
+                      {selectedBusiness.phone}
+                    </a>
+                  )}
+                  {selectedBusiness.whatsapp && (
+                    <a href={`https://wa.me/${selectedBusiness.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-green-600 hover:text-green-700 font-bold">
+                      <Phone className="h-3 w-3 flex-shrink-0" />
+                      WhatsApp: {selectedBusiness.whatsapp}
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
+            <iframe
+              src={getMapEmbedUrl()}
+              className="w-full h-[500px] border-0 rounded-lg"
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              title={selectedBusiness ? `Localisation de ${selectedBusiness.name}` : `Carte du quartier ${decodedNeighborhood}`}
+            />
+          </CardContent>
+        </Card>
 
         {/* Filters */}
         {availableCategories.length > 1 && (
@@ -217,7 +305,16 @@ const NeighborhoodPage = () => {
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {paginatedBusinesses.map((business) => (
-              <BusinessCard key={business.id} business={business} gammes={gammes} verifiedLabel="Vérifié" />
+              <BusinessCard 
+                key={business.id} 
+                business={business} 
+                gammes={gammes} 
+                verifiedLabel="Vérifié"
+                showMapButton
+                onSelectBusiness={handleSelectBusiness}
+                selectedBusinessId={selectedBusiness?.id}
+                mapButtonLabels={{ view: "Voir sur la carte", shown: "Affiché sur la carte" }}
+              />
             ))}
           </div>
         )}
