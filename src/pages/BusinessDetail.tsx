@@ -17,7 +17,7 @@ import ServiceListItem from "@/components/ServiceListItem";
 import { useValidatedImages, useValidatedUrl } from "@/hooks/useValidatedImages";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import relaisChateauxLogo from "@/assets/relais-chateaux-logo.png";
-import restaurantGuruLogo from "@/assets/restaurant-guru-logo.png";
+import restaurantGuruLogo from "@/assets/restaurant-guru-logo.webp";
 
 interface OpeningHour {
   open: string;
