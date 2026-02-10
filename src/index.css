@@ -127,6 +127,11 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+/* Playfair Display for headings */
+h2, h3 {
+  font-family: 'Playfair Display', serif;
+}
  
  /* Arabic font support */
  .font-arabic {
