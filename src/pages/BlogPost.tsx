@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { Loader2, Calendar, User, ArrowLeft } from "lucide-react";
+import { Loader2, Calendar, User, ArrowLeft, MapPin } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { fr, enUS, ar } from "date-fns/locale";
 
@@ -136,6 +137,17 @@ const BlogPost = () => {
           className="prose prose-lg max-w-none dark:prose-invert"
           dangerouslySetInnerHTML={{ __html: getContent() }}
         />
+
+        <div className="mt-10 flex justify-center">
+          <Button
+            onClick={() => navigate("/carte")}
+            variant="outline"
+            className="gap-2"
+          >
+            <MapPin className="h-4 w-4" />
+            {t("blog.viewOnMap")}
+          </Button>
+        </div>
       </div>
       <Footer />
     </div>

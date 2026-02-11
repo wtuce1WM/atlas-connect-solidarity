@@ -145,6 +145,7 @@ const translations = {
     "blog.noPosts": "No articles published yet.",
     "blog.notFound": "Article not found.",
     "blog.backToList": "Back to blog",
+    "blog.viewOnMap": "View on the map",
   },
   fr: {
     // Header
@@ -281,6 +282,7 @@ const translations = {
     "blog.noPosts": "Aucun article publié pour le moment.",
     "blog.notFound": "Article introuvable.",
     "blog.backToList": "Retour au blog",
+    "blog.viewOnMap": "Voir sur la carte",
   },
    ar: {
      // Header
@@ -416,6 +418,7 @@ const translations = {
      "blog.noPosts": "لم يتم نشر أي مقال بعد.",
      "blog.notFound": "المقال غير موجود.",
      "blog.backToList": "العودة إلى المدونة",
+     "blog.viewOnMap": "عرض على الخريطة",
    },
 };
 
