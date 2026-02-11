@@ -254,7 +254,7 @@ const BusinessDetail = () => {
   ];
 
   return (
-    <div className={`min-h-screen ${isVerified ? "bg-gradient-to-b from-black from-20% to-gold" : "bg-background"}`}>
+    <div className="min-h-screen bg-white">
       <Header />
       
       <main className="container mx-auto px-4 lg:px-8 py-24 max-w-5xl">
