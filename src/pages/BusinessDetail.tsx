@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, Navigate, useNavigate } from "react-router-dom";
-import { ArrowLeft, MapPin, Phone, Mail, Globe, BadgeCheck, Loader2, ChevronLeft, ChevronRight, FileText, Download, ShoppingBag, Facebook, Instagram, Linkedin, Youtube, MessageCircle, Clock, AlertTriangle, ChevronDown, Play, CalendarCheck } from "lucide-react";
+import { ArrowLeft, MapPin, Phone, Mail, Globe, BadgeCheck, Loader2, ChevronLeft, ChevronRight, FileText, Download, ShoppingBag, Facebook, Instagram, Linkedin, Youtube, MessageCircle, Clock, AlertTriangle, ChevronDown, Play, CalendarCheck, Star, Camera } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { format, parseISO } from "date-fns";
@@ -120,27 +120,18 @@ interface BusinessLabel {
 
 // Helper to convert video URL to embeddable format
 const getEmbedUrl = (url: string): { url: string; type: 'iframe' | 'video' | 'facebook' } | null => {
-  // YouTube
   const youtubeMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
-  if (youtubeMatch) {
-    return { url: `https://www.youtube.com/embed/${youtubeMatch[1]}`, type: 'iframe' };
-  }
-  // Vimeo
+  if (youtubeMatch) return { url: `https://www.youtube.com/embed/${youtubeMatch[1]}`, type: 'iframe' };
   const vimeoMatch = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
-  if (vimeoMatch) {
-    return { url: `https://player.vimeo.com/video/${vimeoMatch[1]}`, type: 'iframe' };
-  }
-  // Facebook video (various formats)
+  if (vimeoMatch) return { url: `https://player.vimeo.com/video/${vimeoMatch[1]}`, type: 'iframe' };
   if (url.includes('facebook.com') || url.includes('fb.watch')) {
-    const encodedUrl = encodeURIComponent(url);
-    return { url: `https://www.facebook.com/plugins/video.php?href=${encodedUrl}&show_text=false`, type: 'facebook' };
+    return { url: `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false`, type: 'facebook' };
   }
-  // Direct video link
-  if (url.match(/\.(mp4|webm|ogg)$/i)) {
-    return { url, type: 'video' };
-  }
+  if (url.match(/\.(mp4|webm|ogg)$/i)) return { url, type: 'video' };
   return null;
 };
+
+type TabKey = 'overview' | 'reviews' | 'location';
 
 const BusinessDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -151,18 +142,16 @@ const BusinessDetail = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const [activeTab, setActiveTab] = useState<TabKey>('overview');
   const { t, language } = useLanguage();
   const navigate = useNavigate();
 
-  // Validate images and PDF URLs
   const { validImages, isValidating: isValidatingImages, brokenCount: brokenImagesCount } = useValidatedImages(business?.images ?? null);
   const { isValid: isPdfValid, isValidating: isValidatingPdf } = useValidatedUrl(business?.pdf_url ?? null);
 
   useEffect(() => {
     const fetchBusiness = async () => {
       if (!id) return;
-
-      // Fetch business data
       const { data, error } = await supabase
         .from("businesses")
         .select("*")
@@ -180,7 +169,6 @@ const BusinessDetail = () => {
           vacation_dates: (data.vacation_dates as unknown as VacationDate[]) || null,
         });
         
-        // Fetch business labels
         const { data: labelsData } = await supabase
           .from("business_labels" as any)
           .select("id, label_id, custom_url")
@@ -188,7 +176,6 @@ const BusinessDetail = () => {
           .order("sort_order", { ascending: true });
         
         if (labelsData && labelsData.length > 0) {
-          // Fetch label details
           const labelIds = (labelsData as any[]).map(bl => bl.label_id);
           const { data: labelDetails } = await supabase
             .from("labels" as any)
@@ -199,11 +186,9 @@ const BusinessDetail = () => {
             ...bl,
             label: (labelDetails as any[])?.find(l => l.id === bl.label_id) || null
           }));
-          
           setBusinessLabels(labelsWithDetails as BusinessLabel[]);
         }
 
-        // Fetch gamme if business has gamme_id
         if (data.gamme_id) {
           const { data: gammeData } = await supabase
             .from("gammes")
@@ -217,7 +202,6 @@ const BusinessDetail = () => {
       }
       setIsLoading(false);
     };
-
     fetchBusiness();
   }, [id]);
 
@@ -239,947 +223,624 @@ const BusinessDetail = () => {
 
   const isVerified = business.wtuce_status === "verified";
   const isInstitution = business.account_type?.toLowerCase() === "institution";
+
+  // Calculate rating
+  const reviews: { rating: number; count: number; url: string | null; label: string }[] = [];
+  if (business.google_rating && business.google_review_count) reviews.push({ rating: business.google_rating, count: business.google_review_count, url: business.google_reviews_url, label: 'Google' });
+  if (business.tripadvisor_rating && business.tripadvisor_review_count) reviews.push({ rating: business.tripadvisor_rating, count: business.tripadvisor_review_count, url: business.tripadvisor_review_url || business.tripadvisor_url, label: 'TripAdvisor' });
+  if (business.restaurant_guru_rating && business.restaurant_guru_review_count) reviews.push({ rating: business.restaurant_guru_rating, count: business.restaurant_guru_review_count, url: business.restaurant_guru_url, label: 'Restaurant Guru' });
+  const totalReviewCount = reviews.reduce((s, r) => s + r.count, 0);
+  const weightedAvg = totalReviewCount > 0 ? reviews.reduce((s, r) => s + r.rating * r.count, 0) / totalReviewCount : 0;
+  const avgOn20 = business.rating ?? (totalReviewCount > 0 ? Math.round(weightedAvg * 4 * 10) / 10 : null);
+  const avgOn5 = business.rating ? Math.round(business.rating / 4 * 10) / 10 : (totalReviewCount > 0 ? Math.round(weightedAvg * 10) / 10 : null);
+
+  const hasReviews = business.tripadvisor_review_url || business.restaurant_guru_url || business.google_reviews_url;
+
+  const tabs: { key: TabKey; label: string; show: boolean }[] = [
+    { key: 'overview', label: 'Aperçu', show: true },
+    { key: 'reviews', label: 'Avis', show: !!hasReviews },
+    { key: 'location', label: 'Localisation', show: true },
+  ];
+
   return (
     <div className={`min-h-screen ${isVerified ? "bg-gradient-to-b from-black from-50% to-gold" : "bg-background"}`}>
       <Header />
       
-      <main className="container mx-auto px-0 md:px-0 lg:px-4 py-24">
+      <main className="container mx-auto px-4 lg:px-8 py-24 max-w-5xl">
         {/* Back link */}
         <button
           onClick={() => navigate(-1)}
-          className={`inline-flex items-center gap-2 mb-8 transition-colors ${isVerified ? "text-white/70 hover:text-white" : "text-muted-foreground hover:text-foreground"}`}
+          className={`inline-flex items-center gap-2 mb-6 text-sm transition-colors ${isVerified ? "text-white/70 hover:text-white" : "text-muted-foreground hover:text-foreground"}`}
         >
           <ArrowLeft className="h-4 w-4" />
           Retour
         </button>
 
-        {/* Header */}
-        <div className="mb-8 px-4 lg:px-0">
-          <div className="flex flex-col items-center text-center sm:flex-row sm:items-center sm:text-left gap-4 flex-wrap">
-            {/* Logo */}
-            {business.logo_url && (
-              <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-lg border bg-white p-2 flex items-center justify-center overflow-hidden flex-shrink-0">
-                <img
-                  src={business.logo_url}
-                  alt={`Logo ${business.name}`}
-                  className="max-w-full max-h-full object-contain"
-                />
-              </div>
-            )}
+        {/* ===== COMPACT HEADER ===== */}
+        <div className="mb-6">
+          {/* Title row with labels */}
+          <div className="flex items-start gap-4 flex-wrap">
             <div className="flex-1 min-w-0">
-              <div className="flex flex-col items-center sm:items-start gap-2">
-                <div className="flex flex-col sm:flex-row items-center gap-3 flex-wrap justify-center sm:justify-start">
-                  <h1 className={`text-2xl sm:text-4xl font-semibold ${isVerified ? "text-white" : "text-foreground"}`} style={{ fontFamily: "'Raleway', sans-serif" }}>{business.name}</h1>
-                  {/* Business Labels - hidden on mobile */}
-                  {businessLabels.length > 0 && (
-                    <div className="hidden sm:flex items-center gap-2 flex-wrap">
-                      {businessLabels.map((bl) => {
-                        if (!bl.label?.image_url) return null;
-                        const linkUrl = bl.custom_url || bl.label.url_fr;
-                        
-                        return linkUrl ? (
-                          <a
-                            key={bl.id}
-                            href={linkUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="hover:opacity-80 transition-opacity"
-                          >
-                            <img
-                              src={bl.label.image_url}
-                              alt={bl.label.name_fr}
-                              className="h-20 object-contain"
-                            />
-                          </a>
-                        ) : (
-                          <img
-                            key={bl.id}
-                            src={bl.label.image_url}
-                            alt={bl.label.name_fr}
-                            className="h-20 object-contain"
-                          />
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-                {(gamme || (business.wtuce_status === "verified" && !isInstitution)) && (
-                  <div className="flex items-center gap-2 flex-wrap justify-center sm:justify-start">
-                    {gamme && (
-                      <Badge 
-                        className="text-xs text-black border border-black whitespace-nowrap"
-                        style={{ backgroundColor: gamme.color_hex || '#666666' }}
-                      >
-                        {gamme.name_fr}
-                      </Badge>
-                    )}
-                    {business.wtuce_status === "verified" && !isInstitution && (
-                      <Badge className="bg-primary/10 text-primary border-primary/20 flex items-center gap-1.5 px-3 py-1.5">
-                        <BadgeCheck className="h-4 w-4" />
-                        WTUCE Vérifié
-                      </Badge>
-                    )}
-                  </div>
-                )}
-              </div>
-              
+              <h1 className={`text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight ${isVerified ? "text-white" : "text-foreground"}`} style={{ fontFamily: "'Raleway', sans-serif" }}>
+                {business.name}
+              </h1>
             </div>
-            
-            {/* Rating and WTUCE Logo - all devices, all statuses */}
-            {!isInstitution && (
-              <div className="flex items-center gap-3 flex-shrink-0">
-                {business.rating !== null && business.rating !== undefined ? (
-                  <>
-                    <div className="text-gold font-bold text-5xl italic" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
-                      {business.rating}/20
-                    </div>
-                    {isVerified && <img src={logoGold} alt="WTUCE Vérifié" className="w-[80px] h-[72px] object-contain" />}
-                  </>
-                ) : (() => {
-                  const reviews: { rating: number; count: number; url: string | null; label: string }[] = [];
-                  if (business.google_rating && business.google_review_count) reviews.push({ rating: business.google_rating, count: business.google_review_count, url: business.google_reviews_url, label: 'Google' });
-                  if (business.tripadvisor_rating && business.tripadvisor_review_count) reviews.push({ rating: business.tripadvisor_rating, count: business.tripadvisor_review_count, url: business.tripadvisor_review_url || business.tripadvisor_url, label: 'TripAdvisor' });
-                  if (business.restaurant_guru_rating && business.restaurant_guru_review_count) reviews.push({ rating: business.restaurant_guru_rating, count: business.restaurant_guru_review_count, url: business.restaurant_guru_url, label: 'Restaurant Guru' });
-                  if (reviews.length === 0) return isVerified ? <img src={logoGold} alt="WTUCE Vérifié" className="w-[80px] h-[72px] object-contain" /> : null;
-                  const totalCount = reviews.reduce((s, r) => s + r.count, 0);
-                  const weightedAvg = reviews.reduce((s, r) => s + r.rating * r.count, 0) / totalCount;
-                  const avgOn20 = Math.round(weightedAvg * 4 * 10) / 10;
-                  return (
-                    <div className="flex flex-col items-end gap-2">
-                      <div className={`font-bold text-5xl italic ${isVerified ? 'text-gold' : 'text-primary'}`} style={{ fontFamily: "'Cormorant Garamond', serif" }}>
-                        {avgOn20}/20
-                      </div>
-                      <div className={`text-sm ${isVerified ? 'text-white/70' : 'text-muted-foreground'}`}>
-                        sur {totalCount} avis
-                      </div>
-                      <div className="flex flex-col gap-1.5 mt-1">
-                        {reviews.map((r) => (
-                          <div key={r.label} className="flex items-center gap-2">
-                            {r.label === 'TripAdvisor' && (
-                              <div className="w-7 h-7 rounded-full bg-[#34e0a1] flex items-center justify-center flex-shrink-0">
-                                <svg viewBox="0 0 24 24" className="w-4 h-4 text-white" fill="currentColor"><circle cx="8.5" cy="14" r="2"/><circle cx="15.5" cy="14" r="2"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.74 0 3.36.56 4.69 1.5H7.31A8.94 8.94 0 0112 5zm-3.5 5a4 4 0 100 8 4 4 0 000-8zm7 0a4 4 0 100 8 4 4 0 000-8z"/></svg>
-                              </div>
-                            )}
-                            {r.label === 'Google' && (
-                              <div className="w-7 h-7 rounded-full bg-[#f1f3f4] flex items-center justify-center flex-shrink-0">
-                                <svg viewBox="0 0 24 24" className="w-4 h-4"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-                              </div>
-                            )}
-                            {r.label === 'Restaurant Guru' && (
-                              <img src={restaurantGuruLogo} alt="Restaurant Guru" className="w-7 h-7 rounded-full object-contain flex-shrink-0" />
-                            )}
-                            <div className="flex flex-col">
-                              {r.url ? (
-                                <a href={r.url} target="_blank" rel="noopener noreferrer" className={`font-semibold text-sm flex items-center gap-1 ${isVerified ? 'text-white hover:text-gold' : 'text-foreground hover:text-primary'} transition-colors`}>
-                                  {r.label} Avis <span className="text-xs">↗</span>
-                                </a>
-                              ) : (
-                                <span className={`font-semibold text-sm ${isVerified ? 'text-white' : 'text-foreground'}`}>{r.label}</span>
-                              )}
-                              <span className={`text-xs ${isVerified ? 'text-green-400' : 'text-green-600'}`}>{r.rating}/5 · {r.count} avis</span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+            {/* Labels - desktop only */}
+            {businessLabels.length > 0 && (
+              <div className="hidden sm:flex items-center gap-2 flex-shrink-0">
+                {businessLabels.map((bl) => {
+                  if (!bl.label?.image_url) return null;
+                  const linkUrl = bl.custom_url || bl.label.url_fr;
+                  return linkUrl ? (
+                    <a key={bl.id} href={linkUrl} target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity">
+                      <img src={bl.label.image_url} alt={bl.label.name_fr} className="h-14 object-contain" />
+                    </a>
+                  ) : (
+                    <img key={bl.id} src={bl.label.image_url} alt={bl.label.name_fr} className="h-14 object-contain" />
                   );
-                })()}
+                })}
               </div>
             )}
           </div>
-          <div className={`flex items-center justify-center sm:justify-start gap-2 mt-3 ${isVerified ? "text-white/70" : "text-muted-foreground"}`}>
-            <MapPin className="h-5 w-5" />
-            <span>{business.address || business.city}{business.neighborhood ? <> - <Link to={`/neighborhood/${encodeURIComponent(business.neighborhood)}?city=${encodeURIComponent(business.city)}`} className="font-bold text-primary hover:text-foreground transition-colors underline underline-offset-2">{business.neighborhood}</Link></> : ""} - <Link to={`/city/${encodeURIComponent(business.city)}`} className="font-bold text-primary hover:text-foreground transition-colors underline underline-offset-2">{business.city}</Link></span>
+
+          {/* Rating + reviews count + location line */}
+          <div className={`flex items-center gap-2 mt-2 text-sm flex-wrap ${isVerified ? "text-white/70" : "text-muted-foreground"}`}>
+            {!isInstitution && avgOn5 !== null && (
+              <>
+                <Star className={`h-4 w-4 fill-current ${isVerified ? 'text-gold' : 'text-primary'}`} />
+                <span className={`font-bold ${isVerified ? 'text-gold' : 'text-primary'}`}>{avgOn5}</span>
+                {totalReviewCount > 0 && (
+                  <span>· {totalReviewCount.toLocaleString('fr-FR')} avis</span>
+                )}
+                <span>·</span>
+              </>
+            )}
+            {isVerified && !isInstitution && (
+              <>
+                <BadgeCheck className={`h-4 w-4 ${isVerified ? 'text-gold' : 'text-primary'}`} />
+                <span className={`font-semibold ${isVerified ? 'text-gold' : 'text-primary'}`}>WTUCE Vérifié</span>
+                <span>·</span>
+              </>
+            )}
+            <Link to={`/city/${encodeURIComponent(business.city)}`} className={`hover:underline ${isVerified ? "hover:text-white" : "hover:text-foreground"}`}>
+              {business.city}
+              {business.neighborhood ? `, ${business.neighborhood}` : `, ${business.region}`}
+            </Link>
           </div>
-          {/* Phone, WhatsApp, Skype, Email & Website quick links */}
-          {(business.phone || business.whatsapp || business.skype || business.email) && (
-            <div className="flex items-center justify-center sm:justify-start gap-4 mt-3 flex-wrap">
-              {business.phone && (
-                <a
-                  href={`tel:${business.phone}`}
-                  className={`inline-flex items-center gap-2 font-semibold transition-colors ${isVerified ? "text-gold hover:text-gold/80" : "text-foreground hover:text-primary"}`}
-                >
-                  <Phone className="h-5 w-5" />
-                  {business.phone}
-                </a>
-              )}
-              {business.whatsapp && (
-                <a
-                  href={`https://wa.me/${business.whatsapp.replace(/[^0-9]/g, "")}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 font-bold hover:opacity-80 transition-opacity"
-                  style={{ color: "#25D366" }}
-                >
-                  <MessageCircle className="h-5 w-5" />
-                  WhatsApp
-                </a>
-              )}
-              {business.skype && (
-                <a
-                  href={`skype:${business.skype}?chat`}
-                  className={`inline-flex items-center gap-2 font-semibold transition-colors ${isVerified ? "text-white/70 hover:text-white" : "text-[#00AFF0] hover:opacity-80"}`}
-                >
-                  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12.069 18.874c-4.023 0-5.82-1.979-5.82-3.464 0-.765.561-1.296 1.333-1.296 1.723 0 1.273 2.477 4.487 2.477 1.641 0 2.55-.895 2.55-1.811 0-.551-.269-1.16-1.354-1.429l-3.576-.895c-2.88-.724-3.403-2.286-3.403-3.751 0-3.047 2.861-4.191 5.549-4.191 2.471 0 5.393 1.373 5.393 3.199 0 .784-.688 1.24-1.453 1.24-1.469 0-1.198-2.037-4.164-2.037-1.469 0-2.292.664-2.292 1.617s1.153 1.258 2.157 1.487l2.637.587c2.891.649 3.624 2.346 3.624 3.944 0 2.476-1.902 4.324-5.722 4.324m11.084-4.882l-.029.135-.044-.24c.015.045.044.074.059.12.12-.675.181-1.363.181-2.052 0-1.529-.301-3.012-.898-4.42-.569-1.348-1.395-2.562-2.427-3.596-1.049-1.033-2.247-1.856-3.595-2.426-1.318-.631-2.801-.93-4.328-.93-.72 0-1.444.07-2.143.204l.119.06-.239-.033.119-.025C8.91.274 7.829 0 6.731 0c-1.789 0-3.47.698-4.736 1.967C.729 3.235.032 4.923.032 6.716c0 1.143.292 2.265.844 3.258l.02-.124.041.239-.06-.115c-.114.645-.172 1.299-.172 1.955 0 1.53.3 3.017.884 4.416.568 1.362 1.378 2.576 2.427 3.609a11.92 11.92 0 003.58 2.442c1.404.6 2.886.93 4.404.93.599 0 1.229-.06 1.868-.172l-.119-.062.239.033-.119.024c1.002.569 2.126.871 3.294.871 1.783 0 3.459-.69 4.733-1.963 1.259-1.259 1.962-2.951 1.962-4.749 0-1.138-.299-2.262-.853-3.266"/>
-                  </svg>
-                  Skype
-                </a>
-              )}
-              {business.email && (
-                <a
-                  href={`mailto:${business.email}`}
-                  className={`inline-flex items-center gap-2 font-semibold transition-colors ${isVerified ? "text-white/70 hover:text-white" : "text-foreground hover:text-primary"}`}
-                >
-                  <Mail className="h-5 w-5" />
-                  {business.email}
-                </a>
-              )}
+
+          {/* Gamme badge */}
+          {gamme && (
+            <div className="mt-2">
+              <Badge 
+                className="text-xs text-black border border-black whitespace-nowrap"
+                style={{ backgroundColor: gamme.color_hex || '#666666' }}
+              >
+                {gamme.name_fr}
+              </Badge>
             </div>
           )}
-          {(business.website || business.reserve_now_url || business.online_shop_url) && (
-            <div className="flex items-center justify-center sm:justify-start gap-4 mt-2 flex-wrap">
-              {business.website && (
-                <a
-                  href={business.website.startsWith('http') ? business.website : `https://${business.website}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`inline-flex items-center gap-2 font-semibold transition-colors ${isVerified ? "text-gold hover:text-gold/80" : "text-primary hover:text-primary/80"}`}
-                >
-                  <Globe className="h-5 w-5" />
-                  Visiter le site web
-                </a>
-              )}
-              {business.reserve_now_url && (
-                <a
-                  href={business.reserve_now_url.startsWith('http') ? business.reserve_now_url : `https://${business.reserve_now_url}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`inline-flex items-center gap-2 font-semibold transition-colors ${isVerified ? "text-gold hover:text-gold/80" : "text-primary hover:text-primary/80"}`}
-                >
-                  <CalendarCheck className="h-5 w-5" />
-                  Réserver maintenant
-                </a>
-              )}
-              {business.online_shop_url && (
-                <a
-                  href={business.online_shop_url.startsWith('http') ? business.online_shop_url : `https://${business.online_shop_url}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`inline-flex items-center gap-2 font-semibold transition-colors ${isVerified ? "text-gold hover:text-gold/80" : "text-primary hover:text-primary/80"}`}
-                >
-                  <ShoppingBag className="h-5 w-5" />
-                  Boutique en ligne
-                </a>
-              )}
-            </div>
-          )}
-          {/* "Voir toutes les entreprises à ..." link hidden */}
         </div>
 
-        <div className="grid gap-8 lg:grid-cols-3 overflow-x-hidden">
-          {/* Main content */}
-          <div className="lg:col-span-2 space-y-6 overflow-hidden">
-            {/* Hook */}
-            {(() => {
-              const hook = language === 'ar' ? (business.hook_ar || business.hook_fr) : language === 'en' ? (business.hook_en || business.hook_fr) : business.hook_fr;
-              if (!hook) return null;
-              return (
-                <p className={`text-2xl md:text-3xl font-semibold italic leading-snug text-center ${isVerified ? 'text-white' : 'text-foreground/80'}`} style={{ fontFamily: "'Cormorant Garamond', serif" }}>
-                  {hook}
-                </p>
-              );
-            })()}
-
-            {/* Video */}
-            {business.video_1_url && (() => {
-              const embedData = getEmbedUrl(business.video_1_url);
-              if (!embedData) return null;
-              
-              return (
-                <Card className="overflow-hidden bg-black border-black max-w-full">
-                  <div className="aspect-video w-full relative">
-                    {embedData.type === 'video' ? (
-                      <>
-                        <video
-                          src={embedData.url}
-                          controls
-                          className="w-full h-full object-cover"
-                          onPlay={() => setIsVideoPlaying(true)}
-                          onPause={() => setIsVideoPlaying(false)}
-                          onEnded={() => setIsVideoPlaying(false)}
-                        />
-                        {!isVideoPlaying && (
-                          <div
-                            className="absolute inset-0 flex items-center justify-center bg-black/30 cursor-pointer transition-opacity duration-300"
-                            onClick={(e) => {
-                              const video = (e.currentTarget.previousElementSibling) as HTMLVideoElement;
-                              if (video) video.play();
-                            }}
-                          >
-                            <div className="rounded-full bg-white/90 p-4 shadow-lg">
-                              <Play className="h-10 w-10 text-black fill-black" />
-                            </div>
-                          </div>
-                        )}
-                      </>
-                    ) : (
-                      <iframe
-                        src={embedData.url}
-                        className="w-full h-full"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                        title="Vidéo de présentation"
-                      />
-                    )}
-                  </div>
-                </Card>
-              );
-            })()}
-
-            {/* Image Gallery */}
-            {isValidatingImages && business.images && business.images.length > 0 && (
-              <Card className="overflow-hidden bg-black border-black">
-                <div className="flex items-center justify-center bg-black min-h-[200px]">
-                  <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                </div>
-              </Card>
+        {/* ===== MOSAIC IMAGE GALLERY ===== */}
+        {!isValidatingImages && validImages.length > 0 && (
+          <div className="mb-6 rounded-xl overflow-hidden">
+            {brokenImagesCount > 0 && (
+              <div className="flex items-center gap-2 px-4 py-2 bg-amber-500/10 text-amber-600 text-sm">
+                <AlertTriangle className="h-4 w-4" />
+                {brokenImagesCount} image(s) indisponible(s)
+              </div>
             )}
-            {!isValidatingImages && validImages.length > 0 && (
-              <Card className="overflow-hidden bg-black border-black">
-                {brokenImagesCount > 0 && (
-                  <div className="flex items-center gap-2 px-4 py-2 bg-amber-500/10 text-amber-600 text-sm border-b">
-                    <AlertTriangle className="h-4 w-4" />
-                    {brokenImagesCount} image(s) indisponible(s)
-                  </div>
-                )}
-                <div className="relative flex items-center justify-center bg-black min-h-[200px]">
-                  <img
-                    src={validImages[currentImageIndex]}
-                    alt={`${business.name} - Image ${currentImageIndex + 1}`}
-                    className="max-w-full max-h-[70vh] w-auto h-auto object-contain cursor-pointer hover:opacity-90 transition-opacity"
-                    onClick={() => setIsLightboxOpen(true)}
-                  />
-                  {validImages.length > 1 && (
-                    <>
-                      <Button
-                        variant="secondary"
-                        size="icon"
-                        className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white"
-                        onClick={() => setCurrentImageIndex((prev) => 
-                          prev === 0 ? validImages.length - 1 : prev - 1
-                        )}
-                      >
-                        <ChevronLeft className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="secondary"
-                        size="icon"
-                        className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white"
-                        onClick={() => setCurrentImageIndex((prev) => 
-                          prev === validImages.length - 1 ? 0 : prev + 1
-                        )}
-                      >
-                        <ChevronRight className="h-4 w-4" />
-                      </Button>
-                      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/60 text-white px-3 py-1 rounded-full text-sm">
-                        {currentImageIndex + 1} / {validImages.length}
-                      </div>
-                    </>
+            <div className="grid grid-cols-4 grid-rows-2 gap-1 h-[300px] sm:h-[400px] lg:h-[480px] relative">
+              {/* Large image - left half */}
+              <div 
+                className="col-span-2 row-span-2 cursor-pointer overflow-hidden relative group"
+                onClick={() => { setCurrentImageIndex(0); setIsLightboxOpen(true); }}
+              >
+                <img
+                  src={validImages[0]}
+                  alt={`${business.name} - Image 1`}
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                />
+              </div>
+              {/* 4 smaller images - right side 2x2 grid */}
+              {[1, 2, 3, 4].map((idx) => (
+                <div
+                  key={idx}
+                  className={`cursor-pointer overflow-hidden relative group ${!validImages[idx] ? 'bg-muted' : ''}`}
+                  onClick={() => {
+                    if (validImages[idx]) { setCurrentImageIndex(idx); setIsLightboxOpen(true); }
+                    else { setIsLightboxOpen(true); setCurrentImageIndex(0); }
+                  }}
+                >
+                  {validImages[idx] ? (
+                    <img
+                      src={validImages[idx]}
+                      alt={`${business.name} - Image ${idx + 1}`}
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Camera className="h-6 w-6 text-muted-foreground/40" />
+                    </div>
+                  )}
+                  {/* "Show all photos" button on last visible image */}
+                  {idx === 4 && validImages.length > 5 && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(0); setIsLightboxOpen(true); }}
+                      className="absolute bottom-3 right-3 bg-white/90 backdrop-blur-sm text-foreground text-xs font-semibold px-3 py-1.5 rounded-lg shadow-md hover:bg-white transition-colors"
+                    >
+                      Voir les {validImages.length} photos
+                    </button>
                   )}
                 </div>
-                {validImages.length > 1 && (
-                  <div className="flex gap-2 p-4 overflow-x-auto bg-black">
-                    {validImages.map((url, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => setCurrentImageIndex(idx)}
-                        className={`flex-shrink-0 w-16 h-16 rounded-md overflow-hidden border-2 transition-colors ${
-                          idx === currentImageIndex 
-                            ? "border-primary" 
-                            : "border-transparent hover:border-muted-foreground"
-                        }`}
-                      >
-                        <img
-                          src={url}
-                          alt={`Miniature ${idx + 1}`}
-                          className="w-full h-full object-cover"
+              ))}
+            </div>
+          </div>
+        )}
+        {isValidatingImages && business.images && business.images.length > 0 && (
+          <div className="mb-6 rounded-xl overflow-hidden bg-muted flex items-center justify-center h-[300px]">
+            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+          </div>
+        )}
+
+        {/* Lightbox */}
+        {validImages.length > 0 && (
+          <ImageLightbox
+            images={validImages}
+            currentIndex={currentImageIndex}
+            isOpen={isLightboxOpen}
+            onClose={() => setIsLightboxOpen(false)}
+            onPrevious={() => setCurrentImageIndex((prev) => prev === 0 ? validImages.length - 1 : prev - 1)}
+            onNext={() => setCurrentImageIndex((prev) => prev === validImages.length - 1 ? 0 : prev + 1)}
+          />
+        )}
+
+        {/* ===== TABS ===== */}
+        <div className={`border-b mb-8 ${isVerified ? 'border-white/20' : 'border-border'}`}>
+          <nav className="flex gap-6">
+            {tabs.filter(t => t.show).map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={`pb-3 text-sm font-medium border-b-2 transition-colors ${
+                  activeTab === tab.key
+                    ? isVerified
+                      ? 'border-gold text-gold'
+                      : 'border-primary text-primary'
+                    : isVerified
+                      ? 'border-transparent text-white/60 hover:text-white'
+                      : 'border-transparent text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </nav>
+        </div>
+
+        {/* ===== TAB CONTENT ===== */}
+
+        {/* OVERVIEW TAB */}
+        {activeTab === 'overview' && (
+          <div className="grid gap-8 lg:grid-cols-3">
+            {/* Main content */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Hook */}
+              {(() => {
+                const hook = language === 'ar' ? (business.hook_ar || business.hook_fr) : language === 'en' ? (business.hook_en || business.hook_fr) : business.hook_fr;
+                if (!hook) return null;
+                return (
+                  <p className={`text-2xl md:text-3xl font-semibold italic leading-snug ${isVerified ? 'text-white' : 'text-foreground/80'}`} style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                    {hook}
+                  </p>
+                );
+              })()}
+
+              {/* Video */}
+              {business.video_1_url && (() => {
+                const embedData = getEmbedUrl(business.video_1_url);
+                if (!embedData) return null;
+                return (
+                  <Card className="overflow-hidden bg-black border-black max-w-full">
+                    <div className="aspect-video w-full relative">
+                      {embedData.type === 'video' ? (
+                        <>
+                          <video
+                            src={embedData.url}
+                            controls
+                            className="w-full h-full object-cover"
+                            onPlay={() => setIsVideoPlaying(true)}
+                            onPause={() => setIsVideoPlaying(false)}
+                            onEnded={() => setIsVideoPlaying(false)}
+                          />
+                          {!isVideoPlaying && (
+                            <div
+                              className="absolute inset-0 flex items-center justify-center bg-black/30 cursor-pointer transition-opacity duration-300"
+                              onClick={(e) => {
+                                const video = (e.currentTarget.previousElementSibling) as HTMLVideoElement;
+                                if (video) video.play();
+                              }}
+                            >
+                              <div className="rounded-full bg-white/90 p-4 shadow-lg">
+                                <Play className="h-10 w-10 text-black fill-black" />
+                              </div>
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <iframe
+                          src={embedData.url}
+                          className="w-full h-full"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                          title="Vidéo de présentation"
                         />
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </Card>
-            )}
+                      )}
+                    </div>
+                  </Card>
+                );
+              })()}
 
-            {/* Lightbox */}
-            {validImages.length > 0 && (
-              <ImageLightbox
-                images={validImages}
-                currentIndex={currentImageIndex}
-                isOpen={isLightboxOpen}
-                onClose={() => setIsLightboxOpen(false)}
-                onPrevious={() => setCurrentImageIndex((prev) => 
-                  prev === 0 ? validImages.length - 1 : prev - 1
-                )}
-                onNext={() => setCurrentImageIndex((prev) => 
-                  prev === validImages.length - 1 ? 0 : prev + 1
-                )}
-              />
-            )}
-
-            {/* Description */}
-            {business.description && (
-              <Card>
-                <CardContent className="p-6">
+              {/* Description */}
+              {business.description && (
+                <div>
                   <div 
-                    className="text-muted-foreground leading-relaxed prose max-w-none prose-headings:text-foreground prose-headings:font-bold prose-h2:text-xl prose-h3:text-lg prose-a:text-primary [&_p:empty]:min-h-[1em] [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:ml-0 [&_li>p]:mb-0 max-h-[400px] overflow-y-auto"
+                    className={`leading-relaxed prose max-w-none prose-headings:font-bold prose-h2:text-xl prose-h3:text-lg prose-a:text-primary [&_p:empty]:min-h-[1em] [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:ml-0 [&_li>p]:mb-0 max-h-[400px] overflow-y-auto ${isVerified ? 'text-white/80 prose-headings:text-white' : 'text-muted-foreground prose-headings:text-foreground'}`}
                     dangerouslySetInnerHTML={{ __html: business.description }}
                   />
-                </CardContent>
-              </Card>
-            )}
+                </div>
+              )}
 
-            {/* PDF - Collapsible */}
-            {business.pdf_url && !isValidatingPdf && isPdfValid && (
-              <Card>
-                <CardContent className="p-4">
-                  <details className="group">
-                    <summary className="flex items-center justify-between cursor-pointer list-none">
-                      <h2 className="text-lg font-semibold flex items-center gap-2">
-                        <FileText className="h-5 w-5" />
-                        Documents annexes
-                      </h2>
-                      <ChevronDown className="h-5 w-5 text-muted-foreground transition-transform group-open:rotate-180" />
-                    </summary>
-                    <div className="space-y-3 mt-4">
-                      {/* PDF Preview */}
-                      <div className="aspect-[3/4] w-full rounded-lg overflow-hidden border bg-muted">
-                        <iframe
-                          src={`${business.pdf_url}#toolbar=0&navpanes=0`}
-                          className="w-full h-full"
-                          title="Documents annexes"
-                        />
+              {/* PDF */}
+              {business.pdf_url && !isValidatingPdf && isPdfValid && (
+                <Card>
+                  <CardContent className="p-4">
+                    <details className="group">
+                      <summary className="flex items-center justify-between cursor-pointer list-none">
+                        <h2 className="text-lg font-semibold flex items-center gap-2">
+                          <FileText className="h-5 w-5" />
+                          Documents annexes
+                        </h2>
+                        <ChevronDown className="h-5 w-5 text-muted-foreground transition-transform group-open:rotate-180" />
+                      </summary>
+                      <div className="space-y-3 mt-4">
+                        <div className="aspect-[3/4] w-full rounded-lg overflow-hidden border bg-muted">
+                          <iframe src={`${business.pdf_url}#toolbar=0&navpanes=0`} className="w-full h-full" title="Documents annexes" />
+                        </div>
+                        <a href={business.pdf_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors">
+                          <Download className="h-4 w-4" />
+                          Télécharger
+                        </a>
                       </div>
-                      {/* Download Button */}
-                      <a
-                        href={business.pdf_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
-                      >
-                        <Download className="h-4 w-4" />
-                        Télécharger
-                      </a>
-                    </div>
-                  </details>
-                </CardContent>
-              </Card>
-            )}
-            {business.pdf_url && !isValidatingPdf && !isPdfValid && (
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2 text-amber-600">
-                    <AlertTriangle className="h-4 w-4" />
-                    <span className="text-sm">Documents annexes indisponibles</span>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+                    </details>
+                  </CardContent>
+                </Card>
+              )}
 
-            {/* Sous-catégories, Services */}
-            {/* Services */}
-            {business.services && business.services.length > 0 && (
-              <Card>
-                <CardContent className="p-6">
-                  <h2 className="text-xl font-semibold mb-3">Services</h2>
+              {/* Services */}
+              {business.services && business.services.length > 0 && (
+                <div>
+                  <h2 className={`text-xl font-semibold mb-3 ${isVerified ? 'text-white' : ''}`}>Services</h2>
                   <ul className="space-y-3 text-foreground max-h-[400px] overflow-y-auto">
                     {[...business.services].sort((a, b) => a.localeCompare(b, 'fr')).map((service, index) => (
-                      <ServiceListItem 
-                        key={index} 
-                        service={service} 
-                        currentBusinessId={business.id}
-                        city={business.city}
-                      />
+                      <ServiceListItem key={index} service={service} currentBusinessId={business.id} city={business.city} />
                     ))}
                   </ul>
+                </div>
+              )}
+
+              {/* Related Establishments */}
+              {business.kp_regroupement && (
+                <RelatedEstablishments currentBusinessId={business.id} kpRegroupement={business.kp_regroupement} isVerified={isVerified} />
+              )}
+            </div>
+
+            {/* Sidebar */}
+            <div className="space-y-6">
+              {/* Quick Actions Card */}
+              <Card className={isVerified ? 'bg-white/10 border-white/20' : ''}>
+                <CardContent className="p-5 space-y-4">
+                  {/* Contact links */}
+                  {business.phone && (
+                    <a href={`tel:${business.phone}`} className={`flex items-center gap-3 font-semibold transition-colors ${isVerified ? "text-gold hover:text-gold/80" : "text-foreground hover:text-primary"}`}>
+                      <Phone className="h-5 w-5" />
+                      {business.phone}
+                    </a>
+                  )}
+                  {business.whatsapp && (
+                    <a href={`https://wa.me/${business.whatsapp.replace(/[^0-9]/g, "")}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 font-bold hover:opacity-80 transition-opacity" style={{ color: "#25D366" }}>
+                      <MessageCircle className="h-5 w-5" />
+                      WhatsApp
+                    </a>
+                  )}
+                  {business.skype && (
+                    <a href={`skype:${business.skype}?chat`} className={`flex items-center gap-3 font-semibold transition-colors ${isVerified ? "text-white/70 hover:text-white" : "text-[#00AFF0] hover:opacity-80"}`}>
+                      <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12.069 18.874c-4.023 0-5.82-1.979-5.82-3.464 0-.765.561-1.296 1.333-1.296 1.723 0 1.273 2.477 4.487 2.477 1.641 0 2.55-.895 2.55-1.811 0-.551-.269-1.16-1.354-1.429l-3.576-.895c-2.88-.724-3.403-2.286-3.403-3.751 0-3.047 2.861-4.191 5.549-4.191 2.471 0 5.393 1.373 5.393 3.199 0 .784-.688 1.24-1.453 1.24-1.469 0-1.198-2.037-4.164-2.037-1.469 0-2.292.664-2.292 1.617s1.153 1.258 2.157 1.487l2.637.587c2.891.649 3.624 2.346 3.624 3.944 0 2.476-1.902 4.324-5.722 4.324"/>
+                      </svg>
+                      Skype
+                    </a>
+                  )}
+                  {business.email && (
+                    <a href={`mailto:${business.email}`} className={`flex items-center gap-3 font-semibold transition-colors ${isVerified ? "text-white/70 hover:text-white" : "text-foreground hover:text-primary"}`}>
+                      <Mail className="h-5 w-5" />
+                      {business.email}
+                    </a>
+                  )}
+
+                  {/* Divider */}
+                  {(business.phone || business.whatsapp || business.email) && (business.website || business.reserve_now_url || business.online_shop_url) && (
+                    <hr className={isVerified ? 'border-white/20' : 'border-border'} />
+                  )}
+
+                  {/* Action links */}
+                  {business.website && (
+                    <a href={business.website.startsWith('http') ? business.website : `https://${business.website}`} target="_blank" rel="noopener noreferrer" className={`flex items-center gap-3 font-semibold transition-colors ${isVerified ? "text-gold hover:text-gold/80" : "text-primary hover:text-primary/80"}`}>
+                      <Globe className="h-5 w-5" />
+                      Visiter le site web
+                    </a>
+                  )}
+                  {business.reserve_now_url && (
+                    <a href={business.reserve_now_url.startsWith('http') ? business.reserve_now_url : `https://${business.reserve_now_url}`} target="_blank" rel="noopener noreferrer" className="block w-full bg-primary text-primary-foreground text-center py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors">
+                      Réserver maintenant
+                    </a>
+                  )}
+                  {business.online_shop_url && (
+                    <a href={business.online_shop_url.startsWith('http') ? business.online_shop_url : `https://${business.online_shop_url}`} target="_blank" rel="noopener noreferrer" className={`flex items-center gap-3 font-semibold transition-colors ${isVerified ? "text-gold hover:text-gold/80" : "text-primary hover:text-primary/80"}`}>
+                      <ShoppingBag className="h-5 w-5" />
+                      Boutique en ligne
+                    </a>
+                  )}
                 </CardContent>
               </Card>
-            )}
 
-            {/* Related Establishments (same KP regroupement) */}
-            {business.kp_regroupement && (
-              <RelatedEstablishments
-                currentBusinessId={business.id}
-                kpRegroupement={business.kp_regroupement}
-                isVerified={isVerified}
-              />
-            )}
+              {/* Opening Hours */}
+              {business.show_opening_hours !== false && (business.is_open_24h || (business.opening_hours && Object.keys(business.opening_hours).length > 0)) && (() => {
+                if (business.is_open_24h) {
+                  return (
+                    <Card className={isVerified ? 'bg-white/10 border-white/20' : ''}>
+                      <CardContent className="p-5">
+                        <h3 className={`font-semibold mb-3 flex items-center gap-2 ${isVerified ? 'text-white' : ''}`}>
+                          <Clock className="h-4 w-4" />
+                          Horaires
+                        </h3>
+                        <div className={`text-sm font-medium ${isVerified ? 'text-gold' : 'text-primary'}`}>Ouvert 24h/24</div>
+                      </CardContent>
+                    </Card>
+                  );
+                }
+                const dayNames: { [key: string]: string } = { monday: "Lun", tuesday: "Mar", wednesday: "Mer", thursday: "Jeu", friday: "Ven", saturday: "Sam", sunday: "Dim" };
+                const dayOrder = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+                const hours = business.opening_hours as OpeningHours;
+                const hasAnyHours = dayOrder.some(day => { const dh = hours[day as keyof OpeningHours]; return dh && (dh.closed || (dh.open && dh.close)); });
+                if (!hasAnyHours) return null;
+                return (
+                  <Card className={isVerified ? 'bg-white/10 border-white/20' : ''}>
+                    <CardContent className="p-5">
+                      <h3 className={`font-semibold mb-3 flex items-center gap-2 ${isVerified ? 'text-white' : ''}`}>
+                        <Clock className="h-4 w-4" />
+                        Horaires
+                      </h3>
+                      <div className="space-y-1.5">
+                        {dayOrder.map(day => {
+                          const dh = hours[day as keyof OpeningHours];
+                          if (!dh) return null;
+                          return (
+                            <div key={day} className={`flex justify-between text-sm ${isVerified ? 'text-white/80' : ''}`}>
+                              <span className="font-medium">{dayNames[day]}</span>
+                              <span className={isVerified ? 'text-white/60' : 'text-muted-foreground'}>
+                                {dh.closed ? "Fermé" : dh.open && dh.close ? `${dh.open} - ${dh.close}` : "—"}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })()}
+
+              {/* Vacation Dates */}
+              {business.vacation_dates && business.vacation_dates.length > 0 && (
+                <Card className={isVerified ? 'bg-white/10 border-white/20' : ''}>
+                  <CardContent className="p-5">
+                    <h3 className={`font-semibold mb-3 flex items-center gap-2 ${isVerified ? 'text-white' : ''}`}>
+                      <AlertTriangle className="h-4 w-4 text-amber-500" />
+                      Fermetures
+                    </h3>
+                    <div className="space-y-2">
+                      {business.vacation_dates.map((vd, idx) => (
+                        <div key={idx} className="text-sm bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 text-foreground">
+                          Du {format(parseISO(vd.start_date), "d MMM yyyy", { locale: fr })} au {format(parseISO(vd.end_date), "d MMM yyyy", { locale: fr })}
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Social Media */}
+              {(business.facebook_url || business.instagram_url || business.linkedin_url || business.youtube_url || business.tiktok_url || business.twitter_url || business.pinterest_url || business.vimeo_url) && (
+                <Card className={isVerified ? 'bg-white/10 border-white/20' : ''}>
+                  <CardContent className="p-5">
+                    <h3 className={`font-semibold mb-3 ${isVerified ? 'text-white' : ''}`}>Réseaux sociaux</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {business.facebook_url && (
+                        <a href={business.facebook_url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-9 h-9 rounded-full bg-[#1877F2] text-white hover:opacity-80 transition-opacity" title="Facebook"><Facebook className="h-4 w-4" /></a>
+                      )}
+                      {business.instagram_url && (
+                        <a href={business.instagram_url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-9 h-9 rounded-full bg-gradient-to-br from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] text-white hover:opacity-80 transition-opacity" title="Instagram"><Instagram className="h-4 w-4" /></a>
+                      )}
+                      {business.linkedin_url && (
+                        <a href={business.linkedin_url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-9 h-9 rounded-full bg-[#0A66C2] text-white hover:opacity-80 transition-opacity" title="LinkedIn"><Linkedin className="h-4 w-4" /></a>
+                      )}
+                      {business.youtube_url && (
+                        <a href={business.youtube_url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-9 h-9 rounded-full bg-[#FF0000] text-white hover:opacity-80 transition-opacity" title="YouTube"><Youtube className="h-4 w-4" /></a>
+                      )}
+                      {business.tiktok_url && (
+                        <a href={business.tiktok_url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-9 h-9 rounded-full bg-black text-white hover:opacity-80 transition-opacity" title="TikTok">
+                          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1-.1z"/></svg>
+                        </a>
+                      )}
+                      {business.twitter_url && (
+                        <a href={business.twitter_url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-9 h-9 rounded-full bg-black text-white hover:opacity-80 transition-opacity" title="X">
+                          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                        </a>
+                      )}
+                      {business.pinterest_url && (
+                        <a href={business.pinterest_url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-9 h-9 rounded-full bg-[#E60023] text-white hover:opacity-80 transition-opacity" title="Pinterest">
+                          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.372 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 0 1 .083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.632-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12 0-6.628-5.373-12-12-12z"/></svg>
+                        </a>
+                      )}
+                      {business.vimeo_url && (
+                        <a href={business.vimeo_url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-9 h-9 rounded-full bg-[#1AB7EA] text-white hover:opacity-80 transition-opacity" title="Vimeo">
+                          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M23.977 6.416c-.105 2.338-1.739 5.543-4.894 9.609-3.268 4.247-6.026 6.37-8.29 6.37-1.409 0-2.578-1.294-3.553-3.881L5.322 11.4C4.603 8.816 3.834 7.522 3.01 7.522c-.179 0-.806.378-1.881 1.132L0 7.197c1.185-1.044 2.351-2.084 3.501-3.128C5.08 2.701 6.266 1.984 7.055 1.91c1.867-.18 3.016 1.1 3.447 3.838.465 2.953.789 4.789.971 5.507.539 2.45 1.131 3.674 1.776 3.674.502 0 1.256-.796 2.265-2.385 1.004-1.589 1.54-2.797 1.612-3.628.144-1.371-.395-2.061-1.614-2.061-.574 0-1.167.121-1.777.391 1.186-3.868 3.434-5.757 6.762-5.637 2.473.06 3.628 1.664 3.493 4.797l-.013.01z"/></svg>
+                        </a>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Booking platforms */}
+              {(business.booking_url || business.tripadvisor_url || business.airbnb_url) && (
+                <Card className={isVerified ? 'bg-white/10 border-white/20' : ''}>
+                  <CardContent className="p-5">
+                    <h3 className={`font-semibold mb-3 ${isVerified ? 'text-white' : ''}`}>Réservation</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {business.booking_url && (
+                        <a href={business.booking_url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-9 h-9 rounded-full bg-[#003580] text-white hover:opacity-80 transition-opacity" title="Booking.com">
+                          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M2.273 0v24h10.715c6.066 0 8.739-3.098 8.739-7.133 0-2.829-1.558-5.203-4.107-6.174v-.078c1.908-.893 3.136-2.789 3.136-5.066C20.756 2.36 18.238 0 13.183 0H2.273zm5.882 4.344h3.885c2.127 0 3.156.975 3.156 2.477 0 1.658-1.263 2.593-3.506 2.593H8.155V4.344zm0 9.16h4.274c2.594 0 3.786 1.092 3.786 2.789 0 1.736-1.23 2.672-3.786 2.672H8.155v-5.461z"/></svg>
+                        </a>
+                      )}
+                      {business.tripadvisor_url && (
+                        <a href={business.tripadvisor_url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-9 h-9 rounded-full bg-[#00AF87] text-white hover:opacity-80 transition-opacity" title="TripAdvisor">
+                          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12.006 4.295c-2.67 0-5.338.784-7.645 2.353H0l1.963 2.135a5.997 5.997 0 0 0 4.04 10.43 5.976 5.976 0 0 0 4.075-1.6L12 19.705l1.922-2.09a5.972 5.972 0 0 0 4.075 1.598 5.997 5.997 0 0 0 4.04-10.43L24 6.648h-4.35a13.573 13.573 0 0 0-7.644-2.353z"/></svg>
+                        </a>
+                      )}
+                      {business.airbnb_url && (
+                        <a href={business.airbnb_url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-9 h-9 rounded-full bg-[#FF5A5F] text-white hover:opacity-80 transition-opacity" title="Airbnb">
+                          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12.001 18.275c-.768-1.041-1.497-2.093-2.209-3.155-.717-1.069-1.39-2.164-1.974-3.31-.578-1.138-1.05-2.313-1.05-3.503 0-1.394.575-2.63 1.447-3.501A4.94 4.94 0 0 1 12 3.374c1.353 0 2.63.521 3.567 1.432a4.94 4.94 0 0 1 1.449 3.5c0 1.19-.471 2.366-1.05 3.503-.585 1.147-1.257 2.241-1.974 3.31-.712 1.063-1.441 2.114-2.209 3.155l-.393.521-.389-.52z"/></svg>
+                        </a>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
           </div>
+        )}
 
-          {/* Sidebar - Contact & Map */}
-          <div className="space-y-6">
-            {/* Google Maps */}
+        {/* REVIEWS TAB */}
+        {activeTab === 'reviews' && (
+          <div className="max-w-2xl">
+            {/* Overall rating */}
+            {!isInstitution && avgOn20 !== null && (
+              <div className="flex items-baseline gap-4 mb-8">
+                <span className={`font-bold text-5xl italic ${isVerified ? 'text-gold' : 'text-primary'}`} style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                  {avgOn20}/20
+                </span>
+                {isVerified && <img src={logoGold} alt="WTUCE Vérifié" className="w-16 h-14 object-contain" />}
+                {totalReviewCount > 0 && (
+                  <span className={`text-lg ${isVerified ? 'text-white/70' : 'text-muted-foreground'}`}>
+                    sur {totalReviewCount.toLocaleString('fr-FR')} avis
+                  </span>
+                )}
+              </div>
+            )}
+
+            {/* Platform breakdown */}
+            <div className="space-y-4">
+              {reviews.map((r) => (
+                <div key={r.label} className={`flex items-center gap-4 p-4 rounded-xl ${isVerified ? 'bg-white/10' : 'bg-card border border-border'}`}>
+                  {r.label === 'TripAdvisor' && (
+                    <div className="w-10 h-10 rounded-full bg-[#34e0a1] flex items-center justify-center flex-shrink-0">
+                      <svg viewBox="0 0 24 24" className="w-5 h-5 text-white" fill="currentColor"><path d="M12.006 4.295c-2.67 0-5.338.784-7.645 2.353H0l1.963 2.135a5.997 5.997 0 0 0 4.04 10.43 5.976 5.976 0 0 0 4.075-1.6L12 19.705l1.922-2.09a5.972 5.972 0 0 0 4.075 1.598 5.997 5.997 0 0 0 4.04-10.43L24 6.648h-4.35a13.573 13.573 0 0 0-7.644-2.353z"/></svg>
+                    </div>
+                  )}
+                  {r.label === 'Google' && (
+                    <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center flex-shrink-0">
+                      <svg viewBox="0 0 24 24" className="w-5 h-5"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                    </div>
+                  )}
+                  {r.label === 'Restaurant Guru' && (
+                    <img src={restaurantGuruLogo} alt="Restaurant Guru" className="w-10 h-10 rounded-full object-contain flex-shrink-0" />
+                  )}
+                  <div className="flex-1">
+                    <div className={`font-semibold ${isVerified ? 'text-white' : 'text-foreground'}`}>{r.label}</div>
+                    <div className={`text-sm ${isVerified ? 'text-white/60' : 'text-muted-foreground'}`}>
+                      <span className={`font-bold ${isVerified ? 'text-gold' : 'text-primary'}`}>{r.rating}/5</span> · {r.count.toLocaleString('fr-FR')} avis
+                    </div>
+                  </div>
+                  {r.url && (
+                    <a href={r.url} target="_blank" rel="noopener noreferrer" className={`text-sm font-semibold ${isVerified ? 'text-gold hover:text-gold/80' : 'text-primary hover:text-primary/80'} transition-colors`}>
+                      Voir les avis ↗
+                    </a>
+                  )}
+                </div>
+              ))}
+
+              {/* Additional review links not in reviews array */}
+              {business.tripadvisor_review_url && !reviews.find(r => r.label === 'TripAdvisor') && (
+                <a href={business.tripadvisor_review_url} target="_blank" rel="noopener noreferrer" className={`flex items-center gap-4 p-4 rounded-xl ${isVerified ? 'bg-white/10' : 'bg-card border border-border'}`}>
+                  <div className="w-10 h-10 rounded-full bg-[#34e0a1] flex items-center justify-center flex-shrink-0">
+                    <svg viewBox="0 0 24 24" className="w-5 h-5 text-white" fill="currentColor"><path d="M12.006 4.295c-2.67 0-5.338.784-7.645 2.353H0l1.963 2.135a5.997 5.997 0 0 0 4.04 10.43 5.976 5.976 0 0 0 4.075-1.6L12 19.705l1.922-2.09a5.972 5.972 0 0 0 4.075 1.598 5.997 5.997 0 0 0 4.04-10.43L24 6.648h-4.35a13.573 13.573 0 0 0-7.644-2.353z"/></svg>
+                  </div>
+                  <span className={`font-semibold ${isVerified ? 'text-white' : 'text-foreground'}`}>TripAdvisor Avis ↗</span>
+                </a>
+              )}
+              {business.google_reviews_url && !reviews.find(r => r.label === 'Google') && (
+                <a href={business.google_reviews_url} target="_blank" rel="noopener noreferrer" className={`flex items-center gap-4 p-4 rounded-xl ${isVerified ? 'bg-white/10' : 'bg-card border border-border'}`}>
+                  <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center flex-shrink-0">
+                    <svg viewBox="0 0 24 24" className="w-5 h-5"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                  </div>
+                  <span className={`font-semibold ${isVerified ? 'text-white' : 'text-foreground'}`}>Google Avis ↗</span>
+                </a>
+              )}
+              {business.restaurant_guru_url && !reviews.find(r => r.label === 'Restaurant Guru') && (
+                <a href={business.restaurant_guru_url} target="_blank" rel="noopener noreferrer" className={`flex items-center gap-4 p-4 rounded-xl ${isVerified ? 'bg-white/10' : 'bg-card border border-border'}`}>
+                  <img src={restaurantGuruLogo} alt="Restaurant Guru" className="w-10 h-10 rounded-full object-contain flex-shrink-0" />
+                  <span className={`font-semibold ${isVerified ? 'text-white' : 'text-foreground'}`}>Restaurant Guru ↗</span>
+                </a>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* LOCATION TAB */}
+        {activeTab === 'location' && (
+          <div className="max-w-3xl space-y-6">
             <GoogleMapEmbed
               address={business.address || `${business.city}, ${business.region}`}
               businessName={business.name}
               latitude={business.latitude}
               longitude={business.longitude}
             />
-
-            <Card>
-              <CardContent className="p-6">
-                <h2 className="text-xl font-semibold mb-4">Contact</h2>
-                <div className="space-y-4">
-                  {business.whatsapp && (
-                    <a
-                      href={`https://wa.me/${business.whatsapp.replace(/[^0-9]/g, '')}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-3 text-foreground hover:text-primary transition-colors"
-                    >
-                      <MessageCircle className="h-5 w-5 text-[#25D366]" />
-                      WhatsApp
-                    </a>
-                  )}
-                  {business.skype && (
-                    <a
-                      href={`skype:${business.skype}?chat`}
-                      className="flex items-center gap-3 text-foreground hover:text-primary transition-colors"
-                    >
-                      <svg className="h-5 w-5 text-[#00AFF0]" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12.069 18.874c-4.023 0-5.82-1.979-5.82-3.464 0-.765.561-1.296 1.333-1.296 1.723 0 1.273 2.477 4.487 2.477 1.641 0 2.55-.895 2.55-1.811 0-.551-.269-1.16-1.354-1.429l-3.576-.895c-2.88-.724-3.403-2.286-3.403-3.751 0-3.047 2.861-4.191 5.549-4.191 2.471 0 5.393 1.373 5.393 3.199 0 .784-.688 1.24-1.453 1.24-1.469 0-1.198-2.037-4.164-2.037-1.469 0-2.292.664-2.292 1.617s1.153 1.258 2.157 1.487l2.637.587c2.891.649 3.624 2.346 3.624 3.944 0 2.476-1.902 4.324-5.722 4.324m11.084-4.882c.227-.9.345-1.836.345-2.798 0-3.151-1.24-6.105-3.494-8.319C17.79.651 14.791-.569 11.591-.569c-.866 0-1.72.086-2.553.252C7.688-1.228 6.126-1.68 4.469-1.68c-4.687 0-8.5 3.813-8.5 8.5 0 1.599.442 3.095 1.209 4.376-.27.939-.414 1.922-.414 2.931 0 3.151 1.24 6.105 3.494 8.319 2.214 2.175 5.213 3.395 8.413 3.395.866 0 1.72-.086 2.553-.252 1.351.911 2.913 1.363 4.57 1.363 4.687 0 8.5-3.813 8.5-8.5 0-1.599-.442-3.095-1.209-4.376"/>
-                      </svg>
-                      Skype
-                    </a>
-                  )}
-                  {business.address && (
-                    <div className="flex items-start gap-3 text-foreground">
-                      <MapPin className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
-                      <span>{business.address}</span>
-                    </div>
-                  )}
-                  {business.neighborhood && (
-                    <div className="flex items-start gap-3 text-foreground">
-                      <MapPin className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
-                      <span>
-                        Autres lieux intéressants de :{" "}
-                        <Link
-                          to={`/neighborhood/${encodeURIComponent(business.neighborhood)}?city=${encodeURIComponent(business.city)}`}
-                          className="font-bold text-primary hover:underline"
-                        >
-                          {business.neighborhood}
-                        </Link>
-                      </span>
-                    </div>
-                  )}
-                  {business.phone && (
-                    <a
-                      href={`tel:${business.phone}`}
-                      className="flex items-center gap-3 text-foreground hover:text-primary transition-colors"
-                    >
-                      <Phone className="h-5 w-5 text-muted-foreground" />
-                      {business.phone}
-                    </a>
-                  )}
-                  {business.email && (
-                    <a
-                      href={`mailto:${business.email}`}
-                      className="flex items-center gap-3 text-foreground hover:text-primary transition-colors"
-                    >
-                      <Mail className="h-5 w-5 text-muted-foreground" />
-                      {business.email}
-                    </a>
-                  )}
-                  {business.website && (
-                    <a
-                      href={business.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-3 text-primary hover:underline"
-                    >
-                      <Globe className="h-5 w-5" />
-                      Visiter le site web
-                    </a>
-                  )}
-                  {business.online_shop_url && (
-                    <a
-                      href={business.online_shop_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-3 text-primary hover:underline"
-                    >
-                      <ShoppingBag className="h-5 w-5" />
-                      Boutique en ligne
-                    </a>
-                  )}
+            
+            <div className={`space-y-3 ${isVerified ? 'text-white' : ''}`}>
+              {business.address && (
+                <div className="flex items-start gap-3">
+                  <MapPin className={`h-5 w-5 flex-shrink-0 mt-0.5 ${isVerified ? 'text-gold' : 'text-muted-foreground'}`} />
+                  <span>{business.address}</span>
                 </div>
-              </CardContent>
-            </Card>
-
-            {/* Avis clients */}
-            {(business.tripadvisor_review_url || business.restaurant_guru_url || business.google_reviews_url) && (
-              <Card className="bg-white border">
-                <CardContent className="p-6">
-                  <h2 className="text-xl font-bold mb-4 flex items-baseline flex-wrap gap-x-3">
-                    <span>Avis clients</span>
-                    {(() => {
-                      const ratings: { rating: number; count: number }[] = [];
-                      if (business.google_rating && business.google_review_count) {
-                        ratings.push({ rating: Number(business.google_rating), count: Number(business.google_review_count) });
-                      }
-                      if (business.tripadvisor_rating && business.tripadvisor_review_count) {
-                        ratings.push({ rating: Number(business.tripadvisor_rating), count: Number(business.tripadvisor_review_count) });
-                      }
-                      if (business.restaurant_guru_rating && business.restaurant_guru_review_count) {
-                        ratings.push({ rating: Number(business.restaurant_guru_rating), count: Number(business.restaurant_guru_review_count) });
-                      }
-                      if (ratings.length === 0) return null;
-                      const totalCount = ratings.reduce((sum, r) => sum + r.count, 0);
-                      const weightedAvg = ratings.reduce((sum, r) => sum + (r.rating / 5) * 20 * r.count, 0) / totalCount;
-                      const avg20 = weightedAvg.toFixed(2).replace('.', ',');
-                      return (
-                        <>
-                          <span className="text-gold text-3xl font-bold">{avg20}/20</span>
-                          <span className="text-xl font-bold">sur {totalCount.toLocaleString('fr-FR')} avis</span>
-                        </>
-                      );
-                    })()}
-                  </h2>
-                  <div className="space-y-3">
-                    {business.tripadvisor_review_url && (
-                      <a
-                        href={business.tripadvisor_review_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-3 text-foreground hover:text-[#00AF87] transition-colors"
-                      >
-                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#00AF87] text-white flex-shrink-0">
-                          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12.006 4.295c-2.67 0-5.338.784-7.645 2.353H0l1.963 2.135a5.997 5.997 0 0 0 4.04 10.43 5.976 5.976 0 0 0 4.075-1.6L12 19.705l1.922-2.09a5.972 5.972 0 0 0 4.075 1.598 5.997 5.997 0 0 0 4.04-10.43L24 6.648h-4.35a13.573 13.573 0 0 0-7.644-2.353zM12 6.758c1.91.216 3.716.974 5.198 2.24a5.97 5.97 0 0 0-1.198.754A7.48 7.48 0 0 0 12 8.76a7.48 7.48 0 0 0-4 .992 5.97 5.97 0 0 0-1.198-.754A9.473 9.473 0 0 1 12 6.758zm-6.003 3.02a4.03 4.03 0 1 1 0 8.059 4.03 4.03 0 0 1 0-8.058zm12.006 0a4.03 4.03 0 1 1 0 8.059 4.03 4.03 0 0 1 0-8.058z"/>
-                          </svg>
-                        </div>
-                        <div className="flex-1">
-                          <span className="font-medium">TripAdvisor Avis ↗</span>
-                          {(business.tripadvisor_rating != null || business.tripadvisor_review_count != null) && (
-                            <div className="text-xs text-muted-foreground">
-                              {business.tripadvisor_rating != null && <span className="font-semibold text-[#00AF87]">{business.tripadvisor_rating}/5</span>}
-                              {business.tripadvisor_rating != null && business.tripadvisor_review_count != null && <span> · </span>}
-                              {business.tripadvisor_review_count != null && <span>{business.tripadvisor_review_count} avis</span>}
-                            </div>
-                          )}
-                        </div>
-                      </a>
-                    )}
-                    {business.restaurant_guru_url && (
-                      <a
-                        href={business.restaurant_guru_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-3 text-foreground hover:text-[#E4322B] transition-colors"
-                      >
-                        <img src={restaurantGuruLogo} alt="Restaurant Guru" className="w-8 h-8 object-contain flex-shrink-0" />
-                        <div className="flex-1">
-                          <span className="font-medium">Restaurant Guru ↗</span>
-                          {(business.restaurant_guru_rating != null || business.restaurant_guru_review_count != null) && (
-                            <div className="text-xs text-muted-foreground">
-                              {business.restaurant_guru_rating != null && <span className="font-semibold text-[#E4322B]">{business.restaurant_guru_rating}/5</span>}
-                              {business.restaurant_guru_rating != null && business.restaurant_guru_review_count != null && <span> · </span>}
-                              {business.restaurant_guru_review_count != null && <span>{business.restaurant_guru_review_count} avis</span>}
-                            </div>
-                          )}
-                        </div>
-                      </a>
-                    )}
-                    {business.google_reviews_url && (
-                      <a
-                        href={business.google_reviews_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-3 text-foreground hover:text-[#4285F4] transition-colors"
-                      >
-                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white border border-gray-200 flex-shrink-0">
-                          <svg className="h-4 w-4" viewBox="0 0 24 24">
-                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
-                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                          </svg>
-                        </div>
-                        <div className="flex-1">
-                          <span className="font-medium">Google Avis ↗</span>
-                          {(business.google_rating != null || business.google_review_count != null) && (
-                            <div className="text-xs text-muted-foreground">
-                              {business.google_rating != null && <span className="font-semibold text-[#4285F4]">{business.google_rating}/5</span>}
-                              {business.google_rating != null && business.google_review_count != null && <span> · </span>}
-                              {business.google_review_count != null && <span>{business.google_review_count} avis</span>}
-                            </div>
-                          )}
-                        </div>
-                      </a>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Social Media */}
-            {(business.facebook_url || business.instagram_url || business.linkedin_url || business.youtube_url || business.tiktok_url || business.twitter_url || business.pinterest_url || business.vimeo_url) && (
-              <Card>
-                <CardContent className="p-6">
-                  <h2 className="text-xl font-semibold mb-4">Réseaux sociaux</h2>
-                  <div className="flex flex-wrap gap-3">
-                    {business.facebook_url && (
-                      <a
-                        href={business.facebook_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center justify-center w-10 h-10 rounded-full bg-[#1877F2] text-white hover:opacity-80 transition-opacity"
-                        title="Facebook"
-                      >
-                        <Facebook className="h-5 w-5" />
-                      </a>
-                    )}
-                    {business.instagram_url && (
-                      <a
-                        href={business.instagram_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] text-white hover:opacity-80 transition-opacity"
-                        title="Instagram"
-                      >
-                        <Instagram className="h-5 w-5" />
-                      </a>
-                    )}
-                    {business.linkedin_url && (
-                      <a
-                        href={business.linkedin_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center justify-center w-10 h-10 rounded-full bg-[#0A66C2] text-white hover:opacity-80 transition-opacity"
-                        title="LinkedIn"
-                      >
-                        <Linkedin className="h-5 w-5" />
-                      </a>
-                    )}
-                    {business.youtube_url && (
-                      <a
-                        href={business.youtube_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center justify-center w-10 h-10 rounded-full bg-[#FF0000] text-white hover:opacity-80 transition-opacity"
-                        title="YouTube"
-                      >
-                        <Youtube className="h-5 w-5" />
-                      </a>
-                    )}
-                    {business.tiktok_url && (
-                      <a
-                        href={business.tiktok_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center justify-center w-10 h-10 rounded-full bg-black text-white hover:opacity-80 transition-opacity"
-                        title="TikTok"
-                      >
-                        <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1-.1z"/>
-                        </svg>
-                      </a>
-                    )}
-                    {business.twitter_url && (
-                      <a
-                        href={business.twitter_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center justify-center w-10 h-10 rounded-full bg-black text-white hover:opacity-80 transition-opacity"
-                        title="X (Twitter)"
-                      >
-                        <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                        </svg>
-                      </a>
-                    )}
-                    {business.pinterest_url && (
-                      <a
-                        href={business.pinterest_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center justify-center w-10 h-10 rounded-full bg-[#E60023] text-white hover:opacity-80 transition-opacity"
-                        title="Pinterest"
-                      >
-                        <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M12 0C5.373 0 0 5.372 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 0 1 .083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.632-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12 0-6.628-5.373-12-12-12z"/>
-                        </svg>
-                      </a>
-                    )}
-                    {business.vimeo_url && (
-                      <a
-                        href={business.vimeo_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center justify-center w-10 h-10 rounded-full bg-[#1AB7EA] text-white hover:opacity-80 transition-opacity"
-                        title="Vimeo"
-                      >
-                        <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M23.977 6.416c-.105 2.338-1.739 5.543-4.894 9.609-3.268 4.247-6.026 6.37-8.29 6.37-1.409 0-2.578-1.294-3.553-3.881L5.322 11.4C4.603 8.816 3.834 7.522 3.01 7.522c-.179 0-.806.378-1.881 1.132L0 7.197c1.185-1.044 2.351-2.084 3.501-3.128C5.08 2.701 6.266 1.984 7.055 1.91c1.867-.18 3.016 1.1 3.447 3.838.465 2.953.789 4.789.971 5.507.539 2.45 1.131 3.674 1.776 3.674.502 0 1.256-.796 2.265-2.385 1.004-1.589 1.54-2.797 1.612-3.628.144-1.371-.395-2.061-1.614-2.061-.574 0-1.167.121-1.777.391 1.186-3.868 3.434-5.757 6.762-5.637 2.473.06 3.628 1.664 3.493 4.797l-.013.01z"/>
-                        </svg>
-                      </a>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Plateformes de réservation */}
-            {(business.booking_url || business.tripadvisor_url || business.airbnb_url) && (
-              <Card>
-                <CardContent className="p-6">
-                  <h2 className="text-xl font-semibold mb-4">Plateformes de réservation</h2>
-                  <div className="flex flex-wrap gap-3">
-                    {business.booking_url && (
-                      <a
-                        href={business.booking_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center justify-center w-10 h-10 rounded-full bg-[#003580] text-white hover:opacity-80 transition-opacity"
-                        title="Booking.com"
-                      >
-                        <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M2.273 0v24h10.715c6.066 0 8.739-3.098 8.739-7.133 0-2.829-1.558-5.203-4.107-6.174v-.078c1.908-.893 3.136-2.789 3.136-5.066C20.756 2.36 18.238 0 13.183 0H2.273zm5.882 4.344h3.885c2.127 0 3.156.975 3.156 2.477 0 1.658-1.263 2.593-3.506 2.593H8.155V4.344zm0 9.16h4.274c2.594 0 3.786 1.092 3.786 2.789 0 1.736-1.23 2.672-3.786 2.672H8.155v-5.461z"/>
-                        </svg>
-                      </a>
-                    )}
-                    {business.tripadvisor_url && (
-                      <a
-                        href={business.tripadvisor_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center justify-center w-10 h-10 rounded-full bg-[#00AF87] text-white hover:opacity-80 transition-opacity"
-                        title="TripAdvisor"
-                      >
-                        <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M12.006 4.295c-2.67 0-5.338.784-7.645 2.353H0l1.963 2.135a5.997 5.997 0 0 0 4.04 10.43 5.976 5.976 0 0 0 4.075-1.6L12 19.705l1.922-2.09a5.972 5.972 0 0 0 4.075 1.598 5.997 5.997 0 0 0 4.04-10.43L24 6.648h-4.35a13.573 13.573 0 0 0-7.644-2.353zM12 6.758c1.91.216 3.716.974 5.198 2.24a5.97 5.97 0 0 0-1.198.754A7.48 7.48 0 0 0 12 8.76a7.48 7.48 0 0 0-4 .992 5.97 5.97 0 0 0-1.198-.754A9.473 9.473 0 0 1 12 6.758zm-6.003 3.02a4.03 4.03 0 1 1 0 8.059 4.03 4.03 0 0 1 0-8.058zm12.006 0a4.03 4.03 0 1 1 0 8.059 4.03 4.03 0 0 1 0-8.058zM5.997 11.29a2.49 2.49 0 1 0 0 4.98 2.49 2.49 0 0 0 0-4.98zm12.006 0a2.49 2.49 0 1 0 0 4.98 2.49 2.49 0 0 0 0-4.98zm-12.006 1a1.49 1.49 0 1 1 0 2.98 1.49 1.49 0 0 1 0-2.98zm12.006 0a1.49 1.49 0 1 1 0 2.98 1.49 1.49 0 0 1 0-2.98z"/>
-                        </svg>
-                      </a>
-                    )}
-                    {business.airbnb_url && (
-                      <a
-                        href={business.airbnb_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center justify-center w-10 h-10 rounded-full bg-[#FF5A5F] text-white hover:opacity-80 transition-opacity"
-                        title="Airbnb"
-                      >
-                        <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M12.001 18.275c-.768-1.041-1.497-2.093-2.209-3.155-.717-1.069-1.39-2.164-1.974-3.31-.578-1.138-1.05-2.313-1.05-3.503 0-1.394.575-2.63 1.447-3.501A4.94 4.94 0 0 1 12 3.374c1.353 0 2.63.521 3.567 1.432a4.94 4.94 0 0 1 1.449 3.5c0 1.19-.471 2.366-1.05 3.503-.585 1.147-1.257 2.241-1.974 3.31-.712 1.063-1.441 2.114-2.209 3.155l-.393.521-.389-.52zm.002-8.348a2.033 2.033 0 0 0 2.032-2.032 2.033 2.033 0 0 0-2.032-2.032 2.033 2.033 0 0 0-2.032 2.032c0 1.12.912 2.032 2.032 2.032zM12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0z"/>
-                        </svg>
-                      </a>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* CTA */}
-            {business.reserve_now_url && (
-              <a
-                href={business.reserve_now_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block w-full bg-primary text-primary-foreground text-center py-4 rounded-xl font-semibold hover:bg-primary/90 transition-colors"
-              >
-                Réserver maintenant
-              </a>
-            )}
-
-
-            {/* Opening Hours */}
-            {business.show_opening_hours !== false && (business.is_open_24h || (business.opening_hours && Object.keys(business.opening_hours).length > 0)) && (() => {
-              if (business.is_open_24h) {
-                return (
-                  <Card>
-                    <CardContent className="p-6">
-                      <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                        <Clock className="h-5 w-5" />
-                        Horaires d'ouverture
-                      </h2>
-                      <div className="text-sm font-medium text-primary">Ouvert 24h/24</div>
-                    </CardContent>
-                  </Card>
-                );
-              }
-
-              const dayNames: { [key: string]: string } = {
-                monday: "Lundi",
-                tuesday: "Mardi",
-                wednesday: "Mercredi",
-                thursday: "Jeudi",
-                friday: "Vendredi",
-                saturday: "Samedi",
-                sunday: "Dimanche"
-              };
-              const dayOrder = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
-              const hours = business.opening_hours as OpeningHours;
-              
-              const hasAnyHours = dayOrder.some(day => {
-                const dayHours = hours[day as keyof OpeningHours];
-                return dayHours && (dayHours.closed || (dayHours.open && dayHours.close));
-              });
-              
-              if (!hasAnyHours) return null;
-              
-              return (
-                <Card>
-                  <CardContent className="p-6">
-                    <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                      <Clock className="h-5 w-5" />
-                      Horaires d'ouverture
-                    </h2>
-                    <div className="space-y-2">
-                      {dayOrder.map(day => {
-                        const dayHours = hours[day as keyof OpeningHours];
-                        if (!dayHours) return null;
-                        
-                        return (
-                          <div key={day} className="flex justify-between text-sm">
-                            <span className="font-medium">{dayNames[day]}</span>
-                            <span className="text-muted-foreground">
-                              {dayHours.closed 
-                                ? "Fermé" 
-                                : dayHours.open && dayHours.close 
-                                  ? `${dayHours.open} - ${dayHours.close}`
-                                  : "—"
-                              }
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })()}
-
-            {/* Vacation Dates */}
-            {business.vacation_dates && business.vacation_dates.length > 0 && (
-              <Card>
-                <CardContent className="p-6">
-                  <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                    <AlertTriangle className="h-5 w-5 text-amber-500" />
-                    Vacances / Fermetures exceptionnelles
-                  </h2>
-                  <div className="space-y-2">
-                    {business.vacation_dates.map((vd, idx) => (
-                      <div key={idx} className="text-sm bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-foreground">
-                        Du {format(parseISO(vd.start_date), "d MMMM yyyy", { locale: fr })} au {format(parseISO(vd.end_date), "d MMMM yyyy", { locale: fr })}
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+              )}
+              <div className="flex items-start gap-3">
+                <MapPin className={`h-5 w-5 flex-shrink-0 mt-0.5 ${isVerified ? 'text-gold' : 'text-muted-foreground'}`} />
+                <span>
+                  <Link to={`/city/${encodeURIComponent(business.city)}`} className={`font-bold underline underline-offset-2 ${isVerified ? 'text-gold hover:text-gold/80' : 'text-primary hover:text-foreground'} transition-colors`}>
+                    {business.city}
+                  </Link>
+                  {business.neighborhood && (
+                    <>, <Link to={`/neighborhood/${encodeURIComponent(business.neighborhood)}?city=${encodeURIComponent(business.city)}`} className={`font-bold underline underline-offset-2 ${isVerified ? 'text-gold hover:text-gold/80' : 'text-primary hover:text-foreground'} transition-colors`}>
+                      {business.neighborhood}
+                    </Link></>
+                  )}
+                  , {business.region}
+                </span>
+              </div>
+            </div>
           </div>
-        </div>
+        )}
       </main>
 
       <Footer variant={isVerified ? "verified" : "default"} />
