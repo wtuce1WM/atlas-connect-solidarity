@@ -26,6 +26,7 @@ import {
   ChevronDown,
   ImageMinus,
   Loader2,
+  Download,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -155,6 +156,20 @@ const StaffDashboard = ({ businesses, onNavigateTab, onNewBusiness, onEditBusine
         <StatCard icon={Star} label="En vedette" value={stats.featured} color="text-yellow-500 bg-yellow-50" />
       </div>
 
+      {/* Quick Actions */}
+      <div className="flex flex-wrap gap-3">
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => {
+            const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/export-businesses-csv`;
+            window.open(url, "_blank");
+          }}
+        >
+          <Download className="h-4 w-4 mr-2" />
+          Export CSV Google My Maps
+        </Button>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Quality Alerts */}
