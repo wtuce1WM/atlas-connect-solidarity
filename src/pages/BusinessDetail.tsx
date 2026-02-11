@@ -596,7 +596,7 @@ const BusinessDetail = () => {
                     </a>
                   )}
                   {business.skype && (
-                    <a href={`skype:${business.skype}?chat`} className={`flex items-center gap-3 font-semibold transition-colors ${isVerified ? "text-white/70 hover:text-white" : "text-[#00AFF0] hover:opacity-80"}`}>
+                    <a href={`skype:${business.skype}?chat`} className="flex items-center gap-3 font-semibold transition-colors text-[#00AFF0] hover:opacity-80">
                       <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M12.069 18.874c-4.023 0-5.82-1.979-5.82-3.464 0-.765.561-1.296 1.333-1.296 1.723 0 1.273 2.477 4.487 2.477 1.641 0 2.55-.895 2.55-1.811 0-.551-.269-1.16-1.354-1.429l-3.576-.895c-2.88-.724-3.403-2.286-3.403-3.751 0-3.047 2.861-4.191 5.549-4.191 2.471 0 5.393 1.373 5.393 3.199 0 .784-.688 1.24-1.453 1.24-1.469 0-1.198-2.037-4.164-2.037-1.469 0-2.292.664-2.292 1.617s1.153 1.258 2.157 1.487l2.637.587c2.891.649 3.624 2.346 3.624 3.944 0 2.476-1.902 4.324-5.722 4.324"/>
                       </svg>
