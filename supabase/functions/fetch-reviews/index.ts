@@ -14,26 +14,24 @@ interface ReviewResult {
   restaurant_guru_review_count?: number | null;
 }
 
-// Extract coordinates from Google Maps URL
-function extractCoordsFromUrl(url: string): { lat: number; lng: number } | null {
-  // Pattern: @31.6254736,-8.0030928
-  const match = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
-  if (match) {
-    return { lat: parseFloat(match[1]), lng: parseFloat(match[2]) };
-  }
-  return null;
+interface ReviewText {
+  source: string;
+  author_name: string | null;
+  rating: number | null;
+  text: string | null;
+  relative_time: string | null;
+  language: string | null;
 }
 
-// Google Places API (New)
-async function fetchGoogleReviews(businessName: string, city: string, googleMapsUrl: string | null): Promise<{ rating: number | null; count: number | null }> {
+// Google Places API (New) - fetch rating + top 3 review texts
+async function fetchGoogleReviews(businessName: string, city: string, googleMapsUrl: string | null): Promise<{ rating: number | null; count: number | null; reviews: ReviewText[] }> {
   const apiKey = Deno.env.get('GOOGLE_MAPS_API_KEY');
   if (!apiKey) {
     console.error('GOOGLE_MAPS_API_KEY not configured');
-    return { rating: null, count: null };
+    return { rating: null, count: null, reviews: [] };
   }
 
   try {
-    // Use Text Search (New) API directly — returns rating in one call
     const simplifiedName = businessName.replace(/\s+by\s+.*/i, '').trim();
     const queries = [
       `${businessName} ${city}`,
@@ -42,25 +40,59 @@ async function fetchGoogleReviews(businessName: string, city: string, googleMaps
 
     for (const q of queries) {
       console.log(`Google Text Search (New): "${q}"`);
-      const res = await fetch('https://places.googleapis.com/v1/places:searchText', {
+      // First: search to get place ID
+      const searchRes = await fetch('https://places.googleapis.com/v1/places:searchText', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'X-Goog-Api-Key': apiKey,
-          'X-Goog-FieldMask': 'places.rating,places.userRatingCount,places.displayName',
+          'X-Goog-FieldMask': 'places.id,places.rating,places.userRatingCount,places.displayName',
         },
         body: JSON.stringify({ textQuery: q }),
       });
-      const data = await res.json();
-      console.log(`Google response:`, JSON.stringify(data).substring(0, 500));
+      const searchData = await searchRes.json();
 
-      if (data.places && data.places.length > 0) {
-        const place = data.places[0];
+      if (searchData.places && searchData.places.length > 0) {
+        const place = searchData.places[0];
         console.log(`Found: "${place.displayName?.text}" - rating=${place.rating}, count=${place.userRatingCount}`);
-        return {
-          rating: place.rating ?? null,
-          count: place.userRatingCount ?? null,
-        };
+        
+        const rating = place.rating ?? null;
+        const count = place.userRatingCount ?? null;
+        const reviewTexts: ReviewText[] = [];
+
+        // Second: get place details with reviews
+        if (place.id) {
+          try {
+            const detailRes = await fetch(`https://places.googleapis.com/v1/places/${place.id}`, {
+              method: 'GET',
+              headers: {
+                'X-Goog-Api-Key': apiKey,
+                'X-Goog-FieldMask': 'reviews',
+              },
+            });
+            const detailData = await detailRes.json();
+            
+            if (detailData.reviews && detailData.reviews.length > 0) {
+              // Take up to 3 best reviews (they come sorted by relevance)
+              const topReviews = detailData.reviews.slice(0, 3);
+              for (const r of topReviews) {
+                reviewTexts.push({
+                  source: 'google',
+                  author_name: r.authorAttribution?.displayName || null,
+                  rating: r.rating ?? null,
+                  text: r.text?.text || null,
+                  relative_time: r.relativePublishTimeDescription || null,
+                  language: r.text?.languageCode || null,
+                });
+              }
+              console.log(`Got ${reviewTexts.length} Google review texts`);
+            }
+          } catch (e) {
+            console.error('Error fetching place details for reviews:', e);
+          }
+        }
+
+        return { rating, count, reviews: reviewTexts };
       }
     }
 
@@ -68,7 +100,7 @@ async function fetchGoogleReviews(businessName: string, city: string, googleMaps
   } catch (e) {
     console.error('Google Places API error:', e);
   }
-  return { rating: null, count: null };
+  return { rating: null, count: null, reviews: [] };
 }
 
 // Firecrawl scraping for TripAdvisor
@@ -122,7 +154,6 @@ async function fetchTripAdvisorReviews(url: string): Promise<{ rating: number | 
 
 // Firecrawl scraping for Restaurant Guru
 async function fetchRestaurantGuruReviews(url: string): Promise<{ rating: number | null; count: number | null }> {
-  // Only process actual restaurant guru URLs
   if (!url.includes('restaurantguru.com')) {
     console.log(`Skipping non-Restaurant Guru URL: ${url}`);
     return { rating: null, count: null };
@@ -208,15 +239,16 @@ Deno.serve(async (req) => {
     }
 
     console.log(`Fetching reviews for: "${business.name}" in ${business.city}`);
-    console.log(`URLs: maps=${business.google_maps_url ? 'yes' : 'no'}, tripadvisor=${business.tripadvisor_review_url ? 'yes' : 'no'}, guru=${business.restaurant_guru_url ? 'yes' : 'no'}`);
 
     const results: ReviewResult = {};
+    let googleReviewTexts: ReviewText[] = [];
     const promises: Promise<void>[] = [];
 
     promises.push(
       fetchGoogleReviews(business.name, business.city, business.google_maps_url).then(r => {
         results.google_rating = r.rating;
         results.google_review_count = r.count;
+        googleReviewTexts = r.reviews;
       })
     );
 
@@ -242,6 +274,7 @@ Deno.serve(async (req) => {
 
     console.log('Results:', JSON.stringify(results));
 
+    // Update business ratings
     const updateData: Record<string, any> = {};
     if (results.google_rating != null) updateData.google_rating = results.google_rating;
     if (results.google_review_count != null) updateData.google_review_count = results.google_review_count;
@@ -258,15 +291,45 @@ Deno.serve(async (req) => {
 
       if (updateError) {
         console.error('Error updating business:', updateError);
-        return new Response(
-          JSON.stringify({ success: false, error: 'Failed to update business', details: updateError }),
-          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+      }
+    }
+
+    // Save review texts: delete old ones, insert new ones
+    if (googleReviewTexts.length > 0) {
+      // Delete existing reviews for this business
+      await supabase
+        .from('reviews')
+        .delete()
+        .eq('business_id', business_id);
+
+      // Insert new reviews
+      const reviewRows = googleReviewTexts
+        .filter(r => r.text)
+        .map(r => ({
+          business_id,
+          source: r.source,
+          author_name: r.author_name,
+          rating: r.rating,
+          text: r.text,
+          relative_time: r.relative_time,
+          language: r.language,
+        }));
+
+      if (reviewRows.length > 0) {
+        const { error: insertError } = await supabase
+          .from('reviews')
+          .insert(reviewRows);
+
+        if (insertError) {
+          console.error('Error inserting reviews:', insertError);
+        } else {
+          console.log(`Saved ${reviewRows.length} review texts`);
+        }
       }
     }
 
     return new Response(
-      JSON.stringify({ success: true, data: results, updated: Object.keys(updateData) }),
+      JSON.stringify({ success: true, data: results, updated: Object.keys(updateData), reviews_saved: googleReviewTexts.length }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {

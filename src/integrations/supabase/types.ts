@@ -739,6 +739,56 @@ export type Database = {
           },
         ]
       }
+      reviews: {
+        Row: {
+          author_name: string | null
+          business_id: string
+          created_at: string
+          fetched_at: string
+          id: string
+          language: string | null
+          published_at: string | null
+          rating: number | null
+          relative_time: string | null
+          source: string
+          text: string | null
+        }
+        Insert: {
+          author_name?: string | null
+          business_id: string
+          created_at?: string
+          fetched_at?: string
+          id?: string
+          language?: string | null
+          published_at?: string | null
+          rating?: number | null
+          relative_time?: string | null
+          source: string
+          text?: string | null
+        }
+        Update: {
+          author_name?: string | null
+          business_id?: string
+          created_at?: string
+          fetched_at?: string
+          id?: string
+          language?: string | null
+          published_at?: string | null
+          rating?: number | null
+          relative_time?: string | null
+          source?: string
+          text?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       services: {
         Row: {
           created_at: string | null
