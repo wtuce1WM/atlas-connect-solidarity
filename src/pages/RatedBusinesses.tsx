@@ -123,7 +123,7 @@ const RatedBusinesses = () => {
     if (selectedCategory === "all") return [];
     const catId = allCategoryMap[selectedCategory];
     if (!catId) return [];
-    return allSubcategories.filter((s) => s.category_id === catId);
+    return allSubcategories.filter((s) => s.category_id === catId).sort((a, b) => a.name_fr.localeCompare(b.name_fr, 'fr'));
   }, [selectedCategory, allCategoryMap, allSubcategories]);
 
   // Filter services by selected subcategory
@@ -131,7 +131,7 @@ const RatedBusinesses = () => {
     if (selectedSubcategory === "all") return [];
     const subcatId = allSubcatMap[selectedSubcategory];
     if (!subcatId) return [];
-    return allServices.filter((s) => s.subcategory_id === subcatId);
+    return allServices.filter((s) => s.subcategory_id === subcatId).sort((a, b) => a.name_fr.localeCompare(b.name_fr, 'fr'));
   }, [selectedSubcategory, allSubcatMap, allServices]);
 
   // Compute average /20 for a business
