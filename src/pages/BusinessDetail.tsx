@@ -144,6 +144,7 @@ const BusinessDetail = () => {
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const [activeTab, setActiveTab] = useState<TabKey>('overview');
+  const [reviewTexts, setReviewTexts] = useState<{ source: string; author_name: string | null; rating: number | null; text: string | null; relative_time: string | null }[]>([]);
   const { t, language } = useLanguage();
   const navigate = useNavigate();
 
@@ -198,6 +199,15 @@ const BusinessDetail = () => {
             .maybeSingle();
           if (gammeData) setGamme(gammeData as Gamme);
         }
+
+        // Fetch review texts
+        const { data: reviewsData } = await supabase
+          .from("reviews" as any)
+          .select("source, author_name, rating, text, relative_time")
+          .eq("business_id", id)
+          .order("rating", { ascending: false })
+          .limit(5);
+        if (reviewsData) setReviewTexts(reviewsData as any[]);
       } else {
         setBusiness(null);
       }
@@ -855,6 +865,49 @@ const BusinessDetail = () => {
                 </a>
               )}
             </div>
+
+            {/* Review texts */}
+            {reviewTexts.length > 0 && (
+              <div className="mt-8">
+                <h3 className={`text-lg font-semibold mb-4 ${isVerified ? 'text-white' : 'text-foreground'}`}>
+                  Ce que disent les clients
+                </h3>
+                <div className="space-y-4">
+                  {reviewTexts.map((review, idx) => (
+                    <div key={idx} className={`p-4 rounded-xl ${isVerified ? 'bg-white/10' : 'bg-card border border-border'}`}>
+                      <div className="flex items-center gap-2 mb-2">
+                        {review.rating && (
+                          <div className="flex items-center gap-1">
+                            {[...Array(5)].map((_, i) => (
+                              <Star
+                                key={i}
+                                className={`h-3.5 w-3.5 ${i < review.rating! ? 'fill-amber-400 text-amber-400' : isVerified ? 'text-white/20' : 'text-muted-foreground/30'}`}
+                              />
+                            ))}
+                          </div>
+                        )}
+                        <span className={`text-sm font-medium ${isVerified ? 'text-white' : 'text-foreground'}`}>
+                          {review.author_name || 'Anonyme'}
+                        </span>
+                        {review.relative_time && (
+                          <span className={`text-xs ${isVerified ? 'text-white/40' : 'text-muted-foreground'}`}>
+                            · {review.relative_time}
+                          </span>
+                        )}
+                      </div>
+                      <p className={`text-sm leading-relaxed ${isVerified ? 'text-white/70' : 'text-muted-foreground'}`}>
+                        {review.text}
+                      </p>
+                      <div className="mt-2">
+                        <Badge variant="outline" className={`text-[10px] ${isVerified ? 'border-white/20 text-white/50' : ''}`}>
+                          {review.source === 'google' ? 'Google' : review.source === 'tripadvisor' ? 'TripAdvisor' : review.source}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
