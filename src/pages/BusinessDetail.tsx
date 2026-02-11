@@ -349,7 +349,7 @@ const BusinessDetail = () => {
                 )}
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-4 sm:grid-rows-2 gap-1 relative">
+              <div className="grid grid-cols-2 sm:grid-cols-4 sm:grid-rows-2 gap-1 sm:h-[400px] lg:h-[480px] relative">
                 {/* Large image - full width on mobile, left half on desktop */}
                 <div 
                   className="col-span-2 sm:row-span-2 aspect-[4/3] sm:aspect-auto sm:h-[400px] lg:h-[480px] cursor-pointer overflow-hidden relative group"
