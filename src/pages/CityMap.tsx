@@ -702,7 +702,7 @@ const CityMap = () => {
               return (
                 <div>
                   <h3 className="text-lg font-semibold text-white mb-4">En savoir plus</h3>
-                  <Card className="bg-morocco-red/90 border-white/10">
+                  <Card className="bg-morocco-red/30 border-white/10">
                     <CardContent className="p-4">
                       <a
                         href={wikipediaUrl}
