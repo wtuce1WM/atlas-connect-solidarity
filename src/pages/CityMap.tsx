@@ -317,7 +317,12 @@ const CityMap = () => {
   }
 
   return (
-    <div className="min-h-screen relative" style={{ background: 'linear-gradient(to bottom left, #c1272d 50%, #006233 50%)' }}>
+    <div className="min-h-screen relative overflow-hidden" style={{ backgroundColor: '#c1272d' }}>
+      {/* Diagonal green overlay starting below header */}
+      <div className="absolute inset-0 pointer-events-none" style={{
+        background: 'linear-gradient(to bottom left, transparent 50%, #006233 50%)',
+        top: '72px',
+      }} />
       {/* Background decorative emblem */}
       <div 
         className="absolute top-32 left-1/2 -translate-x-1/2 w-[600px] h-[600px] opacity-40 pointer-events-none"
