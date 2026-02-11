@@ -19,6 +19,7 @@ import LabelManagement from "@/components/staff/LabelManagement";
 import GammeManagement from "@/components/staff/GammeManagement";
 import KPGroupManagement from "@/components/staff/KPGroupManagement";
 import { useBusinessBrokenFiles } from "@/hooks/useBusinessBrokenFiles";
+import { useBusinessBrokenLinks } from "@/hooks/useBusinessBrokenLinks";
 import StaffDashboard from "@/components/staff/StaffDashboard";
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -41,6 +42,7 @@ const StaffBackoffice = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { brokenFilesMap, isChecking: isCheckingBrokenFiles, hasChecked: hasCheckedBrokenFiles, checkBrokenFiles } = useBusinessBrokenFiles(businesses);
+  const { brokenLinks, isChecking: isCheckingBrokenLinks, hasChecked: hasCheckedBrokenLinks, progress: brokenLinksProgress, checkBrokenLinks } = useBusinessBrokenLinks(businesses);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -308,6 +310,11 @@ const StaffBackoffice = () => {
                 isCheckingBrokenFiles={isCheckingBrokenFiles}
                 hasCheckedBrokenFiles={hasCheckedBrokenFiles}
                 onCheckBrokenFiles={checkBrokenFiles}
+                brokenLinks={brokenLinks}
+                isCheckingBrokenLinks={isCheckingBrokenLinks}
+                hasCheckedBrokenLinks={hasCheckedBrokenLinks}
+                brokenLinksProgress={brokenLinksProgress}
+                onCheckBrokenLinks={checkBrokenLinks}
               />
             </TabsContent>
 

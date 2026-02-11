@@ -27,6 +27,7 @@ import {
   ImageMinus,
   Loader2,
   Download,
+  Link2Off,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -45,6 +46,12 @@ interface BrokenFilesMap {
   };
 }
 
+interface BrokenLinksResult {
+  businessId: string;
+  businessName: string;
+  brokenUrls: { field: string; url: string }[];
+}
+
 interface StaffDashboardProps {
   businesses: Business[];
   onNavigateTab: (tab: string) => void;
@@ -54,9 +61,14 @@ interface StaffDashboardProps {
   isCheckingBrokenFiles: boolean;
   hasCheckedBrokenFiles: boolean;
   onCheckBrokenFiles: () => void;
+  brokenLinks: BrokenLinksResult[];
+  isCheckingBrokenLinks: boolean;
+  hasCheckedBrokenLinks: boolean;
+  brokenLinksProgress: { checked: number; total: number };
+  onCheckBrokenLinks: () => void;
 }
 
-const StaffDashboard = ({ businesses, onNavigateTab, onNewBusiness, onEditBusiness, brokenFilesMap, isCheckingBrokenFiles, hasCheckedBrokenFiles, onCheckBrokenFiles }: StaffDashboardProps) => {
+const StaffDashboard = ({ businesses, onNavigateTab, onNewBusiness, onEditBusiness, brokenFilesMap, isCheckingBrokenFiles, hasCheckedBrokenFiles, onCheckBrokenFiles, brokenLinks, isCheckingBrokenLinks, hasCheckedBrokenLinks, brokenLinksProgress, onCheckBrokenLinks }: StaffDashboardProps) => {
   // === STATISTICS ===
   const stats = useMemo(() => {
     const total = businesses.length;
@@ -208,6 +220,38 @@ const StaffDashboard = ({ businesses, onNavigateTab, onNewBusiness, onEditBusine
                     count={brokenBusinesses.length}
                     color={brokenBusinesses.length > 0 ? "text-destructive" : "text-green-600"}
                     items={brokenBusinesses}
+                    onEdit={onEditBusiness}
+                  />
+                );
+              })()
+            )}
+            {/* Broken external links alert */}
+            {isCheckingBrokenLinks ? (
+              <div className="flex items-center gap-2 p-2 rounded-md bg-muted/50 text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span className="text-sm">Vérification des liens externes… {brokenLinksProgress.checked}/{brokenLinksProgress.total}</span>
+              </div>
+            ) : !hasCheckedBrokenLinks ? (
+              <button
+                onClick={onCheckBrokenLinks}
+                className="flex items-center justify-between w-full p-2 rounded-md bg-muted/50 hover:bg-muted transition-colors cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  <Link2Off className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm">Liens externes cassés</span>
+                </div>
+                <Badge variant="outline" className="text-xs">Lancer la vérification</Badge>
+              </button>
+            ) : (
+              (() => {
+                const brokenLinkBusinesses = businesses.filter(b => brokenLinks.some(bl => bl.businessId === b.id));
+                return (
+                  <AlertRow
+                    icon={Link2Off}
+                    label={brokenLinkBusinesses.length > 0 ? `Liens externes cassés (${brokenLinkBusinesses.length} entreprises)` : "Liens externes cassés"}
+                    count={brokenLinkBusinesses.length}
+                    color={brokenLinkBusinesses.length > 0 ? "text-destructive" : "text-green-600"}
+                    items={brokenLinkBusinesses}
                     onEdit={onEditBusiness}
                   />
                 );
