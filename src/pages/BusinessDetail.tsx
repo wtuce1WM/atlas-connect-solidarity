@@ -361,7 +361,7 @@ const BusinessDetail = () => {
             <span>{business.address || business.city}{business.neighborhood ? <> - <Link to={`/neighborhood/${encodeURIComponent(business.neighborhood)}?city=${encodeURIComponent(business.city)}`} className="font-bold text-primary hover:text-foreground transition-colors underline underline-offset-2">{business.neighborhood}</Link></> : ""} - <Link to={`/city/${encodeURIComponent(business.city)}`} className="font-bold text-primary hover:text-foreground transition-colors underline underline-offset-2">{business.city}</Link></span>
           </div>
           {/* Phone, WhatsApp, Skype, Email & Website quick links */}
-          {(business.phone || business.whatsapp || business.skype || business.email || business.website || business.reserve_now_url || business.online_shop_url) && (
+          {(business.phone || business.whatsapp || business.skype || business.email) && (
             <div className="flex items-center justify-center sm:justify-start gap-4 mt-3 flex-wrap">
               {business.phone && (
                 <a
@@ -404,6 +404,10 @@ const BusinessDetail = () => {
                   {business.email}
                 </a>
               )}
+            </div>
+          )}
+          {(business.website || business.reserve_now_url || business.online_shop_url) && (
+            <div className="flex items-center justify-center sm:justify-start gap-4 mt-2 flex-wrap">
               {business.website && (
                 <a
                   href={business.website.startsWith('http') ? business.website : `https://${business.website}`}
