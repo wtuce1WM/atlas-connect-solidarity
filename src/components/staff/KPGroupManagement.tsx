@@ -21,8 +21,11 @@ interface GroupBusiness {
   website: string | null;
   rating: number | null;
   google_rating: number | null;
+  google_review_count: number | null;
   tripadvisor_rating: number | null;
+  tripadvisor_review_count: number | null;
   restaurant_guru_rating: number | null;
+  restaurant_guru_review_count: number | null;
 }
 
 const computeRating20 = (b: GroupBusiness): number | null => {
@@ -50,7 +53,7 @@ const KPGroupManagement = ({ onEditBusiness }: KPGroupManagementProps) => {
     setLoading(true);
     const { data, error } = await supabase
       .from("businesses")
-      .select("id, name, city, neighborhood, is_master, wtuce_status, is_active, kp_regroupement, website, rating, google_rating, tripadvisor_rating, restaurant_guru_rating")
+      .select("id, name, city, neighborhood, is_master, wtuce_status, is_active, kp_regroupement, website, rating, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count")
       .not("kp_regroupement", "is", null)
       .neq("kp_regroupement", "")
       .order("name");
@@ -76,8 +79,11 @@ const KPGroupManagement = ({ onEditBusiness }: KPGroupManagementProps) => {
         website: b.website,
         rating: b.rating,
         google_rating: b.google_rating,
+        google_review_count: b.google_review_count,
         tripadvisor_rating: b.tripadvisor_rating,
+        tripadvisor_review_count: b.tripadvisor_review_count,
         restaurant_guru_rating: b.restaurant_guru_rating,
+        restaurant_guru_review_count: b.restaurant_guru_review_count,
       });
     });
 
@@ -251,9 +257,16 @@ const KPGroupManagement = ({ onEditBusiness }: KPGroupManagementProps) => {
                           {b.name}
                         </span>
                         <span className="text-xs text-muted-foreground ml-2">{b.city}{b.neighborhood ? `, ${b.neighborhood}` : ''}</span>
-                        {(() => { const r = computeRating20(b); return r ? (
-                          <Badge className="ml-2 bg-muted-foreground/80 text-background text-xs font-semibold border-0">{r.toFixed(1)}/20</Badge>
-                        ) : null; })()}
+                        {(() => {
+                          const r = computeRating20(b);
+                          const totalReviews = (b.google_review_count || 0) + (b.tripadvisor_review_count || 0) + (b.restaurant_guru_review_count || 0);
+                          return r ? (
+                            <>
+                              <Badge className="ml-2 bg-muted-foreground/80 text-background text-xs font-semibold border-0">{r.toFixed(1)}/20</Badge>
+                              {totalReviews > 0 && <span className="text-xs text-muted-foreground">{totalReviews} avis</span>}
+                            </>
+                          ) : null;
+                        })()}
                       </div>
                       {b.wtuce_status === "verified" && (
                         <Badge variant="default" className="text-xs bg-primary/20 text-primary border-primary/30">
