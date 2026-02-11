@@ -21,8 +21,11 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, ExternalLink, Settings, Star, X } from "lucide-react";
+import { Loader2, ExternalLink, Settings, Star, X, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 import { useAvailableMainCategories } from "@/hooks/useAvailableMainCategories";
+
+type SortKey = "name" | "subcat" | "google" | "guru" | "tripadvisor" | "avg" | "total";
+type SortDir = "asc" | "desc";
 
 interface RatedBusiness {
   id: string;
@@ -57,6 +60,24 @@ const RatedBusinesses = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedSubcategory, setSelectedSubcategory] = useState<string>("all");
   const [selectedService, setSelectedService] = useState<string>("all");
+  const [sortKey, setSortKey] = useState<SortKey>("avg");
+  const [sortDir, setSortDir] = useState<SortDir>("desc");
+
+  const toggleSort = (key: SortKey) => {
+    if (sortKey === key) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(key);
+      setSortDir("desc");
+    }
+  };
+
+  const SortIcon = ({ col }: { col: SortKey }) => {
+    if (sortKey !== col) return <ArrowUpDown className="h-3 w-3 ml-1 inline opacity-40" />;
+    return sortDir === "asc" 
+      ? <ArrowUp className="h-3 w-3 ml-1 inline text-gold" /> 
+      : <ArrowDown className="h-3 w-3 ml-1 inline text-gold" />;
+  };
 
   // Fetch businesses with any rating data
   useEffect(() => {
@@ -150,13 +171,25 @@ const RatedBusinesses = () => {
       result = result.filter((b) => b.services?.includes(selectedService));
     }
 
-    // Sort by average desc
+    // Sort
+    const dir = sortDir === "asc" ? 1 : -1;
     return [...result].sort((a, b) => {
-      const avgA = computeAverage20(a) ?? 0;
-      const avgB = computeAverage20(b) ?? 0;
-      return avgB - avgA;
+      let valA: number | string = 0;
+      let valB: number | string = 0;
+      switch (sortKey) {
+        case "name": valA = a.name.toLowerCase(); valB = b.name.toLowerCase(); break;
+        case "subcat": valA = (a.categories?.[0] || "").toLowerCase(); valB = (b.categories?.[0] || "").toLowerCase(); break;
+        case "google": valA = a.google_rating ?? -1; valB = b.google_rating ?? -1; break;
+        case "guru": valA = a.restaurant_guru_rating ?? -1; valB = b.restaurant_guru_rating ?? -1; break;
+        case "tripadvisor": valA = a.tripadvisor_rating ?? -1; valB = b.tripadvisor_rating ?? -1; break;
+        case "avg": valA = computeAverage20(a) ?? -1; valB = computeAverage20(b) ?? -1; break;
+        case "total": valA = totalReviews(a); valB = totalReviews(b); break;
+      }
+      if (valA < valB) return -1 * dir;
+      if (valA > valB) return 1 * dir;
+      return 0;
     });
-  }, [businesses, selectedCity, selectedCategory, selectedSubcategory, selectedService]);
+  }, [businesses, selectedCity, selectedCategory, selectedSubcategory, selectedService, sortKey, sortDir]);
 
   const clearFilters = () => {
     setSelectedCity("all");
@@ -263,24 +296,28 @@ const RatedBusinesses = () => {
               <TableHeader>
                 <TableRow className="bg-muted/50">
                   <TableHead className="text-center w-[50px] font-bold">#</TableHead>
-                  <TableHead className="font-bold">Nom</TableHead>
+                  <TableHead className="font-bold cursor-pointer select-none" onClick={() => toggleSort("name")}>
+                    Nom <SortIcon col="name" />
+                  </TableHead>
                   <TableHead>Ville</TableHead>
                   <TableHead className="hidden md:table-cell">Quartier</TableHead>
-                  <TableHead className="hidden lg:table-cell">Sous-cat.</TableHead>
-                  <TableHead className="text-center">
-                    <span className="text-xs">Google</span>
+                  <TableHead className="hidden lg:table-cell cursor-pointer select-none" onClick={() => toggleSort("subcat")}>
+                    <span className="text-xs">Sous-cat. <SortIcon col="subcat" /></span>
                   </TableHead>
-                  <TableHead className="text-center hidden sm:table-cell">
-                    <span className="text-xs">R. Guru</span>
+                  <TableHead className="text-center cursor-pointer select-none" onClick={() => toggleSort("google")}>
+                    <span className="text-xs">Google <SortIcon col="google" /></span>
                   </TableHead>
-                  <TableHead className="text-center hidden sm:table-cell">
-                    <span className="text-xs">TripAdvisor</span>
+                  <TableHead className="text-center hidden sm:table-cell cursor-pointer select-none" onClick={() => toggleSort("guru")}>
+                    <span className="text-xs">R. Guru <SortIcon col="guru" /></span>
                   </TableHead>
-                  <TableHead className="text-center font-bold">
-                    <span className="text-xs">Moy. /20</span>
+                  <TableHead className="text-center hidden sm:table-cell cursor-pointer select-none" onClick={() => toggleSort("tripadvisor")}>
+                    <span className="text-xs">TripAdvisor <SortIcon col="tripadvisor" /></span>
                   </TableHead>
-                  <TableHead className="text-center">
-                    <span className="text-xs">Total avis</span>
+                  <TableHead className="text-center font-bold cursor-pointer select-none" onClick={() => toggleSort("avg")}>
+                    <span className="text-xs">Moy. /20 <SortIcon col="avg" /></span>
+                  </TableHead>
+                  <TableHead className="text-center cursor-pointer select-none" onClick={() => toggleSort("total")}>
+                    <span className="text-xs">Total avis <SortIcon col="total" /></span>
                   </TableHead>
                   <TableHead className="text-center w-[80px]">Liens</TableHead>
                 </TableRow>
