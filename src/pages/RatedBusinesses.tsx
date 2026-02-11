@@ -53,6 +53,7 @@ const RatedBusinesses = () => {
   const [allServices, setAllServices] = useState<{ name_fr: string; subcategory_id: string }[]>([]);
   const [allSubcatMap, setAllSubcatMap] = useState<Record<string, string>>({}); // subcat name_fr -> id
 
+  const [selectedCity, setSelectedCity] = useState<string>("all");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedSubcategory, setSelectedSubcategory] = useState<string>("all");
   const [selectedService, setSelectedService] = useState<string>("all");
@@ -126,10 +127,19 @@ const RatedBusinesses = () => {
   const totalReviews = (b: RatedBusiness) =>
     (b.google_review_count || 0) + (b.tripadvisor_review_count || 0) + (b.restaurant_guru_review_count || 0);
 
+  // Available cities sorted
+  const availableCities = useMemo(() => {
+    const cities = [...new Set(businesses.map((b) => b.city))].sort();
+    return cities;
+  }, [businesses]);
+
   // Filter businesses
   const filteredBusinesses = useMemo(() => {
     let result = businesses;
 
+    if (selectedCity !== "all") {
+      result = result.filter((b) => b.city === selectedCity);
+    }
     if (selectedCategory !== "all") {
       result = result.filter((b) => b.main_category === selectedCategory);
     }
@@ -146,15 +156,16 @@ const RatedBusinesses = () => {
       const avgB = computeAverage20(b) ?? 0;
       return avgB - avgA;
     });
-  }, [businesses, selectedCategory, selectedSubcategory, selectedService]);
+  }, [businesses, selectedCity, selectedCategory, selectedSubcategory, selectedService]);
 
   const clearFilters = () => {
+    setSelectedCity("all");
     setSelectedCategory("all");
     setSelectedSubcategory("all");
     setSelectedService("all");
   };
 
-  const hasFilters = selectedCategory !== "all" || selectedSubcategory !== "all" || selectedService !== "all";
+  const hasFilters = selectedCity !== "all" || selectedCategory !== "all" || selectedSubcategory !== "all" || selectedService !== "all";
 
   return (
     <div className="min-h-screen bg-background">
@@ -176,6 +187,19 @@ const RatedBusinesses = () => {
       <div className="container mx-auto px-4 py-8">
         {/* Filters */}
         <div className="flex flex-wrap items-end gap-4 mb-6">
+          <div className="w-full sm:w-auto min-w-[200px]">
+            <label className="text-sm font-medium text-muted-foreground mb-1 block">Ville</label>
+            <Select value={selectedCity} onValueChange={setSelectedCity}>
+              <SelectTrigger><SelectValue placeholder="Toutes" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Toutes les villes</SelectItem>
+                {availableCities.map((c) => (
+                  <SelectItem key={c} value={c}>{c}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           <div className="w-full sm:w-auto min-w-[200px]">
             <label className="text-sm font-medium text-muted-foreground mb-1 block">Catégorie</label>
             <Select value={selectedCategory} onValueChange={(v) => { setSelectedCategory(v); setSelectedSubcategory("all"); setSelectedService("all"); }}>
@@ -268,7 +292,11 @@ const RatedBusinesses = () => {
 
                   return (
                     <TableRow key={b.id} className="hover:bg-muted/30">
-                      <TableCell className="font-medium max-w-[200px] truncate">{b.name}</TableCell>
+                      <TableCell className="font-medium max-w-[200px] truncate">
+                        <Link to={`/business/${b.id}`} className="hover:text-primary hover:underline">
+                          {b.name}
+                        </Link>
+                      </TableCell>
                       <TableCell className="text-sm">{b.city}</TableCell>
                       <TableCell className="text-sm hidden md:table-cell">{b.neighborhood || "—"}</TableCell>
                       <TableCell className="text-sm hidden lg:table-cell">
