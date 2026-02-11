@@ -288,10 +288,7 @@ const BusinessDetail = () => {
             {!isInstitution && avgOn5 !== null && (
               <>
                 <Star className={`h-4 w-4 fill-current ${isVerified ? 'text-gold' : 'text-primary'}`} />
-                <span className={`font-bold ${isVerified ? 'text-gold' : 'text-primary'}`}>{avgOn5}</span>
-                {avgOn20 !== null && (
-                  <span className={`font-bold ${isVerified ? 'text-gold' : 'text-primary'}`}>({avgOn20}/20)</span>
-                )}
+                <span className={`font-bold ${isVerified ? 'text-gold' : 'text-primary'}`}>{avgOn20}/20</span>
                 {totalReviewCount > 0 && (
                   <span>· {totalReviewCount.toLocaleString('fr-FR')} avis</span>
                 )}
