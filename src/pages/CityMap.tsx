@@ -317,7 +317,7 @@ const CityMap = () => {
   }
 
   return (
-    <div className="min-h-screen relative" style={{ background: 'linear-gradient(135deg, #c1272d 50%, #006233 50%)' }}>
+    <div className="min-h-screen relative" style={{ background: 'linear-gradient(to bottom left, #006233 50%, #c1272d 50%)' }}>
       {/* Background decorative emblem */}
       <div 
         className="absolute top-32 left-1/2 -translate-x-1/2 w-[600px] h-[600px] opacity-40 pointer-events-none"
