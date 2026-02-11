@@ -675,6 +675,69 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
           </div>
         </div>
 
+        {/* Note /20, Statut, Mise en avant, Priority Score */}
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 p-4 border rounded-lg bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800">
+          <div className="space-y-2">
+            <Label htmlFor="rating" className="font-semibold text-blue-800 dark:text-blue-200">Note /20</Label>
+            <Input
+              id="rating"
+              type="number"
+              step="0.01"
+              min="0"
+              max="20"
+              value={formData.rating}
+              onChange={(e) => handleChange("rating", e.target.value)}
+              placeholder="0 - 20"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="wtuce_status" className="font-semibold text-blue-800 dark:text-blue-200">Statut WTUCE</Label>
+            <Select
+              value={formData.wtuce_status}
+              onValueChange={(value) => handleChange("wtuce_status", value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Statut..." />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="pending">En attente</SelectItem>
+                <SelectItem value="verified">Vérifié ✓</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="priority_score" className="font-semibold text-blue-800 dark:text-blue-200">Priority Score</Label>
+            <Input
+              id="priority_score"
+              type="number"
+              min="0"
+              value={formData.priority_score}
+              onChange={(e) => handleChange("priority_score", e.target.value)}
+              placeholder="0"
+            />
+          </div>
+          <div className="flex items-center gap-2 pt-6">
+            <input
+              type="checkbox"
+              id="is_featured"
+              checked={formData.is_featured}
+              onChange={(e) => handleChange("is_featured", e.target.checked)}
+              className="h-4 w-4"
+            />
+            <Label htmlFor="is_featured" className="font-semibold text-blue-800 dark:text-blue-200">Mise en avant</Label>
+          </div>
+          <div className="flex items-center gap-2 pt-6">
+            <input
+              type="checkbox"
+              id="is_active"
+              checked={formData.is_active}
+              onChange={(e) => handleChange("is_active", e.target.checked)}
+              className="h-4 w-4"
+            />
+            <Label htmlFor="is_active" className="font-semibold text-blue-800 dark:text-blue-200">Actif</Label>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-2">
             <Label htmlFor="main_category">Catégorie principale</Label>
