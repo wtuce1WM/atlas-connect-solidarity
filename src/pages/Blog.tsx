@@ -72,7 +72,7 @@ const Blog = () => {
           </h1>
           <div className="flex items-center gap-4 mt-2">
             <p className="text-white/60">{t("blog.subtitle")}</p>
-            <Link to="/blog/etablissements-notes">
+            <Link to="/etablissements-notes">
               <Button variant="outline" size="sm" className="border-gold text-gold hover:bg-gold/10">
                 <Star className="h-4 w-4 mr-1" /> Établissements notés
               </Button>
