@@ -530,7 +530,7 @@ const CityMap = () => {
 
             {/* Business list */}
             <h2 className="text-lg font-semibold text-white mb-3">
-              Entreprises ({filteredBusinesses.length})
+              Établissements ({filteredBusinesses.length})
             </h2>
             {filteredBusinesses.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
