@@ -208,6 +208,7 @@ export type Database = {
           logo_url: string | null
           longitude: number | null
           main_category: string | null
+          menu_url: string | null
           name: string
           neighborhood: string | null
           online_shop_url: string | null
@@ -285,6 +286,7 @@ export type Database = {
           logo_url?: string | null
           longitude?: number | null
           main_category?: string | null
+          menu_url?: string | null
           name: string
           neighborhood?: string | null
           online_shop_url?: string | null
@@ -362,6 +364,7 @@ export type Database = {
           logo_url?: string | null
           longitude?: number | null
           main_category?: string | null
+          menu_url?: string | null
           name?: string
           neighborhood?: string | null
           online_shop_url?: string | null

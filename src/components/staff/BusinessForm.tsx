@@ -362,6 +362,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
     hook_fr: (business as any)?.hook_fr || "",
     hook_en: (business as any)?.hook_en || "",
     hook_ar: (business as any)?.hook_ar || "",
+    menu_url: (business as any)?.menu_url || "",
   });
   
   // Business labels state (managed separately)
@@ -521,6 +522,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
       hook_fr: formData.hook_fr || null,
       hook_en: formData.hook_en || null,
       hook_ar: formData.hook_ar || null,
+      menu_url: formData.menu_url || null,
     };
 
     try {
@@ -1118,6 +1120,16 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
             content={formData.description}
             onChange={(html) => handleChange("description", html)}
             maxHeight="600px"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="menu_url">Menu (URL)</Label>
+          <Input
+            id="menu_url"
+            value={formData.menu_url}
+            onChange={(e) => handleChange("menu_url", e.target.value)}
+            placeholder="https://..."
           />
         </div>
 

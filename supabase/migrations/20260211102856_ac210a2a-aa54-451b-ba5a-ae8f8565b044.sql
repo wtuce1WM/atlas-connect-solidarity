@@ -1,0 +1,1 @@
+ALTER TABLE public.businesses ADD COLUMN menu_url text;
