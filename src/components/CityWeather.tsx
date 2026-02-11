@@ -62,7 +62,7 @@ const CityWeather = ({ city }: CityWeatherProps) => {
 
   if (isLoading) {
     return (
-      <Card className="border-gold border">
+      <Card className="border-gold border-[5px]">
         <CardContent className="p-4 flex items-center justify-center">
           <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
         </CardContent>
@@ -77,7 +77,7 @@ const CityWeather = ({ city }: CityWeatherProps) => {
   const iconUrl = `https://openweathermap.org/img/wn/${weather.icon}@2x.png`;
 
   return (
-    <Card className="border-gold border">
+    <Card className="border-gold border-[5px]">
       <CardContent className="p-4">
         <div className="flex items-center gap-3">
           <img 
