@@ -360,8 +360,8 @@ const BusinessDetail = () => {
             <MapPin className="h-5 w-5" />
             <span>{business.address || business.city}{business.neighborhood ? <> - <Link to={`/neighborhood/${encodeURIComponent(business.neighborhood)}?city=${encodeURIComponent(business.city)}`} className="font-bold hover:text-primary transition-colors underline underline-offset-2">{business.neighborhood}</Link></> : ""}</span>
           </div>
-          {/* Phone & WhatsApp quick links */}
-          {(business.phone || business.whatsapp) && (
+          {/* Phone, WhatsApp, Skype, Email & Website quick links */}
+          {(business.phone || business.whatsapp || business.skype || business.email || business.website) && (
             <div className="flex items-center justify-center sm:justify-start gap-4 mt-3 flex-wrap">
               {business.phone && (
                 <a
@@ -382,6 +382,37 @@ const BusinessDetail = () => {
                 >
                   <MessageCircle className="h-5 w-5" />
                   WhatsApp
+                </a>
+              )}
+              {business.skype && (
+                <a
+                  href={`skype:${business.skype}?chat`}
+                  className={`inline-flex items-center gap-2 font-semibold transition-colors ${isVerified ? "text-white/70 hover:text-white" : "text-[#00AFF0] hover:opacity-80"}`}
+                >
+                  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12.069 18.874c-4.023 0-5.82-1.979-5.82-3.464 0-.765.561-1.296 1.333-1.296 1.723 0 1.273 2.477 4.487 2.477 1.641 0 2.55-.895 2.55-1.811 0-.551-.269-1.16-1.354-1.429l-3.576-.895c-2.88-.724-3.403-2.286-3.403-3.751 0-3.047 2.861-4.191 5.549-4.191 2.471 0 5.393 1.373 5.393 3.199 0 .784-.688 1.24-1.453 1.24-1.469 0-1.198-2.037-4.164-2.037-1.469 0-2.292.664-2.292 1.617s1.153 1.258 2.157 1.487l2.637.587c2.891.649 3.624 2.346 3.624 3.944 0 2.476-1.902 4.324-5.722 4.324m11.084-4.882l-.029.135-.044-.24c.015.045.044.074.059.12.12-.675.181-1.363.181-2.052 0-1.529-.301-3.012-.898-4.42-.569-1.348-1.395-2.562-2.427-3.596-1.049-1.033-2.247-1.856-3.595-2.426-1.318-.631-2.801-.93-4.328-.93-.72 0-1.444.07-2.143.204l.119.06-.239-.033.119-.025C8.91.274 7.829 0 6.731 0c-1.789 0-3.47.698-4.736 1.967C.729 3.235.032 4.923.032 6.716c0 1.143.292 2.265.844 3.258l.02-.124.041.239-.06-.115c-.114.645-.172 1.299-.172 1.955 0 1.53.3 3.017.884 4.416.568 1.362 1.378 2.576 2.427 3.609a11.92 11.92 0 003.58 2.442c1.404.6 2.886.93 4.404.93.599 0 1.229-.06 1.868-.172l-.119-.062.239.033-.119.024c1.002.569 2.126.871 3.294.871 1.783 0 3.459-.69 4.733-1.963 1.259-1.259 1.962-2.951 1.962-4.749 0-1.138-.299-2.262-.853-3.266"/>
+                  </svg>
+                  Skype
+                </a>
+              )}
+              {business.email && (
+                <a
+                  href={`mailto:${business.email}`}
+                  className={`inline-flex items-center gap-2 font-semibold transition-colors ${isVerified ? "text-white/70 hover:text-white" : "text-foreground hover:text-primary"}`}
+                >
+                  <Mail className="h-5 w-5" />
+                  {business.email}
+                </a>
+              )}
+              {business.website && (
+                <a
+                  href={business.website.startsWith('http') ? business.website : `https://${business.website}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`inline-flex items-center gap-2 font-semibold transition-colors ${isVerified ? "text-gold hover:text-gold/80" : "text-primary hover:text-primary/80"}`}
+                >
+                  <Globe className="h-5 w-5" />
+                  Visiter le site web
                 </a>
               )}
             </div>
