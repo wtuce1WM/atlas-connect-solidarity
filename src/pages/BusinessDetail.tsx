@@ -326,16 +326,35 @@ const BusinessDetail = () => {
               {/* Rating and WTUCE Logo - below title on mobile, inline on desktop */}
               {isVerified && !isInstitution && (
                 <div className="flex items-center justify-center sm:justify-start gap-3 mt-3 sm:hidden">
-                  {business.rating !== null && business.rating !== undefined && (
-                    <div className="text-gold font-bold text-4xl italic" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
-                      {business.rating}/20
-                    </div>
-                  )}
-                  <img 
-                    src={logoGold} 
-                    alt="WTUCE Vérifié" 
-                    className="w-[60px] h-[54px] object-contain"
-                  />
+                  {business.rating !== null && business.rating !== undefined ? (
+                    <>
+                      <div className="text-gold font-bold text-4xl italic" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                        {business.rating}/20
+                      </div>
+                      <img src={logoGold} alt="WTUCE Vérifié" className="w-[60px] h-[54px] object-contain" />
+                    </>
+                  ) : (() => {
+                    const reviews: { rating: number; count: number; url: string | null; label: string }[] = [];
+                    if (business.google_rating && business.google_review_count) reviews.push({ rating: business.google_rating, count: business.google_review_count, url: business.google_reviews_url, label: 'Google' });
+                    if (business.tripadvisor_rating && business.tripadvisor_review_count) reviews.push({ rating: business.tripadvisor_rating, count: business.tripadvisor_review_count, url: business.tripadvisor_review_url || business.tripadvisor_url, label: 'TripAdvisor' });
+                    if (business.restaurant_guru_rating && business.restaurant_guru_review_count) reviews.push({ rating: business.restaurant_guru_rating, count: business.restaurant_guru_review_count, url: business.restaurant_guru_url, label: 'Restaurant Guru' });
+                    if (reviews.length === 0) return <img src={logoGold} alt="WTUCE Vérifié" className="w-[60px] h-[54px] object-contain" />;
+                    const totalCount = reviews.reduce((s, r) => s + r.count, 0);
+                    const weightedAvg = reviews.reduce((s, r) => s + r.rating * r.count, 0) / totalCount;
+                    const avgOn20 = Math.round(weightedAvg * 4 * 10) / 10;
+                    return (
+                      <div className="flex flex-col items-center gap-1">
+                        <div className="text-gold font-bold text-4xl italic" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                          {avgOn20}/20
+                        </div>
+                        <div className="text-xs text-white/70">
+                          sur {totalCount} avis : {reviews.map((r, i) => (
+                            <span key={r.label}>{i > 0 && ' · '}{r.url ? <a href={r.url} target="_blank" rel="noopener noreferrer" className="underline hover:text-white">{r.label}</a> : r.label}</span>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
               )}
             </div>
@@ -343,16 +362,35 @@ const BusinessDetail = () => {
             {/* Rating and WTUCE Logo for verified businesses - desktop only */}
             {isVerified && !isInstitution && (
               <div className="hidden sm:flex items-center gap-3 flex-shrink-0">
-                {business.rating !== null && business.rating !== undefined && (
-                  <div className="text-gold font-bold text-5xl italic" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
-                    {business.rating}/20
-                  </div>
-                )}
-                <img 
-                  src={logoGold} 
-                  alt="WTUCE Vérifié" 
-                  className="w-[80px] h-[72px] object-contain"
-                />
+                {business.rating !== null && business.rating !== undefined ? (
+                  <>
+                    <div className="text-gold font-bold text-5xl italic" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                      {business.rating}/20
+                    </div>
+                    <img src={logoGold} alt="WTUCE Vérifié" className="w-[80px] h-[72px] object-contain" />
+                  </>
+                ) : (() => {
+                  const reviews: { rating: number; count: number; url: string | null; label: string }[] = [];
+                  if (business.google_rating && business.google_review_count) reviews.push({ rating: business.google_rating, count: business.google_review_count, url: business.google_reviews_url, label: 'Google' });
+                  if (business.tripadvisor_rating && business.tripadvisor_review_count) reviews.push({ rating: business.tripadvisor_rating, count: business.tripadvisor_review_count, url: business.tripadvisor_review_url || business.tripadvisor_url, label: 'TripAdvisor' });
+                  if (business.restaurant_guru_rating && business.restaurant_guru_review_count) reviews.push({ rating: business.restaurant_guru_rating, count: business.restaurant_guru_review_count, url: business.restaurant_guru_url, label: 'Restaurant Guru' });
+                  if (reviews.length === 0) return <img src={logoGold} alt="WTUCE Vérifié" className="w-[80px] h-[72px] object-contain" />;
+                  const totalCount = reviews.reduce((s, r) => s + r.count, 0);
+                  const weightedAvg = reviews.reduce((s, r) => s + r.rating * r.count, 0) / totalCount;
+                  const avgOn20 = Math.round(weightedAvg * 4 * 10) / 10;
+                  return (
+                    <div className="flex flex-col items-end gap-1">
+                      <div className="text-gold font-bold text-5xl italic" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                        {avgOn20}/20
+                      </div>
+                      <div className="text-sm text-white/70">
+                        sur {totalCount} avis : {reviews.map((r, i) => (
+                          <span key={r.label}>{i > 0 && ' · '}{r.url ? <a href={r.url} target="_blank" rel="noopener noreferrer" className="underline hover:text-white">{r.label}</a> : r.label}</span>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
             )}
           </div>
