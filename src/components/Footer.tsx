@@ -18,11 +18,11 @@ const Footer = ({ variant = "default" }: FooterProps) => {
     ? "bg-transparent text-black"
     : "bg-black text-white";
 
-  const textSecondary = isVerified ? "text-black/70" : "text-background/70";
-  const textTertiary = isVerified ? "text-black/60" : "text-background/60";
-  const textQuaternary = isVerified ? "text-black/50" : "text-background/50";
-  const brandMorocco = isVerified ? "text-black" : "text-background";
-  const borderColor = isVerified ? "border-black/10" : "border-background/10";
+  const textSecondary = isVerified ? "text-black/70" : "text-white/90";
+  const textTertiary = isVerified ? "text-black/60" : "text-white/70";
+  const textQuaternary = isVerified ? "text-black/50" : "text-white/60";
+  const brandMorocco = isVerified ? "text-black" : "text-white";
+  const borderColor = isVerified ? "border-black/10" : "border-white/20";
 
   return (
     <footer className={footerBg}>
