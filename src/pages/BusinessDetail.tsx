@@ -341,6 +341,13 @@ const BusinessDetail = () => {
                   alt={`${business.name} - Image 1`}
                   className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                 />
+                {isVerified && !isInstitution && (
+                  <img 
+                    src={logoGold} 
+                    alt="WTUCE" 
+                    className="absolute top-3 right-3 w-12 h-12 sm:w-14 sm:h-14 object-contain opacity-90 pointer-events-none drop-shadow-lg"
+                  />
+                )}
               </div>
               {/* 4 smaller images - right side 2x2 grid */}
               {[1, 2, 3, 4].map((idx) => (
