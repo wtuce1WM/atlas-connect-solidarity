@@ -416,7 +416,7 @@ const HeroSection = () => {
               </div>
             </div>
 
-            {/* Sponsors Section */}
+            {/* Sponsors Section - DISABLED
             {sponsors.length > 0 && (
               <div className="w-full pb-4">
                 <h2 className="text-center text-white font-bold text-3xl mb-4">Sponsors</h2>
@@ -460,6 +460,7 @@ const HeroSection = () => {
                 </div>
               </div>
             )}
+            */}
 
             {/* Relais & Châteaux Section - MOVED TO SEPARATE COMPONENT */}
           </div>
