@@ -180,6 +180,12 @@ const KPGroupManagement = ({ onEditBusiness }: KPGroupManagementProps) => {
         </h2>
       </div>
 
+      <div className="flex items-center gap-6 text-xs text-muted-foreground">
+        <span className="flex items-center gap-1.5"><Globe className="h-3.5 w-3.5" /> Site web</span>
+        <span className="flex items-center gap-1.5"><Pencil className="h-3.5 w-3.5 text-green-600" /> Éditer la fiche</span>
+        <span className="flex items-center gap-1.5"><Eye className="h-3.5 w-3.5 text-blue-600" /> Voir la fiche</span>
+      </div>
+
       <div className="space-y-4">
         {groups.map(group => (
           <Card key={group.kp}>
@@ -233,7 +239,7 @@ const KPGroupManagement = ({ onEditBusiness }: KPGroupManagementProps) => {
                       )}
                     <div className="flex items-center gap-1.5">
                       {b.website && (
-                        <a href={b.website} target="_blank" rel="noopener noreferrer" title="Site web">
+                        <a href={b.website} target="_blank" rel="noopener noreferrer" title="Ouvrir le site web dans un nouvel onglet">
                           <Button size="sm" variant="ghost" className="h-7 w-7 p-0" type="button" asChild>
                             <span><Globe className="h-3.5 w-3.5 text-muted-foreground" /></span>
                           </Button>
@@ -243,12 +249,12 @@ const KPGroupManagement = ({ onEditBusiness }: KPGroupManagementProps) => {
                         size="sm"
                         variant="ghost"
                         className="h-7 w-7 p-0"
-                        title="Modifier la fiche"
+                        title="Éditer la fiche dans le backoffice"
                         onClick={() => onEditBusiness?.(b.id)}
                       >
                         <Pencil className="h-3.5 w-3.5 text-green-600" />
                       </Button>
-                      <a href={`/business/${b.id}`} target="_blank" rel="noopener noreferrer" title="Voir la fiche">
+                      <a href={`/business/${b.id}`} target="_blank" rel="noopener noreferrer" title="Voir la fiche publique dans un nouvel onglet">
                         <Button size="sm" variant="ghost" className="h-7 w-7 p-0" type="button" asChild>
                           <span><Eye className="h-3.5 w-3.5 text-blue-600" /></span>
                         </Button>
