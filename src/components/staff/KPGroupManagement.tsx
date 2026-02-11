@@ -4,7 +4,11 @@ import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Building2, Crown, Loader2 } from "lucide-react";
+import { Building2, Crown, Loader2, Globe, Pencil, Eye } from "lucide-react";
+
+interface KPGroupManagementProps {
+  onEditBusiness?: (id: string) => void;
+}
 
 interface GroupBusiness {
   id: string;
@@ -13,6 +17,7 @@ interface GroupBusiness {
   is_master: boolean;
   wtuce_status: string | null;
   is_active: boolean;
+  website: string | null;
 }
 
 interface KPGroup {
@@ -20,7 +25,7 @@ interface KPGroup {
   businesses: GroupBusiness[];
 }
 
-const KPGroupManagement = () => {
+const KPGroupManagement = ({ onEditBusiness }: KPGroupManagementProps) => {
   const [groups, setGroups] = useState<KPGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
@@ -30,7 +35,7 @@ const KPGroupManagement = () => {
     setLoading(true);
     const { data, error } = await supabase
       .from("businesses")
-      .select("id, name, city, is_master, wtuce_status, is_active, kp_regroupement")
+      .select("id, name, city, is_master, wtuce_status, is_active, kp_regroupement, website")
       .not("kp_regroupement", "is", null)
       .neq("kp_regroupement", "")
       .order("name");
@@ -52,6 +57,7 @@ const KPGroupManagement = () => {
         is_master: b.is_master,
         wtuce_status: b.wtuce_status,
         is_active: b.is_active,
+        website: b.website,
       });
     });
 
@@ -225,9 +231,32 @@ const KPGroupManagement = () => {
                           Vérifié
                         </Badge>
                       )}
-                      {!b.is_active && (
-                        <Badge variant="secondary" className="text-xs">Inactif</Badge>
+                    <div className="flex items-center gap-1.5">
+                      {b.website && (
+                        <a href={b.website} target="_blank" rel="noopener noreferrer" title="Site web">
+                          <Button size="sm" variant="ghost" className="h-7 w-7 p-0" type="button" asChild>
+                            <span><Globe className="h-3.5 w-3.5 text-muted-foreground" /></span>
+                          </Button>
+                        </a>
                       )}
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 w-7 p-0"
+                        title="Modifier la fiche"
+                        onClick={() => onEditBusiness?.(b.id)}
+                      >
+                        <Pencil className="h-3.5 w-3.5 text-green-600" />
+                      </Button>
+                      <a href={`/business/${b.id}`} target="_blank" rel="noopener noreferrer" title="Voir la fiche">
+                        <Button size="sm" variant="ghost" className="h-7 w-7 p-0" type="button" asChild>
+                          <span><Eye className="h-3.5 w-3.5 text-blue-600" /></span>
+                        </Button>
+                      </a>
+                    </div>
+                    {!b.is_active && (
+                      <Badge variant="secondary" className="text-xs">Inactif</Badge>
+                    )}
                     </div>
                     <Button
                       size="sm"
