@@ -93,6 +93,7 @@ interface Business {
   hook_fr: string | null;
   hook_en: string | null;
   hook_ar: string | null;
+  menu_url: string | null;
 }
 
 interface Gamme {
@@ -618,8 +619,15 @@ const BusinessDetail = () => {
                       Visiter le site web
                     </a>
                   )}
+                  {business.menu_url && (
+                    <a href={business.menu_url.startsWith('http') ? business.menu_url : `https://${business.menu_url}`} target="_blank" rel="noopener noreferrer" className={`flex items-center gap-3 font-semibold transition-colors ${isVerified ? "text-gold hover:text-gold/80" : "text-primary hover:text-primary/80"}`}>
+                      <FileText className="h-5 w-5" />
+                      Menu
+                    </a>
+                  )}
                   {business.reserve_now_url && (
                     <a href={business.reserve_now_url.startsWith('http') ? business.reserve_now_url : `https://${business.reserve_now_url}`} target="_blank" rel="noopener noreferrer" className="block w-full bg-primary text-primary-foreground text-center py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors">
+                      <CalendarCheck className="h-5 w-5 inline mr-2" />
                       Réserver maintenant
                     </a>
                   )}
