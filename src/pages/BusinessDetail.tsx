@@ -330,10 +330,9 @@ const BusinessDetail = () => {
                 {brokenImagesCount} image(s) indisponible(s)
               </div>
             )}
-            <div className="grid grid-cols-2 sm:grid-cols-4 sm:grid-rows-2 gap-1 relative">
-              {/* Large image - full width on mobile, left half on desktop */}
+            {validImages.length === 1 ? (
               <div 
-                className="col-span-2 sm:row-span-2 aspect-[4/3] sm:aspect-auto sm:h-[400px] lg:h-[480px] cursor-pointer overflow-hidden relative group"
+                className="aspect-[16/9] sm:h-[400px] lg:h-[480px] cursor-pointer overflow-hidden relative group"
                 onClick={() => { setCurrentImageIndex(0); setIsLightboxOpen(true); }}
               >
                 <img
@@ -349,39 +348,60 @@ const BusinessDetail = () => {
                   />
                 )}
               </div>
-              {/* 4 smaller images - right side 2x2 grid */}
-              {[1, 2, 3, 4].map((idx) => (
-                <div
-                  key={idx}
-                  className={`cursor-pointer overflow-hidden relative group aspect-square sm:aspect-auto sm:h-auto ${!validImages[idx] ? 'bg-muted' : ''}`}
-                  onClick={() => {
-                    if (validImages[idx]) { setCurrentImageIndex(idx); setIsLightboxOpen(true); }
-                    else { setIsLightboxOpen(true); setCurrentImageIndex(0); }
-                  }}
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-4 sm:grid-rows-2 gap-1 relative">
+                {/* Large image - full width on mobile, left half on desktop */}
+                <div 
+                  className="col-span-2 sm:row-span-2 aspect-[4/3] sm:aspect-auto sm:h-[400px] lg:h-[480px] cursor-pointer overflow-hidden relative group"
+                  onClick={() => { setCurrentImageIndex(0); setIsLightboxOpen(true); }}
                 >
-                  {validImages[idx] ? (
-                    <img
-                      src={validImages[idx]}
-                      alt={`${business.name} - Image ${idx + 1}`}
-                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  <img
+                    src={validImages[0]}
+                    alt={`${business.name} - Image 1`}
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                  {isVerified && !isInstitution && (
+                    <img 
+                      src={logoGold} 
+                      alt="WTUCE" 
+                      className="absolute top-3 right-3 w-16 h-16 sm:w-20 sm:h-20 object-contain opacity-90 pointer-events-none drop-shadow-lg"
                     />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Camera className="h-6 w-6 text-muted-foreground/40" />
-                    </div>
                   )}
-                  {/* "Show all photos" button on last visible image */}
-                  {idx === 4 && validImages.length > 5 && (
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(0); setIsLightboxOpen(true); }}
-                      className="absolute bottom-3 right-3 bg-white/90 backdrop-blur-sm text-foreground text-xs font-semibold px-3 py-1.5 rounded-lg shadow-md hover:bg-white transition-colors"
-                    >
-                      Voir les {validImages.length} photos
-                    </button>
+                </div>
+                {/* 4 smaller images - right side 2x2 grid */}
+                {[1, 2, 3, 4].map((idx) => (
+                  <div
+                    key={idx}
+                    className={`cursor-pointer overflow-hidden relative group aspect-square sm:aspect-auto sm:h-auto ${!validImages[idx] ? 'bg-muted' : ''}`}
+                    onClick={() => {
+                      if (validImages[idx]) { setCurrentImageIndex(idx); setIsLightboxOpen(true); }
+                      else { setIsLightboxOpen(true); setCurrentImageIndex(0); }
+                    }}
+                  >
+                    {validImages[idx] ? (
+                      <img
+                        src={validImages[idx]}
+                        alt={`${business.name} - Image ${idx + 1}`}
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <Camera className="h-6 w-6 text-muted-foreground/40" />
+                      </div>
+                    )}
+                    {/* "Show all photos" button on last visible image */}
+                    {idx === 4 && validImages.length > 5 && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(0); setIsLightboxOpen(true); }}
+                        className="absolute bottom-3 right-3 bg-white/90 backdrop-blur-sm text-foreground text-xs font-semibold px-3 py-1.5 rounded-lg shadow-md hover:bg-white transition-colors"
+                      >
+                        Voir les {validImages.length} photos
+                      </button>
                   )}
                 </div>
               ))}
-            </div>
+              </div>
+            )}
           </div>
         )}
         {isValidatingImages && business.images && business.images.length > 0 && (
