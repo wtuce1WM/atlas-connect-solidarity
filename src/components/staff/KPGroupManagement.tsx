@@ -252,7 +252,7 @@ const KPGroupManagement = ({ onEditBusiness }: KPGroupManagementProps) => {
                         </span>
                         <span className="text-xs text-muted-foreground ml-2">{b.city}{b.neighborhood ? `, ${b.neighborhood}` : ''}</span>
                         {(() => { const r = computeRating20(b); return r ? (
-                          <Badge className="ml-2 bg-foreground text-background text-xs font-semibold border-0">{r.toFixed(1)}/20</Badge>
+                          <Badge className="ml-2 bg-muted-foreground/80 text-background text-xs font-semibold border-0">{r.toFixed(1)}/20</Badge>
                         ) : null; })()}
                       </div>
                       {b.wtuce_status === "verified" && (
