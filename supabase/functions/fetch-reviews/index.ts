@@ -212,7 +212,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { business_id } = await req.json();
+    const { business_id, google_only } = await req.json();
 
     if (!business_id) {
       return new Response(
@@ -252,7 +252,7 @@ Deno.serve(async (req) => {
       })
     );
 
-    if (business.tripadvisor_review_url) {
+    if (!google_only && business.tripadvisor_review_url) {
       promises.push(
         fetchTripAdvisorReviews(business.tripadvisor_review_url).then(r => {
           results.tripadvisor_rating = r.rating;
@@ -261,7 +261,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    if (business.restaurant_guru_url) {
+    if (!google_only && business.restaurant_guru_url) {
       promises.push(
         fetchRestaurantGuruReviews(business.restaurant_guru_url).then(r => {
           results.restaurant_guru_rating = r.rating;

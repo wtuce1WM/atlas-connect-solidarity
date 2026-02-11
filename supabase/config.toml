@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.manage-affiliate-user]
 verify_jwt = false
+
+[functions.batch-fetch-reviews]
+verify_jwt = false
