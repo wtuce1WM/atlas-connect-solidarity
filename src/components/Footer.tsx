@@ -36,8 +36,8 @@ const Footer = ({ variant = "default" }: FooterProps) => {
               <span className="text-gold">ONE WORLD</span> <span className={brandMorocco}>MOROCCO</span>
             </span>
             </div>
-            <p className={`mb-6 ${textSecondary}`}>
-              {t("footer.description")}
+            <p className={`mb-6 text-sm leading-relaxed ${textSecondary}`}>
+              One World Morocco n'est pas qu'une destination, c'est un point d'ancrage pour l'évolution collective. Nous croyons que l'espace où vous vivez doit refléter l'ambition de vos idées. À travers nos résidences Art Gallery, nous offrons aux voyageurs de WTUCE un environnement où le design inspire, où l'art connecte et où chaque séjour contribue à une vision globale unifiée.
             </p>
             <div className="flex gap-4">
               <a href="#" className={`${textTertiary} transition-colors hover:text-gold`}>
