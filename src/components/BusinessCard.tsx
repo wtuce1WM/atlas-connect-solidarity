@@ -148,7 +148,7 @@ const BusinessCard = ({
           </div>
 
           {/* Name */}
-          <h3 className={`font-bold text-lg mb-2 line-clamp-2 uppercase group-hover:text-primary transition-colors ${business.wtuce_status === "verified" ? "text-foreground" : "text-foreground"}`}>
+          <h3 className={`font-semibold text-lg mb-2 line-clamp-2 group-hover:text-primary transition-colors ${business.wtuce_status === "verified" ? "text-foreground font-bold" : "text-foreground"}`}>
             {business.name}
           </h3>
 
