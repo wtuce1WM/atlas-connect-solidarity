@@ -464,6 +464,7 @@ const BusinessDetail = () => {
 
         {/* OVERVIEW TAB */}
         {activeTab === 'overview' && (
+          <>
           <div className="grid gap-8 lg:grid-cols-3">
             {/* Main content */}
             <div className="lg:col-span-2 space-y-6">
@@ -569,11 +570,6 @@ const BusinessDetail = () => {
                     ))}
                   </ul>
                 </div>
-              )}
-
-              {/* Related Establishments */}
-              {business.kp_regroupement && (
-                <RelatedEstablishments currentBusinessId={business.id} kpRegroupement={business.kp_regroupement} isVerified={isVerified} />
               )}
             </div>
 
@@ -771,6 +767,11 @@ const BusinessDetail = () => {
               )}
             </div>
           </div>
+          {/* Related Establishments - full width */}
+          {business.kp_regroupement && (
+            <RelatedEstablishments currentBusinessId={business.id} kpRegroupement={business.kp_regroupement} isVerified={isVerified} />
+          )}
+          </>
         )}
 
         {/* REVIEWS TAB */}
