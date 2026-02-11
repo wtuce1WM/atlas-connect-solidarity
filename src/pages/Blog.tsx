@@ -70,14 +70,7 @@ const Blog = () => {
           <h1 className="text-3xl md:text-4xl font-bold text-white">
             {t("blog.title")}
           </h1>
-          <div className="flex items-center gap-4 mt-2">
-            <p className="text-white/60">{t("blog.subtitle")}</p>
-            <Link to="/etablissements-notes">
-              <Button variant="outline" size="sm" className="border-gold text-gold hover:bg-gold/10">
-                <Star className="h-4 w-4 mr-1" /> Établissements notés
-              </Button>
-            </Link>
-          </div>
+          <p className="text-white/60 mt-2">{t("blog.subtitle")}</p>
         </div>
       </div>
 
@@ -92,6 +85,29 @@ const Blog = () => {
           </div>
         ) : (
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {/* Carte Établissements notés */}
+            <Link to="/etablissements-notes">
+              <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30">
+                <div className="aspect-video overflow-hidden bg-gradient-to-br from-gold/20 to-gold/5 flex items-center justify-center">
+                  <Star className="h-16 w-16 text-gold" />
+                </div>
+                <CardContent className="p-6">
+                  <h2 className="text-xl font-semibold mb-3 font-['Playfair_Display'] italic">
+                    Établissements notés
+                  </h2>
+                  <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
+                    Découvrez le classement des meilleurs établissements du Maroc selon les avis TripAdvisor, Google et Restaurant Guru.
+                  </p>
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1 text-gold font-medium">
+                      <Star className="h-3 w-3" /> Classement
+                    </span>
+                    <ArrowRight className="h-4 w-4 text-gold" />
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+
             {posts.map((post) => (
               <Link key={post.id} to={`/blog/${post.slug}`}>
                 <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full">
@@ -105,7 +121,7 @@ const Blog = () => {
                     </div>
                   )}
                   <CardContent className="p-6">
-                    <h2 className="text-xl font-semibold mb-3 line-clamp-2">
+                    <h2 className="text-xl font-semibold mb-3 line-clamp-2 font-['Playfair_Display'] italic">
                       {getTitle(post)}
                     </h2>
                     {getExcerpt(post) && (
