@@ -330,10 +330,10 @@ const BusinessDetail = () => {
                 {brokenImagesCount} image(s) indisponible(s)
               </div>
             )}
-            <div className="grid grid-cols-4 grid-rows-2 gap-1 h-[300px] sm:h-[400px] lg:h-[480px] relative">
-              {/* Large image - left half */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 sm:grid-rows-2 gap-1 relative">
+              {/* Large image - full width on mobile, left half on desktop */}
               <div 
-                className="col-span-2 row-span-2 cursor-pointer overflow-hidden relative group"
+                className="col-span-2 sm:row-span-2 aspect-[4/3] sm:aspect-auto sm:h-[400px] lg:h-[480px] cursor-pointer overflow-hidden relative group"
                 onClick={() => { setCurrentImageIndex(0); setIsLightboxOpen(true); }}
               >
                 <img
@@ -346,7 +346,7 @@ const BusinessDetail = () => {
               {[1, 2, 3, 4].map((idx) => (
                 <div
                   key={idx}
-                  className={`cursor-pointer overflow-hidden relative group ${!validImages[idx] ? 'bg-muted' : ''}`}
+                  className={`cursor-pointer overflow-hidden relative group aspect-square sm:aspect-auto sm:h-auto ${!validImages[idx] ? 'bg-muted' : ''}`}
                   onClick={() => {
                     if (validImages[idx]) { setCurrentImageIndex(idx); setIsLightboxOpen(true); }
                     else { setIsLightboxOpen(true); setCurrentImageIndex(0); }
