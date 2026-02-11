@@ -262,6 +262,7 @@ const RatedBusinesses = () => {
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/50">
+                  <TableHead className="text-center w-[50px] font-bold">#</TableHead>
                   <TableHead className="font-bold">Nom</TableHead>
                   <TableHead>Ville</TableHead>
                   <TableHead className="hidden md:table-cell">Quartier</TableHead>
@@ -285,13 +286,14 @@ const RatedBusinesses = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredBusinesses.map((b) => {
+                {filteredBusinesses.map((b, index) => {
                   const avg = computeAverage20(b);
                   const total = totalReviews(b);
                   const defaultSubcat = b.categories?.[0] || "—";
 
                   return (
                     <TableRow key={b.id} className="hover:bg-muted/30">
+                      <TableCell className="text-center text-sm font-bold text-muted-foreground">{index + 1}</TableCell>
                       <TableCell className="font-medium max-w-[200px] truncate">
                         <Link to={`/business/${b.id}`} className="hover:text-primary hover:underline">
                           {b.name}
