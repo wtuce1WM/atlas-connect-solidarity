@@ -20,7 +20,20 @@ interface GroupBusiness {
   is_active: boolean;
   website: string | null;
   rating: number | null;
+  google_rating: number | null;
+  tripadvisor_rating: number | null;
+  restaurant_guru_rating: number | null;
 }
+
+const computeRating20 = (b: GroupBusiness): number | null => {
+  if (b.rating && b.rating > 0) return b.rating;
+  const sources: number[] = [];
+  if (b.google_rating) sources.push(b.google_rating * 4);
+  if (b.tripadvisor_rating) sources.push(b.tripadvisor_rating * 4);
+  if (b.restaurant_guru_rating) sources.push(b.restaurant_guru_rating * 4);
+  if (sources.length === 0) return null;
+  return sources.reduce((a, c) => a + c, 0) / sources.length;
+};
 
 interface KPGroup {
   kp: string;
@@ -37,7 +50,7 @@ const KPGroupManagement = ({ onEditBusiness }: KPGroupManagementProps) => {
     setLoading(true);
     const { data, error } = await supabase
       .from("businesses")
-      .select("id, name, city, neighborhood, is_master, wtuce_status, is_active, kp_regroupement, website, rating")
+      .select("id, name, city, neighborhood, is_master, wtuce_status, is_active, kp_regroupement, website, rating, google_rating, tripadvisor_rating, restaurant_guru_rating")
       .not("kp_regroupement", "is", null)
       .neq("kp_regroupement", "")
       .order("name");
@@ -62,6 +75,9 @@ const KPGroupManagement = ({ onEditBusiness }: KPGroupManagementProps) => {
         is_active: b.is_active,
         website: b.website,
         rating: b.rating,
+        google_rating: b.google_rating,
+        tripadvisor_rating: b.tripadvisor_rating,
+        restaurant_guru_rating: b.restaurant_guru_rating,
       });
     });
 
@@ -235,9 +251,9 @@ const KPGroupManagement = ({ onEditBusiness }: KPGroupManagementProps) => {
                           {b.name}
                         </span>
                         <span className="text-xs text-muted-foreground ml-2">{b.city}{b.neighborhood ? `, ${b.neighborhood}` : ''}</span>
-                        {b.rating != null && b.rating > 0 && (
-                          <span className="text-xs font-semibold text-gold ml-2">{Number(b.rating).toFixed(1)}/20</span>
-                        )}
+                        {(() => { const r = computeRating20(b); return r ? (
+                          <span className="text-xs font-semibold text-gold ml-2">{r.toFixed(1)}/20</span>
+                        ) : null; })()}
                       </div>
                       {b.wtuce_status === "verified" && (
                         <Badge variant="default" className="text-xs bg-primary/20 text-primary border-primary/30">
