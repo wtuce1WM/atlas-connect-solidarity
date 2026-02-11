@@ -13,7 +13,7 @@ const Footer = ({ variant = "default" }: FooterProps) => {
   const isVerified = variant === "verified";
 
   const footerBg = variant === "morocco" 
-    ? "bg-transparent text-white" 
+    ? "bg-[#003318] text-white" 
     : isVerified
     ? "bg-transparent text-black"
     : "bg-black text-white";
