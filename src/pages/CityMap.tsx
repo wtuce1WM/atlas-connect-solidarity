@@ -437,7 +437,7 @@ const CityMap = () => {
               )}
               <iframe
                 src={getMapEmbedUrl()}
-                className="w-full h-[500px] border-0 rounded-lg"
+                className="w-full h-[500px] border-0 rounded-lg ring-[5px] ring-gold"
                 allowFullScreen
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
