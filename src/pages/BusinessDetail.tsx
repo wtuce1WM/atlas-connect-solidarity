@@ -348,9 +348,9 @@ const BusinessDetail = () => {
                   />
                 )}
               </div>
-            ) : validImages.length <= 3 ? (
+            ) : validImages.length <= 4 ? (
               <div className={`grid gap-1 sm:h-[400px] lg:h-[480px] relative ${
-                validImages.length === 2 ? 'grid-cols-2' : 'grid-cols-2 sm:grid-cols-3'
+                validImages.length === 2 ? 'grid-cols-2' : validImages.length === 3 ? 'grid-cols-2 sm:grid-cols-3' : 'grid-cols-2 sm:grid-cols-4'
               }`}>
                 {validImages.map((img, idx) => (
                   <div
