@@ -332,13 +332,13 @@ const BusinessDetail = () => {
             )}
             {validImages.length === 1 ? (
               <div 
-                className="sm:h-[400px] lg:h-[480px] cursor-pointer overflow-hidden relative group flex justify-center bg-black"
+                className={`aspect-[16/9] sm:h-[400px] lg:h-[480px] cursor-pointer overflow-hidden relative group flex justify-center ${isVerified ? 'bg-black' : 'bg-white'}`}
                 onClick={() => { setCurrentImageIndex(0); setIsLightboxOpen(true); }}
               >
                 <img
                   src={validImages[0]}
                   alt={`${business.name} - Image 1`}
-                  className="max-w-full max-h-[60vh] sm:max-h-[400px] lg:max-h-[480px] object-contain transition-transform duration-300 group-hover:scale-105"
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                 />
                 {isVerified && !isInstitution && (
                   <img 
