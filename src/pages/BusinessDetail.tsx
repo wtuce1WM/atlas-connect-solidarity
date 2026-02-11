@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, Navigate, useNavigate } from "react-router-dom";
-import { ArrowLeft, MapPin, Phone, Mail, Globe, BadgeCheck, Loader2, ChevronLeft, ChevronRight, FileText, Download, ShoppingBag, Facebook, Instagram, Linkedin, Youtube, MessageCircle, Clock, AlertTriangle, ChevronDown, Play } from "lucide-react";
+import { ArrowLeft, MapPin, Phone, Mail, Globe, BadgeCheck, Loader2, ChevronLeft, ChevronRight, FileText, Download, ShoppingBag, Facebook, Instagram, Linkedin, Youtube, MessageCircle, Clock, AlertTriangle, ChevronDown, Play, CalendarCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { format, parseISO } from "date-fns";
@@ -361,7 +361,7 @@ const BusinessDetail = () => {
             <span>{business.address || business.city}{business.neighborhood ? <> - <Link to={`/neighborhood/${encodeURIComponent(business.neighborhood)}?city=${encodeURIComponent(business.city)}`} className="font-bold text-primary hover:text-foreground transition-colors underline underline-offset-2">{business.neighborhood}</Link></> : ""} - <Link to={`/city/${encodeURIComponent(business.city)}`} className="font-bold text-primary hover:text-foreground transition-colors underline underline-offset-2">{business.city}</Link></span>
           </div>
           {/* Phone, WhatsApp, Skype, Email & Website quick links */}
-          {(business.phone || business.whatsapp || business.skype || business.email || business.website) && (
+          {(business.phone || business.whatsapp || business.skype || business.email || business.website || business.reserve_now_url || business.online_shop_url) && (
             <div className="flex items-center justify-center sm:justify-start gap-4 mt-3 flex-wrap">
               {business.phone && (
                 <a
@@ -413,6 +413,28 @@ const BusinessDetail = () => {
                 >
                   <Globe className="h-5 w-5" />
                   Visiter le site web
+                </a>
+              )}
+              {business.reserve_now_url && (
+                <a
+                  href={business.reserve_now_url.startsWith('http') ? business.reserve_now_url : `https://${business.reserve_now_url}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`inline-flex items-center gap-2 font-semibold transition-colors ${isVerified ? "text-gold hover:text-gold/80" : "text-primary hover:text-primary/80"}`}
+                >
+                  <CalendarCheck className="h-5 w-5" />
+                  Réserver maintenant
+                </a>
+              )}
+              {business.online_shop_url && (
+                <a
+                  href={business.online_shop_url.startsWith('http') ? business.online_shop_url : `https://${business.online_shop_url}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`inline-flex items-center gap-2 font-semibold transition-colors ${isVerified ? "text-gold hover:text-gold/80" : "text-primary hover:text-primary/80"}`}
+                >
+                  <ShoppingBag className="h-5 w-5" />
+                  Boutique en ligne
                 </a>
               )}
             </div>
