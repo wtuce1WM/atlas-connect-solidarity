@@ -439,15 +439,7 @@ const BusinessDetail = () => {
               )}
             </div>
           )}
-          <div className="flex justify-center sm:justify-start">
-            <Link
-              to={`/city/${encodeURIComponent(business.city)}`}
-              className="inline-flex items-center gap-2 mt-2 text-primary hover:underline text-sm"
-            >
-              <MapPin className="h-4 w-4" />
-              Voir toutes les entreprises à {business.city}
-            </Link>
-          </div>
+          {/* "Voir toutes les entreprises à ..." link hidden */}
         </div>
 
         <div className="grid gap-8 lg:grid-cols-3 overflow-x-hidden">
