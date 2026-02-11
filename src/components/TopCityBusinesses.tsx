@@ -68,7 +68,7 @@ const TopCityBusinesses = ({ businesses, cityName, neighborhoodName, gammes = []
       <div className="mb-6 text-center">
         <h2 className="mb-2 text-2xl font-bold text-black">
           {language === "fr"
-            ? <>Les <span className="text-gold">adresses incontournables</span> <span className="text-white">de {cityName}{neighborhoodName ? ` ${neighborhoodName}` : ""}</span></>
+            ? <>Les <span className="text-black">adresses incontournables</span> <span className="text-white">de {cityName}{neighborhoodName ? ` ${neighborhoodName}` : ""}</span></>
             : language === "ar"
               ? <><span className="text-gold">العناوين التي لا غنى عنها</span> <span className="text-white">في {cityName}{neighborhoodName ? ` ${neighborhoodName}` : ""}</span></>
               : <>The <span className="text-gold">must-visit addresses</span> <span className="text-white">of {cityName}{neighborhoodName ? ` ${neighborhoodName}` : ""}</span></>}
