@@ -345,13 +345,40 @@ const BusinessDetail = () => {
                   const weightedAvg = reviews.reduce((s, r) => s + r.rating * r.count, 0) / totalCount;
                   const avgOn20 = Math.round(weightedAvg * 4 * 10) / 10;
                   return (
-                    <div className="flex flex-col items-end gap-1">
+                    <div className="flex flex-col items-end gap-2">
                       <div className={`font-bold text-5xl italic ${isVerified ? 'text-gold' : 'text-primary'}`} style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                         {avgOn20}/20
                       </div>
                       <div className={`text-sm ${isVerified ? 'text-white/70' : 'text-muted-foreground'}`}>
-                        sur {totalCount} avis : {reviews.map((r, i) => (
-                          <span key={r.label}>{i > 0 && ' · '}{r.url ? <a href={r.url} target="_blank" rel="noopener noreferrer" className={`underline ${isVerified ? 'hover:text-white' : 'hover:text-foreground'}`}>{r.label}</a> : r.label}</span>
+                        sur {totalCount} avis
+                      </div>
+                      <div className="flex flex-col gap-1.5 mt-1">
+                        {reviews.map((r) => (
+                          <div key={r.label} className="flex items-center gap-2">
+                            {r.label === 'TripAdvisor' && (
+                              <div className="w-7 h-7 rounded-full bg-[#34e0a1] flex items-center justify-center flex-shrink-0">
+                                <svg viewBox="0 0 24 24" className="w-4 h-4 text-white" fill="currentColor"><circle cx="8.5" cy="14" r="2"/><circle cx="15.5" cy="14" r="2"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.74 0 3.36.56 4.69 1.5H7.31A8.94 8.94 0 0112 5zm-3.5 5a4 4 0 100 8 4 4 0 000-8zm7 0a4 4 0 100 8 4 4 0 000-8z"/></svg>
+                              </div>
+                            )}
+                            {r.label === 'Google' && (
+                              <div className="w-7 h-7 rounded-full bg-[#f1f3f4] flex items-center justify-center flex-shrink-0">
+                                <svg viewBox="0 0 24 24" className="w-4 h-4"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                              </div>
+                            )}
+                            {r.label === 'Restaurant Guru' && (
+                              <img src={restaurantGuruLogo} alt="Restaurant Guru" className="w-7 h-7 rounded-full object-contain flex-shrink-0" />
+                            )}
+                            <div className="flex flex-col">
+                              {r.url ? (
+                                <a href={r.url} target="_blank" rel="noopener noreferrer" className={`font-semibold text-sm flex items-center gap-1 ${isVerified ? 'text-white hover:text-gold' : 'text-foreground hover:text-primary'} transition-colors`}>
+                                  {r.label} Avis <span className="text-xs">↗</span>
+                                </a>
+                              ) : (
+                                <span className={`font-semibold text-sm ${isVerified ? 'text-white' : 'text-foreground'}`}>{r.label}</span>
+                              )}
+                              <span className={`text-xs ${isVerified ? 'text-green-400' : 'text-green-600'}`}>{r.rating}/5 · {r.count} avis</span>
+                            </div>
+                          </div>
                         ))}
                       </div>
                     </div>
