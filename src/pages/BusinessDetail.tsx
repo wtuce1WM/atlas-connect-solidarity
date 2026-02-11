@@ -348,11 +348,36 @@ const BusinessDetail = () => {
                   />
                 )}
               </div>
+            ) : validImages.length <= 3 ? (
+              <div className={`grid gap-1 sm:h-[400px] lg:h-[480px] relative ${
+                validImages.length === 2 ? 'grid-cols-2' : 'grid-cols-2 sm:grid-cols-3'
+              }`}>
+                {validImages.map((img, idx) => (
+                  <div
+                    key={idx}
+                    className={`cursor-pointer overflow-hidden relative group ${idx === 0 ? 'aspect-[4/3] sm:aspect-auto' : 'aspect-square sm:aspect-auto'}`}
+                    onClick={() => { setCurrentImageIndex(idx); setIsLightboxOpen(true); }}
+                  >
+                    <img
+                      src={img}
+                      alt={`${business.name} - Image ${idx + 1}`}
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                    {idx === 0 && isVerified && !isInstitution && (
+                      <img 
+                        src={logoGold} 
+                        alt="WTUCE" 
+                        className="absolute top-3 right-3 w-16 h-16 sm:w-20 sm:h-20 object-contain opacity-90 pointer-events-none drop-shadow-lg"
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-4 sm:grid-rows-2 gap-1 sm:h-[400px] lg:h-[480px] relative">
                 {/* Large image - full width on mobile, left half on desktop */}
                 <div 
-                  className="col-span-2 sm:row-span-2 aspect-[4/3] sm:aspect-auto sm:h-[400px] lg:h-[480px] cursor-pointer overflow-hidden relative group"
+                  className="col-span-2 sm:row-span-2 aspect-[4/3] sm:aspect-auto cursor-pointer overflow-hidden relative group"
                   onClick={() => { setCurrentImageIndex(0); setIsLightboxOpen(true); }}
                 >
                   <img
@@ -368,28 +393,18 @@ const BusinessDetail = () => {
                     />
                   )}
                 </div>
-                {/* 4 smaller images - right side 2x2 grid */}
-                {[1, 2, 3, 4].map((idx) => (
+                {/* Only render existing smaller images */}
+                {[1, 2, 3, 4].filter(idx => validImages[idx]).map((idx) => (
                   <div
                     key={idx}
-                    className={`cursor-pointer overflow-hidden relative group aspect-square sm:aspect-auto sm:h-auto ${!validImages[idx] ? 'bg-muted' : ''}`}
-                    onClick={() => {
-                      if (validImages[idx]) { setCurrentImageIndex(idx); setIsLightboxOpen(true); }
-                      else { setIsLightboxOpen(true); setCurrentImageIndex(0); }
-                    }}
+                    className="cursor-pointer overflow-hidden relative group aspect-square sm:aspect-auto"
+                    onClick={() => { setCurrentImageIndex(idx); setIsLightboxOpen(true); }}
                   >
-                    {validImages[idx] ? (
-                      <img
-                        src={validImages[idx]}
-                        alt={`${business.name} - Image ${idx + 1}`}
-                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Camera className="h-6 w-6 text-muted-foreground/40" />
-                      </div>
-                    )}
-                    {/* "Show all photos" button on last visible image */}
+                    <img
+                      src={validImages[idx]}
+                      alt={`${business.name} - Image ${idx + 1}`}
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
                     {idx === 4 && validImages.length > 5 && (
                       <button
                         onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(0); setIsLightboxOpen(true); }}
@@ -397,9 +412,9 @@ const BusinessDetail = () => {
                       >
                         Voir les {validImages.length} photos
                       </button>
-                  )}
-                </div>
-              ))}
+                    )}
+                  </div>
+                ))}
               </div>
             )}
           </div>
