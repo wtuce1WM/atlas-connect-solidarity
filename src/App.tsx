@@ -50,8 +50,8 @@ const AppContent = () => {
             <Route path="/mission" element={<Mission />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/blog" element={<Blog />} />
-            <Route path="/blog/etablissements-notes" element={<RatedBusinesses />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
+            <Route path="/etablissements-notes" element={<RatedBusinesses />} />
             <Route path="/neighborhood/:neighborhood" element={<NeighborhoodPage />} />
             <Route path="/carte" element={<AllBusinessesMap />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
