@@ -19,6 +19,7 @@ interface GroupBusiness {
   wtuce_status: string | null;
   is_active: boolean;
   website: string | null;
+  rating: number | null;
 }
 
 interface KPGroup {
@@ -36,7 +37,7 @@ const KPGroupManagement = ({ onEditBusiness }: KPGroupManagementProps) => {
     setLoading(true);
     const { data, error } = await supabase
       .from("businesses")
-      .select("id, name, city, neighborhood, is_master, wtuce_status, is_active, kp_regroupement, website")
+      .select("id, name, city, neighborhood, is_master, wtuce_status, is_active, kp_regroupement, website, rating")
       .not("kp_regroupement", "is", null)
       .neq("kp_regroupement", "")
       .order("name");
@@ -60,6 +61,7 @@ const KPGroupManagement = ({ onEditBusiness }: KPGroupManagementProps) => {
         wtuce_status: b.wtuce_status,
         is_active: b.is_active,
         website: b.website,
+        rating: b.rating,
       });
     });
 
@@ -233,6 +235,9 @@ const KPGroupManagement = ({ onEditBusiness }: KPGroupManagementProps) => {
                           {b.name}
                         </span>
                         <span className="text-xs text-muted-foreground ml-2">{b.city}{b.neighborhood ? `, ${b.neighborhood}` : ''}</span>
+                        {b.rating != null && b.rating > 0 && (
+                          <span className="text-xs font-semibold text-gold ml-2">{Number(b.rating).toFixed(1)}/20</span>
+                        )}
                       </div>
                       {b.wtuce_status === "verified" && (
                         <Badge variant="default" className="text-xs bg-primary/20 text-primary border-primary/30">
