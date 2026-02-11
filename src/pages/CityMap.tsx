@@ -632,7 +632,7 @@ const CityMap = () => {
         <div className="mt-12 space-y-8">
           {/* City Description - Full width */}
           {cityInfo?.description && (
-            <Card>
+            <Card className="border-gold border">
               <CardContent className="p-6">
                 <h3 className="text-lg font-semibold text-white mb-4">À propos de {decodedCity}</h3>
                 <div 
