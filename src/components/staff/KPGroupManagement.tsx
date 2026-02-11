@@ -261,10 +261,9 @@ const KPGroupManagement = ({ onEditBusiness }: KPGroupManagementProps) => {
                           const r = computeRating20(b);
                           const totalReviews = (b.google_review_count || 0) + (b.tripadvisor_review_count || 0) + (b.restaurant_guru_review_count || 0);
                           return r ? (
-                            <>
-                              <Badge className="ml-2 bg-muted-foreground/80 text-background text-xs font-semibold border-0">{r.toFixed(1)}/20</Badge>
-                              {totalReviews > 0 && <span className="text-xs text-muted-foreground">{totalReviews} avis</span>}
-                            </>
+                            <Badge className="ml-2 bg-muted-foreground/80 text-background text-xs font-semibold border-0">
+                              {r.toFixed(1)}/20{totalReviews > 0 ? ` sur ${totalReviews} avis` : ''}
+                            </Badge>
                           ) : null;
                         })()}
                       </div>
