@@ -345,7 +345,7 @@ const BusinessDetail = () => {
                   <img 
                     src={logoGold} 
                     alt="WTUCE" 
-                    className="absolute top-3 right-3 w-12 h-12 sm:w-14 sm:h-14 object-contain opacity-90 pointer-events-none drop-shadow-lg"
+                    className="absolute top-3 right-3 w-16 h-16 sm:w-20 sm:h-20 object-contain opacity-90 pointer-events-none drop-shadow-lg"
                   />
                 )}
               </div>
