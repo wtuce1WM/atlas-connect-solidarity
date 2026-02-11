@@ -325,7 +325,7 @@ const CityMap = () => {
       }} />
       {/* Background decorative emblem */}
       <div 
-        className="absolute top-32 left-1/2 -translate-x-1/2 w-[600px] h-[600px] opacity-40 pointer-events-none"
+        className="absolute top-32 left-1/2 -translate-x-1/2 w-[600px] h-[600px] opacity-40 pointer-events-none hidden lg:block"
         style={{
           backgroundImage: `url(${symboleMaroc})`,
           backgroundSize: 'contain',
@@ -724,7 +724,7 @@ const CityMap = () => {
 
       {/* Bottom decorative emblem */}
       <div 
-        className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] opacity-10 pointer-events-none"
+        className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] opacity-10 pointer-events-none hidden lg:block"
         style={{
           backgroundImage: `url(${symboleMaroc})`,
           backgroundSize: 'contain',
