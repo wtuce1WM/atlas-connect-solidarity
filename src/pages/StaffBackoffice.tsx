@@ -252,6 +252,7 @@ const StaffBackoffice = () => {
               setShowForm(false);
               setEditingBusiness(null);
             }}
+            brokenLinks={editingBusiness ? brokenLinks.find(bl => bl.businessId === editingBusiness.id)?.brokenUrls : undefined}
           />
         ) : (
           <Tabs value={activeTab} onValueChange={setActiveTab}>
