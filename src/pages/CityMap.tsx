@@ -317,7 +317,7 @@ const CityMap = () => {
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden" style={{ backgroundColor: '#c1272d' }}>
+    <div className="min-h-screen relative overflow-x-hidden" style={{ backgroundColor: '#c1272d' }}>
       {/* Diagonal green overlay starting below header */}
       <div className="absolute inset-0 pointer-events-none" style={{
         background: 'linear-gradient(to bottom left, transparent 50%, #006233 50%)',
@@ -733,7 +733,9 @@ const CityMap = () => {
         }}
       />
 
-      <Footer variant="morocco" />
+      <div className="relative z-10">
+        <Footer variant="morocco" />
+      </div>
     </div>
   );
 };
