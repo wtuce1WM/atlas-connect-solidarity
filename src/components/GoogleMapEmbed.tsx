@@ -69,7 +69,7 @@ const GoogleMapEmbed = ({ address, businessName, latitude, longitude }: GoogleMa
         </div>
 
         {/* Map Container */}
-        <div className="relative h-64">
+        <div className="relative h-[450px]">
           {activeView === "map" ? (
             <iframe
               src={mapEmbedUrl}
