@@ -636,7 +636,7 @@ const CityMap = () => {
               <CardContent className="p-6">
                 <h3 className="text-lg font-semibold text-white mb-4">À propos de {decodedCity}</h3>
                 <div 
-                  className="prose prose-sm max-w-none text-foreground"
+                  className="prose prose-sm max-w-none text-foreground max-h-[300px] overflow-y-auto"
                   dangerouslySetInnerHTML={{ __html: cityInfo.description }}
                 />
               </CardContent>
