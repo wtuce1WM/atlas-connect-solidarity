@@ -112,8 +112,7 @@ const HeroSection = () => {
         const { data: citiesData } = await supabase
           .from("cities")
           .select("id, name_fr, name_en, name_ar, region")
-          .order("priority_score", { ascending: false })
-          .limit(12);
+          .order("sort_order", { ascending: true })
 
         // Fetch business counts per city
         const { data: businessCounts } = await supabase
