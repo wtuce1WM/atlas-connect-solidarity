@@ -580,6 +580,28 @@ const BusinessDetail = () => {
                 </Card>
               )}
 
+              {/* Sous-catégories */}
+              {business.categories && business.categories.length > 0 && (
+                <div>
+                  <h2 className={`text-xl font-semibold mb-3 ${isVerified ? 'text-white' : ''}`}>Sous-catégories</h2>
+                  <div className="flex flex-wrap gap-2">
+                    {business.categories.map((cat, index) => (
+                      <Link
+                        key={index}
+                        to={`/service/${encodeURIComponent(cat)}?city=${encodeURIComponent(business.city)}`}
+                        className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                          isVerified
+                            ? 'bg-white/10 text-white hover:bg-white/20 border border-white/20'
+                            : 'bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20'
+                        }`}
+                      >
+                        {cat}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Services */}
               {business.services && business.services.length > 0 && (
                 <div>
