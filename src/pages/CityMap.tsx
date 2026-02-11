@@ -659,7 +659,7 @@ const CityMap = () => {
             }) && (
               <div>
                 <h3 className="text-lg font-semibold text-white mb-4">Sites officiels</h3>
-                <Card className="bg-morocco-red/90 border-white/10">
+                <Card className="bg-morocco-red/90 border-gold border">
                   <CardContent className="p-4 space-y-2">
                     {[1, 2, 3, 4, 5, 6].map((num) => {
                       const name = cityInfo[`official_site_${num}_name` as keyof CityInfo] as string | null;
@@ -702,7 +702,7 @@ const CityMap = () => {
               return (
                 <div>
                   <h3 className="text-lg font-semibold text-white mb-4">En savoir plus</h3>
-                  <Card className="bg-morocco-red border-white/10">
+                  <Card className="bg-morocco-red border-gold border">
                     <CardContent className="p-4">
                       <a
                         href={wikipediaUrl}
