@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { Loader2, MapPin, X, Phone, ChevronLeft, ChevronRight, Download } from "lucide-react";
+import { Loader2, MapPin, X, Phone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
@@ -32,7 +32,7 @@ interface Business {
   neighborhood: string | null;
 }
 
-const ITEMS_PER_PAGE = 20;
+
 
 const AllBusinessesMap = () => {
   const { t } = useLanguage();
@@ -41,7 +41,6 @@ const AllBusinessesMap = () => {
   const [selectedCity, setSelectedCity] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     const fetchBusinesses = async () => {
@@ -76,14 +75,6 @@ const AllBusinessesMap = () => {
   }, [businesses, selectedCity, selectedCategory]);
 
   const withGPS = useMemo(() => filtered.filter(b => b.latitude && b.longitude), [filtered]);
-
-  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
-  const paginated = useMemo(() => {
-    const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filtered.slice(start, start + ITEMS_PER_PAGE);
-  }, [filtered, currentPage]);
-
-  useEffect(() => { setCurrentPage(1); }, [selectedCity, selectedCategory]);
 
   const getMapUrl = () => {
     if (selectedBusiness) {
@@ -204,7 +195,7 @@ const AllBusinessesMap = () => {
 
         {/* Business List */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {paginated.map(b => (
+          {filtered.map(b => (
             <button
               key={b.id}
               onClick={() => { setSelectedBusiness(b); window.scrollTo({ top: 200, behavior: "smooth" }); }}
@@ -237,32 +228,6 @@ const AllBusinessesMap = () => {
           ))}
         </div>
 
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-center gap-2 mt-8">
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={currentPage === 1}
-              onClick={() => { setCurrentPage(p => p - 1); window.scrollTo({ top: 200, behavior: "smooth" }); }}
-              className="bg-white/90"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <span className="text-white text-sm">
-              {currentPage} / {totalPages}
-            </span>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={currentPage === totalPages}
-              onClick={() => { setCurrentPage(p => p + 1); window.scrollTo({ top: 200, behavior: "smooth" }); }}
-              className="bg-white/90"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
-        )}
       </main>
       <Footer />
     </div>
