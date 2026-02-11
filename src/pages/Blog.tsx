@@ -5,7 +5,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, Calendar, User, ArrowRight } from "lucide-react";
+import { Loader2, Calendar, User, ArrowRight, Star } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { fr, enUS, ar } from "date-fns/locale";
 
@@ -69,7 +70,14 @@ const Blog = () => {
           <h1 className="text-3xl md:text-4xl font-bold text-white">
             {t("blog.title")}
           </h1>
-          <p className="text-white/60 mt-2">{t("blog.subtitle")}</p>
+          <div className="flex items-center gap-4 mt-2">
+            <p className="text-white/60">{t("blog.subtitle")}</p>
+            <Link to="/blog/etablissements-notes">
+              <Button variant="outline" size="sm" className="border-gold text-gold hover:bg-gold/10">
+                <Star className="h-4 w-4 mr-1" /> Établissements notés
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
 

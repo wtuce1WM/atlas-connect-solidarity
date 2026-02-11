@@ -19,6 +19,7 @@ import Mission from "./pages/Mission";
 import Contact from "./pages/Contact";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
+import RatedBusinesses from "./pages/RatedBusinesses";
 import NeighborhoodPage from "./pages/NeighborhoodPage";
 import AllBusinessesMap from "./pages/AllBusinessesMap";
 import NotFound from "./pages/NotFound";
@@ -49,6 +50,7 @@ const AppContent = () => {
             <Route path="/mission" element={<Mission />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/etablissements-notes" element={<RatedBusinesses />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
             <Route path="/neighborhood/:neighborhood" element={<NeighborhoodPage />} />
             <Route path="/carte" element={<AllBusinessesMap />} />
