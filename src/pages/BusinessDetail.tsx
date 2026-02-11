@@ -270,9 +270,9 @@ const BusinessDetail = () => {
         {/* ===== COMPACT HEADER ===== */}
         <div className="mb-6">
           {/* Title row with labels */}
-          <div className="flex items-start gap-4 flex-wrap">
+          <div className="flex items-center gap-4 flex-wrap">
             {business.logo_url && (
-              <div className="w-14 h-14 sm:w-16 sm:h-16 bg-white rounded-xl shadow-sm flex items-center justify-center flex-shrink-0 p-1.5">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white rounded-xl shadow-sm flex items-center justify-center flex-shrink-0 p-2">
                 <img 
                   src={business.logo_url} 
                   alt={`${business.name} logo`} 
