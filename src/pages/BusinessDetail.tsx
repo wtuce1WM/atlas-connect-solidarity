@@ -358,7 +358,7 @@ const BusinessDetail = () => {
           </div>
           <div className={`flex items-center justify-center sm:justify-start gap-2 mt-3 ${isVerified ? "text-white/70" : "text-muted-foreground"}`}>
             <MapPin className="h-5 w-5" />
-            <span>{business.address || business.city}{business.neighborhood ? <> - <strong>{business.neighborhood}</strong></> : ""}</span>
+            <span>{business.address || business.city}{business.neighborhood ? <> - <Link to={`/neighborhood/${encodeURIComponent(business.neighborhood)}?city=${encodeURIComponent(business.city)}`} className="font-bold hover:text-primary transition-colors underline underline-offset-2">{business.neighborhood}</Link></> : ""}</span>
           </div>
           {/* Phone & WhatsApp quick links */}
           {(business.phone || business.whatsapp) && (
