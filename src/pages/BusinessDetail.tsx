@@ -325,33 +325,33 @@ const BusinessDetail = () => {
               
             </div>
             
-            {/* Rating and WTUCE Logo for verified businesses - all devices */}
-            {isVerified && !isInstitution && (
+            {/* Rating and WTUCE Logo - all devices, all statuses */}
+            {!isInstitution && (
               <div className="flex items-center gap-3 flex-shrink-0">
                 {business.rating !== null && business.rating !== undefined ? (
                   <>
                     <div className="text-gold font-bold text-5xl italic" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                       {business.rating}/20
                     </div>
-                    <img src={logoGold} alt="WTUCE Vérifié" className="w-[80px] h-[72px] object-contain" />
+                    {isVerified && <img src={logoGold} alt="WTUCE Vérifié" className="w-[80px] h-[72px] object-contain" />}
                   </>
                 ) : (() => {
                   const reviews: { rating: number; count: number; url: string | null; label: string }[] = [];
                   if (business.google_rating && business.google_review_count) reviews.push({ rating: business.google_rating, count: business.google_review_count, url: business.google_reviews_url, label: 'Google' });
                   if (business.tripadvisor_rating && business.tripadvisor_review_count) reviews.push({ rating: business.tripadvisor_rating, count: business.tripadvisor_review_count, url: business.tripadvisor_review_url || business.tripadvisor_url, label: 'TripAdvisor' });
                   if (business.restaurant_guru_rating && business.restaurant_guru_review_count) reviews.push({ rating: business.restaurant_guru_rating, count: business.restaurant_guru_review_count, url: business.restaurant_guru_url, label: 'Restaurant Guru' });
-                  if (reviews.length === 0) return <img src={logoGold} alt="WTUCE Vérifié" className="w-[80px] h-[72px] object-contain" />;
+                  if (reviews.length === 0) return isVerified ? <img src={logoGold} alt="WTUCE Vérifié" className="w-[80px] h-[72px] object-contain" /> : null;
                   const totalCount = reviews.reduce((s, r) => s + r.count, 0);
                   const weightedAvg = reviews.reduce((s, r) => s + r.rating * r.count, 0) / totalCount;
                   const avgOn20 = Math.round(weightedAvg * 4 * 10) / 10;
                   return (
                     <div className="flex flex-col items-end gap-1">
-                      <div className="text-gold font-bold text-5xl italic" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                      <div className={`font-bold text-5xl italic ${isVerified ? 'text-gold' : 'text-primary'}`} style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                         {avgOn20}/20
                       </div>
-                      <div className="text-sm text-white/70">
+                      <div className={`text-sm ${isVerified ? 'text-white/70' : 'text-muted-foreground'}`}>
                         sur {totalCount} avis : {reviews.map((r, i) => (
-                          <span key={r.label}>{i > 0 && ' · '}{r.url ? <a href={r.url} target="_blank" rel="noopener noreferrer" className="underline hover:text-white">{r.label}</a> : r.label}</span>
+                          <span key={r.label}>{i > 0 && ' · '}{r.url ? <a href={r.url} target="_blank" rel="noopener noreferrer" className={`underline ${isVerified ? 'hover:text-white' : 'hover:text-foreground'}`}>{r.label}</a> : r.label}</span>
                         ))}
                       </div>
                     </div>
