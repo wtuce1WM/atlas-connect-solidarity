@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, ArrowDown, Save, Award, Trash2, MapPinned } from "lucide-react";
+import { ArrowLeft, ArrowDown, Save, Award, Trash2, MapPinned, AlertCircle } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 import RichTextEditor from "./RichTextEditor";
 import ImageUploader from "./ImageUploader";
@@ -50,10 +50,16 @@ import {
 
 type Business = Tables<"businesses">;
 
+interface BrokenLinkEntry {
+  field: string;
+  url: string;
+}
+
 interface BusinessFormProps {
   business: Business | null;
   onSuccess: () => void;
   onCancel: () => void;
+  brokenLinks?: BrokenLinkEntry[];
 }
 
 const REGIONS = [
@@ -251,7 +257,21 @@ const SERVICES: Record<string, string[]> = {
   ],
 };
 
-const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
+const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: BusinessFormProps) => {
+  // Set of broken URL values for quick lookup
+  const brokenUrlSet = useMemo(() => new Set(brokenLinks.map(bl => bl.url)), [brokenLinks]);
+  const isBrokenUrl = (url: string) => url && brokenUrlSet.has(url);
+
+  // Broken URL inline alert badge
+  const BrokenUrlBadge = ({ url }: { url: string }) => {
+    if (!isBrokenUrl(url)) return null;
+    return (
+      <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-red-100 border border-red-300 text-red-700 text-xs font-semibold mt-1 animate-pulse">
+        <AlertCircle className="h-4 w-4 text-red-600 flex-shrink-0" />
+        <span>⚠ Lien cassé — ce lien ne fonctionne pas</span>
+      </div>
+    );
+  };
   const [loading, setLoading] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [showLeaveDialog, setShowLeaveDialog] = useState(false);
@@ -918,7 +938,8 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
                 }
               }}
               placeholder="https://maps.google.com/..."
-            />
+             />
+            <BrokenUrlBadge url={formData.google_maps_url} />
           </div>
 
           {/* Latitude, Longitude & GPS button */}
@@ -1054,7 +1075,8 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
               value={formData.website}
               onChange={(e) => handleChange("website", e.target.value)}
               placeholder="https://"
-            />
+             />
+            <BrokenUrlBadge url={formData.website} />
             {formData.website && (
               <button
                 type="button"
@@ -1082,7 +1104,8 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
               value={formData.reserve_now_url}
               onChange={(e) => handleChange("reserve_now_url", e.target.value)}
               placeholder="https://"
-            />
+             />
+            <BrokenUrlBadge url={formData.reserve_now_url} />
           </div>
 
           <div className="space-y-2">
@@ -1096,7 +1119,8 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
               value={formData.online_shop_url}
               onChange={(e) => handleChange("online_shop_url", e.target.value)}
               placeholder="https://"
-            />
+             />
+            <BrokenUrlBadge url={formData.online_shop_url} />
           </div>
         </div>
 
@@ -1120,8 +1144,9 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
             content={formData.description}
             onChange={(html) => handleChange("description", html)}
             maxHeight="600px"
-          />
-        </div>
+             />
+            <BrokenUrlBadge url={formData.menu_url} />
+          </div>
 
         <div className="space-y-2">
           <Label htmlFor="menu_url">Menu (URL)</Label>
@@ -1130,8 +1155,9 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
             value={formData.menu_url}
             onChange={(e) => handleChange("menu_url", e.target.value)}
             placeholder="https://..."
-          />
-        </div>
+             />
+            <BrokenUrlBadge url={formData.video_1_url} />
+          </div>
 
         {/* Video */}
         <div className="space-y-4 p-4 bg-orange-50 border border-orange-200 rounded-lg">
@@ -1226,6 +1252,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
                 {formData.facebook_url ? <a href={formData.facebook_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">Facebook ↗</a> : "Facebook"}
               </Label>
               <Input id="facebook_url" value={formData.facebook_url} onChange={(e) => handleChange("facebook_url", e.target.value)} placeholder="https://facebook.com/..." />
+              <BrokenUrlBadge url={formData.facebook_url} />
             </div>
 
             <div className="space-y-2">
@@ -1234,6 +1261,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
                 {formData.instagram_url ? <a href={formData.instagram_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">Instagram ↗</a> : "Instagram"}
               </Label>
               <Input id="instagram_url" value={formData.instagram_url} onChange={(e) => handleChange("instagram_url", e.target.value)} placeholder="https://instagram.com/..." />
+              <BrokenUrlBadge url={formData.instagram_url} />
             </div>
 
             <div className="space-y-2">
@@ -1242,6 +1270,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
                 {formData.twitter_url ? <a href={formData.twitter_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">X (Twitter) ↗</a> : "X (Twitter)"}
               </Label>
               <Input id="twitter_url" value={formData.twitter_url} onChange={(e) => handleChange("twitter_url", e.target.value)} placeholder="https://x.com/..." />
+              <BrokenUrlBadge url={formData.twitter_url} />
             </div>
 
             <div className="space-y-2">
@@ -1250,6 +1279,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
                 {formData.linkedin_url ? <a href={formData.linkedin_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">LinkedIn ↗</a> : "LinkedIn"}
               </Label>
               <Input id="linkedin_url" value={formData.linkedin_url} onChange={(e) => handleChange("linkedin_url", e.target.value)} placeholder="https://linkedin.com/company/..." />
+              <BrokenUrlBadge url={formData.linkedin_url} />
             </div>
 
             <div className="space-y-2">
@@ -1258,6 +1288,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
                 {formData.youtube_url ? <a href={formData.youtube_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">YouTube ↗</a> : "YouTube"}
               </Label>
               <Input id="youtube_url" value={formData.youtube_url} onChange={(e) => handleChange("youtube_url", e.target.value)} placeholder="https://youtube.com/@..." />
+              <BrokenUrlBadge url={formData.youtube_url} />
             </div>
 
             <div className="space-y-2">
@@ -1266,6 +1297,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
                 {formData.tiktok_url ? <a href={formData.tiktok_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">TikTok ↗</a> : "TikTok"}
               </Label>
               <Input id="tiktok_url" value={formData.tiktok_url} onChange={(e) => handleChange("tiktok_url", e.target.value)} placeholder="https://tiktok.com/@..." />
+              <BrokenUrlBadge url={formData.tiktok_url} />
             </div>
 
 
@@ -1275,6 +1307,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
                 {formData.pinterest_url ? <a href={formData.pinterest_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">Pinterest ↗</a> : "Pinterest"}
               </Label>
               <Input id="pinterest_url" value={formData.pinterest_url} onChange={(e) => handleChange("pinterest_url", e.target.value)} placeholder="https://pinterest.com/..." />
+              <BrokenUrlBadge url={formData.pinterest_url} />
             </div>
 
 
@@ -1284,6 +1317,7 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
                 {formData.vimeo_url ? <a href={formData.vimeo_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">Vimeo ↗</a> : "Vimeo"}
               </Label>
               <Input id="vimeo_url" value={formData.vimeo_url} onChange={(e) => handleChange("vimeo_url", e.target.value)} placeholder="https://vimeo.com/..." />
+              <BrokenUrlBadge url={formData.vimeo_url} />
             </div>
           </div>
           <Button type="button" variant="outline" size="sm" className="text-xs text-muted-foreground hover:text-destructive" onClick={() => setShowClearSocial(true)}>🗑️ Effacer tous les réseaux sociaux</Button>
@@ -1303,7 +1337,8 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
               value={formData.reserve_now_url}
               onChange={(e) => handleChange("reserve_now_url", e.target.value)}
               placeholder="https://... (lien direct de réservation)"
-            />
+             />
+            <BrokenUrlBadge url={formData.reserve_now_url} />
             <p className="text-xs text-muted-foreground">
               Ce lien sera utilisé pour le bouton CTA "Réserver maintenant" sur la fiche publique
             </p>
@@ -1314,31 +1349,41 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
               <BookingIcon className="text-[#003580]" />
               {formData.booking_url ? <a href={formData.booking_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 text-sm font-medium">Booking.com ↗</a> : <span className="text-sm font-medium">Booking.com</span>}
               <Input id="booking_url" value={formData.booking_url} onChange={(e) => handleChange("booking_url", e.target.value)} placeholder="https://booking.com/hotel/..." className="flex-1" />
+              {isBrokenUrl(formData.booking_url) && <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 animate-pulse" />}
             </div>
+            {isBrokenUrl(formData.booking_url) && <BrokenUrlBadge url={formData.booking_url} />}
 
             <div className="flex items-center gap-2">
               <TripAdvisorIcon className="text-[#00AF87]" />
               {formData.tripadvisor_url ? <a href={formData.tripadvisor_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 text-sm font-medium">TripAdvisor ↗</a> : <span className="text-sm font-medium">TripAdvisor</span>}
               <Input id="tripadvisor_url" value={formData.tripadvisor_url} onChange={(e) => handleChange("tripadvisor_url", e.target.value)} placeholder="https://tripadvisor.com/..." className="flex-1" />
+              {isBrokenUrl(formData.tripadvisor_url) && <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 animate-pulse" />}
             </div>
+            {isBrokenUrl(formData.tripadvisor_url) && <BrokenUrlBadge url={formData.tripadvisor_url} />}
 
             <div className="flex items-center gap-2">
               <AirbnbIcon className="text-[#FF5A5F]" />
               {formData.airbnb_url ? <a href={formData.airbnb_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 text-sm font-medium">Airbnb ↗</a> : <span className="text-sm font-medium">Airbnb</span>}
               <Input id="airbnb_url" value={formData.airbnb_url} onChange={(e) => handleChange("airbnb_url", e.target.value)} placeholder="https://airbnb.com/rooms/..." className="flex-1" />
+              {isBrokenUrl(formData.airbnb_url) && <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 animate-pulse" />}
             </div>
+            {isBrokenUrl(formData.airbnb_url) && <BrokenUrlBadge url={formData.airbnb_url} />}
 
             <div className="flex items-center gap-2">
               <span>🏨</span>
               {formData.hotels_com_url ? <a href={formData.hotels_com_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 text-sm font-medium">Hotels.com ↗</a> : <span className="text-sm font-medium">Hotels.com</span>}
               <Input id="hotels_com_url" value={formData.hotels_com_url} onChange={(e) => handleChange("hotels_com_url", e.target.value)} placeholder="https://hotels.com/..." className="flex-1" />
+              {isBrokenUrl(formData.hotels_com_url) && <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 animate-pulse" />}
             </div>
+            {isBrokenUrl(formData.hotels_com_url) && <BrokenUrlBadge url={formData.hotels_com_url} />}
 
             <div className="flex items-center gap-2">
               <span>🔍</span>
               {formData.trivago_url ? <a href={formData.trivago_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 text-sm font-medium">Trivago ↗</a> : <span className="text-sm font-medium">Trivago</span>}
               <Input id="trivago_url" value={formData.trivago_url} onChange={(e) => handleChange("trivago_url", e.target.value)} placeholder="https://trivago.com/..." className="flex-1" />
+              {isBrokenUrl(formData.trivago_url) && <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 animate-pulse" />}
             </div>
+            {isBrokenUrl(formData.trivago_url) && <BrokenUrlBadge url={formData.trivago_url} />}
           </div>
           <Button type="button" variant="outline" size="sm" className="text-xs text-muted-foreground hover:text-destructive" onClick={() => setShowClearBooking(true)}>🗑️ Effacer toutes les plateformes</Button>
         </div>
@@ -1426,7 +1471,9 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
             <Input type="number" min="0" value={(formData as any).tripadvisor_review_count} onChange={(e) => handleChange("tripadvisor_review_count" as any, e.target.value)} placeholder="Nb" className="w-20" />
             <span className="text-xs text-muted-foreground">avis</span>
             <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" title="Effacer TripAdvisor" onClick={() => { handleChange("tripadvisor_review_url", ""); handleChange("tripadvisor_rating" as any, ""); handleChange("tripadvisor_review_count" as any, ""); }}>🗑️</Button>
+              {isBrokenUrl(formData.tripadvisor_review_url) && <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 animate-pulse" />}
           </div>
+            {isBrokenUrl(formData.tripadvisor_review_url) && <BrokenUrlBadge url={formData.tripadvisor_review_url} />}
           <div className="flex items-center gap-2">
             <img src={restaurantGuruLogo} alt="Restaurant Guru" className="w-5 h-5 object-contain" />
             {formData.restaurant_guru_url ? <a href={formData.restaurant_guru_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 text-sm font-medium">Restaurant Guru ↗</a> : <span className="text-sm font-medium">Restaurant Guru</span>}
@@ -1436,7 +1483,9 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
             <Input type="number" min="0" value={(formData as any).restaurant_guru_review_count} onChange={(e) => handleChange("restaurant_guru_review_count" as any, e.target.value)} placeholder="Nb" className="w-20" />
             <span className="text-xs text-muted-foreground">avis</span>
             <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" title="Effacer Restaurant Guru" onClick={() => { handleChange("restaurant_guru_url", ""); handleChange("restaurant_guru_rating" as any, ""); handleChange("restaurant_guru_review_count" as any, ""); }}>🗑️</Button>
+              {isBrokenUrl(formData.restaurant_guru_url) && <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 animate-pulse" />}
           </div>
+            {isBrokenUrl(formData.restaurant_guru_url) && <BrokenUrlBadge url={formData.restaurant_guru_url} />}
           <div className="flex items-center gap-2">
             <GoogleMapsIcon className="text-[#4285F4]" />
             {formData.google_reviews_url ? <a href={formData.google_reviews_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 text-sm font-medium">Google Avis ↗</a> : <span className="text-sm font-medium">Google Avis</span>}
@@ -1446,7 +1495,9 @@ const BusinessForm = ({ business, onSuccess, onCancel }: BusinessFormProps) => {
             <Input type="number" min="0" value={(formData as any).google_review_count} onChange={(e) => handleChange("google_review_count" as any, e.target.value)} placeholder="Nb" className="w-20" />
             <span className="text-xs text-muted-foreground">avis</span>
             <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" title="Effacer Google Avis" onClick={() => { handleChange("google_reviews_url", ""); handleChange("google_rating" as any, ""); handleChange("google_review_count" as any, ""); }}>🗑️</Button>
+              {isBrokenUrl(formData.google_reviews_url) && <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 animate-pulse" />}
           </div>
+            {isBrokenUrl(formData.google_reviews_url) && <BrokenUrlBadge url={formData.google_reviews_url} />}
           <Button type="button" variant="outline" size="sm" className="text-xs text-muted-foreground hover:text-destructive" onClick={() => setShowClearReviews(true)}>🗑️ Effacer tous les avis</Button>
         </div>
 
