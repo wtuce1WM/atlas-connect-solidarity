@@ -14,6 +14,7 @@ interface GroupBusiness {
   id: string;
   name: string;
   city: string;
+  neighborhood: string | null;
   is_master: boolean;
   wtuce_status: string | null;
   is_active: boolean;
@@ -35,7 +36,7 @@ const KPGroupManagement = ({ onEditBusiness }: KPGroupManagementProps) => {
     setLoading(true);
     const { data, error } = await supabase
       .from("businesses")
-      .select("id, name, city, is_master, wtuce_status, is_active, kp_regroupement, website")
+      .select("id, name, city, neighborhood, is_master, wtuce_status, is_active, kp_regroupement, website")
       .not("kp_regroupement", "is", null)
       .neq("kp_regroupement", "")
       .order("name");
@@ -54,6 +55,7 @@ const KPGroupManagement = ({ onEditBusiness }: KPGroupManagementProps) => {
         id: b.id,
         name: b.name,
         city: b.city,
+        neighborhood: b.neighborhood,
         is_master: b.is_master,
         wtuce_status: b.wtuce_status,
         is_active: b.is_active,
@@ -230,7 +232,7 @@ const KPGroupManagement = ({ onEditBusiness }: KPGroupManagementProps) => {
                         <span className={`text-sm font-medium ${b.is_master ? "text-gold" : ""}`}>
                           {b.name}
                         </span>
-                        <span className="text-xs text-muted-foreground ml-2">{b.city}</span>
+                        <span className="text-xs text-muted-foreground ml-2">{b.city}{b.neighborhood ? `, ${b.neighborhood}` : ''}</span>
                       </div>
                       {b.wtuce_status === "verified" && (
                         <Badge variant="default" className="text-xs bg-primary/20 text-primary border-primary/30">
