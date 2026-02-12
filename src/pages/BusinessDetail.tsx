@@ -633,9 +633,9 @@ const BusinessDetail = () => {
                     </a>
                   )}
                   {business.email && (
-                    <a href={`mailto:${business.email}`} className={`flex items-center gap-3 font-semibold transition-colors ${isVerified ? "text-white/70 hover:text-white" : "text-foreground hover:text-primary"}`}>
-                      <Mail className="h-5 w-5" />
-                      {business.email}
+                    <a href={`mailto:${business.email}`} className={`flex items-center gap-3 font-semibold transition-colors min-w-0 ${isVerified ? "text-white/70 hover:text-white" : "text-foreground hover:text-primary"}`}>
+                      <Mail className="h-5 w-5 flex-shrink-0" />
+                      <span className="truncate">{business.email}</span>
                     </a>
                   )}
 
