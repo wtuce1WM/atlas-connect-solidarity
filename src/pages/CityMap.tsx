@@ -492,7 +492,7 @@ const CityMap = () => {
               <div className="flex flex-wrap gap-3">
                 {/* Main Category Filter */}
                 <div className="flex-1 min-w-[140px]">
-                  <label className="text-sm font-medium text-white mb-1.5 block">Catégorie</label>
+                  <label className="text-base font-semibold text-white mb-1.5 block">Catégorie</label>
                   <Select value={selectedCategory || "all"} onValueChange={handleCategoryChange}>
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Toutes" />
@@ -511,7 +511,7 @@ const CityMap = () => {
                 {/* Subcategory Filter */}
                 {availableSubcategories.length > 0 && (
                   <div className="flex-1 min-w-[140px]">
-                    <label className="text-sm font-medium text-white mb-1.5 block">Sous-catégorie</label>
+                    <label className="text-base font-semibold text-white mb-1.5 block">Sous-catégorie</label>
                     <Select value={selectedSubcategory || "all"} onValueChange={handleSubcategoryChange}>
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Toutes" />
@@ -531,7 +531,7 @@ const CityMap = () => {
                 {/* Standing (Gamme) Filter - Only show when category is selected */}
                 {selectedCategory && (
                 <div className="flex-1 min-w-[140px]">
-                  <label className="text-sm font-medium text-white mb-1.5 block">Standing</label>
+                  <label className="text-base font-semibold text-white mb-1.5 block">Standing</label>
                   <Select value={selectedGamme || "all"} onValueChange={(v) => setSelectedGamme(v === "all" ? "" : v)}>
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Tous" />
@@ -566,7 +566,7 @@ const CityMap = () => {
               {/* Activity Filters - Only show when category is selected */}
               {selectedCategory && availableActivities.length > 0 && (
                 <div>
-                  <h3 className="text-sm font-medium text-white mb-2">Activités</h3>
+                  <h3 className="text-base font-semibold text-white mb-2">Activités</h3>
                   <div className="flex flex-wrap gap-2">
                     {availableActivities.slice(0, 8).map((activity) => (
                       <label
