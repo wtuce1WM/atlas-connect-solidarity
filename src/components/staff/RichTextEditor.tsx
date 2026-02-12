@@ -1,6 +1,7 @@
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
+import TextAlign from "@tiptap/extension-text-align";
 import { Button } from "@/components/ui/button";
 import {
   Bold,
@@ -12,6 +13,10 @@ import {
   Heading3,
   Undo,
   Redo,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  AlignJustify,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo } from "react";
 
@@ -23,7 +28,6 @@ interface RichTextEditorProps {
 }
 
 const RichTextEditor = ({ content, onChange, placeholder, maxHeight }: RichTextEditorProps) => {
-  // Memoize extensions to prevent duplicate registration on re-renders
   const extensions = useMemo(() => [
     StarterKit.configure({
       heading: {
@@ -35,6 +39,9 @@ const RichTextEditor = ({ content, onChange, placeholder, maxHeight }: RichTextE
       HTMLAttributes: {
         class: "text-primary underline",
       },
+    }),
+    TextAlign.configure({
+      types: ["heading", "paragraph"],
     }),
   ], []);
 
@@ -119,6 +126,51 @@ const RichTextEditor = ({ content, onChange, placeholder, maxHeight }: RichTextE
         >
           <Heading3 className="h-4 w-4" />
         </Button>
+
+        {/* Separator */}
+        <div className="w-px h-8 bg-border mx-1" />
+
+        {/* Alignment buttons */}
+        <Button
+          type="button"
+          variant={editor.isActive({ textAlign: "left" }) ? "secondary" : "ghost"}
+          size="sm"
+          onClick={() => editor.chain().focus().setTextAlign("left").run()}
+          className="h-8 w-8 p-0"
+        >
+          <AlignLeft className="h-4 w-4" />
+        </Button>
+        <Button
+          type="button"
+          variant={editor.isActive({ textAlign: "center" }) ? "secondary" : "ghost"}
+          size="sm"
+          onClick={() => editor.chain().focus().setTextAlign("center").run()}
+          className="h-8 w-8 p-0"
+        >
+          <AlignCenter className="h-4 w-4" />
+        </Button>
+        <Button
+          type="button"
+          variant={editor.isActive({ textAlign: "right" }) ? "secondary" : "ghost"}
+          size="sm"
+          onClick={() => editor.chain().focus().setTextAlign("right").run()}
+          className="h-8 w-8 p-0"
+        >
+          <AlignRight className="h-4 w-4" />
+        </Button>
+        <Button
+          type="button"
+          variant={editor.isActive({ textAlign: "justify" }) ? "secondary" : "ghost"}
+          size="sm"
+          onClick={() => editor.chain().focus().setTextAlign("justify").run()}
+          className="h-8 w-8 p-0"
+        >
+          <AlignJustify className="h-4 w-4" />
+        </Button>
+
+        {/* Separator */}
+        <div className="w-px h-8 bg-border mx-1" />
+
         <Button
           type="button"
           variant={editor.isActive("bulletList") ? "secondary" : "ghost"}
