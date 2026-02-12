@@ -132,8 +132,8 @@ const BusinessCard = ({
           )}
           {/* Hook overlay - bottom of image */}
           {business.hook_fr && (
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent px-3 py-2 pointer-events-none transition-all duration-300 group-hover:py-4">
-              <p className="text-white text-xs group-hover:text-sm italic font-['Cormorant_Garamond'] line-clamp-2 text-center leading-tight transition-all duration-300">
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent px-3 py-3 pointer-events-none transition-all duration-300 group-hover:py-5">
+              <p className="text-white text-sm group-hover:text-base italic font-['Cormorant_Garamond'] line-clamp-2 text-center leading-tight transition-all duration-300">
                 {business.hook_fr}
               </p>
             </div>
