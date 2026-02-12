@@ -78,6 +78,8 @@ const CityMap = () => {
   const [selectedActivities, setSelectedActivities] = useState<string[]>([]);
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
   const [gammes, setGammes] = useState<Gamme[]>([]);
+  const [gammeCategories, setGammeCategories] = useState<{ gamme_id: string; category_id: string }[]>([]);
+  const [categoryIdMap, setCategoryIdMap] = useState<Record<string, string>>({});
   const [selectedGamme, setSelectedGamme] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -132,6 +134,17 @@ const CityMap = () => {
     });
     return Array.from(activities).sort((a, b) => a.localeCompare(b, "fr"));
   }, [businesses, selectedCategory, selectedSubcategory]);
+
+  // Filter gammes based on selected category
+  const filteredGammes = useMemo(() => {
+    if (!selectedCategory) return gammes;
+    const categoryId = categoryIdMap[selectedCategory];
+    if (!categoryId) return gammes;
+    const allowedGammeIds = new Set(
+      gammeCategories.filter((gc) => gc.category_id === categoryId).map((gc) => gc.gamme_id)
+    );
+    return gammes.filter((g) => allowedGammeIds.has(g.id));
+  }, [gammes, gammeCategories, categoryIdMap, selectedCategory]);
 
   // Filter businesses by all criteria
   const filteredBusinesses = useMemo(() => {
@@ -193,6 +206,7 @@ const CityMap = () => {
   const handleCategoryChange = (value: string) => {
     setSelectedCategory(value === "all" ? "" : value);
     setSelectedSubcategory("");
+    setSelectedGamme("");
     setSelectedActivities([]);
   };
 
@@ -213,6 +227,24 @@ const CityMap = () => {
 
       if (gammesData) {
         setGammes(gammesData);
+      }
+
+      // Fetch gamme_categories mapping
+      const { data: gcData } = await supabase
+        .from("gamme_categories")
+        .select("gamme_id, category_id");
+      if (gcData) {
+        setGammeCategories(gcData);
+      }
+
+      // Fetch categories for name→id mapping
+      const { data: catData } = await supabase
+        .from("categories")
+        .select("id, name_fr");
+      if (catData) {
+        const map: Record<string, string> = {};
+        catData.forEach((c) => { map[c.name_fr] = c.id; });
+        setCategoryIdMap(map);
       }
 
       // Fetch businesses - ordered by verified status then priority score
@@ -504,7 +536,7 @@ const CityMap = () => {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">Tous les standings</SelectItem>
-                      {gammes.map((gamme) => (
+                      {filteredGammes.map((gamme) => (
                         <SelectItem key={gamme.id} value={gamme.id}>
                           <span className="flex items-center gap-2">
                             <span className="w-3 h-3 rounded-full border border-black/20 inline-block" style={{ backgroundColor: gamme.color_hex || '#000' }} />
