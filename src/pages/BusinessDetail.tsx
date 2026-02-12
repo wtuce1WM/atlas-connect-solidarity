@@ -132,7 +132,7 @@ const getEmbedUrl = (url: string): { url: string; type: 'iframe' | 'video' | 'fa
   return null;
 };
 
-type TabKey = 'overview' | 'reviews' | 'location';
+type TabKey = 'overview' | 'services' | 'reviews' | 'location';
 
 const BusinessDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -249,6 +249,7 @@ const BusinessDetail = () => {
 
   const tabs: { key: TabKey; label: string; show: boolean }[] = [
     { key: 'overview', label: 'Aperçu', show: true },
+    { key: 'services', label: 'Services', show: true },
     { key: 'reviews', label: 'Avis', show: !!hasReviews },
     { key: 'location', label: 'Localisation', show: true },
   ];
@@ -602,17 +603,7 @@ const BusinessDetail = () => {
                 </div>
               )}
 
-              {/* Services */}
-              {business.services && business.services.length > 0 && (
-                <div>
-                  <h2 className={`text-xl font-semibold mb-3 ${isVerified ? 'text-white' : ''}`}>Services</h2>
-                  <ul className="space-y-3 text-foreground max-h-[400px] overflow-y-auto">
-                    {[...business.services].sort((a, b) => a.localeCompare(b, 'fr')).map((service, index) => (
-                      <ServiceListItem key={index} service={service} currentBusinessId={business.id} city={business.city} />
-                    ))}
-                  </ul>
-                </div>
-              )}
+              {/* Services removed - now in dedicated tab */}
             </div>
 
             {/* Sidebar */}
@@ -823,7 +814,22 @@ const BusinessDetail = () => {
           </>
         )}
 
-        {/* REVIEWS TAB */}
+        {/* SERVICES TAB */}
+        {activeTab === 'services' && (
+          <div className="max-w-2xl">
+            <h2 className={`text-xl font-semibold mb-4 ${isVerified ? 'text-white' : ''}`}>Services</h2>
+            {business.services && business.services.length > 0 ? (
+              <ul className="space-y-3 text-foreground">
+                {[...business.services].sort((a, b) => a.localeCompare(b, 'fr')).map((service, index) => (
+                  <ServiceListItem key={index} service={service} currentBusinessId={business.id} city={business.city} />
+                ))}
+              </ul>
+            ) : (
+              <p className={`text-sm ${isVerified ? 'text-white/60' : 'text-muted-foreground'}`}>Aucun service renseigné pour cet établissement.</p>
+            )}
+          </div>
+        )}
+
         {activeTab === 'reviews' && (
           <div className="max-w-2xl">
             {/* Overall rating */}
