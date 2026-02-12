@@ -96,6 +96,12 @@ const ServicePage = () => {
     setCurrentPage(1);
   }, [selectedCity]);
 
+  // Update document title with service name and city
+  useEffect(() => {
+    const cityLabel = selectedCity !== "all" ? ` à ${selectedCity}` : "";
+    document.title = `${decodedServiceName}${cityLabel} | WTUCE`;
+  }, [decodedServiceName, selectedCity]);
+
   useEffect(() => {
     const fetchData = async () => {
       if (!decodedServiceName) return;
@@ -366,6 +372,9 @@ const ServicePage = () => {
             <div>
               <h1 className="text-2xl md:text-3xl lg:text-5xl font-bold text-white mb-1 lg:mb-2">
                 {decodedServiceName}
+                {selectedCity !== "all" && (
+                  <span className="text-gold"> à {selectedCity}</span>
+                )}
               </h1>
               <p className="text-base lg:text-xl text-gray-400">
                 <span className="text-gold font-semibold">{filteredBusinesses.length}</span> {t.establishments} {t.withService}
