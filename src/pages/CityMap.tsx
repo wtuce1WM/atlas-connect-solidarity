@@ -38,6 +38,12 @@ interface Business {
   services: string[] | null;
   images: string[] | null;
   rating: number | null;
+  google_rating: number | null;
+  tripadvisor_rating: number | null;
+  restaurant_guru_rating: number | null;
+  google_review_count: number | null;
+  tripadvisor_review_count: number | null;
+  restaurant_guru_review_count: number | null;
   priority_score: number | null;
   opening_hours: unknown;
   show_opening_hours: boolean | null;
@@ -252,7 +258,7 @@ const CityMap = () => {
       // Fetch businesses - ordered by verified status then priority score
       const { data: businessData, error: businessError } = await supabase
         .from("businesses")
-        .select("id, name, city, region, address, phone, whatsapp, skype, main_category, categories, latitude, longitude, google_maps_url, wtuce_status, services, images, rating, priority_score, opening_hours, show_opening_hours, logo_url, gamme_id, neighborhood, hook_fr")
+        .select("id, name, city, region, address, phone, whatsapp, skype, main_category, categories, latitude, longitude, google_maps_url, wtuce_status, services, images, rating, google_rating, tripadvisor_rating, restaurant_guru_rating, google_review_count, tripadvisor_review_count, restaurant_guru_review_count, priority_score, opening_hours, show_opening_hours, logo_url, gamme_id, neighborhood, hook_fr")
         .eq("is_active", true)
         .ilike("city", decodedCity)
         .order("wtuce_status", { ascending: true, nullsFirst: false })
