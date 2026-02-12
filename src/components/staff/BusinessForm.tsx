@@ -1027,6 +1027,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                       handleChange("longitude", data.lng);
                       if (data.resolvedUrl) {
                         handleChange("google_maps_url", data.resolvedUrl);
+                        handleChange("google_reviews_url", data.resolvedUrl);
                       }
                       toast({ title: "GPS récupéré", description: `Lat: ${data.lat}, Lng: ${data.lng}` });
                     } else {
