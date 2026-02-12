@@ -150,6 +150,7 @@ const StaffBackoffice = () => {
     const duplicatedBusiness = {
       ...businessData,
       name: `${business.name} (copie)`,
+      is_active: false,
     };
 
     const { data, error } = await supabase

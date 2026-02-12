@@ -332,7 +332,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
     longitude: business?.longitude?.toString() || "",
     wtuce_status: business?.wtuce_status || "pending",
     is_featured: business?.is_featured || false,
-    is_active: (business as any)?.is_active ?? true,
+    is_active: business ? ((business as any)?.is_active ?? true) : false,
     priority_score: business?.priority_score?.toString() || "0",
     logo_url: business?.logo_url || "",
     
