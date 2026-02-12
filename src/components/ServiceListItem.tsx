@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import DynamicIcon from "@/components/DynamicIcon";
 
 interface ServiceListItemProps {
   service: string;
@@ -10,34 +11,56 @@ interface ServiceListItemProps {
 
 const ServiceListItem = ({ service, currentBusinessId, city }: ServiceListItemProps) => {
   const [otherCount, setOtherCount] = useState<number | null>(null);
+  const [iconName, setIconName] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchCount = async () => {
-      const { count, error } = await supabase
-        .from("businesses")
-        .select("id", { count: "exact", head: true })
-        .eq("is_active", true)
-        .contains("services", [service])
-        .neq("id", currentBusinessId);
+    const fetchData = async () => {
+      // Fetch count + icon in parallel
+      const [countRes, iconRes] = await Promise.all([
+        supabase
+          .from("businesses")
+          .select("id", { count: "exact", head: true })
+          .eq("is_active", true)
+          .contains("services", [service])
+          .neq("id", currentBusinessId),
+        supabase
+          .from("services")
+          .select("icon")
+          .eq("name_fr", service)
+          .not("icon", "is", null)
+          .limit(1)
+          .maybeSingle(),
+      ]);
 
-      if (!error && count !== null) {
-        setOtherCount(count);
+      if (!countRes.error && countRes.count !== null) {
+        setOtherCount(countRes.count);
+      }
+      if (!iconRes.error && iconRes.data?.icon) {
+        setIconName(iconRes.data.icon);
       }
     };
 
-    fetchCount();
+    fetchData();
   }, [service, currentBusinessId]);
 
   return (
     <li className="flex flex-col gap-1">
       <span className="flex items-center gap-2">
-        <span className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
+        {iconName ? (
+          <DynamicIcon
+            name={iconName}
+            className="h-4 w-4 flex-shrink-0 text-primary"
+            fallback={<span className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />}
+          />
+        ) : (
+          <span className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
+        )}
         {service}
       </span>
       {otherCount !== null && otherCount > 0 && (
         <Link
           to={`/service/${encodeURIComponent(service)}${city ? `?city=${encodeURIComponent(city)}` : ''}`}
-          className="text-xs text-primary hover:underline ml-4"
+          className="text-xs text-primary hover:underline ml-6"
         >
           → autres établissements avec ce service ({otherCount})
         </Link>
