@@ -25,9 +25,8 @@ const ServiceListItem = ({ service, currentBusinessId, city }: ServiceListItemPr
           .neq("id", currentBusinessId),
         supabase
           .from("services")
-          .select("icon")
+          .select("icon, subcategories(icon)")
           .eq("name_fr", service)
-          .not("icon", "is", null)
           .limit(1)
           .maybeSingle(),
       ]);
@@ -35,8 +34,10 @@ const ServiceListItem = ({ service, currentBusinessId, city }: ServiceListItemPr
       if (!countRes.error && countRes.count !== null) {
         setOtherCount(countRes.count);
       }
-      if (!iconRes.error && iconRes.data?.icon) {
-        setIconName(iconRes.data.icon);
+      if (!iconRes.error && iconRes.data) {
+        const svcIcon = iconRes.data.icon;
+        const subIcon = (iconRes.data as any).subcategories?.icon;
+        setIconName(svcIcon || subIcon || null);
       }
     };
 
