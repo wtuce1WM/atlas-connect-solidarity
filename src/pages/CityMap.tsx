@@ -406,7 +406,8 @@ const CityMap = () => {
         {/* Map + Business list - Full width */}
         <div className="space-y-6">
           {selectedBusiness ? (
-            <Card className="relative animate-fade-in transition-all duration-700 ease-out">
+            <div className="overflow-hidden rounded-lg shadow-xl shadow-gold/20 ring-2 ring-gold/30 animate-map-unfold">
+            <Card className="relative border-0">
               <CardContent className="p-0">
                 {/* Selected business indicator */}
                 <div className="absolute top-2 right-2 z-10 bg-white text-black px-4 py-3 rounded shadow-lg max-w-xs">
@@ -481,6 +482,7 @@ const CityMap = () => {
                 />
               </CardContent>
             </Card>
+            </div>
           ) : null}
 
           {/* Filters + Business list */}
