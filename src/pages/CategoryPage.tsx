@@ -16,7 +16,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, MapPin, Phone, Building2, ChevronLeft, ChevronRight, X, ArrowLeft } from "lucide-react";
 import DynamicIcon from "@/components/DynamicIcon";
-import symboleMaroc from "@/assets/symbole-maroc-3.webp";
+
 import BusinessCard, { Gamme } from "@/components/BusinessCard";
 import LabelSection from "@/components/LabelSection";
 import slhLogo from "@/assets/small-luxury-hotels-logo.webp";
@@ -371,16 +371,6 @@ const CategoryPage = () => {
       
       {/* Hero Section */}
       <section className="bg-black pt-28 pb-8 lg:pb-16 relative overflow-hidden">
-        {/* Background decorative emblem - hidden on mobile and tablet */}
-        <div 
-          className="hidden lg:block absolute top-28 left-1/2 -translate-x-1/2 w-[120px] h-[120px] opacity-100 pointer-events-none"
-          style={{
-            backgroundImage: `url(${symboleMaroc})`,
-            backgroundSize: 'contain',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat'
-          }}
-        />
         <div className="container mx-auto px-4 relative z-10">
           <button
             onClick={() => navigate(-1)}
