@@ -12,7 +12,7 @@ import logoWatermark from "@/assets/logoGOLDsimpleSML.webp";
 interface Business {
   id: string;
   name: string;
-  city: string;
+  services: string[] | null;
   neighborhood: string | null;
   images: string[] | null;
   rating: number | null;
@@ -46,7 +46,7 @@ const EssaouiraSeaView = () => {
       const [bizResult, gammeResult] = await Promise.all([
         supabase
           .from("businesses")
-          .select("id, name, city, neighborhood, images, rating, main_category, categories, wtuce_status, description, hook_fr, hook_en, hook_ar, google_maps_url, website, gamme_id")
+          .select("id, name, city, neighborhood, images, rating, main_category, categories, services, wtuce_status, description, hook_fr, hook_en, hook_ar, google_maps_url, website, gamme_id")
           .eq("city", "Essaouira")
           .eq("is_active", true)
           .order("priority_score", { ascending: false }),
@@ -54,8 +54,18 @@ const EssaouiraSeaView = () => {
       ]);
 
       if (bizResult.data) {
-        // Filter businesses that have images
-        setBusinesses(bizResult.data.filter((b) => b.images && b.images.length > 0));
+        // Filter businesses that have images AND "Vue sur mer" or "Vue mer" service
+        const seaViewKeywords = ["Vue sur mer", "Vue mer"];
+        setBusinesses(
+          bizResult.data.filter(
+            (b) =>
+              b.images &&
+              b.images.length > 0 &&
+              b.services?.some((s: string) =>
+                seaViewKeywords.some((kw) => s.toLowerCase() === kw.toLowerCase())
+              )
+          )
+        );
       }
       if (gammeResult.data) setGammes(gammeResult.data);
       setIsLoading(false);
