@@ -23,6 +23,12 @@ export interface BusinessCardData {
   longitude: number | null;
   google_maps_url: string | null;
   rating: number | null;
+  google_rating?: number | null;
+  tripadvisor_rating?: number | null;
+  restaurant_guru_rating?: number | null;
+  google_review_count?: number | null;
+  tripadvisor_review_count?: number | null;
+  restaurant_guru_review_count?: number | null;
   gamme_id: string | null;
 }
 
@@ -70,6 +76,26 @@ const getBusinessGamme = (business: BusinessCardData, gammes: Gamme[]): Gamme | 
   return gammes.find(g => g.id === business.gamme_id) || null;
 };
 
+const getCalculatedRating = (business: BusinessCardData): number | null => {
+  const sources: { rating: number; count: number }[] = [];
+  
+  if (business.google_rating && business.google_review_count) {
+    sources.push({ rating: business.google_rating * 4, count: business.google_review_count });
+  }
+  if (business.tripadvisor_rating && business.tripadvisor_review_count) {
+    sources.push({ rating: business.tripadvisor_rating * 4, count: business.tripadvisor_review_count });
+  }
+  if (business.restaurant_guru_rating && business.restaurant_guru_review_count) {
+    sources.push({ rating: business.restaurant_guru_rating * 4, count: business.restaurant_guru_review_count });
+  }
+  
+  if (sources.length === 0) return null;
+  
+  const totalCount = sources.reduce((sum, s) => sum + s.count, 0);
+  const weightedSum = sources.reduce((sum, s) => sum + s.rating * s.count, 0);
+  return Math.round((weightedSum / totalCount) * 10) / 10;
+};
+
 const BusinessCard = ({
   business,
   gammes,
@@ -82,6 +108,8 @@ const BusinessCard = ({
   showAddress = false
 }: BusinessCardProps) => {
   const gamme = getBusinessGamme(business, gammes);
+  const calculatedRating = getCalculatedRating(business);
+  const displayRating = calculatedRating;
   const isSelected = selectedBusinessId === business.id;
   const hasMapData = business.google_maps_url || (business.latitude && business.longitude);
 
@@ -105,10 +133,10 @@ const BusinessCard = ({
             }}
           />
           {/* Rating - top left */}
-          {business.rating && (
+          {displayRating && (
             <div className="absolute top-2 left-2 flex items-center gap-1 bg-black/60 rounded-full px-2 py-1 z-10">
               <Star className="h-4 w-4 fill-gold text-gold" />
-              <span className="text-gold font-bold text-sm">{business.rating}/20</span>
+              <span className="text-gold font-bold text-sm">{displayRating}/20</span>
             </div>
           )}
           {/* Gamme badge - top center */}
