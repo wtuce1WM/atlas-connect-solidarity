@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams, Link, useSearchParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Loader2, MapPin, X, ExternalLink, BookOpen, Phone, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, Loader2, MapPin, X, ExternalLink, BookOpen, Phone, ChevronLeft, ChevronRight, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
@@ -82,6 +82,7 @@ const CityMap = () => {
   const [gammeCategories, setGammeCategories] = useState<{ gamme_id: string; category_id: string }[]>([]);
   const [categoryIdMap, setCategoryIdMap] = useState<Record<string, string>>({});
   const [selectedGamme, setSelectedGamme] = useState<string>("");
+  const [showHours, setShowHours] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
   const ITEMS_PER_PAGE = 20;
@@ -327,6 +328,7 @@ const CityMap = () => {
 
   const handleSelectBusiness = (business: Business) => {
     setSelectedBusiness(business);
+    setShowHours(false);
     // Scroll to map
     window.scrollTo({ top: 300, behavior: 'smooth' });
   };
@@ -448,27 +450,36 @@ const CityMap = () => {
                     )}
                     {selectedBusiness.show_opening_hours && selectedBusiness.opening_hours && (
                       <div className="pt-1 border-t border-gray-200 mt-1">
-                        <span className="font-medium">Horaires:</span>
-                        <div className="text-[10px] mt-0.5">
-                          {(() => {
-                            const hours = selectedBusiness.opening_hours as Record<string, { open: string; close: string }>;
-                            const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-                            const dayLabels: Record<string, string> = {
-                              monday: 'Lun', tuesday: 'Mar', wednesday: 'Mer', 
-                              thursday: 'Jeu', friday: 'Ven', saturday: 'Sam', sunday: 'Dim'
-                            };
-                            return days.map(day => {
-                              const dayData = hours[day];
-                              if (!dayData) return null;
-                              return (
-                                <div key={day} className="flex justify-between gap-2">
-                                  <span>{dayLabels[day]}</span>
-                                  <span>{dayData.open && dayData.close ? `${dayData.open}-${dayData.close}` : 'Fermé'}</span>
-                                </div>
-                              );
-                            });
-                          })()}
-                        </div>
+                        <button 
+                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowHours(!showHours); }}
+                          className="flex items-center gap-1 font-medium hover:text-primary transition-colors w-full"
+                        >
+                          <Clock className="h-3 w-3 flex-shrink-0" />
+                          <span>Horaires</span>
+                          <span className="ml-auto text-[10px]">{showHours ? '▲' : '▼'}</span>
+                        </button>
+                        {showHours && (
+                          <div className="text-[10px] mt-1 animate-fade-in">
+                            {(() => {
+                              const hours = selectedBusiness.opening_hours as Record<string, { open: string; close: string }>;
+                              const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+                              const dayLabels: Record<string, string> = {
+                                monday: 'Lun', tuesday: 'Mar', wednesday: 'Mer', 
+                                thursday: 'Jeu', friday: 'Ven', saturday: 'Sam', sunday: 'Dim'
+                              };
+                              return days.map(day => {
+                                const dayData = hours[day];
+                                if (!dayData) return null;
+                                return (
+                                  <div key={day} className="flex justify-between gap-2">
+                                    <span>{dayLabels[day]}</span>
+                                    <span>{dayData.open && dayData.close ? `${dayData.open}-${dayData.close}` : 'Fermé'}</span>
+                                  </div>
+                                );
+                              });
+                            })()}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
