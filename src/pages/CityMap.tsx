@@ -369,7 +369,7 @@ const CityMap = () => {
         {/* Map + Business list - Full width */}
         <div className="space-y-6">
           {selectedBusiness ? (
-            <Card className="relative">
+            <Card className="relative animate-fade-in transition-all duration-700 ease-out">
               <CardContent className="p-0">
                 {/* Selected business indicator */}
                 <div className="absolute top-2 right-2 z-10 bg-white text-black px-4 py-3 rounded shadow-lg max-w-xs">
