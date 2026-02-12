@@ -608,7 +608,7 @@ function InternalNotesSection() {
           content={content}
           onChange={setContent}
           placeholder="Notes internes du tableau de bord..."
-          maxHeight="400px"
+          maxHeight="700px"
         />
       </CardContent>
     </Card>
