@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams, Link, useSearchParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Loader2, MapPin, X, ExternalLink, BookOpen, Phone, ChevronLeft, ChevronRight, Clock } from "lucide-react";
+import { ArrowLeft, Loader2, MapPin, X, ExternalLink, BookOpen, Phone, ChevronLeft, ChevronRight, Clock, ArrowUpDown, ArrowDown, ArrowUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
@@ -89,6 +89,7 @@ const CityMap = () => {
   const [categoryIdMap, setCategoryIdMap] = useState<Record<string, string>>({});
   const [selectedGamme, setSelectedGamme] = useState<string>("");
   const [showHours, setShowHours] = useState(false);
+  const [sortByRating, setSortByRating] = useState<"none" | "desc" | "asc">("none");
   const [currentPage, setCurrentPage] = useState(1);
 
   const ITEMS_PER_PAGE = 20;
@@ -154,6 +155,16 @@ const CityMap = () => {
     return gammes.filter((g) => allowedGammeIds.has(g.id));
   }, [gammes, gammeCategories, categoryIdMap, selectedCategory]);
 
+  const getCalcRating = (b: Business): number | null => {
+    const sources: { r: number; c: number }[] = [];
+    if (b.google_rating && b.google_review_count) sources.push({ r: b.google_rating * 4, c: b.google_review_count });
+    if (b.tripadvisor_rating && b.tripadvisor_review_count) sources.push({ r: b.tripadvisor_rating * 4, c: b.tripadvisor_review_count });
+    if (b.restaurant_guru_rating && b.restaurant_guru_review_count) sources.push({ r: b.restaurant_guru_rating * 4, c: b.restaurant_guru_review_count });
+    if (sources.length === 0) return null;
+    const total = sources.reduce((s, x) => s + x.c, 0);
+    return Math.round((sources.reduce((s, x) => s + x.r * x.c, 0) / total) * 10) / 10;
+  };
+
   // Filter businesses by all criteria
   const filteredBusinesses = useMemo(() => {
     let result = businesses;
@@ -173,8 +184,19 @@ const CityMap = () => {
       );
     }
     
+    if (sortByRating !== "none") {
+      result = [...result].sort((a, b) => {
+        const ratingA = getCalcRating(a);
+        const ratingB = getCalcRating(b);
+        if (ratingA === null && ratingB === null) return 0;
+        if (ratingA === null) return 1;
+        if (ratingB === null) return 1;
+        return sortByRating === "desc" ? ratingB - ratingA : ratingA - ratingB;
+      });
+    }
+
     return result;
-  }, [businesses, selectedCategory, selectedSubcategory, selectedGamme, selectedActivities]);
+  }, [businesses, selectedCategory, selectedSubcategory, selectedGamme, selectedActivities, sortByRating]);
 
   // Pagination
   const totalPages = Math.ceil(filteredBusinesses.length / ITEMS_PER_PAGE);
@@ -609,9 +631,22 @@ const CityMap = () => {
             </div>
 
             {/* Business list */}
-            <h2 className="text-lg font-semibold text-white mb-3">
-              Établissements ({filteredBusinesses.length})
-            </h2>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-lg font-semibold text-white">
+                Établissements ({filteredBusinesses.length})
+              </h2>
+              <button
+                onClick={() => setSortByRating(prev => prev === "none" ? "desc" : prev === "desc" ? "asc" : "none")}
+                className={`flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-full transition-colors ${
+                  sortByRating !== "none" 
+                    ? "bg-gold/20 text-gold border border-gold/40" 
+                    : "bg-white/10 text-white/70 hover:text-white border border-white/20"
+                }`}
+              >
+                {sortByRating === "desc" ? <ArrowDown className="h-3.5 w-3.5" /> : sortByRating === "asc" ? <ArrowUp className="h-3.5 w-3.5" /> : <ArrowUpDown className="h-3.5 w-3.5" />}
+                {sortByRating === "desc" ? "Meilleures notes" : sortByRating === "asc" ? "Notes croissantes" : "Trier par note"}
+              </button>
+            </div>
             {filteredBusinesses.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 {selectedActivities.length > 0
