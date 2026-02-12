@@ -584,7 +584,10 @@ const BusinessDetail = () => {
               {/* Sous-catégories */}
               {business.categories && business.categories.length > 0 && (
                 <div>
-                  <h2 className={`text-xl font-semibold mb-3 ${isVerified ? 'text-white' : ''}`}>Activité(s)</h2>
+                  <h2 className={`text-xl font-semibold mb-1 ${isVerified ? 'text-white' : ''}`}>Activité(s)</h2>
+                  <p className={`text-sm mb-3 ${isVerified ? 'text-white/60' : 'text-muted-foreground'}`}>
+                    Cliquez ci-dessous pour voir tous les {business.categories[0]} à {business.city}.
+                  </p>
                   <div className="flex flex-wrap gap-2">
                     {business.categories.map((cat, index) => (
                       <Link
