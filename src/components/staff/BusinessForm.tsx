@@ -851,6 +851,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                 <SelectItem value="regionale">Régionale</SelectItem>
                 <SelectItem value="nationale">Nationale</SelectItem>
                 <SelectItem value="internationale">Internationale</SelectItem>
+                <SelectItem value="web_only">Web only</SelectItem>
               </SelectContent>
             </Select>
           </div>
