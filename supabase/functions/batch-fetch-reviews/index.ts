@@ -3,7 +3,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "npm:@supabase/supabase-js@2";
 
 interface ReviewText {
   source: string;
@@ -14,14 +14,40 @@ interface ReviewText {
   language: string | null;
 }
 
-async function fetchGoogleForBusiness(name: string, city: string, apiKey: string): Promise<{ rating: number | null; count: number | null; reviews: ReviewText[] }> {
+// Extract lat/lng from a Google Maps URL
+function extractCoordsFromGoogleUrl(url: string | null): { lat: number; lng: number } | null {
+  if (!url) return null;
   try {
+    const match = url.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+    if (match) {
+      const lat = parseFloat(match[1]);
+      const lng = parseFloat(match[2]);
+      if (!isNaN(lat) && !isNaN(lng)) return { lat, lng };
+    }
+  } catch (_) { /* ignore */ }
+  return null;
+}
+
+async function fetchGoogleForBusiness(name: string, city: string, googleMapsUrl: string | null, apiKey: string): Promise<{ rating: number | null; count: number | null; reviews: ReviewText[] }> {
+  try {
+    const coords = extractCoordsFromGoogleUrl(googleMapsUrl);
     const queries = [
       `${name} ${city}`,
       `${name.replace(/\s+by\s+.*/i, '').trim()} ${city}`,
     ];
 
     for (const q of queries) {
+      const requestBody: Record<string, any> = { textQuery: q };
+      
+      if (coords) {
+        requestBody.locationBias = {
+          circle: {
+            center: { latitude: coords.lat, longitude: coords.lng },
+            radius: 500.0,
+          },
+        };
+      }
+
       const searchRes = await fetch('https://places.googleapis.com/v1/places:searchText', {
         method: 'POST',
         headers: {
@@ -29,7 +55,7 @@ async function fetchGoogleForBusiness(name: string, city: string, apiKey: string
           'X-Goog-Api-Key': apiKey,
           'X-Goog-FieldMask': 'places.id,places.rating,places.userRatingCount,places.displayName',
         },
-        body: JSON.stringify({ textQuery: q }),
+        body: JSON.stringify(requestBody),
       });
       const searchData = await searchRes.json();
 
@@ -89,17 +115,15 @@ Deno.serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Count total
     const { count: total } = await supabase
       .from('businesses')
       .select('id', { count: 'exact', head: true })
       .eq('is_active', true)
       .or('google_maps_url.not.is.null,tripadvisor_review_url.not.is.null,restaurant_guru_url.not.is.null');
 
-    // Get batch
     const { data: businesses, error } = await supabase
       .from('businesses')
-      .select('id, name, city')
+      .select('id, name, city, google_maps_url')
       .eq('is_active', true)
       .or('google_maps_url.not.is.null,tripadvisor_review_url.not.is.null,restaurant_guru_url.not.is.null')
       .order('name')
@@ -114,14 +138,12 @@ Deno.serve(async (req) => {
 
     const results: { name: string; status: string; google_rating?: number | null; reviews?: number }[] = [];
 
-    // Process 3 at a time
     for (let i = 0; i < businesses.length; i += 3) {
       const chunk = businesses.slice(i, i + 3);
       const chunkResults = await Promise.allSettled(
         chunk.map(async (biz) => {
-          const g = await fetchGoogleForBusiness(biz.name, biz.city, apiKey);
+          const g = await fetchGoogleForBusiness(biz.name, biz.city, biz.google_maps_url, apiKey);
 
-          // Update ratings
           const updateData: Record<string, any> = {};
           if (g.rating != null) updateData.google_rating = g.rating;
           if (g.count != null) updateData.google_review_count = g.count;
@@ -129,7 +151,6 @@ Deno.serve(async (req) => {
             await supabase.from('businesses').update(updateData).eq('id', biz.id);
           }
 
-          // Save reviews
           if (g.reviews.length > 0) {
             await supabase.from('reviews').delete().eq('business_id', biz.id);
             const rows = g.reviews.filter(r => r.text).map(r => ({

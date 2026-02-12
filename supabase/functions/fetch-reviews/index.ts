@@ -3,7 +3,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "npm:@supabase/supabase-js@2";
 
 interface ReviewResult {
   google_rating?: number | null;
@@ -23,6 +23,21 @@ interface ReviewText {
   language: string | null;
 }
 
+// Extract lat/lng from a Google Maps URL
+function extractCoordsFromGoogleUrl(url: string | null): { lat: number; lng: number } | null {
+  if (!url) return null;
+  try {
+    // Match @lat,lng pattern (most common in Google Maps URLs)
+    const match = url.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+    if (match) {
+      const lat = parseFloat(match[1]);
+      const lng = parseFloat(match[2]);
+      if (!isNaN(lat) && !isNaN(lng)) return { lat, lng };
+    }
+  } catch (_) { /* ignore */ }
+  return null;
+}
+
 // Google Places API (New) - fetch rating + top 3 review texts
 async function fetchGoogleReviews(businessName: string, city: string, googleMapsUrl: string | null): Promise<{ rating: number | null; count: number | null; reviews: ReviewText[] }> {
   const apiKey = Deno.env.get('GOOGLE_MAPS_API_KEY');
@@ -32,6 +47,7 @@ async function fetchGoogleReviews(businessName: string, city: string, googleMaps
   }
 
   try {
+    const coords = extractCoordsFromGoogleUrl(googleMapsUrl);
     const simplifiedName = businessName.replace(/\s+by\s+.*/i, '').trim();
     const queries = [
       `${businessName} ${city}`,
@@ -39,8 +55,20 @@ async function fetchGoogleReviews(businessName: string, city: string, googleMaps
     ];
 
     for (const q of queries) {
-      console.log(`Google Text Search (New): "${q}"`);
-      // First: search to get place ID
+      console.log(`Google Text Search (New): "${q}"${coords ? ` with locationBias @${coords.lat},${coords.lng}` : ''}`);
+      
+      const requestBody: Record<string, any> = { textQuery: q };
+      
+      // Add locationBias if we have coordinates from the Google Maps URL
+      if (coords) {
+        requestBody.locationBias = {
+          circle: {
+            center: { latitude: coords.lat, longitude: coords.lng },
+            radius: 500.0, // 500m radius to strongly prefer the exact location
+          },
+        };
+      }
+      
       const searchRes = await fetch('https://places.googleapis.com/v1/places:searchText', {
         method: 'POST',
         headers: {
@@ -48,7 +76,7 @@ async function fetchGoogleReviews(businessName: string, city: string, googleMaps
           'X-Goog-Api-Key': apiKey,
           'X-Goog-FieldMask': 'places.id,places.rating,places.userRatingCount,places.displayName',
         },
-        body: JSON.stringify({ textQuery: q }),
+        body: JSON.stringify(requestBody),
       });
       const searchData = await searchRes.json();
 
@@ -60,7 +88,6 @@ async function fetchGoogleReviews(businessName: string, city: string, googleMaps
         const count = place.userRatingCount ?? null;
         const reviewTexts: ReviewText[] = [];
 
-        // Second: get place details with reviews
         if (place.id) {
           try {
             const detailRes = await fetch(`https://places.googleapis.com/v1/places/${place.id}`, {
@@ -73,7 +100,6 @@ async function fetchGoogleReviews(businessName: string, city: string, googleMaps
             const detailData = await detailRes.json();
             
             if (detailData.reviews && detailData.reviews.length > 0) {
-              // Take up to 3 best reviews (they come sorted by relevance)
               const topReviews = detailData.reviews.slice(0, 3);
               for (const r of topReviews) {
                 reviewTexts.push({
@@ -294,15 +320,9 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Save review texts: delete old ones, insert new ones
+    // Save review texts
     if (googleReviewTexts.length > 0) {
-      // Delete existing reviews for this business
-      await supabase
-        .from('reviews')
-        .delete()
-        .eq('business_id', business_id);
-
-      // Insert new reviews
+      await supabase.from('reviews').delete().eq('business_id', business_id);
       const reviewRows = googleReviewTexts
         .filter(r => r.text)
         .map(r => ({
@@ -316,10 +336,7 @@ Deno.serve(async (req) => {
         }));
 
       if (reviewRows.length > 0) {
-        const { error: insertError } = await supabase
-          .from('reviews')
-          .insert(reviewRows);
-
+        const { error: insertError } = await supabase.from('reviews').insert(reviewRows);
         if (insertError) {
           console.error('Error inserting reviews:', insertError);
         } else {
