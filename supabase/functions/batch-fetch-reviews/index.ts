@@ -14,10 +14,17 @@ interface ReviewText {
   language: string | null;
 }
 
-// Extract lat/lng from a Google Maps URL
-function extractCoordsFromGoogleUrl(url: string | null): { lat: number; lng: number } | null {
+// Extract exact place coordinates (!3d lat !4d lng) or fallback to @lat,lng
+function extractExactCoordsFromGoogleUrl(url: string | null): { lat: number; lng: number } | null {
   if (!url) return null;
   try {
+    const latMatch = url.match(/!3d(-?\d+\.?\d*)/);
+    const lngMatch = url.match(/!4d(-?\d+\.?\d*)/);
+    if (latMatch && lngMatch) {
+      const lat = parseFloat(latMatch[1]);
+      const lng = parseFloat(lngMatch[1]);
+      if (!isNaN(lat) && !isNaN(lng)) return { lat, lng };
+    }
     const match = url.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
     if (match) {
       const lat = parseFloat(match[1]);
@@ -28,72 +35,96 @@ function extractCoordsFromGoogleUrl(url: string | null): { lat: number; lng: num
   return null;
 }
 
-async function fetchGoogleForBusiness(name: string, city: string, googleMapsUrl: string | null, apiKey: string): Promise<{ rating: number | null; count: number | null; reviews: ReviewText[] }> {
+// Extract place name from URL path
+function extractPlaceNameFromGoogleUrl(url: string | null): string | null {
+  if (!url) return null;
   try {
-    const coords = extractCoordsFromGoogleUrl(googleMapsUrl);
-    const queries = [
-      `${name} ${city}`,
-      `${name.replace(/\s+by\s+.*/i, '').trim()} ${city}`,
-    ];
+    const match = url.match(/\/place\/([^/@]+)/);
+    if (match) return decodeURIComponent(match[1].replace(/\+/g, ' '));
+  } catch (_) { /* ignore */ }
+  return null;
+}
 
-    for (const q of queries) {
-      const requestBody: Record<string, any> = { textQuery: q };
-      
-      if (coords) {
-        requestBody.locationBias = {
-          circle: {
-            center: { latitude: coords.lat, longitude: coords.lng },
-            radius: 500.0,
-          },
-        };
-      }
-
-      const searchRes = await fetch('https://places.googleapis.com/v1/places:searchText', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Goog-Api-Key': apiKey,
-          'X-Goog-FieldMask': 'places.id,places.rating,places.userRatingCount,places.displayName',
-        },
-        body: JSON.stringify(requestBody),
-      });
-      const searchData = await searchRes.json();
-
-      if (searchData.places && searchData.places.length > 0) {
-        const place = searchData.places[0];
-        const rating = place.rating ?? null;
-        const count = place.userRatingCount ?? null;
-        const reviewTexts: ReviewText[] = [];
-
-        if (place.id) {
-          try {
-            const detailRes = await fetch(`https://places.googleapis.com/v1/places/${place.id}`, {
-              method: 'GET',
-              headers: {
-                'X-Goog-Api-Key': apiKey,
-                'X-Goog-FieldMask': 'reviews',
-              },
-            });
-            const detailData = await detailRes.json();
-            if (detailData.reviews) {
-              for (const r of detailData.reviews.slice(0, 3)) {
-                reviewTexts.push({
-                  source: 'google',
-                  author_name: r.authorAttribution?.displayName || null,
-                  rating: r.rating ?? null,
-                  text: r.text?.text || null,
-                  relative_time: r.relativePublishTimeDescription || null,
-                  language: r.text?.languageCode || null,
-                });
-              }
-            }
-          } catch (_) { /* ignore detail errors */ }
-        }
-
-        return { rating, count, reviews: reviewTexts };
+// Fetch reviews from a Place ID
+async function fetchReviewsFromPlaceId(placeId: string, apiKey: string): Promise<ReviewText[]> {
+  const reviewTexts: ReviewText[] = [];
+  try {
+    const detailRes = await fetch(`https://places.googleapis.com/v1/places/${placeId}`, {
+      method: 'GET',
+      headers: { 'X-Goog-Api-Key': apiKey, 'X-Goog-FieldMask': 'reviews' },
+    });
+    const detailData = await detailRes.json();
+    if (detailData.reviews) {
+      for (const r of detailData.reviews.slice(0, 3)) {
+        reviewTexts.push({
+          source: 'google',
+          author_name: r.authorAttribution?.displayName || null,
+          rating: r.rating ?? null,
+          text: r.text?.text || null,
+          relative_time: r.relativePublishTimeDescription || null,
+          language: r.text?.languageCode || null,
+        });
       }
     }
   } catch (_) { /* ignore */ }
+  return reviewTexts;
+}
+
+// Search Google Places
+async function searchGooglePlace(query: string, coords: { lat: number; lng: number } | null, radius: number, apiKey: string): Promise<{ id: string; rating: number | null; count: number | null } | null> {
+  const requestBody: Record<string, any> = { textQuery: query };
+  if (coords) {
+    requestBody.locationBias = {
+      circle: { center: { latitude: coords.lat, longitude: coords.lng }, radius },
+    };
+  }
+  const searchRes = await fetch('https://places.googleapis.com/v1/places:searchText', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Goog-Api-Key': apiKey,
+      'X-Goog-FieldMask': 'places.id,places.rating,places.userRatingCount,places.displayName',
+    },
+    body: JSON.stringify(requestBody),
+  });
+  const searchData = await searchRes.json();
+  if (searchData.places && searchData.places.length > 0) {
+    const place = searchData.places[0];
+    return { id: place.id, rating: place.rating ?? null, count: place.userRatingCount ?? null };
+  }
+  return null;
+}
+
+// Main: URL place name + exact coords (50m) → DB name + exact coords (100m) → fallback (500m)
+async function fetchGoogleForBusiness(name: string, city: string, googleMapsUrl: string | null, apiKey: string): Promise<{ rating: number | null; count: number | null; reviews: ReviewText[] }> {
+  const exactCoords = extractExactCoordsFromGoogleUrl(googleMapsUrl);
+  const urlPlaceName = extractPlaceNameFromGoogleUrl(googleMapsUrl);
+
+  if (urlPlaceName && exactCoords) {
+    const place = await searchGooglePlace(urlPlaceName, exactCoords, 50.0, apiKey);
+    if (place) {
+      const reviews = await fetchReviewsFromPlaceId(place.id, apiKey);
+      return { rating: place.rating, count: place.count, reviews };
+    }
+  }
+
+  if (exactCoords) {
+    const place = await searchGooglePlace(`${name} ${city}`, exactCoords, 100.0, apiKey);
+    if (place) {
+      const reviews = await fetchReviewsFromPlaceId(place.id, apiKey);
+      return { rating: place.rating, count: place.count, reviews };
+    }
+  }
+
+  const queries = [`${name} ${city}`, `${name.replace(/\s+by\s+.*/i, '').trim()} ${city}`];
+  for (const q of queries) {
+    const place = await searchGooglePlace(q, exactCoords, 500.0, apiKey);
+    if (place) {
+      const reviews = await fetchReviewsFromPlaceId(place.id, apiKey);
+      return { rating: place.rating, count: place.count, reviews };
+    }
+  }
+
   return { rating: null, count: null, reviews: [] };
 }
 

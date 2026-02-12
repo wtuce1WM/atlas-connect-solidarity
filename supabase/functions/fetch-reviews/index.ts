@@ -23,11 +23,20 @@ interface ReviewText {
   language: string | null;
 }
 
-// Extract lat/lng from a Google Maps URL
-function extractCoordsFromGoogleUrl(url: string | null): { lat: number; lng: number } | null {
+// Extract the exact place coordinates from Google Maps URL (!3d lat !4d lng)
+// These are the pin coordinates, not the map center (@lat,lng which is viewport)
+function extractExactCoordsFromGoogleUrl(url: string | null): { lat: number; lng: number } | null {
   if (!url) return null;
   try {
-    // Match @lat,lng pattern (most common in Google Maps URLs)
+    // !3d = latitude, !4d = longitude (exact place position)
+    const latMatch = url.match(/!3d(-?\d+\.?\d*)/);
+    const lngMatch = url.match(/!4d(-?\d+\.?\d*)/);
+    if (latMatch && lngMatch) {
+      const lat = parseFloat(latMatch[1]);
+      const lng = parseFloat(lngMatch[1]);
+      if (!isNaN(lat) && !isNaN(lng)) return { lat, lng };
+    }
+    // Fallback to @lat,lng (map center)
     const match = url.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
     if (match) {
       const lat = parseFloat(match[1]);
@@ -38,7 +47,95 @@ function extractCoordsFromGoogleUrl(url: string | null): { lat: number; lng: num
   return null;
 }
 
-// Google Places API (New) - fetch rating + top 3 review texts
+// Extract place name from the Google Maps URL path
+function extractPlaceNameFromGoogleUrl(url: string | null): string | null {
+  if (!url) return null;
+  try {
+    // Match /place/Name+Here/ pattern
+    const match = url.match(/\/place\/([^/@]+)/);
+    if (match) {
+      return decodeURIComponent(match[1].replace(/\+/g, ' '));
+    }
+  } catch (_) { /* ignore */ }
+  return null;
+}
+
+// Fetch reviews from a Place ID
+async function fetchReviewsFromPlaceId(placeId: string, apiKey: string): Promise<ReviewText[]> {
+  const reviewTexts: ReviewText[] = [];
+  try {
+    const detailRes = await fetch(`https://places.googleapis.com/v1/places/${placeId}`, {
+      method: 'GET',
+      headers: {
+        'X-Goog-Api-Key': apiKey,
+        'X-Goog-FieldMask': 'reviews',
+      },
+    });
+    const detailData = await detailRes.json();
+    if (detailData.reviews) {
+      for (const r of detailData.reviews.slice(0, 3)) {
+        reviewTexts.push({
+          source: 'google',
+          author_name: r.authorAttribution?.displayName || null,
+          rating: r.rating ?? null,
+          text: r.text?.text || null,
+          relative_time: r.relativePublishTimeDescription || null,
+          language: r.text?.languageCode || null,
+        });
+      }
+    }
+  } catch (_) { /* ignore */ }
+  return reviewTexts;
+}
+
+// Search Google Places with a text query and optional location restriction
+// useRestriction=true forces results within the area (vs bias which is just a preference)
+async function searchGooglePlace(query: string, coords: { lat: number; lng: number } | null, radius: number, apiKey: string, useRestriction = false): Promise<{ id: string; rating: number | null; count: number | null; displayName: string } | null> {
+  const requestBody: Record<string, any> = { textQuery: query };
+  if (coords) {
+    if (useRestriction) {
+      // Convert radius to approximate lat/lng delta (1 degree ≈ 111km)
+      const delta = radius / 111000;
+      requestBody.locationRestriction = {
+        rectangle: {
+          low: { latitude: coords.lat - delta, longitude: coords.lng - delta },
+          high: { latitude: coords.lat + delta, longitude: coords.lng + delta },
+        },
+      };
+    } else {
+      requestBody.locationBias = {
+        circle: {
+          center: { latitude: coords.lat, longitude: coords.lng },
+          radius,
+        },
+      };
+    }
+  }
+
+  const searchRes = await fetch('https://places.googleapis.com/v1/places:searchText', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Goog-Api-Key': apiKey,
+      'X-Goog-FieldMask': 'places.id,places.rating,places.userRatingCount,places.displayName',
+    },
+    body: JSON.stringify(requestBody),
+  });
+  const searchData = await searchRes.json();
+
+  if (searchData.places && searchData.places.length > 0) {
+    const place = searchData.places[0];
+    return {
+      id: place.id,
+      rating: place.rating ?? null,
+      count: place.userRatingCount ?? null,
+      displayName: place.displayName?.text || '?',
+    };
+  }
+  return null;
+}
+
+// Main Google reviews function
 async function fetchGoogleReviews(businessName: string, city: string, googleMapsUrl: string | null): Promise<{ rating: number | null; count: number | null; reviews: ReviewText[] }> {
   const apiKey = Deno.env.get('GOOGLE_MAPS_API_KEY');
   if (!apiKey) {
@@ -46,86 +143,54 @@ async function fetchGoogleReviews(businessName: string, city: string, googleMaps
     return { rating: null, count: null, reviews: [] };
   }
 
-  try {
-    const coords = extractCoordsFromGoogleUrl(googleMapsUrl);
-    const simplifiedName = businessName.replace(/\s+by\s+.*/i, '').trim();
-    const queries = [
-      `${businessName} ${city}`,
-      `${simplifiedName} ${city}`,
-    ];
+  const exactCoords = extractExactCoordsFromGoogleUrl(googleMapsUrl);
+  const urlPlaceName = extractPlaceNameFromGoogleUrl(googleMapsUrl);
 
-    for (const q of queries) {
-      console.log(`Google Text Search (New): "${q}"${coords ? ` with locationBias @${coords.lat},${coords.lng}` : ''}`);
-      
-      const requestBody: Record<string, any> = { textQuery: q };
-      
-      // Add locationBias if we have coordinates from the Google Maps URL
-      if (coords) {
-        requestBody.locationBias = {
-          circle: {
-            center: { latitude: coords.lat, longitude: coords.lng },
-            radius: 500.0, // 500m radius to strongly prefer the exact location
-          },
-        };
-      }
-      
-      const searchRes = await fetch('https://places.googleapis.com/v1/places:searchText', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Goog-Api-Key': apiKey,
-          'X-Goog-FieldMask': 'places.id,places.rating,places.userRatingCount,places.displayName',
-        },
-        body: JSON.stringify(requestBody),
-      });
-      const searchData = await searchRes.json();
-
-      if (searchData.places && searchData.places.length > 0) {
-        const place = searchData.places[0];
-        console.log(`Found: "${place.displayName?.text}" - rating=${place.rating}, count=${place.userRatingCount}`);
-        
-        const rating = place.rating ?? null;
-        const count = place.userRatingCount ?? null;
-        const reviewTexts: ReviewText[] = [];
-
-        if (place.id) {
-          try {
-            const detailRes = await fetch(`https://places.googleapis.com/v1/places/${place.id}`, {
-              method: 'GET',
-              headers: {
-                'X-Goog-Api-Key': apiKey,
-                'X-Goog-FieldMask': 'reviews',
-              },
-            });
-            const detailData = await detailRes.json();
-            
-            if (detailData.reviews && detailData.reviews.length > 0) {
-              const topReviews = detailData.reviews.slice(0, 3);
-              for (const r of topReviews) {
-                reviewTexts.push({
-                  source: 'google',
-                  author_name: r.authorAttribution?.displayName || null,
-                  rating: r.rating ?? null,
-                  text: r.text?.text || null,
-                  relative_time: r.relativePublishTimeDescription || null,
-                  language: r.text?.languageCode || null,
-                });
-              }
-              console.log(`Got ${reviewTexts.length} Google review texts`);
-            }
-          } catch (e) {
-            console.error('Error fetching place details for reviews:', e);
-          }
-        }
-
-        return { rating, count, reviews: reviewTexts };
-      }
+  // Strategy 1: Use the place name from URL + city + exact pin coordinates with locationRestriction (200m)
+  if (urlPlaceName && exactCoords) {
+    console.log(`Strategy 1: URL place name "${urlPlaceName} ${city}" with restriction @${exactCoords.lat},${exactCoords.lng} (200m)`);
+    const place = await searchGooglePlace(`${urlPlaceName} ${city}`, exactCoords, 200.0, apiKey, true);
+    if (place) {
+      console.log(`Found: "${place.displayName}" - rating=${place.rating}, count=${place.count}`);
+      const reviews = await fetchReviewsFromPlaceId(place.id, apiKey);
+      if (reviews.length > 0) console.log(`Got ${reviews.length} Google review texts`);
+      return { rating: place.rating, count: place.count, reviews };
     }
-
-    console.log(`No Google Place found for: ${businessName} ${city}`);
-  } catch (e) {
-    console.error('Google Places API error:', e);
+    console.log('Strategy 1 failed, trying strategy 2');
   }
+
+  // Strategy 2: Use business name from DB + exact coordinates with 100m radius
+  if (exactCoords) {
+    console.log(`Strategy 2: DB name "${businessName}" with exact coords @${exactCoords.lat},${exactCoords.lng} (100m radius)`);
+    const place = await searchGooglePlace(`${businessName} ${city}`, exactCoords, 100.0, apiKey);
+    if (place) {
+      console.log(`Found: "${place.displayName}" - rating=${place.rating}, count=${place.count}`);
+      const reviews = await fetchReviewsFromPlaceId(place.id, apiKey);
+      if (reviews.length > 0) console.log(`Got ${reviews.length} Google review texts`);
+      return { rating: place.rating, count: place.count, reviews };
+    }
+    console.log('Strategy 2 failed, trying strategy 3');
+  }
+
+  // Strategy 3: Wider search as last resort
+  const simplifiedName = businessName.replace(/\s+by\s+.*/i, '').trim();
+  const queries = [
+    `${businessName} ${city}`,
+    `${simplifiedName} ${city}`,
+  ];
+
+  for (const q of queries) {
+    console.log(`Strategy 3 [Fallback]: "${q}"`);
+    const place = await searchGooglePlace(q, exactCoords, 500.0, apiKey);
+    if (place) {
+      console.log(`[Fallback] Found: "${place.displayName}" - rating=${place.rating}, count=${place.count}`);
+      const reviews = await fetchReviewsFromPlaceId(place.id, apiKey);
+      if (reviews.length > 0) console.log(`[Fallback] Got ${reviews.length} Google review texts`);
+      return { rating: place.rating, count: place.count, reviews };
+    }
+  }
+
+  console.log(`No Google Place found for: ${businessName} ${city}`);
   return { rating: null, count: null, reviews: [] };
 }
 
@@ -181,13 +246,11 @@ async function fetchTripAdvisorReviews(url: string): Promise<{ rating: number | 
 // Firecrawl scraping for Restaurant Guru
 async function fetchRestaurantGuruReviews(url: string): Promise<{ rating: number | null; count: number | null }> {
   if (!url.includes('restaurantguru.com')) {
-    console.log(`Skipping non-Restaurant Guru URL: ${url}`);
     return { rating: null, count: null };
   }
 
   const apiKey = Deno.env.get('FIRECRAWL_API_KEY');
   if (!apiKey) {
-    console.error('FIRECRAWL_API_KEY not configured');
     return { rating: null, count: null };
   }
 
@@ -300,7 +363,6 @@ Deno.serve(async (req) => {
 
     console.log('Results:', JSON.stringify(results));
 
-    // Update business ratings
     const updateData: Record<string, any> = {};
     if (results.google_rating != null) updateData.google_rating = results.google_rating;
     if (results.google_review_count != null) updateData.google_review_count = results.google_review_count;
@@ -314,34 +376,21 @@ Deno.serve(async (req) => {
         .from('businesses')
         .update(updateData)
         .eq('id', business_id);
-
-      if (updateError) {
-        console.error('Error updating business:', updateError);
-      }
+      if (updateError) console.error('Error updating business:', updateError);
     }
 
-    // Save review texts
     if (googleReviewTexts.length > 0) {
       await supabase.from('reviews').delete().eq('business_id', business_id);
       const reviewRows = googleReviewTexts
         .filter(r => r.text)
         .map(r => ({
-          business_id,
-          source: r.source,
-          author_name: r.author_name,
-          rating: r.rating,
-          text: r.text,
-          relative_time: r.relative_time,
-          language: r.language,
+          business_id, source: r.source, author_name: r.author_name,
+          rating: r.rating, text: r.text, relative_time: r.relative_time, language: r.language,
         }));
-
       if (reviewRows.length > 0) {
         const { error: insertError } = await supabase.from('reviews').insert(reviewRows);
-        if (insertError) {
-          console.error('Error inserting reviews:', insertError);
-        } else {
-          console.log(`Saved ${reviewRows.length} review texts`);
-        }
+        if (insertError) console.error('Error inserting reviews:', insertError);
+        else console.log(`Saved ${reviewRows.length} review texts`);
       }
     }
 
