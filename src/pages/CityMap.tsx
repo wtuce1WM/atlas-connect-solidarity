@@ -368,10 +368,10 @@ const CityMap = () => {
 
         {/* Map + Business list - Full width */}
         <div className="space-y-6">
-          <Card className="relative">
-            <CardContent className="p-0">
-              {/* Selected business indicator */}
-              {selectedBusiness && (
+          {selectedBusiness ? (
+            <Card className="relative">
+              <CardContent className="p-0">
+                {/* Selected business indicator */}
                 <div className="absolute top-2 right-2 z-10 bg-white text-black px-4 py-3 rounded shadow-lg max-w-xs">
                   <div className="flex items-start justify-between gap-2 mb-2">
                     <span className="text-sm font-bold">{selectedBusiness.name}</span>
@@ -434,17 +434,17 @@ const CityMap = () => {
                     )}
                   </div>
                 </div>
-              )}
-              <iframe
-                src={getMapEmbedUrl()}
-                className="w-full h-[500px] border-0 rounded-lg ring-[5px] ring-gold"
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                title={selectedBusiness ? `Localisation de ${selectedBusiness.name}` : `Carte des entreprises à ${decodedCity}`}
-              />
-            </CardContent>
-          </Card>
+                <iframe
+                  src={getMapEmbedUrl()}
+                  className="w-full h-[500px] border-0 rounded-lg ring-[5px] ring-gold"
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title={`Localisation de ${selectedBusiness.name}`}
+                />
+              </CardContent>
+            </Card>
+          ) : null}
 
           {/* Filters + Business list */}
           <div className="space-y-4">
