@@ -78,6 +78,7 @@ const CityMap = () => {
   const [selectedActivities, setSelectedActivities] = useState<string[]>([]);
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
   const [gammes, setGammes] = useState<Gamme[]>([]);
+  const [selectedGamme, setSelectedGamme] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
 
   const ITEMS_PER_PAGE = 20;
@@ -142,6 +143,9 @@ const CityMap = () => {
     if (selectedSubcategory) {
       result = result.filter((b) => b.categories?.includes(selectedSubcategory));
     }
+    if (selectedGamme) {
+      result = result.filter((b) => b.gamme_id === selectedGamme);
+    }
     if (selectedActivities.length > 0) {
       result = result.filter((business) =>
         selectedActivities.some((activity) => business.services?.includes(activity))
@@ -149,7 +153,7 @@ const CityMap = () => {
     }
     
     return result;
-  }, [businesses, selectedCategory, selectedSubcategory, selectedActivities]);
+  }, [businesses, selectedCategory, selectedSubcategory, selectedGamme, selectedActivities]);
 
   // Pagination
   const totalPages = Math.ceil(filteredBusinesses.length / ITEMS_PER_PAGE);
@@ -164,7 +168,7 @@ const CityMap = () => {
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedCategory, selectedSubcategory, selectedActivities]);
+  }, [selectedCategory, selectedSubcategory, selectedGamme, selectedActivities]);
 
   const goToPage = (page: number) => {
     setCurrentPage(page);
@@ -182,6 +186,7 @@ const CityMap = () => {
   const clearAllFilters = () => {
     setSelectedCategory("");
     setSelectedSubcategory("");
+    setSelectedGamme("");
     setSelectedActivities([]);
   };
 
@@ -488,10 +493,31 @@ const CityMap = () => {
                     </Select>
                   </div>
                 )}
+
+                {/* Standing (Gamme) Filter */}
+                <div className="flex-1 min-w-[140px]">
+                  <label className="text-sm font-medium text-white mb-1.5 block">Standing</label>
+                  <Select value={selectedGamme || "all"} onValueChange={(v) => setSelectedGamme(v === "all" ? "" : v)}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Tous" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Tous les standings</SelectItem>
+                      {gammes.map((gamme) => (
+                        <SelectItem key={gamme.id} value={gamme.id}>
+                          <span className="flex items-center gap-2">
+                            <span className="w-3 h-3 rounded-full border border-black/20 inline-block" style={{ backgroundColor: gamme.color_hex || '#000' }} />
+                            {gamme.name_fr}
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
               {/* Clear All Button */}
-              {(selectedCategory || selectedSubcategory || selectedActivities.length > 0) && (
+              {(selectedCategory || selectedSubcategory || selectedGamme || selectedActivities.length > 0) && (
                 <button
                   onClick={clearAllFilters}
                   className="text-sm text-gray-400 hover:text-gray-200 flex items-center gap-1"
