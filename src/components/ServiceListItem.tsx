@@ -27,17 +27,23 @@ const ServiceListItem = ({ service, currentBusinessId, city }: ServiceListItemPr
           .from("services")
           .select("icon, subcategories(icon)")
           .eq("name_fr", service)
-          .limit(1)
-          .maybeSingle(),
+          .order("icon", { ascending: false, nullsFirst: false })
+          .limit(5),
       ]);
 
       if (!countRes.error && countRes.count !== null) {
         setOtherCount(countRes.count);
       }
-      if (!iconRes.error && iconRes.data) {
-        const svcIcon = iconRes.data.icon;
-        const subIcon = (iconRes.data as any).subcategories?.icon;
-        setIconName(svcIcon || subIcon || null);
+      if (!iconRes.error && iconRes.data && iconRes.data.length > 0) {
+        let foundIcon: string | null = null;
+        let fallbackSubIcon: string | null = null;
+        for (const row of iconRes.data) {
+          if (row.icon) { foundIcon = row.icon; break; }
+          if (!fallbackSubIcon) {
+            fallbackSubIcon = (row as any).subcategories?.icon || null;
+          }
+        }
+        setIconName(foundIcon || fallbackSubIcon);
       }
     };
 
