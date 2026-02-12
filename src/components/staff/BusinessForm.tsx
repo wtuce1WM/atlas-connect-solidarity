@@ -792,8 +792,8 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
           <div className="space-y-2">
             <Label htmlFor="gamme_id">Gamme</Label>
             <Select
-              value={formData.gamme_id}
-              onValueChange={(value) => handleChange("gamme_id", value)}
+              value={formData.gamme_id || "__none__"}
+              onValueChange={(value) => handleChange("gamme_id", value === "__none__" ? "" : value)}
               disabled={availableGammes.length === 0}
             >
               <SelectTrigger>
@@ -806,6 +806,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                 } />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="__none__">— Aucune —</SelectItem>
                 {availableGammes.map((gamme) => (
                   <SelectItem key={gamme.id} value={gamme.id}>
                     {gamme.name_fr}
@@ -818,13 +819,14 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
           <div className="space-y-2">
             <Label htmlFor="account_type">Type de compte</Label>
             <Select
-              value={formData.account_type}
-              onValueChange={(value) => handleChange("account_type", value)}
+              value={formData.account_type || "__none__"}
+              onValueChange={(value) => handleChange("account_type", value === "__none__" ? "" : value)}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Sélectionner..." />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="__none__">— Aucun —</SelectItem>
                 <SelectItem value="petite_structure">Petite Structure</SelectItem>
                 <SelectItem value="structure_moyenne">Structure Moyenne</SelectItem>
                 <SelectItem value="grande_structure">Grande Structure</SelectItem>
@@ -837,13 +839,14 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
           <div className="space-y-2">
             <Label htmlFor="zone_chalandise">Zone de chalandise</Label>
             <Select
-              value={(formData as any).zone_chalandise}
-              onValueChange={(value) => handleChange("zone_chalandise", value)}
+              value={(formData as any).zone_chalandise || "__none__"}
+              onValueChange={(value) => handleChange("zone_chalandise", value === "__none__" ? "" : value)}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Sélectionner..." />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="__none__">— Aucune —</SelectItem>
                 <SelectItem value="locale">Locale</SelectItem>
                 <SelectItem value="regionale">Régionale</SelectItem>
                 <SelectItem value="nationale">Nationale</SelectItem>
