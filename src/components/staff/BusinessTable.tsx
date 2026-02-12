@@ -44,6 +44,8 @@ interface BusinessTableProps {
 const BusinessTable = ({ businesses, gammes, loading, onEdit, onDelete, onDuplicate }: BusinessTableProps) => {
   const [duplicateDialogOpen, setDuplicateDialogOpen] = useState(false);
   const [businessToDuplicate, setBusinessToDuplicate] = useState<Business | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [businessToDelete, setBusinessToDelete] = useState<Business | null>(null);
   const { brokenFilesMap } = useBusinessBrokenFiles(businesses);
 
   const handleDuplicateClick = (business: Business) => {
@@ -276,7 +278,10 @@ const BusinessTable = ({ businesses, gammes, loading, onEdit, onDelete, onDuplic
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => onDelete(business.id)}
+                      onClick={() => {
+                        setBusinessToDelete(business);
+                        setDeleteDialogOpen(true);
+                      }}
                       className="border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700"
                       title="Supprimer"
                     >
@@ -303,6 +308,32 @@ const BusinessTable = ({ businesses, gammes, loading, onEdit, onDelete, onDuplic
             <AlertDialogCancel>Annuler</AlertDialogCancel>
             <AlertDialogAction onClick={handleConfirmDuplicate}>
               Dupliquer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Supprimer cette entreprise ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Êtes-vous sûr de vouloir supprimer "{businessToDelete?.name}" ? Cette action est irréversible.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-row justify-between sm:justify-between">
+            <AlertDialogCancel className="bg-green-600 text-white hover:bg-green-700 hover:text-white border-none">Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (businessToDelete) {
+                  onDelete(businessToDelete.id);
+                }
+                setDeleteDialogOpen(false);
+                setBusinessToDelete(null);
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Supprimer définitivement
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
