@@ -114,9 +114,6 @@ const StaffBackoffice = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Êtes-vous sûr de vouloir supprimer cette entreprise ?")) {
-      return;
-    }
 
     const { error } = await supabase
       .from("businesses")
