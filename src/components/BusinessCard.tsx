@@ -160,7 +160,7 @@ const BusinessCard = ({
           )}
           {/* Hook overlay - bottom of image */}
           {business.hook_fr && (
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent px-4 py-4 pointer-events-none transition-all duration-300 group-hover:from-black/85 group-hover:via-black/50 group-hover:py-6">
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent px-4 py-4 pointer-events-none transition-all duration-300 group-hover:from-black/95 group-hover:via-black/60 group-hover:py-6">
               <p className="text-white text-lg group-hover:text-xl italic font-['Cormorant_Garamond'] line-clamp-2 group-hover:line-clamp-4 text-center leading-snug transition-all duration-300">
                 {business.hook_fr}
               </p>
