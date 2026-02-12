@@ -211,7 +211,7 @@ const CityMap = () => {
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedCategory, selectedSubcategory, selectedGamme, selectedActivities]);
+  }, [selectedCategory, selectedSubcategory, selectedGamme, selectedActivities, sortByRating]);
 
   const goToPage = (page: number) => {
     setCurrentPage(page);
