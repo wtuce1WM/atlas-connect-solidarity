@@ -494,7 +494,8 @@ const CityMap = () => {
                   </div>
                 )}
 
-                {/* Standing (Gamme) Filter */}
+                {/* Standing (Gamme) Filter - Only show when category is selected */}
+                {selectedCategory && (
                 <div className="flex-1 min-w-[140px]">
                   <label className="text-sm font-medium text-white mb-1.5 block">Standing</label>
                   <Select value={selectedGamme || "all"} onValueChange={(v) => setSelectedGamme(v === "all" ? "" : v)}>
@@ -514,6 +515,7 @@ const CityMap = () => {
                     </SelectContent>
                   </Select>
                 </div>
+                )}
               </div>
 
               {/* Clear All Button */}
