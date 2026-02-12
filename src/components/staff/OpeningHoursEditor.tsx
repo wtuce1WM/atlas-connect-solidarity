@@ -7,6 +7,7 @@ export interface DayHours {
   open: string;
   close: string;
   closed: boolean;
+  continuous?: boolean;
 }
 
 export interface OpeningHours {
@@ -79,17 +80,18 @@ const OpeningHoursEditor = ({ value, onChange }: OpeningHoursEditorProps) => {
       </div>
 
       <div className="border rounded-lg overflow-hidden">
-        <div className="grid grid-cols-[1fr_auto_auto_auto] gap-2 p-3 bg-muted/50 text-sm font-medium text-muted-foreground border-b">
+        <div className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-2 p-3 bg-muted/50 text-sm font-medium text-muted-foreground border-b">
           <span>Jour</span>
           <span className="w-24 text-center">Ouverture</span>
           <span className="w-24 text-center">Fermeture</span>
+          <span className="w-24 text-center">Continu</span>
           <span className="w-20 text-center">Fermé</span>
         </div>
 
         {(Object.keys(DAYS_FR) as (keyof OpeningHours)[]).map((day) => (
           <div
             key={day}
-            className="grid grid-cols-[1fr_auto_auto_auto] gap-2 p-3 items-center border-b last:border-b-0 hover:bg-muted/30 transition-colors"
+            className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-2 p-3 items-center border-b last:border-b-0 hover:bg-muted/30 transition-colors"
           >
             <div className="flex items-center gap-2">
               <span className="font-medium">{DAYS_FR[day]}</span>
@@ -118,6 +120,16 @@ const OpeningHoursEditor = ({ value, onChange }: OpeningHoursEditorProps) => {
               disabled={hours[day].closed}
               className="w-24 h-8 text-sm"
             />
+
+            <div className="w-24 flex justify-center">
+              <Checkbox
+                checked={!!hours[day].continuous}
+                onCheckedChange={(checked) =>
+                  handleDayChange(day, "continuous", !!checked)
+                }
+                disabled={hours[day].closed}
+              />
+            </div>
 
             <div className="w-20 flex justify-center">
               <Checkbox

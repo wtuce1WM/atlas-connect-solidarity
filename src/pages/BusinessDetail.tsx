@@ -23,6 +23,7 @@ interface OpeningHour {
   open: string;
   close: string;
   closed: boolean;
+  continuous?: boolean;
 }
 
 interface OpeningHours {
@@ -710,7 +711,7 @@ const BusinessDetail = () => {
                             <div key={day} className={`flex justify-between text-sm ${isVerified ? 'text-white/80' : ''}`}>
                               <span className="font-medium">{dayNames[day]}</span>
                               <span className={isVerified ? 'text-white/60' : 'text-muted-foreground'}>
-                                {dh.closed ? "Fermé" : dh.open && dh.close ? `${dh.open} - ${dh.close}` : "—"}
+                                {dh.closed ? "Fermé" : dh.open && dh.close ? `${dh.open} - ${dh.close}${dh.continuous ? ' (continu)' : ''}` : "—"}
                               </span>
                             </div>
                           );
