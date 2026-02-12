@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect, useCallback } from "react";
 import {
   Building2,
   Eye,
@@ -28,11 +28,16 @@ import {
   Loader2,
   Download,
   Link2Off,
+  StickyNote,
+  Save,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 import type { Tables } from "@/integrations/supabase/types";
+import RichTextEditor from "./RichTextEditor";
 
 type Business = Tables<"businesses">;
 
@@ -460,6 +465,9 @@ const StaffDashboard = ({ businesses, onNavigateTab, onNewBusiness, onEditBusine
           </CardContent>
         </Card>
       </div>
+
+      {/* Internal Notes */}
+      <InternalNotesSection />
     </div>
   );
 };
@@ -532,6 +540,78 @@ function AlertRow({
         </div>
       )}
     </div>
+  );
+}
+
+function InternalNotesSection() {
+  const [content, setContent] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const MAX_CHARS = 10000;
+
+  useEffect(() => {
+    const load = async () => {
+      const { data } = await supabase
+        .from("staff_notes")
+        .select("content")
+        .eq("key", "dashboard_internal_note")
+        .single();
+      if (data) setContent(data.content || "");
+      setIsLoaded(true);
+    };
+    load();
+  }, []);
+
+  const handleSave = useCallback(async () => {
+    setIsSaving(true);
+    const { error } = await supabase
+      .from("staff_notes")
+      .update({ content, updated_at: new Date().toISOString() })
+      .eq("key", "dashboard_internal_note");
+    setIsSaving(false);
+    if (error) {
+      toast({ title: "Erreur", description: "Impossible de sauvegarder la note.", variant: "destructive" });
+    } else {
+      toast({ title: "Sauvegardé", description: "Note interne mise à jour." });
+    }
+  }, [content]);
+
+  const charCount = content.replace(/<[^>]*>/g, "").length;
+
+  if (!isLoaded) return null;
+
+  return (
+    <Card className="bg-amber-50/50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800">
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <StickyNote className="h-5 w-5 text-amber-600" />
+            Note interne
+          </CardTitle>
+          <div className="flex items-center gap-3">
+            <span className={`text-xs ${charCount > MAX_CHARS ? "text-destructive font-bold" : "text-muted-foreground"}`}>
+              {charCount} / {MAX_CHARS}
+            </span>
+            <Button
+              size="sm"
+              onClick={handleSave}
+              disabled={isSaving || charCount > MAX_CHARS}
+            >
+              {isSaving ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Save className="h-4 w-4 mr-1" />}
+              Sauvegarder
+            </Button>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <RichTextEditor
+          content={content}
+          onChange={setContent}
+          placeholder="Notes internes du tableau de bord..."
+          maxHeight="400px"
+        />
+      </CardContent>
+    </Card>
   );
 }
 

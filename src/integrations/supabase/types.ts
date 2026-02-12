@@ -923,6 +923,27 @@ export type Database = {
         }
         Relationships: []
       }
+      staff_notes: {
+        Row: {
+          content: string | null
+          id: string
+          key: string
+          updated_at: string
+        }
+        Insert: {
+          content?: string | null
+          id?: string
+          key: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string | null
+          id?: string
+          key?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       subcategories: {
         Row: {
           adj_ar: string | null
