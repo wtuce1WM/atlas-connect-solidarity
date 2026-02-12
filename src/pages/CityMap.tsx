@@ -355,10 +355,10 @@ const CityMap = () => {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white flex items-center gap-3">
             <MapPin className="h-8 w-8 text-gold" />
-            Entreprises à {decodedCity}
+            Établissements à {decodedCity}
           </h1>
           <p className="text-white/80 mt-2">
-            {businesses.length} entreprise{businesses.length > 1 ? "s" : ""} dans l'annuaire WTUCE
+            {businesses.length} établissement{businesses.length > 1 ? "s" : ""} dans l'annuaire WTUCE
           </p>
         </div>
 
@@ -563,8 +563,8 @@ const CityMap = () => {
             {filteredBusinesses.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 {selectedActivities.length > 0
-                  ? "Aucune entreprise pour ces activités"
-                  : `Aucune entreprise trouvée à ${decodedCity}`}
+                  ? "Aucun établissement pour ces activités"
+                  : `Aucun établissement trouvé à ${decodedCity}`}
               </div>
             ) : (
               <>
