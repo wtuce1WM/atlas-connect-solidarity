@@ -15,6 +15,7 @@ export interface BusinessCardData {
   skype: string | null;
   neighborhood?: string | null;
   logo_url: string | null;
+  hook_fr?: string | null;
   images: string[] | null;
   categories: string[] | null;
   wtuce_status: string | null;
@@ -128,6 +129,14 @@ const BusinessCard = ({
               alt="" 
               className="absolute top-2 right-2 w-10 h-10 object-contain opacity-90 pointer-events-none"
             />
+          )}
+          {/* Hook overlay - bottom of image */}
+          {business.hook_fr && (
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent px-3 py-2 pointer-events-none">
+              <p className="text-white text-xs italic font-['Cormorant_Garamond'] line-clamp-2 text-center leading-tight">
+                {business.hook_fr}
+              </p>
+            </div>
           )}
         </div>
         
