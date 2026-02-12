@@ -348,6 +348,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
     tripadvisor_url: (business as any)?.tripadvisor_url || "",
     booking_url: (business as any)?.booking_url || "",
     account_type: (business as any)?.account_type || "",
+    zone_chalandise: (business as any)?.zone_chalandise || "",
     internal_notes: (business as any)?.internal_notes || "",
     video_1_url: (business as any)?.video_1_url || "",
     google_maps_url: (business as any)?.google_maps_url || "",
@@ -508,6 +509,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
       tripadvisor_url: formData.tripadvisor_url || null,
       booking_url: formData.booking_url || null,
       account_type: formData.account_type || null,
+      zone_chalandise: (formData as any).zone_chalandise || null,
       internal_notes: formData.internal_notes ? formData.internal_notes.slice(0, 5000) : null,
       video_1_url: formData.video_1_url || null,
       google_maps_url: formData.google_maps_url || null,
@@ -828,6 +830,24 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                 <SelectItem value="grande_structure">Grande Structure</SelectItem>
                 <SelectItem value="corporate_branding">Corporate & Branding</SelectItem>
                 <SelectItem value="institution">Institution</SelectItem>
+              </SelectContent>
+           </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="zone_chalandise">Zone de chalandise</Label>
+            <Select
+              value={(formData as any).zone_chalandise}
+              onValueChange={(value) => handleChange("zone_chalandise", value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Sélectionner..." />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="locale">Locale</SelectItem>
+                <SelectItem value="regionale">Régionale</SelectItem>
+                <SelectItem value="nationale">Nationale</SelectItem>
+                <SelectItem value="internationale">Internationale</SelectItem>
               </SelectContent>
             </Select>
           </div>

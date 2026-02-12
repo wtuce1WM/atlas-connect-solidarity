@@ -244,6 +244,7 @@ export type Database = {
           whatsapp: string | null
           wtuce_status: Database["public"]["Enums"]["wtuce_status"] | null
           youtube_url: string | null
+          zone_chalandise: string | null
         }
         Insert: {
           account_type?: string | null
@@ -322,6 +323,7 @@ export type Database = {
           whatsapp?: string | null
           wtuce_status?: Database["public"]["Enums"]["wtuce_status"] | null
           youtube_url?: string | null
+          zone_chalandise?: string | null
         }
         Update: {
           account_type?: string | null
@@ -400,6 +402,7 @@ export type Database = {
           whatsapp?: string | null
           wtuce_status?: Database["public"]["Enums"]["wtuce_status"] | null
           youtube_url?: string | null
+          zone_chalandise?: string | null
         }
         Relationships: [
           {
