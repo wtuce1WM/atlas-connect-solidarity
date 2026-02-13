@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams, Link, useSearchParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Loader2, MapPin, X, ExternalLink, BookOpen, Phone, ChevronLeft, ChevronRight, Clock, ArrowUpDown, ArrowDown, ArrowUp } from "lucide-react";
+import { ArrowLeft, Loader2, MapPin, X, ExternalLink, BookOpen, Phone, ChevronLeft, ChevronRight, Clock, ArrowUpDown, ArrowDown, ArrowUp, Navigation } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
@@ -510,6 +510,19 @@ const CityMap = () => {
                         )}
                       </div>
                     )}
+                    <a
+                      href={`https://www.google.com/maps/dir/?api=1&destination=${
+                        selectedBusiness.latitude && selectedBusiness.longitude
+                          ? `${selectedBusiness.latitude},${selectedBusiness.longitude}`
+                          : encodeURIComponent(`${selectedBusiness.name}, ${selectedBusiness.address || selectedBusiness.city}`)
+                      }`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 mt-2 pt-2 border-t border-gray-200 text-primary font-bold hover:text-primary/80 transition-colors"
+                    >
+                      <Navigation className="h-3 w-3 flex-shrink-0" />
+                      Itinéraire
+                    </a>
                   </div>
                 </div>
                 <div className="overflow-hidden rounded-lg">
