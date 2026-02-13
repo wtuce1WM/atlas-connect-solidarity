@@ -398,7 +398,7 @@ const CategoryPage = () => {
 
       {/* Animated Business Strip */}
       <AnimatedBusinessStrip
-        title={language === "fr" ? "12 adresses à découvrir" : language === "ar" ? "12 عنوانًا للاكتشاف" : "12 addresses to discover"}
+        title={language === "fr" ? "{count} adresses à découvrir" : language === "ar" ? "{count} عنوانًا للاكتشاف" : "{count} addresses to discover"}
         category={decodedCategoryName}
         showMapLink
       />
