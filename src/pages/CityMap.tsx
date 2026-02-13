@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams, Link, useSearchParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Loader2, MapPin, X, ExternalLink, BookOpen, Phone, ChevronLeft, ChevronRight, Clock, ArrowUpDown, ArrowDown, ArrowUp, Navigation } from "lucide-react";
+import { ArrowLeft, Loader2, MapPin, X, ExternalLink, BookOpen, Phone, ChevronLeft, ChevronRight, Clock, ArrowUpDown, ArrowDown, ArrowUp, Navigation, Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
@@ -451,6 +451,27 @@ const CityMap = () => {
                       <X className="h-4 w-4" />
                     </button>
                   </div>
+                  {/* Rating */}
+                  {(() => {
+                    const sources: { rating: number; count: number }[] = [];
+                    if (selectedBusiness.google_rating && selectedBusiness.google_review_count)
+                      sources.push({ rating: selectedBusiness.google_rating * 4, count: selectedBusiness.google_review_count });
+                    if (selectedBusiness.tripadvisor_rating && selectedBusiness.tripadvisor_review_count)
+                      sources.push({ rating: selectedBusiness.tripadvisor_rating * 4, count: selectedBusiness.tripadvisor_review_count });
+                    if (selectedBusiness.restaurant_guru_rating && selectedBusiness.restaurant_guru_review_count)
+                      sources.push({ rating: selectedBusiness.restaurant_guru_rating * 4, count: selectedBusiness.restaurant_guru_review_count });
+                    if (sources.length === 0) return null;
+                    const totalCount = sources.reduce((sum, s) => sum + s.count, 0);
+                    const weightedSum = sources.reduce((sum, s) => sum + s.rating * s.count, 0);
+                    const avg = Math.round((weightedSum / totalCount) * 10) / 10;
+                    return (
+                      <div className="flex items-center gap-1 mb-1">
+                        <Star className="h-3 w-3 fill-gold text-gold" />
+                        <span className="text-xs font-bold text-gold">{avg}/20</span>
+                        <span className="text-[10px] text-gray-500">({totalCount} avis)</span>
+                      </div>
+                    );
+                  })()}
                   <div className="space-y-1 text-xs">
                     {selectedBusiness.address && (
                       <div className="flex items-start gap-1">
