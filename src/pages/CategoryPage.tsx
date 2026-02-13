@@ -64,6 +64,7 @@ interface CategoryInfo {
   name_en: string | null;
   name_ar: string | null;
   icon: string | null;
+  front_color: string;
 }
 
 // No static icon map - icons are fetched from DB via categoryInfo.icon
@@ -176,7 +177,7 @@ const CategoryPage = () => {
         // Fetch category info
         const { data: catData } = await supabase
           .from("categories")
-          .select("id, name_fr, name_en, name_ar, icon")
+          .select("id, name_fr, name_en, name_ar, icon, front_color")
           .eq("name_fr", decodedCategoryName)
           .maybeSingle();
 
@@ -374,23 +375,27 @@ const CategoryPage = () => {
 
   const startResult = (currentPage - 1) * ITEMS_PER_PAGE + 1;
   const endResult = Math.min(currentPage * ITEMS_PER_PAGE, filteredBusinesses.length);
+  const isWhiteBg = categoryInfo?.front_color === "white";
+  const bgClass = isWhiteBg ? "bg-white" : "bg-black";
+  const textClass = isWhiteBg ? "text-black" : "text-white";
+  const textMutedClass = isWhiteBg ? "text-black/60" : "text-white/80";
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className={`min-h-screen ${bgClass}`}>
       <Header />
       
       {/* Hero Section */}
-      <section className="bg-black pt-28 pb-8 lg:pb-16 relative overflow-hidden">
+      <section className={`${bgClass} pt-28 pb-8 lg:pb-16 relative overflow-hidden`}>
         <div className="container mx-auto px-4 relative z-10">
           <button
             onClick={() => navigate(-1)}
-            className="inline-flex items-center gap-2 text-white/60 hover:text-gold mb-4 transition-colors text-sm"
+            className={`inline-flex items-center gap-2 ${textMutedClass} hover:text-gold mb-4 transition-colors text-sm`}
           >
             <ArrowLeft className="h-4 w-4" />
             Retour
           </button>
           <div>
-            <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+            <h1 className={`text-3xl font-bold ${textClass} flex items-center gap-3`}>
               {categoryInfo?.icon ? (
                 <DynamicIcon name={categoryInfo.icon} className="h-8 w-8 text-gold" fallback={<Building2 className="h-8 w-8 text-gold" />} />
               ) : (
@@ -398,7 +403,7 @@ const CategoryPage = () => {
               )}
               {getCategoryName()}
             </h1>
-            <p className="text-white/80 mt-2">
+            <p className={`${textMutedClass} mt-2`}>
               <span className="text-gold font-semibold">{filteredBusinesses.length}</span> {t.establishments} {t.inCategory}
             </p>
           </div>
@@ -414,7 +419,7 @@ const CategoryPage = () => {
       />
 
       {/* Map & Filters & Results */}
-      <section className="py-6 lg:py-12 bg-black">
+      <section className={`py-6 lg:py-12 ${bgClass}`}>
         <div className="container mx-auto px-4">
           {/* Google Maps */}
           <Card className="mb-8 relative">
@@ -443,7 +448,7 @@ const CategoryPage = () => {
               {/* City Filter */}
               {availableCities.length > 1 && (
                 <div className="flex-1 min-w-[140px]">
-                  <label className="text-sm font-medium text-white mb-1.5 block">
+                   <label className={`text-sm font-medium ${textClass} mb-1.5 block`}>
                     {t.filterByCity}
                   </label>
                   <Select value={selectedCity} onValueChange={handleCityChange}>
@@ -465,7 +470,7 @@ const CategoryPage = () => {
               {/* Subcategory Filter */}
               {availableSubcategories.length > 0 && (
                 <div className="flex-1 min-w-[140px]">
-                  <label className="text-sm font-medium text-white mb-1.5 block">
+                  <label className={`text-sm font-medium ${textClass} mb-1.5 block`}>
                     {language === "fr" ? "Sous-catégorie" : language === "ar" ? "الفئة الفرعية" : "Subcategory"}
                   </label>
                   <Select value={selectedSubcategories[0] || "all"} onValueChange={handleSubcategoryChange}>
@@ -535,7 +540,7 @@ const CategoryPage = () => {
           ) : (
             <>
               {/* Results count + Grid */}
-              <h2 className="text-lg font-semibold text-white mb-3">
+              <h2 className={`text-lg font-semibold ${textClass} mb-3`}>
                 {t.establishments} ({filteredBusinesses.length})
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
