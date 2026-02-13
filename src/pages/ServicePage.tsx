@@ -287,14 +287,18 @@ const ServicePage = () => {
   const getMapEmbedUrl = () => {
     if (selectedBusiness) {
       if (selectedBusiness.google_maps_url) {
+        const coordMatch = selectedBusiness.google_maps_url.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
         const placeMatch = selectedBusiness.google_maps_url.match(/place\/([^\/]+)/);
+        if (coordMatch && placeMatch) {
+          const placeName = decodeURIComponent(placeMatch[1].replace(/\+/g, ' '));
+          return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(placeName)}&center=${coordMatch[1]},${coordMatch[2]}&zoom=17`;
+        }
+        if (coordMatch) {
+          return `https://www.google.com/maps/embed/v1/view?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&center=${coordMatch[1]},${coordMatch[2]}&zoom=17&maptype=roadmap`;
+        }
         if (placeMatch) {
           const placeName = decodeURIComponent(placeMatch[1].replace(/\+/g, ' '));
           return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(placeName)}&zoom=17`;
-        }
-        const coordMatch = selectedBusiness.google_maps_url.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
-        if (coordMatch) {
-          return `https://www.google.com/maps/embed/v1/view?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&center=${coordMatch[1]},${coordMatch[2]}&zoom=17&maptype=roadmap`;
         }
       }
       if (selectedBusiness.latitude && selectedBusiness.longitude) {
