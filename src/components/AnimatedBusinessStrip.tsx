@@ -186,18 +186,18 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
                   </div>
 
                   {/* Title - alignment anchor */}
-                  <h3 className={`font-semibold text-sm leading-tight line-clamp-2 mt-3 transition-colors duration-300 ${
+                  <h3 className={`font-semibold text-base leading-relaxed line-clamp-2 mt-3 transition-colors duration-300 ${
                     colors ? `${colors.text}` : "text-white group-hover:text-gold"
                   }`}>
                     {biz.name}
                   </h3>
 
                   {biz.avg_rating !== null && (
-                    <span className={`text-xs font-bold mt-1 ${colors ? colors.text : "text-gold"}`}>{biz.avg_rating}/20</span>
+                    <span className={`text-sm font-bold mt-2 ${colors ? colors.text : "text-gold"}`}>{biz.avg_rating}/20</span>
                   )}
 
-                  <p className="text-white text-xs leading-tight flex items-start gap-1 mt-2">
-                    <MapPin className="h-3 w-3 flex-shrink-0 mt-0.5" />
+                  <p className="text-white text-sm leading-relaxed flex items-start gap-1.5 mt-3">
+                    <MapPin className="h-3.5 w-3.5 flex-shrink-0 mt-0.5" />
                     {biz.city}{biz.neighborhood ? `, ${biz.neighborhood}` : ""}
                   </p>
 
@@ -207,18 +207,18 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
-                      className="text-[#25D366] text-xs flex items-center gap-1 mt-1 hover:underline"
+                      className="text-[#25D366] text-sm flex items-center gap-1.5 mt-2 hover:underline"
                     >
-                      <MessageCircle className="h-3 w-3 flex-shrink-0" />
+                      <MessageCircle className="h-3.5 w-3.5 flex-shrink-0" />
                       WhatsApp
                     </a>
                   ) : biz.phone ? (
                     <a
                       href={`tel:${biz.phone}`}
                       onClick={(e) => e.stopPropagation()}
-                      className="text-white/50 text-xs flex items-center gap-1 mt-1 hover:underline"
+                      className="text-white/50 text-sm flex items-center gap-1.5 mt-2 hover:underline"
                     >
-                      <Phone className="h-3 w-3 flex-shrink-0" />
+                      <Phone className="h-3.5 w-3.5 flex-shrink-0" />
                       {biz.phone}
                     </a>
                   ) : null}
@@ -233,14 +233,14 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
                           window.open(biz.google_maps_url!, "_blank");
                         }
                       }}
-                      className="text-gold/60 text-xs group-hover:text-gold transition-colors duration-300 flex items-center gap-1 cursor-pointer"
+                      className="text-gold/60 text-sm group-hover:text-gold transition-colors duration-300 flex items-center gap-1.5 mt-2 cursor-pointer"
                     >
-                      <Map className="h-3 w-3 flex-shrink-0" />
+                      <Map className="h-3.5 w-3.5 flex-shrink-0" />
                       {language === "fr" ? "Voir sur la carte" : language === "ar" ? "عرض على الخريطة" : "View on map"}
                     </span>
                   ) : !showMapLink && biz.website ? (
-                    <p className="text-gold/60 text-xs group-hover:text-gold transition-colors duration-300 flex items-center gap-1">
-                      <Globe className="h-3 w-3 flex-shrink-0" />
+                    <p className="text-gold/60 text-sm group-hover:text-gold transition-colors duration-300 flex items-center gap-1.5 mt-2">
+                      <Globe className="h-3.5 w-3.5 flex-shrink-0" />
                       {new URL(biz.website).hostname.replace("www.", "")}
                     </p>
                   ) : null}
