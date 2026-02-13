@@ -99,9 +99,9 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
         {/* Champion card - fixed on the left (desktop/tablet only) */}
         <Link
           to={`/business/${champion.id}`}
-          className="hidden md:flex flex-shrink-0 w-64 px-4 group relative"
+          className="hidden md:flex flex-shrink-0 w-64 px-4 group relative items-center justify-center"
         >
-          <div className="flex flex-col items-center text-center space-y-3 h-full justify-center">
+          <div className="flex flex-col items-center text-center space-y-3">
             <Crown className="h-6 w-6 text-gold fill-gold animate-pulse" />
             <div className="w-36 h-36 rounded-full bg-white/90 border-2 border-gold/60 flex items-center justify-center overflow-hidden shadow-[0_0_30px_rgba(212,175,55,0.3)] group-hover:shadow-[0_0_40px_rgba(212,175,55,0.5)] transition-all duration-500">
               {champion.logo_url ? (
