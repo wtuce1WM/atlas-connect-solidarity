@@ -48,6 +48,7 @@ const GammeManagement = () => {
   const [gammes, setGammes] = useState<Gamme[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [gammeCategories, setGammeCategories] = useState<GammeCategory[]>([]);
+  const [gammeCounts, setGammeCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingGamme, setEditingGamme] = useState<Gamme | null>(null);
@@ -69,10 +70,11 @@ const GammeManagement = () => {
   const fetchData = async () => {
     setLoading(true);
     
-    const [gammesRes, categoriesRes, gammeCategoriesRes] = await Promise.all([
+    const [gammesRes, categoriesRes, gammeCategoriesRes, businessesRes] = await Promise.all([
       supabase.from("gammes").select("*").order("sort_order", { ascending: true }),
       supabase.from("categories").select("id, name_fr").order("name_fr", { ascending: true }),
       supabase.from("gamme_categories").select("gamme_id, category_id"),
+      supabase.from("businesses").select("gamme_id").not("gamme_id", "is", null),
     ]);
 
     if (gammesRes.error) {
@@ -87,6 +89,14 @@ const GammeManagement = () => {
 
     setCategories(categoriesRes.data || []);
     setGammeCategories(gammeCategoriesRes.data || []);
+    
+    // Count businesses per gamme
+    const counts: Record<string, number> = {};
+    (businessesRes.data || []).forEach((b: any) => {
+      if (b.gamme_id) counts[b.gamme_id] = (counts[b.gamme_id] || 0) + 1;
+    });
+    setGammeCounts(counts);
+    
     setLoading(false);
   };
 
@@ -439,19 +449,20 @@ const GammeManagement = () => {
               <TableHead>Nom (FR)</TableHead>
               <TableHead>Nom (EN)</TableHead>
               <TableHead>Catégories associées</TableHead>
+              <TableHead className="text-center">Établissements</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8">
+                <TableCell colSpan={7} className="text-center py-8">
                   Chargement...
                 </TableCell>
               </TableRow>
             ) : gammes.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8">
+                <TableCell colSpan={7} className="text-center py-8">
                   Aucune gamme définie.
                 </TableCell>
               </TableRow>
@@ -485,6 +496,9 @@ const GammeManagement = () => {
                         <span className="text-muted-foreground text-sm">Aucune</span>
                       )}
                     </div>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <Badge variant="outline">{gammeCounts[gamme.id] || 0}</Badge>
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
