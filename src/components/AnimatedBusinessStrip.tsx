@@ -138,7 +138,18 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
             style={{ width: "max-content" }}
           >
             {items.map((biz, index) => {
-              const isChampionInMarquee = biz.id === champion.id;
+              // Determine podium rank (based on original index in withLogo)
+              const originalIndex = withLogo.findIndex(w => w.id === biz.id);
+              const podiumRank = originalIndex >= 0 && originalIndex <= 2 ? originalIndex + 1 : 0; // 1=gold, 2=silver, 3=bronze
+
+              const podiumColors = {
+                1: { text: "text-gold", fill: "fill-gold", border: "border-gold/60", bg: "from-gold/20 to-gold/5", shadow: "shadow-[0_0_20px_rgba(212,175,55,0.25)]", glow: "shadow-[0_0_30px_rgba(212,175,55,0.4)]" },
+                2: { text: "text-[#C0C0C0]", fill: "fill-[#C0C0C0]", border: "border-[#C0C0C0]/60", bg: "from-[#C0C0C0]/15 to-[#C0C0C0]/5", shadow: "shadow-[0_0_20px_rgba(192,192,192,0.2)]", glow: "shadow-[0_0_30px_rgba(192,192,192,0.35)]" },
+                3: { text: "text-[#CD7F32]", fill: "fill-[#CD7F32]", border: "border-[#CD7F32]/60", bg: "from-[#CD7F32]/15 to-[#CD7F32]/5", shadow: "shadow-[0_0_20px_rgba(205,127,50,0.2)]", glow: "shadow-[0_0_30px_rgba(205,127,50,0.35)]" },
+              } as const;
+
+              const colors = podiumRank > 0 ? podiumColors[podiumRank as 1 | 2 | 3] : null;
+
               return (
               <Link
                 key={`${biz.id}-${index}`}
@@ -146,14 +157,14 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
                 className="flex-shrink-0 w-56 mx-4 group"
               >
                 <div className="flex flex-col items-center text-center space-y-3 transition-all duration-500 group-hover:scale-105">
-                  {/* Crown for #1 on mobile only */}
-                  {isChampionInMarquee && (
-                    <Crown className="h-5 w-5 text-gold fill-gold animate-pulse md:hidden" />
+                  {/* Crown for podium */}
+                  {colors && (
+                    <Crown className={`h-5 w-5 ${colors.text} ${colors.fill} animate-pulse`} />
                   )}
                   {/* Logo */}
-                  <div className={`rounded-full flex items-center justify-center overflow-hidden transition-colors duration-500 ${
-                    isChampionInMarquee 
-                      ? "w-32 h-32 md:w-28 md:h-28 bg-gradient-to-br from-gold/20 to-gold/5 border-2 border-gold/60 shadow-[0_0_20px_rgba(212,175,55,0.25)] md:bg-white/5 md:border md:border-white/10 md:shadow-none group-hover:border-gold/50" 
+                  <div className={`rounded-full flex items-center justify-center overflow-hidden transition-all duration-500 ${
+                    colors 
+                      ? `w-32 h-32 bg-gradient-to-br ${colors.bg} border-2 ${colors.border} ${colors.shadow} group-hover:${colors.glow}` 
                       : "w-28 h-28 bg-white/5 border border-white/10 group-hover:border-gold/50"
                   }`}>
                     {biz.logo_url ? (
@@ -161,7 +172,7 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
                         src={biz.logo_url}
                         alt={biz.name}
                         className={`object-contain filter brightness-0 invert group-hover:opacity-100 transition-opacity duration-500 ${
-                          isChampionInMarquee ? "w-24 h-24 md:w-20 md:h-20 opacity-90" : "w-20 h-20 opacity-80"
+                          colors ? "w-24 h-24 opacity-90" : "w-20 h-20 opacity-80"
                         }`}
                       />
                     ) : (
@@ -170,13 +181,13 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
                   </div>
 
                   <h3 className={`font-semibold text-sm leading-tight line-clamp-2 transition-colors duration-300 ${
-                    isChampionInMarquee ? "text-gold md:text-white md:group-hover:text-gold" : "text-white group-hover:text-gold"
+                    colors ? `${colors.text}` : "text-white group-hover:text-gold"
                   }`}>
                     {biz.name}
                   </h3>
 
                   {biz.avg_rating !== null && (
-                    <span className="text-gold text-xs font-bold">{biz.avg_rating}/20</span>
+                    <span className={`text-xs font-bold ${colors ? colors.text : "text-gold"}`}>{biz.avg_rating}/20</span>
                   )}
 
                   <p className="text-white/40 text-xs leading-tight flex items-start gap-1">
