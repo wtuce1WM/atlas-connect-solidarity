@@ -16,6 +16,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, MapPin, Phone, Building2, ChevronLeft, ChevronRight, X, ArrowLeft } from "lucide-react";
 import DynamicIcon from "@/components/DynamicIcon";
+import AnimatedBusinessStrip from "@/components/AnimatedBusinessStrip";
 
 import BusinessCard, { Gamme } from "@/components/BusinessCard";
 import LabelSection from "@/components/LabelSection";
@@ -394,6 +395,11 @@ const CategoryPage = () => {
           </div>
         </div>
       </section>
+
+      {/* Animated Business Strip */}
+      <AnimatedBusinessStrip
+        title={language === "fr" ? "Nos adresses à découvrir" : language === "ar" ? "عناويننا للاكتشاف" : "Our addresses to discover"}
+      />
 
       {/* Map & Filters & Results */}
       <section className="py-6 lg:py-12 bg-black">
