@@ -46,6 +46,7 @@ interface Business {
   google_maps_url: string | null;
   opening_hours: unknown;
   show_opening_hours: boolean | null;
+  is_open_24h: boolean;
   rating: number | null;
   gamme_id: string | null;
   google_rating: number | null;
@@ -209,7 +210,7 @@ const CategoryPage = () => {
         // Fetch ALL businesses in this category (no limit)
         const { data: businessData, error } = await supabase
           .from("businesses")
-          .select("id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, services, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, opening_hours, show_opening_hours, rating, gamme_id, neighborhood, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count")
+          .select("id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, services, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, opening_hours, show_opening_hours, is_open_24h, rating, gamme_id, neighborhood, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count")
           .eq("is_active", true)
           .or(`main_category.eq.${decodedCategoryName},categories.cs.{${decodedCategoryName}}`)
           .order("wtuce_status", { ascending: true })

@@ -12,6 +12,7 @@ export interface MapBusinessInfo {
   longitude?: number | null;
   opening_hours?: unknown;
   show_opening_hours?: boolean | null;
+  is_open_24h?: boolean;
   google_rating?: number | null;
   google_review_count?: number | null;
   tripadvisor_rating?: number | null;
@@ -104,41 +105,53 @@ const MapBusinessInfoCard = ({ business, onClose }: MapBusinessInfoCardProps) =>
             Skype: {business.skype}
           </a>
         )}
-        {business.show_opening_hours && business.opening_hours && (
+        {(business.is_open_24h || (business.show_opening_hours && business.opening_hours)) && (
           <div className="pt-1 border-t border-gray-200 mt-1">
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setShowHours(!showHours);
-              }}
-              className="flex items-center gap-1 font-medium hover:text-primary transition-colors w-full"
-            >
-              <Clock className="h-3 w-3 flex-shrink-0" />
-              <span>Horaires</span>
-              <span className="ml-auto text-[10px]">{showHours ? "▲" : "▼"}</span>
-            </button>
-            {showHours && (
-              <div className="text-[10px] mt-1 animate-fade-in">
-                {(() => {
-                  const hours = business.opening_hours as Record<string, { open: string; close: string }>;
-                  const days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
-                  const dayLabels: Record<string, string> = {
-                    monday: "Lun", tuesday: "Mar", wednesday: "Mer",
-                    thursday: "Jeu", friday: "Ven", saturday: "Sam", sunday: "Dim",
-                  };
-                  return days.map((day) => {
-                    const dayData = hours[day];
-                    if (!dayData) return null;
-                    return (
-                      <div key={day} className="flex justify-between gap-2">
-                        <span>{dayLabels[day]}</span>
-                        <span>{dayData.open && dayData.close ? `${dayData.open}-${dayData.close}` : "Fermé"}</span>
-                      </div>
-                    );
-                  });
-                })()}
-              </div>
+            {business.is_open_24h ? (
+              <>
+                <div className="flex items-center gap-1 font-medium">
+                  <Clock className="h-3 w-3 flex-shrink-0" />
+                  <span>Horaires</span>
+                </div>
+                <span className="text-primary font-medium mt-0.5 block">Ouvert 24h/24</span>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setShowHours(!showHours);
+                  }}
+                  className="flex items-center gap-1 font-medium hover:text-primary transition-colors w-full"
+                >
+                  <Clock className="h-3 w-3 flex-shrink-0" />
+                  <span>Horaires</span>
+                  <span className="ml-auto text-[10px]">{showHours ? "▲" : "▼"}</span>
+                </button>
+                {showHours && (
+                  <div className="text-[10px] mt-1 animate-fade-in">
+                    {(() => {
+                      const hours = business.opening_hours as Record<string, { open: string; close: string }>;
+                      const days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+                      const dayLabels: Record<string, string> = {
+                        monday: "Lun", tuesday: "Mar", wednesday: "Mer",
+                        thursday: "Jeu", friday: "Ven", saturday: "Sam", sunday: "Dim",
+                      };
+                      return days.map((day) => {
+                        const dayData = hours[day];
+                        if (!dayData) return null;
+                        return (
+                          <div key={day} className="flex justify-between gap-2">
+                            <span>{dayLabels[day]}</span>
+                            <span>{dayData.open && dayData.close ? `${dayData.open}-${dayData.close}` : "Fermé"}</span>
+                          </div>
+                        );
+                      });
+                    })()}
+                  </div>
+                )}
+              </>
             )}
           </div>
         )}

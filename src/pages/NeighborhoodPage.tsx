@@ -41,6 +41,9 @@ interface Business {
   logo_url: string | null;
   gamme_id: string | null;
   neighborhood: string | null;
+  opening_hours: unknown;
+  show_opening_hours: boolean | null;
+  is_open_24h: boolean;
 }
 
 const ITEMS_PER_PAGE = 20;
@@ -187,7 +190,7 @@ const NeighborhoodPage = () => {
 
       let query = supabase
         .from("businesses")
-        .select("id, name, city, region, address, phone, whatsapp, skype, main_category, categories, latitude, longitude, google_maps_url, wtuce_status, services, images, rating, priority_score, logo_url, gamme_id, neighborhood")
+        .select("id, name, city, region, address, phone, whatsapp, skype, main_category, categories, latitude, longitude, google_maps_url, wtuce_status, services, images, rating, priority_score, logo_url, gamme_id, neighborhood, opening_hours, show_opening_hours, is_open_24h")
         .eq("is_active", true)
         .ilike("neighborhood", decodedNeighborhood);
 
