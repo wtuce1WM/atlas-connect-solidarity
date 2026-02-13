@@ -6,7 +6,8 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, MapPin, Phone, Building2, ChevronLeft, ChevronRight, Sun, X, ArrowLeft } from "lucide-react";
+import { Loader2, MapPin, Building2, ChevronLeft, ChevronRight, Sun, X, ArrowLeft } from "lucide-react";
+import MapBusinessInfoCard from "@/components/MapBusinessInfoCard";
 import DynamicIcon from "@/components/DynamicIcon";
 
 import BusinessCard, { BusinessCardData, Gamme } from "@/components/BusinessCard";
@@ -379,68 +380,10 @@ const ServicePage = () => {
             <CardContent className="p-0">
               {/* Selected business indicator */}
               {selectedBusiness && (
-                <div className="absolute top-2 right-2 z-10 bg-white text-black px-4 py-3 rounded shadow-lg max-w-xs">
-                  <div className="flex items-start justify-between gap-2 mb-2">
-                    <span className="text-sm font-bold">{selectedBusiness.name}</span>
-                    <button 
-                      onClick={clearSelectedBusiness}
-                      className="hover:bg-black/10 rounded p-1 flex-shrink-0"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                  </div>
-                  <div className="space-y-1 text-xs">
-                    {selectedBusiness.address && (
-                      <div className="flex items-start gap-1">
-                        <MapPin className="h-3 w-3 mt-0.5 flex-shrink-0" />
-                        <span>{selectedBusiness.address}</span>
-                      </div>
-                    )}
-                    {selectedBusiness.phone && (
-                      <a href={`tel:${selectedBusiness.phone}`} className="flex items-center gap-1 hover:text-primary">
-                        <Phone className="h-3 w-3 flex-shrink-0" />
-                        {selectedBusiness.phone}
-                      </a>
-                    )}
-                    {selectedBusiness.whatsapp && (
-                      <a href={`https://wa.me/${selectedBusiness.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-green-600 hover:text-green-700 font-bold">
-                        <Phone className="h-3 w-3 flex-shrink-0" />
-                        WhatsApp: {selectedBusiness.whatsapp}
-                      </a>
-                    )}
-                    {selectedBusiness.skype && (
-                      <a href={`skype:${selectedBusiness.skype}?chat`} className="flex items-center gap-1 text-[#00AFF0] hover:text-[#00AFF0]/80">
-                        <Phone className="h-3 w-3 flex-shrink-0" />
-                        Skype: {selectedBusiness.skype}
-                      </a>
-                    )}
-                    {selectedBusiness.show_opening_hours && selectedBusiness.opening_hours && (
-                      <div className="pt-1 border-t border-gray-200 mt-1">
-                        <span className="font-medium">Horaires:</span>
-                        <div className="text-[10px] mt-0.5">
-                          {(() => {
-                            const hours = selectedBusiness.opening_hours as Record<string, { open: string; close: string }>;
-                            const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-                            const dayLabels: Record<string, string> = {
-                              monday: 'Lun', tuesday: 'Mar', wednesday: 'Mer', 
-                              thursday: 'Jeu', friday: 'Ven', saturday: 'Sam', sunday: 'Dim'
-                            };
-                            return days.map(day => {
-                              const dayData = hours[day];
-                              if (!dayData) return null;
-                              return (
-                                <div key={day} className="flex justify-between gap-2">
-                                  <span>{dayLabels[day]}</span>
-                                  <span>{dayData.open && dayData.close ? `${dayData.open}-${dayData.close}` : 'Fermé'}</span>
-                                </div>
-                              );
-                            });
-                          })()}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
+                <MapBusinessInfoCard
+                  business={selectedBusiness}
+                  onClose={clearSelectedBusiness}
+                />
               )}
               <iframe
                 src={getMapEmbedUrl()}
