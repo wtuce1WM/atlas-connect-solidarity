@@ -198,9 +198,9 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
                       <span className={`text-sm font-bold mt-1 ${colors ? colors.text : "text-gold"}`}>{biz.avg_rating}/20</span>
                     )}
 
-                    <p className="text-white text-sm leading-relaxed flex items-center gap-1 mt-2">
-                      <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
-                      <span>{biz.city}{biz.neighborhood ? `, ${biz.neighborhood}` : ""}</span>
+                    <p className="text-white text-sm leading-relaxed mt-2">
+                      <MapPin className="h-3.5 w-3.5 inline-block align-middle mr-0.5" />
+                      {biz.city}{biz.neighborhood ? `, ${biz.neighborhood}` : ""}
                     </p>
 
                     {biz.whatsapp ? (
