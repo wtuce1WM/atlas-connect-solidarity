@@ -15,6 +15,9 @@ interface LabelItem {
   name_fr: string;
   name_en: string | null;
   name_ar: string | null;
+  description_fr: string | null;
+  description_en: string | null;
+  description_ar: string | null;
   url_fr: string | null;
   url_en: string | null;
   url_ar: string | null;
@@ -39,6 +42,9 @@ interface LabelFormState {
   name_fr: string;
   name_en: string;
   name_ar: string;
+  description_fr: string;
+  description_en: string;
+  description_ar: string;
   url_fr: string;
   url_en: string;
   url_ar: string;
@@ -55,6 +61,9 @@ const emptyForm: LabelFormState = {
   name_fr: "",
   name_en: "",
   name_ar: "",
+  description_fr: "",
+  description_en: "",
+  description_ar: "",
   url_fr: "",
   url_en: "",
   url_ar: "",
@@ -88,7 +97,7 @@ const LabelManagement = () => {
     const [labelsRes, blRes] = await Promise.all([
       supabase
         .from("labels" as any)
-        .select("id, name_fr, name_en, name_ar, url_fr, url_en, url_ar, image_url, logo_url, sort_order, created_at, show_on_home, show_on_category, show_on_city, show_on_service, show_on_neighborhood")
+        .select("id, name_fr, name_en, name_ar, description_fr, description_en, description_ar, url_fr, url_en, url_ar, image_url, logo_url, sort_order, created_at, show_on_home, show_on_category, show_on_city, show_on_service, show_on_neighborhood")
         .order("sort_order", { ascending: true }),
       supabase
         .from("business_labels")
@@ -136,6 +145,9 @@ const LabelManagement = () => {
         name_fr: newLabel.name_fr.trim(),
         name_en: newLabel.name_en.trim() || null,
         name_ar: newLabel.name_ar.trim() || null,
+        description_fr: newLabel.description_fr.trim() || null,
+        description_en: newLabel.description_en.trim() || null,
+        description_ar: newLabel.description_ar.trim() || null,
         url_fr: newLabel.url_fr.trim() || null,
         url_en: newLabel.url_en.trim() || null,
         url_ar: newLabel.url_ar.trim() || null,
@@ -183,6 +195,9 @@ const LabelManagement = () => {
         name_fr: editForm.name_fr.trim(),
         name_en: editForm.name_en.trim() || null,
         name_ar: editForm.name_ar.trim() || null,
+        description_fr: editForm.description_fr.trim() || null,
+        description_en: editForm.description_en.trim() || null,
+        description_ar: editForm.description_ar.trim() || null,
         url_fr: editForm.url_fr.trim() || null,
         url_en: editForm.url_en.trim() || null,
         url_ar: editForm.url_ar.trim() || null,
@@ -245,6 +260,9 @@ const LabelManagement = () => {
       name_fr: label.name_fr,
       name_en: label.name_en || "",
       name_ar: label.name_ar || "",
+      description_fr: label.description_fr || "",
+      description_en: label.description_en || "",
+      description_ar: label.description_ar || "",
       url_fr: label.url_fr || "",
       url_en: label.url_en || "",
       url_ar: label.url_ar || "",
@@ -360,6 +378,38 @@ const LabelManagement = () => {
             value={form.name_ar}
             onChange={(e) => setForm({ ...form, name_ar: e.target.value })}
             placeholder="الاسم بالعربية"
+            dir="rtl"
+          />
+        </div>
+      </div>
+
+      {/* Descriptions */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <Label htmlFor={isNew ? "new-desc-fr" : "edit-desc-fr"}>Description (FR)</Label>
+          <Input
+            id={isNew ? "new-desc-fr" : "edit-desc-fr"}
+            value={form.description_fr}
+            onChange={(e) => setForm({ ...form, description_fr: e.target.value })}
+            placeholder="Découvrez les établissements..."
+          />
+        </div>
+        <div>
+          <Label htmlFor={isNew ? "new-desc-en" : "edit-desc-en"}>Description (EN)</Label>
+          <Input
+            id={isNew ? "new-desc-en" : "edit-desc-en"}
+            value={form.description_en}
+            onChange={(e) => setForm({ ...form, description_en: e.target.value })}
+            placeholder="Discover the establishments..."
+          />
+        </div>
+        <div>
+          <Label htmlFor={isNew ? "new-desc-ar" : "edit-desc-ar"}>Description (AR)</Label>
+          <Input
+            id={isNew ? "new-desc-ar" : "edit-desc-ar"}
+            value={form.description_ar}
+            onChange={(e) => setForm({ ...form, description_ar: e.target.value })}
+            placeholder="اكتشف المؤسسات..."
             dir="rtl"
           />
         </div>
