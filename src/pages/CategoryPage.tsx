@@ -379,22 +379,18 @@ const CategoryPage = () => {
             <ArrowLeft className="h-4 w-4" />
             Retour
           </button>
-          <div className="flex flex-col items-center text-center sm:flex-row sm:items-center sm:text-left gap-4 lg:gap-6">
-            <div className="rounded-xl lg:rounded-2xl bg-gold/20 p-3 lg:p-6 border border-gold/30 flex-shrink-0">
+          <div>
+            <h1 className="text-3xl font-bold text-white flex items-center gap-3">
               {categoryInfo?.icon ? (
-                <DynamicIcon name={categoryInfo.icon} className="h-8 w-8 lg:h-12 lg:w-12 text-gold" fallback={<Building2 className="h-8 w-8 lg:h-12 lg:w-12 text-gold" />} />
+                <DynamicIcon name={categoryInfo.icon} className="h-8 w-8 text-gold" fallback={<Building2 className="h-8 w-8 text-gold" />} />
               ) : (
-                <Building2 className="h-8 w-8 lg:h-12 lg:w-12 text-gold" />
+                <Building2 className="h-8 w-8 text-gold" />
               )}
-            </div>
-            <div>
-              <h1 className="text-2xl md:text-3xl lg:text-5xl font-bold text-white mb-1 lg:mb-2">
-                {getCategoryName()}
-              </h1>
-              <p className="text-base lg:text-xl text-gray-400">
-                <span className="text-gold font-semibold">{filteredBusinesses.length}</span> {t.establishments} {t.inCategory}
-              </p>
-            </div>
+              {getCategoryName()}
+            </h1>
+            <p className="text-white/80 mt-2">
+              <span className="text-gold font-semibold">{filteredBusinesses.length}</span> {t.establishments} {t.inCategory}
+            </p>
           </div>
         </div>
       </section>
