@@ -90,7 +90,7 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
   return (
     <div className="w-full py-20 bg-black/90 rounded-2xl my-8">
       {title && (
-        <h2 className="text-center text-5xl md:text-6xl font-bold text-white mb-14 font-['Playfair_Display'] italic leading-none tracking-[0.15em]">
+        <h2 className="text-center text-3xl md:text-4xl font-bold text-white mb-10 font-['Playfair_Display'] italic leading-relaxed tracking-wide">
           {title.replace("{count}", String(withLogo.length))}
         </h2>
       )}
