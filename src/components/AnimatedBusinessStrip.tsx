@@ -102,12 +102,12 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
         >
           <div className="flex flex-col items-center text-center space-y-3 h-full justify-center">
             <Crown className="h-6 w-6 text-gold fill-gold animate-pulse" />
-            <div className="w-36 h-36 rounded-full bg-gradient-to-br from-gold/20 to-gold/5 border-2 border-gold/60 flex items-center justify-center overflow-hidden shadow-[0_0_30px_rgba(212,175,55,0.3)] group-hover:shadow-[0_0_40px_rgba(212,175,55,0.5)] transition-all duration-500">
+            <div className="w-36 h-36 rounded-full bg-white border-2 border-gold/60 flex items-center justify-center overflow-hidden shadow-[0_0_30px_rgba(212,175,55,0.3)] group-hover:shadow-[0_0_40px_rgba(212,175,55,0.5)] transition-all duration-500">
               {champion.logo_url ? (
                 <img
                   src={champion.logo_url}
                   alt={champion.name}
-                  className="w-28 h-28 object-contain filter brightness-0 invert opacity-90 group-hover:opacity-100 transition-opacity duration-500"
+                  className="w-28 h-28 object-contain opacity-90 group-hover:opacity-100 transition-opacity duration-500"
                 />
               ) : (
                 <span className="text-gold text-4xl font-bold">{champion.name.charAt(0)}</span>
@@ -163,16 +163,16 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
                     <Crown className={`h-5 w-5 ${colors.text} ${colors.fill} animate-pulse`} />
                   )}
                   {/* Logo */}
-                  <div className={`rounded-full flex items-center justify-center overflow-hidden transition-all duration-500 ${
+                  <div className={`rounded-full flex items-center justify-center overflow-hidden transition-all duration-500 bg-white ${
                     colors 
-                      ? `w-32 h-32 bg-gradient-to-br ${colors.bg} border-2 ${colors.border} ${colors.shadow} group-hover:${colors.glow}` 
-                      : "w-28 h-28 bg-white/5 border border-white/10 group-hover:border-gold/50"
+                      ? `w-32 h-32 border-2 ${colors.border} ${colors.shadow} group-hover:${colors.glow}` 
+                      : "w-28 h-28 border border-white/10 group-hover:border-gold/50"
                   }`}>
                     {biz.logo_url ? (
                       <img
                         src={biz.logo_url}
                         alt={biz.name}
-                        className={`object-contain filter brightness-0 invert group-hover:opacity-100 transition-opacity duration-500 ${
+                        className={`object-contain group-hover:opacity-100 transition-opacity duration-500 ${
                           colors ? "w-24 h-24 opacity-90" : "w-20 h-20 opacity-80"
                         }`}
                       />
