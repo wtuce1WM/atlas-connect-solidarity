@@ -175,33 +175,48 @@ const ServicePage = () => {
         let businessData: Business[] | null = null;
         let fetchError: Error | null = null;
 
-        if (isSubcategory) {
-          // Search in the categories array (subcategories are stored there)
-          const { data, error } = await supabase
-            .from("businesses")
-            .select("id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, opening_hours, show_opening_hours, is_open_24h, rating, gamme_id, neighborhood")
-            .eq("is_active", true)
-            .contains("categories", [decodedServiceName])
-            .order("wtuce_status", { ascending: true })
-            .order("priority_score", { ascending: false });
-          
-          businessData = data;
-          if (error) fetchError = error;
-        }
+        const selectFields = "id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, opening_hours, show_opening_hours, is_open_24h, rating, gamme_id, neighborhood";
 
-        // If no subcategory match or no results, search by service
-        if (!businessData || businessData.length === 0) {
+        if (isSubcategory) {
+          // Search in BOTH categories and services arrays, then merge
+          const [catResult, svcResult] = await Promise.all([
+            supabase
+              .from("businesses")
+              .select(selectFields)
+              .eq("is_active", true)
+              .contains("categories", [decodedServiceName])
+              .order("wtuce_status", { ascending: true })
+              .order("priority_score", { ascending: false }),
+            supabase
+              .from("businesses")
+              .select(selectFields)
+              .eq("is_active", true)
+              .contains("services", [decodedServiceName])
+              .order("wtuce_status", { ascending: true })
+              .order("priority_score", { ascending: false }),
+          ]);
+
+          if (catResult.error) fetchError = catResult.error;
+          if (svcResult.error) fetchError = svcResult.error;
+
+          // Merge and deduplicate
+          const merged = new Map<string, Business>();
+          for (const b of (catResult.data || [])) merged.set(b.id, b);
+          for (const b of (svcResult.data || [])) {
+            if (!merged.has(b.id)) merged.set(b.id, b);
+          }
+          businessData = Array.from(merged.values());
+        } else {
+          // Search by service only
           const { data, error } = await supabase
             .from("businesses")
-            .select("id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, opening_hours, show_opening_hours, is_open_24h, rating, gamme_id, neighborhood")
+            .select(selectFields)
             .eq("is_active", true)
             .contains("services", [decodedServiceName])
             .order("wtuce_status", { ascending: true })
             .order("priority_score", { ascending: false });
           
-          if (!businessData || businessData.length === 0) {
-            businessData = data;
-          }
+          businessData = data;
           if (error) fetchError = error;
         }
 
