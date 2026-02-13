@@ -8,6 +8,7 @@ import { Loader2, Calendar, User, ArrowLeft, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { fr, enUS, ar } from "date-fns/locale";
+import AnimatedBusinessStrip from "@/components/AnimatedBusinessStrip";
 
 interface BlogPostData {
   id: string;
@@ -136,6 +137,12 @@ const BlogPost = () => {
         <article
           className="prose prose-lg max-w-none dark:prose-invert"
           dangerouslySetInnerHTML={{ __html: getContent() }}
+        />
+
+        {/* Animated business strip - Amazoz style */}
+        <AnimatedBusinessStrip
+          city="Marrakech"
+          title={language === "fr" ? "Nos adresses à découvrir" : language === "ar" ? "عناويننا للاكتشاف" : "Our addresses to discover"}
         />
 
         <div className="mt-10 flex justify-center">
