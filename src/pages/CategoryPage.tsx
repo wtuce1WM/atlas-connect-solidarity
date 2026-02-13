@@ -20,8 +20,7 @@ import DynamicIcon from "@/components/DynamicIcon";
 import AnimatedBusinessStrip from "@/components/AnimatedBusinessStrip";
 
 import BusinessCard, { Gamme } from "@/components/BusinessCard";
-import LabelSection from "@/components/LabelSection";
-import slhLogo from "@/assets/small-luxury-hotels-logo.webp";
+import DynamicLabelSections from "@/components/DynamicLabelSections";
 
 interface Business {
   id: string;
@@ -628,18 +627,7 @@ const CategoryPage = () => {
         </div>
       </section>
 
-      {/* Label Section - Small Luxury Hotels */}
-      <LabelSection
-        labelId="21bfb697-6785-4afa-84dc-d3c1258d8abd"
-        titleFr="Small Luxury Hotels of the World"
-        titleEn="Small Luxury Hotels of the World"
-        titleAr="Small Luxury Hotels of the World"
-        descriptionFr="Découvrez les établissements marocains membres du prestigieux réseau Small Luxury Hotels of the World"
-        descriptionEn="Discover Moroccan establishments that are members of the prestigious Small Luxury Hotels of the World network"
-        descriptionAr="اكتشف المؤسسات المغربية الأعضاء في شبكة Small Luxury Hotels of the World المرموقة"
-        logoUrl={slhLogo}
-        useLogo2
-      />
+      <DynamicLabelSections pageType="category" />
 
       <Footer />
     </div>

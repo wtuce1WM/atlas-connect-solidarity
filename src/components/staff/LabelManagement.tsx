@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Plus, Trash2, Edit, X, Check, Loader2, Award, Link, ChevronDown, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -21,6 +22,11 @@ interface LabelItem {
   logo_url: string | null;
   sort_order: number;
   created_at: string;
+  show_on_home: boolean;
+  show_on_category: boolean;
+  show_on_city: boolean;
+  show_on_service: boolean;
+  show_on_neighborhood: boolean;
 }
 
 interface LabelBusiness {
@@ -38,6 +44,11 @@ interface LabelFormState {
   url_ar: string;
   image_url: string;
   logo_url: string;
+  show_on_home: boolean;
+  show_on_category: boolean;
+  show_on_city: boolean;
+  show_on_service: boolean;
+  show_on_neighborhood: boolean;
 }
 
 const emptyForm: LabelFormState = {
@@ -49,6 +60,11 @@ const emptyForm: LabelFormState = {
   url_ar: "",
   image_url: "",
   logo_url: "",
+  show_on_home: false,
+  show_on_category: false,
+  show_on_city: false,
+  show_on_service: false,
+  show_on_neighborhood: false,
 };
 
 const LabelManagement = () => {
@@ -72,7 +88,7 @@ const LabelManagement = () => {
     const [labelsRes, blRes] = await Promise.all([
       supabase
         .from("labels" as any)
-        .select("id, name_fr, name_en, name_ar, url_fr, url_en, url_ar, image_url, logo_url, sort_order, created_at")
+        .select("id, name_fr, name_en, name_ar, url_fr, url_en, url_ar, image_url, logo_url, sort_order, created_at, show_on_home, show_on_category, show_on_city, show_on_service, show_on_neighborhood")
         .order("sort_order", { ascending: true }),
       supabase
         .from("business_labels")
@@ -126,6 +142,11 @@ const LabelManagement = () => {
         image_url: newLabel.image_url.trim() || null,
         logo_url: newLabel.logo_url.trim() || null,
         sort_order: labels.length,
+        show_on_home: newLabel.show_on_home,
+        show_on_category: newLabel.show_on_category,
+        show_on_city: newLabel.show_on_city,
+        show_on_service: newLabel.show_on_service,
+        show_on_neighborhood: newLabel.show_on_neighborhood,
       });
 
     if (error) {
@@ -167,6 +188,11 @@ const LabelManagement = () => {
         url_ar: editForm.url_ar.trim() || null,
         image_url: editForm.image_url.trim() || null,
         logo_url: editForm.logo_url.trim() || null,
+        show_on_home: editForm.show_on_home,
+        show_on_category: editForm.show_on_category,
+        show_on_city: editForm.show_on_city,
+        show_on_service: editForm.show_on_service,
+        show_on_neighborhood: editForm.show_on_neighborhood,
       })
       .eq("id", id);
 
@@ -224,6 +250,11 @@ const LabelManagement = () => {
       url_ar: label.url_ar || "",
       image_url: label.image_url || "",
       logo_url: label.logo_url || "",
+      show_on_home: label.show_on_home,
+      show_on_category: label.show_on_category,
+      show_on_city: label.show_on_city,
+      show_on_service: label.show_on_service,
+      show_on_neighborhood: label.show_on_neighborhood,
     });
   };
 
@@ -457,6 +488,29 @@ const LabelManagement = () => {
               </label>
             )}
           </div>
+        </div>
+      </div>
+
+      {/* Visibility toggles */}
+      <div>
+        <Label className="text-sm font-medium mb-2 block">Afficher sur les pages</Label>
+        <div className="flex flex-wrap gap-4">
+          {[
+            { key: "show_on_home" as const, label: "Accueil" },
+            { key: "show_on_category" as const, label: "Catégories" },
+            { key: "show_on_city" as const, label: "Villes" },
+            { key: "show_on_service" as const, label: "Services" },
+            { key: "show_on_neighborhood" as const, label: "Quartiers" },
+          ].map(({ key, label }) => (
+            <div key={key} className="flex items-center gap-2">
+              <Checkbox
+                id={`${isNew ? "new" : "edit"}-${key}`}
+                checked={form[key]}
+                onCheckedChange={(checked) => setForm({ ...form, [key]: !!checked })}
+              />
+              <Label htmlFor={`${isNew ? "new" : "edit"}-${key}`} className="text-sm cursor-pointer">{label}</Label>
+            </div>
+          ))}
         </div>
       </div>
     </div>

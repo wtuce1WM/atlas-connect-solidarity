@@ -8,6 +8,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
 import TopCityBusinesses from "@/components/TopCityBusinesses";
 import Footer from "@/components/Footer";
+import DynamicLabelSections from "@/components/DynamicLabelSections";
 import BusinessCard, { Gamme } from "@/components/BusinessCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -521,6 +522,7 @@ const NeighborhoodPage = () => {
         )}
       </main>
 
+      <DynamicLabelSections pageType="neighborhood" />
       <Footer />
     </div>
   );
