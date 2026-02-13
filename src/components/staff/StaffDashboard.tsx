@@ -1,4 +1,5 @@
 import { useMemo, useState, useEffect, useCallback } from "react";
+import { Upload } from "lucide-react";
 import {
   Building2,
   Eye,
@@ -186,6 +187,7 @@ const StaffDashboard = ({ businesses, onNavigateTab, onNewBusiness, onEditBusine
           <Download className="h-4 w-4 mr-2" />
           Export CSV Google My Maps
         </Button>
+        <InternalizeImagesButton />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -543,6 +545,67 @@ function AlertRow({
   );
 }
 
+function InternalizeImagesButton() {
+  const [isRunning, setIsRunning] = useState(false);
+  const [progress, setProgress] = useState("");
+  const [result, setResult] = useState<{ total: number; failed: number } | null>(null);
+
+  const handleRun = useCallback(async () => {
+    setIsRunning(true);
+    setResult(null);
+    let totalDone = 0;
+    let totalFailed = 0;
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const headers = {
+        "Authorization": `Bearer ${session?.access_token}`,
+        "Content-Type": "application/json",
+      };
+      const baseUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/internalize-images`;
+
+      // Loop in batches until no more remaining
+      let remaining = 1;
+      while (remaining > 0) {
+        setProgress(`${totalDone} rapatriée(s)…`);
+        const res = await fetch(baseUrl, {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ limit: 5 }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Erreur");
+        totalDone += data.totalInternalized;
+        totalFailed += data.totalFailed;
+        remaining = data.remaining || 0;
+        if (data.totalInternalized === 0 && data.totalFailed === 0) break; // safety
+      }
+
+      setResult({ total: totalDone, failed: totalFailed });
+      toast({
+        title: `${totalDone} image(s) rapatriée(s)`,
+        description: totalFailed > 0 ? `${totalFailed} échec(s)` : "Toutes les images externes ont été internalisées.",
+      });
+    } catch (err: any) {
+      toast({ title: "Erreur", description: err.message, variant: "destructive" });
+    } finally {
+      setIsRunning(false);
+      setProgress("");
+    }
+  }, []);
+
+  return (
+    <Button
+      size="sm"
+      variant="outline"
+      onClick={handleRun}
+      disabled={isRunning}
+    >
+      {isRunning ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Upload className="h-4 w-4 mr-2" />}
+      {isRunning ? progress || "Rapatriement…" : result ? `✓ ${result.total} rapatriée(s)` : "Rapatrier images externes"}
+    </Button>
+  );
+}
 function InternalNotesSection() {
   const [content, setContent] = useState("");
   const [isSaving, setIsSaving] = useState(false);
