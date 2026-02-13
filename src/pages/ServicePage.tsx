@@ -34,6 +34,7 @@ interface Business {
   google_maps_url: string | null;
   opening_hours: unknown;
   show_opening_hours: boolean | null;
+  is_open_24h: boolean;
   rating: number | null;
   gamme_id: string | null;
 }
@@ -177,7 +178,7 @@ const ServicePage = () => {
           // Search in the categories array (subcategories are stored there)
           const { data, error } = await supabase
             .from("businesses")
-            .select("id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, opening_hours, show_opening_hours, rating, gamme_id, neighborhood")
+            .select("id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, opening_hours, show_opening_hours, is_open_24h, rating, gamme_id, neighborhood")
             .eq("is_active", true)
             .contains("categories", [decodedServiceName])
             .order("wtuce_status", { ascending: true })
@@ -191,7 +192,7 @@ const ServicePage = () => {
         if (!businessData || businessData.length === 0) {
           const { data, error } = await supabase
             .from("businesses")
-            .select("id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, opening_hours, show_opening_hours, rating, gamme_id, neighborhood")
+            .select("id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, opening_hours, show_opening_hours, is_open_24h, rating, gamme_id, neighborhood")
             .eq("is_active", true)
             .contains("services", [decodedServiceName])
             .order("wtuce_status", { ascending: true })
