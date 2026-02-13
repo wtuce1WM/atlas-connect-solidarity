@@ -128,7 +128,7 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
         </Link>
 
         {/* Marquee */}
-        <div className="relative flex-1 overflow-hidden min-w-0">
+        <div className="relative flex-1 overflow-hidden min-w-0 py-4">
           <div className="absolute left-0 top-0 bottom-0 w-16 z-10 bg-gradient-to-r from-black/90 to-transparent pointer-events-none" />
           <div className="absolute right-0 top-0 bottom-0 w-16 z-10 bg-gradient-to-l from-black/90 to-transparent pointer-events-none" />
           
