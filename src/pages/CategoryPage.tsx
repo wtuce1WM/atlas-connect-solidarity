@@ -553,6 +553,7 @@ const CategoryPage = () => {
                     selectedBusinessId={selectedBusiness?.id}
                     onSelectBusiness={handleSelectBusiness}
                     showMapButton={true}
+                    theme={isWhiteBg ? "light" : "dark"}
                     mapButtonLabels={{
                       view: "Voir sur la carte",
                       shown: "Affiché sur la carte"
