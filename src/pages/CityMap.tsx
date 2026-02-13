@@ -252,7 +252,7 @@ const CityMap = () => {
       // Fetch gammes
       const { data: gammesData } = await supabase
         .from("gammes")
-        .select("id, name_fr, color_hex")
+        .select("id, name_fr, color_hex, text_color_hex")
         .order("sort_order", { ascending: true });
 
       if (gammesData) {

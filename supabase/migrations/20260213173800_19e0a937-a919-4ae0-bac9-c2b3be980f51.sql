@@ -1,0 +1,1 @@
+ALTER TABLE public.gammes ADD COLUMN text_color_hex varchar DEFAULT '#000000';

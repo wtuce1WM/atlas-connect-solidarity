@@ -639,6 +639,7 @@ export type Database = {
           name_en: string | null
           name_fr: string
           sort_order: number | null
+          text_color_hex: string | null
           updated_at: string | null
         }
         Insert: {
@@ -650,6 +651,7 @@ export type Database = {
           name_en?: string | null
           name_fr: string
           sort_order?: number | null
+          text_color_hex?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -661,6 +663,7 @@ export type Database = {
           name_en?: string | null
           name_fr?: string
           sort_order?: number | null
+          text_color_hex?: string | null
           updated_at?: string | null
         }
         Relationships: []

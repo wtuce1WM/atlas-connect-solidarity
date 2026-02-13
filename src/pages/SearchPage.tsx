@@ -92,7 +92,7 @@ const SearchPage = () => {
 
   // Fetch gammes on mount
   useEffect(() => {
-    supabase.from("gammes").select("id, name_fr, color_hex").then(({ data }) => {
+    supabase.from("gammes").select("id, name_fr, color_hex, text_color_hex").then(({ data }) => {
       if (data) setGammes(data);
     });
   }, []);

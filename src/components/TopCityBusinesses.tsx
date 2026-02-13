@@ -9,6 +9,7 @@ interface Gamme {
   id: string;
   name_fr: string;
   color_hex: string | null;
+  text_color_hex: string | null;
 }
 
 interface Business {
@@ -138,8 +139,8 @@ const TopCityBusinesses = ({ businesses, cityName, neighborhoodName, gammes = []
                     return gamme ? (
                       <div className="absolute top-2 left-1/2 -translate-x-1/2 z-10">
                         <span 
-                          className="text-xs text-black border border-black rounded-full px-2 py-0.5 whitespace-nowrap"
-                          style={{ backgroundColor: gamme.color_hex || '#666666' }}
+                          className="text-xs border border-black rounded-full px-2 py-0.5 whitespace-nowrap"
+                          style={{ backgroundColor: gamme.color_hex || '#666666', color: gamme.text_color_hex || '#000000' }}
                         >
                           {gamme.name_fr}
                         </span>
