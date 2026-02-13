@@ -108,7 +108,7 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
                 <img
                   src={champion.logo_url}
                   alt={champion.name}
-                  className="w-28 h-28 object-contain opacity-90 group-hover:opacity-100 transition-opacity duration-500 invert brightness-200"
+                  className="w-28 h-28 object-contain opacity-90 group-hover:opacity-100 transition-opacity duration-500 brightness-0 invert"
                 />
               ) : (
                 <span className="text-gold text-4xl font-bold">{champion.name.charAt(0)}</span>
@@ -175,7 +175,7 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
                         <img
                           src={biz.logo_url}
                           alt={biz.name}
-                          className={`object-contain group-hover:opacity-100 transition-opacity duration-500 invert brightness-200 ${
+                          className={`object-contain group-hover:opacity-100 transition-opacity duration-500 brightness-0 invert ${
                             colors ? "w-24 h-24 opacity-90" : "w-20 h-20 opacity-80"
                           }`}
                         />
