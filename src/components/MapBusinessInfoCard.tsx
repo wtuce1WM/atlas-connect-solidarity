@@ -1,0 +1,159 @@
+import { useState } from "react";
+import { MapPin, Phone, Star, Clock, Navigation, X } from "lucide-react";
+
+export interface MapBusinessInfo {
+  name: string;
+  address?: string | null;
+  city?: string;
+  phone?: string | null;
+  whatsapp?: string | null;
+  skype?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  opening_hours?: unknown;
+  show_opening_hours?: boolean | null;
+  google_rating?: number | null;
+  google_review_count?: number | null;
+  tripadvisor_rating?: number | null;
+  tripadvisor_review_count?: number | null;
+  restaurant_guru_rating?: number | null;
+  restaurant_guru_review_count?: number | null;
+}
+
+interface MapBusinessInfoCardProps {
+  business: MapBusinessInfo;
+  onClose: () => void;
+}
+
+const MapBusinessInfoCard = ({ business, onClose }: MapBusinessInfoCardProps) => {
+  const [showHours, setShowHours] = useState(false);
+
+  // Compute weighted average rating
+  const ratingDisplay = (() => {
+    const sources: { rating: number; count: number }[] = [];
+    if (business.google_rating && business.google_review_count)
+      sources.push({ rating: business.google_rating * 4, count: business.google_review_count });
+    if (business.tripadvisor_rating && business.tripadvisor_review_count)
+      sources.push({ rating: business.tripadvisor_rating * 4, count: business.tripadvisor_review_count });
+    if (business.restaurant_guru_rating && business.restaurant_guru_review_count)
+      sources.push({ rating: business.restaurant_guru_rating * 4, count: business.restaurant_guru_review_count });
+    if (sources.length === 0) return null;
+    const totalCount = sources.reduce((sum, s) => sum + s.count, 0);
+    const weightedSum = sources.reduce((sum, s) => sum + s.rating * s.count, 0);
+    const avg = Math.round((weightedSum / totalCount) * 10) / 10;
+    return { avg, totalCount };
+  })();
+
+  const directionsUrl = (() => {
+    const destination = business.latitude && business.longitude
+      ? `${business.latitude},${business.longitude}`
+      : encodeURIComponent(`${business.name}, ${business.address || business.city || ""}`);
+    return `https://www.google.com/maps/dir/?api=1&destination=${destination}`;
+  })();
+
+  return (
+    <div className="absolute top-2 right-2 z-10 bg-white text-black px-4 py-3 rounded shadow-lg max-w-xs">
+      <div className="flex items-start justify-between gap-2 mb-2">
+        <span className="text-sm font-bold">{business.name}</span>
+        <button
+          onClick={onClose}
+          className="hover:bg-black/10 rounded p-1 flex-shrink-0"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      </div>
+
+      {ratingDisplay && (
+        <div className="flex items-center gap-1 mb-1">
+          <Star className="h-3 w-3 fill-gold text-gold" />
+          <span className="text-xs font-bold text-gold">{ratingDisplay.avg}/20</span>
+          <span className="text-[10px] text-gray-500">({ratingDisplay.totalCount} avis)</span>
+        </div>
+      )}
+
+      <div className="space-y-1 text-xs">
+        {business.address && (
+          <div className="flex items-start gap-1">
+            <MapPin className="h-3 w-3 mt-0.5 flex-shrink-0" />
+            <span>{business.address}</span>
+          </div>
+        )}
+        {business.phone && (
+          <a href={`tel:${business.phone}`} className="flex items-center gap-1 hover:text-primary">
+            <Phone className="h-3 w-3 flex-shrink-0" />
+            {business.phone}
+          </a>
+        )}
+        {business.whatsapp && (
+          <a
+            href={`https://wa.me/${business.whatsapp.replace(/[^0-9]/g, "")}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1 text-green-600 hover:text-green-700 font-bold"
+          >
+            <Phone className="h-3 w-3 flex-shrink-0" />
+            WhatsApp: {business.whatsapp}
+          </a>
+        )}
+        {business.skype && (
+          <a
+            href={`skype:${business.skype}?chat`}
+            className="flex items-center gap-1 text-[#00AFF0] hover:text-[#00AFF0]/80"
+          >
+            <Phone className="h-3 w-3 flex-shrink-0" />
+            Skype: {business.skype}
+          </a>
+        )}
+        {business.show_opening_hours && business.opening_hours && (
+          <div className="pt-1 border-t border-gray-200 mt-1">
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setShowHours(!showHours);
+              }}
+              className="flex items-center gap-1 font-medium hover:text-primary transition-colors w-full"
+            >
+              <Clock className="h-3 w-3 flex-shrink-0" />
+              <span>Horaires</span>
+              <span className="ml-auto text-[10px]">{showHours ? "▲" : "▼"}</span>
+            </button>
+            {showHours && (
+              <div className="text-[10px] mt-1 animate-fade-in">
+                {(() => {
+                  const hours = business.opening_hours as Record<string, { open: string; close: string }>;
+                  const days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+                  const dayLabels: Record<string, string> = {
+                    monday: "Lun", tuesday: "Mar", wednesday: "Mer",
+                    thursday: "Jeu", friday: "Ven", saturday: "Sam", sunday: "Dim",
+                  };
+                  return days.map((day) => {
+                    const dayData = hours[day];
+                    if (!dayData) return null;
+                    return (
+                      <div key={day} className="flex justify-between gap-2">
+                        <span>{dayLabels[day]}</span>
+                        <span>{dayData.open && dayData.close ? `${dayData.open}-${dayData.close}` : "Fermé"}</span>
+                      </div>
+                    );
+                  });
+                })()}
+              </div>
+            )}
+          </div>
+        )}
+        <a
+          href={directionsUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-1 mt-2 pt-2 border-t border-gray-200 text-primary font-bold hover:text-primary/80 transition-colors"
+        >
+          <Navigation className="h-3 w-3 flex-shrink-0" />
+          Itinéraire
+        </a>
+      </div>
+    </div>
+  );
+};
+
+export default MapBusinessInfoCard;
