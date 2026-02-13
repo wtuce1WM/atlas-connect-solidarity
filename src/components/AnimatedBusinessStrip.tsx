@@ -8,10 +8,10 @@ interface StripBusiness {
   id: string;
   name: string;
   logo_url: string | null;
-  address: string | null;
+  city: string;
+  neighborhood: string | null;
   phone: string | null;
   website: string | null;
-  city: string;
   google_maps_url: string | null;
   avg_rating: number | null;
 }
@@ -35,7 +35,7 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
         // Fetch businesses in this category, then sort by avg review rating
         const { data: bizData } = await supabase
           .from("businesses")
-          .select("id, name, logo_url, address, phone, website, city, google_maps_url, google_rating, tripadvisor_rating, restaurant_guru_rating")
+          .select("id, name, logo_url, neighborhood, phone, website, city, google_maps_url, google_rating, tripadvisor_rating, restaurant_guru_rating")
           .eq("is_active", true)
           .or(`main_category.eq.${category},categories.cs.{${category}}`)
           .not("logo_url", "is", null)
@@ -58,7 +58,7 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
       } else {
         let query = supabase
           .from("businesses")
-          .select("id, name, logo_url, address, phone, website, city, google_maps_url")
+          .select("id, name, logo_url, neighborhood, phone, website, city, google_maps_url")
           .eq("is_active", true);
 
         if (businessIds && businessIds.length > 0) {
@@ -76,8 +76,10 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
 
   if (businesses.length === 0) return null;
 
-  // Duplicate items for infinite scroll effect
-  const items = [...businesses, ...businesses];
+  // Filter out businesses without logo, then duplicate for infinite scroll
+  const withLogo = businesses.filter(b => !!b.logo_url);
+  if (withLogo.length === 0) return null;
+  const items = [...withLogo, ...withLogo];
 
   return (
     <div className="w-full py-10 overflow-hidden bg-black/90 rounded-2xl my-8">
@@ -127,12 +129,10 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
                   <span className="text-gold text-xs font-bold">{biz.avg_rating}/20</span>
                 )}
 
-                {biz.address && (
-                  <p className="text-white/40 text-xs leading-tight line-clamp-2 flex items-start gap-1">
-                    <MapPin className="h-3 w-3 flex-shrink-0 mt-0.5" />
-                    {biz.address}
-                  </p>
-                )}
+                <p className="text-white/40 text-xs leading-tight flex items-start gap-1">
+                  <MapPin className="h-3 w-3 flex-shrink-0 mt-0.5" />
+                  {biz.city}{biz.neighborhood ? `, ${biz.neighborhood}` : ""}
+                </p>
 
                 {biz.phone && (
                   <p className="text-white/50 text-xs flex items-center gap-1">
