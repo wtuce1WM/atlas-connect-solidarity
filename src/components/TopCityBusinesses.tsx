@@ -64,7 +64,7 @@ const TopCityBusinesses = ({ businesses, cityName, neighborhoodName, gammes = []
   if (topBusinesses.length === 0) return null;
 
   return (
-    <div className="mb-8 rounded-xl p-6 bg-gray-500/50">
+    <div className="mb-8 rounded-xl p-6 bg-gray-500/20">
       {/* Section Header */}
       <div className="mb-6 text-center">
         <h2 className="mb-2 text-2xl font-bold text-black">
