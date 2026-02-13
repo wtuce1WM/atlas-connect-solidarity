@@ -250,7 +250,7 @@ const BusinessDetail = () => {
 
   const tabs: { key: TabKey; label: string; show: boolean }[] = [
     { key: 'overview', label: 'Aperçu', show: true },
-    { key: 'services', label: 'Services', show: true },
+    { key: 'services', label: 'Services', show: !!(business.services && business.services.length > 0) },
     { key: 'reviews', label: 'Avis', show: !!hasReviews },
     { key: 'location', label: 'Localisation', show: true },
   ];
