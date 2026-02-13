@@ -89,7 +89,7 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
   const items = [...withLogo, ...withLogo];
 
   return (
-    <div className={`w-full py-10 rounded-2xl my-8 ${lightMode ? "bg-gray-100" : "bg-black/90"}`}>
+    <div className={`w-full py-10 rounded-2xl my-8 ${lightMode ? "bg-white" : "bg-black/90"}`}>
       {title && (
         <h2 className={`text-center text-3xl md:text-4xl font-bold mb-10 font-['Playfair_Display'] italic leading-relaxed tracking-wide ${lightMode ? "text-black" : "text-white"}`}>
           {title.replace("{count}", String(withLogo.length))}
@@ -132,8 +132,8 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
 
         {/* Marquee */}
         <div className="relative flex-1 overflow-hidden min-w-0 py-4">
-          <div className={`absolute left-0 top-0 bottom-0 w-16 z-10 pointer-events-none ${lightMode ? "bg-gradient-to-r from-gray-100 to-transparent" : "bg-gradient-to-r from-black/90 to-transparent"}`} />
-          <div className={`absolute right-0 top-0 bottom-0 w-16 z-10 pointer-events-none ${lightMode ? "bg-gradient-to-l from-gray-100 to-transparent" : "bg-gradient-to-l from-black/90 to-transparent"}`} />
+          <div className={`absolute left-0 top-0 bottom-0 w-16 z-10 pointer-events-none ${lightMode ? "bg-gradient-to-r from-white to-transparent" : "bg-gradient-to-r from-black/90 to-transparent"}`} />
+          <div className={`absolute right-0 top-0 bottom-0 w-16 z-10 pointer-events-none ${lightMode ? "bg-gradient-to-l from-white to-transparent" : "bg-gradient-to-l from-black/90 to-transparent"}`} />
           
           <div
             ref={stripRef}
