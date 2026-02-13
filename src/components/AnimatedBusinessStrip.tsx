@@ -166,7 +166,7 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
                   <div className={`rounded-full flex items-center justify-center overflow-hidden transition-all duration-500 bg-white/90 ${
                     colors 
                       ? `w-32 h-32 border-2 ${colors.border} ${colors.shadow} group-hover:${colors.glow}` 
-                      : "w-28 h-28 border border-white/20 group-hover:border-gold/50"
+                      : "w-28 h-28 border border-gold/50 group-hover:border-gold"
                   }`}>
                     {biz.logo_url ? (
                       <img
