@@ -416,6 +416,7 @@ const CategoryPage = () => {
         category={decodedCategoryName}
         showMapLink
         onSelectBusiness={(biz) => handleSelectBusiness(biz as any)}
+        lightMode={isWhiteBg}
       />
 
       {/* Map & Filters & Results */}
