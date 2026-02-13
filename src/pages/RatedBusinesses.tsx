@@ -136,13 +136,14 @@ const RatedBusinesses = () => {
 
   // Compute average /20 for a business
   const computeAverage20 = (b: RatedBusiness) => {
-    if (b.rating != null) return b.rating;
-    const sources: number[] = [];
-    if (b.google_rating != null) sources.push(b.google_rating * 4);
-    if (b.tripadvisor_rating != null) sources.push(b.tripadvisor_rating * 4);
-    if (b.restaurant_guru_rating != null) sources.push(b.restaurant_guru_rating * 4);
-    if (sources.length === 0) return null;
-    return sources.reduce((a, c) => a + c, 0) / sources.length;
+    const sources: { rating: number; count: number }[] = [];
+    if (b.google_rating != null && b.google_review_count) sources.push({ rating: b.google_rating, count: b.google_review_count });
+    if (b.tripadvisor_rating != null && b.tripadvisor_review_count) sources.push({ rating: b.tripadvisor_rating, count: b.tripadvisor_review_count });
+    if (b.restaurant_guru_rating != null && b.restaurant_guru_review_count) sources.push({ rating: b.restaurant_guru_rating, count: b.restaurant_guru_review_count });
+    const totalCount = sources.reduce((s, r) => s + r.count, 0);
+    if (totalCount === 0) return null;
+    const weightedAvg = sources.reduce((s, r) => s + r.rating * r.count, 0) / totalCount;
+    return Math.round(weightedAvg * 4 * 10) / 10;
   };
 
   const totalReviews = (b: RatedBusiness) =>
