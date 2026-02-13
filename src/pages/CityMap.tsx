@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import DynamicLabelSections from "@/components/DynamicLabelSections";
 import CityWeather from "@/components/CityWeather";
 import TopCityBusinesses from "@/components/TopCityBusinesses";
 import symboleMaroc from "@/assets/symbole-maroc.webp";
@@ -786,6 +787,7 @@ const CityMap = () => {
       />
 
       <div className="relative z-10">
+        <DynamicLabelSections pageType="city" />
         <Footer variant="morocco" />
       </div>
     </div>

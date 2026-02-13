@@ -677,6 +677,11 @@ export type Database = {
           name_ar: string | null
           name_en: string | null
           name_fr: string
+          show_on_category: boolean
+          show_on_city: boolean
+          show_on_home: boolean
+          show_on_neighborhood: boolean
+          show_on_service: boolean
           sort_order: number | null
           updated_at: string | null
           url_ar: string | null
@@ -691,6 +696,11 @@ export type Database = {
           name_ar?: string | null
           name_en?: string | null
           name_fr: string
+          show_on_category?: boolean
+          show_on_city?: boolean
+          show_on_home?: boolean
+          show_on_neighborhood?: boolean
+          show_on_service?: boolean
           sort_order?: number | null
           updated_at?: string | null
           url_ar?: string | null
@@ -705,6 +715,11 @@ export type Database = {
           name_ar?: string | null
           name_en?: string | null
           name_fr?: string
+          show_on_category?: boolean
+          show_on_city?: boolean
+          show_on_home?: boolean
+          show_on_neighborhood?: boolean
+          show_on_service?: boolean
           sort_order?: number | null
           updated_at?: string | null
           url_ar?: string | null

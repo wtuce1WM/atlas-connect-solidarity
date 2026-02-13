@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import DynamicLabelSections from "@/components/DynamicLabelSections";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2, MapPin, Building2, ChevronLeft, ChevronRight, Sun, X, ArrowLeft } from "lucide-react";
@@ -527,6 +528,7 @@ const ServicePage = () => {
         </div>
       </section>
 
+      <DynamicLabelSections pageType="service" />
       <Footer />
     </div>
   );
