@@ -508,6 +508,7 @@ const GammeManagement = ({ onEditBusiness }: GammeManagementProps) => {
             <TableRow>
               <TableHead className="w-12">Ordre</TableHead>
               <TableHead>Couleur</TableHead>
+              <TableHead>Police</TableHead>
               <TableHead>Nom (FR)</TableHead>
               <TableHead>Nom (EN)</TableHead>
               <TableHead>Catégories associées</TableHead>
@@ -518,15 +519,15 @@ const GammeManagement = ({ onEditBusiness }: GammeManagementProps) => {
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8">
-                  Chargement...
-                </TableCell>
+                <TableCell colSpan={8} className="text-center py-8">
+                   Chargement...
+                 </TableCell>
               </TableRow>
             ) : gammes.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8">
-                  Aucune gamme définie.
-                </TableCell>
+                <TableCell colSpan={8} className="text-center py-8">
+                   Aucune gamme définie.
+                 </TableCell>
               </TableRow>
             ) : (
               gammes.map((gamme) => {
@@ -557,6 +558,13 @@ const GammeManagement = ({ onEditBusiness }: GammeManagementProps) => {
                           className="w-6 h-6 rounded border border-border"
                           style={{ backgroundColor: gamme.color_hex || '#000000' }}
                           title={gamme.color_hex || '#000000'}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <div 
+                          className="w-6 h-6 rounded border border-border flex items-center justify-center text-xs font-bold"
+                          style={{ backgroundColor: gamme.text_color_hex || '#000000' }}
+                          title={gamme.text_color_hex || '#000000'}
                         />
                       </TableCell>
                       <TableCell className="font-medium">{gamme.name_fr}</TableCell>
@@ -590,7 +598,7 @@ const GammeManagement = ({ onEditBusiness }: GammeManagementProps) => {
                     </TableRow>
                     {isExpanded && businesses.length > 0 && (
                       <TableRow>
-                        <TableCell colSpan={7} className="bg-muted/30 p-0">
+                        <TableCell colSpan={8} className="bg-muted/30 p-0">
                           <div className="px-8 py-3 space-y-1">
                             {businesses.map((b) => (
                               <div key={b.id} className="flex items-center justify-between py-1.5 px-3 rounded hover:bg-background transition-colors">
