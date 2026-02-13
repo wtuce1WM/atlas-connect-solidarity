@@ -135,7 +135,7 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
           
           <div
             ref={stripRef}
-            className="flex animate-marquee hover:[animation-play-state:paused]"
+            className="flex items-center animate-marquee hover:[animation-play-state:paused]"
             style={{ width: "max-content" }}
           >
             {items.map((biz, index) => {
