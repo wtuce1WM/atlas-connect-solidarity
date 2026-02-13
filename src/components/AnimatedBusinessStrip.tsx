@@ -102,7 +102,7 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
         >
           <div className="flex flex-col items-center text-center space-y-3 h-full justify-center">
             <Crown className="h-6 w-6 text-gold fill-gold animate-pulse" />
-            <div className="w-36 h-36 rounded-full bg-white border-2 border-gold/60 flex items-center justify-center overflow-hidden shadow-[0_0_30px_rgba(212,175,55,0.3)] group-hover:shadow-[0_0_40px_rgba(212,175,55,0.5)] transition-all duration-500">
+            <div className="w-36 h-36 rounded-full bg-white/90 border-2 border-gold/60 flex items-center justify-center overflow-hidden shadow-[0_0_30px_rgba(212,175,55,0.3)] group-hover:shadow-[0_0_40px_rgba(212,175,55,0.5)] transition-all duration-500">
               {champion.logo_url ? (
                 <img
                   src={champion.logo_url}
@@ -163,10 +163,10 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
                     <Crown className={`h-5 w-5 ${colors.text} ${colors.fill} animate-pulse`} />
                   )}
                   {/* Logo */}
-                  <div className={`rounded-full flex items-center justify-center overflow-hidden transition-all duration-500 bg-white ${
+                  <div className={`rounded-full flex items-center justify-center overflow-hidden transition-all duration-500 bg-white/90 ${
                     colors 
                       ? `w-32 h-32 border-2 ${colors.border} ${colors.shadow} group-hover:${colors.glow}` 
-                      : "w-28 h-28 border border-white/10 group-hover:border-gold/50"
+                      : "w-28 h-28 border border-white/20 group-hover:border-gold/50"
                   }`}>
                     {biz.logo_url ? (
                       <img
