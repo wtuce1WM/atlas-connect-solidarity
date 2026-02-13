@@ -142,12 +142,12 @@ const LabelSection = ({
               <img src={resolvedLogoUrl} alt={title} className="h-24 object-contain" />
             </div>
           )}
-          <h2 className="mb-3 text-3xl font-bold text-white">
+          <h2 className={`mb-3 text-3xl font-bold ${pageType === "neighborhood" ? "text-black" : "text-white"}`}>
             {language === "fr" ? "Établissements " : language === "ar" ? "مؤسسات " : ""}
             <span className="text-gold">{title}</span>
             {language === "en" ? " Establishments" : ""}
           </h2>
-          <p className="mx-auto max-w-2xl text-gray-400">{description}</p>
+          <p className={`mx-auto max-w-2xl ${pageType === "neighborhood" ? "text-black" : "text-gray-400"}`}>{description}</p>
         </div>
 
         {/* Business Cards Grid - same style as RelaisChateauxSection */}
