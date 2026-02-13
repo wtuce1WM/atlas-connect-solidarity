@@ -35,20 +35,22 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
         // Fetch businesses in this category, then sort by avg review rating
         const { data: bizData } = await supabase
           .from("businesses")
-          .select("id, name, logo_url, neighborhood, phone, website, city, google_maps_url, google_rating, tripadvisor_rating, restaurant_guru_rating")
+          .select("id, name, logo_url, neighborhood, phone, website, city, google_maps_url, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count")
           .eq("is_active", true)
           .or(`main_category.eq.${category},categories.cs.{${category}}`)
           .not("logo_url", "is", null);
 
         if (bizData) {
-          // Calculate avg rating and sort by it
+          // Calculate weighted avg rating (same logic as BusinessDetail)
           const withRating = bizData.map((b) => {
-            const ratings: number[] = [];
-            if (b.google_rating) ratings.push(b.google_rating);
-            if (b.tripadvisor_rating) ratings.push(b.tripadvisor_rating);
-            if (b.restaurant_guru_rating) ratings.push(b.restaurant_guru_rating);
-            const avg = ratings.length > 0 ? ratings.reduce((a, c) => a + c, 0) / ratings.length : null;
-            return { ...b, avg_rating: avg ? Math.round((avg / 5) * 20 * 10) / 10 : null };
+            const sources: { rating: number; count: number }[] = [];
+            if (b.google_rating && b.google_review_count) sources.push({ rating: b.google_rating, count: b.google_review_count });
+            if (b.tripadvisor_rating && b.tripadvisor_review_count) sources.push({ rating: b.tripadvisor_rating, count: b.tripadvisor_review_count });
+            if (b.restaurant_guru_rating && b.restaurant_guru_review_count) sources.push({ rating: b.restaurant_guru_rating, count: b.restaurant_guru_review_count });
+            const totalCount = sources.reduce((s, r) => s + r.count, 0);
+            const weightedAvg = totalCount > 0 ? sources.reduce((s, r) => s + r.rating * r.count, 0) / totalCount : 0;
+            const avgOn20 = totalCount > 0 ? Math.round(weightedAvg * 4 * 10) / 10 : null;
+            return { ...b, avg_rating: avgOn20 };
           });
           withRating.sort((a, b) => (b.avg_rating ?? 0) - (a.avg_rating ?? 0));
           setBusinesses(withRating.slice(0, 12));
