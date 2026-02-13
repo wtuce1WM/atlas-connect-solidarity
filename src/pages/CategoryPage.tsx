@@ -367,7 +367,7 @@ const CategoryPage = () => {
   const endResult = Math.min(currentPage * ITEMS_PER_PAGE, filteredBusinesses.length);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-black">
       <Header />
       
       {/* Hero Section */}
