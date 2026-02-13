@@ -52,7 +52,6 @@ interface BusinessCardProps {
   };
   mapButtonVariant?: "text" | "button";
   showAddress?: boolean;
-  theme?: "light" | "dark";
 }
 
 const WhatsAppIcon = () => (
@@ -107,8 +106,7 @@ const BusinessCard = ({
   showMapButton = false,
   mapButtonLabels = { view: "Voir sur la carte", shown: "Affiché sur la carte" },
   mapButtonVariant = "text",
-  showAddress = false,
-  theme = "light"
+  showAddress = false
 }: BusinessCardProps) => {
   const gamme = getBusinessGamme(business, gammes);
   const calculatedRating = getCalculatedRating(business);
@@ -116,7 +114,6 @@ const BusinessCard = ({
   const isSelected = selectedBusinessId === business.id;
   const hasMapData = business.google_maps_url || (business.latitude && business.longitude);
   const businessImage = getBusinessImage(business);
-  const isDark = theme === "dark";
 
   const locationText = showAddress && business.address 
     ? business.address 
@@ -126,11 +123,7 @@ const BusinessCard = ({
 
   return (
     <Link to={`/business/${business.id}`}>
-      <Card className={`group h-full overflow-hidden transition-all duration-300 hover:shadow-lg relative ${
-        isDark 
-          ? "bg-black/60 border-gold/30 hover:border-gold/60 hover:shadow-gold/10" 
-          : "bg-card border-border hover:border-primary/50 hover:shadow-primary/10"
-      }`}>
+      <Card className="group h-full overflow-hidden bg-card border-border hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 relative">
         {/* Image - 16:9 aspect ratio */}
         <div className={`aspect-video overflow-hidden relative ${businessImage.isLogo ? 'bg-white' : 'bg-muted'}`}>
           <img
@@ -194,27 +187,23 @@ const BusinessCard = ({
           </div>
 
           {/* Name */}
-          <h3 className={`font-semibold text-lg mb-2 line-clamp-2 transition-colors ${
-            isDark 
-              ? `text-white group-hover:text-gold ${business.wtuce_status === "verified" ? "font-bold" : ""}` 
-              : `group-hover:text-primary ${business.wtuce_status === "verified" ? "text-foreground font-bold" : "text-foreground"}`
-          }`}>
+          <h3 className={`font-semibold text-lg mb-2 line-clamp-2 group-hover:text-primary transition-colors ${business.wtuce_status === "verified" ? "text-foreground font-bold" : "text-foreground"}`}>
             {business.name}
           </h3>
 
           {/* Location */}
-          <div className={`flex items-center gap-1 text-sm mb-2 ${isDark ? "text-white/60" : "text-muted-foreground"}`}>
+          <div className="flex items-center gap-1 text-sm text-muted-foreground mb-2">
             <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
             <span className="truncate">{locationText}</span>
           </div>
 
           {/* Contact info */}
-          <div className={`flex flex-wrap items-center gap-3 text-xs ${isDark ? "text-white/50" : "text-muted-foreground"}`}>
+          <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
             {business.phone && (
               <a
                 href={`tel:${business.phone}`}
                 onClick={(e) => e.stopPropagation()}
-                className={`flex items-center gap-1 transition-colors ${isDark ? "hover:text-gold" : "hover:text-primary"}`}
+                className="flex items-center gap-1 hover:text-primary transition-colors"
               >
                 <Phone className="h-3.5 w-3.5" />
                 <span className="truncate max-w-[120px]">{business.phone}</span>
