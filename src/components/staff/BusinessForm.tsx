@@ -357,6 +357,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
     skype: (business as any)?.skype || "",
     vimeo_url: (business as any)?.vimeo_url || "",
     images: (business as any)?.images || [] as string[],
+    _initialImages: (business as any)?.images || [] as string[], // track original images for cleanup
     pdf_url: (business as any)?.pdf_url || "",
     online_shop_url: (business as any)?.online_shop_url || "",
     opening_hours: (business as any)?.opening_hours as OpeningHours | null,
@@ -594,6 +595,22 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
           if (labelsError) {
             console.error("Error saving labels:", labelsError);
           }
+        }
+      }
+
+      // Clean up removed images from storage (compare initial vs final)
+      const removedImages = (formData._initialImages as string[]).filter(
+        (url: string) => !formData.images.includes(url) && url.includes("/business-images/")
+      );
+      if (removedImages.length > 0) {
+        const filePaths = removedImages
+          .map((url: string) => {
+            const parts = url.split("/business-images/");
+            return parts.length > 1 ? parts[1] : null;
+          })
+          .filter(Boolean) as string[];
+        if (filePaths.length > 0) {
+          await supabase.storage.from("business-images").remove(filePaths);
         }
       }
 
