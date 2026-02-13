@@ -117,7 +117,7 @@ const LabelSection = ({
       className="py-16 relative overflow-visible"
       style={
         pageType === "neighborhood"
-          ? { background: "linear-gradient(to bottom, #ffffff, #000000)" }
+          ? { background: "linear-gradient(to bottom, hsl(30, 25%, 97%), #000000)" }
           : { backgroundColor: "#000000" }
       }
     >
