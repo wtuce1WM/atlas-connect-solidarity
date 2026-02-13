@@ -1191,7 +1191,14 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
           </div>
 
         <div className="space-y-2">
-          <Label htmlFor="menu_url">Menu (URL)</Label>
+          <div className="flex items-center gap-2">
+            <Label htmlFor="menu_url">Menu (URL)</Label>
+            {formData.menu_url && (
+              <a href={formData.menu_url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">
+                Ouvrir ↗
+              </a>
+            )}
+          </div>
           <Input
             id="menu_url"
             value={formData.menu_url}
