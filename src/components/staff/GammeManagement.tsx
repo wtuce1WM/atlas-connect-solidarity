@@ -44,6 +44,7 @@ interface Gamme {
   description: string | null;
   sort_order: number | null;
   color_hex: string | null;
+  text_color_hex: string | null;
 }
 
 interface GammeCategory {
@@ -72,6 +73,7 @@ const GammeManagement = ({ onEditBusiness }: GammeManagementProps) => {
     description: "",
     sort_order: 0,
     color_hex: "#000000",
+    text_color_hex: "#000000",
   });
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const { toast } = useToast();
@@ -140,6 +142,7 @@ const GammeManagement = ({ onEditBusiness }: GammeManagementProps) => {
       description: "",
       sort_order: gammes.length,
       color_hex: "#000000",
+      text_color_hex: "#000000",
     });
     setSelectedCategories([]);
     setEditingGamme(null);
@@ -155,6 +158,7 @@ const GammeManagement = ({ onEditBusiness }: GammeManagementProps) => {
         description: gamme.description || "",
         sort_order: gamme.sort_order || 0,
         color_hex: gamme.color_hex || "#000000",
+        text_color_hex: gamme.text_color_hex || "#000000",
       });
       setSelectedCategories(getCategoriesForGamme(gamme.id));
     } else {
@@ -190,6 +194,7 @@ const GammeManagement = ({ onEditBusiness }: GammeManagementProps) => {
       description: formData.description.trim() || null,
       sort_order: formData.sort_order,
       color_hex: formData.color_hex || null,
+      text_color_hex: formData.text_color_hex || null,
     };
 
     let gammeId: string;
@@ -381,7 +386,7 @@ const GammeManagement = ({ onEditBusiness }: GammeManagementProps) => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="color_hex">Couleur</Label>
+                  <Label htmlFor="color_hex">Couleur fond</Label>
                   <div className="flex items-center gap-2">
                     <Input
                       id="color_hex"
@@ -403,6 +408,44 @@ const GammeManagement = ({ onEditBusiness }: GammeManagementProps) => {
                       maxLength={7}
                     />
                   </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="text_color_hex">Couleur police</Label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      id="text_color_hex"
+                      type="color"
+                      value={formData.text_color_hex}
+                      onChange={(e) =>
+                        setFormData({ ...formData, text_color_hex: e.target.value })
+                      }
+                      className="w-12 h-10 p-1 cursor-pointer"
+                    />
+                    <Input
+                      type="text"
+                      value={formData.text_color_hex}
+                      onChange={(e) =>
+                        setFormData({ ...formData, text_color_hex: e.target.value })
+                      }
+                      placeholder="#000000"
+                      className="w-28 font-mono text-sm"
+                      maxLength={7}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Badge preview */}
+              <div className="space-y-2">
+                <Label>Aperçu badge</Label>
+                <div className="flex items-center gap-2">
+                  <Badge
+                    className="text-xs border border-black whitespace-nowrap"
+                    style={{ backgroundColor: formData.color_hex || '#000000', color: formData.text_color_hex || '#000000' }}
+                  >
+                    {formData.name_fr || "Aperçu"}
+                  </Badge>
                 </div>
               </div>
 

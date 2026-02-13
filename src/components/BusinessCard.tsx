@@ -36,6 +36,7 @@ export interface Gamme {
   id: string;
   name_fr: string;
   color_hex: string | null;
+  text_color_hex: string | null;
 }
 
 interface BusinessCardProps {
@@ -143,8 +144,8 @@ const BusinessCard = ({
           {gamme && (
             <div className="absolute top-2 left-1/2 -translate-x-1/2 z-10">
               <Badge 
-                className="text-xs text-black border border-black whitespace-nowrap"
-                style={{ backgroundColor: gamme.color_hex || '#666666' }}
+                className="text-xs border border-black whitespace-nowrap"
+                style={{ backgroundColor: gamme.color_hex || '#666666', color: gamme.text_color_hex || '#000000' }}
               >
                 {gamme.name_fr}
               </Badge>

@@ -32,6 +32,7 @@ interface Gamme {
   id: string;
   name_fr: string;
   color_hex: string | null;
+  text_color_hex: string | null;
 }
 
 const EssaouiraSeaView = () => {
@@ -50,7 +51,7 @@ const EssaouiraSeaView = () => {
           .eq("city", "Essaouira")
           .eq("is_active", true)
           .order("priority_score", { ascending: false }),
-        supabase.from("gammes").select("id, name_fr, color_hex"),
+        supabase.from("gammes").select("id, name_fr, color_hex, text_color_hex"),
       ]);
 
       if (bizResult.data) {

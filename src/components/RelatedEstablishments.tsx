@@ -33,7 +33,7 @@ const RelatedEstablishments = ({ currentBusinessId, kpRegroupement, isVerified =
           .order("priority_score", { ascending: false }),
         supabase
           .from("gammes")
-          .select("id, name_fr, color_hex")
+          .select("id, name_fr, color_hex, text_color_hex")
       ]);
 
       if (businessesRes.data && businessesRes.data.length > 0) {

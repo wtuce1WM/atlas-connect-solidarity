@@ -101,6 +101,7 @@ interface Gamme {
   id: string;
   name_fr: string;
   color_hex: string | null;
+  text_color_hex: string | null;
 }
 
 interface VacationDate {
@@ -195,7 +196,7 @@ const BusinessDetail = () => {
         if (data.gamme_id) {
           const { data: gammeData } = await supabase
             .from("gammes")
-            .select("id, name_fr, color_hex")
+            .select("id, name_fr, color_hex, text_color_hex")
             .eq("id", data.gamme_id)
             .maybeSingle();
           if (gammeData) setGamme(gammeData as Gamme);
@@ -334,8 +335,8 @@ const BusinessDetail = () => {
           {gamme && (
             <div className="mt-2">
               <Badge 
-                className="text-xs text-black border border-black whitespace-nowrap"
-                style={{ backgroundColor: gamme.color_hex || '#666666' }}
+                className="text-xs border border-black whitespace-nowrap"
+                style={{ backgroundColor: gamme.color_hex || '#666666', color: gamme.text_color_hex || '#000000' }}
               >
                 {gamme.name_fr}
               </Badge>

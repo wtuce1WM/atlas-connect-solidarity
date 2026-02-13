@@ -25,7 +25,7 @@ import type { Tables } from "@/integrations/supabase/types";
 
 type Business = Tables<"businesses">;
 
-type Gamme = { id: string; name_fr: string; color_hex: string | null };
+type Gamme = { id: string; name_fr: string; color_hex: string | null; text_color_hex: string | null };
 
 const StaffBackoffice = () => {
   const [user, setUser] = useState<any>(null);
@@ -104,7 +104,7 @@ const StaffBackoffice = () => {
   };
 
   const fetchGammes = async () => {
-    const { data } = await supabase.from("gammes").select("id, name_fr, color_hex").order("name_fr");
+    const { data } = await supabase.from("gammes").select("id, name_fr, color_hex, text_color_hex").order("name_fr");
     if (data) setGammes(data);
   };
 

@@ -30,7 +30,7 @@ import type { Tables } from "@/integrations/supabase/types";
 import { useBusinessBrokenFiles } from "@/hooks/useBusinessBrokenFiles";
 
 type Business = Tables<"businesses">;
-type Gamme = { id: string; name_fr: string; color_hex: string | null };
+type Gamme = { id: string; name_fr: string; color_hex: string | null; text_color_hex: string | null };
 
 interface BusinessTableProps {
   businesses: Business[];
@@ -198,8 +198,8 @@ const BusinessTable = ({ businesses, gammes, loading, onEdit, onDelete, onDuplic
                     if (!gamme) return <span className="text-muted-foreground">-</span>;
                     return (
                       <Badge
-                        className="text-xs text-black border border-black"
-                        style={{ backgroundColor: gamme.color_hex || '#666666' }}
+                        className="text-xs border border-black"
+                        style={{ backgroundColor: gamme.color_hex || '#666666', color: gamme.text_color_hex || '#000000' }}
                       >
                         {gamme.name_fr}
                       </Badge>
