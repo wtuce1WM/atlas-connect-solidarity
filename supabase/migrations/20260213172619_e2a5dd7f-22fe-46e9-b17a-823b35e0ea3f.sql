@@ -1,0 +1,1 @@
+ALTER TABLE public.businesses ADD COLUMN default_service text;
