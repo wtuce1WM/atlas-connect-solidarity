@@ -1712,7 +1712,18 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                   </span>
                 ))}
               </div>
-              <p className="text-xs text-muted-foreground">Cliquez sur un service pour le définir comme service par défaut (★).</p>
+              <div className="flex items-center gap-2 mt-1">
+                <p className="text-xs text-muted-foreground">Cliquez sur un service pour le définir comme service par défaut (★).</p>
+                {formData.default_service && (
+                  <button
+                    type="button"
+                    onClick={() => handleChange("default_service", "")}
+                    className="text-xs text-destructive hover:underline"
+                  >
+                    Aucun
+                  </button>
+                )}
+              </div>
             </>
           )}
           </div>
