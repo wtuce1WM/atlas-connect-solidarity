@@ -252,7 +252,7 @@ const BusinessDetail = () => {
     { key: 'overview', label: 'Aperçu', show: true },
     { key: 'services', label: 'Services', show: !!(business.services && business.services.length > 0) },
     { key: 'reviews', label: 'Avis', show: !!hasReviews },
-    { key: 'location', label: 'Localisation', show: true },
+    { key: 'location', label: 'Localisation', show: !!(business.address || (business.latitude && business.longitude) || business.google_maps_url) },
   ];
 
   return (
