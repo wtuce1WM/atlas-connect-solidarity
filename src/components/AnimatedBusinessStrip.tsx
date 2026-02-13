@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Phone, Globe, MapPin } from "lucide-react";
+import { Phone, Globe, MapPin, Map } from "lucide-react";
 
 interface StripBusiness {
   id: string;
@@ -12,37 +12,67 @@ interface StripBusiness {
   phone: string | null;
   website: string | null;
   city: string;
+  google_maps_url: string | null;
+  avg_rating: number | null;
 }
 
 interface AnimatedBusinessStripProps {
   city?: string;
   title?: string;
   businessIds?: string[];
+  category?: string;
+  showMapLink?: boolean;
 }
 
-const AnimatedBusinessStrip = ({ city, title, businessIds }: AnimatedBusinessStripProps) => {
+const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink }: AnimatedBusinessStripProps) => {
   const [businesses, setBusinesses] = useState<StripBusiness[]>([]);
   const { language } = useLanguage();
   const stripRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchBusinesses = async () => {
-      let query = supabase
-        .from("businesses")
-        .select("id, name, logo_url, address, phone, website, city")
-        .eq("is_active", true);
+      if (category) {
+        // Fetch businesses in this category, then sort by avg review rating
+        const { data: bizData } = await supabase
+          .from("businesses")
+          .select("id, name, logo_url, address, phone, website, city, google_maps_url, google_rating, tripadvisor_rating, restaurant_guru_rating")
+          .eq("is_active", true)
+          .or(`main_category.eq.${category},categories.cs.{${category}}`)
+          .not("logo_url", "is", null)
+          .order("priority_score", { ascending: false })
+          .limit(50);
 
-      if (businessIds && businessIds.length > 0) {
-        query = query.in("id", businessIds);
-      } else if (city) {
-        query = query.eq("city", city).not("logo_url", "is", null);
+        if (bizData) {
+          // Calculate avg rating and sort by it
+          const withRating = bizData.map((b) => {
+            const ratings: number[] = [];
+            if (b.google_rating) ratings.push(b.google_rating);
+            if (b.tripadvisor_rating) ratings.push(b.tripadvisor_rating);
+            if (b.restaurant_guru_rating) ratings.push(b.restaurant_guru_rating);
+            const avg = ratings.length > 0 ? ratings.reduce((a, c) => a + c, 0) / ratings.length : null;
+            return { ...b, avg_rating: avg ? Math.round((avg / 5) * 20 * 10) / 10 : null };
+          });
+          withRating.sort((a, b) => (b.avg_rating ?? 0) - (a.avg_rating ?? 0));
+          setBusinesses(withRating.slice(0, 12));
+        }
+      } else {
+        let query = supabase
+          .from("businesses")
+          .select("id, name, logo_url, address, phone, website, city, google_maps_url")
+          .eq("is_active", true);
+
+        if (businessIds && businessIds.length > 0) {
+          query = query.in("id", businessIds);
+        } else if (city) {
+          query = query.eq("city", city).not("logo_url", "is", null);
+        }
+
+        const { data } = await query.order("priority_score", { ascending: false }).limit(12);
+        setBusinesses((data || []).map((b) => ({ ...b, avg_rating: null })));
       }
-
-      const { data } = await query.order("priority_score", { ascending: false }).limit(12);
-      setBusinesses(data || []);
     };
     fetchBusinesses();
-  }, [city, businessIds]);
+  }, [city, businessIds, category]);
 
   if (businesses.length === 0) return null;
 
@@ -93,6 +123,10 @@ const AnimatedBusinessStrip = ({ city, title, businessIds }: AnimatedBusinessStr
                   {biz.name}
                 </h3>
 
+                {biz.avg_rating !== null && (
+                  <span className="text-gold text-xs font-bold">{biz.avg_rating}/20</span>
+                )}
+
                 {biz.address && (
                   <p className="text-white/40 text-xs leading-tight line-clamp-2 flex items-start gap-1">
                     <MapPin className="h-3 w-3 flex-shrink-0 mt-0.5" />
@@ -107,12 +141,23 @@ const AnimatedBusinessStrip = ({ city, title, businessIds }: AnimatedBusinessStr
                   </p>
                 )}
 
-                {biz.website && (
+                {showMapLink && biz.google_maps_url ? (
+                  <span
+                    onClick={(e) => {
+                      e.preventDefault();
+                      window.open(biz.google_maps_url!, "_blank");
+                    }}
+                    className="text-gold/60 text-xs group-hover:text-gold transition-colors duration-300 flex items-center gap-1 cursor-pointer"
+                  >
+                    <Map className="h-3 w-3 flex-shrink-0" />
+                    {language === "fr" ? "Voir sur la carte" : language === "ar" ? "عرض على الخريطة" : "View on map"}
+                  </span>
+                ) : !showMapLink && biz.website ? (
                   <p className="text-gold/60 text-xs group-hover:text-gold transition-colors duration-300 flex items-center gap-1">
                     <Globe className="h-3 w-3 flex-shrink-0" />
                     {new URL(biz.website).hostname.replace("www.", "")}
                   </p>
-                )}
+                ) : null}
               </div>
             </Link>
           ))}
