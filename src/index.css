@@ -166,18 +166,6 @@ h2, h3 {
   }
 }
 
-@keyframes map-zoom-in {
-  0% {
-    transform: scale(1);
-  }
-  100% {
-    transform: scale(1.12);
-  }
-}
-
-.animate-map-zoom-in-iframe {
-  animation: map-zoom-in 1.5s cubic-bezier(0.22, 1, 0.36, 1) 1.2s both;
-}
 
 .animate-map-unfold {
   animation: map-unfold 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;

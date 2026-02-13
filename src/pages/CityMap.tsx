@@ -548,7 +548,7 @@ const CityMap = () => {
                 <div className="overflow-hidden rounded-lg">
                   <iframe
                     src={getMapEmbedUrl()}
-                    className="w-full h-[500px] border-0 ring-[5px] ring-gold animate-map-zoom-in-iframe"
+                    className="w-full h-[500px] border-0 ring-[5px] ring-gold"
                     allowFullScreen
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"
