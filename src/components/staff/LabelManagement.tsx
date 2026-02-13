@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Trash2, Edit, X, Check, Loader2, Award, Link } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Plus, Trash2, Edit, X, Check, Loader2, Award, Link, ChevronDown, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface LabelItem {
@@ -20,6 +21,12 @@ interface LabelItem {
   logo_url: string | null;
   sort_order: number;
   created_at: string;
+}
+
+interface LabelBusiness {
+  id: string;
+  name: string;
+  city: string;
 }
 
 interface LabelFormState {
@@ -52,6 +59,8 @@ const LabelManagement = () => {
   const [newLabel, setNewLabel] = useState<LabelFormState>(emptyForm);
   const [showNewForm, setShowNewForm] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [labelBusinesses, setLabelBusinesses] = useState<Record<string, LabelBusiness[]>>({});
+  const [expandedLabels, setExpandedLabels] = useState<Set<string>>(new Set());
   const { toast } = useToast();
 
   useEffect(() => {
@@ -60,21 +69,38 @@ const LabelManagement = () => {
 
   const fetchLabels = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("labels" as any)
-      .select("id, name_fr, name_en, name_ar, url_fr, url_en, url_ar, image_url, logo_url, sort_order, created_at")
-      .order("sort_order", { ascending: true });
+    const [labelsRes, blRes] = await Promise.all([
+      supabase
+        .from("labels" as any)
+        .select("id, name_fr, name_en, name_ar, url_fr, url_en, url_ar, image_url, logo_url, sort_order, created_at")
+        .order("sort_order", { ascending: true }),
+      supabase
+        .from("business_labels")
+        .select("label_id, business_id, businesses!business_labels_business_id_fkey(id, name, city)")
+    ]);
 
-    if (error) {
-      console.error("Error fetching labels:", error);
+    if (labelsRes.error) {
+      console.error("Error fetching labels:", labelsRes.error);
       toast({
         variant: "destructive",
         title: "Erreur",
         description: "Impossible de charger les labels.",
       });
     } else {
-      setLabels((data as unknown as LabelItem[]) || []);
+      setLabels((labelsRes.data as unknown as LabelItem[]) || []);
     }
+
+    // Group businesses by label_id
+    const grouped: Record<string, LabelBusiness[]> = {};
+    ((blRes.data as any[]) || []).forEach((bl: any) => {
+      const b = bl.businesses;
+      if (b && bl.label_id) {
+        if (!grouped[bl.label_id]) grouped[bl.label_id] = [];
+        grouped[bl.label_id].push({ id: b.id, name: b.name, city: b.city });
+      }
+    });
+    setLabelBusinesses(grouped);
+
     setLoading(false);
   };
 
@@ -523,46 +549,91 @@ const LabelManagement = () => {
                     </div>
                   </div>
                 ) : (
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      {label.image_url ? (
-                        <img
-                          src={label.image_url}
-                          alt={label.name_fr}
-                          className="h-12 w-12 object-contain border rounded bg-background p-1"
-                        />
-                      ) : (
-                        <div className="h-12 w-12 border rounded bg-muted flex items-center justify-center">
-                          <Award className="h-6 w-6 text-muted-foreground" />
-                        </div>
-                      )}
-                      <div>
-                        <p className="font-medium">{label.name_fr}</p>
-                        <div className="text-sm text-muted-foreground flex flex-wrap gap-x-3 gap-y-1">
-                          {label.name_en && <span>EN: {label.name_en}</span>}
-                          {label.name_ar && <span dir="rtl">AR: {label.name_ar}</span>}
-                        </div>
-                        {(label.url_fr || label.url_en || label.url_ar) && (
-                          <div className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-                            <Link className="h-3 w-3" />
-                            <span>URL configurées</span>
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        {label.image_url ? (
+                          <img
+                            src={label.image_url}
+                            alt={label.name_fr}
+                            className="h-12 w-12 object-contain border rounded bg-background p-1"
+                          />
+                        ) : (
+                          <div className="h-12 w-12 border rounded bg-muted flex items-center justify-center">
+                            <Award className="h-6 w-6 text-muted-foreground" />
                           </div>
                         )}
+                        <div>
+                          <p className="font-medium">{label.name_fr}</p>
+                          <div className="text-sm text-muted-foreground flex flex-wrap gap-x-3 gap-y-1">
+                            {label.name_en && <span>EN: {label.name_en}</span>}
+                            {label.name_ar && <span dir="rtl">AR: {label.name_ar}</span>}
+                          </div>
+                          {(label.url_fr || label.url_en || label.url_ar) && (
+                            <div className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                              <Link className="h-3 w-3" />
+                              <span>URL configurées</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {(() => {
+                          const businesses = labelBusinesses[label.id] || [];
+                          const count = businesses.length;
+                          return (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="gap-1 text-muted-foreground"
+                              onClick={() => {
+                                setExpandedLabels(prev => {
+                                  const next = new Set(prev);
+                                  if (next.has(label.id)) next.delete(label.id); else next.add(label.id);
+                                  return next;
+                                });
+                              }}
+                              disabled={count === 0}
+                            >
+                              <Badge variant="outline" className="text-xs">{count}</Badge>
+                              {count > 0 && (
+                                expandedLabels.has(label.id) ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />
+                              )}
+                            </Button>
+                          );
+                        })()}
+                        <Button variant="outline" size="sm" onClick={() => startEdit(label)}>
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-destructive hover:bg-destructive/10"
+                          onClick={() => handleDelete(label.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Button variant="outline" size="sm" onClick={() => startEdit(label)}>
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="text-destructive hover:bg-destructive/10"
-                        onClick={() => handleDelete(label.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
+                    {expandedLabels.has(label.id) && (labelBusinesses[label.id] || []).length > 0 && (
+                      <div className="mt-3 ml-16 border-t pt-3 space-y-1">
+                        {(labelBusinesses[label.id] || []).map((b) => (
+                          <div key={b.id} className="flex items-center justify-between py-1.5 px-3 rounded hover:bg-muted/50 transition-colors">
+                            <span className="text-sm">
+                              {b.name} <span className="text-muted-foreground">— {b.city}</span>
+                            </span>
+                            <a
+                              href={`/business/${b.id}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs text-primary hover:underline"
+                            >
+                              Voir fiche
+                            </a>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
               </CardContent>
