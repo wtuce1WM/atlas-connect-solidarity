@@ -66,10 +66,10 @@ const SkypeIcon = () => (
   </svg>
 );
 
-const getBusinessImage = (business: BusinessCardData): string => {
-  if (business.images && business.images.length > 0) return business.images[0];
-  if (business.logo_url) return business.logo_url;
-  return "/placeholder.svg";
+const getBusinessImage = (business: BusinessCardData): { src: string; isLogo: boolean } => {
+  if (business.images && business.images.length > 0) return { src: business.images[0], isLogo: false };
+  if (business.logo_url) return { src: business.logo_url, isLogo: true };
+  return { src: "/placeholder.svg", isLogo: false };
 };
 
 const getBusinessGamme = (business: BusinessCardData, gammes: Gamme[]): Gamme | null => {
@@ -113,6 +113,7 @@ const BusinessCard = ({
   const displayRating = calculatedRating;
   const isSelected = selectedBusinessId === business.id;
   const hasMapData = business.google_maps_url || (business.latitude && business.longitude);
+  const businessImage = getBusinessImage(business);
 
   const locationText = showAddress && business.address 
     ? business.address 
@@ -124,11 +125,11 @@ const BusinessCard = ({
     <Link to={`/business/${business.id}`}>
       <Card className="group h-full overflow-hidden bg-card border-border hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 relative">
         {/* Image - 16:9 aspect ratio */}
-        <div className="aspect-video overflow-hidden bg-muted relative">
+        <div className={`aspect-video overflow-hidden relative ${businessImage.isLogo ? 'bg-white' : 'bg-muted'}`}>
           <img
-            src={getBusinessImage(business)}
+            src={businessImage.src}
             alt={business.name}
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            className={`w-full h-full transition-transform duration-300 group-hover:scale-105 ${businessImage.isLogo ? 'object-contain p-4' : 'object-cover'}`}
             onError={(e) => {
               (e.target as HTMLImageElement).src = "/placeholder.svg";
             }}
