@@ -417,7 +417,15 @@ const StaffBackoffice = () => {
             </TabsContent>
 
             <TabsContent value="gammes">
-              <GammeManagement />
+              <GammeManagement onEditBusiness={async (id: string) => {
+                const found = businesses.find(b => b.id === id);
+                if (found) {
+                  handleEdit(found);
+                } else {
+                  const { data } = await supabase.from("businesses").select("*").eq("id", id).single();
+                  if (data) handleEdit(data as Business);
+                }
+              }} />
             </TabsContent>
 
             <TabsContent value="kp-groups">

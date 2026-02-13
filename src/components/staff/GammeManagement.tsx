@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,7 +22,14 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Edit, Trash2, GripVertical } from "lucide-react";
+import { Plus, Edit, Trash2, GripVertical, ChevronDown, ChevronRight, ExternalLink } from "lucide-react";
+
+interface GammeBusiness {
+  id: string;
+  name: string;
+  city: string;
+  gamme_id: string;
+}
 
 interface Category {
   id: string;
@@ -44,11 +51,17 @@ interface GammeCategory {
   category_id: string;
 }
 
-const GammeManagement = () => {
+interface GammeManagementProps {
+  onEditBusiness?: (id: string) => void;
+}
+
+const GammeManagement = ({ onEditBusiness }: GammeManagementProps) => {
   const [gammes, setGammes] = useState<Gamme[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [gammeCategories, setGammeCategories] = useState<GammeCategory[]>([]);
   const [gammeCounts, setGammeCounts] = useState<Record<string, number>>({});
+  const [gammeBusinesses, setGammeBusinesses] = useState<Record<string, GammeBusiness[]>>({});
+  const [expandedGammes, setExpandedGammes] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingGamme, setEditingGamme] = useState<Gamme | null>(null);
@@ -74,7 +87,7 @@ const GammeManagement = () => {
       supabase.from("gammes").select("*").order("sort_order", { ascending: true }),
       supabase.from("categories").select("id, name_fr").order("name_fr", { ascending: true }),
       supabase.from("gamme_categories").select("gamme_id, category_id"),
-      supabase.from("businesses").select("gamme_id").not("gamme_id", "is", null),
+      supabase.from("businesses").select("id, name, city, gamme_id").not("gamme_id", "is", null),
     ]);
 
     if (gammesRes.error) {
@@ -90,12 +103,18 @@ const GammeManagement = () => {
     setCategories(categoriesRes.data || []);
     setGammeCategories(gammeCategoriesRes.data || []);
     
-    // Count businesses per gamme
+    // Group businesses per gamme
     const counts: Record<string, number> = {};
+    const grouped: Record<string, GammeBusiness[]> = {};
     (businessesRes.data || []).forEach((b: any) => {
-      if (b.gamme_id) counts[b.gamme_id] = (counts[b.gamme_id] || 0) + 1;
+      if (b.gamme_id) {
+        counts[b.gamme_id] = (counts[b.gamme_id] || 0) + 1;
+        if (!grouped[b.gamme_id]) grouped[b.gamme_id] = [];
+        grouped[b.gamme_id].push(b);
+      }
     });
     setGammeCounts(counts);
+    setGammeBusinesses(grouped);
     
     setLoading(false);
   };
@@ -467,60 +486,89 @@ const GammeManagement = () => {
                 </TableCell>
               </TableRow>
             ) : (
-              gammes.map((gamme) => (
-                <TableRow key={gamme.id}>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <GripVertical className="h-4 w-4 text-muted-foreground" />
-                      {gamme.sort_order}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div 
-                      className="w-6 h-6 rounded border border-border"
-                      style={{ backgroundColor: gamme.color_hex || '#000000' }}
-                      title={gamme.color_hex || '#000000'}
-                    />
-                  </TableCell>
-                  <TableCell className="font-medium">{gamme.name_fr}</TableCell>
-                  <TableCell>{gamme.name_en || "-"}</TableCell>
-                  <TableCell>
-                    <div className="flex flex-wrap gap-1">
-                      {getCategoryNames(gamme.id).length > 0 ? (
-                        getCategoryNames(gamme.id).map((name) => (
-                          <Badge key={name} variant="secondary" className="text-xs">
-                            {name}
-                          </Badge>
-                        ))
-                      ) : (
-                        <span className="text-muted-foreground text-sm">Aucune</span>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <Badge variant="outline">{gammeCounts[gamme.id] || 0}</Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleOpenDialog(gamme)}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDelete(gamme.id)}
-                        className="text-destructive hover:text-destructive"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
+              gammes.map((gamme) => {
+                const isExpanded = expandedGammes.has(gamme.id);
+                const count = gammeCounts[gamme.id] || 0;
+                const businesses = gammeBusinesses[gamme.id] || [];
+                return (
+                  <React.Fragment key={gamme.id}>
+                    <TableRow className="cursor-pointer hover:bg-muted/50" onClick={() => {
+                      setExpandedGammes(prev => {
+                        const next = new Set(prev);
+                        if (next.has(gamme.id)) next.delete(gamme.id); else next.add(gamme.id);
+                        return next;
+                      });
+                    }}>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          {count > 0 ? (
+                            isExpanded ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                          ) : (
+                            <GripVertical className="h-4 w-4 text-muted-foreground" />
+                          )}
+                          {gamme.sort_order}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div 
+                          className="w-6 h-6 rounded border border-border"
+                          style={{ backgroundColor: gamme.color_hex || '#000000' }}
+                          title={gamme.color_hex || '#000000'}
+                        />
+                      </TableCell>
+                      <TableCell className="font-medium">{gamme.name_fr}</TableCell>
+                      <TableCell>{gamme.name_en || "-"}</TableCell>
+                      <TableCell>
+                        <div className="flex flex-wrap gap-1">
+                          {getCategoryNames(gamme.id).length > 0 ? (
+                            getCategoryNames(gamme.id).map((name) => (
+                              <Badge key={name} variant="secondary" className="text-xs">
+                                {name}
+                              </Badge>
+                            ))
+                          ) : (
+                            <span className="text-muted-foreground text-sm">Aucune</span>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Badge variant="outline">{count}</Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
+                          <Button variant="ghost" size="sm" onClick={() => handleOpenDialog(gamme)}>
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="sm" onClick={() => handleDelete(gamme.id)} className="text-destructive hover:text-destructive">
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                    {isExpanded && businesses.length > 0 && (
+                      <TableRow>
+                        <TableCell colSpan={7} className="bg-muted/30 p-0">
+                          <div className="px-8 py-3 space-y-1">
+                            {businesses.map((b) => (
+                              <div key={b.id} className="flex items-center justify-between py-1.5 px-3 rounded hover:bg-background transition-colors">
+                                <span className="text-sm">
+                                  {b.name} <span className="text-muted-foreground">— {b.city}</span>
+                                </span>
+                                {onEditBusiness && (
+                                  <Button variant="ghost" size="sm" onClick={() => onEditBusiness(b.id)} className="h-7 text-xs gap-1">
+                                    <Edit className="h-3 w-3" />
+                                    Modifier
+                                  </Button>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </React.Fragment>
+                );
+              })
             )}
           </TableBody>
         </Table>
