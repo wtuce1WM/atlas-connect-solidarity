@@ -22,9 +22,10 @@ interface AnimatedBusinessStripProps {
   businessIds?: string[];
   category?: string;
   showMapLink?: boolean;
+  onSelectBusiness?: (business: StripBusiness) => void;
 }
 
-const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink }: AnimatedBusinessStripProps) => {
+const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink, onSelectBusiness }: AnimatedBusinessStripProps) => {
   const [businesses, setBusinesses] = useState<StripBusiness[]>([]);
   const { language } = useLanguage();
   const stripRef = useRef<HTMLDivElement>(null);
@@ -206,7 +207,11 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
                     <span
                       onClick={(e) => {
                         e.preventDefault();
-                        window.open(biz.google_maps_url!, "_blank");
+                        if (onSelectBusiness) {
+                          onSelectBusiness(biz);
+                        } else {
+                          window.open(biz.google_maps_url!, "_blank");
+                        }
                       }}
                       className="text-gold/60 text-xs group-hover:text-gold transition-colors duration-300 flex items-center gap-1 cursor-pointer"
                     >

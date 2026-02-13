@@ -402,6 +402,7 @@ const CategoryPage = () => {
         title={language === "fr" ? "{count} adresses à découvrir" : language === "ar" ? "{count} عنوانًا للاكتشاف" : "{count} addresses to discover"}
         category={decodedCategoryName}
         showMapLink
+        onSelectBusiness={(biz) => handleSelectBusiness(biz as any)}
       />
 
       {/* Map & Filters & Results */}
