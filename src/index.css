@@ -168,11 +168,11 @@ h2, h3 {
 
 @keyframes map-zoom-in {
   0% {
-    transform: scale(1.25);
-    filter: blur(2px);
+    transform: scale(1);
+    filter: blur(0px);
   }
   100% {
-    transform: scale(1);
+    transform: scale(1.15);
     filter: blur(0px);
   }
 }
