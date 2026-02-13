@@ -38,9 +38,7 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
           .select("id, name, logo_url, neighborhood, phone, website, city, google_maps_url, google_rating, tripadvisor_rating, restaurant_guru_rating")
           .eq("is_active", true)
           .or(`main_category.eq.${category},categories.cs.{${category}}`)
-          .not("logo_url", "is", null)
-          .order("priority_score", { ascending: false })
-          .limit(50);
+          .not("logo_url", "is", null);
 
         if (bizData) {
           // Calculate avg rating and sort by it
