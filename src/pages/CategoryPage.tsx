@@ -397,9 +397,9 @@ const CategoryPage = () => {
           <div>
             <h1 className={`text-3xl font-bold ${textClass} flex items-center gap-3`}>
               {categoryInfo?.icon ? (
-                <DynamicIcon name={categoryInfo.icon} className={`h-8 w-8 ${isWhiteBg ? "text-gold" : "text-white"}`} fallback={<Building2 className={`h-8 w-8 ${isWhiteBg ? "text-gold" : "text-white"}`} />} />
+                <DynamicIcon name={categoryInfo.icon} className="h-8 w-8 text-gold" fallback={<Building2 className="h-8 w-8 text-gold" />} />
               ) : (
-                <Building2 className={`h-8 w-8 ${isWhiteBg ? "text-gold" : "text-white"}`} />
+                <Building2 className="h-8 w-8 text-gold" />
               )}
               {getCategoryName()}
             </h1>
