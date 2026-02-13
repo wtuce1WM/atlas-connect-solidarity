@@ -327,6 +327,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
     main_category: business?.main_category || "",
     categories: business?.categories || [] as string[],
     services: business?.services || [] as string[],
+    default_service: (business as any)?.default_service || "",
     keywords: business?.keywords?.join(", ") || "",
     latitude: business?.latitude?.toString() || "",
     longitude: business?.longitude?.toString() || "",
@@ -410,7 +411,12 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
     setFormData((prev) => {
       const currentServices = prev.services;
       if (currentServices.includes(service)) {
-        return { ...prev, services: currentServices.filter((s) => s !== service) };
+        const newServices = currentServices.filter((s) => s !== service);
+        return { 
+          ...prev, 
+          services: newServices,
+          default_service: prev.default_service === service ? "" : prev.default_service
+        };
       } else {
         return { ...prev, services: [...currentServices, service] };
       }
@@ -489,6 +495,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
       main_category: formData.main_category || null,
       categories: formData.categories.length > 0 ? formData.categories : [],
       services: formData.services.length > 0 ? formData.services : [],
+      default_service: formData.default_service || null,
       keywords: formData.keywords ? formData.keywords.split(",").map((k) => k.trim()) : [],
       latitude: formData.latitude ? parseFloat(formData.latitude) : null,
       longitude: formData.longitude ? parseFloat(formData.longitude) : null,
@@ -1683,23 +1690,33 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
             </p>
           )}
           {formData.services.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-2">
-              {formData.services.map((service) => (
-                <span
-                  key={service}
-                  className="inline-flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary rounded-md text-sm"
-                >
-                  {service}
-                  <button
-                    type="button"
-                    onClick={() => handleServiceToggle(service)}
-                    className="hover:text-destructive"
+            <>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {formData.services.map((service) => (
+                  <span
+                    key={service}
+                    className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-sm cursor-pointer ${
+                      formData.default_service === service
+                        ? "bg-primary text-primary-foreground ring-2 ring-primary"
+                        : "bg-primary/10 text-primary"
+                    }`}
+                    onClick={() => handleChange("default_service", formData.default_service === service ? "" : service)}
+                    title={formData.default_service === service ? "Service par défaut (cliquer pour retirer)" : "Cliquer pour définir comme service par défaut"}
                   >
-                    ×
-                  </button>
-                </span>
-              ))}
-            </div>
+                    {formData.default_service === service && "★ "}
+                    {service}
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); handleServiceToggle(service); }}
+                      className="hover:text-destructive"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground">Cliquez sur un service pour le définir comme service par défaut (★).</p>
+            </>
           )}
           </div>
         </div>
