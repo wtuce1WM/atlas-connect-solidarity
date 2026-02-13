@@ -17,6 +17,7 @@ interface LabelSectionProps {
   descriptionAr: string;
   logoUrl?: string;
   useLogo2?: boolean;
+  pageType?: string;
 }
 
 interface Business {
@@ -40,6 +41,7 @@ const LabelSection = ({
   descriptionAr,
   logoUrl,
   useLogo2 = false,
+  pageType,
 }: LabelSectionProps) => {
   const { language } = useLanguage();
   const [businesses, setBusinesses] = useState<Business[]>([]);
@@ -111,7 +113,14 @@ const LabelSection = ({
   const description = language === "ar" ? descriptionAr : language === "en" ? descriptionEn : descriptionFr;
 
   return (
-    <section className="bg-black py-16 relative overflow-visible">
+    <section
+      className="py-16 relative overflow-visible"
+      style={
+        pageType === "service"
+          ? { background: "linear-gradient(to bottom, #ffffff, #000000)" }
+          : { backgroundColor: "#000000" }
+      }
+    >
       {/* Background decorative emblem */}
       <div className="absolute left-1/2 -translate-x-1/2 bottom-0 translate-y-1/2 pointer-events-none z-0">
         <div
