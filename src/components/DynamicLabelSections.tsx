@@ -62,6 +62,7 @@ const DynamicLabelSections = ({ pageType }: { pageType: PageType }) => {
           descriptionEn={label.description_en || `Discover establishments that are members of the prestigious ${label.name_en || label.name_fr} network`}
           descriptionAr={label.description_ar || `اكتشف المؤسسات الأعضاء في شبكة ${label.name_ar || label.name_fr} المرموقة`}
           useLogo2
+          pageType={pageType}
         />
       ))}
     </>
