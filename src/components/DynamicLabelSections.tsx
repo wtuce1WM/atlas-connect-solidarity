@@ -7,6 +7,9 @@ interface LabelVisibility {
   name_fr: string;
   name_en: string | null;
   name_ar: string | null;
+  description_fr: string | null;
+  description_en: string | null;
+  description_ar: string | null;
   logo_url: string | null;
   show_on_home: boolean;
   show_on_category: boolean;
@@ -35,7 +38,7 @@ const DynamicLabelSections = ({ pageType }: { pageType: PageType }) => {
       const field = PAGE_FIELD_MAP[pageType];
       const { data } = await supabase
         .from("labels" as any)
-        .select("id, name_fr, name_en, name_ar, logo_url, show_on_home, show_on_category, show_on_city, show_on_service, show_on_neighborhood")
+        .select("id, name_fr, name_en, name_ar, description_fr, description_en, description_ar, logo_url, show_on_home, show_on_category, show_on_city, show_on_service, show_on_neighborhood")
         .eq(field, true)
         .order("sort_order", { ascending: true });
 
@@ -55,9 +58,9 @@ const DynamicLabelSections = ({ pageType }: { pageType: PageType }) => {
           titleFr={label.name_fr}
           titleEn={label.name_en || label.name_fr}
           titleAr={label.name_ar || label.name_fr}
-          descriptionFr={`Découvrez les établissements membres du prestigieux réseau ${label.name_fr}`}
-          descriptionEn={`Discover establishments that are members of the prestigious ${label.name_en || label.name_fr} network`}
-          descriptionAr={`اكتشف المؤسسات الأعضاء في شبكة ${label.name_ar || label.name_fr} المرموقة`}
+          descriptionFr={label.description_fr || `Découvrez les établissements membres du prestigieux réseau ${label.name_fr}`}
+          descriptionEn={label.description_en || `Discover establishments that are members of the prestigious ${label.name_en || label.name_fr} network`}
+          descriptionAr={label.description_ar || `اكتشف المؤسسات الأعضاء في شبكة ${label.name_ar || label.name_fr} المرموقة`}
           useLogo2
         />
       ))}

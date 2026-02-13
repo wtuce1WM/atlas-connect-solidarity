@@ -674,6 +674,9 @@ export type Database = {
       labels: {
         Row: {
           created_at: string | null
+          description_ar: string | null
+          description_en: string | null
+          description_fr: string | null
           id: string
           image_url: string | null
           logo_url: string | null
@@ -693,6 +696,9 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          description_ar?: string | null
+          description_en?: string | null
+          description_fr?: string | null
           id?: string
           image_url?: string | null
           logo_url?: string | null
@@ -712,6 +718,9 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          description_ar?: string | null
+          description_en?: string | null
+          description_fr?: string | null
           id?: string
           image_url?: string | null
           logo_url?: string | null
