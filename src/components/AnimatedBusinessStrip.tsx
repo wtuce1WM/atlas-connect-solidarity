@@ -159,8 +159,8 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
                 className="flex-shrink-0 w-56 mx-4 group"
               >
                 <div className="flex flex-col items-center text-center transition-all duration-500 group-hover:scale-105">
-                  {/* Top section: crown + logo */}
-                  <div className="flex flex-col items-center space-y-2">
+                  {/* Top section: crown + logo — fixed height for alignment */}
+                  <div className="flex flex-col items-center justify-end space-y-2 h-44">
                     {colors ? (
                       <Crown className={`h-5 w-5 ${colors.text} ${colors.fill} animate-pulse`} />
                     ) : (
@@ -185,65 +185,68 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
                     </div>
                   </div>
 
-                  {/* Title - alignment anchor */}
-                  <h3 className={`font-semibold text-base leading-relaxed line-clamp-2 mt-3 transition-colors duration-300 ${
+                  {/* Title — alignment anchor */}
+                  <h3 className={`font-semibold text-base leading-relaxed line-clamp-2 mt-3 h-12 flex items-center transition-colors duration-300 ${
                     colors ? `${colors.text}` : "text-white group-hover:text-gold"
                   }`}>
                     {biz.name}
                   </h3>
 
-                  {biz.avg_rating !== null && (
-                    <span className={`text-sm font-bold mt-2 ${colors ? colors.text : "text-gold"}`}>{biz.avg_rating}/20</span>
-                  )}
+                  {/* Bottom section: details — fixed height so cards stay uniform */}
+                  <div className="flex flex-col items-center min-h-[5.5rem]">
+                    {biz.avg_rating !== null && (
+                      <span className={`text-sm font-bold mt-1 ${colors ? colors.text : "text-gold"}`}>{biz.avg_rating}/20</span>
+                    )}
 
-                  <p className="text-white text-sm leading-relaxed flex items-start gap-1.5 mt-3">
-                    <MapPin className="h-3.5 w-3.5 flex-shrink-0 mt-0.5" />
-                    {biz.city}{biz.neighborhood ? `, ${biz.neighborhood}` : ""}
-                  </p>
-
-                  {biz.whatsapp ? (
-                    <a
-                      href={`https://wa.me/${biz.whatsapp.replace(/[^0-9]/g, "")}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={(e) => e.stopPropagation()}
-                      className="text-[#25D366] text-sm flex items-center gap-1.5 mt-2 hover:underline"
-                    >
-                      <MessageCircle className="h-3.5 w-3.5 flex-shrink-0" />
-                      WhatsApp
-                    </a>
-                  ) : biz.phone ? (
-                    <a
-                      href={`tel:${biz.phone}`}
-                      onClick={(e) => e.stopPropagation()}
-                      className="text-white/50 text-sm flex items-center gap-1.5 mt-2 hover:underline"
-                    >
-                      <Phone className="h-3.5 w-3.5 flex-shrink-0" />
-                      {biz.phone}
-                    </a>
-                  ) : null}
-
-                  {showMapLink && biz.google_maps_url ? (
-                    <span
-                      onClick={(e) => {
-                        e.preventDefault();
-                        if (onSelectBusiness) {
-                          onSelectBusiness(biz);
-                        } else {
-                          window.open(biz.google_maps_url!, "_blank");
-                        }
-                      }}
-                      className="text-gold/60 text-sm group-hover:text-gold transition-colors duration-300 flex items-center gap-1.5 mt-2 cursor-pointer"
-                    >
-                      <Map className="h-3.5 w-3.5 flex-shrink-0" />
-                      {language === "fr" ? "Voir sur la carte" : language === "ar" ? "عرض على الخريطة" : "View on map"}
-                    </span>
-                  ) : !showMapLink && biz.website ? (
-                    <p className="text-gold/60 text-sm group-hover:text-gold transition-colors duration-300 flex items-center gap-1.5 mt-2">
-                      <Globe className="h-3.5 w-3.5 flex-shrink-0" />
-                      {new URL(biz.website).hostname.replace("www.", "")}
+                    <p className="text-white text-sm leading-relaxed flex items-start gap-1.5 mt-2">
+                      <MapPin className="h-3.5 w-3.5 flex-shrink-0 mt-0.5" />
+                      {biz.city}{biz.neighborhood ? `, ${biz.neighborhood}` : ""}
                     </p>
-                  ) : null}
+
+                    {biz.whatsapp ? (
+                      <a
+                        href={`https://wa.me/${biz.whatsapp.replace(/[^0-9]/g, "")}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="text-[#25D366] text-sm flex items-center gap-1.5 mt-2 hover:underline"
+                      >
+                        <MessageCircle className="h-3.5 w-3.5 flex-shrink-0" />
+                        WhatsApp
+                      </a>
+                    ) : biz.phone ? (
+                      <a
+                        href={`tel:${biz.phone}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="text-white/50 text-sm flex items-center gap-1.5 mt-2 hover:underline"
+                      >
+                        <Phone className="h-3.5 w-3.5 flex-shrink-0" />
+                        {biz.phone}
+                      </a>
+                    ) : null}
+
+                    {showMapLink && biz.google_maps_url ? (
+                      <span
+                        onClick={(e) => {
+                          e.preventDefault();
+                          if (onSelectBusiness) {
+                            onSelectBusiness(biz);
+                          } else {
+                            window.open(biz.google_maps_url!, "_blank");
+                          }
+                        }}
+                        className="text-gold/60 text-sm group-hover:text-gold transition-colors duration-300 flex items-center gap-1.5 mt-2 cursor-pointer"
+                      >
+                        <Map className="h-3.5 w-3.5 flex-shrink-0" />
+                        {language === "fr" ? "Voir sur la carte" : language === "ar" ? "عرض على الخريطة" : "View on map"}
+                      </span>
+                    ) : !showMapLink && biz.website ? (
+                      <p className="text-gold/60 text-sm group-hover:text-gold transition-colors duration-300 flex items-center gap-1.5 mt-2">
+                        <Globe className="h-3.5 w-3.5 flex-shrink-0" />
+                        {new URL(biz.website).hostname.replace("www.", "")}
+                      </p>
+                    ) : null}
+                  </div>
                 </div>
               </Link>
             )})}
