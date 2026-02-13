@@ -228,11 +228,12 @@ const NeighborhoodPage = () => {
   const getMapEmbedUrl = () => {
     if (selectedBusiness) {
       if (selectedBusiness.google_maps_url) {
-        const coordMatch = selectedBusiness.google_maps_url.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
-        const placeMatch = selectedBusiness.google_maps_url.match(/place\/([^\/]+)/);
+        const preciseMatch = selectedBusiness.google_maps_url.match(/!3d(-?\d+\.?\d*)!4d(-?\d+\.?\d*)/);
+        const coordMatch = preciseMatch || selectedBusiness.google_maps_url.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
         if (coordMatch) {
           return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${coordMatch[1]},${coordMatch[2]}&zoom=17`;
         }
+        const placeMatch = selectedBusiness.google_maps_url.match(/place\/([^\/]+)/);
         if (placeMatch) {
           const placeName = decodeURIComponent(placeMatch[1].replace(/\+/g, ' '));
           return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(placeName)}&zoom=17`;
