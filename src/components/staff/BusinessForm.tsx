@@ -763,16 +763,24 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
               onChange={(e) => handleChange("priority_score", e.target.value)}
               placeholder="0"
             />
+            <p className="text-xs text-muted-foreground">
+              Départage les résultats à pertinence égale : plus le score est élevé, plus l'établissement apparaît haut dans les résultats de recherche et les pages de villes.
+            </p>
           </div>
-          <div className="flex items-center gap-2 pt-6">
-            <input
-              type="checkbox"
-              id="is_featured"
-              checked={formData.is_featured}
-              onChange={(e) => handleChange("is_featured", e.target.checked)}
-              className="h-4 w-4"
-            />
-            <Label htmlFor="is_featured" className="font-semibold text-blue-800 dark:text-blue-200">Mise en avant</Label>
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 pt-6">
+              <input
+                type="checkbox"
+                id="is_featured"
+                checked={formData.is_featured}
+                onChange={(e) => handleChange("is_featured", e.target.checked)}
+                className="h-4 w-4"
+              />
+              <Label htmlFor="is_featured" className="font-semibold text-blue-800 dark:text-blue-200">Mise en avant</Label>
+            </div>
+            <p className="text-xs text-muted-foreground pl-6">
+              Filet de sécurité national : l'établissement s'affiche en dernier recours lorsqu'aucun résultat local ne correspond à la recherche.
+            </p>
           </div>
           <div className="flex items-center gap-2 pt-6">
             <input
