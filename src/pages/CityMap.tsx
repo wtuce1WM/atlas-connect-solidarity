@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams, Link, useSearchParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Loader2, MapPin, X, ExternalLink, BookOpen, Phone, ChevronLeft, ChevronRight, Clock, ArrowUpDown, ArrowDown, ArrowUp, Navigation, Star } from "lucide-react";
+import MapBusinessInfoCard from "@/components/MapBusinessInfoCard";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
@@ -88,7 +89,7 @@ const CityMap = () => {
   const [gammeCategories, setGammeCategories] = useState<{ gamme_id: string; category_id: string }[]>([]);
   const [categoryIdMap, setCategoryIdMap] = useState<Record<string, string>>({});
   const [selectedGamme, setSelectedGamme] = useState<string>("");
-  const [showHours, setShowHours] = useState(false);
+  
   const [sortByRating, setSortByRating] = useState<"none" | "desc" | "asc">("none");
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -356,7 +357,7 @@ const CityMap = () => {
 
   const handleSelectBusiness = (business: Business) => {
     setSelectedBusiness(business);
-    setShowHours(false);
+    
     // Scroll to map
     window.scrollTo({ top: 300, behavior: 'smooth' });
   };
@@ -441,110 +442,10 @@ const CityMap = () => {
             <Card className="relative border-0">
               <CardContent className="p-0">
                 {/* Selected business indicator */}
-                <div className="absolute top-2 right-2 z-10 bg-white text-black px-4 py-3 rounded shadow-lg max-w-xs">
-                  <div className="flex items-start justify-between gap-2 mb-2">
-                    <span className="text-sm font-bold">{selectedBusiness.name}</span>
-                    <button 
-                      onClick={clearSelectedBusiness}
-                      className="hover:bg-black/10 rounded p-1 flex-shrink-0"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                  </div>
-                  {(() => {
-                    const sources: { rating: number; count: number }[] = [];
-                    if (selectedBusiness.google_rating && selectedBusiness.google_review_count)
-                      sources.push({ rating: selectedBusiness.google_rating * 4, count: selectedBusiness.google_review_count });
-                    if (selectedBusiness.tripadvisor_rating && selectedBusiness.tripadvisor_review_count)
-                      sources.push({ rating: selectedBusiness.tripadvisor_rating * 4, count: selectedBusiness.tripadvisor_review_count });
-                    if (selectedBusiness.restaurant_guru_rating && selectedBusiness.restaurant_guru_review_count)
-                      sources.push({ rating: selectedBusiness.restaurant_guru_rating * 4, count: selectedBusiness.restaurant_guru_review_count });
-                    if (sources.length === 0) return null;
-                    const totalCount = sources.reduce((sum, s) => sum + s.count, 0);
-                    const weightedSum = sources.reduce((sum, s) => sum + s.rating * s.count, 0);
-                    const avg = Math.round((weightedSum / totalCount) * 10) / 10;
-                    return (
-                      <div className="flex items-center gap-1 mb-1">
-                        <Star className="h-3 w-3 fill-gold text-gold" />
-                        <span className="text-xs font-bold text-gold">{avg}/20</span>
-                        <span className="text-[10px] text-gray-500">({totalCount} avis)</span>
-                      </div>
-                    );
-                  })()}
-                  <div className="space-y-1 text-xs">
-                    {selectedBusiness.address && (
-                      <div className="flex items-start gap-1">
-                        <MapPin className="h-3 w-3 mt-0.5 flex-shrink-0" />
-                        <span>{selectedBusiness.address}</span>
-                      </div>
-                    )}
-                    {selectedBusiness.phone && (
-                      <a href={`tel:${selectedBusiness.phone}`} className="flex items-center gap-1 hover:text-primary">
-                        <Phone className="h-3 w-3 flex-shrink-0" />
-                        {selectedBusiness.phone}
-                      </a>
-                    )}
-                    {selectedBusiness.whatsapp && (
-                      <a href={`https://wa.me/${selectedBusiness.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-green-600 hover:text-green-700 font-bold">
-                        <Phone className="h-3 w-3 flex-shrink-0" />
-                        WhatsApp: {selectedBusiness.whatsapp}
-                      </a>
-                    )}
-                    {selectedBusiness.skype && (
-                      <a href={`skype:${selectedBusiness.skype}?chat`} className="flex items-center gap-1 text-[#00AFF0] hover:text-[#00AFF0]/80">
-                        <Phone className="h-3 w-3 flex-shrink-0" />
-                        Skype: {selectedBusiness.skype}
-                      </a>
-                    )}
-                    {selectedBusiness.show_opening_hours && selectedBusiness.opening_hours && (
-                      <div className="pt-1 border-t border-gray-200 mt-1">
-                        <button 
-                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowHours(!showHours); }}
-                          className="flex items-center gap-1 font-medium hover:text-primary transition-colors w-full"
-                        >
-                          <Clock className="h-3 w-3 flex-shrink-0" />
-                          <span>Horaires</span>
-                          <span className="ml-auto text-[10px]">{showHours ? '▲' : '▼'}</span>
-                        </button>
-                        {showHours && (
-                          <div className="text-[10px] mt-1 animate-fade-in">
-                            {(() => {
-                              const hours = selectedBusiness.opening_hours as Record<string, { open: string; close: string }>;
-                              const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-                              const dayLabels: Record<string, string> = {
-                                monday: 'Lun', tuesday: 'Mar', wednesday: 'Mer', 
-                                thursday: 'Jeu', friday: 'Ven', saturday: 'Sam', sunday: 'Dim'
-                              };
-                              return days.map(day => {
-                                const dayData = hours[day];
-                                if (!dayData) return null;
-                                return (
-                                  <div key={day} className="flex justify-between gap-2">
-                                    <span>{dayLabels[day]}</span>
-                                    <span>{dayData.open && dayData.close ? `${dayData.open}-${dayData.close}` : 'Fermé'}</span>
-                                  </div>
-                                );
-                              });
-                            })()}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                    <a
-                      href={`https://www.google.com/maps/dir/?api=1&destination=${
-                        selectedBusiness.latitude && selectedBusiness.longitude
-                          ? `${selectedBusiness.latitude},${selectedBusiness.longitude}`
-                          : encodeURIComponent(`${selectedBusiness.name}, ${selectedBusiness.address || selectedBusiness.city}`)
-                      }`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1 mt-2 pt-2 border-t border-gray-200 text-primary font-bold hover:text-primary/80 transition-colors"
-                    >
-                      <Navigation className="h-3 w-3 flex-shrink-0" />
-                      Itinéraire
-                    </a>
-                  </div>
-                </div>
+                <MapBusinessInfoCard
+                  business={selectedBusiness}
+                  onClose={clearSelectedBusiness}
+                />
                 <div className="overflow-hidden rounded-lg">
                   <iframe
                     src={getMapEmbedUrl()}

@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate, useSearchParams, Link } from "react-router-dom";
 import { ArrowLeft, Loader2, MapPin, ChevronLeft, ChevronRight, X, Phone } from "lucide-react";
+import MapBusinessInfoCard from "@/components/MapBusinessInfoCard";
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -310,37 +311,10 @@ const NeighborhoodPage = () => {
         <Card className="relative mb-6">
           <CardContent className="p-0">
             {selectedBusiness && (
-              <div className="absolute top-2 right-2 z-10 bg-white text-black px-4 py-3 rounded shadow-lg max-w-xs">
-                <div className="flex items-start justify-between gap-2 mb-2">
-                  <span className="text-sm font-bold">{selectedBusiness.name}</span>
-                  <button 
-                    onClick={clearSelectedBusiness}
-                    className="hover:bg-black/10 rounded p-1 flex-shrink-0"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                </div>
-                <div className="space-y-1 text-xs">
-                  {selectedBusiness.address && (
-                    <div className="flex items-start gap-1">
-                      <MapPin className="h-3 w-3 mt-0.5 flex-shrink-0" />
-                      <span>{selectedBusiness.address}</span>
-                    </div>
-                  )}
-                  {selectedBusiness.phone && (
-                    <a href={`tel:${selectedBusiness.phone}`} className="flex items-center gap-1 hover:text-primary">
-                      <Phone className="h-3 w-3 flex-shrink-0" />
-                      {selectedBusiness.phone}
-                    </a>
-                  )}
-                  {selectedBusiness.whatsapp && (
-                    <a href={`https://wa.me/${selectedBusiness.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-green-600 hover:text-green-700 font-bold">
-                      <Phone className="h-3 w-3 flex-shrink-0" />
-                      WhatsApp: {selectedBusiness.whatsapp}
-                    </a>
-                  )}
-                </div>
-              </div>
+              <MapBusinessInfoCard
+                business={selectedBusiness}
+                onClose={clearSelectedBusiness}
+              />
             )}
             <iframe
               src={getMapEmbedUrl()}
