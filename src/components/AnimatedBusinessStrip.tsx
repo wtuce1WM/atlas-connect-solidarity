@@ -157,31 +157,35 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
                 to={`/business/${biz.id}`}
                 className="flex-shrink-0 w-56 mx-4 group"
               >
-                <div className="flex flex-col items-center text-center space-y-3 transition-all duration-500 group-hover:scale-105">
-                  {/* Crown for podium */}
-                  {colors && (
-                    <Crown className={`h-5 w-5 ${colors.text} ${colors.fill} animate-pulse`} />
-                  )}
-                  {/* Logo */}
-                  <div className={`rounded-full flex items-center justify-center overflow-hidden transition-all duration-500 bg-white/90 ${
-                    colors 
-                      ? `w-32 h-32 border-2 ${colors.border} ${colors.shadow} group-hover:${colors.glow}` 
-                      : "w-28 h-28 border border-gold/50 group-hover:border-gold"
-                  }`}>
-                    {biz.logo_url ? (
-                      <img
-                        src={biz.logo_url}
-                        alt={biz.name}
-                        className={`object-contain group-hover:opacity-100 transition-opacity duration-500 ${
-                          colors ? "w-24 h-24 opacity-90" : "w-20 h-20 opacity-80"
-                        }`}
-                      />
+                <div className="flex flex-col items-center text-center transition-all duration-500 group-hover:scale-105">
+                  {/* Top section: crown + logo */}
+                  <div className="flex flex-col items-center space-y-2">
+                    {colors ? (
+                      <Crown className={`h-5 w-5 ${colors.text} ${colors.fill} animate-pulse`} />
                     ) : (
-                      <span className="text-white/40 text-3xl font-bold">{biz.name.charAt(0)}</span>
+                      <div className="h-5" />
                     )}
+                    <div className={`rounded-full flex items-center justify-center overflow-hidden transition-all duration-500 bg-white/90 ${
+                      colors 
+                        ? `w-32 h-32 border-2 ${colors.border} ${colors.shadow} group-hover:${colors.glow}` 
+                        : "w-28 h-28 border border-gold/50 group-hover:border-gold"
+                    }`}>
+                      {biz.logo_url ? (
+                        <img
+                          src={biz.logo_url}
+                          alt={biz.name}
+                          className={`object-contain group-hover:opacity-100 transition-opacity duration-500 ${
+                            colors ? "w-24 h-24 opacity-90" : "w-20 h-20 opacity-80"
+                          }`}
+                        />
+                      ) : (
+                        <span className="text-white/40 text-3xl font-bold">{biz.name.charAt(0)}</span>
+                      )}
+                    </div>
                   </div>
 
-                  <h3 className={`font-semibold text-sm leading-tight line-clamp-2 transition-colors duration-300 ${
+                  {/* Title - alignment anchor */}
+                  <h3 className={`font-semibold text-sm leading-tight line-clamp-2 mt-3 transition-colors duration-300 ${
                     colors ? `${colors.text}` : "text-white group-hover:text-gold"
                   }`}>
                     {biz.name}
