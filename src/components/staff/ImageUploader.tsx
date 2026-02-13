@@ -249,19 +249,9 @@ const ImageUploader = ({
     }
   }, [images, maxImages, businessId, onChange, toast]);
 
-  const handleRemoveImage = useCallback(async (indexToRemove: number) => {
-    const imageUrl = images[indexToRemove];
-    
-    try {
-      const urlParts = imageUrl.split("/business-images/");
-      if (urlParts.length > 1) {
-        const filePath = urlParts[1];
-        await supabase.storage.from("business-images").remove([filePath]);
-      }
-    } catch (error) {
-      console.error("Error deleting from storage:", error);
-    }
-
+  const handleRemoveImage = useCallback((indexToRemove: number) => {
+    // Only remove from the list — do NOT delete from storage here.
+    // Physical deletion will happen on form save by comparing before/after.
     const newImages = images.filter((_, index) => index !== indexToRemove);
     onChange(newImages);
   }, [images, onChange]);
