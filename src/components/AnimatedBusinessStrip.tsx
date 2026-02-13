@@ -24,9 +24,10 @@ interface AnimatedBusinessStripProps {
   category?: string;
   showMapLink?: boolean;
   onSelectBusiness?: (business: StripBusiness) => void;
+  lightMode?: boolean;
 }
 
-const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink, onSelectBusiness }: AnimatedBusinessStripProps) => {
+const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink, onSelectBusiness, lightMode = false }: AnimatedBusinessStripProps) => {
   const [businesses, setBusinesses] = useState<StripBusiness[]>([]);
   const { language } = useLanguage();
   const stripRef = useRef<HTMLDivElement>(null);
@@ -88,9 +89,9 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
   const items = [...withLogo, ...withLogo];
 
   return (
-    <div className="w-full py-10 bg-gray-200 rounded-2xl my-8">
+    <div className={`w-full py-10 rounded-2xl my-8 ${lightMode ? "bg-gray-100" : "bg-black/90"}`}>
       {title && (
-        <h2 className="text-center text-3xl md:text-4xl font-bold text-white mb-10 font-['Playfair_Display'] italic leading-relaxed tracking-wide">
+        <h2 className={`text-center text-3xl md:text-4xl font-bold mb-10 font-['Playfair_Display'] italic leading-relaxed tracking-wide ${lightMode ? "text-black" : "text-white"}`}>
           {title.replace("{count}", String(withLogo.length))}
         </h2>
       )}
@@ -103,12 +104,12 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
         >
           <div className="flex flex-col items-center text-center space-y-3">
             <Crown className="h-6 w-6 text-gold fill-gold animate-pulse" />
-            <div className="w-36 h-36 rounded-full bg-black border-2 border-gold/60 flex items-center justify-center overflow-hidden shadow-[0_0_30px_rgba(212,175,55,0.3)] group-hover:shadow-[0_0_40px_rgba(212,175,55,0.5)] transition-all duration-500">
+            <div className={`w-36 h-36 rounded-full border-2 border-gold/60 flex items-center justify-center overflow-hidden shadow-[0_0_30px_rgba(212,175,55,0.3)] group-hover:shadow-[0_0_40px_rgba(212,175,55,0.5)] transition-all duration-500 ${lightMode ? "bg-white" : "bg-black"}`}>
               {champion.logo_url ? (
                 <img
                   src={champion.logo_url}
                   alt={champion.name}
-                  className="w-28 h-28 object-contain opacity-90 group-hover:opacity-100 transition-opacity duration-500 brightness-0 invert"
+                  className={`w-28 h-28 object-contain opacity-90 group-hover:opacity-100 transition-opacity duration-500 ${lightMode ? "" : "brightness-0 invert"}`}
                 />
               ) : (
                 <span className="text-gold text-4xl font-bold">{champion.name.charAt(0)}</span>
@@ -121,7 +122,7 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
                 <span className="text-gold text-sm font-bold">{champion.avg_rating}/20</span>
               </div>
             )}
-            <p className="text-white/50 text-xs leading-tight flex items-start gap-1">
+            <p className={`text-xs leading-tight flex items-start gap-1 ${lightMode ? "text-black/50" : "text-white/50"}`}>
               <MapPin className="h-3 w-3 flex-shrink-0 mt-0.5" />
               {champion.city}{champion.neighborhood ? `, ${champion.neighborhood}` : ""}
             </p>
@@ -131,8 +132,8 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
 
         {/* Marquee */}
         <div className="relative flex-1 overflow-hidden min-w-0 py-4">
-          <div className="absolute left-0 top-0 bottom-0 w-16 z-10 bg-gradient-to-r from-black/90 to-transparent pointer-events-none" />
-          <div className="absolute right-0 top-0 bottom-0 w-16 z-10 bg-gradient-to-l from-black/90 to-transparent pointer-events-none" />
+          <div className={`absolute left-0 top-0 bottom-0 w-16 z-10 pointer-events-none ${lightMode ? "bg-gradient-to-r from-gray-100 to-transparent" : "bg-gradient-to-r from-black/90 to-transparent"}`} />
+          <div className={`absolute right-0 top-0 bottom-0 w-16 z-10 pointer-events-none ${lightMode ? "bg-gradient-to-l from-gray-100 to-transparent" : "bg-gradient-to-l from-black/90 to-transparent"}`} />
           
           <div
             ref={stripRef}
@@ -166,7 +167,7 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
                     ) : (
                       <div className="h-5" />
                     )}
-                    <div className={`rounded-full flex items-center justify-center overflow-hidden transition-all duration-500 bg-black ${
+                    <div className={`rounded-full flex items-center justify-center overflow-hidden transition-all duration-500 ${lightMode ? "bg-white" : "bg-black"} ${
                       colors 
                         ? `w-32 h-32 border-2 ${colors.border} ${colors.shadow} group-hover:${colors.glow}` 
                         : "w-28 h-28 border border-gold/50 group-hover:border-gold"
@@ -175,7 +176,7 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
                         <img
                           src={biz.logo_url}
                           alt={biz.name}
-                          className={`object-contain group-hover:opacity-100 transition-opacity duration-500 brightness-0 invert ${
+                          className={`object-contain group-hover:opacity-100 transition-opacity duration-500 ${lightMode ? "" : "brightness-0 invert"} ${
                             colors ? "w-24 h-24 opacity-90" : "w-20 h-20 opacity-80"
                           }`}
                         />
@@ -187,7 +188,7 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
 
                   {/* Title — alignment anchor */}
                   <h3 className={`font-semibold text-base leading-relaxed line-clamp-2 mt-3 h-12 flex items-center transition-colors duration-300 ${
-                    colors ? `${colors.text}` : "text-white group-hover:text-gold"
+                    colors ? `${colors.text}` : lightMode ? "text-black group-hover:text-gold" : "text-white group-hover:text-gold"
                   }`}>
                     {biz.name}
                   </h3>
@@ -198,7 +199,7 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
                       <span className={`text-sm font-bold mt-1 ${colors ? colors.text : "text-gold"}`}>{biz.avg_rating}/20</span>
                     )}
 
-                    <p className="text-white text-sm leading-relaxed mt-2">
+                    <p className={`text-sm leading-relaxed mt-2 ${lightMode ? "text-black/70" : "text-white"}`}>
                       <MapPin className="h-3.5 w-3.5 inline-block align-middle mr-0.5" />
                       {biz.city}{biz.neighborhood ? `, ${biz.neighborhood}` : ""}
                     </p>
