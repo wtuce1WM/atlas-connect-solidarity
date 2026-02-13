@@ -52,6 +52,7 @@ interface Category {
   adj_ar: string | null;
   icon: string | null;
   sort_order: number;
+  front_color: string;
 }
 
 interface Subcategory {
@@ -102,7 +103,8 @@ const CategoryManagement = () => {
     adj_en: "",
     adj_ar: "",
     icon: "",
-    sort_order: 0
+    sort_order: 0,
+    front_color: "white"
   });
   
   const [deleteDialog, setDeleteDialog] = useState<{
@@ -141,16 +143,17 @@ const CategoryManagement = () => {
         adj_en: (item as Category).adj_en || "",
         adj_ar: (item as Category).adj_ar || "",
         icon: (item as Category).icon || "",
-        sort_order: item.sort_order || 0
+        sort_order: item.sort_order || 0,
+        front_color: (item as Category).front_color || "white"
       });
     } else {
-      setEditForm({ name_fr: "", name_en: "", name_ar: "", adj_fr: "", adj_en: "", adj_ar: "", icon: "", sort_order: 0 });
+      setEditForm({ name_fr: "", name_en: "", name_ar: "", adj_fr: "", adj_en: "", adj_ar: "", icon: "", sort_order: 0, front_color: "white" });
     }
   };
 
   const cancelEdit = () => {
     setEditMode(null);
-    setEditForm({ name_fr: "", name_en: "", name_ar: "", adj_fr: "", adj_en: "", adj_ar: "", icon: "", sort_order: 0 });
+    setEditForm({ name_fr: "", name_en: "", name_ar: "", adj_fr: "", adj_en: "", adj_ar: "", icon: "", sort_order: 0, front_color: "white" });
   };
 
   const saveItem = async () => {
@@ -170,7 +173,8 @@ const CategoryManagement = () => {
           adj_en: editForm.adj_en.trim() || null,
           adj_ar: editForm.adj_ar.trim() || null,
           icon: editForm.icon.trim() || null,
-          sort_order: editForm.sort_order
+          sort_order: editForm.sort_order,
+          front_color: editForm.front_color
         };
 
         if (editMode.id) {
@@ -295,7 +299,7 @@ const CategoryManagement = () => {
     );
   }
 
-  const renderEditForm = (showIcon: boolean = false, showAdj: boolean = false) => (
+  const renderEditForm = (showIcon: boolean = false, showAdj: boolean = false, showFrontColor: boolean = false) => (
     <div className="space-y-3 p-4 bg-muted/50 rounded-lg border">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
         <div>
@@ -363,6 +367,28 @@ const CategoryManagement = () => {
           />
         </div>
       )}
+      {showFrontColor && (
+        <div className="max-w-xs">
+          <label className="text-xs font-medium text-muted-foreground">Couleur en front</label>
+          <div className="flex gap-3 mt-1">
+            {[
+              { value: "white", label: "Blanc", style: "bg-white text-black border" },
+              { value: "black", label: "Noir", style: "bg-black text-white border border-transparent" },
+            ].map(({ value, label, style }) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setEditForm(prev => ({ ...prev, front_color: value }))}
+                className={`px-3 py-1.5 rounded text-sm font-medium transition-all ${style} ${
+                  editForm.front_color === value ? "ring-2 ring-primary ring-offset-2" : "opacity-60 hover:opacity-100"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
       <div className="max-w-[120px]">
         <label className="text-xs font-medium text-muted-foreground">Ordre</label>
         <Input
@@ -397,7 +423,7 @@ const CategoryManagement = () => {
       </div>
 
       {/* New category form */}
-      {editMode?.type === "category" && editMode.id === null && renderEditForm(true, true)}
+      {editMode?.type === "category" && editMode.id === null && renderEditForm(true, true, true)}
 
       {/* Categories list */}
       <div className="space-y-2">
@@ -463,7 +489,7 @@ const CategoryManagement = () => {
 
                 {isEditing && (
                   <div className="px-3 pb-3">
-                    {renderEditForm(true, true)}
+                    {renderEditForm(true, true, true)}
                   </div>
                 )}
 

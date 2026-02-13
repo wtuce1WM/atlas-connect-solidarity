@@ -423,6 +423,7 @@ export type Database = {
           adj_en: string | null
           adj_fr: string | null
           created_at: string | null
+          front_color: string
           icon: string | null
           id: string
           name_ar: string | null
@@ -436,6 +437,7 @@ export type Database = {
           adj_en?: string | null
           adj_fr?: string | null
           created_at?: string | null
+          front_color?: string
           icon?: string | null
           id?: string
           name_ar?: string | null
@@ -449,6 +451,7 @@ export type Database = {
           adj_en?: string | null
           adj_fr?: string | null
           created_at?: string | null
+          front_color?: string
           icon?: string | null
           id?: string
           name_ar?: string | null
