@@ -35,13 +35,13 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
         // Fetch businesses in this category, then sort by avg review rating
         const { data: bizData } = await supabase
           .from("businesses")
-          .select("id, name, logo_url, neighborhood, phone, website, city, google_maps_url, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count")
+          .select("id, name, logo_url, neighborhood, phone, website, city, google_maps_url, rating, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count")
           .eq("is_active", true)
           .or(`main_category.eq.${category},categories.cs.{${category}}`)
           .not("logo_url", "is", null);
 
         if (bizData) {
-          // Calculate weighted avg rating (same logic as BusinessDetail)
+          // Calculate weighted avg rating (same logic as BusinessDetail: manual rating takes priority)
           const withRating = bizData.map((b) => {
             const sources: { rating: number; count: number }[] = [];
             if (b.google_rating && b.google_review_count) sources.push({ rating: b.google_rating, count: b.google_review_count });
@@ -49,7 +49,8 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
             if (b.restaurant_guru_rating && b.restaurant_guru_review_count) sources.push({ rating: b.restaurant_guru_rating, count: b.restaurant_guru_review_count });
             const totalCount = sources.reduce((s, r) => s + r.count, 0);
             const weightedAvg = totalCount > 0 ? sources.reduce((s, r) => s + r.rating * r.count, 0) / totalCount : 0;
-            const avgOn20 = totalCount > 0 ? Math.round(weightedAvg * 4 * 10) / 10 : null;
+            const computedOn20 = totalCount > 0 ? Math.round(weightedAvg * 4 * 10) / 10 : null;
+            const avgOn20 = b.rating ?? computedOn20;
             return { ...b, avg_rating: avgOn20 };
           });
           withRating.sort((a, b) => (b.avg_rating ?? 0) - (a.avg_rating ?? 0));
