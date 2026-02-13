@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Phone, Globe, MapPin, Map, Crown, Star } from "lucide-react";
+import { Phone, Globe, MapPin, Map, Crown, Star, MessageCircle } from "lucide-react";
 
 interface StripBusiness {
   id: string;
@@ -11,6 +11,7 @@ interface StripBusiness {
   city: string;
   neighborhood: string | null;
   phone: string | null;
+  whatsapp: string | null;
   website: string | null;
   google_maps_url: string | null;
   avg_rating: number | null;
@@ -36,7 +37,7 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
         // Fetch businesses in this category, then sort by avg review rating
         const { data: bizData } = await supabase
           .from("businesses")
-          .select("id, name, logo_url, neighborhood, phone, website, city, google_maps_url, rating, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count")
+          .select("id, name, logo_url, neighborhood, phone, whatsapp, website, city, google_maps_url, rating, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count")
           .eq("is_active", true)
           .or(`main_category.eq.${category},categories.cs.{${category}}`)
           .not("logo_url", "is", null);
@@ -60,7 +61,7 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
       } else {
         let query = supabase
           .from("businesses")
-          .select("id, name, logo_url, neighborhood, phone, website, city, google_maps_url")
+          .select("id, name, logo_url, neighborhood, phone, whatsapp, website, city, google_maps_url")
           .eq("is_active", true);
 
         if (businessIds && businessIds.length > 0) {
@@ -192,20 +193,35 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
                   </h3>
 
                   {biz.avg_rating !== null && (
-                    <span className={`text-xs font-bold ${colors ? colors.text : "text-gold"}`}>{biz.avg_rating}/20</span>
+                    <span className={`text-xs font-bold mt-1 ${colors ? colors.text : "text-gold"}`}>{biz.avg_rating}/20</span>
                   )}
 
-                  <p className="text-white/40 text-xs leading-tight flex items-start gap-1">
+                  <p className="text-white text-xs leading-tight flex items-start gap-1 mt-2">
                     <MapPin className="h-3 w-3 flex-shrink-0 mt-0.5" />
                     {biz.city}{biz.neighborhood ? `, ${biz.neighborhood}` : ""}
                   </p>
 
-                  {biz.phone && (
-                    <p className="text-white/50 text-xs flex items-center gap-1">
+                  {biz.whatsapp ? (
+                    <a
+                      href={`https://wa.me/${biz.whatsapp.replace(/[^0-9]/g, "")}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="text-[#25D366] text-xs flex items-center gap-1 mt-1 hover:underline"
+                    >
+                      <MessageCircle className="h-3 w-3 flex-shrink-0" />
+                      WhatsApp
+                    </a>
+                  ) : biz.phone ? (
+                    <a
+                      href={`tel:${biz.phone}`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="text-white/50 text-xs flex items-center gap-1 mt-1 hover:underline"
+                    >
                       <Phone className="h-3 w-3 flex-shrink-0" />
                       {biz.phone}
-                    </p>
-                  )}
+                    </a>
+                  ) : null}
 
                   {showMapLink && biz.google_maps_url ? (
                     <span
