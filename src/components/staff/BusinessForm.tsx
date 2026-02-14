@@ -607,27 +607,54 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
       }
 
       // Clean up removed images from storage (compare initial vs final)
+      // SAFETY: Only delete files not referenced by any other business
       const removedImages = (formData._initialImages as string[]).filter(
         (url: string) => !formData.images.includes(url) && url.includes("/business-images/")
       );
       if (removedImages.length > 0) {
-        const filePaths = removedImages
-          .map((url: string) => {
-            const parts = url.split("/business-images/");
-            return parts.length > 1 ? parts[1] : null;
-          })
-          .filter(Boolean) as string[];
-        if (filePaths.length > 0) {
-          await supabase.storage.from("business-images").remove(filePaths);
+        // Check which removed URLs are still used by other businesses
+        const { data: otherBusinesses } = await supabase
+          .from("businesses")
+          .select("id, images, logo_url, logo_2_url")
+          .neq("id", businessId!);
+        
+        const allOtherUrls = new Set<string>();
+        (otherBusinesses || []).forEach((b: any) => {
+          if (b.images) b.images.forEach((u: string) => allOtherUrls.add(u));
+          if (b.logo_url) allOtherUrls.add(b.logo_url);
+          if (b.logo_2_url) allOtherUrls.add(b.logo_2_url);
+        });
+
+        const safeToDelete = removedImages.filter((url: string) => !allOtherUrls.has(url));
+        if (safeToDelete.length > 0) {
+          const filePaths = safeToDelete
+            .map((url: string) => {
+              const parts = url.split("/business-images/");
+              return parts.length > 1 ? parts[1] : null;
+            })
+            .filter(Boolean) as string[];
+          if (filePaths.length > 0) {
+            await supabase.storage.from("business-images").remove(filePaths);
+          }
         }
       }
 
       // Clean up removed logo from storage (compare initial vs final)
+      // SAFETY: Only delete if not referenced by any other business
       const initialLogo = formData._initialLogoUrl as string;
       if (initialLogo && initialLogo !== formData.logo_url && initialLogo.includes("/business-images/")) {
-        const logoParts = initialLogo.split("/business-images/");
-        if (logoParts.length > 1) {
-          await supabase.storage.from("business-images").remove([logoParts[1]]);
+        const { data: otherWithLogo } = await supabase
+          .from("businesses")
+          .select("id")
+          .neq("id", businessId!)
+          .or(`logo_url.eq.${initialLogo},logo_2_url.eq.${initialLogo},images.cs.{${initialLogo}}`)
+          .limit(1);
+
+        if (!otherWithLogo || otherWithLogo.length === 0) {
+          const logoParts = initialLogo.split("/business-images/");
+          if (logoParts.length > 1) {
+            await supabase.storage.from("business-images").remove([logoParts[1]]);
+          }
         }
       }
 
