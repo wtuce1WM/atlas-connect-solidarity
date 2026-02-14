@@ -448,26 +448,6 @@ const CategoryPage = () => {
       {/* Map & Filters & Results */}
       <section className={`py-6 lg:py-12 ${bgClass}`}>
         <div className="container mx-auto px-4">
-          {/* Google Maps */}
-          <Card className="mb-8 relative">
-            <CardContent className="p-0">
-              {/* Selected business indicator */}
-              {selectedBusiness && (
-                <MapBusinessInfoCard
-                  business={selectedBusiness}
-                  onClose={clearSelectedBusiness}
-                />
-              )}
-              <iframe
-                src={getMapEmbedUrl()}
-                className="w-full h-[400px] border-0 rounded-lg"
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                title={selectedBusiness ? `Localisation de ${selectedBusiness.name}` : `Carte ${getCategoryName()}${selectedCity !== "all" ? ` à ${selectedCity}` : ""}`}
-              />
-            </CardContent>
-          </Card>
 
           {/* City & Subcategory Filters */}
           <div id="category-filters" className="space-y-3 mb-8 scroll-mt-24">
@@ -656,6 +636,26 @@ const CategoryPage = () => {
               )}
             </>
           )}
+
+          {/* Google Maps - below results */}
+          <Card className="mt-12 relative">
+            <CardContent className="p-0">
+              {selectedBusiness && (
+                <MapBusinessInfoCard
+                  business={selectedBusiness}
+                  onClose={clearSelectedBusiness}
+                />
+              )}
+              <iframe
+                src={getMapEmbedUrl()}
+                className="w-full h-[400px] border-0 rounded-lg"
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title={selectedBusiness ? `Localisation de ${selectedBusiness.name}` : `Carte ${getCategoryName()}${selectedCity !== "all" ? ` à ${selectedCity}` : ""}`}
+              />
+            </CardContent>
+          </Card>
         </div>
       </section>
 
