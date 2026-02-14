@@ -45,8 +45,36 @@ interface OpeningHoursEditorProps {
   onChange: (hours: OpeningHours) => void;
 }
 
+// Map French day keys to English if needed
+const FR_TO_EN: Record<string, keyof OpeningHours> = {
+  lundi: "monday",
+  mardi: "tuesday",
+  mercredi: "wednesday",
+  jeudi: "thursday",
+  vendredi: "friday",
+  samedi: "saturday",
+  dimanche: "sunday",
+};
+
+const normalizeHours = (raw: any): OpeningHours => {
+  if (!raw) return DEFAULT_OPENING_HOURS;
+  const result = { ...DEFAULT_OPENING_HOURS };
+  for (const [key, val] of Object.entries(raw)) {
+    const englishKey = FR_TO_EN[key.toLowerCase()] || (key as keyof OpeningHours);
+    if (englishKey in result && val && typeof val === "object") {
+      result[englishKey] = {
+        open: (val as any).open || "",
+        close: (val as any).close || "",
+        closed: (val as any).closed ?? false,
+        continuous: (val as any).continuous ?? false,
+      };
+    }
+  }
+  return result;
+};
+
 const OpeningHoursEditor = ({ value, onChange }: OpeningHoursEditorProps) => {
-  const hours = value || DEFAULT_OPENING_HOURS;
+  const hours = normalizeHours(value);
 
   const handleDayChange = (
     day: keyof OpeningHours,
