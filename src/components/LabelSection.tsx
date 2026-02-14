@@ -173,9 +173,9 @@ const LabelSection = ({
 
                     {/* Rating - top left */}
                     {business.rating && (
-                      <div className="absolute top-2 left-2 flex items-center gap-1 bg-black/60 rounded-full px-2 py-1 z-10">
+                      <div className="absolute top-2 left-2 flex flex-col items-center gap-0.5 bg-black/60 rounded-full px-2 py-1 z-10">
                         <Star className="h-4 w-4 fill-gold text-gold" />
-                        <span className="text-gold font-bold text-sm">{business.rating}/20</span>
+                        <span className="text-gold font-semibold text-xs">{business.rating}/20</span>
                       </div>
                     )}
 
