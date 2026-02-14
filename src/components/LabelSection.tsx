@@ -166,7 +166,7 @@ const LabelSection = ({
         <div className="mb-10 text-center">
           {resolvedLogoUrl && (
             <div className="flex justify-center mb-4">
-              <img src={resolvedLogoUrl} alt={title} className="h-24 object-contain" />
+              <img src={resolvedLogoUrl} alt={title} className={`h-24 object-contain ${lightMode ? "invert" : ""}`} />
             </div>
           )}
           <h2 className={`mb-3 text-3xl font-bold ${lightMode ? "text-black" : pageType === "neighborhood" ? "text-black" : "text-white"}`}>
