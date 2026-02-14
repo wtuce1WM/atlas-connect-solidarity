@@ -136,7 +136,7 @@ const getEmbedUrl = (url: string): { url: string; type: 'iframe' | 'video' | 'fa
   return null;
 };
 
-type TabKey = 'overview' | 'services' | 'reviews' | 'location';
+type TabKey = 'overview' | 'video' | 'services' | 'reviews' | 'location';
 
 const BusinessDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -253,6 +253,7 @@ const BusinessDetail = () => {
 
   const tabs: { key: TabKey; label: string; show: boolean }[] = [
     { key: 'overview', label: 'Aperçu', show: true },
+    { key: 'video', label: 'Vidéo', show: !!business.video_1_url },
     { key: 'services', label: 'Services', show: !!(business.services && business.services.length > 0) },
     { key: 'reviews', label: 'Avis', show: !!hasReviews },
     { key: 'location', label: 'Localisation', show: !!(business.address || (business.latitude && business.longitude) || business.google_maps_url) },
@@ -504,50 +505,6 @@ const BusinessDetail = () => {
                 );
               })()}
 
-              {/* Video */}
-              {business.video_1_url && (() => {
-                const embedData = getEmbedUrl(business.video_1_url);
-                if (!embedData) return null;
-                return (
-                  <Card className="overflow-hidden bg-black border-black max-w-full">
-                    <div className="w-full relative flex justify-center" style={{ maxHeight: '80vh' }}>
-                      {embedData.type === 'video' ? (
-                        <>
-                          <video
-                            src={embedData.url}
-                            controls
-                            className="max-w-full max-h-[80vh] object-contain mx-auto"
-                            onPlay={() => setIsVideoPlaying(true)}
-                            onPause={() => setIsVideoPlaying(false)}
-                            onEnded={() => setIsVideoPlaying(false)}
-                          />
-                          {!isVideoPlaying && (
-                            <div
-                              className="absolute inset-0 flex items-center justify-center bg-black/30 cursor-pointer transition-opacity duration-300"
-                              onClick={(e) => {
-                                const video = (e.currentTarget.previousElementSibling) as HTMLVideoElement;
-                                if (video) video.play();
-                              }}
-                            >
-                              <div className="rounded-full bg-white/90 p-4 shadow-lg">
-                                <Play className="h-10 w-10 text-black fill-black" />
-                              </div>
-                            </div>
-                          )}
-                        </>
-                      ) : (
-                        <iframe
-                          src={embedData.url}
-                          className="w-full h-full"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          allowFullScreen
-                          title="Vidéo de présentation"
-                        />
-                      )}
-                    </div>
-                  </Card>
-                );
-              })()}
 
               {/* Description */}
               {business.description && (
@@ -820,6 +777,53 @@ const BusinessDetail = () => {
           )}
           </>
         )}
+
+        {/* VIDEO TAB */}
+        {activeTab === 'video' && business.video_1_url && (() => {
+          const embedData = getEmbedUrl(business.video_1_url);
+          if (!embedData) return null;
+          return (
+            <div className="flex justify-center">
+              <Card className="overflow-hidden bg-black border-black max-w-2xl w-full">
+                <div className="w-full relative flex justify-center" style={{ maxHeight: '80vh' }}>
+                  {embedData.type === 'video' ? (
+                    <>
+                      <video
+                        src={embedData.url}
+                        controls
+                        className="max-w-full max-h-[80vh] object-contain mx-auto"
+                        onPlay={() => setIsVideoPlaying(true)}
+                        onPause={() => setIsVideoPlaying(false)}
+                        onEnded={() => setIsVideoPlaying(false)}
+                      />
+                      {!isVideoPlaying && (
+                        <div
+                          className="absolute inset-0 flex items-center justify-center bg-black/30 cursor-pointer transition-opacity duration-300"
+                          onClick={(e) => {
+                            const video = (e.currentTarget.previousElementSibling) as HTMLVideoElement;
+                            if (video) video.play();
+                          }}
+                        >
+                          <div className="rounded-full bg-white/90 p-4 shadow-lg">
+                            <Play className="h-10 w-10 text-black fill-black" />
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <iframe
+                      src={embedData.url}
+                      className="w-full aspect-video"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      title="Vidéo de présentation"
+                    />
+                  )}
+                </div>
+              </Card>
+            </div>
+          );
+        })()}
 
         {/* SERVICES TAB */}
         {activeTab === 'services' && (
