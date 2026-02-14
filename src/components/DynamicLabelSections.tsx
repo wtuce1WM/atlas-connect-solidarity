@@ -30,7 +30,7 @@ const PAGE_FIELD_MAP: Record<PageType, string> = {
 
 const descriptionMap: Record<string, { fr: string; en: string; ar: string }> = {};
 
-const DynamicLabelSections = ({ pageType }: { pageType: PageType }) => {
+const DynamicLabelSections = ({ pageType, lightMode }: { pageType: PageType; lightMode?: boolean }) => {
   const [labels, setLabels] = useState<LabelVisibility[]>([]);
 
   useEffect(() => {
@@ -63,6 +63,7 @@ const DynamicLabelSections = ({ pageType }: { pageType: PageType }) => {
           descriptionAr={label.description_ar || `اكتشف المؤسسات الأعضاء في شبكة ${label.name_ar || label.name_fr} المرموقة`}
           useLogo2
           pageType={pageType}
+          lightMode={lightMode}
         />
       ))}
     </>

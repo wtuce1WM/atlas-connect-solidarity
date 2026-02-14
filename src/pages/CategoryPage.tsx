@@ -662,7 +662,7 @@ const CategoryPage = () => {
         </div>
       </section>
 
-      <DynamicLabelSections pageType="category" />
+      <DynamicLabelSections pageType="category" lightMode={isWhiteBg} />
 
       <Footer />
     </div>
