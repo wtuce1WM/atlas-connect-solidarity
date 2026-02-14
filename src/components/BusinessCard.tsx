@@ -137,9 +137,9 @@ const BusinessCard = ({
           />
           {/* Rating - top left */}
           {displayRating && (
-            <div className="absolute top-2 left-2 flex items-center gap-1 bg-black/60 rounded-full px-2 py-1 z-10">
+            <div className="absolute top-2 left-2 flex flex-col items-center gap-0.5 bg-black/60 rounded-full px-2 py-1 z-10">
               <Star className="h-4 w-4 fill-gold text-gold" />
-              <span className="text-gold font-normal text-sm">{displayRating}/20</span>
+              <span className="text-gold font-normal text-xs">{displayRating}/20</span>
             </div>
           )}
           {/* Gamme badge - top center */}
