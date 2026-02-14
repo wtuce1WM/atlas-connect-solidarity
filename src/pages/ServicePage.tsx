@@ -421,35 +421,27 @@ const ServicePage = () => {
       {/* Filters & Results */}
       <section className="py-6 lg:py-12 bg-black">
         <div className="container mx-auto px-4">
-          {/* City horizontal scroll strip */}
+          {/* City cards horizontal scroll */}
           {availableCities.length > 1 && (
             <div className="mb-6 -mx-4 px-4 overflow-x-auto scrollbar-hide">
-              <div className="flex gap-2 w-max py-2">
-                <Button
-                  variant={selectedCity === "all" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => handleCityChange("all")}
-                  className={`rounded-full whitespace-nowrap ${selectedCity === "all" 
-                    ? "bg-gold hover:bg-gold/90 text-black" 
-                    : "border-white/20 text-white/70 hover:bg-white/10 hover:border-gold hover:text-gold bg-white/5"
-                  }`}
-                >
-                  {t.allCities}
-                </Button>
-                {availableCities.map((city) => (
-                  <Button
-                    key={city}
-                    variant={selectedCity === city ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => handleCityChange(city)}
-                    className={`rounded-full whitespace-nowrap ${selectedCity === city 
-                      ? "bg-gold hover:bg-gold/90 text-black" 
-                      : "border-white/20 text-white/70 hover:bg-white/10 hover:border-gold hover:text-gold bg-white/5"
-                    }`}
-                  >
-                    {city}
-                  </Button>
-                ))}
+              <div className="flex gap-3 w-max py-2">
+                {availableCities.map((city) => {
+                  const count = allBusinesses.filter(b => b.city === city).length;
+                  return (
+                    <button
+                      key={city}
+                      onClick={() => handleCityChange(city)}
+                      className={`flex flex-col items-center justify-center px-5 py-3 rounded-xl border transition-all min-w-[120px] ${
+                        selectedCity === city
+                          ? "bg-gold/20 border-gold text-gold"
+                          : "bg-white/5 border-white/10 text-white/80 hover:border-gold/50 hover:text-gold"
+                      }`}
+                    >
+                      <span className="text-sm font-semibold">{city}</span>
+                      <span className="text-xs opacity-70 mt-0.5">{count} {t.establishments}</span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -457,7 +449,6 @@ const ServicePage = () => {
           {/* Google Maps */}
           <Card className="mb-8 relative">
             <CardContent className="p-0">
-              {/* Selected business indicator */}
               {selectedBusiness && (
                 <MapBusinessInfoCard
                   business={selectedBusiness}
@@ -474,6 +465,39 @@ const ServicePage = () => {
               />
             </CardContent>
           </Card>
+
+          {/* City Quick Links filter */}
+          {availableCities.length > 1 && (
+            <div className="mb-6">
+              <div className="flex flex-wrap gap-2 justify-center">
+                <Button
+                  variant={selectedCity === "all" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => handleCityChange("all")}
+                  className={selectedCity === "all" 
+                    ? "bg-gold hover:bg-gold/90 text-black" 
+                    : "border-gold/30 text-gold hover:bg-gold/10 hover:border-gold"
+                  }
+                >
+                  {t.allCities}
+                </Button>
+                {availableCities.map((city) => (
+                  <Button
+                    key={city}
+                    variant={selectedCity === city ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => handleCityChange(city)}
+                    className={selectedCity === city 
+                      ? "bg-gold hover:bg-gold/90 text-black" 
+                      : "border-border text-muted-foreground hover:bg-gold/10 hover:border-gold hover:text-gold"
+                    }
+                  >
+                    {city}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {filteredBusinesses.length === 0 ? (
             <div className="text-center py-16">
