@@ -175,7 +175,7 @@ const ServicePage = () => {
         let businessData: Business[] | null = null;
         let fetchError: Error | null = null;
 
-        const selectFields = "id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, opening_hours, show_opening_hours, is_open_24h, rating, gamme_id, neighborhood";
+        const selectFields = "id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, opening_hours, show_opening_hours, is_open_24h, rating, gamme_id, neighborhood, hook_fr";
 
         if (isSubcategory) {
           // Search in BOTH categories and services arrays, then merge
