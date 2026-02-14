@@ -18,6 +18,7 @@ interface LabelSectionProps {
   logoUrl?: string;
   useLogo2?: boolean;
   pageType?: string;
+  lightMode?: boolean;
 }
 
 interface Business {
@@ -65,6 +66,7 @@ const LabelSection = ({
   logoUrl,
   useLogo2 = false,
   pageType,
+  lightMode,
 }: LabelSectionProps) => {
   const { language } = useLanguage();
   const [businesses, setBusinesses] = useState<Business[]>([]);
@@ -139,10 +141,10 @@ const LabelSection = ({
     <section
       className="py-16 relative overflow-visible"
       style={
-        pageType === "neighborhood"
+        lightMode
+          ? { backgroundColor: "transparent" }
+          : pageType === "neighborhood"
           ? { background: "linear-gradient(to bottom, hsl(30, 25%, 97%) 0%, hsl(30, 25%, 90%) 15%, hsl(30, 10%, 50%) 40%, #000000 70%)" }
-          : pageType === "service"
-          ? { backgroundColor: "#000000" }
           : { backgroundColor: "#000000" }
       }
     >
@@ -167,12 +169,12 @@ const LabelSection = ({
               <img src={resolvedLogoUrl} alt={title} className="h-24 object-contain" />
             </div>
           )}
-          <h2 className={`mb-3 text-3xl font-bold ${pageType === "neighborhood" ? "text-black" : "text-white"}`}>
+          <h2 className={`mb-3 text-3xl font-bold ${lightMode ? "text-black" : pageType === "neighborhood" ? "text-black" : "text-white"}`}>
             {language === "fr" ? "Établissements " : language === "ar" ? "مؤسسات " : ""}
             <span className="text-gold">{title}</span>
             {language === "en" ? " Establishments" : ""}
           </h2>
-          <p className={`mx-auto max-w-2xl ${pageType === "neighborhood" ? "text-black" : "text-gray-400"}`}>{description}</p>
+          <p className={`mx-auto max-w-2xl ${lightMode ? "text-black/70" : pageType === "neighborhood" ? "text-black" : "text-gray-400"}`}>{description}</p>
         </div>
 
         {/* Business Cards Grid - same style as RelaisChateauxSection */}
