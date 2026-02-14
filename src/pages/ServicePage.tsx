@@ -75,7 +75,6 @@ const ServicePage = () => {
   });
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
   const [gammes, setGammes] = useState<Gamme[]>([]);
-  const [selectedServiceFilter, setSelectedServiceFilter] = useState<string>("all");
   const [selectedGammeFilter, setSelectedGammeFilter] = useState<string>("all");
 
   // Extract service name from URL path (handles special characters like /, &, etc.)
@@ -99,15 +98,6 @@ const ServicePage = () => {
       .map(c => c.name);
   }, [allBusinesses, citiesWithPriority]);
 
-  // Get all unique services actually used by businesses
-  const availableServices = useMemo(() => {
-    const serviceSet = new Set<string>();
-    allBusinesses.forEach(b => {
-      (b.services || []).forEach(s => serviceSet.add(s));
-    });
-    return Array.from(serviceSet).sort((a, b) => a.localeCompare(b, "fr"));
-  }, [allBusinesses]);
-
   // Get gammes available in current businesses
   const availableGammes = useMemo(() => {
     const gammeIds = new Set(allBusinesses.map(b => b.gamme_id).filter(Boolean));
@@ -129,10 +119,6 @@ const ServicePage = () => {
   const filteredBusinesses = useMemo(() => {
     let result = selectedCity === "all" ? [...allBusinesses] : allBusinesses.filter(b => b.city === selectedCity);
     
-    if (selectedServiceFilter !== "all") {
-      result = result.filter(b => (b.services || []).includes(selectedServiceFilter));
-    }
-    
     if (selectedGammeFilter !== "all") {
       result = result.filter(b => b.gamme_id === selectedGammeFilter);
     }
@@ -147,7 +133,7 @@ const ServicePage = () => {
     });
     
     return result;
-  }, [allBusinesses, selectedCity, selectedServiceFilter, selectedGammeFilter]);
+  }, [allBusinesses, selectedCity, selectedGammeFilter]);
 
   // Paginate
   const totalPages = Math.ceil(filteredBusinesses.length / ITEMS_PER_PAGE);
@@ -159,7 +145,7 @@ const ServicePage = () => {
   // Reset page when filter changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedCity, selectedServiceFilter, selectedGammeFilter]);
+  }, [selectedCity, selectedGammeFilter]);
 
   // Update document title with service name and city
   useEffect(() => {
@@ -521,20 +507,6 @@ const ServicePage = () => {
               </SelectContent>
             </Select>
 
-            {/* Services */}
-            {availableServices.length > 1 && (
-              <Select value={selectedServiceFilter} onValueChange={setSelectedServiceFilter}>
-                <SelectTrigger className="w-[220px] bg-popover border-border text-popover-foreground">
-                  <SelectValue placeholder="Services" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tous les services</SelectItem>
-                  {availableServices.map((svc) => (
-                    <SelectItem key={svc} value={svc}>{svc}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
 
             {/* Gamme */}
             {availableGammes.length > 1 && (
