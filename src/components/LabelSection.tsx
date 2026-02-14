@@ -119,7 +119,7 @@ const LabelSection = ({
         pageType === "neighborhood"
           ? { background: "linear-gradient(to bottom, hsl(30, 25%, 97%), #000000)" }
           : pageType === "service"
-          ? { background: "linear-gradient(to bottom, #000000 40%, hsl(30, 25%, 97%))" }
+          ? { background: "linear-gradient(to bottom, hsl(30, 25%, 97%) 0%, #000000 40%, hsl(30, 25%, 97%) 100%)" }
           : { backgroundColor: "#000000" }
       }
     >
