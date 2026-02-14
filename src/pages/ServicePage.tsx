@@ -35,6 +35,7 @@ interface Business {
   images: string[] | null;
   main_category: string | null;
   categories: string[] | null;
+  services?: string[] | null;
   wtuce_status: string | null;
   is_regulated_activity: boolean | null;
   latitude: number | null;
@@ -98,11 +99,11 @@ const ServicePage = () => {
       .map(c => c.name);
   }, [allBusinesses, citiesWithPriority]);
 
-  // Get all unique services from the businesses
+  // Get all unique services actually used by businesses
   const availableServices = useMemo(() => {
     const serviceSet = new Set<string>();
     allBusinesses.forEach(b => {
-      (b.categories || []).forEach(s => serviceSet.add(s));
+      (b.services || []).forEach(s => serviceSet.add(s));
     });
     return Array.from(serviceSet).sort((a, b) => a.localeCompare(b, "fr"));
   }, [allBusinesses]);
@@ -129,7 +130,7 @@ const ServicePage = () => {
     let result = selectedCity === "all" ? [...allBusinesses] : allBusinesses.filter(b => b.city === selectedCity);
     
     if (selectedServiceFilter !== "all") {
-      result = result.filter(b => (b.categories || []).includes(selectedServiceFilter));
+      result = result.filter(b => (b.services || []).includes(selectedServiceFilter));
     }
     
     if (selectedGammeFilter !== "all") {
@@ -520,14 +521,14 @@ const ServicePage = () => {
               </SelectContent>
             </Select>
 
-            {/* Sous-catégorie */}
+            {/* Services */}
             {availableServices.length > 1 && (
               <Select value={selectedServiceFilter} onValueChange={setSelectedServiceFilter}>
                 <SelectTrigger className="w-[220px] bg-popover border-border text-popover-foreground">
-                  <SelectValue placeholder="Sous-catégorie" />
+                  <SelectValue placeholder="Services" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Toutes les sous-catégories</SelectItem>
+                  <SelectItem value="all">Tous les services</SelectItem>
                   {availableServices.map((svc) => (
                     <SelectItem key={svc} value={svc}>{svc}</SelectItem>
                   ))}
