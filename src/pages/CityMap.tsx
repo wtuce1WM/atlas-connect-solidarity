@@ -107,14 +107,21 @@ const CityMap = () => {
     }
   }, [searchParams]);
 
-  // Extract unique main categories from businesses
+  // Extract unique main categories from businesses, ordered by sort_order from categories table
+  const [categorySortMap, setCategorySortMap] = useState<Record<string, number>>({});
+
   const availableCategories = useMemo(() => {
     const categories = new Set<string>();
     businesses.forEach((business) => {
       if (business.main_category) categories.add(business.main_category);
     });
-    return Array.from(categories).sort((a, b) => a.localeCompare(b, "fr"));
-  }, [businesses]);
+    return Array.from(categories).sort((a, b) => {
+      const orderA = categorySortMap[a] ?? 9999;
+      const orderB = categorySortMap[b] ?? 9999;
+      if (orderA !== orderB) return orderA - orderB;
+      return a.localeCompare(b, "fr");
+    });
+  }, [businesses, categorySortMap]);
 
   // Extract unique subcategories based on selected category
   const availableSubcategories = useMemo(() => {
@@ -271,14 +278,19 @@ const CityMap = () => {
         setGammeCategories(gcData);
       }
 
-      // Fetch categories for name→id mapping
+      // Fetch categories for name→id mapping and sort order
       const { data: catData } = await supabase
         .from("categories")
-        .select("id, name_fr");
+        .select("id, name_fr, sort_order");
       if (catData) {
         const map: Record<string, string> = {};
-        catData.forEach((c) => { map[c.name_fr] = c.id; });
+        const sortMap: Record<string, number> = {};
+        catData.forEach((c) => {
+          map[c.name_fr] = c.id;
+          sortMap[c.name_fr] = c.sort_order ?? 9999;
+        });
         setCategoryIdMap(map);
+        setCategorySortMap(sortMap);
       }
 
       // Fetch businesses - ordered by verified status then priority score
