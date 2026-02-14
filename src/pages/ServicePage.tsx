@@ -498,7 +498,7 @@ const ServicePage = () => {
           <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Ville */}
             <div>
-              <label className="block text-sm font-medium text-muted-foreground mb-1">{t.filterByCity}</label>
+              <label className="block text-sm font-medium text-white mb-1">{t.filterByCity}</label>
               <Select value={selectedCity} onValueChange={handleCityChange}>
                 <SelectTrigger className="w-full bg-popover border-border text-popover-foreground">
                   <SelectValue placeholder="Ville" />
@@ -515,7 +515,7 @@ const ServicePage = () => {
             {/* Gamme */}
             {availableGammes.length > 1 && (
               <div>
-                <label className="block text-sm font-medium text-muted-foreground mb-1">Gamme</label>
+                <label className="block text-sm font-medium text-white mb-1">Gamme</label>
                 <Select value={selectedGammeFilter} onValueChange={setSelectedGammeFilter}>
                   <SelectTrigger className="w-full bg-popover border-border text-popover-foreground">
                     <SelectValue placeholder="Gamme" />
