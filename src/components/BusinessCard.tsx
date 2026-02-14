@@ -174,12 +174,6 @@ const BusinessCard = ({
         <CardContent className="p-4">
           {/* Badges */}
           <div className="flex flex-wrap gap-2 mb-3">
-            {business.wtuce_status === "verified" && (
-              <Badge variant="default" className="bg-primary/20 text-primary border-primary/30">
-                <ShieldCheck className="h-3 w-3 mr-1" />
-                {verifiedLabel}
-              </Badge>
-            )}
             {business.categories && business.categories.length > 0 && (
               <Badge variant="secondary" className="text-xs">
                 {business.categories[0]}
