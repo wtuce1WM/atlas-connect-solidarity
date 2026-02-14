@@ -495,34 +495,39 @@ const ServicePage = () => {
           </Card>
 
           {/* Dropdown Filters */}
-          <div className="mb-6 flex flex-wrap gap-3 items-center">
+          <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Ville */}
-            <Select value={selectedCity} onValueChange={handleCityChange}>
-              <SelectTrigger className="w-[200px] bg-popover border-border text-popover-foreground">
-                <SelectValue placeholder="Ville" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{t.allCities}</SelectItem>
-                {availableCities.map((city) => (
-                  <SelectItem key={city} value={city}>{city}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-
-            {/* Gamme */}
-            {availableGammes.length > 1 && (
-              <Select value={selectedGammeFilter} onValueChange={setSelectedGammeFilter}>
-                <SelectTrigger className="w-[200px] bg-popover border-border text-popover-foreground">
-                  <SelectValue placeholder="Gamme" />
+            <div>
+              <label className="block text-sm font-medium text-muted-foreground mb-1">{t.filterByCity}</label>
+              <Select value={selectedCity} onValueChange={handleCityChange}>
+                <SelectTrigger className="w-full bg-popover border-border text-popover-foreground">
+                  <SelectValue placeholder="Ville" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Toutes les gammes</SelectItem>
-                  {availableGammes.map((g) => (
-                    <SelectItem key={g.id} value={g.id}>{g.name_fr}</SelectItem>
+                  <SelectItem value="all">{t.allCities}</SelectItem>
+                  {availableCities.map((city) => (
+                    <SelectItem key={city} value={city}>{city}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+
+            {/* Gamme */}
+            {availableGammes.length > 1 && (
+              <div>
+                <label className="block text-sm font-medium text-muted-foreground mb-1">Gamme</label>
+                <Select value={selectedGammeFilter} onValueChange={setSelectedGammeFilter}>
+                  <SelectTrigger className="w-full bg-popover border-border text-popover-foreground">
+                    <SelectValue placeholder="Gamme" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Toutes les gammes</SelectItem>
+                    {availableGammes.map((g) => (
+                      <SelectItem key={g.id} value={g.id}>{g.name_fr}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             )}
           </div>
 
