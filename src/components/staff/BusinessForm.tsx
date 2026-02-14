@@ -336,6 +336,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
     is_active: business ? ((business as any)?.is_active ?? true) : false,
     priority_score: business?.priority_score?.toString() || "0",
     logo_url: business?.logo_url || "",
+    _initialLogoUrl: business?.logo_url || "",
     
     ice: (business as any)?.ice || "",
     kp_regroupement: (business as any)?.kp_regroupement || "",
@@ -618,6 +619,15 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
           .filter(Boolean) as string[];
         if (filePaths.length > 0) {
           await supabase.storage.from("business-images").remove(filePaths);
+        }
+      }
+
+      // Clean up removed logo from storage (compare initial vs final)
+      const initialLogo = formData._initialLogoUrl as string;
+      if (initialLogo && initialLogo !== formData.logo_url && initialLogo.includes("/business-images/")) {
+        const logoParts = initialLogo.split("/business-images/");
+        if (logoParts.length > 1) {
+          await supabase.storage.from("business-images").remove([logoParts[1]]);
         }
       }
 
