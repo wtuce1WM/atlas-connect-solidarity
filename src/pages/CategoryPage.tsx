@@ -353,7 +353,10 @@ const CategoryPage = () => {
 
   const handleSelectBusiness = (business: Business) => {
     setSelectedBusiness(business);
-    window.scrollTo({ top: 300, behavior: 'smooth' });
+    const mapEl = document.getElementById("category-map");
+    if (mapEl) {
+      mapEl.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
   const clearSelectedBusiness = () => {
@@ -638,7 +641,7 @@ const CategoryPage = () => {
           )}
 
           {/* Google Maps - below results */}
-          <Card className="mt-12 relative">
+          <Card id="category-map" className="mt-12 relative scroll-mt-24">
             <CardContent className="p-0">
               {selectedBusiness && (
                 <MapBusinessInfoCard
