@@ -27,9 +27,32 @@ interface Business {
   region: string;
   images: string[] | null;
   rating: number | null;
+  google_rating?: number | null;
+  google_review_count?: number | null;
+  tripadvisor_rating?: number | null;
+  tripadvisor_review_count?: number | null;
+  restaurant_guru_rating?: number | null;
+  restaurant_guru_review_count?: number | null;
   description: string | null;
   wtuce_status: string | null;
 }
+
+const getCalculatedRating = (business: Business): number | null => {
+  const sources: { rating: number; count: number }[] = [];
+  if (business.google_rating && business.google_review_count) {
+    sources.push({ rating: business.google_rating * 4, count: business.google_review_count });
+  }
+  if (business.tripadvisor_rating && business.tripadvisor_review_count) {
+    sources.push({ rating: business.tripadvisor_rating * 4, count: business.tripadvisor_review_count });
+  }
+  if (business.restaurant_guru_rating && business.restaurant_guru_review_count) {
+    sources.push({ rating: business.restaurant_guru_rating * 4, count: business.restaurant_guru_review_count });
+  }
+  if (sources.length === 0) return null;
+  const totalCount = sources.reduce((sum, s) => sum + s.count, 0);
+  const weightedSum = sources.reduce((sum, s) => sum + s.rating * s.count, 0);
+  return Math.round((weightedSum / totalCount) * 10) / 10;
+};
 
 const LabelSection = ({
   labelId,
@@ -80,7 +103,7 @@ const LabelSection = ({
 
         const { data, error } = await supabase
           .from("businesses")
-          .select("id, name, city, region, images, rating, description, wtuce_status, neighborhood")
+          .select("id, name, city, region, images, rating, description, wtuce_status, neighborhood, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count")
           .eq("is_active", true)
           .in("id", businessIds)
           .order("priority_score", { ascending: false });
@@ -154,7 +177,9 @@ const LabelSection = ({
 
         {/* Business Cards Grid - same style as RelaisChateauxSection */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {businesses.map((business) => (
+          {businesses.map((business) => {
+            const displayRating = business.rating ?? getCalculatedRating(business);
+            return (
             <Link
               key={business.id}
               to={`/business/${business.id}`}
@@ -170,24 +195,24 @@ const LabelSection = ({
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                     <div className="absolute inset-0 bg-black/60 group-hover:bg-black/50 transition-colors" />
-
-                    {/* Rating - top left */}
-                    {business.rating && (
-                      <div className="absolute top-2 left-2 flex flex-col items-center gap-0.5 bg-black/60 rounded-full px-2 py-1 z-10">
-                        <Star className="h-4 w-4 fill-gold text-gold" />
-                        <span className="text-gold font-semibold text-xs">{business.rating}/20</span>
-                      </div>
-                    )}
-
-                    {/* Watermark logo for verified businesses - top right */}
-                    {business.wtuce_status === "verified" && (
-                      <img
-                        src={logoWatermark}
-                        alt=""
-                        className="absolute top-2 right-2 w-10 h-10 object-contain opacity-90 pointer-events-none z-10"
-                      />
-                    )}
                   </div>
+                )}
+
+                {/* Rating - top left */}
+                {displayRating && (
+                  <div className="absolute top-2 left-2 flex flex-col items-center gap-0.5 bg-black/60 rounded-full px-2 py-1 z-20">
+                    <Star className="h-4 w-4 fill-gold text-gold" />
+                    <span className="text-gold font-semibold text-xs">{displayRating}/20</span>
+                  </div>
+                )}
+
+                {/* Watermark logo for verified businesses - top right */}
+                {business.wtuce_status === "verified" && (
+                  <img
+                    src={logoWatermark}
+                    alt=""
+                    className="absolute top-2 right-2 w-10 h-10 object-contain opacity-90 pointer-events-none z-20"
+                  />
                 )}
 
                 <CardContent className="p-6 relative z-10 flex flex-col items-center justify-end min-h-[200px] text-center">
@@ -204,7 +229,8 @@ const LabelSection = ({
                 </CardContent>
               </Card>
             </Link>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>
