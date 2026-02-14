@@ -581,7 +581,6 @@ const ServicePage = () => {
                       view: language === "fr" ? "Voir sur la carte" : language === "ar" ? "عرض على الخريطة" : "View on map",
                       shown: language === "fr" ? "Affiché sur la carte" : language === "ar" ? "معروض على الخريطة" : "Shown on map"
                     }}
-                    hideCity={true}
                   />
                 ))}
               </div>
