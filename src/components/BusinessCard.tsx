@@ -110,7 +110,7 @@ const BusinessCard = ({
 }: BusinessCardProps) => {
   const gamme = getBusinessGamme(business, gammes);
   const calculatedRating = getCalculatedRating(business);
-  const displayRating = calculatedRating;
+  const displayRating = business.rating ?? calculatedRating;
   const isSelected = selectedBusinessId === business.id;
   const hasMapData = business.google_maps_url || (business.latitude && business.longitude);
   const businessImage = getBusinessImage(business);
