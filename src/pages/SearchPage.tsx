@@ -39,6 +39,12 @@ interface Business {
   google_maps_url: string | null;
   rating: number | null;
   gamme_id: string | null;
+  google_rating?: number | null;
+  tripadvisor_rating?: number | null;
+  restaurant_guru_rating?: number | null;
+  google_review_count?: number | null;
+  tripadvisor_review_count?: number | null;
+  restaurant_guru_review_count?: number | null;
 }
 
 interface SearchResult {
@@ -72,10 +78,31 @@ const SearchPage = () => {
       .map(c => c.name);
   }, [allBusinesses, citiesWithPriority]);
 
-  // Filter businesses by city
+  const getEffectiveRating = (b: typeof allBusinesses[0]): number | null => {
+    if (b.rating) return Number(b.rating);
+    const sources: { r: number; c: number }[] = [];
+    if (b.google_rating && b.google_review_count) sources.push({ r: Number(b.google_rating) * 4, c: b.google_review_count });
+    if (b.tripadvisor_rating && b.tripadvisor_review_count) sources.push({ r: Number(b.tripadvisor_rating) * 4, c: b.tripadvisor_review_count });
+    if (b.restaurant_guru_rating && b.restaurant_guru_review_count) sources.push({ r: Number(b.restaurant_guru_rating) * 4, c: b.restaurant_guru_review_count });
+    if (sources.length === 0) return null;
+    const total = sources.reduce((s, x) => s + x.c, 0);
+    return Math.round((sources.reduce((s, x) => s + x.r * x.c, 0) / total) * 10) / 10;
+  };
+
+  // Filter businesses by city, then sort by rating
   const filteredBusinesses = useMemo(() => {
-    if (selectedCity === "all") return allBusinesses;
-    return allBusinesses.filter(b => b.city === selectedCity);
+    let result = selectedCity === "all" ? [...allBusinesses] : allBusinesses.filter(b => b.city === selectedCity);
+    
+    result.sort((a, b) => {
+      const rA = getEffectiveRating(a);
+      const rB = getEffectiveRating(b);
+      if (rA === null && rB === null) return 0;
+      if (rA === null) return 1;
+      if (rB === null) return -1;
+      return rB - rA;
+    });
+    
+    return result;
   }, [allBusinesses, selectedCity]);
 
   // Paginate
