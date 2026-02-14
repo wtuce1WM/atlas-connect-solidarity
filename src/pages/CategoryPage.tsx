@@ -451,7 +451,7 @@ const CategoryPage = () => {
 
           {/* City & Subcategory Filters */}
           <div id="category-filters" className="space-y-3 mb-8 scroll-mt-24">
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               {/* City Filter */}
               {availableCities.length > 1 && (
                 <div className="flex-1 min-w-[140px]">
