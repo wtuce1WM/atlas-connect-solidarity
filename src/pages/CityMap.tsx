@@ -195,16 +195,16 @@ const CityMap = () => {
       );
     }
     
-    if (sortByRating !== "none") {
-      result = [...result].sort((a, b) => {
-        const ratingA = getCalcRating(a);
-        const ratingB = getCalcRating(b);
-        if (ratingA === null && ratingB === null) return 0;
-        if (ratingA === null) return 1;
-        if (ratingB === null) return 1;
-        return sortByRating === "desc" ? ratingB - ratingA : ratingA - ratingB;
-      });
-    }
+    // Always sort by effective rating descending (manual rating overrides calculated)
+    result = [...result].sort((a, b) => {
+      const ratingA = getCalcRating(a);
+      const ratingB = getCalcRating(b);
+      if (ratingA === null && ratingB === null) return 0;
+      if (ratingA === null) return 1;
+      if (ratingB === null) return -1;
+      if (sortByRating === "asc") return ratingA - ratingB;
+      return ratingB - ratingA;
+    });
 
     return result;
   }, [businesses, selectedCategory, selectedSubcategory, selectedGamme, selectedActivities, sortByRating]);
