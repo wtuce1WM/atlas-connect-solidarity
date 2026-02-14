@@ -115,20 +115,11 @@ const LogoUploader = ({
     }
   }, [businessId, onChange, toast]);
 
-  const handleRemoveLogo = useCallback(async () => {
-    // Extract file path from URL to delete from storage
-    try {
-      const urlParts = logoUrl.split("/business-images/");
-      if (urlParts.length > 1) {
-        const filePath = urlParts[1];
-        await supabase.storage.from("business-images").remove([filePath]);
-      }
-    } catch (error) {
-      console.error("Error deleting from storage:", error);
-    }
-
+  const handleRemoveLogo = useCallback(() => {
+    // Only remove from form state — do NOT delete from storage here.
+    // Physical deletion will happen on form save by comparing before/after.
     onChange("");
-  }, [logoUrl, onChange]);
+  }, [onChange]);
 
   const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
