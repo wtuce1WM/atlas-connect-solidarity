@@ -159,6 +159,7 @@ const CityMap = () => {
   }, [gammes, gammeCategories, categoryIdMap, selectedCategory]);
 
   const getCalcRating = (b: Business): number | null => {
+    if (b.rating) return Number(b.rating);
     const sources: { r: number; c: number }[] = [];
     if (b.google_rating && b.google_review_count) sources.push({ r: b.google_rating * 4, c: b.google_review_count });
     if (b.tripadvisor_rating && b.tripadvisor_review_count) sources.push({ r: b.tripadvisor_rating * 4, c: b.tripadvisor_review_count });

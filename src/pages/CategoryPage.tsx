@@ -133,6 +133,17 @@ const CategoryPage = () => {
     return Array.from(services).sort((a, b) => a.localeCompare(b, "fr"));
   }, [allBusinesses, selectedCity, selectedSubcategories]);
 
+  const getEffectiveRating = (b: typeof allBusinesses[0]): number | null => {
+    if (b.rating) return Number(b.rating);
+    const sources: { r: number; c: number }[] = [];
+    if (b.google_rating && b.google_review_count) sources.push({ r: Number(b.google_rating) * 4, c: b.google_review_count });
+    if (b.tripadvisor_rating && b.tripadvisor_review_count) sources.push({ r: Number(b.tripadvisor_rating) * 4, c: b.tripadvisor_review_count });
+    if (b.restaurant_guru_rating && b.restaurant_guru_review_count) sources.push({ r: Number(b.restaurant_guru_rating) * 4, c: b.restaurant_guru_review_count });
+    if (sources.length === 0) return null;
+    const total = sources.reduce((s, x) => s + x.c, 0);
+    return Math.round((sources.reduce((s, x) => s + x.r * x.c, 0) / total) * 10) / 10;
+  };
+
   // Filter businesses by city, subcategories and services
   const filteredBusinesses = useMemo(() => {
     let result = allBusinesses;
@@ -152,6 +163,16 @@ const CategoryPage = () => {
         selectedServices.some((service) => business.services?.includes(service))
       );
     }
+    
+    // Sort by effective rating (highest first), businesses without rating go last
+    result = [...result].sort((a, b) => {
+      const rA = getEffectiveRating(a);
+      const rB = getEffectiveRating(b);
+      if (rA === null && rB === null) return 0;
+      if (rA === null) return 1;
+      if (rB === null) return -1;
+      return rB - rA;
+    });
     
     return result;
   }, [allBusinesses, selectedCity, selectedSubcategories, selectedServices]);

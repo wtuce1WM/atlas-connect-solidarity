@@ -45,6 +45,13 @@ interface Business {
   opening_hours: unknown;
   show_opening_hours: boolean | null;
   is_open_24h: boolean;
+  hook_fr?: string | null;
+  google_rating?: number | null;
+  tripadvisor_rating?: number | null;
+  restaurant_guru_rating?: number | null;
+  google_review_count?: number | null;
+  tripadvisor_review_count?: number | null;
+  restaurant_guru_review_count?: number | null;
 }
 
 const ITEMS_PER_PAGE = 20;
@@ -98,13 +105,34 @@ const NeighborhoodPage = () => {
     return Array.from(activities).sort((a, b) => a.localeCompare(b, "fr"));
   }, [businesses, selectedCategory, selectedSubcategory]);
 
+  const getEffectiveRating = (b: typeof businesses[0]): number | null => {
+    if (b.rating) return Number(b.rating);
+    const sources: { r: number; c: number }[] = [];
+    if (b.google_rating && b.google_review_count) sources.push({ r: Number(b.google_rating) * 4, c: b.google_review_count });
+    if (b.tripadvisor_rating && b.tripadvisor_review_count) sources.push({ r: Number(b.tripadvisor_rating) * 4, c: b.tripadvisor_review_count });
+    if (b.restaurant_guru_rating && b.restaurant_guru_review_count) sources.push({ r: Number(b.restaurant_guru_rating) * 4, c: b.restaurant_guru_review_count });
+    if (sources.length === 0) return null;
+    const total = sources.reduce((s, x) => s + x.c, 0);
+    return Math.round((sources.reduce((s, x) => s + x.r * x.c, 0) / total) * 10) / 10;
+  };
+
   const filteredBusinesses = useMemo(() => {
-    let result = businesses;
+    let result = [...businesses];
     if (selectedCategory) result = result.filter((b) => b.main_category === selectedCategory);
     if (selectedSubcategory) result = result.filter((b) => b.categories?.includes(selectedSubcategory));
     if (selectedActivities.length > 0) {
       result = result.filter((b) => selectedActivities.some((a) => b.services?.includes(a)));
     }
+    
+    result.sort((a, b) => {
+      const rA = getEffectiveRating(a);
+      const rB = getEffectiveRating(b);
+      if (rA === null && rB === null) return 0;
+      if (rA === null) return 1;
+      if (rB === null) return -1;
+      return rB - rA;
+    });
+    
     return result;
   }, [businesses, selectedCategory, selectedSubcategory, selectedActivities]);
 
@@ -191,7 +219,7 @@ const NeighborhoodPage = () => {
 
       let query = supabase
         .from("businesses")
-        .select("id, name, city, region, address, phone, whatsapp, skype, main_category, categories, latitude, longitude, google_maps_url, wtuce_status, services, images, rating, priority_score, logo_url, gamme_id, neighborhood, opening_hours, show_opening_hours, is_open_24h, hook_fr")
+        .select("id, name, city, region, address, phone, whatsapp, skype, main_category, categories, latitude, longitude, google_maps_url, wtuce_status, services, images, rating, priority_score, logo_url, gamme_id, neighborhood, opening_hours, show_opening_hours, is_open_24h, hook_fr, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count")
         .eq("is_active", true)
         .ilike("neighborhood", decodedNeighborhood);
 
