@@ -10,6 +10,13 @@ import { Button } from "@/components/ui/button";
 import { Loader2, MapPin, Building2, ChevronLeft, ChevronRight, Sun, X, ArrowLeft } from "lucide-react";
 import MapBusinessInfoCard from "@/components/MapBusinessInfoCard";
 import DynamicIcon from "@/components/DynamicIcon";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 import BusinessCard, { BusinessCardData, Gamme } from "@/components/BusinessCard";
 
@@ -67,6 +74,8 @@ const ServicePage = () => {
   });
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
   const [gammes, setGammes] = useState<Gamme[]>([]);
+  const [selectedServiceFilter, setSelectedServiceFilter] = useState<string>("all");
+  const [selectedGammeFilter, setSelectedGammeFilter] = useState<string>("all");
 
   // Extract service name from URL path (handles special characters like /, &, etc.)
   const decodedServiceName = useMemo(() => {
@@ -89,6 +98,21 @@ const ServicePage = () => {
       .map(c => c.name);
   }, [allBusinesses, citiesWithPriority]);
 
+  // Get all unique services from the businesses
+  const availableServices = useMemo(() => {
+    const serviceSet = new Set<string>();
+    allBusinesses.forEach(b => {
+      (b.categories || []).forEach(s => serviceSet.add(s));
+    });
+    return Array.from(serviceSet).sort((a, b) => a.localeCompare(b, "fr"));
+  }, [allBusinesses]);
+
+  // Get gammes available in current businesses
+  const availableGammes = useMemo(() => {
+    const gammeIds = new Set(allBusinesses.map(b => b.gamme_id).filter(Boolean));
+    return gammes.filter(g => gammeIds.has(g.id));
+  }, [allBusinesses, gammes]);
+
   const getEffectiveRating = (b: typeof allBusinesses[0]): number | null => {
     if (b.rating) return Number(b.rating);
     const sources: { r: number; c: number }[] = [];
@@ -100,9 +124,17 @@ const ServicePage = () => {
     return Math.round((sources.reduce((s, x) => s + x.r * x.c, 0) / total) * 10) / 10;
   };
 
-  // Filter businesses by city, then sort by rating
+  // Filter businesses by city, service, and gamme, then sort by rating
   const filteredBusinesses = useMemo(() => {
     let result = selectedCity === "all" ? [...allBusinesses] : allBusinesses.filter(b => b.city === selectedCity);
+    
+    if (selectedServiceFilter !== "all") {
+      result = result.filter(b => (b.categories || []).includes(selectedServiceFilter));
+    }
+    
+    if (selectedGammeFilter !== "all") {
+      result = result.filter(b => b.gamme_id === selectedGammeFilter);
+    }
     
     result.sort((a, b) => {
       const rA = getEffectiveRating(a);
@@ -114,7 +146,7 @@ const ServicePage = () => {
     });
     
     return result;
-  }, [allBusinesses, selectedCity]);
+  }, [allBusinesses, selectedCity, selectedServiceFilter, selectedGammeFilter]);
 
   // Paginate
   const totalPages = Math.ceil(filteredBusinesses.length / ITEMS_PER_PAGE);
@@ -126,7 +158,7 @@ const ServicePage = () => {
   // Reset page when filter changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedCity]);
+  }, [selectedCity, selectedServiceFilter, selectedGammeFilter]);
 
   // Update document title with service name and city
   useEffect(() => {
@@ -472,6 +504,52 @@ const ServicePage = () => {
               />
             </CardContent>
           </Card>
+
+          {/* Dropdown Filters */}
+          <div className="mb-6 flex flex-wrap gap-3 items-center">
+            {/* Ville */}
+            <Select value={selectedCity} onValueChange={handleCityChange}>
+              <SelectTrigger className="w-[200px] bg-popover border-border text-popover-foreground">
+                <SelectValue placeholder="Ville" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t.allCities}</SelectItem>
+                {availableCities.map((city) => (
+                  <SelectItem key={city} value={city}>{city}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {/* Sous-catégorie */}
+            {availableServices.length > 1 && (
+              <Select value={selectedServiceFilter} onValueChange={setSelectedServiceFilter}>
+                <SelectTrigger className="w-[220px] bg-popover border-border text-popover-foreground">
+                  <SelectValue placeholder="Sous-catégorie" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Toutes les sous-catégories</SelectItem>
+                  {availableServices.map((svc) => (
+                    <SelectItem key={svc} value={svc}>{svc}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+
+            {/* Gamme */}
+            {availableGammes.length > 1 && (
+              <Select value={selectedGammeFilter} onValueChange={setSelectedGammeFilter}>
+                <SelectTrigger className="w-[200px] bg-popover border-border text-popover-foreground">
+                  <SelectValue placeholder="Gamme" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Toutes les gammes</SelectItem>
+                  {availableGammes.map((g) => (
+                    <SelectItem key={g.id} value={g.id}>{g.name_fr}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          </div>
 
           {/* City Quick Links filter */}
           {availableCities.length > 1 && (
