@@ -343,7 +343,12 @@ const CategoryPage = () => {
 
   const goToPage = (page: number) => {
     setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    const anchor = document.getElementById("category-filters");
+    if (anchor) {
+      anchor.scrollIntoView({ behavior: "smooth" });
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   };
 
   const handleSelectBusiness = (business: Business) => {
@@ -465,7 +470,7 @@ const CategoryPage = () => {
           </Card>
 
           {/* City & Subcategory Filters */}
-          <div className="space-y-3 mb-8">
+          <div id="category-filters" className="space-y-3 mb-8 scroll-mt-24">
             <div className="flex flex-wrap gap-3">
               {/* City Filter */}
               {availableCities.length > 1 && (
