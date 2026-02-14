@@ -515,13 +515,13 @@ const ServicePage = () => {
             {/* Gamme */}
             {availableGammes.length > 1 && (
               <div>
-                <label className="block text-sm font-medium text-white mb-1">Gamme</label>
+                <label className="block text-sm font-medium text-white mb-1">Standing</label>
                 <Select value={selectedGammeFilter} onValueChange={setSelectedGammeFilter}>
                   <SelectTrigger className="w-full bg-popover border-border text-popover-foreground">
                     <SelectValue placeholder="Gamme" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Toutes les gammes</SelectItem>
+                    <SelectItem value="all">Tous les standings</SelectItem>
                     {availableGammes.map((g) => (
                       <SelectItem key={g.id} value={g.id}>{g.name_fr}</SelectItem>
                     ))}
