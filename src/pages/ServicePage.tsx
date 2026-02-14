@@ -98,11 +98,12 @@ const ServicePage = () => {
       .map(c => c.name);
   }, [allBusinesses, citiesWithPriority]);
 
-  // Get gammes available in current businesses
+  // Get gammes available in current businesses (filtered by city)
   const availableGammes = useMemo(() => {
-    const gammeIds = new Set(allBusinesses.map(b => b.gamme_id).filter(Boolean));
+    const cityFiltered = selectedCity === "all" ? allBusinesses : allBusinesses.filter(b => b.city === selectedCity);
+    const gammeIds = new Set(cityFiltered.map(b => b.gamme_id).filter(Boolean));
     return gammes.filter(g => gammeIds.has(g.id));
-  }, [allBusinesses, gammes]);
+  }, [allBusinesses, gammes, selectedCity]);
 
   const getEffectiveRating = (b: typeof allBusinesses[0]): number | null => {
     if (b.rating) return Number(b.rating);
@@ -339,6 +340,7 @@ const ServicePage = () => {
   const handleCityChange = (city: string) => {
     setSelectedCity(city);
     setSelectedBusiness(null);
+    setSelectedGammeFilter("all");
   };
 
   const handleSelectBusiness = (business: Business) => {
