@@ -180,7 +180,7 @@ const BusinessCard = ({
               </Badge>
             )}
             {business.default_service && (
-              <Badge variant="outline" className="text-xs border-gold/40 text-gold">
+              <Badge variant="outline" className="text-xs bg-black text-white border-black">
                 {business.default_service}
               </Badge>
             )}
