@@ -130,7 +130,9 @@ const getEmbedUrl = (url: string): { url: string; type: 'iframe' | 'video' | 'fa
   if (url.includes('facebook.com') || url.includes('fb.watch')) {
     return { url: `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false`, type: 'facebook' };
   }
-  if (url.match(/\.(mp4|webm|ogg)$/i)) return { url, type: 'video' };
+  if (url.match(/\.(mp4|webm|ogg)(\?|$)/i)) return { url, type: 'video' };
+  // Fallback: treat any URL with common video CDN patterns as direct video
+  if (url.match(/scontent.*\.cdninstagram\.com.*\.mp4/i) || url.match(/video.*\.mp4/i)) return { url, type: 'video' };
   return null;
 };
 
@@ -508,13 +510,13 @@ const BusinessDetail = () => {
                 if (!embedData) return null;
                 return (
                   <Card className="overflow-hidden bg-black border-black max-w-full">
-                    <div className="aspect-video w-full relative">
+                    <div className="w-full relative flex justify-center" style={{ maxHeight: '80vh' }}>
                       {embedData.type === 'video' ? (
                         <>
                           <video
                             src={embedData.url}
                             controls
-                            className="w-full h-full object-cover"
+                            className="max-w-full max-h-[80vh] object-contain mx-auto"
                             onPlay={() => setIsVideoPlaying(true)}
                             onPause={() => setIsVideoPlaying(false)}
                             onEnded={() => setIsVideoPlaying(false)}
