@@ -18,6 +18,7 @@ export interface BusinessCardData {
   hook_fr?: string | null;
   images: string[] | null;
   categories: string[] | null;
+  default_service?: string | null;
   wtuce_status: string | null;
   latitude: number | null;
   longitude: number | null;
@@ -182,6 +183,11 @@ const BusinessCard = ({
             {business.categories && business.categories.length > 0 && (
               <Badge variant="secondary" className="text-xs">
                 {business.categories[0]}
+              </Badge>
+            )}
+            {business.default_service && (
+              <Badge variant="outline" className="text-xs border-gold/40 text-gold">
+                {business.default_service}
               </Badge>
             )}
           </div>
