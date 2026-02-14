@@ -421,6 +421,39 @@ const ServicePage = () => {
       {/* Filters & Results */}
       <section className="py-6 lg:py-12 bg-black">
         <div className="container mx-auto px-4">
+          {/* City horizontal scroll strip */}
+          {availableCities.length > 1 && (
+            <div className="mb-6 -mx-4 px-4 overflow-x-auto scrollbar-hide">
+              <div className="flex gap-2 w-max py-2">
+                <Button
+                  variant={selectedCity === "all" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => handleCityChange("all")}
+                  className={`rounded-full whitespace-nowrap ${selectedCity === "all" 
+                    ? "bg-gold hover:bg-gold/90 text-black" 
+                    : "border-white/20 text-white/70 hover:bg-white/10 hover:border-gold hover:text-gold bg-white/5"
+                  }`}
+                >
+                  {t.allCities}
+                </Button>
+                {availableCities.map((city) => (
+                  <Button
+                    key={city}
+                    variant={selectedCity === city ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => handleCityChange(city)}
+                    className={`rounded-full whitespace-nowrap ${selectedCity === city 
+                      ? "bg-gold hover:bg-gold/90 text-black" 
+                      : "border-white/20 text-white/70 hover:bg-white/10 hover:border-gold hover:text-gold bg-white/5"
+                    }`}
+                  >
+                    {city}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Google Maps */}
           <Card className="mb-8 relative">
             <CardContent className="p-0">
@@ -441,39 +474,6 @@ const ServicePage = () => {
               />
             </CardContent>
           </Card>
-
-          {/* City Quick Links */}
-          {availableCities.length > 1 && (
-            <div className="mb-6">
-              <div className="flex flex-wrap gap-2 justify-center">
-                <Button
-                  variant={selectedCity === "all" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => handleCityChange("all")}
-                  className={selectedCity === "all" 
-                    ? "bg-gold hover:bg-gold/90 text-black" 
-                    : "border-gold/30 text-gold hover:bg-gold/10 hover:border-gold"
-                  }
-                >
-                  {t.allCities}
-                </Button>
-                {availableCities.map((city) => (
-                  <Button
-                    key={city}
-                    variant={selectedCity === city ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => handleCityChange(city)}
-                    className={selectedCity === city 
-                      ? "bg-gold hover:bg-gold/90 text-black" 
-                      : "border-border text-muted-foreground hover:bg-gold/10 hover:border-gold hover:text-gold"
-                    }
-                  >
-                    {city}
-                  </Button>
-                ))}
-              </div>
-            </div>
-          )}
 
           {filteredBusinesses.length === 0 ? (
             <div className="text-center py-16">
