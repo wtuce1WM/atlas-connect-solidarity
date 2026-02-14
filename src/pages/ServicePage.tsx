@@ -526,38 +526,6 @@ const ServicePage = () => {
             )}
           </div>
 
-          {/* City Quick Links filter */}
-          {availableCities.length > 1 && (
-            <div className="mb-6">
-              <div className="flex flex-wrap gap-2 justify-center">
-                <Button
-                  variant={selectedCity === "all" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => handleCityChange("all")}
-                  className={selectedCity === "all" 
-                    ? "bg-gold hover:bg-gold/90 text-black" 
-                    : "border-gold/30 text-gold hover:bg-gold/10 hover:border-gold"
-                  }
-                >
-                  {t.allCities}
-                </Button>
-                {availableCities.map((city) => (
-                  <Button
-                    key={city}
-                    variant={selectedCity === city ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => handleCityChange(city)}
-                    className={selectedCity === city 
-                      ? "bg-gold hover:bg-gold/90 text-black" 
-                      : "border-border text-muted-foreground hover:bg-gold/10 hover:border-gold hover:text-gold"
-                    }
-                  >
-                    {city}
-                  </Button>
-                ))}
-              </div>
-            </div>
-          )}
 
           {filteredBusinesses.length === 0 ? (
             <div className="text-center py-16">
