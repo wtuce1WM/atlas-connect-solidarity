@@ -53,6 +53,7 @@ interface BusinessCardProps {
   };
   mapButtonVariant?: "text" | "button";
   showAddress?: boolean;
+  hideCity?: boolean;
 }
 
 const WhatsAppIcon = () => (
@@ -107,7 +108,8 @@ const BusinessCard = ({
   showMapButton = false,
   mapButtonLabels = { view: "Voir sur la carte", shown: "Affiché sur la carte" },
   mapButtonVariant = "text",
-  showAddress = false
+  showAddress = false,
+  hideCity = false
 }: BusinessCardProps) => {
   const gamme = getBusinessGamme(business, gammes);
   const calculatedRating = getCalculatedRating(business);
@@ -118,9 +120,11 @@ const BusinessCard = ({
 
   const locationText = showAddress && business.address 
     ? business.address 
-    : business.neighborhood 
-      ? `${business.city}, ${business.neighborhood}`
-      : `${business.city}, ${business.region}`;
+    : hideCity
+      ? (business.neighborhood || business.region)
+      : business.neighborhood 
+        ? `${business.city}, ${business.neighborhood}`
+        : `${business.city}, ${business.region}`;
 
   return (
     <Link to={`/business/${business.id}`}>
