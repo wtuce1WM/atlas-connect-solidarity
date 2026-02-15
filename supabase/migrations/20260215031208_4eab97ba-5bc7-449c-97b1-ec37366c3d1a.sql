@@ -1,0 +1,1 @@
+ALTER TABLE public.businesses ADD COLUMN affiliate_id uuid REFERENCES public.affiliates(id) ON DELETE SET NULL;

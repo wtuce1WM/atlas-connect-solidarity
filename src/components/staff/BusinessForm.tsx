@@ -288,11 +288,12 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
   const [dbGammes, setDbGammes] = useState<Array<{ id: string; name_fr: string }>>([]);
   const [gammeCategories, setGammeCategories] = useState<Array<{ gamme_id: string; category_id: string }>>([]);
   const [dbNeighborhoods, setDbNeighborhoods] = useState<Array<{ id: string; name: string; city_id: string }>>([]);
+  const [dbAffiliates, setDbAffiliates] = useState<Array<{ id: string; name: string }>>([]);
 
   // Fetch categories, subcategories, services, cities, gammes and gamme_categories from database
   useEffect(() => {
     const fetchTaxonomy = async () => {
-      const [catRes, subRes, servRes, citiesRes, gammesRes, gammeCatRes, neighborhoodsRes] = await Promise.all([
+      const [catRes, subRes, servRes, citiesRes, gammesRes, gammeCatRes, neighborhoodsRes, affiliatesRes] = await Promise.all([
         supabase.from("categories").select("id, name_fr").order("sort_order"),
         supabase.from("subcategories").select("id, name_fr, category_id").order("sort_order"),
         supabase.from("services").select("id, name_fr, subcategory_id").order("sort_order"),
@@ -300,6 +301,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
         supabase.from("gammes").select("id, name_fr").order("sort_order"),
         supabase.from("gamme_categories").select("gamme_id, category_id"),
         supabase.from("neighborhoods").select("id, name, city_id").order("name"),
+        supabase.from("affiliates").select("id, name").order("name"),
       ]);
       
       if (catRes.data) setDbCategories(catRes.data);
@@ -309,6 +311,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
       if (gammesRes.data) setDbGammes(gammesRes.data);
       if (gammeCatRes.data) setGammeCategories(gammeCatRes.data);
       if (neighborhoodsRes.data) setDbNeighborhoods(neighborhoodsRes.data);
+      if (affiliatesRes.data) setDbAffiliates(affiliatesRes.data);
     };
     
     fetchTaxonomy();
@@ -352,6 +355,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
     account_type: (business as any)?.account_type || "",
     zone_chalandise: (business as any)?.zone_chalandise || "",
     languages: (business as any)?.languages || [],
+    affiliate_id: (business as any)?.affiliate_id || "",
     internal_notes: (business as any)?.internal_notes || "",
     video_1_url: (business as any)?.video_1_url || "",
     google_maps_url: (business as any)?.google_maps_url || "",
@@ -521,6 +525,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
       account_type: formData.account_type || null,
       zone_chalandise: (formData as any).zone_chalandise || null,
       languages: (formData as any).languages?.length > 0 ? (formData as any).languages : [],
+      affiliate_id: (formData as any).affiliate_id || null,
       internal_notes: formData.internal_notes ? formData.internal_notes.slice(0, 5000) : null,
       video_1_url: formData.video_1_url || null,
       google_maps_url: formData.google_maps_url || null,
@@ -729,7 +734,27 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
         </div>
 
         {/* Basic Info */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 border rounded-lg bg-green-50">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border rounded-lg bg-green-50">
+
+          <div className="space-y-2">
+            <Label htmlFor="affiliate_id">Affilié</Label>
+            <Select
+              value={(formData as any).affiliate_id || "__none__"}
+              onValueChange={(value) => handleChange("affiliate_id", value === "__none__" ? "" : value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="— Aucun —" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__none__">— Aucun —</SelectItem>
+                {dbAffiliates.map((aff) => (
+                  <SelectItem key={aff.id} value={aff.id}>
+                    {aff.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
           <div className="space-y-2">
             <Label htmlFor="ice">ICE (max 20 caractères)</Label>
