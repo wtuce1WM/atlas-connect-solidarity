@@ -25,7 +25,7 @@ const RelatedEstablishments = ({ currentBusinessId, kpRegroupement, isVerified =
       const [businessesRes, gammesRes] = await Promise.all([
         supabase
           .from("businesses")
-          .select("id, name, city, region, address, phone, whatsapp, skype, logo_url, images, categories, services, default_service, wtuce_status, latitude, longitude, google_maps_url, rating, gamme_id, neighborhood, is_master")
+          .select("id, name, city, region, address, phone, whatsapp, skype, logo_url, images, categories, default_service, wtuce_status, latitude, longitude, google_maps_url, rating, gamme_id, neighborhood, is_master")
           .eq("kp_regroupement", kpRegroupement)
           .eq("is_active", true)
           .neq("id", currentBusinessId)
