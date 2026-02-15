@@ -185,7 +185,7 @@ const StaffBackoffice = () => {
 
   // Derive unique cities and categories for filters
   const uniqueCities = useMemo(() => 
-    [...new Set(businesses.map(b => b.city))].sort((a, b) => a.localeCompare(b, 'fr')),
+    [...new Set(businesses.map(b => b.city).filter(Boolean) as string[])].sort((a, b) => a.localeCompare(b, 'fr')),
     [businesses]
   );
   const uniqueCategories = useMemo(() => 
@@ -196,7 +196,7 @@ const StaffBackoffice = () => {
   const filteredBusinesses = businesses.filter((business) => {
     const matchesSearch = !searchQuery || 
       business.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      business.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (business.city?.toLowerCase().includes(searchQuery.toLowerCase())) ||
       (business.main_category?.toLowerCase().includes(searchQuery.toLowerCase()));
     const matchesCity = cityFilter === "all" || business.city === cityFilter;
     const matchesCategory = categoryFilter === "all" || business.main_category === categoryFilter;
