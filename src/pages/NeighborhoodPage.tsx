@@ -52,6 +52,7 @@ interface Business {
   google_review_count?: number | null;
   tripadvisor_review_count?: number | null;
   restaurant_guru_review_count?: number | null;
+  is_featured: boolean | null;
 }
 
 const ITEMS_PER_PAGE = 20;
@@ -233,7 +234,7 @@ const NeighborhoodPage = () => {
 
       let query = supabase
         .from("businesses")
-        .select("id, name, city, region, address, phone, whatsapp, skype, main_category, categories, default_service, latitude, longitude, google_maps_url, wtuce_status, services, images, rating, priority_score, logo_url, gamme_id, badge_id, neighborhood, opening_hours, show_opening_hours, is_open_24h, hook_fr, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count")
+        .select("id, name, city, region, address, phone, whatsapp, skype, main_category, categories, default_service, latitude, longitude, google_maps_url, wtuce_status, services, images, rating, priority_score, logo_url, gamme_id, badge_id, neighborhood, opening_hours, show_opening_hours, is_open_24h, hook_fr, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, is_featured")
         .eq("is_active", true)
         .ilike("neighborhood", decodedNeighborhood);
 
