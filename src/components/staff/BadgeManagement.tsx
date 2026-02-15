@@ -216,7 +216,7 @@ const BadgeManagement = ({ onEditBusiness }: BadgeManagementProps) => {
     <div className="space-y-6 mt-10 pt-10 border-t">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Gestion des Badges associés aux services</h2>
+          <h2 className="text-2xl font-bold">Gestion des Badges associés aux Sous-catégories</h2>
           <p className="text-muted-foreground">
             Gérez les badges (service par défaut affiché sur les cartes) et leurs sous-catégories associées.
           </p>
