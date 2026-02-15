@@ -258,49 +258,52 @@ const BusinessCard = ({
             )}
           </div>
 
-          {/* View on map button */}
-          {showMapButton && hasMapData && onSelectBusiness && (
-            mapButtonVariant === "button" ? (
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onSelectBusiness(business);
-                }}
-                className={`w-full mt-3 text-xs py-1.5 px-2 rounded transition-colors flex items-center justify-center gap-1 ${
-                  isSelected
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted hover:bg-primary/20 text-muted-foreground hover:text-primary"
-                }`}
-              >
-                <MapPin className="h-3 w-3" />
-                {isSelected ? mapButtonLabels.shown : mapButtonLabels.view}
-              </button>
-            ) : (
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onSelectBusiness(business);
-                }}
-                className={`mt-3 flex items-center gap-1 text-xs font-bold transition-colors ${
-                  isSelected
-                    ? "text-gold"
-                    : "text-muted-foreground hover:text-gold"
-                }`}
-              >
-                <MapPin className="h-3 w-3" />
-                {isSelected ? mapButtonLabels.shown : mapButtonLabels.view}
-              </button>
-            )
-          )}
-          {/* Rating - bottom right */}
-          {displayRating && (
-            <div className="flex items-center justify-end gap-1.5 mt-3">
-              <Star className="h-4 w-4 fill-gold text-gold" />
-              <span className="text-gold font-semibold text-sm">{displayRating}/20</span>
-              {totalReviews > 0 && (
-                <span className="text-muted-foreground text-xs">({totalReviews} avis)</span>
+          {/* Map button + Rating row */}
+          {(displayRating || (showMapButton && hasMapData && onSelectBusiness)) && (
+            <div className="flex items-center justify-between mt-3">
+              {showMapButton && hasMapData && onSelectBusiness ? (
+                mapButtonVariant === "button" ? (
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      onSelectBusiness(business);
+                    }}
+                    className={`text-xs py-1.5 px-2 rounded transition-colors flex items-center gap-1 ${
+                      isSelected
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted hover:bg-primary/20 text-muted-foreground hover:text-primary"
+                    }`}
+                  >
+                    <MapPin className="h-3 w-3" />
+                    {isSelected ? mapButtonLabels.shown : mapButtonLabels.view}
+                  </button>
+                ) : (
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      onSelectBusiness(business);
+                    }}
+                    className={`flex items-center gap-1 text-xs font-bold transition-colors ${
+                      isSelected
+                        ? "text-gold"
+                        : "text-muted-foreground hover:text-gold"
+                    }`}
+                  >
+                    <MapPin className="h-3 w-3" />
+                    {isSelected ? mapButtonLabels.shown : mapButtonLabels.view}
+                  </button>
+                )
+              ) : <span />}
+              {displayRating && (
+                <div className="flex items-center gap-1.5">
+                  <Star className="h-4 w-4 fill-gold text-gold" />
+                  <span className="text-gold font-semibold text-sm">{displayRating}/20</span>
+                  {totalReviews > 0 && (
+                    <span className="text-muted-foreground text-xs">({totalReviews} avis)</span>
+                  )}
+                </div>
               )}
             </div>
           )}
