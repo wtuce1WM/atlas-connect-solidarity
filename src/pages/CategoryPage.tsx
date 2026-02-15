@@ -224,7 +224,7 @@ const CategoryPage = () => {
         // Fetch gammes
         const { data: gammesData } = await supabase
           .from("gammes")
-          .select("id, name_fr, color_hex, text_color_hex")
+          .select("id, name_fr, color_hex, text_color_hex, sort_order")
           .order("sort_order", { ascending: true });
 
         if (gammesData) {
