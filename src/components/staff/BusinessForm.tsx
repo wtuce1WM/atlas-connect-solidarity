@@ -930,7 +930,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
           {/* Langues parlées */}
           <div className="mt-4 space-y-2">
             <Label>Langues parlées</Label>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-nowrap gap-1.5 overflow-x-auto">
               {[
                 { code: "ar", flag: "🇲🇦", label: "Arabe" },
                 { code: "fr", flag: "🇫🇷", label: "Français" },
@@ -955,7 +955,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                         : [...languages, code];
                       handleChange("languages", updated);
                     }}
-                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-sm transition-colors ${
+                    className={`inline-flex items-center gap-1 px-2 py-1 rounded-full border text-xs whitespace-nowrap transition-colors ${
                       isSelected
                         ? "bg-red-200 border-red-400 text-red-900 font-medium"
                         : "bg-white border-gray-200 text-gray-600 hover:border-gray-400"
