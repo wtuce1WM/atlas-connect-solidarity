@@ -149,6 +149,7 @@ const BusinessDetail = () => {
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const [activeTab, setActiveTab] = useState<TabKey>('overview');
   const [reviewTexts, setReviewTexts] = useState<{ source: string; author_name: string | null; rating: number | null; text: string | null; relative_time: string | null }[]>([]);
+  const [categoriesWithResults, setCategoriesWithResults] = useState<string[]>([]);
   const { t, language } = useLanguage();
   const navigate = useNavigate();
 
@@ -219,6 +220,40 @@ const BusinessDetail = () => {
     };
     fetchBusiness();
   }, [id]);
+
+  // Check which categories have other businesses in the same city
+  useEffect(() => {
+    const checkCategories = async () => {
+      if (!business?.categories || !business.city) {
+        setCategoriesWithResults([]);
+        return;
+      }
+      const validCats = business.categories.filter(c => c && c.trim());
+      if (validCats.length === 0) {
+        setCategoriesWithResults([]);
+        return;
+      }
+      const { data } = await supabase
+        .from("businesses")
+        .select("categories")
+        .eq("is_active", true)
+        .eq("city", business.city)
+        .neq("id", business.id)
+        .overlaps("categories", validCats);
+      if (data && data.length > 0) {
+        const foundCats = new Set<string>();
+        data.forEach(b => {
+          (b.categories || []).forEach((c: string) => {
+            if (validCats.includes(c)) foundCats.add(c);
+          });
+        });
+        setCategoriesWithResults(Array.from(foundCats));
+      } else {
+        setCategoriesWithResults([]);
+      }
+    };
+    checkCategories();
+  }, [business?.id, business?.categories, business?.city]);
 
   if (isLoading) {
     return (
@@ -543,32 +578,28 @@ const BusinessDetail = () => {
               )}
 
               {/* Sous-catégories */}
-              {(() => {
-                const validCategories = (business.categories || []).filter(c => c && c.trim());
-                if (validCategories.length === 0 || !business.city) return null;
-                return (
-                  <div>
-                    <p className={`text-base mb-3 ${isVerified ? 'text-white/60' : 'text-muted-foreground'}`} style={{ fontFamily: "'Raleway', sans-serif" }}>
-                      Cliquez ci-dessous pour voir tous les établissements similaires à {business.city}.
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {validCategories.map((cat, index) => (
-                        <Link
-                          key={index}
-                          to={`/service/${encodeURIComponent(cat)}?city=${encodeURIComponent(business.city)}`}
-                          className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                            isVerified
-                              ? 'bg-white/10 text-white hover:bg-white/20 border border-white/20'
-                              : 'bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20'
-                          }`}
-                        >
-                          {cat}
-                        </Link>
-                      ))}
-                    </div>
+              {categoriesWithResults.length > 0 && business.city && (
+                <div>
+                  <p className={`text-base mb-3 ${isVerified ? 'text-white/60' : 'text-muted-foreground'}`} style={{ fontFamily: "'Raleway', sans-serif" }}>
+                    Cliquez ci-dessous pour voir tous les établissements similaires à {business.city}.
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {categoriesWithResults.map((cat, index) => (
+                      <Link
+                        key={index}
+                        to={`/service/${encodeURIComponent(cat)}?city=${encodeURIComponent(business.city!)}`}
+                        className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                          isVerified
+                            ? 'bg-white/10 text-white hover:bg-white/20 border border-white/20'
+                            : 'bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20'
+                        }`}
+                      >
+                        {cat}
+                      </Link>
+                    ))}
                   </div>
-                );
-              })()}
+                </div>
+              )}
 
               {/* Related Establishments */}
               {business.kp_regroupement && (
