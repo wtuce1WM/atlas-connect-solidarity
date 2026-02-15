@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { ChevronLeft, ChevronRight, Building2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import BusinessCard, { BusinessCardData, Gamme, Badge } from "./BusinessCard";
+import BusinessCard, { BusinessCardData, Gamme, Badge, SubcategoryRef, BadgeSubcategoryRef } from "./BusinessCard";
 
 interface RelatedEstablishmentsProps {
   currentBusinessId: string;
@@ -13,6 +13,8 @@ const RelatedEstablishments = ({ currentBusinessId, kpRegroupement, isVerified =
   const [relatedBusinesses, setRelatedBusinesses] = useState<BusinessCardData[]>([]);
   const [gammes, setGammes] = useState<Gamme[]>([]);
   const [badges, setBadges] = useState<Badge[]>([]);
+  const [subcategories, setSubcategories] = useState<SubcategoryRef[]>([]);
+  const [badgeSubcategories, setBadgeSubcategories] = useState<BadgeSubcategoryRef[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -23,7 +25,7 @@ const RelatedEstablishments = ({ currentBusinessId, kpRegroupement, isVerified =
         return;
       }
 
-      const [businessesRes, gammesRes, badgesRes] = await Promise.all([
+      const [businessesRes, gammesRes, badgesRes, subcatsRes, badgeSubcatsRes] = await Promise.all([
         supabase
           .from("businesses")
           .select("id, name, city, region, address, phone, whatsapp, skype, logo_url, images, categories, default_service, wtuce_status, latitude, longitude, google_maps_url, rating, gamme_id, badge_id, neighborhood, is_master")
@@ -37,7 +39,13 @@ const RelatedEstablishments = ({ currentBusinessId, kpRegroupement, isVerified =
           .select("id, name_fr, color_hex, text_color_hex"),
         supabase
           .from("badges")
-          .select("id, name_fr, color_hex, text_color_hex")
+          .select("id, name_fr, color_hex, text_color_hex"),
+        supabase
+          .from("subcategories")
+          .select("id, name_fr"),
+        supabase
+          .from("badge_subcategories")
+          .select("badge_id, subcategory_id")
       ]);
 
       if (businessesRes.data && businessesRes.data.length > 0) {
@@ -54,6 +62,12 @@ const RelatedEstablishments = ({ currentBusinessId, kpRegroupement, isVerified =
       }
       if (badgesRes.data) {
         setBadges(badgesRes.data as Badge[]);
+      }
+      if (subcatsRes.data) {
+        setSubcategories(subcatsRes.data as SubcategoryRef[]);
+      }
+      if (badgeSubcatsRes.data) {
+        setBadgeSubcategories(badgeSubcatsRes.data as BadgeSubcategoryRef[]);
       }
       setIsLoading(false);
     };
@@ -111,6 +125,8 @@ const RelatedEstablishments = ({ currentBusinessId, kpRegroupement, isVerified =
                 business={business}
                 gammes={gammes}
                 badges={badges}
+                subcategories={subcategories}
+                badgeSubcategories={badgeSubcategories}
                 verifiedLabel="Vérifié WTUCE"
               />
             </div>

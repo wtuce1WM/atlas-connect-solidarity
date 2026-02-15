@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Loader2, Building2, ChevronLeft, ChevronRight, Search } from "lucide-react";
-import BusinessCard, { type BusinessCardData, type Gamme } from "@/components/BusinessCard";
+import BusinessCard, { type BusinessCardData, type Gamme, type Badge, type SubcategoryRef, type BadgeSubcategoryRef } from "@/components/BusinessCard";
 
 interface Business {
   id: string;
@@ -63,6 +63,9 @@ const SearchPage = () => {
   const [searchMessage, setSearchMessage] = useState<string>("");
   const [citiesWithPriority, setCitiesWithPriority] = useState<{ name: string; priority: number }[]>([]);
   const [gammes, setGammes] = useState<Gamme[]>([]);
+  const [badges, setBadges] = useState<Badge[]>([]);
+  const [subcategories, setSubcategories] = useState<SubcategoryRef[]>([]);
+  const [badgeSubcategories, setBadgeSubcategories] = useState<BadgeSubcategoryRef[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCity, setSelectedCity] = useState<string>("all");
@@ -117,10 +120,18 @@ const SearchPage = () => {
     setCurrentPage(1);
   }, [selectedCity, searchQuery]);
 
-  // Fetch gammes on mount
+  // Fetch gammes, badges, subcategories, badge_subcategories on mount
   useEffect(() => {
-    supabase.from("gammes").select("id, name_fr, color_hex, text_color_hex").then(({ data }) => {
-      if (data) setGammes(data);
+    Promise.all([
+      supabase.from("gammes").select("id, name_fr, color_hex, text_color_hex"),
+      supabase.from("badges").select("id, name_fr, color_hex, text_color_hex").order("sort_order", { ascending: true }),
+      supabase.from("subcategories").select("id, name_fr"),
+      supabase.from("badge_subcategories").select("badge_id, subcategory_id"),
+    ]).then(([gammesRes, badgesRes, subcatsRes, badgeSubcatsRes]) => {
+      if (gammesRes.data) setGammes(gammesRes.data);
+      if (badgesRes.data) setBadges(badgesRes.data);
+      if (subcatsRes.data) setSubcategories(subcatsRes.data);
+      if (badgeSubcatsRes.data) setBadgeSubcategories(badgeSubcatsRes.data);
     });
   }, []);
 
@@ -340,6 +351,9 @@ const SearchPage = () => {
                     key={business.id}
                     business={business as BusinessCardData}
                     gammes={gammes}
+                    badges={badges}
+                    subcategories={subcategories}
+                    badgeSubcategories={badgeSubcategories}
                     verifiedLabel={t.verified}
                   />
                 ))}

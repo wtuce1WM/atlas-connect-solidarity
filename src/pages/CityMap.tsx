@@ -90,6 +90,8 @@ const CityMap = () => {
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
   const [gammes, setGammes] = useState<Gamme[]>([]);
   const [badges, setBadges] = useState<Badge[]>([]);
+  const [subcategoriesRef, setSubcategoriesRef] = useState<{ id: string; name_fr: string }[]>([]);
+  const [badgeSubcategories, setBadgeSubcategories] = useState<{ badge_id: string; subcategory_id: string }[]>([]);
   const [gammeCategories, setGammeCategories] = useState<{ gamme_id: string; category_id: string }[]>([]);
   const [categoryIdMap, setCategoryIdMap] = useState<Record<string, string>>({});
   const [selectedGamme, setSelectedGamme] = useState<string>("");
@@ -272,15 +274,16 @@ const CityMap = () => {
         setGammes(gammesData);
       }
 
-      // Fetch badges
-      const { data: badgesData } = await supabase
-        .from("badges")
-        .select("id, name_fr, color_hex, text_color_hex")
-        .order("sort_order", { ascending: true });
+      // Fetch badges, subcategories, badge_subcategories
+      const [badgesRes, subcatsRes, badgeSubcatsRes] = await Promise.all([
+        supabase.from("badges").select("id, name_fr, color_hex, text_color_hex").order("sort_order", { ascending: true }),
+        supabase.from("subcategories").select("id, name_fr"),
+        supabase.from("badge_subcategories").select("badge_id, subcategory_id"),
+      ]);
 
-      if (badgesData) {
-        setBadges(badgesData);
-      }
+      if (badgesRes.data) setBadges(badgesRes.data);
+      if (subcatsRes.data) setSubcategoriesRef(subcatsRes.data);
+      if (badgeSubcatsRes.data) setBadgeSubcategories(badgeSubcatsRes.data);
 
       // Fetch gamme_categories mapping
       const { data: gcData } = await supabase
@@ -625,6 +628,8 @@ const CityMap = () => {
                       business={business}
                       gammes={gammes}
                       badges={badges}
+                      subcategories={subcategoriesRef}
+                      badgeSubcategories={badgeSubcategories}
                       verifiedLabel="Vérifié"
                       selectedBusinessId={selectedBusiness?.id}
                       onSelectBusiness={handleSelectBusiness}
