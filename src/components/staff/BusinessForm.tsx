@@ -1500,12 +1500,20 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
             <Label htmlFor="reserve_now_url" className="flex items-center gap-2 font-medium">
               🔗 Lien du bouton "Réserver maintenant"
             </Label>
-            <Input
-              id="reserve_now_url"
-              value={formData.reserve_now_url}
-              onChange={(e) => handleChange("reserve_now_url", e.target.value)}
-              placeholder="https://... (lien direct de réservation)"
-             />
+            <div className="flex items-center gap-2">
+              <Input
+                id="reserve_now_url"
+                value={formData.reserve_now_url}
+                onChange={(e) => handleChange("reserve_now_url", e.target.value)}
+                placeholder="https://... (lien direct de réservation)"
+                className="flex-1"
+              />
+              {formData.reserve_now_url && (
+                <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer l'URL" onClick={() => handleChange("reserve_now_url", "")}>
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
             <BrokenUrlBadge url={formData.reserve_now_url} />
             <p className="text-xs text-muted-foreground">
               Ce lien sera utilisé pour le bouton CTA "Réserver maintenant" sur la fiche publique
