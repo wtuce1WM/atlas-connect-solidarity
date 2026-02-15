@@ -616,6 +616,7 @@ const CityMap = () => {
               <h2 className="text-lg font-semibold text-white">
                 Établissements ({filteredBusinesses.length})
               </h2>
+              <div className="flex items-center gap-2">
               <button
                 onClick={() => {
                   setSortByRating(prev => prev === "none" ? "desc" : prev === "desc" ? "asc" : "none");
@@ -644,6 +645,7 @@ const CityMap = () => {
                 {sortByReviews === "desc" ? <ArrowDown className="h-3.5 w-3.5" /> : sortByReviews === "asc" ? <ArrowUp className="h-3.5 w-3.5" /> : <ArrowUpDown className="h-3.5 w-3.5" />}
                 {sortByReviews === "desc" ? "Plus d'avis" : sortByReviews === "asc" ? "Moins d'avis" : "Trier par avis"}
               </button>
+              </div>
             </div>
             {filteredBusinesses.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
