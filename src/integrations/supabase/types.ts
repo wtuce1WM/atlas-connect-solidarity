@@ -203,6 +203,7 @@ export type Database = {
           kp_regroupement: string | null
           label1_link_url: string | null
           label1_url: string | null
+          languages: string[] | null
           latitude: number | null
           linkedin_url: string | null
           logo_2_url: string | null
@@ -283,6 +284,7 @@ export type Database = {
           kp_regroupement?: string | null
           label1_link_url?: string | null
           label1_url?: string | null
+          languages?: string[] | null
           latitude?: number | null
           linkedin_url?: string | null
           logo_2_url?: string | null
@@ -363,6 +365,7 @@ export type Database = {
           kp_regroupement?: string | null
           label1_link_url?: string | null
           label1_url?: string | null
+          languages?: string[] | null
           latitude?: number | null
           linkedin_url?: string | null
           logo_2_url?: string | null

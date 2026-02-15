@@ -351,6 +351,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
     booking_url: (business as any)?.booking_url || "",
     account_type: (business as any)?.account_type || "",
     zone_chalandise: (business as any)?.zone_chalandise || "",
+    languages: (business as any)?.languages || [],
     internal_notes: (business as any)?.internal_notes || "",
     video_1_url: (business as any)?.video_1_url || "",
     google_maps_url: (business as any)?.google_maps_url || "",
@@ -519,6 +520,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
       booking_url: formData.booking_url || null,
       account_type: formData.account_type || null,
       zone_chalandise: (formData as any).zone_chalandise || null,
+      languages: (formData as any).languages?.length > 0 ? (formData as any).languages : [],
       internal_notes: formData.internal_notes ? formData.internal_notes.slice(0, 5000) : null,
       video_1_url: formData.video_1_url || null,
       google_maps_url: formData.google_maps_url || null,
@@ -924,9 +926,50 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
               </SelectContent>
             </Select>
           </div>
+
+          {/* Langues parlées */}
+          <div className="mt-4 space-y-2">
+            <Label>Langues parlées</Label>
+            <div className="flex flex-wrap gap-2">
+              {[
+                { code: "ar", flag: "🇲🇦", label: "Arabe" },
+                { code: "fr", flag: "🇫🇷", label: "Français" },
+                { code: "en", flag: "🇬🇧", label: "Anglais" },
+                { code: "es", flag: "🇪🇸", label: "Espagnol" },
+                { code: "de", flag: "🇩🇪", label: "Allemand" },
+                { code: "it", flag: "🇮🇹", label: "Italien" },
+                { code: "pt", flag: "🇵🇹", label: "Portugais" },
+                { code: "nl", flag: "🇳🇱", label: "Néerlandais" },
+                { code: "zh", flag: "🇨🇳", label: "Chinois" },
+                { code: "ja", flag: "🇯🇵", label: "Japonais" },
+              ].map(({ code, flag, label }) => {
+                const languages = ((formData as any).languages as string[]) || [];
+                const isSelected = languages.includes(code);
+                return (
+                  <button
+                    key={code}
+                    type="button"
+                    onClick={() => {
+                      const updated = isSelected
+                        ? languages.filter((l: string) => l !== code)
+                        : [...languages, code];
+                      handleChange("languages", updated);
+                    }}
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-sm transition-colors ${
+                      isSelected
+                        ? "bg-red-200 border-red-400 text-red-900 font-medium"
+                        : "bg-white border-gray-200 text-gray-600 hover:border-gray-400"
+                    }`}
+                  >
+                    <span className="text-base">{flag}</span>
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         </div>
 
-        {/* Contact & Localisation */}
         <div className="p-4 border rounded-lg bg-orange-50 space-y-4">
           <h3 className="text-sm font-semibold text-orange-800">📍 Contact & Localisation</h3>
           
