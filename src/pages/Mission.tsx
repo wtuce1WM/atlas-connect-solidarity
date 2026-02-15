@@ -1,6 +1,6 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import BusinessSearch from "@/components/BusinessSearch";
+
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const Mission = () => {
@@ -67,7 +67,7 @@ const Mission = () => {
         </div>
       </main>
 
-      <BusinessSearch />
+      
       
       <Footer />
     </div>
