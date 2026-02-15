@@ -589,7 +589,7 @@ const CityMap = () => {
                 <div>
                   <label className="text-base font-semibold text-white mb-1.5 block">Activités</label>
                   <div className="flex flex-wrap gap-2">
-                    {availableActivities.slice(0, 8).map((activity) => (
+                    {availableActivities.map((activity) => (
                       <label
                         key={activity}
                         className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border cursor-pointer transition-colors text-xs ${
