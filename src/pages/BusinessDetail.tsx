@@ -543,29 +543,32 @@ const BusinessDetail = () => {
               )}
 
               {/* Sous-catégories */}
-              {business.categories && business.categories.length > 0 && (
-                <div>
-                  
-                  <p className={`text-base mb-3 ${isVerified ? 'text-white/60' : 'text-muted-foreground'}`} style={{ fontFamily: "'Raleway', sans-serif" }}>
-                    Cliquez ci-dessous pour voir tous les établissements similaires à {business.city}.
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {business.categories.map((cat, index) => (
-                      <Link
-                        key={index}
-                        to={`/service/${encodeURIComponent(cat)}?city=${encodeURIComponent(business.city)}`}
-                        className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                          isVerified
-                            ? 'bg-white/10 text-white hover:bg-white/20 border border-white/20'
-                            : 'bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20'
-                        }`}
-                      >
-                        {cat}
-                      </Link>
-                    ))}
+              {(() => {
+                const validCategories = (business.categories || []).filter(c => c && c.trim());
+                if (validCategories.length === 0 || !business.city) return null;
+                return (
+                  <div>
+                    <p className={`text-base mb-3 ${isVerified ? 'text-white/60' : 'text-muted-foreground'}`} style={{ fontFamily: "'Raleway', sans-serif" }}>
+                      Cliquez ci-dessous pour voir tous les établissements similaires à {business.city}.
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {validCategories.map((cat, index) => (
+                        <Link
+                          key={index}
+                          to={`/service/${encodeURIComponent(cat)}?city=${encodeURIComponent(business.city)}`}
+                          className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                            isVerified
+                              ? 'bg-white/10 text-white hover:bg-white/20 border border-white/20'
+                              : 'bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20'
+                          }`}
+                        >
+                          {cat}
+                        </Link>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                );
+              })()}
 
               {/* Related Establishments */}
               {business.kp_regroupement && (
