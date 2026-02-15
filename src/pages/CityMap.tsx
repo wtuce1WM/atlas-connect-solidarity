@@ -530,7 +530,7 @@ const CityMap = () => {
                 </div>
 
                 {/* Subcategory Filter */}
-                {availableSubcategories.length > 0 && (
+                {selectedCategory && availableSubcategories.length > 0 && (
                   <div className="flex-1 min-w-[140px]">
                     <label className="text-base font-semibold text-white mb-1.5 block">Sous-catégorie</label>
                     <Select value={selectedSubcategory || "all"} onValueChange={handleSubcategoryChange}>
