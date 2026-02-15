@@ -487,6 +487,17 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Hard limit: max 12 images
+    if (formData.images && formData.images.length > 12) {
+      toast({
+        variant: "destructive",
+        title: "Trop d'images",
+        description: `Maximum 12 images autorisées. Vous en avez ${formData.images.length}. Veuillez en supprimer avant de sauvegarder.`,
+      });
+      return;
+    }
+
     setLoading(true);
 
     const businessData = {
