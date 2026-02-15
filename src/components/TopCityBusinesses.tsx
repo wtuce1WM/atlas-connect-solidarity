@@ -24,6 +24,7 @@ interface Business {
   wtuce_status: string | null;
   google_maps_url: string | null;
   gamme_id: string | null;
+  is_featured: boolean | null;
 }
 
 interface TopCityBusinessesProps {
@@ -41,7 +42,7 @@ const TopCityBusinesses = ({ businesses, cityName, neighborhoodName, gammes = []
 
   // Get top 10 businesses with images, sorted by priority (verified first, then by rating)
   const topBusinesses = [...businesses]
-    .filter((b) => b.images && b.images.length > 0)
+    .filter((b) => b.images && b.images.length > 0 && b.is_featured === true)
     .sort((a, b) => {
       // Verified first
       if (a.wtuce_status === "verified" && b.wtuce_status !== "verified") return -1;

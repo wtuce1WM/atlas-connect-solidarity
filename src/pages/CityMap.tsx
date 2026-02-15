@@ -55,6 +55,7 @@ interface Business {
   badge_id: string | null;
   neighborhood: string | null;
   hook_fr: string | null;
+  is_featured: boolean | null;
 }
 
 interface CityInfo {
@@ -344,7 +345,7 @@ const CityMap = () => {
       // Fetch businesses - ordered by verified status then priority score
       const { data: businessData, error: businessError } = await supabase
         .from("businesses")
-        .select("id, name, city, region, address, phone, whatsapp, skype, main_category, categories, default_service, latitude, longitude, google_maps_url, wtuce_status, services, images, rating, google_rating, tripadvisor_rating, restaurant_guru_rating, google_review_count, tripadvisor_review_count, restaurant_guru_review_count, priority_score, opening_hours, show_opening_hours, is_open_24h, logo_url, gamme_id, badge_id, neighborhood, hook_fr")
+        .select("id, name, city, region, address, phone, whatsapp, skype, main_category, categories, default_service, latitude, longitude, google_maps_url, wtuce_status, services, images, rating, google_rating, tripadvisor_rating, restaurant_guru_rating, google_review_count, tripadvisor_review_count, restaurant_guru_review_count, priority_score, opening_hours, show_opening_hours, is_open_24h, logo_url, gamme_id, badge_id, neighborhood, hook_fr, is_featured")
         .eq("is_active", true)
         .ilike("city", decodedCity)
         .order("wtuce_status", { ascending: true, nullsFirst: false })
