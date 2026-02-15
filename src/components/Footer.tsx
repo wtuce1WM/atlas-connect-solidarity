@@ -37,7 +37,7 @@ const Footer = ({ variant = "default" }: FooterProps) => {
             </span>
             </div>
             <p className={`mb-6 text-sm leading-relaxed ${textSecondary}`}>
-              One World Morocco n'est pas qu'une destination, c'est un point d'ancrage pour l'évolution collective. Nous croyons que l'espace où vous vivez doit refléter l'ambition de vos idées. À travers nos résidences Art Gallery, nous offrons aux voyageurs de WTUCE un environnement où le design inspire, où l'art connecte et où chaque séjour contribue à une vision globale unifiée.
+              Faites de chaque achat un acte de générosité. Nous sommes la seule plateforme où l'engagement est inscrit dans notre ADN : 20% du montant de chaque cotisation des annonceurs est directement reversé à des actions humanitaires et de solidarité concrètes sur le terrain. Vous consommez, nous agissons ensemble.
             </p>
             <div className="flex flex-wrap gap-4 items-center">
               {/* WhatsApp */}
