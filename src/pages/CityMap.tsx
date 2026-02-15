@@ -631,7 +631,7 @@ const CityMap = () => {
             </div>
 
             {/* Business list */}
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 gap-2">
               <h2 className="text-lg font-semibold text-white">
                 Établissements ({filteredBusinesses.length})
               </h2>
