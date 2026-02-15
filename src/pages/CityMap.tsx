@@ -159,16 +159,31 @@ const CityMap = () => {
     return Array.from(activities).sort((a, b) => a.localeCompare(b, "fr"));
   }, [businesses, selectedCategory, selectedSubcategory]);
 
-  // Filter gammes based on selected category
+  // Filter gammes based on selected category/subcategory and actual business results
   const filteredGammes = useMemo(() => {
-    if (!selectedCategory) return gammes;
-    const categoryId = categoryIdMap[selectedCategory];
-    if (!categoryId) return gammes;
-    const allowedGammeIds = new Set(
-      gammeCategories.filter((gc) => gc.category_id === categoryId).map((gc) => gc.gamme_id)
-    );
-    return gammes.filter((g) => allowedGammeIds.has(g.id));
-  }, [gammes, gammeCategories, categoryIdMap, selectedCategory]);
+    // Start with gammes allowed by category taxonomy
+    let allowed = gammes;
+    if (selectedCategory) {
+      const categoryId = categoryIdMap[selectedCategory];
+      if (categoryId) {
+        const allowedGammeIds = new Set(
+          gammeCategories.filter((gc) => gc.category_id === categoryId).map((gc) => gc.gamme_id)
+        );
+        allowed = gammes.filter((g) => allowedGammeIds.has(g.id));
+      }
+    }
+    
+    // Further filter to only gammes that have businesses in current filters
+    let filtered = businesses;
+    if (selectedCategory) {
+      filtered = filtered.filter((b) => b.main_category === selectedCategory);
+    }
+    if (selectedSubcategory) {
+      filtered = filtered.filter((b) => b.categories?.includes(selectedSubcategory));
+    }
+    const gammeIdsWithResults = new Set(filtered.map((b) => b.gamme_id).filter(Boolean));
+    return allowed.filter((g) => gammeIdsWithResults.has(g.id));
+  }, [gammes, gammeCategories, categoryIdMap, selectedCategory, selectedSubcategory, businesses]);
 
   const getCalcRating = (b: Business): number | null => {
     if (b.rating) return Number(b.rating);
