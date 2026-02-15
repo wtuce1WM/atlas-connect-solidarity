@@ -930,18 +930,18 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
           {/* Langues parlées */}
           <div className="mt-4 space-y-2">
             <Label>Langues parlées</Label>
-            <div className="flex flex-wrap gap-1.5">
+            <div className="grid grid-cols-10 gap-1">
               {[
-                { code: "ar", flag: "🇲🇦", label: "Arabe" },
-                { code: "fr", flag: "🇫🇷", label: "Français" },
-                { code: "en", flag: "🇬🇧", label: "Anglais" },
-                { code: "es", flag: "🇪🇸", label: "Espagnol" },
-                { code: "de", flag: "🇩🇪", label: "Allemand" },
-                { code: "it", flag: "🇮🇹", label: "Italien" },
-                { code: "pt", flag: "🇵🇹", label: "Portugais" },
-                { code: "nl", flag: "🇳🇱", label: "Néerlandais" },
-                { code: "zh", flag: "🇨🇳", label: "Chinois" },
-                { code: "ja", flag: "🇯🇵", label: "Japonais" },
+                { code: "ar", flag: "🇲🇦", label: "AR" },
+                { code: "fr", flag: "🇫🇷", label: "FR" },
+                { code: "en", flag: "🇬🇧", label: "EN" },
+                { code: "es", flag: "🇪🇸", label: "ES" },
+                { code: "de", flag: "🇩🇪", label: "DE" },
+                { code: "it", flag: "🇮🇹", label: "IT" },
+                { code: "pt", flag: "🇵🇹", label: "PT" },
+                { code: "nl", flag: "🇳🇱", label: "NL" },
+                { code: "zh", flag: "🇨🇳", label: "ZH" },
+                { code: "ja", flag: "🇯🇵", label: "JA" },
               ].map(({ code, flag, label }) => {
                 const languages = ((formData as any).languages as string[]) || [];
                 const isSelected = languages.includes(code);
@@ -955,13 +955,13 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                         : [...languages, code];
                       handleChange("languages", updated);
                     }}
-                    className={`inline-flex items-center gap-1 px-2 py-1 rounded-full border text-xs whitespace-nowrap transition-colors ${
+                    className={`flex flex-col items-center gap-0.5 py-1.5 rounded-lg border text-[10px] transition-colors ${
                       isSelected
                         ? "bg-red-200 border-red-400 text-red-900 font-medium"
                         : "bg-white border-gray-200 text-gray-600 hover:border-gray-400"
                     }`}
                   >
-                    <span className="text-base">{flag}</span>
+                    <span className="text-lg leading-none">{flag}</span>
                     {label}
                   </button>
                 );
