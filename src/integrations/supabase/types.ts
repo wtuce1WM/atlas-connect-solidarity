@@ -170,6 +170,7 @@ export type Database = {
         Row: {
           account_type: string | null
           address: string | null
+          affiliate_id: string | null
           airbnb_url: string | null
           booking_url: string | null
           categories: string[] | null
@@ -251,6 +252,7 @@ export type Database = {
         Insert: {
           account_type?: string | null
           address?: string | null
+          affiliate_id?: string | null
           airbnb_url?: string | null
           booking_url?: string | null
           categories?: string[] | null
@@ -332,6 +334,7 @@ export type Database = {
         Update: {
           account_type?: string | null
           address?: string | null
+          affiliate_id?: string | null
           airbnb_url?: string | null
           booking_url?: string | null
           categories?: string[] | null
@@ -411,6 +414,13 @@ export type Database = {
           zone_chalandise?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "businesses_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "affiliates"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "businesses_gamme_id_fkey"
             columns: ["gamme_id"]
