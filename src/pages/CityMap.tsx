@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams, Link, useSearchParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Loader2, MapPin, X, ExternalLink, BookOpen, Phone, ChevronLeft, ChevronRight, Clock, ArrowUpDown, ArrowDown, ArrowUp, Navigation, Star } from "lucide-react";
+import { ArrowLeft, Loader2, MapPin, X, ExternalLink, BookOpen, Phone, ChevronLeft, ChevronRight, Clock, ArrowUpDown, ArrowDown, ArrowUp, Navigation, Star, SlidersHorizontal } from "lucide-react";
 import MapBusinessInfoCard from "@/components/MapBusinessInfoCard";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -100,6 +100,7 @@ const CityMap = () => {
   const [sortByRating, setSortByRating] = useState<"none" | "desc" | "asc">("none");
   const [sortByReviews, setSortByReviews] = useState<"none" | "desc" | "asc">("none");
   const [currentPage, setCurrentPage] = useState(1);
+  const [showFilters, setShowFilters] = useState(false);
 
   const ITEMS_PER_PAGE = 20;
 
@@ -527,8 +528,24 @@ const CityMap = () => {
 
           {/* Filters + Business list */}
           <div className="space-y-4">
+            {/* Mobile filter toggle */}
+            <div className="sm:hidden">
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className="flex items-center gap-2 w-full px-4 py-2.5 rounded-lg bg-white/10 border border-white/20 text-white text-sm font-medium transition-colors hover:bg-white/20"
+              >
+                <SlidersHorizontal className="h-4 w-4" />
+                Filtrer les résultats
+                {(selectedCategory || selectedSubcategory || selectedGamme || selectedActivities.length > 0) && (
+                  <span className="ml-auto bg-gold text-black text-xs font-bold rounded-full px-2 py-0.5">
+                    {[selectedCategory, selectedSubcategory, selectedGamme, ...selectedActivities].filter(Boolean).length}
+                  </span>
+                )}
+              </button>
+            </div>
+
             {/* Category & Subcategory Filters */}
-            <div className="space-y-3">
+            <div className={`space-y-3 ${showFilters ? 'block' : 'hidden'} sm:block`}>
               <div className="grid grid-cols-1 sm:flex sm:flex-wrap gap-3">
                 {/* Main Category Filter */}
                 <div className="flex-1 min-w-[140px]">
