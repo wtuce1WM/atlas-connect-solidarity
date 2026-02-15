@@ -127,11 +127,9 @@ const SortableImage = ({ url, index, onRemove, isBroken = false, meta }: Sortabl
         <span className="px-2 py-0.5 bg-black/60 text-white text-xs rounded">
           {index + 1}
         </span>
-        {meta?.size != null && (
-          <span className="px-2 py-0.5 bg-black/60 text-white text-xs rounded">
-            {formatFileSize(meta.size)}
-          </span>
-        )}
+        <span className="px-2 py-0.5 bg-black/60 text-white text-xs rounded">
+          {meta?.size != null ? formatFileSize(meta.size) : "…"}
+        </span>
       </div>
 
       {/* Metadata overlay */}
@@ -173,17 +171,9 @@ const ImageUploader = ({
       await Promise.all(
         images.map(async (url) => {
           try {
-            // Try HEAD first for content-length
-            const res = await fetch(url, { method: "HEAD" });
-            const cl = res.headers.get("content-length");
-            if (cl) {
-              sizes[url] = parseInt(cl, 10);
-            } else {
-              // Fallback: fetch blob to get actual size
-              const blobRes = await fetch(url);
-              const blob = await blobRes.blob();
-              sizes[url] = blob.size;
-            }
+            const res = await fetch(url);
+            const blob = await res.blob();
+            sizes[url] = blob.size;
           } catch { /* ignore */ }
         })
       );
