@@ -468,7 +468,7 @@ const CityMap = () => {
         }}
       />
       
-      <Header variant="morocco" />
+      <Header />
 
       <main className="container mx-auto px-4 py-24 relative z-10">
         {/* Back link */}
