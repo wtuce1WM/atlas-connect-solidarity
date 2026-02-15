@@ -81,9 +81,6 @@ const RelatedEstablishments = ({ currentBusinessId, kpRegroupement, isVerified =
         <Building2 className={`h-5 w-5 ${isVerified ? 'text-gold' : 'text-primary'}`} />
         <h2 className={`text-xl font-semibold ${isVerified ? 'text-white' : ''}`}>Autres établissements</h2>
       </div>
-      <p className={`text-sm ${isVerified ? 'text-white/60' : 'text-muted-foreground'}`}>
-        Ces établissements font partie de la même entreprise
-      </p>
 
       <div className="relative">
         {relatedBusinesses.length > 2 && (
