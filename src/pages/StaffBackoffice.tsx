@@ -17,6 +17,7 @@ import SponsorManagement from "@/components/staff/SponsorManagement";
 import AffiliateManagement from "@/components/staff/AffiliateManagement";
 import LabelManagement from "@/components/staff/LabelManagement";
 import GammeManagement from "@/components/staff/GammeManagement";
+import BadgeManagement from "@/components/staff/BadgeManagement";
 import KPGroupManagement from "@/components/staff/KPGroupManagement";
 import { useBusinessBrokenFiles } from "@/hooks/useBusinessBrokenFiles";
 import { useBusinessBrokenLinks } from "@/hooks/useBusinessBrokenLinks";
@@ -418,6 +419,15 @@ const StaffBackoffice = () => {
 
             <TabsContent value="gammes">
               <GammeManagement onEditBusiness={async (id: string) => {
+                const found = businesses.find(b => b.id === id);
+                if (found) {
+                  handleEdit(found);
+                } else {
+                  const { data } = await supabase.from("businesses").select("*").eq("id", id).single();
+                  if (data) handleEdit(data as Business);
+                }
+              }} />
+              <BadgeManagement onEditBusiness={async (id: string) => {
                 const found = businesses.find(b => b.id === id);
                 if (found) {
                   handleEdit(found);
