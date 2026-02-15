@@ -21,8 +21,11 @@ const GoogleMapEmbed = ({ address, businessName, latitude, longitude }: GoogleMa
     ? `${latitude},${longitude}` 
     : encodedAddress;
 
-  // Google Maps Embed URLs (no API key required for basic embed)
-  const mapEmbedUrl = `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodedAddress}&zoom=16`;
+  // Google Maps Embed URLs
+  const mapQuery = latitude && longitude 
+    ? `${latitude},${longitude}` 
+    : encodedAddress;
+  const mapEmbedUrl = `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${mapQuery}&zoom=16`;
   const streetViewEmbedUrl = `https://www.google.com/maps/embed/v1/streetview?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&location=${latitude || 31.6295},${longitude || -7.9811}&heading=0&pitch=0&fov=90`;
 
   const handleGetDirections = () => {
