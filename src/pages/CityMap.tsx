@@ -141,7 +141,7 @@ const CityMap = () => {
     return Array.from(subcategories).sort((a, b) => a.localeCompare(b, "fr"));
   }, [businesses, selectedCategory]);
 
-  // Extract unique activities from filtered businesses
+  // Extract unique activities from filtered businesses (including gamme filter)
   const availableActivities = useMemo(() => {
     const activities = new Set<string>();
     let filtered = businesses;
@@ -152,12 +152,15 @@ const CityMap = () => {
     if (selectedSubcategory) {
       filtered = filtered.filter((b) => b.categories?.includes(selectedSubcategory));
     }
+    if (selectedGamme) {
+      filtered = filtered.filter((b) => b.gamme_id === selectedGamme);
+    }
     
     filtered.forEach((business) => {
       business.services?.forEach((service) => activities.add(service));
     });
     return Array.from(activities).sort((a, b) => a.localeCompare(b, "fr"));
-  }, [businesses, selectedCategory, selectedSubcategory]);
+  }, [businesses, selectedCategory, selectedSubcategory, selectedGamme]);
 
   // Filter gammes based on selected category/subcategory and actual business results
   const filteredGammes = useMemo(() => {
