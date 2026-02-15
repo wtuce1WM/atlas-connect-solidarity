@@ -166,9 +166,17 @@ const ImageUploader = ({
       await Promise.all(
         images.map(async (url) => {
           try {
+            // Try HEAD first for content-length
             const res = await fetch(url, { method: "HEAD" });
             const cl = res.headers.get("content-length");
-            if (cl) sizes[url] = parseInt(cl, 10);
+            if (cl) {
+              sizes[url] = parseInt(cl, 10);
+            } else {
+              // Fallback: fetch blob to get actual size
+              const blobRes = await fetch(url);
+              const blob = await blobRes.blob();
+              sizes[url] = blob.size;
+            }
           } catch { /* ignore */ }
         })
       );
