@@ -97,6 +97,7 @@ const CityMap = () => {
   const [selectedGamme, setSelectedGamme] = useState<string>("");
   
   const [sortByRating, setSortByRating] = useState<"none" | "desc" | "asc">("none");
+  const [sortByReviews, setSortByReviews] = useState<"none" | "desc" | "asc">("none");
   const [currentPage, setCurrentPage] = useState(1);
 
   const ITEMS_PER_PAGE = 20;
@@ -180,6 +181,10 @@ const CityMap = () => {
     return Math.round((sources.reduce((s, x) => s + x.r * x.c, 0) / total) * 10) / 10;
   };
 
+  const getTotalReviews = (b: Business): number => {
+    return (b.google_review_count || 0) + (b.tripadvisor_review_count || 0) + (b.restaurant_guru_review_count || 0);
+  };
+
   // Filter businesses by all criteria
   const filteredBusinesses = useMemo(() => {
     let result = businesses;
@@ -199,19 +204,29 @@ const CityMap = () => {
       );
     }
     
-    // Always sort by effective rating descending (manual rating overrides calculated)
-    result = [...result].sort((a, b) => {
-      const ratingA = getCalcRating(a);
-      const ratingB = getCalcRating(b);
-      if (ratingA === null && ratingB === null) return 0;
-      if (ratingA === null) return 1;
-      if (ratingB === null) return -1;
-      if (sortByRating === "asc") return ratingA - ratingB;
-      return ratingB - ratingA;
-    });
+    // Sort by reviews if active, otherwise by rating
+    if (sortByReviews !== "none") {
+      result = [...result].sort((a, b) => {
+        const countA = getTotalReviews(a);
+        const countB = getTotalReviews(b);
+        if (sortByReviews === "asc") return countA - countB;
+        return countB - countA;
+      });
+    } else {
+      // Sort by effective rating descending (manual rating overrides calculated)
+      result = [...result].sort((a, b) => {
+        const ratingA = getCalcRating(a);
+        const ratingB = getCalcRating(b);
+        if (ratingA === null && ratingB === null) return 0;
+        if (ratingA === null) return 1;
+        if (ratingB === null) return -1;
+        if (sortByRating === "asc") return ratingA - ratingB;
+        return ratingB - ratingA;
+      });
+    }
 
     return result;
-  }, [businesses, selectedCategory, selectedSubcategory, selectedGamme, selectedActivities, sortByRating]);
+  }, [businesses, selectedCategory, selectedSubcategory, selectedGamme, selectedActivities, sortByRating, sortByReviews]);
 
   // Pagination
   const totalPages = Math.ceil(filteredBusinesses.length / ITEMS_PER_PAGE);
@@ -226,7 +241,7 @@ const CityMap = () => {
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedCategory, selectedSubcategory, selectedGamme, selectedActivities, sortByRating]);
+  }, [selectedCategory, selectedSubcategory, selectedGamme, selectedActivities, sortByRating, sortByReviews]);
 
   const goToPage = (page: number) => {
     setCurrentPage(page);
@@ -602,7 +617,10 @@ const CityMap = () => {
                 Établissements ({filteredBusinesses.length})
               </h2>
               <button
-                onClick={() => setSortByRating(prev => prev === "none" ? "desc" : prev === "desc" ? "asc" : "none")}
+                onClick={() => {
+                  setSortByRating(prev => prev === "none" ? "desc" : prev === "desc" ? "asc" : "none");
+                  if (sortByReviews !== "none") setSortByReviews("none");
+                }}
                 className={`flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-full transition-colors ${
                   sortByRating !== "none" 
                     ? "bg-gold/20 text-gold border border-gold/40" 
@@ -611,6 +629,20 @@ const CityMap = () => {
               >
                 {sortByRating === "desc" ? <ArrowDown className="h-3.5 w-3.5" /> : sortByRating === "asc" ? <ArrowUp className="h-3.5 w-3.5" /> : <ArrowUpDown className="h-3.5 w-3.5" />}
                 {sortByRating === "desc" ? "Meilleures notes" : sortByRating === "asc" ? "Notes croissantes" : "Trier par note"}
+              </button>
+              <button
+                onClick={() => {
+                  setSortByReviews(prev => prev === "none" ? "desc" : prev === "desc" ? "asc" : "none");
+                  if (sortByRating !== "none") setSortByRating("none");
+                }}
+                className={`flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-full transition-colors ${
+                  sortByReviews !== "none" 
+                    ? "bg-gold/20 text-gold border border-gold/40" 
+                    : "bg-white/10 text-white/70 hover:text-white border border-white/20"
+                }`}
+              >
+                {sortByReviews === "desc" ? <ArrowDown className="h-3.5 w-3.5" /> : sortByReviews === "asc" ? <ArrowUp className="h-3.5 w-3.5" /> : <ArrowUpDown className="h-3.5 w-3.5" />}
+                {sortByReviews === "desc" ? "Plus d'avis" : sortByReviews === "asc" ? "Moins d'avis" : "Trier par avis"}
               </button>
             </div>
             {filteredBusinesses.length === 0 ? (
