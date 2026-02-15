@@ -122,9 +122,16 @@ const SortableImage = ({ url, index, onRemove, isBroken = false, meta }: Sortabl
         <X className="h-4 w-4" />
       </button>
       
-      {/* Index badge */}
-      <div className="absolute bottom-2 left-2 px-2 py-0.5 bg-black/60 text-white text-xs rounded">
-        {index + 1}
+      {/* Index badge + file size */}
+      <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
+        <span className="px-2 py-0.5 bg-black/60 text-white text-xs rounded">
+          {index + 1}
+        </span>
+        {meta?.size != null && (
+          <span className="px-2 py-0.5 bg-black/60 text-white text-xs rounded">
+            {formatFileSize(meta.size)}
+          </span>
+        )}
       </div>
 
       {/* Metadata overlay */}
