@@ -291,7 +291,7 @@ const BusinessDetail = () => {
     { key: 'video', label: 'Vidéo', show: !!business.video_1_url },
     { key: 'services', label: 'Services', show: !!(business.services && business.services.length > 0) },
     { key: 'reviews', label: 'Avis', show: !!hasReviews },
-    { key: 'location', label: 'Localisation', show: !!(business.address || (business.latitude && business.longitude) || business.google_maps_url) },
+    { key: 'location', label: 'Localisation', show: !!(business.address || (business.latitude && business.longitude) || business.google_maps_url || (business.neighborhood && business.city)) },
   ];
 
   return (
@@ -995,7 +995,7 @@ const BusinessDetail = () => {
         {activeTab === 'location' && (
           <div className="max-w-3xl space-y-6">
             <GoogleMapEmbed
-              address={business.address || `${business.city}, ${business.region}`}
+              address={business.address || (business.neighborhood ? `${business.neighborhood}, ${business.city}` : `${business.city}, ${business.region}`)}
               businessName={business.name}
               latitude={business.latitude}
               longitude={business.longitude}
