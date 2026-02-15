@@ -112,6 +112,10 @@ const getCalculatedRating = (business: BusinessCardData): number | null => {
   return Math.round((weightedSum / totalCount) * 10) / 10;
 };
 
+const getTotalReviewCount = (business: BusinessCardData): number => {
+  return (business.google_review_count || 0) + (business.tripadvisor_review_count || 0) + (business.restaurant_guru_review_count || 0);
+};
+
 const BusinessCard = ({
   business,
   gammes,
@@ -128,6 +132,7 @@ const BusinessCard = ({
   const badge = getBusinessBadge(business, badges);
   const calculatedRating = getCalculatedRating(business);
   const displayRating = business.rating ?? calculatedRating;
+  const totalReviews = getTotalReviewCount(business);
   const isSelected = selectedBusinessId === business.id;
   const hasMapData = business.google_maps_url || (business.latitude && business.longitude);
   const businessImage = getBusinessImage(business);
@@ -151,13 +156,6 @@ const BusinessCard = ({
               (e.target as HTMLImageElement).src = "/placeholder.svg";
             }}
           />
-          {/* Rating - top left */}
-          {displayRating && (
-            <div className="absolute top-2 left-2 flex flex-col items-center gap-0.5 bg-black/60 rounded-full px-2 py-1 z-10">
-              <Star className="h-4 w-4 fill-gold text-gold" />
-              <span className="text-gold font-semibold text-xs">{displayRating}/20</span>
-            </div>
-          )}
           {/* Gamme badge - top center */}
           {gamme && (
             <div className="absolute top-2 left-1/2 -translate-x-1/2 z-10">
@@ -295,6 +293,16 @@ const BusinessCard = ({
                 {isSelected ? mapButtonLabels.shown : mapButtonLabels.view}
               </button>
             )
+          )}
+          {/* Rating - bottom right */}
+          {displayRating && (
+            <div className="flex items-center justify-end gap-1.5 mt-3">
+              <Star className="h-4 w-4 fill-gold text-gold" />
+              <span className="text-gold font-semibold text-sm">{displayRating}/20</span>
+              {totalReviews > 0 && (
+                <span className="text-muted-foreground text-xs">({totalReviews} avis)</span>
+              )}
+            </div>
           )}
         </CardContent>
       </Card>
