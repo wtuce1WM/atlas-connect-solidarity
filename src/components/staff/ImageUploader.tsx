@@ -232,7 +232,9 @@ const ImageUploader = ({
   const handleFileUpload = useCallback(async (files: FileList | null) => {
     if (!files || files.length === 0) return;
     
-    const remainingSlots = maxImages - images.length;
+    const hardMax = 12;
+    const effectiveMax = Math.min(maxImages, hardMax);
+    const remainingSlots = effectiveMax - images.length;
     if (remainingSlots <= 0) {
       toast({
         variant: "destructive",
@@ -373,7 +375,7 @@ const ImageUploader = ({
       )}
 
       {/* Upload Zone */}
-      {images.length < maxImages && (
+      {images.length < Math.min(maxImages, 12) && (
         <div
           onDrop={handleDrop}
           onDragOver={handleDragOver}
@@ -413,10 +415,40 @@ const ImageUploader = ({
         </div>
       )}
 
-      {images.length >= maxImages && (
+      {images.length >= Math.min(maxImages, 12) && (
         <p className="text-sm text-muted-foreground text-center">
-          Nombre maximum d'images atteint ({maxImages})
+          Nombre maximum d'images atteint ({Math.min(maxImages, 12)})
         </p>
+      )}
+
+      {/* Summary */}
+      {images.length > 0 && (
+        <div className="rounded-lg border bg-muted/30 p-3 text-sm text-muted-foreground space-y-1">
+          <p className="font-medium text-foreground">Récapitulatif images</p>
+          <div className="flex flex-wrap gap-x-4 gap-y-1">
+            <span>📷 {images.length}/{maxImages} images</span>
+            {(() => {
+              const knownSizes = Object.values(imageSizes).filter((s): s is number => typeof s === 'number');
+              const totalSize = knownSizes.reduce((a, b) => a + b, 0);
+              const extCount = Object.values(imageSizes).filter(s => s === null).length;
+              return (
+                <>
+                  {knownSizes.length > 0 && <span>⚖️ {formatFileSize(totalSize)} (total)</span>}
+                  {extCount > 0 && <span>🌐 {extCount} externe{extCount > 1 ? 's' : ''}</span>}
+                </>
+              );
+            })()}
+            {brokenUrls.size > 0 && <span className="text-amber-600">⚠️ {brokenUrls.size} introuvable{brokenUrls.size > 1 ? 's' : ''}</span>}
+            {(() => {
+              const exts = new Set<string>();
+              images.forEach(url => {
+                const info = extractPathInfo(url);
+                if (info.extension) exts.add(info.extension);
+              });
+              return exts.size > 0 ? <span>📄 {Array.from(exts).join(', ')}</span> : null;
+            })()}
+          </div>
+        </div>
       )}
     </div>
   );
