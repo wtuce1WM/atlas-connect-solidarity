@@ -928,7 +928,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
           </div>
 
           {/* Langues parlées */}
-          <div className="mt-4 space-y-2">
+          <div className="mt-4 space-y-2 col-span-1 md:col-span-4">
             <Label>Langues parlées</Label>
             <div className="grid grid-cols-10 gap-1">
               {[
