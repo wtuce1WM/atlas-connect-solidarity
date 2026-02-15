@@ -131,10 +131,12 @@ const SortableImage = ({ url, index, onRemove, isBroken = false, meta }: Sortabl
       {(() => {
         const info = extractPathInfo(url);
         return (
-          <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-[9px] leading-tight p-1.5 opacity-0 group-hover:opacity-100 transition-opacity overflow-hidden">
-            <p className="truncate" title={info.path}>📁 {info.path}</p>
-            {info.extension && <span className="mr-2">📄 {info.extension}</span>}
-            {meta?.size != null && <span>⚖️ {formatFileSize(meta.size)}</span>}
+          <div className="absolute bottom-0 left-0 right-0 bg-black/80 text-white text-xs leading-relaxed p-2 opacity-0 group-hover:opacity-100 transition-opacity overflow-hidden space-y-0.5">
+            <p className="truncate font-medium" title={info.path}>📁 {info.path}</p>
+            <div className="flex gap-3">
+              {info.extension && <span>📄 {info.extension}</span>}
+              <span>⚖️ {meta?.size != null ? formatFileSize(meta.size) : "…"}</span>
+            </div>
           </div>
         );
       })()}
