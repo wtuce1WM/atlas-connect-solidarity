@@ -273,7 +273,7 @@ const StaffBackoffice = () => {
               </TabsTrigger>
               <TabsTrigger value="gammes" className="gap-2">
                 <Gem className="h-4 w-4" />
-                Gamme
+                Gamme & Badges
               </TabsTrigger>
               <TabsTrigger value="categories" className="gap-2">
                 <Folder className="h-4 w-4" />
