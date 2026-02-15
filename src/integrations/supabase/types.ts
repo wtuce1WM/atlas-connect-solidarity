@@ -182,6 +182,7 @@ export type Database = {
           email: string | null
           facebook_url: string | null
           gamme_id: string | null
+          getyourguide_url: string | null
           google_maps_url: string | null
           google_rating: number | null
           google_review_count: number | null
@@ -264,6 +265,7 @@ export type Database = {
           email?: string | null
           facebook_url?: string | null
           gamme_id?: string | null
+          getyourguide_url?: string | null
           google_maps_url?: string | null
           google_rating?: number | null
           google_review_count?: number | null
@@ -346,6 +348,7 @@ export type Database = {
           email?: string | null
           facebook_url?: string | null
           gamme_id?: string | null
+          getyourguide_url?: string | null
           google_maps_url?: string | null
           google_rating?: number | null
           google_review_count?: number | null
