@@ -232,9 +232,7 @@ const ImageUploader = ({
   const handleFileUpload = useCallback(async (files: FileList | null) => {
     if (!files || files.length === 0) return;
     
-    const hardMax = 12;
-    const effectiveMax = Math.min(maxImages, hardMax);
-    const remainingSlots = effectiveMax - images.length;
+    const remainingSlots = maxImages - images.length;
     if (remainingSlots <= 0) {
       toast({
         variant: "destructive",
@@ -375,7 +373,7 @@ const ImageUploader = ({
       )}
 
       {/* Upload Zone */}
-      {images.length < Math.min(maxImages, 12) && (
+      {images.length < maxImages && (
         <div
           onDrop={handleDrop}
           onDragOver={handleDragOver}
@@ -415,9 +413,9 @@ const ImageUploader = ({
         </div>
       )}
 
-      {images.length >= Math.min(maxImages, 12) && (
+      {images.length >= maxImages && (
         <p className="text-sm text-muted-foreground text-center">
-          Nombre maximum d'images atteint ({Math.min(maxImages, 12)})
+          Nombre maximum d'images atteint ({maxImages})
         </p>
       )}
 
@@ -448,6 +446,9 @@ const ImageUploader = ({
               return exts.size > 0 ? <span>📄 {Array.from(exts).join(', ')}</span> : null;
             })()}
           </div>
+          {images.length > 12 && (
+            <p className="text-destructive font-medium">🚫 {images.length - 12} image{images.length - 12 > 1 ? 's' : ''} en trop — la sauvegarde sera bloquée tant que le nombre dépasse 12.</p>
+          )}
         </div>
       )}
     </div>
