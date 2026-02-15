@@ -29,7 +29,8 @@ interface ImageUploaderProps {
 }
 
 interface ImageMeta {
-  size?: number;
+  size?: number | null;
+  sizeChecked?: boolean;
   path?: string;
   extension?: string;
 }
@@ -128,7 +129,7 @@ const SortableImage = ({ url, index, onRemove, isBroken = false, meta }: Sortabl
           {index + 1}
         </span>
         <span className="px-2 py-0.5 bg-black/60 text-white text-xs rounded">
-          {meta?.size != null ? formatFileSize(meta.size) : "…"}
+          {typeof meta?.size === 'number' ? formatFileSize(meta.size) : meta?.sizeChecked ? "ext." : "…"}
         </span>
       </div>
 
@@ -140,7 +141,7 @@ const SortableImage = ({ url, index, onRemove, isBroken = false, meta }: Sortabl
             <p className="truncate font-medium" title={info.path}>📁 {info.path}</p>
             <div className="flex gap-3">
               {info.extension && <span>📄 {info.extension}</span>}
-              <span>⚖️ {meta?.size != null ? formatFileSize(meta.size) : "…"}</span>
+              <span>⚖️ {typeof meta?.size === 'number' ? formatFileSize(meta.size) : meta?.sizeChecked ? "ext." : "…"}</span>
             </div>
           </div>
         );
@@ -157,7 +158,7 @@ const ImageUploader = ({
 }: ImageUploaderProps) => {
   const [uploading, setUploading] = useState(false);
   const [brokenUrls, setBrokenUrls] = useState<Set<string>>(new Set());
-  const [imageSizes, setImageSizes] = useState<Record<string, number>>({});
+  const [imageSizes, setImageSizes] = useState<Record<string, number | null>>({});
   const { toast } = useToast();
 
   // Fetch file sizes and check broken URLs in one pass
@@ -171,7 +172,7 @@ const ImageUploader = ({
     let mounted = true;
 
     const checkAll = async () => {
-      const sizes: Record<string, number> = {};
+      const sizes: Record<string, number | null> = {};
       const broken = new Set<string>();
 
       await Promise.all(
@@ -180,21 +181,21 @@ const ImageUploader = ({
             const res = await fetch(url);
             if (!res.ok) {
               broken.add(url);
+              sizes[url] = null;
               return;
             }
             const blob = await res.blob();
             sizes[url] = blob.size;
           } catch {
-            // Try loading as image for broken check
-            await new Promise<void>((resolve) => {
+            // CORS or network error — check if image loads via <img> tag
+            const imgOk = await new Promise<boolean>((resolve) => {
               const img = new Image();
-              img.onload = () => resolve();
-              img.onerror = () => {
-                broken.add(url);
-                resolve();
-              };
+              img.onload = () => resolve(true);
+              img.onerror = () => resolve(false);
               img.src = url;
             });
+            if (!imgOk) broken.add(url);
+            sizes[url] = null; // size unavailable (CORS)
           }
         })
       );
@@ -357,7 +358,7 @@ const ImageUploader = ({
                   index={index}
                   onRemove={handleRemoveImage}
                   isBroken={brokenUrls.has(url)}
-                  meta={{ size: imageSizes[url] }}
+                  meta={{ size: imageSizes[url], sizeChecked: url in imageSizes }}
                 />
               ))}
             </div>
