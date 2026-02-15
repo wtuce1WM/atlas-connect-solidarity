@@ -31,6 +31,7 @@ export interface BusinessCardData {
   tripadvisor_review_count?: number | null;
   restaurant_guru_review_count?: number | null;
   gamme_id: string | null;
+  badge_id?: string | null;
 }
 
 export interface Gamme {
@@ -40,9 +41,17 @@ export interface Gamme {
   text_color_hex: string | null;
 }
 
+export interface Badge {
+  id: string;
+  name_fr: string;
+  color_hex: string | null;
+  text_color_hex: string | null;
+}
+
 interface BusinessCardProps {
   business: BusinessCardData;
   gammes: Gamme[];
+  badges?: Badge[];
   verifiedLabel: string;
   selectedBusinessId?: string | null;
   onSelectBusiness?: (business: BusinessCardData) => void;
@@ -78,6 +87,11 @@ const getBusinessGamme = (business: BusinessCardData, gammes: Gamme[]): Gamme | 
   return gammes.find(g => g.id === business.gamme_id) || null;
 };
 
+const getBusinessBadge = (business: BusinessCardData, badges: Badge[]): Badge | null => {
+  if (!business.badge_id) return null;
+  return badges.find(b => b.id === business.badge_id) || null;
+};
+
 const getCalculatedRating = (business: BusinessCardData): number | null => {
   const sources: { rating: number; count: number }[] = [];
   
@@ -101,6 +115,7 @@ const getCalculatedRating = (business: BusinessCardData): number | null => {
 const BusinessCard = ({
   business,
   gammes,
+  badges = [],
   verifiedLabel,
   selectedBusinessId,
   onSelectBusiness,
@@ -110,6 +125,7 @@ const BusinessCard = ({
   showAddress = false
 }: BusinessCardProps) => {
   const gamme = getBusinessGamme(business, gammes);
+  const badge = getBusinessBadge(business, badges);
   const calculatedRating = getCalculatedRating(business);
   const displayRating = business.rating ?? calculatedRating;
   const isSelected = selectedBusinessId === business.id;
@@ -179,7 +195,16 @@ const BusinessCard = ({
                 {business.categories[0]}
               </Badge>
             )}
-            {business.default_service && (
+            {badge && (
+              <Badge 
+                variant="outline" 
+                className="text-xs border"
+                style={{ backgroundColor: badge.color_hex || '#000000', color: badge.text_color_hex || '#FFFFFF', borderColor: badge.color_hex || '#000000' }}
+              >
+                {badge.name_fr}
+              </Badge>
+            )}
+            {!badge && business.default_service && (
               <Badge variant="outline" className="text-xs bg-black text-white border-black">
                 {business.default_service}
               </Badge>

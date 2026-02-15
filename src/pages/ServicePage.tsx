@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import BusinessCard, { BusinessCardData, Gamme } from "@/components/BusinessCard";
+import BusinessCard, { BusinessCardData, Gamme, Badge } from "@/components/BusinessCard";
 
 interface Business {
   id: string;
@@ -75,6 +75,7 @@ const ServicePage = () => {
   });
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
   const [gammes, setGammes] = useState<Gamme[]>([]);
+  const [badges, setBadges] = useState<Badge[]>([]);
   const [selectedGammeFilter, setSelectedGammeFilter] = useState<string>("all");
 
   // Extract service name from URL path (handles special characters like /, &, etc.)
@@ -220,11 +221,21 @@ const ServicePage = () => {
           setGammes(gammesData);
         }
 
+        // Fetch badges
+        const { data: badgesData } = await supabase
+          .from("badges")
+          .select("id, name_fr, color_hex, text_color_hex")
+          .order("sort_order", { ascending: true });
+
+        if (badgesData) {
+          setBadges(badgesData);
+        }
+
         // Fetch businesses: by subcategory (categories array) OR by service
         let businessData: Business[] | null = null;
         let fetchError: Error | null = null;
 
-        const selectFields = "id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, default_service, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, opening_hours, show_opening_hours, is_open_24h, rating, gamme_id, neighborhood, hook_fr, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count";
+        const selectFields = "id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, default_service, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, opening_hours, show_opening_hours, is_open_24h, rating, gamme_id, badge_id, neighborhood, hook_fr, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count";
 
         if (isSubcategory) {
           // Search in BOTH categories and services arrays, then merge
@@ -546,6 +557,7 @@ const ServicePage = () => {
                     key={business.id}
                     business={business}
                     gammes={gammes}
+                    badges={badges}
                     verifiedLabel={t.verified}
                     selectedBusinessId={selectedBusiness?.id}
                     onSelectBusiness={handleSelectBusiness}

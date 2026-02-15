@@ -9,7 +9,7 @@ import Header from "@/components/Header";
 import TopCityBusinesses from "@/components/TopCityBusinesses";
 import Footer from "@/components/Footer";
 import DynamicLabelSections from "@/components/DynamicLabelSections";
-import BusinessCard, { Gamme } from "@/components/BusinessCard";
+import BusinessCard, { Gamme, Badge } from "@/components/BusinessCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -63,6 +63,7 @@ const NeighborhoodPage = () => {
   const navigate = useNavigate();
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [gammes, setGammes] = useState<Gamme[]>([]);
+  const [badges, setBadges] = useState<Badge[]>([]);
   const [neighborhoods, setNeighborhoods] = useState<string[]>([]);
   const [cities, setCities] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -188,6 +189,14 @@ const NeighborhoodPage = () => {
 
       if (gammesData) setGammes(gammesData);
 
+      // Fetch badges
+      const { data: badgesData } = await supabase
+        .from("badges")
+        .select("id, name_fr, color_hex, text_color_hex")
+        .order("sort_order", { ascending: true });
+
+      if (badgesData) setBadges(badgesData);
+
       // Fetch all cities for the filter
       const { data: citiesData } = await supabase
         .from("cities")
@@ -219,7 +228,7 @@ const NeighborhoodPage = () => {
 
       let query = supabase
         .from("businesses")
-        .select("id, name, city, region, address, phone, whatsapp, skype, main_category, categories, default_service, latitude, longitude, google_maps_url, wtuce_status, services, images, rating, priority_score, logo_url, gamme_id, neighborhood, opening_hours, show_opening_hours, is_open_24h, hook_fr, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count")
+        .select("id, name, city, region, address, phone, whatsapp, skype, main_category, categories, default_service, latitude, longitude, google_maps_url, wtuce_status, services, images, rating, priority_score, logo_url, gamme_id, badge_id, neighborhood, opening_hours, show_opening_hours, is_open_24h, hook_fr, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count")
         .eq("is_active", true)
         .ilike("neighborhood", decodedNeighborhood);
 
@@ -500,6 +509,7 @@ const NeighborhoodPage = () => {
                   key={business.id} 
                   business={business} 
                   gammes={gammes} 
+                  badges={badges}
                   verifiedLabel="Vérifié"
                   showMapButton
                   onSelectBusiness={handleSelectBusiness}
