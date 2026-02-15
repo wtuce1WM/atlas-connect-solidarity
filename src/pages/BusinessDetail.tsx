@@ -573,7 +573,7 @@ const BusinessDetail = () => {
             {/* Sidebar */}
             <div className="space-y-6">
               {/* Quick Actions Card */}
-              <Card className={isVerified ? 'bg-white/10 border-white/20' : ''}>
+              {(business.phone || business.whatsapp || business.skype || business.email || business.website || business.menu_url || business.reserve_now_url || business.online_shop_url) && <Card className={isVerified ? 'bg-white/10 border-white/20' : ''}>
                 <CardContent className="p-5 space-y-4">
                   {/* Contact links */}
                   {business.phone && (
@@ -634,7 +634,7 @@ const BusinessDetail = () => {
                     </a>
                   )}
                 </CardContent>
-              </Card>
+              </Card>}
 
               {/* Opening Hours */}
               {business.show_opening_hours !== false && (business.is_open_24h || (business.opening_hours && Object.keys(business.opening_hours).length > 0)) && (() => {
