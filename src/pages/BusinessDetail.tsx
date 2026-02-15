@@ -567,6 +567,11 @@ const BusinessDetail = () => {
                 </div>
               )}
 
+              {/* Related Establishments */}
+              {business.kp_regroupement && (
+                <RelatedEstablishments currentBusinessId={business.id} kpRegroupement={business.kp_regroupement} isVerified={isVerified} />
+              )}
+
               {/* Services removed - now in dedicated tab */}
             </div>
 
@@ -771,10 +776,6 @@ const BusinessDetail = () => {
               )}
             </div>
           </div>
-          {/* Related Establishments - full width */}
-          {business.kp_regroupement && (
-            <RelatedEstablishments currentBusinessId={business.id} kpRegroupement={business.kp_regroupement} isVerified={isVerified} />
-          )}
           </>
         )}
 
