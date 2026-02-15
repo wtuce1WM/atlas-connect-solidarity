@@ -753,7 +753,7 @@ const BusinessDetail = () => {
               {(business.booking_url || business.tripadvisor_url || business.airbnb_url) && (
                 <Card className={isVerified ? 'bg-white/10 border-white/20' : ''}>
                   <CardContent className="p-5">
-                    <h3 className={`font-semibold mb-3 ${isVerified ? 'text-white' : ''}`}>Réservation</h3>
+                    <h3 className={`font-semibold mb-3 ${isVerified ? 'text-white' : ''}`}>Plateformes de réservation</h3>
                     <div className="flex flex-wrap gap-2">
                       {business.booking_url && (
                         <a href={business.booking_url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-9 h-9 rounded-full bg-[#003580] text-white hover:opacity-80 transition-opacity" title="Booking.com">
