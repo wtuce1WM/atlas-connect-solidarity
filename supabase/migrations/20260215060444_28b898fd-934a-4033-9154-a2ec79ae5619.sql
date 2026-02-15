@@ -1,0 +1,1 @@
+ALTER TABLE public.businesses ALTER COLUMN region DROP NOT NULL;

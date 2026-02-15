@@ -224,7 +224,7 @@ export type Database = {
           pinterest_url: string | null
           priority_score: number | null
           rating: number | null
-          region: string
+          region: string | null
           reserve_now_url: string | null
           restaurant_guru_rating: number | null
           restaurant_guru_review_count: number | null
@@ -307,7 +307,7 @@ export type Database = {
           pinterest_url?: string | null
           priority_score?: number | null
           rating?: number | null
-          region: string
+          region?: string | null
           reserve_now_url?: string | null
           restaurant_guru_rating?: number | null
           restaurant_guru_review_count?: number | null
@@ -390,7 +390,7 @@ export type Database = {
           pinterest_url?: string | null
           priority_score?: number | null
           rating?: number | null
-          region?: string
+          region?: string | null
           reserve_now_url?: string | null
           restaurant_guru_rating?: number | null
           restaurant_guru_review_count?: number | null

@@ -504,8 +504,8 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
       name: formData.name,
       description: formData.description || null,
       address: formData.address || null,
-      city: formData.city,
-      region: formData.region,
+      city: formData.city || null,
+      region: formData.region || null,
       country: formData.country,
       phone: formData.phone || null,
       email: formData.email || null,
@@ -1022,7 +1022,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
               />
             </div>
             <div className="space-y-2 md:col-span-1">
-              <Label htmlFor="city_top">Ville *</Label>
+              <Label htmlFor="city_top">Ville</Label>
               <Select
                 value={formData.city}
                 onValueChange={(value) => {
@@ -1047,7 +1047,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
               </Select>
             </div>
             <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="region_top">Région *</Label>
+              <Label htmlFor="region_top">Région</Label>
               <Select
                 value={formData.region}
                 onValueChange={(value) => handleChange("region", value)}
