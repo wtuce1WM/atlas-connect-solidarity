@@ -18,6 +18,7 @@ export interface BusinessCardData {
   hook_fr?: string | null;
   images: string[] | null;
   categories: string[] | null;
+  services?: string[] | null;
   default_service?: string | null;
   wtuce_status: string | null;
   latitude: number | null;
@@ -112,6 +113,7 @@ const BusinessCard = ({
   const gamme = getBusinessGamme(business, gammes);
   const calculatedRating = getCalculatedRating(business);
   const displayRating = business.rating ?? calculatedRating;
+  const displayService = business.default_service || (business.services && business.services.length > 0 ? business.services[0] : null);
   const isSelected = selectedBusinessId === business.id;
   const hasMapData = business.google_maps_url || (business.latitude && business.longitude);
   const businessImage = getBusinessImage(business);
@@ -179,9 +181,9 @@ const BusinessCard = ({
                 {business.categories[0]}
               </Badge>
             )}
-            {business.default_service && (
+            {displayService && (
               <Badge variant="outline" className="text-xs bg-black text-white border-black">
-                {business.default_service}
+                {displayService}
               </Badge>
             )}
           </div>
