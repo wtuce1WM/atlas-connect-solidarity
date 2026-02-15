@@ -547,7 +547,7 @@ const BusinessDetail = () => {
                 <div>
                   
                   <p className={`text-base mb-3 ${isVerified ? 'text-white/60' : 'text-muted-foreground'}`} style={{ fontFamily: "'Raleway', sans-serif" }}>
-                    Cliquez ci-dessous pour voir tous les {business.categories[0]} à {business.city}.
+                    Cliquez ci-dessous pour voir tous les établissements similaires à {business.city}.
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {business.categories.map((cat, index) => (
