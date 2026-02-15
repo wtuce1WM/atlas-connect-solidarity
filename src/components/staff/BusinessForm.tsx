@@ -1519,13 +1519,6 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
             </div>
             {isBrokenUrl(formData.booking_url) && <BrokenUrlBadge url={formData.booking_url} />}
 
-            <div className="flex items-center gap-2">
-              <TripAdvisorIcon className="text-[#00AF87]" />
-              <span className="text-sm font-medium">TripAdvisor</span>
-              <Input id="tripadvisor_url" value={formData.tripadvisor_url} onChange={(e) => handleChange("tripadvisor_url", e.target.value)} placeholder="https://tripadvisor.com/..." className="flex-1" />
-              {isBrokenUrl(formData.tripadvisor_url) && <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 animate-pulse" />}
-            </div>
-            {isBrokenUrl(formData.tripadvisor_url) && <BrokenUrlBadge url={formData.tripadvisor_url} />}
 
             <div className="flex items-center gap-2">
               <AirbnbIcon className="text-[#FF5A5F]" />
