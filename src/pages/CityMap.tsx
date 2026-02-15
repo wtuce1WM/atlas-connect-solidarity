@@ -529,7 +529,7 @@ const CityMap = () => {
           <div className="space-y-4">
             {/* Category & Subcategory Filters */}
             <div className="space-y-3">
-              <div className="flex flex-wrap gap-3">
+              <div className="grid grid-cols-1 sm:flex sm:flex-wrap gap-3">
                 {/* Main Category Filter */}
                 <div className="flex-1 min-w-[140px]">
                   <label className="text-base font-semibold text-white mb-1.5 block">Catégorie</label>
