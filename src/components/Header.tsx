@@ -40,15 +40,15 @@ const Header = ({ variant = "default" }: HeaderProps) => {
       </div>
 
       {/* Dropdown Menu - All screen sizes */}
-      {isMenuOpen && <div className={`border-t ${variant === "city" ? "border-black/10 bg-transparent" : "border-white/10 bg-black/90 backdrop-blur-lg"}`}>
+      {isMenuOpen && <div className="border-t border-white/10 bg-black/90 backdrop-blur-lg">
           <nav className="container mx-auto flex flex-col items-center gap-4 px-4 py-6">
-            <Link to="/mission" className={`transition-colors ${variant === "city" ? "text-black hover:text-gold" : "text-white/90 hover:text-gold"}`}>
+            <Link to="/mission" className="text-white/90 transition-colors hover:text-gold">
               {t("footer.ourMission")}
             </Link>
-            <Link to="/contact" className={`transition-colors ${variant === "city" ? "text-black hover:text-gold" : "text-white/90 hover:text-gold"}`}>
+            <Link to="/contact" className="text-white/90 transition-colors hover:text-gold">
               {t("footer.contact")}
             </Link>
-            <hr className={`w-full ${variant === "city" ? "border-black/20" : "border-white/20"}`} />
+            <hr className="w-full border-white/20" />
             <Link to="/devenir-affilie" className="rounded-lg bg-gold px-4 py-2 font-semibold text-gold-foreground">
               {t("nav.joinNow")}
             </Link>
