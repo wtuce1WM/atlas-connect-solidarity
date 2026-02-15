@@ -19,7 +19,7 @@ import MapBusinessInfoCard from "@/components/MapBusinessInfoCard";
 import DynamicIcon from "@/components/DynamicIcon";
 import AnimatedBusinessStrip from "@/components/AnimatedBusinessStrip";
 
-import BusinessCard, { Gamme } from "@/components/BusinessCard";
+import BusinessCard, { Gamme, Badge } from "@/components/BusinessCard";
 import DynamicLabelSections from "@/components/DynamicLabelSections";
 
 interface Business {
@@ -87,6 +87,7 @@ const CategoryPage = () => {
   const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [gammes, setGammes] = useState<Gamme[]>([]);
+  const [badges, setBadges] = useState<Badge[]>([]);
 
   const decodedCategoryName = categoryName ? decodeURIComponent(categoryName) : "";
 
@@ -228,10 +229,20 @@ const CategoryPage = () => {
           setGammes(gammesData);
         }
 
+        // Fetch badges
+        const { data: badgesData } = await supabase
+          .from("badges")
+          .select("id, name_fr, color_hex, text_color_hex")
+          .order("sort_order", { ascending: true });
+
+        if (badgesData) {
+          setBadges(badgesData);
+        }
+
         // Fetch ALL businesses in this category (no limit)
         const { data: businessData, error } = await supabase
           .from("businesses")
-          .select("id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, services, default_service, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, opening_hours, show_opening_hours, is_open_24h, rating, gamme_id, neighborhood, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, hook_fr")
+          .select("id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, services, default_service, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, opening_hours, show_opening_hours, is_open_24h, rating, gamme_id, badge_id, neighborhood, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, hook_fr")
           .eq("is_active", true)
           .or(`main_category.eq.${decodedCategoryName},categories.cs.{${decodedCategoryName}}`)
           .order("wtuce_status", { ascending: true })
@@ -559,6 +570,7 @@ const CategoryPage = () => {
                     key={business.id}
                     business={business}
                     gammes={gammes}
+                    badges={badges}
                     verifiedLabel={t.verified}
                     selectedBusinessId={selectedBusiness?.id}
                     onSelectBusiness={handleSelectBusiness}

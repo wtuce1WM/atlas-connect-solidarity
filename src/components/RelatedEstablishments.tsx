@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { ChevronLeft, ChevronRight, Building2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import BusinessCard, { BusinessCardData, Gamme } from "./BusinessCard";
+import BusinessCard, { BusinessCardData, Gamme, Badge } from "./BusinessCard";
 
 interface RelatedEstablishmentsProps {
   currentBusinessId: string;
@@ -12,6 +12,7 @@ interface RelatedEstablishmentsProps {
 const RelatedEstablishments = ({ currentBusinessId, kpRegroupement, isVerified = false }: RelatedEstablishmentsProps) => {
   const [relatedBusinesses, setRelatedBusinesses] = useState<BusinessCardData[]>([]);
   const [gammes, setGammes] = useState<Gamme[]>([]);
+  const [badges, setBadges] = useState<Badge[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -22,10 +23,10 @@ const RelatedEstablishments = ({ currentBusinessId, kpRegroupement, isVerified =
         return;
       }
 
-      const [businessesRes, gammesRes] = await Promise.all([
+      const [businessesRes, gammesRes, badgesRes] = await Promise.all([
         supabase
           .from("businesses")
-          .select("id, name, city, region, address, phone, whatsapp, skype, logo_url, images, categories, default_service, wtuce_status, latitude, longitude, google_maps_url, rating, gamme_id, neighborhood, is_master")
+          .select("id, name, city, region, address, phone, whatsapp, skype, logo_url, images, categories, default_service, wtuce_status, latitude, longitude, google_maps_url, rating, gamme_id, badge_id, neighborhood, is_master")
           .eq("kp_regroupement", kpRegroupement)
           .eq("is_active", true)
           .neq("id", currentBusinessId)
@@ -33,6 +34,9 @@ const RelatedEstablishments = ({ currentBusinessId, kpRegroupement, isVerified =
           .order("priority_score", { ascending: false }),
         supabase
           .from("gammes")
+          .select("id, name_fr, color_hex, text_color_hex"),
+        supabase
+          .from("badges")
           .select("id, name_fr, color_hex, text_color_hex")
       ]);
 
@@ -47,6 +51,9 @@ const RelatedEstablishments = ({ currentBusinessId, kpRegroupement, isVerified =
       }
       if (gammesRes.data) {
         setGammes(gammesRes.data as Gamme[]);
+      }
+      if (badgesRes.data) {
+        setBadges(badgesRes.data as Badge[]);
       }
       setIsLoading(false);
     };
@@ -106,6 +113,7 @@ const RelatedEstablishments = ({ currentBusinessId, kpRegroupement, isVerified =
               <BusinessCard
                 business={business}
                 gammes={gammes}
+                badges={badges}
                 verifiedLabel="Vérifié WTUCE"
               />
             </div>

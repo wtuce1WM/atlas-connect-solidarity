@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import BusinessCard, { Gamme } from "@/components/BusinessCard";
+import BusinessCard, { Gamme, Badge } from "@/components/BusinessCard";
 
 interface Business {
   id: string;
@@ -52,6 +52,7 @@ interface Business {
   is_open_24h: boolean;
   logo_url: string | null;
   gamme_id: string | null;
+  badge_id: string | null;
   neighborhood: string | null;
   hook_fr: string | null;
 }
@@ -88,6 +89,7 @@ const CityMap = () => {
   const [selectedActivities, setSelectedActivities] = useState<string[]>([]);
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
   const [gammes, setGammes] = useState<Gamme[]>([]);
+  const [badges, setBadges] = useState<Badge[]>([]);
   const [gammeCategories, setGammeCategories] = useState<{ gamme_id: string; category_id: string }[]>([]);
   const [categoryIdMap, setCategoryIdMap] = useState<Record<string, string>>({});
   const [selectedGamme, setSelectedGamme] = useState<string>("");
@@ -270,6 +272,16 @@ const CityMap = () => {
         setGammes(gammesData);
       }
 
+      // Fetch badges
+      const { data: badgesData } = await supabase
+        .from("badges")
+        .select("id, name_fr, color_hex, text_color_hex")
+        .order("sort_order", { ascending: true });
+
+      if (badgesData) {
+        setBadges(badgesData);
+      }
+
       // Fetch gamme_categories mapping
       const { data: gcData } = await supabase
         .from("gamme_categories")
@@ -296,7 +308,7 @@ const CityMap = () => {
       // Fetch businesses - ordered by verified status then priority score
       const { data: businessData, error: businessError } = await supabase
         .from("businesses")
-        .select("id, name, city, region, address, phone, whatsapp, skype, main_category, categories, default_service, latitude, longitude, google_maps_url, wtuce_status, services, images, rating, google_rating, tripadvisor_rating, restaurant_guru_rating, google_review_count, tripadvisor_review_count, restaurant_guru_review_count, priority_score, opening_hours, show_opening_hours, is_open_24h, logo_url, gamme_id, neighborhood, hook_fr")
+        .select("id, name, city, region, address, phone, whatsapp, skype, main_category, categories, default_service, latitude, longitude, google_maps_url, wtuce_status, services, images, rating, google_rating, tripadvisor_rating, restaurant_guru_rating, google_review_count, tripadvisor_review_count, restaurant_guru_review_count, priority_score, opening_hours, show_opening_hours, is_open_24h, logo_url, gamme_id, badge_id, neighborhood, hook_fr")
         .eq("is_active", true)
         .ilike("city", decodedCity)
         .order("wtuce_status", { ascending: true, nullsFirst: false })
@@ -612,6 +624,7 @@ const CityMap = () => {
                       key={business.id}
                       business={business}
                       gammes={gammes}
+                      badges={badges}
                       verifiedLabel="Vérifié"
                       selectedBusinessId={selectedBusiness?.id}
                       onSelectBusiness={handleSelectBusiness}
