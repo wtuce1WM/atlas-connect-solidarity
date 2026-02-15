@@ -930,7 +930,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
           {/* Langues parlées */}
           <div className="mt-4 space-y-2">
             <Label>Langues parlées</Label>
-            <div className="flex flex-nowrap gap-1.5 overflow-x-auto">
+            <div className="flex flex-wrap gap-1.5">
               {[
                 { code: "ar", flag: "🇲🇦", label: "Arabe" },
                 { code: "fr", flag: "🇫🇷", label: "Français" },
