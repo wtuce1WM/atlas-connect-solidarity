@@ -227,16 +227,7 @@ const BusinessCard = ({
                 {business.categories[0]}
               </Badge>
             )}
-            {badge && (
-              <Badge 
-                variant="outline" 
-                className="text-xs border"
-                style={{ backgroundColor: badge.color_hex || '#000000', color: badge.text_color_hex || '#FFFFFF', borderColor: badge.color_hex || '#000000' }}
-              >
-                {badge.name_fr}
-              </Badge>
-            )}
-            {!badge && business.default_service && (
+            {business.default_service && (
               <Badge variant="outline" className="text-xs bg-black text-white border-black">
                 {business.default_service}
               </Badge>
