@@ -287,13 +287,15 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
   const [dbCities, setDbCities] = useState<Array<{ id: string; name_fr: string; region: string | null }>>([]);
   const [dbGammes, setDbGammes] = useState<Array<{ id: string; name_fr: string }>>([]);
   const [gammeCategories, setGammeCategories] = useState<Array<{ gamme_id: string; category_id: string }>>([]);
+  const [dbBadges, setDbBadges] = useState<Array<{ id: string; name_fr: string }>>([]);
+  const [badgeSubcategories, setBadgeSubcategories] = useState<Array<{ badge_id: string; subcategory_id: string }>>([]);
   const [dbNeighborhoods, setDbNeighborhoods] = useState<Array<{ id: string; name: string; city_id: string }>>([]);
   const [dbAffiliates, setDbAffiliates] = useState<Array<{ id: string; name: string }>>([]);
 
   // Fetch categories, subcategories, services, cities, gammes and gamme_categories from database
   useEffect(() => {
     const fetchTaxonomy = async () => {
-      const [catRes, subRes, servRes, citiesRes, gammesRes, gammeCatRes, neighborhoodsRes, affiliatesRes] = await Promise.all([
+      const [catRes, subRes, servRes, citiesRes, gammesRes, gammeCatRes, neighborhoodsRes, affiliatesRes, badgesRes, badgeSubcatsRes] = await Promise.all([
         supabase.from("categories").select("id, name_fr").order("sort_order"),
         supabase.from("subcategories").select("id, name_fr, category_id").order("sort_order"),
         supabase.from("services").select("id, name_fr, subcategory_id").order("sort_order"),
@@ -302,6 +304,8 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
         supabase.from("gamme_categories").select("gamme_id, category_id"),
         supabase.from("neighborhoods").select("id, name, city_id").order("name"),
         supabase.from("affiliates").select("id, name").order("name"),
+        supabase.from("badges").select("id, name_fr").order("sort_order"),
+        supabase.from("badge_subcategories").select("badge_id, subcategory_id"),
       ]);
       
       if (catRes.data) setDbCategories(catRes.data);
@@ -312,6 +316,8 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
       if (gammeCatRes.data) setGammeCategories(gammeCatRes.data);
       if (neighborhoodsRes.data) setDbNeighborhoods(neighborhoodsRes.data);
       if (affiliatesRes.data) setDbAffiliates(affiliatesRes.data);
+      if (badgesRes.data) setDbBadges(badgesRes.data);
+      if (badgeSubcatsRes.data) setBadgeSubcategories(badgeSubcatsRes.data);
     };
     
     fetchTaxonomy();
@@ -388,6 +394,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
     other_booking_url: (business as any)?.other_booking_url || "",
     other_booking_name: (business as any)?.other_booking_name || "",
     gamme_id: (business as any)?.gamme_id || "",
+    badge_id: (business as any)?.badge_id || "",
     neighborhood: (business as any)?.neighborhood || "",
     hook_fr: (business as any)?.hook_fr || "",
     hook_en: (business as any)?.hook_en || "",
@@ -476,6 +483,20 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
       .filter((g) => gammeIdsForCategory.includes(g.id))
       .sort((a, b) => a.name_fr.localeCompare(b.name_fr, 'fr'));
   }, [selectedCategory, gammeCategories, dbGammes]);
+
+  // Get badges available for the selected subcategories
+  const availableBadges = useMemo(() => {
+    const selectedSubcategoryIds = formData.categories
+      .map(catName => dbSubcategories.find(sc => sc.name_fr === catName)?.id)
+      .filter(Boolean) as string[];
+    if (selectedSubcategoryIds.length === 0) return [];
+    const badgeIdsForSubcats = badgeSubcategories
+      .filter(bs => selectedSubcategoryIds.includes(bs.subcategory_id))
+      .map(bs => bs.badge_id);
+    return dbBadges
+      .filter(b => badgeIdsForSubcats.includes(b.id))
+      .sort((a, b) => a.name_fr.localeCompare(b.name_fr, 'fr'));
+  }, [formData.categories, dbSubcategories, badgeSubcategories, dbBadges]);
 
   // Get neighborhoods for the selected city
   const neighborhoodsForCity = useMemo(() => {
@@ -579,6 +600,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
       other_booking_url: formData.other_booking_url || null,
       other_booking_name: formData.other_booking_name || null,
       gamme_id: formData.gamme_id || null,
+      badge_id: (formData as any).badge_id || null,
       neighborhood: formData.neighborhood || null,
       hook_fr: formData.hook_fr || null,
       hook_en: formData.hook_en || null,
@@ -929,6 +951,33 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                 {availableGammes.map((gamme) => (
                   <SelectItem key={gamme.id} value={gamme.id}>
                     {gamme.name_fr}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="badge_id">Badge</Label>
+            <Select
+              value={(formData as any).badge_id || "__none__"}
+              onValueChange={(value) => handleChange("badge_id", value === "__none__" ? "" : value)}
+              disabled={availableBadges.length === 0}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={
+                  formData.categories.length === 0
+                    ? "Choisir des sous-catégories d'abord"
+                    : availableBadges.length === 0
+                      ? "Aucun badge disponible"
+                      : "Sélectionner..."
+                } />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__none__">— Aucun —</SelectItem>
+                {availableBadges.map((badge) => (
+                  <SelectItem key={badge.id} value={badge.id}>
+                    {badge.name_fr}
                   </SelectItem>
                 ))}
               </SelectContent>

@@ -71,6 +71,81 @@ export type Database = {
         }
         Relationships: []
       }
+      badge_subcategories: {
+        Row: {
+          badge_id: string
+          created_at: string | null
+          id: string
+          subcategory_id: string
+        }
+        Insert: {
+          badge_id: string
+          created_at?: string | null
+          id?: string
+          subcategory_id: string
+        }
+        Update: {
+          badge_id?: string
+          created_at?: string | null
+          id?: string
+          subcategory_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "badge_subcategories_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "badges"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "badge_subcategories_subcategory_id_fkey"
+            columns: ["subcategory_id"]
+            isOneToOne: false
+            referencedRelation: "subcategories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      badges: {
+        Row: {
+          color_hex: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          name_ar: string | null
+          name_en: string | null
+          name_fr: string
+          sort_order: number | null
+          text_color_hex: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          color_hex?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name_ar?: string | null
+          name_en?: string | null
+          name_fr: string
+          sort_order?: number | null
+          text_color_hex?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          color_hex?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name_ar?: string | null
+          name_en?: string | null
+          name_fr?: string
+          sort_order?: number | null
+          text_color_hex?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       blog_posts: {
         Row: {
           author_name: string | null
@@ -172,6 +247,7 @@ export type Database = {
           address: string | null
           affiliate_id: string | null
           airbnb_url: string | null
+          badge_id: string | null
           booking_url: string | null
           categories: string[] | null
           city: string | null
@@ -255,6 +331,7 @@ export type Database = {
           address?: string | null
           affiliate_id?: string | null
           airbnb_url?: string | null
+          badge_id?: string | null
           booking_url?: string | null
           categories?: string[] | null
           city?: string | null
@@ -338,6 +415,7 @@ export type Database = {
           address?: string | null
           affiliate_id?: string | null
           airbnb_url?: string | null
+          badge_id?: string | null
           booking_url?: string | null
           categories?: string[] | null
           city?: string | null
@@ -422,6 +500,13 @@ export type Database = {
             columns: ["affiliate_id"]
             isOneToOne: false
             referencedRelation: "affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "businesses_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "badges"
             referencedColumns: ["id"]
           },
           {
