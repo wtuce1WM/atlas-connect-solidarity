@@ -1038,6 +1038,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                 onValueChange={(value) => {
                   if (value === "__none__") {
                     handleChange("city", "");
+                    handleChange("region", "");
                     handleChange("neighborhood", "");
                   } else {
                     handleChange("city", value);
@@ -1065,13 +1066,14 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
             <div className="space-y-2 md:col-span-2">
               <Label htmlFor="region_top">Région{formData.city ? " *" : ""}</Label>
               <Select
-                value={formData.region}
-                onValueChange={(value) => handleChange("region", value)}
+                value={formData.region || "__none__"}
+                onValueChange={(value) => handleChange("region", value === "__none__" ? "" : value)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Région..." />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="__none__">— Aucune —</SelectItem>
                   {REGIONS.map((region) => (
                     <SelectItem key={region} value={region}>
                       {region}
