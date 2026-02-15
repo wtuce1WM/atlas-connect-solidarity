@@ -1419,7 +1419,10 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                 <FacebookIcon className="text-[#1877F2]" />
                 {formData.facebook_url ? <a href={formData.facebook_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">Facebook ↗</a> : "Facebook"}
               </Label>
-              <Input id="facebook_url" value={formData.facebook_url} onChange={(e) => handleChange("facebook_url", e.target.value)} placeholder="https://facebook.com/..." />
+              <div className="flex items-center gap-1">
+                <Input id="facebook_url" value={formData.facebook_url} onChange={(e) => handleChange("facebook_url", e.target.value)} placeholder="https://facebook.com/..." className="flex-1" />
+                {formData.facebook_url && <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" onClick={() => handleChange("facebook_url", "")}><Trash2 className="h-4 w-4" /></Button>}
+              </div>
               <BrokenUrlBadge url={formData.facebook_url} />
             </div>
 
@@ -1428,7 +1431,10 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                 <InstagramIcon className="text-[#E4405F]" />
                 {formData.instagram_url ? <a href={formData.instagram_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">Instagram ↗</a> : "Instagram"}
               </Label>
-              <Input id="instagram_url" value={formData.instagram_url} onChange={(e) => handleChange("instagram_url", e.target.value)} placeholder="https://instagram.com/..." />
+              <div className="flex items-center gap-1">
+                <Input id="instagram_url" value={formData.instagram_url} onChange={(e) => handleChange("instagram_url", e.target.value)} placeholder="https://instagram.com/..." className="flex-1" />
+                {formData.instagram_url && <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" onClick={() => handleChange("instagram_url", "")}><Trash2 className="h-4 w-4" /></Button>}
+              </div>
               <BrokenUrlBadge url={formData.instagram_url} />
             </div>
 
@@ -1437,7 +1443,10 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                 <TwitterIcon className="text-foreground" />
                 {formData.twitter_url ? <a href={formData.twitter_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">X (Twitter) ↗</a> : "X (Twitter)"}
               </Label>
-              <Input id="twitter_url" value={formData.twitter_url} onChange={(e) => handleChange("twitter_url", e.target.value)} placeholder="https://x.com/..." />
+              <div className="flex items-center gap-1">
+                <Input id="twitter_url" value={formData.twitter_url} onChange={(e) => handleChange("twitter_url", e.target.value)} placeholder="https://x.com/..." className="flex-1" />
+                {formData.twitter_url && <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" onClick={() => handleChange("twitter_url", "")}><Trash2 className="h-4 w-4" /></Button>}
+              </div>
               <BrokenUrlBadge url={formData.twitter_url} />
             </div>
 
@@ -1446,7 +1455,10 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                 <LinkedInIcon className="text-[#0A66C2]" />
                 {formData.linkedin_url ? <a href={formData.linkedin_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">LinkedIn ↗</a> : "LinkedIn"}
               </Label>
-              <Input id="linkedin_url" value={formData.linkedin_url} onChange={(e) => handleChange("linkedin_url", e.target.value)} placeholder="https://linkedin.com/company/..." />
+              <div className="flex items-center gap-1">
+                <Input id="linkedin_url" value={formData.linkedin_url} onChange={(e) => handleChange("linkedin_url", e.target.value)} placeholder="https://linkedin.com/company/..." className="flex-1" />
+                {formData.linkedin_url && <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" onClick={() => handleChange("linkedin_url", "")}><Trash2 className="h-4 w-4" /></Button>}
+              </div>
               <BrokenUrlBadge url={formData.linkedin_url} />
             </div>
 
@@ -1455,7 +1467,10 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                 <YouTubeIcon className="text-[#FF0000]" />
                 {formData.youtube_url ? <a href={formData.youtube_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">YouTube ↗</a> : "YouTube"}
               </Label>
-              <Input id="youtube_url" value={formData.youtube_url} onChange={(e) => handleChange("youtube_url", e.target.value)} placeholder="https://youtube.com/@..." />
+              <div className="flex items-center gap-1">
+                <Input id="youtube_url" value={formData.youtube_url} onChange={(e) => handleChange("youtube_url", e.target.value)} placeholder="https://youtube.com/@..." className="flex-1" />
+                {formData.youtube_url && <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" onClick={() => handleChange("youtube_url", "")}><Trash2 className="h-4 w-4" /></Button>}
+              </div>
               <BrokenUrlBadge url={formData.youtube_url} />
             </div>
 
@@ -1464,27 +1479,34 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                 <TikTokIcon className="text-foreground" />
                 {formData.tiktok_url ? <a href={formData.tiktok_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">TikTok ↗</a> : "TikTok"}
               </Label>
-              <Input id="tiktok_url" value={formData.tiktok_url} onChange={(e) => handleChange("tiktok_url", e.target.value)} placeholder="https://tiktok.com/@..." />
+              <div className="flex items-center gap-1">
+                <Input id="tiktok_url" value={formData.tiktok_url} onChange={(e) => handleChange("tiktok_url", e.target.value)} placeholder="https://tiktok.com/@..." className="flex-1" />
+                {formData.tiktok_url && <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" onClick={() => handleChange("tiktok_url", "")}><Trash2 className="h-4 w-4" /></Button>}
+              </div>
               <BrokenUrlBadge url={formData.tiktok_url} />
             </div>
-
 
             <div className="space-y-2">
               <Label htmlFor="pinterest_url" className="flex items-center gap-2">
                 <PinterestIcon className="text-[#E60023]" />
                 {formData.pinterest_url ? <a href={formData.pinterest_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">Pinterest ↗</a> : "Pinterest"}
               </Label>
-              <Input id="pinterest_url" value={formData.pinterest_url} onChange={(e) => handleChange("pinterest_url", e.target.value)} placeholder="https://pinterest.com/..." />
+              <div className="flex items-center gap-1">
+                <Input id="pinterest_url" value={formData.pinterest_url} onChange={(e) => handleChange("pinterest_url", e.target.value)} placeholder="https://pinterest.com/..." className="flex-1" />
+                {formData.pinterest_url && <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" onClick={() => handleChange("pinterest_url", "")}><Trash2 className="h-4 w-4" /></Button>}
+              </div>
               <BrokenUrlBadge url={formData.pinterest_url} />
             </div>
-
 
             <div className="space-y-2">
               <Label htmlFor="vimeo_url" className="flex items-center gap-2">
                 <VimeoIcon className="text-[#1AB7EA]" />
                 {formData.vimeo_url ? <a href={formData.vimeo_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">Vimeo ↗</a> : "Vimeo"}
               </Label>
-              <Input id="vimeo_url" value={formData.vimeo_url} onChange={(e) => handleChange("vimeo_url", e.target.value)} placeholder="https://vimeo.com/..." />
+              <div className="flex items-center gap-1">
+                <Input id="vimeo_url" value={formData.vimeo_url} onChange={(e) => handleChange("vimeo_url", e.target.value)} placeholder="https://vimeo.com/..." className="flex-1" />
+                {formData.vimeo_url && <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" onClick={() => handleChange("vimeo_url", "")}><Trash2 className="h-4 w-4" /></Button>}
+              </div>
               <BrokenUrlBadge url={formData.vimeo_url} />
             </div>
           </div>
