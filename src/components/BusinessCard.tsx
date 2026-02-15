@@ -48,10 +48,22 @@ export interface Badge {
   text_color_hex: string | null;
 }
 
+export interface SubcategoryRef {
+  id: string;
+  name_fr: string;
+}
+
+export interface BadgeSubcategoryRef {
+  badge_id: string;
+  subcategory_id: string;
+}
+
 interface BusinessCardProps {
   business: BusinessCardData;
   gammes: Gamme[];
   badges?: Badge[];
+  subcategories?: SubcategoryRef[];
+  badgeSubcategories?: BadgeSubcategoryRef[];
   verifiedLabel: string;
   selectedBusinessId?: string | null;
   onSelectBusiness?: (business: BusinessCardData) => void;
@@ -87,9 +99,29 @@ const getBusinessGamme = (business: BusinessCardData, gammes: Gamme[]): Gamme | 
   return gammes.find(g => g.id === business.gamme_id) || null;
 };
 
-const getBusinessBadge = (business: BusinessCardData, badges: Badge[]): Badge | null => {
-  if (!business.badge_id) return null;
-  return badges.find(b => b.id === business.badge_id) || null;
+const getBusinessBadge = (
+  business: BusinessCardData,
+  badges: Badge[],
+  subcategories?: SubcategoryRef[],
+  badgeSubcategories?: BadgeSubcategoryRef[]
+): Badge | null => {
+  // Priority 1: direct badge_id
+  if (business.badge_id) {
+    return badges.find(b => b.id === business.badge_id) || null;
+  }
+  // Priority 2: resolve via badge_subcategories from business categories
+  if (subcategories && badgeSubcategories && business.categories && business.categories.length > 0) {
+    const matchingSubcatIds = subcategories
+      .filter(s => business.categories!.includes(s.name_fr))
+      .map(s => s.id);
+    if (matchingSubcatIds.length > 0) {
+      const matchingBadgeId = badgeSubcategories.find(bs => matchingSubcatIds.includes(bs.subcategory_id))?.badge_id;
+      if (matchingBadgeId) {
+        return badges.find(b => b.id === matchingBadgeId) || null;
+      }
+    }
+  }
+  return null;
 };
 
 const getCalculatedRating = (business: BusinessCardData): number | null => {
@@ -120,6 +152,8 @@ const BusinessCard = ({
   business,
   gammes,
   badges = [],
+  subcategories,
+  badgeSubcategories,
   verifiedLabel,
   selectedBusinessId,
   onSelectBusiness,
@@ -129,7 +163,7 @@ const BusinessCard = ({
   showAddress = false
 }: BusinessCardProps) => {
   const gamme = getBusinessGamme(business, gammes);
-  const badge = getBusinessBadge(business, badges);
+  const badge = getBusinessBadge(business, badges, subcategories, badgeSubcategories);
   const calculatedRating = getCalculatedRating(business);
   const displayRating = business.rating ?? calculatedRating;
   const totalReviews = getTotalReviewCount(business);

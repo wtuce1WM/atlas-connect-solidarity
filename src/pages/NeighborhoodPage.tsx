@@ -64,6 +64,8 @@ const NeighborhoodPage = () => {
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [gammes, setGammes] = useState<Gamme[]>([]);
   const [badges, setBadges] = useState<Badge[]>([]);
+  const [subcategories, setSubcategories] = useState<{ id: string; name_fr: string }[]>([]);
+  const [badgeSubcategories, setBadgeSubcategories] = useState<{ badge_id: string; subcategory_id: string }[]>([]);
   const [neighborhoods, setNeighborhoods] = useState<string[]>([]);
   const [cities, setCities] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -189,13 +191,16 @@ const NeighborhoodPage = () => {
 
       if (gammesData) setGammes(gammesData);
 
-      // Fetch badges
-      const { data: badgesData } = await supabase
-        .from("badges")
-        .select("id, name_fr, color_hex, text_color_hex")
-        .order("sort_order", { ascending: true });
+      // Fetch badges, subcategories, badge_subcategories
+      const [badgesRes, subcatsRes, badgeSubcatsRes] = await Promise.all([
+        supabase.from("badges").select("id, name_fr, color_hex, text_color_hex").order("sort_order", { ascending: true }),
+        supabase.from("subcategories").select("id, name_fr"),
+        supabase.from("badge_subcategories").select("badge_id, subcategory_id"),
+      ]);
 
-      if (badgesData) setBadges(badgesData);
+      if (badgesRes.data) setBadges(badgesRes.data);
+      if (subcatsRes.data) setSubcategories(subcatsRes.data);
+      if (badgeSubcatsRes.data) setBadgeSubcategories(badgeSubcatsRes.data);
 
       // Fetch all cities for the filter
       const { data: citiesData } = await supabase
@@ -509,7 +514,9 @@ const NeighborhoodPage = () => {
                   key={business.id} 
                   business={business} 
                   gammes={gammes} 
-                  badges={badges}
+                   badges={badges}
+                   subcategories={subcategories}
+                   badgeSubcategories={badgeSubcategories}
                   verifiedLabel="Vérifié"
                   showMapButton
                   onSelectBusiness={handleSelectBusiness}
