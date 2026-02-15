@@ -83,7 +83,7 @@ const RelatedEstablishments = ({ currentBusinessId, kpRegroupement, isVerified =
       </div>
 
       <div className="relative">
-        {relatedBusinesses.length > 2 && (
+        {relatedBusinesses.length > 3 && (
           <>
             <button
               onClick={() => scroll("left")}
@@ -102,8 +102,8 @@ const RelatedEstablishments = ({ currentBusinessId, kpRegroupement, isVerified =
 
         <div
           ref={scrollRef}
-          className="flex gap-4 overflow-x-auto pb-4 scroll-smooth"
-          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          className={`flex gap-4 pb-4 ${relatedBusinesses.length > 3 ? 'overflow-x-auto scroll-smooth' : 'justify-center flex-wrap'}`}
+          style={relatedBusinesses.length > 3 ? { scrollbarWidth: "none", msOverflowStyle: "none" } : undefined}
         >
           {relatedBusinesses.map((business) => (
             <div key={business.id} className="flex-shrink-0 w-72" onClick={() => window.scrollTo(0, 0)}>
