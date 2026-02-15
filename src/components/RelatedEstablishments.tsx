@@ -102,7 +102,7 @@ const RelatedEstablishments = ({ currentBusinessId, kpRegroupement, isVerified =
 
         <div
           ref={scrollRef}
-          className={`flex gap-4 pb-4 ${relatedBusinesses.length > 3 ? 'overflow-x-auto scroll-smooth' : 'justify-center flex-wrap'}`}
+          className={`flex gap-4 pb-4 ${relatedBusinesses.length > 3 ? 'overflow-x-auto scroll-smooth' : 'justify-start flex-wrap'}`}
           style={relatedBusinesses.length > 3 ? { scrollbarWidth: "none", msOverflowStyle: "none" } : undefined}
         >
           {relatedBusinesses.map((business) => (
