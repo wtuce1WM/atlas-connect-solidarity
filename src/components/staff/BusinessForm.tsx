@@ -375,6 +375,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
     vacation_dates: ((business as any)?.vacation_dates || []) as VacationPeriod[],
     hotels_com_url: (business as any)?.hotels_com_url || "",
     trivago_url: (business as any)?.trivago_url || "",
+    getyourguide_url: (business as any)?.getyourguide_url || "",
     tripadvisor_review_url: (business as any)?.tripadvisor_review_url || "",
     tripadvisor_rating: (business as any)?.tripadvisor_rating ?? "",
     tripadvisor_review_count: (business as any)?.tripadvisor_review_count ?? "",
@@ -544,6 +545,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
       vacation_dates: formData.vacation_dates.length > 0 ? JSON.parse(JSON.stringify(formData.vacation_dates)) : [],
       hotels_com_url: formData.hotels_com_url || null,
       trivago_url: formData.trivago_url || null,
+      getyourguide_url: (formData as any).getyourguide_url || null,
       tripadvisor_review_url: (formData as any).tripadvisor_review_url || null,
       tripadvisor_rating: (formData as any).tripadvisor_rating !== "" ? parseFloat((formData as any).tripadvisor_rating) : null,
       tripadvisor_review_count: (formData as any).tripadvisor_review_count !== "" ? parseInt((formData as any).tripadvisor_review_count) : null,
@@ -1543,6 +1545,14 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
               {isBrokenUrl(formData.trivago_url) && <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 animate-pulse" />}
             </div>
             {isBrokenUrl(formData.trivago_url) && <BrokenUrlBadge url={formData.trivago_url} />}
+
+            <div className="flex items-center gap-2">
+              <span>🧭</span>
+              {(formData as any).getyourguide_url ? <a href={(formData as any).getyourguide_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 text-sm font-medium">GetYourGuide ↗</a> : <span className="text-sm font-medium">GetYourGuide</span>}
+              <Input id="getyourguide_url" value={(formData as any).getyourguide_url} onChange={(e) => handleChange("getyourguide_url", e.target.value)} placeholder="https://www.getyourguide.com/..." className="flex-1" />
+              {isBrokenUrl((formData as any).getyourguide_url) && <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 animate-pulse" />}
+            </div>
+            {isBrokenUrl((formData as any).getyourguide_url) && <BrokenUrlBadge url={(formData as any).getyourguide_url} />}
           </div>
           <Button type="button" variant="outline" size="sm" className="text-xs text-muted-foreground hover:text-destructive" onClick={() => setShowClearBooking(true)}>🗑️ Effacer toutes les plateformes</Button>
         </div>
@@ -1958,7 +1968,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Non</AlertDialogCancel>
-            <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={() => { handleChange("reserve_now_url", ""); handleChange("booking_url", ""); handleChange("tripadvisor_url", ""); handleChange("airbnb_url", ""); handleChange("hotels_com_url", ""); handleChange("trivago_url", ""); toast({ title: "Plateformes de réservation effacées" }); }}>Oui, effacer</AlertDialogAction>
+            <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={() => { handleChange("reserve_now_url", ""); handleChange("booking_url", ""); handleChange("tripadvisor_url", ""); handleChange("airbnb_url", ""); handleChange("hotels_com_url", ""); handleChange("trivago_url", ""); handleChange("getyourguide_url", ""); toast({ title: "Plateformes de réservation effacées" }); }}>Oui, effacer</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
