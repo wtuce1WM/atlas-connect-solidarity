@@ -48,7 +48,7 @@ const TopCityBusinesses = ({ businesses, cityName, neighborhoodName, gammes = []
       if (a.wtuce_status === "verified" && b.wtuce_status !== "verified") return -1;
       if (b.wtuce_status === "verified" && a.wtuce_status !== "verified") return 1;
       // Then by rating
-      return (a.rating || 0) - (b.rating || 0);
+      return (b.rating || 0) - (a.rating || 0);
     })
     .slice(0, 10);
 
