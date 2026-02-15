@@ -545,7 +545,7 @@ const BusinessDetail = () => {
               {/* Sous-catégories */}
               {business.categories && business.categories.length > 0 && (
                 <div>
-                  <h2 className={`text-xl font-semibold mb-1 ${isVerified ? 'text-white' : ''}`}>Activité(s)</h2>
+                  
                   <p className={`text-base mb-3 ${isVerified ? 'text-white/60' : 'text-muted-foreground'}`} style={{ fontFamily: "'Raleway', sans-serif" }}>
                     Cliquez ci-dessous pour voir tous les {business.categories[0]} à {business.city}.
                   </p>
