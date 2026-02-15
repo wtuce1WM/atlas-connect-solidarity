@@ -587,7 +587,7 @@ const CityMap = () => {
               {/* Activity Filters */}
               {selectedSubcategory && availableActivities.length > 0 && (
                 <div>
-                  <h3 className="text-base font-semibold text-white mb-2">Activités</h3>
+                  <label className="text-base font-semibold text-white mb-1.5 block">Activités</label>
                   <div className="flex flex-wrap gap-2">
                     {availableActivities.slice(0, 8).map((activity) => (
                       <label
