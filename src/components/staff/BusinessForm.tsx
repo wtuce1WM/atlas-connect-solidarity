@@ -1517,15 +1517,16 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
               <BookingIcon className="text-[#003580]" />
               {formData.booking_url ? <a href={formData.booking_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 text-sm font-medium">Booking.com ↗</a> : <span className="text-sm font-medium">Booking.com</span>}
               <Input id="booking_url" value={formData.booking_url} onChange={(e) => handleChange("booking_url", e.target.value)} placeholder="https://booking.com/hotel/..." className="flex-1" />
+              {formData.booking_url && <Button type="button" variant="ghost" size="sm" className="text-xs px-2 shrink-0" title="Utiliser comme lien Réserver maintenant" onClick={() => { handleChange("reserve_now_url", formData.booking_url); toast({ title: "URL Booking.com → Réserver maintenant" }); }}>→ Réserver</Button>}
               {isBrokenUrl(formData.booking_url) && <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 animate-pulse" />}
             </div>
             {isBrokenUrl(formData.booking_url) && <BrokenUrlBadge url={formData.booking_url} />}
-
 
             <div className="flex items-center gap-2">
               <AirbnbIcon className="text-[#FF5A5F]" />
               {formData.airbnb_url ? <a href={formData.airbnb_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 text-sm font-medium">Airbnb ↗</a> : <span className="text-sm font-medium">Airbnb</span>}
               <Input id="airbnb_url" value={formData.airbnb_url} onChange={(e) => handleChange("airbnb_url", e.target.value)} placeholder="https://airbnb.com/rooms/..." className="flex-1" />
+              {formData.airbnb_url && <Button type="button" variant="ghost" size="sm" className="text-xs px-2 shrink-0" title="Utiliser comme lien Réserver maintenant" onClick={() => { handleChange("reserve_now_url", formData.airbnb_url); toast({ title: "URL Airbnb → Réserver maintenant" }); }}>→ Réserver</Button>}
               {isBrokenUrl(formData.airbnb_url) && <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 animate-pulse" />}
             </div>
             {isBrokenUrl(formData.airbnb_url) && <BrokenUrlBadge url={formData.airbnb_url} />}
@@ -1534,6 +1535,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
               <span>🏨</span>
               {formData.hotels_com_url ? <a href={formData.hotels_com_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 text-sm font-medium">Hotels.com ↗</a> : <span className="text-sm font-medium">Hotels.com</span>}
               <Input id="hotels_com_url" value={formData.hotels_com_url} onChange={(e) => handleChange("hotels_com_url", e.target.value)} placeholder="https://hotels.com/..." className="flex-1" />
+              {formData.hotels_com_url && <Button type="button" variant="ghost" size="sm" className="text-xs px-2 shrink-0" title="Utiliser comme lien Réserver maintenant" onClick={() => { handleChange("reserve_now_url", formData.hotels_com_url); toast({ title: "URL Hotels.com → Réserver maintenant" }); }}>→ Réserver</Button>}
               {isBrokenUrl(formData.hotels_com_url) && <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 animate-pulse" />}
             </div>
             {isBrokenUrl(formData.hotels_com_url) && <BrokenUrlBadge url={formData.hotels_com_url} />}
@@ -1542,6 +1544,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
               <span>🔍</span>
               {formData.trivago_url ? <a href={formData.trivago_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 text-sm font-medium">Trivago ↗</a> : <span className="text-sm font-medium">Trivago</span>}
               <Input id="trivago_url" value={formData.trivago_url} onChange={(e) => handleChange("trivago_url", e.target.value)} placeholder="https://trivago.com/..." className="flex-1" />
+              {formData.trivago_url && <Button type="button" variant="ghost" size="sm" className="text-xs px-2 shrink-0" title="Utiliser comme lien Réserver maintenant" onClick={() => { handleChange("reserve_now_url", formData.trivago_url); toast({ title: "URL Trivago → Réserver maintenant" }); }}>→ Réserver</Button>}
               {isBrokenUrl(formData.trivago_url) && <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 animate-pulse" />}
             </div>
             {isBrokenUrl(formData.trivago_url) && <BrokenUrlBadge url={formData.trivago_url} />}
@@ -1550,6 +1553,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
               <span>🧭</span>
               {(formData as any).getyourguide_url ? <a href={(formData as any).getyourguide_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 text-sm font-medium">GetYourGuide ↗</a> : <span className="text-sm font-medium">GetYourGuide</span>}
               <Input id="getyourguide_url" value={(formData as any).getyourguide_url} onChange={(e) => handleChange("getyourguide_url", e.target.value)} placeholder="https://www.getyourguide.com/..." className="flex-1" />
+              {(formData as any).getyourguide_url && <Button type="button" variant="ghost" size="sm" className="text-xs px-2 shrink-0" title="Utiliser comme lien Réserver maintenant" onClick={() => { handleChange("reserve_now_url", (formData as any).getyourguide_url); toast({ title: "URL GetYourGuide → Réserver maintenant" }); }}>→ Réserver</Button>}
               {isBrokenUrl((formData as any).getyourguide_url) && <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 animate-pulse" />}
             </div>
             {isBrokenUrl((formData as any).getyourguide_url) && <BrokenUrlBadge url={(formData as any).getyourguide_url} />}
