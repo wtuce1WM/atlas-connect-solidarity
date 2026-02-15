@@ -549,8 +549,8 @@ const CityMap = () => {
                   </div>
                 )}
 
-                {/* Standing (Gamme) Filter - Only show when category is selected */}
-                {selectedCategory && (
+                {/* Standing (Gamme) Filter */}
+                {filteredGammes.length > 0 && (
                 <div className="flex-1 min-w-[140px]">
                   <label className="text-base font-semibold text-white mb-1.5 block">Standing</label>
                   <Select value={selectedGamme || "all"} onValueChange={(v) => setSelectedGamme(v === "all" ? "" : v)}>
@@ -584,8 +584,8 @@ const CityMap = () => {
                 </button>
               )}
 
-              {/* Activity Filters - Only show when category is selected */}
-              {selectedCategory && availableActivities.length > 0 && (
+              {/* Activity Filters */}
+              {availableActivities.length > 0 && (
                 <div>
                   <h3 className="text-base font-semibold text-white mb-2">Activités</h3>
                   <div className="flex flex-wrap gap-2">
