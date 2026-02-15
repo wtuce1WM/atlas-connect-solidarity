@@ -160,46 +160,32 @@ const ImageUploader = ({
   const [imageSizes, setImageSizes] = useState<Record<string, number>>({});
   const { toast } = useToast();
 
-  // Fetch file sizes via HEAD requests
+  // Fetch file sizes and check broken URLs in one pass
   useEffect(() => {
     if (!images || images.length === 0) {
       setImageSizes({});
-      return;
-    }
-    const fetchSizes = async () => {
-      const sizes: Record<string, number> = {};
-      await Promise.all(
-        images.map(async (url) => {
-          try {
-            const res = await fetch(url);
-            const blob = await res.blob();
-            sizes[url] = blob.size;
-          } catch { /* ignore */ }
-        })
-      );
-      setImageSizes(sizes);
-    };
-    fetchSizes();
-  }, [images]);
-
-  // Check for broken image URLs
-  useEffect(() => {
-    if (!images || images.length === 0) {
       setBrokenUrls(new Set());
       return;
     }
 
-    const checkImages = async () => {
+    let mounted = true;
+
+    const checkAll = async () => {
+      const sizes: Record<string, number> = {};
       const broken = new Set<string>();
+
       await Promise.all(
         images.map(async (url) => {
           try {
-            const response = await fetch(url, { method: "HEAD" });
-            if (!response.ok) {
+            const res = await fetch(url);
+            if (!res.ok) {
               broken.add(url);
+              return;
             }
+            const blob = await res.blob();
+            sizes[url] = blob.size;
           } catch {
-            // Try loading as image
+            // Try loading as image for broken check
             await new Promise<void>((resolve) => {
               const img = new Image();
               img.onload = () => resolve();
@@ -212,10 +198,16 @@ const ImageUploader = ({
           }
         })
       );
-      setBrokenUrls(broken);
+
+      if (mounted) {
+        setImageSizes(sizes);
+        setBrokenUrls(broken);
+      }
     };
 
-    checkImages();
+    checkAll();
+
+    return () => { mounted = false; };
   }, [images]);
 
   const sensors = useSensors(
