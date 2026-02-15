@@ -510,7 +510,7 @@ const BusinessDetail = () => {
               {business.description && (
                 <div>
                   <div 
-                    className={`leading-relaxed prose max-w-none prose-headings:font-bold prose-h2:text-xl prose-h3:text-lg prose-a:text-primary [&_p:empty]:min-h-[1em] [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:ml-0 [&_li>p]:mb-0 max-h-[400px] overflow-y-auto ${isVerified ? 'text-white/80 prose-headings:text-white' : 'text-muted-foreground prose-headings:text-foreground'}`}
+                    className={`leading-relaxed prose max-w-none prose-headings:font-bold prose-h2:text-xl prose-h3:text-lg prose-a:text-primary [&_p:empty]:min-h-[1em] [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:ml-0 [&_li>p]:mb-0 max-h-[400px] overflow-y-auto ${isVerified ? 'text-white/80 prose-headings:text-white prose-strong:text-white prose-bold:text-white' : 'text-muted-foreground prose-headings:text-foreground'}`}
                     dangerouslySetInnerHTML={{ __html: business.description }}
                   />
                 </div>
