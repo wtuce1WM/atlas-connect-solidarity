@@ -28,14 +28,43 @@ interface ImageUploaderProps {
   businessId?: string;
 }
 
+interface ImageMeta {
+  size?: number;
+  path?: string;
+  extension?: string;
+}
+
 interface SortableImageProps {
   url: string;
   index: number;
   onRemove: (index: number) => void;
   isBroken?: boolean;
+  meta?: ImageMeta;
 }
 
-const SortableImage = ({ url, index, onRemove, isBroken = false }: SortableImageProps) => {
+const formatFileSize = (bytes: number) => {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+};
+
+const extractPathInfo = (url: string): { path: string; extension: string } => {
+  try {
+    const u = new URL(url);
+    const pathname = u.pathname;
+    const parts = pathname.split("/");
+    const filename = parts[parts.length - 1] || "";
+    const ext = filename.includes(".") ? filename.split(".").pop()?.toUpperCase() || "" : "";
+    // Show bucket-relative path
+    const bucketIdx = parts.indexOf("business-images");
+    const relativePath = bucketIdx >= 0 ? parts.slice(bucketIdx + 1).join("/") : filename;
+    return { path: relativePath, extension: ext };
+  } catch {
+    return { path: url.slice(-30), extension: "" };
+  }
+};
+
+const SortableImage = ({ url, index, onRemove, isBroken = false, meta }: SortableImageProps) => {
   const {
     attributes,
     listeners,
@@ -97,6 +126,18 @@ const SortableImage = ({ url, index, onRemove, isBroken = false }: SortableImage
       <div className="absolute bottom-2 left-2 px-2 py-0.5 bg-black/60 text-white text-xs rounded">
         {index + 1}
       </div>
+
+      {/* Metadata overlay */}
+      {(() => {
+        const info = extractPathInfo(url);
+        return (
+          <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-[9px] leading-tight p-1.5 opacity-0 group-hover:opacity-100 transition-opacity overflow-hidden">
+            <p className="truncate" title={info.path}>📁 {info.path}</p>
+            {info.extension && <span className="mr-2">📄 {info.extension}</span>}
+            {meta?.size != null && <span>⚖️ {formatFileSize(meta.size)}</span>}
+          </div>
+        );
+      })()}
     </div>
   );
 };
@@ -109,7 +150,30 @@ const ImageUploader = ({
 }: ImageUploaderProps) => {
   const [uploading, setUploading] = useState(false);
   const [brokenUrls, setBrokenUrls] = useState<Set<string>>(new Set());
+  const [imageSizes, setImageSizes] = useState<Record<string, number>>({});
   const { toast } = useToast();
+
+  // Fetch file sizes via HEAD requests
+  useEffect(() => {
+    if (!images || images.length === 0) {
+      setImageSizes({});
+      return;
+    }
+    const fetchSizes = async () => {
+      const sizes: Record<string, number> = {};
+      await Promise.all(
+        images.map(async (url) => {
+          try {
+            const res = await fetch(url, { method: "HEAD" });
+            const cl = res.headers.get("content-length");
+            if (cl) sizes[url] = parseInt(cl, 10);
+          } catch { /* ignore */ }
+        })
+      );
+      setImageSizes(sizes);
+    };
+    fetchSizes();
+  }, [images]);
 
   // Check for broken image URLs
   useEffect(() => {
@@ -294,6 +358,7 @@ const ImageUploader = ({
                   index={index}
                   onRemove={handleRemoveImage}
                   isBroken={brokenUrls.has(url)}
+                  meta={{ size: imageSizes[url] }}
                 />
               ))}
             </div>
