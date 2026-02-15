@@ -185,7 +185,7 @@ const CityMap = () => {
       filtered = filtered.filter((b) => b.categories?.includes(selectedSubcategory));
     }
     const gammeIdsWithResults = new Set(filtered.map((b) => b.gamme_id).filter(Boolean));
-    return allowed.filter((g) => gammeIdsWithResults.has(g.id));
+    return allowed.filter((g) => gammeIdsWithResults.has(g.id)).sort((a, b) => (a.sort_order ?? 9999) - (b.sort_order ?? 9999));
   }, [gammes, gammeCategories, categoryIdMap, selectedCategory, selectedSubcategory, businesses]);
 
   const getCalcRating = (b: Business): number | null => {
@@ -300,7 +300,7 @@ const CityMap = () => {
       // Fetch gammes
       const { data: gammesData } = await supabase
         .from("gammes")
-        .select("id, name_fr, color_hex, text_color_hex")
+        .select("id, name_fr, color_hex, text_color_hex, sort_order")
         .order("sort_order", { ascending: true });
 
       if (gammesData) {

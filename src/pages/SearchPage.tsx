@@ -123,7 +123,7 @@ const SearchPage = () => {
   // Fetch gammes, badges, subcategories, badge_subcategories on mount
   useEffect(() => {
     Promise.all([
-      supabase.from("gammes").select("id, name_fr, color_hex, text_color_hex"),
+      supabase.from("gammes").select("id, name_fr, color_hex, text_color_hex, sort_order"),
       supabase.from("badges").select("id, name_fr, color_hex, text_color_hex").order("sort_order", { ascending: true }),
       supabase.from("subcategories").select("id, name_fr"),
       supabase.from("badge_subcategories").select("badge_id, subcategory_id"),
