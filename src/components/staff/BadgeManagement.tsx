@@ -70,7 +70,7 @@ const BadgeManagement = ({ onEditBusiness }: BadgeManagementProps) => {
   const fetchData = async () => {
     setLoading(true);
     const [badgesRes, subcatsRes, badgeSubcatsRes, businessesRes, categoriesRes] = await Promise.all([
-      supabase.from("badges").select("*").order("sort_order", { ascending: true }),
+      supabase.from("badges").select("*").order("name_fr", { ascending: true }),
       supabase.from("subcategories").select("id, name_fr, category_id").order("name_fr"),
       supabase.from("badge_subcategories").select("badge_id, subcategory_id"),
       supabase.from("businesses").select("id, name, city, badge_id").not("badge_id", "is", null),
