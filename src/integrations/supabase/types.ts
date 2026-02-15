@@ -174,7 +174,7 @@ export type Database = {
           airbnb_url: string | null
           booking_url: string | null
           categories: string[] | null
-          city: string
+          city: string | null
           country: string | null
           created_at: string
           default_service: string | null
@@ -257,7 +257,7 @@ export type Database = {
           airbnb_url?: string | null
           booking_url?: string | null
           categories?: string[] | null
-          city: string
+          city?: string | null
           country?: string | null
           created_at?: string
           default_service?: string | null
@@ -340,7 +340,7 @@ export type Database = {
           airbnb_url?: string | null
           booking_url?: string | null
           categories?: string[] | null
-          city?: string
+          city?: string | null
           country?: string | null
           created_at?: string
           default_service?: string | null
