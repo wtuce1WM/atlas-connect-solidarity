@@ -498,6 +498,16 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
       return;
     }
 
+    // Region is required if a city is selected
+    if (formData.city && !formData.region) {
+      toast({
+        variant: "destructive",
+        title: "Région obligatoire",
+        description: "Veuillez sélectionner une région lorsqu'une ville est choisie.",
+      });
+      return;
+    }
+
     setLoading(true);
 
     const businessData = {
@@ -1024,20 +1034,26 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
             <div className="space-y-2 md:col-span-1">
               <Label htmlFor="city_top">Ville</Label>
               <Select
-                value={formData.city}
+                value={formData.city || "__none__"}
                 onValueChange={(value) => {
-                  handleChange("city", value);
-                  const selectedCity = dbCities.find(c => c.name_fr === value);
-                  if (selectedCity?.region) {
-                    handleChange("region", selectedCity.region);
+                  if (value === "__none__") {
+                    handleChange("city", "");
+                    handleChange("neighborhood", "");
+                  } else {
+                    handleChange("city", value);
+                    const selectedCity = dbCities.find(c => c.name_fr === value);
+                    if (selectedCity?.region) {
+                      handleChange("region", selectedCity.region);
+                    }
+                    handleChange("neighborhood", "");
                   }
-                  handleChange("neighborhood", "");
                 }}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Ville..." />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="__none__">— Aucune —</SelectItem>
                   {dbCities.map((city) => (
                     <SelectItem key={city.id} value={city.name_fr}>
                       {city.name_fr}
@@ -1047,7 +1063,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
               </Select>
             </div>
             <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="region_top">Région</Label>
+              <Label htmlFor="region_top">Région{formData.city ? " *" : ""}</Label>
               <Select
                 value={formData.region}
                 onValueChange={(value) => handleChange("region", value)}
@@ -1419,7 +1435,6 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
             onChange={setBusinessLabels}
           />
           </div>
-
 
         {/* Social Media */}
         <div className="space-y-4 p-4 bg-orange-50 border border-orange-200 rounded-lg">
