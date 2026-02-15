@@ -6,7 +6,7 @@ import LanguageSwitcher from "./LanguageSwitcher";
 import logoGold from "@/assets/logoGOLDsimpleSML.webp";
 
 interface HeaderProps {
-  variant?: "default" | "morocco";
+  variant?: "default" | "morocco" | "city";
 }
 
 const Header = ({ variant = "default" }: HeaderProps) => {
@@ -17,19 +17,24 @@ const Header = ({ variant = "default" }: HeaderProps) => {
 
   const headerBg = variant === "morocco" 
     ? "bg-gradient-to-b from-morocco-red to-morocco-red/80 backdrop-blur-sm" 
-    : "bg-black/80 backdrop-blur-md";
+    : variant === "city"
+      ? "bg-transparent"
+      : "bg-black/80 backdrop-blur-md";
+
+  const textColor = variant === "city" ? "text-black" : "text-white";
+  const logoSecondary = variant === "city" ? "text-black" : "text-white";
 
   return <header className={`fixed left-0 right-0 top-0 z-50 ${headerBg}`}>
       <div className="container mx-auto flex items-center justify-between px-4 py-4">
         {/* Logo */}
         <a href="/" className="flex items-center gap-2">
           <img src={logoGold} alt="WTUCEMA Logo" className="h-10 w-10 object-contain" />
-          <span className="text-xl font-bold tracking-tight"><span className="text-gold">ONE WORLD</span> <span className="text-white">MOROCCO</span>
+          <span className="text-xl font-bold tracking-tight"><span className="text-gold">ONE WORLD</span> <span className={logoSecondary}>MOROCCO</span>
           </span>
         </a>
 
         {/* Menu Button - All screen sizes */}
-        <button className="text-white" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+        <button className={textColor} onClick={() => setIsMenuOpen(!isMenuOpen)}>
           {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
       </div>
