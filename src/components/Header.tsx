@@ -18,11 +18,11 @@ const Header = ({ variant = "default" }: HeaderProps) => {
   const headerBg = variant === "morocco" 
     ? "bg-gradient-to-b from-morocco-red to-morocco-red/80 backdrop-blur-sm" 
     : variant === "city"
-      ? "bg-transparent"
+      ? (isMenuOpen ? "bg-black" : "bg-transparent")
       : "bg-black/80 backdrop-blur-md";
 
-  const textColor = variant === "city" ? "text-black" : "text-white";
-  const logoSecondary = variant === "city" ? "text-black" : "text-white";
+  const textColor = variant === "city" && !isMenuOpen ? "text-black" : "text-white";
+  const logoSecondary = variant === "city" && !isMenuOpen ? "text-black" : "text-white";
 
   return <header className={`fixed left-0 right-0 top-0 z-50 ${headerBg}`}>
       <div className="container mx-auto flex items-center justify-between px-4 py-4">
