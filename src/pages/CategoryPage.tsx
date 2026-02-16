@@ -86,6 +86,7 @@ const CategoryPage = () => {
   
   const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const [sortMode, setSortMode] = useState<"rating" | "reviews">("rating");
   const [gammes, setGammes] = useState<Gamme[]>([]);
   const [badges, setBadges] = useState<Badge[]>([]);
   const [subcategories, setSubcategories] = useState<{ id: string; name_fr: string }[]>([]);
@@ -167,8 +168,13 @@ const CategoryPage = () => {
       );
     }
     
-    // Sort by effective rating (highest first), businesses without rating go last
+    // Sort based on sortMode
     result = [...result].sort((a, b) => {
+      if (sortMode === "reviews") {
+        const countA = (a.google_review_count || 0) + (a.tripadvisor_review_count || 0) + (a.restaurant_guru_review_count || 0);
+        const countB = (b.google_review_count || 0) + (b.tripadvisor_review_count || 0) + (b.restaurant_guru_review_count || 0);
+        return countB - countA;
+      }
       const rA = getEffectiveRating(a);
       const rB = getEffectiveRating(b);
       if (rA === null && rB === null) return 0;
@@ -178,7 +184,7 @@ const CategoryPage = () => {
     });
     
     return result;
-  }, [allBusinesses, selectedCity, selectedSubcategories, selectedServices]);
+  }, [allBusinesses, selectedCity, selectedSubcategories, selectedServices, sortMode]);
 
   // Paginate
   const totalPages = Math.ceil(filteredBusinesses.length / ITEMS_PER_PAGE);
@@ -563,10 +569,30 @@ const CategoryPage = () => {
             </div>
           ) : (
             <>
-              {/* Results count + Grid */}
-              <h2 className={`text-lg font-semibold ${textClass} mb-3`}>
-                {t.establishments} ({filteredBusinesses.length})
-              </h2>
+              {/* Results count + Sort */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
+                <h2 className={`text-lg font-semibold ${textClass}`}>
+                  {t.establishments} ({filteredBusinesses.length})
+                </h2>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant={sortMode === "rating" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setSortMode("rating")}
+                    className="text-xs"
+                  >
+                    {language === "fr" ? "Tri par note" : language === "ar" ? "ترتيب حسب التقييم" : "Sort by rating"}
+                  </Button>
+                  <Button
+                    variant={sortMode === "reviews" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setSortMode("reviews")}
+                    className="text-xs"
+                  >
+                    {language === "fr" ? "Tri par avis" : language === "ar" ? "ترتيب حسب التعليقات" : "Sort by reviews"}
+                  </Button>
+                </div>
+              </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {paginatedBusinesses.map((business) => (
                   <BusinessCard
