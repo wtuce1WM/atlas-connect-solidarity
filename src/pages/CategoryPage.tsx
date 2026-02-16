@@ -781,7 +781,7 @@ const CategoryPage = () => {
         </div>
       </section>
 
-      <DynamicLabelSections pageType="category" lightMode={true} />
+      <DynamicLabelSections pageType="category" lightMode={true} categoryId={categoryInfo?.id} />
 
       <Footer />
     </div>
