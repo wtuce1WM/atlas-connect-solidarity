@@ -1344,7 +1344,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="space-y-2">
               <Label htmlFor="whatsapp_top" className="flex items-center gap-2">
                 <WhatsAppIcon className="text-[#25D366]" />
@@ -1355,6 +1355,18 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                 value={formData.whatsapp}
                 onChange={(e) => handleChange("whatsapp", e.target.value)}
                 placeholder="+212 6XX-XXXXXX"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="skype_top" className="flex items-center gap-2">
+                <SkypeIcon className="text-[#00AFF0]" />
+                Skype
+              </Label>
+              <Input
+                id="skype_top"
+                value={formData.skype}
+                onChange={(e) => handleChange("skype", e.target.value)}
+                placeholder="identifiant.skype"
               />
             </div>
             <div className="space-y-2">
@@ -1373,18 +1385,6 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                 value={formData.email}
                 onChange={(e) => handleChange("email", e.target.value)}
                 placeholder="contact@exemple.com"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="skype_top" className="flex items-center gap-2">
-                <SkypeIcon className="text-[#00AFF0]" />
-                Skype
-              </Label>
-              <Input
-                id="skype_top"
-                value={formData.skype}
-                onChange={(e) => handleChange("skype", e.target.value)}
-                placeholder="identifiant.skype"
               />
             </div>
           </div>
