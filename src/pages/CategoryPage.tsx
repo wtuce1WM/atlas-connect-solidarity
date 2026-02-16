@@ -18,6 +18,7 @@ import { Loader2, MapPin, Building2, ChevronLeft, ChevronRight, X, ArrowLeft, Sl
 import MapBusinessInfoCard from "@/components/MapBusinessInfoCard";
 import DynamicIcon from "@/components/DynamicIcon";
 import AnimatedBusinessStrip from "@/components/AnimatedBusinessStrip";
+import heroBackground from "@/assets/hero-marrakech.jpg";
 
 import BusinessCard, { Gamme, Badge } from "@/components/BusinessCard";
 import DynamicLabelSections from "@/components/DynamicLabelSections";
@@ -472,17 +473,21 @@ const CategoryPage = () => {
       <Header />
       
       {/* Hero Section */}
-      <section className={`${bgClass} pt-28 pb-8 lg:pb-16 relative overflow-hidden`}>
+      <section className="pt-28 pb-8 lg:pb-16 relative overflow-hidden">
+        <div className="absolute inset-0">
+          <img src={heroBackground} alt="" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-black/70" />
+        </div>
         <div className="container mx-auto px-4 relative z-10">
           <button
             onClick={() => navigate(-1)}
-            className={`inline-flex items-center gap-2 ${textMutedClass} hover:text-gold mb-4 transition-colors text-sm`}
+            className="inline-flex items-center gap-2 text-white/80 hover:text-gold mb-4 transition-colors text-sm"
           >
             <ArrowLeft className="h-4 w-4" />
             Retour
           </button>
           <div>
-            <h1 className={`text-3xl font-bold ${textClass} flex items-center gap-3`}>
+            <h1 className="text-3xl font-bold text-white flex items-center gap-3">
               {categoryInfo?.icon ? (
                 <DynamicIcon name={categoryInfo.icon} className="h-8 w-8 text-gold" fallback={<Building2 className="h-8 w-8 text-gold" />} />
               ) : (
@@ -490,7 +495,7 @@ const CategoryPage = () => {
               )}
               {getCategoryName()}
             </h1>
-            <p className={`${textMutedClass} mt-2`}>
+            <p className="text-white/80 mt-2">
               <span className="text-gold font-semibold">{filteredBusinesses.length}</span> {t.establishments} {t.inCategory}
             </p>
           </div>
