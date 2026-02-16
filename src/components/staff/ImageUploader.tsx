@@ -39,6 +39,7 @@ interface SortableImageProps {
   url: string;
   index: number;
   onRemove: (index: number) => void;
+  onPreview: (url: string) => void;
   isBroken?: boolean;
   meta?: ImageMeta;
 }
@@ -65,7 +66,7 @@ const extractPathInfo = (url: string): { path: string; extension: string } => {
   }
 };
 
-const SortableImage = ({ url, index, onRemove, isBroken = false, meta }: SortableImageProps) => {
+const SortableImage = ({ url, index, onRemove, onPreview, isBroken = false, meta }: SortableImageProps) => {
   const {
     attributes,
     listeners,
@@ -93,7 +94,8 @@ const SortableImage = ({ url, index, onRemove, isBroken = false, meta }: Sortabl
       <img
         src={url}
         alt={`Image ${index + 1}`}
-        className="w-full h-full object-cover"
+        className="w-full h-full object-cover cursor-pointer"
+        onClick={() => onPreview(url)}
       />
       
       {/* Broken image warning */}
@@ -159,6 +161,7 @@ const ImageUploader = ({
   const [uploading, setUploading] = useState(false);
   const [brokenUrls, setBrokenUrls] = useState<Set<string>>(new Set());
   const [imageSizes, setImageSizes] = useState<Record<string, number | null>>({});
+  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   const { toast } = useToast();
 
   // Fetch file sizes and check broken URLs in one pass
@@ -357,6 +360,7 @@ const ImageUploader = ({
                   url={url}
                   index={index}
                   onRemove={handleRemoveImage}
+                  onPreview={setLightboxUrl}
                   isBroken={brokenUrls.has(url)}
                   meta={{ size: imageSizes[url], sizeChecked: url in imageSizes }}
                 />
@@ -449,6 +453,28 @@ const ImageUploader = ({
           {images.length > 12 && (
             <p className="text-destructive font-medium">🚫 {images.length - 12} image{images.length - 12 > 1 ? 's' : ''} en trop — la sauvegarde sera bloquée tant que le nombre dépasse 12.</p>
           )}
+        </div>
+      )}
+
+      {/* Lightbox */}
+      {lightboxUrl && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 cursor-pointer"
+          onClick={() => setLightboxUrl(null)}
+        >
+          <button
+            type="button"
+            className="absolute top-4 right-4 p-2 bg-white/20 hover:bg-white/40 rounded-full text-white transition-colors"
+            onClick={() => setLightboxUrl(null)}
+          >
+            <X className="h-6 w-6" />
+          </button>
+          <img
+            src={lightboxUrl}
+            alt="Preview"
+            className="max-w-[90vw] max-h-[90vh] object-contain rounded-lg"
+            onClick={(e) => e.stopPropagation()}
+          />
         </div>
       )}
     </div>
