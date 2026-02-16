@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { X, Loader2, Image as ImageIcon, GripVertical, AlertTriangle } from "lucide-react";
+import { X, Loader2, Image as ImageIcon, GripVertical, AlertTriangle, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   DndContext,
@@ -487,6 +487,42 @@ const ImageUploader = ({
           >
             <X className="h-6 w-6" />
           </button>
+
+          {/* Previous */}
+          {images.indexOf(lightboxUrl) > 0 && (
+            <button
+              type="button"
+              className="absolute left-4 p-2 bg-white/20 hover:bg-white/40 rounded-full text-white transition-colors"
+              onClick={(e) => {
+                e.stopPropagation();
+                const idx = images.indexOf(lightboxUrl);
+                setLightboxUrl(images[idx - 1]);
+              }}
+            >
+              <ChevronLeft className="h-8 w-8" />
+            </button>
+          )}
+
+          {/* Next */}
+          {images.indexOf(lightboxUrl) < images.length - 1 && (
+            <button
+              type="button"
+              className="absolute right-4 p-2 bg-white/20 hover:bg-white/40 rounded-full text-white transition-colors"
+              onClick={(e) => {
+                e.stopPropagation();
+                const idx = images.indexOf(lightboxUrl);
+                setLightboxUrl(images[idx + 1]);
+              }}
+            >
+              <ChevronRight className="h-8 w-8" />
+            </button>
+          )}
+
+          {/* Counter */}
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-3 py-1 bg-black/60 text-white text-sm rounded-full">
+            {images.indexOf(lightboxUrl) + 1} / {images.length}
+          </div>
+
           <img
             src={lightboxUrl}
             alt="Preview"
