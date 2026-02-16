@@ -745,7 +745,7 @@ const ServicePage = () => {
         </div>
       </section>
 
-      <DynamicLabelSections pageType="service" />
+      <DynamicLabelSections pageType="service" lightMode />
       <Footer variant="morocco" />
     </div>
   );
