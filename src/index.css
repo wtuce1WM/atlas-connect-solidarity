@@ -137,13 +137,6 @@ h3 {
   font-family: 'Raleway', sans-serif;
 }
 
-/* TEMPORAIRE - Debug headings */
-h2 {
-  background-color: hsl(120 60% 85%) !important;
-}
-h3 {
-  background-color: hsl(30 100% 85%) !important;
-}
  
  /* Arabic font support */
  .font-arabic {
