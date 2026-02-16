@@ -591,8 +591,8 @@ const CategoryPage = () => {
                     onClick={() => { if (sortMode === "rating") setSortAsc(!sortAsc); else { setSortMode("rating"); setSortAsc(false); } }}
                     className="text-xs"
                   >
-                    {language === "fr" ? "Tri par note" : language === "ar" ? "ترتيب حسب التقييم" : "Sort by rating"}
-                    {sortMode === "rating" && (sortAsc ? " ↑" : " ↓")}
+                    <span className="mr-1">↑↓</span>
+                    {language === "fr" ? "Trier par note" : language === "ar" ? "ترتيب حسب التقييم" : "Sort by rating"}
                   </Button>
                   <Button
                     variant={sortMode === "reviews" ? "default" : "outline"}
@@ -600,8 +600,8 @@ const CategoryPage = () => {
                     onClick={() => { if (sortMode === "reviews") setSortAsc(!sortAsc); else { setSortMode("reviews"); setSortAsc(false); } }}
                     className="text-xs"
                   >
-                    {language === "fr" ? "Tri par avis" : language === "ar" ? "ترتيب حسب التعليقات" : "Sort by reviews"}
-                    {sortMode === "reviews" && (sortAsc ? " ↑" : " ↓")}
+                    <span className="mr-1">↑↓</span>
+                    {language === "fr" ? "Trier par avis" : language === "ar" ? "ترتيب حسب التعليقات" : "Sort by reviews"}
                   </Button>
                 </div>
               </div>
