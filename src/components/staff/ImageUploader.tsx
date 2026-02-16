@@ -33,6 +33,8 @@ interface ImageMeta {
   sizeChecked?: boolean;
   path?: string;
   extension?: string;
+  width?: number | null;
+  height?: number | null;
 }
 
 interface SortableImageProps {
@@ -125,14 +127,21 @@ const SortableImage = ({ url, index, onRemove, onPreview, isBroken = false, meta
         <X className="h-4 w-4" />
       </button>
       
-      {/* Index badge + file size */}
+      {/* Index badge + dimensions + file size */}
       <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
         <span className="px-2 py-0.5 bg-black/60 text-white text-xs rounded">
           {index + 1}
         </span>
-        <span className="px-2 py-0.5 bg-black/60 text-white text-xs rounded">
-          {typeof meta?.size === 'number' ? formatFileSize(meta.size) : meta?.sizeChecked ? "ext." : "…"}
-        </span>
+        <div className="flex gap-1">
+          {meta?.width && meta?.height && (
+            <span className="px-2 py-0.5 bg-black/60 text-white text-xs rounded">
+              {meta.width}×{meta.height}
+            </span>
+          )}
+          <span className="px-2 py-0.5 bg-black/60 text-white text-xs rounded">
+            {typeof meta?.size === 'number' ? formatFileSize(meta.size) : meta?.sizeChecked ? "ext." : "…"}
+          </span>
+        </div>
       </div>
 
       {/* Metadata overlay */}
@@ -141,8 +150,9 @@ const SortableImage = ({ url, index, onRemove, onPreview, isBroken = false, meta
         return (
           <div className="absolute bottom-0 left-0 right-0 bg-black/80 text-white text-xs leading-relaxed p-2 opacity-0 group-hover:opacity-100 transition-opacity overflow-hidden space-y-0.5">
             <p className="truncate font-medium" title={info.path}>📁 {info.path}</p>
-            <div className="flex gap-3">
+            <div className="flex gap-3 flex-wrap">
               {info.extension && <span>📄 {info.extension}</span>}
+              {meta?.width && meta?.height && <span>📐 {meta.width}×{meta.height}</span>}
               <span>⚖️ {typeof meta?.size === 'number' ? formatFileSize(meta.size) : meta?.sizeChecked ? "ext." : "…"}</span>
             </div>
           </div>
@@ -161,6 +171,7 @@ const ImageUploader = ({
   const [uploading, setUploading] = useState(false);
   const [brokenUrls, setBrokenUrls] = useState<Set<string>>(new Set());
   const [imageSizes, setImageSizes] = useState<Record<string, number | null>>({});
+  const [imageDims, setImageDims] = useState<Record<string, { w: number; h: number } | null>>({});
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   const { toast } = useToast();
 
@@ -168,6 +179,7 @@ const ImageUploader = ({
   useEffect(() => {
     if (!images || images.length === 0) {
       setImageSizes({});
+      setImageDims({});
       setBrokenUrls(new Set());
       return;
     }
@@ -176,35 +188,41 @@ const ImageUploader = ({
 
     const checkAll = async () => {
       const sizes: Record<string, number | null> = {};
+      const dims: Record<string, { w: number; h: number } | null> = {};
       const broken = new Set<string>();
 
       await Promise.all(
         images.map(async (url) => {
+          // Load dimensions via <img>
+          const dimPromise = new Promise<{ w: number; h: number } | null>((resolve) => {
+            const img = new window.Image();
+            img.onload = () => resolve({ w: img.naturalWidth, h: img.naturalHeight });
+            img.onerror = () => resolve(null);
+            img.src = url;
+          });
+
           try {
             const res = await fetch(url);
             if (!res.ok) {
               broken.add(url);
               sizes[url] = null;
+              dims[url] = await dimPromise;
               return;
             }
             const blob = await res.blob();
             sizes[url] = blob.size;
           } catch {
-            // CORS or network error — check if image loads via <img> tag
-            const imgOk = await new Promise<boolean>((resolve) => {
-              const img = new Image();
-              img.onload = () => resolve(true);
-              img.onerror = () => resolve(false);
-              img.src = url;
-            });
-            if (!imgOk) broken.add(url);
-            sizes[url] = null; // size unavailable (CORS)
+            const imgResult = await dimPromise;
+            if (!imgResult) broken.add(url);
+            sizes[url] = null;
           }
+          dims[url] = await dimPromise;
         })
       );
 
       if (mounted) {
         setImageSizes(sizes);
+        setImageDims(dims);
         setBrokenUrls(broken);
       }
     };
@@ -362,7 +380,7 @@ const ImageUploader = ({
                   onRemove={handleRemoveImage}
                   onPreview={setLightboxUrl}
                   isBroken={brokenUrls.has(url)}
-                  meta={{ size: imageSizes[url], sizeChecked: url in imageSizes }}
+                  meta={{ size: imageSizes[url], sizeChecked: url in imageSizes, width: imageDims[url]?.w, height: imageDims[url]?.h }}
                 />
               ))}
             </div>
