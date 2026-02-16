@@ -556,12 +556,12 @@ const ServicePage = () => {
                     ];
                     const colorClass = colors[index % colors.length];
                     return (
-                      <Link
+                      <button
                         key={city}
-                        to={`/city/${encodeURIComponent(city)}`}
+                        onClick={() => handleCityChange(city)}
                         className="flex-shrink-0"
                       >
-                        <Card className={`group w-56 overflow-hidden transition-all hover:shadow-lg hover:scale-105 border ${colorClass}`}>
+                        <Card className={`group w-56 overflow-hidden transition-all hover:shadow-lg hover:scale-105 border ${selectedCity === city ? "ring-2 ring-gold" : ""} ${colorClass}`}>
                           <CardContent className="p-4">
                             <div className="flex items-center gap-3 mb-2">
                               <div className={`rounded-full p-2 ${colorClass}`}>
@@ -575,7 +575,7 @@ const ServicePage = () => {
                             </div>
                           </CardContent>
                         </Card>
-                      </Link>
+                      </button>
                     );
                   })}
                 </div>
