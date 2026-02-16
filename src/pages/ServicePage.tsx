@@ -595,8 +595,8 @@ const ServicePage = () => {
 
           {/* Google Maps */}
           <div id="service-map" className="scroll-mt-24" />
-          <Card className="mb-8 relative">
-            <CardContent className="p-0">
+          <Card className="mb-8 relative overflow-hidden h-[400px]">
+            <CardContent className="p-0 relative h-full">
               {selectedBusiness && (
                 <MapBusinessInfoCard
                   business={selectedBusiness}
@@ -605,7 +605,7 @@ const ServicePage = () => {
               )}
               <iframe
                 src={getMapEmbedUrl()}
-                className="w-full h-[400px] border-0 rounded-lg"
+                className="w-full border-0 rounded-lg absolute inset-0 h-[580px] sm:h-full sm:static -top-[120px] sm:top-0"
                 allowFullScreen
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
