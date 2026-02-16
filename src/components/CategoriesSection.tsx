@@ -172,7 +172,7 @@ const CategoriesSection = () => {
                             <Building2 className="h-5 w-5" />
                           )}
                         </div>
-                        <h3 className="font-semibold text-white group-hover:text-primary transition-colors min-w-0 break-words" style={{ paddingRight: '0.15em' }}>
+                        <h3 className="font-semibold text-white group-hover:text-primary transition-colors min-w-0 break-words not-italic">
                           {getCategoryName(category)}
                         </h3>
                       </div>
