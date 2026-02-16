@@ -118,17 +118,65 @@ const CategoryManagement = () => {
     fetchData();
   }, []);
 
+  const [businessCountBySub, setBusinessCountBySub] = useState<Record<string, number>>({});
+  const [businessCountBySvc, setBusinessCountBySvc] = useState<Record<string, number>>({});
+
   const fetchData = async () => {
     setLoading(true);
-    const [catRes, subRes, svcRes] = await Promise.all([
+    const [catRes, subRes, svcRes, bizRes] = await Promise.all([
       supabase.from("categories").select("*").order("name_fr"),
       supabase.from("subcategories").select("*").order("sort_order"),
-      supabase.from("services").select("*").order("sort_order")
+      supabase.from("services").select("*").order("sort_order"),
+      supabase.from("businesses").select("categories, services").eq("is_active", true),
     ]);
 
     if (catRes.data) setCategories(catRes.data);
     if (subRes.data) setSubcategories(subRes.data);
     if (svcRes.data) setServices(svcRes.data);
+
+    // Count businesses per subcategory name and service name
+    if (bizRes.data && subRes.data && svcRes.data) {
+      const subCounts: Record<string, number> = {};
+      const svcCounts: Record<string, number> = {};
+
+      // Build name->id maps for subcategories and services
+      const subNameToId: Record<string, string> = {};
+      for (const s of subRes.data) {
+        subNameToId[s.name_fr] = s.id;
+        if (s.name_en) subNameToId[s.name_en] = s.id;
+        if (s.name_ar) subNameToId[s.name_ar] = s.id;
+      }
+      const svcNameToId: Record<string, string> = {};
+      for (const s of svcRes.data) {
+        svcNameToId[s.name_fr] = s.id;
+        if (s.name_en) svcNameToId[s.name_en] = s.id;
+        if (s.name_ar) svcNameToId[s.name_ar] = s.id;
+      }
+
+      for (const biz of bizRes.data) {
+        const cats = (biz.categories as string[]) || [];
+        const svcs = (biz.services as string[]) || [];
+        const countedSubIds = new Set<string>();
+        const countedSvcIds = new Set<string>();
+        for (const c of cats) {
+          const id = subNameToId[c];
+          if (id && !countedSubIds.has(id)) {
+            countedSubIds.add(id);
+            subCounts[id] = (subCounts[id] || 0) + 1;
+          }
+        }
+        for (const s of svcs) {
+          const id = svcNameToId[s];
+          if (id && !countedSvcIds.has(id)) {
+            countedSvcIds.add(id);
+            svcCounts[id] = (svcCounts[id] || 0) + 1;
+          }
+        }
+      }
+      setBusinessCountBySub(subCounts);
+      setBusinessCountBySvc(svcCounts);
+    }
+
     setLoading(false);
   };
 
@@ -538,6 +586,9 @@ const CategoryManagement = () => {
                               </div>
                               
                               <Badge variant="outline" className="text-xs">{svcs.length} services</Badge>
+                              {(businessCountBySub[sub.id] || 0) > 0 && (
+                                <Badge variant="secondary" className="text-xs">{businessCountBySub[sub.id]} entreprises</Badge>
+                              )}
                               
                               <Button
                                 variant="ghost"
@@ -615,6 +666,9 @@ const CategoryManagement = () => {
                                               <span className="text-muted-foreground ml-1">({svc.name_en})</span>
                                             )}
                                           </span>
+                                          {(businessCountBySvc[svc.id] || 0) > 0 && (
+                                            <Badge variant="secondary" className="text-[10px] px-1.5 py-0">{businessCountBySvc[svc.id]}</Badge>
+                                          )}
                                           <Button
                                             variant="ghost"
                                             size="sm"
