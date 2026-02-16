@@ -40,6 +40,7 @@ const StaffBackoffice = () => {
   const [subcategoryFilter, setSubcategoryFilter] = useState<string>("all");
   const [subcategories, setSubcategories] = useState<{ id: string; name_fr: string }[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [sortBy, setSortBy] = useState<"updated_at" | "created_at">("updated_at");
   const PAGE_SIZE = 50;
   const [showForm, setShowForm] = useState(false);
   const [editingBusiness, setEditingBusiness] = useState<Business | null>(null);
@@ -129,8 +130,8 @@ const StaffBackoffice = () => {
     fetchSubs();
   }, [categoryFilter]);
 
-  // Reset pagination when filters change
-  useEffect(() => { setCurrentPage(1); }, [searchQuery, cityFilter, categoryFilter, subcategoryFilter]);
+  // Reset pagination when filters or sort change
+  useEffect(() => { setCurrentPage(1); }, [searchQuery, cityFilter, categoryFilter, subcategoryFilter, sortBy]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -226,7 +227,7 @@ const StaffBackoffice = () => {
     const matchesCategory = categoryFilter === "all" || business.main_category === categoryFilter;
     const matchesSubcategory = subcategoryFilter === "all" || (business.categories?.includes(subcategoryFilter));
     return matchesSearch && matchesCity && matchesCategory && matchesSubcategory;
-  });
+  }).sort((a, b) => new Date(b[sortBy]).getTime() - new Date(a[sortBy]).getTime());
 
   // Pagination
   const totalPages = Math.max(1, Math.ceil(filteredBusinesses.length / PAGE_SIZE));
@@ -414,6 +415,24 @@ const StaffBackoffice = () => {
                     </div>
                   </div>
                 </div>
+              </div>
+
+              {/* Sort tabs */}
+              <div className="flex items-center gap-2">
+                <Button
+                  variant={sortBy === "updated_at" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSortBy("updated_at")}
+                >
+                  Derniers modifiés
+                </Button>
+                <Button
+                  variant={sortBy === "created_at" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSortBy("created_at")}
+                >
+                  Derniers créés
+                </Button>
               </div>
 
               {/* Actions Bar */}
