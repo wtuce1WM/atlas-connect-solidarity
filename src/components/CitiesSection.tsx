@@ -34,8 +34,8 @@ const CitiesSection = () => {
         const { data: citiesData, error: citiesError } = await supabase
           .from("cities")
           .select("id, name_fr, name_en, name_ar, region, priority_score, latitude, longitude")
-          .order("priority_score", { ascending: false })
-          .limit(20);
+          .eq("is_active", true)
+          .order("sort_order", { ascending: true });
 
         if (citiesError) throw citiesError;
 
