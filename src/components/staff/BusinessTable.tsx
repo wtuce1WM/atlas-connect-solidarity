@@ -207,44 +207,35 @@ const BusinessTable = ({ businesses, gammes, loading, onEdit, onDelete, onDuplic
                   })()}
                 </TableCell>
                 <TableCell>
-                  <div className="flex flex-col gap-1 text-sm">
-                    {business.google_rating && (
-                      <div className="flex items-center gap-1">
-                        <Star className="h-3 w-3 text-amber-500 fill-amber-500" />
-                        <span className="font-medium">{business.google_rating}</span>
-                        {business.google_review_count != null && (
-                          <span className="text-muted-foreground">({business.google_review_count})</span>
-                        )}
+                  {(() => {
+                    // Use manual rating if set, otherwise weighted average normalized to /20
+                    if (business.rating != null) {
+                      const totalReviews = (business.google_review_count || 0) + (business.tripadvisor_review_count || 0) + (business.restaurant_guru_review_count || 0);
+                      return (
+                        <div className="flex items-center gap-1.5 text-sm">
+                          <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />
+                          <span className="font-medium">{String(business.rating)}/20</span>
+                          {totalReviews > 0 && <span className="text-muted-foreground">({totalReviews})</span>}
+                        </div>
+                      );
+                    }
+                    // Weighted average from platforms
+                    const sources: { rating: number; count: number; max: number }[] = [];
+                    if (business.google_rating) sources.push({ rating: Number(business.google_rating), count: business.google_review_count || 0, max: 5 });
+                    if (business.tripadvisor_rating) sources.push({ rating: Number(business.tripadvisor_rating), count: business.tripadvisor_review_count || 0, max: 5 });
+                    if (business.restaurant_guru_rating) sources.push({ rating: Number(business.restaurant_guru_rating), count: business.restaurant_guru_review_count || 0, max: 10 });
+                    if (sources.length === 0) return <span className="text-muted-foreground text-sm">-</span>;
+                    const totalReviews = sources.reduce((s, r) => s + r.count, 0);
+                    const weightedSum = sources.reduce((s, r) => s + (r.rating / r.max) * 20 * r.count, 0);
+                    const avg = totalReviews > 0 ? (weightedSum / totalReviews) : (sources.reduce((s, r) => s + (r.rating / r.max) * 20, 0) / sources.length);
+                    return (
+                      <div className="flex items-center gap-1.5 text-sm">
+                        <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />
+                        <span className="font-medium">{avg.toFixed(1)}/20</span>
+                        {totalReviews > 0 && <span className="text-muted-foreground">({totalReviews})</span>}
                       </div>
-                    )}
-                    {business.tripadvisor_rating && (
-                      <div className="flex items-center gap-1">
-                        <span className="text-xs text-green-600 font-medium">TA</span>
-                        <span>{business.tripadvisor_rating}</span>
-                        {business.tripadvisor_review_count != null && (
-                          <span className="text-muted-foreground">({business.tripadvisor_review_count})</span>
-                        )}
-                      </div>
-                    )}
-                    {business.restaurant_guru_rating && (
-                      <div className="flex items-center gap-1">
-                        <span className="text-xs text-orange-600 font-medium">RG</span>
-                        <span>{business.restaurant_guru_rating}</span>
-                        {business.restaurant_guru_review_count != null && (
-                          <span className="text-muted-foreground">({business.restaurant_guru_review_count})</span>
-                        )}
-                      </div>
-                    )}
-                    {business.rating != null && (
-                      <div className="flex items-center gap-1">
-                        <span className="text-xs text-primary font-medium">Manuel</span>
-                        <span>{String(business.rating)}/20</span>
-                      </div>
-                    )}
-                    {!business.google_rating && !business.tripadvisor_rating && !business.restaurant_guru_rating && business.rating == null && (
-                      <span className="text-muted-foreground">-</span>
-                    )}
-                  </div>
+                    );
+                  })()}
                 </TableCell>
                 <TableCell>
                   <Badge
