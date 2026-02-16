@@ -502,8 +502,12 @@ const ServicePage = () => {
             <div className="mb-8 bg-black/50 rounded-xl p-6">
               <div className="mb-6 text-center">
                 <h2 className="mb-2 text-3xl font-bold text-white">
-                  {language === "fr" ? "Explorez nos " : language === "ar" ? "استكشف " : "Explore our "}
-                  <span className="text-primary">{language === "fr" ? "Villes" : language === "ar" ? "مدننا" : "Cities"}</span>
+                  {language === "fr"
+                    ? `Découvrez ${decodedServiceName} dans chaque `
+                    : language === "ar"
+                      ? `اكتشف ${decodedServiceName} في كل `
+                      : `Discover ${decodedServiceName} in every `}
+                  <span className="text-primary">{language === "fr" ? "ville" : language === "ar" ? "مدينة" : "city"}</span>
                 </h2>
                 <p className="mx-auto max-w-2xl text-gray-400">
                   {language === "fr"
