@@ -496,39 +496,8 @@ const ServicePage = () => {
       {/* Filters & Results */}
       <section className="py-6 lg:py-12 bg-transparent">
         <div className="container mx-auto px-4">
-          {/* City cards horizontal scroll with auto-scroll */}
-          {availableCities.length > 1 && (
-            <div className="mb-6 -mx-4 overflow-hidden relative">
-              {/* Fade edges */}
-              <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-black/70 to-transparent z-10 pointer-events-none" />
-              <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-black/70 to-transparent z-10 pointer-events-none" />
-              <div
-                className="flex gap-4 py-3 px-4 animate-marquee hover:[animation-play-state:paused]"
-                style={{ width: "max-content" }}
-              >
-                {/* Duplicate items for seamless loop */}
-                {[...availableCities, ...availableCities].map((city, i) => {
-                  const count = allBusinesses.filter(b => b.city === city).length;
-                  return (
-                    <button
-                      key={`${city}-${i}`}
-                      onClick={() => handleCityChange(city)}
-                      className={`flex flex-col items-center justify-center px-6 py-4 rounded-xl border transition-all min-w-[150px] shrink-0 ${
-                        selectedCity === city
-                          ? "bg-gold/20 border-gold text-gold"
-                          : "bg-white/5 border-white/10 text-white/80 hover:border-gold/50 hover:text-gold"
-                      }`}
-                    >
-                      <span className="text-base font-semibold">{city}</span>
-                      <span className="text-sm opacity-70 mt-1">{count} {t.establishments}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
 
-          {/* Cities Section - same cities as scroll above */}
+
           {availableCities.length > 0 && (
             <div className="mb-8 bg-black/50 rounded-xl p-6">
               <div className="mb-6 text-center">
