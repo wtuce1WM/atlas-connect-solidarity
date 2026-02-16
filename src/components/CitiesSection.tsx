@@ -35,7 +35,7 @@ const CitiesSection = () => {
           .from("cities")
           .select("id, name_fr, name_en, name_ar, region, priority_score, latitude, longitude")
           .eq("is_active", true)
-          .order("sort_order", { ascending: true });
+          .order("sort_order", { ascending: false });
 
         if (citiesError) throw citiesError;
 
