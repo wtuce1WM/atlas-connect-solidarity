@@ -903,7 +903,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-lg bg-red-50">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 p-4 border rounded-lg bg-red-50">
           <div className="space-y-2">
             <Label htmlFor="main_category">Catégorie principale</Label>
             <Select
@@ -1025,7 +1025,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
           </div>
 
           {/* Langues parlées */}
-          <div className="mt-4 space-y-2 col-span-1 md:col-span-4">
+          <div className="mt-4 space-y-2 col-span-1 md:col-span-5">
             <Label>Langues parlées</Label>
             <div className="grid grid-cols-10 gap-1">
               {[
