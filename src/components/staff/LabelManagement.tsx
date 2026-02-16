@@ -7,8 +7,19 @@ import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Trash2, Edit, X, Check, Loader2, Award, Link, ChevronDown, ChevronRight } from "lucide-react";
+import { Plus, Trash2, Edit, X, Check, Loader2, Award, Link, ChevronDown, ChevronRight, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface LabelItem {
   id: string;
@@ -294,6 +305,31 @@ const LabelManagement = () => {
     } else {
       toast({ title: "Succès", description: "Label supprimé avec succès." });
       fetchAll();
+    }
+  };
+
+  const handleClearAllVisibility = async (id: string) => {
+    try {
+      await Promise.all([
+        supabase.from("labels" as any).update({
+          show_on_home: false,
+          show_on_category: false,
+          show_on_city: false,
+          show_on_service: false,
+          show_on_neighborhood: false,
+          show_on_subcategory: false,
+        }).eq("id", id),
+        supabase.from("label_categories" as any).delete().eq("label_id", id),
+        supabase.from("label_subcategories" as any).delete().eq("label_id", id),
+        supabase.from("label_cities" as any).delete().eq("label_id", id),
+        supabase.from("label_services" as any).delete().eq("label_id", id),
+        supabase.from("label_neighborhoods" as any).delete().eq("label_id", id),
+      ]);
+      toast({ title: "Succès", description: "Toutes les affectations ont été supprimées." });
+      fetchAll();
+    } catch (error) {
+      console.error("Error clearing visibility:", error);
+      toast({ variant: "destructive", title: "Erreur", description: "Impossible de supprimer les affectations." });
     }
   };
 
@@ -741,6 +777,29 @@ const LabelManagement = () => {
                             </Button>
                           );
                         })()}
+                        {(label.show_on_home || label.show_on_category || label.show_on_subcategory || label.show_on_city || label.show_on_service || label.show_on_neighborhood) && (
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="outline" size="sm" className="text-orange-600 hover:bg-orange-50" title="Supprimer toutes les affectations">
+                                <RotateCcw className="h-4 w-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Supprimer toutes les affectations ?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Tous les paramètres de visibilité (Accueil, Catégories, Villes, etc.) et les associations spécifiques du label « {label.name_fr} » seront supprimés. Cette action est irréversible.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Non, annuler</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleClearAllVisibility(label.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                                  Oui, tout supprimer
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        )}
                         <Button variant="outline" size="sm" onClick={() => startEdit(label)}>
                           <Edit className="h-4 w-4" />
                         </Button>
