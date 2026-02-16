@@ -94,7 +94,7 @@ const StaffBackoffice = () => {
     const { data, error } = await supabase
       .from("businesses")
       .select("*")
-      .order("created_at", { ascending: false });
+      .order("updated_at", { ascending: false });
 
     if (error) {
       toast({
@@ -203,6 +203,7 @@ const StaffBackoffice = () => {
   const handleFormSuccess = () => {
     setShowForm(false);
     setEditingBusiness(null);
+    setCurrentPage(1);
     fetchBusinesses();
   };
 
