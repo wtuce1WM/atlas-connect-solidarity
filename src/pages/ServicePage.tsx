@@ -519,28 +519,38 @@ const ServicePage = () => {
                       : "Yum, Yum!"}
                 </p>
               </div>
-              <div className="relative">
+              <div className="relative px-10 sm:px-0">
                 {/* Scroll Buttons */}
                 <button
-                  onClick={() => citiesScrollRef.current?.scrollBy({ left: -320, behavior: "smooth" })}
-                  className="absolute -left-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-card p-3 shadow-lg transition-all hover:bg-primary hover:text-primary-foreground"
+                  onClick={() => {
+                    const container = citiesScrollRef.current;
+                    if (!container) return;
+                    const cardWidth = container.querySelector('button')?.offsetWidth || 224;
+                    container.scrollBy({ left: -(cardWidth + 16), behavior: "smooth" });
+                  }}
+                  className="absolute left-0 sm:-left-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-card p-2 sm:p-3 shadow-lg transition-all hover:bg-primary hover:text-primary-foreground"
                 >
-                  <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="h-5 w-5 sm:h-6 sm:w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>
                 </button>
                 <button
-                  onClick={() => citiesScrollRef.current?.scrollBy({ left: 320, behavior: "smooth" })}
-                  className="absolute -right-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-card p-3 shadow-lg transition-all hover:bg-primary hover:text-primary-foreground"
+                  onClick={() => {
+                    const container = citiesScrollRef.current;
+                    if (!container) return;
+                    const cardWidth = container.querySelector('button')?.offsetWidth || 224;
+                    container.scrollBy({ left: cardWidth + 16, behavior: "smooth" });
+                  }}
+                  className="absolute right-0 sm:-right-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-card p-2 sm:p-3 shadow-lg transition-all hover:bg-primary hover:text-primary-foreground"
                 >
-                  <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="h-5 w-5 sm:h-6 sm:w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </button>
 
                 <div
                   ref={citiesScrollRef}
-                  className="scrollbar-hide flex gap-4 overflow-x-auto scroll-smooth pb-4 px-2"
+                  className="scrollbar-hide flex gap-4 overflow-x-auto scroll-smooth pb-4 px-2 snap-x snap-mandatory sm:snap-none"
                   style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
                 >
                   {availableCities.map((city) => {
@@ -550,9 +560,9 @@ const ServicePage = () => {
                       <button
                         key={city}
                         onClick={() => handleCityChange(city)}
-                        className="flex-shrink-0 py-2"
+                        className="flex-shrink-0 py-2 snap-center w-[70vw] sm:w-auto"
                       >
-                        <Card className={`group w-56 overflow-hidden transition-all hover:shadow-lg hover:scale-105 border border-white/20 bg-white/10 backdrop-blur-sm ${selectedCity === city ? "ring-2 ring-gold" : ""}`}>
+                        <Card className={`group w-full sm:w-56 overflow-hidden transition-all hover:shadow-lg hover:scale-105 border border-white/20 bg-white/10 backdrop-blur-sm ${selectedCity === city ? "ring-2 ring-gold" : ""}`}>
                           <CardContent className="p-4 flex flex-col items-center text-center">
                             <MapPin className="h-5 w-5 text-gold mb-2" />
                             <h3 className="font-semibold text-white group-hover:text-primary transition-colors">{city}</h3>
