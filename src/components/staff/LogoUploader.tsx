@@ -146,10 +146,18 @@ const LogoUploader = ({
       {/* Current Logo */}
       {logoUrl && (
         <div className="relative inline-block">
-          <div className={cn(
-            "w-32 h-32 rounded-lg border bg-white p-2 flex items-center justify-center overflow-hidden",
-            isBroken && "ring-2 ring-amber-500"
-          )}>
+          <div
+            className={cn(
+              "w-32 h-32 rounded-lg border p-2 flex items-center justify-center overflow-hidden",
+              isBroken && "ring-2 ring-amber-500"
+            )}
+            style={{
+              backgroundColor: '#ffffff',
+              backgroundImage: 'linear-gradient(45deg, #e0e0e0 25%, transparent 25%), linear-gradient(-45deg, #e0e0e0 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #e0e0e0 75%), linear-gradient(-45deg, transparent 75%, #e0e0e0 75%)',
+              backgroundSize: '16px 16px',
+              backgroundPosition: '0 0, 0 8px, 8px -8px, -8px 0px',
+            }}
+          >
             {isBroken ? (
               <div className="flex flex-col items-center text-amber-500">
                 <AlertTriangle className="h-8 w-8" />
