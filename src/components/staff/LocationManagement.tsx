@@ -393,7 +393,7 @@ const LocationManagement = () => {
   };
 
   const getCitiesByCountry = (countryId: string) => {
-    return cities.filter(c => c.country_id === countryId);
+    return cities.filter(c => c.country_id === countryId).sort((a, b) => a.name_fr.localeCompare(b.name_fr, 'fr'));
   };
 
   const getNeighborhoodsByCity = (cityId: string) => {
