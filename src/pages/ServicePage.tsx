@@ -397,6 +397,10 @@ const ServicePage = () => {
     setSelectedServices((prev) =>
       prev.includes(service) ? [] : [service]
     );
+    // On mobile, close filters after selecting a service
+    if (window.innerWidth < 640) {
+      setShowFilters(false);
+    }
   };
 
   const handleSelectBusiness = (business: Business) => {
