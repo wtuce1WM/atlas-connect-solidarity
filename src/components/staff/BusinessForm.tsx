@@ -1219,9 +1219,9 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
-            {/* Google Maps URL - takes half */}
-            <div className="space-y-2">
+          <div className="flex gap-4 items-end">
+            {/* Google Maps URL - takes remaining space */}
+            <div className="space-y-2 flex-1 min-w-0">
               <Label htmlFor="google_maps_url_top" className="flex items-center gap-2">
                 <GoogleMapsIcon className="text-[#4285F4]" />
                 {formData.google_maps_url ? (
@@ -1264,8 +1264,8 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
               <BrokenUrlBadge url={formData.google_maps_url} />
             </div>
 
-            {/* Lat, Lng & GPS button - other half */}
-            <div className="flex gap-2 items-end">
+            {/* Lat, Lng & GPS button - fixed width, pushed right */}
+            <div className="flex gap-2 items-end shrink-0">
               <div className="space-y-2" style={{ width: '130px', minWidth: '130px' }}>
                 <Label htmlFor="latitude_top" className="text-xs">Lat</Label>
                 <Input
