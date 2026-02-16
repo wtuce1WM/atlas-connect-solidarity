@@ -30,7 +30,7 @@ const PAGE_FIELD_MAP: Record<PageType, string> = {
 
 const descriptionMap: Record<string, { fr: string; en: string; ar: string }> = {};
 
-const DynamicLabelSections = ({ pageType, lightMode }: { pageType: PageType; lightMode?: boolean }) => {
+const DynamicLabelSections = ({ pageType, lightMode, categoryId }: { pageType: PageType; lightMode?: boolean; categoryId?: string }) => {
   const [labels, setLabels] = useState<LabelVisibility[]>([]);
 
   useEffect(() => {
@@ -42,10 +42,31 @@ const DynamicLabelSections = ({ pageType, lightMode }: { pageType: PageType; lig
         .eq(field, true)
         .order("sort_order", { ascending: true });
 
-      setLabels((data as unknown as LabelVisibility[]) || []);
+      let allLabels = (data as unknown as LabelVisibility[]) || [];
+
+      // If categoryId is provided, filter labels that have no category restriction OR are linked to this category
+      if (categoryId && allLabels.length > 0) {
+        const labelIds = allLabels.map(l => l.id);
+        const { data: labelCats } = await supabase
+          .from("label_categories")
+          .select("label_id, category_id")
+          .in("label_id", labelIds);
+
+        const catAssociations = (labelCats || []) as { label_id: string; category_id: string }[];
+        // Labels that have ANY category association
+        const labelsWithCatRestriction = new Set(catAssociations.map(lc => lc.label_id));
+        // Labels associated with THIS category
+        const labelsForThisCategory = new Set(catAssociations.filter(lc => lc.category_id === categoryId).map(lc => lc.label_id));
+
+        allLabels = allLabels.filter(l =>
+          !labelsWithCatRestriction.has(l.id) || labelsForThisCategory.has(l.id)
+        );
+      }
+
+      setLabels(allLabels);
     };
     fetchLabels();
-  }, [pageType]);
+  }, [pageType, categoryId]);
 
   if (labels.length === 0) return null;
 
