@@ -5,7 +5,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, Calendar, User, ArrowRight, Star, MapPin } from "lucide-react";
+import { Loader2, Calendar, User, ArrowRight, Star, MapPin, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { fr, enUS, ar } from "date-fns/locale";
@@ -126,6 +126,29 @@ const Blog = () => {
                       <Star className="h-3 w-3" /> Classement
                     </span>
                     <ArrowRight className="h-4 w-4 text-gold" />
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+
+            {/* Carte Animations */}
+            <Link to="/blog/animations">
+              <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30">
+                <div className="aspect-video overflow-hidden bg-gradient-to-br from-purple-500/20 to-pink-500/5 flex items-center justify-center">
+                  <Play className="h-16 w-16 text-purple-500" />
+                </div>
+                <CardContent className="p-6">
+                  <h2 className="text-xl font-semibold mb-3 font-['Playfair_Display'] italic">
+                    Animations
+                  </h2>
+                  <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
+                    Démonstration des bandeaux animés d'établissements avec logos défilants, version fond noir et fond blanc.
+                  </p>
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1 text-purple-500 font-medium">
+                      <Play className="h-3 w-3" /> Démo
+                    </span>
+                    <ArrowRight className="h-4 w-4 text-purple-500" />
                   </div>
                 </CardContent>
               </Card>
