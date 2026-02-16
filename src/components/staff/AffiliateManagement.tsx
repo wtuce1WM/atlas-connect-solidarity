@@ -48,6 +48,7 @@ interface Affiliate {
 const ACCOUNT_TYPES = [
   { value: "petite_structure", label: "Petite Structure" },
   { value: "structure_moyenne", label: "Structure Moyenne" },
+  { value: "association", label: "Association" },
   { value: "grande_structure", label: "Grande Structure" },
   { value: "corporate_branding", label: "Corporate & Branding" },
   { value: "institution", label: "Institution" },
