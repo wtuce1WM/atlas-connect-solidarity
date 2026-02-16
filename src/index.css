@@ -129,9 +129,12 @@ All colors MUST be HSL.
 }
 
 /* Playfair Display for headings */
-h2, h3 {
+h2 {
   font-family: 'Playfair Display', serif;
   font-style: italic;
+}
+h3 {
+  font-family: 'Raleway', sans-serif;
 }
 
 /* TEMPORAIRE - Debug headings */
