@@ -163,16 +163,16 @@ const CategoriesSection = () => {
                   <Card
                     className={`group w-56 transition-all hover:shadow-lg hover:scale-105 border ${getColorByIndex(index)}`}
                   >
-                    <CardContent className="p-4">
+                    <CardContent className="p-4 pr-5">
                       <div className="flex items-center gap-3 mb-2">
-                        <div className={`rounded-full p-2 ${getColorByIndex(index)}`}>
+                        <div className={`shrink-0 rounded-full p-2 ${getColorByIndex(index)}`}>
                           {category.icon ? (
                             <DynamicIcon name={category.icon} className="h-5 w-5" fallback={<Building2 className="h-5 w-5" />} />
                           ) : (
                             <Building2 className="h-5 w-5" />
                           )}
                         </div>
-                        <h3 className="font-semibold text-white group-hover:text-primary transition-colors min-w-0 break-words pr-1">
+                        <h3 className="font-semibold text-white group-hover:text-primary transition-colors min-w-0 break-words" style={{ paddingRight: '0.15em' }}>
                           {getCategoryName(category)}
                         </h3>
                       </div>
