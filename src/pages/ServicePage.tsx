@@ -5,6 +5,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import DynamicLabelSections from "@/components/DynamicLabelSections";
+import CitiesSection from "@/components/CitiesSection";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2, MapPin, Building2, ChevronLeft, ChevronRight, Sun, X, ArrowLeft } from "lucide-react";
@@ -526,6 +527,9 @@ const ServicePage = () => {
               </div>
             </div>
           )}
+
+          {/* Cities Section */}
+          <CitiesSection />
 
           {/* Google Maps */}
           <Card className="mb-8 relative">
