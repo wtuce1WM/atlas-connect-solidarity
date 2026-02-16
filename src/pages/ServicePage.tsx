@@ -392,9 +392,7 @@ const ServicePage = () => {
 
   const toggleService = (service: string) => {
     setSelectedServices((prev) =>
-      prev.includes(service)
-        ? prev.filter((s) => s !== service)
-        : [...prev, service]
+      prev.includes(service) ? [] : [service]
     );
   };
 
