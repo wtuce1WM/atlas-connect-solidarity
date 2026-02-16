@@ -169,7 +169,7 @@ const LabelSection = ({
               <img src={resolvedLogoUrl} alt={title} className={`h-24 object-contain ${lightMode ? "invert" : ""}`} />
             </div>
           )}
-          <h2 className={`mb-3 text-3xl font-bold ${lightMode ? "text-black" : pageType === "neighborhood" ? "text-black" : "text-white"}`}>
+          <h2 className={`mb-3 text-3xl font-bold ${lightMode ? "text-white" : pageType === "neighborhood" ? "text-black" : "text-white"}`}>
             {language === "fr" ? "Établissements " : language === "ar" ? "مؤسسات " : ""}
             <span className="text-gold">{title}</span>
             {language === "en" ? " Establishments" : ""}
