@@ -530,7 +530,7 @@ const ServicePage = () => {
 
           {/* Cities Section - same cities as scroll above */}
           {availableCities.length > 0 && (
-            <div className="mb-8 bg-black/30 rounded-xl p-6">
+            <div className="mb-8 bg-black/50 rounded-xl p-6">
               <div className="mb-6 text-center">
                 <h2 className="mb-2 text-3xl font-bold text-white">
                   {language === "fr" ? "Explorez nos " : language === "ar" ? "استكشف " : "Explore our "}
