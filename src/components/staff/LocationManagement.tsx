@@ -392,7 +392,7 @@ const LocationManagement = () => {
   };
 
   const getNeighborhoodsByCity = (cityId: string) => {
-    return neighborhoods.filter(n => n.city_id === cityId);
+    return neighborhoods.filter(n => n.city_id === cityId).sort((a, b) => a.name.localeCompare(b.name, 'fr'));
   };
 
   const handleSaveNeighborhood = async (cityId: string) => {
