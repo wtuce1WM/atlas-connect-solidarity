@@ -146,15 +146,16 @@ const SearchPage = () => {
       
       setIsLoading(true);
       try {
-        // Fetch cities with priority scores
+        // Fetch cities with sort_order
         const { data: citiesData } = await supabase
           .from("cities")
-          .select("name_fr, priority_score")
-          .order("priority_score", { ascending: false });
+          .select("name_fr, sort_order")
+          .eq("is_active", true)
+          .order("sort_order", { ascending: true });
 
         if (citiesData) {
           setCitiesWithPriority(
-            citiesData.map(c => ({ name: c.name_fr, priority: c.priority_score || 0 }))
+            citiesData.map(c => ({ name: c.name_fr, priority: c.sort_order || 0 }))
           );
         }
 

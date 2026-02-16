@@ -11,7 +11,6 @@ interface City {
   name_en: string | null;
   name_ar: string | null;
   region: string | null;
-  priority_score: number | null;
   latitude: number | null;
   longitude: number | null;
 }
@@ -30,12 +29,12 @@ const CitiesSection = () => {
     const fetchCities = async () => {
       setIsLoading(true);
       try {
-        // Fetch cities ordered by priority_score
+        // Fetch cities ordered by sort_order
         const { data: citiesData, error: citiesError } = await supabase
           .from("cities")
-          .select("id, name_fr, name_en, name_ar, region, priority_score, latitude, longitude")
+          .select("id, name_fr, name_en, name_ar, region, latitude, longitude")
           .eq("is_active", true)
-          .order("priority_score", { ascending: false })
+          .order("sort_order", { ascending: true })
           .limit(20);
 
         if (citiesError) throw citiesError;
