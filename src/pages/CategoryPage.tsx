@@ -89,7 +89,7 @@ const CategoryPage = () => {
   const [sortMode, setSortMode] = useState<"rating" | "reviews">("rating");
   const [gammes, setGammes] = useState<Gamme[]>([]);
   const [badges, setBadges] = useState<Badge[]>([]);
-  const [subcategories, setSubcategories] = useState<{ id: string; name_fr: string }[]>([]);
+  const [subcategories, setSubcategories] = useState<{ id: string; name_fr: string; sort_order: number | null }[]>([]);
   const [badgeSubcategories, setBadgeSubcategories] = useState<{ badge_id: string; subcategory_id: string }[]>([]);
 
   const decodedCategoryName = categoryName ? decodeURIComponent(categoryName) : "";
@@ -106,16 +106,24 @@ const CategoryPage = () => {
 
   // Get available subcategories based on selected city
   const availableSubcategories = useMemo(() => {
-    const subcategories = new Set<string>();
+    const subcatNames = new Set<string>();
     const businessesToCheck = selectedCity === "all" 
       ? allBusinesses 
       : allBusinesses.filter(b => b.city === selectedCity);
     
     businessesToCheck.forEach((business) => {
-      business.categories?.forEach((cat) => subcategories.add(cat));
+      business.categories?.forEach((cat) => subcatNames.add(cat));
     });
-    return Array.from(subcategories).sort((a, b) => a.localeCompare(b, "fr"));
-  }, [allBusinesses, selectedCity]);
+    
+    // Sort by sort_order from the subcategories table
+    return Array.from(subcatNames).sort((a, b) => {
+      const subcatA = subcategories.find(s => s.name_fr === a);
+      const subcatB = subcategories.find(s => s.name_fr === b);
+      const orderA = subcatA?.sort_order ?? 999;
+      const orderB = subcatB?.sort_order ?? 999;
+      return orderA - orderB;
+    });
+  }, [allBusinesses, selectedCity, subcategories]);
 
   // Get available services based on selected city and subcategories
   const availableServices = useMemo(() => {
@@ -240,7 +248,7 @@ const CategoryPage = () => {
         // Fetch badges, subcategories, badge_subcategories
         const [badgesRes, subcatsRes, badgeSubcatsRes] = await Promise.all([
           supabase.from("badges").select("id, name_fr, color_hex, text_color_hex").order("sort_order", { ascending: true }),
-          supabase.from("subcategories").select("id, name_fr"),
+          supabase.from("subcategories").select("id, name_fr, sort_order"),
           supabase.from("badge_subcategories").select("badge_id, subcategory_id"),
         ]);
 
