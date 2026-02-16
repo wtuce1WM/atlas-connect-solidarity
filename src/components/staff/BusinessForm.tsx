@@ -1481,13 +1481,21 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
           ) : (
             <Label htmlFor="menu_url">Menu (URL)</Label>
           )}
-          <Input
-            id="menu_url"
-            value={formData.menu_url}
-            onChange={(e) => handleChange("menu_url", e.target.value)}
-            placeholder="https://..."
-             />
-            <BrokenUrlBadge url={formData.video_1_url} />
+          <div className="flex items-center gap-2">
+            <Input
+              id="menu_url"
+              value={formData.menu_url}
+              onChange={(e) => handleChange("menu_url", e.target.value)}
+              placeholder="https://..."
+              className="flex-1"
+            />
+            {formData.menu_url && (
+              <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => handleChange("menu_url", "")}>
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+            <BrokenUrlBadge url={formData.menu_url} />
           </div>
 
         {/* Video */}
@@ -1495,12 +1503,20 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
           <Label className="text-base font-semibold">Vidéo</Label>
           <div className="space-y-2">
             <Label htmlFor="video_1_url">URL Vidéo 1 (YouTube, Vimeo, ou lien direct)</Label>
-            <Input
-              id="video_1_url"
-              value={formData.video_1_url}
-              onChange={(e) => handleChange("video_1_url", e.target.value)}
-              placeholder="https://youtube.com/watch?v=... ou https://vimeo.com/..."
-            />
+            <div className="flex items-center gap-2">
+              <Input
+                id="video_1_url"
+                value={formData.video_1_url}
+                onChange={(e) => handleChange("video_1_url", e.target.value)}
+                placeholder="https://youtube.com/watch?v=... ou https://vimeo.com/..."
+                className="flex-1"
+              />
+              {formData.video_1_url && (
+                <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => handleChange("video_1_url", "")}>
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
           </div>
           {formData.video_1_url && (
             <div className="space-y-2">
