@@ -120,6 +120,7 @@ const CategoryManagement = () => {
 
   const [businessCountBySub, setBusinessCountBySub] = useState<Record<string, number>>({});
   const [businessCountBySvc, setBusinessCountBySvc] = useState<Record<string, number>>({});
+  const [businessCountByCat, setBusinessCountByCat] = useState<Record<string, number>>({});
 
   const fetchData = async () => {
     setLoading(true);
@@ -127,7 +128,7 @@ const CategoryManagement = () => {
       supabase.from("categories").select("*").order("name_fr"),
       supabase.from("subcategories").select("*").order("sort_order"),
       supabase.from("services").select("*").order("sort_order"),
-      supabase.from("businesses").select("categories, services").eq("is_active", true),
+      supabase.from("businesses").select("main_category, categories, services").eq("is_active", true),
     ]);
 
     if (catRes.data) setCategories(catRes.data);
@@ -135,9 +136,18 @@ const CategoryManagement = () => {
     if (svcRes.data) setServices(svcRes.data);
 
     // Count businesses per subcategory name and service name
-    if (bizRes.data && subRes.data && svcRes.data) {
+    if (bizRes.data && catRes.data && subRes.data && svcRes.data) {
       const subCounts: Record<string, number> = {};
       const svcCounts: Record<string, number> = {};
+      const catCounts: Record<string, number> = {};
+
+      // Build category name->id map
+      const catNameToId: Record<string, string> = {};
+      for (const c of catRes.data) {
+        catNameToId[c.name_fr] = c.id;
+        if (c.name_en) catNameToId[c.name_en] = c.id;
+        if (c.name_ar) catNameToId[c.name_ar] = c.id;
+      }
 
       // Build name->id maps for subcategories and services
       const subNameToId: Record<string, string> = {};
@@ -154,6 +164,13 @@ const CategoryManagement = () => {
       }
 
       for (const biz of bizRes.data) {
+        // Count by main_category
+        const mc = biz.main_category as string | null;
+        if (mc) {
+          const catId = catNameToId[mc];
+          if (catId) catCounts[catId] = (catCounts[catId] || 0) + 1;
+        }
+
         const cats = (biz.categories as string[]) || [];
         const svcs = (biz.services as string[]) || [];
         const countedSubIds = new Set<string>();
@@ -173,6 +190,7 @@ const CategoryManagement = () => {
           }
         }
       }
+      setBusinessCountByCat(catCounts);
       setBusinessCountBySub(subCounts);
       setBusinessCountBySvc(svcCounts);
     }
@@ -507,6 +525,9 @@ const CategoryManagement = () => {
                   </div>
                   
                   <Badge variant="secondary">{subs.length} sous-cat.</Badge>
+                  {(businessCountByCat[category.id] || 0) > 0 && (
+                    <Badge variant="outline" className="text-xs">{businessCountByCat[category.id]} entreprises</Badge>
+                  )}
                   
                   <Button
                     variant="ghost"
