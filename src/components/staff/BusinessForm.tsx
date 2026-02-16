@@ -1121,6 +1121,10 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                 );
               })}
             </div>
+            <p className="text-[11px] text-gray-500 leading-relaxed mt-1">
+              <strong>↓ Appliquer défaut</strong> : applique les langues par défaut sauvegardées<br />
+              <strong>💾 Définir comme défaut</strong> : sauvegarde la sélection actuelle comme langues par défaut (pour les prochaines fiches)
+            </p>
           </div>
         </div>
 
