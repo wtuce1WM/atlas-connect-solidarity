@@ -1230,18 +1230,35 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                 "Google Maps"
               )}
             </Label>
-            <Input
-              id="google_maps_url_top"
-              value={formData.google_maps_url}
-              onChange={(e) => {
-                const val = e.target.value;
-                handleChange("google_maps_url", val);
-                if (val) {
-                  handleChange("google_reviews_url", val);
-                }
-              }}
-              placeholder="https://maps.google.com/..."
-             />
+            <div className="flex gap-2">
+              <Input
+                id="google_maps_url_top"
+                value={formData.google_maps_url}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  handleChange("google_maps_url", val);
+                  if (val) {
+                    handleChange("google_reviews_url", val);
+                  }
+                }}
+                placeholder="https://maps.google.com/..."
+                className="flex-1"
+              />
+              {formData.google_maps_url && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => {
+                    handleChange("google_maps_url", "");
+                    handleChange("google_reviews_url", "");
+                  }}
+                  className="text-destructive hover:text-destructive hover:bg-destructive/10 shrink-0"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
             <BrokenUrlBadge url={formData.google_maps_url} />
           </div>
 
