@@ -8,7 +8,7 @@ import heroMarrakech from "@/assets/hero-marrakech.jpg";
 import DynamicLabelSections from "@/components/DynamicLabelSections";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, MapPin, Building2, ChevronLeft, ChevronRight, Sun, X, ArrowLeft } from "lucide-react";
+import { Loader2, MapPin, Building2, ChevronLeft, ChevronRight, Sun, X, ArrowLeft, SlidersHorizontal } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import MapBusinessInfoCard from "@/components/MapBusinessInfoCard";
 import DynamicIcon from "@/components/DynamicIcon";
@@ -85,6 +85,7 @@ const ServicePage = () => {
   const [sortMode, setSortMode] = useState<"rating" | "reviews">("rating");
   const [sortAsc, setSortAsc] = useState(false);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const [showFilters, setShowFilters] = useState(false);
 
   // Extract service name from URL path (handles special characters like /, &, etc.)
   const decodedServiceName = useMemo(() => {
@@ -592,8 +593,24 @@ const ServicePage = () => {
             </CardContent>
           </Card>
 
+          {/* Mobile filter toggle */}
+          <div className="sm:hidden mb-4">
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="flex items-center gap-2 w-full px-4 py-2.5 rounded-lg bg-white/10 border border-white/20 text-white text-sm font-medium transition-colors hover:bg-white/20"
+            >
+              <SlidersHorizontal className="h-4 w-4" />
+              {language === "fr" ? "Filtrer les résultats" : language === "ar" ? "تصفية النتائج" : "Filter results"}
+              {(selectedGammeFilter !== "all" || selectedServices.length > 1) && (
+                <span className="ml-auto bg-gold text-black text-xs font-bold rounded-full px-2 py-0.5">
+                  {(selectedGammeFilter !== "all" ? 1 : 0) + (selectedServices.length > 1 ? selectedServices.length - 1 : 0)}
+                </span>
+              )}
+            </button>
+          </div>
+
           {/* Dropdown Filters */}
-          <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className={`mb-6 grid-cols-1 md:grid-cols-2 gap-4 ${showFilters ? 'grid' : 'hidden'} sm:grid`}>
             {/* Ville */}
             <div>
               <label className="block text-sm font-medium text-white mb-1">{t.filterByCity}</label>
@@ -631,7 +648,7 @@ const ServicePage = () => {
 
           {/* Services Filter */}
           {availableServices.length > 1 && (
-            <div className="mb-8">
+            <div className={`mb-8 ${showFilters ? 'block' : 'hidden'} sm:block`}>
               <div className="mb-3">
                 <label className="text-sm text-gray-400">
                   {language === "fr" ? "Services (sélection unique : cliquer sur un service le sélectionne seul, recliquer dessus le désélectionne)" : language === "ar" ? "الخدمات (اختيار فردي)" : "Services (single selection: click to select, click again to deselect)"}:
