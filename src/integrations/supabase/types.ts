@@ -569,6 +569,7 @@ export type Database = {
           created_at: string | null
           description: string | null
           id: string
+          is_active: boolean
           latitude: number | null
           longitude: number | null
           name_ar: string | null
@@ -599,6 +600,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           id?: string
+          is_active?: boolean
           latitude?: number | null
           longitude?: number | null
           name_ar?: string | null
@@ -629,6 +631,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           id?: string
+          is_active?: boolean
           latitude?: number | null
           longitude?: number | null
           name_ar?: string | null
