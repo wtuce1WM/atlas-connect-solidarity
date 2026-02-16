@@ -88,6 +88,7 @@ const CategoryPage = () => {
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [sortMode, setSortMode] = useState<"rating" | "reviews">("rating");
   const [sortAsc, setSortAsc] = useState(false);
+  const [selectedGamme, setSelectedGamme] = useState<string>("all");
   const [gammes, setGammes] = useState<Gamme[]>([]);
   const [badges, setBadges] = useState<Badge[]>([]);
   const [subcategories, setSubcategories] = useState<{ id: string; name_fr: string; sort_order: number | null }[]>([]);
@@ -126,25 +127,44 @@ const CategoryPage = () => {
     });
   }, [allBusinesses, selectedCity, subcategories]);
 
-  // Get available services based on selected city and subcategories
+  // Get available services based on selected city, subcategories and gamme
   const availableServices = useMemo(() => {
     const services = new Set<string>();
     let businessesToCheck = selectedCity === "all" 
       ? allBusinesses 
       : allBusinesses.filter(b => b.city === selectedCity);
     
-    // Further filter by subcategories if any selected
     if (selectedSubcategories.length > 0) {
       businessesToCheck = businessesToCheck.filter((business) =>
         selectedSubcategories.some((subcat) => business.categories?.includes(subcat))
       );
+    }
+
+    if (selectedGamme !== "all") {
+      businessesToCheck = businessesToCheck.filter(b => b.gamme_id === selectedGamme);
     }
     
     businessesToCheck.forEach((business) => {
       business.services?.forEach((service) => services.add(service));
     });
     return Array.from(services).sort((a, b) => a.localeCompare(b, "fr"));
-  }, [allBusinesses, selectedCity, selectedSubcategories]);
+  }, [allBusinesses, selectedCity, selectedSubcategories, selectedGamme]);
+
+  // Get available gammes based on selected city and subcategories
+  const availableGammes = useMemo(() => {
+    let businessesToCheck = selectedCity === "all"
+      ? allBusinesses
+      : allBusinesses.filter(b => b.city === selectedCity);
+
+    if (selectedSubcategories.length > 0) {
+      businessesToCheck = businessesToCheck.filter((business) =>
+        selectedSubcategories.some((subcat) => business.categories?.includes(subcat))
+      );
+    }
+
+    const gammeIds = new Set(businessesToCheck.map(b => b.gamme_id).filter(Boolean));
+    return gammes.filter(g => gammeIds.has(g.id));
+  }, [allBusinesses, selectedCity, selectedSubcategories, gammes]);
 
   const getEffectiveRating = (b: typeof allBusinesses[0]): number | null => {
     if (b.rating) return Number(b.rating);
@@ -176,6 +196,10 @@ const CategoryPage = () => {
         selectedServices.some((service) => business.services?.includes(service))
       );
     }
+
+    if (selectedGamme !== "all") {
+      result = result.filter(b => b.gamme_id === selectedGamme);
+    }
     
     // Sort based on sortMode
     const dir = sortAsc ? 1 : -1;
@@ -194,7 +218,7 @@ const CategoryPage = () => {
     });
     
     return result;
-  }, [allBusinesses, selectedCity, selectedSubcategories, selectedServices, sortMode, sortAsc]);
+  }, [allBusinesses, selectedCity, selectedSubcategories, selectedServices, selectedGamme, sortMode, sortAsc]);
 
   // Paginate
   const totalPages = Math.ceil(filteredBusinesses.length / ITEMS_PER_PAGE);
@@ -206,7 +230,7 @@ const CategoryPage = () => {
   // Reset page when filter changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedCity, selectedSubcategories, selectedServices]);
+  }, [selectedCity, selectedSubcategories, selectedServices, selectedGamme]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -347,6 +371,7 @@ const CategoryPage = () => {
     setSelectedBusiness(null);
     setSelectedSubcategories([]);
     setSelectedServices([]);
+    setSelectedGamme("all");
   };
 
   const handleSubcategoryChange = (subcategory: string) => {
@@ -356,6 +381,7 @@ const CategoryPage = () => {
       setSelectedSubcategories([subcategory]);
     }
     setSelectedServices([]);
+    setSelectedGamme("all");
   };
 
   const toggleService = (service: string) => {
@@ -369,6 +395,7 @@ const CategoryPage = () => {
   const clearFilters = () => {
     setSelectedSubcategories([]);
     setSelectedServices([]);
+    setSelectedGamme("all");
   };
 
   const goToPage = (page: number) => {
@@ -507,8 +534,8 @@ const CategoryPage = () => {
                 </div>
               )}
 
-              {/* Subcategory Filter */}
-              {availableSubcategories.length > 0 && (
+              {/* Subcategory Filter - only when city is selected */}
+              {selectedCity !== "all" && availableSubcategories.length > 0 && (
                 <div className="flex-1 min-w-[140px]">
                   <label className={`text-sm font-medium ${textClass} mb-1.5 block`}>
                     {language === "fr" ? "Sous-catégorie" : language === "ar" ? "الفئة الفرعية" : "Subcategory"}
@@ -528,10 +555,32 @@ const CategoryPage = () => {
                   </Select>
                 </div>
               )}
+
+              {/* Standing Filter - only when subcategory is selected */}
+              {selectedSubcategories.length > 0 && availableGammes.length > 0 && (
+                <div className="flex-1 min-w-[140px]">
+                  <label className={`text-sm font-medium ${textClass} mb-1.5 block`}>
+                    {language === "fr" ? "Standing" : language === "ar" ? "مستوى" : "Standing"}
+                  </label>
+                  <Select value={selectedGamme} onValueChange={setSelectedGamme}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder={language === "fr" ? "Tous" : language === "ar" ? "الكل" : "All"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">{language === "fr" ? "Tous les standings" : language === "ar" ? "جميع المستويات" : "All standings"}</SelectItem>
+                      {availableGammes.map((gamme) => (
+                        <SelectItem key={gamme.id} value={gamme.id}>
+                          {gamme.name_fr}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
             </div>
 
             {/* Clear Filters */}
-            {(selectedSubcategories.length > 0 || selectedServices.length > 0) && (
+            {(selectedSubcategories.length > 0 || selectedServices.length > 0 || selectedGamme !== "all") && (
               <button
                 onClick={clearFilters}
                 className="text-sm text-gray-400 hover:text-gray-200 flex items-center gap-1"
