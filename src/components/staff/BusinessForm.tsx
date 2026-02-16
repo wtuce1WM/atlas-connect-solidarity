@@ -359,7 +359,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
     tripadvisor_url: (business as any)?.tripadvisor_url || "",
     booking_url: (business as any)?.booking_url || "",
     account_type: (business as any)?.account_type || "",
-    zone_chalandise: (business as any)?.zone_chalandise || "",
+    zone_chalandise: (business as any)?.zone_chalandise || "locale",
     languages: (business as any)?.languages || [],
     affiliate_id: (business as any)?.affiliate_id || "",
     internal_notes: (business as any)?.internal_notes || "",
