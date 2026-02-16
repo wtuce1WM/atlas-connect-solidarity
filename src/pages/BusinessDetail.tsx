@@ -589,7 +589,7 @@ const BusinessDetail = () => {
                     {categoriesWithResults.map((cat, index) => (
                       <Link
                         key={index}
-                        to={`/service/${encodeURIComponent(cat)}?city=${encodeURIComponent(business.city!)}`}
+                        to={`/subcategory/${encodeURIComponent(cat)}`}
                         className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
                           isVerified
                             ? 'bg-white/10 text-white hover:bg-white/20 border border-white/20'
