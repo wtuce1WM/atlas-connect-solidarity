@@ -507,10 +507,10 @@ const ServicePage = () => {
                 </h2>
                 <p className="mx-auto max-w-2xl text-gray-400">
                   {language === "fr"
-                    ? `Découvrez ${decodedServiceName} dans chaque ville`
+                    ? "Miam, Miam !"
                     : language === "ar"
-                      ? `اكتشف ${decodedServiceName} في كل مدينة`
-                      : `Discover ${decodedServiceName} in every city`}
+                      ? "!يم يم"
+                      : "Yum, Yum!"}
                 </p>
               </div>
               <div className="relative">
