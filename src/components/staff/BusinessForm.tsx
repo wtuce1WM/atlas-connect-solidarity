@@ -1373,12 +1373,20 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
             ) : (
               <Label htmlFor="website_top">Site web</Label>
             )}
-            <Input
-              id="website_top"
-              value={formData.website}
-              onChange={(e) => handleChange("website", e.target.value)}
-              placeholder="https://"
-             />
+            <div className="flex items-center gap-2">
+              <Input
+                id="website_top"
+                value={formData.website}
+                onChange={(e) => handleChange("website", e.target.value)}
+                placeholder="https://"
+                className="flex-1"
+              />
+              {formData.website && (
+                <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => handleChange("website", "")}>
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
             <BrokenUrlBadge url={formData.website} />
             {formData.website && (
               <button
@@ -1402,12 +1410,20 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
             ) : (
               <Label htmlFor="reserve_now_url_top">Lien "Réserver maintenant"</Label>
             )}
-            <Input
-              id="reserve_now_url_top"
-              value={formData.reserve_now_url}
-              onChange={(e) => handleChange("reserve_now_url", e.target.value)}
-              placeholder="https://"
-             />
+            <div className="flex items-center gap-2">
+              <Input
+                id="reserve_now_url_top"
+                value={formData.reserve_now_url}
+                onChange={(e) => handleChange("reserve_now_url", e.target.value)}
+                placeholder="https://"
+                className="flex-1"
+              />
+              {formData.reserve_now_url && (
+                <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => handleChange("reserve_now_url", "")}>
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
             <BrokenUrlBadge url={formData.reserve_now_url} />
           </div>
 
@@ -1417,12 +1433,20 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
             ) : (
               <Label htmlFor="online_shop_url_top">Boutique en ligne</Label>
             )}
-            <Input
-              id="online_shop_url_top"
-              value={formData.online_shop_url}
-              onChange={(e) => handleChange("online_shop_url", e.target.value)}
-              placeholder="https://"
-             />
+            <div className="flex items-center gap-2">
+              <Input
+                id="online_shop_url_top"
+                value={formData.online_shop_url}
+                onChange={(e) => handleChange("online_shop_url", e.target.value)}
+                placeholder="https://"
+                className="flex-1"
+              />
+              {formData.online_shop_url && (
+                <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => handleChange("online_shop_url", "")}>
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
             <BrokenUrlBadge url={formData.online_shop_url} />
           </div>
         </div>
