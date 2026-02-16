@@ -477,7 +477,7 @@ const ServicePage = () => {
             Retour
           </button>
           <div>
-            <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+            <h1 className="text-xl sm:text-3xl font-bold text-white flex items-center gap-3">
               {serviceIcon ? (
                 <DynamicIcon name={serviceIcon} className="h-8 w-8 text-gold" fallback={<Sun className="h-8 w-8 text-gold" />} />
               ) : (
