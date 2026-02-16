@@ -401,6 +401,10 @@ const ServicePage = () => {
     if (window.innerWidth < 640) {
       setShowFilters(false);
     }
+    // Scroll to filters anchor
+    setTimeout(() => {
+      document.getElementById("service-filters")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
   };
 
   const handleSelectBusiness = (business: Business) => {
@@ -624,7 +628,7 @@ const ServicePage = () => {
           </div>
 
           {/* Dropdown Filters */}
-          <div className={`mb-6 grid-cols-1 md:grid-cols-2 gap-4 ${showFilters ? 'grid' : 'hidden'} sm:grid`}>
+          <div id="service-filters" className={`mb-6 grid-cols-1 md:grid-cols-2 gap-4 scroll-mt-24 ${showFilters ? 'grid' : 'hidden'} sm:grid`}>
             {/* Ville */}
             <div>
               <label className="block text-sm font-medium text-white mb-1">{t.filterByCity}</label>
