@@ -79,6 +79,8 @@ const ServicePage = () => {
   const [subcategories, setSubcategories] = useState<{ id: string; name_fr: string }[]>([]);
   const [badgeSubcategories, setBadgeSubcategories] = useState<{ badge_id: string; subcategory_id: string }[]>([]);
   const [selectedGammeFilter, setSelectedGammeFilter] = useState<string>("all");
+  const [sortMode, setSortMode] = useState<"rating" | "reviews">("rating");
+  const [sortAsc, setSortAsc] = useState(false);
 
   // Extract service name from URL path (handles special characters like /, &, etc.)
   const decodedServiceName = useMemo(() => {
@@ -127,17 +129,23 @@ const ServicePage = () => {
       result = result.filter(b => b.gamme_id === selectedGammeFilter);
     }
     
+    const dir = sortAsc ? 1 : -1;
     result.sort((a, b) => {
+      if (sortMode === "reviews") {
+        const countA = (a.google_review_count || 0) + (a.tripadvisor_review_count || 0) + (a.restaurant_guru_review_count || 0);
+        const countB = (b.google_review_count || 0) + (b.tripadvisor_review_count || 0) + (b.restaurant_guru_review_count || 0);
+        return (countB - countA) * dir;
+      }
       const rA = getEffectiveRating(a);
       const rB = getEffectiveRating(b);
       if (rA === null && rB === null) return 0;
       if (rA === null) return 1;
       if (rB === null) return -1;
-      return rB - rA;
+      return (rB - rA) * dir;
     });
     
     return result;
-  }, [allBusinesses, selectedCity, selectedGammeFilter]);
+  }, [allBusinesses, selectedCity, selectedGammeFilter, sortMode, sortAsc]);
 
   // Paginate
   const totalPages = Math.ceil(filteredBusinesses.length / ITEMS_PER_PAGE);
@@ -553,6 +561,32 @@ const ServicePage = () => {
             </div>
           ) : (
             <>
+              {/* Results count + Sort */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
+                <h2 className="text-lg font-semibold text-white">
+                  {t.establishments} ({filteredBusinesses.length})
+                </h2>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant={sortMode === "rating" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => { if (sortMode === "rating") setSortAsc(!sortAsc); else { setSortMode("rating"); setSortAsc(false); } }}
+                    className="text-xs"
+                  >
+                    <span className="mr-1">↑↓</span>
+                    {language === "fr" ? "Trier par note" : language === "ar" ? "ترتيب حسب التقييم" : "Sort by rating"}
+                  </Button>
+                  <Button
+                    variant={sortMode === "reviews" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => { if (sortMode === "reviews") setSortAsc(!sortAsc); else { setSortMode("reviews"); setSortAsc(false); } }}
+                    className="text-xs"
+                  >
+                    <span className="mr-1">↑↓</span>
+                    {language === "fr" ? "Trier par avis" : language === "ar" ? "ترتيب حسب التعليقات" : "Sort by reviews"}
+                  </Button>
+                </div>
+              </div>
               {/* Results Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {paginatedBusinesses.map((business) => (
