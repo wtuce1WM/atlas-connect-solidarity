@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import heroMarrakech from "@/assets/hero-marrakech.jpg";
 import DynamicLabelSections from "@/components/DynamicLabelSections";
 import CitiesSection from "@/components/CitiesSection";
 import { Card, CardContent } from "@/components/ui/card";
@@ -461,11 +462,11 @@ const ServicePage = () => {
   const endResult = Math.min(currentPage * ITEMS_PER_PAGE, filteredBusinesses.length);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-fixed bg-cover bg-center" style={{ backgroundImage: `url(${heroMarrakech})` }}>
       <Header />
       
       {/* Hero Section */}
-      <section className="bg-black pt-28 pb-8 lg:pb-16 relative overflow-hidden">
+      <section className="bg-black/70 pt-28 pb-8 lg:pb-16 relative overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
           <button
             onClick={() => navigate(-1)}
@@ -494,14 +495,14 @@ const ServicePage = () => {
       </section>
 
       {/* Filters & Results */}
-      <section className="py-6 lg:py-12 bg-black">
+      <section className="py-6 lg:py-12 bg-black/70">
         <div className="container mx-auto px-4">
           {/* City cards horizontal scroll with auto-scroll */}
           {availableCities.length > 1 && (
             <div className="mb-6 -mx-4 overflow-hidden relative">
               {/* Fade edges */}
-              <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-black to-transparent z-10 pointer-events-none" />
-              <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-black to-transparent z-10 pointer-events-none" />
+              <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-black/70 to-transparent z-10 pointer-events-none" />
+              <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-black/70 to-transparent z-10 pointer-events-none" />
               <div
                 className="flex gap-4 py-3 px-4 animate-marquee hover:[animation-play-state:paused]"
                 style={{ width: "max-content" }}
@@ -745,7 +746,7 @@ const ServicePage = () => {
       </section>
 
       <DynamicLabelSections pageType="service" />
-      <Footer />
+      <Footer variant="morocco" />
     </div>
   );
 };
