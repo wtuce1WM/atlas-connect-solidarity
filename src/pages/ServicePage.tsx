@@ -8,6 +8,7 @@ import DynamicLabelSections from "@/components/DynamicLabelSections";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2, MapPin, Building2, ChevronLeft, ChevronRight, Sun, X, ArrowLeft } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import MapBusinessInfoCard from "@/components/MapBusinessInfoCard";
 import DynamicIcon from "@/components/DynamicIcon";
 import {
@@ -81,6 +82,7 @@ const ServicePage = () => {
   const [selectedGammeFilter, setSelectedGammeFilter] = useState<string>("all");
   const [sortMode, setSortMode] = useState<"rating" | "reviews">("rating");
   const [sortAsc, setSortAsc] = useState(false);
+  const [selectedServices, setSelectedServices] = useState<string[]>([]);
 
   // Extract service name from URL path (handles special characters like /, &, etc.)
   const decodedServiceName = useMemo(() => {
@@ -103,12 +105,26 @@ const ServicePage = () => {
       .map(c => c.name);
   }, [allBusinesses, citiesWithPriority]);
 
-  // Get gammes available in current businesses (filtered by city)
+  // Get gammes available in current businesses (filtered by city and services)
   const availableGammes = useMemo(() => {
-    const cityFiltered = selectedCity === "all" ? allBusinesses : allBusinesses.filter(b => b.city === selectedCity);
+    let cityFiltered = selectedCity === "all" ? allBusinesses : allBusinesses.filter(b => b.city === selectedCity);
+    if (selectedServices.length > 0) {
+      cityFiltered = cityFiltered.filter(b => selectedServices.some(s => b.services?.includes(s)));
+    }
     const gammeIds = new Set(cityFiltered.map(b => b.gamme_id).filter(Boolean));
     return gammes.filter(g => gammeIds.has(g.id));
-  }, [allBusinesses, gammes, selectedCity]);
+  }, [allBusinesses, gammes, selectedCity, selectedServices]);
+
+  // Get all available services from businesses (filtered by city and gamme)
+  const availableServices = useMemo(() => {
+    const services = new Set<string>();
+    let businessesToCheck = selectedCity === "all" ? allBusinesses : allBusinesses.filter(b => b.city === selectedCity);
+    if (selectedGammeFilter !== "all") {
+      businessesToCheck = businessesToCheck.filter(b => b.gamme_id === selectedGammeFilter);
+    }
+    businessesToCheck.forEach(b => b.services?.forEach(s => services.add(s)));
+    return Array.from(services).sort((a, b) => a.localeCompare(b, "fr"));
+  }, [allBusinesses, selectedCity, selectedGammeFilter]);
 
   const getEffectiveRating = (b: typeof allBusinesses[0]): number | null => {
     if (b.rating) return Number(b.rating);
@@ -125,6 +141,10 @@ const ServicePage = () => {
   const filteredBusinesses = useMemo(() => {
     let result = selectedCity === "all" ? [...allBusinesses] : allBusinesses.filter(b => b.city === selectedCity);
     
+    if (selectedServices.length > 0) {
+      result = result.filter(b => selectedServices.some(s => b.services?.includes(s)));
+    }
+
     if (selectedGammeFilter !== "all") {
       result = result.filter(b => b.gamme_id === selectedGammeFilter);
     }
@@ -145,7 +165,7 @@ const ServicePage = () => {
     });
     
     return result;
-  }, [allBusinesses, selectedCity, selectedGammeFilter, sortMode, sortAsc]);
+  }, [allBusinesses, selectedCity, selectedGammeFilter, selectedServices, sortMode, sortAsc]);
 
   // Paginate
   const totalPages = Math.ceil(filteredBusinesses.length / ITEMS_PER_PAGE);
@@ -294,6 +314,8 @@ const ServicePage = () => {
         if (fetchError) throw fetchError;
         
         setAllBusinesses(businessData || []);
+        // Pre-select current service in filters
+        setSelectedServices([decodedServiceName]);
       } catch (error) {
         console.error("Error fetching service data:", error);
       } finally {
@@ -363,6 +385,15 @@ const ServicePage = () => {
     setSelectedCity(city);
     setSelectedBusiness(null);
     setSelectedGammeFilter("all");
+    setSelectedServices([decodedServiceName]);
+  };
+
+  const toggleService = (service: string) => {
+    setSelectedServices((prev) =>
+      prev.includes(service)
+        ? prev.filter((s) => s !== service)
+        : [...prev, service]
+    );
   };
 
   const handleSelectBusiness = (business: Business) => {
@@ -553,6 +584,35 @@ const ServicePage = () => {
             )}
           </div>
 
+          {/* Services Filter */}
+          {availableServices.length > 1 && (
+            <div className="mb-8">
+              <div className="mb-3">
+                <label className="text-sm text-gray-400">
+                  {language === "fr" ? "Services / Activités" : language === "ar" ? "الخدمات" : "Services"}:
+                </label>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {availableServices.map((service) => (
+                  <label
+                    key={service}
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs cursor-pointer border transition-colors ${
+                      selectedServices.includes(service)
+                        ? "bg-primary/10 border-primary text-primary"
+                        : "bg-background border-border text-muted-foreground hover:border-primary/50"
+                    }`}
+                  >
+                    <Checkbox
+                      checked={selectedServices.includes(service)}
+                      onCheckedChange={() => toggleService(service)}
+                      className="h-3 w-3"
+                    />
+                    {service}
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
 
           {filteredBusinesses.length === 0 ? (
             <div className="text-center py-16">
