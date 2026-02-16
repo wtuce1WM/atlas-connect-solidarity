@@ -560,7 +560,7 @@ const ServicePage = () => {
                       <button
                         key={city}
                         onClick={() => handleCityChange(city)}
-                        className="flex-shrink-0 py-2 snap-center w-[70vw] sm:w-auto"
+                        className="flex-shrink-0 py-2 snap-center w-[55vw] sm:w-auto"
                       >
                         <Card className={`group w-full sm:w-56 overflow-hidden transition-all hover:shadow-lg hover:scale-105 border border-white/20 bg-white/10 backdrop-blur-sm ${selectedCity === city ? "ring-2 ring-gold" : ""}`}>
                           <CardContent className="p-4 flex flex-col items-center text-center">
