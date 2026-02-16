@@ -20,6 +20,7 @@ import Contact from "./pages/Contact";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import EssaouiraSeaView from "./pages/EssaouiraSeaView";
+import BlogAnimations from "./pages/BlogAnimations";
 import RatedBusinesses from "./pages/RatedBusinesses";
 import NeighborhoodPage from "./pages/NeighborhoodPage";
 import AllBusinessesMap from "./pages/AllBusinessesMap";
@@ -52,6 +53,7 @@ const AppContent = () => {
             <Route path="/contact" element={<Contact />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/essaouira-vue-mer" element={<EssaouiraSeaView />} />
+            <Route path="/blog/animations" element={<BlogAnimations />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
             <Route path="/etablissements-notes" element={<RatedBusinesses />} />
             <Route path="/neighborhood/:neighborhood" element={<NeighborhoodPage />} />
