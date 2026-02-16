@@ -409,7 +409,9 @@ const ServicePage = () => {
 
   const handleSelectBusiness = (business: Business) => {
     setSelectedBusiness(business);
-    window.scrollTo({ top: 300, behavior: 'smooth' });
+    setTimeout(() => {
+      document.getElementById("service-map")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
   };
 
   const clearSelectedBusiness = () => {
@@ -592,6 +594,7 @@ const ServicePage = () => {
           )}
 
           {/* Google Maps */}
+          <div id="service-map" className="scroll-mt-24" />
           <Card className="mb-8 relative">
             <CardContent className="p-0">
               {selectedBusiness && (
