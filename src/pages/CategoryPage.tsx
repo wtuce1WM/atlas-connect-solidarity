@@ -87,6 +87,7 @@ const CategoryPage = () => {
   const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [sortMode, setSortMode] = useState<"rating" | "reviews">("rating");
+  const [sortAsc, setSortAsc] = useState(false);
   const [gammes, setGammes] = useState<Gamme[]>([]);
   const [badges, setBadges] = useState<Badge[]>([]);
   const [subcategories, setSubcategories] = useState<{ id: string; name_fr: string; sort_order: number | null }[]>([]);
@@ -177,22 +178,23 @@ const CategoryPage = () => {
     }
     
     // Sort based on sortMode
+    const dir = sortAsc ? 1 : -1;
     result = [...result].sort((a, b) => {
       if (sortMode === "reviews") {
         const countA = (a.google_review_count || 0) + (a.tripadvisor_review_count || 0) + (a.restaurant_guru_review_count || 0);
         const countB = (b.google_review_count || 0) + (b.tripadvisor_review_count || 0) + (b.restaurant_guru_review_count || 0);
-        return countB - countA;
+        return (countB - countA) * dir;
       }
       const rA = getEffectiveRating(a);
       const rB = getEffectiveRating(b);
       if (rA === null && rB === null) return 0;
       if (rA === null) return 1;
       if (rB === null) return -1;
-      return rB - rA;
+      return (rB - rA) * dir;
     });
     
     return result;
-  }, [allBusinesses, selectedCity, selectedSubcategories, selectedServices, sortMode]);
+  }, [allBusinesses, selectedCity, selectedSubcategories, selectedServices, sortMode, sortAsc]);
 
   // Paginate
   const totalPages = Math.ceil(filteredBusinesses.length / ITEMS_PER_PAGE);
@@ -586,18 +588,20 @@ const CategoryPage = () => {
                   <Button
                     variant={sortMode === "rating" ? "default" : "outline"}
                     size="sm"
-                    onClick={() => setSortMode("rating")}
+                    onClick={() => { if (sortMode === "rating") setSortAsc(!sortAsc); else { setSortMode("rating"); setSortAsc(false); } }}
                     className="text-xs"
                   >
                     {language === "fr" ? "Tri par note" : language === "ar" ? "ترتيب حسب التقييم" : "Sort by rating"}
+                    {sortMode === "rating" && (sortAsc ? " ↑" : " ↓")}
                   </Button>
                   <Button
                     variant={sortMode === "reviews" ? "default" : "outline"}
                     size="sm"
-                    onClick={() => setSortMode("reviews")}
+                    onClick={() => { if (sortMode === "reviews") setSortAsc(!sortAsc); else { setSortMode("reviews"); setSortAsc(false); } }}
                     className="text-xs"
                   >
                     {language === "fr" ? "Tri par avis" : language === "ar" ? "ترتيب حسب التعليقات" : "Sort by reviews"}
+                    {sortMode === "reviews" && (sortAsc ? " ↑" : " ↓")}
                   </Button>
                 </div>
               </div>
