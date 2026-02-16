@@ -995,12 +995,12 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="__none__">— Aucun —</SelectItem>
+                <SelectItem value="association">Association</SelectItem>
+                <SelectItem value="corporate_branding">Corporate & Branding</SelectItem>
+                <SelectItem value="grande_structure">Grande Structure</SelectItem>
+                <SelectItem value="institution">Institution</SelectItem>
                 <SelectItem value="petite_structure">Petite Structure</SelectItem>
                 <SelectItem value="structure_moyenne">Structure Moyenne</SelectItem>
-                <SelectItem value="grande_structure">Grande Structure</SelectItem>
-                <SelectItem value="corporate_branding">Corporate & Branding</SelectItem>
-                <SelectItem value="institution">Institution</SelectItem>
-                <SelectItem value="association">Association</SelectItem>
               </SelectContent>
            </Select>
           </div>
