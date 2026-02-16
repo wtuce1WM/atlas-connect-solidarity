@@ -161,7 +161,7 @@ const CategoriesSection = () => {
                   className="flex-shrink-0"
                 >
                   <Card
-                    className={`group w-56 overflow-hidden transition-all hover:shadow-lg hover:scale-105 border ${getColorByIndex(index)}`}
+                    className={`group w-56 transition-all hover:shadow-lg hover:scale-105 border ${getColorByIndex(index)}`}
                   >
                     <CardContent className="p-4">
                       <div className="flex items-center gap-3 mb-2">
