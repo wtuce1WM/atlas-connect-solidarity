@@ -789,6 +789,7 @@ export type Database = {
           show_on_home: boolean
           show_on_neighborhood: boolean
           show_on_service: boolean
+          show_on_subcategory: boolean
           sort_order: number | null
           updated_at: string | null
           url_ar: string | null
@@ -811,6 +812,7 @@ export type Database = {
           show_on_home?: boolean
           show_on_neighborhood?: boolean
           show_on_service?: boolean
+          show_on_subcategory?: boolean
           sort_order?: number | null
           updated_at?: string | null
           url_ar?: string | null
@@ -833,6 +835,7 @@ export type Database = {
           show_on_home?: boolean
           show_on_neighborhood?: boolean
           show_on_service?: boolean
+          show_on_subcategory?: boolean
           sort_order?: number | null
           updated_at?: string | null
           url_ar?: string | null

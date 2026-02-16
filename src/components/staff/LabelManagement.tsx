@@ -30,6 +30,7 @@ interface LabelItem {
   show_on_city: boolean;
   show_on_service: boolean;
   show_on_neighborhood: boolean;
+  show_on_subcategory: boolean;
 }
 
 interface LabelBusiness {
@@ -55,6 +56,7 @@ interface LabelFormState {
   show_on_city: boolean;
   show_on_service: boolean;
   show_on_neighborhood: boolean;
+  show_on_subcategory: boolean;
 }
 
 const emptyForm: LabelFormState = {
@@ -74,6 +76,7 @@ const emptyForm: LabelFormState = {
   show_on_city: false,
   show_on_service: false,
   show_on_neighborhood: false,
+  show_on_subcategory: false,
 };
 
 const LabelManagement = () => {
@@ -97,7 +100,7 @@ const LabelManagement = () => {
     const [labelsRes, blRes] = await Promise.all([
       supabase
         .from("labels" as any)
-        .select("id, name_fr, name_en, name_ar, description_fr, description_en, description_ar, url_fr, url_en, url_ar, image_url, logo_url, sort_order, created_at, show_on_home, show_on_category, show_on_city, show_on_service, show_on_neighborhood")
+        .select("id, name_fr, name_en, name_ar, description_fr, description_en, description_ar, url_fr, url_en, url_ar, image_url, logo_url, sort_order, created_at, show_on_home, show_on_category, show_on_city, show_on_service, show_on_neighborhood, show_on_subcategory")
         .order("sort_order", { ascending: true }),
       supabase
         .from("business_labels")
@@ -159,6 +162,7 @@ const LabelManagement = () => {
         show_on_city: newLabel.show_on_city,
         show_on_service: newLabel.show_on_service,
         show_on_neighborhood: newLabel.show_on_neighborhood,
+        show_on_subcategory: newLabel.show_on_subcategory,
       });
 
     if (error) {
@@ -208,6 +212,7 @@ const LabelManagement = () => {
         show_on_city: editForm.show_on_city,
         show_on_service: editForm.show_on_service,
         show_on_neighborhood: editForm.show_on_neighborhood,
+        show_on_subcategory: editForm.show_on_subcategory,
       })
       .eq("id", id);
 
@@ -273,6 +278,7 @@ const LabelManagement = () => {
       show_on_city: label.show_on_city,
       show_on_service: label.show_on_service,
       show_on_neighborhood: label.show_on_neighborhood,
+      show_on_subcategory: (label as any).show_on_subcategory ?? false,
     });
   };
 
@@ -548,6 +554,7 @@ const LabelManagement = () => {
           {[
             { key: "show_on_home" as const, label: "Accueil" },
             { key: "show_on_category" as const, label: "Catégories" },
+            { key: "show_on_subcategory" as const, label: "Sous-catégories" },
             { key: "show_on_city" as const, label: "Villes" },
             { key: "show_on_service" as const, label: "Services" },
             { key: "show_on_neighborhood" as const, label: "Quartiers" },
