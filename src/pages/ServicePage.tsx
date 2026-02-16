@@ -466,7 +466,7 @@ const ServicePage = () => {
       <Header />
       
       {/* Hero Section */}
-      <section className="bg-black/70 pt-28 pb-8 lg:pb-16 relative overflow-hidden">
+      <section className="pt-28 pb-8 lg:pb-16 relative overflow-hidden" style={{ background: "linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%)" }}>
         <div className="container mx-auto px-4 relative z-10">
           <button
             onClick={() => navigate(-1)}
