@@ -503,7 +503,7 @@ const ServicePage = () => {
           {availableCities.length > 0 && (
             <div className="mb-8 bg-black/50 rounded-xl p-6">
               <div className="mb-6 text-center">
-                <h2 className="mb-2 text-3xl font-bold text-white">
+                <h2 className="mb-2 text-xl sm:text-3xl font-bold text-white">
                   {language === "fr"
                     ? `Découvrez ${decodedServiceName} `
                     : language === "ar"
