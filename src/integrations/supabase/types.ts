@@ -20,6 +20,7 @@ export type Database = {
           contact_email: string | null
           contact_name: string | null
           contact_phone: string | null
+          country_id: string
           created_at: string
           ice: string | null
           id: string
@@ -38,6 +39,7 @@ export type Database = {
           contact_email?: string | null
           contact_name?: string | null
           contact_phone?: string | null
+          country_id: string
           created_at?: string
           ice?: string | null
           id?: string
@@ -56,6 +58,7 @@ export type Database = {
           contact_email?: string | null
           contact_name?: string | null
           contact_phone?: string | null
+          country_id?: string
           created_at?: string
           ice?: string | null
           id?: string
@@ -69,7 +72,15 @@ export type Database = {
           user_id?: string | null
           whatsapp?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "affiliates_country_id_fkey"
+            columns: ["country_id"]
+            isOneToOne: false
+            referencedRelation: "countries"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       badge_subcategories: {
         Row: {

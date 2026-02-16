@@ -32,6 +32,7 @@ interface Affiliate {
   ice: string | null;
   kp_regroupement: string | null;
   main_category: string | null;
+  country_id: string;
   whatsapp: string | null;
   phone: string | null;
   contact_email: string | null;
@@ -56,6 +57,7 @@ const AffiliateManagement = () => {
   const { toast } = useToast();
   const [affiliates, setAffiliates] = useState<Affiliate[]>([]);
   const [categories, setCategories] = useState<{ id: string; name_fr: string }[]>([]);
+  const [countries, setCountries] = useState<{ id: string; name_fr: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [accountDialogOpen, setAccountDialogOpen] = useState(false);
@@ -74,6 +76,7 @@ const AffiliateManagement = () => {
     ice: "",
     kp_regroupement: "",
     main_category: "",
+    country_id: "",
     whatsapp: "",
     phone: "",
     contact_email: "",
@@ -86,6 +89,7 @@ const AffiliateManagement = () => {
   useEffect(() => {
     fetchAffiliates();
     fetchCategories();
+    fetchCountries();
   }, []);
 
   const fetchAffiliates = async () => {
@@ -116,6 +120,14 @@ const AffiliateManagement = () => {
     if (data) setCategories(data);
   };
 
+  const fetchCountries = async () => {
+    const { data } = await supabase
+      .from('countries')
+      .select('id, name_fr')
+      .order('name_fr');
+    if (data) setCountries(data);
+  };
+
   const resetForm = () => {
     setFormData({
       account_type: "",
@@ -123,6 +135,7 @@ const AffiliateManagement = () => {
       ice: "",
       kp_regroupement: "",
       main_category: "",
+      country_id: countries.length > 0 ? countries[0].id : "",
       whatsapp: "",
       phone: "",
       contact_email: "",
@@ -147,6 +160,7 @@ const AffiliateManagement = () => {
       ice: affiliate.ice || "",
       kp_regroupement: affiliate.kp_regroupement || "",
       main_category: affiliate.main_category || "",
+      country_id: affiliate.country_id,
       whatsapp: affiliate.whatsapp || "",
       phone: affiliate.phone || "",
       contact_email: affiliate.contact_email || "",
@@ -168,6 +182,15 @@ const AffiliateManagement = () => {
       return;
     }
 
+    if (!formData.country_id) {
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Le pays est obligatoire.",
+      });
+      return;
+    }
+
     setSaving(true);
 
     const affiliateData = {
@@ -176,6 +199,7 @@ const AffiliateManagement = () => {
       ice: formData.ice?.slice(0, 20) || null,
       kp_regroupement: formData.kp_regroupement?.slice(0, 20) || null,
       main_category: formData.main_category || null,
+      country_id: formData.country_id,
       whatsapp: formData.whatsapp || null,
       phone: formData.phone || null,
       contact_email: formData.contact_email || null,
@@ -399,6 +423,26 @@ const AffiliateManagement = () => {
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="Nom de l'entreprise affiliée"
                 />
+              </div>
+
+              {/* Pays */}
+              <div className="space-y-2">
+                <Label>Pays *</Label>
+                <Select
+                  value={formData.country_id}
+                  onValueChange={(value) => setFormData({ ...formData, country_id: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sélectionner un pays..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {countries.map((country) => (
+                      <SelectItem key={country.id} value={country.id}>
+                        {country.name_fr}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
