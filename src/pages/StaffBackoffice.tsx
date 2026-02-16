@@ -37,6 +37,8 @@ const StaffBackoffice = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [cityFilter, setCityFilter] = useState<string>("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [subcategoryFilter, setSubcategoryFilter] = useState<string>("all");
+  const [subcategories, setSubcategories] = useState<{ id: string; name_fr: string }[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingBusiness, setEditingBusiness] = useState<Business | null>(null);
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -108,6 +110,22 @@ const StaffBackoffice = () => {
     const { data } = await supabase.from("gammes").select("id, name_fr, color_hex, text_color_hex").order("name_fr");
     if (data) setGammes(data);
   };
+
+  // Fetch subcategories when category filter changes
+  useEffect(() => {
+    setSubcategoryFilter("all");
+    if (categoryFilter === "all") {
+      setSubcategories([]);
+      return;
+    }
+    const fetchSubs = async () => {
+      const { data: cat } = await supabase.from("categories").select("id").eq("name_fr", categoryFilter).single();
+      if (!cat) { setSubcategories([]); return; }
+      const { data } = await supabase.from("subcategories").select("id, name_fr").eq("category_id", cat.id).order("name_fr");
+      setSubcategories(data || []);
+    };
+    fetchSubs();
+  }, [categoryFilter]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -200,7 +218,8 @@ const StaffBackoffice = () => {
       (business.main_category?.toLowerCase().includes(searchQuery.toLowerCase()));
     const matchesCity = cityFilter === "all" || business.city === cityFilter;
     const matchesCategory = categoryFilter === "all" || business.main_category === categoryFilter;
-    return matchesSearch && matchesCity && matchesCategory;
+    const matchesSubcategory = subcategoryFilter === "all" || (business.categories?.includes(subcategoryFilter));
+    return matchesSearch && matchesCity && matchesCategory && matchesSubcategory;
   });
 
   if (!user) {
@@ -393,6 +412,19 @@ const StaffBackoffice = () => {
                     ))}
                   </SelectContent>
                 </Select>
+                {subcategories.length > 0 && (
+                  <Select value={subcategoryFilter} onValueChange={setSubcategoryFilter}>
+                    <SelectTrigger className="w-[220px]">
+                      <SelectValue placeholder="Sous-catégorie" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Toutes les sous-catégories</SelectItem>
+                      {subcategories.map(sub => (
+                        <SelectItem key={sub.id} value={sub.name_fr}>{sub.name_fr}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
                 <Button
                   onClick={() => setShowForm(true)}
                   className="bg-green-600 hover:bg-green-700 text-white"
