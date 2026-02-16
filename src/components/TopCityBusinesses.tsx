@@ -54,7 +54,8 @@ const TopCityBusinesses = ({ businesses, cityName, neighborhoodName, gammes = []
 
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
-      const scrollAmount = 240;
+      const cardEl = scrollRef.current.querySelector('a');
+      const scrollAmount = cardEl ? cardEl.offsetWidth + 16 : 240;
       scrollRef.current.scrollBy({
         left: direction === "left" ? -scrollAmount : scrollAmount,
         behavior: "smooth",
@@ -78,36 +79,36 @@ const TopCityBusinesses = ({ businesses, cityName, neighborhoodName, gammes = []
       </div>
 
       {/* Scrollable Container with Arrows */}
-      <div className="relative">
+      <div className="relative px-10 sm:px-0">
         {/* Left Arrow */}
         <button
           onClick={() => scroll("left")}
-          className="absolute -left-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-gold p-3 shadow-lg transition-all hover:bg-gold/80"
+          className="absolute left-0 sm:-left-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-gold p-2 sm:p-3 shadow-lg transition-all hover:bg-gold/80"
         >
-          <ChevronLeft className="h-6 w-6 text-black" />
+          <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6 text-black" />
         </button>
 
         {/* Right Arrow */}
         <button
           onClick={() => scroll("right")}
-          className="absolute -right-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-gold p-3 shadow-lg transition-all hover:bg-gold/80"
+          className="absolute right-0 sm:-right-4 top-1/2 z-20 -translate-y-1/2 rounded-full bg-gold p-2 sm:p-3 shadow-lg transition-all hover:bg-gold/80"
         >
-          <ChevronRight className="h-6 w-6 text-black" />
+          <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6 text-black" />
         </button>
 
         {/* Business Cards - Horizontal Scroll */}
         <div
           ref={scrollRef}
-          className="flex gap-4 overflow-x-auto pb-4 scroll-smooth scrollbar-hide"
+          className="flex gap-4 overflow-x-auto pb-4 scroll-smooth scrollbar-hide snap-x snap-mandatory sm:snap-none"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
           {topBusinesses.map((business) => (
             <Link
               key={business.id}
               to={`/business/${business.id}`}
-              className="group flex-shrink-0"
+              className="group flex-shrink-0 snap-center w-[55vw] sm:w-auto"
             >
-              <Card className="w-72 h-full overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-gold/20 border border-gold/30 relative">
+              <Card className="w-full sm:w-72 h-full overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-gold/20 border border-gold/30 relative">
                 {/* Background Image with overlay */}
                 <div className="absolute inset-0">
                   <img
