@@ -122,10 +122,7 @@ const ServicePage = () => {
     if (selectedGammeFilter !== "all") {
       businessesToCheck = businessesToCheck.filter(b => b.gamme_id === selectedGammeFilter);
     }
-    businessesToCheck.forEach(b => {
-      b.services?.forEach(s => services.add(s));
-      b.categories?.forEach(c => services.add(c));
-    });
+    businessesToCheck.forEach(b => b.services?.forEach(s => services.add(s)));
     return Array.from(services).sort((a, b) => a.localeCompare(b, "fr"));
   }, [allBusinesses, selectedCity, selectedGammeFilter]);
 
@@ -146,7 +143,7 @@ const ServicePage = () => {
     
     if (selectedServices.length > 0) {
       result = result.filter(b =>
-        selectedServices.some(s => b.services?.includes(s) || b.categories?.includes(s))
+        selectedServices.some(s => b.services?.includes(s))
       );
     }
 
