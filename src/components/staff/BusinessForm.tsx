@@ -1026,7 +1026,64 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
 
           {/* Langues parlées */}
           <div className="mt-4 space-y-2 col-span-1 md:col-span-5">
-            <Label>Langues parlées</Label>
+            <div className="flex items-center justify-between">
+              <Label>Langues parlées</Label>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="text-xs h-6 px-2"
+                  onClick={async () => {
+                    const { data } = await supabase
+                      .from("staff_notes")
+                      .select("content")
+                      .eq("key", "default_languages")
+                      .maybeSingle();
+                    if (data?.content) {
+                      try {
+                        const defaults = JSON.parse(data.content);
+                        if (Array.isArray(defaults)) {
+                          handleChange("languages", defaults);
+                          toast({ title: "Langues par défaut appliquées" });
+                        }
+                      } catch { toast({ title: "Erreur de format", variant: "destructive" }); }
+                    } else {
+                      toast({ title: "Aucune langue par défaut définie", variant: "destructive" });
+                    }
+                  }}
+                >
+                  ↓ Appliquer défaut
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs h-6 px-2"
+                  onClick={async () => {
+                    const languages = ((formData as any).languages as string[]) || [];
+                    if (languages.length === 0) {
+                      toast({ title: "Sélectionnez d'abord des langues", variant: "destructive" });
+                      return;
+                    }
+                    const content = JSON.stringify(languages);
+                    const { data: existing } = await supabase
+                      .from("staff_notes")
+                      .select("id")
+                      .eq("key", "default_languages")
+                      .maybeSingle();
+                    if (existing) {
+                      await supabase.from("staff_notes").update({ content, updated_at: new Date().toISOString() }).eq("key", "default_languages");
+                    } else {
+                      await supabase.from("staff_notes").insert({ key: "default_languages", content });
+                    }
+                    toast({ title: "Langues par défaut sauvegardées ✓" });
+                  }}
+                >
+                  💾 Définir comme défaut
+                </Button>
+              </div>
+            </div>
             <div className="grid grid-cols-10 gap-1">
               {[
                 { code: "ar", flag: "🇲🇦", label: "AR" },
