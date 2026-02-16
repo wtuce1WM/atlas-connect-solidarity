@@ -363,10 +363,12 @@ const BusinessDetail = () => {
                 <span>·</span>
               </>
             )}
-            <Link to={`/city/${encodeURIComponent(business.city)}`} className={`hover:underline ${isVerified ? "hover:text-white" : "hover:text-foreground"}`}>
-              {business.city}
-              {business.neighborhood ? `, ${business.neighborhood}` : `, ${business.region}`}
-            </Link>
+            {business.city && (
+              <Link to={`/city/${encodeURIComponent(business.city)}`} className={`hover:underline ${isVerified ? "hover:text-white" : "hover:text-foreground"}`}>
+                {business.city}
+                {business.neighborhood ? `, ${business.neighborhood}` : business.region ? `, ${business.region}` : ''}
+              </Link>
+            )}
           </div>
 
           {/* Gamme badge */}
