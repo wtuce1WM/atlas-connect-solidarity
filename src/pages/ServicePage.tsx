@@ -695,7 +695,7 @@ const ServicePage = () => {
                     key={service}
                     className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs cursor-pointer border transition-colors ${
                       selectedServices.includes(service)
-                        ? "bg-primary/10 border-primary text-primary"
+                        ? "bg-gold border-gold text-black font-semibold"
                         : "bg-background border-border text-muted-foreground hover:border-primary/50"
                     }`}
                   >
