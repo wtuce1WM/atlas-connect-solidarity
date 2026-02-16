@@ -25,7 +25,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Edit, Trash2, ExternalLink, Copy, AlertTriangle, Link2 } from "lucide-react";
+import { Edit, Trash2, ExternalLink, Copy, AlertTriangle, Link2, Star } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 import { useBusinessBrokenFiles } from "@/hooks/useBusinessBrokenFiles";
 
@@ -90,7 +90,7 @@ const BusinessTable = ({ businesses, gammes, loading, onEdit, onDelete, onDuplic
               <TableHead>Ville</TableHead>
               <TableHead>Catégorie principale</TableHead>
               <TableHead>Gamme</TableHead>
-              <TableHead>Type de compte</TableHead>
+              <TableHead>Note & Avis</TableHead>
               <TableHead>Statut</TableHead>
               <TableHead>Actif</TableHead>
               <TableHead>Contact</TableHead>
@@ -207,30 +207,44 @@ const BusinessTable = ({ businesses, gammes, loading, onEdit, onDelete, onDuplic
                   })()}
                 </TableCell>
                 <TableCell>
-                  {(business as any).account_type ? (
-                    <Badge 
-                      variant="secondary"
-                      className={
-                        (business as any).account_type === "corporate_branding"
-                          ? "bg-gold/10 text-gold"
-                          : (business as any).account_type === "grande_structure"
-                          ? "bg-purple-500/10 text-purple-600"
-                          : (business as any).account_type === "structure_moyenne"
-                          ? "bg-blue-500/10 text-blue-600"
-                          : (business as any).account_type === "institution"
-                          ? "bg-emerald-500/10 text-emerald-600"
-                          : "bg-muted text-muted-foreground"
-                      }
-                    >
-                      {(business as any).account_type === "petite_structure" && "Petite Structure"}
-                      {(business as any).account_type === "structure_moyenne" && "Structure Moyenne"}
-                      {(business as any).account_type === "grande_structure" && "Grande Structure"}
-                      {(business as any).account_type === "corporate_branding" && "Corporate & Branding"}
-                      {(business as any).account_type === "institution" && "Institution"}
-                    </Badge>
-                  ) : (
-                    <span className="text-muted-foreground">-</span>
-                  )}
+                  <div className="flex flex-col gap-1 text-sm">
+                    {business.google_rating && (
+                      <div className="flex items-center gap-1">
+                        <Star className="h-3 w-3 text-amber-500 fill-amber-500" />
+                        <span className="font-medium">{business.google_rating}</span>
+                        {business.google_review_count != null && (
+                          <span className="text-muted-foreground">({business.google_review_count})</span>
+                        )}
+                      </div>
+                    )}
+                    {business.tripadvisor_rating && (
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs text-green-600 font-medium">TA</span>
+                        <span>{business.tripadvisor_rating}</span>
+                        {business.tripadvisor_review_count != null && (
+                          <span className="text-muted-foreground">({business.tripadvisor_review_count})</span>
+                        )}
+                      </div>
+                    )}
+                    {business.restaurant_guru_rating && (
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs text-orange-600 font-medium">RG</span>
+                        <span>{business.restaurant_guru_rating}</span>
+                        {business.restaurant_guru_review_count != null && (
+                          <span className="text-muted-foreground">({business.restaurant_guru_review_count})</span>
+                        )}
+                      </div>
+                    )}
+                    {business.rating != null && (
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs text-primary font-medium">Manuel</span>
+                        <span>{String(business.rating)}/20</span>
+                      </div>
+                    )}
+                    {!business.google_rating && !business.tripadvisor_rating && !business.restaurant_guru_rating && business.rating == null && (
+                      <span className="text-muted-foreground">-</span>
+                    )}
+                  </div>
                 </TableCell>
                 <TableCell>
                   <Badge
