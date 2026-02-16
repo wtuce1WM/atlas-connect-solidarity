@@ -109,7 +109,7 @@ const ServicePage = () => {
   const availableGammes = useMemo(() => {
     let cityFiltered = selectedCity === "all" ? allBusinesses : allBusinesses.filter(b => b.city === selectedCity);
     if (selectedServices.length > 0) {
-      cityFiltered = cityFiltered.filter(b => selectedServices.some(s => b.services?.includes(s)));
+      cityFiltered = cityFiltered.filter(b => selectedServices.some(s => b.services?.includes(s) || b.categories?.includes(s)));
     }
     const gammeIds = new Set(cityFiltered.map(b => b.gamme_id).filter(Boolean));
     return gammes.filter(g => gammeIds.has(g.id));
@@ -122,7 +122,10 @@ const ServicePage = () => {
     if (selectedGammeFilter !== "all") {
       businessesToCheck = businessesToCheck.filter(b => b.gamme_id === selectedGammeFilter);
     }
-    businessesToCheck.forEach(b => b.services?.forEach(s => services.add(s)));
+    businessesToCheck.forEach(b => {
+      b.services?.forEach(s => services.add(s));
+      b.categories?.forEach(c => services.add(c));
+    });
     return Array.from(services).sort((a, b) => a.localeCompare(b, "fr"));
   }, [allBusinesses, selectedCity, selectedGammeFilter]);
 
@@ -143,7 +146,7 @@ const ServicePage = () => {
     
     if (selectedServices.length > 0) {
       result = result.filter(b =>
-        selectedServices.some(s => b.services?.includes(s))
+        selectedServices.some(s => b.services?.includes(s) || b.categories?.includes(s))
       );
     }
 
