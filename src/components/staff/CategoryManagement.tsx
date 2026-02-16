@@ -149,18 +149,22 @@ const CategoryManagement = () => {
         if (c.name_ar) catNameToId[c.name_ar] = c.id;
       }
 
-      // Build name->id maps for subcategories and services
-      const subNameToId: Record<string, string> = {};
+      // Build name->ids maps for subcategories and services (a name can map to multiple IDs)
+      const subNameToIds: Record<string, string[]> = {};
       for (const s of subRes.data) {
-        subNameToId[s.name_fr] = s.id;
-        if (s.name_en) subNameToId[s.name_en] = s.id;
-        if (s.name_ar) subNameToId[s.name_ar] = s.id;
+        const names = [s.name_fr, s.name_en, s.name_ar].filter(Boolean) as string[];
+        for (const n of names) {
+          if (!subNameToIds[n]) subNameToIds[n] = [];
+          if (!subNameToIds[n].includes(s.id)) subNameToIds[n].push(s.id);
+        }
       }
-      const svcNameToId: Record<string, string> = {};
+      const svcNameToIds: Record<string, string[]> = {};
       for (const s of svcRes.data) {
-        svcNameToId[s.name_fr] = s.id;
-        if (s.name_en) svcNameToId[s.name_en] = s.id;
-        if (s.name_ar) svcNameToId[s.name_ar] = s.id;
+        const names = [s.name_fr, s.name_en, s.name_ar].filter(Boolean) as string[];
+        for (const n of names) {
+          if (!svcNameToIds[n]) svcNameToIds[n] = [];
+          if (!svcNameToIds[n].includes(s.id)) svcNameToIds[n].push(s.id);
+        }
       }
 
       for (const biz of bizRes.data) {
@@ -176,17 +180,21 @@ const CategoryManagement = () => {
         const countedSubIds = new Set<string>();
         const countedSvcIds = new Set<string>();
         for (const c of cats) {
-          const id = subNameToId[c];
-          if (id && !countedSubIds.has(id)) {
-            countedSubIds.add(id);
-            subCounts[id] = (subCounts[id] || 0) + 1;
+          const ids = subNameToIds[c] || [];
+          for (const id of ids) {
+            if (!countedSubIds.has(id)) {
+              countedSubIds.add(id);
+              subCounts[id] = (subCounts[id] || 0) + 1;
+            }
           }
         }
         for (const s of svcs) {
-          const id = svcNameToId[s];
-          if (id && !countedSvcIds.has(id)) {
-            countedSvcIds.add(id);
-            svcCounts[id] = (svcCounts[id] || 0) + 1;
+          const ids = svcNameToIds[s] || [];
+          for (const id of ids) {
+            if (!countedSvcIds.has(id)) {
+              countedSvcIds.add(id);
+              svcCounts[id] = (svcCounts[id] || 0) + 1;
+            }
           }
         }
       }
