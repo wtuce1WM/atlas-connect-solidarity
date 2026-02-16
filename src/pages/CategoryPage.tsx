@@ -783,7 +783,7 @@ const CategoryPage = () => {
 
       <DynamicLabelSections pageType="category" lightMode={true} categoryId={categoryInfo?.id} />
 
-      <Footer />
+      <Footer variant="morocco" />
     </div>
   );
 };
