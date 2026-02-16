@@ -605,7 +605,7 @@ const ServicePage = () => {
               )}
               <iframe
                 src={getMapEmbedUrl()}
-                className="w-full border-0 rounded-lg absolute inset-0 h-[580px] sm:h-full sm:static -top-[70px] sm:top-0"
+                className="w-full border-0 rounded-lg absolute inset-0 h-[580px] sm:h-full sm:static -top-[100px] sm:top-0"
                 allowFullScreen
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
