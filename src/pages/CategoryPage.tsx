@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Loader2, MapPin, Building2, ChevronLeft, ChevronRight, X, ArrowLeft } from "lucide-react";
+import { Loader2, MapPin, Building2, ChevronLeft, ChevronRight, X, ArrowLeft, SlidersHorizontal } from "lucide-react";
 import MapBusinessInfoCard from "@/components/MapBusinessInfoCard";
 import DynamicIcon from "@/components/DynamicIcon";
 import AnimatedBusinessStrip from "@/components/AnimatedBusinessStrip";
@@ -89,6 +89,7 @@ const CategoryPage = () => {
   const [sortMode, setSortMode] = useState<"rating" | "reviews">("rating");
   const [sortAsc, setSortAsc] = useState(false);
   const [selectedGamme, setSelectedGamme] = useState<string>("all");
+  const [showFilters, setShowFilters] = useState(false);
   const [gammes, setGammes] = useState<Gamme[]>([]);
   const [badges, setBadges] = useState<Badge[]>([]);
   const [subcategories, setSubcategories] = useState<{ id: string; name_fr: string; sort_order: number | null }[]>([]);
@@ -509,8 +510,24 @@ const CategoryPage = () => {
       <section className={`py-6 lg:py-12 ${bgClass}`}>
         <div className="container mx-auto px-4">
 
+          {/* Mobile filter toggle */}
+          <div className="sm:hidden mb-4">
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className={`flex items-center gap-2 w-full px-4 py-2.5 rounded-lg ${isWhiteBg ? 'bg-black/5 border border-black/10 text-black' : 'bg-white/10 border border-white/20 text-white'} text-sm font-medium transition-colors ${isWhiteBg ? 'hover:bg-black/10' : 'hover:bg-white/20'}`}
+            >
+              <SlidersHorizontal className="h-4 w-4" />
+              {language === "fr" ? "Filtrer les résultats" : language === "ar" ? "تصفية النتائج" : "Filter results"}
+              {(selectedSubcategories.length > 0 || selectedServices.length > 0 || selectedGamme !== "all") && (
+                <span className="ml-auto bg-gold text-black text-xs font-bold rounded-full px-2 py-0.5">
+                  {[...selectedSubcategories, ...selectedServices, ...(selectedGamme !== "all" ? [selectedGamme] : [])].length}
+                </span>
+              )}
+            </button>
+          </div>
+
           {/* City & Subcategory Filters */}
-          <div id="category-filters" className="space-y-3 mb-8 scroll-mt-24">
+          <div id="category-filters" className={`space-y-3 mb-8 scroll-mt-24 ${showFilters ? 'block' : 'hidden'} sm:block`}>
             <div className="flex flex-col sm:flex-row gap-3">
               {/* City Filter */}
               {availableCities.length > 1 && (
