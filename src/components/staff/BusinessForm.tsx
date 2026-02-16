@@ -1266,8 +1266,8 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
 
             {/* Lat, Lng & GPS button - other half */}
             <div className="flex gap-2 items-end">
-              <div className="space-y-2 flex-1">
-                <Label htmlFor="latitude_top" className="text-xs">Latitude</Label>
+              <div className="space-y-2" style={{ width: '130px', minWidth: '130px' }}>
+                <Label htmlFor="latitude_top" className="text-xs">Lat</Label>
                 <Input
                   id="latitude_top"
                   type="number"
@@ -1278,8 +1278,8 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                   className="text-xs h-8"
                 />
               </div>
-              <div className="space-y-2 flex-1">
-                <Label htmlFor="longitude_top" className="text-xs">Longitude</Label>
+              <div className="space-y-2" style={{ width: '130px', minWidth: '130px' }}>
+                <Label htmlFor="longitude_top" className="text-xs">Lng</Label>
                 <Input
                   id="longitude_top"
                   type="number"
