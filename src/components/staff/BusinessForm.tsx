@@ -1000,6 +1000,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                 <SelectItem value="grande_structure">Grande Structure</SelectItem>
                 <SelectItem value="corporate_branding">Corporate & Branding</SelectItem>
                 <SelectItem value="institution">Institution</SelectItem>
+                <SelectItem value="association">Association</SelectItem>
               </SelectContent>
            </Select>
           </div>
