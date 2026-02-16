@@ -1,0 +1,1 @@
+ALTER TABLE public.labels ADD COLUMN show_on_subcategory boolean NOT NULL DEFAULT false;
