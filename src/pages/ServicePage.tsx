@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -6,7 +6,6 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import heroMarrakech from "@/assets/hero-marrakech.jpg";
 import DynamicLabelSections from "@/components/DynamicLabelSections";
-import CitiesSection from "@/components/CitiesSection";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2, MapPin, Building2, ChevronLeft, ChevronRight, Sun, X, ArrowLeft } from "lucide-react";
@@ -529,8 +528,60 @@ const ServicePage = () => {
             </div>
           )}
 
-          {/* Cities Section */}
-          <CitiesSection />
+          {/* Cities Section - same cities as scroll above */}
+          {availableCities.length > 0 && (
+            <div className="mb-8">
+              <div className="mb-6 text-center">
+                <h2 className="mb-2 text-3xl font-bold text-white">
+                  {language === "fr" ? "Explorez nos " : language === "ar" ? "استكشف " : "Explore our "}
+                  <span className="text-primary">{language === "fr" ? "Villes" : language === "ar" ? "مدننا" : "Cities"}</span>
+                </h2>
+                <p className="mx-auto max-w-2xl text-gray-400">
+                  {language === "fr"
+                    ? `Découvrez ${decodedServiceName} dans chaque ville`
+                    : language === "ar"
+                      ? `اكتشف ${decodedServiceName} في كل مدينة`
+                      : `Discover ${decodedServiceName} in every city`}
+                </p>
+              </div>
+              <div className="relative">
+                <div className="scrollbar-hide flex gap-4 overflow-x-auto scroll-smooth pb-4" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
+                  {availableCities.map((city, index) => {
+                    const count = allBusinesses.filter(b => b.city === city).length;
+                    const colors = [
+                      "bg-primary/10 text-primary border-primary/20",
+                      "bg-secondary/10 text-secondary border-secondary/20",
+                      "bg-atlas/10 text-atlas border-atlas/20",
+                      "bg-gold/10 text-gold border-gold/20",
+                    ];
+                    const colorClass = colors[index % colors.length];
+                    return (
+                      <Link
+                        key={city}
+                        to={`/city/${encodeURIComponent(city)}`}
+                        className="flex-shrink-0"
+                      >
+                        <Card className={`group w-56 overflow-hidden transition-all hover:shadow-lg hover:scale-105 border ${colorClass}`}>
+                          <CardContent className="p-4">
+                            <div className="flex items-center gap-3 mb-2">
+                              <div className={`rounded-full p-2 ${colorClass}`}>
+                                <MapPin className="h-5 w-5" />
+                              </div>
+                              <h3 className="font-semibold text-white group-hover:text-primary transition-colors">{city}</h3>
+                            </div>
+                            <div className="flex items-center gap-1 text-xs text-gray-400">
+                              <Building2 className="h-3 w-3" />
+                              <span>{count} {t.establishments}</span>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Google Maps */}
           <Card className="mb-8 relative">
