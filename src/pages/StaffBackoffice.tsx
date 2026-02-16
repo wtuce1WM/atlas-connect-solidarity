@@ -39,6 +39,8 @@ const StaffBackoffice = () => {
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [subcategoryFilter, setSubcategoryFilter] = useState<string>("all");
   const [subcategories, setSubcategories] = useState<{ id: string; name_fr: string }[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 50;
   const [showForm, setShowForm] = useState(false);
   const [editingBusiness, setEditingBusiness] = useState<Business | null>(null);
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -126,6 +128,9 @@ const StaffBackoffice = () => {
     };
     fetchSubs();
   }, [categoryFilter]);
+
+  // Reset pagination when filters change
+  useEffect(() => { setCurrentPage(1); }, [searchQuery, cityFilter, categoryFilter, subcategoryFilter]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -221,6 +226,11 @@ const StaffBackoffice = () => {
     const matchesSubcategory = subcategoryFilter === "all" || (business.categories?.includes(subcategoryFilter));
     return matchesSearch && matchesCity && matchesCategory && matchesSubcategory;
   });
+
+  // Pagination
+  const totalPages = Math.max(1, Math.ceil(filteredBusinesses.length / PAGE_SIZE));
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+  const paginatedBusinesses = filteredBusinesses.slice((safeCurrentPage - 1) * PAGE_SIZE, safeCurrentPage * PAGE_SIZE);
 
   if (!user) {
     return (
@@ -462,13 +472,55 @@ const StaffBackoffice = () => {
 
               {/* Table */}
               <BusinessTable
-                businesses={filteredBusinesses}
+                businesses={paginatedBusinesses}
                 gammes={gammes}
                 loading={loading}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
                 onDuplicate={handleDuplicate}
               />
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-muted-foreground">
+                    {filteredBusinesses.length} résultat(s) — page {safeCurrentPage}/{totalPages}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={safeCurrentPage <= 1}
+                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    >
+                      Précédent
+                    </Button>
+                    {Array.from({ length: totalPages }, (_, i) => i + 1)
+                      .filter(p => p === 1 || p === totalPages || Math.abs(p - safeCurrentPage) <= 2)
+                      .map((p, idx, arr) => (
+                        <span key={p}>
+                          {idx > 0 && arr[idx - 1] !== p - 1 && <span className="text-muted-foreground px-1">…</span>}
+                          <Button
+                            variant={p === safeCurrentPage ? "default" : "outline"}
+                            size="sm"
+                            className="min-w-[36px]"
+                            onClick={() => setCurrentPage(p)}
+                          >
+                            {p}
+                          </Button>
+                        </span>
+                      ))}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={safeCurrentPage >= totalPages}
+                      onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    >
+                      Suivant
+                    </Button>
+                  </div>
+                </div>
+              )}
             </TabsContent>
 
             <TabsContent value="labels">
