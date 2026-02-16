@@ -495,7 +495,7 @@ const ServicePage = () => {
       </section>
 
       {/* Filters & Results */}
-      <section className="py-6 lg:py-12 bg-black/70">
+      <section className="py-6 lg:py-12 bg-transparent">
         <div className="container mx-auto px-4">
           {/* City cards horizontal scroll with auto-scroll */}
           {availableCities.length > 1 && (
