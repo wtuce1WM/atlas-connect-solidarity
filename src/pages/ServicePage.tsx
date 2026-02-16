@@ -552,15 +552,13 @@ const ServicePage = () => {
                         className="flex-shrink-0"
                       >
                         <Card className={`group w-56 overflow-hidden transition-all hover:shadow-lg hover:scale-105 border border-white/20 bg-white/10 backdrop-blur-sm ${selectedCity === city ? "ring-2 ring-gold" : ""}`}>
-                          <CardContent className="p-4">
-                            <div className="flex items-center gap-3 mb-2">
-                              <MapPin className="h-5 w-5 text-gold" />
-                              <h3 className="font-semibold text-white group-hover:text-primary transition-colors">{city}</h3>
-                            </div>
+                          <CardContent className="p-4 flex flex-col items-center text-center">
+                            <MapPin className="h-5 w-5 text-gold mb-2" />
+                            <h3 className="font-semibold text-white group-hover:text-primary transition-colors">{city}</h3>
                             {cityData?.region && (
-                              <p className="text-xs text-gray-400 mb-2 truncate">{cityData.region}</p>
+                              <p className="text-xs text-gray-400 mt-1 truncate">{cityData.region}</p>
                             )}
-                            <div className="flex items-center gap-1 text-xs text-gray-400">
+                            <div className="flex items-center gap-1 text-xs text-gray-400 mt-2">
                               <Building2 className="h-3 w-3" />
                               <span>{count} {t.establishments}</span>
                             </div>
