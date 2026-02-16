@@ -503,11 +503,11 @@ const ServicePage = () => {
               <div className="mb-6 text-center">
                 <h2 className="mb-2 text-3xl font-bold text-white">
                   {language === "fr"
-                    ? `Découvrez ${decodedServiceName} dans chaque `
+                    ? `Découvrez ${decodedServiceName} `
                     : language === "ar"
-                      ? `اكتشف ${decodedServiceName} في كل `
-                      : `Discover ${decodedServiceName} in every `}
-                  <span className="text-primary">{language === "fr" ? "ville" : language === "ar" ? "مدينة" : "city"}</span>
+                      ? `اكتشف ${decodedServiceName} `
+                      : `Discover ${decodedServiceName} `}
+                  <span className="text-gold">{language === "fr" ? "dans chaque ville" : language === "ar" ? "في كل مدينة" : "in every city"}</span>
                 </h2>
                 <p className="mx-auto max-w-2xl text-gray-400">
                   {language === "fr"
