@@ -497,14 +497,6 @@ const CategoryPage = () => {
         </div>
       </section>
 
-      {/* Animated Business Strip */}
-      <AnimatedBusinessStrip
-        title={language === "fr" ? "{count} adresses à découvrir" : language === "ar" ? "{count} عنوانًا للاكتشاف" : "{count} addresses to discover"}
-        category={decodedCategoryName}
-        showMapLink
-        onSelectBusiness={(biz) => handleSelectBusiness(biz as any)}
-        lightMode={isWhiteBg}
-      />
 
       {/* Map & Filters & Results */}
       <section className={`py-6 lg:py-12 ${bgClass}`}>
