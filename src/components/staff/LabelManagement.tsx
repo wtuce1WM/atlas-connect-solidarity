@@ -660,6 +660,60 @@ const LabelManagement = () => {
                               <span>URL configurées</span>
                             </div>
                           )}
+                          {/* Visibility badges */}
+                          <div className="flex flex-wrap gap-1 mt-1.5">
+                            {label.show_on_home && <Badge variant="secondary" className="text-[10px] px-1.5 py-0">Accueil</Badge>}
+                            {label.show_on_category && (
+                              <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                                Catégories{(() => {
+                                  const assoc = labelAssociations[label.id];
+                                  const ids = assoc?.category_ids || [];
+                                  if (ids.length === 0) return " (toutes)";
+                                  return `: ${ids.map(id => refCategories.find(c => c.id === id)?.name || "?").join(", ")}`;
+                                })()}
+                              </Badge>
+                            )}
+                            {label.show_on_subcategory && (
+                              <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                                Sous-cat.{(() => {
+                                  const assoc = labelAssociations[label.id];
+                                  const ids = assoc?.subcategory_ids || [];
+                                  if (ids.length === 0) return " (toutes)";
+                                  return `: ${ids.map(id => refSubcategories.find(c => c.id === id)?.name || "?").join(", ")}`;
+                                })()}
+                              </Badge>
+                            )}
+                            {label.show_on_city && (
+                              <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                                Villes{(() => {
+                                  const assoc = labelAssociations[label.id];
+                                  const ids = assoc?.city_ids || [];
+                                  if (ids.length === 0) return " (toutes)";
+                                  return `: ${ids.map(id => refCities.find(c => c.id === id)?.name || "?").join(", ")}`;
+                                })()}
+                              </Badge>
+                            )}
+                            {label.show_on_service && (
+                              <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                                Services{(() => {
+                                  const assoc = labelAssociations[label.id];
+                                  const ids = assoc?.service_ids || [];
+                                  if (ids.length === 0) return " (tous)";
+                                  return `: ${ids.map(id => refServices.find(c => c.id === id)?.name || "?").join(", ")}`;
+                                })()}
+                              </Badge>
+                            )}
+                            {label.show_on_neighborhood && (
+                              <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                                Quartiers{(() => {
+                                  const assoc = labelAssociations[label.id];
+                                  const ids = assoc?.neighborhood_ids || [];
+                                  if (ids.length === 0) return " (tous)";
+                                  return `: ${ids.map(id => refNeighborhoods.find(c => c.id === id)?.name || "?").join(", ")}`;
+                                })()}
+                              </Badge>
+                            )}
+                          </div>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
