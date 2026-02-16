@@ -539,7 +539,7 @@ const ServicePage = () => {
 
                 <div
                   ref={citiesScrollRef}
-                  className="scrollbar-hide flex gap-4 overflow-x-auto scroll-smooth pb-4"
+                  className="scrollbar-hide flex gap-4 overflow-x-auto scroll-smooth pb-4 px-2"
                   style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
                 >
                   {availableCities.map((city) => {
