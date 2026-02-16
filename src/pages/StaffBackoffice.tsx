@@ -319,6 +319,47 @@ const StaffBackoffice = () => {
             </TabsContent>
 
             <TabsContent value="businesses" className="space-y-6">
+              {/* Stats */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-background rounded-lg p-4 border">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-gold/10 p-3 rounded-lg">
+                      <Building2 className="h-6 w-6 text-gold" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold">{businesses.length}</p>
+                      <p className="text-muted-foreground text-sm">Entreprises totales</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-background rounded-lg p-4 border">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-primary/10 p-3 rounded-lg">
+                      <Eye className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold">
+                        {businesses.filter(b => b.wtuce_status === "verified").length}
+                      </p>
+                      <p className="text-muted-foreground text-sm">Vérifiées</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-background rounded-lg p-4 border">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-amber-500/10 p-3 rounded-lg">
+                      <AlertTriangle className="h-6 w-6 text-amber-600" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold">
+                        {businesses.filter(b => !b.images || b.images.length === 0).length}
+                      </p>
+                      <p className="text-muted-foreground text-sm">Sans images</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {/* Actions Bar */}
               <div className="flex flex-col md:flex-row gap-4">
                 <div className="relative flex-1">
@@ -359,47 +400,6 @@ const StaffBackoffice = () => {
                   <Plus className="h-4 w-4 mr-2" />
                   Nouvelle entreprise
                 </Button>
-              </div>
-
-              {/* Stats */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-background rounded-lg p-4 border">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-gold/10 p-3 rounded-lg">
-                      <Building2 className="h-6 w-6 text-gold" />
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold">{businesses.length}</p>
-                      <p className="text-muted-foreground text-sm">Entreprises totales</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="bg-background rounded-lg p-4 border">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-primary/10 p-3 rounded-lg">
-                      <Eye className="h-6 w-6 text-primary" />
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold">
-                        {businesses.filter(b => b.wtuce_status === "verified").length}
-                      </p>
-                      <p className="text-muted-foreground text-sm">Vérifiées</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="bg-background rounded-lg p-4 border">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-amber-500/10 p-3 rounded-lg">
-                      <AlertTriangle className="h-6 w-6 text-amber-600" />
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold">
-                        {businesses.filter(b => !b.images || b.images.length === 0).length}
-                      </p>
-                      <p className="text-muted-foreground text-sm">Sans images</p>
-                    </div>
-                  </div>
-                </div>
               </div>
 
               {/* Table */}
