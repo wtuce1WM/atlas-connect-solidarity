@@ -469,15 +469,16 @@ const CategoryPage = () => {
   const textMutedClass = isWhiteBg ? "text-black/60" : "text-white/80";
 
   return (
-    <div className={`min-h-screen ${bgClass}`}>
+    <div className="min-h-screen relative">
+      {/* Full-page background */}
+      <div className="fixed inset-0 -z-10">
+        <img src={heroBackground} alt="" className="w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-black/70" />
+      </div>
       <Header />
       
       {/* Hero Section */}
       <section className="pt-28 pb-8 lg:pb-16 relative overflow-hidden">
-        <div className="absolute inset-0">
-          <img src={heroBackground} alt="" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-black/70" />
-        </div>
         <div className="container mx-auto px-4 relative z-10">
           <button
             onClick={() => navigate(-1)}
@@ -504,7 +505,7 @@ const CategoryPage = () => {
 
 
       {/* Map & Filters & Results */}
-      <section className={`py-6 lg:py-12 ${bgClass}`}>
+      <section className="py-6 lg:py-12">
         <div className="container mx-auto px-4">
 
           {/* Mobile filter toggle */}
