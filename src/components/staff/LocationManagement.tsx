@@ -548,221 +548,188 @@ const LocationManagement = () => {
         </Card>
       </div>
 
-      {/* Countries List */}
+      {/* Cities List — directly shown (single country: Maroc) */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Globe className="h-5 w-5" />
-            Liste des pays et villes
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <Globe className="h-5 w-5" />
+              Villes du Maroc
+            </CardTitle>
+            {countries.length > 0 && (
+              <Button size="sm" variant="outline" onClick={() => openAddCity(countries[0].id)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Ajouter une ville
+              </Button>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
-          {countries.length === 0 ? (
-            <p className="text-muted-foreground text-center py-8">Aucun pays enregistré</p>
-          ) : (
-            <Accordion type="multiple" className="space-y-2">
-              {countries.map((country) => {
-                const countryCities = getCitiesByCountry(country.id);
-                return (
-                  <AccordionItem key={country.id} value={country.id} className="border rounded-lg px-4">
-                    <AccordionTrigger className="hover:no-underline">
-                      <div className="flex items-center justify-between w-full pr-4">
-                        <div className="flex items-center gap-3">
-                          <Globe className="h-4 w-4 text-gold" />
-                          <span className="font-medium">{country.name_fr}</span>
-                          {country.code && (
-                            <span className="text-xs bg-muted px-2 py-0.5 rounded">{country.code}</span>
-                          )}
-                          <span className="text-muted-foreground text-sm">
-                            ({countryCities.length} ville{countryCities.length !== 1 ? "s" : ""})
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                          <Button size="sm" variant="ghost" onClick={() => openEditCountry(country)}>
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button size="sm" variant="ghost" className="text-destructive" onClick={() => handleDeleteCountry(country.id)}>
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <div className="pt-2 pb-4 space-y-4">
-                        <div className="flex justify-end">
-                          <Button size="sm" variant="outline" onClick={() => openAddCity(country.id)}>
-                            <Plus className="h-4 w-4 mr-2" />
-                            Ajouter une ville
-                          </Button>
-                        </div>
-                        {countryCities.length === 0 ? (
-                          <p className="text-muted-foreground text-sm text-center py-4">Aucune ville</p>
-                        ) : (
-                          <Table>
-                            <TableHeader>
-                              <TableRow>
-                                <TableHead>Ville</TableHead>
-                                <TableHead>Entreprises</TableHead>
-                                <TableHead>Région</TableHead>
-                                <TableHead>Score</TableHead>
-                                <TableHead>Wikipedia</TableHead>
-                                <TableHead>Coordonnées</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
-                              </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                              {countryCities.map((city) => {
-                                const cityNeighborhoods = getNeighborhoodsByCity(city.id);
-                                const isExpanded = expandedCityNeighborhoods === city.id;
-                                return (
-                                  <React.Fragment key={city.id}>
-                                    <TableRow>
-                                      <TableCell>
-                                        <div className="flex items-center gap-2">
-                                          <MapPin className="h-4 w-4 text-muted-foreground" />
-                                          <span className="font-medium">{city.name_fr}</span>
-                                        </div>
-                                      </TableCell>
-                                      <TableCell>
-                                        <span className="inline-flex items-center justify-center min-w-[2rem] px-2 py-0.5 bg-primary/10 text-primary rounded text-sm font-medium">
-                                          {businessCounts[city.name_fr] || 0}
-                                        </span>
-                                      </TableCell>
-                                      <TableCell className="text-muted-foreground">
-                                        {city.region || "—"}
-                                      </TableCell>
-                                      <TableCell>
-                                        <span className="inline-flex items-center justify-center min-w-[2rem] px-2 py-0.5 bg-gold/10 text-gold rounded text-sm font-medium">
-                                          {city.priority_score || 0}
-                                        </span>
-                                      </TableCell>
-                                      <TableCell>
-                                        <div className="flex gap-1">
-                                          {city.wikipedia_fr && (
-                                            <a href={city.wikipedia_fr} target="_blank" rel="noopener noreferrer" 
-                                               className="text-xs px-1.5 py-0.5 bg-blue-500/10 text-blue-600 rounded hover:bg-blue-500/20 transition-colors">
-                                              FR
-                                            </a>
-                                          )}
-                                          {city.wikipedia_en && (
-                                            <a href={city.wikipedia_en} target="_blank" rel="noopener noreferrer"
-                                               className="text-xs px-1.5 py-0.5 bg-green-500/10 text-green-600 rounded hover:bg-green-500/20 transition-colors">
-                                              EN
-                                            </a>
-                                          )}
-                                          {city.wikipedia_ar && (
-                                            <a href={city.wikipedia_ar} target="_blank" rel="noopener noreferrer"
-                                               className="text-xs px-1.5 py-0.5 bg-orange-500/10 text-orange-600 rounded hover:bg-orange-500/20 transition-colors">
-                                              AR
-                                            </a>
-                                          )}
-                                          {!city.wikipedia_fr && !city.wikipedia_en && !city.wikipedia_ar && "—"}
-                                        </div>
-                                      </TableCell>
-                                      <TableCell className="text-muted-foreground text-sm">
-                                        {city.latitude && city.longitude
-                                          ? `${city.latitude.toFixed(4)}, ${city.longitude.toFixed(4)}`
-                                          : "—"}
-                                      </TableCell>
-                                      <TableCell className="text-right">
+          {(() => {
+            const allCities = countries.length > 0 ? getCitiesByCountry(countries[0].id) : [];
+            if (allCities.length === 0) {
+              return <p className="text-muted-foreground text-sm text-center py-4">Aucune ville</p>;
+            }
+            return (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Ville</TableHead>
+                    <TableHead>Entreprises</TableHead>
+                    <TableHead>Région</TableHead>
+                    <TableHead>Score</TableHead>
+                    <TableHead>Wikipedia</TableHead>
+                    <TableHead>Coordonnées</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {allCities.map((city) => {
+                    const cityNeighborhoods = getNeighborhoodsByCity(city.id);
+                    const isExpanded = expandedCityNeighborhoods === city.id;
+                    return (
+                      <React.Fragment key={city.id}>
+                        <TableRow>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <MapPin className="h-4 w-4 text-muted-foreground" />
+                              <span className="font-medium">{city.name_fr}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <span className="inline-flex items-center justify-center min-w-[2rem] px-2 py-0.5 bg-primary/10 text-primary rounded text-sm font-medium">
+                              {businessCounts[city.name_fr] || 0}
+                            </span>
+                          </TableCell>
+                          <TableCell className="text-muted-foreground">
+                            {city.region || "—"}
+                          </TableCell>
+                          <TableCell>
+                            <span className="inline-flex items-center justify-center min-w-[2rem] px-2 py-0.5 bg-gold/10 text-gold rounded text-sm font-medium">
+                              {city.priority_score || 0}
+                            </span>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-1">
+                              {city.wikipedia_fr && (
+                                <a href={city.wikipedia_fr} target="_blank" rel="noopener noreferrer" 
+                                   className="text-xs px-1.5 py-0.5 bg-blue-500/10 text-blue-600 rounded hover:bg-blue-500/20 transition-colors">
+                                  FR
+                                </a>
+                              )}
+                              {city.wikipedia_en && (
+                                <a href={city.wikipedia_en} target="_blank" rel="noopener noreferrer"
+                                   className="text-xs px-1.5 py-0.5 bg-green-500/10 text-green-600 rounded hover:bg-green-500/20 transition-colors">
+                                  EN
+                                </a>
+                              )}
+                              {city.wikipedia_ar && (
+                                <a href={city.wikipedia_ar} target="_blank" rel="noopener noreferrer"
+                                   className="text-xs px-1.5 py-0.5 bg-orange-500/10 text-orange-600 rounded hover:bg-orange-500/20 transition-colors">
+                                  AR
+                                </a>
+                              )}
+                              {!city.wikipedia_fr && !city.wikipedia_en && !city.wikipedia_ar && "—"}
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-muted-foreground text-sm">
+                            {city.latitude && city.longitude
+                              ? `${city.latitude.toFixed(4)}, ${city.longitude.toFixed(4)}`
+                              : "—"}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => {
+                                setExpandedCityNeighborhoods(isExpanded ? null : city.id);
+                                setNeighborhoodName("");
+                                setEditingNeighborhood(null);
+                              }}
+                              title="Quartiers"
+                            >
+                              <Home className="h-4 w-4" />
+                              <span className="ml-1 text-xs">{cityNeighborhoods.length}</span>
+                            </Button>
+                            <Button size="sm" variant="ghost" onClick={() => openEditCity(city)}>
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button size="sm" variant="ghost" className="text-destructive" onClick={() => handleDeleteCity(city.id)}>
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                        {isExpanded && (
+                          <TableRow>
+                            <TableCell colSpan={7} className="bg-muted/30 p-4">
+                              <div className="space-y-3">
+                                <div className="flex items-center gap-2 text-sm font-medium">
+                                  <Home className="h-4 w-4" />
+                                  Quartiers de {city.name_fr}
+                                </div>
+                                <div className="flex gap-2">
+                                  <Input
+                                    value={neighborhoodName}
+                                    onChange={(e) => setNeighborhoodName(e.target.value)}
+                                    placeholder="Nom du quartier"
+                                    className="max-w-xs h-8"
+                                    onKeyDown={(e) => {
+                                      if (e.key === "Enter") handleSaveNeighborhood(city.id);
+                                    }}
+                                  />
+                                  <Button size="sm" onClick={() => handleSaveNeighborhood(city.id)} className="h-8">
+                                    {editingNeighborhood ? "Modifier" : "Ajouter"}
+                                  </Button>
+                                  {editingNeighborhood && (
+                                    <Button size="sm" variant="ghost" className="h-8" onClick={() => {
+                                      setEditingNeighborhood(null);
+                                      setNeighborhoodName("");
+                                    }}>
+                                      Annuler
+                                    </Button>
+                                  )}
+                                </div>
+                                {cityNeighborhoods.length === 0 ? (
+                                  <p className="text-muted-foreground text-xs">Aucun quartier</p>
+                                ) : (
+                                  <div className="flex flex-wrap gap-2">
+                                    {cityNeighborhoods.map((n) => (
+                                      <div key={n.id} className="flex items-center gap-1 bg-background border rounded px-2 py-1 text-sm">
+                                        <span>{n.name}</span>
                                         <Button
                                           size="sm"
                                           variant="ghost"
+                                          className="h-5 w-5 p-0"
                                           onClick={() => {
-                                            setExpandedCityNeighborhoods(isExpanded ? null : city.id);
-                                            setNeighborhoodName("");
-                                            setEditingNeighborhood(null);
+                                            setEditingNeighborhood(n);
+                                            setNeighborhoodName(n.name);
                                           }}
-                                          title="Quartiers"
                                         >
-                                          <Home className="h-4 w-4" />
-                                          <span className="ml-1 text-xs">{cityNeighborhoods.length}</span>
+                                          <Edit className="h-3 w-3" />
                                         </Button>
-                                        <Button size="sm" variant="ghost" onClick={() => openEditCity(city)}>
-                                          <Edit className="h-4 w-4" />
+                                        <Button
+                                          size="sm"
+                                          variant="ghost"
+                                          className="h-5 w-5 p-0 text-destructive"
+                                          onClick={() => handleDeleteNeighborhood(n.id)}
+                                        >
+                                          <Trash2 className="h-3 w-3" />
                                         </Button>
-                                        <Button size="sm" variant="ghost" className="text-destructive" onClick={() => handleDeleteCity(city.id)}>
-                                          <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                      </TableCell>
-                                    </TableRow>
-                                    {isExpanded && (
-                                      <TableRow>
-                                        <TableCell colSpan={7} className="bg-muted/30 p-4">
-                                          <div className="space-y-3">
-                                            <div className="flex items-center gap-2 text-sm font-medium">
-                                              <Home className="h-4 w-4" />
-                                              Quartiers de {city.name_fr}
-                                            </div>
-                                            <div className="flex gap-2">
-                                              <Input
-                                                value={neighborhoodName}
-                                                onChange={(e) => setNeighborhoodName(e.target.value)}
-                                                placeholder="Nom du quartier"
-                                                className="max-w-xs h-8"
-                                                onKeyDown={(e) => {
-                                                  if (e.key === "Enter") handleSaveNeighborhood(city.id);
-                                                }}
-                                              />
-                                              <Button size="sm" onClick={() => handleSaveNeighborhood(city.id)} className="h-8">
-                                                {editingNeighborhood ? "Modifier" : "Ajouter"}
-                                              </Button>
-                                              {editingNeighborhood && (
-                                                <Button size="sm" variant="ghost" className="h-8" onClick={() => {
-                                                  setEditingNeighborhood(null);
-                                                  setNeighborhoodName("");
-                                                }}>
-                                                  Annuler
-                                                </Button>
-                                              )}
-                                            </div>
-                                            {cityNeighborhoods.length === 0 ? (
-                                              <p className="text-muted-foreground text-xs">Aucun quartier</p>
-                                            ) : (
-                                              <div className="flex flex-wrap gap-2">
-                                                {cityNeighborhoods.map((n) => (
-                                                  <div key={n.id} className="flex items-center gap-1 bg-background border rounded px-2 py-1 text-sm">
-                                                    <span>{n.name}</span>
-                                                    <Button
-                                                      size="sm"
-                                                      variant="ghost"
-                                                      className="h-5 w-5 p-0"
-                                                      onClick={() => {
-                                                        setEditingNeighborhood(n);
-                                                        setNeighborhoodName(n.name);
-                                                      }}
-                                                    >
-                                                      <Edit className="h-3 w-3" />
-                                                    </Button>
-                                                    <Button
-                                                      size="sm"
-                                                      variant="ghost"
-                                                      className="h-5 w-5 p-0 text-destructive"
-                                                      onClick={() => handleDeleteNeighborhood(n.id)}
-                                                    >
-                                                      <Trash2 className="h-3 w-3" />
-                                                    </Button>
-                                                  </div>
-                                                ))}
-                                              </div>
-                                            )}
-                                          </div>
-                                        </TableCell>
-                                      </TableRow>
-                                    )}
-                                  </React.Fragment>
-                                );
-                              })}
-                            </TableBody>
-                          </Table>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            </TableCell>
+                          </TableRow>
                         )}
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                );
-              })}
-            </Accordion>
-          )}
+                      </React.Fragment>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            );
+          })()}
         </CardContent>
       </Card>
 
