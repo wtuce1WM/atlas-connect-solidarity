@@ -56,6 +56,7 @@ interface City {
   longitude: number | null;
   sort_order: number | null;
   priority_score: number | null;
+  is_active: boolean;
   wikipedia_fr: string | null;
   wikipedia_en: string | null;
   wikipedia_ar: string | null;
@@ -117,6 +118,7 @@ const LocationManagement = () => {
     longitude: "",
     sort_order: 0,
     priority_score: 0,
+    is_active: true,
     wikipedia_fr: "",
     wikipedia_en: "",
     wikipedia_ar: "",
@@ -269,6 +271,7 @@ const LocationManagement = () => {
       longitude: cityForm.longitude ? parseFloat(cityForm.longitude) : null,
       sort_order: cityForm.sort_order,
       priority_score: cityForm.priority_score,
+      is_active: cityForm.is_active,
       wikipedia_fr: cityForm.wikipedia_fr.trim() || null,
       wikipedia_en: cityForm.wikipedia_en.trim() || null,
       wikipedia_ar: cityForm.wikipedia_ar.trim() || null,
@@ -330,6 +333,7 @@ const LocationManagement = () => {
       longitude: city.longitude?.toString() || "",
       sort_order: city.sort_order || 0,
       priority_score: city.priority_score || 0,
+      is_active: city.is_active,
       wikipedia_fr: city.wikipedia_fr || "",
       wikipedia_en: city.wikipedia_en || "",
       wikipedia_ar: city.wikipedia_ar || "",
@@ -368,6 +372,7 @@ const LocationManagement = () => {
       longitude: "",
       sort_order: 0,
       priority_score: 0,
+      is_active: true,
       wikipedia_fr: "",
       wikipedia_en: "",
       wikipedia_ar: "",
@@ -574,13 +579,14 @@ const LocationManagement = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Ville</TableHead>
-                    <TableHead>Entreprises</TableHead>
-                    <TableHead>Région</TableHead>
-                    <TableHead>Score</TableHead>
-                    <TableHead>Wikipedia</TableHead>
-                    <TableHead>Coordonnées</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                     <TableHead>Ville</TableHead>
+                     <TableHead>Statut</TableHead>
+                     <TableHead>Entreprises</TableHead>
+                     <TableHead>Région</TableHead>
+                     <TableHead>Score</TableHead>
+                     <TableHead>Wikipedia</TableHead>
+                     <TableHead>Coordonnées</TableHead>
+                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -590,11 +596,16 @@ const LocationManagement = () => {
                     return (
                       <React.Fragment key={city.id}>
                         <TableRow>
-                          <TableCell>
+                         <TableCell>
                             <div className="flex items-center gap-2">
                               <MapPin className="h-4 w-4 text-muted-foreground" />
-                              <span className="font-medium">{city.name_fr}</span>
+                              <span className={`font-medium ${!city.is_active ? 'text-muted-foreground line-through' : ''}`}>{city.name_fr}</span>
                             </div>
+                          </TableCell>
+                          <TableCell>
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${city.is_active ? 'bg-green-500/10 text-green-600' : 'bg-red-500/10 text-red-600'}`}>
+                              {city.is_active ? 'Active' : 'Inactive'}
+                            </span>
                           </TableCell>
                           <TableCell>
                             <span className="inline-flex items-center justify-center min-w-[2rem] px-2 py-0.5 bg-primary/10 text-primary rounded text-sm font-medium">
@@ -857,10 +868,10 @@ const LocationManagement = () => {
                   </div>
                 </div>
 
-                {/* Priority and Sort */}
+                {/* Priority, Sort and Status */}
                 <div className="space-y-4">
                   <h3 className="font-medium text-lg">Paramètres</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="space-y-2">
                       <Label>Score de priorité</Label>
                       <Input
@@ -879,6 +890,18 @@ const LocationManagement = () => {
                         value={cityForm.sort_order}
                         onChange={(e) => setCityForm({ ...cityForm, sort_order: parseInt(e.target.value) || 0 })}
                       />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Statut</Label>
+                      <div className="flex items-center gap-2 pt-1">
+                        <input
+                          type="checkbox"
+                          checked={cityForm.is_active}
+                          onChange={(e) => setCityForm({ ...cityForm, is_active: e.target.checked })}
+                          className="h-4 w-4"
+                        />
+                        <span className="text-sm">{cityForm.is_active ? 'Active' : 'Inactive'}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
