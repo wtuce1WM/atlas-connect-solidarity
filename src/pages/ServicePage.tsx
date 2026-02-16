@@ -1,5 +1,5 @@
 import { useLocation, useNavigate, Link } from "react-router-dom";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
@@ -67,7 +67,8 @@ const ServicePage = () => {
   const navigate = useNavigate();
   const { language } = useLanguage();
   const [allBusinesses, setAllBusinesses] = useState<Business[]>([]);
-  const [citiesWithPriority, setCitiesWithPriority] = useState<{ name: string; priority: number; latitude: number | null; longitude: number | null }[]>([]);
+  const [citiesWithPriority, setCitiesWithPriority] = useState<{ name: string; priority: number; latitude: number | null; longitude: number | null; region: string | null }[]>([]);
+  const citiesScrollRef = useRef<HTMLDivElement>(null);
   const [serviceIcon, setServiceIcon] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -235,12 +236,12 @@ const ServicePage = () => {
         // Fetch cities with priority scores
         const { data: citiesData } = await supabase
           .from("cities")
-          .select("name_fr, priority_score, latitude, longitude")
+          .select("name_fr, priority_score, latitude, longitude, region")
           .order("priority_score", { ascending: false });
 
         if (citiesData) {
           setCitiesWithPriority(
-            citiesData.map(c => ({ name: c.name_fr, priority: c.priority_score || 0, latitude: c.latitude, longitude: c.longitude }))
+            citiesData.map(c => ({ name: c.name_fr, priority: c.priority_score || 0, latitude: c.latitude, longitude: c.longitude, region: c.region }))
           );
         }
 
@@ -518,30 +519,47 @@ const ServicePage = () => {
                 </p>
               </div>
               <div className="relative">
-                <div className="scrollbar-hide flex gap-4 overflow-x-auto scroll-smooth pb-4" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
-                  {availableCities.map((city, index) => {
+                {/* Scroll Buttons */}
+                <button
+                  onClick={() => citiesScrollRef.current?.scrollBy({ left: -320, behavior: "smooth" })}
+                  className="absolute -left-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-card p-3 shadow-lg transition-all hover:bg-primary hover:text-primary-foreground"
+                >
+                  <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <button
+                  onClick={() => citiesScrollRef.current?.scrollBy({ left: 320, behavior: "smooth" })}
+                  className="absolute -right-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-card p-3 shadow-lg transition-all hover:bg-primary hover:text-primary-foreground"
+                >
+                  <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+
+                <div
+                  ref={citiesScrollRef}
+                  className="scrollbar-hide flex gap-4 overflow-x-auto scroll-smooth pb-4"
+                  style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+                >
+                  {availableCities.map((city) => {
                     const count = allBusinesses.filter(b => b.city === city).length;
-                    const colors = [
-                      "bg-primary/10 text-primary border-primary/20",
-                      "bg-secondary/10 text-secondary border-secondary/20",
-                      "bg-atlas/10 text-atlas border-atlas/20",
-                      "bg-gold/10 text-gold border-gold/20",
-                    ];
-                    const colorClass = colors[index % colors.length];
+                    const cityData = citiesWithPriority.find(c => c.name === city);
                     return (
                       <button
                         key={city}
                         onClick={() => handleCityChange(city)}
                         className="flex-shrink-0"
                       >
-                        <Card className={`group w-56 overflow-hidden transition-all hover:shadow-lg hover:scale-105 border ${selectedCity === city ? "ring-2 ring-gold" : ""} ${colorClass}`}>
+                        <Card className={`group w-56 overflow-hidden transition-all hover:shadow-lg hover:scale-105 border border-white/20 bg-white/10 backdrop-blur-sm ${selectedCity === city ? "ring-2 ring-gold" : ""}`}>
                           <CardContent className="p-4">
                             <div className="flex items-center gap-3 mb-2">
-                              <div className={`rounded-full p-2 ${colorClass}`}>
-                                <MapPin className="h-5 w-5" />
-                              </div>
+                              <MapPin className="h-5 w-5 text-gold" />
                               <h3 className="font-semibold text-white group-hover:text-primary transition-colors">{city}</h3>
                             </div>
+                            {cityData?.region && (
+                              <p className="text-xs text-gray-400 mb-2 truncate">{cityData.region}</p>
+                            )}
                             <div className="flex items-center gap-1 text-xs text-gray-400">
                               <Building2 className="h-3 w-3" />
                               <span>{count} {t.establishments}</span>
