@@ -24,6 +24,7 @@ import BlogAnimations from "./pages/BlogAnimations";
 import RatedBusinesses from "./pages/RatedBusinesses";
 import NeighborhoodPage from "./pages/NeighborhoodPage";
 import AllBusinessesMap from "./pages/AllBusinessesMap";
+import SubcategoryPage from "./pages/SubcategoryPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -58,6 +59,7 @@ const AppContent = () => {
             <Route path="/etablissements-notes" element={<RatedBusinesses />} />
             <Route path="/neighborhood/:neighborhood" element={<NeighborhoodPage />} />
             <Route path="/carte" element={<AllBusinessesMap />} />
+            <Route path="/subcategory/:subcategoryName" element={<SubcategoryPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
