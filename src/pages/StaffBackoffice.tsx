@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Plus, Search, Edit, Trash2, Eye, Building2, Users, Folder, MapPin, Copy, Star, UserCheck, Award, Gem, AlertTriangle, LayoutDashboard, Crown } from "lucide-react";
+import { LogOut, Plus, Search, Edit, Trash2, Eye, EyeOff, Building2, Users, Folder, MapPin, Copy, Star, UserCheck, Award, Gem, AlertTriangle, LayoutDashboard, Crown, CheckCircle } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import BusinessForm from "@/components/staff/BusinessForm";
 import BusinessTable from "@/components/staff/BusinessTable";
@@ -339,7 +339,7 @@ const StaffBackoffice = () => {
 
             <TabsContent value="businesses" className="space-y-6">
               {/* Stats */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                 <div className="bg-background rounded-lg p-4 border">
                   <div className="flex items-center gap-3">
                     <div className="bg-gold/10 p-3 rounded-lg">
@@ -374,6 +374,32 @@ const StaffBackoffice = () => {
                         {businesses.filter(b => !b.images || b.images.length === 0).length}
                       </p>
                       <p className="text-muted-foreground text-sm">Sans images</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-background rounded-lg p-4 border">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-green-500/10 p-3 rounded-lg">
+                      <CheckCircle className="h-6 w-6 text-green-600" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold">
+                        {businesses.filter(b => b.is_active).length}
+                      </p>
+                      <p className="text-muted-foreground text-sm">Activées</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-background rounded-lg p-4 border">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-red-500/10 p-3 rounded-lg">
+                      <EyeOff className="h-6 w-6 text-red-600" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold">
+                        {businesses.filter(b => !b.is_active).length}
+                      </p>
+                      <p className="text-muted-foreground text-sm">Désactivées</p>
                     </div>
                   </div>
                 </div>
