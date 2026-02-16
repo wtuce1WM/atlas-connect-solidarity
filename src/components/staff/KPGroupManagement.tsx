@@ -205,6 +205,9 @@ const KPGroupManagement = ({ onEditBusiness }: KPGroupManagementProps) => {
           Groupes d&apos;établissements ({groups.length})
         </h2>
       </div>
+      <p className="text-sm text-muted-foreground">
+        <span className="font-medium">« Principal »</span> affiche l'entreprise principale en premier dans la section « Établissements liés » sur la fiche business.
+      </p>
 
       <div className="flex items-center gap-6 text-xs text-muted-foreground">
         <span className="flex items-center gap-1.5"><Globe className="h-3.5 w-3.5" /> Site web</span>
