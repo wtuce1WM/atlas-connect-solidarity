@@ -628,17 +628,6 @@ const CategoryPage = () => {
               )}
             </div>
 
-            {/* Clear Filters - always visible */}
-            {(selectedSubcategories.length > 0 || selectedServices.length > 0 || selectedGamme !== "all") && (
-              <div className="mb-4 bg-black/60 backdrop-blur-sm rounded-lg px-4 py-2 inline-block">
-                <button
-                  onClick={clearFilters}
-                  className="text-sm text-gold underline hover:text-gold/80 transition-colors"
-                >
-                  {language === "fr" ? "Effacer les filtres" : language === "ar" ? "مسح الفلاتر" : "Clear filters"}
-                </button>
-              </div>
-            )}
           </div>
 
           {/* Services Filter - Only shown when a subcategory is selected */}
@@ -668,6 +657,18 @@ const CategoryPage = () => {
                   </label>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* Clear Filters - after services */}
+          {(selectedSubcategories.length > 0 || selectedServices.length > 0 || selectedGamme !== "all") && (
+            <div className="mb-4 bg-black/60 backdrop-blur-sm rounded-lg px-4 py-2 inline-block">
+              <button
+                onClick={clearFilters}
+                className="text-sm text-gold underline hover:text-gold/80 transition-colors"
+              >
+                {language === "fr" ? "Effacer les filtres" : language === "ar" ? "مسح الفلاتر" : "Clear filters"}
+              </button>
             </div>
           )}
 
