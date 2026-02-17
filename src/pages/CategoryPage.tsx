@@ -522,7 +522,7 @@ const CategoryPage = () => {
           {/* Google Maps - before filters, only shown when a business is selected */}
           <div id="category-map" className="scroll-mt-24" />
           {selectedBusiness && (
-            <div className="mb-6 overflow-hidden rounded-lg shadow-xl shadow-gold/20 ring-2 ring-gold/30">
+            <div className="mb-6 overflow-hidden rounded-lg">
               <Card className="relative border-0 h-[400px] sm:h-[500px] overflow-hidden">
                 <CardContent className="p-0 relative h-full">
                   <MapBusinessInfoCard
