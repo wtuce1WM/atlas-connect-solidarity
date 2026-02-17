@@ -119,13 +119,14 @@ const CategoryPage = () => {
       business.categories?.forEach((cat) => subcatNames.add(cat));
     });
     
-    // Sort by sort_order from the subcategories table
+    // Sort by sort_order from the subcategories table (0 or null treated as lowest priority)
     return Array.from(subcatNames).sort((a, b) => {
       const subcatA = subcategories.find(s => s.name_fr === a);
       const subcatB = subcategories.find(s => s.name_fr === b);
-      const orderA = subcatA?.sort_order ?? 999;
-      const orderB = subcatB?.sort_order ?? 999;
-      return orderA - orderB;
+      const orderA = (subcatA?.sort_order && subcatA.sort_order !== 0) ? subcatA.sort_order : 9999;
+      const orderB = (subcatB?.sort_order && subcatB.sort_order !== 0) ? subcatB.sort_order : 9999;
+      if (orderA !== orderB) return orderA - orderB;
+      return a.localeCompare(b, "fr");
     });
   }, [allBusinesses, selectedCity, subcategories]);
 
