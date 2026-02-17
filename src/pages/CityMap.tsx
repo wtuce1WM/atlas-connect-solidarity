@@ -292,7 +292,7 @@ const CityMap = () => {
       prev.includes(activity) ? [] : [activity]
     );
     setTimeout(() => {
-      document.getElementById("city-results-signet")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      document.getElementById("city-filters-signet")?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 100);
   };
 
