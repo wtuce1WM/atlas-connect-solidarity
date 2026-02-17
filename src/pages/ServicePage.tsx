@@ -627,7 +627,7 @@ const ServicePage = () => {
           {/* Mobile filter toggle */}
           <div id="service-filter-toggle" className="sm:hidden mb-4 scroll-mt-24">
             <button
-              onClick={() => setShowFilters(!showFilters)}
+              onClick={() => { const wasOpen = showFilters; setShowFilters(!showFilters); if (wasOpen) scrollToFilterToggle(); }}
               className="flex items-center gap-2 w-full px-4 py-2.5 rounded-lg bg-white border border-border text-foreground text-sm font-medium transition-colors hover:bg-white/90"
             >
               <SlidersHorizontal className="h-4 w-4" />
