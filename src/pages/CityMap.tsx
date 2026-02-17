@@ -97,7 +97,7 @@ const CityMap = () => {
   const [categoryIdMap, setCategoryIdMap] = useState<Record<string, string>>({});
   const [selectedGamme, setSelectedGamme] = useState<string>("");
   
-  const [sortByRating, setSortByRating] = useState<"none" | "desc" | "asc">("none");
+  const [sortByRating, setSortByRating] = useState<"none" | "desc" | "asc">("desc");
   const [sortByReviews, setSortByReviews] = useState<"none" | "desc" | "asc">("none");
   const [currentPage, setCurrentPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
