@@ -335,7 +335,7 @@ const ServicePage = () => {
 
   const translations = {
     fr: {
-      establishments: "Établissements",
+      establishments: "établissements",
       withService: "proposant ce service",
       noResults: "Aucun établissement trouvé pour ce service",
       verified: "Vérifié",
