@@ -405,28 +405,18 @@ const CityMap = () => {
   }, [decodedCity]);
 
   // Build Google Maps embed URL - dynamic based on selected business
-  // On mobile, offset the center north so the marker appears in the lower third
-  const MOBILE_LAT_OFFSET = 0.0015; // ~150m north offset at zoom 17
-
   const getMapEmbedUrl = () => {
     // If a business is selected, show its location
     if (selectedBusiness) {
-      const latOffset = isMobile ? MOBILE_LAT_OFFSET : 0;
-      
       // Try to extract place ID or coordinates from google_maps_url
       if (selectedBusiness.google_maps_url) {
-        // If URL contains place/, use place mode (can't offset, no coords)
-        const placeMatch = selectedBusiness.google_maps_url.match(/place\/([^\/]+)/);
         // If URL contains coordinates (@lat,lng)
         const coordMatch = selectedBusiness.google_maps_url.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
         if (coordMatch) {
-          const lat = parseFloat(coordMatch[1]);
-          const lng = parseFloat(coordMatch[2]);
-          if (latOffset) {
-            return `https://www.google.com/maps/embed/v1/view?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&center=${lat + latOffset},${lng}&zoom=17&maptype=roadmap`;
-          }
-          return `https://www.google.com/maps/embed/v1/view?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&center=${lat},${lng}&zoom=17&maptype=roadmap`;
+          return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${coordMatch[1]},${coordMatch[2]}&zoom=17`;
         }
+        // If URL contains place/, use place mode
+        const placeMatch = selectedBusiness.google_maps_url.match(/place\/([^\/]+)/);
         if (placeMatch) {
           const placeName = decodeURIComponent(placeMatch[1].replace(/\+/g, ' '));
           return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(placeName)}&zoom=17`;
@@ -434,9 +424,6 @@ const CityMap = () => {
       }
       // Fallback to lat/lng if available
       if (selectedBusiness.latitude && selectedBusiness.longitude) {
-        if (latOffset) {
-          return `https://www.google.com/maps/embed/v1/view?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&center=${selectedBusiness.latitude + latOffset},${selectedBusiness.longitude}&zoom=17&maptype=roadmap`;
-        }
         return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${selectedBusiness.latitude},${selectedBusiness.longitude}&zoom=17`;
       }
       // Last fallback: search by name and address
@@ -549,7 +536,7 @@ const CityMap = () => {
                 )}
                 <iframe
                   src={getMapEmbedUrl()}
-                   className={`w-full border-0 h-full ${selectedBusiness ? 'ring-[5px] ring-gold' : ''}`}
+                   className={`w-full border-0 ${selectedBusiness ? 'ring-[5px] ring-gold h-[520px] sm:h-[500px]' : 'h-full'}`}
                   allowFullScreen
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
