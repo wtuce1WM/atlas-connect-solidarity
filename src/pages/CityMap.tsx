@@ -624,7 +624,7 @@ const CityMap = () => {
               )}
 
               {/* Activity Filters */}
-              {selectedSubcategory && availableActivities.length > 0 && (
+              {selectedCategory && availableActivities.length > 0 && (
                 <div>
                   <label className="text-sm font-bold text-white mb-1.5 block">Sélectionnez un service</label>
                   <div className="flex flex-wrap gap-2">
