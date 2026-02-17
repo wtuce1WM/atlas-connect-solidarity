@@ -387,8 +387,8 @@ const NeighborhoodPage = () => {
           />
 
           {/* Google Maps */}
-          <Card className="relative mb-6">
-            <CardContent className="p-0">
+           <Card className="relative mb-6 h-[400px] sm:h-[500px] overflow-hidden">
+             <CardContent className="p-0 relative h-full">
               {selectedBusiness && (
                 <MapBusinessInfoCard
                   business={selectedBusiness}
@@ -397,7 +397,7 @@ const NeighborhoodPage = () => {
               )}
               <iframe
                 src={getMapEmbedUrl()}
-                className="w-full h-[500px] border-0 rounded-lg"
+                className={`w-full border-0 rounded-lg ${selectedBusiness ? 'h-[520px] sm:h-[500px]' : 'h-full'}`}
                 allowFullScreen
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
