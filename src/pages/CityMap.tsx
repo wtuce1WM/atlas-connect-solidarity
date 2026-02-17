@@ -282,7 +282,7 @@ const CityMap = () => {
   const scrollToFilterToggle = () => {
     if (window.innerWidth < 640) {
       setTimeout(() => {
-        document.getElementById("city-filter-toggle")?.scrollIntoView({ behavior: "smooth", block: "start" });
+        document.getElementById("city-results-signet")?.scrollIntoView({ behavior: "smooth", block: "start" });
       }, 100);
     }
   };
