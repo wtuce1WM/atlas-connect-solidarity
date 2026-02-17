@@ -561,17 +561,6 @@ const CityMap = () => {
               </button>
             </div>
 
-            {/* Selected service signet */}
-            {selectedActivities.length > 0 && (
-              <div className={`${showFilters ? 'block' : 'hidden'} sm:block`}>
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gold text-black text-xs font-semibold">
-                  {selectedActivities[0]}
-                  <button onClick={() => { setSelectedActivities([]); scrollToFilterToggle(); }} className="hover:text-black/60">
-                    <X className="h-3 w-3" />
-                  </button>
-                </div>
-              </div>
-            )}
 
             {/* Category & Subcategory Filters */}
             <div className={`space-y-3 ${showFilters ? 'block' : 'hidden'} sm:block`}>
