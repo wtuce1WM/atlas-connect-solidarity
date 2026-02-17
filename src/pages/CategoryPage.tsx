@@ -368,12 +368,21 @@ const CategoryPage = () => {
 
   const t = translations[language] || translations.fr;
 
+  const scrollToFilterToggle = () => {
+    if (window.innerWidth < 640) {
+      setTimeout(() => {
+        document.getElementById("category-filter-toggle")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+    }
+  };
+
   const handleCityChange = (city: string) => {
     setSelectedCity(city);
     setSelectedBusiness(null);
     setSelectedSubcategories([]);
     setSelectedServices([]);
     setSelectedGamme("all");
+    scrollToFilterToggle();
   };
 
   const handleSubcategoryChange = (subcategory: string) => {
@@ -384,6 +393,7 @@ const CategoryPage = () => {
     }
     setSelectedServices([]);
     setSelectedGamme("all");
+    scrollToFilterToggle();
   };
 
   const toggleService = (service: string) => {
@@ -392,12 +402,14 @@ const CategoryPage = () => {
         ? prev.filter((s) => s !== service)
         : [...prev, service]
     );
+    scrollToFilterToggle();
   };
 
   const clearFilters = () => {
     setSelectedSubcategories([]);
     setSelectedServices([]);
     setSelectedGamme("all");
+    scrollToFilterToggle();
   };
 
   const goToPage = (page: number) => {
@@ -509,9 +521,9 @@ const CategoryPage = () => {
         <div className="container mx-auto px-4">
 
           {/* Mobile filter toggle */}
-          <div className="sm:hidden mb-4">
+          <div id="category-filter-toggle" className="sm:hidden mb-4 scroll-mt-24">
             <button
-              onClick={() => setShowFilters(!showFilters)}
+              onClick={() => { const wasOpen = showFilters; setShowFilters(!showFilters); if (wasOpen) scrollToFilterToggle(); }}
               className={`flex items-center gap-2 w-full px-4 py-2.5 rounded-lg ${isWhiteBg ? 'bg-black/5 border border-black/10 text-black' : 'bg-white/10 border border-white/20 text-white'} text-sm font-medium transition-colors ${isWhiteBg ? 'hover:bg-black/10' : 'hover:bg-white/20'}`}
             >
               <SlidersHorizontal className="h-4 w-4" />
@@ -530,7 +542,7 @@ const CategoryPage = () => {
               {/* City Filter */}
               {availableCities.length > 1 && (
                 <div className="flex-1 min-w-[140px]">
-                   <label className={`text-sm font-medium ${textClass} mb-1.5 block`}>
+                   <label className={`text-sm font-bold ${textClass} mb-1.5 block`}>
                     {t.filterByCity}
                   </label>
                   <Select value={selectedCity} onValueChange={handleCityChange}>
@@ -552,7 +564,7 @@ const CategoryPage = () => {
               {/* Subcategory Filter - only when city is selected */}
               {selectedCity !== "all" && availableSubcategories.length > 0 && (
                 <div className="flex-1 min-w-[140px]">
-                  <label className={`text-sm font-medium ${textClass} mb-1.5 block`}>
+                  <label className={`text-sm font-bold ${textClass} mb-1.5 block`}>
                     {language === "fr" ? "Sous-catégorie" : language === "ar" ? "الفئة الفرعية" : "Subcategory"}
                   </label>
                   <Select value={selectedSubcategories[0] || "all"} onValueChange={handleSubcategoryChange}>
@@ -574,10 +586,10 @@ const CategoryPage = () => {
               {/* Standing Filter - only when subcategory is selected */}
               {selectedSubcategories.length > 0 && availableGammes.length > 0 && (
                 <div className="flex-1 min-w-[140px]">
-                  <label className={`text-sm font-medium ${textClass} mb-1.5 block`}>
+                  <label className={`text-sm font-bold ${textClass} mb-1.5 block`}>
                     {language === "fr" ? "Standing" : language === "ar" ? "مستوى" : "Standing"}
                   </label>
-                  <Select value={selectedGamme} onValueChange={setSelectedGamme}>
+                  <Select value={selectedGamme} onValueChange={(v) => { setSelectedGamme(v); scrollToFilterToggle(); }}>
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder={language === "fr" ? "Tous" : language === "ar" ? "الكل" : "All"} />
                     </SelectTrigger>
@@ -594,15 +606,16 @@ const CategoryPage = () => {
               )}
             </div>
 
-            {/* Clear Filters */}
+            {/* Clear Filters - always visible */}
             {(selectedSubcategories.length > 0 || selectedServices.length > 0 || selectedGamme !== "all") && (
-              <button
-                onClick={clearFilters}
-                className="text-sm text-gray-400 hover:text-gray-200 flex items-center gap-1"
-              >
-                <X className="h-4 w-4" />
-                {language === "fr" ? "Effacer les filtres" : language === "ar" ? "مسح الفلاتر" : "Clear filters"}
-              </button>
+              <div className="mb-4 bg-black/60 backdrop-blur-sm rounded-lg px-4 py-2 inline-block">
+                <button
+                  onClick={clearFilters}
+                  className="text-sm text-gold underline hover:text-gold/80 transition-colors"
+                >
+                  {language === "fr" ? "Effacer les filtres" : language === "ar" ? "مسح الفلاتر" : "Clear filters"}
+                </button>
+              </div>
             )}
           </div>
 
@@ -610,8 +623,8 @@ const CategoryPage = () => {
           {selectedSubcategories.length > 0 && availableServices.length > 0 && (
             <div className="mb-8">
               <div className="mb-3">
-                <label className="text-sm text-gray-400">
-                  {language === "fr" ? "Services" : language === "ar" ? "الخدمات" : "Services"}:
+                <label className="text-sm font-bold text-white">
+                  {language === "fr" ? "Sélectionnez un service" : language === "ar" ? "اختر خدمة" : "Select a service"}
                 </label>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -645,8 +658,8 @@ const CategoryPage = () => {
             <>
               {/* Results count + Sort */}
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
-                <h2 className={`text-lg font-semibold ${textClass}`}>
-                  {t.establishments} ({filteredBusinesses.length})
+                <h2 className={`text-lg font-bold ${textClass}`}>
+                  {filteredBusinesses.length} {t.establishments} {language === "fr" ? "pour" : language === "ar" ? "لـ" : "for"} {getCategoryName()}
                 </h2>
                 <div className="flex items-center gap-2">
                   <Button
