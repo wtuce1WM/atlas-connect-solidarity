@@ -9,7 +9,7 @@ import Footer from "@/components/Footer";
 import DynamicLabelSections from "@/components/DynamicLabelSections";
 import CityWeather from "@/components/CityWeather";
 import TopCityBusinesses from "@/components/TopCityBusinesses";
-import symboleMaroc from "@/assets/symbole-maroc.webp";
+import heroBackground from "@/assets/hero-marrakech.jpg";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -463,22 +463,12 @@ const CityMap = () => {
   }
 
   return (
-    <div className="min-h-screen relative overflow-x-hidden" style={{ backgroundColor: '#c1272d' }}>
-      {/* Diagonal green overlay starting below header */}
-      <div className="absolute inset-0 pointer-events-none" style={{
-        background: 'linear-gradient(to bottom left, transparent 50%, #006233 50%)',
-        top: '72px',
-      }} />
-      {/* Background decorative emblem */}
-      <div 
-        className="absolute top-32 left-1/2 -translate-x-1/2 w-[600px] h-[600px] opacity-40 pointer-events-none hidden lg:block"
-        style={{
-          backgroundImage: `url(${symboleMaroc})`,
-          backgroundSize: 'contain',
-          backgroundPosition: 'center top',
-          backgroundRepeat: 'no-repeat'
-        }}
-      />
+    <div className="min-h-screen relative">
+      {/* Full-page background */}
+      <div className="fixed inset-0 -z-10">
+        <img src={heroBackground} alt="" className="w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-black/70" />
+      </div>
       
       <Header />
 
@@ -889,20 +879,9 @@ const CityMap = () => {
         </div>
       </main>
 
-      {/* Bottom decorative emblem */}
-      <div 
-        className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] opacity-10 pointer-events-none hidden lg:block"
-        style={{
-          backgroundImage: `url(${symboleMaroc})`,
-          backgroundSize: 'contain',
-          backgroundPosition: 'center bottom',
-          backgroundRepeat: 'no-repeat'
-        }}
-      />
-
       <div className="relative z-10">
         <DynamicLabelSections pageType="city" />
-        <Footer variant="morocco" />
+        <Footer />
       </div>
     </div>
   );
