@@ -729,7 +729,7 @@ const ServicePage = () => {
                 <h2 className="text-lg font-semibold text-white">
                   {t.establishments} ({filteredBusinesses.length})
                 </h2>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center justify-center sm:justify-end gap-2">
                   <Button
                     variant={sortMode === "rating" ? "default" : "outline"}
                     size="sm"
