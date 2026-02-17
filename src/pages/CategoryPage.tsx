@@ -379,6 +379,7 @@ const CategoryPage = () => {
 
   const handleCityChange = (city: string) => {
     setSelectedCity(city);
+    setSelectedBusiness(null);
     setSelectedSubcategories([]);
     setSelectedServices([]);
     setSelectedGamme("all");
@@ -391,6 +392,7 @@ const CategoryPage = () => {
     } else {
       setSelectedSubcategories([subcategory]);
     }
+    setSelectedBusiness(null);
     setSelectedServices([]);
     setSelectedGamme("all");
     scrollToFilterToggle();
@@ -402,6 +404,7 @@ const CategoryPage = () => {
         ? prev.filter((s) => s !== service)
         : [...prev, service]
     );
+    setSelectedBusiness(null);
     scrollToFilterToggle();
   };
 
@@ -409,6 +412,7 @@ const CategoryPage = () => {
     setSelectedSubcategories([]);
     setSelectedServices([]);
     setSelectedGamme("all");
+    setSelectedBusiness(null);
     scrollToFilterToggle();
   };
 
