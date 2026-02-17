@@ -299,7 +299,6 @@ const CityMap = () => {
     setSelectedSubcategory("");
     setSelectedGamme("");
     setSelectedActivities([]);
-    scrollToFilterToggle();
   };
 
   const handleCategoryChange = (value: string) => {
