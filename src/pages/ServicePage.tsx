@@ -699,16 +699,18 @@ const ServicePage = () => {
 
           {/* Clear filters link */}
           {(selectedCity !== "all" || selectedGammeFilter !== "all" || selectedServices.length > 1) && (
-            <button
-              onClick={() => {
-                setSelectedCity("all");
-                setSelectedGammeFilter("all");
-                setSelectedServices([decodedServiceName]);
-              }}
-              className="mb-4 text-sm text-gold underline hover:text-gold/80 transition-colors"
-            >
-              {language === "fr" ? "Effacer les filtres" : language === "ar" ? "مسح الفلاتر" : "Clear filters"}
-            </button>
+            <div className="mb-4 bg-black/60 backdrop-blur-sm rounded-lg px-4 py-2 inline-block">
+              <button
+                onClick={() => {
+                  setSelectedCity("all");
+                  setSelectedGammeFilter("all");
+                  setSelectedServices([decodedServiceName]);
+                }}
+                className="text-sm text-gold underline hover:text-gold/80 transition-colors"
+              >
+                {language === "fr" ? "Effacer les filtres" : language === "ar" ? "مسح الفلاتر" : "Clear filters"}
+              </button>
+            </div>
           )}
 
           {filteredBusinesses.length === 0 ? (
