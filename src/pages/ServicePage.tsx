@@ -154,7 +154,7 @@ const ServicePage = () => {
       result = result.filter(b => b.gamme_id === selectedGammeFilter);
     }
     
-    const dir = sortAsc ? 1 : -1;
+    const dir = sortAsc ? -1 : 1;
     result.sort((a, b) => {
       if (sortMode === "reviews") {
         const countA = (a.google_review_count || 0) + (a.tripadvisor_review_count || 0) + (a.restaurant_guru_review_count || 0);

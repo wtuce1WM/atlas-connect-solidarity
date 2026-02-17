@@ -170,7 +170,7 @@ const SubcategoryPage = () => {
       result = result.filter(b => b.gamme_id === selectedGamme);
     }
 
-    const dir = sortAsc ? 1 : -1;
+    const dir = sortAsc ? -1 : 1;
     result = [...result].sort((a, b) => {
       if (sortMode === "reviews") {
         const countA = (a.google_review_count || 0) + (a.tripadvisor_review_count || 0) + (a.restaurant_guru_review_count || 0);
