@@ -353,7 +353,6 @@ const SubcategoryPage = () => {
 
   const handleCityChange = (city: string) => {
     setSelectedCity(city);
-    setSelectedBusiness(null);
     setSelectedServices([]);
     setSelectedGamme("all");
     scrollToFilterToggle();
