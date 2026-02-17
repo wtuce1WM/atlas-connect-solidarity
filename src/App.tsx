@@ -26,6 +26,7 @@ import NeighborhoodPage from "./pages/NeighborhoodPage";
 import AllBusinessesMap from "./pages/AllBusinessesMap";
 import SubcategoryPage from "./pages/SubcategoryPage";
 import NotFound from "./pages/NotFound";
+import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
 
@@ -38,6 +39,7 @@ const AppContent = () => {
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <ScrollToTop />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/business/:id" element={<BusinessDetail />} />
