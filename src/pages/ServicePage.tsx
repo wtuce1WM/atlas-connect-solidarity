@@ -397,14 +397,18 @@ const ServicePage = () => {
     setSelectedServices((prev) =>
       prev.includes(service) ? [] : [service]
     );
-    // On mobile, close filters after selecting a service
+    // On mobile, close filters after selecting a service and scroll to toggle anchor
     if (window.innerWidth < 640) {
       setShowFilters(false);
+      setTimeout(() => {
+        document.getElementById("service-filter-toggle")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+    } else {
+      // Desktop: scroll to filters section
+      setTimeout(() => {
+        document.getElementById("service-filters")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
     }
-    // Scroll to filters anchor
-    setTimeout(() => {
-      document.getElementById("service-filters")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 100);
   };
 
   const handleSelectBusiness = (business: Business) => {
@@ -615,7 +619,7 @@ const ServicePage = () => {
           </Card>
 
           {/* Mobile filter toggle */}
-          <div className="sm:hidden mb-4">
+          <div id="service-filter-toggle" className="sm:hidden mb-4 scroll-mt-24">
             <button
               onClick={() => setShowFilters(!showFilters)}
               className="flex items-center gap-2 w-full px-4 py-2.5 rounded-lg bg-white/10 border border-white/20 text-white text-sm font-medium transition-colors hover:bg-white/20"
