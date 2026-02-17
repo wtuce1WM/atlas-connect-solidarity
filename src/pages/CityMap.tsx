@@ -12,7 +12,7 @@ import TopCityBusinesses from "@/components/TopCityBusinesses";
 import heroBackground from "@/assets/hero-marrakech.jpg";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+
 import {
   Select,
   SelectContent,
@@ -289,9 +289,7 @@ const CityMap = () => {
 
   const toggleActivity = (activity: string) => {
     setSelectedActivities((prev) =>
-      prev.includes(activity)
-        ? prev.filter((a) => a !== activity)
-        : [...prev, activity]
+      prev.includes(activity) ? [] : [activity]
     );
     scrollToFilterToggle();
   };
@@ -563,6 +561,18 @@ const CityMap = () => {
               </button>
             </div>
 
+            {/* Selected service signet */}
+            {selectedActivities.length > 0 && (
+              <div className={`${showFilters ? 'block' : 'hidden'} sm:block`}>
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gold text-black text-xs font-semibold">
+                  {selectedActivities[0]}
+                  <button onClick={() => { setSelectedActivities([]); scrollToFilterToggle(); }} className="hover:text-black/60">
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* Category & Subcategory Filters */}
             <div className={`space-y-3 ${showFilters ? 'block' : 'hidden'} sm:block`}>
               <div className="grid grid-cols-1 sm:flex sm:flex-wrap gap-3">
@@ -634,21 +644,17 @@ const CityMap = () => {
                   <label className="text-sm font-bold text-white mb-1.5 block">Sélectionnez un service</label>
                   <div className="flex flex-wrap gap-2">
                     {availableActivities.map((activity) => (
-                      <label
+                      <button
                         key={activity}
-                        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border cursor-pointer transition-colors text-xs ${
+                        onClick={() => toggleActivity(activity)}
+                        className={`px-3 py-1.5 rounded-full border cursor-pointer transition-colors text-xs ${
                           selectedActivities.includes(activity)
-                            ? "bg-primary/10 border-primary text-primary"
+                            ? "bg-gold border-gold text-black font-semibold"
                             : "bg-background border-border text-muted-foreground hover:border-primary/50"
                         }`}
                       >
-                        <Checkbox
-                          checked={selectedActivities.includes(activity)}
-                          onCheckedChange={() => toggleActivity(activity)}
-                          className="h-3 w-3"
-                        />
                         {activity}
-                      </label>
+                      </button>
                     ))}
                   </div>
                 </div>
