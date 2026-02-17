@@ -430,21 +430,12 @@ const ServicePage = () => {
     setSelectedBusiness(null);
   };
 
-  const MOBILE_LAT_OFFSET = 0.0015;
-
   const getMapEmbedUrl = () => {
     if (selectedBusiness) {
-      const latOffset = isMobile ? MOBILE_LAT_OFFSET : 0;
-      
       if (selectedBusiness.google_maps_url) {
         const preciseMatch = selectedBusiness.google_maps_url.match(/!3d(-?\d+\.?\d*)!4d(-?\d+\.?\d*)/);
         const coordMatch = preciseMatch || selectedBusiness.google_maps_url.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
         if (coordMatch) {
-          const lat = parseFloat(coordMatch[1]);
-          const lng = parseFloat(coordMatch[2]);
-          if (latOffset) {
-            return `https://www.google.com/maps/embed/v1/view?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&center=${lat + latOffset},${lng}&zoom=17&maptype=roadmap`;
-          }
           return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${coordMatch[1]},${coordMatch[2]}&zoom=17`;
         }
         const placeMatch = selectedBusiness.google_maps_url.match(/place\/([^\/]+)/);
@@ -454,9 +445,6 @@ const ServicePage = () => {
         }
       }
       if (selectedBusiness.latitude && selectedBusiness.longitude) {
-        if (latOffset) {
-          return `https://www.google.com/maps/embed/v1/view?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&center=${selectedBusiness.latitude + latOffset},${selectedBusiness.longitude}&zoom=17&maptype=roadmap`;
-        }
         return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${selectedBusiness.latitude},${selectedBusiness.longitude}&zoom=17`;
       }
       const query = selectedBusiness.address 
@@ -629,7 +617,7 @@ const ServicePage = () => {
               )}
               <iframe
                 src={getMapEmbedUrl()}
-                className={`w-full border-0 rounded-lg h-full`}
+                className={`w-full border-0 rounded-lg ${selectedBusiness ? 'h-[520px] sm:h-full' : 'h-full'}`}
                 allowFullScreen
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
