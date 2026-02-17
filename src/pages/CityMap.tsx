@@ -517,6 +517,7 @@ const CityMap = () => {
         />
 
         {/* Map + Business list - Full width */}
+        <div id="city-map-anchor" />
         <div className="space-y-6">
           {selectedBusiness ? (
             <div className="overflow-hidden rounded-lg shadow-xl shadow-gold/20 ring-2 ring-gold/30 animate-map-unfold">
@@ -527,7 +528,6 @@ const CityMap = () => {
                   business={selectedBusiness}
                   onClose={clearSelectedBusiness}
                 />
-                <div id="city-map-anchor" />
                 <div className="overflow-hidden rounded-lg">
                   <iframe
                     src={getMapEmbedUrl()}
