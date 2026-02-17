@@ -609,7 +609,7 @@ const ServicePage = () => {
               )}
               <iframe
                 src={getMapEmbedUrl()}
-                className={`w-full border-0 rounded-lg sm:h-full sm:static sm:top-0 ${selectedBusiness ? 'absolute inset-0 h-[580px] top-[60px]' : 'h-[400px]'}`}
+                className={`w-full border-0 rounded-lg h-[400px] ${selectedBusiness ? 'sm:absolute sm:inset-0 sm:h-[580px] sm:top-[60px]' : ''} sm:h-full`}
                 allowFullScreen
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
