@@ -622,7 +622,7 @@ const ServicePage = () => {
           <div id="service-filter-toggle" className="sm:hidden mb-4 scroll-mt-24">
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center gap-2 w-full px-4 py-2.5 rounded-lg bg-white/10 border border-white/20 text-white text-sm font-medium transition-colors hover:bg-white/20"
+              className="flex items-center gap-2 w-full px-4 py-2.5 rounded-lg bg-white border border-border text-foreground text-sm font-medium transition-colors hover:bg-white/90"
             >
               <SlidersHorizontal className="h-4 w-4" />
               {language === "fr" ? "Filtrer les résultats" : language === "ar" ? "تصفية النتائج" : "Filter results"}
