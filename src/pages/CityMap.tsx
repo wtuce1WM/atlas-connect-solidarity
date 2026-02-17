@@ -143,7 +143,7 @@ const CityMap = () => {
     
     const subcatSortMap: Record<string, number> = {};
     subcategoriesRef.forEach((s) => {
-      subcatSortMap[s.name_fr] = s.sort_order ?? 9999;
+      subcatSortMap[s.name_fr] = (s.sort_order && s.sort_order !== 0) ? s.sort_order : 9999;
     });
     
     return Array.from(subcategories).sort((a, b) => {
