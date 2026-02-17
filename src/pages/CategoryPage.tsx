@@ -379,7 +379,6 @@ const CategoryPage = () => {
 
   const handleCityChange = (city: string) => {
     setSelectedCity(city);
-    setSelectedBusiness(null);
     setSelectedSubcategories([]);
     setSelectedServices([]);
     setSelectedGamme("all");
