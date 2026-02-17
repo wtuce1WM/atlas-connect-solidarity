@@ -386,11 +386,20 @@ const ServicePage = () => {
 
   const t = translations[language] || translations.fr;
 
+  const scrollToFilterToggle = () => {
+    if (window.innerWidth < 640) {
+      setTimeout(() => {
+        document.getElementById("service-filter-toggle")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+    }
+  };
+
   const handleCityChange = (city: string) => {
     setSelectedCity(city);
     setSelectedBusiness(null);
     setSelectedGammeFilter("all");
     setSelectedServices([decodedServiceName]);
+    scrollToFilterToggle();
   };
 
   const toggleService = (service: string) => {
@@ -400,11 +409,8 @@ const ServicePage = () => {
     // On mobile, close filters after selecting a service and scroll to toggle anchor
     if (window.innerWidth < 640) {
       setShowFilters(false);
-      setTimeout(() => {
-        document.getElementById("service-filter-toggle")?.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 100);
+      scrollToFilterToggle();
     } else {
-      // Desktop: scroll to filters section
       setTimeout(() => {
         document.getElementById("service-filters")?.scrollIntoView({ behavior: "smooth", block: "start" });
       }, 100);
@@ -656,7 +662,7 @@ const ServicePage = () => {
             {availableGammes.length > 1 && (
               <div>
                 <label className="block text-sm font-medium text-white mb-1">Standing</label>
-                <Select value={selectedGammeFilter} onValueChange={setSelectedGammeFilter}>
+                <Select value={selectedGammeFilter} onValueChange={(v) => { setSelectedGammeFilter(v); scrollToFilterToggle(); }}>
                   <SelectTrigger className="w-full bg-popover border-border text-popover-foreground">
                     <SelectValue placeholder="Gamme" />
                   </SelectTrigger>
