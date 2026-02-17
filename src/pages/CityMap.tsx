@@ -667,6 +667,7 @@ const CityMap = () => {
             </div>
 
             {/* Business list */}
+            <div id="city-results-signet" className="scroll-mt-24" />
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 gap-2">
               <h2 className="text-lg font-bold text-white">
                 {filteredBusinesses.length} établissement{filteredBusinesses.length > 1 ? "s" : ""} pour {decodedCity}
