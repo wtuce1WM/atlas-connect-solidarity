@@ -519,7 +519,7 @@ const CityMap = () => {
         />
 
         {/* Map + Business list - Full width */}
-        <div id="city-map-anchor" />
+        <div id="city-map-anchor" className="scroll-mt-20" />
         <div className="space-y-6">
           {selectedBusiness ? (
             <div className="overflow-hidden rounded-lg shadow-xl shadow-gold/20 ring-2 ring-gold/30 animate-map-unfold">
