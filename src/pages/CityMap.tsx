@@ -552,7 +552,18 @@ const CityMap = () => {
             {/* Mobile filter toggle */}
             <div id="city-filter-toggle" className="sm:hidden mb-4 scroll-mt-24">
               <button
-                onClick={() => { const wasOpen = showFilters; setShowFilters(!showFilters); if (wasOpen) scrollToFilterToggle(); }}
+                onClick={() => {
+                  const wasOpen = showFilters;
+                  const hasFilters = !!(selectedCategory || selectedSubcategory || selectedGamme || selectedActivities.length > 0);
+                  setShowFilters(!showFilters);
+                  if (wasOpen) {
+                    scrollToFilterToggle();
+                  } else if (!hasFilters && window.innerWidth < 640) {
+                    setTimeout(() => {
+                      document.getElementById("city-filter-toggle")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }, 100);
+                  }
+                }}
                 className="flex items-center gap-2 w-full px-4 py-2.5 rounded-lg bg-white/10 border border-white/20 text-white text-sm font-medium transition-colors hover:bg-white/20"
               >
                 <SlidersHorizontal className="h-4 w-4" />
