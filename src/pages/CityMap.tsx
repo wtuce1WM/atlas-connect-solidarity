@@ -879,10 +879,9 @@ const CityMap = () => {
         </div>
       </main>
 
-      <div className="relative z-10">
-        <DynamicLabelSections pageType="city" />
-        <Footer />
-      </div>
+      <DynamicLabelSections pageType="city" />
+
+      <Footer variant="morocco" />
     </div>
   );
 };
