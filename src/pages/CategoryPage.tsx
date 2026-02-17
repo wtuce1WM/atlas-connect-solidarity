@@ -558,6 +558,9 @@ const CategoryPage = () => {
             </button>
           </div>
 
+          {/* Signet above filters */}
+          <div id="category-filters-signet" className="scroll-mt-24" />
+
           {/* City & Subcategory Filters */}
           <div id="category-filters" className={`space-y-3 mb-8 scroll-mt-24 ${showFilters ? 'block' : 'hidden'} sm:block`}>
             <div className="flex flex-col sm:flex-row gap-3">
@@ -679,6 +682,9 @@ const CategoryPage = () => {
             </div>
           ) : (
             <>
+              {/* Signet above results */}
+              <div id="category-results-signet" className="scroll-mt-24" />
+
               {/* Results count + Sort */}
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
                 <h2 className={`text-lg font-bold ${textClass}`}>
