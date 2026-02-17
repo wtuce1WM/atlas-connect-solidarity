@@ -282,7 +282,7 @@ const CityMap = () => {
   const scrollToFilterToggle = () => {
     if (window.innerWidth < 640) {
       setTimeout(() => {
-        document.getElementById("city-filter-toggle")?.scrollIntoView({ behavior: "smooth", block: "start" });
+        document.getElementById("city-results-signet")?.scrollIntoView({ behavior: "smooth", block: "start" });
       }, 100);
     }
   };
@@ -525,21 +525,23 @@ const CityMap = () => {
         <div className="space-y-6">
           {selectedBusiness ? (
             <div className="overflow-hidden rounded-lg shadow-xl shadow-gold/20 ring-2 ring-gold/30 animate-map-unfold">
-            <Card className="relative border-0 overflow-hidden h-[500px]">
-              <CardContent className="p-0 relative h-full">
+            <Card className="relative border-0">
+              <CardContent className="p-0">
                 {/* Selected business indicator */}
                 <MapBusinessInfoCard
                   business={selectedBusiness}
                   onClose={clearSelectedBusiness}
                 />
-                <iframe
-                  src={getMapEmbedUrl()}
-                  className={`w-full border-0 ring-[5px] ring-gold h-[500px] sm:absolute sm:inset-0 sm:h-[580px] sm:top-[60px]`}
-                  allowFullScreen
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  title={`Localisation de ${selectedBusiness.name}`}
-                />
+                <div className="overflow-hidden rounded-lg">
+                  <iframe
+                    src={getMapEmbedUrl()}
+                    className="w-full h-[500px] border-0 ring-[5px] ring-gold"
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    title={`Localisation de ${selectedBusiness.name}`}
+                  />
+                </div>
               </CardContent>
             </Card>
             </div>
