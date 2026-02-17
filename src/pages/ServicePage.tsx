@@ -734,7 +734,7 @@ const ServicePage = () => {
               {/* Results count + Sort */}
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
                 <h2 className="text-lg font-bold text-white">
-                  {t.establishments} ({filteredBusinesses.length})
+                  {filteredBusinesses.length} {t.establishments} {language === "fr" ? "pour" : language === "ar" ? "لـ" : "for"} {decodedServiceName}
                 </h2>
                 <div className="flex items-center justify-center sm:justify-end gap-2">
                   <Button
