@@ -291,7 +291,9 @@ const CityMap = () => {
     setSelectedActivities((prev) =>
       prev.includes(activity) ? [] : [activity]
     );
-    scrollToFilterToggle();
+    setTimeout(() => {
+      document.getElementById("city-results-signet")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
   };
 
   const clearAllFilters = () => {
