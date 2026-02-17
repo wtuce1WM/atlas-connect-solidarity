@@ -525,7 +525,7 @@ const CityMap = () => {
         <div className="space-y-6">
           {selectedBusiness ? (
             <div className="overflow-hidden rounded-lg shadow-xl shadow-gold/20 ring-2 ring-gold/30 animate-map-unfold">
-            <Card className="relative border-0 h-[400px] sm:h-auto overflow-hidden">
+            <Card className="relative border-0 h-[400px] sm:h-[500px] overflow-hidden">
               <CardContent className="p-0 relative h-full">
                 {/* Selected business indicator */}
                 <MapBusinessInfoCard
@@ -534,7 +534,7 @@ const CityMap = () => {
                 />
                 <iframe
                   src={getMapEmbedUrl()}
-                  className="w-full border-0 ring-[5px] ring-gold h-[400px] sm:h-[500px] sm:absolute sm:inset-0 sm:h-[580px] sm:top-[60px]"
+                  className="w-full border-0 ring-[5px] ring-gold h-[400px] sm:absolute sm:inset-0 sm:h-[580px] sm:top-[60px]"
                   allowFullScreen
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
