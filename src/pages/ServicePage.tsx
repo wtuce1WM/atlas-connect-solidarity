@@ -1,5 +1,6 @@
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { useEffect, useState, useMemo, useRef } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
@@ -86,6 +87,7 @@ const ServicePage = () => {
   const [sortAsc, setSortAsc] = useState(false);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
+  const isMobile = useIsMobile();
 
   // Extract service name from URL path (handles special characters like /, &, etc.)
   const decodedServiceName = useMemo(() => {
@@ -428,12 +430,21 @@ const ServicePage = () => {
     setSelectedBusiness(null);
   };
 
+  const MOBILE_LAT_OFFSET = 0.0015;
+
   const getMapEmbedUrl = () => {
     if (selectedBusiness) {
+      const latOffset = isMobile ? MOBILE_LAT_OFFSET : 0;
+      
       if (selectedBusiness.google_maps_url) {
         const preciseMatch = selectedBusiness.google_maps_url.match(/!3d(-?\d+\.?\d*)!4d(-?\d+\.?\d*)/);
         const coordMatch = preciseMatch || selectedBusiness.google_maps_url.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
         if (coordMatch) {
+          const lat = parseFloat(coordMatch[1]);
+          const lng = parseFloat(coordMatch[2]);
+          if (latOffset) {
+            return `https://www.google.com/maps/embed/v1/view?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&center=${lat + latOffset},${lng}&zoom=17&maptype=roadmap`;
+          }
           return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${coordMatch[1]},${coordMatch[2]}&zoom=17`;
         }
         const placeMatch = selectedBusiness.google_maps_url.match(/place\/([^\/]+)/);
@@ -443,6 +454,9 @@ const ServicePage = () => {
         }
       }
       if (selectedBusiness.latitude && selectedBusiness.longitude) {
+        if (latOffset) {
+          return `https://www.google.com/maps/embed/v1/view?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&center=${selectedBusiness.latitude + latOffset},${selectedBusiness.longitude}&zoom=17&maptype=roadmap`;
+        }
         return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${selectedBusiness.latitude},${selectedBusiness.longitude}&zoom=17`;
       }
       const query = selectedBusiness.address 
@@ -615,7 +629,7 @@ const ServicePage = () => {
               )}
               <iframe
                 src={getMapEmbedUrl()}
-                className={`w-full border-0 rounded-lg ${selectedBusiness ? 'absolute inset-x-0 h-[520px] top-[60px] sm:relative sm:top-0 sm:h-full' : 'h-[400px] sm:h-full'}`}
+                className={`w-full border-0 rounded-lg h-full`}
                 allowFullScreen
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
