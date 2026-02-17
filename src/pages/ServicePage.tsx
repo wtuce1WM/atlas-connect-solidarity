@@ -667,20 +667,6 @@ const ServicePage = () => {
             )}
           </div>
 
-          {/* Clear filters link */}
-          {(selectedCity !== "all" || selectedGammeFilter !== "all" || selectedServices.length > 1) && (
-            <button
-              onClick={() => {
-                setSelectedCity("all");
-                setSelectedGammeFilter("all");
-                setSelectedServices([decodedServiceName]);
-              }}
-              className="mb-4 text-sm text-gold underline hover:text-gold/80 transition-colors"
-            >
-              {language === "fr" ? "Effacer les filtres" : language === "ar" ? "مسح الفلاتر" : "Clear filters"}
-            </button>
-          )}
-
           {/* Services Filter */}
           {availableServices.length > 1 && (
             <div className={`mb-8 ${showFilters ? 'block' : 'hidden'} sm:block`}>
@@ -709,6 +695,20 @@ const ServicePage = () => {
                 ))}
               </div>
             </div>
+          )}
+
+          {/* Clear filters link */}
+          {(selectedCity !== "all" || selectedGammeFilter !== "all" || selectedServices.length > 1) && (
+            <button
+              onClick={() => {
+                setSelectedCity("all");
+                setSelectedGammeFilter("all");
+                setSelectedServices([decodedServiceName]);
+              }}
+              className="mb-4 text-sm text-gold underline hover:text-gold/80 transition-colors"
+            >
+              {language === "fr" ? "Effacer les filtres" : language === "ar" ? "مسح الفلاتر" : "Clear filters"}
+            </button>
           )}
 
           {filteredBusinesses.length === 0 ? (
