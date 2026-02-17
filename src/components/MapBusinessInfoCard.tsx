@@ -53,7 +53,7 @@ const MapBusinessInfoCard = ({ business, onClose }: MapBusinessInfoCardProps) =>
   })();
 
   return (
-    <div className="absolute top-0 left-0 right-0 z-10 bg-white text-black px-4 py-3 rounded-b shadow-lg sm:top-2 sm:left-2 sm:right-auto sm:max-w-sm sm:rounded">
+    <div className="absolute top-0 left-0 right-0 z-10 bg-white text-black px-4 py-3 rounded-b shadow-lg sm:top-2 sm:left-2 sm:right-2 sm:rounded">
       <div className="flex items-start justify-between gap-2 mb-2">
         <span className="text-sm font-bold">{business.name}</span>
         <button
