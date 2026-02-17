@@ -91,7 +91,7 @@ const CityMap = () => {
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
   const [gammes, setGammes] = useState<Gamme[]>([]);
   const [badges, setBadges] = useState<Badge[]>([]);
-  const [subcategoriesRef, setSubcategoriesRef] = useState<{ id: string; name_fr: string }[]>([]);
+  const [subcategoriesRef, setSubcategoriesRef] = useState<{ id: string; name_fr: string; sort_order: number | null }[]>([]);
   const [badgeSubcategories, setBadgeSubcategories] = useState<{ badge_id: string; subcategory_id: string }[]>([]);
   const [gammeCategories, setGammeCategories] = useState<{ gamme_id: string; category_id: string }[]>([]);
   const [categoryIdMap, setCategoryIdMap] = useState<Record<string, string>>({});
@@ -140,8 +140,19 @@ const CityMap = () => {
     filteredByCategory.forEach((business) => {
       business.categories?.forEach((cat) => subcategories.add(cat));
     });
-    return Array.from(subcategories).sort((a, b) => a.localeCompare(b, "fr"));
-  }, [businesses, selectedCategory]);
+    
+    const subcatSortMap: Record<string, number> = {};
+    subcategoriesRef.forEach((s) => {
+      subcatSortMap[s.name_fr] = s.sort_order ?? 9999;
+    });
+    
+    return Array.from(subcategories).sort((a, b) => {
+      const orderA = subcatSortMap[a] ?? 9999;
+      const orderB = subcatSortMap[b] ?? 9999;
+      if (orderA !== orderB) return orderA - orderB;
+      return a.localeCompare(b, "fr");
+    });
+  }, [businesses, selectedCategory, subcategoriesRef]);
 
   // Extract unique activities from filtered businesses (including gamme filter)
   const availableActivities = useMemo(() => {
@@ -324,7 +335,7 @@ const CityMap = () => {
       // Fetch badges, subcategories, badge_subcategories
       const [badgesRes, subcatsRes, badgeSubcatsRes] = await Promise.all([
         supabase.from("badges").select("id, name_fr, color_hex, text_color_hex").order("sort_order", { ascending: true }),
-        supabase.from("subcategories").select("id, name_fr"),
+        supabase.from("subcategories").select("id, name_fr, sort_order"),
         supabase.from("badge_subcategories").select("badge_id, subcategory_id"),
       ]);
 
