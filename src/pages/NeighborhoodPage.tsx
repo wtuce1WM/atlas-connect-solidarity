@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate, useSearchParams, Link } from "react-router-dom";
-import { ArrowLeft, Loader2, MapPin, ChevronLeft, ChevronRight, X, Phone } from "lucide-react";
+import { ArrowLeft, Loader2, MapPin, ChevronLeft, ChevronRight, X, Phone, SlidersHorizontal } from "lucide-react";
 import MapBusinessInfoCard from "@/components/MapBusinessInfoCard";
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,6 +12,7 @@ import DynamicLabelSections from "@/components/DynamicLabelSections";
 import BusinessCard, { Gamme, Badge } from "@/components/BusinessCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import heroBackground from "@/assets/hero-marrakech.jpg";
 import {
   Select,
   SelectContent,
@@ -75,6 +76,9 @@ const NeighborhoodPage = () => {
   const [selectedActivities, setSelectedActivities] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
+  const [showFilters, setShowFilters] = useState(false);
+  const [sortMode, setSortMode] = useState<"rating" | "reviews">("rating");
+  const [sortAsc, setSortAsc] = useState(false);
 
   const decodedNeighborhood = neighborhood ? decodeURIComponent(neighborhood) : "";
   const cityParam = searchParams.get("city") ? decodeURIComponent(searchParams.get("city")!) : "";
@@ -128,17 +132,23 @@ const NeighborhoodPage = () => {
       result = result.filter((b) => selectedActivities.some((a) => b.services?.includes(a)));
     }
     
+    const dir = sortAsc ? -1 : 1;
     result.sort((a, b) => {
+      if (sortMode === "reviews") {
+        const countA = (a.google_review_count || 0) + (a.tripadvisor_review_count || 0) + (a.restaurant_guru_review_count || 0);
+        const countB = (b.google_review_count || 0) + (b.tripadvisor_review_count || 0) + (b.restaurant_guru_review_count || 0);
+        return (countB - countA) * dir;
+      }
       const rA = getEffectiveRating(a);
       const rB = getEffectiveRating(b);
       if (rA === null && rB === null) return 0;
       if (rA === null) return 1;
       if (rB === null) return -1;
-      return rB - rA;
+      return (rB - rA) * dir;
     });
     
     return result;
-  }, [businesses, selectedCategory, selectedSubcategory, selectedActivities]);
+  }, [businesses, selectedCategory, selectedSubcategory, selectedActivities, sortMode, sortAsc]);
 
   const totalPages = Math.ceil(filteredBusinesses.length / ITEMS_PER_PAGE);
   const paginatedBusinesses = useMemo(() => {
@@ -153,27 +163,39 @@ const NeighborhoodPage = () => {
     setCurrentPage(1);
   }, [selectedCategory, selectedSubcategory, selectedActivities]);
 
+  const scrollToFilterToggle = () => {
+    if (window.innerWidth < 640) {
+      setTimeout(() => {
+        document.getElementById("neighborhood-filter-toggle")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+    }
+  };
+
   const handleCategoryChange = (value: string) => {
     setSelectedCategory(value === "all" ? "" : value);
     setSelectedSubcategory("");
     setSelectedActivities([]);
+    scrollToFilterToggle();
   };
 
   const handleSubcategoryChange = (value: string) => {
     setSelectedSubcategory(value === "all" ? "" : value);
     setSelectedActivities([]);
+    scrollToFilterToggle();
   };
 
   const toggleActivity = (activity: string) => {
     setSelectedActivities((prev) =>
       prev.includes(activity) ? prev.filter((a) => a !== activity) : [...prev, activity]
     );
+    scrollToFilterToggle();
   };
 
   const clearAllFilters = () => {
     setSelectedCategory("");
     setSelectedSubcategory("");
     setSelectedActivities([]);
+    scrollToFilterToggle();
   };
 
   const goToPage = (page: number) => {
@@ -272,6 +294,7 @@ const NeighborhoodPage = () => {
 
   // Get the city name from the first business (all should share the same neighborhood)
   const cityName = cityParam || (businesses.length > 0 ? businesses[0].city : "");
+  const activeFilterCount = [selectedCategory, selectedSubcategory, ...selectedActivities].filter(Boolean).length;
 
   const getMapEmbedUrl = () => {
     if (selectedBusiness) {
@@ -314,259 +337,332 @@ const NeighborhoodPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen relative">
+      {/* Full-page background */}
+      <div className="fixed inset-0 -z-10">
+        <img src={heroBackground} alt="" className="w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-black/70" />
+      </div>
       <Header />
 
-      <main className="container mx-auto px-4 py-24">
-        {/* Back link */}
-        <button
-          onClick={() => navigate(-1)}
-          className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-8 transition-colors"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Retour
-        </button>
+      {/* Hero Section */}
+      <section className="pt-28 pb-8 lg:pb-16 relative overflow-hidden">
+        <div className="container mx-auto px-4 relative z-10">
+          <button
+            onClick={() => navigate(-1)}
+            className="inline-flex items-center gap-2 text-white/80 hover:text-gold mb-4 transition-colors text-sm"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Retour
+          </button>
 
-        {/* Title */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
-            <MapPin className="h-8 w-8 text-primary" />
-            {language === "fr"
-              ? `Quartier ${decodedNeighborhood}`
-              : language === "ar"
-                ? `حي ${decodedNeighborhood}`
-                : `${decodedNeighborhood} Neighborhood`}
-          </h1>
-          {cityName && (
-            <p className="text-muted-foreground mt-2">
-              {cityName} — {filteredBusinesses.length} établissement{filteredBusinesses.length > 1 ? "s" : ""}
-            </p>
-          )}
-        </div>
-
-        {/* Top Selection Carousel */}
-        <TopCityBusinesses 
-          businesses={businesses} 
-          cityName={cityName}
-          neighborhoodName={neighborhood}
-          gammes={gammes}
-          onSelectBusiness={handleSelectBusiness}
-          selectedBusinessId={selectedBusiness?.id}
-        />
-
-        {/* Google Maps */}
-        <Card className="relative mb-6">
-          <CardContent className="p-0">
-            {selectedBusiness && (
-              <MapBusinessInfoCard
-                business={selectedBusiness}
-                onClose={clearSelectedBusiness}
-              />
+          <div>
+            <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+              <MapPin className="h-8 w-8 text-gold" />
+              {language === "fr"
+                ? `Quartier ${decodedNeighborhood}`
+                : language === "ar"
+                  ? `حي ${decodedNeighborhood}`
+                  : `${decodedNeighborhood} Neighborhood`}
+            </h1>
+            {cityName && (
+              <p className="text-white/80 mt-2">
+                {cityName} — <span className="text-gold font-semibold">{filteredBusinesses.length}</span> établissement{filteredBusinesses.length > 1 ? "s" : ""}
+              </p>
             )}
-            <iframe
-              src={getMapEmbedUrl()}
-              className="w-full h-[500px] border-0 rounded-lg"
-              allowFullScreen
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              title={selectedBusiness ? `Localisation de ${selectedBusiness.name}` : `Carte du quartier ${decodedNeighborhood}`}
-            />
-          </CardContent>
-        </Card>
+          </div>
+        </div>
+      </section>
 
-        {/* Filters */}
-        <div className="space-y-3 mb-6">
-          <div className="flex flex-wrap gap-3">
-            {/* City Filter */}
-            <div className="flex-1 min-w-[140px]">
-              <label className="text-sm font-bold text-foreground mb-1.5 block">Ville</label>
-              <Select value={cityParam || "all"} onValueChange={(value) => {
-                if (value === "all") {
-                  navigate(`/neighborhood/${encodeURIComponent(decodedNeighborhood)}`);
-                } else {
-                  navigate(`/neighborhood/${encodeURIComponent(decodedNeighborhood)}?city=${encodeURIComponent(value)}`);
-                }
-              }}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Toutes les villes" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Toutes les villes</SelectItem>
-                  {cities.map((city) => (
-                    <SelectItem key={city} value={city}>{city}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+      <section className="py-6 lg:py-12">
+        <div className="container mx-auto px-4">
+          {/* Top Selection Carousel */}
+          <TopCityBusinesses 
+            businesses={businesses} 
+            cityName={cityName}
+            neighborhoodName={neighborhood}
+            gammes={gammes}
+            onSelectBusiness={handleSelectBusiness}
+            selectedBusinessId={selectedBusiness?.id}
+          />
 
-            {/* Neighborhood Filter */}
-            {neighborhoods.length > 1 && (
+          {/* Google Maps */}
+          <Card className="relative mb-6">
+            <CardContent className="p-0">
+              {selectedBusiness && (
+                <MapBusinessInfoCard
+                  business={selectedBusiness}
+                  onClose={clearSelectedBusiness}
+                />
+              )}
+              <iframe
+                src={getMapEmbedUrl()}
+                className="w-full h-[500px] border-0 rounded-lg"
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title={selectedBusiness ? `Localisation de ${selectedBusiness.name}` : `Carte du quartier ${decodedNeighborhood}`}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Mobile filter toggle */}
+          <div id="neighborhood-filter-toggle" className="sm:hidden mb-4 scroll-mt-24">
+            <button
+              onClick={() => { const wasOpen = showFilters; setShowFilters(!showFilters); if (wasOpen) scrollToFilterToggle(); }}
+              className="flex items-center gap-2 w-full px-4 py-2.5 rounded-lg bg-white/10 border border-white/20 text-white text-sm font-medium transition-colors hover:bg-white/20"
+            >
+              <SlidersHorizontal className="h-4 w-4" />
+              {language === "fr" ? "Filtrer les résultats" : language === "ar" ? "تصفية النتائج" : "Filter results"}
+              {activeFilterCount > 0 && (
+                <span className="ml-auto bg-gold text-black text-xs font-bold rounded-full px-2 py-0.5">
+                  {activeFilterCount}
+                </span>
+              )}
+            </button>
+          </div>
+
+          {/* Filters */}
+          <div className={`space-y-3 mb-6 ${showFilters ? 'block' : 'hidden'} sm:block`}>
+            <div className="flex flex-col sm:flex-row gap-3">
+              {/* City Filter */}
               <div className="flex-1 min-w-[140px]">
-                <label className="text-sm font-bold text-foreground mb-1.5 block">Quartier</label>
-                <Select value={decodedNeighborhood} onValueChange={(value) => navigate(`/neighborhood/${encodeURIComponent(value)}?city=${encodeURIComponent(cityParam)}`)}>
+                <label className="text-sm font-bold text-white mb-1.5 block">Ville</label>
+                <Select value={cityParam || "all"} onValueChange={(value) => {
+                  if (value === "all") {
+                    navigate(`/neighborhood/${encodeURIComponent(decodedNeighborhood)}`);
+                  } else {
+                    navigate(`/neighborhood/${encodeURIComponent(decodedNeighborhood)}?city=${encodeURIComponent(value)}`);
+                  }
+                }}>
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder={decodedNeighborhood} />
+                    <SelectValue placeholder="Toutes les villes" />
                   </SelectTrigger>
                   <SelectContent>
-                    {neighborhoods.map((n) => (
-                      <SelectItem key={n} value={n}>{n}</SelectItem>
+                    <SelectItem value="all">Toutes les villes</SelectItem>
+                    {cities.map((city) => (
+                      <SelectItem key={city} value={city}>{city}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
-            )}
 
-            {/* Main Category Filter */}
-            <div className="flex-1 min-w-[140px]">
-              <label className="text-sm font-bold text-foreground mb-1.5 block">Catégorie</label>
-              <Select value={selectedCategory || "all"} onValueChange={handleCategoryChange}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Toutes" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Toutes les catégories</SelectItem>
-                  {availableCategories.map((category) => (
-                    <SelectItem key={category} value={category}>{category}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+              {/* Neighborhood Filter */}
+              {neighborhoods.length > 1 && (
+                <div className="flex-1 min-w-[140px]">
+                  <label className="text-sm font-bold text-white mb-1.5 block">Quartier</label>
+                  <Select value={decodedNeighborhood} onValueChange={(value) => navigate(`/neighborhood/${encodeURIComponent(value)}?city=${encodeURIComponent(cityParam)}`)}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder={decodedNeighborhood} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {neighborhoods.map((n) => (
+                        <SelectItem key={n} value={n}>{n}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
 
-            {/* Subcategory Filter */}
-            {availableSubcategories.length > 0 && (
+              {/* Main Category Filter */}
               <div className="flex-1 min-w-[140px]">
-                <label className="text-sm font-bold text-foreground mb-1.5 block">Sous-catégorie</label>
-                <Select value={selectedSubcategory || "all"} onValueChange={handleSubcategoryChange}>
+                <label className="text-sm font-bold text-white mb-1.5 block">Catégorie</label>
+                <Select value={selectedCategory || "all"} onValueChange={handleCategoryChange}>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Toutes" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Toutes</SelectItem>
-                    {availableSubcategories.map((sub) => (
-                      <SelectItem key={sub} value={sub}>{sub}</SelectItem>
+                    <SelectItem value="all">Toutes les catégories</SelectItem>
+                    {availableCategories.map((category) => (
+                      <SelectItem key={category} value={category}>{category}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
+
+              {/* Subcategory Filter */}
+              {availableSubcategories.length > 0 && (
+                <div className="flex-1 min-w-[140px]">
+                  <label className="text-sm font-bold text-white mb-1.5 block">Sous-catégorie</label>
+                  <Select value={selectedSubcategory || "all"} onValueChange={handleSubcategoryChange}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Toutes" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Toutes</SelectItem>
+                      {availableSubcategories.map((sub) => (
+                        <SelectItem key={sub} value={sub}>{sub}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+            </div>
+
+            {/* Clear All Button */}
+            {(selectedCategory || selectedSubcategory || selectedActivities.length > 0) && (
+              <div className="mb-4 bg-black/60 backdrop-blur-sm rounded-lg px-4 py-2 inline-block">
+                <button
+                  onClick={clearAllFilters}
+                  className="text-sm text-gold underline hover:text-gold/80 transition-colors"
+                >
+                  {language === "fr" ? "Effacer les filtres" : language === "ar" ? "مسح الفلاتر" : "Clear filters"}
+                </button>
+              </div>
+            )}
+
+            {/* Activity Filters */}
+            {selectedCategory && availableActivities.length > 0 && (
+              <div>
+                <label className="text-sm font-bold text-white mb-2 block">
+                  {language === "fr" ? "Sélectionnez un service" : language === "ar" ? "اختر خدمة" : "Select a service"}
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {availableActivities.slice(0, 8).map((activity) => (
+                    <label
+                      key={activity}
+                      className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border cursor-pointer transition-colors text-xs ${
+                        selectedActivities.includes(activity)
+                          ? "bg-primary/10 border-primary text-primary"
+                          : "bg-background border-border text-muted-foreground hover:border-primary/50"
+                      }`}
+                    >
+                      <Checkbox
+                        checked={selectedActivities.includes(activity)}
+                        onCheckedChange={() => toggleActivity(activity)}
+                        className="h-3 w-3"
+                      />
+                      {activity}
+                    </label>
+                  ))}
+                </div>
+              </div>
             )}
           </div>
 
-          {/* Clear All Button */}
-          {(selectedCategory || selectedSubcategory || selectedActivities.length > 0) && (
-            <button
-              onClick={clearAllFilters}
-              className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1"
-            >
-              <X className="h-4 w-4" />
-              Effacer les filtres
-            </button>
-          )}
-
-          {/* Activity Filters */}
-          {selectedCategory && availableActivities.length > 0 && (
-            <div>
-              <h3 className="text-sm font-bold text-foreground mb-2">Activités</h3>
-              <div className="flex flex-wrap gap-2">
-                {availableActivities.slice(0, 8).map((activity) => (
-                  <label
-                    key={activity}
-                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border cursor-pointer transition-colors text-xs ${
-                      selectedActivities.includes(activity)
-                        ? "bg-primary/10 border-primary text-primary"
-                        : "bg-background border-border text-muted-foreground hover:border-primary/50"
-                    }`}
+          {/* Business count heading + Sort */}
+          {filteredBusinesses.length === 0 ? (
+            <div className="text-center py-16">
+              <MapPin className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+              <p className="text-muted-foreground">
+                {language === "fr"
+                  ? "Aucun établissement trouvé dans ce quartier"
+                  : language === "ar"
+                    ? "لم يتم العثور على مؤسسات في هذا الحي"
+                    : "No businesses found in this neighborhood"}
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
+                <h2 className="text-lg font-bold text-white">
+                  {filteredBusinesses.length} établissement{filteredBusinesses.length > 1 ? "s" : ""} {language === "fr" ? "pour" : language === "ar" ? "لـ" : "for"} {decodedNeighborhood}
+                </h2>
+                <div className="flex items-center justify-center sm:justify-end gap-2">
+                  <Button
+                    variant={sortMode === "rating" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => { if (sortMode === "rating") setSortAsc(!sortAsc); else { setSortMode("rating"); setSortAsc(false); } }}
+                    className="text-xs"
                   >
-                    <Checkbox
-                      checked={selectedActivities.includes(activity)}
-                      onCheckedChange={() => toggleActivity(activity)}
-                      className="h-3 w-3"
-                    />
-                    {activity}
-                  </label>
+                    <span className="mr-1">↑↓</span>
+                    {language === "fr" ? "Trier par note" : language === "ar" ? "ترتيب حسب التقييم" : "Sort by rating"}
+                  </Button>
+                  <Button
+                    variant={sortMode === "reviews" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => { if (sortMode === "reviews") setSortAsc(!sortAsc); else { setSortMode("reviews"); setSortAsc(false); } }}
+                    className="text-xs"
+                  >
+                    <span className="mr-1">↑↓</span>
+                    {language === "fr" ? "Trier par avis" : language === "ar" ? "ترتيب حسب التعليقات" : "Sort by reviews"}
+                  </Button>
+                </div>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {paginatedBusinesses.map((business) => (
+                  <BusinessCard 
+                    key={business.id} 
+                    business={business} 
+                    gammes={gammes} 
+                    badges={badges}
+                    subcategories={subcategories}
+                    badgeSubcategories={badgeSubcategories}
+                    verifiedLabel="Vérifié"
+                    showMapButton
+                    onSelectBusiness={handleSelectBusiness}
+                    selectedBusinessId={selectedBusiness?.id}
+                    mapButtonLabels={{ view: "Voir sur la carte", shown: "Affiché sur la carte" }}
+                  />
                 ))}
               </div>
+
+              {filteredBusinesses.length > 0 && (
+                <p className="text-sm text-gray-400 mt-4">
+                  Affichage {startResult}-{endResult} sur {filteredBusinesses.length} résultat{filteredBusinesses.length > 1 ? "s" : ""}
+                </p>
+              )}
+            </>
+          )}
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="mt-12 flex flex-col items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => goToPage(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="gap-1"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  Précédent
+                </Button>
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    let pageNum: number;
+                    if (totalPages <= 5) {
+                      pageNum = i + 1;
+                    } else if (currentPage <= 3) {
+                      pageNum = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      pageNum = totalPages - 4 + i;
+                    } else {
+                      pageNum = currentPage - 2 + i;
+                    }
+                    return (
+                      <Button
+                        key={pageNum}
+                        variant={currentPage === pageNum ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => goToPage(pageNum)}
+                        className="w-10"
+                      >
+                        {pageNum}
+                      </Button>
+                    );
+                  })}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => goToPage(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="gap-1"
+                >
+                  Suivant
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+              <p className="text-xs text-gray-500">
+                Page {currentPage} sur {totalPages}
+              </p>
             </div>
           )}
         </div>
-
-        {/* Results count */}
-        {/* Business count heading */}
-        <h2 className="text-lg font-bold text-foreground mb-3">
-          {filteredBusinesses.length} établissement{filteredBusinesses.length > 1 ? "s" : ""} {language === "fr" ? "pour" : language === "ar" ? "لـ" : "for"} {decodedNeighborhood}
-        </h2>
-
-        {/* Business Grid */}
-        {filteredBusinesses.length === 0 ? (
-          <div className="text-center py-16">
-            <MapPin className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">
-              {language === "fr"
-                ? "Aucun établissement trouvé dans ce quartier"
-                : language === "ar"
-                  ? "لم يتم العثور على مؤسسات في هذا الحي"
-                  : "No businesses found in this neighborhood"}
-            </p>
-          </div>
-        ) : (
-          <>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {paginatedBusinesses.map((business) => (
-                <BusinessCard 
-                  key={business.id} 
-                  business={business} 
-                  gammes={gammes} 
-                   badges={badges}
-                   subcategories={subcategories}
-                   badgeSubcategories={badgeSubcategories}
-                  verifiedLabel="Vérifié"
-                  showMapButton
-                  onSelectBusiness={handleSelectBusiness}
-                  selectedBusinessId={selectedBusiness?.id}
-                  mapButtonLabels={{ view: "Voir sur la carte", shown: "Affiché sur la carte" }}
-                />
-              ))}
-            </div>
-
-            {filteredBusinesses.length > 0 && (
-              <p className="text-sm text-muted-foreground mt-4">
-                Affichage {startResult}-{endResult} sur {filteredBusinesses.length} résultat{filteredBusinesses.length > 1 ? "s" : ""}
-              </p>
-            )}
-          </>
-        )}
-
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-center gap-2 mt-8">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => goToPage(currentPage - 1)}
-              disabled={currentPage === 1}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <Button
-                key={page}
-                variant={page === currentPage ? "default" : "outline"}
-                size="sm"
-                onClick={() => goToPage(page)}
-              >
-                {page}
-              </Button>
-            ))}
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => goToPage(currentPage + 1)}
-              disabled={currentPage === totalPages}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
-        )}
-      </main>
+      </section>
 
       <DynamicLabelSections pageType="neighborhood" />
       <Footer />

@@ -268,12 +268,21 @@ const CityMap = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const scrollToFilterToggle = () => {
+    if (window.innerWidth < 640) {
+      setTimeout(() => {
+        document.getElementById("city-filter-toggle")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+    }
+  };
+
   const toggleActivity = (activity: string) => {
     setSelectedActivities((prev) =>
       prev.includes(activity)
         ? prev.filter((a) => a !== activity)
         : [...prev, activity]
     );
+    scrollToFilterToggle();
   };
 
   const clearAllFilters = () => {
@@ -281,6 +290,7 @@ const CityMap = () => {
     setSelectedSubcategory("");
     setSelectedGamme("");
     setSelectedActivities([]);
+    scrollToFilterToggle();
   };
 
   const handleCategoryChange = (value: string) => {
@@ -288,11 +298,13 @@ const CityMap = () => {
     setSelectedSubcategory("");
     setSelectedGamme("");
     setSelectedActivities([]);
+    scrollToFilterToggle();
   };
 
   const handleSubcategoryChange = (value: string) => {
     setSelectedSubcategory(value === "all" ? "" : value);
     setSelectedActivities([]);
+    scrollToFilterToggle();
   };
 
   useEffect(() => {
@@ -529,9 +541,9 @@ const CityMap = () => {
           {/* Filters + Business list */}
           <div className="space-y-4">
             {/* Mobile filter toggle */}
-            <div className="sm:hidden">
+            <div id="city-filter-toggle" className="sm:hidden mb-4 scroll-mt-24">
               <button
-                onClick={() => setShowFilters(!showFilters)}
+                onClick={() => { const wasOpen = showFilters; setShowFilters(!showFilters); if (wasOpen) scrollToFilterToggle(); }}
                 className="flex items-center gap-2 w-full px-4 py-2.5 rounded-lg bg-white/10 border border-white/20 text-white text-sm font-medium transition-colors hover:bg-white/20"
               >
                 <SlidersHorizontal className="h-4 w-4" />
@@ -549,7 +561,7 @@ const CityMap = () => {
               <div className="grid grid-cols-1 sm:flex sm:flex-wrap gap-3">
                 {/* Main Category Filter */}
                 <div className="flex-1 min-w-[140px]">
-                  <label className="text-base font-semibold text-white mb-1.5 block">Catégorie</label>
+                  <label className="text-sm font-bold text-white mb-1.5 block">Catégorie</label>
                   <Select value={selectedCategory || "all"} onValueChange={handleCategoryChange}>
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Toutes" />
@@ -568,7 +580,7 @@ const CityMap = () => {
                 {/* Subcategory Filter */}
                 {selectedCategory && availableSubcategories.length > 0 && (
                   <div className="flex-1 min-w-[140px]">
-                    <label className="text-base font-semibold text-white mb-1.5 block">Sous-catégorie</label>
+                    <label className="text-sm font-bold text-white mb-1.5 block">Sous-catégorie</label>
                     <Select value={selectedSubcategory || "all"} onValueChange={handleSubcategoryChange}>
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Toutes" />
@@ -588,8 +600,8 @@ const CityMap = () => {
                 {/* Standing (Gamme) Filter */}
                 {selectedSubcategory && filteredGammes.length > 0 && (
                 <div className="flex-1 min-w-[140px]">
-                  <label className="text-base font-semibold text-white mb-1.5 block">Standing</label>
-                  <Select value={selectedGamme || "all"} onValueChange={(v) => setSelectedGamme(v === "all" ? "" : v)}>
+                  <label className="text-sm font-bold text-white mb-1.5 block">Standing</label>
+                  <Select value={selectedGamme || "all"} onValueChange={(v) => { setSelectedGamme(v === "all" ? "" : v); scrollToFilterToggle(); }}>
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Tous" />
                     </SelectTrigger>
@@ -611,19 +623,20 @@ const CityMap = () => {
 
               {/* Clear All Button */}
               {(selectedCategory || selectedSubcategory || selectedGamme || selectedActivities.length > 0) && (
-                <button
-                  onClick={clearAllFilters}
-                  className="text-sm text-gray-400 hover:text-gray-200 flex items-center gap-1"
-                >
-                  <X className="h-4 w-4" />
-                  Effacer les filtres
-                </button>
+                <div className="mb-4 bg-black/60 backdrop-blur-sm rounded-lg px-4 py-2 inline-block">
+                  <button
+                    onClick={clearAllFilters}
+                    className="text-sm text-gold underline hover:text-gold/80 transition-colors"
+                  >
+                    Effacer les filtres
+                  </button>
+                </div>
               )}
 
               {/* Activity Filters */}
               {selectedSubcategory && availableActivities.length > 0 && (
                 <div>
-                  <label className="text-base font-semibold text-white mb-1.5 block">Services</label>
+                  <label className="text-sm font-bold text-white mb-1.5 block">Sélectionnez un service</label>
                   <div className="flex flex-wrap gap-2">
                     {availableActivities.map((activity) => (
                       <label
@@ -649,10 +662,10 @@ const CityMap = () => {
 
             {/* Business list */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 gap-2">
-              <h2 className="text-lg font-semibold text-white">
-                Établissements ({filteredBusinesses.length})
+              <h2 className="text-lg font-bold text-white">
+                {filteredBusinesses.length} établissement{filteredBusinesses.length > 1 ? "s" : ""} pour {decodedCity}
               </h2>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center justify-center sm:justify-end gap-2">
               <button
                 onClick={() => {
                   setSortByRating(prev => prev === "none" ? "desc" : prev === "desc" ? "asc" : "none");

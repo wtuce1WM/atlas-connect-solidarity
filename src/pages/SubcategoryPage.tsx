@@ -611,7 +611,7 @@ const SubcategoryPage = () => {
                 <h2 className={`text-lg font-bold ${textClass}`}>
                   {filteredBusinesses.length} {t.establishments} {language === "fr" ? "pour" : language === "ar" ? "لـ" : "for"} {getSubcategoryName()}
                 </h2>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center justify-center sm:justify-end gap-2">
                   <Button
                     variant={sortMode === "rating" ? "default" : "outline"}
                     size="sm"
