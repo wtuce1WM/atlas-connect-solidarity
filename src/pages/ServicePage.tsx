@@ -688,7 +688,7 @@ const ServicePage = () => {
                     <Checkbox
                       checked={selectedServices.includes(service)}
                       onCheckedChange={() => toggleService(service)}
-                      className="h-3 w-3"
+                      className="h-3 w-3 border-black data-[state=checked]:bg-black data-[state=checked]:border-black"
                     />
                     {service}
                   </label>
