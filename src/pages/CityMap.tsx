@@ -446,8 +446,11 @@ const CityMap = () => {
   const handleSelectBusiness = (business: Business) => {
     setSelectedBusiness(business);
     
-    // Scroll to map
-    window.scrollTo({ top: 300, behavior: 'smooth' });
+    // Scroll to map anchor
+    const mapAnchor = document.getElementById('city-map-anchor');
+    if (mapAnchor) {
+      mapAnchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   };
 
   const clearSelectedBusiness = () => {
@@ -524,6 +527,7 @@ const CityMap = () => {
                   business={selectedBusiness}
                   onClose={clearSelectedBusiness}
                 />
+                <div id="city-map-anchor" />
                 <div className="overflow-hidden rounded-lg">
                   <iframe
                     src={getMapEmbedUrl()}
