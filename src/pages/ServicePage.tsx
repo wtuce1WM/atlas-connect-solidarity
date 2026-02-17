@@ -715,6 +715,7 @@ const ServicePage = () => {
                   setSelectedCity("all");
                   setSelectedGammeFilter("all");
                   setSelectedServices([decodedServiceName]);
+                  scrollToFilterToggle();
                 }}
                 className="text-sm text-gold underline hover:text-gold/80 transition-colors"
               >
