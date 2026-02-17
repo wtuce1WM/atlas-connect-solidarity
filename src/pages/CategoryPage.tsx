@@ -379,7 +379,6 @@ const CategoryPage = () => {
 
   const handleCityChange = (city: string) => {
     setSelectedCity(city);
-    setSelectedBusiness(null);
     setSelectedSubcategories([]);
     setSelectedServices([]);
     setSelectedGamme("all");
@@ -392,7 +391,6 @@ const CategoryPage = () => {
     } else {
       setSelectedSubcategories([subcategory]);
     }
-    setSelectedBusiness(null);
     setSelectedServices([]);
     setSelectedGamme("all");
     scrollToFilterToggle();
@@ -404,7 +402,6 @@ const CategoryPage = () => {
         ? prev.filter((s) => s !== service)
         : [...prev, service]
     );
-    setSelectedBusiness(null);
     scrollToFilterToggle();
   };
 
@@ -412,7 +409,6 @@ const CategoryPage = () => {
     setSelectedSubcategories([]);
     setSelectedServices([]);
     setSelectedGamme("all");
-    setSelectedBusiness(null);
     scrollToFilterToggle();
   };
 
@@ -523,28 +519,27 @@ const CategoryPage = () => {
       <section className="py-6 lg:py-12">
         <div className="container mx-auto px-4">
 
-          {/* Google Maps - before filters, only shown when a business is selected */}
           <div id="category-map" className="scroll-mt-24" />
-          {selectedBusiness && (
-            <div className="mb-6 overflow-hidden rounded-lg">
-              <Card className="relative border-0 h-[400px] sm:h-[500px] overflow-hidden">
-                <CardContent className="p-0 relative h-full">
+          <div className="mb-6 overflow-hidden rounded-lg">
+            <Card className="relative border-0 h-[400px] sm:h-[500px] overflow-hidden">
+              <CardContent className="p-0 relative h-full">
+                {selectedBusiness && (
                   <MapBusinessInfoCard
                     business={selectedBusiness}
                     onClose={clearSelectedBusiness}
                   />
-                  <iframe
-                    src={getMapEmbedUrl()}
-                    className="w-full border-0 ring-[5px] ring-gold absolute inset-0 h-[520px] top-[60px] sm:relative sm:top-0 sm:h-[500px]"
-                    allowFullScreen
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                    title={`Localisation de ${selectedBusiness.name}`}
-                  />
-                </CardContent>
-              </Card>
-            </div>
-          )}
+                )}
+                <iframe
+                  src={getMapEmbedUrl()}
+                  className={`w-full border-0 ${selectedBusiness ? 'ring-[5px] ring-gold absolute inset-0 h-[520px] top-[60px] sm:relative sm:top-0 sm:h-[500px]' : 'h-full'}`}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title={selectedBusiness ? `Localisation de ${selectedBusiness.name}` : `Carte ${getCategoryName()}`}
+                />
+              </CardContent>
+            </Card>
+          </div>
 
           <div id="category-filter-toggle" className="sm:hidden mb-4 scroll-mt-24">
             <button

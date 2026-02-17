@@ -523,27 +523,26 @@ const CityMap = () => {
         {/* Map + Business list - Full width */}
         <div id="city-map-anchor" className="scroll-mt-24" />
         <div className="space-y-6">
-          {selectedBusiness ? (
-            <div className="overflow-hidden rounded-lg shadow-xl shadow-gold/20 ring-2 ring-gold/30 animate-map-unfold">
+          <div className={`overflow-hidden rounded-lg ${selectedBusiness ? 'shadow-xl shadow-gold/20 ring-2 ring-gold/30 animate-map-unfold' : ''}`}>
             <Card className="relative border-0 h-[400px] sm:h-[500px] overflow-hidden">
               <CardContent className="p-0 relative h-full">
-                {/* Selected business indicator */}
-                <MapBusinessInfoCard
-                  business={selectedBusiness}
-                  onClose={clearSelectedBusiness}
-                />
+                {selectedBusiness && (
+                  <MapBusinessInfoCard
+                    business={selectedBusiness}
+                    onClose={clearSelectedBusiness}
+                  />
+                )}
                 <iframe
                   src={getMapEmbedUrl()}
-                  className="w-full border-0 ring-[5px] ring-gold absolute inset-0 h-[520px] top-[60px] sm:relative sm:top-0 sm:h-[500px]"
+                  className={`w-full border-0 ${selectedBusiness ? 'ring-[5px] ring-gold absolute inset-0 h-[520px] top-[60px] sm:relative sm:top-0 sm:h-[500px]' : 'h-full'}`}
                   allowFullScreen
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
-                  title={`Localisation de ${selectedBusiness.name}`}
+                  title={selectedBusiness ? `Localisation de ${selectedBusiness.name}` : `Carte de ${decodedCity}`}
                 />
               </CardContent>
             </Card>
-            </div>
-          ) : null}
+          </div>
 
           {/* Filters + Business list */}
           <div className="space-y-4">
