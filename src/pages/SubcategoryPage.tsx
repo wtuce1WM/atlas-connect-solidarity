@@ -491,6 +491,28 @@ const SubcategoryPage = () => {
       <section className="py-6 lg:py-12">
         <div className="container mx-auto px-4">
 
+          {/* Google Maps */}
+          <div className="mb-6 overflow-hidden rounded-lg">
+            <Card id="subcategory-map" className="relative border-0 h-[400px] sm:h-[500px] overflow-hidden scroll-mt-24">
+              <CardContent className="p-0 relative h-full">
+                {selectedBusiness && (
+                  <MapBusinessInfoCard
+                    business={selectedBusiness}
+                    onClose={clearSelectedBusiness}
+                  />
+                )}
+                <iframe
+                  src={getMapEmbedUrl()}
+                  className={`w-full border-0 rounded-lg ${selectedBusiness ? 'h-[520px] sm:h-[500px]' : 'h-full'}`}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title={selectedBusiness ? `Localisation de ${selectedBusiness.name}` : `Carte ${getSubcategoryName()}${selectedCity !== "all" ? ` à ${selectedCity}` : ""}`}
+                />
+              </CardContent>
+            </Card>
+          </div>
+
           {/* Mobile filter toggle */}
           <div id="subcategory-filter-toggle" className="sm:hidden mb-4 scroll-mt-24">
             <button
@@ -713,25 +735,6 @@ const SubcategoryPage = () => {
             </>
           )}
 
-          {/* Google Maps */}
-          <Card id="subcategory-map" className="mt-12 relative scroll-mt-24">
-            <CardContent className="p-0">
-              {selectedBusiness && (
-                <MapBusinessInfoCard
-                  business={selectedBusiness}
-                  onClose={clearSelectedBusiness}
-                />
-              )}
-              <iframe
-                src={getMapEmbedUrl()}
-                className="w-full h-[400px] border-0 rounded-lg"
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                title={selectedBusiness ? `Localisation de ${selectedBusiness.name}` : `Carte ${getSubcategoryName()}${selectedCity !== "all" ? ` à ${selectedCity}` : ""}`}
-              />
-            </CardContent>
-          </Card>
         </div>
       </section>
 
