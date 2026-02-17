@@ -486,7 +486,7 @@ const CityMap = () => {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white flex items-center gap-3">
             <MapPin className="h-8 w-8 text-gold" />
-            Établissements à {decodedCity}
+            {decodedCity}
           </h1>
           <p className="text-white/80 mt-2">
             {businesses.length} établissement{businesses.length > 1 ? "s" : ""} dans l'annuaire WTUCE
