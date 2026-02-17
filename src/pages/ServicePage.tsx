@@ -644,7 +644,7 @@ const ServicePage = () => {
           <div id="service-filters" className={`mb-6 grid-cols-1 md:grid-cols-2 gap-4 scroll-mt-24 ${showFilters ? 'grid' : 'hidden'} sm:grid`}>
             {/* Ville */}
             <div>
-              <label className="block text-sm font-medium text-white mb-1">{t.filterByCity}</label>
+              <label className="block text-sm font-bold text-white mb-1">{t.filterByCity}</label>
               <Select value={selectedCity} onValueChange={handleCityChange}>
                 <SelectTrigger className="w-full bg-popover border-border text-popover-foreground">
                   <SelectValue placeholder="Ville" />
@@ -661,7 +661,7 @@ const ServicePage = () => {
             {/* Gamme */}
             {availableGammes.length > 1 && (
               <div>
-                <label className="block text-sm font-medium text-white mb-1">Standing</label>
+                <label className="block text-sm font-bold text-white mb-1">Standing</label>
                 <Select value={selectedGammeFilter} onValueChange={(v) => { setSelectedGammeFilter(v); scrollToFilterToggle(); }}>
                   <SelectTrigger className="w-full bg-popover border-border text-popover-foreground">
                     <SelectValue placeholder="Gamme" />
