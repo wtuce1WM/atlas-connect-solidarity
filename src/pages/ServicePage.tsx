@@ -697,9 +697,9 @@ const ServicePage = () => {
             </div>
           )}
 
-          {/* Clear filters link */}
+          {/* Clear filters link - hidden on mobile when filters panel is closed */}
           {(selectedCity !== "all" || selectedGammeFilter !== "all" || selectedServices.length > 1) && (
-            <div className="mb-4 bg-black/60 backdrop-blur-sm rounded-lg px-4 py-2 inline-block">
+            <div className={`mb-4 bg-black/60 backdrop-blur-sm rounded-lg px-4 py-2 inline-block ${showFilters ? 'block' : 'hidden'} sm:inline-block`}>
               <button
                 onClick={() => {
                   setSelectedCity("all");
