@@ -681,8 +681,8 @@ const ServicePage = () => {
           {availableServices.length > 1 && (
             <div className={`mb-8 ${showFilters ? 'block' : 'hidden'} sm:block`}>
               <div className="mb-3">
-                <label className="text-sm text-white">
-                  {language === "fr" ? "Services (sélection unique : cliquer sur un service le sélectionne seul, recliquer dessus le désélectionne)" : language === "ar" ? "الخدمات (اختيار فردي)" : "Services (single selection: click to select, click again to deselect)"}:
+                <label className="text-sm text-gray-400">
+                  {language === "fr" ? "Sélectionnez un service" : language === "ar" ? "اختر خدمة" : "Select a service"}
                 </label>
               </div>
               <div className="flex flex-wrap gap-2">
