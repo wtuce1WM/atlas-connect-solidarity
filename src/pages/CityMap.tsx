@@ -299,6 +299,9 @@ const CityMap = () => {
     setSelectedSubcategory("");
     setSelectedGamme("");
     setSelectedActivities([]);
+    setTimeout(() => {
+      document.getElementById("city-filters-signet")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
   };
 
   const handleCategoryChange = (value: string) => {
@@ -560,6 +563,8 @@ const CityMap = () => {
               </button>
             </div>
 
+            {/* Signet anchor above filters */}
+            <div id="city-filters-signet" className="scroll-mt-24" />
 
             {/* Category & Subcategory Filters */}
             <div className={`space-y-3 ${showFilters ? 'block' : 'hidden'} sm:block`}>
