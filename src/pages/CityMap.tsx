@@ -147,9 +147,6 @@ const CityMap = () => {
     });
     
     return Array.from(subcategories).sort((a, b) => {
-      // "Restaurant" always first
-      if (a === "Restaurant") return -1;
-      if (b === "Restaurant") return 1;
       const orderA = subcatSortMap[a] ?? 9999;
       const orderB = subcatSortMap[b] ?? 9999;
       if (orderA !== orderB) return orderA - orderB;
