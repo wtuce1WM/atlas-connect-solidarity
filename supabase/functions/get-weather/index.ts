@@ -1,12 +1,12 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "npm:@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
@@ -29,11 +29,30 @@ serve(async (req) => {
 
     console.log(`Fetching weather for city: ${city}`);
 
-    // Call OpenWeatherMap API
-    const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)},MA&appid=${apiKey}&units=metric&lang=fr`;
-    
-    const response = await fetch(weatherUrl);
-    const data = await response.json();
+    // Try by city name first
+    let weatherUrl = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)},MA&appid=${apiKey}&units=metric&lang=fr`;
+    let response = await fetch(weatherUrl);
+    let data = await response.json();
+
+    // If city name not found, fallback to coordinates from DB
+    if (!response.ok && data.cod === "404") {
+      console.log(`City "${city}" not found by name, trying coordinates...`);
+      const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+      const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+      const supabase = createClient(supabaseUrl, supabaseKey);
+
+      const { data: cityData } = await supabase
+        .from('cities')
+        .select('latitude, longitude')
+        .eq('name_fr', city)
+        .single();
+
+      if (cityData?.latitude && cityData?.longitude) {
+        weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${cityData.latitude}&lon=${cityData.longitude}&appid=${apiKey}&units=metric&lang=fr`;
+        response = await fetch(weatherUrl);
+        data = await response.json();
+      }
+    }
 
     if (!response.ok) {
       console.error('OpenWeatherMap API error:', data);
@@ -45,7 +64,6 @@ serve(async (req) => {
 
     console.log('Weather data received:', JSON.stringify(data));
 
-    // Extract relevant weather info
     const weatherInfo = {
       temp: Math.round(data.main.temp),
       feels_like: Math.round(data.main.feels_like),
@@ -54,7 +72,7 @@ serve(async (req) => {
       humidity: data.main.humidity,
       description: data.weather[0]?.description || '',
       icon: data.weather[0]?.icon || '',
-      wind_speed: Math.round(data.wind.speed * 3.6), // Convert m/s to km/h
+      wind_speed: Math.round(data.wind.speed * 3.6),
       city_name: data.name,
     };
 
