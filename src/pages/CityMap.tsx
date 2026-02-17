@@ -534,7 +534,7 @@ const CityMap = () => {
                 )}
                 <iframe
                   src={getMapEmbedUrl()}
-                  className={`w-full border-0 ${selectedBusiness ? 'ring-[5px] ring-gold absolute inset-0 h-[520px] top-[60px] sm:relative sm:top-0 sm:h-[500px]' : 'h-full'}`}
+                  className={`w-full border-0 ${selectedBusiness ? 'ring-[5px] ring-gold absolute inset-x-0 h-[520px] -top-[60px] sm:relative sm:top-0 sm:h-[500px]' : 'h-full'}`}
                   allowFullScreen
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
