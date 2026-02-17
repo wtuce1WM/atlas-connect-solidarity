@@ -446,11 +446,13 @@ const CityMap = () => {
   const handleSelectBusiness = (business: Business) => {
     setSelectedBusiness(business);
     
-    // Scroll to map anchor
-    const mapAnchor = document.getElementById('city-map-anchor');
-    if (mapAnchor) {
-      mapAnchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+    // Scroll to map anchor after re-render
+    setTimeout(() => {
+      const mapAnchor = document.getElementById('city-map-anchor');
+      if (mapAnchor) {
+        mapAnchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
   };
 
   const clearSelectedBusiness = () => {
