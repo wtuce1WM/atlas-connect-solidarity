@@ -611,18 +611,6 @@ const CityMap = () => {
                 )}
               </div>
 
-              {/* Clear All Button */}
-              {(selectedCategory || selectedSubcategory || selectedGamme || selectedActivities.length > 0) && (
-                <div className="mb-4 bg-black/60 backdrop-blur-sm rounded-lg px-4 py-2 inline-block">
-                  <button
-                    onClick={clearAllFilters}
-                    className="text-sm text-gold underline hover:text-gold/80 transition-colors"
-                  >
-                    Effacer les filtres
-                  </button>
-                </div>
-              )}
-
               {/* Activity Filters */}
               {selectedCategory && availableActivities.length > 0 && (
                 <div>
@@ -646,6 +634,18 @@ const CityMap = () => {
                       </label>
                     ))}
                   </div>
+                </div>
+              )}
+
+              {/* Clear All Button */}
+              {(selectedCategory || selectedSubcategory || selectedGamme || selectedActivities.length > 0) && (
+                <div className="mb-4 bg-black/60 backdrop-blur-sm rounded-lg px-4 py-2 inline-block">
+                  <button
+                    onClick={clearAllFilters}
+                    className="text-sm text-gold underline hover:text-gold/80 transition-colors"
+                  >
+                    Effacer les filtres
+                  </button>
                 </div>
               )}
             </div>
