@@ -424,10 +424,9 @@ const CategoryPage = () => {
 
   const handleSelectBusiness = (business: Business) => {
     setSelectedBusiness(business);
-    const mapEl = document.getElementById("category-map");
-    if (mapEl) {
-      mapEl.scrollIntoView({ behavior: "smooth" });
-    }
+    setTimeout(() => {
+      document.getElementById("category-map")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
   };
 
   const clearSelectedBusiness = () => {
@@ -520,7 +519,29 @@ const CategoryPage = () => {
       <section className="py-6 lg:py-12">
         <div className="container mx-auto px-4">
 
-          {/* Mobile filter toggle */}
+          {/* Google Maps - before filters, only shown when a business is selected */}
+          <div id="category-map" className="scroll-mt-24" />
+          {selectedBusiness && (
+            <div className="mb-6 overflow-hidden rounded-lg shadow-xl shadow-gold/20 ring-2 ring-gold/30 animate-map-unfold">
+              <Card className="relative border-0 h-[400px] sm:h-[500px] overflow-hidden">
+                <CardContent className="p-0 relative h-full">
+                  <MapBusinessInfoCard
+                    business={selectedBusiness}
+                    onClose={clearSelectedBusiness}
+                  />
+                  <iframe
+                    src={getMapEmbedUrl()}
+                    className="w-full border-0 ring-[5px] ring-gold absolute inset-0 h-[520px] top-[60px] sm:relative sm:top-0 sm:h-[500px]"
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    title={`Localisation de ${selectedBusiness.name}`}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
           <div id="category-filter-toggle" className="sm:hidden mb-4 scroll-mt-24">
             <button
               onClick={() => { const wasOpen = showFilters; setShowFilters(!showFilters); if (wasOpen) scrollToFilterToggle(); }}
@@ -772,25 +793,6 @@ const CategoryPage = () => {
             </>
           )}
 
-          {/* Google Maps - below results */}
-          <Card id="category-map" className="mt-12 relative scroll-mt-24">
-            <CardContent className="p-0">
-              {selectedBusiness && (
-                <MapBusinessInfoCard
-                  business={selectedBusiness}
-                  onClose={clearSelectedBusiness}
-                />
-              )}
-              <iframe
-                src={getMapEmbedUrl()}
-                className="w-full h-[400px] border-0 rounded-lg"
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                title={selectedBusiness ? `Localisation de ${selectedBusiness.name}` : `Carte ${getCategoryName()}${selectedCity !== "all" ? ` à ${selectedCity}` : ""}`}
-              />
-            </CardContent>
-          </Card>
         </div>
       </section>
 
