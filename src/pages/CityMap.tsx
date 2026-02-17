@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useParams, Link, useSearchParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Loader2, MapPin, X, ExternalLink, BookOpen, Phone, ChevronLeft, ChevronRight, Clock, ArrowUpDown, ArrowDown, ArrowUp, Navigation, Star, SlidersHorizontal } from "lucide-react";
 import MapBusinessInfoCard from "@/components/MapBusinessInfoCard";
@@ -101,6 +102,7 @@ const CityMap = () => {
   const [sortByReviews, setSortByReviews] = useState<"none" | "desc" | "asc">("none");
   const [currentPage, setCurrentPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
+  const isMobile = useIsMobile();
 
   const ITEMS_PER_PAGE = 20;
 
@@ -403,25 +405,38 @@ const CityMap = () => {
   }, [decodedCity]);
 
   // Build Google Maps embed URL - dynamic based on selected business
+  // On mobile, offset the center north so the marker appears in the lower third
+  const MOBILE_LAT_OFFSET = 0.0015; // ~150m north offset at zoom 17
+
   const getMapEmbedUrl = () => {
     // If a business is selected, show its location
     if (selectedBusiness) {
+      const latOffset = isMobile ? MOBILE_LAT_OFFSET : 0;
+      
       // Try to extract place ID or coordinates from google_maps_url
       if (selectedBusiness.google_maps_url) {
-        // If URL contains place/, use place mode
+        // If URL contains place/, use place mode (can't offset, no coords)
         const placeMatch = selectedBusiness.google_maps_url.match(/place\/([^\/]+)/);
+        // If URL contains coordinates (@lat,lng)
+        const coordMatch = selectedBusiness.google_maps_url.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+        if (coordMatch) {
+          const lat = parseFloat(coordMatch[1]);
+          const lng = parseFloat(coordMatch[2]);
+          if (latOffset) {
+            return `https://www.google.com/maps/embed/v1/view?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&center=${lat + latOffset},${lng}&zoom=17&maptype=roadmap`;
+          }
+          return `https://www.google.com/maps/embed/v1/view?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&center=${lat},${lng}&zoom=17&maptype=roadmap`;
+        }
         if (placeMatch) {
           const placeName = decodeURIComponent(placeMatch[1].replace(/\+/g, ' '));
           return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(placeName)}&zoom=17`;
         }
-        // If URL contains coordinates (@lat,lng)
-        const coordMatch = selectedBusiness.google_maps_url.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
-        if (coordMatch) {
-          return `https://www.google.com/maps/embed/v1/view?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&center=${coordMatch[1]},${coordMatch[2]}&zoom=17&maptype=roadmap`;
-        }
       }
       // Fallback to lat/lng if available
       if (selectedBusiness.latitude && selectedBusiness.longitude) {
+        if (latOffset) {
+          return `https://www.google.com/maps/embed/v1/view?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&center=${selectedBusiness.latitude + latOffset},${selectedBusiness.longitude}&zoom=17&maptype=roadmap`;
+        }
         return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${selectedBusiness.latitude},${selectedBusiness.longitude}&zoom=17`;
       }
       // Last fallback: search by name and address
@@ -534,7 +549,7 @@ const CityMap = () => {
                 )}
                 <iframe
                   src={getMapEmbedUrl()}
-                  className={`w-full border-0 ${selectedBusiness ? 'ring-[5px] ring-gold absolute inset-x-0 h-[520px] top-[60px] sm:relative sm:top-0 sm:h-[500px]' : 'h-full'}`}
+                   className={`w-full border-0 h-full ${selectedBusiness ? 'ring-[5px] ring-gold' : ''}`}
                   allowFullScreen
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
