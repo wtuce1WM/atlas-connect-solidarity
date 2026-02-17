@@ -379,7 +379,7 @@ const NeighborhoodPage = () => {
           <div className="flex flex-wrap gap-3">
             {/* City Filter */}
             <div className="flex-1 min-w-[140px]">
-              <label className="text-sm font-medium text-foreground mb-1.5 block">Ville</label>
+              <label className="text-sm font-bold text-foreground mb-1.5 block">Ville</label>
               <Select value={cityParam || "all"} onValueChange={(value) => {
                 if (value === "all") {
                   navigate(`/neighborhood/${encodeURIComponent(decodedNeighborhood)}`);
@@ -402,7 +402,7 @@ const NeighborhoodPage = () => {
             {/* Neighborhood Filter */}
             {neighborhoods.length > 1 && (
               <div className="flex-1 min-w-[140px]">
-                <label className="text-sm font-medium text-foreground mb-1.5 block">Quartier</label>
+                <label className="text-sm font-bold text-foreground mb-1.5 block">Quartier</label>
                 <Select value={decodedNeighborhood} onValueChange={(value) => navigate(`/neighborhood/${encodeURIComponent(value)}?city=${encodeURIComponent(cityParam)}`)}>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder={decodedNeighborhood} />
@@ -418,7 +418,7 @@ const NeighborhoodPage = () => {
 
             {/* Main Category Filter */}
             <div className="flex-1 min-w-[140px]">
-              <label className="text-sm font-medium text-foreground mb-1.5 block">Catégorie</label>
+              <label className="text-sm font-bold text-foreground mb-1.5 block">Catégorie</label>
               <Select value={selectedCategory || "all"} onValueChange={handleCategoryChange}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Toutes" />
@@ -435,7 +435,7 @@ const NeighborhoodPage = () => {
             {/* Subcategory Filter */}
             {availableSubcategories.length > 0 && (
               <div className="flex-1 min-w-[140px]">
-                <label className="text-sm font-medium text-foreground mb-1.5 block">Sous-catégorie</label>
+                <label className="text-sm font-bold text-foreground mb-1.5 block">Sous-catégorie</label>
                 <Select value={selectedSubcategory || "all"} onValueChange={handleSubcategoryChange}>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Toutes" />
@@ -465,7 +465,7 @@ const NeighborhoodPage = () => {
           {/* Activity Filters */}
           {selectedCategory && availableActivities.length > 0 && (
             <div>
-              <h3 className="text-sm font-medium text-foreground mb-2">Activités</h3>
+              <h3 className="text-sm font-bold text-foreground mb-2">Activités</h3>
               <div className="flex flex-wrap gap-2">
                 {availableActivities.slice(0, 8).map((activity) => (
                   <label
@@ -491,8 +491,8 @@ const NeighborhoodPage = () => {
 
         {/* Results count */}
         {/* Business count heading */}
-        <h2 className="text-lg font-semibold text-foreground mb-3">
-          Établissements ({filteredBusinesses.length})
+        <h2 className="text-lg font-bold text-foreground mb-3">
+          {filteredBusinesses.length} établissement{filteredBusinesses.length > 1 ? "s" : ""} {language === "fr" ? "pour" : language === "ar" ? "لـ" : "for"} {decodedNeighborhood}
         </h2>
 
         {/* Business Grid */}
