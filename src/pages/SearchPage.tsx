@@ -336,7 +336,11 @@ const SearchPage = () => {
                 {t.searchResults} {t.for} "<span className="text-gold">{spokenText || searchQuery}</span>"
               </h1>
               <p className="text-base lg:text-xl text-muted-foreground">
-                <span className="text-gold font-semibold">{filteredBusinesses.length}</span> {t.establishments} {t.found}
+                {isLoading ? (
+                  <span className="text-muted-foreground italic">Recherche en cours…</span>
+                ) : (
+                  <><span className="text-gold font-semibold">{filteredBusinesses.length}</span> {t.establishments} {t.found}</>
+                )}
               </p>
               {searchMessage && (
                 <p className="text-sm text-muted-foreground mt-2 italic">{searchMessage}</p>
