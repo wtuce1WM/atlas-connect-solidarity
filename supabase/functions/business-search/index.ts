@@ -1,6 +1,56 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
+// LLM re-ranking: reorder candidates by semantic relevance to the query
+async function llmRerank(query: string, candidates: Business[]): Promise<Business[]> {
+  if (candidates.length <= 1) return candidates;
+
+  const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+  if (!LOVABLE_API_KEY) return candidates;
+
+  const candidateList = candidates.map((b, i) => ({
+    rank: i,
+    name: b.name,
+    main_category: b.main_category ?? "",
+    services: (b.services ?? []).slice(0, 6).join(", "),
+  }));
+
+  const prompt = `Tu es un moteur de classement pour un annuaire d'entreprises au Maroc.
+Requête : "${query}"
+Classe ces établissements du plus pertinent au moins pertinent. Critères : spécialisation principale > services correspondants > mention secondaire.
+${candidateList.map(c => `[${c.rank}] ${c.name} | ${c.main_category} | ${c.services}`).join("\n")}
+Réponds UNIQUEMENT avec les indices entre crochets dans l'ordre, ex: [2],[0],[4],[1],[3]`;
+
+  try {
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "google/gemini-3-flash-preview",
+        messages: [{ role: "user", content: prompt }],
+        max_tokens: 300,
+        temperature: 0,
+      }),
+    });
+
+    if (!response.ok) return candidates;
+
+    const data = await response.json();
+    const content: string = data.choices?.[0]?.message?.content ?? "";
+    const matches = [...content.matchAll(/\[(\d+)\]/g)];
+    const orderedIndices = matches.map(m => parseInt(m[1])).filter(i => i >= 0 && i < candidates.length);
+    if (orderedIndices.length === 0) return candidates;
+
+    const reranked = orderedIndices.map(i => candidates[i]);
+    const missing = candidates.filter((_, i) => !orderedIndices.includes(i));
+    console.log(`LLM rerank "${query}": [${orderedIndices.join(",")}]`);
+    return [...reranked, ...missing];
+  } catch (err) {
+    console.warn("LLM rerank failed:", err);
+    return candidates;
+  }
+}
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
@@ -299,6 +349,11 @@ serve(async (req) => {
         }));
         searchLevel = "recommended";
       }
+    }
+
+    // LLM Re-ranking: apply only on exact/fuzzy results with a real query
+    if (query && businesses.length > 1 && (searchLevel === "exact" || searchLevel === "fuzzy")) {
+      businesses = await llmRerank(query, businesses);
     }
 
     const result: SearchResult = {
