@@ -42,17 +42,24 @@ declare global {
 
 // French + Arabic + English stopwords to strip from voice queries
 const FR_STOPWORDS = new Set([
+  // Verbes de recherche / intention
   "trouve", "trouver", "cherche", "chercher", "recherche", "rechercher",
-  "montrer", "montre", "affiche", "afficher", "je", "veux", "voudrais",
-  "besoin", "un", "une", "des", "le", "la", "les", "de", "du", "d",
+  "montrer", "montre", "affiche", "afficher", "veux", "voudrais",
+  "besoin", "peux", "peut", "puis", "pouvez", "connais", "connait",
+  // Verbes courants
+  "manger", "mangeons", "mange", "boire", "dormir", "loger", "visiter",
+  "faire", "aller", "trouver", "avoir", "etre", "suis", "sommes",
+  // Articles / pronoms / prépositions
+  "je", "on", "nous", "vous", "ils", "elles", "il", "elle",
+  "un", "une", "des", "le", "la", "les", "de", "du", "d",
   "en", "a", "au", "aux", "et", "ou", "sur", "pour", "par",
   "avec", "dans", "me", "mon", "ma", "mes", "qui", "que", "quoi",
-  "est", "il", "elle", "ils", "elles", "near", "pres",
+  "dont", "lequel", "laquelle", "near", "pres",
+  // Adjectifs génériques
   "bonne", "bon", "bien", "meilleur", "meilleurs", "meilleures",
-  // Phrases de service (ex: "hôtel qui accepte les animaux de compagnie")
-  "accepte", "acceptent", "acceptes", "acceptes", "acceptant",
+  // Expressions de service
+  "accepte", "acceptent", "acceptes", "acceptant",
   "compagnie", "animaux de compagnie",
-  "qui", "que", "dont", "lequel", "laquelle",
 ]);
 
 function extractSearchKeywords(transcript: string): string {
