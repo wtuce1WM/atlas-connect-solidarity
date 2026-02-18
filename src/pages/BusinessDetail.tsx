@@ -483,8 +483,8 @@ const BusinessDetail = () => {
           </div>
         )}
         {isValidatingImages && business.images && business.images.length > 0 && (
-          <div className="mb-6 rounded-xl overflow-hidden bg-muted flex items-center justify-center h-[300px]">
-            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+          <div className="mb-6 rounded-xl overflow-hidden bg-muted/40 flex items-center justify-center h-[60px]">
+            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
           </div>
         )}
 
