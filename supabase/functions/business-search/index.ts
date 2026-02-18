@@ -78,17 +78,21 @@ function expandQuery(query: string): string {
 
   const groups = words.map(word => {
     const alternatives: string[] = [word];
-    // Add plural form
-    if (!word.endsWith("s")) alternatives.push(word + "s");
 
     for (const [key, values] of Object.entries(synonyms)) {
       const sanitizedWord = sanitizeTerm(word);
       if (sanitizeTerm(key) === sanitizedWord || values.some(v => sanitizeTerm(v.toLowerCase()) === sanitizedWord)) {
         alternatives.push(key, ...values);
-        // Also add plural of each synonym
-        values.forEach(v => { if (!v.endsWith("s")) alternatives.push(v + "s"); });
+        // Add plural variants of synonyms (only if not already ending in s)
+        values.forEach(v => {
+          const sv = sanitizeTerm(v);
+          if (!sv.endsWith("s")) alternatives.push(sv + "s");
+        });
+        const sk = sanitizeTerm(key);
+        if (!sk.endsWith("s")) alternatives.push(sk + "s");
       }
     }
+
     const sanitized = [...new Set(alternatives)].map(sanitizeTerm).filter(t => t.length > 1);
     return sanitized.length === 1 ? sanitized[0] : `(${sanitized.join(" | ")})`;
   });
