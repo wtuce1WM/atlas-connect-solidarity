@@ -45,7 +45,8 @@ Règles de traduction sémantique OBLIGATOIRES :
 - "romantique", "amoureux", "couple" → garder le type d'établissement + "romantique"
 - "boules", "jouer aux boules" → "pétanque"
 - "glace", "glaces", "sorbet", "gelato", "crème glacée" → "glacier"
-- "faire la fête", "fêter", "sortir", "soirée", "s'amuser", "clubbing", "boîte de nuit", "discothèque" → "bar boîte nuit soirée"
+- "faire la fête", "fêter", "sortir", "soirée", "s'amuser", "clubbing" → "bar boîte nuit soirée"
+- "boîte de nuit", "boite de nuit", "discothèque", "discotheque", "qu'est-ce qu'il y a comme boîte", "où danser", "danser" → "night club"
 - "vin", "vins", "alcool", "bière", "cave à vin", "spiritueux", "whisky", "champagne" → "vin alcool cave"
 - "dîner spectacle", "soirée spectacle", "spectacle vivant", "show dinner", "dinner show", "show", "spectacle", "animation" → "live show"
 
