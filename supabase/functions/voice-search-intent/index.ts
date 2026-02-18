@@ -25,26 +25,43 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    const systemPrompt = `Tu es un assistant qui extrait les mots-clés de recherche d'une phrase en langage naturel pour un annuaire d'entreprises au Maroc.
+    const systemPrompt = `Tu es un assistant qui traduit des phrases en langage naturel en mots-clés de recherche pour un annuaire d'entreprises au Maroc.
 
-Ta tâche : extraire uniquement les mots-clés pertinents (type d'établissement, service, produit, ville, quartier).
+Ta tâche : identifier l'INTENTION sémantique et la traduire en mots-clés concrets (type d'établissement, service, produit, ville, quartier).
 
-Règles :
-- Supprimer les verbes d'intention (chercher, trouver, aller, manger, acheter, vouloir, pouvoir...)
-- Supprimer les articles, pronoms, prépositions (le, la, les, un, une, je, on, pour, avec, dans, où, qui...)
-- Supprimer les adjectifs vagues (beau, bon, meilleur, grand, authentique, typique...)
-- Garder : noms de lieux (villes, quartiers), types d'établissements, services, produits, spécialités
-- Retourner uniquement les mots-clés séparés par des espaces, sans ponctuation ni explication
+Règles de traduction sémantique OBLIGATOIRES :
+- "manger", "déjeuner", "dîner", "se restaurer", "casse-croûte" → "restaurant"
+- "dormir", "séjourner", "loger", "passer la nuit", "réserver une chambre" → "hôtel"
+- "se détendre", "relaxation", "soin", "massage", "bien-être" → "spa hammam"
+- "boire un verre", "prendre un café", "boire quelque chose" → "café bar"
+- "faire du shopping", "acheter", "trouver" + produit → garder le produit
+- "bord de l'eau", "bord de mer", "vue mer", "face à la mer", "front de mer" → "plage"
+- "en bord de plage", "les pieds dans le sable" → "plage"
+- "cadeau", "idée cadeau", "offrir" → "boutique cadeaux artisanat"
+- "activités", "que faire", "occuper" + enfants → "activités enfants"
+
+Autres règles :
+- Supprimer les verbes d'intention après traduction (chercher, trouver, vouloir, pouvoir...)
+- Supprimer les articles, pronoms, prépositions
+- Supprimer les adjectifs vagues (beau, bon, meilleur, original...)
+- Garder : noms de lieux (villes, quartiers), types d'établissements traduits, produits
 - 2 à 4 mots maximum
 - Répondre UNIQUEMENT avec les mots-clés, rien d'autre
 
 Exemples :
 "trouve un plombier à Marrakech" → "plombier Marrakech"
-"peut on manger du caviar à Marrakech" → "caviar Marrakech"
+"je veux manger au bord de l'eau à Essaouira" → "restaurant plage Essaouira"
+"je cherche un restaurant sur la plage à Essaouira" → "restaurant plage Essaouira"
+"où manger avec vue sur la mer à Agadir" → "restaurant mer Agadir"
+"je veux boire un café face à l'océan à Essaouira" → "café plage Essaouira"
+"peut on manger du caviar à Marrakech" → "caviar restaurant Marrakech"
 "je cherche un hôtel qui accepte les animaux de compagnie" → "hôtel animaux"
 "acheter un beau tapis berbère" → "tapis berbère"
 "où dormir avec piscine à Essaouira" → "hôtel piscine Essaouira"
-"meilleur hammam spa de la médina" → "hammam spa médina"`;
+"meilleur hammam spa de la médina" → "hammam spa médina"
+"je cherche à faire un cadeau original à Marrakech" → "boutique cadeaux Marrakech"
+"je veux acheter de l'artisanat marocain" → "artisanat boutique"
+"activités pour les enfants à Marrakech" → "activités enfants Marrakech"`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",

@@ -97,10 +97,10 @@ interface SearchResult {
 
 // Synonymes pour améliorer la recherche
 const synonyms: Record<string, string[]> = {
-  hotel: ["hôtel", "hébergement"],
-  riad: ["ryad", "riad"],
-  restaurant: ["resto", "café", "gastronomie", "cuisine"],
-  spa: ["hammam", "bien-être", "massage", "détente"],
+  hotel: ["hôtel", "hébergement", "riad", "ryad"],
+  riad: ["ryad", "riad", "hôtel", "hébergement"],
+  restaurant: ["resto", "café", "gastronomie", "cuisine", "brasserie", "table", "manger", "déjeuner", "dîner"],
+  spa: ["hammam", "bien-être", "massage", "détente", "relaxation", "soin"],
   transport: ["taxi", "navette", "transfert", "voiture"],
   tour: ["excursion", "visite", "circuit", "guide"],
   shop: ["boutique", "artisanat", "souvenir", "shopping"],
@@ -116,6 +116,9 @@ const synonyms: Record<string, string[]> = {
   epices: ["epices", "épice", "herbes", "aromates", "souk"],
   cuir: ["cuir", "maroquinerie", "babouche", "sac"],
   poterie: ["poterie", "ceramique", "faience", "zellige"],
+  plage: ["plage", "mer", "ocean", "océan", "bord de mer", "front de mer", "vue mer", "bord eau", "littoral", "cote", "côte", "atlantique"],
+  bar: ["bar", "café", "lounge", "boire", "cocktail"],
+  cafe: ["café", "café", "coffee", "thé", "pâtisserie"],
 };
 
 // Sanitize a term for to_tsquery: remove apostrophes and special chars
