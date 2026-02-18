@@ -98,6 +98,9 @@ const Header = ({ variant = "default" }: HeaderProps) => {
             <Link to="/mission" className="text-white/90 transition-colors hover:text-gold">
               {t("footer.ourMission")}
             </Link>
+            <Link to="/search" className="text-white/90 transition-colors hover:text-gold">
+              Recherche
+            </Link>
             <Link to="/contact" className="text-white/90 transition-colors hover:text-gold">
               {t("footer.contact")}
             </Link>
