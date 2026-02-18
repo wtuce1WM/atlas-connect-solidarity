@@ -1,6 +1,28 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
+// Detect superlative keywords that indicate the user wants results sorted by rating
+function detectSuperlative(query: string): boolean {
+  const superlatives = [
+    "meilleur", "meilleurs", "meilleure", "meilleures",
+    "top", "best", "le plus noté", "les plus notés",
+    "le mieux noté", "les mieux notés",
+    "le plus recommandé", "les plus recommandés",
+    "le plus populaire", "les plus populaires",
+  ];
+  const lower = query.toLowerCase();
+  return superlatives.some(s => lower.includes(s));
+}
+
+// Get the best available rating for a business (composite)
+function getBestRating(b: Business): number {
+  return Math.max(
+    b.google_rating ?? 0,
+    b.tripadvisor_rating ?? 0,
+    b.restaurant_guru_rating ?? 0,
+  );
+}
+
 // LLM re-ranking: reorder candidates by semantic relevance to the query
 async function llmRerank(query: string, candidates: Business[]): Promise<Business[]> {
   if (candidates.length <= 1) return candidates;
@@ -86,6 +108,10 @@ interface Business {
   address: string | null;
   logo_url: string | null;
   distance_km: number | null;
+  google_rating: number | null;
+  tripadvisor_rating: number | null;
+  restaurant_guru_rating: number | null;
+  main_category: string | null;
 }
 
 interface SearchResult {
@@ -230,6 +256,9 @@ serve(async (req) => {
 
     let businesses: Business[] = [];
     let searchLevel = "exact";
+
+    // Detect superlative intent (meilleur, top, best…) → sort by rating
+    const isSuperlatif = query ? detectSuperlative(query) : false;
 
     // Auto-détection de ville dans la query si aucune ville n'est passée explicitement
     const detectedCity = (!city && query) ? detectCityInQuery(query) : null;
@@ -398,8 +427,13 @@ serve(async (req) => {
       }
     }
 
-    // LLM Re-ranking: apply only on exact/fuzzy results with a real query
-    if (query && businesses.length > 1 && (searchLevel === "exact" || searchLevel === "fuzzy")) {
+    // Superlative intent: sort by best rating DESC (google > tripadvisor > restaurant_guru)
+    if (isSuperlatif && businesses.length > 1) {
+      console.log(`Superlative detected in "${query}" → sorting by rating`);
+      businesses = [...businesses].sort((a, b) => getBestRating(b) - getBestRating(a));
+    }
+    // LLM Re-ranking: apply only on exact/fuzzy results with a real query AND no superlative override
+    else if (query && businesses.length > 1 && (searchLevel === "exact" || searchLevel === "fuzzy")) {
       businesses = await llmRerank(query, businesses);
     }
 
