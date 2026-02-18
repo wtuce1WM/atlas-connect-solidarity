@@ -44,6 +44,7 @@ Règles de traduction sémantique OBLIGATOIRES :
 - "culturel", "culture", "musée" → "musée culture"
 - "romantique", "amoureux", "couple" → garder le type d'établissement + "romantique"
 - "boules", "jouer aux boules" → "pétanque"
+- "glace", "glaces", "sorbet", "gelato", "crème glacée" → "glacier"
 
 Autres règles :
 - Supprimer les verbes d'intention après traduction (chercher, trouver, vouloir, pouvoir...)
