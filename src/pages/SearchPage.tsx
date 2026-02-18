@@ -462,8 +462,8 @@ const SearchPage = () => {
 
   const showZitounEasterEgg = !isLoading && isZitounMask(spokenText || searchQuery);
   const showCelebrityGuide = !isLoading && isCelebrityQuery(spokenText || searchQuery);
-  const showSosMedecin = !isLoading && isSosMedecinQuery(spokenText || searchQuery);
-  const showPompiers = !isLoading && isPompiersQuery(spokenText || searchQuery);
+  const showSosMedecin = isSosMedecinQuery(spokenText || searchQuery);
+  const showPompiers = isPompiersQuery(spokenText || searchQuery);
 
   return (
     <div className="min-h-screen bg-background">
