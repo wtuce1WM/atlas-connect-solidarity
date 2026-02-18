@@ -3,7 +3,7 @@ import { useState, useRef, useCallback, useEffect } from "react";
 type VoiceStatus = "idle" | "recording" | "processing" | "error";
 
 interface UseVoiceSearchOptions {
-  onTranscript: (text: string) => void;
+  onTranscript: (keywords: string, spokenText: string) => void;
   onError?: (message: string) => void;
   lang?: string;
 }
@@ -100,7 +100,7 @@ export function useVoiceSearch({ onTranscript, onError, lang = "fr-FR" }: UseVoi
         const keywords = await extractSearchIntent(transcript);
         setStatus("idle");
         if (keywords) {
-          onTranscriptRef.current(keywords);
+          onTranscriptRef.current(keywords, transcript);
         } else {
           onErrorRef.current?.("Aucun texte détecté, réessayez.");
         }

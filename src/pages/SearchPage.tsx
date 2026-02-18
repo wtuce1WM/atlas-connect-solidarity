@@ -75,11 +75,13 @@ const SearchPage = () => {
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
   const [inputValue, setInputValue] = useState(searchParams.get("q") || "");
 
+  const spokenText = searchParams.get("spoken") || "";
+
   const { status: voiceStatus, toggleRecording } = useVoiceSearch({
-    onTranscript: (text) => {
-      setInputValue(text);
-      setSearchQuery(text);
-      setSearchParams({ q: text });
+    onTranscript: (keywords, spoken) => {
+      setInputValue(keywords);
+      setSearchQuery(keywords);
+      setSearchParams({ q: keywords, spoken });
     },
     onError: (message) => {
       toast({ variant: "destructive", title: "Erreur microphone", description: message });
@@ -196,7 +198,7 @@ const SearchPage = () => {
     e.preventDefault();
     if (inputValue.trim()) {
       setSearchQuery(inputValue.trim());
-      setSearchParams({ q: inputValue.trim() });
+      setSearchParams({ q: inputValue.trim() }); // pas de 'spoken' → recherche manuelle
     }
   };
 
@@ -322,7 +324,7 @@ const SearchPage = () => {
           {searchQuery && (
             <div className="text-center">
               <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2">
-                {t.searchResults} {t.for} "<span className="text-gold">{searchQuery}</span>"
+                {t.searchResults} {t.for} "<span className="text-gold">{spokenText || searchQuery}</span>"
               </h1>
               <p className="text-base lg:text-xl text-muted-foreground">
                 <span className="text-gold font-semibold">{filteredBusinesses.length}</span> {t.establishments} {t.found}
