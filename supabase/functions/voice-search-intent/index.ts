@@ -48,8 +48,8 @@ Règles de traduction sémantique OBLIGATOIRES :
 - "faire la fête", "fêter", "sortir", "soirée", "s'amuser", "clubbing" → "bar boîte nuit soirée"
 - "boîte de nuit", "boite de nuit", "discothèque", "discotheque", "qu'est-ce qu'il y a comme boîte", "où danser", "danser" → "night club"
 - "vin", "vins", "alcool", "bière", "cave à vin", "spiritueux", "whisky", "champagne" → "vin alcool cave"
-- "fantasia", "tbourida", "spectacle équestre", "cavaliers", "chevaux spectacle" → "fantasia"
-- "dîner spectacle", "soirée spectacle", "spectacle vivant", "show dinner", "dinner show", "show", "spectacle", "animation" → "live show"
+- "fantasia", "tbourida", "spectacle équestre", "équestre", "cavaliers", "chevaux spectacle" → "fantasia" UNIQUEMENT (ne pas ajouter d'autres mots-clés, ignorer les autres règles pour ces termes)
+- "dîner spectacle", "soirée spectacle", "dinner show", "show dinner" → "live show" (uniquement pour ces expressions exactes, pas pour "spectacle équestre" ou "fantasia")
 
 Autres règles :
 - Supprimer les verbes d'intention après traduction (chercher, trouver, vouloir, pouvoir...)
@@ -83,7 +83,10 @@ Exemples :
 "restaurant typique marocain" → "restaurant typique"
 "café traditionnel au maroc" → "café traditionnel"
 "je cherche un endroit pour faire la fête à Marrakech" → "bar boîte nuit soirée Marrakech"
-"où sortir le soir à Essaouira" → "bar boîte nuit soirée Essaouira"`;
+"où sortir le soir à Essaouira" → "bar boîte nuit soirée Essaouira"
+"je voudrais voir un spectacle équestre ce soir" → "fantasia"
+"je voudrais voir une fantasia ce soir" → "fantasia"
+"je cherche un dîner spectacle à Marrakech" → "live show Marrakech"`;
 
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
