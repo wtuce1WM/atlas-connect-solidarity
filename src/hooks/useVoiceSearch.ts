@@ -45,10 +45,14 @@ const FR_STOPWORDS = new Set([
   "trouve", "trouver", "cherche", "chercher", "recherche", "rechercher",
   "montrer", "montre", "affiche", "afficher", "je", "veux", "voudrais",
   "besoin", "un", "une", "des", "le", "la", "les", "de", "du", "d",
-  "en", "à", "a", "au", "aux", "et", "ou", "sur", "pour", "par",
+  "en", "a", "au", "aux", "et", "ou", "sur", "pour", "par",
   "avec", "dans", "me", "mon", "ma", "mes", "qui", "que", "quoi",
-  "est", "il", "elle", "ils", "elles", "near", "near me", "près",
+  "est", "il", "elle", "ils", "elles", "near", "pres",
   "bonne", "bon", "bien", "meilleur", "meilleurs", "meilleures",
+  // Phrases de service (ex: "hôtel qui accepte les animaux de compagnie")
+  "accepte", "acceptent", "acceptes", "acceptes", "acceptant",
+  "compagnie", "animaux de compagnie",
+  "qui", "que", "dont", "lequel", "laquelle",
 ]);
 
 function extractSearchKeywords(transcript: string): string {

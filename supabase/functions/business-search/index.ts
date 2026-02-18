@@ -54,6 +54,13 @@ const synonyms: Record<string, string[]> = {
   transport: ["taxi", "navette", "transfert", "voiture"],
   tour: ["excursion", "visite", "circuit", "guide"],
   shop: ["boutique", "artisanat", "souvenir", "shopping"],
+  animaux: ["animaux", "animal", "chien", "chat", "pet"],
+  piscine: ["piscine", "pool", "baignade"],
+  parking: ["parking", "garage", "stationnement"],
+  wifi: ["wifi", "internet", "connexion"],
+  climatisation: ["climatisation", "climatisé", "clim", "ac"],
+  terrasse: ["terrasse", "rooftop", "toit"],
+  halal: ["halal", "casher", "végétarien", "vegan"],
 };
 
 // Sanitize a term for to_tsquery: remove apostrophes and special chars
