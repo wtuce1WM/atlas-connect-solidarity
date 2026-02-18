@@ -235,42 +235,58 @@ serve(async (req) => {
     const detectedCity = (!city && query) ? detectCityInQuery(query) : null;
     const effectiveCity = city || detectedCity || undefined;
 
-    // Level 1: Exact full-text search with city and category filter
+    // Level 1: Exact full-text search with ts_rank (services/name weight A > description weight B)
     if (query || city || category) {
       const expandedQuery = query ? expandQuery(query) : null;
 
-      let queryBuilder = supabase.from("businesses").select("*").eq("is_active", true);
-
       if (expandedQuery) {
-        queryBuilder = queryBuilder.textSearch("search_vector", expandedQuery, {
-          config: "simple",
+        // Use ranked RPC function: prioritizes matches in services/name over description
+        const { data, error } = await supabase.rpc("search_businesses_with_rank", {
+          p_query: expandedQuery,
+          p_city: effectiveCity || null,
+          p_category: category || null,
+          p_limit: limit,
         });
-      }
 
-      if (effectiveCity) {
-        queryBuilder = queryBuilder.ilike("city", effectiveCity);
-      }
+        if (!error && data && data.length > 0) {
+          businesses = data.map((b: any) => ({
+            ...b,
+            distance_km:
+              latitude && longitude && b.latitude && b.longitude
+                ? calculateDistance(latitude, longitude, b.latitude, b.longitude)
+                : null,
+          }));
+          searchLevel = "exact";
+        }
+      } else {
+        // No text query, just filter by city/category
+        let queryBuilder = supabase.from("businesses").select("*").eq("is_active", true);
 
-      if (category) {
-        queryBuilder = queryBuilder.or(`main_category.eq.${category},categories.cs.{"${category}"}`);
-      }
+        if (effectiveCity) {
+          queryBuilder = queryBuilder.ilike("city", effectiveCity);
+        }
 
-      queryBuilder = queryBuilder
-        .order("wtuce_status", { ascending: true })
-        .order("priority_score", { ascending: false })
-        .limit(limit);
+        if (category) {
+          queryBuilder = queryBuilder.or(`main_category.eq.${category},categories.cs.{"${category}"}`);
+        }
 
-      const { data, error } = await queryBuilder;
+        queryBuilder = queryBuilder
+          .order("wtuce_status", { ascending: true })
+          .order("priority_score", { ascending: false })
+          .limit(limit);
 
-      if (!error && data && data.length > 0) {
-        businesses = data.map((b) => ({
-          ...b,
-          distance_km:
-            latitude && longitude && b.latitude && b.longitude
-              ? calculateDistance(latitude, longitude, b.latitude, b.longitude)
-              : null,
-        }));
-        searchLevel = "exact";
+        const { data, error } = await queryBuilder;
+
+        if (!error && data && data.length > 0) {
+          businesses = data.map((b: any) => ({
+            ...b,
+            distance_km:
+              latitude && longitude && b.latitude && b.longitude
+                ? calculateDistance(latitude, longitude, b.latitude, b.longitude)
+                : null,
+          }));
+          searchLevel = "exact";
+        }
       }
     }
 
