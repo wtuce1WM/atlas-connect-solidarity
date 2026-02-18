@@ -401,7 +401,7 @@ const BusinessDetail = () => {
                 <img
                   src={validImages[0]}
                   alt={`${business.name} - Image 1`}
-                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                 />
                 {isVerified && !isInstitution && (
                   <img 
