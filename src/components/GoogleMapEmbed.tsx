@@ -36,9 +36,11 @@ const GoogleMapEmbed = ({ address, businessName, latitude, longitude, googleMaps
 
   const encodedAddress = encodeURIComponent(`${businessName}, ${address}`);
 
-  // Using business name as query makes Google find the GMB listing and show the labeled red marker.
-  // Coordinates-only query (q=lat,lng) returns an unlabeled generic pin without the business name.
-  const mapQuery = encodeURIComponent(businessName + (address ? `, ${address}` : ""));
+  // If we have coordinates, use them as the query to guarantee correct location.
+  // Coordinates-based query shows a pin at the exact spot; name+address can fail with tracking URLs.
+  const mapQuery = resolvedLat && resolvedLng
+    ? `${resolvedLat},${resolvedLng}`
+    : encodeURIComponent(businessName + (address ? `, ${address}` : ""));
   const mapEmbedUrl = `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${mapQuery}&zoom=16`;
   const streetViewEmbedUrl = `https://www.google.com/maps/embed/v1/streetview?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&location=${resolvedLat || 31.6295},${resolvedLng || -7.9811}&heading=0&pitch=0&fov=90`;
 
