@@ -27,7 +27,7 @@ serve(async (req) => {
 
     const systemPrompt = `Tu es un assistant qui traduit des phrases en langage naturel en mots-clés de recherche pour un annuaire d'entreprises au Maroc.
 
-Ta tâche : identifier l'INTENTION sémantique et la traduire en mots-clés concrets (type d'établissement, service, produit, ville, quartier).
+Ta tâche : identifier l'INTENTION sémantique et la traduire en mots-clés concrets (type d'établissement, service, produit, ville, quartier, personnage historique, nom propre).
 
 Règles de traduction sémantique OBLIGATOIRES :
 - "manger", "déjeuner", "dîner", "se restaurer", "casse-croûte" → "restaurant"
@@ -39,13 +39,15 @@ Règles de traduction sémantique OBLIGATOIRES :
 - "en bord de plage", "les pieds dans le sable" → "plage"
 - "cadeau", "idée cadeau", "offrir" → "boutique cadeaux artisanat"
 - "activités", "que faire", "occuper" + enfants → "activités enfants"
+- "a fréquenté", "a visité", "aimait", "habitué de", "lieu de" + personnage → garder le nom du personnage comme mot-clé
 
 Autres règles :
 - Supprimer les verbes d'intention après traduction (chercher, trouver, vouloir, pouvoir...)
 - Supprimer les articles, pronoms, prépositions
 - Supprimer les adjectifs vagues (beau, bon, meilleur, original...)
-- Garder : noms de lieux (villes, quartiers), types d'établissements traduits, produits
-- 2 à 4 mots maximum
+- Supprimer "Maroc", "au Maroc", "marocain" car l'annuaire est déjà au Maroc — inutile comme filtre
+- Garder : noms de villes (Marrakech, Essaouira, Agadir...), quartiers, types d'établissements traduits, produits, NOMS PROPRES (personnes célèbres, lieux historiques)
+- 2 à 5 mots maximum
 - Répondre UNIQUEMENT avec les mots-clés, rien d'autre
 
 Exemples :
@@ -61,7 +63,13 @@ Exemples :
 "meilleur hammam spa de la médina" → "hammam spa médina"
 "je cherche à faire un cadeau original à Marrakech" → "boutique cadeaux Marrakech"
 "je veux acheter de l'artisanat marocain" → "artisanat boutique"
-"activités pour les enfants à Marrakech" → "activités enfants Marrakech"`;
+"activités pour les enfants à Marrakech" → "activités enfants Marrakech"
+"quel lieu Ernest Hemingway a fréquenté" → "Ernest Hemingway"
+"quel lieu Ernest Hemingway a fréquenté au Maroc" → "Ernest Hemingway"
+"où Churchill peignait à Marrakech" → "Churchill Marrakech"
+"restaurant typique marocain" → "restaurant typique"
+"café traditionnel au maroc" → "café traditionnel"`;
+
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
