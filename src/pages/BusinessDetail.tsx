@@ -1001,6 +1001,7 @@ const BusinessDetail = () => {
               businessName={business.name}
               latitude={business.latitude}
               longitude={business.longitude}
+              googleMapsUrl={business.google_maps_url}
             />
             
             <div className={`space-y-3 ${isVerified ? 'text-white' : ''}`}>
