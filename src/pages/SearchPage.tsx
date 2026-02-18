@@ -69,6 +69,92 @@ const isZitounMask = (query: string) => {
   );
 };
 
+const isCelebrityQuery = (query: string) => {
+  const normalized = query.toLowerCase().replace(/\s+/g, " ").trim();
+  return (
+    normalized.includes("célébrité") ||
+    normalized.includes("celebrite") ||
+    normalized.includes("célébrités") ||
+    normalized.includes("star ") ||
+    normalized.includes("stars ") ||
+    normalized.includes("people marrakech") ||
+    normalized.includes("vip marrakech") ||
+    normalized.includes("famous") ||
+    normalized.includes("personnalité")
+  );
+};
+
+const CelebrityGuide = () => (
+  <div className="max-w-2xl mx-auto mb-10 rounded-2xl overflow-hidden border border-gold/30 shadow-2xl bg-gradient-to-br from-black to-zinc-900">
+    <div className="px-6 py-5 border-b border-gold/20 bg-gradient-to-r from-gold/10 to-transparent">
+      <p className="text-gold font-semibold text-lg">👑 Guide insider — Célébrités à Marrakech</p>
+      <p className="text-white/50 text-sm mt-0.5">Palaces, tables & nuits — les adresses qui font la légende</p>
+    </div>
+
+    <div className="px-6 py-5 space-y-5">
+      {/* Hotels */}
+      <div>
+        <p className="text-gold/80 text-xs font-semibold uppercase tracking-widest mb-3">🌴 Palaces iconiques</p>
+        <div className="space-y-2">
+          {[
+            { name: "La Mamounia", desc: "Le grand classique — jardins légendaires, histoire glamour, incontournable du Festival du Film." },
+            { name: "Royal Mansour", desc: "Ultra-exclusif — chaque client dans son propre riad privé. Intimité maximale." },
+            { name: "Amanjena", desc: "Refuge de stars en quête de calme absolu. Minimalisme chic, loin de l'agitation." },
+            { name: "Mandarin Oriental", desc: "Villas avec piscines privées, spa d'exception, discrétion totale." },
+            { name: "El Fenn", desc: "Bohème & arty. Rooftop mythique, clientèle mode et cinéma." },
+            { name: "Selman Marrakech", desc: "Chic contemporain, haras privé de chevaux arabes, atmosphère glamour." },
+          ].map(({ name, desc }) => (
+            <div key={name} className="flex gap-3">
+              <span className="text-gold font-semibold text-sm min-w-[160px] shrink-0">{name}</span>
+              <span className="text-white/60 text-sm">{desc}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Restaurants */}
+      <div className="border-t border-white/10 pt-4">
+        <p className="text-gold/80 text-xs font-semibold uppercase tracking-widest mb-3">🍽️ Où dînent les célébrités</p>
+        <div className="space-y-2">
+          {[
+            { name: "Nobu Marrakech", desc: "Cuisine japonaise iconique, rooftop vibrant, clientèle ultra-glam." },
+            { name: "Dar Yacout", desc: "Institution marocaine théâtrale. Stars du cinéma et invités du Festival adorent." },
+            { name: "Le Jardin", desc: "Déjeuner chic et discret dans un riad végétal. Très apprécié des artistes." },
+            { name: "El Fenn Rooftop", desc: "Arty, solaire, intime. Un repaire créatif pour les célébrités low profile." },
+          ].map(({ name, desc }) => (
+            <div key={name} className="flex gap-3">
+              <span className="text-gold font-semibold text-sm min-w-[160px] shrink-0">{name}</span>
+              <span className="text-white/60 text-sm">{desc}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Nightlife */}
+      <div className="border-t border-white/10 pt-4">
+        <p className="text-gold/80 text-xs font-semibold uppercase tracking-widest mb-3">🌙 Où elles sortent la nuit</p>
+        <div className="space-y-2">
+          {[
+            { name: "Theatro", desc: "Le club iconique — shows spectaculaires, DJ internationaux, ambiance VIP." },
+            { name: "So Lounge", desc: "Glamour chic en Palmeraie, parfait pour soirées sélectes." },
+            { name: "Le Comptoir Darna", desc: "Dîner-spectacle, danse orientale et jazz lounge. Très apprécié du cinéma français." },
+            { name: "555 Famous Club", desc: "Ambiance internationale, soirées tardives, clientèle people." },
+          ].map(({ name, desc }) => (
+            <div key={name} className="flex gap-3">
+              <span className="text-gold font-semibold text-sm min-w-[160px] shrink-0">{name}</span>
+              <span className="text-white/60 text-sm">{desc}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+
+    <div className="px-6 py-3 border-t border-gold/20 bg-gold/5">
+      <p className="text-white/30 text-xs italic">Présence maximale : janvier–février (Couture Week), mai (Festival du Film), décembre–janvier.</p>
+    </div>
+  </div>
+);
+
 const SearchPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { language } = useLanguage();
@@ -298,6 +384,7 @@ const SearchPage = () => {
   const endResult = Math.min(currentPage * ITEMS_PER_PAGE, filteredBusinesses.length);
 
   const showZitounEasterEgg = !isLoading && isZitounMask(spokenText || searchQuery);
+  const showCelebrityGuide = !isLoading && isCelebrityQuery(spokenText || searchQuery);
 
   return (
     <div className="min-h-screen bg-background">
@@ -401,11 +488,14 @@ const SearchPage = () => {
             </div>
           )}
 
+          {/* Easter egg: Celebrity Guide */}
+          {showCelebrityGuide && <CelebrityGuide />}
+
           {isLoading ? (
             <div className="flex items-center justify-center py-16">
               <Loader2 className="h-12 w-12 animate-spin text-gold" />
             </div>
-          ) : filteredBusinesses.length === 0 && !showZitounEasterEgg ? (
+          ) : filteredBusinesses.length === 0 && !showZitounEasterEgg && !showCelebrityGuide ? (
             <div className="text-center py-16">
               <Building2 className="h-16 w-16 text-gray-600 mx-auto mb-4" />
               <p className="text-xl text-gray-400 mb-2">{t.noResults}</p>
