@@ -8,13 +8,6 @@ interface GoogleMapEmbedProps {
   businessName: string;
   latitude?: number | null;
   longitude?: number | null;
-}
-
-interface GoogleMapEmbedProps {
-  address: string;
-  businessName: string;
-  latitude?: number | null;
-  longitude?: number | null;
   googleMapsUrl?: string | null;
 }
 
@@ -30,15 +23,15 @@ const GoogleMapEmbed = ({ address, businessName, latitude, longitude, googleMaps
 
   const markerCoords = googleMapsUrl ? extractMarkerCoordsFromMapsUrl(googleMapsUrl) : null;
 
-  // Priority: !3d!4d coords from URL > explicit GPS > text search
+  // Priority: !3d!4d coords from URL > explicit GPS > fallback defaults
   const resolvedLat = markerCoords?.lat ?? latitude ?? null;
   const resolvedLng = markerCoords?.lng ?? longitude ?? null;
 
   const encodedAddress = encodeURIComponent(`${businessName}, ${address}`);
 
-  const mapQuery = resolvedLat && resolvedLng
-    ? `${resolvedLat},${resolvedLng}`
-    : encodedAddress;
+  // Using business name as query makes Google find the GMB listing and show the labeled red marker.
+  // Coordinates-only query (q=lat,lng) returns an unlabeled generic pin without the business name.
+  const mapQuery = encodeURIComponent(businessName + (address ? `, ${address}` : ""));
   const mapEmbedUrl = `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${mapQuery}&zoom=16`;
   const streetViewEmbedUrl = `https://www.google.com/maps/embed/v1/streetview?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&location=${resolvedLat || 31.6295},${resolvedLng || -7.9811}&heading=0&pitch=0&fov=90`;
 
