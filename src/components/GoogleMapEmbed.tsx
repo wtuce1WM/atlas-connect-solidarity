@@ -12,9 +12,16 @@ interface GoogleMapEmbedProps {
 }
 
 const extractMarkerCoordsFromMapsUrl = (url: string): { lat: number; lng: number } | null => {
-  // !3d{lat}...!4d{lng} = actual pin coordinates (NOT viewport center @lat,lng)
-  const match = url.match(/!3d(-?\d+\.\d+).*?!4d(-?\d+\.\d+)/);
-  if (match) return { lat: parseFloat(match[1]), lng: parseFloat(match[2]) };
+  // !8m2!3d{lat}!4d{lng} = actual pin coordinates in GMB data block
+  // This avoids false matches on !3m, !4m, !4b segments that precede the real coords
+  const dataBlockMatch = url.match(/!8m2!3d(-?\d+\.?\d+)!4d(-?\d+\.?\d+)/);
+  if (dataBlockMatch) return { lat: parseFloat(dataBlockMatch[1]), lng: parseFloat(dataBlockMatch[2]) };
+  // Fallback: last occurrence of !3d...!4d pattern (most specific coordinates)
+  const allMatches = [...url.matchAll(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/g)];
+  if (allMatches.length > 0) {
+    const last = allMatches[allMatches.length - 1];
+    return { lat: parseFloat(last[1]), lng: parseFloat(last[2]) };
+  }
   return null;
 };
 
