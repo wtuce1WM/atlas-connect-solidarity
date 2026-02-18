@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.elevenlabs-transcribe]
 verify_jwt = false
+
+[functions.voice-search-intent]
+verify_jwt = false
