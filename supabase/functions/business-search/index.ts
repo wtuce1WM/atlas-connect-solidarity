@@ -61,7 +61,7 @@ const synonyms: Record<string, string[]> = {
   climatisation: ["climatisation", "climatisé", "clim", "ac"],
   terrasse: ["terrasse", "rooftop", "toit"],
   halal: ["halal", "casher", "végétarien", "vegan"],
-  tapis: ["tapis", "berbere", "kilim", "zellige", "artisanat"],
+  tapis: ["tapis", "berbere", "berberes", "kilim", "zellige", "artisanat", "tissage"],
   bijoux: ["bijoux", "bijou", "argent", "or", "joaillerie"],
   epices: ["epices", "épice", "herbes", "aromates", "souk"],
   cuir: ["cuir", "maroquinerie", "babouche", "sac"],
@@ -78,12 +78,18 @@ function expandQuery(query: string): string {
 
   const groups = words.map(word => {
     const alternatives: string[] = [word];
+    // Add plural form
+    if (!word.endsWith("s")) alternatives.push(word + "s");
+
     for (const [key, values] of Object.entries(synonyms)) {
-      if (word === key || values.some(v => sanitizeTerm(v.toLowerCase()) === sanitizeTerm(word))) {
+      const sanitizedWord = sanitizeTerm(word);
+      if (sanitizeTerm(key) === sanitizedWord || values.some(v => sanitizeTerm(v.toLowerCase()) === sanitizedWord)) {
         alternatives.push(key, ...values);
+        // Also add plural of each synonym
+        values.forEach(v => { if (!v.endsWith("s")) alternatives.push(v + "s"); });
       }
     }
-    const sanitized = [...new Set(alternatives)].map(sanitizeTerm).filter(t => t.length > 0);
+    const sanitized = [...new Set(alternatives)].map(sanitizeTerm).filter(t => t.length > 1);
     return sanitized.length === 1 ? sanitized[0] : `(${sanitized.join(" | ")})`;
   });
 
