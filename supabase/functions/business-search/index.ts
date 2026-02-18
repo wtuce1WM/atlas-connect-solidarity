@@ -61,6 +61,11 @@ const synonyms: Record<string, string[]> = {
   climatisation: ["climatisation", "climatisé", "clim", "ac"],
   terrasse: ["terrasse", "rooftop", "toit"],
   halal: ["halal", "casher", "végétarien", "vegan"],
+  tapis: ["tapis", "berbere", "kilim", "zellige", "artisanat"],
+  bijoux: ["bijoux", "bijou", "argent", "or", "joaillerie"],
+  epices: ["epices", "épice", "herbes", "aromates", "souk"],
+  cuir: ["cuir", "maroquinerie", "babouche", "sac"],
+  poterie: ["poterie", "ceramique", "faience", "zellige"],
 };
 
 // Sanitize a term for to_tsquery: remove apostrophes and special chars
