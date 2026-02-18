@@ -18,31 +18,27 @@ interface GoogleMapEmbedProps {
   googleMapsUrl?: string | null;
 }
 
-const extractCoordsFromMapsUrl = (url: string): { lat: number; lng: number } | null => {
-  // Extract !3d{lat}!4d{lng} — the actual marker coordinates
-  const match = url.match(/!3d(-?\d+\.?\d*).*?!4d(-?\d+\.?\d*)/);
+const extractMarkerCoordsFromMapsUrl = (url: string): { lat: number; lng: number } | null => {
+  // !3d{lat}...!4d{lng} = actual pin coordinates (NOT viewport center)
+  const match = url.match(/!3d(-?\d+\.\d+).*?!4d(-?\d+\.\d+)/);
   if (match) return { lat: parseFloat(match[1]), lng: parseFloat(match[2]) };
-  // Fallback: @lat,lng (viewport center)
-  const atMatch = url.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
-  if (atMatch) return { lat: parseFloat(atMatch[1]), lng: parseFloat(atMatch[2]) };
   return null;
 };
 
 const GoogleMapEmbed = ({ address, businessName, latitude, longitude, googleMapsUrl }: GoogleMapEmbedProps) => {
   const [activeView, setActiveView] = useState<"map" | "streetview">("map");
 
-  // Priority: explicit GPS > extracted from google_maps_url > address text query
-  const extractedCoords = (!latitude || !longitude) && googleMapsUrl
-    ? extractCoordsFromMapsUrl(googleMapsUrl)
-    : null;
+  // Extract true marker coords from google_maps_url (!3d!4d pattern)
+  // This overrides the lat/lng stored in DB which may be the viewport center (@lat,lng)
+  const markerCoords = googleMapsUrl ? extractMarkerCoordsFromMapsUrl(googleMapsUrl) : null;
 
-  const resolvedLat = latitude || extractedCoords?.lat || null;
-  const resolvedLng = longitude || extractedCoords?.lng || null;
+  // Priority: coords from !3d!4d in URL > explicit GPS fields > text search
+  const resolvedLat = markerCoords?.lat ?? latitude ?? null;
+  const resolvedLng = markerCoords?.lng ?? longitude ?? null;
 
-  const fullAddress = `${businessName}, ${address}`;
-  const encodedAddress = encodeURIComponent(fullAddress);
+  const encodedAddress = encodeURIComponent(`${businessName}, ${address}`);
 
-  // Google Maps Embed URLs
+  // Build embed query: coordinates give exact pin, fallback to text search
   const mapQuery = resolvedLat && resolvedLng
     ? `${resolvedLat},${resolvedLng}`
     : encodedAddress;
