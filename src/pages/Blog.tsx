@@ -154,6 +154,29 @@ const Blog = () => {
               </Card>
             </Link>
 
+            {/* Carte Ancien Accueil */}
+            <Link to="/blog/ancien-accueil">
+              <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-stone-50 to-amber-50 dark:from-stone-950/30 dark:to-amber-950/30">
+                <div className="aspect-video overflow-hidden bg-gradient-to-br from-gold/20 to-gold/5 flex items-center justify-center">
+                  <span className="text-5xl">🏠</span>
+                </div>
+                <CardContent className="p-6">
+                  <h2 className="text-xl font-semibold mb-3 font-['Playfair_Display'] italic">
+                    Ancien Accueil
+                  </h2>
+                  <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
+                    Copie de la page d'accueil : hero, sections labels dynamiques et liste des établissements.
+                  </p>
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1 text-gold font-medium">
+                      🏠 Accueil
+                    </span>
+                    <ArrowRight className="h-4 w-4 text-gold" />
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+
             {posts.map((post) => (
               <Link key={post.id} to={`/blog/${post.slug}`}>
                 <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full">

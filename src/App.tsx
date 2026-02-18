@@ -26,6 +26,7 @@ import NeighborhoodPage from "./pages/NeighborhoodPage";
 import AllBusinessesMap from "./pages/AllBusinessesMap";
 import SubcategoryPage from "./pages/SubcategoryPage";
 import NotFound from "./pages/NotFound";
+import AncienAccueil from "./pages/AncienAccueil";
 import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
@@ -57,6 +58,7 @@ const AppContent = () => {
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/essaouira-vue-mer" element={<EssaouiraSeaView />} />
             <Route path="/blog/animations" element={<BlogAnimations />} />
+            <Route path="/blog/ancien-accueil" element={<AncienAccueil />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
             <Route path="/etablissements-notes" element={<RatedBusinesses />} />
             <Route path="/neighborhood/:neighborhood" element={<NeighborhoodPage />} />
