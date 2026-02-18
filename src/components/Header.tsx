@@ -1,64 +1,31 @@
-import { useState, useRef, useCallback } from "react";
+import { useState } from "react";
 import { Menu, X, Search, Mic, MicOff, Loader } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
-import LanguageSwitcher from "./LanguageSwitcher";
+import { useVoiceSearch } from "@/hooks/useVoiceSearch";
+import { useToast } from "@/hooks/use-toast";
 import logoGold from "@/assets/logoGOLDsimpleSML.webp";
 
 interface HeaderProps {
   variant?: "default" | "morocco" | "city";
 }
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-
-type VoiceStatus = "idle" | "recording" | "processing" | "error";
-
-async function transcribeWithElevenLabs(audioBlob: Blob): Promise<string> {
-  const formData = new FormData();
-  formData.append("audio", audioBlob, "recording.webm");
-
-  const response = await fetch(`${SUPABASE_URL}/functions/v1/elevenlabs-transcribe`, {
-    method: "POST",
-    headers: {
-      apikey: SUPABASE_KEY,
-      Authorization: `Bearer ${SUPABASE_KEY}`,
-    },
-    body: formData,
-  });
-
-  if (!response.ok) throw new Error(`Transcription error: ${response.status}`);
-  const data = await response.json();
-  return data.text || "";
-}
-
-async function extractSearchIntent(transcript: string): Promise<string> {
-  try {
-    const response = await fetch(`${SUPABASE_URL}/functions/v1/voice-search-intent`, {
-      method: "POST",
-      headers: {
-        apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ transcript }),
-    });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const data = await response.json();
-    return data.query?.trim() || transcript;
-  } catch {
-    return transcript;
-  }
-}
-
 const Header = ({ variant = "default" }: HeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
-  const [voiceStatus, setVoiceStatus] = useState<VoiceStatus>("idle");
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const chunksRef = useRef<Blob[]>([]);
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const { toast } = useToast();
+
+  const { status: voiceStatus, toggleRecording } = useVoiceSearch({
+    onTranscript: (text) => {
+      setSearchValue(text);
+      if (text.trim()) navigate(`/search?q=${encodeURIComponent(text.trim())}`);
+    },
+    onError: (message) => {
+      toast({ variant: "destructive", title: "Erreur microphone", description: message });
+    },
+  });
 
   const headerBg = variant === "morocco"
     ? "bg-gradient-to-b from-morocco-red to-morocco-red/80 backdrop-blur-sm"
@@ -75,68 +42,10 @@ const Header = ({ variant = "default" }: HeaderProps) => {
     if (q) navigate(`/search?q=${encodeURIComponent(q)}`);
   };
 
-  const startRecording = useCallback(async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mimeType = MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
-        ? "audio/webm;codecs=opus"
-        : "audio/webm";
-      const recorder = new MediaRecorder(stream, { mimeType });
-      chunksRef.current = [];
-
-      recorder.ondataavailable = (e) => {
-        if (e.data.size > 0) chunksRef.current.push(e.data);
-      };
-
-      recorder.onstop = async () => {
-        stream.getTracks().forEach((t) => t.stop());
-        setVoiceStatus("processing");
-        try {
-          const blob = new Blob(chunksRef.current, { type: mimeType });
-          const transcript = await transcribeWithElevenLabs(blob);
-          if (!transcript) {
-            setVoiceStatus("error");
-            setTimeout(() => setVoiceStatus("idle"), 2000);
-            return;
-          }
-          const keywords = await extractSearchIntent(transcript);
-          setSearchValue(keywords);
-          setVoiceStatus("idle");
-          if (keywords.trim()) navigate(`/search?q=${encodeURIComponent(keywords.trim())}`);
-        } catch {
-          setVoiceStatus("error");
-          setTimeout(() => setVoiceStatus("idle"), 2000);
-        }
-      };
-
-      recorder.start();
-      mediaRecorderRef.current = recorder;
-      setVoiceStatus("recording");
-    } catch {
-      setVoiceStatus("error");
-      setTimeout(() => setVoiceStatus("idle"), 2000);
-    }
-  }, [navigate]);
-
-  const stopRecording = useCallback(() => {
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
-      mediaRecorderRef.current.stop();
-      mediaRecorderRef.current = null;
-    }
-  }, []);
-
-  const toggleVoice = useCallback(() => {
-    if (voiceStatus === "recording") {
-      stopRecording();
-    } else if (voiceStatus === "idle" || voiceStatus === "error") {
-      startRecording();
-    }
-  }, [voiceStatus, startRecording, stopRecording]);
-
-  const micIcon = voiceStatus === "recording"
-    ? <Mic className="h-4 w-4 text-red-400 animate-pulse" />
-    : voiceStatus === "processing"
-      ? <Loader className="h-4 w-4 text-gold animate-spin" />
+  const micIcon = voiceStatus === "processing"
+    ? <Loader className="h-4 w-4 animate-spin text-gold" />
+    : voiceStatus === "recording"
+      ? <MicOff className="h-4 w-4 text-destructive" />
       : <Mic className="h-4 w-4 text-white/50 hover:text-gold transition-colors" />;
 
   return (
@@ -174,10 +83,12 @@ const Header = ({ variant = "default" }: HeaderProps) => {
                 />
                 <button
                   type="button"
-                  onClick={toggleVoice}
+                  onClick={toggleRecording}
                   disabled={voiceStatus === "processing"}
-                  className="absolute right-2 p-1 rounded-full"
-                  title="Recherche vocale"
+                  className={`absolute right-2 p-1 rounded-full transition-all ${
+                    voiceStatus === "recording" ? "animate-pulse" : ""
+                  }`}
+                  title={voiceStatus === "recording" ? "Arrêter l'enregistrement" : "Recherche vocale"}
                 >
                   {micIcon}
                 </button>
