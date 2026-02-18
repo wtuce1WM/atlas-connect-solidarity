@@ -119,6 +119,7 @@ const synonyms: Record<string, string[]> = {
   plage: ["plage", "mer", "ocean", "océan", "bord de mer", "front de mer", "vue mer", "bord eau", "littoral", "cote", "côte", "atlantique"],
   bar: ["bar", "café", "lounge", "boire", "cocktail"],
   cafe: ["café", "café", "coffee", "thé", "pâtisserie"],
+  art: ["art", "galerie", "galerie d'art", "artistique", "exposition", "expo", "musee", "musée", "culture", "culturel"],
 };
 
 // Villes marocaines connues pour la détection automatique dans la query
