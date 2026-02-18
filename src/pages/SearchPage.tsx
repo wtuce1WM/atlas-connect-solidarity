@@ -118,6 +118,7 @@ const CelebrityGuide = () => (
           <CelebrityEntry name="Mandarin Oriental" id="590225e3-0887-4d79-a8f6-571ac148cca5" desc="Villas avec piscines privées, spa d'exception, discrétion totale." />
           <CelebrityEntry name="El Fenn" id="641ab942-63a5-499e-999a-e09915b1d02f" desc="Bohème & arty. Rooftop mythique, clientèle mode et cinéma." />
           <CelebrityEntry name="Selman Marrakech" id="5b09bebd-7cb5-4698-b447-bf5f198811f4" desc="Chic contemporain, haras privé de chevaux arabes, atmosphère glamour." />
+          <CelebrityEntry name="Riad Kniza" id="307aa4e4-03b7-4006-808c-6df07c6b5eab" desc="Riad de charme discret, prisé par les célébrités en quête d'authenticité et de confidentialité en médina." />
         </div>
       </div>
 
@@ -158,6 +159,7 @@ const CELEBRITY_IDS = [
   "590225e3-0887-4d79-a8f6-571ac148cca5", // Mandarin Oriental
   "641ab942-63a5-499e-999a-e09915b1d02f", // Boutique El Fenn
   "5b09bebd-7cb5-4698-b447-bf5f198811f4", // Selman Marrakech
+  "307aa4e4-03b7-4006-808c-6df07c6b5eab", // Riad Kniza
   "c5a21f81-94fc-4b5e-8f89-822a43dabdec", // Nobu Marrakech
   "da42a132-4948-4c5f-afa3-f0b37df6811e", // Dar Yacout
   "c6af063a-0636-4746-bd14-50060721e5f5", // Restaurant Le Jardin
