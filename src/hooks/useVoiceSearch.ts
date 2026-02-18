@@ -89,6 +89,7 @@ export function useVoiceSearch({ onTranscript, onError, lang = "fr-FR" }: UseVoi
 
     recognition.onresult = async (event) => {
       const transcript = event.results[0]?.[0]?.transcript;
+      recognitionRef.current = null;
       if (transcript) {
         setStatus("processing");
         const keywords = await extractSearchIntent(transcript);
@@ -105,6 +106,7 @@ export function useVoiceSearch({ onTranscript, onError, lang = "fr-FR" }: UseVoi
 
     recognition.onerror = (event) => {
       console.error("Speech recognition error:", event.error);
+      recognitionRef.current = null;
       if (event.error === "not-allowed") {
         onError?.("Accès au microphone refusé.");
       } else if (event.error === "no-speech") {
@@ -112,11 +114,15 @@ export function useVoiceSearch({ onTranscript, onError, lang = "fr-FR" }: UseVoi
       } else {
         onError?.("Erreur de reconnaissance vocale.");
       }
-      setStatus("error");
+      setStatus("idle"); // Retour à idle (pas error) pour permettre un nouvel essai
     };
 
     recognition.onend = () => {
-      // Don't reset to idle here — we might be in "processing" state
+      // Si onresult n'a pas été déclenché (silence total), on remet à idle
+      if (recognitionRef.current !== null) {
+        recognitionRef.current = null;
+        setStatus("idle");
+      }
     };
 
     recognitionRef.current = recognition;
