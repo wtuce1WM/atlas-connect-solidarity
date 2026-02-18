@@ -49,6 +49,8 @@ const FR_STOPWORDS = new Set([
   // Verbes courants
   "manger", "mangeons", "mange", "boire", "dormir", "loger", "visiter",
   "faire", "aller", "trouver", "avoir", "etre", "suis", "sommes",
+  "acheter", "achete", "achetez", "acquerir", "acquiers",
+  "vendre", "vend", "voudrait",
   // Articles / pronoms / prépositions
   "je", "on", "nous", "vous", "ils", "elles", "il", "elle",
   "un", "une", "des", "le", "la", "les", "de", "du", "d",
@@ -56,7 +58,10 @@ const FR_STOPWORDS = new Set([
   "avec", "dans", "me", "mon", "ma", "mes", "qui", "que", "quoi",
   "dont", "lequel", "laquelle", "near", "pres",
   // Adjectifs génériques
+  "beau", "belle", "beaux", "belles", "joli", "jolie", "jolis", "jolies",
   "bonne", "bon", "bien", "meilleur", "meilleurs", "meilleures",
+  "grand", "grande", "petit", "petite", "vieux", "vieille",
+  "authentique", "typique", "traditionnel", "traditionnelle",
   // Expressions de service
   "accepte", "acceptent", "acceptes", "acceptant",
   "compagnie", "animaux de compagnie",
