@@ -69,6 +69,29 @@ const isZitounMask = (query: string) => {
   );
 };
 
+const isSosMedecinQuery = (query: string) => {
+  const normalized = query.toLowerCase().replace(/\s+/g, " ").trim();
+  return (
+    normalized.includes("sos médecin") ||
+    normalized.includes("sos medecin") ||
+    normalized.includes("sos docteur") ||
+    normalized.includes("besoin d'un docteur") ||
+    normalized.includes("besoin d un docteur") ||
+    normalized.includes("besoin d'un médecin") ||
+    normalized.includes("besoin d un medecin") ||
+    normalized.includes("médecin urgence") ||
+    normalized.includes("medecin urgence") ||
+    normalized.includes("docteur urgence") ||
+    normalized.includes("urgence médicale") ||
+    normalized.includes("urgence medicale") ||
+    normalized.includes("appeler un médecin") ||
+    normalized.includes("appeler un medecin") ||
+    normalized.includes("appeler un docteur") ||
+    normalized.includes("je suis malade") ||
+    normalized.includes("mal en point")
+  );
+};
+
 const isCelebrityQuery = (query: string) => {
   const normalized = query.toLowerCase().replace(/\s+/g, " ").trim();
   return (
@@ -418,6 +441,7 @@ const SearchPage = () => {
 
   const showZitounEasterEgg = !isLoading && isZitounMask(spokenText || searchQuery);
   const showCelebrityGuide = !isLoading && isCelebrityQuery(spokenText || searchQuery);
+  const showSosMedecin = !isLoading && isSosMedecinQuery(spokenText || searchQuery);
 
   return (
     <div className="min-h-screen bg-background">
@@ -543,17 +567,62 @@ const SearchPage = () => {
             </>
           )}
 
+          {/* Easter egg: SOS Médecin */}
+          {showSosMedecin && (
+            <div className="max-w-lg mx-auto mb-10 rounded-2xl overflow-hidden border border-red-500/40 shadow-2xl bg-gradient-to-br from-black to-zinc-900">
+              <div className="px-6 py-5 border-b border-red-500/20 bg-gradient-to-r from-red-500/10 to-transparent">
+                <p className="text-red-400 font-semibold text-lg flex items-center gap-2">
+                  🚨 SOS Médecin — Numéros d'urgence au Maroc
+                </p>
+                <p className="text-white/50 text-sm mt-0.5">Appelez immédiatement si besoin d'aide médicale</p>
+              </div>
+              <div className="px-6 py-5 space-y-3">
+                <a href="tel:150" className="flex items-center justify-between rounded-xl border border-red-500/30 bg-red-500/5 px-4 py-3 hover:bg-red-500/10 transition-colors group">
+                  <div>
+                    <p className="text-white font-semibold text-sm">SAMU / Ambulance</p>
+                    <p className="text-white/40 text-xs">Service d'aide médicale d'urgence</p>
+                  </div>
+                  <span className="text-red-400 font-bold text-2xl group-hover:scale-110 transition-transform">150</span>
+                </a>
+                <a href="tel:190" className="flex items-center justify-between rounded-xl border border-orange-500/30 bg-orange-500/5 px-4 py-3 hover:bg-orange-500/10 transition-colors group">
+                  <div>
+                    <p className="text-white font-semibold text-sm">Protection Civile</p>
+                    <p className="text-white/40 text-xs">Secours et premiers soins</p>
+                  </div>
+                  <span className="text-orange-400 font-bold text-2xl group-hover:scale-110 transition-transform">190</span>
+                </a>
+                <a href="tel:19" className="flex items-center justify-between rounded-xl border border-blue-500/30 bg-blue-500/5 px-4 py-3 hover:bg-blue-500/10 transition-colors group">
+                  <div>
+                    <p className="text-white font-semibold text-sm">Police Secours</p>
+                    <p className="text-white/40 text-xs">Urgences police</p>
+                  </div>
+                  <span className="text-blue-400 font-bold text-2xl group-hover:scale-110 transition-transform">19</span>
+                </a>
+                <a href="tel:177" className="flex items-center justify-between rounded-xl border border-yellow-500/30 bg-yellow-500/5 px-4 py-3 hover:bg-yellow-500/10 transition-colors group">
+                  <div>
+                    <p className="text-white font-semibold text-sm">Gendarmerie Royale</p>
+                    <p className="text-white/40 text-xs">Zones rurales et périurbaines</p>
+                  </div>
+                  <span className="text-yellow-400 font-bold text-2xl group-hover:scale-110 transition-transform">177</span>
+                </a>
+              </div>
+              <div className="px-6 py-3 border-t border-red-500/20 bg-red-500/5">
+                <p className="text-white/30 text-xs italic">En cas d'urgence grave, composez le 150 (SAMU) ou rendez-vous aux urgences de l'hôpital le plus proche.</p>
+              </div>
+            </div>
+          )}
+
           {isLoading ? (
             <div className="flex items-center justify-center py-16">
               <Loader2 className="h-12 w-12 animate-spin text-gold" />
             </div>
-          ) : filteredBusinesses.length === 0 && !showZitounEasterEgg && !showCelebrityGuide ? (
+          ) : filteredBusinesses.length === 0 && !showZitounEasterEgg && !showCelebrityGuide && !showSosMedecin ? (
             <div className="text-center py-16">
               <Building2 className="h-16 w-16 text-gray-600 mx-auto mb-4" />
               <p className="text-xl text-gray-400 mb-2">{t.noResults}</p>
               <p className="text-sm text-gray-500">{t.tryAnother}</p>
             </div>
-          ) : !showCelebrityGuide && filteredBusinesses.length > 0 ? (
+          ) : !showCelebrityGuide && !showSosMedecin && filteredBusinesses.length > 0 ? (
             <>
               {/* Results Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
