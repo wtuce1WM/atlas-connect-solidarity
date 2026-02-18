@@ -11,7 +11,10 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const ELEVENLABS_API_KEY = Deno.env.get('ELEVENLABS_API_KEY')?.trim();
+    const rawKey = Deno.env.get('ELEVENLABS_API_KEY') ?? '';
+    // Remove ALL non-printable and non-ASCII characters to ensure ByteString compliance
+    const ELEVENLABS_API_KEY = rawKey.replace(/[^\x20-\x7E]/g, '').trim();
+    console.log(`API key length after sanitization: ${ELEVENLABS_API_KEY.length} (raw: ${rawKey.length})`);
     if (!ELEVENLABS_API_KEY) {
       return new Response(JSON.stringify({ error: 'ElevenLabs API key not configured' }), {
         status: 500,
