@@ -40,55 +40,29 @@ declare global {
   }
 }
 
-// French + Arabic + English stopwords to strip from voice queries
-const FR_STOPWORDS = new Set([
-  // Verbes de recherche / intention
-  "trouve", "trouver", "cherche", "chercher", "recherche", "rechercher",
-  "montrer", "montre", "affiche", "afficher", "veux", "voudrais",
-  "besoin", "peux", "peut", "puis", "pouvez", "connais", "connait",
-  // Verbes courants
-  "manger", "mangeons", "mange", "boire", "dormir", "loger", "visiter",
-  "faire", "aller", "trouver", "avoir", "etre", "suis", "sommes",
-  "acheter", "achete", "achetez", "acquerir", "acquiers",
-  "vendre", "vend", "voudrait",
-  // Articles / pronoms / prépositions
-  "je", "on", "nous", "vous", "ils", "elles", "il", "elle",
-  "un", "une", "des", "le", "la", "les", "de", "du", "d",
-  "en", "a", "au", "aux", "et", "ou", "sur", "pour", "par",
-  "avec", "dans", "me", "mon", "ma", "mes", "qui", "que", "quoi",
-  "dont", "lequel", "laquelle", "near", "pres",
-  // Adjectifs génériques
-  "beau", "belle", "beaux", "belles", "joli", "jolie", "jolis", "jolies",
-  "bonne", "bon", "bien", "meilleur", "meilleurs", "meilleures",
-  "grand", "grande", "petit", "petite", "vieux", "vieille",
-  "authentique", "typique", "traditionnel", "traditionnelle",
-  // Expressions de service
-  "accepte", "acceptent", "acceptes", "acceptant",
-  "compagnie", "animaux de compagnie",
-]);
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
-function extractSearchKeywords(transcript: string): string {
-  const normalized = transcript
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "") // remove accents for comparison
-    .replace(/[^\w\s]/g, " ")
-    .trim();
+async function extractSearchIntent(transcript: string): Promise<string> {
+  try {
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/voice-search-intent`, {
+      method: "POST",
+      headers: {
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ transcript }),
+    });
 
-  const words = normalized.split(/\s+/).filter((w) => w.length > 1 && !FR_STOPWORDS.has(w));
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-  // Reconstruct with original casing (keep original words for the search engine)
-  const originalWords = transcript
-    .replace(/[^\w\s\u00C0-\u024F\u0600-\u06FF]/g, " ")
-    .trim()
-    .split(/\s+/);
-
-  const kept = originalWords.filter((w) => {
-    const norm = w.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-    return w.length > 1 && !FR_STOPWORDS.has(norm);
-  });
-
-  return kept.join(" ").trim() || transcript.trim();
+    const data = await response.json();
+    return data.query?.trim() || transcript;
+  } catch (err) {
+    console.warn("LLM intent extraction failed, using raw transcript:", err);
+    return transcript;
+  }
 }
 
 export function useVoiceSearch({ onTranscript, onError, lang = "fr-FR" }: UseVoiceSearchOptions) {
@@ -113,11 +87,16 @@ export function useVoiceSearch({ onTranscript, onError, lang = "fr-FR" }: UseVoi
       setStatus("recording");
     };
 
-    recognition.onresult = (event) => {
+    recognition.onresult = async (event) => {
       const transcript = event.results[0]?.[0]?.transcript;
       if (transcript) {
-        const keywords = extractSearchKeywords(transcript);
-        onTranscript(keywords);
+        setStatus("processing");
+        const keywords = await extractSearchIntent(transcript);
+        if (keywords) {
+          onTranscript(keywords);
+        } else {
+          onError?.("Aucun texte détecté, réessayez.");
+        }
       } else {
         onError?.("Aucun texte détecté, réessayez.");
       }
@@ -137,14 +116,12 @@ export function useVoiceSearch({ onTranscript, onError, lang = "fr-FR" }: UseVoi
     };
 
     recognition.onend = () => {
-      if (status === "recording") {
-        setStatus("idle");
-      }
+      // Don't reset to idle here — we might be in "processing" state
     };
 
     recognitionRef.current = recognition;
     recognition.start();
-  }, [onTranscript, onError, lang, status]);
+  }, [onTranscript, onError, lang]);
 
   const stopRecording = useCallback(() => {
     if (recognitionRef.current) {
