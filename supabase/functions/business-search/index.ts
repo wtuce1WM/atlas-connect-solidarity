@@ -123,6 +123,7 @@ const synonyms: Record<string, string[]> = {
   petanque: ["pétanque", "petanque", "boules", "boulodrome"],
   glacier: ["glacier", "glace", "glaces", "sorbet", "gelato", "creme glacee", "crème glacée"],
   boite: ["boîte", "boite", "boîte de nuit", "discothèque", "discotheque", "nightclub", "clubbing", "soirée", "sortir", "fête", "fete"],
+  vin: ["vin", "vins", "alcool", "cave", "cave à vin", "bière", "biere", "spiritueux", "liqueur", "whisky", "champagne", "épicerie fine"],
 };
 
 // Villes marocaines connues pour la détection automatique dans la query
