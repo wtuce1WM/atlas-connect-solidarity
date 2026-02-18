@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 
 type VoiceStatus = "idle" | "recording" | "processing" | "error";
 
@@ -8,7 +8,6 @@ interface UseVoiceSearchOptions {
   lang?: string;
 }
 
-// Extend Window to include webkitSpeechRecognition
 interface SpeechRecognitionConstructor {
   new (): SpeechRecognitionInstance;
 }
@@ -69,12 +68,18 @@ export function useVoiceSearch({ onTranscript, onError, lang = "fr-FR" }: UseVoi
   const [status, setStatus] = useState<VoiceStatus>("idle");
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
 
+  // Garder les callbacks en ref pour éviter les problèmes de closure dans les handlers async
+  const onTranscriptRef = useRef(onTranscript);
+  const onErrorRef = useRef(onError);
+  useEffect(() => { onTranscriptRef.current = onTranscript; }, [onTranscript]);
+  useEffect(() => { onErrorRef.current = onError; }, [onError]);
+
   const startRecording = useCallback(() => {
     const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (!SpeechRecognitionAPI) {
-      setStatus("error");
-      onError?.("Votre navigateur ne supporte pas la reconnaissance vocale. Utilisez Chrome ou Edge.");
+      setStatus("idle");
+      onErrorRef.current?.("Votre navigateur ne supporte pas la reconnaissance vocale. Utilisez Chrome ou Edge.");
       return;
     }
 
@@ -93,32 +98,33 @@ export function useVoiceSearch({ onTranscript, onError, lang = "fr-FR" }: UseVoi
       if (transcript) {
         setStatus("processing");
         const keywords = await extractSearchIntent(transcript);
+        setStatus("idle");
         if (keywords) {
-          onTranscript(keywords);
+          onTranscriptRef.current(keywords);
         } else {
-          onError?.("Aucun texte détecté, réessayez.");
+          onErrorRef.current?.("Aucun texte détecté, réessayez.");
         }
       } else {
-        onError?.("Aucun texte détecté, réessayez.");
+        setStatus("idle");
+        onErrorRef.current?.("Aucun texte détecté, réessayez.");
       }
-      setStatus("idle");
     };
 
     recognition.onerror = (event) => {
       console.error("Speech recognition error:", event.error);
       recognitionRef.current = null;
       if (event.error === "not-allowed") {
-        onError?.("Accès au microphone refusé.");
+        onErrorRef.current?.("Accès au microphone refusé.");
       } else if (event.error === "no-speech") {
-        onError?.("Aucune parole détectée, réessayez.");
+        onErrorRef.current?.("Aucune parole détectée, réessayez.");
       } else {
-        onError?.("Erreur de reconnaissance vocale.");
+        onErrorRef.current?.("Erreur de reconnaissance vocale.");
       }
-      setStatus("idle"); // Retour à idle (pas error) pour permettre un nouvel essai
+      setStatus("idle");
     };
 
     recognition.onend = () => {
-      // Si onresult n'a pas été déclenché (silence total), on remet à idle
+      // onend est toujours appelé en dernier — si onresult n'a pas mis null, on nettoie
       if (recognitionRef.current !== null) {
         recognitionRef.current = null;
         setStatus("idle");
@@ -127,7 +133,7 @@ export function useVoiceSearch({ onTranscript, onError, lang = "fr-FR" }: UseVoi
 
     recognitionRef.current = recognition;
     recognition.start();
-  }, [onTranscript, onError, lang]);
+  }, [lang]);
 
   const stopRecording = useCallback(() => {
     if (recognitionRef.current) {
