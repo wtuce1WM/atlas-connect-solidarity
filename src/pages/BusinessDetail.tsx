@@ -995,7 +995,7 @@ const BusinessDetail = () => {
 
         {/* LOCATION TAB */}
         {activeTab === 'location' && (
-          <div className="max-w-3xl space-y-6">
+          <div className="w-full space-y-6">
             <GoogleMapEmbed
               address={business.address || (business.neighborhood ? `${business.neighborhood}, ${business.city}` : `${business.city}, ${business.region}`)}
               businessName={business.name}
