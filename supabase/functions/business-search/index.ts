@@ -121,6 +121,24 @@ const synonyms: Record<string, string[]> = {
   cafe: ["café", "café", "coffee", "thé", "pâtisserie"],
 };
 
+// Villes marocaines connues pour la détection automatique dans la query
+const MOROCCAN_CITIES = [
+  "Marrakech", "Casablanca", "Rabat", "Fès", "Fes", "Agadir", "Tanger", "Tangier",
+  "Essaouira", "Meknès", "Meknes", "Oujda", "Kenitra", "Tétouan", "Tetouan",
+  "Safi", "El Jadida", "Nador", "Béni Mellal", "Beni Mellal", "Khouribga",
+  "Settat", "Berrechid", "Mohammedia", "Laâyoune", "Dakhla", "Ifrane",
+  "Ouarzazate", "Merzouga", "Chefchaouen", "Asilah", "Taroudant", "Tiznit",
+  "Zagora", "Erfoud", "Midelt", "Bouznika", "Azemmour",
+];
+
+function detectCityInQuery(query: string): string | null {
+  const lower = query.toLowerCase();
+  for (const city of MOROCCAN_CITIES) {
+    if (lower.includes(city.toLowerCase())) return city;
+  }
+  return null;
+}
+
 // Sanitize a term for to_tsquery: remove apostrophes and special chars
 function sanitizeTerm(term: string): string {
   return term.replace(/['']/g, "").replace(/[^a-zA-Z0-9àâäéèêëïîôùûüÿçœæÀÂÄÉÈÊËÏÎÔÙÛÜŸÇŒÆ]/g, "");
@@ -136,7 +154,6 @@ function expandQuery(query: string): string {
       const sanitizedWord = sanitizeTerm(word);
       if (sanitizeTerm(key) === sanitizedWord || values.some(v => sanitizeTerm(v.toLowerCase()) === sanitizedWord)) {
         alternatives.push(key, ...values);
-        // Add plural variants of synonyms (only if not already ending in s)
         values.forEach(v => {
           const sv = sanitizeTerm(v);
           if (!sv.endsWith("s")) alternatives.push(sv + "s");
@@ -206,6 +223,10 @@ serve(async (req) => {
     let businesses: Business[] = [];
     let searchLevel = "exact";
 
+    // Auto-détection de ville dans la query si aucune ville n'est passée explicitement
+    const detectedCity = (!city && query) ? detectCityInQuery(query) : null;
+    const effectiveCity = city || detectedCity || undefined;
+
     // Level 1: Exact full-text search with city and category filter
     if (query || city || category) {
       const expandedQuery = query ? expandQuery(query) : null;
@@ -218,12 +239,11 @@ serve(async (req) => {
         });
       }
 
-      if (city) {
-        queryBuilder = queryBuilder.ilike("city", city);
+      if (effectiveCity) {
+        queryBuilder = queryBuilder.ilike("city", effectiveCity);
       }
 
       if (category) {
-        // Search in main_category OR in the categories array
         queryBuilder = queryBuilder.or(`main_category.eq.${category},categories.cs.{"${category}"}`);
       }
 
@@ -248,13 +268,19 @@ serve(async (req) => {
 
     // Level 2: Fuzzy search with trigram similarity
     if (businesses.length === 0 && query) {
-      const { data, error } = await supabase
+      let fuzzyBuilder = supabase
         .from("businesses")
         .select("*")
         .eq("is_active", true)
         .or(
           `name.ilike.%${query}%,description.ilike.%${query}%,categories.cs.{${query}},services.cs.{${query}}`
-        )
+        );
+
+      if (effectiveCity) {
+        fuzzyBuilder = fuzzyBuilder.ilike("city", effectiveCity);
+      }
+
+      const { data, error } = await fuzzyBuilder
         .order("wtuce_status", { ascending: true })
         .order("priority_score", { ascending: false })
         .limit(limit);
@@ -284,16 +310,10 @@ serve(async (req) => {
         const withinRadius = data
           .map((b) => ({
             ...b,
-            distance_km: calculateDistance(
-              latitude,
-              longitude,
-              b.latitude!,
-              b.longitude!
-            ),
+            distance_km: calculateDistance(latitude, longitude, b.latitude!, b.longitude!),
           }))
           .filter((b) => b.distance_km <= radiusKm)
           .sort((a, b) => {
-            // Sort by verified first, then by distance
             if (a.wtuce_status !== b.wtuce_status) {
               return a.wtuce_status === "verified" ? -1 : 1;
             }
@@ -388,23 +408,15 @@ serve(async (req) => {
 });
 
 // Haversine formula to calculate distance between two points
-function calculateDistance(
-  lat1: number,
-  lon1: number,
-  lat2: number,
-  lon2: number
-): number {
-  const R = 6371; // Earth's radius in km
+function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371;
   const dLat = toRad(lat2 - lat1);
   const dLon = toRad(lon2 - lon1);
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRad(lat1)) *
-      Math.cos(toRad(lat2)) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return Math.round(R * c * 10) / 10; // Round to 1 decimal place
+  return Math.round(R * c * 10) / 10;
 }
 
 function toRad(deg: number): number {
