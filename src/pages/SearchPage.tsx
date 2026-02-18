@@ -106,20 +106,10 @@ const SearchPage = () => {
     return Math.round((sources.reduce((s, x) => s + x.r * x.c, 0) / total) * 10) / 10;
   };
 
-  // Filter businesses by city, then sort by rating
+  // Filter businesses by city — preserve LLM ranking order from the API
   const filteredBusinesses = useMemo(() => {
-    let result = selectedCity === "all" ? [...allBusinesses] : allBusinesses.filter(b => b.city === selectedCity);
-    
-    result.sort((a, b) => {
-      const rA = getEffectiveRating(a);
-      const rB = getEffectiveRating(b);
-      if (rA === null && rB === null) return 0;
-      if (rA === null) return 1;
-      if (rB === null) return -1;
-      return rB - rA;
-    });
-    
-    return result;
+    if (selectedCity === "all") return allBusinesses;
+    return allBusinesses.filter(b => b.city === selectedCity);
   }, [allBusinesses, selectedCity]);
 
   // Paginate
