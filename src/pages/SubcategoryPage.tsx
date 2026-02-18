@@ -397,24 +397,9 @@ const SubcategoryPage = () => {
 
   const getMapEmbedUrl = () => {
     if (selectedBusiness) {
-      if (selectedBusiness.google_maps_url) {
-        const preciseMatch = selectedBusiness.google_maps_url.match(/!3d(-?\d+\.?\d*)!4d(-?\d+\.?\d*)/);
-        const coordMatch = preciseMatch || selectedBusiness.google_maps_url.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
-        if (coordMatch) {
-          return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${coordMatch[1]},${coordMatch[2]}&zoom=17`;
-        }
-        const placeMatch = selectedBusiness.google_maps_url.match(/place\/([^\/]+)/);
-        if (placeMatch) {
-          const placeName = decodeURIComponent(placeMatch[1].replace(/\+/g, ' '));
-          return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(placeName)}&zoom=17`;
-        }
-      }
-      if (selectedBusiness.latitude && selectedBusiness.longitude) {
-        return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${selectedBusiness.latitude},${selectedBusiness.longitude}&zoom=17`;
-      }
-      const query = selectedBusiness.address
-        ? `${selectedBusiness.name}, ${selectedBusiness.address}`
-        : `${selectedBusiness.name}, ${selectedBusiness.city}, Maroc`;
+      // Using business name as query makes Google find the GMB listing and show the labeled red marker.
+      // Coordinates-only query (q=lat,lng) returns an unlabeled generic pin without the business name.
+      const query = selectedBusiness.name + (selectedBusiness.address ? `, ${selectedBusiness.address}` : "");
       return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(query)}&zoom=17`;
     }
     const centerParam = selectedCity !== "all" ? "" : "&center=31.7917,-7.0926";
