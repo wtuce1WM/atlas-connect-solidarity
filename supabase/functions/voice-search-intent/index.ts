@@ -35,8 +35,9 @@ Règles de traduction sémantique OBLIGATOIRES :
 - "se détendre", "relaxation", "soin", "massage", "bien-être" → "spa hammam"
 - "boire un verre", "prendre un café", "boire quelque chose" → "café bar"
 - "faire du shopping", "acheter", "trouver" + produit → garder le produit
-- "bord de l'eau", "bord de mer", "vue mer", "face à la mer", "front de mer" → "plage"
+- "bord de l'eau", "bord de mer", "vue mer", "face à la mer", "front de mer", "vue sur la mer", "coucher de soleil sur la mer", "coucher de soleil mer", "face à l'océan", "vue océan", "vue sur l'océan", "surplombant la mer", "donnant sur la mer" → "mer vue"
 - "en bord de plage", "les pieds dans le sable" → "plage"
+
 - "cadeau", "idée cadeau", "offrir" → "boutique cadeaux artisanat"
 - "activités", "que faire", "occuper" + enfants → "activités enfants"
 - "a fréquenté", "a visité", "aimait", "habitué de", "lieu de" + personnage → garder le nom du personnage comme mot-clé
@@ -65,7 +66,10 @@ Exemples :
 "trouve un plombier à Marrakech" → "plombier Marrakech"
 "je veux manger au bord de l'eau à Essaouira" → "restaurant plage Essaouira"
 "je cherche un restaurant sur la plage à Essaouira" → "restaurant plage Essaouira"
-"où manger avec vue sur la mer à Agadir" → "restaurant mer Agadir"
+"où manger avec vue sur la mer à Agadir" → "restaurant mer vue Agadir"
+"je cherche un hôtel avec un joli coucher de soleil sur la mer à Essaouira" → "hôtel mer vue Essaouira"
+"je cherche un hôtel avec vue sur la mer à Essaouira" → "hôtel mer vue Essaouira"
+
 "je veux boire un café face à l'océan à Essaouira" → "café plage Essaouira"
 "peut on manger du caviar à Marrakech" → "caviar restaurant Marrakech"
 "je cherche un hôtel qui accepte les animaux de compagnie" → "hôtel animaux"
