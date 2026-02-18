@@ -599,12 +599,12 @@ const SearchPage = () => {
                 <p className="text-white/50 text-sm mt-0.5">Appelez immédiatement si besoin d'aide médicale</p>
               </div>
               <div className="px-6 py-5 space-y-3">
-                <a href="tel:150" className="flex items-center justify-between rounded-xl border border-red-500/30 bg-red-500/5 px-4 py-3 hover:bg-red-500/10 transition-colors group">
+                <a href="tel:150" className="flex items-center justify-between rounded-xl border border-orange-500/30 bg-orange-500/5 px-4 py-3 hover:bg-orange-500/10 transition-colors group">
                   <div>
-                    <p className="text-white font-semibold text-sm">SAMU / Ambulance</p>
-                    <p className="text-white/40 text-xs">Service d'aide médicale d'urgence</p>
+                    <p className="text-white font-semibold text-sm">Pompiers / Secours</p>
+                    <p className="text-white/40 text-xs">Incendie, accidents, sauvetage</p>
                   </div>
-                  <span className="text-red-400 font-bold text-2xl group-hover:scale-110 transition-transform">150</span>
+                  <span className="text-orange-400 font-bold text-2xl group-hover:scale-110 transition-transform">150</span>
                 </a>
                 <a href="tel:190" className="flex items-center justify-between rounded-xl border border-orange-500/30 bg-orange-500/5 px-4 py-3 hover:bg-orange-500/10 transition-colors group">
                   <div>
@@ -644,12 +644,12 @@ const SearchPage = () => {
                 <p className="text-white/50 text-sm mt-0.5">Appelez immédiatement en cas d'incendie ou de danger</p>
               </div>
               <div className="px-6 py-5 space-y-3">
-                <a href="tel:15" className="flex items-center justify-between rounded-xl border border-orange-500/30 bg-orange-500/5 px-4 py-3 hover:bg-orange-500/10 transition-colors group">
+                <a href="tel:150" className="flex items-center justify-between rounded-xl border border-orange-500/30 bg-orange-500/5 px-4 py-3 hover:bg-orange-500/10 transition-colors group">
                   <div>
                     <p className="text-white font-semibold text-sm">Sapeurs-Pompiers</p>
                     <p className="text-white/40 text-xs">Incendie, secours et sauvetage</p>
                   </div>
-                  <span className="text-orange-400 font-bold text-2xl group-hover:scale-110 transition-transform">15</span>
+                  <span className="text-orange-400 font-bold text-2xl group-hover:scale-110 transition-transform">150</span>
                 </a>
                 <a href="tel:190" className="flex items-center justify-between rounded-xl border border-red-500/30 bg-red-500/5 px-4 py-3 hover:bg-red-500/10 transition-colors group">
                   <div>
