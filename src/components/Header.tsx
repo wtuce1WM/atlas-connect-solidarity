@@ -151,29 +151,6 @@ const Header = ({ variant = "default" }: HeaderProps) => {
           </span>
         </a>
 
-        {/* Search bar */}
-        <form onSubmit={handleSearch} className="flex-1 max-w-xl">
-          <div className="relative flex items-center">
-            <Search className="absolute left-3 h-4 w-4 text-white/40 pointer-events-none" />
-            <input
-              type="text"
-              value={searchValue}
-              onChange={(e) => setSearchValue(e.target.value)}
-              placeholder="Rechercher un établissement..."
-              className="w-full bg-white/10 border border-white/20 rounded-full pl-9 pr-10 py-2 text-sm text-white placeholder-white/40 outline-none focus:border-gold/60 focus:bg-white/15 transition-all"
-            />
-            <button
-              type="button"
-              onClick={toggleVoice}
-              disabled={voiceStatus === "processing"}
-              className="absolute right-2 p-1 rounded-full"
-              title="Recherche vocale"
-            >
-              {micIcon}
-            </button>
-          </div>
-        </form>
-
         {/* Menu Button */}
         <button className={`shrink-0 ${textColor}`} onClick={() => setIsMenuOpen(!isMenuOpen)}>
           {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -184,6 +161,29 @@ const Header = ({ variant = "default" }: HeaderProps) => {
       {isMenuOpen && (
         <div className="border-t border-white/10 bg-black/90 backdrop-blur-lg">
           <nav className="container mx-auto flex flex-col items-center gap-4 px-4 py-6">
+            {/* Search bar */}
+            <form onSubmit={handleSearch} className="w-full max-w-sm">
+              <div className="relative flex items-center">
+                <Search className="absolute left-3 h-4 w-4 text-white/40 pointer-events-none" />
+                <input
+                  type="text"
+                  value={searchValue}
+                  onChange={(e) => setSearchValue(e.target.value)}
+                  placeholder="Rechercher un établissement..."
+                  className="w-full bg-white/10 border border-white/20 rounded-full pl-9 pr-10 py-2 text-sm text-white placeholder-white/40 outline-none focus:border-gold/60 focus:bg-white/15 transition-all"
+                />
+                <button
+                  type="button"
+                  onClick={toggleVoice}
+                  disabled={voiceStatus === "processing"}
+                  className="absolute right-2 p-1 rounded-full"
+                  title="Recherche vocale"
+                >
+                  {micIcon}
+                </button>
+              </div>
+            </form>
+            <hr className="w-full border-white/20" />
             <Link to="/mission" className="text-white/90 transition-colors hover:text-gold">
               {t("footer.ourMission")}
             </Link>
