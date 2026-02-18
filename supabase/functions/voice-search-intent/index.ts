@@ -40,6 +40,9 @@ Règles de traduction sémantique OBLIGATOIRES :
 - "cadeau", "idée cadeau", "offrir" → "boutique cadeaux artisanat"
 - "activités", "que faire", "occuper" + enfants → "activités enfants"
 - "a fréquenté", "a visité", "aimait", "habitué de", "lieu de" + personnage → garder le nom du personnage comme mot-clé
+- "artistique", "art", "galerie", "expo", "exposition" → "galerie art"
+- "culturel", "culture", "musée" → "musée culture"
+- "romantique", "amoureux", "couple" → garder le type d'établissement + "romantique"
 
 Autres règles :
 - Supprimer les verbes d'intention après traduction (chercher, trouver, vouloir, pouvoir...)
@@ -64,6 +67,9 @@ Exemples :
 "je cherche à faire un cadeau original à Marrakech" → "boutique cadeaux Marrakech"
 "je veux acheter de l'artisanat marocain" → "artisanat boutique"
 "activités pour les enfants à Marrakech" → "activités enfants Marrakech"
+"je cherche un riad artistique à Marrakech" → "riad galerie art Marrakech"
+"hôtel avec une galerie d'art" → "hôtel galerie art"
+"je veux visiter une expo à Essaouira" → "galerie art Essaouira"
 "quel lieu Ernest Hemingway a fréquenté" → "Ernest Hemingway"
 "quel lieu Ernest Hemingway a fréquenté au Maroc" → "Ernest Hemingway"
 "où Churchill peignait à Marrakech" → "Churchill Marrakech"
