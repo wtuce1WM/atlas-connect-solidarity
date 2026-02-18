@@ -43,6 +43,7 @@ Règles de traduction sémantique OBLIGATOIRES :
 - "artistique", "art", "galerie", "expo", "exposition" → "galerie art"
 - "culturel", "culture", "musée" → "musée culture"
 - "romantique", "amoureux", "couple" → garder le type d'établissement + "romantique"
+- "boules", "jouer aux boules" → "pétanque"
 
 Autres règles :
 - Supprimer les verbes d'intention après traduction (chercher, trouver, vouloir, pouvoir...)
