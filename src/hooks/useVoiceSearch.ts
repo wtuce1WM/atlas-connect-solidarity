@@ -1,5 +1,4 @@
 import { useState, useRef, useCallback } from "react";
-import { supabase } from "@/integrations/supabase/client";
 
 type VoiceStatus = "idle" | "recording" | "processing" | "error";
 
@@ -37,11 +36,23 @@ export function useVoiceSearch({ onTranscript, onError }: UseVoiceSearchOptions)
           const formData = new FormData();
           formData.append("audio", blob, "recording.webm");
 
-          const { data, error } = await supabase.functions.invoke("elevenlabs-transcribe", {
+          const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+          const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+          const response = await fetch(`${supabaseUrl}/functions/v1/elevenlabs-transcribe`, {
+            method: "POST",
+            headers: {
+              apikey: supabaseKey,
+              Authorization: `Bearer ${supabaseKey}`,
+            },
             body: formData,
           });
 
-          if (error) throw error;
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+          }
+
+          const data = await response.json();
           if (data?.text) {
             onTranscript(data.text.trim());
           } else {
