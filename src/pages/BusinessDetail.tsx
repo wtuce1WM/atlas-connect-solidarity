@@ -386,7 +386,7 @@ const BusinessDetail = () => {
 
         {/* ===== MOSAIC IMAGE GALLERY ===== */}
         {!isValidatingImages && validImages.length > 0 && (
-          <div className={`mb-6 rounded-xl overflow-hidden ${validImages.length === 1 ? '-mx-4 lg:-mx-8' : ''}`}>
+          <div className="mb-6 rounded-xl overflow-hidden">
             {brokenImagesCount > 0 && (
               <div className="flex items-center gap-2 px-4 py-2 bg-amber-500/10 text-amber-600 text-sm">
                 <AlertTriangle className="h-4 w-4" />
@@ -395,13 +395,13 @@ const BusinessDetail = () => {
             )}
             {validImages.length === 1 ? (
               <div 
-                className={`aspect-[16/9] sm:h-[400px] lg:h-[480px] cursor-pointer overflow-hidden relative group ${isVerified ? 'bg-black' : 'bg-white'}`}
+                className={`aspect-[16/9] sm:h-[400px] lg:h-[480px] cursor-pointer overflow-hidden relative group flex justify-center ${isVerified ? 'bg-black' : 'bg-white'}`}
                 onClick={() => { setCurrentImageIndex(0); setIsLightboxOpen(true); }}
               >
                 <img
                   src={validImages[0]}
                   alt={`${business.name} - Image 1`}
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                 />
                 {isVerified && !isInstitution && (
                   <img 
@@ -483,8 +483,8 @@ const BusinessDetail = () => {
           </div>
         )}
         {isValidatingImages && business.images && business.images.length > 0 && (
-          <div className="mb-6 rounded-xl overflow-hidden bg-muted/40 flex items-center justify-center h-[60px]">
-            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+          <div className="mb-6 rounded-xl overflow-hidden bg-muted flex items-center justify-center h-[300px]">
+            <Loader2 className="h-6 w-6 animate-spin text-primary" />
           </div>
         )}
 
