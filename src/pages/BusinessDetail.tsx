@@ -395,7 +395,7 @@ const BusinessDetail = () => {
             )}
             {validImages.length === 1 ? (
               <div 
-                className={`aspect-[16/9] sm:h-[400px] lg:h-[480px] cursor-pointer overflow-hidden relative group flex justify-center ${isVerified ? 'bg-black' : 'bg-white'}`}
+                className={`aspect-[16/9] sm:h-[400px] lg:h-[480px] cursor-pointer overflow-hidden relative group ${isVerified ? 'bg-black' : 'bg-white'}`}
                 onClick={() => { setCurrentImageIndex(0); setIsLightboxOpen(true); }}
               >
                 <img
