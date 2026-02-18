@@ -120,6 +120,7 @@ const synonyms: Record<string, string[]> = {
   bar: ["bar", "café", "lounge", "boire", "cocktail"],
   cafe: ["café", "café", "coffee", "thé", "pâtisserie"],
   art: ["art", "galerie", "galerie d'art", "artistique", "exposition", "expo", "musee", "musée", "culture", "culturel"],
+  petanque: ["pétanque", "petanque", "boules", "boulodrome"],
 };
 
 // Villes marocaines connues pour la détection automatique dans la query
