@@ -40,6 +40,41 @@ declare global {
   }
 }
 
+// French + Arabic + English stopwords to strip from voice queries
+const FR_STOPWORDS = new Set([
+  "trouve", "trouver", "cherche", "chercher", "recherche", "rechercher",
+  "montrer", "montre", "affiche", "afficher", "je", "veux", "voudrais",
+  "besoin", "un", "une", "des", "le", "la", "les", "de", "du", "d",
+  "en", "à", "a", "au", "aux", "et", "ou", "sur", "pour", "par",
+  "avec", "dans", "me", "mon", "ma", "mes", "qui", "que", "quoi",
+  "est", "il", "elle", "ils", "elles", "near", "near me", "près",
+  "bonne", "bon", "bien", "meilleur", "meilleurs", "meilleures",
+]);
+
+function extractSearchKeywords(transcript: string): string {
+  const normalized = transcript
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // remove accents for comparison
+    .replace(/[^\w\s]/g, " ")
+    .trim();
+
+  const words = normalized.split(/\s+/).filter((w) => w.length > 1 && !FR_STOPWORDS.has(w));
+
+  // Reconstruct with original casing (keep original words for the search engine)
+  const originalWords = transcript
+    .replace(/[^\w\s\u00C0-\u024F\u0600-\u06FF]/g, " ")
+    .trim()
+    .split(/\s+/);
+
+  const kept = originalWords.filter((w) => {
+    const norm = w.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    return w.length > 1 && !FR_STOPWORDS.has(norm);
+  });
+
+  return kept.join(" ").trim() || transcript.trim();
+}
+
 export function useVoiceSearch({ onTranscript, onError, lang = "fr-FR" }: UseVoiceSearchOptions) {
   const [status, setStatus] = useState<VoiceStatus>("idle");
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
@@ -65,7 +100,8 @@ export function useVoiceSearch({ onTranscript, onError, lang = "fr-FR" }: UseVoi
     recognition.onresult = (event) => {
       const transcript = event.results[0]?.[0]?.transcript;
       if (transcript) {
-        onTranscript(transcript.trim());
+        const keywords = extractSearchKeywords(transcript);
+        onTranscript(keywords);
       } else {
         onError?.("Aucun texte détecté, réessayez.");
       }
