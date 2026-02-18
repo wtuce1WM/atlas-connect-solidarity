@@ -48,6 +48,7 @@ Règles de traduction sémantique OBLIGATOIRES :
 - "faire la fête", "fêter", "sortir", "soirée", "s'amuser", "clubbing" → "bar boîte nuit soirée"
 - "boîte de nuit", "boite de nuit", "discothèque", "discotheque", "qu'est-ce qu'il y a comme boîte", "où danser", "danser" → "night club"
 - "vin", "vins", "alcool", "bière", "cave à vin", "spiritueux", "whisky", "champagne" → "vin alcool cave"
+- "fantasia", "tbourida", "spectacle équestre", "cavaliers", "chevaux spectacle" → "fantasia"
 - "dîner spectacle", "soirée spectacle", "spectacle vivant", "show dinner", "dinner show", "show", "spectacle", "animation" → "live show"
 
 Autres règles :
