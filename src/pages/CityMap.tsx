@@ -408,28 +408,9 @@ const CityMap = () => {
   const getMapEmbedUrl = () => {
     // If a business is selected, show its location
     if (selectedBusiness) {
-      // Try to extract place ID or coordinates from google_maps_url
-      if (selectedBusiness.google_maps_url) {
-        // If URL contains coordinates (@lat,lng)
-        const coordMatch = selectedBusiness.google_maps_url.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
-        if (coordMatch) {
-          return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${coordMatch[1]},${coordMatch[2]}&zoom=17`;
-        }
-        // If URL contains place/, use place mode
-        const placeMatch = selectedBusiness.google_maps_url.match(/place\/([^\/]+)/);
-        if (placeMatch) {
-          const placeName = decodeURIComponent(placeMatch[1].replace(/\+/g, ' '));
-          return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(placeName)}&zoom=17`;
-        }
-      }
-      // Fallback to lat/lng if available
-      if (selectedBusiness.latitude && selectedBusiness.longitude) {
-        return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${selectedBusiness.latitude},${selectedBusiness.longitude}&zoom=17`;
-      }
-      // Last fallback: search by name and address
-      const query = selectedBusiness.address 
-        ? `${selectedBusiness.name}, ${selectedBusiness.address}`
-        : `${selectedBusiness.name}, ${selectedBusiness.city}, Maroc`;
+      // Using business name as query makes Google find the GMB listing and show the labeled red marker.
+      // Coordinates-only query (q=lat,lng) returns an unlabeled generic pin without the business name.
+      const query = selectedBusiness.name + (selectedBusiness.address ? `, ${selectedBusiness.address}` : "");
       return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(query)}&zoom=17`;
     }
 
