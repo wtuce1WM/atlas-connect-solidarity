@@ -18,17 +18,6 @@ interface GoogleMapEmbedProps {
   googleMapsUrl?: string | null;
 }
 
-/**
- * Extract the place_id from a Google Maps URL in the format used by the Embed API.
- * Google Maps URLs encode the place_id as !1s<hex_low>:<hex_high>
- * The Embed API accepts place_id in the original format via the maps URL itself.
- */
-const extractPlaceIdFromMapsUrl = (url: string): string | null => {
-  // Match !1s0x...:0x... pattern (hex place id)
-  const match = url.match(/!1s(0x[0-9a-fA-F]+:0x[0-9a-fA-F]+)/);
-  return match ? match[1] : null;
-};
-
 const extractMarkerCoordsFromMapsUrl = (url: string): { lat: number; lng: number } | null => {
   // !3d{lat}...!4d{lng} = actual pin coordinates (NOT viewport center @lat,lng)
   const match = url.match(/!3d(-?\d+\.\d+).*?!4d(-?\d+\.\d+)/);
@@ -40,17 +29,14 @@ const GoogleMapEmbed = ({ address, businessName, latitude, longitude, googleMaps
   const [activeView, setActiveView] = useState<"map" | "streetview">("map");
 
   const markerCoords = googleMapsUrl ? extractMarkerCoordsFromMapsUrl(googleMapsUrl) : null;
-  const placeId = googleMapsUrl ? extractPlaceIdFromMapsUrl(googleMapsUrl) : null;
 
+  // Priority: !3d!4d coords from URL > explicit GPS > text search
   const resolvedLat = markerCoords?.lat ?? latitude ?? null;
   const resolvedLng = markerCoords?.lng ?? longitude ?? null;
 
   const encodedAddress = encodeURIComponent(`${businessName}, ${address}`);
 
-  // Best: place_id gives exact GMB marker + name. Fallback: coordinates or text search.
-  const mapQuery = placeId
-    ? `place_id:${placeId}`
-    : resolvedLat && resolvedLng
+  const mapQuery = resolvedLat && resolvedLng
     ? `${resolvedLat},${resolvedLng}`
     : encodedAddress;
   const mapEmbedUrl = `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${mapQuery}&zoom=16`;
