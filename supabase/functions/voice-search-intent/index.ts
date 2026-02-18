@@ -47,6 +47,7 @@ Règles de traduction sémantique OBLIGATOIRES :
 - "glace", "glaces", "sorbet", "gelato", "crème glacée" → "glacier"
 - "faire la fête", "fêter", "sortir", "soirée", "s'amuser", "clubbing", "boîte de nuit", "discothèque" → "bar boîte nuit soirée"
 - "vin", "vins", "alcool", "bière", "cave à vin", "spiritueux", "whisky", "champagne" → "vin alcool cave"
+- "dîner spectacle", "soirée spectacle", "spectacle vivant", "show dinner", "dinner show", "show", "spectacle", "animation" → "live show"
 
 Autres règles :
 - Supprimer les verbes d'intention après traduction (chercher, trouver, vouloir, pouvoir...)
