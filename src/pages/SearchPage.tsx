@@ -63,6 +63,7 @@ const SearchPage = () => {
   const { language } = useLanguage();
   const { toast } = useToast();
   const [allBusinesses, setAllBusinesses] = useState<Business[]>([]);
+  const [searchLevel, setSearchLevel] = useState<string>("");
   const [searchMessage, setSearchMessage] = useState<string>("");
   const [citiesWithPriority, setCitiesWithPriority] = useState<{ name: string; priority: number }[]>([]);
   const [gammes, setGammes] = useState<Gamme[]>([]);
@@ -177,8 +178,16 @@ const SearchPage = () => {
         if (error) throw error;
         
         if (data) {
-          setAllBusinesses(data.businesses || []);
-          setSearchMessage(data.message || "");
+          setSearchLevel(data.searchLevel || "");
+          // Pour la recherche vocale, ne pas afficher le fallback "recommended"
+          const isVoiceSearch = !!searchParams.get("spoken");
+          if (isVoiceSearch && data.searchLevel === "recommended") {
+            setAllBusinesses([]);
+            setSearchMessage("");
+          } else {
+            setAllBusinesses(data.businesses || []);
+            setSearchMessage(data.message || "");
+          }
         }
       } catch (error) {
         console.error("Error fetching search data:", error);
