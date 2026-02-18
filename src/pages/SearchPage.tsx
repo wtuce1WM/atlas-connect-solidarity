@@ -1,5 +1,6 @@
 import { useSearchParams, Link } from "react-router-dom";
 import { useEffect, useState, useMemo } from "react";
+import zitounMaskImg from "@/assets/zitoun-mask.jpg";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
@@ -57,6 +58,16 @@ interface SearchResult {
 }
 
 const ITEMS_PER_PAGE = 20;
+
+const isZitounMask = (query: string) => {
+  const normalized = query.toLowerCase().replace(/\s+/g, " ").trim();
+  return (
+    normalized.includes("zitoun mask") ||
+    normalized.includes("zitoun musk") ||
+    normalized.includes("zitoun mas") ||
+    normalized.includes("zitoun mus")
+  );
+};
 
 const SearchPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -201,8 +212,6 @@ const SearchPage = () => {
     fetchData();
   }, [searchQuery, language]);
 
-  // getBusinessImage removed - handled by BusinessCard
-
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (inputValue.trim()) {
@@ -287,6 +296,8 @@ const SearchPage = () => {
 
   const startResult = (currentPage - 1) * ITEMS_PER_PAGE + 1;
   const endResult = Math.min(currentPage * ITEMS_PER_PAGE, filteredBusinesses.length);
+
+  const showZitounEasterEgg = !isLoading && isZitounMask(spokenText || searchQuery);
 
   return (
     <div className="min-h-screen bg-background">
@@ -373,17 +384,34 @@ const SearchPage = () => {
             </div>
           )}
 
+          {/* Easter egg: Zitoun Mask/Musk */}
+          {showZitounEasterEgg && (
+            <div className="flex flex-col items-center mb-10">
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-gold/30 max-w-md w-full">
+                <img
+                  src={zitounMaskImg}
+                  alt="Zitoun Mask"
+                  className="w-full object-cover"
+                />
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent px-4 py-3">
+                  <p className="text-gold font-semibold text-lg">Zitoun Mask</p>
+                  <p className="text-white/70 text-sm">Le légendaire habitué du Zitoun</p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {isLoading ? (
             <div className="flex items-center justify-center py-16">
               <Loader2 className="h-12 w-12 animate-spin text-gold" />
             </div>
-          ) : filteredBusinesses.length === 0 ? (
+          ) : filteredBusinesses.length === 0 && !showZitounEasterEgg ? (
             <div className="text-center py-16">
               <Building2 className="h-16 w-16 text-gray-600 mx-auto mb-4" />
               <p className="text-xl text-gray-400 mb-2">{t.noResults}</p>
               <p className="text-sm text-gray-500">{t.tryAnother}</p>
             </div>
-          ) : (
+          ) : filteredBusinesses.length > 0 ? (
             <>
               {/* Results Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -459,15 +487,10 @@ const SearchPage = () => {
                       <ChevronRight className="h-4 w-4" />
                     </Button>
                   </div>
-
-                  {/* Page indicator */}
-                  <p className="text-xs text-gray-500">
-                    {t.page} {currentPage} {t.of} {totalPages}
-                  </p>
                 </div>
               )}
             </>
-          )}
+          ) : null}
         </div>
       </section>
 
