@@ -10,34 +10,55 @@ interface GoogleMapEmbedProps {
   longitude?: number | null;
 }
 
-const GoogleMapEmbed = ({ address, businessName, latitude, longitude }: GoogleMapEmbedProps) => {
+interface GoogleMapEmbedProps {
+  address: string;
+  businessName: string;
+  latitude?: number | null;
+  longitude?: number | null;
+  googleMapsUrl?: string | null;
+}
+
+const extractCoordsFromMapsUrl = (url: string): { lat: number; lng: number } | null => {
+  // Extract !3d{lat}!4d{lng} — the actual marker coordinates
+  const match = url.match(/!3d(-?\d+\.?\d*).*?!4d(-?\d+\.?\d*)/);
+  if (match) return { lat: parseFloat(match[1]), lng: parseFloat(match[2]) };
+  // Fallback: @lat,lng (viewport center)
+  const atMatch = url.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+  if (atMatch) return { lat: parseFloat(atMatch[1]), lng: parseFloat(atMatch[2]) };
+  return null;
+};
+
+const GoogleMapEmbed = ({ address, businessName, latitude, longitude, googleMapsUrl }: GoogleMapEmbedProps) => {
   const [activeView, setActiveView] = useState<"map" | "streetview">("map");
+
+  // Priority: explicit GPS > extracted from google_maps_url > address text query
+  const extractedCoords = (!latitude || !longitude) && googleMapsUrl
+    ? extractCoordsFromMapsUrl(googleMapsUrl)
+    : null;
+
+  const resolvedLat = latitude || extractedCoords?.lat || null;
+  const resolvedLng = longitude || extractedCoords?.lng || null;
 
   const fullAddress = `${businessName}, ${address}`;
   const encodedAddress = encodeURIComponent(fullAddress);
-  
-  // Use coordinates if available, otherwise use address
-  const locationQuery = latitude && longitude 
-    ? `${latitude},${longitude}` 
-    : encodedAddress;
 
   // Google Maps Embed URLs
-  const mapQuery = latitude && longitude 
-    ? `${latitude},${longitude}` 
+  const mapQuery = resolvedLat && resolvedLng
+    ? `${resolvedLat},${resolvedLng}`
     : encodedAddress;
   const mapEmbedUrl = `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${mapQuery}&zoom=16`;
-  const streetViewEmbedUrl = `https://www.google.com/maps/embed/v1/streetview?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&location=${latitude || 31.6295},${longitude || -7.9811}&heading=0&pitch=0&fov=90`;
+  const streetViewEmbedUrl = `https://www.google.com/maps/embed/v1/streetview?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&location=${resolvedLat || 31.6295},${resolvedLng || -7.9811}&heading=0&pitch=0&fov=90`;
 
   const handleGetDirections = () => {
-    const destination = latitude && longitude 
-      ? `${latitude},${longitude}` 
+    const destination = resolvedLat && resolvedLng
+      ? `${resolvedLat},${resolvedLng}`
       : encodedAddress;
     window.open(`https://www.google.com/maps/dir/?api=1&destination=${destination}`, "_blank");
   };
 
   const handleOpenInMaps = () => {
-    const query = latitude && longitude 
-      ? `${latitude},${longitude}` 
+    const query = resolvedLat && resolvedLng
+      ? `${resolvedLat},${resolvedLng}`
       : encodedAddress;
     window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, "_blank");
   };
