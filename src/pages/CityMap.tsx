@@ -506,7 +506,7 @@ const CityMap = () => {
         {/* Map + Business list - Full width */}
         <div id="city-map-anchor" className="scroll-mt-24" />
         <div className="space-y-6">
-          <div className={`overflow-hidden rounded-lg ${selectedBusiness ? 'shadow-xl shadow-gold/20 ring-2 ring-gold/30 animate-map-unfold' : ''}`}>
+          <div className={`overflow-hidden rounded-lg ${selectedBusiness ? 'shadow-xl shadow-gold/20 ring-2 ring-gold/30' : ''}`}>
             <Card className="relative border-0 h-[400px] sm:h-[500px] overflow-hidden">
               <CardContent className="p-0 relative h-full">
                 {selectedBusiness && (

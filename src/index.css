@@ -152,27 +152,8 @@ h3 {
   flex-direction: row-reverse;
 }
 
-@keyframes map-unfold {
-  0% {
-    max-height: 0;
-    opacity: 0;
-    transform: perspective(800px) rotateX(-15deg) scaleY(0.3);
-    transform-origin: top center;
-  }
-  40% {
-    opacity: 0.7;
-    transform: perspective(800px) rotateX(-5deg) scaleY(0.7);
-  }
-  100% {
-    max-height: 700px;
-    opacity: 1;
-    transform: perspective(800px) rotateX(0deg) scaleY(1);
-  }
-}
-
-
 .animate-map-unfold {
-  animation: map-unfold 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  /* no animation */
 }
 
 @keyframes marquee {
