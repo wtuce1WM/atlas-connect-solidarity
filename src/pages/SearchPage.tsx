@@ -92,6 +92,27 @@ const isSosMedecinQuery = (query: string) => {
   );
 };
 
+const isPompiersQuery = (query: string) => {
+  const normalized = query.toLowerCase().replace(/\s+/g, " ").trim();
+  return (
+    normalized.includes("pompier") ||
+    normalized.includes("incendie") ||
+    normalized.includes("feu de") ||
+    normalized.includes("il y a le feu") ||
+    normalized.includes("ça brûle") ||
+    normalized.includes("ca brule") ||
+    normalized.includes("tout brûle") ||
+    normalized.includes("maison en feu") ||
+    normalized.includes("voiture en feu") ||
+    normalized.includes("feu de forêt") ||
+    normalized.includes("feu de foret") ||
+    normalized.includes("appeler les pompiers") ||
+    normalized.includes("sapeurs") ||
+    normalized.includes("brigade") ||
+    normalized.includes("protection civile feu")
+  );
+};
+
 const isCelebrityQuery = (query: string) => {
   const normalized = query.toLowerCase().replace(/\s+/g, " ").trim();
   return (
@@ -442,6 +463,7 @@ const SearchPage = () => {
   const showZitounEasterEgg = !isLoading && isZitounMask(spokenText || searchQuery);
   const showCelebrityGuide = !isLoading && isCelebrityQuery(spokenText || searchQuery);
   const showSosMedecin = !isLoading && isSosMedecinQuery(spokenText || searchQuery);
+  const showPompiers = !isLoading && isPompiersQuery(spokenText || searchQuery);
 
   return (
     <div className="min-h-screen bg-background">
@@ -612,17 +634,62 @@ const SearchPage = () => {
             </div>
           )}
 
+          {/* Easter egg: Pompiers */}
+          {showPompiers && (
+            <div className="max-w-lg mx-auto mb-10 rounded-2xl overflow-hidden border border-orange-500/40 shadow-2xl bg-gradient-to-br from-black to-zinc-900">
+              <div className="px-6 py-5 border-b border-orange-500/20 bg-gradient-to-r from-orange-500/10 to-transparent">
+                <p className="text-orange-400 font-semibold text-lg flex items-center gap-2">
+                  🔥 Pompiers — Numéros d'urgence au Maroc
+                </p>
+                <p className="text-white/50 text-sm mt-0.5">Appelez immédiatement en cas d'incendie ou de danger</p>
+              </div>
+              <div className="px-6 py-5 space-y-3">
+                <a href="tel:15" className="flex items-center justify-between rounded-xl border border-orange-500/30 bg-orange-500/5 px-4 py-3 hover:bg-orange-500/10 transition-colors group">
+                  <div>
+                    <p className="text-white font-semibold text-sm">Sapeurs-Pompiers</p>
+                    <p className="text-white/40 text-xs">Incendie, secours et sauvetage</p>
+                  </div>
+                  <span className="text-orange-400 font-bold text-2xl group-hover:scale-110 transition-transform">15</span>
+                </a>
+                <a href="tel:190" className="flex items-center justify-between rounded-xl border border-red-500/30 bg-red-500/5 px-4 py-3 hover:bg-red-500/10 transition-colors group">
+                  <div>
+                    <p className="text-white font-semibold text-sm">Protection Civile</p>
+                    <p className="text-white/40 text-xs">Secours d'urgence et catastrophes</p>
+                  </div>
+                  <span className="text-red-400 font-bold text-2xl group-hover:scale-110 transition-transform">190</span>
+                </a>
+                <a href="tel:19" className="flex items-center justify-between rounded-xl border border-blue-500/30 bg-blue-500/5 px-4 py-3 hover:bg-blue-500/10 transition-colors group">
+                  <div>
+                    <p className="text-white font-semibold text-sm">Police Secours</p>
+                    <p className="text-white/40 text-xs">Urgences police</p>
+                  </div>
+                  <span className="text-blue-400 font-bold text-2xl group-hover:scale-110 transition-transform">19</span>
+                </a>
+                <a href="tel:177" className="flex items-center justify-between rounded-xl border border-yellow-500/30 bg-yellow-500/5 px-4 py-3 hover:bg-yellow-500/10 transition-colors group">
+                  <div>
+                    <p className="text-white font-semibold text-sm">Gendarmerie Royale</p>
+                    <p className="text-white/40 text-xs">Zones rurales et périurbaines</p>
+                  </div>
+                  <span className="text-yellow-400 font-bold text-2xl group-hover:scale-110 transition-transform">177</span>
+                </a>
+              </div>
+              <div className="px-6 py-3 border-t border-orange-500/20 bg-orange-500/5">
+                <p className="text-white/30 text-xs italic">En cas d'incendie, évacuez immédiatement et composez le 15. N'essayez pas d'éteindre un feu important seul.</p>
+              </div>
+            </div>
+          )}
+
           {isLoading ? (
             <div className="flex items-center justify-center py-16">
               <Loader2 className="h-12 w-12 animate-spin text-gold" />
             </div>
-          ) : filteredBusinesses.length === 0 && !showZitounEasterEgg && !showCelebrityGuide && !showSosMedecin ? (
+          ) : filteredBusinesses.length === 0 && !showZitounEasterEgg && !showCelebrityGuide && !showSosMedecin && !showPompiers ? (
             <div className="text-center py-16">
               <Building2 className="h-16 w-16 text-gray-600 mx-auto mb-4" />
               <p className="text-xl text-gray-400 mb-2">{t.noResults}</p>
               <p className="text-sm text-gray-500">{t.tryAnother}</p>
             </div>
-          ) : !showCelebrityGuide && !showSosMedecin && filteredBusinesses.length > 0 ? (
+          ) : !showCelebrityGuide && !showSosMedecin && !showPompiers && filteredBusinesses.length > 0 ? (
             <>
               {/* Results Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
