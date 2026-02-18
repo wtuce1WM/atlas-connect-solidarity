@@ -13,8 +13,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Building2, ChevronLeft, ChevronRight, Search } from "lucide-react";
+import { Loader2, Building2, ChevronLeft, ChevronRight, Search, Mic, MicOff, Loader } from "lucide-react";
 import BusinessCard, { type BusinessCardData, type Gamme, type Badge, type SubcategoryRef, type BadgeSubcategoryRef } from "@/components/BusinessCard";
+import { useVoiceSearch } from "@/hooks/useVoiceSearch";
+import { useToast } from "@/hooks/use-toast";
 
 interface Business {
   id: string;
@@ -59,6 +61,7 @@ const ITEMS_PER_PAGE = 20;
 const SearchPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { language } = useLanguage();
+  const { toast } = useToast();
   const [allBusinesses, setAllBusinesses] = useState<Business[]>([]);
   const [searchMessage, setSearchMessage] = useState<string>("");
   const [citiesWithPriority, setCitiesWithPriority] = useState<{ name: string; priority: number }[]>([]);
@@ -71,6 +74,17 @@ const SearchPage = () => {
   const [selectedCity, setSelectedCity] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
   const [inputValue, setInputValue] = useState(searchParams.get("q") || "");
+
+  const { status: voiceStatus, toggleRecording } = useVoiceSearch({
+    onTranscript: (text) => {
+      setInputValue(text);
+      setSearchQuery(text);
+      setSearchParams({ q: text });
+    },
+    onError: (message) => {
+      toast({ variant: "destructive", title: "Erreur microphone", description: message });
+    },
+  });
 
   // Get cities available in results, sorted by priority score
   const availableCities = useMemo(() => {
@@ -289,8 +303,29 @@ const SearchPage = () => {
                 placeholder={t.placeholder}
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                className="w-full pl-12 pr-4 py-6 text-lg bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-full"
+                className="w-full pl-12 pr-14 py-6 text-lg bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-full"
               />
+              <button
+                type="button"
+                onClick={toggleRecording}
+                disabled={voiceStatus === "processing"}
+                title={voiceStatus === "recording" ? "Arrêter l'enregistrement" : "Recherche vocale"}
+                className={`absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center w-10 h-10 rounded-full transition-all duration-200 ${
+                  voiceStatus === "recording"
+                    ? "bg-destructive text-destructive-foreground animate-pulse shadow-lg shadow-destructive/40"
+                    : voiceStatus === "processing"
+                    ? "bg-gold/20 text-gold cursor-wait"
+                    : "bg-gold/10 text-gold hover:bg-gold/20"
+                }`}
+              >
+                {voiceStatus === "processing" ? (
+                  <Loader className="h-4 w-4 animate-spin" />
+                ) : voiceStatus === "recording" ? (
+                  <MicOff className="h-4 w-4" />
+                ) : (
+                  <Mic className="h-4 w-4" />
+                )}
+              </button>
             </div>
           </form>
 
