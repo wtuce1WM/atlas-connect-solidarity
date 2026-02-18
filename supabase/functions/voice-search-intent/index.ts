@@ -45,6 +45,7 @@ Règles de traduction sémantique OBLIGATOIRES :
 - "romantique", "amoureux", "couple" → garder le type d'établissement + "romantique"
 - "boules", "jouer aux boules" → "pétanque"
 - "glace", "glaces", "sorbet", "gelato", "crème glacée" → "glacier"
+- "faire la fête", "fêter", "sortir", "soirée", "s'amuser", "clubbing", "boîte de nuit", "discothèque" → "bar boîte nuit soirée"
 
 Autres règles :
 - Supprimer les verbes d'intention après traduction (chercher, trouver, vouloir, pouvoir...)
@@ -76,7 +77,9 @@ Exemples :
 "quel lieu Ernest Hemingway a fréquenté au Maroc" → "Ernest Hemingway"
 "où Churchill peignait à Marrakech" → "Churchill Marrakech"
 "restaurant typique marocain" → "restaurant typique"
-"café traditionnel au maroc" → "café traditionnel"`;
+"café traditionnel au maroc" → "café traditionnel"
+"je cherche un endroit pour faire la fête à Marrakech" → "bar boîte nuit soirée Marrakech"
+"où sortir le soir à Essaouira" → "bar boîte nuit soirée Essaouira"`;
 
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
