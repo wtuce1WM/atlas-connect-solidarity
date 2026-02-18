@@ -553,7 +553,7 @@ const SearchPage = () => {
               <p className="text-xl text-gray-400 mb-2">{t.noResults}</p>
               <p className="text-sm text-gray-500">{t.tryAnother}</p>
             </div>
-          ) : filteredBusinesses.length > 0 ? (
+          ) : !showCelebrityGuide && filteredBusinesses.length > 0 ? (
             <>
               {/* Results Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
