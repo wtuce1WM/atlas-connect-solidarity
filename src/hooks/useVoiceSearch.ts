@@ -15,6 +15,7 @@ interface SpeechRecognitionConstructor {
 interface SpeechRecognitionInstance {
   lang: string;
   interimResults: boolean;
+  continuous: boolean;
   maxAlternatives: number;
   start(): void;
   stop(): void;
@@ -64,15 +65,42 @@ async function extractSearchIntent(transcript: string): Promise<string> {
   }
 }
 
+const SILENCE_DELAY_MS = 2000;
+
 export function useVoiceSearch({ onTranscript, onError, lang = "fr-FR" }: UseVoiceSearchOptions) {
   const [status, setStatus] = useState<VoiceStatus>("idle");
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
+  const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const accumulatedTranscriptRef = useRef<string>("");
 
   // Garder les callbacks en ref pour éviter les problèmes de closure dans les handlers async
   const onTranscriptRef = useRef(onTranscript);
   const onErrorRef = useRef(onError);
   useEffect(() => { onTranscriptRef.current = onTranscript; }, [onTranscript]);
   useEffect(() => { onErrorRef.current = onError; }, [onError]);
+
+  const clearSilenceTimer = useCallback(() => {
+    if (silenceTimerRef.current) {
+      clearTimeout(silenceTimerRef.current);
+      silenceTimerRef.current = null;
+    }
+  }, []);
+
+  const processTranscript = useCallback(async (transcript: string) => {
+    if (!transcript.trim()) {
+      setStatus("idle");
+      onErrorRef.current?.("Aucun texte détecté, réessayez.");
+      return;
+    }
+    setStatus("processing");
+    const keywords = await extractSearchIntent(transcript);
+    setStatus("idle");
+    if (keywords) {
+      onTranscriptRef.current(keywords, transcript);
+    } else {
+      onErrorRef.current?.("Aucun texte détecté, réessayez.");
+    }
+  }, []);
 
   const startRecording = useCallback(() => {
     const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -83,36 +111,51 @@ export function useVoiceSearch({ onTranscript, onError, lang = "fr-FR" }: UseVoi
       return;
     }
 
+    accumulatedTranscriptRef.current = "";
+    clearSilenceTimer();
+
     const recognition = new SpeechRecognitionAPI();
     recognition.lang = lang;
-    recognition.interimResults = false;
+    recognition.interimResults = true;
+    recognition.continuous = true;
     recognition.maxAlternatives = 1;
 
     recognition.onstart = () => {
       setStatus("recording");
     };
 
-    recognition.onresult = async (event) => {
-      const transcript = event.results[0]?.[0]?.transcript;
-      recognitionRef.current = null;
-      if (transcript) {
-        setStatus("processing");
-        const keywords = await extractSearchIntent(transcript);
-        setStatus("idle");
-        if (keywords) {
-          onTranscriptRef.current(keywords, transcript);
-        } else {
-          onErrorRef.current?.("Aucun texte détecté, réessayez.");
+    recognition.onresult = (event) => {
+      // Accumuler uniquement les résultats finaux
+      let finalTranscript = "";
+      for (let i = 0; i < event.results.length; i++) {
+        if (event.results[i].isFinal) {
+          finalTranscript += event.results[i][0].transcript + " ";
         }
-      } else {
-        setStatus("idle");
-        onErrorRef.current?.("Aucun texte détecté, réessayez.");
       }
+
+      if (finalTranscript.trim()) {
+        accumulatedTranscriptRef.current = finalTranscript.trim();
+      }
+
+      // Réinitialiser le timer de silence à chaque nouveau résultat
+      clearSilenceTimer();
+      silenceTimerRef.current = setTimeout(() => {
+        // 2 secondes de silence → arrêter et traiter
+        if (recognitionRef.current) {
+          recognitionRef.current.stop();
+          recognitionRef.current = null;
+        }
+        const transcript = accumulatedTranscriptRef.current;
+        accumulatedTranscriptRef.current = "";
+        processTranscript(transcript);
+      }, SILENCE_DELAY_MS);
     };
 
     recognition.onerror = (event) => {
       console.error("Speech recognition error:", event.error);
+      clearSilenceTimer();
       recognitionRef.current = null;
+      accumulatedTranscriptRef.current = "";
       if (event.error === "not-allowed") {
         onErrorRef.current?.("Accès au microphone refusé.");
       } else if (event.error === "no-speech") {
@@ -124,24 +167,34 @@ export function useVoiceSearch({ onTranscript, onError, lang = "fr-FR" }: UseVoi
     };
 
     recognition.onend = () => {
-      // onend est toujours appelé en dernier — si onresult n'a pas mis null, on nettoie
+      // Si onend arrive sans que le timer ait déclenché (fin naturelle), on traite
       if (recognitionRef.current !== null) {
         recognitionRef.current = null;
+      }
+      // Si un transcript accumulé existe et que le timer n'a pas encore déclenché, on traite immédiatement
+      clearSilenceTimer();
+      const transcript = accumulatedTranscriptRef.current;
+      accumulatedTranscriptRef.current = "";
+      if (transcript) {
+        processTranscript(transcript);
+      } else if (status === "recording") {
         setStatus("idle");
       }
     };
 
     recognitionRef.current = recognition;
     recognition.start();
-  }, [lang]);
+  }, [lang, clearSilenceTimer, processTranscript, status]);
 
   const stopRecording = useCallback(() => {
+    clearSilenceTimer();
+    accumulatedTranscriptRef.current = "";
     if (recognitionRef.current) {
       recognitionRef.current.stop();
       recognitionRef.current = null;
-      setStatus("idle");
     }
-  }, []);
+    setStatus("idle");
+  }, [clearSilenceTimer]);
 
   const toggleRecording = useCallback(() => {
     if (status === "recording") {
