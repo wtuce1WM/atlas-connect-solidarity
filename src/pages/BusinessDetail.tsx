@@ -386,7 +386,7 @@ const BusinessDetail = () => {
 
         {/* ===== MOSAIC IMAGE GALLERY ===== */}
         {!isValidatingImages && validImages.length > 0 && (
-          <div className="mb-6 rounded-xl overflow-hidden">
+          <div className={`mb-6 rounded-xl overflow-hidden ${validImages.length === 1 ? '-mx-4 lg:-mx-8' : ''}`}>
             {brokenImagesCount > 0 && (
               <div className="flex items-center gap-2 px-4 py-2 bg-amber-500/10 text-amber-600 text-sm">
                 <AlertTriangle className="h-4 w-4" />
