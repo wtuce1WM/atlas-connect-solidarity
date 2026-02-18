@@ -150,6 +150,22 @@ const CelebrityGuide = () => (
   </div>
 );
 
+// IDs des établissements du guide célébrités (dans l'ordre d'affichage souhaité)
+const CELEBRITY_IDS = [
+  "3bb71910-c17e-4ce1-a130-42c369a645a7", // La Mamounia
+  "0961b2f5-c259-483a-b877-3d251acdbbd9", // Royal Mansour
+  "e7019579-408a-4b3c-90d7-41c6dbff9063", // Amanjena
+  "590225e3-0887-4d79-a8f6-571ac148cca5", // Mandarin Oriental
+  "641ab942-63a5-499e-999a-e09915b1d02f", // Boutique El Fenn
+  "5b09bebd-7cb5-4698-b447-bf5f198811f4", // Selman Marrakech
+  "c5a21f81-94fc-4b5e-8f89-822a43dabdec", // Nobu Marrakech
+  "da42a132-4948-4c5f-afa3-f0b37df6811e", // Dar Yacout
+  "c6af063a-0636-4746-bd14-50060721e5f5", // Restaurant Le Jardin
+  "d04e2a2b-faa4-4675-b861-c8f90df30c7f", // Rooftop Bar El Fenn
+  "be0d6bbb-6daa-4f25-b5c6-32c3650e7f6d", // Theatro Marrakech
+  "21dfaabb-56fe-4da0-9942-34b2803465cf", // Comptoir Darna
+];
+
 const SearchPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { language } = useLanguage();
@@ -167,6 +183,7 @@ const SearchPage = () => {
   const [selectedCity, setSelectedCity] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
   const [inputValue, setInputValue] = useState(searchParams.get("q") || "");
+  const [celebrityBusinesses, setCelebrityBusinesses] = useState<Business[]>([]);
 
   const spokenText = searchParams.get("spoken") || "";
 
@@ -292,6 +309,25 @@ const SearchPage = () => {
 
     fetchData();
   }, [searchQuery, language]);
+
+  // Fetch celebrity businesses on mount (used when celebrity query detected)
+  useEffect(() => {
+    supabase
+      .from("businesses")
+      .select("*")
+      .in("id", CELEBRITY_IDS)
+      .then(({ data }) => {
+        if (data) {
+          // Preserve the manual ordering from CELEBRITY_IDS
+          const ordered = CELEBRITY_IDS
+            .map(id => data.find(b => b.id === id))
+            .filter(Boolean)
+            .map(b => ({ ...b, distance_km: null })) as Business[];
+          setCelebrityBusinesses(ordered);
+        }
+      });
+  }, []);
+
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -484,7 +520,26 @@ const SearchPage = () => {
           )}
 
           {/* Easter egg: Celebrity Guide */}
-          {showCelebrityGuide && <CelebrityGuide />}
+          {showCelebrityGuide && (
+            <>
+              <CelebrityGuide />
+              {celebrityBusinesses.length > 0 && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-6">
+                  {celebrityBusinesses.map((business) => (
+                    <BusinessCard
+                      key={business.id}
+                      business={business as BusinessCardData}
+                      gammes={gammes}
+                      badges={badges}
+                      subcategories={subcategories}
+                      badgeSubcategories={badgeSubcategories}
+                      verifiedLabel={t.verified}
+                    />
+                  ))}
+                </div>
+              )}
+            </>
+          )}
 
           {isLoading ? (
             <div className="flex items-center justify-center py-16">
