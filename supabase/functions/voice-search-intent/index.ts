@@ -46,6 +46,7 @@ Règles de traduction sémantique OBLIGATOIRES :
 - "boules", "jouer aux boules" → "pétanque"
 - "glace", "glaces", "sorbet", "gelato", "crème glacée" → "glacier"
 - "faire la fête", "fêter", "sortir", "soirée", "s'amuser", "clubbing", "boîte de nuit", "discothèque" → "bar boîte nuit soirée"
+- "vin", "vins", "alcool", "bière", "cave à vin", "spiritueux", "whisky", "champagne" → "vin alcool cave"
 
 Autres règles :
 - Supprimer les verbes d'intention après traduction (chercher, trouver, vouloir, pouvoir...)
