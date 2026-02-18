@@ -122,6 +122,7 @@ const synonyms: Record<string, string[]> = {
   art: ["art", "galerie", "galerie d'art", "artistique", "exposition", "expo", "musee", "musée", "culture", "culturel"],
   petanque: ["pétanque", "petanque", "boules", "boulodrome"],
   glacier: ["glacier", "glace", "glaces", "sorbet", "gelato", "creme glacee", "crème glacée"],
+  boite: ["boîte", "boite", "boîte de nuit", "discothèque", "discotheque", "nightclub", "clubbing", "soirée", "sortir", "fête", "fete"],
 };
 
 // Villes marocaines connues pour la détection automatique dans la query
