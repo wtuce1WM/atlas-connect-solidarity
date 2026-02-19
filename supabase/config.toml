@@ -1,5 +1,8 @@
 project_id = "plnphgdrawpsnumnejzc"
 
+[functions.test-trustpilot]
+verify_jwt = false
+
 [functions.hotel-meta-search]
 verify_jwt = false
 
