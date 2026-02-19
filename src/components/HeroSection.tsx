@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { LayoutGrid, BedDouble, UtensilsCrossed, Mountain, Sparkles, ShoppingBag, Search, Mic, Loader2 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
@@ -259,6 +259,15 @@ const HeroSection = () => {
             </div>
           </div>
         </form>
+
+        {/* Listez votre entreprise */}
+        <p className="text-lg md:text-xl text-white/80 font-medium">
+          {language === "fr"
+            ? <>Listez votre <Link to="/devenir-affilie" className="text-gold hover:underline font-bold">entreprise</Link></>
+            : language === "ar"
+              ? <>أدرج <Link to="/devenir-affilie" className="text-gold hover:underline font-bold">شركتك</Link></>
+              : <>List your <Link to="/devenir-affilie" className="text-gold hover:underline font-bold">business</Link></>}
+        </p>
 
       </div>
     </section>
