@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { MapPin, Building2, Crown, ChevronRight, ChevronLeft, Loader2, Search, Star } from "lucide-react";
+import { MapPin, Building2, Crown, ChevronRight, ChevronLeft, Loader2, Search, Star, LayoutGrid, BedDouble, UtensilsCrossed, Mountain, Sparkles } from "lucide-react";
 import DynamicIcon from "@/components/DynamicIcon";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -253,27 +253,28 @@ const HeroSection = () => {
         {/* Search Bar */}
         <form onSubmit={handleSearch} className="w-full max-w-2xl mb-10">
           {/* Category Tabs */}
-          <div className="flex items-center justify-center gap-1 mb-4 flex-wrap">
+          <div className="flex items-center justify-center gap-2 mb-4 flex-wrap">
             {[
-              { key: "all", labelFr: "Tout", labelEn: "All", labelAr: "الكل" },
-              { key: "Hôtellerie", labelFr: "Hôtels", labelEn: "Hotels", labelAr: "فنادق" },
-              { key: "Restauration", labelFr: "Restaurants", labelEn: "Restaurants", labelAr: "مطاعم" },
-              { key: "Tourisme", labelFr: "Activités", labelEn: "Activities", labelAr: "أنشطة" },
-              { key: "Bien-être", labelFr: "Bien-être", labelEn: "Wellness", labelAr: "رفاهية" },
-            ].map((tab) => {
-              const isActive = searchCategory === tab.key;
-              const label = language === "en" ? tab.labelEn : language === "ar" ? tab.labelAr : tab.labelFr;
+              { key: "all", labelFr: "Tout", labelEn: "All", labelAr: "الكل", Icon: LayoutGrid },
+              { key: "Hôtellerie", labelFr: "Hôtels", labelEn: "Hotels", labelAr: "فنادق", Icon: BedDouble },
+              { key: "Restauration", labelFr: "Restaurants", labelEn: "Restaurants", labelAr: "مطاعم", Icon: UtensilsCrossed },
+              { key: "Tourisme", labelFr: "Activités", labelEn: "Activities", labelAr: "أنشطة", Icon: Mountain },
+              { key: "Bien-être", labelFr: "Bien-être", labelEn: "Wellness", labelAr: "رفاهية", Icon: Sparkles },
+            ].map(({ key, labelFr, labelEn, labelAr, Icon }) => {
+              const isActive = searchCategory === key;
+              const label = language === "en" ? labelEn : language === "ar" ? labelAr : labelFr;
               return (
                 <button
-                  key={tab.key}
+                  key={key}
                   type="button"
-                  onClick={() => setSearchCategory(tab.key)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                  onClick={() => setSearchCategory(key)}
+                  className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-all ${
                     isActive
                       ? "bg-gold text-black shadow-md"
                       : "bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm"
                   }`}
                 >
+                  <Icon className="h-4 w-4" />
                   {label}
                 </button>
               );
