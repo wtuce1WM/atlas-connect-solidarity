@@ -122,7 +122,8 @@ const HeroSection = () => {
         <form onSubmit={handleSearch} className="w-full max-w-2xl">
           {/* Category Tabs — une seule ligne, scroll si besoin */}
           <div
-            className="flex items-center justify-center w-full gap-6 mb-6"
+            className="flex items-center w-full gap-4 md:gap-6 mb-6 md:justify-center overflow-x-auto scrollbar-hide pb-1"
+            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
             {[
               { key: "all", labelFr: "Tout", labelEn: "All", labelAr: "الكل", Icon: LayoutGrid },
