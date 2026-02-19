@@ -29,8 +29,8 @@ export function DescriptionExpander({
   const handleToggle = () => {
     const next = !expanded;
     setExpanded(next);
-    // When collapsing, scroll back to the anchor after the transition finishes
-    if (!next && anchorId) {
+    // Both expand and collapse scroll to the anchor
+    if (anchorId) {
       setTimeout(() => {
         const el = document.getElementById(anchorId);
         if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
