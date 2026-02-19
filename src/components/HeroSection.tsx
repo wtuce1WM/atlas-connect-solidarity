@@ -102,12 +102,9 @@ const HeroSection = () => {
             <Button
               type="submit"
               size="lg"
-              className="w-full md:w-auto bg-gold hover:bg-gold/90 text-black font-semibold rounded-full px-6 py-6 shadow-lg"
+              className="w-full md:w-auto bg-green-300 hover:bg-green-400 text-green-900 font-semibold rounded-full px-6 py-6 shadow-lg"
             >
-              <Search className="h-5 w-5 md:mr-2" />
-              <span className="inline md:inline">
-                {language === "fr" ? "Rechercher" : language === "ar" ? "بحث" : "Search"}
-              </span>
+              <Search className="h-5 w-5" />
             </Button>
           </div>
         </form>
