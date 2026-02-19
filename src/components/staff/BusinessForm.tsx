@@ -1357,7 +1357,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                 id="whatsapp_top"
                 value={formData.whatsapp}
                 onChange={(e) => handleChange("whatsapp", e.target.value)}
-                placeholder="+212 6XX-XXXXXX"
+                placeholder=""
               />
             </div>
             <div className="space-y-2">
@@ -1369,7 +1369,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                 id="telegram_top"
                 value={(formData as any).telegram || ""}
                 onChange={(e) => handleChange("telegram", e.target.value)}
-                placeholder="@username ou +212..."
+                placeholder=""
               />
             </div>
             <div className="space-y-2">
@@ -1381,7 +1381,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                 id="skype_top"
                 value={formData.skype}
                 onChange={(e) => handleChange("skype", e.target.value)}
-                placeholder="identifiant.skype"
+                placeholder=""
               />
             </div>
             <div className="space-y-2">
@@ -1390,7 +1390,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                 id="phone_top"
                 value={formData.phone}
                 onChange={(e) => handleChange("phone", e.target.value)}
-                placeholder="+212 5XX-XXXXXX"
+                placeholder=""
               />
             </div>
             <div className="space-y-2">
