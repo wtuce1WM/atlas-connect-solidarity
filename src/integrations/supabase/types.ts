@@ -320,6 +320,7 @@ export type Database = {
           services: string[] | null
           show_opening_hours: boolean | null
           skype: string | null
+          telegram: string | null
           tiktok_url: string | null
           tripadvisor_rating: number | null
           tripadvisor_review_count: number | null
@@ -404,6 +405,7 @@ export type Database = {
           services?: string[] | null
           show_opening_hours?: boolean | null
           skype?: string | null
+          telegram?: string | null
           tiktok_url?: string | null
           tripadvisor_rating?: number | null
           tripadvisor_review_count?: number | null
@@ -488,6 +490,7 @@ export type Database = {
           services?: string[] | null
           show_opening_hours?: boolean | null
           skype?: string | null
+          telegram?: string | null
           tiktok_url?: string | null
           tripadvisor_rating?: number | null
           tripadvisor_review_count?: number | null
@@ -1454,6 +1457,7 @@ export type Database = {
           services: string[] | null
           show_opening_hours: boolean | null
           skype: string | null
+          telegram: string | null
           tiktok_url: string | null
           tripadvisor_rating: number | null
           tripadvisor_review_count: number | null
