@@ -96,6 +96,7 @@ interface Business {
   hook_ar: string | null;
   menu_url: string | null;
   languages: string[] | null;
+  logo_bg: string | null;
 }
 
 interface Gamme {
@@ -543,6 +544,28 @@ const BusinessDetail = () => {
                 );
               })()}
 
+
+              {/* Logo above description */}
+              {business.logo_url && (
+                <div className="flex justify-center mb-2">
+                  <div
+                    className="flex items-center justify-center rounded-xl overflow-hidden p-2"
+                    style={{
+                      backgroundColor:
+                        business.logo_bg === "white" ? "#ffffff"
+                        : business.logo_bg === "black" ? "#000000"
+                        : "transparent",
+                    }}
+                  >
+                    <img
+                      src={business.logo_url}
+                      alt={`Logo ${business.name}`}
+                      className="object-contain"
+                      style={{ maxWidth: "400px", maxHeight: "200px", width: "100%" }}
+                    />
+                  </div>
+                </div>
+              )}
 
               {/* Description */}
               {business.description && (
