@@ -644,7 +644,7 @@ const SubcategoryPage = () => {
               {/* Results count + Sort */}
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
                 <h2 className={`text-lg font-bold ${textClass}`}>
-                  {filteredBusinesses.length} {t.establishments} {language === "fr" ? "pour" : language === "ar" ? "لـ" : "for"} {getSubcategoryName()}
+                  {filteredBusinesses.length} {t.establishments} {language === "fr" ? "pour" : language === "ar" ? "لـ" : "for"} {getSubcategoryName()}{selectedCity ? (language === "fr" ? ` à ${selectedCity}` : language === "ar" ? ` في ${selectedCity}` : ` in ${selectedCity}`) : ""}
                 </h2>
                 <div className="flex items-center justify-center sm:justify-end gap-2">
                   <Button
