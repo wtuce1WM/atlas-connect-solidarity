@@ -122,7 +122,7 @@ const HeroSection = () => {
         <form onSubmit={handleSearch} className="w-full max-w-2xl">
           {/* Category Tabs — une seule ligne, scroll si besoin */}
           <div
-            className="flex items-center w-full gap-2 mb-4"
+            className="flex items-center justify-center w-full gap-6 mb-6"
           >
             {[
               { key: "all", labelFr: "Tout", labelEn: "All", labelAr: "الكل", Icon: LayoutGrid },
@@ -139,13 +139,13 @@ const HeroSection = () => {
                   key={key}
                   type="button"
                   onClick={() => setSearchCategory(key)}
-                  className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-full text-sm font-medium transition-all ${
+                  className={`flex items-center gap-1.5 pb-2 text-sm font-semibold transition-all border-b-2 ${
                     isActive
-                      ? "bg-gold text-black shadow-md"
-                      : "bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm"
+                      ? "border-white text-white"
+                      : "border-transparent text-white/70 hover:text-white hover:border-white/40"
                   }`}
                 >
-                  <Icon className="h-4 w-4 shrink-0" />
+                  <Icon className="h-5 w-5 shrink-0" />
                   {label}
                 </button>
               );
