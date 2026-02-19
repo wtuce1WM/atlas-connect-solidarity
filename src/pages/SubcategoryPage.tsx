@@ -479,7 +479,17 @@ const SubcategoryPage = () => {
         <div className="container mx-auto px-4">
 
           {/* Google Maps */}
-          <div className="mb-6 overflow-hidden rounded-lg">
+          {/* Signet supérieur */}
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex-1 h-px bg-gold/40" />
+            <div className="flex items-center gap-1.5">
+              <div className="w-2 h-2 rotate-45 bg-gold" />
+              <div className="w-1.5 h-1.5 rotate-45 bg-gold/60" />
+              <div className="w-1 h-1 rotate-45 bg-gold/40" />
+            </div>
+            <div className="flex-1 h-px bg-gold/40" />
+          </div>
+          <div className="mb-4 overflow-hidden rounded-lg">
             <Card id="subcategory-map" className="relative border-0 h-[400px] sm:h-[500px] overflow-hidden scroll-mt-24">
               <CardContent className="p-0 relative h-full">
                 {selectedBusiness && (
@@ -497,7 +507,17 @@ const SubcategoryPage = () => {
                   title={selectedBusiness ? `Localisation de ${selectedBusiness.name}` : `Carte ${getSubcategoryName()}${selectedCity !== "all" ? ` à ${selectedCity}` : ""}`}
                 />
               </CardContent>
-            </Card>
+          </Card>
+          </div>
+          {/* Signet inférieur */}
+          <div className="flex items-center gap-3 mt-4 mb-6">
+            <div className="flex-1 h-px bg-gold/40" />
+            <div className="flex items-center gap-1.5">
+              <div className="w-1 h-1 rotate-45 bg-gold/40" />
+              <div className="w-1.5 h-1.5 rotate-45 bg-gold/60" />
+              <div className="w-2 h-2 rotate-45 bg-gold" />
+            </div>
+            <div className="flex-1 h-px bg-gold/40" />
           </div>
 
           {/* Mobile filter toggle */}
