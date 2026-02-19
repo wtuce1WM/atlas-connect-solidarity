@@ -509,10 +509,31 @@ const SearchPage = () => {
             </div>
           </form>
 
-          {searchQuery && (
+          {(searchQuery || categoryFromUrl) && (
             <div className="text-center">
               <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2">
-                {t.searchResults} {t.for} "<span className="text-gold">{spokenText || searchQuery}</span>"
+                {searchQuery ? (
+                  <>{t.searchResults} {t.for} "<span className="text-gold">{spokenText || searchQuery}</span>"</>
+                ) : (() => {
+                  const categoryLabels: Record<string, { fr: string; en: string; ar: string }> = {
+                    "Hôtellerie": { fr: "Hôtels", en: "Hotels", ar: "الفنادق" },
+                    "Restauration": { fr: "Restaurants", en: "Restaurants", ar: "المطاعم" },
+                    "Tourisme": { fr: "Activités & Tourisme", en: "Activities & Tourism", ar: "الأنشطة والسياحة" },
+                    "Commerce": { fr: "Commerce & Shopping", en: "Shopping", ar: "التسوق" },
+                    "Bien-être": { fr: "Bien-être & Spa", en: "Wellness & Spa", ar: "العافية والسبا" },
+                    "Santé": { fr: "Santé", en: "Health", ar: "الصحة" },
+                    "Culture": { fr: "Culture", en: "Culture", ar: "الثقافة" },
+                    "Transport": { fr: "Transport", en: "Transport", ar: "النقل" },
+                    "Sport & Loisirs": { fr: "Sport & Loisirs", en: "Sports & Leisure", ar: "الرياضة والترفيه" },
+                  };
+                  const label = categoryLabels[categoryFromUrl];
+                  const catName = label
+                    ? (language === "en" ? label.en : language === "ar" ? label.ar : label.fr)
+                    : categoryFromUrl;
+                  const prefix = language === "en" ? "Best" : language === "ar" ? "أفضل" : "Meilleurs";
+                  const suffix = language === "en" ? "in Morocco" : language === "ar" ? "في المغرب" : "au Maroc";
+                  return <><span className="text-gold">{prefix} {catName}</span> {suffix}</>;
+                })()}
               </h1>
               <p className="text-base lg:text-xl text-muted-foreground">
                 {isLoading ? (
