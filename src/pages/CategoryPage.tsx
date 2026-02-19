@@ -569,8 +569,8 @@ const CategoryPage = () => {
                 </div>
               )}
 
-              {/* Subcategory Filter - only when city is selected */}
-              {selectedCity !== "all" && availableSubcategories.length > 0 && (
+              {/* Subcategory Filter */}
+              {availableSubcategories.length > 0 && (
                 <div className="flex-1 min-w-[140px]">
                   <label className={`text-sm font-bold ${textClass} mb-1.5 block`}>
                     {language === "fr" ? "Sous-catégorie" : language === "ar" ? "الفئة الفرعية" : "Subcategory"}
