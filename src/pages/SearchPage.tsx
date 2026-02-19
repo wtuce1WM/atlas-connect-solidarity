@@ -229,6 +229,7 @@ const SearchPage = () => {
   const [selectedCity, setSelectedCity] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
   const [inputValue, setInputValue] = useState(searchParams.get("q") || "");
+  const categoryFromUrl = searchParams.get("category") || "";
   const [celebrityBusinesses, setCelebrityBusinesses] = useState<Business[]>([]);
 
   const spokenText = searchParams.get("spoken") || "";
@@ -299,7 +300,7 @@ const SearchPage = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!searchQuery.trim()) {
+      if (!searchQuery.trim() && !categoryFromUrl) {
         setAllBusinesses([]);
         setSearchMessage("");
         setIsLoading(false);
@@ -324,7 +325,8 @@ const SearchPage = () => {
         // Use edge function for full-text search
         const { data, error } = await supabase.functions.invoke<SearchResult>("business-search", {
           body: { 
-            query: searchQuery.trim(),
+            query: searchQuery.trim() || undefined,
+            category: categoryFromUrl || undefined,
             language: language,
             limit: 100
           }
@@ -354,7 +356,7 @@ const SearchPage = () => {
     };
 
     fetchData();
-  }, [searchQuery, language]);
+  }, [searchQuery, categoryFromUrl, language]);
 
   // Fetch celebrity businesses on mount (used when celebrity query detected)
   useEffect(() => {
