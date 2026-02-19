@@ -79,7 +79,7 @@ const HeroSection = () => {
         />
 
         {/* Titre dynamique selon l'onglet */}
-        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white text-center max-w-4xl min-h-[3rem]">
+        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white text-center max-w-4xl min-h-[4.5rem] md:min-h-[3rem]">
           {(() => {
             const texts: Record<string, { fr: string; fr2?: string; en: string; en2?: string; ar: string; ar2?: string }> = {
               all: {
