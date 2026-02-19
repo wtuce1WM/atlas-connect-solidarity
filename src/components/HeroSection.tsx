@@ -176,17 +176,17 @@ const HeroSection = () => {
               onClick={toggleRecording}
               className={`flex-shrink-0 flex items-center justify-center w-14 h-14 rounded-2xl shadow-lg transition-all ${
                 voiceStatus === "recording"
-                  ? "bg-red-600 animate-pulse"
+                  ? "bg-red-100 animate-pulse"
                   : voiceStatus === "processing"
-                    ? "bg-gray-500"
-                    : "bg-gray-800 hover:bg-gray-700"
+                    ? "bg-white/70"
+                    : "bg-white/90 hover:bg-white"
               }`}
               title={language === "fr" ? "Recherche vocale" : language === "ar" ? "بحث صوتي" : "Voice search"}
             >
               {voiceStatus === "processing" ? (
-                <Loader2 className="h-6 w-6 text-white animate-spin" />
+                <Loader2 className="h-6 w-6 text-black animate-spin" />
               ) : (
-                <Mic className="h-6 w-6 text-white" />
+                <Mic className={`h-6 w-6 ${voiceStatus === "recording" ? "text-red-600" : "text-black"}`} />
               )}
             </button>
           </div>
