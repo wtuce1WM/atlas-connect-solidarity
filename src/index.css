@@ -173,3 +173,12 @@ input::placeholder,
 textarea::placeholder {
   color: hsl(var(--muted-foreground) / 0.45);
 }
+
+@keyframes kenburns {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.12);
+  }
+}

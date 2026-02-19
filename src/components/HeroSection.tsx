@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { LayoutGrid, BedDouble, UtensilsCrossed, Mountain, Sparkles, ShoppingBag, Search } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -12,6 +12,21 @@ const HeroSection = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [searchCategory, setSearchCategory] = useState("all");
+  const heroRef = useRef<HTMLElement>(null);
+  const [scrollY, setScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (heroRef.current) {
+        const rect = heroRef.current.getBoundingClientRect();
+        if (rect.bottom > 0) {
+          setScrollY(window.scrollY);
+        }
+      }
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,11 +39,15 @@ const HeroSection = () => {
   };
 
   return (
-    <section className="relative min-h-[120vh] w-full overflow-hidden">
-      {/* Hero Background Image */}
+    <section ref={heroRef} className="relative min-h-[120vh] w-full overflow-hidden">
+      {/* Hero Background Image — parallax + Ken Burns */}
       <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: `url(${heroBackground})` }}
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat animate-[kenburns_25s_ease-in-out_infinite_alternate]"
+        style={{
+          backgroundImage: `url(${heroBackground})`,
+          transform: `translateY(${scrollY * 0.35}px)`,
+          willChange: "transform",
+        }}
       />
 
       {/* Overlay with gradient to black at bottom */}
