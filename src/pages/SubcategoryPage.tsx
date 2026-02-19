@@ -584,13 +584,15 @@ const SubcategoryPage = () => {
             <div className="mb-8">
               <div className="mb-3">
                 <label className="text-sm font-bold text-white">
-                  {language === "fr" ? "Sélectionnez un service" : language === "ar" ? "اختر خدمة" : "Select a service"}
+                  {language === "fr" ? "Filtrer par service(s)" : language === "ar" ? "تصفية حسب الخدمات" : "Filter by service(s)"}
                 </label>
               </div>
               <div className="flex flex-wrap gap-2">
                 {availableServices.map((service) => (
-                  <label
+                  <button
                     key={service}
+                    type="button"
+                    onClick={() => toggleService(service)}
                     className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs cursor-pointer border transition-colors ${
                       selectedServices.includes(service)
                         ? "bg-primary/10 border-primary text-primary"
@@ -599,11 +601,10 @@ const SubcategoryPage = () => {
                   >
                     <Checkbox
                       checked={selectedServices.includes(service)}
-                      onCheckedChange={() => toggleService(service)}
-                      className="h-3 w-3"
+                      className="h-3 w-3 pointer-events-none"
                     />
                     {service}
-                  </label>
+                  </button>
                 ))}
               </div>
             </div>
