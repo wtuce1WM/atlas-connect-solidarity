@@ -158,7 +158,11 @@ const HeroSection = () => {
                   onClick={(e) => {
                     setSearchCategory(key);
                     const btn = e.currentTarget;
-                    btn.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+                    const container = tabsRef.current;
+                    if (container) {
+                      const scrollLeft = btn.offsetLeft - container.offsetWidth / 2 + btn.offsetWidth / 2;
+                      container.scrollTo({ left: scrollLeft, behavior: "smooth" });
+                    }
                   }}
                   className={`flex items-center gap-1.5 pb-2 text-sm font-semibold transition-all border-b-2 whitespace-nowrap ${
                     isActive
