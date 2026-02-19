@@ -153,7 +153,8 @@ const HeroSection = () => {
             })}
           </div>
 
-          <div className="flex items-center gap-2">
+          {/* Desktop: input with inline button + voice */}
+          <div className="hidden md:flex items-center gap-2">
             <div className="relative flex-1">
               <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               <Input
@@ -190,6 +191,48 @@ const HeroSection = () => {
                 <Mic className={`h-6 w-6 ${voiceStatus === "recording" ? "text-red-600" : "text-black"}`} />
               )}
             </button>
+          </div>
+
+          {/* Mobile: input on top, buttons below */}
+          <div className="flex flex-col gap-3 md:hidden">
+            <div className="relative">
+              <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder={language === "fr" ? "Que cherchez-vous ?" : language === "ar" ? "ماذا تبحث عنه؟" : "What are you looking for?"}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-14 pr-4 py-7 text-lg bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-full shadow-lg"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                type="submit"
+                size="lg"
+                className="flex-1 text-black font-semibold rounded-full py-6 shadow-md text-lg"
+                style={{ backgroundColor: "#15FF00" }}
+              >
+                {language === "fr" ? "Recherche" : language === "ar" ? "بحث" : "Search"}
+              </Button>
+              <button
+                type="button"
+                onClick={toggleRecording}
+                className={`flex-shrink-0 flex items-center justify-center w-14 h-14 rounded-2xl shadow-lg transition-all ${
+                  voiceStatus === "recording"
+                    ? "bg-red-100 animate-pulse"
+                    : voiceStatus === "processing"
+                      ? "bg-white/70"
+                      : "bg-white/90 hover:bg-white"
+                }`}
+                title={language === "fr" ? "Recherche vocale" : language === "ar" ? "بحث صوتي" : "Voice search"}
+              >
+                {voiceStatus === "processing" ? (
+                  <Loader2 className="h-6 w-6 text-black animate-spin" />
+                ) : (
+                  <Mic className={`h-6 w-6 ${voiceStatus === "recording" ? "text-red-600" : "text-black"}`} />
+                )}
+              </button>
+            </div>
           </div>
         </form>
 
