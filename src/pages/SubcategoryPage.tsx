@@ -103,7 +103,7 @@ const SubcategoryPage = () => {
   const [badges, setBadges] = useState<Badge[]>([]);
   const [subcategories, setSubcategories] = useState<{ id: string; name_fr: string }[]>([]);
   const [badgeSubcategories, setBadgeSubcategories] = useState<{ badge_id: string; subcategory_id: string }[]>([]);
-  const [subcategoryServices, setSubcategoryServices] = useState<string[]>([]);
+  const [subcategoryServices, setSubcategoryServices] = useState<string[] | null>(null);
 
   const decodedSubcategoryName = subcategoryName ? decodeURIComponent(subcategoryName) : "";
 
@@ -129,8 +129,8 @@ const SubcategoryPage = () => {
 
     businessesToCheck.forEach((business) => {
       business.services?.forEach((service) => {
-        // Only include services that belong to this subcategory (wait until list is loaded)
-        if (subcategoryServices.includes(service)) {
+        // null = not yet loaded (show nothing); array = loaded (filter strictly)
+        if (subcategoryServices !== null && subcategoryServices.includes(service)) {
           services.add(service);
         }
       });
@@ -237,9 +237,8 @@ const SubcategoryPage = () => {
           ]);
 
           if (catRes.data) setCategoryInfo(catRes.data);
-          if (servicesRes.data) {
-            setSubcategoryServices(servicesRes.data.map(s => s.name_fr));
-          }
+          // Always set (even empty array) so null→array signals "loaded"
+          setSubcategoryServices(servicesRes.data ? servicesRes.data.map(s => s.name_fr) : []);
         }
 
         // Fetch cities with priority scores
