@@ -223,7 +223,7 @@ const BusinessTable = ({ businesses, gammes, loading, onEdit, onDelete, onDuplic
                     const sources: { rating: number; count: number; max: number }[] = [];
                     if (business.google_rating) sources.push({ rating: Number(business.google_rating), count: business.google_review_count || 0, max: 5 });
                     if (business.tripadvisor_rating) sources.push({ rating: Number(business.tripadvisor_rating), count: business.tripadvisor_review_count || 0, max: 5 });
-                    if (business.restaurant_guru_rating) sources.push({ rating: Number(business.restaurant_guru_rating), count: business.restaurant_guru_review_count || 0, max: 10 });
+                    if (business.restaurant_guru_rating) sources.push({ rating: Number(business.restaurant_guru_rating), count: business.restaurant_guru_review_count || 0, max: 5 });
                     if (sources.length === 0) return <span className="text-muted-foreground text-sm">-</span>;
                     const totalReviews = sources.reduce((s, r) => s + r.count, 0);
                     const weightedSum = sources.reduce((s, r) => s + (r.rating / r.max) * 20 * r.count, 0);

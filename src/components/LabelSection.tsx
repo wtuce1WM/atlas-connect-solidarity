@@ -47,7 +47,7 @@ const getCalculatedRating = (business: Business): number | null => {
     sources.push({ rating: (business.tripadvisor_rating / 5) * 20, count: business.tripadvisor_review_count });
   }
   if (business.restaurant_guru_rating && business.restaurant_guru_review_count) {
-    sources.push({ rating: (business.restaurant_guru_rating / 10) * 20, count: business.restaurant_guru_review_count });
+    sources.push({ rating: (business.restaurant_guru_rating / 5) * 20, count: business.restaurant_guru_review_count });
   }
   if (sources.length === 0) return null;
   const totalCount = sources.reduce((sum, s) => sum + s.count, 0);
