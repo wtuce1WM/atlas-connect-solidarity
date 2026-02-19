@@ -572,6 +572,12 @@ const BusinessDetail = () => {
                   html={business.description}
                   isVerified={isVerified}
                   anchorId="description-anchor"
+                  collapsedHeight={
+                    (business.languages && business.languages.length > 0) ||
+                    (business.show_opening_hours && business.opening_hours)
+                      ? 550
+                      : 300
+                  }
                 />
               )}
 
