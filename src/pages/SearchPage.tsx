@@ -844,7 +844,7 @@ const SearchPage = () => {
         </div>
       </section>
 
-      <CategoriesCarouselSection />
+      
       <Footer />
     </div>
   );
