@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,7 +17,9 @@ import {
   Folder,
   FolderOpen,
   Tag,
-  Loader2
+  Loader2,
+  ExternalLink,
+  Settings,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -33,6 +36,12 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import IconPicker, { ICONS } from "./IconPicker";
 
 // Helper component to render dynamic icons
@@ -84,6 +93,18 @@ type EditMode = {
   parentId?: string;
 };
 
+interface BusinessMini {
+  id: string;
+  name: string;
+  city: string | null;
+}
+
+interface BusinessesPopup {
+  title: string;
+  businesses: BusinessMini[];
+  loading: boolean;
+}
+
 const CategoryManagement = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
@@ -94,6 +115,32 @@ const CategoryManagement = () => {
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   const [expandedSubcategories, setExpandedSubcategories] = useState<Set<string>>(new Set());
   
+  const [businessesPopup, setBusinessesPopup] = useState<BusinessesPopup | null>(null);
+
+  const openCategoryBusinesses = async (e: React.MouseEvent, categoryId: string, categoryName: string) => {
+    e.stopPropagation();
+    setBusinessesPopup({ title: `Entreprises – ${categoryName}`, businesses: [], loading: true });
+    const { data } = await supabase
+      .from("businesses")
+      .select("id, name, city")
+      .eq("is_active", true)
+      .eq("main_category", categoryName)
+      .order("name");
+    setBusinessesPopup({ title: `Entreprises – ${categoryName}`, businesses: data || [], loading: false });
+  };
+
+  const openSubcategoryBusinesses = async (e: React.MouseEvent, subName: string) => {
+    e.stopPropagation();
+    setBusinessesPopup({ title: `Entreprises – ${subName}`, businesses: [], loading: true });
+    const { data } = await supabase
+      .from("businesses")
+      .select("id, name, city")
+      .eq("is_active", true)
+      .contains("categories", [subName])
+      .order("name");
+    setBusinessesPopup({ title: `Entreprises – ${subName}`, businesses: data || [], loading: false });
+  };
+
   const [editMode, setEditMode] = useState<EditMode | null>(null);
   const [editForm, setEditForm] = useState({
     name_fr: "",
@@ -534,7 +581,13 @@ const CategoryManagement = () => {
                   
                   <Badge variant="secondary">{subs.length} sous-cat.</Badge>
                   {(businessCountByCat[category.id] || 0) > 0 && (
-                    <Badge variant="outline" className="text-xs">{businessCountByCat[category.id]} entreprises</Badge>
+                    <Badge
+                      variant="outline"
+                      className="text-xs cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
+                      onClick={(e) => openCategoryBusinesses(e, category.id, category.name_fr)}
+                    >
+                      {businessCountByCat[category.id]} entreprises
+                    </Badge>
                   )}
                   
                   <Button
@@ -616,7 +669,13 @@ const CategoryManagement = () => {
                               
                               <Badge variant="outline" className="text-xs">{svcs.length} services</Badge>
                               {(businessCountBySub[sub.id] || 0) > 0 && (
-                                <Badge variant="secondary" className="text-xs">{businessCountBySub[sub.id]} entreprises</Badge>
+                                <Badge
+                                  variant="secondary"
+                                  className="text-xs cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
+                                  onClick={(e) => openSubcategoryBusinesses(e, sub.name_fr)}
+                                >
+                                  {businessCountBySub[sub.id]} entreprises
+                                </Badge>
                               )}
                               
                               <Button
@@ -773,6 +832,49 @@ const CategoryManagement = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Businesses popup */}
+      <Dialog open={!!businessesPopup} onOpenChange={(open) => !open && setBusinessesPopup(null)}>
+        <DialogContent className="max-w-lg max-h-[80vh] flex flex-col">
+          <DialogHeader>
+            <DialogTitle>{businessesPopup?.title}</DialogTitle>
+          </DialogHeader>
+          <div className="overflow-y-auto flex-1 mt-2">
+            {businessesPopup?.loading ? (
+              <div className="flex justify-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              </div>
+            ) : businessesPopup?.businesses.length === 0 ? (
+              <p className="text-muted-foreground text-sm text-center py-8">Aucune entreprise trouvée</p>
+            ) : (
+              <div className="space-y-1">
+                {businessesPopup?.businesses.map((b) => (
+                  <div key={b.id} className="flex items-center justify-between gap-2 py-2 px-3 rounded-md hover:bg-muted/50">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">{b.name}</p>
+                      {b.city && <p className="text-xs text-muted-foreground">{b.city}</p>}
+                    </div>
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      <Button variant="ghost" size="sm" className="h-7 px-2 text-xs gap-1" asChild>
+                        <Link to={`/business/${b.id}`} target="_blank">
+                          <ExternalLink className="h-3 w-3" />
+                          Front
+                        </Link>
+                      </Button>
+                      <Button variant="ghost" size="sm" className="h-7 px-2 text-xs gap-1 text-primary" asChild>
+                        <Link to={`/staff/backoffice?edit=${b.id}`} target="_blank">
+                          <Settings className="h-3 w-3" />
+                          Back
+                        </Link>
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
