@@ -356,6 +356,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
     youtube_url: (business as any)?.youtube_url || "",
     tiktok_url: (business as any)?.tiktok_url || "",
     whatsapp: (business as any)?.whatsapp || "",
+    telegram: (business as any)?.telegram || "",
     tripadvisor_url: (business as any)?.tripadvisor_url || "",
     booking_url: (business as any)?.booking_url || "",
     account_type: (business as any)?.account_type || "",
@@ -563,6 +564,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
       youtube_url: formData.youtube_url || null,
       tiktok_url: formData.tiktok_url || null,
       whatsapp: formData.whatsapp || null,
+      telegram: (formData as any).telegram || null,
       tripadvisor_url: formData.tripadvisor_url || null,
       booking_url: formData.booking_url || null,
       account_type: formData.account_type || null,
@@ -1345,7 +1347,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
             <div className="space-y-2">
               <Label htmlFor="whatsapp_top" className="flex items-center gap-2">
                 <WhatsAppIcon className="text-[#25D366]" />
@@ -1356,6 +1358,18 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                 value={formData.whatsapp}
                 onChange={(e) => handleChange("whatsapp", e.target.value)}
                 placeholder="+212 6XX-XXXXXX"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="telegram_top" className="flex items-center gap-2">
+                <span className="text-[#26A5E4] font-bold text-sm">✈</span>
+                Telegram
+              </Label>
+              <Input
+                id="telegram_top"
+                value={(formData as any).telegram || ""}
+                onChange={(e) => handleChange("telegram", e.target.value)}
+                placeholder="@username ou +212..."
               />
             </div>
             <div className="space-y-2">
