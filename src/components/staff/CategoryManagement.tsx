@@ -852,8 +852,8 @@ const CategoryManagement = () => {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <p className="text-sm font-medium truncate">{b.name}</p>
-                        <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium flex-shrink-0 ${b.is_active ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"}`}>
-                          {b.is_active ? "Actif" : "Inactif"}
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium flex-shrink-0 ${!b.is_active ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"}`}>
+                          {!b.is_active ? "Actif" : "Inactif"}
                         </span>
                       </div>
                       {b.city && <p className="text-xs text-muted-foreground">{b.city}</p>}
