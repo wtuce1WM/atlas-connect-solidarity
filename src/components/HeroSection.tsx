@@ -102,7 +102,8 @@ const HeroSection = () => {
             <Button
               type="submit"
               size="lg"
-              className="w-full md:w-auto bg-green-300 hover:bg-green-400 text-green-900 font-semibold rounded-full px-6 py-6 shadow-lg"
+              className="w-full md:w-auto text-black font-semibold rounded-full px-6 py-6 shadow-lg"
+              style={{ backgroundColor: "#15FF00" }}
             >
               <Search className="h-5 w-5" />
             </Button>
