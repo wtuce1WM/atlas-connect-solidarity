@@ -384,10 +384,12 @@ const SubcategoryPage = () => {
 
   const handleSelectBusiness = (business: Business) => {
     setSelectedBusiness(business);
-    const mapEl = document.getElementById("subcategory-map");
-    if (mapEl) {
-      mapEl.scrollIntoView({ behavior: "smooth" });
-    }
+    setTimeout(() => {
+      const bookmarkEl = document.getElementById("map-bookmark-top");
+      if (bookmarkEl) {
+        bookmarkEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }, 50);
   };
 
   const clearSelectedBusiness = () => {
@@ -480,7 +482,7 @@ const SubcategoryPage = () => {
 
           {/* Google Maps */}
           {/* Signet supérieur */}
-          <div className="flex items-center gap-3 mb-4">
+          <div id="map-bookmark-top" className="flex items-center gap-3 mb-4 scroll-mt-24">
             <div className="flex-1 h-px bg-gold/40" />
             <div className="flex items-center gap-1.5">
               <div className="w-2 h-2 rotate-45 bg-gold" />
