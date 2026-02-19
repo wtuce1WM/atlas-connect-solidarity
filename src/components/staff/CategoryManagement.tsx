@@ -97,6 +97,7 @@ interface BusinessMini {
   id: string;
   name: string;
   city: string | null;
+  is_active: boolean;
 }
 
 interface BusinessesPopup {
@@ -122,8 +123,7 @@ const CategoryManagement = () => {
     setBusinessesPopup({ title: `Entreprises – ${categoryName}`, businesses: [], loading: true });
     const { data } = await supabase
       .from("businesses")
-      .select("id, name, city")
-      .eq("is_active", true)
+      .select("id, name, city, is_active")
       .eq("main_category", categoryName)
       .order("name");
     setBusinessesPopup({ title: `Entreprises – ${categoryName}`, businesses: data || [], loading: false });
@@ -134,8 +134,7 @@ const CategoryManagement = () => {
     setBusinessesPopup({ title: `Entreprises – ${subName}`, businesses: [], loading: true });
     const { data } = await supabase
       .from("businesses")
-      .select("id, name, city")
-      .eq("is_active", true)
+      .select("id, name, city, is_active")
       .contains("categories", [subName])
       .order("name");
     setBusinessesPopup({ title: `Entreprises – ${subName}`, businesses: data || [], loading: false });
@@ -851,7 +850,12 @@ const CategoryManagement = () => {
                 {businessesPopup?.businesses.map((b) => (
                   <div key={b.id} className="flex items-center justify-between gap-2 py-2 px-3 rounded-md hover:bg-muted/50">
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{b.name}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-medium truncate">{b.name}</p>
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium flex-shrink-0 ${b.is_active ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"}`}>
+                          {b.is_active ? "Actif" : "Inactif"}
+                        </span>
+                      </div>
                       {b.city && <p className="text-xs text-muted-foreground">{b.city}</p>}
                     </div>
                     <div className="flex items-center gap-1 flex-shrink-0">
