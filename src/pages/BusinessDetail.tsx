@@ -314,15 +314,6 @@ const BusinessDetail = () => {
         <div className="mb-6">
           {/* Title row with labels */}
           <div className="flex items-center gap-4 flex-wrap">
-            {business.logo_url && (
-              <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white rounded-xl shadow-sm flex items-center justify-center flex-shrink-0 p-2">
-                <img 
-                  src={business.logo_url} 
-                  alt={`${business.name} logo`} 
-                  className="w-full h-full object-contain"
-                />
-              </div>
-            )}
             <div className="flex-1 min-w-0">
               <h1 className={`text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight ${isVerified ? "text-white" : "text-foreground"}`} style={{ fontFamily: "'Raleway', sans-serif" }}>
                 {business.name}
