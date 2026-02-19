@@ -312,73 +312,7 @@ const HeroSection = () => {
           </div>
         ) : (
           <div className="w-full max-w-5xl space-y-10">
-            {/* Cities Section */}
-            <div className="rounded-[2rem] bg-black/30 p-4">
-            <div className="mb-10 text-center">
-                <h2 className="mb-3 text-3xl font-bold text-white">
-                  {language === "fr" 
-                    ? <>Découvrez les <span className="text-gold">meilleures adresses</span> dans chaque ville du Maroc</>
-                    : language === "ar" 
-                      ? <>اكتشف <span className="text-gold">أفضل العناوين</span> في كل مدينة بالمغرب</>
-                      : <>Discover the <span className="text-gold">best addresses</span> in every city of Morocco</>}
-                </h2>
-              </div>
-              <div className="relative">
-                {/* Left Arrow */}
-                <button
-                  onClick={() => scrollContainer(citiesScrollRef, "left")}
-                  className="absolute -left-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-gold p-2 shadow-lg transition-all hover:bg-white/20 backdrop-blur-sm"
-                >
-                  <ChevronLeft className="h-5 w-5 text-black hover:text-white" />
-                </button>
-                {/* Right Arrow */}
-                <button
-                  onClick={() => scrollContainer(citiesScrollRef, "right")}
-                  className="absolute -right-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-gold p-2 shadow-lg transition-all hover:bg-white/20 backdrop-blur-sm"
-                >
-                  <ChevronRight className="h-5 w-5 text-black hover:text-white" />
-                </button>
 
-                <div 
-                  ref={citiesScrollRef}
-                  className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide scroll-smooth"
-                  style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-                >
-                  {cities.map((city) => (
-                    <Link 
-                      key={city.id} 
-                      to={`/city/${encodeURIComponent(city.name_fr)}`}
-                      className="flex-shrink-0"
-                    >
-                      <Card className="w-52 h-36 bg-white/10 border-white/30 hover:bg-gold/20 hover:border-gold transition-all">
-                        <CardContent className="p-5 text-center h-full flex flex-col items-center justify-center">
-                          <div className="flex items-center justify-center gap-1 mb-2">
-                            <MapPin className="h-5 w-5 text-gold flex-shrink-0" />
-                            <h3 className="text-lg font-semibold text-white line-clamp-1">
-                              {getCityName(city)}
-                            </h3>
-                          </div>
-                          {city.region && (
-                            <p className="text-sm text-gray-400 mb-2 line-clamp-1">{city.region}</p>
-                          )}
-                          <div className="flex items-center justify-center gap-1 text-sm text-gray-300">
-                            <Building2 className="h-4 w-4 flex-shrink-0" />
-                            <span>
-                              {city.businessCount || 0}{" "}
-                              {language === "fr" 
-                                ? "établissements" 
-                                : language === "ar" 
-                                  ? "مؤسسة" 
-                                  : "businesses"}
-                            </span>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            </div>
 
             {/* Categories Section */}
             <div className="rounded-[2rem] bg-black/30 p-4">
