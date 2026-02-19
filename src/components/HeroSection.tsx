@@ -55,7 +55,7 @@ const HeroSection = () => {
   };
 
   return (
-    <section ref={heroRef} className="relative min-h-[120vh] w-full overflow-hidden">
+    <section ref={heroRef} className="relative w-full overflow-hidden">
       {/* Hero Background Image — parallax + Ken Burns */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat animate-[kenburns_25s_ease-in-out_infinite_alternate]"
