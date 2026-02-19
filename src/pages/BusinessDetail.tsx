@@ -684,14 +684,38 @@ const BusinessDetail = () => {
                       Langues parlées
                     </h3>
                     <div className="flex flex-wrap gap-2">
-                      {business.languages.map((lang) => (
-                        <span
-                          key={lang}
-                          className={`text-sm px-2.5 py-1 rounded-full font-medium ${isVerified ? 'bg-gold/20 text-gold' : 'bg-primary/10 text-primary'}`}
-                        >
-                          {lang}
-                        </span>
-                      ))}
+                      {(() => {
+                        const LANG_MAP: Record<string, { flag: string; label: string; isText?: boolean }> = {
+                          "ar":     { flag: "🇲🇦", label: "AR" },
+                          "ar-std": { flag: "ض",   label: "AR", isText: true },
+                          "fr":     { flag: "🇫🇷", label: "FR" },
+                          "en":     { flag: "🇬🇧", label: "EN" },
+                          "es":     { flag: "🇪🇸", label: "ES" },
+                          "de":     { flag: "🇩🇪", label: "DE" },
+                          "it":     { flag: "🇮🇹", label: "IT" },
+                          "pt":     { flag: "🇵🇹", label: "PT" },
+                          "nl":     { flag: "🇳🇱", label: "NL" },
+                          "zh":     { flag: "🇨🇳", label: "ZH" },
+                          "ja":     { flag: "🇯🇵", label: "JA" },
+                          "ru":     { flag: "🇷🇺", label: "RU" },
+                        };
+                        return business.languages!.map((code) => {
+                          const info = LANG_MAP[code] || { flag: code, label: code };
+                          return (
+                            <div
+                              key={code}
+                              className={`flex flex-col items-center gap-0.5 py-1.5 px-2.5 rounded-lg border text-[10px] font-medium ${
+                                isVerified
+                                  ? "bg-gold/20 border-gold/40 text-gold"
+                                  : "bg-primary/10 border-primary/20 text-primary"
+                              }`}
+                            >
+                              <span className={`leading-none ${info.isText ? "text-base font-bold" : "text-lg"}`}>{info.flag}</span>
+                              {info.label}
+                            </div>
+                          );
+                        });
+                      })()}
                     </div>
                   </CardContent>
                 </Card>
