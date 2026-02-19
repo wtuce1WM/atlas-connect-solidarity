@@ -116,23 +116,14 @@ const SubcategoryPage = () => {
       .map(c => c.name);
   }, [allBusinesses, citiesWithPriority]);
 
-  // Available services: services from this subcategory that appear in at least one business
+  // Available services: only services that belong to this subcategory (from the `services` table)
+  // We use subcategoryServices as the source of truth — just display them all if they exist
   const availableServices = useMemo(() => {
-    // Wait until subcategoryServices is loaded
-    if (subcategoryServices === null) return [];
-
-    const services = new Set<string>();
-    // Show all services available across all businesses (not filtered by city)
-    // so that service pills are always visible regardless of city selection
-    allBusinesses.forEach((business) => {
-      business.services?.forEach((service) => {
-        if (subcategoryServices.includes(service)) {
-          services.add(service);
-        }
-      });
-    });
-    return Array.from(services).sort((a, b) => a.localeCompare(b, "fr"));
-  }, [allBusinesses, subcategoryServices]);
+    if (subcategoryServices === null || subcategoryServices.length === 0) return [];
+    // Return the subcategory's services directly (sorted), not filtered by which businesses have them
+    // This matches what is shown in the backoffice
+    return [...subcategoryServices].sort((a, b) => a.localeCompare(b, "fr"));
+  }, [subcategoryServices]);
 
   // Available gammes based on selected city
   const availableGammes = useMemo(() => {
@@ -209,17 +200,19 @@ const SubcategoryPage = () => {
 
       setIsLoading(true);
       try {
-        // Fetch subcategory info
-        const { data: subcatData } = await supabase
+        // Fetch ALL subcategories with this name (duplicates may exist)
+        const { data: subcatDataArr } = await supabase
           .from("subcategories")
           .select("id, name_fr, name_en, name_ar, icon, category_id")
-          .eq("name_fr", decodedSubcategoryName)
-          .maybeSingle();
+          .eq("name_fr", decodedSubcategoryName);
 
-        if (subcatData) {
+        const subcatData = subcatDataArr?.[0] ?? null;
+
+        if (subcatData && subcatDataArr) {
           setSubcategoryInfo(subcatData);
+          const subcatIds = subcatDataArr.map(s => s.id);
 
-          // Fetch parent category info + services of this subcategory in parallel
+          // Fetch parent category info + services for ALL matching subcategory IDs
           const [catRes, servicesRes] = await Promise.all([
             supabase
               .from("categories")
@@ -229,7 +222,7 @@ const SubcategoryPage = () => {
             supabase
               .from("services")
               .select("name_fr")
-              .eq("subcategory_id", subcatData.id),
+              .in("subcategory_id", subcatIds),
           ]);
 
           if (catRes.data) setCategoryInfo(catRes.data);
