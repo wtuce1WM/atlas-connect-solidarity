@@ -561,7 +561,7 @@ const BusinessDetail = () => {
                       src={business.logo_url}
                       alt={`Logo ${business.name}`}
                       className="object-contain"
-                      style={{ maxWidth: "300px", maxHeight: "200px", width: "100%" }}
+                      style={{ maxWidth: "200px", maxHeight: "150px", width: "100%" }}
                     />
                   </div>
                 </div>
