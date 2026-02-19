@@ -466,7 +466,7 @@ const SubcategoryPage = () => {
               )}
               {getSubcategoryName()}
               {selectedCity !== "all" && (
-                <span className="text-gold font-light">à {selectedCity}</span>
+                <span className="text-gold font-bold">à {selectedCity}</span>
               )}
             </h1>
             <p className="text-white/80 mt-2">
