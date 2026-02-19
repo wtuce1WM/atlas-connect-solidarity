@@ -475,7 +475,7 @@ const SubcategoryPage = () => {
               )}
             </h1>
             <p className="text-white/80 mt-2">
-              <span className="text-gold font-semibold">{filteredBusinesses.length}</span> {t.establishments} {t.inSubcategory}
+              <span className="text-gold font-semibold">{filteredBusinesses.length}</span> {t.establishments}
             </p>
           </div>
         </div>
