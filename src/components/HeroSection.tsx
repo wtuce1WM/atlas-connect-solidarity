@@ -66,6 +66,7 @@ const HeroSection = () => {
   const [relaisBusinesses, setRelaisBusinesses] = useState<RelaisBusiness[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchCategory, setSearchCategory] = useState("all");
   const [sponsors, setSponsors] = useState<Sponsor[]>([]);
   
   const citiesScrollRef = useRef<HTMLDivElement>(null);
@@ -73,8 +74,11 @@ const HeroSection = () => {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    const params = new URLSearchParams();
+    if (searchQuery.trim()) params.set("q", searchQuery.trim());
+    if (searchCategory !== "all") params.set("category", searchCategory);
+    if (params.toString()) {
+      navigate(`/search?${params.toString()}`);
     }
   };
 
@@ -247,7 +251,35 @@ const HeroSection = () => {
         </h1>
 
         {/* Search Bar */}
-        <form onSubmit={handleSearch} className="w-full max-w-lg mb-10">
+        <form onSubmit={handleSearch} className="w-full max-w-2xl mb-10">
+          {/* Category Tabs */}
+          <div className="flex items-center justify-center gap-1 mb-4 flex-wrap">
+            {[
+              { key: "all", labelFr: "Tout", labelEn: "All", labelAr: "الكل" },
+              { key: "Hôtellerie", labelFr: "Hôtels", labelEn: "Hotels", labelAr: "فنادق" },
+              { key: "Restauration", labelFr: "Restaurants", labelEn: "Restaurants", labelAr: "مطاعم" },
+              { key: "Tourisme", labelFr: "Activités", labelEn: "Activities", labelAr: "أنشطة" },
+              { key: "Bien-être", labelFr: "Bien-être", labelEn: "Wellness", labelAr: "رفاهية" },
+            ].map((tab) => {
+              const isActive = searchCategory === tab.key;
+              const label = language === "en" ? tab.labelEn : language === "ar" ? tab.labelAr : tab.labelFr;
+              return (
+                <button
+                  key={tab.key}
+                  type="button"
+                  onClick={() => setSearchCategory(tab.key)}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                    isActive
+                      ? "bg-gold text-black shadow-md"
+                      : "bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm"
+                  }`}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+
           <div className="flex flex-col md:flex-row gap-2">
             <div className="relative flex-1">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
