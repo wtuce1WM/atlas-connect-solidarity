@@ -495,6 +495,9 @@ const BusinessDetail = () => {
           />
         )}
 
+        {/* Anchor below photos */}
+        <div id="description-anchor" />
+
         {/* ===== TABS ===== */}
         <div className={`border-b mb-8 ${isVerified ? 'border-white/20' : 'border-border'}`}>
           <nav className="flex gap-6">
@@ -566,6 +569,7 @@ const BusinessDetail = () => {
                 <DescriptionExpander
                   html={business.description}
                   isVerified={isVerified}
+                  anchorId="description-anchor"
                 />
               )}
 
