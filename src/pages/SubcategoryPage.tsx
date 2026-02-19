@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -82,6 +82,7 @@ const ITEMS_PER_PAGE = 20;
 
 const SubcategoryPage = () => {
   const { subcategoryName } = useParams<{ subcategoryName: string }>();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { language } = useLanguage();
   const [allBusinesses, setAllBusinesses] = useState<Business[]>([]);
@@ -90,7 +91,7 @@ const SubcategoryPage = () => {
   const [citiesWithPriority, setCitiesWithPriority] = useState<{ name: string; priority: number }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedCity, setSelectedCity] = useState<string>("all");
+  const [selectedCity, setSelectedCity] = useState<string>(() => searchParams.get("city") || "all");
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
 
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
