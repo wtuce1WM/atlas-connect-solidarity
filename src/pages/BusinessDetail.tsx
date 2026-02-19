@@ -379,6 +379,9 @@ const BusinessDetail = () => {
           )}
         </div>
 
+        {/* Anchor for "Réduire" scroll-back */}
+        <div id="description-anchor" />
+
         {/* ===== MOSAIC IMAGE GALLERY ===== */}
         {!isValidatingImages && validImages.length > 0 && (
           <div className="mb-6 rounded-xl overflow-hidden">
@@ -495,8 +498,6 @@ const BusinessDetail = () => {
           />
         )}
 
-        {/* Anchor below photos */}
-        <div id="description-anchor" />
 
         {/* ===== TABS ===== */}
         <div className={`border-b mb-8 ${isVerified ? 'border-white/20' : 'border-border'}`}>
