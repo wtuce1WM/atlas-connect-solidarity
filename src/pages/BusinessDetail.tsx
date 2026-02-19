@@ -95,6 +95,7 @@ interface Business {
   hook_en: string | null;
   hook_ar: string | null;
   menu_url: string | null;
+  languages: string[] | null;
 }
 
 interface Gamme {
@@ -673,6 +674,28 @@ const BusinessDetail = () => {
                   )}
                 </CardContent>
               </Card>}
+
+              {/* Languages spoken */}
+              {business.languages && business.languages.length > 0 && (
+                <Card className={isVerified ? "bg-verified-card border-gold/20" : ""}>
+                  <CardContent className="p-4">
+                    <h3 className={`font-semibold mb-3 flex items-center gap-2 ${isVerified ? 'text-white' : ''}`}>
+                      <Globe className="h-4 w-4" />
+                      Langues parlées
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {business.languages.map((lang) => (
+                        <span
+                          key={lang}
+                          className={`text-sm px-2.5 py-1 rounded-full font-medium ${isVerified ? 'bg-gold/20 text-gold' : 'bg-primary/10 text-primary'}`}
+                        >
+                          {lang}
+                        </span>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
               {/* Opening Hours */}
               {business.show_opening_hours !== false && (business.is_open_24h || (business.opening_hours && Object.keys(business.opening_hours).length > 0)) && (() => {
