@@ -29,8 +29,8 @@ export function DescriptionExpander({
   const handleToggle = () => {
     const next = !expanded;
     setExpanded(next);
-    // Both expand and collapse scroll to the anchor
-    if (anchorId) {
+    // Only scroll to anchor when collapsing
+    if (!next && anchorId) {
       setTimeout(() => {
         const el = document.getElementById(anchorId);
         if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
