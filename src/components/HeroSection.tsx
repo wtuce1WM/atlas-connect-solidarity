@@ -15,6 +15,7 @@ const HeroSection = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchCategory, setSearchCategory] = useState("all");
   const heroRef = useRef<HTMLElement>(null);
+  const tabsRef = useRef<HTMLDivElement>(null);
   const [scrollY, setScrollY] = useState(0);
 
   const voiceLang = language === "ar" ? "ar-MA" : language === "en" ? "en-US" : "fr-FR";
@@ -135,7 +136,8 @@ const HeroSection = () => {
         {/* Search Bar + Tabs */}
         <form onSubmit={handleSearch} className="w-full max-w-2xl">
           {/* Category Tabs — une seule ligne, scroll si besoin */}
-          <div
+           <div
+            ref={tabsRef}
             className="flex items-center w-full gap-4 md:gap-6 mb-6 md:justify-center overflow-x-auto scrollbar-hide pb-1"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
@@ -153,7 +155,11 @@ const HeroSection = () => {
                 <button
                   key={key}
                   type="button"
-                  onClick={() => setSearchCategory(key)}
+                  onClick={(e) => {
+                    setSearchCategory(key);
+                    const btn = e.currentTarget;
+                    btn.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+                  }}
                   className={`flex items-center gap-1.5 pb-2 text-sm font-semibold transition-all border-b-2 whitespace-nowrap ${
                     isActive
                       ? "border-white text-white"
