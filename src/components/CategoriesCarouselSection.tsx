@@ -15,7 +15,7 @@ interface Category {
   businessCount?: number;
 }
 
-const CategoriesCarouselSection = () => {
+const CategoriesCarouselSection = ({ showTitle = true }: { showTitle?: boolean }) => {
   const { language } = useLanguage();
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -76,15 +76,17 @@ const CategoriesCarouselSection = () => {
   return (
     <section className="bg-black py-16 px-4">
       <div className="container mx-auto max-w-5xl">
-        <div className="mb-10 text-center">
-          <h2 className="mb-3 text-3xl font-bold text-white">
-            {language === "fr"
-              ? <>Trouvez les <span className="text-gold">meilleurs professionnels</span> par secteur d'activité</>
-              : language === "ar"
-                ? <>ابحث عن <span className="text-gold">أفضل المهنيين</span> حسب قطاع النشاط</>
-                : <>Find the <span className="text-gold">best professionals</span> by industry sector</>}
-          </h2>
-        </div>
+        {showTitle && (
+          <div className="mb-10 text-center">
+            <h2 className="mb-3 text-3xl font-bold text-white">
+              {language === "fr"
+                ? <>Trouvez les <span className="text-gold">meilleurs professionnels</span> par secteur d'activité</>
+                : language === "ar"
+                  ? <>ابحث عن <span className="text-gold">أفضل المهنيين</span> حسب قطاع النشاط</>
+                  : <>Find the <span className="text-gold">best professionals</span> by industry sector</>}
+            </h2>
+          </div>
+        )}
 
         <div className="relative rounded-[2rem] bg-white/5 p-4">
           <button
