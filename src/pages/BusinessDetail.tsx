@@ -608,16 +608,18 @@ const BusinessDetail = () => {
               )}
 
               {/* Sous-catégories */}
-              {categoriesWithResults.length > 0 && business.city && (
+              {categoriesWithResults.length > 0 && (
                 <div>
                   <p className={`text-base mb-3 ${isVerified ? 'text-white/60' : 'text-muted-foreground'}`} style={{ fontFamily: "'Raleway', sans-serif" }}>
-                    Cliquez ci-dessous pour voir tous les établissements similaires à {business.city}.
+                    {business.city
+                      ? `Cliquez ci-dessous pour voir tous les établissements similaires à ${business.city}.`
+                      : "Cliquez ci-dessous pour voir tous les établissements similaires :"}
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {categoriesWithResults.map((cat, index) => (
                       <Link
                         key={index}
-                        to={`/subcategory/${encodeURIComponent(cat)}?city=${encodeURIComponent(business.city)}`}
+                        to={business.city ? `/subcategory/${encodeURIComponent(cat)}?city=${encodeURIComponent(business.city)}` : `/subcategory/${encodeURIComponent(cat)}`}
                         className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
                           isVerified
                             ? 'bg-white/10 text-white hover:bg-white/20 border border-white/20'
