@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { DescriptionExpander } from "@/components/DescriptionExpander";
 import { useParams, Link, Navigate, useNavigate } from "react-router-dom";
 import { ArrowLeft, MapPin, Phone, Mail, Globe, BadgeCheck, Loader2, ChevronLeft, ChevronRight, FileText, Download, ShoppingBag, Facebook, Instagram, Linkedin, Youtube, MessageCircle, Clock, AlertTriangle, ChevronDown, Play, CalendarCheck, Star, Camera } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -154,7 +155,7 @@ const BusinessDetail = () => {
   const [categoriesWithResults, setCategoriesWithResults] = useState<string[]>([]);
   const { t, language } = useLanguage();
   const navigate = useNavigate();
-  const [descExpanded, setDescExpanded] = useState(false);
+  
 
   const { validImages, isValidating: isValidatingImages, brokenCount: brokenImagesCount } = useValidatedImages(business?.images ?? null);
   const { isValid: isPdfValid, isValidating: isValidatingPdf } = useValidatedUrl(business?.pdf_url ?? null);
@@ -562,21 +563,10 @@ const BusinessDetail = () => {
 
               {/* Description */}
               {business.description && (
-                <div>
-                  <div
-                    className={`leading-relaxed prose max-w-none prose-headings:font-bold prose-h2:text-xl prose-h3:text-lg prose-a:text-primary [&_p:empty]:min-h-[1em] [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:ml-0 [&_li>p]:mb-0 relative overflow-hidden transition-all duration-300 ${descExpanded ? "" : "max-h-[8em]"} ${isVerified ? 'text-white/80 prose-headings:text-white prose-strong:text-white prose-bold:text-white' : 'text-muted-foreground prose-headings:text-foreground'}`}
-                    dangerouslySetInnerHTML={{ __html: business.description }}
-                  />
-                  {!descExpanded && (
-                    <div className={`h-8 -mt-8 pointer-events-none ${isVerified ? 'bg-gradient-to-t from-black/60 to-transparent' : 'bg-gradient-to-t from-background to-transparent'}`} />
-                  )}
-                  <button
-                    onClick={() => setDescExpanded(e => !e)}
-                    className={`mt-1 text-sm font-semibold underline-offset-2 hover:underline transition-colors ${isVerified ? 'text-gold' : 'text-primary'}`}
-                  >
-                    {descExpanded ? "Réduire ▲" : "Lire la suite ▼"}
-                  </button>
-                </div>
+                <DescriptionExpander
+                  html={business.description}
+                  isVerified={isVerified}
+                />
               )}
 
               {/* PDF */}
