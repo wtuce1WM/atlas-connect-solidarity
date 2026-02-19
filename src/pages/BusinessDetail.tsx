@@ -498,7 +498,7 @@ const BusinessDetail = () => {
         )}
 
         {/* Anchor for "Réduire" scroll-back — just above the tabs */}
-        <div id="description-anchor" />
+        <div id="description-anchor" className="scroll-mt-24" />
 
         {/* ===== TABS ===== */}
         <div className={`border-b mb-8 ${isVerified ? 'border-white/20' : 'border-border'}`}>
