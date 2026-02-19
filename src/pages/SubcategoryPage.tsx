@@ -458,13 +458,16 @@ const SubcategoryPage = () => {
             </button>
           )}
           <div>
-            <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+            <h1 className="text-3xl font-bold text-white flex items-center gap-3 flex-wrap">
               {subcategoryInfo?.icon ? (
                 <DynamicIcon name={subcategoryInfo.icon} className="h-8 w-8 text-gold" fallback={<Building2 className="h-8 w-8 text-gold" />} />
               ) : (
                 <Building2 className="h-8 w-8 text-gold" />
               )}
               {getSubcategoryName()}
+              {selectedCity !== "all" && (
+                <span className="text-gold font-light">à {selectedCity}</span>
+              )}
             </h1>
             <p className="text-white/80 mt-2">
               <span className="text-gold font-semibold">{filteredBusinesses.length}</span> {t.establishments} {t.inSubcategory}
