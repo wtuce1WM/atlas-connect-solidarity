@@ -369,7 +369,12 @@ const SubcategoryPage = () => {
   const clearFilters = () => {
     setSelectedServices([]);
     setSelectedGamme("all");
-    scrollToFilterToggle();
+    setTimeout(() => {
+      const bookmarkEl = document.getElementById("map-bookmark-bottom");
+      if (bookmarkEl) {
+        bookmarkEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }, 50);
   };
 
   const goToPage = (page: number) => {
@@ -512,7 +517,7 @@ const SubcategoryPage = () => {
           </Card>
           </div>
           {/* Signet inférieur */}
-          <div className="flex items-center gap-3 mt-4 mb-6">
+          <div id="map-bookmark-bottom" className="flex items-center gap-3 mt-4 mb-6 scroll-mt-24">
             <div className="flex-1 h-px bg-gold/40" />
             <div className="flex items-center gap-1.5">
               <div className="w-1 h-1 rotate-45 bg-gold/40" />
