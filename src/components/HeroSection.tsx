@@ -137,24 +137,22 @@ const HeroSection = () => {
             })}
           </div>
 
-          <div className="flex flex-col md:flex-row gap-2">
-            <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-              <Input
-                type="text"
-                placeholder={language === "fr" ? "Que cherchez-vous ?" : language === "ar" ? "ماذا تبحث عنه؟" : "What are you looking for?"}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-6 text-lg bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-full shadow-lg"
-              />
-            </div>
+          <div className="relative">
+            <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder={language === "fr" ? "Que cherchez-vous ?" : language === "ar" ? "ماذا تبحث عنه؟" : "What are you looking for?"}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-14 pr-36 py-7 text-lg bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-full shadow-lg"
+            />
             <Button
               type="submit"
               size="lg"
-              className="w-full md:w-auto text-black font-semibold rounded-full px-6 py-6 shadow-lg"
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-black font-semibold rounded-full px-6 py-5 shadow-md"
               style={{ backgroundColor: "#15FF00" }}
             >
-              <Search className="h-5 w-5" />
+              {language === "fr" ? "Recherche" : language === "ar" ? "بحث" : "Search"}
             </Button>
           </div>
         </form>
