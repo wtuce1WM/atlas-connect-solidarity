@@ -44,22 +44,20 @@ const HeroSection = () => {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 flex min-h-screen flex-col items-center justify-between px-4 pt-56 md:pt-64 pb-4">
+      <div className="relative z-10 flex min-h-screen flex-col items-center px-4 pt-56 md:pt-64 gap-10">
 
         {/* Main Title — between logo and search */}
-        <div className="flex flex-1 items-center justify-center w-full">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white text-center max-w-4xl">
-            {language === "fr"
-              ? <>Bienvenue sur la 1<sup>ère</sup> place de marché <a href="#mission" className="text-gold hover:underline">solidaire</a></>
-              : language === "ar"
-                ? <>مرحبًا بكم في أول سوق <a href="#mission" className="text-gold hover:underline">تضامني</a></>
-                : <>Welcome to the 1<sup>st</sup> <a href="#mission" className="text-gold hover:underline">solidarity</a> marketplace</>
-            }
-          </h1>
-        </div>
+        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white text-center max-w-4xl">
+          {language === "fr"
+            ? <>Bienvenue sur la 1<sup>ère</sup> place de marché <a href="#mission" className="text-gold hover:underline">solidaire</a></>
+            : language === "ar"
+              ? <>مرحبًا بكم في أول سوق <a href="#mission" className="text-gold hover:underline">تضامني</a></>
+              : <>Welcome to the 1<sup>st</sup> <a href="#mission" className="text-gold hover:underline">solidarity</a> marketplace</>
+          }
+        </h1>
 
-        {/* Search Bar + Tabs — anchored to bottom */}
-        <form onSubmit={handleSearch} className="w-full max-w-2xl mb-0">
+        {/* Search Bar + Tabs */}
+        <form onSubmit={handleSearch} className="w-full max-w-2xl">
           {/* Category Tabs */}
           <div className="flex items-center justify-center gap-2 mb-4 flex-wrap">
             {[
