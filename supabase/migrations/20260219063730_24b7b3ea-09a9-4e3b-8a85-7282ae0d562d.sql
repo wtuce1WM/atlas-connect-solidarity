@@ -1,0 +1,1 @@
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS logo_bg text DEFAULT 'transparent' CHECK (logo_bg IN ('transparent', 'white', 'black'));
