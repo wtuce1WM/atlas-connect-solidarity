@@ -106,9 +106,12 @@ const HeroSection = () => {
                 ar: "استمتعوا",
               },
               "Commerce": {
-                fr: "Que voulez-vous acheter ?",
-                en: "What do you want to buy?",
-                ar: "ماذا تريدون شراءه؟",
+                fr: "Que voulez-vous",
+                fr2: "acheter ?",
+                en: "What do you want",
+                en2: "to buy?",
+                ar: "ماذا تريدون",
+                ar2: "شراءه؟",
               },
               "Bien-être": {
                 fr: "Prenez soin de vous",
