@@ -1,11 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { LayoutGrid, BedDouble, UtensilsCrossed, Mountain, Sparkles, ShoppingBag, Search } from "lucide-react";
+import { LayoutGrid, BedDouble, UtensilsCrossed, Mountain, Sparkles, ShoppingBag, Search, Mic, Loader2 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import logoGoldOverlay from "@/assets/logoGOLDsimple.webp";
 import heroBackground from "@/assets/hero-marrakech.jpg";
+import { useVoiceSearch } from "@/hooks/useVoiceSearch";
+import { toast } from "@/hooks/use-toast";
 
 const HeroSection = () => {
   const { t, language } = useLanguage();
@@ -14,6 +16,19 @@ const HeroSection = () => {
   const [searchCategory, setSearchCategory] = useState("all");
   const heroRef = useRef<HTMLElement>(null);
   const [scrollY, setScrollY] = useState(0);
+
+  const voiceLang = language === "ar" ? "ar-MA" : language === "en" ? "en-US" : "fr-FR";
+  const { status: voiceStatus, toggleRecording } = useVoiceSearch({
+    lang: voiceLang,
+    onTranscript: (keywords, spokenText) => {
+      const params = new URLSearchParams();
+      params.set("q", keywords);
+      if (spokenText !== keywords) params.set("spoken", spokenText);
+      if (searchCategory !== "all") params.set("category", searchCategory);
+      navigate(`/search?${params.toString()}`);
+    },
+    onError: (msg) => toast({ title: msg, variant: "destructive" }),
+  });
 
   useEffect(() => {
     const handleScroll = () => {
@@ -137,23 +152,43 @@ const HeroSection = () => {
             })}
           </div>
 
-          <div className="relative">
-            <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder={language === "fr" ? "Que cherchez-vous ?" : language === "ar" ? "ماذا تبحث عنه؟" : "What are you looking for?"}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-14 pr-36 py-7 text-lg bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-full shadow-lg"
-            />
-            <Button
-              type="submit"
-              size="lg"
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-black font-semibold rounded-full px-6 py-5 shadow-md"
-              style={{ backgroundColor: "#15FF00" }}
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder={language === "fr" ? "Que cherchez-vous ?" : language === "ar" ? "ماذا تبحث عنه؟" : "What are you looking for?"}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-14 pr-36 py-7 text-lg bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-full shadow-lg"
+              />
+              <Button
+                type="submit"
+                size="lg"
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-black font-semibold rounded-full px-6 py-5 shadow-md"
+                style={{ backgroundColor: "#15FF00" }}
+              >
+                {language === "fr" ? "Recherche" : language === "ar" ? "بحث" : "Search"}
+              </Button>
+            </div>
+            <button
+              type="button"
+              onClick={toggleRecording}
+              className={`flex-shrink-0 flex items-center justify-center w-14 h-14 rounded-2xl shadow-lg transition-all ${
+                voiceStatus === "recording"
+                  ? "bg-red-600 animate-pulse"
+                  : voiceStatus === "processing"
+                    ? "bg-gray-500"
+                    : "bg-gray-800 hover:bg-gray-700"
+              }`}
+              title={language === "fr" ? "Recherche vocale" : language === "ar" ? "بحث صوتي" : "Voice search"}
             >
-              {language === "fr" ? "Recherche" : language === "ar" ? "بحث" : "Search"}
-            </Button>
+              {voiceStatus === "processing" ? (
+                <Loader2 className="h-6 w-6 text-white animate-spin" />
+              ) : (
+                <Mic className="h-6 w-6 text-white" />
+              )}
+            </button>
           </div>
         </form>
 
