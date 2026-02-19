@@ -10,7 +10,7 @@ interface DescriptionExpanderProps {
 export function DescriptionExpander({
   html,
   isVerified = false,
-  collapsedHeight = 220,
+  collapsedHeight = 300,
   anchorId,
 }: DescriptionExpanderProps) {
   const contentRef = useRef<HTMLDivElement>(null);
