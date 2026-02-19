@@ -1353,8 +1353,8 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
             <div className="space-y-2 md:col-span-1">
               <Label htmlFor="neighborhood_top">Quartier</Label>
               <Select
-                value={formData.neighborhood}
-                onValueChange={(value) => handleChange("neighborhood", value)}
+                value={formData.neighborhood || "__none__"}
+                onValueChange={(value) => handleChange("neighborhood", value === "__none__" ? "" : value)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder={
@@ -1366,6 +1366,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                   } />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="__none__">— Aucun —</SelectItem>
                   {neighborhoodsForCity.map((n) => (
                     <SelectItem key={n.id} value={n.name}>
                       {n.name}
