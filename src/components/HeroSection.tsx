@@ -261,7 +261,7 @@ const HeroSection = () => {
         </form>
 
         {/* Listez votre entreprise */}
-        <p className="text-lg md:text-xl text-white/80 font-medium">
+        <p className="text-2xl md:text-3xl text-white/80 font-medium mt-8">
           {language === "fr"
             ? <>Listez votre <Link to="/devenir-affilie" className="text-gold hover:underline font-bold">entreprise</Link></>
             : language === "ar"
