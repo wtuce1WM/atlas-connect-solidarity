@@ -168,3 +168,8 @@ h3 {
 .animate-marquee {
   animation: marquee 30s linear infinite;
 }
+
+input::placeholder,
+textarea::placeholder {
+  color: hsl(var(--muted-foreground) / 0.45);
+}
