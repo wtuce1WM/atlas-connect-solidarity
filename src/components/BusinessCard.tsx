@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Phone, ShieldCheck, Star } from "lucide-react";
+import { MapPin, Phone, ShieldCheck, Star, Globe } from "lucide-react";
 import logoWatermark from "@/assets/logoGOLDsimpleSML.webp";
 
 export interface BusinessCardData {
@@ -17,6 +17,7 @@ export interface BusinessCardData {
   logo_url: string | null;
   hook_fr?: string | null;
   images: string[] | null;
+  website?: string | null;
   categories: string[] | null;
   default_service?: string | null;
   wtuce_status: string | null;
@@ -172,11 +173,14 @@ const BusinessCard = ({
   const hasMapData = business.google_maps_url || (business.latitude && business.longitude);
   const businessImage = getBusinessImage(business);
 
-  const locationText = showAddress && business.address 
-    ? business.address 
-    : business.neighborhood 
-      ? `${business.city}, ${business.neighborhood}`
-      : `${business.city}, ${business.region}`;
+  const hasLocation = business.city || business.neighborhood || business.region;
+  const locationText = hasLocation
+    ? showAddress && business.address
+      ? business.address
+      : business.neighborhood
+        ? `${business.city}, ${business.neighborhood}`
+        : `${business.city}, ${business.region}`
+    : null;
 
   return (
     <Link to={`/business/${business.id}`}>
@@ -240,11 +244,23 @@ const BusinessCard = ({
             {business.name}
           </h3>
 
-          {/* Location */}
-          <div className="flex items-center gap-1 text-sm text-muted-foreground mb-2">
-            <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
-            <span className="truncate">{locationText}</span>
-          </div>
+          {locationText ? (
+            <div className="flex items-center gap-1 text-sm text-muted-foreground mb-2">
+              <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
+              <span className="truncate">{locationText}</span>
+            </div>
+          ) : business.website ? (
+            <a
+              href={business.website}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="flex items-center gap-1 text-sm text-primary hover:underline mb-2"
+            >
+              <Globe className="h-3.5 w-3.5 flex-shrink-0" />
+              <span className="truncate">{business.website.replace(/^https?:\/\//, '')}</span>
+            </a>
+          ) : null}
 
           {/* Contact info */}
           <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
