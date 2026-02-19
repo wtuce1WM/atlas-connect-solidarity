@@ -174,7 +174,7 @@ const CategoryPage = () => {
     const sources: { r: number; c: number }[] = [];
     if (b.google_rating && b.google_review_count) sources.push({ r: (Number(b.google_rating) / 5) * 20, c: b.google_review_count });
     if (b.tripadvisor_rating && b.tripadvisor_review_count) sources.push({ r: (Number(b.tripadvisor_rating) / 5) * 20, c: b.tripadvisor_review_count });
-    if (b.restaurant_guru_rating && b.restaurant_guru_review_count) sources.push({ r: (Number(b.restaurant_guru_rating) / 10) * 20, c: b.restaurant_guru_review_count });
+    if (b.restaurant_guru_rating && b.restaurant_guru_review_count) sources.push({ r: (Number(b.restaurant_guru_rating) / 5) * 20, c: b.restaurant_guru_review_count });
     if (sources.length === 0) return null;
     const total = sources.reduce((s, x) => s + x.c, 0);
     return Math.round((sources.reduce((s, x) => s + x.r * x.c, 0) / total) * 10) / 10;
