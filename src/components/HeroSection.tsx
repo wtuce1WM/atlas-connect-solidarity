@@ -44,7 +44,7 @@ const HeroSection = () => {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 flex min-h-screen flex-col items-center justify-between px-4 pt-56 md:pt-64 pb-16">
+      <div className="relative z-10 flex min-h-screen flex-col items-center justify-between px-4 pt-56 md:pt-64 pb-4">
 
         {/* Main Title — between logo and search */}
         <div className="flex flex-1 items-center justify-center w-full">
