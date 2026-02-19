@@ -44,7 +44,7 @@ const HeroSection = () => {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 flex min-h-screen flex-col items-center px-4 pt-[22rem] md:pt-[30rem]">
+      <div className="relative z-10 flex min-h-screen flex-col items-center px-4 pt-[28rem] md:pt-[38rem]">
 
         {/* Main Title */}
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white text-center mb-16 max-w-4xl">
