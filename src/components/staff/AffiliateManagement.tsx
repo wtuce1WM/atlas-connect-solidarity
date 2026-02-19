@@ -882,15 +882,6 @@ const AffiliateManagement = () => {
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleDelete(affiliate.id)}
-                            className="text-destructive hover:text-destructive"
-                            title="Supprimer l'affilié"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
                         </div>
                       </TableCell>
                     </TableRow>

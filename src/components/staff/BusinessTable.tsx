@@ -280,18 +280,6 @@ const BusinessTable = ({ businesses, gammes, loading, onEdit, onDelete, onDuplic
                     >
                       <Copy className="h-4 w-4" />
                     </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setBusinessToDelete(business);
-                        setDeleteDialogOpen(true);
-                      }}
-                      className="border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700"
-                      title="Supprimer"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
                   </div>
                 </TableCell>
               </TableRow>

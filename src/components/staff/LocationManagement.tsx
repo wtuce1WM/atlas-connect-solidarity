@@ -653,9 +653,6 @@ const LocationManagement = () => {
                             <Button size="sm" variant="ghost" onClick={() => openEditCity(city)}>
                               <Edit className="h-4 w-4" />
                             </Button>
-                            <Button size="sm" variant="ghost" className="text-destructive" onClick={() => handleDeleteCity(city.id)}>
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
                           </TableCell>
                         </TableRow>
                         {isExpanded && (
@@ -705,14 +702,6 @@ const LocationManagement = () => {
                                           }}
                                         >
                                           <Edit className="h-3 w-3" />
-                                        </Button>
-                                        <Button
-                                          size="sm"
-                                          variant="ghost"
-                                          className="h-5 w-5 p-0 text-destructive"
-                                          onClick={() => handleDeleteNeighborhood(n.id)}
-                                        >
-                                          <Trash2 className="h-3 w-3" />
                                         </Button>
                                       </div>
                                     ))}
