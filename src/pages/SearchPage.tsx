@@ -844,7 +844,18 @@ const SearchPage = () => {
         </div>
       </section>
 
-      <CategoriesCarouselSection />
+      <section className="bg-black pt-16 pb-0 px-4">
+        <div className="container mx-auto max-w-5xl text-center">
+          <h2 className="text-3xl font-bold text-white mb-0">
+            {language === "fr"
+              ? <>Trouvez les <span className="text-gold">meilleurs professionnels</span> par secteur d'activité</>
+              : language === "ar"
+                ? <>ابحث عن <span className="text-gold">أفضل المهنيين</span> حسب قطاع النشاط</>
+                : <>Find the <span className="text-gold">best professionals</span> by industry sector</>}
+          </h2>
+        </div>
+      </section>
+      <CategoriesCarouselSection showTitle={false} />
       <Footer />
     </div>
   );
