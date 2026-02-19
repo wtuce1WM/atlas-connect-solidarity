@@ -116,27 +116,23 @@ const SubcategoryPage = () => {
       .map(c => c.name);
   }, [allBusinesses, citiesWithPriority]);
 
-  // Available services based on selected city and gamme — limited to this subcategory's services
+  // Available services: services from this subcategory that appear in at least one business
   const availableServices = useMemo(() => {
+    // Wait until subcategoryServices is loaded
+    if (subcategoryServices === null) return [];
+
     const services = new Set<string>();
-    let businessesToCheck = selectedCity === "all"
-      ? allBusinesses
-      : allBusinesses.filter(b => b.city === selectedCity);
-
-    if (selectedGamme !== "all") {
-      businessesToCheck = businessesToCheck.filter(b => b.gamme_id === selectedGamme);
-    }
-
-    businessesToCheck.forEach((business) => {
+    // Show all services available across all businesses (not filtered by city)
+    // so that service pills are always visible regardless of city selection
+    allBusinesses.forEach((business) => {
       business.services?.forEach((service) => {
-        // null = not yet loaded (show nothing); array = loaded (filter strictly)
-        if (subcategoryServices !== null && subcategoryServices.includes(service)) {
+        if (subcategoryServices.includes(service)) {
           services.add(service);
         }
       });
     });
     return Array.from(services).sort((a, b) => a.localeCompare(b, "fr"));
-  }, [allBusinesses, selectedCity, selectedGamme, subcategoryServices]);
+  }, [allBusinesses, subcategoryServices]);
 
   // Available gammes based on selected city
   const availableGammes = useMemo(() => {
@@ -608,7 +604,7 @@ const SubcategoryPage = () => {
           </div>
 
           {/* Services Filter */}
-          {selectedCity !== "all" && availableServices.length > 0 && (
+          {availableServices.length > 0 && (
             <div className="mb-8">
               <div className="mb-3">
                 <label className="text-sm font-bold text-white">
