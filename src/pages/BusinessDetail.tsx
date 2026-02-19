@@ -232,7 +232,7 @@ const BusinessDetail = () => {
         setCategoriesWithResults([]);
         return;
       }
-      const validCats = business.categories.filter(c => c && c.trim());
+      const validCats = business.categories.filter(c => c && c.trim() && c.trim() !== '?');
       if (validCats.length === 0) {
         setCategoriesWithResults([]);
         return;
