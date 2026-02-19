@@ -154,7 +154,7 @@ const HeroSection = () => {
                   key={key}
                   type="button"
                   onClick={() => setSearchCategory(key)}
-                  className={`flex items-center gap-1.5 pb-2 text-sm font-semibold transition-all border-b-2 ${
+                  className={`flex items-center gap-1.5 pb-2 text-sm font-semibold transition-all border-b-2 whitespace-nowrap ${
                     isActive
                       ? "border-white text-white"
                       : "border-transparent text-white/70 hover:text-white hover:border-white/40"
