@@ -1399,7 +1399,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                 id="email_top"
                 value={formData.email}
                 onChange={(e) => handleChange("email", e.target.value)}
-                placeholder="contact@exemple.com"
+                placeholder=""
               />
             </div>
           </div>
