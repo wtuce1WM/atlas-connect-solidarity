@@ -586,17 +586,6 @@ const SubcategoryPage = () => {
               )}
             </div>
 
-            {/* Clear Filters - always visible */}
-            {(selectedServices.length > 0 || selectedGamme !== "all") && (
-              <div className="mb-4 bg-black/60 backdrop-blur-sm rounded-lg px-4 py-2 inline-block">
-                <button
-                  onClick={clearFilters}
-                  className="text-sm text-gold underline hover:text-gold/80 transition-colors"
-                >
-                  {language === "fr" ? "Effacer les filtres" : language === "ar" ? "مسح الفلاتر" : "Clear filters"}
-                </button>
-              </div>
-            )}
           </div>
 
           {/* Services Filter */}
@@ -627,6 +616,16 @@ const SubcategoryPage = () => {
                   </button>
                 ))}
               </div>
+              {selectedServices.length > 0 && (
+                <div className="mt-4 bg-black/60 backdrop-blur-sm rounded-lg px-4 py-2 inline-block">
+                  <button
+                    onClick={clearFilters}
+                    className="text-sm text-gold underline hover:text-gold/80 transition-colors"
+                  >
+                    {language === "fr" ? "Effacer les filtres" : language === "ar" ? "مسح الفلاتر" : "Clear filters"}
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
