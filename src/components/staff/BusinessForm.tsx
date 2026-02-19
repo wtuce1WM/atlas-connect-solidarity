@@ -1085,7 +1085,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                 </Button>
               </div>
             </div>
-            <div className="grid grid-cols-10 gap-1">
+            <div className="flex flex-wrap gap-1">
               {[
                 { code: "ar", flag: "🇲🇦", label: "AR" },
                 { code: "fr", flag: "🇫🇷", label: "FR" },
