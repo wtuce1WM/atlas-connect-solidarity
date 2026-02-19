@@ -452,12 +452,6 @@ const LocationManagement = () => {
           setIsCountryDialogOpen(open);
           if (!open) resetCountryForm();
         }}>
-          <DialogTrigger asChild>
-            <Button className="bg-gold hover:bg-gold/90 text-gold-foreground">
-              <Plus className="h-4 w-4 mr-2" />
-              Nouveau pays
-            </Button>
-          </DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>{editingCountry ? "Modifier le pays" : "Nouveau pays"}</DialogTitle>
