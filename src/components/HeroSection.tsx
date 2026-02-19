@@ -44,14 +44,44 @@ const HeroSection = () => {
           className="object-contain w-1/2 max-w-xs"
         />
 
-        {/* Titre */}
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white text-center max-w-4xl">
-          {language === "fr"
-            ? <>Bienvenue sur la 1<sup>ère</sup> place de marché <a href="#mission" className="text-gold hover:underline">solidaire</a></>
-            : language === "ar"
-              ? <>مرحبًا بكم في أول سوق <a href="#mission" className="text-gold hover:underline">تضامني</a></>
-              : <>Welcome to the 1<sup>st</sup> <a href="#mission" className="text-gold hover:underline">solidarity</a> marketplace</>
-          }
+        {/* Titre dynamique selon l'onglet */}
+        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white text-center max-w-4xl min-h-[3rem]">
+          {(() => {
+            const texts: Record<string, { fr: string; en: string; ar: string }> = {
+              all: {
+                fr: "Trouvez les meilleurs professionnels",
+                en: "Find the best professionals",
+                ar: "ابحث عن أفضل المهنيين",
+              },
+              "Hôtellerie": {
+                fr: "Trouvez les meilleurs hôtels & riads",
+                en: "Find the best hotels & riads",
+                ar: "ابحث عن أفضل الفنادق والرياضات",
+              },
+              "Restauration": {
+                fr: "Découvrez les meilleurs restaurants",
+                en: "Discover the best restaurants",
+                ar: "اكتشف أفضل المطاعم",
+              },
+              "Tourisme": {
+                fr: "Explorez les meilleures activités",
+                en: "Explore the best activities",
+                ar: "استكشف أفضل الأنشطة",
+              },
+              "Commerce": {
+                fr: "Trouvez les meilleurs commerces",
+                en: "Find the best shops",
+                ar: "ابحث عن أفضل المتاجر",
+              },
+              "Bien-être": {
+                fr: "Découvrez les meilleurs espaces bien-être",
+                en: "Discover the best wellness spots",
+                ar: "اكتشف أفضل أماكن الرفاهية",
+              },
+            };
+            const t = texts[searchCategory] || texts.all;
+            return language === "ar" ? t.ar : language === "en" ? t.en : t.fr;
+          })()}
         </h1>
 
         {/* Search Bar + Tabs */}
