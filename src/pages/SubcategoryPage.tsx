@@ -129,8 +129,8 @@ const SubcategoryPage = () => {
 
     businessesToCheck.forEach((business) => {
       business.services?.forEach((service) => {
-        // Only include services that belong to this subcategory
-        if (subcategoryServices.length === 0 || subcategoryServices.includes(service)) {
+        // Only include services that belong to this subcategory (wait until list is loaded)
+        if (subcategoryServices.includes(service)) {
           services.add(service);
         }
       });
