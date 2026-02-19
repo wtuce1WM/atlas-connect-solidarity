@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import CategoriesCarouselSection from "@/components/CategoriesCarouselSection";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -843,6 +844,7 @@ const SearchPage = () => {
         </div>
       </section>
 
+      <CategoriesCarouselSection />
       <Footer />
     </div>
   );
