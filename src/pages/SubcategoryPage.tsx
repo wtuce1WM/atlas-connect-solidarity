@@ -103,6 +103,7 @@ const SubcategoryPage = () => {
   const [badges, setBadges] = useState<Badge[]>([]);
   const [subcategories, setSubcategories] = useState<{ id: string; name_fr: string }[]>([]);
   const [badgeSubcategories, setBadgeSubcategories] = useState<{ badge_id: string; subcategory_id: string }[]>([]);
+  const [subcategoryServices, setSubcategoryServices] = useState<string[]>([]);
 
   const decodedSubcategoryName = subcategoryName ? decodeURIComponent(subcategoryName) : "";
 
@@ -115,7 +116,7 @@ const SubcategoryPage = () => {
       .map(c => c.name);
   }, [allBusinesses, citiesWithPriority]);
 
-  // Available services based on selected city and gamme
+  // Available services based on selected city and gamme — limited to this subcategory's services
   const availableServices = useMemo(() => {
     const services = new Set<string>();
     let businessesToCheck = selectedCity === "all"
@@ -127,10 +128,15 @@ const SubcategoryPage = () => {
     }
 
     businessesToCheck.forEach((business) => {
-      business.services?.forEach((service) => services.add(service));
+      business.services?.forEach((service) => {
+        // Only include services that belong to this subcategory
+        if (subcategoryServices.length === 0 || subcategoryServices.includes(service)) {
+          services.add(service);
+        }
+      });
     });
     return Array.from(services).sort((a, b) => a.localeCompare(b, "fr"));
-  }, [allBusinesses, selectedCity, selectedGamme]);
+  }, [allBusinesses, selectedCity, selectedGamme, subcategoryServices]);
 
   // Available gammes based on selected city
   const availableGammes = useMemo(() => {
@@ -217,14 +223,23 @@ const SubcategoryPage = () => {
         if (subcatData) {
           setSubcategoryInfo(subcatData);
 
-          // Fetch parent category info
-          const { data: catData } = await supabase
-            .from("categories")
-            .select("id, name_fr, name_en, name_ar, icon, front_color")
-            .eq("id", subcatData.category_id)
-            .maybeSingle();
+          // Fetch parent category info + services of this subcategory in parallel
+          const [catRes, servicesRes] = await Promise.all([
+            supabase
+              .from("categories")
+              .select("id, name_fr, name_en, name_ar, icon, front_color")
+              .eq("id", subcatData.category_id)
+              .maybeSingle(),
+            supabase
+              .from("services")
+              .select("name_fr")
+              .eq("subcategory_id", subcatData.id),
+          ]);
 
-          if (catData) setCategoryInfo(catData);
+          if (catRes.data) setCategoryInfo(catRes.data);
+          if (servicesRes.data) {
+            setSubcategoryServices(servicesRes.data.map(s => s.name_fr));
+          }
         }
 
         // Fetch cities with priority scores
