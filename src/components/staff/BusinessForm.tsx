@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, ArrowDown, Save, Award, Trash2, MapPinned, AlertCircle, Copy, ExternalLink, Globe } from "lucide-react";
+import { ArrowLeft, ArrowDown, Save, Award, Trash2, MapPinned, AlertCircle, Copy, ExternalLink, Globe, Star } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 import RichTextEditor from "./RichTextEditor";
 import ImageUploader from "./ImageUploader";
@@ -772,6 +772,31 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                   className="h-8 w-8 object-contain rounded border bg-white flex-shrink-0"
                 />
               )}
+              {/* Note /20 */}
+              {(() => {
+                const fd = formData as any;
+                let display: string | null = null;
+                if (fd.rating) {
+                  display = `${fd.rating}/20`;
+                } else {
+                  const sources: { rating: number; count: number }[] = [];
+                  if (fd.google_rating) sources.push({ rating: Number(fd.google_rating), count: Number(fd.google_review_count) || 0 });
+                  if (fd.tripadvisor_rating) sources.push({ rating: Number(fd.tripadvisor_rating), count: Number(fd.tripadvisor_review_count) || 0 });
+                  if (fd.restaurant_guru_rating) sources.push({ rating: Number(fd.restaurant_guru_rating), count: Number(fd.restaurant_guru_review_count) || 0 });
+                  if (sources.length > 0) {
+                    const totalCount = sources.reduce((s, r) => s + r.count, 0);
+                    const weightedSum = sources.reduce((s, r) => s + (r.rating / 5) * 20 * r.count, 0);
+                    const avg = totalCount > 0 ? weightedSum / totalCount : sources.reduce((s, r) => s + (r.rating / 5) * 20, 0) / sources.length;
+                    display = `${avg.toFixed(1)}/20`;
+                  }
+                }
+                return display ? (
+                  <span className="flex items-center gap-1 text-amber-600 font-semibold text-sm">
+                    <Star className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
+                    {display}
+                  </span>
+                ) : null;
+              })()}
               <span className="text-muted-foreground/40">|</span>
               <a
                 href={`/business/${business.id}`}
