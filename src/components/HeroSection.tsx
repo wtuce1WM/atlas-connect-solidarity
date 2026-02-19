@@ -59,24 +59,24 @@ const HeroSection = () => {
                 ar: "ابحث عن أفضل الفنادق والرياضات",
               },
               "Restauration": {
-                fr: "Découvrez les meilleurs restaurants",
-                en: "Discover the best restaurants",
-                ar: "اكتشف أفضل المطاعم",
+                fr: "Trouvez un bon restaurant",
+                en: "Find a good restaurant",
+                ar: "ابحث عن مطعم جيد",
               },
               "Tourisme": {
-                fr: "Explorez les meilleures activités",
-                en: "Explore the best activities",
-                ar: "استكشف أفضل الأنشطة",
+                fr: "Amusez-vous",
+                en: "Have fun",
+                ar: "استمتعوا",
               },
               "Commerce": {
-                fr: "Trouvez les meilleurs commerces",
-                en: "Find the best shops",
-                ar: "ابحث عن أفضل المتاجر",
+                fr: "Que voulez-vous acheter ?",
+                en: "What do you want to buy?",
+                ar: "ماذا تريدون شراءه؟",
               },
               "Bien-être": {
-                fr: "Découvrez les meilleurs espaces bien-être",
-                en: "Discover the best wellness spots",
-                ar: "اكتشف أفضل أماكن الرفاهية",
+                fr: "Prenez soin de vous",
+                en: "Take care of yourself",
+                ar: "اعتنوا بأنفسكم",
               },
             };
             const t = texts[searchCategory] || texts.all;
