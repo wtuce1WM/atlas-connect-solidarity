@@ -163,6 +163,7 @@ const StaffBackoffice = () => {
   const handleEdit = (business: Business) => {
     setEditingBusiness(business);
     setShowForm(true);
+    window.scrollTo({ top: 0, behavior: "instant" });
   };
 
   const handleDuplicate = async (business: Business) => {
@@ -197,6 +198,7 @@ const StaffBackoffice = () => {
       if (data) {
         setEditingBusiness(data);
         setShowForm(true);
+        window.scrollTo({ top: 0, behavior: "instant" });
       }
     }
   };
@@ -335,7 +337,7 @@ const StaffBackoffice = () => {
               <StaffDashboard
                 businesses={businesses}
                 onNavigateTab={setActiveTab}
-                onNewBusiness={() => setShowForm(true)}
+                onNewBusiness={() => { setShowForm(true); window.scrollTo({ top: 0, behavior: "instant" }); }}
                 onEditBusiness={handleEdit}
                 brokenFilesMap={brokenFilesMap}
                 isCheckingBrokenFiles={isCheckingBrokenFiles}
@@ -482,7 +484,7 @@ const StaffBackoffice = () => {
                   </Select>
                 )}
                 <Button
-                  onClick={() => setShowForm(true)}
+                  onClick={() => { setShowForm(true); window.scrollTo({ top: 0, behavior: "instant" }); }}
                   className="bg-green-600 hover:bg-green-700 text-white"
                 >
                   <Plus className="h-4 w-4 mr-2" />
