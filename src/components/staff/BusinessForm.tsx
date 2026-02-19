@@ -401,6 +401,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
     hook_en: (business as any)?.hook_en || "",
     hook_ar: (business as any)?.hook_ar || "",
     menu_url: (business as any)?.menu_url || "",
+    logo_bg: (business as any)?.logo_bg || "transparent",
   });
   
   // Business labels state (managed separately)
@@ -608,6 +609,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
       hook_en: formData.hook_en || null,
       hook_ar: formData.hook_ar || null,
       menu_url: formData.menu_url || null,
+      logo_bg: (formData as any).logo_bg || "transparent",
     };
 
     try {
@@ -896,6 +898,37 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
               onChange={(url) => handleChange("logo_url", url)}
               businessId={business?.id}
             />
+            {/* Logo background color selector */}
+            <div className="mt-2">
+              <Label className="text-xs text-muted-foreground mb-1 block">Fond du logo (affichage front)</Label>
+              <div className="flex gap-2">
+                {[
+                  { value: "transparent", label: "Transparent", preview: "bg-transparent border-2 border-dashed border-gray-300", textClass: "text-gray-500" },
+                  { value: "white", label: "Blanc", preview: "bg-white border border-gray-300", textClass: "text-gray-800" },
+                  { value: "black", label: "Noir", preview: "bg-black border border-gray-600", textClass: "text-white" },
+                ].map(({ value, label, preview, textClass }) => {
+                  const isSelected = ((formData as any).logo_bg || "transparent") === value;
+                  return (
+                    <button
+                      key={value}
+                      type="button"
+                      onClick={() => handleChange("logo_bg", value)}
+                      className={`flex flex-col items-center gap-1 rounded-lg p-2 transition-all ${isSelected ? "ring-2 ring-primary ring-offset-1 scale-105" : "opacity-60 hover:opacity-90"}`}
+                      title={label}
+                    >
+                      <div className={`w-10 h-10 rounded flex items-center justify-center ${preview}`}>
+                        {formData.logo_url ? (
+                          <img src={formData.logo_url} alt="logo" className="w-8 h-8 object-contain" />
+                        ) : (
+                          <span className={`text-[9px] font-bold ${textClass}`}>LOGO</span>
+                        )}
+                      </div>
+                      <span className="text-[10px] text-muted-foreground">{label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         </div>
 
