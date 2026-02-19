@@ -34,19 +34,17 @@ const HeroSection = () => {
       {/* Overlay with gradient to black at bottom */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-black" />
 
-      {/* Centered Gold Logo Overlay */}
-      <div className="absolute inset-x-0 top-32 flex flex-col items-center pointer-events-none">
+      {/* Content — logo puis titre puis recherche dans l'ordre naturel */}
+      <div className="relative z-10 flex flex-col items-center px-4 pt-24 pb-16 gap-8">
+
+        {/* Logo */}
         <img
           src={logoGoldOverlay}
           alt=""
-          className="object-contain opacity-100 w-1/2 max-w-xs"
+          className="object-contain w-1/2 max-w-xs"
         />
-      </div>
 
-      {/* Content */}
-      <div className="relative z-10 flex min-h-screen flex-col items-center px-4 pt-56 md:pt-64 gap-10">
-
-        {/* Main Title — between logo and search */}
+        {/* Titre */}
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white text-center max-w-4xl">
           {language === "fr"
             ? <>Bienvenue sur la 1<sup>ère</sup> place de marché <a href="#mission" className="text-gold hover:underline">solidaire</a></>
@@ -58,8 +56,11 @@ const HeroSection = () => {
 
         {/* Search Bar + Tabs */}
         <form onSubmit={handleSearch} className="w-full max-w-2xl">
-          {/* Category Tabs */}
-          <div className="flex items-center justify-center gap-2 mb-4 flex-wrap">
+          {/* Category Tabs — une seule ligne, scroll si besoin */}
+          <div
+            className="flex items-center justify-center gap-2 mb-4 overflow-x-auto"
+            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          >
             {[
               { key: "all", labelFr: "Tout", labelEn: "All", labelAr: "الكل", Icon: LayoutGrid },
               { key: "Hôtellerie", labelFr: "Hôtels", labelEn: "Hotels", labelAr: "فنادق", Icon: BedDouble },
@@ -75,7 +76,7 @@ const HeroSection = () => {
                   key={key}
                   type="button"
                   onClick={() => setSearchCategory(key)}
-                  className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                  className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-all ${
                     isActive
                       ? "bg-gold text-black shadow-md"
                       : "bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm"
