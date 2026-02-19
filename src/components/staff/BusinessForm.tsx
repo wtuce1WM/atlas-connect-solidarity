@@ -1087,9 +1087,10 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                 </Button>
               </div>
             </div>
-            <div className="grid grid-cols-11 gap-1 w-full">
+            <div className="grid grid-cols-12 gap-1 w-full">
               {[
                 { code: "ar", flag: "🇲🇦", label: "AR" },
+                { code: "ar-std", flag: "ض", label: "AR", isText: true },
                 { code: "fr", flag: "🇫🇷", label: "FR" },
                 { code: "en", flag: "🇬🇧", label: "EN" },
                 { code: "es", flag: "🇪🇸", label: "ES" },
@@ -1100,13 +1101,14 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                 { code: "zh", flag: "🇨🇳", label: "ZH" },
                 { code: "ja", flag: "🇯🇵", label: "JA" },
                 { code: "ru", flag: "🇷🇺", label: "RU" },
-              ].map(({ code, flag, label }) => {
+              ].map(({ code, flag, label, isText }) => {
                 const languages = ((formData as any).languages as string[]) || [];
                 const isSelected = languages.includes(code);
                 return (
                   <button
                     key={code}
                     type="button"
+                    title={code === "ar-std" ? "Arabe (standard)" : undefined}
                     onClick={() => {
                       const updated = isSelected
                         ? languages.filter((l: string) => l !== code)
@@ -1119,7 +1121,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                         : "bg-white border-gray-200 text-gray-600 hover:border-gray-400"
                     }`}
                   >
-                    <span className="text-lg leading-none">{flag}</span>
+                    <span className={`leading-none ${isText ? "text-base font-bold" : "text-lg"}`}>{flag}</span>
                     {label}
                   </button>
                 );
