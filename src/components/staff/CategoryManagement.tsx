@@ -599,21 +599,6 @@ const CategoryManagement = () => {
                   >
                     <Pencil className="h-4 w-4" />
                   </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setDeleteDialog({
-                        open: true,
-                        type: "category",
-                        id: category.id,
-                        name: category.name_fr
-                      });
-                    }}
-                  >
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
                 </div>
 
                 {isEditing && (
