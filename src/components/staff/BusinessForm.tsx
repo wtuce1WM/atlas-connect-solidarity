@@ -738,17 +738,13 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
             <ArrowLeft className="h-4 w-4 mr-2" />
             Retour
           </Button>
-          <h2 className="text-lg font-bold truncate">
-            {business ? "Modifier l'entreprise" : "Nouvelle entreprise"}
-          </h2>
-          {business && (
-            <div className="flex items-center gap-2 min-w-0 flex-wrap">
-              <span className="text-muted-foreground">—</span>
-              {/* Nom + bouton copier */}
+          {business ? (
+            <div className="flex items-center gap-2 flex-wrap">
+              {/* Nom cliquable pour copier */}
               <button
                 type="button"
                 title="Copier le nom"
-                className="font-semibold truncate max-w-[200px] hover:text-violet-700 transition-colors cursor-pointer"
+                className="font-semibold hover:text-violet-700 transition-colors cursor-pointer"
                 onClick={() => {
                   const text = formData.city ? `${formData.name} ${formData.city}` : formData.name;
                   navigator.clipboard.writeText(text);
@@ -776,9 +772,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                   className="h-8 w-8 object-contain rounded border bg-white flex-shrink-0"
                 />
               )}
-              {/* Séparateur */}
               <span className="text-muted-foreground/40">|</span>
-              {/* Lien fiche frontend */}
               <a
                 href={`/business/${business.id}`}
                 target="_blank"
@@ -789,19 +783,11 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                 <ExternalLink className="h-3.5 w-3.5" />
                 <span>Fiche</span>
               </a>
-              {/* Site web */}
               {formData.website && (
-                <a
-                  href={formData.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  title="Site web"
-                  className="text-muted-foreground hover:text-blue-600 transition-colors"
-                >
+                <a href={formData.website} target="_blank" rel="noopener noreferrer" title="Site web" className="text-muted-foreground hover:text-blue-600 transition-colors">
                   <Globe className="h-3.5 w-3.5" />
                 </a>
               )}
-              {/* Réseaux sociaux */}
               {(formData as any).instagram_url && (
                 <a href={(formData as any).instagram_url} target="_blank" rel="noopener noreferrer" title="Instagram" className="text-muted-foreground hover:text-pink-600 transition-colors">
                   <InstagramIcon className="h-3.5 w-3.5" />
@@ -843,6 +829,8 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                 </a>
               )}
             </div>
+          ) : (
+            <h2 className="text-lg font-bold">Nouvelle entreprise</h2>
           )}
         </div>
         <Button
