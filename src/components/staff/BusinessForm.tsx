@@ -730,16 +730,30 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
   };
 
   return (
-    <div className="bg-background rounded-lg border p-6">
-      <div className="flex items-center justify-between gap-4 mb-6">
-        <div className="flex items-center gap-4">
+    <div className="bg-background rounded-lg border">
+      {/* Sticky header */}
+      <div className="sticky top-[73px] z-20 bg-background border-b px-6 py-3 flex items-center justify-between gap-4 shadow-sm">
+        <div className="flex items-center gap-3 min-w-0">
           <Button variant="ghost" size="sm" onClick={() => isDirty ? setShowLeaveDialog(true) : onCancel()}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             Retour
           </Button>
-          <h2 className="text-xl font-bold">
+          <h2 className="text-lg font-bold truncate">
             {business ? "Modifier l'entreprise" : "Nouvelle entreprise"}
           </h2>
+          {business && (
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="text-muted-foreground">—</span>
+              <span className="font-semibold truncate max-w-xs">{formData.name}</span>
+              {formData.logo_url && (
+                <img
+                  src={formData.logo_url}
+                  alt="logo"
+                  className="h-8 w-8 object-contain rounded border bg-white flex-shrink-0"
+                />
+              )}
+            </div>
+          )}
         </div>
         <Button
           type="button"
@@ -749,12 +763,14 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
             if (form) form.requestSubmit();
           }}
           disabled={loading}
-          className="bg-gold hover:bg-gold/90 text-gold-foreground"
+          className="bg-gold hover:bg-gold/90 text-gold-foreground flex-shrink-0"
         >
           <Save className="h-4 w-4 mr-2" />
           {loading ? "Enregistrement..." : "Enregistrer"}
         </Button>
       </div>
+
+      <div className="p-6">
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Nom + Logo */}
@@ -2240,6 +2256,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+    </div>
     </div>
   );
 };
