@@ -250,7 +250,7 @@ const BusinessDetail = () => {
         const foundCats = new Set<string>();
         data.forEach(b => {
           (b.categories || []).forEach((c: string) => {
-            if (validCats.includes(c)) foundCats.add(c);
+            if (validCats.includes(c) && c.trim() !== '?') foundCats.add(c);
           });
         });
         setCategoriesWithResults(Array.from(foundCats));
