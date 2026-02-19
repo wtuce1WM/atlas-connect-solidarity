@@ -81,11 +81,14 @@ const HeroSection = () => {
         {/* Titre dynamique selon l'onglet */}
         <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white text-center max-w-4xl min-h-[3rem]">
           {(() => {
-            const texts: Record<string, { fr: string; en: string; ar: string }> = {
+            const texts: Record<string, { fr: string; fr2?: string; en: string; en2?: string; ar: string; ar2?: string }> = {
               all: {
-                fr: "Que cherchez-vous ? Et où ?",
-                en: "What are you looking for? And where?",
-                ar: "ماذا تبحث عنه؟ وأين؟",
+                fr: "Que cherchez-vous ?",
+                fr2: "Et où ?",
+                en: "What are you looking for?",
+                en2: "And where?",
+                ar: "ماذا تبحث عنه؟",
+                ar2: "وأين؟",
               },
               "Hôtellerie": {
                 fr: "Trouvez les meilleurs hôtels & riads",
@@ -114,7 +117,15 @@ const HeroSection = () => {
               },
             };
             const t = texts[searchCategory] || texts.all;
-            return language === "ar" ? t.ar : language === "en" ? t.en : t.fr;
+            const line1 = language === "ar" ? t.ar : language === "en" ? t.en : t.fr;
+            const line2 = language === "ar" ? t.ar2 : language === "en" ? t.en2 : t.fr2;
+            return line2 ? (
+              <>
+                {line1}<br className="md:hidden" />{" "}
+                <span className="hidden md:inline">{line2}</span>
+                <span className="md:hidden">{line2}</span>
+              </>
+            ) : line1;
           })()}
         </h1>
 
