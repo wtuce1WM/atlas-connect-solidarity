@@ -49,9 +49,9 @@ const HeroSection = () => {
           {(() => {
             const texts: Record<string, { fr: string; en: string; ar: string }> = {
               all: {
-                fr: "Trouvez les meilleurs professionnels",
-                en: "Find the best professionals",
-                ar: "ابحث عن أفضل المهنيين",
+                fr: "Que cherchez-vous ? Et où ?",
+                en: "What are you looking for? And where?",
+                ar: "ماذا تبحث عنه؟ وأين؟",
               },
               "Hôtellerie": {
                 fr: "Trouvez les meilleurs hôtels & riads",
