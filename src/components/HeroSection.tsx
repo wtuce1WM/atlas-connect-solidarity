@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { MapPin, Building2, Crown, ChevronRight, ChevronLeft, Loader2, Search, Star, LayoutGrid, BedDouble, UtensilsCrossed, Mountain, Sparkles } from "lucide-react";
+import { MapPin, Building2, Crown, ChevronRight, ChevronLeft, Loader2, Search, Star, LayoutGrid, BedDouble, UtensilsCrossed, Mountain, Sparkles, ShoppingBag } from "lucide-react";
 import DynamicIcon from "@/components/DynamicIcon";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -259,6 +259,7 @@ const HeroSection = () => {
               { key: "Hôtellerie", labelFr: "Hôtels", labelEn: "Hotels", labelAr: "فنادق", Icon: BedDouble },
               { key: "Restauration", labelFr: "Restaurants", labelEn: "Restaurants", labelAr: "مطاعم", Icon: UtensilsCrossed },
               { key: "Tourisme", labelFr: "Activités", labelEn: "Activities", labelAr: "أنشطة", Icon: Mountain },
+              { key: "Commerce", labelFr: "Commerce", labelEn: "Shopping", labelAr: "تسوق", Icon: ShoppingBag },
               { key: "Bien-être", labelFr: "Bien-être", labelEn: "Wellness", labelAr: "رفاهية", Icon: Sparkles },
             ].map(({ key, labelFr, labelEn, labelAr, Icon }) => {
               const isActive = searchCategory === key;
