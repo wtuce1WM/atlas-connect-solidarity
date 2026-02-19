@@ -1,4 +1,4 @@
-import { useSearchParams, Link } from "react-router-dom";
+import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { useEffect, useState, useMemo } from "react";
 import zitounMaskImg from "@/assets/zitoun-mask.jpg";
 import { supabase } from "@/integrations/supabase/client";
@@ -450,8 +450,20 @@ const SearchPage = () => {
 
   const t = translations[language] || translations.fr;
 
+  const navigate = useNavigate();
+
   const handleCityChange = (city: string) => {
     setSelectedCity(city);
+  };
+
+  const handleCategoryChange = (category: string) => {
+    const params = new URLSearchParams(searchParams);
+    if (category === "all") {
+      params.delete("category");
+    } else {
+      params.set("category", category);
+    }
+    navigate(`/search?${params.toString()}`, { replace: true });
   };
 
   const goToPage = (page: number) => {
@@ -553,25 +565,61 @@ const SearchPage = () => {
       {/* Filters & Results */}
       <section className="py-6 lg:py-12 bg-black">
         <div className="container mx-auto px-4">
-          {/* City Filter */}
-          {availableCities.length > 1 && (
-            <div className="mb-8 flex flex-col items-center sm:flex-row sm:items-center gap-2 sm:gap-4">
-              <label className="text-sm text-gray-400">{t.filterByCity}:</label>
-              <Select value={selectedCity} onValueChange={handleCityChange}>
+          {/* Filters: Category + City */}
+          <div className="mb-8 flex flex-col items-start sm:flex-row sm:items-center gap-2 sm:gap-4 flex-wrap">
+            {/* Category Filter */}
+            <div className="flex items-center gap-2">
+              <label className="text-sm text-gray-400">
+                {language === "ar" ? "الفئة" : language === "en" ? "Category" : "Catégorie"} :
+              </label>
+              <Select value={categoryFromUrl || "all"} onValueChange={handleCategoryChange}>
                 <SelectTrigger className="w-[220px] bg-card border-border">
-                  <SelectValue placeholder={t.allCities} />
+                  <SelectValue placeholder={language === "ar" ? "جميع الفئات" : language === "en" ? "All categories" : "Toutes les catégories"} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">{t.allCities}</SelectItem>
-                  {availableCities.map((city) => (
-                    <SelectItem key={city} value={city}>
-                      {city}
+                  <SelectItem value="all">
+                    {language === "ar" ? "جميع الفئات" : language === "en" ? "All categories" : "Toutes les catégories"}
+                  </SelectItem>
+                  {[
+                    { key: "Hôtellerie", fr: "Hôtellerie", en: "Hospitality", ar: "فندقة" },
+                    { key: "Restauration", fr: "Restauration", en: "Restaurants", ar: "مطاعم" },
+                    { key: "Tourisme", fr: "Tourisme", en: "Tourism", ar: "سياحة" },
+                    { key: "Commerce", fr: "Commerce", en: "Shopping", ar: "تسوق" },
+                    { key: "Bien-être", fr: "Bien-être", en: "Wellness", ar: "رفاهية" },
+                    { key: "Santé", fr: "Santé", en: "Health", ar: "صحة" },
+                    { key: "Transport", fr: "Transport", en: "Transport", ar: "نقل" },
+                    { key: "Sport & Loisirs", fr: "Sport & Loisirs", en: "Sports & Leisure", ar: "رياضة وترفيه" },
+                    { key: "Culture", fr: "Culture", en: "Culture", ar: "ثقافة" },
+                    { key: "Services", fr: "Services", en: "Services", ar: "خدمات" },
+                    { key: "Artisanat", fr: "Artisanat", en: "Crafts", ar: "حرف يدوية" },
+                  ].map(({ key, fr, en, ar }) => (
+                    <SelectItem key={key} value={key}>
+                      {language === "en" ? en : language === "ar" ? ar : fr}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
-          )}
+            {/* City Filter */}
+            {availableCities.length > 1 && (
+              <div className="flex items-center gap-2">
+                <label className="text-sm text-gray-400">{t.filterByCity}:</label>
+                <Select value={selectedCity} onValueChange={handleCityChange}>
+                  <SelectTrigger className="w-[220px] bg-card border-border">
+                    <SelectValue placeholder={t.allCities} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{t.allCities}</SelectItem>
+                    {availableCities.map((city) => (
+                      <SelectItem key={city} value={city}>
+                        {city}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+          </div>
 
           {/* Easter egg: Zitoun Mask/Musk */}
           {showZitounEasterEgg && (
