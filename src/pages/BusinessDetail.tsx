@@ -228,7 +228,7 @@ const BusinessDetail = () => {
   // Check which categories have other businesses in the same city
   useEffect(() => {
     const checkCategories = async () => {
-      if (!business?.categories || !business.city) {
+      if (!business?.categories) {
         setCategoriesWithResults([]);
         return;
       }
@@ -237,13 +237,15 @@ const BusinessDetail = () => {
         setCategoriesWithResults([]);
         return;
       }
-      const { data } = await supabase
+      let query = supabase
         .from("businesses")
         .select("categories")
-        .eq("is_active", true)
-        .eq("city", business.city)
         .neq("id", business.id)
         .overlaps("categories", validCats);
+      if (business.city) {
+        query = query.eq("city", business.city);
+      }
+      const { data } = await query;
       if (data && data.length > 0) {
         const foundCats = new Set<string>();
         data.forEach(b => {
