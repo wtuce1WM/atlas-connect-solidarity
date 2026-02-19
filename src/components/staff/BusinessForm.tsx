@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, ArrowDown, Save, Award, Trash2, MapPinned, AlertCircle } from "lucide-react";
+import { ArrowLeft, ArrowDown, Save, Award, Trash2, MapPinned, AlertCircle, Copy, ExternalLink, Globe } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 import RichTextEditor from "./RichTextEditor";
 import ImageUploader from "./ImageUploader";
@@ -742,15 +742,105 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
             {business ? "Modifier l'entreprise" : "Nouvelle entreprise"}
           </h2>
           {business && (
-            <div className="flex items-center gap-2 min-w-0">
+            <div className="flex items-center gap-2 min-w-0 flex-wrap">
               <span className="text-muted-foreground">—</span>
-              <span className="font-semibold truncate max-w-xs">{formData.name}</span>
+              {/* Nom + bouton copier */}
+              <button
+                type="button"
+                title="Copier le nom"
+                className="font-semibold truncate max-w-[200px] hover:text-violet-700 transition-colors cursor-pointer"
+                onClick={() => {
+                  const text = formData.city ? `${formData.name} ${formData.city}` : formData.name;
+                  navigator.clipboard.writeText(text);
+                  toast({ title: `"${text}" copié !` });
+                }}
+              >
+                {formData.name}
+              </button>
+              <button
+                type="button"
+                title="Copier le nom"
+                onClick={() => {
+                  const text = formData.city ? `${formData.name} ${formData.city}` : formData.name;
+                  navigator.clipboard.writeText(text);
+                  toast({ title: `"${text}" copié !` });
+                }}
+                className="text-muted-foreground hover:text-violet-700 transition-colors"
+              >
+                <Copy className="h-3.5 w-3.5" />
+              </button>
               {formData.logo_url && (
                 <img
                   src={formData.logo_url}
                   alt="logo"
                   className="h-8 w-8 object-contain rounded border bg-white flex-shrink-0"
                 />
+              )}
+              {/* Séparateur */}
+              <span className="text-muted-foreground/40">|</span>
+              {/* Lien fiche frontend */}
+              <a
+                href={`/business/${business.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Voir la fiche publique"
+                className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-1 text-xs"
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+                <span>Fiche</span>
+              </a>
+              {/* Site web */}
+              {formData.website && (
+                <a
+                  href={formData.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="Site web"
+                  className="text-muted-foreground hover:text-blue-600 transition-colors"
+                >
+                  <Globe className="h-3.5 w-3.5" />
+                </a>
+              )}
+              {/* Réseaux sociaux */}
+              {(formData as any).instagram_url && (
+                <a href={(formData as any).instagram_url} target="_blank" rel="noopener noreferrer" title="Instagram" className="text-muted-foreground hover:text-pink-600 transition-colors">
+                  <InstagramIcon className="h-3.5 w-3.5" />
+                </a>
+              )}
+              {(formData as any).facebook_url && (
+                <a href={(formData as any).facebook_url} target="_blank" rel="noopener noreferrer" title="Facebook" className="text-muted-foreground hover:text-blue-700 transition-colors">
+                  <FacebookIcon className="h-3.5 w-3.5" />
+                </a>
+              )}
+              {(formData as any).tiktok_url && (
+                <a href={(formData as any).tiktok_url} target="_blank" rel="noopener noreferrer" title="TikTok" className="text-muted-foreground hover:text-foreground transition-colors">
+                  <TikTokIcon className="h-3.5 w-3.5" />
+                </a>
+              )}
+              {(formData as any).youtube_url && (
+                <a href={(formData as any).youtube_url} target="_blank" rel="noopener noreferrer" title="YouTube" className="text-muted-foreground hover:text-red-600 transition-colors">
+                  <YouTubeIcon className="h-3.5 w-3.5" />
+                </a>
+              )}
+              {(formData as any).twitter_url && (
+                <a href={(formData as any).twitter_url} target="_blank" rel="noopener noreferrer" title="Twitter/X" className="text-muted-foreground hover:text-foreground transition-colors">
+                  <TwitterIcon className="h-3.5 w-3.5" />
+                </a>
+              )}
+              {(formData as any).linkedin_url && (
+                <a href={(formData as any).linkedin_url} target="_blank" rel="noopener noreferrer" title="LinkedIn" className="text-muted-foreground hover:text-blue-700 transition-colors">
+                  <LinkedInIcon className="h-3.5 w-3.5" />
+                </a>
+              )}
+              {(formData as any).whatsapp && (
+                <a href={`https://wa.me/${(formData as any).whatsapp.replace(/\D/g,'')}`} target="_blank" rel="noopener noreferrer" title="WhatsApp" className="text-muted-foreground hover:text-green-600 transition-colors">
+                  <WhatsAppIcon className="h-3.5 w-3.5" />
+                </a>
+              )}
+              {(formData as any).tripadvisor_url && (
+                <a href={(formData as any).tripadvisor_url} target="_blank" rel="noopener noreferrer" title="TripAdvisor" className="text-muted-foreground hover:text-green-700 transition-colors">
+                  <TripAdvisorIcon className="h-3.5 w-3.5" />
+                </a>
               )}
             </div>
           )}
