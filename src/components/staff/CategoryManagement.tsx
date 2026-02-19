@@ -673,22 +673,6 @@ const CategoryManagement = () => {
                               >
                                 <Pencil className="h-3 w-3" />
                               </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-7 w-7 p-0"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setDeleteDialog({
-                                    open: true,
-                                    type: "subcategory",
-                                    id: sub.id,
-                                    name: sub.name_fr
-                                  });
-                                }}
-                              >
-                                <Trash2 className="h-3 w-3 text-destructive" />
-                              </Button>
                             </div>
 
                             {subIsEditing && (
