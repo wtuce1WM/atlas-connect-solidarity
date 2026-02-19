@@ -4,12 +4,14 @@ interface DescriptionExpanderProps {
   html: string;
   isVerified?: boolean;
   collapsedHeight?: number; // px
+  anchorId?: string; // scroll to this element when collapsing
 }
 
 export function DescriptionExpander({
   html,
   isVerified = false,
   collapsedHeight = 128,
+  anchorId,
 }: DescriptionExpanderProps) {
   const contentRef = useRef<HTMLDivElement>(null);
   const [expanded, setExpanded] = useState(false);
@@ -23,6 +25,18 @@ export function DescriptionExpander({
       setIsTall(h > collapsedHeight + 16);
     }
   }, [html, collapsedHeight]);
+
+  const handleToggle = () => {
+    const next = !expanded;
+    setExpanded(next);
+    // When collapsing, scroll back to the anchor after the transition finishes
+    if (!next && anchorId) {
+      setTimeout(() => {
+        const el = document.getElementById(anchorId);
+        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 420);
+    }
+  };
 
   const currentHeight = expanded ? fullHeight : collapsedHeight;
 
@@ -46,7 +60,7 @@ export function DescriptionExpander({
 
       {isTall && (
         <button
-          onClick={() => setExpanded(e => !e)}
+          onClick={handleToggle}
           className={`mt-2 text-sm font-semibold underline-offset-2 hover:underline transition-colors ${isVerified ? 'text-gold' : 'text-primary'}`}
         >
           {expanded ? "Réduire ▲" : "Lire la suite ▼"}
