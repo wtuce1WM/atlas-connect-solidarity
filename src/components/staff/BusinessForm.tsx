@@ -1097,6 +1097,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                 { code: "nl", flag: "🇳🇱", label: "NL" },
                 { code: "zh", flag: "🇨🇳", label: "ZH" },
                 { code: "ja", flag: "🇯🇵", label: "JA" },
+                { code: "ru", flag: "🇷🇺", label: "RU" },
               ].map(({ code, flag, label }) => {
                 const languages = ((formData as any).languages as string[]) || [];
                 const isSelected = languages.includes(code);
