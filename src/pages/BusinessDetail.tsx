@@ -549,13 +549,14 @@ const BusinessDetail = () => {
               {business.logo_url && (
                 <div className="flex justify-center mb-2">
                   <div
-                    className="flex items-center justify-center rounded-xl overflow-hidden p-2"
-                    style={{
-                      backgroundColor:
-                        business.logo_bg === "white" ? "#ffffff"
-                        : business.logo_bg === "black" ? "#000000"
-                        : "transparent",
-                    }}
+                    className="flex items-center justify-center rounded-xl overflow-hidden p-3"
+                    style={
+                      business.logo_bg === "white"
+                        ? { backgroundColor: "#ffffff", boxShadow: "0 1px 4px rgba(0,0,0,0.1)" }
+                        : business.logo_bg === "black"
+                        ? { backgroundColor: "#000000" }
+                        : {}
+                    }
                   >
                     <img
                       src={business.logo_url}
