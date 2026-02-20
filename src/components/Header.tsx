@@ -49,6 +49,9 @@ const Header = ({ variant = "default" }: HeaderProps) => {
             <Link to="/search" className="text-white/90 transition-colors hover:text-gold">
               Recherche
             </Link>
+            <Link to="/hotels" className="text-white/90 transition-colors hover:text-gold">
+              Hôtels
+            </Link>
             <Link to="/contact" className="text-white/90 transition-colors hover:text-gold">
               {t("footer.contact")}
             </Link>
