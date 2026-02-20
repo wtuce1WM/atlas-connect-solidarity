@@ -31,8 +31,8 @@ Ta tâche : identifier l'INTENTION sémantique et la traduire en mots-clés conc
 
 Tu dois aussi identifier la CATÉGORIE principale quand l'intention est claire. Les catégories possibles sont :
 - "Hôtellerie" : dormir, séjourner, loger, hôtel, riad, maison d'hôtes
-- "Restauration" : manger, déjeuner, dîner, restaurant, café, boire un verre
-- "Commerce" : acheter, shopping, trouver un produit, boutique, magasin, vin, alcool, cave, tapis, vêtements, artisanat, souvenirs
+- "Restauration" : manger, déjeuner, dîner, restaurant, café, boire un verre, boire du champagne, bar
+- "Commerce" : acheter, shopping, trouver un produit, boutique, magasin, acheter du vin, cave à vin, tapis, vêtements, artisanat, souvenirs
 - "Tourisme" : visiter, excursion, musée, monument, spectacle
 - "Sport & Loisirs" : surf, kitesurf, sport, école de surf, quad, buggy, activités sportives, golf, tennis, équitation
 - "Bien-être" : spa, hammam, massage, soin, coiffeur, beauté
@@ -74,7 +74,9 @@ Règles de traduction sémantique OBLIGATOIRES :
 - Quand l'utilisateur dit "manger [nationalité/type]", toujours traduire en "cuisine [adjectif]" pour matcher les services de l'annuaire
 - "faire la fête", "fêter", "sortir", "soirée", "s'amuser", "clubbing" → "bar boîte nuit soirée" (catégorie "Restauration")
 - "boîte de nuit", "boite de nuit", "discothèque", "discotheque", "qu'est-ce qu'il y a comme boîte", "où danser", "danser" → "night club" (catégorie "Restauration")
-- "vin", "vins", "alcool", "bière", "cave à vin", "spiritueux", "whisky", "champagne" → "vin alcool cave"
+- "boire du champagne", "boire du vin", "champagne", "coupe de champagne" + contexte "boire/déguster/siroter/trinquer" → "champagne restaurant bar" (catégorie "Restauration")
+- "acheter du vin", "acheter du champagne", "cave à vin", "épicerie fine", "spiritueux", "whisky" + contexte "acheter/trouver/chercher un produit" → "vin alcool cave" (catégorie "Commerce")
+- "vin", "vins", "alcool", "bière", "spiritueux", "whisky" SANS contexte d'achat clair → "vin alcool cave"
 - "fantasia", "tbourida", "spectacle équestre", "équestre", "cavaliers", "chevaux spectacle" → "fantasia" UNIQUEMENT (ne pas ajouter d'autres mots-clés, ignorer les autres règles pour ces termes)
 - "dîner spectacle", "soirée spectacle", "dinner show", "show dinner" → "live show" (uniquement pour ces expressions exactes, pas pour "spectacle équestre" ou "fantasia")
 - "j'ai besoin d'un docteur", "j'ai besoin d'un médecin", "médecin urgence", "urgence médicale", "appeler un médecin", "appeler un docteur", "je suis malade", "mal en point", "sos médecin", "sos docteur" → "SOS médecin"
@@ -95,6 +97,9 @@ Exemples :
 "je veux manger au bord de l'eau à Essaouira" → {"keywords": "restaurant plage Essaouira", "category": "Restauration"}
 "où dormir avec piscine à Essaouira" → {"keywords": "hôtel piscine Essaouira", "category": "Hôtellerie"}
 "où est-ce que je peux acheter du vin à Marrakech" → {"keywords": "vin alcool cave Marrakech", "category": "Commerce"}
+"je veux boire du champagne" → {"keywords": "champagne restaurant bar", "category": "Restauration"}
+"je veux boire du vin à Marrakech" → {"keywords": "vin restaurant bar Marrakech", "category": "Restauration"}
+"acheter du champagne à Marrakech" → {"keywords": "vin alcool cave Marrakech", "category": "Commerce"}
 "acheter un beau tapis berbère" → {"keywords": "tapis berbère", "category": "Commerce"}
 "je veux acheter un beau sac à main en cuir" → {"keywords": "sac cuir maroquinerie", "category": "Commerce"}
 "je cherche un spa à Marrakech" → {"keywords": "spa hammam Marrakech", "category": "Bien-être"}
