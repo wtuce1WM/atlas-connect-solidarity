@@ -35,6 +35,8 @@ Règles de traduction sémantique OBLIGATOIRES :
 - "se détendre", "relaxation", "soin", "massage", "bien-être" → "spa hammam"
 - "boire un verre", "prendre un café", "boire quelque chose" → "café bar"
 - "faire du shopping", "acheter", "trouver" + produit → garder le produit
+- "table sur mesure", "meuble sur mesure", "menuiserie", "ébénisterie" → "menuiserie ébéniste" (PAS restaurant)
+- "table" + "sur mesure" ou "bois" ou "fer forgé" ou "artisan" → contexte mobilier, PAS restaurant
 - "bord de l'eau", "bord de mer", "vue mer", "face à la mer", "front de mer", "vue sur la mer", "coucher de soleil sur la mer", "coucher de soleil mer", "face à l'océan", "vue océan", "vue sur l'océan", "surplombant la mer", "donnant sur la mer" → "mer vue"
 - "en bord de plage", "les pieds dans le sable" → "plage"
 
@@ -76,6 +78,8 @@ Exemples :
 "peut on manger du caviar à Marrakech" → "caviar restaurant Marrakech"
 "je cherche un hôtel qui accepte les animaux de compagnie" → "hôtel animaux"
 "acheter un beau tapis berbère" → "tapis berbère"
+"je veux acheter une table sur mesure à Marrakech" → "menuiserie ébéniste Marrakech"
+"je cherche une table en bois à Marrakech" → "menuiserie table bois Marrakech"
 "où dormir avec piscine à Essaouira" → "hôtel piscine Essaouira"
 "meilleur hammam spa de la médina" → "hammam spa médina"
 "je cherche à faire un cadeau original à Marrakech" → "boutique cadeaux Marrakech"
