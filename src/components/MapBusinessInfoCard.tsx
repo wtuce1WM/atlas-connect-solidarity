@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { MapPin, Phone, Star, Clock, Navigation, X } from "lucide-react";
+import { collectRatingSources, computeWeightedRatingOn20, getTotalReviewCount } from "@/lib/ratingUtils";
 
 export interface MapBusinessInfo {
   name: string;
@@ -31,17 +32,10 @@ const MapBusinessInfoCard = ({ business, onClose }: MapBusinessInfoCardProps) =>
 
   // Compute weighted average rating
   const ratingDisplay = (() => {
-    const sources: { rating: number; count: number }[] = [];
-    if (business.google_rating && business.google_review_count)
-      sources.push({ rating: (business.google_rating / 5) * 20, count: business.google_review_count });
-    if (business.tripadvisor_rating && business.tripadvisor_review_count)
-      sources.push({ rating: (business.tripadvisor_rating / 5) * 20, count: business.tripadvisor_review_count });
-    if (business.restaurant_guru_rating && business.restaurant_guru_review_count)
-      sources.push({ rating: (business.restaurant_guru_rating / 5) * 20, count: business.restaurant_guru_review_count });
-    if (sources.length === 0) return null;
-    const totalCount = sources.reduce((sum, s) => sum + s.count, 0);
-    const weightedSum = sources.reduce((sum, s) => sum + s.rating * s.count, 0);
-    const avg = Math.round((weightedSum / totalCount) * 10) / 10;
+    const sources = collectRatingSources(business);
+    const avg = computeWeightedRatingOn20(sources);
+    if (avg === null) return null;
+    const totalCount = getTotalReviewCount(business);
     return { avg, totalCount };
   })();
 

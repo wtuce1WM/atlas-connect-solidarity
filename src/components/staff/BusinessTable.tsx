@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { collectRatingSources, computeWeightedRatingOn20, getTotalReviewCount } from "@/lib/ratingUtils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -220,18 +221,13 @@ const BusinessTable = ({ businesses, gammes, loading, onEdit, onDelete, onDuplic
                       );
                     }
                     // Weighted average from platforms
-                    const sources: { rating: number; count: number; max: number }[] = [];
-                    if (business.google_rating) sources.push({ rating: Number(business.google_rating), count: business.google_review_count || 0, max: 5 });
-                    if (business.tripadvisor_rating) sources.push({ rating: Number(business.tripadvisor_rating), count: business.tripadvisor_review_count || 0, max: 5 });
-                    if (business.restaurant_guru_rating) sources.push({ rating: Number(business.restaurant_guru_rating), count: business.restaurant_guru_review_count || 0, max: 5 });
-                    if (sources.length === 0) return <span className="text-muted-foreground text-sm">-</span>;
-                    const totalReviews = sources.reduce((s, r) => s + r.count, 0);
-                    const weightedSum = sources.reduce((s, r) => s + (r.rating / r.max) * 20 * r.count, 0);
-                    const avg = totalReviews > 0 ? (weightedSum / totalReviews) : (sources.reduce((s, r) => s + (r.rating / r.max) * 20, 0) / sources.length);
+                    const avg = computeWeightedRatingOn20(collectRatingSources(business));
+                    if (avg === null) return <span className="text-muted-foreground text-sm">-</span>;
+                    const totalReviews = getTotalReviewCount(business);
                     return (
                       <div className="flex items-center gap-1.5 text-sm">
                         <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />
-                        <span className="font-medium">{avg.toFixed(1)}/20</span>
+                        <span className="font-medium">{avg}/20</span>
                         {totalReviews > 0 && <span className="text-muted-foreground">({totalReviews})</span>}
                       </div>
                     );

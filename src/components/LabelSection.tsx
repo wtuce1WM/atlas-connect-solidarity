@@ -6,6 +6,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Card, CardContent } from "@/components/ui/card";
 import logoWatermark from "@/assets/logoGOLDsimpleSML.webp";
 import symboleMaroc from "@/assets/symbole-maroc-2.webp";
+import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
 
 interface LabelSectionProps {
   labelId: string;
@@ -39,20 +40,7 @@ interface Business {
 }
 
 const getCalculatedRating = (business: Business): number | null => {
-  const sources: { rating: number; count: number }[] = [];
-  if (business.google_rating && business.google_review_count) {
-    sources.push({ rating: (business.google_rating / 5) * 20, count: business.google_review_count });
-  }
-  if (business.tripadvisor_rating && business.tripadvisor_review_count) {
-    sources.push({ rating: (business.tripadvisor_rating / 5) * 20, count: business.tripadvisor_review_count });
-  }
-  if (business.restaurant_guru_rating && business.restaurant_guru_review_count) {
-    sources.push({ rating: (business.restaurant_guru_rating / 5) * 20, count: business.restaurant_guru_review_count });
-  }
-  if (sources.length === 0) return null;
-  const totalCount = sources.reduce((sum, s) => sum + s.count, 0);
-  const weightedSum = sources.reduce((sum, s) => sum + s.rating * s.count, 0);
-  return Math.round((weightedSum / totalCount) * 10) / 10;
+  return computeWeightedRatingOn20(collectRatingSources(business));
 };
 
 const LabelSection = ({

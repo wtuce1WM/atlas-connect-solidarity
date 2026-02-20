@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import restaurantGuruLogo from "@/assets/restaurant-guru-logo.webp";
+import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -781,15 +782,16 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                 if (fd.rating) {
                   display = `${fd.rating}/20`;
                 } else {
-                  const sources: { rating: number; count: number }[] = [];
-                  if (fd.google_rating) sources.push({ rating: Number(fd.google_rating), count: Number(fd.google_review_count) || 0 });
-                  if (fd.tripadvisor_rating) sources.push({ rating: Number(fd.tripadvisor_rating), count: Number(fd.tripadvisor_review_count) || 0 });
-                  if (fd.restaurant_guru_rating) sources.push({ rating: Number(fd.restaurant_guru_rating), count: Number(fd.restaurant_guru_review_count) || 0 });
-                  if (sources.length > 0) {
-                    const totalCount = sources.reduce((s, r) => s + r.count, 0);
-                    const weightedSum = sources.reduce((s, r) => s + (r.rating / 5) * 20 * r.count, 0);
-                    const avg = totalCount > 0 ? weightedSum / totalCount : sources.reduce((s, r) => s + (r.rating / 5) * 20, 0) / sources.length;
-                    display = `${avg.toFixed(1)}/20`;
+                  const avg = computeWeightedRatingOn20(collectRatingSources({
+                    google_rating: fd.google_rating ? Number(fd.google_rating) : null,
+                    google_review_count: fd.google_review_count ? Number(fd.google_review_count) : null,
+                    tripadvisor_rating: fd.tripadvisor_rating ? Number(fd.tripadvisor_rating) : null,
+                    tripadvisor_review_count: fd.tripadvisor_review_count ? Number(fd.tripadvisor_review_count) : null,
+                    restaurant_guru_rating: fd.restaurant_guru_rating ? Number(fd.restaurant_guru_rating) : null,
+                    restaurant_guru_review_count: fd.restaurant_guru_review_count ? Number(fd.restaurant_guru_review_count) : null,
+                  }));
+                  if (avg !== null) {
+                    display = `${avg}/20`;
                   }
                 }
                 return display ? (
@@ -1991,8 +1993,9 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
               }
               if (ratings.length === 0) return null;
               const totalCount = ratings.reduce((sum, r) => sum + r.count, 0);
-              const weightedAvg = ratings.reduce((sum, r) => sum + (r.rating / 5) * 20 * r.count, 0) / totalCount;
-              const avg20 = weightedAvg.toFixed(2).replace('.', ',');
+              const avg = computeWeightedRatingOn20(ratings);
+              if (avg === null) return null;
+              const avg20 = String(avg).replace('.', ',');
               return <><span className="text-black font-bold"> / </span><span className="text-red-600 font-bold">{avg20}/20 sur {totalCount.toLocaleString('fr-FR')} avis clients</span></>;
             })()}</Label>
             {business?.id && (
