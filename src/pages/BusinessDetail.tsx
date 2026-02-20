@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { collectRatingSources, computeWeightedRatingOn20, computeWeightedRatingOn5 } from "@/lib/ratingUtils";
 import { DescriptionExpander } from "@/components/DescriptionExpander";
 import { useParams, Link, Navigate, useNavigate } from "react-router-dom";
-import { ArrowLeft, MapPin, Phone, Mail, Globe, BadgeCheck, Loader2, ChevronLeft, ChevronRight, FileText, Download, ShoppingBag, Facebook, Instagram, Linkedin, Youtube, MessageCircle, Clock, AlertTriangle, ChevronDown, Play, CalendarCheck, Star, Camera } from "lucide-react";
+import { ArrowLeft, MapPin, Phone, Mail, Globe, BadgeCheck, Loader2, ChevronLeft, ChevronRight, FileText, Download, ShoppingBag, Facebook, Instagram, Linkedin, Youtube, MessageCircle, Clock, AlertTriangle, ChevronDown, Play, CalendarCheck, Star, Camera, Volume2, VolumeX, Loader } from "lucide-react";
+import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { format, parseISO } from "date-fns";
@@ -159,7 +160,7 @@ const BusinessDetail = () => {
   const [categoriesWithResults, setCategoriesWithResults] = useState<string[]>([]);
   const { t, language } = useLanguage();
   const navigate = useNavigate();
-  
+  const { speak: ttsSpeak, stop: ttsStop, status: ttsStatus } = useTextToSpeech();
 
   const { validImages, isValidating: isValidatingImages, brokenCount: brokenImagesCount } = useValidatedImages(business?.images ?? null);
   const { isValid: isPdfValid, isValidating: isValidatingPdf } = useValidatedUrl(business?.pdf_url ?? null);
@@ -580,17 +581,49 @@ const BusinessDetail = () => {
 
               {/* Description */}
               {business.description && (
-                <DescriptionExpander
-                  html={business.description}
-                  isVerified={isVerified}
-                  anchorId="description-anchor"
-                  collapsedHeight={
-                    (business.languages && business.languages.length > 0) ||
-                    (business.show_opening_hours && business.opening_hours)
-                      ? 550
-                      : 300
-                  }
-                />
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <button
+                      onClick={() => {
+                        // Strip HTML tags for TTS
+                        const plainText = business.description!.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+                        const hook = language === 'ar' ? (business.hook_ar || business.hook_fr) : language === 'en' ? (business.hook_en || business.hook_fr) : business.hook_fr;
+                        const fullText = `${business.name}. ${hook ? hook + '. ' : ''}${plainText}`;
+                        ttsSpeak(fullText);
+                      }}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                        ttsStatus === "playing"
+                          ? "bg-gold/20 text-gold animate-pulse"
+                          : ttsStatus === "loading"
+                            ? "bg-gold/10 text-gold/70"
+                            : isVerified
+                              ? "bg-white/10 text-white/70 hover:bg-white/20 hover:text-white"
+                              : "bg-muted text-muted-foreground hover:bg-accent hover:text-foreground"
+                      }`}
+                      title={ttsStatus === "playing" ? "Arrêter la lecture" : "Lire à voix haute"}
+                    >
+                      {ttsStatus === "loading" ? (
+                        <Loader className="h-3.5 w-3.5 animate-spin" />
+                      ) : ttsStatus === "playing" ? (
+                        <VolumeX className="h-3.5 w-3.5" />
+                      ) : (
+                        <Volume2 className="h-3.5 w-3.5" />
+                      )}
+                      {ttsStatus === "playing" ? "Arrêter" : ttsStatus === "loading" ? "Chargement…" : "Écouter"}
+                    </button>
+                  </div>
+                  <DescriptionExpander
+                    html={business.description}
+                    isVerified={isVerified}
+                    anchorId="description-anchor"
+                    collapsedHeight={
+                      (business.languages && business.languages.length > 0) ||
+                      (business.show_opening_hours && business.opening_hours)
+                        ? 550
+                        : 300
+                    }
+                  />
+                </div>
               )}
 
               {/* PDF */}
