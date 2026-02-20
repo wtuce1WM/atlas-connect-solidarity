@@ -619,7 +619,7 @@ const SearchPage = () => {
             <div className="text-center">
               <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2">
                 {searchQuery ? (
-                  <>{t.searchResults} {t.for} "<span className="text-gold">{spokenText || searchQuery}</span>"</>
+                  <>{t.searchResults} {t.for}<br />«&nbsp;<span className="text-gold">{spokenText || searchQuery}</span>&nbsp;»</>
                 ) : (() => {
                   const categoryLabels: Record<string, { fr: string; en: string; ar: string }> = {
                     "Hôtellerie": { fr: "Hôtels", en: "Hotels", ar: "الفنادق" },
