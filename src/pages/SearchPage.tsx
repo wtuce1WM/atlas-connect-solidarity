@@ -277,10 +277,14 @@ const SearchPage = () => {
     return computeWeightedRatingOn20(collectRatingSources(b));
   };
 
-  // Filter businesses by city — preserve LLM ranking order from the API
+  // Filter businesses by city, then sort by rating (highest first)
   const filteredBusinesses = useMemo(() => {
-    if (selectedCity === "all") return allBusinesses;
-    return allBusinesses.filter(b => b.city === selectedCity);
+    const filtered = selectedCity === "all" ? allBusinesses : allBusinesses.filter(b => b.city === selectedCity);
+    return [...filtered].sort((a, b) => {
+      const ratingA = getEffectiveRating(a) ?? -1;
+      const ratingB = getEffectiveRating(b) ?? -1;
+      return ratingB - ratingA;
+    });
   }, [allBusinesses, selectedCity]);
 
   // Paginate
