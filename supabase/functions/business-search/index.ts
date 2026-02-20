@@ -347,18 +347,69 @@ serve(async (req) => {
     const detectedCity = (!city && effectiveQuery) ? detectCityInQuery(effectiveQuery) : null;
     const effectiveCity = city || detectedCity || undefined;
 
+    // ── Pre-detect matching service from query keywords ──
+    let detectedService: string | null = null;
+    if (effectiveQuery) {
+      const queryWords = effectiveQuery.toLowerCase().split(/\s+/).filter(w => w.length > 1 && !NOISE_ADJECTIVES.has(w));
+      const cityLower = effectiveCity?.toLowerCase();
+      const serviceMatchWords = queryWords.filter(w => !FRENCH_STOP_WORDS.has(w) && w !== cityLower);
+
+      if (serviceMatchWords.length > 0) {
+        const orConditions = serviceMatchWords.map(w => `name_fr.ilike.%${w}%`).join(",");
+        const { data: matchingServices } = await supabase
+          .from("services")
+          .select("name_fr")
+          .or(orConditions);
+
+        if (matchingServices && matchingServices.length > 0) {
+          // Pick the first matched service name (exact casing from DB)
+          detectedService = matchingServices[0].name_fr;
+          console.log(`Detected service for SQL filter: "${detectedService}" (from: ${serviceMatchWords.join(", ")})`);
+        }
+      }
+    }
+
     // Level 1: Exact full-text search with ts_rank (services/name weight A > description weight B)
     if (effectiveQuery || city || category) {
       const expandedQuery = effectiveQuery ? expandQuery(effectiveQuery) : null;
 
       if (expandedQuery) {
         // Use ranked RPC function: prioritizes matches in services/name over description
-        const { data, error } = await supabase.rpc("search_businesses_with_rank", {
-          p_query: expandedQuery,
-          p_city: effectiveCity || null,
-          p_category: category || null,
-          p_limit: limit,
-        });
+        // First try with service filter
+        let data, error;
+        if (detectedService) {
+          const result = await supabase.rpc("search_businesses_with_rank", {
+            p_query: expandedQuery,
+            p_city: effectiveCity || null,
+            p_category: category || null,
+            p_service: detectedService,
+            p_limit: limit,
+          });
+          data = result.data;
+          error = result.error;
+          // Fallback: if service filter gives 0 results, retry without it
+          if (!error && (!data || data.length === 0)) {
+            console.log(`Service filter "${detectedService}" returned 0 results, falling back without service filter`);
+            const fallback = await supabase.rpc("search_businesses_with_rank", {
+              p_query: expandedQuery,
+              p_city: effectiveCity || null,
+              p_category: category || null,
+              p_limit: limit,
+            });
+            data = fallback.data;
+            error = fallback.error;
+            detectedService = null; // Clear so post-filter doesn't re-apply
+          }
+        } else {
+          const result = await supabase.rpc("search_businesses_with_rank", {
+            p_query: expandedQuery,
+            p_city: effectiveCity || null,
+            p_category: category || null,
+            p_limit: limit,
+          });
+          data = result.data;
+          error = result.error;
+        }
 
         if (!error && data && data.length > 0) {
           businesses = data.map((b: any) => ({
@@ -510,36 +561,7 @@ serve(async (req) => {
       }
     }
 
-    // ── Post-filter by matching service: if a query keyword matches an existing service, keep only businesses that have it ──
-    if (effectiveQuery && businesses.length > 1) {
-      const queryWords = effectiveQuery.toLowerCase().split(/\s+/).filter(w => w.length > 1 && !NOISE_ADJECTIVES.has(w));
-      // Remove detected city and stop words from query words for service matching
-      const cityLower = effectiveCity?.toLowerCase();
-      const serviceMatchWords = queryWords.filter(w => !FRENCH_STOP_WORDS.has(w) && w !== cityLower);
-
-      if (serviceMatchWords.length > 0) {
-        // Build OR conditions to find matching services in DB
-        const orConditions = serviceMatchWords.map(w => `name_fr.ilike.%${w}%`).join(",");
-        const { data: matchingServices } = await supabase
-          .from("services")
-          .select("name_fr")
-          .or(orConditions);
-
-        if (matchingServices && matchingServices.length > 0) {
-          const matchedServiceNames = matchingServices.map(s => s.name_fr.toLowerCase());
-          // Filter: keep only businesses that have at least one of the matched services
-          const filtered = businesses.filter(b => {
-            const bizServices = (b.services || []).map((s: string) => s.toLowerCase());
-            return matchedServiceNames.some(ms => bizServices.includes(ms));
-          });
-          // Only apply filter if it doesn't eliminate ALL results
-          if (filtered.length > 0) {
-            console.log(`Service post-filter: ${businesses.length} → ${filtered.length} (services: ${matchedServiceNames.join(", ")})`);
-            businesses = filtered;
-          }
-        }
-      }
-    }
+    // Service post-filter removed: now handled at SQL level via p_service parameter in search_businesses_with_rank
 
     // Exclude pure "Traiteurs" from Restauration results (keep if they also have Restaurant, Café, etc.)
     if (category === "Restauration" || (!category && businesses.length > 0)) {
