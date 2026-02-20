@@ -60,6 +60,17 @@ Règles de traduction sémantique OBLIGATOIRES :
 - "boules", "jouer aux boules" → "pétanque"
 - "glace", "glaces", "sorbet", "gelato", "crème glacée" → "glacier"
 - "steak", "steaks", "entrecôte", "faux-filet", "bifteck", "côte de bœuf", "viande rouge", "viande grillée" → "viande"
+- "manger français", "cuisine française", "restaurant français", "gastronomie française" → "cuisine française"
+- "manger italien", "cuisine italienne", "restaurant italien", "pizza", "pasta", "pâtes" → "cuisine italienne"
+- "manger japonais", "cuisine japonaise", "restaurant japonais", "sushi", "sashimi" → "cuisine japonaise"
+- "manger chinois", "cuisine chinoise", "restaurant chinois" → "cuisine chinoise"
+- "manger indien", "cuisine indienne", "restaurant indien" → "cuisine indienne"
+- "manger thaï", "cuisine thaïlandaise", "restaurant thaï" → "cuisine thaïlandaise"
+- "manger libanais", "cuisine libanaise", "restaurant libanais" → "cuisine libanaise"
+- "manger marocain", "cuisine marocaine", "restaurant marocain", "tajine", "couscous" → "cuisine marocaine"
+- "manger asiatique", "cuisine asiatique", "restaurant asiatique" → "cuisine asiatique"
+- "manger mexicain", "cuisine mexicaine", "restaurant mexicain" → "cuisine mexicaine"
+- Quand l'utilisateur dit "manger [nationalité/type]", toujours traduire en "cuisine [adjectif]" pour matcher les services de l'annuaire
 - "faire la fête", "fêter", "sortir", "soirée", "s'amuser", "clubbing" → "bar boîte nuit soirée"
 - "boîte de nuit", "boite de nuit", "discothèque", "discotheque", "qu'est-ce qu'il y a comme boîte", "où danser", "danser" → "night club"
 - "vin", "vins", "alcool", "bière", "cave à vin", "spiritueux", "whisky", "champagne" → "vin alcool cave"
@@ -88,7 +99,9 @@ Exemples :
 "je cherche un spa à Marrakech" → {"keywords": "spa hammam Marrakech", "category": "Bien-être"}
 "je cherche un endroit pour faire la fête à Marrakech" → {"keywords": "bar boîte nuit soirée Marrakech", "category": "Tourisme"}
 "je voudrais voir une fantasia" → {"keywords": "fantasia", "category": "Tourisme"}
-"je cherche un dîner spectacle à Marrakech" → {"keywords": "live show Marrakech", "category": "Restauration"}`;
+"je cherche un dîner spectacle à Marrakech" → {"keywords": "live show Marrakech", "category": "Restauration"}
+"je voudrais manger français à Marrakech ce soir" → {"keywords": "cuisine française Marrakech", "category": "Restauration"}
+"je veux manger italien à Essaouira" → {"keywords": "cuisine italienne Essaouira", "category": "Restauration"}`;
 
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
