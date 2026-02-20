@@ -292,11 +292,15 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
   const [badgeSubcategories, setBadgeSubcategories] = useState<Array<{ badge_id: string; subcategory_id: string }>>([]);
   const [dbNeighborhoods, setDbNeighborhoods] = useState<Array<{ id: string; name: string; city_id: string }>>([]);
   const [dbAffiliates, setDbAffiliates] = useState<Array<{ id: string; name: string }>>([]);
+  const [dbDestinations, setDbDestinations] = useState<Array<{ id: string; name_fr: string; region: string | null }>>([]);
+  const [dbPOIs, setDbPOIs] = useState<Array<{ id: string; name_fr: string; city_id: string }>>([]);
+  const [selectedDestinationIds, setSelectedDestinationIds] = useState<string[]>([]);
+  const [selectedPOIIds, setSelectedPOIIds] = useState<string[]>([]);
 
   // Fetch categories, subcategories, services, cities, gammes and gamme_categories from database
   useEffect(() => {
     const fetchTaxonomy = async () => {
-      const [catRes, subRes, servRes, citiesRes, gammesRes, gammeCatRes, neighborhoodsRes, affiliatesRes, badgesRes, badgeSubcatsRes] = await Promise.all([
+      const [catRes, subRes, servRes, citiesRes, gammesRes, gammeCatRes, neighborhoodsRes, affiliatesRes, badgesRes, badgeSubcatsRes, destRes, poiRes] = await Promise.all([
         supabase.from("categories").select("id, name_fr").order("sort_order"),
         supabase.from("subcategories").select("id, name_fr, category_id").order("sort_order"),
         supabase.from("services").select("id, name_fr, subcategory_id").order("sort_order"),
@@ -307,6 +311,8 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
         supabase.from("affiliates").select("id, name").order("name"),
         supabase.from("badges").select("id, name_fr").order("sort_order"),
         supabase.from("badge_subcategories").select("badge_id, subcategory_id"),
+        supabase.from("destinations").select("id, name_fr, region").order("name_fr"),
+        supabase.from("points_of_interest").select("id, name_fr, city_id").order("name_fr"),
       ]);
       
       if (catRes.data) setDbCategories(catRes.data);
@@ -319,6 +325,8 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
       if (affiliatesRes.data) setDbAffiliates(affiliatesRes.data);
       if (badgesRes.data) setDbBadges(badgesRes.data);
       if (badgeSubcatsRes.data) setBadgeSubcategories(badgeSubcatsRes.data);
+      if (destRes.data) setDbDestinations(destRes.data);
+      if (poiRes.data) setDbPOIs(poiRes.data);
     };
     
     fetchTaxonomy();
@@ -407,6 +415,20 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
   
   // Business labels state (managed separately)
   const [businessLabels, setBusinessLabels] = useState<Array<{ id?: string; label_id: string; custom_url: string }>>([]);
+
+  // Load existing destination & POI associations
+  useEffect(() => {
+    if (!business?.id) return;
+    const loadAssociations = async () => {
+      const [destRes, poiRes] = await Promise.all([
+        supabase.from("business_destinations" as any).select("destination_id").eq("business_id", business.id),
+        supabase.from("business_points_of_interest" as any).select("point_of_interest_id").eq("business_id", business.id),
+      ]);
+      if (destRes.data) setSelectedDestinationIds((destRes.data as any[]).map((d: any) => d.destination_id));
+      if (poiRes.data) setSelectedPOIIds((poiRes.data as any[]).map((p: any) => p.point_of_interest_id));
+    };
+    loadAssociations();
+  }, [business?.id]);
 
   const handleChange = (field: string, value: string | boolean | string[]) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -508,6 +530,20 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
     if (!selectedCity) return [];
     return dbNeighborhoods.filter(n => n.city_id === selectedCity.id);
   }, [formData.city, dbCities, dbNeighborhoods]);
+
+  // Get destinations for the selected region
+  const destinationsForRegion = useMemo(() => {
+    if (!formData.region) return [];
+    return dbDestinations.filter(d => d.region === formData.region);
+  }, [formData.region, dbDestinations]);
+
+  // Get POIs for the selected city
+  const poisForCity = useMemo(() => {
+    if (!formData.city) return [];
+    const selectedCity = dbCities.find(c => c.name_fr === formData.city);
+    if (!selectedCity) return [];
+    return dbPOIs.filter(p => p.city_id === selectedCity.id);
+  }, [formData.city, dbCities, dbPOIs]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -663,7 +699,30 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
         }
       }
 
-      // Clean up removed images from storage (compare initial vs final)
+      // Save business destinations
+      if (businessId) {
+        await supabase.from("business_destinations" as any).delete().eq("business_id", businessId);
+        if (selectedDestinationIds.length > 0) {
+          const destsToInsert = selectedDestinationIds.map(destId => ({
+            business_id: businessId,
+            destination_id: destId,
+          }));
+          await supabase.from("business_destinations" as any).insert(destsToInsert);
+        }
+      }
+
+      // Save business points of interest
+      if (businessId) {
+        await supabase.from("business_points_of_interest" as any).delete().eq("business_id", businessId);
+        if (selectedPOIIds.length > 0) {
+          const poisToInsert = selectedPOIIds.map(poiId => ({
+            business_id: businessId,
+            point_of_interest_id: poiId,
+          }));
+          await supabase.from("business_points_of_interest" as any).insert(poisToInsert);
+        }
+      }
+
       // SAFETY: Only delete files not referenced by any other business
       const removedImages = (formData._initialImages as string[]).filter(
         (url: string) => !formData.images.includes(url) && url.includes("/business-images/")
@@ -1666,7 +1725,81 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
             maxHeight="600px"
              />
             <BrokenUrlBadge url={formData.menu_url} />
+           </div>
+
+        {/* Destinations & Points d'intérêt */}
+        {(destinationsForRegion.length > 0 || poisForCity.length > 0) && (
+          <div className="space-y-4 p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
+            <Label className="text-base font-semibold flex items-center gap-2">
+              <MapPinned className="h-5 w-5" />
+              Destinations & Points d'intérêt
+            </Label>
+
+            {destinationsForRegion.length > 0 && (
+              <div className="space-y-2">
+                <Label className="text-sm text-muted-foreground">
+                  Destinations ({formData.region || "aucune région"})
+                </Label>
+                <div className="flex flex-wrap gap-2">
+                  {destinationsForRegion.map((dest) => {
+                    const isSelected = selectedDestinationIds.includes(dest.id);
+                    return (
+                      <button
+                        key={dest.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedDestinationIds(prev =>
+                            isSelected ? prev.filter(id => id !== dest.id) : [...prev, dest.id]
+                          );
+                          setIsDirty(true);
+                        }}
+                        className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
+                          isSelected
+                            ? "bg-emerald-600 text-white border-emerald-600"
+                            : "bg-background border-border hover:bg-muted"
+                        }`}
+                      >
+                        {dest.name_fr}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {poisForCity.length > 0 && (
+              <div className="space-y-2">
+                <Label className="text-sm text-muted-foreground">
+                  Points d'intérêt ({formData.city || "aucune ville"})
+                </Label>
+                <div className="flex flex-wrap gap-2">
+                  {poisForCity.map((poi) => {
+                    const isSelected = selectedPOIIds.includes(poi.id);
+                    return (
+                      <button
+                        key={poi.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedPOIIds(prev =>
+                            isSelected ? prev.filter(id => id !== poi.id) : [...prev, poi.id]
+                          );
+                          setIsDirty(true);
+                        }}
+                        className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
+                          isSelected
+                            ? "bg-emerald-600 text-white border-emerald-600"
+                            : "bg-background border-border hover:bg-muted"
+                        }`}
+                      >
+                        {poi.name_fr}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
+        )}
 
         <div className="space-y-2">
           {formData.menu_url ? (
