@@ -283,9 +283,20 @@ const LocationManagement = () => {
   };
 
   // City handlers
+  const availableRegions = React.useMemo(() => {
+    const regionsFromCities = cities.map(c => c.region).filter(Boolean) as string[];
+    const regionsFromDestinations = destinations.map(d => d.region).filter(Boolean) as string[];
+    const all = [...new Set([...regionsFromCities, ...regionsFromDestinations])];
+    return all.sort((a, b) => a.localeCompare(b, 'fr'));
+  }, [cities, destinations]);
+
   const handleSaveCity = async () => {
     if (!cityForm.name_fr.trim() || !cityForm.country_id) {
       toast({ variant: "destructive", title: "Erreur", description: "Le nom français et le pays sont requis." });
+      return;
+    }
+    if (!cityForm.region.trim()) {
+      toast({ variant: "destructive", title: "Erreur", description: "La région est requise." });
       return;
     }
 
@@ -1076,13 +1087,20 @@ const LocationManagement = () => {
 
                 {/* Region */}
                 <div className="space-y-2">
-                  <Label>Région</Label>
-                  <Input
+                  <Label>Région <span className="text-destructive">*</span></Label>
+                  <Select
                     value={cityForm.region}
-                    onChange={(e) => setCityForm({ ...cityForm, region: e.target.value })}
-                    placeholder="Casablanca-Settat"
-                    className="max-w-md"
-                  />
+                    onValueChange={(value) => setCityForm({ ...cityForm, region: value })}
+                  >
+                    <SelectTrigger className="max-w-md">
+                      <SelectValue placeholder="Sélectionner une région" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableRegions.map((r) => (
+                        <SelectItem key={r} value={r}>{r}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 {/* Coordinates */}
