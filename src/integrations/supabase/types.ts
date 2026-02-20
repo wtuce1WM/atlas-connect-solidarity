@@ -1586,208 +1586,107 @@ export type Database = {
         Returns: boolean
       }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
-      search_businesses_with_rank:
-        | {
-            Args: {
-              p_category?: string
-              p_city?: string
-              p_limit?: number
-              p_query: string
-            }
-            Returns: {
-              account_type: string | null
-              address: string | null
-              affiliate_id: string | null
-              airbnb_url: string | null
-              badge_id: string | null
-              booking_url: string | null
-              categories: string[] | null
-              city: string | null
-              country: string | null
-              created_at: string
-              default_service: string | null
-              description: string | null
-              email: string | null
-              facebook_url: string | null
-              gamme_id: string | null
-              getyourguide_url: string | null
-              google_maps_url: string | null
-              google_rating: number | null
-              google_review_count: number | null
-              google_reviews_url: string | null
-              hook_ar: string | null
-              hook_en: string | null
-              hook_fr: string | null
-              hotels_com_url: string | null
-              ice: string | null
-              id: string
-              images: string[] | null
-              instagram_url: string | null
-              internal_notes: string | null
-              is_active: boolean
-              is_featured: boolean | null
-              is_master: boolean
-              is_open_24h: boolean
-              is_regulated_activity: boolean | null
-              keywords: string[] | null
-              kp_regroupement: string | null
-              label1_link_url: string | null
-              label1_url: string | null
-              languages: string[] | null
-              latitude: number | null
-              linkedin_url: string | null
-              logo_2_url: string | null
-              logo_bg: string | null
-              logo_url: string | null
-              longitude: number | null
-              main_category: string | null
-              menu_url: string | null
-              name: string
-              neighborhood: string | null
-              online_shop_url: string | null
-              opening_hours: Json | null
-              other_booking_name: string | null
-              other_booking_url: string | null
-              pdf_url: string | null
-              phone: string | null
-              pinterest_url: string | null
-              priority_score: number | null
-              rating: number | null
-              region: string | null
-              reserve_now_url: string | null
-              restaurant_guru_rating: number | null
-              restaurant_guru_review_count: number | null
-              restaurant_guru_url: string | null
-              search_vector: unknown
-              services: string[] | null
-              show_opening_hours: boolean | null
-              skype: string | null
-              telegram: string | null
-              tiktok_url: string | null
-              tripadvisor_rating: number | null
-              tripadvisor_review_count: number | null
-              tripadvisor_review_url: string | null
-              tripadvisor_url: string | null
-              trivago_url: string | null
-              twitter_url: string | null
-              updated_at: string
-              vacation_dates: Json | null
-              video_1_url: string | null
-              vimeo_url: string | null
-              website: string | null
-              whatsapp: string | null
-              wtuce_status: Database["public"]["Enums"]["wtuce_status"] | null
-              youtube_url: string | null
-              zone_chalandise: string | null
-            }[]
-            SetofOptions: {
-              from: "*"
-              to: "businesses"
-              isOneToOne: false
-              isSetofReturn: true
-            }
-          }
-        | {
-            Args: {
-              p_category?: string
-              p_city?: string
-              p_limit?: number
-              p_query: string
-              p_service?: string
-            }
-            Returns: {
-              account_type: string | null
-              address: string | null
-              affiliate_id: string | null
-              airbnb_url: string | null
-              badge_id: string | null
-              booking_url: string | null
-              categories: string[] | null
-              city: string | null
-              country: string | null
-              created_at: string
-              default_service: string | null
-              description: string | null
-              email: string | null
-              facebook_url: string | null
-              gamme_id: string | null
-              getyourguide_url: string | null
-              google_maps_url: string | null
-              google_rating: number | null
-              google_review_count: number | null
-              google_reviews_url: string | null
-              hook_ar: string | null
-              hook_en: string | null
-              hook_fr: string | null
-              hotels_com_url: string | null
-              ice: string | null
-              id: string
-              images: string[] | null
-              instagram_url: string | null
-              internal_notes: string | null
-              is_active: boolean
-              is_featured: boolean | null
-              is_master: boolean
-              is_open_24h: boolean
-              is_regulated_activity: boolean | null
-              keywords: string[] | null
-              kp_regroupement: string | null
-              label1_link_url: string | null
-              label1_url: string | null
-              languages: string[] | null
-              latitude: number | null
-              linkedin_url: string | null
-              logo_2_url: string | null
-              logo_bg: string | null
-              logo_url: string | null
-              longitude: number | null
-              main_category: string | null
-              menu_url: string | null
-              name: string
-              neighborhood: string | null
-              online_shop_url: string | null
-              opening_hours: Json | null
-              other_booking_name: string | null
-              other_booking_url: string | null
-              pdf_url: string | null
-              phone: string | null
-              pinterest_url: string | null
-              priority_score: number | null
-              rating: number | null
-              region: string | null
-              reserve_now_url: string | null
-              restaurant_guru_rating: number | null
-              restaurant_guru_review_count: number | null
-              restaurant_guru_url: string | null
-              search_vector: unknown
-              services: string[] | null
-              show_opening_hours: boolean | null
-              skype: string | null
-              telegram: string | null
-              tiktok_url: string | null
-              tripadvisor_rating: number | null
-              tripadvisor_review_count: number | null
-              tripadvisor_review_url: string | null
-              tripadvisor_url: string | null
-              trivago_url: string | null
-              twitter_url: string | null
-              updated_at: string
-              vacation_dates: Json | null
-              video_1_url: string | null
-              vimeo_url: string | null
-              website: string | null
-              whatsapp: string | null
-              wtuce_status: Database["public"]["Enums"]["wtuce_status"] | null
-              youtube_url: string | null
-              zone_chalandise: string | null
-            }[]
-            SetofOptions: {
-              from: "*"
-              to: "businesses"
-              isOneToOne: false
-              isSetofReturn: true
-            }
-          }
+      search_businesses_with_rank: {
+        Args: {
+          p_category?: string
+          p_city?: string
+          p_limit?: number
+          p_query: string
+          p_service?: string
+        }
+        Returns: {
+          account_type: string | null
+          address: string | null
+          affiliate_id: string | null
+          airbnb_url: string | null
+          badge_id: string | null
+          booking_url: string | null
+          categories: string[] | null
+          city: string | null
+          country: string | null
+          created_at: string
+          default_service: string | null
+          description: string | null
+          email: string | null
+          facebook_url: string | null
+          gamme_id: string | null
+          getyourguide_url: string | null
+          google_maps_url: string | null
+          google_rating: number | null
+          google_review_count: number | null
+          google_reviews_url: string | null
+          hook_ar: string | null
+          hook_en: string | null
+          hook_fr: string | null
+          hotels_com_url: string | null
+          ice: string | null
+          id: string
+          images: string[] | null
+          instagram_url: string | null
+          internal_notes: string | null
+          is_active: boolean
+          is_featured: boolean | null
+          is_master: boolean
+          is_open_24h: boolean
+          is_regulated_activity: boolean | null
+          keywords: string[] | null
+          kp_regroupement: string | null
+          label1_link_url: string | null
+          label1_url: string | null
+          languages: string[] | null
+          latitude: number | null
+          linkedin_url: string | null
+          logo_2_url: string | null
+          logo_bg: string | null
+          logo_url: string | null
+          longitude: number | null
+          main_category: string | null
+          menu_url: string | null
+          name: string
+          neighborhood: string | null
+          online_shop_url: string | null
+          opening_hours: Json | null
+          other_booking_name: string | null
+          other_booking_url: string | null
+          pdf_url: string | null
+          phone: string | null
+          pinterest_url: string | null
+          priority_score: number | null
+          rating: number | null
+          region: string | null
+          reserve_now_url: string | null
+          restaurant_guru_rating: number | null
+          restaurant_guru_review_count: number | null
+          restaurant_guru_url: string | null
+          search_vector: unknown
+          services: string[] | null
+          show_opening_hours: boolean | null
+          skype: string | null
+          telegram: string | null
+          tiktok_url: string | null
+          tripadvisor_rating: number | null
+          tripadvisor_review_count: number | null
+          tripadvisor_review_url: string | null
+          tripadvisor_url: string | null
+          trivago_url: string | null
+          twitter_url: string | null
+          updated_at: string
+          vacation_dates: Json | null
+          video_1_url: string | null
+          vimeo_url: string | null
+          website: string | null
+          whatsapp: string | null
+          wtuce_status: Database["public"]["Enums"]["wtuce_status"] | null
+          youtube_url: string | null
+          zone_chalandise: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "businesses"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
     }
