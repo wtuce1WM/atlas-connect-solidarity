@@ -62,6 +62,7 @@ Règles de traduction sémantique OBLIGATOIRES :
 - "boules", "jouer aux boules" → "pétanque"
 - "glace", "glaces", "sorbet", "gelato", "crème glacée" → "glacier"
 - "steak", "steaks", "entrecôte", "faux-filet", "bifteck", "côte de bœuf", "viande rouge", "viande grillée" → "viande"
+- "croissant", "croissants", "pain au chocolat", "viennoiserie", "viennoiseries", "chausson aux pommes" → garder le mot produit tel quel (ex: "croissants") car il correspond à un mot-clé de service dans l'annuaire. Catégorie "Restauration" si contexte "manger", "Commerce" si contexte "acheter".
 - "manger français", "cuisine française", "restaurant français", "gastronomie française" → "cuisine française"
 - "manger italien", "cuisine italienne", "restaurant italien", "pizza", "pasta", "pâtes" → "cuisine italienne"
 - "manger japonais", "cuisine japonaise", "restaurant japonais", "sushi", "sashimi" → "cuisine japonaise"
@@ -104,6 +105,9 @@ Exemples :
 "je veux boire du vin à Marrakech" → {"keywords": "vin restaurant bar Marrakech", "category": "Restauration"}
 "acheter du champagne à Marrakech" → {"keywords": "vin alcool cave Marrakech", "category": "Commerce"}
 "acheter un beau tapis berbère" → {"keywords": "tapis berbère", "category": "Commerce"}
+"je veux manger des croissants" → {"keywords": "croissants", "category": "Restauration"}
+"je veux acheter des croissants" → {"keywords": "croissants", "category": "Commerce"}
+"où trouver des pains au chocolat à Marrakech" → {"keywords": "pain au chocolat Marrakech", "category": "Commerce"}
 "je veux acheter un beau sac à main en cuir" → {"keywords": "sac cuir maroquinerie", "category": "Commerce"}
 "je cherche un spa à Marrakech" → {"keywords": "spa hammam Marrakech", "category": "Bien-être"}
 "je cherche un endroit pour faire la fête à Marrakech" → {"keywords": "bar boîte nuit soirée Marrakech", "category": "Tourisme"}
