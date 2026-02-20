@@ -406,9 +406,11 @@ const SubcategoryPage = () => {
       const query = selectedBusiness.name + (selectedBusiness.address ? `, ${selectedBusiness.address}` : "");
       return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(query)}&zoom=17`;
     }
-    const cityQuery = selectedCity !== "all" ? encodeURIComponent(selectedCity + ", Maroc") : "Maroc";
-    const centerParam = selectedCity !== "all" ? "" : "&center=31.7917,-7.0926";
-    return `https://www.google.com/maps/embed/v1/search?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(decodedSubcategoryName)}+${cityQuery}${centerParam}&zoom=${selectedCity !== "all" ? 13 : 6}`;
+    if (selectedCity !== "all") {
+      const searchQuery = `${decodedSubcategoryName} à ${selectedCity}, Maroc`;
+      return `https://www.google.com/maps/embed/v1/search?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(searchQuery)}&zoom=13`;
+    }
+    return `https://www.google.com/maps/embed/v1/search?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(decodedSubcategoryName)}+Maroc&center=31.7917,-7.0926&zoom=6`;
   };
 
   if (isLoading) {
