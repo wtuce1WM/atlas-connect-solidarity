@@ -34,7 +34,8 @@ Règles de traduction sémantique OBLIGATOIRES :
 - "dormir", "séjourner", "loger", "passer la nuit", "réserver une chambre" → "hôtel"
 - "se détendre", "relaxation", "soin", "massage", "bien-être" → "spa hammam"
 - "boire un verre", "prendre un café", "boire quelque chose" → "café bar"
-- "faire du shopping", "acheter", "trouver" + produit → garder le produit
+- "faire du shopping", "acheter", "trouver" + produit → garder le produit SANS ajouter "boutique" (le mot "boutique" est trop générique et matche des hôtels)
+- "sac à main", "sac en cuir", "maroquinerie" → "sac cuir maroquinerie" (PAS "boutique")
 - "table sur mesure", "meuble sur mesure", "table en bois", "table en fer forgé" → "meubles table" (contexte mobilier, PAS restaurant)
 - Quand "table" est accompagné de "sur mesure", "bois", "fer forgé", "artisan", "acheter", "fabriquer" → contexte mobilier = "meubles table", PAS restaurant
 - "bord de l'eau", "bord de mer", "vue mer", "face à la mer", "front de mer", "vue sur la mer", "coucher de soleil sur la mer", "coucher de soleil mer", "face à l'océan", "vue océan", "vue sur l'océan", "surplombant la mer", "donnant sur la mer" → "mer vue"
@@ -63,6 +64,7 @@ Autres règles :
 - Supprimer les adjectifs vagues (beau, bon, meilleur, original...)
 - Supprimer "Maroc", "au Maroc", "marocain" car l'annuaire est déjà au Maroc — inutile comme filtre
 - Garder : noms de villes (Marrakech, Essaouira, Agadir...), quartiers, types d'établissements traduits, produits, NOMS PROPRES (personnes célèbres, lieux historiques)
+- Ne JAMAIS ajouter "boutique" comme mot-clé — ce mot est trop générique et fait remonter des hôtels. Utiliser plutôt le type de produit spécifique.
 - 2 à 5 mots maximum
 - Répondre UNIQUEMENT avec les mots-clés, rien d'autre
 
@@ -80,10 +82,11 @@ Exemples :
 "acheter un beau tapis berbère" → "tapis berbère"
 "je veux acheter une table sur mesure à Marrakech" → "meubles table Marrakech"
 "je cherche une table en bois à Marrakech" → "meubles table bois Marrakech"
+"je veux acheter un beau sac à main en cuir pour ma femme" → "sac cuir maroquinerie"
 "où dormir avec piscine à Essaouira" → "hôtel piscine Essaouira"
 "meilleur hammam spa de la médina" → "hammam spa médina"
-"je cherche à faire un cadeau original à Marrakech" → "boutique cadeaux Marrakech"
-"je veux acheter de l'artisanat marocain" → "artisanat boutique"
+"je cherche à faire un cadeau original à Marrakech" → "cadeaux artisanat Marrakech"
+"je veux acheter de l'artisanat marocain" → "artisanat"
 "activités pour les enfants à Marrakech" → "activités enfants Marrakech"
 "je cherche un riad artistique à Marrakech" → "riad galerie art Marrakech"
 "hôtel avec une galerie d'art" → "hôtel galerie art"
