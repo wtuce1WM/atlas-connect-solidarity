@@ -499,6 +499,10 @@ const LocationManagement = () => {
       toast({ variant: "destructive", title: "Erreur", description: "Le nom français est requis." });
       return;
     }
+    if (!destinationForm.region.trim()) {
+      toast({ variant: "destructive", title: "Erreur", description: "La région est requise." });
+      return;
+    }
     const data = {
       name_fr: destinationForm.name_fr.trim(),
       name_en: destinationForm.name_en.trim() || null,
@@ -937,8 +941,20 @@ const LocationManagement = () => {
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label>Région</Label>
-                      <Input value={destinationForm.region} onChange={(e) => setDestinationForm({ ...destinationForm, region: e.target.value })} />
+                      <Label>Région <span className="text-destructive">*</span></Label>
+                      <Select
+                        value={destinationForm.region}
+                        onValueChange={(value) => setDestinationForm({ ...destinationForm, region: value })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Sélectionner une région" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {availableRegions.map((r) => (
+                            <SelectItem key={r} value={r}>{r}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div className="space-y-2">
                       <Label>Ordre d'affichage</Label>
