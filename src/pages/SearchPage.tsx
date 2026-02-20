@@ -524,6 +524,45 @@ const SearchPage = () => {
       {/* Hero Section */}
       <section className="bg-black pt-28 pb-8 lg:pb-16 relative overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
+          {(searchQuery || categoryFromUrl) && (
+            <div className="text-center mb-8">
+              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2">
+                {searchQuery ? (
+                  <>{t.searchResults} {t.for}<br />«&nbsp;<span className="text-gold">{spokenText || searchQuery}</span>&nbsp;»</>
+                ) : (() => {
+                  const categoryLabels: Record<string, { fr: string; en: string; ar: string }> = {
+                    "Hôtellerie": { fr: "Hôtels", en: "Hotels", ar: "الفنادق" },
+                    "Restauration": { fr: "Restaurants", en: "Restaurants", ar: "المطاعم" },
+                    "Tourisme": { fr: "Activités & Tourisme", en: "Activities & Tourism", ar: "الأنشطة والسياحة" },
+                    "Commerce": { fr: "Commerce & Shopping", en: "Shopping", ar: "التسوق" },
+                    "Bien-être": { fr: "Bien-être & Spa", en: "Wellness & Spa", ar: "العافية والسبا" },
+                    "Santé": { fr: "Santé", en: "Health", ar: "الصحة" },
+                    "Culture": { fr: "Culture", en: "Culture", ar: "الثقافة" },
+                    "Transport": { fr: "Transport", en: "Transport", ar: "النقل" },
+                    "Sport & Loisirs": { fr: "Sport & Loisirs", en: "Sports & Leisure", ar: "الرياضة والترفيه" },
+                  };
+                  const label = categoryLabels[categoryFromUrl];
+                  const catName = label
+                    ? (language === "en" ? label.en : language === "ar" ? label.ar : label.fr)
+                    : categoryFromUrl;
+                  const prefix = language === "en" ? "Best" : language === "ar" ? "أفضل" : "Meilleurs";
+                  const suffix = language === "en" ? "in Morocco" : language === "ar" ? "في المغرب" : "au Maroc";
+                  return <><span className="text-gold">{prefix} {catName}</span> {suffix}</>;
+                })()}
+              </h1>
+              <p className="text-base lg:text-xl text-muted-foreground">
+                {isLoading ? (
+                  <span className="text-muted-foreground italic">Recherche en cours…</span>
+                ) : (
+                  <><span className="text-gold font-semibold">{filteredBusinesses.length}</span> {t.establishments} {t.found}</>
+                )}
+              </p>
+              {searchMessage && (
+                <p className="text-sm text-muted-foreground mt-2 italic">{searchMessage}</p>
+              )}
+            </div>
+          )}
+
           {/* Search Form */}
           <form onSubmit={handleSearch} className="max-w-2xl mx-auto mb-8">
             {/* Desktop: input with inline button + voice */}
@@ -614,45 +653,6 @@ const SearchPage = () => {
               </div>
             </div>
           </form>
-
-          {(searchQuery || categoryFromUrl) && (
-            <div className="text-center">
-              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2">
-                {searchQuery ? (
-                  <>{t.searchResults} {t.for}<br />«&nbsp;<span className="text-gold">{spokenText || searchQuery}</span>&nbsp;»</>
-                ) : (() => {
-                  const categoryLabels: Record<string, { fr: string; en: string; ar: string }> = {
-                    "Hôtellerie": { fr: "Hôtels", en: "Hotels", ar: "الفنادق" },
-                    "Restauration": { fr: "Restaurants", en: "Restaurants", ar: "المطاعم" },
-                    "Tourisme": { fr: "Activités & Tourisme", en: "Activities & Tourism", ar: "الأنشطة والسياحة" },
-                    "Commerce": { fr: "Commerce & Shopping", en: "Shopping", ar: "التسوق" },
-                    "Bien-être": { fr: "Bien-être & Spa", en: "Wellness & Spa", ar: "العافية والسبا" },
-                    "Santé": { fr: "Santé", en: "Health", ar: "الصحة" },
-                    "Culture": { fr: "Culture", en: "Culture", ar: "الثقافة" },
-                    "Transport": { fr: "Transport", en: "Transport", ar: "النقل" },
-                    "Sport & Loisirs": { fr: "Sport & Loisirs", en: "Sports & Leisure", ar: "الرياضة والترفيه" },
-                  };
-                  const label = categoryLabels[categoryFromUrl];
-                  const catName = label
-                    ? (language === "en" ? label.en : language === "ar" ? label.ar : label.fr)
-                    : categoryFromUrl;
-                  const prefix = language === "en" ? "Best" : language === "ar" ? "أفضل" : "Meilleurs";
-                  const suffix = language === "en" ? "in Morocco" : language === "ar" ? "في المغرب" : "au Maroc";
-                  return <><span className="text-gold">{prefix} {catName}</span> {suffix}</>;
-                })()}
-              </h1>
-              <p className="text-base lg:text-xl text-muted-foreground">
-                {isLoading ? (
-                  <span className="text-muted-foreground italic">Recherche en cours…</span>
-                ) : (
-                  <><span className="text-gold font-semibold">{filteredBusinesses.length}</span> {t.establishments} {t.found}</>
-                )}
-              </p>
-              {searchMessage && (
-                <p className="text-sm text-muted-foreground mt-2 italic">{searchMessage}</p>
-              )}
-            </div>
-          )}
         </div>
       </section>
 
