@@ -68,7 +68,7 @@ const HotelSearch = () => {
   const [adults, setAdults] = useState("2");
   const [rooms, setRooms] = useState("1");
   const [stars, setStars] = useState("");
-  const [currency, setCurrency] = useState("MAD");
+  const [currency, setCurrency] = useState("EUR");
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<HotelOffer[]>([]);
   const [searchDone, setSearchDone] = useState(false);
