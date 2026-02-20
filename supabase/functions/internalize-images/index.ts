@@ -18,13 +18,21 @@ Deno.serve(async (req) => {
     const bucketHost = new URL(supabaseUrl).host;
     const body = req.method === "POST" ? await req.json().catch(() => ({})) : {};
     const dryRun = body.dry_run === true;
-    const batchLimit = body.limit || 10; // Process max N businesses per call
+    const batchLimit = body.limit || 10;
+    const excludeIds: string[] = body.exclude_ids || [];
 
     // Only fetch businesses that have external URLs
-    const { data: businesses, error: fetchError } = await supabase
+    const query = supabase
       .from("businesses")
       .select("id, name, images, logo_url, logo_2_url")
       .order("name");
+
+    // Exclude already-failed business IDs
+    if (excludeIds.length > 0) {
+      query.not("id", "in", `(${excludeIds.join(",")})`);
+    }
+
+    const { data: businesses, error: fetchError } = await query;
 
     if (fetchError) throw fetchError;
 
@@ -60,7 +68,7 @@ Deno.serve(async (req) => {
     const batch = withExternal.slice(0, batchLimit);
     let totalInternalized = 0;
     let totalFailed = 0;
-    const details: { business: string; field: string; from: string; to: string; error?: string }[] = [];
+    const details: { business: string; businessId: string; field: string; from: string; to: string; error?: string }[] = [];
 
     for (const biz of batch) {
       const updates: Record<string, unknown> = {};
@@ -76,10 +84,10 @@ Deno.serve(async (req) => {
             newImages[i] = result.publicUrl!;
             changed = true;
             totalInternalized++;
-            details.push({ business: biz.name, field: `images[${i}]`, from: url, to: result.publicUrl! });
+            details.push({ business: biz.name, businessId: biz.id, field: `images[${i}]`, from: url, to: result.publicUrl! });
           } else {
             totalFailed++;
-            details.push({ business: biz.name, field: `images[${i}]`, from: url, to: "", error: result.error });
+            details.push({ business: biz.name, businessId: biz.id, field: `images[${i}]`, from: url, to: "", error: result.error });
           }
         }
         if (changed) updates.images = newImages;
@@ -92,10 +100,10 @@ Deno.serve(async (req) => {
         if (result.success) {
           updates[field] = result.publicUrl!;
           totalInternalized++;
-          details.push({ business: biz.name, field, from: url, to: result.publicUrl! });
+          details.push({ business: biz.name, businessId: biz.id, field, from: url, to: result.publicUrl! });
         } else {
           totalFailed++;
-          details.push({ business: biz.name, field, from: url, to: "", error: result.error });
+          details.push({ business: biz.name, businessId: biz.id, field, from: url, to: "", error: result.error });
         }
       }
 
