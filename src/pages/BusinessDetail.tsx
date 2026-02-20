@@ -931,7 +931,7 @@ const BusinessDetail = () => {
                   ) : (
                     <iframe
                       src={embedData.url}
-                      className="w-full aspect-video"
+                      className={embedData.type === 'iframe' && embedData.url.includes('instagram.com') ? "w-full min-h-[600px]" : "w-full aspect-video"}
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                       allowFullScreen
                       title="Vidéo de présentation"
