@@ -555,6 +555,7 @@ function InternalizeImagesButton() {
     setResult(null);
     let totalDone = 0;
     let totalFailed = 0;
+    const failedBusinessIds = new Set<string>();
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -571,15 +572,24 @@ function InternalizeImagesButton() {
         const res = await fetch(baseUrl, {
           method: "POST",
           headers,
-          body: JSON.stringify({ limit: 5 }),
+          body: JSON.stringify({ limit: 5, exclude_ids: Array.from(failedBusinessIds) }),
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Erreur");
         totalDone += data.totalInternalized;
         totalFailed += data.totalFailed;
         remaining = data.remaining || 0;
-        // Stop if nothing was internalized in this batch (avoid infinite loop on permanently failing URLs)
-        if (data.totalInternalized === 0) break;
+
+        // Track failed business IDs to exclude them from next batches
+        if (data.details) {
+          for (const d of data.details) {
+            if (d.error && d.businessId) failedBusinessIds.add(d.businessId);
+          }
+        }
+
+        // Stop if nothing happened at all
+        if (data.totalInternalized === 0 && data.totalFailed === 0) break;
+        if (remaining <= 0) break;
       }
 
       setResult({ total: totalDone, failed: totalFailed });
