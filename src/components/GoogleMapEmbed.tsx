@@ -41,7 +41,7 @@ const GoogleMapEmbed = ({ address, businessName, latitude, longitude, googleMaps
   // 2. Coordinates (exact pin, no label) when no GMB URL
   // 3. Name + address as last fallback
   const mapQuery = googleMapsUrl
-    ? encodeURIComponent(businessName)
+    ? encodeURIComponent(`${businessName}, ${address}`)
     : resolvedLat && resolvedLng
       ? `${resolvedLat},${resolvedLng}`
       : encodeURIComponent(businessName + (address ? `, ${address}` : ""));
