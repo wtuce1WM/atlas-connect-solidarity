@@ -1,5 +1,5 @@
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
@@ -18,9 +18,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Building2, ChevronLeft, ChevronRight, Search, Mic, MicOff, Loader, MapPin, MapPinOff, X } from "lucide-react";
+import { Loader2, Building2, ChevronLeft, ChevronRight, Search, Mic, MicOff, Loader, MapPin, MapPinOff, X, Volume2, VolumeX } from "lucide-react";
 import BusinessCard, { type BusinessCardData, type Gamme, type Badge, type SubcategoryRef, type BadgeSubcategoryRef } from "@/components/BusinessCard";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
+import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { useToast } from "@/hooks/use-toast";
 
 interface Business {
@@ -239,7 +240,9 @@ const SearchPage = () => {
   const [celebrityBusinesses, setCelebrityBusinesses] = useState<Business[]>([]);
 
   const spokenText = searchParams.get("spoken") || "";
+  const isVoiceSearchRef = useRef(false);
 
+  const { speak: ttsSpeak, stop: ttsStop, status: ttsStatus } = useTextToSpeech();
   const geo = useGeolocation();
 
   // Auto-select city when geolocation detects one (only if no city already set from URL)
@@ -251,6 +254,7 @@ const SearchPage = () => {
 
   const { status: voiceStatus, toggleRecording } = useVoiceSearch({
     onTranscript: (keywords, spoken, detectedCategory) => {
+      isVoiceSearchRef.current = true;
       setInputValue(keywords);
       setSearchQuery(keywords);
       const params: Record<string, string> = { q: keywords, spoken };
@@ -392,6 +396,27 @@ const SearchPage = () => {
       });
   }, []);
 
+  // Auto-speak results summary after voice search
+  useEffect(() => {
+    if (!isLoading && isVoiceSearchRef.current && allBusinesses.length > 0) {
+      isVoiceSearchRef.current = false;
+      const count = allBusinesses.length;
+      const topNames = allBusinesses.slice(0, 3).map(b => b.name);
+      const cityText = selectedCity !== "all" ? ` à ${selectedCity}` : "";
+      let speech = `J'ai trouvé ${count} résultat${count > 1 ? 's' : ''}${cityText}. `;
+      if (topNames.length === 1) {
+        speech += `Le meilleur résultat est ${topNames[0]}.`;
+      } else if (topNames.length === 2) {
+        speech += `Les meilleurs résultats sont ${topNames[0]} et ${topNames[1]}.`;
+      } else {
+        speech += `Les meilleurs résultats sont ${topNames[0]}, ${topNames[1]} et ${topNames[2]}.`;
+      }
+      ttsSpeak(speech);
+    } else if (!isLoading && isVoiceSearchRef.current && allBusinesses.length === 0 && spokenText) {
+      isVoiceSearchRef.current = false;
+      ttsSpeak("Désolé, je n'ai trouvé aucun résultat pour votre recherche.");
+    }
+  }, [isLoading, allBusinesses]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -565,6 +590,20 @@ const SearchPage = () => {
                   <><span className="text-gold font-semibold">{filteredBusinesses.length}</span> {t.establishments} {t.found}</>
                 )}
               </p>
+              {/* TTS indicator */}
+              {(ttsStatus === "playing" || ttsStatus === "loading") && (
+                <button
+                  onClick={ttsStop}
+                  className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold/20 text-gold text-sm font-medium hover:bg-gold/30 transition-colors animate-pulse"
+                >
+                  {ttsStatus === "loading" ? (
+                    <Loader className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Volume2 className="h-4 w-4" />
+                  )}
+                  {ttsStatus === "loading" ? "Chargement audio…" : "Lecture en cours — cliquez pour arrêter"}
+                </button>
+              )}
               {searchMessage && (
                 <p className="text-sm text-muted-foreground mt-2 italic">{searchMessage}</p>
               )}
