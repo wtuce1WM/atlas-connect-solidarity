@@ -349,6 +349,7 @@ serve(async (req) => {
 
     // ── Pre-detect matching service from query keywords ──
     let detectedService: string | null = null;
+    let serviceMatchWordsForInjection: string[] = [];
     if (effectiveQuery) {
       const queryWords = effectiveQuery.toLowerCase().split(/\s+/).filter(w => w.length > 1 && !NOISE_ADJECTIVES.has(w));
       const cityLower = effectiveCity?.toLowerCase();
@@ -387,21 +388,43 @@ serve(async (req) => {
             const svcLower = svc.name_fr.toLowerCase();
             const matchCount = serviceMatchWords.filter(w => svcLower.includes(w)).length;
             const svcWordCount = svcLower.split(/\s+/).length;
-            const score = matchCount * 10 + (matchCount > 1 && svcWordCount > 1 ? 50 : 0);
+            // Check keyword matches too
+            const kws = (svc.keywords || []).map((k: string) => k.toLowerCase());
+            const kwMatchCount = serviceMatchWords.filter(w => kws.some((k: string) => k.includes(w))).length;
+            const score = matchCount * 10 + (matchCount > 1 && svcWordCount > 1 ? 50 : 0) + kwMatchCount * 15;
             if (score > bestScore) {
               bestScore = score;
               bestMatch = svc.name_fr;
             }
           }
           detectedService = bestMatch;
+          serviceMatchWordsForInjection = serviceMatchWords;
           console.log(`Detected service for SQL filter: "${detectedService}" (from: ${serviceMatchWords.join(", ")}, candidates: ${matchingServices.map((s: any) => s.name_fr).join(", ")})`);
         }
       }
     }
 
+    // When a service was detected via keywords (not by name match), inject the service name 
+    // into the query so the tsquery matches the search_vector
+    let queryForExpansion = effectiveQuery;
+    if (detectedService && effectiveQuery) {
+      const svcWords = detectedService.toLowerCase().split(/\s+/);
+      const queryLower = effectiveQuery.toLowerCase();
+      const hasServiceNameInQuery = svcWords.some(w => queryLower.includes(w));
+      if (!hasServiceNameInQuery) {
+        // Replace the keyword synonym with the actual service name for tsquery
+        queryForExpansion = detectedService + " " + effectiveQuery.split(/\s+/).filter(w => {
+          // Remove the synonym word(s) that triggered the match, keep city etc.
+          const wLower = w.toLowerCase();
+          return !serviceMatchWordsForInjection.includes(wLower);
+        }).join(" ");
+        console.log(`Injected service name into query: "${queryForExpansion}" (was: "${effectiveQuery}")`);
+      }
+    }
+
     // Level 1: Exact full-text search with ts_rank (services/name weight A > description weight B)
-    if (effectiveQuery || city || category) {
-      const expandedQuery = effectiveQuery ? expandQuery(effectiveQuery) : null;
+    if (queryForExpansion || city || category) {
+      const expandedQuery = queryForExpansion ? expandQuery(queryForExpansion) : null;
       
 
       if (expandedQuery) {
