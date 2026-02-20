@@ -1247,7 +1247,7 @@ const LocationManagement = () => {
 
               <Card>
                 <CardHeader><CardTitle className="text-lg flex items-center gap-2"><ExternalLink className="h-5 w-5" /> Sites officiels</CardTitle></CardHeader>
-                <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <Label>Site officiel FR</Label>
                     <Input value={poiForm.official_site_fr} onChange={(e) => setPoiForm({ ...poiForm, official_site_fr: e.target.value })} placeholder="https://..." />
