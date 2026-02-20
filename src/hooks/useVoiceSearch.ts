@@ -3,7 +3,7 @@ import { useState, useRef, useCallback, useEffect } from "react";
 type VoiceStatus = "idle" | "recording" | "processing" | "error";
 
 interface UseVoiceSearchOptions {
-  onTranscript: (keywords: string, spokenText: string) => void;
+  onTranscript: (keywords: string, spokenText: string, category?: string) => void;
   onError?: (message: string) => void;
   lang?: string;
 }
@@ -43,7 +43,7 @@ declare global {
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
-async function extractSearchIntent(transcript: string): Promise<string> {
+async function extractSearchIntent(transcript: string): Promise<{ query: string; category: string }> {
   try {
     const response = await fetch(`${SUPABASE_URL}/functions/v1/voice-search-intent`, {
       method: "POST",
@@ -58,10 +58,13 @@ async function extractSearchIntent(transcript: string): Promise<string> {
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
     const data = await response.json();
-    return data.query?.trim() || transcript;
+    return {
+      query: data.query?.trim() || transcript,
+      category: data.category?.trim() || "",
+    };
   } catch (err) {
     console.warn("LLM intent extraction failed, using raw transcript:", err);
-    return transcript;
+    return { query: transcript, category: "" };
   }
 }
 
@@ -93,10 +96,10 @@ export function useVoiceSearch({ onTranscript, onError, lang = "fr-FR" }: UseVoi
       return;
     }
     setStatus("processing");
-    const keywords = await extractSearchIntent(transcript);
+    const { query: keywords, category } = await extractSearchIntent(transcript);
     setStatus("idle");
     if (keywords) {
-      onTranscriptRef.current(keywords, transcript);
+      onTranscriptRef.current(keywords, transcript, category || undefined);
     } else {
       onErrorRef.current?.("Aucun texte détecté, réessayez.");
     }
