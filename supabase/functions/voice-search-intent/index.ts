@@ -72,8 +72,8 @@ Règles de traduction sémantique OBLIGATOIRES :
 - "manger asiatique", "cuisine asiatique", "restaurant asiatique" → "cuisine asiatique"
 - "manger mexicain", "cuisine mexicaine", "restaurant mexicain" → "cuisine mexicaine"
 - Quand l'utilisateur dit "manger [nationalité/type]", toujours traduire en "cuisine [adjectif]" pour matcher les services de l'annuaire
-- "faire la fête", "fêter", "sortir", "soirée", "s'amuser", "clubbing" → "bar boîte nuit soirée"
-- "boîte de nuit", "boite de nuit", "discothèque", "discotheque", "qu'est-ce qu'il y a comme boîte", "où danser", "danser" → "night club"
+- "faire la fête", "fêter", "sortir", "soirée", "s'amuser", "clubbing" → "bar boîte nuit soirée" (catégorie "Restauration")
+- "boîte de nuit", "boite de nuit", "discothèque", "discotheque", "qu'est-ce qu'il y a comme boîte", "où danser", "danser" → "night club" (catégorie "Restauration")
 - "vin", "vins", "alcool", "bière", "cave à vin", "spiritueux", "whisky", "champagne" → "vin alcool cave"
 - "fantasia", "tbourida", "spectacle équestre", "équestre", "cavaliers", "chevaux spectacle" → "fantasia" UNIQUEMENT (ne pas ajouter d'autres mots-clés, ignorer les autres règles pour ces termes)
 - "dîner spectacle", "soirée spectacle", "dinner show", "show dinner" → "live show" (uniquement pour ces expressions exactes, pas pour "spectacle équestre" ou "fantasia")
