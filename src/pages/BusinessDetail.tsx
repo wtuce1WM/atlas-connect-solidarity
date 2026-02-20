@@ -137,6 +137,9 @@ const getEmbedUrl = (url: string): { url: string; type: 'iframe' | 'video' | 'fa
   if (url.match(/\.(mp4|webm|ogg)(\?|$)/i)) return { url, type: 'video' };
   // Fallback: treat any URL with common video CDN patterns as direct video
   if (url.match(/scontent.*\.cdninstagram\.com.*\.mp4/i) || url.match(/video.*\.mp4/i)) return { url, type: 'video' };
+  // Instagram Reels / posts
+  const instaMatch = url.match(/instagram\.com\/(reel|p|tv)\/([\w-]+)/);
+  if (instaMatch) return { url: `https://www.instagram.com/${instaMatch[1]}/${instaMatch[2]}/embed/`, type: 'iframe' };
   return null;
 };
 
