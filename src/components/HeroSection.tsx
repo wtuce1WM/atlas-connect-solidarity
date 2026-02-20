@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { LayoutGrid, BedDouble, UtensilsCrossed, Mountain, Sparkles, ShoppingBag, Search, Mic, Loader2 } from "lucide-react";
+import { LayoutGrid, BedDouble, UtensilsCrossed, Mountain, Sparkles, ShoppingBag, Search, Mic, Loader2, MapPin, X } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,7 @@ import logoGoldOverlay from "@/assets/logoGOLDsimple.webp";
 import heroBackground from "@/assets/hero-marrakech.jpg";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { toast } from "@/hooks/use-toast";
+import { useGeolocation } from "@/hooks/useGeolocation";
 
 const HeroSection = () => {
   const { t, language } = useLanguage();
@@ -17,7 +18,7 @@ const HeroSection = () => {
   const heroRef = useRef<HTMLElement>(null);
   const tabsRef = useRef<HTMLDivElement>(null);
   const [scrollY, setScrollY] = useState(0);
-
+  const geo = useGeolocation();
   const voiceLang = language === "ar" ? "ar-MA" : language === "en" ? "en-US" : "fr-FR";
   const { status: voiceStatus, toggleRecording } = useVoiceSearch({
     lang: voiceLang,
@@ -49,6 +50,7 @@ const HeroSection = () => {
     const params = new URLSearchParams();
     if (searchQuery.trim()) params.set("q", searchQuery.trim());
     if (searchCategory !== "all") params.set("category", searchCategory);
+    if (geo.isEnabled && geo.detectedCity) params.set("city", geo.detectedCity);
     if (params.toString()) {
       navigate(`/search?${params.toString()}`);
     }
@@ -260,8 +262,30 @@ const HeroSection = () => {
           </div>
         </form>
 
+        {/* Geo toggle badge */}
+        <button
+          type="button"
+          onClick={geo.toggle}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all border ${
+            geo.isEnabled && geo.detectedCity
+              ? "bg-gold/20 border-gold/50 text-gold"
+              : geo.isEnabled
+                ? "bg-white/10 border-white/20 text-white/60"
+                : "bg-white/10 border-white/20 text-white/50"
+          }`}
+        >
+          <MapPin className="h-3.5 w-3.5" />
+          {geo.isEnabled
+            ? geo.isDetecting
+              ? (language === "fr" ? "Détection..." : language === "ar" ? "جاري الكشف..." : "Detecting...")
+              : geo.detectedCity
+                ? `📍 ${geo.detectedCity}`
+                : (language === "fr" ? "Aucune ville proche" : language === "ar" ? "لا توجد مدينة قريبة" : "No nearby city")
+            : (language === "fr" ? "Position désactivée" : language === "ar" ? "الموقع معطل" : "Location off")}
+        </button>
+
         {/* Listez votre entreprise */}
-        <p className="text-2xl md:text-3xl text-white/80 font-medium mt-8">
+        <p className="text-2xl md:text-3xl text-white/80 font-medium mt-4">
           {language === "fr"
             ? <>Listez votre <Link to="/devenir-affilie" className="text-gold hover:underline font-bold">entreprise</Link></>
             : language === "ar"
@@ -270,6 +294,33 @@ const HeroSection = () => {
         </p>
 
       </div>
+
+      {/* Geolocation consent banner */}
+      {geo.showBanner && (
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 bg-card border border-border rounded-xl shadow-2xl px-5 py-4 flex items-start gap-3 max-w-md w-[calc(100%-2rem)]">
+          <MapPin className="h-5 w-5 text-gold mt-0.5 shrink-0" />
+          <div className="flex-1">
+            <p className="text-sm font-medium text-foreground">
+              {language === "fr" ? "Utiliser votre position pour affiner les résultats ?" : language === "ar" ? "استخدام موقعك لتحسين النتائج؟" : "Use your location to refine results?"}
+            </p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {language === "fr" ? "Vous pouvez changer ce choix à tout moment." : language === "ar" ? "يمكنك تغيير هذا الخيار في أي وقت." : "You can change this anytime."}
+            </p>
+            <div className="flex gap-2 mt-3 justify-end">
+              <Button variant="ghost" size="sm" onClick={geo.decline}>
+                {language === "fr" ? "Non merci" : language === "ar" ? "لا شكراً" : "No thanks"}
+              </Button>
+              <Button size="sm" onClick={geo.accept} className="bg-gold text-black hover:bg-gold/90">
+                <MapPin className="h-3.5 w-3.5 mr-1" />
+                {language === "fr" ? "Activer" : language === "ar" ? "تفعيل" : "Enable"}
+              </Button>
+            </div>
+          </div>
+          <button onClick={geo.dismiss} className="text-muted-foreground hover:text-foreground">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
     </section>
   );
 };
