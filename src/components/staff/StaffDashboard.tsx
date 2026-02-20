@@ -578,7 +578,8 @@ function InternalizeImagesButton() {
         totalDone += data.totalInternalized;
         totalFailed += data.totalFailed;
         remaining = data.remaining || 0;
-        if (data.totalInternalized === 0 && data.totalFailed === 0) break; // safety
+        // Stop if nothing was internalized in this batch (avoid infinite loop on permanently failing URLs)
+        if (data.totalInternalized === 0) break;
       }
 
       setResult({ total: totalDone, failed: totalFailed });
