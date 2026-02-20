@@ -74,6 +74,7 @@ interface City {
   official_site_6_name: string | null;
   official_site_6_url: string | null;
   description: string | null;
+  image_url: string | null;
 }
 
 interface Neighborhood {
@@ -220,6 +221,7 @@ const LocationManagement = () => {
     official_site_6_name: "",
     official_site_6_url: "",
     description: "",
+    image_url: "",
   });
 
   useEffect(() => {
@@ -394,6 +396,7 @@ const LocationManagement = () => {
       official_site_6_name: cityForm.official_site_6_name.trim() || null,
       official_site_6_url: cityForm.official_site_6_url.trim() || null,
       description: cityForm.description.trim().slice(0, 10000) || null,
+      image_url: cityForm.image_url.trim() || null,
     };
 
     let error;
@@ -456,6 +459,7 @@ const LocationManagement = () => {
       official_site_6_name: city.official_site_6_name || "",
       official_site_6_url: city.official_site_6_url || "",
       description: city.description || "",
+      image_url: (city as any).image_url || "",
     });
     setShowCityForm(true);
   };
@@ -495,6 +499,7 @@ const LocationManagement = () => {
       official_site_6_name: "",
       official_site_6_url: "",
       description: "",
+      image_url: "",
     });
   };
 
@@ -1706,6 +1711,17 @@ const LocationManagement = () => {
                 </div>
 
                 {/* Description */}
+                <div className="space-y-4">
+                  <h3 className="font-medium text-lg flex items-center gap-2">
+                    <ImageIcon className="h-4 w-4" />
+                    Image
+                  </h3>
+                  <LogoUploader
+                    logoUrl={cityForm.image_url}
+                    onChange={(url) => setCityForm({ ...cityForm, image_url: url })}
+                    businessId={editingCity?.id || "city"}
+                  />
+                </div>
                 <div className="space-y-4">
                   <h3 className="font-medium text-lg flex items-center gap-2">
                     <FileText className="h-4 w-4" />
