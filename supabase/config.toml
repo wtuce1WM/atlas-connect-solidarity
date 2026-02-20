@@ -23,3 +23,6 @@ verify_jwt = false
 
 [functions.voice-search-intent]
 verify_jwt = false
+
+[functions.amadeus-hotels]
+verify_jwt = false

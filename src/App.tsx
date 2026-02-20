@@ -27,6 +27,7 @@ import AllBusinessesMap from "./pages/AllBusinessesMap";
 import SubcategoryPage from "./pages/SubcategoryPage";
 import NotFound from "./pages/NotFound";
 import AncienAccueil from "./pages/AncienAccueil";
+import HotelSearch from "./pages/HotelSearch";
 import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
@@ -64,6 +65,7 @@ const AppContent = () => {
             <Route path="/neighborhood/:neighborhood" element={<NeighborhoodPage />} />
             <Route path="/carte" element={<AllBusinessesMap />} />
             <Route path="/subcategory/:subcategoryName" element={<SubcategoryPage />} />
+            <Route path="/hotels" element={<HotelSearch />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
