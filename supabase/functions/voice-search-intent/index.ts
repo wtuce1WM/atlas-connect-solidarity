@@ -33,7 +33,8 @@ Tu dois aussi identifier la CATÉGORIE principale quand l'intention est claire. 
 - "Hôtellerie" : dormir, séjourner, loger, hôtel, riad, maison d'hôtes
 - "Restauration" : manger, déjeuner, dîner, restaurant, café, boire un verre
 - "Commerce" : acheter, shopping, trouver un produit, boutique, magasin, vin, alcool, cave, tapis, vêtements, artisanat, souvenirs
-- "Tourisme" : visiter, activités, excursion, musée, monument, spectacle
+- "Tourisme" : visiter, excursion, musée, monument, spectacle
+- "Sport & Loisirs" : surf, kitesurf, sport, école de surf, quad, buggy, activités sportives, golf, tennis, équitation
 - "Bien-être" : spa, hammam, massage, soin, coiffeur, beauté
 
 Si l'intention d'ACHAT est claire (acheter, trouver un produit, "où est-ce que je peux acheter"), la catégorie DOIT être "Commerce".
