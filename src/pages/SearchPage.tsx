@@ -487,7 +487,7 @@ const SearchPage = () => {
   const showPompiers = isPompiersQuery(spokenText || searchQuery);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background animate-[slideInUp_0.4s_ease-out]">
       <Header />
 
       {/* Geolocation consent banner */}
