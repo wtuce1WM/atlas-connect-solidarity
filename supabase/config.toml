@@ -26,3 +26,6 @@ verify_jwt = false
 
 [functions.amadeus-hotels]
 verify_jwt = false
+
+[functions.geocode-locations]
+verify_jwt = false
