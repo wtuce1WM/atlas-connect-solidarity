@@ -33,8 +33,8 @@ serve(async (req) => {
     // Truncate to 5000 chars max
     const truncatedText = text.slice(0, 5000);
 
-    // Default voice: Laura (feminine, multilingual)
-    const selectedVoice = voiceId || "FGY2WhTYpPnrIDTdsKH5";
+    // Default voice: Sarah (feminine, warm, multilingual)
+    const selectedVoice = voiceId || "EXAVITQu4vr4xnSDxMaL";
 
     const response = await fetch(
       `https://api.elevenlabs.io/v1/text-to-speech/${selectedVoice}?output_format=mp3_44100_128`,
