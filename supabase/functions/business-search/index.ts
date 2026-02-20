@@ -483,6 +483,22 @@ serve(async (req) => {
       }
     }
 
+    // Exclude pure "Traiteurs" from Restauration results (keep if they also have Restaurant, Café, etc.)
+    if (category === "Restauration" || (!category && businesses.length > 0)) {
+      const isRestaurantContext = category === "Restauration" ||
+        (effectiveQuery && /restaurant|manger|déjeuner|dîner|diner|cuisine|resto/i.test(effectiveQuery));
+      if (isRestaurantContext) {
+        businesses = businesses.filter(b => {
+          const cats = (b.categories || []).map((c: string) => c.toLowerCase());
+          // Exclude if "traiteurs" is the ONLY subcategory
+          if (cats.length === 1 && cats[0] === "traiteurs") return false;
+          // Exclude if all categories are traiteur-only variants
+          const nonTraiteur = cats.filter(c => c !== "traiteurs");
+          return nonTraiteur.length > 0;
+        });
+      }
+    }
+
     // Superlative intent: sort by best rating DESC (google > tripadvisor > restaurant_guru)
     if (isSuperlatif && businesses.length > 1) {
       console.log(`Superlative detected in "${effectiveQuery}" → sorting by rating`);
