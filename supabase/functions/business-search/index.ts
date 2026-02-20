@@ -259,6 +259,13 @@ function expandQuery(query: string): string {
   const groups = words.map(word => {
     const alternatives: string[] = [word];
 
+    // If word contains "/" keep it as-is (e.g. "maison/villa") for tsquery
+    // Also add the individual parts so they can match separately
+    if (word.includes("/")) {
+      const parts = word.split("/").filter(p => p.length > 0);
+      alternatives.push(...parts);
+    }
+
     for (const [key, values] of Object.entries(synonyms)) {
       const sanitizedWord = sanitizeTerm(word);
       if (sanitizeTerm(key) === sanitizedWord || values.some(v => sanitizeTerm(v.toLowerCase()) === sanitizedWord)) {
@@ -272,7 +279,11 @@ function expandQuery(query: string): string {
       }
     }
 
-    const sanitized = [...new Set(alternatives)].map(sanitizeTerm).filter(t => t.length > 1);
+    // For alternatives containing "/", keep slash as-is for tsquery matching
+    const sanitized = [...new Set(alternatives)].map(a => {
+      if (a.includes("/")) return a.replace(/['']/g, "").replace(/[^a-zA-Z0-9àâäéèêëïîôùûüÿçœæÀÂÄÉÈÊËÏÎÔÙÛÜŸÇŒÆ/]/g, "");
+      return sanitizeTerm(a);
+    }).filter(t => t.length > 1);
     return sanitized.length === 1 ? sanitized[0] : `(${sanitized.join(" | ")})`;
   });
 
