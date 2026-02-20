@@ -531,19 +531,22 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
     return dbNeighborhoods.filter(n => n.city_id === selectedCity.id);
   }, [formData.city, dbCities, dbNeighborhoods]);
 
-  // Get destinations for the selected region
-  const destinationsForRegion = useMemo(() => {
-    if (!formData.region) return [];
-    return dbDestinations.filter(d => d.region === formData.region);
-  }, [formData.region, dbDestinations]);
+  // Get all destinations (not filtered by region/city)
+  const allDestinations = useMemo(() => {
+    return dbDestinations.sort((a, b) => a.name_fr.localeCompare(b.name_fr, 'fr'));
+  }, [dbDestinations]);
 
-  // Get POIs for the selected city
+  // Get POIs filtered by region (via city) and city
   const poisForCity = useMemo(() => {
-    if (!formData.city) return [];
-    const selectedCity = dbCities.find(c => c.name_fr === formData.city);
-    if (!selectedCity) return [];
-    return dbPOIs.filter(p => p.city_id === selectedCity.id);
-  }, [formData.city, dbCities, dbPOIs]);
+    if (!formData.city && !formData.region) return [];
+    const selectedCity = formData.city ? dbCities.find(c => c.name_fr === formData.city) : null;
+    if (selectedCity) {
+      return dbPOIs.filter(p => p.city_id === selectedCity.id);
+    }
+    // If only region, show POIs from all cities in that region
+    const cityIdsInRegion = dbCities.filter(c => c.region === formData.region).map(c => c.id);
+    return dbPOIs.filter(p => cityIdsInRegion.includes(p.city_id));
+  }, [formData.city, formData.region, dbCities, dbPOIs]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -1727,77 +1730,75 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
             <BrokenUrlBadge url={formData.menu_url} />
            </div>
 
-        {/* Destinations & Points d'intérêt */}
-        {(destinationsForRegion.length > 0 || poisForCity.length > 0) && (
-          <div className="space-y-4 p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
+        {/* Destinations */}
+        {allDestinations.length > 0 && (
+          <div className="space-y-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <Label className="text-base font-semibold flex items-center gap-2">
               <MapPinned className="h-5 w-5" />
-              Destinations & Points d'intérêt
+              Destinations
             </Label>
+            <div className="flex flex-wrap gap-2">
+              {allDestinations.map((dest) => {
+                const isSelected = selectedDestinationIds.includes(dest.id);
+                return (
+                  <button
+                    key={dest.id}
+                    type="button"
+                    onClick={() => {
+                      setSelectedDestinationIds(prev =>
+                        isSelected ? prev.filter(id => id !== dest.id) : [...prev, dest.id]
+                      );
+                      setIsDirty(true);
+                    }}
+                    className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
+                      isSelected
+                        ? "bg-blue-600 text-white border-blue-600"
+                        : "bg-background border-border hover:bg-muted"
+                    }`}
+                  >
+                    {dest.name_fr}
+                    {dest.region && <span className="ml-1 opacity-60 text-xs">({dest.region})</span>}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
-            {destinationsForRegion.length > 0 && (
-              <div className="space-y-2">
-                <Label className="text-sm text-muted-foreground">
-                  Destinations ({formData.region || "aucune région"})
-                </Label>
-                <div className="flex flex-wrap gap-2">
-                  {destinationsForRegion.map((dest) => {
-                    const isSelected = selectedDestinationIds.includes(dest.id);
-                    return (
-                      <button
-                        key={dest.id}
-                        type="button"
-                        onClick={() => {
-                          setSelectedDestinationIds(prev =>
-                            isSelected ? prev.filter(id => id !== dest.id) : [...prev, dest.id]
-                          );
-                          setIsDirty(true);
-                        }}
-                        className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
-                          isSelected
-                            ? "bg-emerald-600 text-white border-emerald-600"
-                            : "bg-background border-border hover:bg-muted"
-                        }`}
-                      >
-                        {dest.name_fr}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {poisForCity.length > 0 && (
-              <div className="space-y-2">
-                <Label className="text-sm text-muted-foreground">
-                  Points d'intérêt ({formData.city || "aucune ville"})
-                </Label>
-                <div className="flex flex-wrap gap-2">
-                  {poisForCity.map((poi) => {
-                    const isSelected = selectedPOIIds.includes(poi.id);
-                    return (
-                      <button
-                        key={poi.id}
-                        type="button"
-                        onClick={() => {
-                          setSelectedPOIIds(prev =>
-                            isSelected ? prev.filter(id => id !== poi.id) : [...prev, poi.id]
-                          );
-                          setIsDirty(true);
-                        }}
-                        className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
-                          isSelected
-                            ? "bg-emerald-600 text-white border-emerald-600"
-                            : "bg-background border-border hover:bg-muted"
-                        }`}
-                      >
-                        {poi.name_fr}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
+        {/* Points d'intérêt */}
+        {poisForCity.length > 0 && (
+          <div className="space-y-3 p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
+            <Label className="text-base font-semibold flex items-center gap-2">
+              <MapPinned className="h-5 w-5" />
+              Points d'intérêt
+              <span className="text-sm font-normal text-muted-foreground">
+                ({formData.city || formData.region || "aucune ville/région"})
+              </span>
+            </Label>
+            <div className="flex flex-wrap gap-2">
+              {poisForCity.map((poi) => {
+                const isSelected = selectedPOIIds.includes(poi.id);
+                return (
+                  <button
+                    key={poi.id}
+                    type="button"
+                    onClick={() => {
+                      setSelectedPOIIds(prev =>
+                        isSelected ? prev.filter(id => id !== poi.id) : [...prev, poi.id]
+                      );
+                      setIsDirty(true);
+                    }}
+                    className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
+                      isSelected
+                        ? "bg-emerald-600 text-white border-emerald-600"
+                        : "bg-background border-border hover:bg-muted"
+                    }`}
+                  >
+                    {poi.name_fr}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         )}
 
