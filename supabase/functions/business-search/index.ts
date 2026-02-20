@@ -355,11 +355,29 @@ serve(async (req) => {
       const serviceMatchWords = queryWords.filter(w => !FRENCH_STOP_WORDS.has(w) && w !== cityLower);
 
       if (serviceMatchWords.length > 0) {
-        const orConditions = serviceMatchWords.map(w => `name_fr.ilike.%${w}%`).join(",");
-        const { data: matchingServices } = await supabase
+        // Search by name OR keywords array
+        const nameConditions = serviceMatchWords.map(w => `name_fr.ilike.%${w}%`).join(",");
+        const { data: matchingByName } = await supabase
           .from("services")
-          .select("name_fr")
-          .or(orConditions);
+          .select("name_fr, keywords")
+          .or(nameConditions);
+
+        // Also search in keywords array using cs (contains) for each word
+        const { data: matchingByKeywords } = await supabase
+          .from("services")
+          .select("name_fr, keywords")
+          .not("keywords", "eq", "{}");
+
+        // Merge: services matched by name + services whose keywords contain a query word
+        const keywordMatches = (matchingByKeywords || []).filter(svc => {
+          const kws = (svc.keywords || []).map((k: string) => k.toLowerCase());
+          return serviceMatchWords.some(w => kws.some((k: string) => k.includes(w)));
+        });
+        const allMatched = new Map<string, any>();
+        for (const s of [...(matchingByName || []), ...keywordMatches]) {
+          allMatched.set(s.name_fr, s);
+        }
+        const matchingServices = Array.from(allMatched.values());
 
         if (matchingServices && matchingServices.length > 0) {
           // Pick the service that matches the most query words (most specific)

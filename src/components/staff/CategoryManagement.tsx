@@ -85,6 +85,7 @@ interface Service {
   name_ar: string | null;
   icon: string | null;
   sort_order: number;
+  keywords: string[] | null;
 }
 
 type EditMode = {
