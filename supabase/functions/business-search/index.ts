@@ -362,9 +362,21 @@ serve(async (req) => {
           .or(orConditions);
 
         if (matchingServices && matchingServices.length > 0) {
-          // Pick the first matched service name (exact casing from DB)
-          detectedService = matchingServices[0].name_fr;
-          console.log(`Detected service for SQL filter: "${detectedService}" (from: ${serviceMatchWords.join(", ")})`);
+          // Pick the service that matches the most query words (most specific)
+          let bestMatch = matchingServices[0].name_fr;
+          let bestScore = 0;
+          for (const svc of matchingServices) {
+            const svcLower = svc.name_fr.toLowerCase();
+            const matchCount = serviceMatchWords.filter(w => svcLower.includes(w)).length;
+            const svcWordCount = svcLower.split(/\s+/).length;
+            const score = matchCount * 10 + (matchCount > 1 && svcWordCount > 1 ? 50 : 0);
+            if (score > bestScore) {
+              bestScore = score;
+              bestMatch = svc.name_fr;
+            }
+          }
+          detectedService = bestMatch;
+          console.log(`Detected service for SQL filter: "${detectedService}" (from: ${serviceMatchWords.join(", ")}, candidates: ${matchingServices.map((s: any) => s.name_fr).join(", ")})`);
         }
       }
     }
