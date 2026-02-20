@@ -242,6 +242,7 @@ const SearchPage = () => {
   const [inputValue, setInputValue] = useState(searchParams.get("q") || "");
   const categoryFromUrl = searchParams.get("category") || "";
   const [celebrityBusinesses, setCelebrityBusinesses] = useState<Business[]>([]);
+  const [ttsIntroPhrase, setTtsIntroPhrase] = useState<string>("");
 
   const spokenText = searchParams.get("spoken") || "";
   const isVoiceSearchRef = useRef(false);
@@ -307,18 +308,20 @@ const SearchPage = () => {
     setCurrentPage(1);
   }, [selectedCity, searchQuery]);
 
-  // Fetch gammes, badges, subcategories, badge_subcategories on mount
+  // Fetch gammes, badges, subcategories, badge_subcategories + TTS intro phrase on mount
   useEffect(() => {
     Promise.all([
       supabase.from("gammes").select("id, name_fr, color_hex, text_color_hex, sort_order"),
       supabase.from("badges").select("id, name_fr, color_hex, text_color_hex").order("sort_order", { ascending: true }),
       supabase.from("subcategories").select("id, name_fr"),
       supabase.from("badge_subcategories").select("badge_id, subcategory_id"),
-    ]).then(([gammesRes, badgesRes, subcatsRes, badgeSubcatsRes]) => {
+      supabase.from("staff_notes").select("content").eq("key", "tts_intro_phrase").maybeSingle(),
+    ]).then(([gammesRes, badgesRes, subcatsRes, badgeSubcatsRes, ttsIntroRes]) => {
       if (gammesRes.data) setGammes(gammesRes.data);
       if (badgesRes.data) setBadges(badgesRes.data);
       if (subcatsRes.data) setSubcategories(subcatsRes.data);
       if (badgeSubcatsRes.data) setBadgeSubcategories(badgeSubcatsRes.data);
+      if (ttsIntroRes.data?.content) setTtsIntroPhrase(ttsIntroRes.data.content);
     });
   }, []);
 
@@ -456,7 +459,8 @@ const SearchPage = () => {
       isVoiceSearchRef.current = false;
       const count = allBusinesses.length;
       const cityText = selectedCity !== "all" ? ` à ${selectedCity}` : "";
-      let speech = `J'ai trouvé ${count} résultat${count > 1 ? 's' : ''}${cityText}. `;
+      const intro = ttsIntroPhrase ? `${ttsIntroPhrase} ` : "";
+      let speech = `${intro}J'ai trouvé ${count} résultat${count > 1 ? 's' : ''}${cityText}. `;
 
       const top = allBusinesses.slice(0, 3);
       if (top.length === 1) {
@@ -664,7 +668,8 @@ const SearchPage = () => {
                   onClick={() => {
                     const count = filteredBusinesses.length;
                     const cityText = selectedCity !== "all" ? ` à ${selectedCity}` : "";
-                    let speech = `J'ai trouvé ${count} résultat${count > 1 ? 's' : ''}${cityText}. `;
+                    const intro = ttsIntroPhrase ? `${ttsIntroPhrase} ` : "";
+                    let speech = `${intro}J'ai trouvé ${count} résultat${count > 1 ? 's' : ''}${cityText}. `;
                     const top = filteredBusinesses.slice(0, 3);
                     if (top.length === 1) {
                       speech += `Le meilleur résultat est ${buildBusinessTTSLine(top[0], 0)}.`;

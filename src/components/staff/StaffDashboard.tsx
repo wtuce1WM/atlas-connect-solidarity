@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect, useCallback } from "react";
-import { Upload } from "lucide-react";
+import { Upload, Volume2 } from "lucide-react";
 import {
   Building2,
   Eye,
@@ -468,6 +468,9 @@ const StaffDashboard = ({ businesses, onNavigateTab, onNewBusiness, onEditBusine
         </Card>
       </div>
 
+      {/* TTS Intro Phrase */}
+      <TTSPhraseEditor />
+
       {/* Internal Notes */}
       <InternalNotesSection />
     </div>
@@ -617,6 +620,70 @@ function InternalizeImagesButton() {
     </Button>
   );
 }
+function TTSPhraseEditor() {
+  const [phrase, setPhrase] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    supabase
+      .from("staff_notes")
+      .select("content")
+      .eq("key", "tts_intro_phrase")
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.content) setPhrase(data.content);
+        setIsLoaded(true);
+      });
+  }, []);
+
+  const handleSave = useCallback(async () => {
+    setIsSaving(true);
+    const { error } = await supabase
+      .from("staff_notes")
+      .upsert({ key: "tts_intro_phrase", content: phrase, updated_at: new Date().toISOString() }, { onConflict: "key" });
+    setIsSaving(false);
+    if (error) {
+      toast({ title: "Erreur", description: "Impossible de sauvegarder la phrase TTS.", variant: "destructive" });
+    } else {
+      toast({ title: "Sauvegardé", description: "Phrase d'introduction TTS mise à jour." });
+    }
+  }, [phrase]);
+
+  if (!isLoaded) return null;
+
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-lg flex items-center gap-2">
+          <Volume2 className="h-5 w-5 text-primary" />
+          Phrase d'introduction TTS
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <p className="text-xs text-muted-foreground">
+          Cette phrase sera prononcée au début de chaque résumé vocal de recherche.
+        </p>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={phrase}
+            onChange={(e) => setPhrase(e.target.value)}
+            placeholder="Ex: Bienvenue sur WTUCE, votre guide de confiance au Maroc."
+            className="flex-1 h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            maxLength={300}
+          />
+          <Button size="sm" onClick={handleSave} disabled={isSaving}>
+            {isSaving ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Save className="h-4 w-4 mr-1" />}
+            Sauvegarder
+          </Button>
+        </div>
+        <p className="text-xs text-muted-foreground">{phrase.length}/300 caractères</p>
+      </CardContent>
+    </Card>
+  );
+}
+
 function InternalNotesSection() {
   const [content, setContent] = useState("");
   const [isSaving, setIsSaving] = useState(false);
