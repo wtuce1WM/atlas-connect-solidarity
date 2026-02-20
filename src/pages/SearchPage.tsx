@@ -646,8 +646,8 @@ const SearchPage = () => {
                   <><span className="text-gold font-semibold">{filteredBusinesses.length}</span> {t.establishments} {t.found}</>
                 )}
               </p>
-              {/* TTS indicator */}
-              {(ttsStatus === "playing" || ttsStatus === "loading") && (
+              {/* TTS controls */}
+              {(ttsStatus === "playing" || ttsStatus === "loading") ? (
                 <button
                   onClick={ttsStop}
                   className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold/20 text-gold text-sm font-medium hover:bg-gold/30 transition-colors animate-pulse"
@@ -658,6 +658,28 @@ const SearchPage = () => {
                     <Volume2 className="h-4 w-4" />
                   )}
                   {ttsStatus === "loading" ? "Chargement audio…" : "Lecture en cours — cliquez pour arrêter"}
+                </button>
+              ) : !isLoading && filteredBusinesses.length > 0 && (
+                <button
+                  onClick={() => {
+                    const count = filteredBusinesses.length;
+                    const cityText = selectedCity !== "all" ? ` à ${selectedCity}` : "";
+                    let speech = `J'ai trouvé ${count} résultat${count > 1 ? 's' : ''}${cityText}. `;
+                    const top = filteredBusinesses.slice(0, 3);
+                    if (top.length === 1) {
+                      speech += `Le meilleur résultat est ${buildBusinessTTSLine(top[0], 0)}.`;
+                    } else {
+                      speech += "Voici les meilleurs résultats. ";
+                      top.forEach((b, i) => {
+                        speech += `${i === 0 ? 'Premier' : i === 1 ? 'Deuxième' : 'Troisième'}, ${buildBusinessTTSLine(b, i)}. `;
+                      });
+                    }
+                    ttsSpeak(speech);
+                  }}
+                  className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card border border-gold/30 text-gold text-sm font-medium hover:bg-gold/20 transition-colors"
+                >
+                  <Volume2 className="h-4 w-4" />
+                  {language === "en" ? "Listen to results" : language === "ar" ? "استمع للنتائج" : "Écouter les résultats"}
                 </button>
               )}
               {searchMessage && (
