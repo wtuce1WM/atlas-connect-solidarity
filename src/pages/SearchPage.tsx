@@ -1,5 +1,6 @@
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
 import zitounMaskImg from "@/assets/zitoun-mask.jpg";
@@ -219,6 +220,7 @@ const SearchPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { language } = useLanguage();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const [allBusinesses, setAllBusinesses] = useState<Business[]>([]);
   const [searchLevel, setSearchLevel] = useState<string>("");
   const [searchMessage, setSearchMessage] = useState<string>("");
@@ -254,6 +256,7 @@ const SearchPage = () => {
       const params: Record<string, string> = { q: keywords, spoken };
       if (detectedCategory) params.category = detectedCategory;
       setSearchParams(params);
+      if (isMobile) window.scrollTo({ top: 0, behavior: 'smooth' });
     },
     onError: (message) => {
       toast({ variant: "destructive", title: "Erreur microphone", description: message });
@@ -390,7 +393,8 @@ const SearchPage = () => {
     e.preventDefault();
     if (inputValue.trim()) {
       setSearchQuery(inputValue.trim());
-      setSearchParams({ q: inputValue.trim() }); // pas de 'spoken' → recherche manuelle
+      setSearchParams({ q: inputValue.trim() });
+      if (isMobile) window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
