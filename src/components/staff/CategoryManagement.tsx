@@ -151,7 +151,8 @@ const CategoryManagement = () => {
     adj_ar: "",
     icon: "",
     sort_order: 0,
-    front_color: "white"
+    front_color: "white",
+    keywords: ""
   });
   
   const [deleteDialog, setDeleteDialog] = useState<{
@@ -265,16 +266,17 @@ const CategoryManagement = () => {
         adj_ar: (item as Category).adj_ar || "",
         icon: (item as Category).icon || "",
         sort_order: item.sort_order || 0,
-        front_color: (item as Category).front_color || "white"
+        front_color: (item as Category).front_color || "white",
+        keywords: ((item as Service).keywords || []).join(", ")
       });
     } else {
-      setEditForm({ name_fr: "", name_en: "", name_ar: "", adj_fr: "", adj_en: "", adj_ar: "", icon: "", sort_order: 0, front_color: "white" });
+      setEditForm({ name_fr: "", name_en: "", name_ar: "", adj_fr: "", adj_en: "", adj_ar: "", icon: "", sort_order: 0, front_color: "white", keywords: "" });
     }
   };
 
   const cancelEdit = () => {
     setEditMode(null);
-    setEditForm({ name_fr: "", name_en: "", name_ar: "", adj_fr: "", adj_en: "", adj_ar: "", icon: "", sort_order: 0, front_color: "white" });
+    setEditForm({ name_fr: "", name_en: "", name_ar: "", adj_fr: "", adj_en: "", adj_ar: "", icon: "", sort_order: 0, front_color: "white", keywords: "" });
   };
 
   const saveItem = async () => {
@@ -326,13 +328,18 @@ const CategoryManagement = () => {
           toast.success("Sous-catégorie créée");
         }
       } else if (editMode.type === "service") {
+        const keywordsArray = editForm.keywords
+          .split(",")
+          .map(k => k.trim())
+          .filter(k => k.length > 0);
         const svcData = {
           subcategory_id: editMode.parentId!,
           name_fr: editForm.name_fr.trim(),
           name_en: editForm.name_en.trim() || null,
           name_ar: editForm.name_ar.trim() || null,
           icon: editForm.icon.trim() || null,
-          sort_order: editForm.sort_order
+          sort_order: editForm.sort_order,
+          keywords: keywordsArray
         };
 
         if (editMode.id) {
@@ -420,7 +427,7 @@ const CategoryManagement = () => {
     );
   }
 
-  const renderEditForm = (showIcon: boolean = false, showAdj: boolean = false, showFrontColor: boolean = false) => (
+  const renderEditForm = (showIcon: boolean = false, showAdj: boolean = false, showFrontColor: boolean = false, showKeywords: boolean = false) => (
     <div className="space-y-3 p-4 bg-muted/50 rounded-lg border">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
         <div>
@@ -486,6 +493,17 @@ const CategoryManagement = () => {
             value={editForm.icon}
             onChange={(iconName) => setEditForm(prev => ({ ...prev, icon: iconName }))}
           />
+        </div>
+      )}
+      {showKeywords && (
+        <div>
+          <label className="text-xs font-medium text-muted-foreground">Mots-clés / Synonymes (séparés par des virgules)</label>
+          <Input
+            value={editForm.keywords}
+            onChange={(e) => setEditForm(prev => ({ ...prev, keywords: e.target.value }))}
+            placeholder="huîtres, moules, palourdes, bigorneaux..."
+          />
+          <p className="text-[10px] text-muted-foreground mt-0.5">Ces mots permettront de trouver ce service lors d'une recherche</p>
         </div>
       )}
       {showFrontColor && (
@@ -702,7 +720,7 @@ const CategoryManagement = () => {
 
                                 {/* New service form */}
                                 {editMode?.type === "service" && editMode.id === null && editMode.parentId === sub.id && (
-                                  renderEditForm(true, false)
+                                  renderEditForm(true, false, false, true)
                                 )}
 
                                 {svcs.map((svc) => {
@@ -711,18 +729,30 @@ const CategoryManagement = () => {
                                   return (
                                     <div key={svc.id} className="ml-2">
                                       {svcIsEditing ? (
-                                        renderEditForm(true, false)
+                                        renderEditForm(true, false, false, true)
                                       ) : (
                                         <div className="flex items-center gap-2 p-1.5 rounded hover:bg-muted/50 group">
                                           {svc.icon && (
                                             <DynamicIcon name={svc.icon} className="h-5 w-5 text-primary" />
                                           )}
-                                          <span className="text-xs flex-1">
-                                            {svc.name_fr}
-                                            {svc.name_en && (
-                                              <span className="text-muted-foreground ml-1">({svc.name_en})</span>
+                                          <div className="flex-1 min-w-0">
+                                            <span className="text-xs">
+                                              {svc.name_fr}
+                                              {svc.name_en && (
+                                                <span className="text-muted-foreground ml-1">({svc.name_en})</span>
+                                              )}
+                                            </span>
+                                            {svc.keywords && svc.keywords.length > 0 && (
+                                              <div className="flex flex-wrap gap-1 mt-0.5">
+                                                {svc.keywords.slice(0, 5).map((kw, i) => (
+                                                  <span key={i} className="text-[9px] px-1 py-0 rounded bg-muted text-muted-foreground">{kw}</span>
+                                                ))}
+                                                {svc.keywords.length > 5 && (
+                                                  <span className="text-[9px] text-muted-foreground">+{svc.keywords.length - 5}</span>
+                                                )}
+                                              </div>
                                             )}
-                                          </span>
+                                          </div>
                                           {(businessCountBySvc[svc.id] || 0) > 0 && (
                                             <Badge variant="secondary" className="text-[10px] px-1.5 py-0">{businessCountBySvc[svc.id]}</Badge>
                                           )}
