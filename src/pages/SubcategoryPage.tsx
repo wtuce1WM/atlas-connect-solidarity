@@ -117,14 +117,23 @@ const SubcategoryPage = () => {
       .map(c => c.name);
   }, [allBusinesses, citiesWithPriority]);
 
-  // Available services: only services that belong to this subcategory (from the `services` table)
-  // We use subcategoryServices as the source of truth — just display them all if they exist
+  // Available services: only services from this subcategory that at least one active business offers
   const availableServices = useMemo(() => {
     if (subcategoryServices === null || subcategoryServices.length === 0) return [];
-    // Return the subcategory's services directly (sorted), not filtered by which businesses have them
-    // This matches what is shown in the backoffice
-    return [...subcategoryServices].sort((a, b) => a.localeCompare(b, "fr"));
-  }, [subcategoryServices]);
+    const subcategoryServicesSet = new Set(subcategoryServices);
+    const servicesWithBusinesses = new Set<string>();
+    const businessesToCheck = selectedCity === "all"
+      ? allBusinesses
+      : allBusinesses.filter(b => b.city === selectedCity);
+    businessesToCheck.forEach((business) => {
+      business.services?.forEach((service) => {
+        if (subcategoryServicesSet.has(service)) {
+          servicesWithBusinesses.add(service);
+        }
+      });
+    });
+    return Array.from(servicesWithBusinesses).sort((a, b) => a.localeCompare(b, "fr"));
+  }, [subcategoryServices, allBusinesses, selectedCity]);
 
   // Available gammes based on selected city
   const availableGammes = useMemo(() => {
