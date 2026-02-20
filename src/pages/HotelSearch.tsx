@@ -100,7 +100,7 @@ const HotelSearch = () => {
 
     try {
       // Step 1: Get hotel IDs for the city
-      const listParams: Record<string, unknown> = { action: "hotel-list", cityCode, radius: "5", radiusUnit: "KM" };
+      const listParams: Record<string, unknown> = { action: "hotel-list", cityCode, radius: "30", radiusUnit: "KM" };
       if (stars && stars !== "all") listParams.ratings = stars;
 
       const { data: listData, error: listError } = await supabase.functions.invoke("amadeus-hotels", {
@@ -118,34 +118,48 @@ const HotelSearch = () => {
         return;
       }
 
-      // Take first 20 hotel IDs (API limit)
-      const hotelIds = hotels
-        .slice(0, 20)
-        .map((h: { hotelId: string }) => h.hotelId)
-        .join(",");
+      // Batch hotel IDs in groups of 20 (API limit) - process up to 100 hotels
+      const allHotelIds = hotels.slice(0, 100).map((h: { hotelId: string }) => h.hotelId);
+      const batches: string[][] = [];
+      for (let i = 0; i < allHotelIds.length; i += 20) {
+        batches.push(allHotelIds.slice(i, i + 20));
+      }
 
-      // Step 2: Get offers/pricing
-      const { data: offersData, error: offersError } = await supabase.functions.invoke("amadeus-hotels", {
-        body: {
-          action: "hotel-offers",
-          hotelIds,
-          checkInDate: ci,
-          checkOutDate: co,
-          adults: parseInt(adults),
-          roomQuantity: parseInt(rooms),
-          currency,
-        },
-      });
+      const allResults: HotelOffer[] = [];
 
-      if (offersError) throw new Error(offersError.message);
-      if (offersData?.error) throw new Error(offersData.error);
+      for (const batch of batches) {
+        const { data: offersData, error: offersError } = await supabase.functions.invoke("amadeus-hotels", {
+          body: {
+            action: "hotel-offers",
+            hotelIds: batch.join(","),
+            checkInDate: ci,
+            checkOutDate: co,
+            adults: parseInt(adults),
+            roomQuantity: parseInt(rooms),
+            currency,
+          },
+        });
 
-      const offers: HotelOffer[] = offersData?.data || [];
-      setResults(offers.filter((o) => o.available && o.offers && o.offers.length > 0));
+        if (offersError) {
+          console.warn("Batch error:", offersError.message);
+          continue;
+        }
+        if (offersData?.error) {
+          console.warn("Batch API error:", offersData.error);
+          continue;
+        }
+
+        const offers: HotelOffer[] = offersData?.data || [];
+        allResults.push(...offers.filter((o) => o.available && o.offers && o.offers.length > 0));
+      }
+
+      setResults(allResults);
       setSearchDone(true);
 
-      if (offers.length === 0) {
+      if (allResults.length === 0) {
         toast.info("Aucune disponibilité trouvée pour ces dates");
+      } else {
+        toast.success(`${allResults.length} hôtels disponibles trouvés`);
       }
     } catch (err) {
       console.error("Hotel search error:", err);
