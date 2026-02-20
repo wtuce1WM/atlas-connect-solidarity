@@ -33,8 +33,9 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Edit, Trash2, Globe, MapPin, Building, ExternalLink, ArrowLeft, Save, FileText, Home, ChevronDown, Compass, LocateFixed, Loader2 } from "lucide-react";
+import { Plus, Edit, Trash2, Globe, MapPin, Building, ExternalLink, ArrowLeft, Save, FileText, Home, ChevronDown, Compass, LocateFixed, Loader2, ImageIcon, X } from "lucide-react";
 import RichTextEditor from "./RichTextEditor";
+import LogoUploader from "./LogoUploader";
 
 interface Country {
   id: string;
@@ -95,6 +96,7 @@ interface Destination {
   wikipedia_ar: string | null;
   description: string | null;
   sort_order: number | null;
+  image_url: string | null;
 }
 
 interface PointOfInterest {
@@ -113,6 +115,7 @@ interface PointOfInterest {
   official_site_ar: string | null;
   description: string | null;
   sort_order: number | null;
+  image_url: string | null;
 }
 const LocationManagement = () => {
   const [geocodingField, setGeocodingField] = useState<string | null>(null);
@@ -167,7 +170,7 @@ const LocationManagement = () => {
   const [destinationForm, setDestinationForm] = useState({
     name_fr: "", name_en: "", name_ar: "", region: "",
     latitude: "", longitude: "", wikipedia_fr: "", wikipedia_en: "", wikipedia_ar: "",
-    description: "", sort_order: 0,
+    description: "", sort_order: 0, image_url: "",
   });
   const [poiSectionOpen, setPoiSectionOpen] = useState(false);
   const [pois, setPois] = useState<PointOfInterest[]>([]);
@@ -177,7 +180,7 @@ const LocationManagement = () => {
     city_id: "", name_fr: "", name_en: "", name_ar: "",
     latitude: "", longitude: "", wikipedia_fr: "", wikipedia_en: "", wikipedia_ar: "",
     official_site_fr: "", official_site_en: "", official_site_ar: "",
-    description: "", sort_order: 0,
+    description: "", sort_order: 0, image_url: "",
   });
   const { toast } = useToast();
 
@@ -542,7 +545,7 @@ const LocationManagement = () => {
     setDestinationForm({
       name_fr: "", name_en: "", name_ar: "", region: "",
       latitude: "", longitude: "", wikipedia_fr: "", wikipedia_en: "", wikipedia_ar: "",
-      description: "", sort_order: 0,
+      description: "", sort_order: 0, image_url: "",
     });
   };
 
@@ -554,6 +557,7 @@ const LocationManagement = () => {
       latitude: d.latitude?.toString() || "", longitude: d.longitude?.toString() || "",
       wikipedia_fr: d.wikipedia_fr || "", wikipedia_en: d.wikipedia_en || "", wikipedia_ar: d.wikipedia_ar || "",
       description: d.description || "", sort_order: d.sort_order || 0,
+      image_url: d.image_url || "",
     });
     setShowDestinationForm(true);
   };
@@ -579,6 +583,7 @@ const LocationManagement = () => {
       wikipedia_ar: destinationForm.wikipedia_ar.trim() || null,
       description: destinationForm.description.trim().slice(0, 10000) || null,
       sort_order: destinationForm.sort_order,
+      image_url: destinationForm.image_url.trim() || null,
     };
     let error;
     if (editingDestination) {
@@ -616,7 +621,7 @@ const LocationManagement = () => {
       city_id: "", name_fr: "", name_en: "", name_ar: "",
       latitude: "", longitude: "", wikipedia_fr: "", wikipedia_en: "", wikipedia_ar: "",
       official_site_fr: "", official_site_en: "", official_site_ar: "",
-      description: "", sort_order: 0,
+      description: "", sort_order: 0, image_url: "",
     });
   };
 
@@ -628,6 +633,7 @@ const LocationManagement = () => {
       wikipedia_fr: p.wikipedia_fr || "", wikipedia_en: p.wikipedia_en || "", wikipedia_ar: p.wikipedia_ar || "",
       official_site_fr: (p as any).official_site_fr || "", official_site_en: (p as any).official_site_en || "", official_site_ar: (p as any).official_site_ar || "",
       description: p.description || "", sort_order: p.sort_order || 0,
+      image_url: p.image_url || "",
     });
     setShowPoiForm(true);
   };
@@ -656,6 +662,7 @@ const LocationManagement = () => {
       official_site_ar: poiForm.official_site_ar.trim() || null,
       description: poiForm.description.trim().slice(0, 10000) || null,
       sort_order: poiForm.sort_order,
+      image_url: poiForm.image_url.trim() || null,
     };
     let error;
     if (editingPoi) {
@@ -1010,6 +1017,7 @@ const LocationManagement = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead>Image</TableHead>
                     <TableHead>Destination</TableHead>
                     <TableHead>Région</TableHead>
                     <TableHead>Wikipedia</TableHead>
@@ -1021,6 +1029,13 @@ const LocationManagement = () => {
                 <TableBody>
                   {destinations.map((d) => (
                     <TableRow key={d.id}>
+                      <TableCell>
+                        {(d as any).image_url ? (
+                          <img src={(d as any).image_url} alt="" className="w-10 h-10 rounded object-cover" />
+                        ) : (
+                          <div className="w-10 h-10 rounded bg-muted flex items-center justify-center"><ImageIcon className="h-4 w-4 text-muted-foreground" /></div>
+                        )}
+                      </TableCell>
                       <TableCell className="font-medium">{d.name_fr}</TableCell>
                       <TableCell className="text-muted-foreground">{d.region || "—"}</TableCell>
                       <TableCell>
@@ -1075,6 +1090,7 @@ const LocationManagement = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead>Image</TableHead>
                     <TableHead>Point d'intérêt</TableHead>
                     <TableHead>Ville</TableHead>
                     <TableHead>Wikipedia</TableHead>
@@ -1088,6 +1104,13 @@ const LocationManagement = () => {
                     const city = cities.find(c => c.id === p.city_id);
                     return (
                       <TableRow key={p.id}>
+                        <TableCell>
+                          {(p as any).image_url ? (
+                            <img src={(p as any).image_url} alt="" className="w-10 h-10 rounded object-cover" />
+                          ) : (
+                            <div className="w-10 h-10 rounded bg-muted flex items-center justify-center"><ImageIcon className="h-4 w-4 text-muted-foreground" /></div>
+                          )}
+                        </TableCell>
                         <TableCell className="font-medium">{p.name_fr}</TableCell>
                         <TableCell className="text-muted-foreground">{city?.name_fr || "—"}</TableCell>
                         <TableCell>
@@ -1263,6 +1286,18 @@ const LocationManagement = () => {
                 </CardContent>
               </Card>
 
+              {/* Image */}
+              <Card>
+                <CardHeader><CardTitle className="text-lg flex items-center gap-2"><ImageIcon className="h-5 w-5" /> Image</CardTitle></CardHeader>
+                <CardContent>
+                  <LogoUploader
+                    logoUrl={poiForm.image_url}
+                    onChange={(url) => setPoiForm({ ...poiForm, image_url: url })}
+                    businessId={editingPoi?.id || "poi"}
+                  />
+                </CardContent>
+              </Card>
+
               <Card>
                 <CardHeader><CardTitle className="text-lg">Description</CardTitle></CardHeader>
                 <CardContent>
@@ -1397,6 +1432,18 @@ const LocationManagement = () => {
                     <Label>Wikipedia AR</Label>
                     <Input value={destinationForm.wikipedia_ar} onChange={(e) => setDestinationForm({ ...destinationForm, wikipedia_ar: e.target.value })} placeholder="https://ar.wikipedia.org/wiki/..." />
                   </div>
+                </CardContent>
+              </Card>
+
+              {/* Image */}
+              <Card>
+                <CardHeader><CardTitle className="text-lg flex items-center gap-2"><ImageIcon className="h-5 w-5" /> Image</CardTitle></CardHeader>
+                <CardContent>
+                  <LogoUploader
+                    logoUrl={destinationForm.image_url}
+                    onChange={(url) => setDestinationForm({ ...destinationForm, image_url: url })}
+                    businessId={editingDestination?.id || "destination"}
+                  />
                 </CardContent>
               </Card>
 
