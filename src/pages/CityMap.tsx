@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
+import { collectRatingSources, computeWeightedRatingOn20, getTotalReviewCount } from "@/lib/ratingUtils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useParams, Link, useSearchParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Loader2, MapPin, X, ExternalLink, BookOpen, Phone, ChevronLeft, ChevronRight, Clock, ArrowUpDown, ArrowDown, ArrowUp, Navigation, Star, SlidersHorizontal } from "lucide-react";
@@ -205,17 +206,11 @@ const CityMap = () => {
 
   const getCalcRating = (b: Business): number | null => {
     if (b.rating) return Number(b.rating);
-    const sources: { r: number; c: number }[] = [];
-    if (b.google_rating && b.google_review_count) sources.push({ r: (b.google_rating / 5) * 20, c: b.google_review_count });
-    if (b.tripadvisor_rating && b.tripadvisor_review_count) sources.push({ r: (b.tripadvisor_rating / 5) * 20, c: b.tripadvisor_review_count });
-    if (b.restaurant_guru_rating && b.restaurant_guru_review_count) sources.push({ r: (b.restaurant_guru_rating / 5) * 20, c: b.restaurant_guru_review_count });
-    if (sources.length === 0) return null;
-    const total = sources.reduce((s, x) => s + x.c, 0);
-    return Math.round((sources.reduce((s, x) => s + x.r * x.c, 0) / total) * 10) / 10;
+    return computeWeightedRatingOn20(collectRatingSources(b));
   };
 
   const getTotalReviews = (b: Business): number => {
-    return (b.google_review_count || 0) + (b.tripadvisor_review_count || 0) + (b.restaurant_guru_review_count || 0);
+    return getTotalReviewCount(b);
   };
 
   // Filter businesses by all criteria

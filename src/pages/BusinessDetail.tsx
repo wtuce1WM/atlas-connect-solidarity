@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { collectRatingSources, computeWeightedRatingOn20, computeWeightedRatingOn5 } from "@/lib/ratingUtils";
 import { DescriptionExpander } from "@/components/DescriptionExpander";
 import { useParams, Link, Navigate, useNavigate } from "react-router-dom";
 import { ArrowLeft, MapPin, Phone, Mail, Globe, BadgeCheck, Loader2, ChevronLeft, ChevronRight, FileText, Download, ShoppingBag, Facebook, Instagram, Linkedin, Youtube, MessageCircle, Clock, AlertTriangle, ChevronDown, Play, CalendarCheck, Star, Camera } from "lucide-react";
@@ -286,9 +287,11 @@ const BusinessDetail = () => {
   if (business.tripadvisor_rating && business.tripadvisor_review_count) reviews.push({ rating: business.tripadvisor_rating, count: business.tripadvisor_review_count, url: business.tripadvisor_review_url || business.tripadvisor_url, label: 'TripAdvisor' });
   if (business.restaurant_guru_rating && business.restaurant_guru_review_count) reviews.push({ rating: business.restaurant_guru_rating, count: business.restaurant_guru_review_count, url: business.restaurant_guru_url, label: 'Restaurant Guru' });
   const totalReviewCount = reviews.reduce((s, r) => s + r.count, 0);
-  const weightedAvg = totalReviewCount > 0 ? reviews.reduce((s, r) => s + r.rating * r.count, 0) / totalReviewCount : 0;
-  const avgOn20 = business.rating ?? (totalReviewCount > 0 ? Math.round(weightedAvg * 4 * 10) / 10 : null);
-  const avgOn5 = business.rating ? Math.round(business.rating / 4 * 10) / 10 : (totalReviewCount > 0 ? Math.round(weightedAvg * 10) / 10 : null);
+  const ratingSourcesForCalc = collectRatingSources(business);
+  const computedOn20 = computeWeightedRatingOn20(ratingSourcesForCalc);
+  const computedOn5 = computeWeightedRatingOn5(ratingSourcesForCalc);
+  const avgOn20 = business.rating ?? computedOn20;
+  const avgOn5 = business.rating ? Math.round(business.rating / 4 * 100) / 100 : computedOn5;
 
   const hasReviews = business.tripadvisor_review_url || business.restaurant_guru_url || business.google_reviews_url;
 

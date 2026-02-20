@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Phone, Globe, MapPin, Map, Crown, Star, MessageCircle } from "lucide-react";
+import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
 
 interface StripBusiness {
   id: string;
@@ -46,13 +47,7 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
         if (bizData) {
           // Calculate weighted avg rating (same logic as BusinessDetail: manual rating takes priority)
           const withRating = bizData.map((b) => {
-            const sources: { rating: number; count: number }[] = [];
-            if (b.google_rating && b.google_review_count) sources.push({ rating: b.google_rating, count: b.google_review_count });
-            if (b.tripadvisor_rating && b.tripadvisor_review_count) sources.push({ rating: b.tripadvisor_rating, count: b.tripadvisor_review_count });
-            if (b.restaurant_guru_rating && b.restaurant_guru_review_count) sources.push({ rating: b.restaurant_guru_rating, count: b.restaurant_guru_review_count });
-            const totalCount = sources.reduce((s, r) => s + r.count, 0);
-            const weightedAvg = totalCount > 0 ? sources.reduce((s, r) => s + r.rating * r.count, 0) / totalCount : 0;
-            const computedOn20 = totalCount > 0 ? Math.round(weightedAvg * 4 * 10) / 10 : null;
+            const computedOn20 = computeWeightedRatingOn20(collectRatingSources(b));
             const avgOn20 = b.rating ?? computedOn20;
             return { ...b, avg_rating: avgOn20 };
           });

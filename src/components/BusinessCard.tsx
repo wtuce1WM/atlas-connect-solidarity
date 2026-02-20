@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Phone, ShieldCheck, Star, Globe } from "lucide-react";
 import logoWatermark from "@/assets/logoGOLDsimpleSML.webp";
+import { collectRatingSources, computeWeightedRatingOn20, getTotalReviewCount as getTotalReviews } from "@/lib/ratingUtils";
 
 export interface BusinessCardData {
   id: string;
@@ -127,27 +128,11 @@ const getBusinessBadge = (
 };
 
 const getCalculatedRating = (business: BusinessCardData): number | null => {
-  const sources: { rating: number; count: number }[] = [];
-  
-  if (business.google_rating && business.google_review_count) {
-    sources.push({ rating: (business.google_rating / 5) * 20, count: business.google_review_count });
-  }
-  if (business.tripadvisor_rating && business.tripadvisor_review_count) {
-    sources.push({ rating: (business.tripadvisor_rating / 5) * 20, count: business.tripadvisor_review_count });
-  }
-  if (business.restaurant_guru_rating && business.restaurant_guru_review_count) {
-    sources.push({ rating: (business.restaurant_guru_rating / 5) * 20, count: business.restaurant_guru_review_count });
-  }
-  
-  if (sources.length === 0) return null;
-  
-  const totalCount = sources.reduce((sum, s) => sum + s.count, 0);
-  const weightedSum = sources.reduce((sum, s) => sum + s.rating * s.count, 0);
-  return Math.round((weightedSum / totalCount) * 10) / 10;
+  return computeWeightedRatingOn20(collectRatingSources(business));
 };
 
-const getTotalReviewCount = (business: BusinessCardData): number => {
-  return (business.google_review_count || 0) + (business.tripadvisor_review_count || 0) + (business.restaurant_guru_review_count || 0);
+const getCardTotalReviewCount = (business: BusinessCardData): number => {
+  return getTotalReviews(business);
 };
 
 const BusinessCard = ({
@@ -168,7 +153,7 @@ const BusinessCard = ({
   const badge = getBusinessBadge(business, badges, subcategories, badgeSubcategories);
   const calculatedRating = getCalculatedRating(business);
   const displayRating = business.rating ?? calculatedRating;
-  const totalReviews = getTotalReviewCount(business);
+  const totalReviews = getCardTotalReviewCount(business);
   const isSelected = selectedBusinessId === business.id;
   const hasMapData = business.google_maps_url || (business.latitude && business.longitude);
   const businessImage = getBusinessImage(business);

@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
+import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -136,14 +137,7 @@ const RatedBusinesses = () => {
 
   // Compute average /20 for a business
   const computeAverage20 = (b: RatedBusiness) => {
-    const sources: { rating: number; count: number }[] = [];
-    if (b.google_rating != null && b.google_review_count) sources.push({ rating: b.google_rating, count: b.google_review_count });
-    if (b.tripadvisor_rating != null && b.tripadvisor_review_count) sources.push({ rating: b.tripadvisor_rating, count: b.tripadvisor_review_count });
-    if (b.restaurant_guru_rating != null && b.restaurant_guru_review_count) sources.push({ rating: b.restaurant_guru_rating, count: b.restaurant_guru_review_count });
-    const totalCount = sources.reduce((s, r) => s + r.count, 0);
-    if (totalCount === 0) return null;
-    const weightedAvg = sources.reduce((s, r) => s + r.rating * r.count, 0) / totalCount;
-    return Math.round(weightedAvg * 4 * 10) / 10;
+    return computeWeightedRatingOn20(collectRatingSources(b));
   };
 
   const totalReviews = (b: RatedBusiness) =>
