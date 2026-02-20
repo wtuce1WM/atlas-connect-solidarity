@@ -421,7 +421,8 @@ serve(async (req) => {
                 return k.includes(w) || w.includes(k) || kNorm === wNorm;
               });
             }).length;
-            const score = matchCount * 10 + (matchCount > 1 && svcWordCount > 1 ? 50 : 0) + kwMatchCount * 15;
+            // Keyword matches (specific food/product terms) should outweigh generic service name matches
+            const score = matchCount * 5 + (matchCount > 1 && svcWordCount > 1 ? 20 : 0) + kwMatchCount * 30;
             if (score > bestScore) {
               bestScore = score;
               bestMatch = svc.name_fr;
