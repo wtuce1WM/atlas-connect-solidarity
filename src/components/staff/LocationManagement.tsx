@@ -33,7 +33,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Edit, Trash2, Globe, MapPin, Building, ExternalLink, ArrowLeft, Save, FileText, Home } from "lucide-react";
+import { Plus, Edit, Trash2, Globe, MapPin, Building, ExternalLink, ArrowLeft, Save, FileText, Home, ChevronDown } from "lucide-react";
 import RichTextEditor from "./RichTextEditor";
 
 interface Country {
@@ -96,6 +96,7 @@ const LocationManagement = () => {
   const [neighborhoodName, setNeighborhoodName] = useState("");
   const [editingNeighborhood, setEditingNeighborhood] = useState<Neighborhood | null>(null);
   const [expandedCityNeighborhoods, setExpandedCityNeighborhoods] = useState<string | null>(null);
+  const [citiesSectionOpen, setCitiesSectionOpen] = useState(false);
   const { toast } = useToast();
 
   // Country form state
@@ -548,21 +549,22 @@ const LocationManagement = () => {
 
       {/* Cities List — directly shown (single country: Maroc) */}
       <Card>
-        <CardHeader>
+        <CardHeader className="cursor-pointer select-none" onClick={() => setCitiesSectionOpen(!citiesSectionOpen)}>
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
               <Globe className="h-5 w-5" />
               Villes du Maroc
+              <ChevronDown className={`h-4 w-4 transition-transform ${citiesSectionOpen ? 'rotate-180' : ''}`} />
             </CardTitle>
             {countries.length > 0 && (
-              <Button size="sm" variant="outline" onClick={() => openAddCity(countries[0].id)}>
+              <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); openAddCity(countries[0].id); }}>
                 <Plus className="h-4 w-4 mr-2" />
                 Ajouter une ville
               </Button>
             )}
           </div>
         </CardHeader>
-        <CardContent>
+        {citiesSectionOpen && <CardContent>
           {(() => {
             const allCities = countries.length > 0 ? getCitiesByCountry(countries[0].id) : [];
             if (allCities.length === 0) {
@@ -718,7 +720,7 @@ const LocationManagement = () => {
               </Table>
             );
           })()}
-        </CardContent>
+        </CardContent>}
       </Card>
 
       {/* City Form Page */}
