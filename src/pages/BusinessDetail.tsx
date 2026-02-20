@@ -514,7 +514,11 @@ const BusinessDetail = () => {
             {tabs.filter(t => t.show).map((tab) => (
               <button
                 key={tab.key}
-                onClick={() => setActiveTab(tab.key)}
+                onClick={() => {
+                  setActiveTab(tab.key);
+                  const anchor = document.getElementById('description-anchor');
+                  if (anchor) anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }}
                 className={`pb-3 text-sm font-medium border-b-2 transition-colors ${
                   activeTab === tab.key
                     ? isVerified
