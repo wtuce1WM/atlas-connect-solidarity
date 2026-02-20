@@ -1141,6 +1141,9 @@ export type Database = {
           name_ar: string | null
           name_en: string | null
           name_fr: string
+          official_site_ar: string | null
+          official_site_en: string | null
+          official_site_fr: string | null
           sort_order: number | null
           updated_at: string | null
           wikipedia_ar: string | null
@@ -1157,6 +1160,9 @@ export type Database = {
           name_ar?: string | null
           name_en?: string | null
           name_fr: string
+          official_site_ar?: string | null
+          official_site_en?: string | null
+          official_site_fr?: string | null
           sort_order?: number | null
           updated_at?: string | null
           wikipedia_ar?: string | null
@@ -1173,6 +1179,9 @@ export type Database = {
           name_ar?: string | null
           name_en?: string | null
           name_fr?: string
+          official_site_ar?: string | null
+          official_site_en?: string | null
+          official_site_fr?: string | null
           sort_order?: number | null
           updated_at?: string | null
           wikipedia_ar?: string | null

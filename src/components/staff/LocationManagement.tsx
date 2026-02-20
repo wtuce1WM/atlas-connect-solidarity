@@ -108,6 +108,9 @@ interface PointOfInterest {
   wikipedia_fr: string | null;
   wikipedia_en: string | null;
   wikipedia_ar: string | null;
+  official_site_fr: string | null;
+  official_site_en: string | null;
+  official_site_ar: string | null;
   description: string | null;
   sort_order: number | null;
 }
@@ -173,6 +176,7 @@ const LocationManagement = () => {
   const [poiForm, setPoiForm] = useState({
     city_id: "", name_fr: "", name_en: "", name_ar: "",
     latitude: "", longitude: "", wikipedia_fr: "", wikipedia_en: "", wikipedia_ar: "",
+    official_site_fr: "", official_site_en: "", official_site_ar: "",
     description: "", sort_order: 0,
   });
   const { toast } = useToast();
@@ -611,6 +615,7 @@ const LocationManagement = () => {
     setPoiForm({
       city_id: "", name_fr: "", name_en: "", name_ar: "",
       latitude: "", longitude: "", wikipedia_fr: "", wikipedia_en: "", wikipedia_ar: "",
+      official_site_fr: "", official_site_en: "", official_site_ar: "",
       description: "", sort_order: 0,
     });
   };
@@ -621,6 +626,7 @@ const LocationManagement = () => {
       city_id: p.city_id, name_fr: p.name_fr, name_en: p.name_en || "", name_ar: p.name_ar || "",
       latitude: p.latitude?.toString() || "", longitude: p.longitude?.toString() || "",
       wikipedia_fr: p.wikipedia_fr || "", wikipedia_en: p.wikipedia_en || "", wikipedia_ar: p.wikipedia_ar || "",
+      official_site_fr: (p as any).official_site_fr || "", official_site_en: (p as any).official_site_en || "", official_site_ar: (p as any).official_site_ar || "",
       description: p.description || "", sort_order: p.sort_order || 0,
     });
     setShowPoiForm(true);
@@ -645,6 +651,9 @@ const LocationManagement = () => {
       wikipedia_fr: poiForm.wikipedia_fr.trim() || null,
       wikipedia_en: poiForm.wikipedia_en.trim() || null,
       wikipedia_ar: poiForm.wikipedia_ar.trim() || null,
+      official_site_fr: poiForm.official_site_fr.trim() || null,
+      official_site_en: poiForm.official_site_en.trim() || null,
+      official_site_ar: poiForm.official_site_ar.trim() || null,
       description: poiForm.description.trim().slice(0, 10000) || null,
       sort_order: poiForm.sort_order,
     };
@@ -1232,6 +1241,24 @@ const LocationManagement = () => {
                   <div className="space-y-2">
                     <Label>Wikipedia AR</Label>
                     <Input value={poiForm.wikipedia_ar} onChange={(e) => setPoiForm({ ...poiForm, wikipedia_ar: e.target.value })} placeholder="https://ar.wikipedia.org/wiki/..." />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader><CardTitle className="text-lg flex items-center gap-2"><ExternalLink className="h-5 w-5" /> Sites officiels</CardTitle></CardHeader>
+                <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label>Site officiel FR</Label>
+                    <Input value={poiForm.official_site_fr} onChange={(e) => setPoiForm({ ...poiForm, official_site_fr: e.target.value })} placeholder="https://..." />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Site officiel EN</Label>
+                    <Input value={poiForm.official_site_en} onChange={(e) => setPoiForm({ ...poiForm, official_site_en: e.target.value })} placeholder="https://..." />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Site officiel AR</Label>
+                    <Input value={poiForm.official_site_ar} onChange={(e) => setPoiForm({ ...poiForm, official_site_ar: e.target.value })} placeholder="https://..." dir="rtl" />
                   </div>
                 </CardContent>
               </Card>
