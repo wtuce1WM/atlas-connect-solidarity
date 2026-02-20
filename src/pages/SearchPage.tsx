@@ -229,7 +229,8 @@ const SearchPage = () => {
   const [badgeSubcategories, setBadgeSubcategories] = useState<BadgeSubcategoryRef[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedCity, setSelectedCity] = useState<string>("all");
+  const cityFromUrl = searchParams.get("city") || "";
+  const [selectedCity, setSelectedCity] = useState<string>(cityFromUrl || "all");
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
   const [inputValue, setInputValue] = useState(searchParams.get("q") || "");
   const categoryFromUrl = searchParams.get("category") || "";
@@ -239,9 +240,9 @@ const SearchPage = () => {
 
   const geo = useGeolocation();
 
-  // Auto-select city when geolocation detects one
+  // Auto-select city when geolocation detects one (only if no city already set from URL)
   useEffect(() => {
-    if (geo.isEnabled && geo.detectedCity && selectedCity === "all") {
+    if (!cityFromUrl && geo.isEnabled && geo.detectedCity && selectedCity === "all") {
       setSelectedCity(geo.detectedCity);
     }
   }, [geo.isEnabled, geo.detectedCity]);
