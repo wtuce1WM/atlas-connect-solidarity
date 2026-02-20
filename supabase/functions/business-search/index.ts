@@ -155,6 +155,54 @@ const synonyms: Record<string, string[]> = {
   historique: ["historique", "lieu historique", "lieu historiques", "historiques", "patrimoine", "ancien", "histoire"],
 };
 
+// French stop words used to detect natural language queries
+const FRENCH_STOP_WORDS = new Set([
+  "je", "tu", "il", "elle", "nous", "vous", "ils", "elles", "on",
+  "un", "une", "des", "le", "la", "les", "du", "de", "d",
+  "à", "au", "aux", "en", "pour", "par", "avec", "sans", "sur", "dans",
+  "qui", "que", "quoi", "où", "comment", "quel", "quelle", "quels", "quelles",
+  "est", "sont", "suis", "ai", "a", "ont", "être", "avoir", "faire",
+  "cherche", "chercher", "veux", "voudrais", "vouloir", "peux", "pouvoir",
+  "trouve", "trouver", "besoin", "faut", "aimer", "aller",
+  "me", "te", "se", "ce", "cette", "ces", "mon", "ma", "mes", "son", "sa", "ses",
+  "ne", "pas", "plus", "très", "aussi", "bien", "comme", "mais", "ou", "et",
+]);
+
+/**
+ * Detect if a query is a natural language sentence (vs. short keywords).
+ * A query is "natural" if it has 4+ words AND contains at least 2 French stop words.
+ */
+function isNaturalLanguageQuery(query: string): boolean {
+  const words = query.toLowerCase().split(/\s+/).filter(w => w.length > 0);
+  if (words.length < 4) return false;
+  const stopCount = words.filter(w => FRENCH_STOP_WORDS.has(w)).length;
+  return stopCount >= 2;
+}
+
+/**
+ * Call the voice-search-intent function internally to extract keywords from a natural language query.
+ */
+async function extractSearchIntent(transcript: string): Promise<string> {
+  try {
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const response = await fetch(`${supabaseUrl}/functions/v1/voice-search-intent`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${supabaseKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ transcript }),
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    return data.query?.trim() || transcript;
+  } catch (err) {
+    console.warn("Intent extraction failed, using raw query:", err);
+    return transcript;
+  }
+}
+
 // Villes marocaines connues pour la détection automatique dans la query
 const MOROCCAN_CITIES = [
   "Marrakech", "Casablanca", "Rabat", "Fès", "Fes", "Agadir", "Tanger", "Tangier",
@@ -257,16 +305,24 @@ serve(async (req) => {
     let businesses: Business[] = [];
     let searchLevel = "exact";
 
+    // ── Natural language detection: extract keywords via LLM if needed ──
+    let effectiveQuery = query;
+    if (query && isNaturalLanguageQuery(query)) {
+      console.log(`Natural language detected: "${query}" → extracting intent...`);
+      effectiveQuery = await extractSearchIntent(query);
+      console.log(`Intent extracted: "${effectiveQuery}"`);
+    }
+
     // Detect superlative intent (meilleur, top, best…) → sort by rating
-    const isSuperlatif = query ? detectSuperlative(query) : false;
+    const isSuperlatif = effectiveQuery ? detectSuperlative(effectiveQuery) : false;
 
     // Auto-détection de ville dans la query si aucune ville n'est passée explicitement
-    const detectedCity = (!city && query) ? detectCityInQuery(query) : null;
+    const detectedCity = (!city && effectiveQuery) ? detectCityInQuery(effectiveQuery) : null;
     const effectiveCity = city || detectedCity || undefined;
 
     // Level 1: Exact full-text search with ts_rank (services/name weight A > description weight B)
-    if (query || city || category) {
-      const expandedQuery = query ? expandQuery(query) : null;
+    if (effectiveQuery || city || category) {
+      const expandedQuery = effectiveQuery ? expandQuery(effectiveQuery) : null;
 
       if (expandedQuery) {
         // Use ranked RPC function: prioritizes matches in services/name over description
@@ -320,13 +376,13 @@ serve(async (req) => {
     }
 
     // Level 2: Fuzzy search with trigram similarity
-    if (businesses.length === 0 && query) {
+    if (businesses.length === 0 && effectiveQuery) {
       let fuzzyBuilder = supabase
         .from("businesses")
         .select("*")
         .eq("is_active", true)
         .or(
-          `name.ilike.%${query}%,description.ilike.%${query}%,categories.cs.{${query}},services.cs.{${query}}`
+          `name.ilike.%${effectiveQuery}%,description.ilike.%${effectiveQuery}%,categories.cs.{${effectiveQuery}},services.cs.{${effectiveQuery}}`
         );
 
       if (effectiveCity) {
@@ -429,12 +485,12 @@ serve(async (req) => {
 
     // Superlative intent: sort by best rating DESC (google > tripadvisor > restaurant_guru)
     if (isSuperlatif && businesses.length > 1) {
-      console.log(`Superlative detected in "${query}" → sorting by rating`);
+      console.log(`Superlative detected in "${effectiveQuery}" → sorting by rating`);
       businesses = [...businesses].sort((a, b) => getBestRating(b) - getBestRating(a));
     }
     // LLM Re-ranking: apply only on exact/fuzzy results with a real query AND no superlative override
-    else if (query && businesses.length > 1 && (searchLevel === "exact" || searchLevel === "fuzzy")) {
-      businesses = await llmRerank(query, businesses);
+    else if (effectiveQuery && businesses.length > 1 && (searchLevel === "exact" || searchLevel === "fuzzy")) {
+      businesses = await llmRerank(effectiveQuery, businesses);
     }
 
     const result: SearchResult = {
