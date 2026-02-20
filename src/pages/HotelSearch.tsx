@@ -101,7 +101,7 @@ const HotelSearch = () => {
     try {
       // Step 1: Get hotel IDs for the city
       const listParams: Record<string, unknown> = { action: "hotel-list", cityCode, radius: "5", radiusUnit: "KM" };
-      if (stars) listParams.ratings = stars;
+      if (stars && stars !== "all") listParams.ratings = stars;
 
       const { data: listData, error: listError } = await supabase.functions.invoke("amadeus-hotels", {
         body: listParams,
