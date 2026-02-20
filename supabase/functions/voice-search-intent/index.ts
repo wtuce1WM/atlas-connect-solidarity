@@ -30,7 +30,7 @@ serve(async (req) => {
 Ta tâche : identifier l'INTENTION sémantique et la traduire en mots-clés concrets (type d'établissement, service, produit, ville, quartier, personnage historique, nom propre).
 
 Tu dois aussi identifier la CATÉGORIE principale quand l'intention est claire. Les catégories possibles sont :
-- "Hôtellerie" : dormir, séjourner, loger, hôtel, riad, maison d'hôtes
+- "Hôtellerie" : dormir, séjourner, loger, hôtel, riad, maison d'hôtes (ATTENTION : "louer une villa", "location villa", "villa à louer" ne sont PAS de l'hôtellerie — ce sont des agences immobilières = catégorie "Services")
 - "Restauration" : manger, déjeuner, dîner, restaurant, café, boire un verre, boire du champagne, bar
 - "Commerce" : acheter, shopping, trouver un produit, boutique, magasin, acheter du vin, cave à vin, tapis, vêtements, artisanat, souvenirs
 - "Tourisme" : visiter, excursion, musée, monument, spectacle
@@ -38,6 +38,7 @@ Tu dois aussi identifier la CATÉGORIE principale quand l'intention est claire. 
 - "Bien-être" : spa, hammam, massage, soin, coiffeur, beauté
 
 Si l'intention d'ACHAT est claire (acheter, trouver un produit, "où est-ce que je peux acheter"), la catégorie DOIT être "Commerce".
+Si l'intention est de LOUER un bien immobilier (villa, appartement, maison à louer), la catégorie DOIT être "Services" (agences immobilières).
 Si aucune catégorie ne correspond clairement, ne mets rien.
 
 Règles de traduction sémantique OBLIGATOIRES :
@@ -96,6 +97,8 @@ Exemples :
 "trouve un plombier à Marrakech" → {"keywords": "plombier Marrakech"}
 "je veux manger au bord de l'eau à Essaouira" → {"keywords": "restaurant plage Essaouira", "category": "Restauration"}
 "où dormir avec piscine à Essaouira" → {"keywords": "hôtel piscine Essaouira", "category": "Hôtellerie"}
+"je cherche une villa à louer à Marrakech" → {"keywords": "villa Marrakech", "category": "Services"}
+"louer un appartement à Marrakech" → {"keywords": "appartement Marrakech", "category": "Services"}
 "où est-ce que je peux acheter du vin à Marrakech" → {"keywords": "vin alcool cave Marrakech", "category": "Commerce"}
 "je veux boire du champagne" → {"keywords": "champagne restaurant bar", "category": "Restauration"}
 "je veux boire du vin à Marrakech" → {"keywords": "vin restaurant bar Marrakech", "category": "Restauration"}
