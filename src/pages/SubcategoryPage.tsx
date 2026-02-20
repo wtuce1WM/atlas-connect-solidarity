@@ -89,7 +89,7 @@ const SubcategoryPage = () => {
   const [allBusinesses, setAllBusinesses] = useState<Business[]>([]);
   const [subcategoryInfo, setSubcategoryInfo] = useState<SubcategoryInfo | null>(null);
   const [categoryInfo, setCategoryInfo] = useState<CategoryInfo | null>(null);
-  const [citiesWithPriority, setCitiesWithPriority] = useState<{ name: string; priority: number }[]>([]);
+  const [citiesWithPriority, setCitiesWithPriority] = useState<{ name: string; priority: number; lat: number | null; lng: number | null }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCity, setSelectedCity] = useState<string>(() => searchParams.get("city") || "all");
@@ -228,12 +228,12 @@ const SubcategoryPage = () => {
         // Fetch cities with priority scores
         const { data: citiesData } = await supabase
           .from("cities")
-          .select("name_fr, priority_score")
+          .select("name_fr, priority_score, latitude, longitude")
           .order("priority_score", { ascending: false });
 
         if (citiesData) {
           setCitiesWithPriority(
-            citiesData.map(c => ({ name: c.name_fr, priority: c.priority_score || 0 }))
+            citiesData.map(c => ({ name: c.name_fr, priority: c.priority_score || 0, lat: c.latitude, lng: c.longitude }))
           );
         }
 
@@ -407,8 +407,10 @@ const SubcategoryPage = () => {
       return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(query)}&zoom=17`;
     }
     if (selectedCity !== "all") {
-      const searchQuery = `${decodedSubcategoryName} à ${selectedCity}, Maroc`;
-      return `https://www.google.com/maps/embed/v1/search?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(searchQuery)}&zoom=13`;
+      const cityData = citiesWithPriority.find(c => c.name === selectedCity);
+      const centerParam = cityData?.lat && cityData?.lng ? `&center=${cityData.lat},${cityData.lng}` : "";
+      const searchQuery = `${decodedSubcategoryName} ${selectedCity} Maroc`;
+      return `https://www.google.com/maps/embed/v1/search?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(searchQuery)}${centerParam}&zoom=13`;
     }
     return `https://www.google.com/maps/embed/v1/search?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(decodedSubcategoryName)}+Maroc&center=31.7917,-7.0926&zoom=6`;
   };
