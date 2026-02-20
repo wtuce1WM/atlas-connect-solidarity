@@ -73,7 +73,7 @@ serve(async (req) => {
       headers: {
         ...corsHeaders,
         "Content-Type": "audio/mpeg",
-        "Cache-Control": "public, max-age=3600",
+        "Cache-Control": "no-store",
       },
     });
   } catch (error) {
