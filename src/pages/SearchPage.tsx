@@ -526,36 +526,92 @@ const SearchPage = () => {
         <div className="container mx-auto px-4 relative z-10">
           {/* Search Form */}
           <form onSubmit={handleSearch} className="max-w-2xl mx-auto mb-8">
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-              <Input
-                type="text"
-                placeholder={t.placeholder}
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                className="w-full pl-12 pr-14 py-6 text-lg bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-full"
-              />
+            {/* Desktop: input with inline button + voice */}
+            <div className="hidden md:flex items-center gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Input
+                  type="text"
+                  placeholder={t.placeholder}
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  className="w-full pl-14 pr-36 py-7 text-lg bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-full shadow-lg"
+                />
+                <Button
+                  type="submit"
+                  size="lg"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-black font-semibold rounded-full px-6 py-5 shadow-md border border-black"
+                  style={{ backgroundColor: "#15FF00" }}
+                >
+                  {language === "fr" ? "Recherche" : language === "ar" ? "بحث" : "Search"}
+                </Button>
+              </div>
               <button
                 type="button"
                 onClick={toggleRecording}
                 disabled={voiceStatus === "processing"}
-                title={voiceStatus === "recording" ? "Arrêter l'enregistrement" : "Recherche vocale"}
-                className={`absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center w-10 h-10 rounded-full transition-all duration-200 ${
+                className={`flex-shrink-0 flex items-center justify-center w-14 h-14 rounded-2xl shadow-lg transition-all ${
                   voiceStatus === "recording"
-                    ? "bg-destructive text-destructive-foreground animate-pulse shadow-lg shadow-destructive/40"
+                    ? "bg-red-100 animate-pulse"
                     : voiceStatus === "processing"
-                    ? "bg-gold/20 text-gold cursor-wait"
-                    : "bg-gold/10 text-gold hover:bg-gold/20"
+                      ? "bg-white/70"
+                      : "bg-white/90 hover:bg-white"
                 }`}
+                title={language === "fr" ? "Recherche vocale" : language === "ar" ? "بحث صوتي" : "Voice search"}
               >
                 {voiceStatus === "processing" ? (
-                  <Loader className="h-4 w-4 animate-spin" />
+                  <Loader className="h-6 w-6 text-black animate-spin" />
                 ) : voiceStatus === "recording" ? (
-                  <MicOff className="h-4 w-4" />
+                  <MicOff className="h-6 w-6 text-red-600" />
                 ) : (
-                  <Mic className="h-4 w-4" />
+                  <Mic className="h-6 w-6 text-black" />
                 )}
               </button>
+            </div>
+
+            {/* Mobile: input on top, buttons below */}
+            <div className="flex flex-col gap-3 md:hidden">
+              <div className="relative">
+                <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Input
+                  type="text"
+                  placeholder={t.placeholder}
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  className="w-full pl-14 pr-4 py-7 text-lg bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-full shadow-lg"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  type="submit"
+                  size="lg"
+                  className="flex-1 text-black font-semibold rounded-full py-6 shadow-md text-lg border border-black"
+                  style={{ backgroundColor: "#15FF00" }}
+                >
+                  {language === "fr" ? "Recherche" : language === "ar" ? "بحث" : "Search"}
+                </Button>
+                <button
+                  type="button"
+                  onClick={toggleRecording}
+                  disabled={voiceStatus === "processing"}
+                  className={`flex-shrink-0 flex items-center justify-center w-14 h-14 rounded-2xl shadow-lg transition-all ${
+                    voiceStatus === "recording"
+                      ? "bg-red-100 animate-pulse"
+                      : voiceStatus === "processing"
+                        ? "bg-white/70"
+                        : "bg-white/90 hover:bg-white"
+                  }`}
+                  title={language === "fr" ? "Recherche vocale" : language === "ar" ? "بحث صوتي" : "Voice search"}
+                >
+                  {voiceStatus === "processing" ? (
+                    <Loader className="h-6 w-6 text-black animate-spin" />
+                  ) : voiceStatus === "recording" ? (
+                    <MicOff className="h-6 w-6 text-red-600" />
+                  ) : (
+                    <Mic className="h-6 w-6 text-black" />
+                  )}
+                </button>
+              </div>
             </div>
           </form>
 
