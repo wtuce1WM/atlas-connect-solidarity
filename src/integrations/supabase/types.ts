@@ -1130,6 +1130,65 @@ export type Database = {
           },
         ]
       }
+      points_of_interest: {
+        Row: {
+          city_id: string
+          created_at: string | null
+          description: string | null
+          id: string
+          latitude: number | null
+          longitude: number | null
+          name_ar: string | null
+          name_en: string | null
+          name_fr: string
+          sort_order: number | null
+          updated_at: string | null
+          wikipedia_ar: string | null
+          wikipedia_en: string | null
+          wikipedia_fr: string | null
+        }
+        Insert: {
+          city_id: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          name_ar?: string | null
+          name_en?: string | null
+          name_fr: string
+          sort_order?: number | null
+          updated_at?: string | null
+          wikipedia_ar?: string | null
+          wikipedia_en?: string | null
+          wikipedia_fr?: string | null
+        }
+        Update: {
+          city_id?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          name_ar?: string | null
+          name_en?: string | null
+          name_fr?: string
+          sort_order?: number | null
+          updated_at?: string | null
+          wikipedia_ar?: string | null
+          wikipedia_en?: string | null
+          wikipedia_fr?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "points_of_interest_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reviews: {
         Row: {
           author_name: string | null

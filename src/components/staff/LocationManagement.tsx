@@ -96,6 +96,21 @@ interface Destination {
   description: string | null;
   sort_order: number | null;
 }
+
+interface PointOfInterest {
+  id: string;
+  city_id: string;
+  name_fr: string;
+  name_en: string | null;
+  name_ar: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  wikipedia_fr: string | null;
+  wikipedia_en: string | null;
+  wikipedia_ar: string | null;
+  description: string | null;
+  sort_order: number | null;
+}
 const LocationManagement = () => {
   const [countries, setCountries] = useState<Country[]>([]);
   const [cities, setCities] = useState<City[]>([]);
@@ -117,6 +132,15 @@ const LocationManagement = () => {
   const [editingDestination, setEditingDestination] = useState<Destination | null>(null);
   const [destinationForm, setDestinationForm] = useState({
     name_fr: "", name_en: "", name_ar: "", region: "",
+    latitude: "", longitude: "", wikipedia_fr: "", wikipedia_en: "", wikipedia_ar: "",
+    description: "", sort_order: 0,
+  });
+  const [poiSectionOpen, setPoiSectionOpen] = useState(false);
+  const [pois, setPois] = useState<PointOfInterest[]>([]);
+  const [showPoiForm, setShowPoiForm] = useState(false);
+  const [editingPoi, setEditingPoi] = useState<PointOfInterest | null>(null);
+  const [poiForm, setPoiForm] = useState({
+    city_id: "", name_fr: "", name_en: "", name_ar: "",
     latitude: "", longitude: "", wikipedia_fr: "", wikipedia_en: "", wikipedia_ar: "",
     description: "", sort_order: 0,
   });
@@ -167,12 +191,13 @@ const LocationManagement = () => {
   const fetchData = async () => {
     setLoading(true);
     
-    const [countriesRes, citiesRes, businessesRes, neighborhoodsRes, destinationsRes] = await Promise.all([
+    const [countriesRes, citiesRes, businessesRes, neighborhoodsRes, destinationsRes, poisRes] = await Promise.all([
       supabase.from("countries").select("*").order("sort_order"),
       supabase.from("cities").select("*").order("sort_order"),
       supabase.from("businesses").select("city"),
       supabase.from("neighborhoods").select("*").order("sort_order") as any,
       supabase.from("destinations" as any).select("*").order("sort_order"),
+      supabase.from("points_of_interest" as any).select("*").order("sort_order"),
     ]);
 
     if (countriesRes.error) {
@@ -204,6 +229,10 @@ const LocationManagement = () => {
 
     if (!destinationsRes.error && destinationsRes.data) {
       setDestinations((destinationsRes.data as any[]) || []);
+    }
+
+    if (!poisRes.error && poisRes.data) {
+      setPois((poisRes.data as any[]) || []);
     }
 
     setLoading(false);
@@ -541,6 +570,78 @@ const LocationManagement = () => {
       toast({ variant: "destructive", title: "Erreur", description: error.message });
     } else {
       toast({ title: "Succès", description: "Destination supprimée." });
+      fetchData();
+    }
+  };
+
+  // POI handlers
+  const resetPoiForm = () => {
+    setEditingPoi(null);
+    setPoiForm({
+      city_id: "", name_fr: "", name_en: "", name_ar: "",
+      latitude: "", longitude: "", wikipedia_fr: "", wikipedia_en: "", wikipedia_ar: "",
+      description: "", sort_order: 0,
+    });
+  };
+
+  const openEditPoi = (p: PointOfInterest) => {
+    setEditingPoi(p);
+    setPoiForm({
+      city_id: p.city_id, name_fr: p.name_fr, name_en: p.name_en || "", name_ar: p.name_ar || "",
+      latitude: p.latitude?.toString() || "", longitude: p.longitude?.toString() || "",
+      wikipedia_fr: p.wikipedia_fr || "", wikipedia_en: p.wikipedia_en || "", wikipedia_ar: p.wikipedia_ar || "",
+      description: p.description || "", sort_order: p.sort_order || 0,
+    });
+    setShowPoiForm(true);
+  };
+
+  const handleSavePoi = async () => {
+    if (!poiForm.name_fr.trim()) {
+      toast({ variant: "destructive", title: "Erreur", description: "Le nom français est requis." });
+      return;
+    }
+    if (!poiForm.city_id) {
+      toast({ variant: "destructive", title: "Erreur", description: "La ville est requise." });
+      return;
+    }
+    const data = {
+      city_id: poiForm.city_id,
+      name_fr: poiForm.name_fr.trim(),
+      name_en: poiForm.name_en.trim() || null,
+      name_ar: poiForm.name_ar.trim() || null,
+      latitude: poiForm.latitude ? parseFloat(poiForm.latitude) : null,
+      longitude: poiForm.longitude ? parseFloat(poiForm.longitude) : null,
+      wikipedia_fr: poiForm.wikipedia_fr.trim() || null,
+      wikipedia_en: poiForm.wikipedia_en.trim() || null,
+      wikipedia_ar: poiForm.wikipedia_ar.trim() || null,
+      description: poiForm.description.trim().slice(0, 10000) || null,
+      sort_order: poiForm.sort_order,
+    };
+    let error;
+    if (editingPoi) {
+      const res = await (supabase.from("points_of_interest" as any) as any).update(data).eq("id", editingPoi.id);
+      error = res.error;
+    } else {
+      const res = await (supabase.from("points_of_interest" as any) as any).insert(data);
+      error = res.error;
+    }
+    if (error) {
+      toast({ variant: "destructive", title: "Erreur", description: error.message });
+    } else {
+      toast({ title: "Succès", description: editingPoi ? "Point d'intérêt mis à jour." : "Point d'intérêt créé." });
+      resetPoiForm();
+      setShowPoiForm(false);
+      fetchData();
+    }
+  };
+
+  const handleDeletePoi = async (id: string) => {
+    if (!confirm("Supprimer ce point d'intérêt ?")) return;
+    const { error } = await (supabase.from("points_of_interest" as any) as any).delete().eq("id", id);
+    if (error) {
+      toast({ variant: "destructive", title: "Erreur", description: error.message });
+    } else {
+      toast({ title: "Succès", description: "Point d'intérêt supprimé." });
       fetchData();
     }
   };
@@ -899,6 +1000,188 @@ const LocationManagement = () => {
           </CardContent>
         )}
       </Card>
+
+      {/* ===== POINTS D'INTÉRÊT ===== */}
+      <Card>
+        <CardHeader className="cursor-pointer select-none" onClick={() => setPoiSectionOpen(!poiSectionOpen)}>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <MapPin className="h-5 w-5" />
+              Points d'intérêt
+              <ChevronDown className={`h-4 w-4 transition-transform ${poiSectionOpen ? 'rotate-180' : ''}`} />
+            </CardTitle>
+            <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); resetPoiForm(); setShowPoiForm(true); }}>
+              <Plus className="h-4 w-4 mr-2" />
+              Ajouter
+            </Button>
+          </div>
+        </CardHeader>
+        {poiSectionOpen && (
+          <CardContent>
+            {pois.length === 0 ? (
+              <p className="text-muted-foreground text-sm text-center py-4">Aucun point d'intérêt</p>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Point d'intérêt</TableHead>
+                    <TableHead>Ville</TableHead>
+                    <TableHead>Wikipedia</TableHead>
+                    <TableHead>Coordonnées</TableHead>
+                    <TableHead>Ordre</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {pois.map((p) => {
+                    const city = cities.find(c => c.id === p.city_id);
+                    return (
+                      <TableRow key={p.id}>
+                        <TableCell className="font-medium">{p.name_fr}</TableCell>
+                        <TableCell className="text-muted-foreground">{city?.name_fr || "—"}</TableCell>
+                        <TableCell>
+                          <div className="flex gap-1">
+                            {p.wikipedia_fr && <a href={p.wikipedia_fr} target="_blank" rel="noopener noreferrer" className="text-xs px-1.5 py-0.5 bg-primary/10 text-primary rounded hover:bg-primary/20 transition-colors">FR</a>}
+                            {p.wikipedia_en && <a href={p.wikipedia_en} target="_blank" rel="noopener noreferrer" className="text-xs px-1.5 py-0.5 bg-primary/10 text-primary rounded hover:bg-primary/20 transition-colors">EN</a>}
+                            {p.wikipedia_ar && <a href={p.wikipedia_ar} target="_blank" rel="noopener noreferrer" className="text-xs px-1.5 py-0.5 bg-primary/10 text-primary rounded hover:bg-primary/20 transition-colors">AR</a>}
+                            {!p.wikipedia_fr && !p.wikipedia_en && !p.wikipedia_ar && "—"}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-muted-foreground text-sm">
+                          {p.latitude && p.longitude ? `${p.latitude.toFixed(4)}, ${p.longitude.toFixed(4)}` : "—"}
+                        </TableCell>
+                        <TableCell>{p.sort_order ?? 0}</TableCell>
+                        <TableCell className="text-right">
+                          <Button size="sm" variant="ghost" onClick={() => openEditPoi(p)}>
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button size="sm" variant="ghost" onClick={() => handleDeletePoi(p.id)}>
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            )}
+          </CardContent>
+        )}
+      </Card>
+
+      {/* POI Form Page */}
+      {showPoiForm && (
+        <div className="fixed inset-0 z-50 bg-background overflow-y-auto">
+          <div className="container max-w-4xl mx-auto py-6 px-4">
+            <div className="flex items-center justify-between mb-6 sticky top-0 bg-background py-4 border-b z-10">
+              <div className="flex items-center gap-4">
+                <Button variant="ghost" onClick={() => { resetPoiForm(); setShowPoiForm(false); }}>
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Retour
+                </Button>
+                <h2 className="text-xl font-bold">
+                  {editingPoi ? `Modifier: ${editingPoi.name_fr}` : "Nouveau point d'intérêt"}
+                </h2>
+              </div>
+              <Button onClick={handleSavePoi} className="bg-gold hover:bg-gold/90">
+                <Save className="h-4 w-4 mr-2" />
+                Enregistrer
+              </Button>
+            </div>
+
+            <div className="space-y-6">
+              <Card>
+                <CardHeader><CardTitle className="text-lg">Informations</CardTitle></CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <Label>Nom (FR) *</Label>
+                      <Input value={poiForm.name_fr} onChange={(e) => setPoiForm({ ...poiForm, name_fr: e.target.value })} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Nom (EN)</Label>
+                      <Input value={poiForm.name_en} onChange={(e) => setPoiForm({ ...poiForm, name_en: e.target.value })} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Nom (AR)</Label>
+                      <Input value={poiForm.name_ar} onChange={(e) => setPoiForm({ ...poiForm, name_ar: e.target.value })} dir="rtl" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Ville <span className="text-destructive">*</span></Label>
+                      <Select
+                        value={poiForm.city_id}
+                        onValueChange={(value) => setPoiForm({ ...poiForm, city_id: value })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Sélectionner une ville" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {cities
+                            .slice()
+                            .sort((a, b) => a.name_fr.localeCompare(b.name_fr, 'fr'))
+                            .map((c) => (
+                              <SelectItem key={c.id} value={c.id}>{c.name_fr}</SelectItem>
+                            ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Ordre d'affichage</Label>
+                      <Input type="number" value={poiForm.sort_order} onChange={(e) => setPoiForm({ ...poiForm, sort_order: parseInt(e.target.value) || 0 })} />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader><CardTitle className="text-lg">Coordonnées GPS</CardTitle></CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Latitude</Label>
+                      <Input value={poiForm.latitude} onChange={(e) => setPoiForm({ ...poiForm, latitude: e.target.value })} placeholder="31.6295" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Longitude</Label>
+                      <Input value={poiForm.longitude} onChange={(e) => setPoiForm({ ...poiForm, longitude: e.target.value })} placeholder="-7.9811" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader><CardTitle className="text-lg">Wikipedia</CardTitle></CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Wikipedia FR</Label>
+                    <Input value={poiForm.wikipedia_fr} onChange={(e) => setPoiForm({ ...poiForm, wikipedia_fr: e.target.value })} placeholder="https://fr.wikipedia.org/wiki/..." />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Wikipedia EN</Label>
+                    <Input value={poiForm.wikipedia_en} onChange={(e) => setPoiForm({ ...poiForm, wikipedia_en: e.target.value })} placeholder="https://en.wikipedia.org/wiki/..." />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Wikipedia AR</Label>
+                    <Input value={poiForm.wikipedia_ar} onChange={(e) => setPoiForm({ ...poiForm, wikipedia_ar: e.target.value })} placeholder="https://ar.wikipedia.org/wiki/..." />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader><CardTitle className="text-lg">Description</CardTitle></CardHeader>
+                <CardContent>
+                  <RichTextEditor
+                    content={poiForm.description}
+                    onChange={(val) => setPoiForm({ ...poiForm, description: val })}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Destination Form Page */}
       {showDestinationForm && (
