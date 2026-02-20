@@ -33,7 +33,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Edit, Trash2, Globe, MapPin, Building, ExternalLink, ArrowLeft, Save, FileText, Home, ChevronDown, Compass } from "lucide-react";
+import { Plus, Edit, Trash2, Globe, MapPin, Building, ExternalLink, ArrowLeft, Save, FileText, Home, ChevronDown, Compass, LocateFixed, Loader2 } from "lucide-react";
 import RichTextEditor from "./RichTextEditor";
 
 interface Country {
@@ -112,6 +112,37 @@ interface PointOfInterest {
   sort_order: number | null;
 }
 const LocationManagement = () => {
+  const [geocodingField, setGeocodingField] = useState<string | null>(null);
+  const [batchGeocoding, setBatchGeocoding] = useState(false);
+
+  const handleGeocode = async (name: string, context?: string) => {
+    const { data, error } = await supabase.functions.invoke('geocode-locations', {
+      body: { mode: 'single', name, context },
+    });
+    if (error || !data?.lat) return null;
+    return { lat: data.lat.toString(), lng: data.lng.toString() };
+  };
+
+  const handleBatchGeocode = async () => {
+    setBatchGeocoding(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('geocode-locations', {
+        body: { mode: 'batch' },
+      });
+      if (error) {
+        toast({ variant: "destructive", title: "Erreur", description: error.message });
+      } else {
+        const total = (data.cities || 0) + (data.destinations || 0) + (data.points_of_interest || 0);
+        toast({
+          title: "Géocodage terminé",
+          description: `${total} élément(s) mis à jour. ${data.errors?.length || 0} erreur(s).`,
+        });
+        fetchData();
+      }
+    } finally {
+      setBatchGeocoding(false);
+    }
+  };
   const [countries, setCountries] = useState<Country[]>([]);
   const [cities, setCities] = useState<City[]>([]);
   const [businessCounts, setBusinessCounts] = useState<Record<string, number>>({});
@@ -662,6 +693,17 @@ const LocationManagement = () => {
           <h2 className="text-2xl font-bold">Pays & Villes</h2>
           <p className="text-muted-foreground">Gérez les localisations de l'annuaire</p>
         </div>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={batchGeocoding}
+            onClick={handleBatchGeocode}
+          >
+            {batchGeocoding ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <LocateFixed className="h-4 w-4 mr-1" />}
+            Géocoder tout (GPS manquants)
+          </Button>
+        </div>
         <Dialog open={isCountryDialogOpen} onOpenChange={(open) => {
           setIsCountryDialogOpen(open);
           if (!open) resetCountryForm();
@@ -1136,7 +1178,32 @@ const LocationManagement = () => {
               </Card>
 
               <Card>
-                <CardHeader><CardTitle className="text-lg">Coordonnées GPS</CardTitle></CardHeader>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg">Coordonnées GPS</CardTitle>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      disabled={!poiForm.name_fr.trim() || geocodingField === 'poi'}
+                      onClick={async () => {
+                        setGeocodingField('poi');
+                        const cityName = cities.find(c => c.id === poiForm.city_id)?.name_fr;
+                        const coords = await handleGeocode(poiForm.name_fr, cityName);
+                        if (coords) {
+                          setPoiForm(prev => ({ ...prev, latitude: coords.lat, longitude: coords.lng }));
+                          toast({ title: "GPS trouvé", description: `${coords.lat}, ${coords.lng}` });
+                        } else {
+                          toast({ variant: "destructive", title: "Non trouvé", description: "Impossible de géolocaliser ce point d'intérêt." });
+                        }
+                        setGeocodingField(null);
+                      }}
+                    >
+                      {geocodingField === 'poi' ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <LocateFixed className="h-4 w-4 mr-1" />}
+                      Géolocaliser
+                    </Button>
+                  </div>
+                </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
@@ -1247,9 +1314,32 @@ const LocationManagement = () => {
                 </CardContent>
               </Card>
 
-              {/* Coordinates */}
               <Card>
-                <CardHeader><CardTitle className="text-lg">Coordonnées GPS</CardTitle></CardHeader>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg">Coordonnées GPS</CardTitle>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      disabled={!destinationForm.name_fr.trim() || geocodingField === 'destination'}
+                      onClick={async () => {
+                        setGeocodingField('destination');
+                        const coords = await handleGeocode(destinationForm.name_fr);
+                        if (coords) {
+                          setDestinationForm(prev => ({ ...prev, latitude: coords.lat, longitude: coords.lng }));
+                          toast({ title: "GPS trouvé", description: `${coords.lat}, ${coords.lng}` });
+                        } else {
+                          toast({ variant: "destructive", title: "Non trouvé", description: "Impossible de géolocaliser cette destination." });
+                        }
+                        setGeocodingField(null);
+                      }}
+                    >
+                      {geocodingField === 'destination' ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <LocateFixed className="h-4 w-4 mr-1" />}
+                      Géolocaliser
+                    </Button>
+                  </div>
+                </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
@@ -1402,9 +1492,30 @@ const LocationManagement = () => {
                   </Select>
                 </div>
 
-                {/* Coordinates */}
                 <div className="space-y-4">
-                  <h3 className="font-medium text-lg">Coordonnées GPS</h3>
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-medium text-lg">Coordonnées GPS</h3>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      disabled={!cityForm.name_fr.trim() || geocodingField === 'city'}
+                      onClick={async () => {
+                        setGeocodingField('city');
+                        const coords = await handleGeocode(cityForm.name_fr);
+                        if (coords) {
+                          setCityForm(prev => ({ ...prev, latitude: coords.lat, longitude: coords.lng }));
+                          toast({ title: "GPS trouvé", description: `${coords.lat}, ${coords.lng}` });
+                        } else {
+                          toast({ variant: "destructive", title: "Non trouvé", description: "Impossible de géolocaliser cette ville." });
+                        }
+                        setGeocodingField(null);
+                      }}
+                    >
+                      {geocodingField === 'city' ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <LocateFixed className="h-4 w-4 mr-1" />}
+                      Géolocaliser
+                    </Button>
+                  </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label>Latitude</Label>
