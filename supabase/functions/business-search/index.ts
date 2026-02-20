@@ -372,7 +372,7 @@ serve(async (req) => {
     // Level 1: Exact full-text search with ts_rank (services/name weight A > description weight B)
     if (effectiveQuery || city || category) {
       const expandedQuery = effectiveQuery ? expandQuery(effectiveQuery) : null;
-      console.log(`Level 1: expandedQuery="${expandedQuery}", city="${effectiveCity}", category="${category}", service="${detectedService}"`);
+      
 
       if (expandedQuery) {
         // Use ranked RPC function: prioritizes matches in services/name over description
@@ -388,7 +388,7 @@ serve(async (req) => {
           });
           data = result.data;
           error = result.error;
-          console.log(`RPC with service: ${data?.length ?? 0} results, error: ${error?.message ?? 'none'}`);
+          
           // Fallback: if service filter gives 0 results, retry without it
           if (!error && (!data || data.length === 0)) {
             console.log(`Service filter "${detectedService}" returned 0 results, falling back without service filter`);
@@ -411,7 +411,7 @@ serve(async (req) => {
           });
           data = result.data;
           error = result.error;
-          console.log(`RPC without service: ${data?.length ?? 0} results, error: ${error?.message ?? 'none'}`);
+          
         }
 
         if (!error && data && data.length > 0) {
