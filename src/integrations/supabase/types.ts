@@ -217,6 +217,42 @@ export type Database = {
         }
         Relationships: []
       }
+      business_destinations: {
+        Row: {
+          business_id: string
+          created_at: string | null
+          destination_id: string
+          id: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string | null
+          destination_id: string
+          id?: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string | null
+          destination_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_destinations_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_destinations_destination_id_fkey"
+            columns: ["destination_id"]
+            isOneToOne: false
+            referencedRelation: "destinations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_labels: {
         Row: {
           business_id: string
@@ -248,6 +284,42 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_points_of_interest: {
+        Row: {
+          business_id: string
+          created_at: string | null
+          id: string
+          point_of_interest_id: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string | null
+          id?: string
+          point_of_interest_id: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string | null
+          id?: string
+          point_of_interest_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_points_of_interest_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_points_of_interest_point_of_interest_id_fkey"
+            columns: ["point_of_interest_id"]
+            isOneToOne: false
+            referencedRelation: "points_of_interest"
             referencedColumns: ["id"]
           },
         ]
