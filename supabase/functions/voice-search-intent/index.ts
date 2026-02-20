@@ -29,13 +29,23 @@ serve(async (req) => {
 
 Ta tâche : identifier l'INTENTION sémantique et la traduire en mots-clés concrets (type d'établissement, service, produit, ville, quartier, personnage historique, nom propre).
 
+Tu dois aussi identifier la CATÉGORIE principale quand l'intention est claire. Les catégories possibles sont :
+- "Hôtellerie" : dormir, séjourner, loger, hôtel, riad, maison d'hôtes
+- "Restauration" : manger, déjeuner, dîner, restaurant, café, boire un verre
+- "Commerce" : acheter, shopping, trouver un produit, boutique, magasin, vin, alcool, cave, tapis, vêtements, artisanat, souvenirs
+- "Tourisme" : visiter, activités, excursion, musée, monument, spectacle
+- "Bien-être" : spa, hammam, massage, soin, coiffeur, beauté
+
+Si l'intention d'ACHAT est claire (acheter, trouver un produit, "où est-ce que je peux acheter"), la catégorie DOIT être "Commerce".
+Si aucune catégorie ne correspond clairement, ne mets rien.
+
 Règles de traduction sémantique OBLIGATOIRES :
 - "manger", "déjeuner", "dîner", "se restaurer", "casse-croûte" → "restaurant"
 - "dormir", "séjourner", "loger", "passer la nuit", "réserver une chambre" → "hôtel"
 - "se détendre", "relaxation", "soin", "massage", "bien-être" → "spa hammam"
 - "boire un verre", "prendre un café", "boire quelque chose" → "café bar"
 - "faire du shopping", "acheter", "trouver" + produit → garder le produit SANS ajouter "boutique" (le mot "boutique" est trop générique et matche des hôtels)
-- "sac à main", "sac en cuir", "maroquinerie" → "sac cuir maroquinerie" (PAS "boutique")
+- "sac à main", "sac en cuir", "maroquinerie" → "sac cuir maroquinerie"
 - "table sur mesure", "meuble sur mesure", "table en bois", "table en fer forgé" → "meubles table" (contexte mobilier, PAS restaurant)
 - Quand "table" est accompagné de "sur mesure", "bois", "fer forgé", "artisan", "acheter", "fabriquer" → contexte mobilier = "meubles table", PAS restaurant
 - "bord de l'eau", "bord de mer", "vue mer", "face à la mer", "front de mer", "vue sur la mer", "coucher de soleil sur la mer", "coucher de soleil mer", "face à l'océan", "vue océan", "vue sur l'océan", "surplombant la mer", "donnant sur la mer" → "mer vue"
@@ -65,42 +75,20 @@ Autres règles :
 - Supprimer "Maroc", "au Maroc", "marocain" car l'annuaire est déjà au Maroc — inutile comme filtre
 - Garder : noms de villes (Marrakech, Essaouira, Agadir...), quartiers, types d'établissements traduits, produits, NOMS PROPRES (personnes célèbres, lieux historiques)
 - Ne JAMAIS ajouter "boutique" comme mot-clé — ce mot est trop générique et fait remonter des hôtels. Utiliser plutôt le type de produit spécifique.
-- 2 à 5 mots maximum
-- Répondre UNIQUEMENT avec les mots-clés, rien d'autre
+- 2 à 5 mots maximum pour les mots-clés
+- Répondre UNIQUEMENT en JSON avec le format : {"keywords": "mots clés ici", "category": "Catégorie"} ou {"keywords": "mots clés ici"} si pas de catégorie claire
 
 Exemples :
-"trouve un plombier à Marrakech" → "plombier Marrakech"
-"je veux manger au bord de l'eau à Essaouira" → "restaurant plage Essaouira"
-"je cherche un restaurant sur la plage à Essaouira" → "restaurant plage Essaouira"
-"où manger avec vue sur la mer à Agadir" → "restaurant mer vue Agadir"
-"je cherche un hôtel avec un joli coucher de soleil sur la mer à Essaouira" → "hôtel mer vue Essaouira"
-"je cherche un hôtel avec vue sur la mer à Essaouira" → "hôtel mer vue Essaouira"
-
-"je veux boire un café face à l'océan à Essaouira" → "café plage Essaouira"
-"peut on manger du caviar à Marrakech" → "caviar restaurant Marrakech"
-"je cherche un hôtel qui accepte les animaux de compagnie" → "hôtel animaux"
-"acheter un beau tapis berbère" → "tapis berbère"
-"je veux acheter une table sur mesure à Marrakech" → "meubles table Marrakech"
-"je cherche une table en bois à Marrakech" → "meubles table bois Marrakech"
-"je veux acheter un beau sac à main en cuir pour ma femme" → "sac cuir maroquinerie"
-"où dormir avec piscine à Essaouira" → "hôtel piscine Essaouira"
-"meilleur hammam spa de la médina" → "hammam spa médina"
-"je cherche à faire un cadeau original à Marrakech" → "cadeaux artisanat Marrakech"
-"je veux acheter de l'artisanat marocain" → "artisanat"
-"activités pour les enfants à Marrakech" → "activités enfants Marrakech"
-"je cherche un riad artistique à Marrakech" → "riad galerie art Marrakech"
-"hôtel avec une galerie d'art" → "hôtel galerie art"
-"je veux visiter une expo à Essaouira" → "galerie art Essaouira"
-"quel lieu Ernest Hemingway a fréquenté" → "Ernest Hemingway"
-"quel lieu Ernest Hemingway a fréquenté au Maroc" → "Ernest Hemingway"
-"où Churchill peignait à Marrakech" → "Churchill Marrakech"
-"restaurant typique marocain" → "restaurant typique"
-"café traditionnel au maroc" → "café traditionnel"
-"je cherche un endroit pour faire la fête à Marrakech" → "bar boîte nuit soirée Marrakech"
-"où sortir le soir à Essaouira" → "bar boîte nuit soirée Essaouira"
-"je voudrais voir un spectacle équestre ce soir" → "fantasia"
-"je voudrais voir une fantasia ce soir" → "fantasia"
-"je cherche un dîner spectacle à Marrakech" → "live show Marrakech"`;
+"trouve un plombier à Marrakech" → {"keywords": "plombier Marrakech"}
+"je veux manger au bord de l'eau à Essaouira" → {"keywords": "restaurant plage Essaouira", "category": "Restauration"}
+"où dormir avec piscine à Essaouira" → {"keywords": "hôtel piscine Essaouira", "category": "Hôtellerie"}
+"où est-ce que je peux acheter du vin à Marrakech" → {"keywords": "vin alcool cave Marrakech", "category": "Commerce"}
+"acheter un beau tapis berbère" → {"keywords": "tapis berbère", "category": "Commerce"}
+"je veux acheter un beau sac à main en cuir" → {"keywords": "sac cuir maroquinerie", "category": "Commerce"}
+"je cherche un spa à Marrakech" → {"keywords": "spa hammam Marrakech", "category": "Bien-être"}
+"je cherche un endroit pour faire la fête à Marrakech" → {"keywords": "bar boîte nuit soirée Marrakech", "category": "Tourisme"}
+"je voudrais voir une fantasia" → {"keywords": "fantasia", "category": "Tourisme"}
+"je cherche un dîner spectacle à Marrakech" → {"keywords": "live show Marrakech", "category": "Restauration"}`;
 
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -130,11 +118,24 @@ Exemples :
     }
 
     const data = await response.json();
-    const query = data.choices?.[0]?.message?.content?.trim() ?? transcript;
+    const rawContent = data.choices?.[0]?.message?.content?.trim() ?? "";
 
-    console.log(`Voice intent: "${transcript}" → "${query}"`);
+    // Parse JSON response from LLM
+    let query = transcript;
+    let category = "";
+    try {
+      // Try to parse as JSON first
+      const parsed = JSON.parse(rawContent.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim());
+      query = parsed.keywords || rawContent;
+      category = parsed.category || "";
+    } catch {
+      // Fallback: treat as plain text keywords (backward compat)
+      query = rawContent || transcript;
+    }
 
-    return new Response(JSON.stringify({ query }), {
+    console.log(`Voice intent: "${transcript}" → keywords="${query}", category="${category}"`);
+
+    return new Response(JSON.stringify({ query, category }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {

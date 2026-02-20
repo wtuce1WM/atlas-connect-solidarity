@@ -28,11 +28,12 @@ const HeroSection = () => {
   const voiceLang = language === "ar" ? "ar-MA" : language === "en" ? "en-US" : "fr-FR";
   const { status: voiceStatus, toggleRecording } = useVoiceSearch({
     lang: voiceLang,
-    onTranscript: (keywords, spokenText) => {
+    onTranscript: (keywords, spokenText, detectedCategory) => {
       const params = new URLSearchParams();
       params.set("q", keywords);
       if (spokenText !== keywords) params.set("spoken", spokenText);
-      if (searchCategory !== "all") params.set("category", searchCategory);
+      const cat = detectedCategory || (searchCategory !== "all" ? searchCategory : "");
+      if (cat) params.set("category", cat);
       if (geo.isEnabled && geo.detectedCity) params.set("city", geo.detectedCity);
       navigateWithSlide(`/search?${params.toString()}`);
     },

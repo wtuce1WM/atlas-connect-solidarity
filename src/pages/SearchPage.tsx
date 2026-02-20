@@ -248,10 +248,12 @@ const SearchPage = () => {
   }, [geo.isEnabled, geo.detectedCity]);
 
   const { status: voiceStatus, toggleRecording } = useVoiceSearch({
-    onTranscript: (keywords, spoken) => {
+    onTranscript: (keywords, spoken, detectedCategory) => {
       setInputValue(keywords);
       setSearchQuery(keywords);
-      setSearchParams({ q: keywords, spoken });
+      const params: Record<string, string> = { q: keywords, spoken };
+      if (detectedCategory) params.category = detectedCategory;
+      setSearchParams(params);
     },
     onError: (message) => {
       toast({ variant: "destructive", title: "Erreur microphone", description: message });
