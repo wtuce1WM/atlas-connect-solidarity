@@ -2,8 +2,9 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
+import FloatingSearchBar from "@/components/FloatingSearchBar";
 import Index from "./pages/Index";
 import BusinessDetail from "./pages/BusinessDetail";
 import CityMap from "./pages/CityMap";
@@ -31,6 +32,14 @@ import HotelSearch from "./pages/HotelSearch";
 import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
+
+const GlobalFloatingSearchBar = () => {
+  const location = useLocation();
+  // Hide on home page and staff/affiliate backoffice pages
+  const hiddenPaths = ["/", "/search", "/staff/login", "/staff/backoffice", "/affiliates", "/affiliates/dashboard"];
+  if (hiddenPaths.includes(location.pathname)) return null;
+  return <FloatingSearchBar />;
+};
 
 const AppContent = () => {
   const { isRTL } = useLanguage();
@@ -69,6 +78,7 @@ const AppContent = () => {
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <GlobalFloatingSearchBar />
         </BrowserRouter>
       </TooltipProvider>
     </div>
