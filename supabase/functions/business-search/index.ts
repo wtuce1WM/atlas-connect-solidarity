@@ -510,6 +510,37 @@ serve(async (req) => {
       }
     }
 
+    // ── Post-filter by matching service: if a query keyword matches an existing service, keep only businesses that have it ──
+    if (effectiveQuery && businesses.length > 1) {
+      const queryWords = effectiveQuery.toLowerCase().split(/\s+/).filter(w => w.length > 1 && !NOISE_ADJECTIVES.has(w));
+      // Remove detected city and stop words from query words for service matching
+      const cityLower = effectiveCity?.toLowerCase();
+      const serviceMatchWords = queryWords.filter(w => !FRENCH_STOP_WORDS.has(w) && w !== cityLower);
+
+      if (serviceMatchWords.length > 0) {
+        // Build OR conditions to find matching services in DB
+        const orConditions = serviceMatchWords.map(w => `name_fr.ilike.%${w}%`).join(",");
+        const { data: matchingServices } = await supabase
+          .from("services")
+          .select("name_fr")
+          .or(orConditions);
+
+        if (matchingServices && matchingServices.length > 0) {
+          const matchedServiceNames = matchingServices.map(s => s.name_fr.toLowerCase());
+          // Filter: keep only businesses that have at least one of the matched services
+          const filtered = businesses.filter(b => {
+            const bizServices = (b.services || []).map((s: string) => s.toLowerCase());
+            return matchedServiceNames.some(ms => bizServices.includes(ms));
+          });
+          // Only apply filter if it doesn't eliminate ALL results
+          if (filtered.length > 0) {
+            console.log(`Service post-filter: ${businesses.length} → ${filtered.length} (services: ${matchedServiceNames.join(", ")})`);
+            businesses = filtered;
+          }
+        }
+      }
+    }
+
     // Exclude pure "Traiteurs" from Restauration results (keep if they also have Restaurant, Café, etc.)
     if (category === "Restauration" || (!category && businesses.length > 0)) {
       const isRestaurantContext = category === "Restauration" ||
@@ -517,9 +548,7 @@ serve(async (req) => {
       if (isRestaurantContext) {
         businesses = businesses.filter(b => {
           const cats = (b.categories || []).map((c: string) => c.toLowerCase());
-          // Exclude if "traiteurs" is the ONLY subcategory
           if (cats.length === 1 && cats[0] === "traiteurs") return false;
-          // Exclude if all categories are traiteur-only variants
           const nonTraiteur = cats.filter(c => c !== "traiteurs");
           return nonTraiteur.length > 0;
         });
