@@ -736,11 +736,33 @@ const BusinessDetail = () => {
                           "ja":     { flag: "🇯🇵", label: "JA" },
                           "ru":     { flag: "🇷🇺", label: "RU" },
                         };
-                        return business.languages!.map((code) => {
-                          const info = LANG_MAP[code] || { flag: code, label: code };
+                        // Map full language names to codes for robustness
+                        const NAME_TO_CODE: Record<string, string> = {
+                          "arabe": "ar", "arabic": "ar", "العربية": "ar",
+                          "français": "fr", "francais": "fr", "french": "fr",
+                          "anglais": "en", "english": "en",
+                          "espagnol": "es", "spanish": "es",
+                          "allemand": "de", "german": "de",
+                          "italien": "it", "italian": "it",
+                          "portugais": "pt", "portuguese": "pt",
+                          "néerlandais": "nl", "neerlandais": "nl", "dutch": "nl",
+                          "chinois": "zh", "chinese": "zh",
+                          "japonais": "ja", "japanese": "ja",
+                          "russe": "ru", "russian": "ru",
+                        };
+                        // Deduplicate by resolved code
+                        const seen = new Set<string>();
+                        return business.languages!.filter((raw) => {
+                          const resolved = LANG_MAP[raw] ? raw : NAME_TO_CODE[raw.toLowerCase()] || raw;
+                          if (seen.has(resolved)) return false;
+                          seen.add(resolved);
+                          return true;
+                        }).map((raw) => {
+                          const resolved = LANG_MAP[raw] ? raw : NAME_TO_CODE[raw.toLowerCase()] || raw;
+                          const info = LANG_MAP[resolved] || { flag: raw, label: raw };
                           return (
                             <div
-                              key={code}
+                              key={raw}
                               className={`flex flex-col items-center gap-0.5 py-1.5 px-2.5 rounded-lg border text-[10px] font-medium ${
                                 isVerified
                                   ? "bg-gold/20 border-gold/40 text-gold"
