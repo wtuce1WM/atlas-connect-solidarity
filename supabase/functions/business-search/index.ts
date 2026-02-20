@@ -381,9 +381,22 @@ serve(async (req) => {
           .not("keywords", "eq", "{}");
 
         // Merge: services matched by name + services whose keywords contain a query word
+        // Normalize a French word by stripping common plural suffixes
+        const stripPlural = (w: string): string => {
+          if (w.endsWith("aux")) return w.slice(0, -3) + "al"; // animaux→animal
+          if (w.endsWith("eaux")) return w.slice(0, -4) + "eau";
+          if (w.endsWith("s")) return w.slice(0, -1);
+          return w;
+        };
         const keywordMatches = (matchingByKeywords || []).filter(svc => {
           const kws = (svc.keywords || []).map((k: string) => k.toLowerCase());
-          return serviceMatchWords.some(w => kws.some((k: string) => k.includes(w)));
+          return serviceMatchWords.some(w => {
+            const wNorm = stripPlural(w);
+            return kws.some((k: string) => {
+              const kNorm = stripPlural(k);
+              return k.includes(w) || w.includes(k) || kNorm === wNorm;
+            });
+          });
         });
         const allMatched = new Map<string, any>();
         for (const s of [...(matchingByName || []), ...keywordMatches]) {
@@ -401,7 +414,13 @@ serve(async (req) => {
             const svcWordCount = svcLower.split(/\s+/).length;
             // Check keyword matches too
             const kws = (svc.keywords || []).map((k: string) => k.toLowerCase());
-            const kwMatchCount = serviceMatchWords.filter(w => kws.some((k: string) => k.includes(w))).length;
+            const kwMatchCount = serviceMatchWords.filter(w => {
+              const wNorm = stripPlural(w);
+              return kws.some((k: string) => {
+                const kNorm = stripPlural(k);
+                return k.includes(w) || w.includes(k) || kNorm === wNorm;
+              });
+            }).length;
             const score = matchCount * 10 + (matchCount > 1 && svcWordCount > 1 ? 50 : 0) + kwMatchCount * 15;
             if (score > bestScore) {
               bestScore = score;
