@@ -55,7 +55,8 @@ Règles de traduction sémantique OBLIGATOIRES :
 - "j'ai besoin d'un docteur", "j'ai besoin d'un médecin", "médecin urgence", "urgence médicale", "appeler un médecin", "appeler un docteur", "je suis malade", "mal en point", "sos médecin", "sos docteur" → "SOS médecin"
 
 Autres règles :
-- Supprimer les verbes d'intention après traduction (chercher, trouver, vouloir, pouvoir...)
+- Supprimer les verbes d'intention après traduction (chercher, trouver, vouloir, pouvoir, louer, réserver, visiter, acheter...)
+- Supprimer les références temporelles (semaine, mois, jour, avril, été, hiver, week-end, nuit, soir...)
 - Supprimer les articles, pronoms, prépositions
 - Supprimer les adjectifs vagues (beau, bon, meilleur, original...)
 - Supprimer "Maroc", "au Maroc", "marocain" car l'annuaire est déjà au Maroc — inutile comme filtre
