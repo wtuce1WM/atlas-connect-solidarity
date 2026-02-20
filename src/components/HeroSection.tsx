@@ -18,7 +18,13 @@ const HeroSection = () => {
   const heroRef = useRef<HTMLElement>(null);
   const tabsRef = useRef<HTMLDivElement>(null);
   const [scrollY, setScrollY] = useState(0);
+  const [isExiting, setIsExiting] = useState(false);
   const geo = useGeolocation();
+  const navigateWithSlide = (url: string) => {
+    setIsExiting(true);
+    setTimeout(() => navigate(url), 350);
+  };
+
   const voiceLang = language === "ar" ? "ar-MA" : language === "en" ? "en-US" : "fr-FR";
   const { status: voiceStatus, toggleRecording } = useVoiceSearch({
     lang: voiceLang,
@@ -27,7 +33,8 @@ const HeroSection = () => {
       params.set("q", keywords);
       if (spokenText !== keywords) params.set("spoken", spokenText);
       if (searchCategory !== "all") params.set("category", searchCategory);
-      navigate(`/search?${params.toString()}`);
+      if (geo.isEnabled && geo.detectedCity) params.set("city", geo.detectedCity);
+      navigateWithSlide(`/search?${params.toString()}`);
     },
     onError: (msg) => toast({ title: msg, variant: "destructive" }),
   });
@@ -52,12 +59,17 @@ const HeroSection = () => {
     if (searchCategory !== "all") params.set("category", searchCategory);
     if (geo.isEnabled && geo.detectedCity) params.set("city", geo.detectedCity);
     if (params.toString()) {
-      navigate(`/search?${params.toString()}`);
+      navigateWithSlide(`/search?${params.toString()}`);
     }
   };
 
   return (
-    <section ref={heroRef} className="relative w-full overflow-hidden">
+    <section
+      ref={heroRef}
+      className={`relative w-full overflow-hidden transition-all duration-350 ease-in-out ${
+        isExiting ? "opacity-0 -translate-y-16" : "opacity-100 translate-y-0"
+      }`}
+    >
       {/* Hero Background Image — parallax + Ken Burns */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat animate-[kenburns_25s_ease-in-out_infinite_alternate]"
