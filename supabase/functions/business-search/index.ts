@@ -233,8 +233,28 @@ function sanitizeTerm(term: string): string {
   return term.replace(/['']/g, "").replace(/[^a-zA-Z0-9àâäéèêëïîôùûüÿçœæÀÂÄÉÈÊËÏÎÔÙÛÜŸÇŒÆ]/g, "");
 }
 
+// Adjectives that don't exist in business search vectors and should be dropped
+const NOISE_ADJECTIVES = new Set([
+  "traditionnel", "traditionnelle", "traditionnels", "traditionnelles",
+  "authentique", "authentiques", "typique", "typiques",
+  "vrai", "vraie", "vrais", "vraies", "véritable", "véritables",
+  "local", "locale", "locaux", "locales",
+  "ancien", "ancienne", "anciens", "anciennes",
+  "moderne", "modernes", "contemporain", "contemporaine",
+  "luxueux", "luxueuse", "chic", "élégant", "élégante",
+  "petit", "petite", "petits", "petites",
+  "grand", "grande", "grands", "grandes",
+  "joli", "jolie", "jolis", "jolies",
+  "beau", "belle", "beaux", "belles",
+  "bon", "bonne", "bons", "bonnes",
+  "meilleur", "meilleure", "meilleurs", "meilleures",
+  "original", "originale", "originaux", "originales",
+  "fameux", "fameuse", "célèbre", "célèbres",
+  "populaire", "populaires",
+]);
+
 function expandQuery(query: string): string {
-  const words = query.toLowerCase().split(/\s+/).filter(w => w.length > 0);
+  const words = query.toLowerCase().split(/\s+/).filter(w => w.length > 0 && !NOISE_ADJECTIVES.has(w));
 
   const groups = words.map(word => {
     const alternatives: string[] = [word];
