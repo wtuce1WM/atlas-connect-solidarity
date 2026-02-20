@@ -33,7 +33,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Edit, Trash2, Globe, MapPin, Building, ExternalLink, ArrowLeft, Save, FileText, Home, ChevronDown } from "lucide-react";
+import { Plus, Edit, Trash2, Globe, MapPin, Building, ExternalLink, ArrowLeft, Save, FileText, Home, ChevronDown, Compass } from "lucide-react";
 import RichTextEditor from "./RichTextEditor";
 
 interface Country {
@@ -82,6 +82,20 @@ interface Neighborhood {
   sort_order: number | null;
 }
 
+interface Destination {
+  id: string;
+  name_fr: string;
+  name_en: string | null;
+  name_ar: string | null;
+  region: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  wikipedia_fr: string | null;
+  wikipedia_en: string | null;
+  wikipedia_ar: string | null;
+  description: string | null;
+  sort_order: number | null;
+}
 const LocationManagement = () => {
   const [countries, setCountries] = useState<Country[]>([]);
   const [cities, setCities] = useState<City[]>([]);
@@ -97,6 +111,15 @@ const LocationManagement = () => {
   const [editingNeighborhood, setEditingNeighborhood] = useState<Neighborhood | null>(null);
   const [expandedCityNeighborhoods, setExpandedCityNeighborhoods] = useState<string | null>(null);
   const [citiesSectionOpen, setCitiesSectionOpen] = useState(false);
+  const [destinationsSectionOpen, setDestinationsSectionOpen] = useState(false);
+  const [destinations, setDestinations] = useState<Destination[]>([]);
+  const [showDestinationForm, setShowDestinationForm] = useState(false);
+  const [editingDestination, setEditingDestination] = useState<Destination | null>(null);
+  const [destinationForm, setDestinationForm] = useState({
+    name_fr: "", name_en: "", name_ar: "", region: "",
+    latitude: "", longitude: "", wikipedia_fr: "", wikipedia_en: "", wikipedia_ar: "",
+    description: "", sort_order: 0,
+  });
   const { toast } = useToast();
 
   // Country form state
@@ -144,11 +167,12 @@ const LocationManagement = () => {
   const fetchData = async () => {
     setLoading(true);
     
-    const [countriesRes, citiesRes, businessesRes, neighborhoodsRes] = await Promise.all([
+    const [countriesRes, citiesRes, businessesRes, neighborhoodsRes, destinationsRes] = await Promise.all([
       supabase.from("countries").select("*").order("sort_order"),
       supabase.from("cities").select("*").order("sort_order"),
       supabase.from("businesses").select("city"),
       supabase.from("neighborhoods").select("*").order("sort_order") as any,
+      supabase.from("destinations" as any).select("*").order("sort_order"),
     ]);
 
     if (countriesRes.error) {
@@ -176,6 +200,10 @@ const LocationManagement = () => {
 
     if (!neighborhoodsRes.error && neighborhoodsRes.data) {
       setNeighborhoods(neighborhoodsRes.data || []);
+    }
+
+    if (!destinationsRes.error && destinationsRes.data) {
+      setDestinations((destinationsRes.data as any[]) || []);
     }
 
     setLoading(false);
@@ -429,6 +457,75 @@ const LocationManagement = () => {
       toast({ variant: "destructive", title: "Erreur", description: error.message });
     } else {
       toast({ title: "Succès", description: "Quartier supprimé." });
+      fetchData();
+    }
+  };
+
+  // Destination handlers
+  const resetDestinationForm = () => {
+    setEditingDestination(null);
+    setDestinationForm({
+      name_fr: "", name_en: "", name_ar: "", region: "",
+      latitude: "", longitude: "", wikipedia_fr: "", wikipedia_en: "", wikipedia_ar: "",
+      description: "", sort_order: 0,
+    });
+  };
+
+  const openEditDestination = (d: Destination) => {
+    setEditingDestination(d);
+    setDestinationForm({
+      name_fr: d.name_fr, name_en: d.name_en || "", name_ar: d.name_ar || "",
+      region: d.region || "",
+      latitude: d.latitude?.toString() || "", longitude: d.longitude?.toString() || "",
+      wikipedia_fr: d.wikipedia_fr || "", wikipedia_en: d.wikipedia_en || "", wikipedia_ar: d.wikipedia_ar || "",
+      description: d.description || "", sort_order: d.sort_order || 0,
+    });
+    setShowDestinationForm(true);
+  };
+
+  const handleSaveDestination = async () => {
+    if (!destinationForm.name_fr.trim()) {
+      toast({ variant: "destructive", title: "Erreur", description: "Le nom français est requis." });
+      return;
+    }
+    const data = {
+      name_fr: destinationForm.name_fr.trim(),
+      name_en: destinationForm.name_en.trim() || null,
+      name_ar: destinationForm.name_ar.trim() || null,
+      region: destinationForm.region.trim() || null,
+      latitude: destinationForm.latitude ? parseFloat(destinationForm.latitude) : null,
+      longitude: destinationForm.longitude ? parseFloat(destinationForm.longitude) : null,
+      wikipedia_fr: destinationForm.wikipedia_fr.trim() || null,
+      wikipedia_en: destinationForm.wikipedia_en.trim() || null,
+      wikipedia_ar: destinationForm.wikipedia_ar.trim() || null,
+      description: destinationForm.description.trim().slice(0, 10000) || null,
+      sort_order: destinationForm.sort_order,
+    };
+    let error;
+    if (editingDestination) {
+      const res = await (supabase.from("destinations" as any) as any).update(data).eq("id", editingDestination.id);
+      error = res.error;
+    } else {
+      const res = await (supabase.from("destinations" as any) as any).insert(data);
+      error = res.error;
+    }
+    if (error) {
+      toast({ variant: "destructive", title: "Erreur", description: error.message });
+    } else {
+      toast({ title: "Succès", description: editingDestination ? "Destination mise à jour." : "Destination créée." });
+      resetDestinationForm();
+      setShowDestinationForm(false);
+      fetchData();
+    }
+  };
+
+  const handleDeleteDestination = async (id: string) => {
+    if (!confirm("Supprimer cette destination ?")) return;
+    const { error } = await (supabase.from("destinations" as any) as any).delete().eq("id", id);
+    if (error) {
+      toast({ variant: "destructive", title: "Erreur", description: error.message });
+    } else {
+      toast({ title: "Succès", description: "Destination supprimée." });
       fetchData();
     }
   };
@@ -723,7 +820,175 @@ const LocationManagement = () => {
         </CardContent>}
       </Card>
 
-      {/* City Form Page */}
+      {/* ===== DESTINATIONS ===== */}
+      <Card>
+        <CardHeader className="cursor-pointer select-none" onClick={() => setDestinationsSectionOpen(!destinationsSectionOpen)}>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <Compass className="h-5 w-5" />
+              Destinations
+              <ChevronDown className={`h-4 w-4 transition-transform ${destinationsSectionOpen ? 'rotate-180' : ''}`} />
+            </CardTitle>
+            <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); resetDestinationForm(); setShowDestinationForm(true); }}>
+              <Plus className="h-4 w-4 mr-2" />
+              Ajouter
+            </Button>
+          </div>
+        </CardHeader>
+        {destinationsSectionOpen && (
+          <CardContent>
+            {destinations.length === 0 ? (
+              <p className="text-muted-foreground text-sm text-center py-4">Aucune destination</p>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Destination</TableHead>
+                    <TableHead>Région</TableHead>
+                    <TableHead>Wikipedia</TableHead>
+                    <TableHead>Coordonnées</TableHead>
+                    <TableHead>Ordre</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {destinations.map((d) => (
+                    <TableRow key={d.id}>
+                      <TableCell className="font-medium">{d.name_fr}</TableCell>
+                      <TableCell className="text-muted-foreground">{d.region || "—"}</TableCell>
+                      <TableCell>
+                        <div className="flex gap-1">
+                          {d.wikipedia_fr && <a href={d.wikipedia_fr} target="_blank" rel="noopener noreferrer" className="text-xs px-1.5 py-0.5 bg-primary/10 text-primary rounded hover:bg-primary/20 transition-colors">FR</a>}
+                          {d.wikipedia_en && <a href={d.wikipedia_en} target="_blank" rel="noopener noreferrer" className="text-xs px-1.5 py-0.5 bg-primary/10 text-primary rounded hover:bg-primary/20 transition-colors">EN</a>}
+                          {d.wikipedia_ar && <a href={d.wikipedia_ar} target="_blank" rel="noopener noreferrer" className="text-xs px-1.5 py-0.5 bg-primary/10 text-primary rounded hover:bg-primary/20 transition-colors">AR</a>}
+                          {!d.wikipedia_fr && !d.wikipedia_en && !d.wikipedia_ar && "—"}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground text-sm">
+                        {d.latitude && d.longitude ? `${d.latitude.toFixed(4)}, ${d.longitude.toFixed(4)}` : "—"}
+                      </TableCell>
+                      <TableCell>{d.sort_order ?? 0}</TableCell>
+                      <TableCell className="text-right">
+                        <Button size="sm" variant="ghost" onClick={() => openEditDestination(d)}>
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button size="sm" variant="ghost" onClick={() => handleDeleteDestination(d.id)}>
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </CardContent>
+        )}
+      </Card>
+
+      {/* Destination Form Page */}
+      {showDestinationForm && (
+        <div className="fixed inset-0 z-50 bg-background overflow-y-auto">
+          <div className="container max-w-4xl mx-auto py-6 px-4">
+            <div className="flex items-center justify-between mb-6 sticky top-0 bg-background py-4 border-b z-10">
+              <div className="flex items-center gap-4">
+                <Button variant="ghost" onClick={() => { resetDestinationForm(); setShowDestinationForm(false); }}>
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Retour
+                </Button>
+                <h2 className="text-xl font-bold">
+                  {editingDestination ? `Modifier: ${editingDestination.name_fr}` : "Nouvelle destination"}
+                </h2>
+              </div>
+              <Button onClick={handleSaveDestination} className="bg-gold hover:bg-gold/90">
+                <Save className="h-4 w-4 mr-2" />
+                Enregistrer
+              </Button>
+            </div>
+
+            <div className="space-y-6">
+              {/* Names */}
+              <Card>
+                <CardHeader><CardTitle className="text-lg">Informations</CardTitle></CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <Label>Nom (FR) *</Label>
+                      <Input value={destinationForm.name_fr} onChange={(e) => setDestinationForm({ ...destinationForm, name_fr: e.target.value })} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Nom (EN)</Label>
+                      <Input value={destinationForm.name_en} onChange={(e) => setDestinationForm({ ...destinationForm, name_en: e.target.value })} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Nom (AR)</Label>
+                      <Input value={destinationForm.name_ar} onChange={(e) => setDestinationForm({ ...destinationForm, name_ar: e.target.value })} dir="rtl" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Région</Label>
+                      <Input value={destinationForm.region} onChange={(e) => setDestinationForm({ ...destinationForm, region: e.target.value })} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Ordre d'affichage</Label>
+                      <Input type="number" value={destinationForm.sort_order} onChange={(e) => setDestinationForm({ ...destinationForm, sort_order: parseInt(e.target.value) || 0 })} />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Coordinates */}
+              <Card>
+                <CardHeader><CardTitle className="text-lg">Coordonnées GPS</CardTitle></CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Latitude</Label>
+                      <Input value={destinationForm.latitude} onChange={(e) => setDestinationForm({ ...destinationForm, latitude: e.target.value })} placeholder="31.6295" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Longitude</Label>
+                      <Input value={destinationForm.longitude} onChange={(e) => setDestinationForm({ ...destinationForm, longitude: e.target.value })} placeholder="-7.9811" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Wikipedia */}
+              <Card>
+                <CardHeader><CardTitle className="text-lg">Wikipedia</CardTitle></CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Wikipedia FR</Label>
+                    <Input value={destinationForm.wikipedia_fr} onChange={(e) => setDestinationForm({ ...destinationForm, wikipedia_fr: e.target.value })} placeholder="https://fr.wikipedia.org/wiki/..." />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Wikipedia EN</Label>
+                    <Input value={destinationForm.wikipedia_en} onChange={(e) => setDestinationForm({ ...destinationForm, wikipedia_en: e.target.value })} placeholder="https://en.wikipedia.org/wiki/..." />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Wikipedia AR</Label>
+                    <Input value={destinationForm.wikipedia_ar} onChange={(e) => setDestinationForm({ ...destinationForm, wikipedia_ar: e.target.value })} placeholder="https://ar.wikipedia.org/wiki/..." />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Description */}
+              <Card>
+                <CardHeader><CardTitle className="text-lg">Description</CardTitle></CardHeader>
+                <CardContent>
+                  <RichTextEditor
+                    content={destinationForm.description}
+                    onChange={(val) => setDestinationForm({ ...destinationForm, description: val })}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
+      )}
+
+
       {showCityForm && (
         <div className="fixed inset-0 z-50 bg-background overflow-y-auto">
           <div className="container max-w-4xl mx-auto py-6 px-4">

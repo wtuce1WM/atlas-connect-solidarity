@@ -717,6 +717,57 @@ export type Database = {
         }
         Relationships: []
       }
+      destinations: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          latitude: number | null
+          longitude: number | null
+          name_ar: string | null
+          name_en: string | null
+          name_fr: string
+          region: string | null
+          sort_order: number | null
+          updated_at: string | null
+          wikipedia_ar: string | null
+          wikipedia_en: string | null
+          wikipedia_fr: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          name_ar?: string | null
+          name_en?: string | null
+          name_fr: string
+          region?: string | null
+          sort_order?: number | null
+          updated_at?: string | null
+          wikipedia_ar?: string | null
+          wikipedia_en?: string | null
+          wikipedia_fr?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          name_ar?: string | null
+          name_en?: string | null
+          name_fr?: string
+          region?: string | null
+          sort_order?: number | null
+          updated_at?: string | null
+          wikipedia_ar?: string | null
+          wikipedia_en?: string | null
+          wikipedia_fr?: string | null
+        }
+        Relationships: []
+      }
       gamme_categories: {
         Row: {
           category_id: string
