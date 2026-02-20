@@ -1,5 +1,6 @@
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { useEffect, useState, useMemo } from "react";
+import { useGeolocation } from "@/hooks/useGeolocation";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
 import zitounMaskImg from "@/assets/zitoun-mask.jpg";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Building2, ChevronLeft, ChevronRight, Search, Mic, MicOff, Loader } from "lucide-react";
+import { Loader2, Building2, ChevronLeft, ChevronRight, Search, Mic, MicOff, Loader, MapPin, MapPinOff, X } from "lucide-react";
 import BusinessCard, { type BusinessCardData, type Gamme, type Badge, type SubcategoryRef, type BadgeSubcategoryRef } from "@/components/BusinessCard";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { useToast } from "@/hooks/use-toast";
@@ -235,6 +236,15 @@ const SearchPage = () => {
   const [celebrityBusinesses, setCelebrityBusinesses] = useState<Business[]>([]);
 
   const spokenText = searchParams.get("spoken") || "";
+
+  const geo = useGeolocation();
+
+  // Auto-select city when geolocation detects one
+  useEffect(() => {
+    if (geo.isEnabled && geo.detectedCity && selectedCity === "all") {
+      setSelectedCity(geo.detectedCity);
+    }
+  }, [geo.isEnabled, geo.detectedCity]);
 
   const { status: voiceStatus, toggleRecording } = useVoiceSearch({
     onTranscript: (keywords, spoken) => {
@@ -478,6 +488,35 @@ const SearchPage = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
+
+      {/* Geolocation consent banner */}
+      {geo.showBanner && (
+        <div className="fixed bottom-4 left-4 right-4 z-50 max-w-lg mx-auto bg-card border border-gold/30 rounded-2xl shadow-2xl p-4 animate-in slide-in-from-bottom-4">
+          <div className="flex items-start gap-3">
+            <MapPin className="h-5 w-5 text-gold shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm font-medium text-foreground">
+                {language === "en" ? "Use your location to see nearby results?" : language === "ar" ? "استخدم موقعك لعرض النتائج القريبة؟" : "Utiliser votre position pour affiner les résultats ?"}
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {language === "en" ? "You can change this anytime." : language === "ar" ? "يمكنك تغيير هذا في أي وقت." : "Vous pouvez changer ce choix à tout moment."}
+              </p>
+            </div>
+            <button onClick={geo.dismiss} className="text-muted-foreground hover:text-foreground">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+          <div className="flex gap-2 mt-3 justify-end">
+            <Button variant="ghost" size="sm" onClick={geo.decline} className="text-muted-foreground">
+              {language === "en" ? "No thanks" : language === "ar" ? "لا شكرا" : "Non merci"}
+            </Button>
+            <Button size="sm" onClick={geo.accept} className="bg-gold text-black hover:bg-gold/90">
+              <MapPin className="h-3.5 w-3.5 mr-1" />
+              {language === "en" ? "Enable" : language === "ar" ? "تفعيل" : "Activer"}
+            </Button>
+          </div>
+        </div>
+      )}
       
       {/* Hero Section */}
       <section className="bg-black pt-28 pb-8 lg:pb-16 relative overflow-hidden">
@@ -561,25 +600,55 @@ const SearchPage = () => {
       {/* Filters & Results */}
       <section className="py-6 lg:py-12 bg-black">
         <div className="container mx-auto px-4">
-          {/* Filters: City */}
-          {availableCities.length > 1 && (
-            <div className="mb-8 flex items-center gap-2">
-              <label className="text-sm text-gray-400">{t.filterByCity}:</label>
-              <Select value={selectedCity} onValueChange={handleCityChange}>
-                <SelectTrigger className="w-[220px] bg-card border-border">
-                  <SelectValue placeholder={t.allCities} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t.allCities}</SelectItem>
-                  {availableCities.map((city) => (
-                    <SelectItem key={city} value={city}>
-                      {city}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
+          {/* Filters: City + Geo toggle */}
+          <div className="mb-8 flex flex-wrap items-center gap-3">
+            {/* Geo toggle */}
+            <button
+              onClick={geo.toggle}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                geo.isEnabled
+                  ? "bg-gold/20 text-gold border border-gold/40"
+                  : "bg-card text-muted-foreground border border-border hover:border-gold/30"
+              }`}
+              title={geo.isEnabled ? "Désactiver la géolocalisation" : "Activer la géolocalisation"}
+            >
+              {geo.isDetecting ? (
+                <Loader className="h-3.5 w-3.5 animate-spin" />
+              ) : geo.isEnabled ? (
+                <MapPin className="h-3.5 w-3.5" />
+              ) : (
+                <MapPinOff className="h-3.5 w-3.5" />
+              )}
+              {geo.isDetecting
+                ? (language === "en" ? "Detecting..." : "Détection...")
+                : geo.isEnabled && geo.detectedCity
+                ? `📍 ${geo.detectedCity}`
+                : geo.isEnabled
+                ? (language === "en" ? "No city nearby" : "Aucune ville proche")
+                : (language === "en" ? "Location off" : "Position désactivée")
+              }
+            </button>
+
+            {/* City filter dropdown */}
+            {availableCities.length > 1 && (
+              <>
+                <label className="text-sm text-muted-foreground">{t.filterByCity}:</label>
+                <Select value={selectedCity} onValueChange={handleCityChange}>
+                  <SelectTrigger className="w-[220px] bg-card border-border">
+                    <SelectValue placeholder={t.allCities} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{t.allCities}</SelectItem>
+                    {availableCities.map((city) => (
+                      <SelectItem key={city} value={city}>
+                        {city}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </>
+            )}
+          </div>
 
           {/* Easter egg: Zitoun Mask/Musk */}
           {showZitounEasterEgg && (
@@ -803,7 +872,6 @@ const SearchPage = () => {
         </div>
       </section>
 
-      
       <Footer />
     </div>
   );
