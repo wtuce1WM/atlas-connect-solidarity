@@ -47,6 +47,10 @@ interface Business {
   google_maps_url: string | null;
   rating: number | null;
   gamme_id: string | null;
+  badge_id: string | null;
+  hook_fr: string | null;
+  hook_en: string | null;
+  hook_ar: string | null;
   google_rating?: number | null;
   tripadvisor_rating?: number | null;
   restaurant_guru_rating?: number | null;
@@ -396,27 +400,79 @@ const SearchPage = () => {
       });
   }, []);
 
+  // Build rich TTS description for a business
+  const buildBusinessTTSLine = useCallback((b: Business, index: number) => {
+    const parts: string[] = [b.name];
+
+    // Verified status
+    if (b.wtuce_status === "verified") {
+      parts.push("vérifié WTUCE");
+    }
+
+    // Gamme
+    if (b.gamme_id) {
+      const gamme = gammes.find(g => g.id === b.gamme_id);
+      if (gamme) parts.push(`gamme ${gamme.name_fr}`);
+    }
+
+    // Badge
+    if (b.badge_id) {
+      const badge = badges.find(bd => bd.id === b.badge_id);
+      if (badge) parts.push(badge.name_fr);
+    }
+
+    // Rating
+    const ratingOn20 = computeWeightedRatingOn20(collectRatingSources(b));
+    if (ratingOn20 !== null) {
+      parts.push(`noté ${ratingOn20.toFixed(1).replace('.', ',')} sur 20`);
+    }
+
+    // Distance (if geo enabled)
+    if (geo.isEnabled && geo.coords && b.latitude && b.longitude) {
+      const R = 6371;
+      const dLat = (b.latitude - geo.coords.lat) * Math.PI / 180;
+      const dLon = (b.longitude - geo.coords.lng) * Math.PI / 180;
+      const a = Math.sin(dLat/2)**2 + Math.cos(geo.coords.lat * Math.PI / 180) * Math.cos(b.latitude * Math.PI / 180) * Math.sin(dLon/2)**2;
+      const dist = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      if (dist < 1) {
+        parts.push(`à ${Math.round(dist * 1000)} mètres de vous`);
+      } else {
+        parts.push(`à ${dist.toFixed(1).replace('.', ',')} kilomètres de vous`);
+      }
+    }
+
+    // Hook (custom phrase from DB)
+    const hook = language === 'ar' ? (b.hook_ar || b.hook_fr) : language === 'en' ? (b.hook_en || b.hook_fr) : b.hook_fr;
+    if (hook) {
+      parts.push(hook);
+    }
+
+    return parts.join(", ");
+  }, [gammes, badges, geo.isEnabled, geo.coords, language]);
+
   // Auto-speak results summary after voice search
   useEffect(() => {
     if (!isLoading && isVoiceSearchRef.current && allBusinesses.length > 0) {
       isVoiceSearchRef.current = false;
       const count = allBusinesses.length;
-      const topNames = allBusinesses.slice(0, 3).map(b => b.name);
       const cityText = selectedCity !== "all" ? ` à ${selectedCity}` : "";
       let speech = `J'ai trouvé ${count} résultat${count > 1 ? 's' : ''}${cityText}. `;
-      if (topNames.length === 1) {
-        speech += `Le meilleur résultat est ${topNames[0]}.`;
-      } else if (topNames.length === 2) {
-        speech += `Les meilleurs résultats sont ${topNames[0]} et ${topNames[1]}.`;
+
+      const top = allBusinesses.slice(0, 3);
+      if (top.length === 1) {
+        speech += `Le meilleur résultat est ${buildBusinessTTSLine(top[0], 0)}.`;
       } else {
-        speech += `Les meilleurs résultats sont ${topNames[0]}, ${topNames[1]} et ${topNames[2]}.`;
+        speech += "Voici les meilleurs résultats. ";
+        top.forEach((b, i) => {
+          speech += `${i === 0 ? 'Premier' : i === 1 ? 'Deuxième' : 'Troisième'}, ${buildBusinessTTSLine(b, i)}. `;
+        });
       }
       ttsSpeak(speech);
     } else if (!isLoading && isVoiceSearchRef.current && allBusinesses.length === 0 && spokenText) {
       isVoiceSearchRef.current = false;
       ttsSpeak("Désolé, je n'ai trouvé aucun résultat pour votre recherche.");
     }
-  }, [isLoading, allBusinesses]);
+  }, [isLoading, allBusinesses, buildBusinessTTSLine]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
