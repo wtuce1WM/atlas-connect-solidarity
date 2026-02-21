@@ -616,9 +616,17 @@ const SearchPage = () => {
           style={{ background: 'transparent' }}
         >
           <div
-            className={`w-full h-[50vh] bg-black/30 backdrop-blur-lg flex flex-col items-center justify-center px-6 text-center transition-transform duration-400 ease-in-out ${overlayDismissing ? 'translate-y-full' : 'translate-y-0'}`}
+            className={`relative w-full h-[50vh] bg-black/30 backdrop-blur-lg flex flex-col items-center justify-center px-6 text-center transition-transform duration-400 ease-in-out ${overlayDismissing ? 'translate-y-full' : 'translate-y-0'}`}
             style={{ animation: overlayDismissing ? undefined : 'slideInFromBottom 0.4s ease-out' }}
           >
+            {/* Close button */}
+            <button
+              onClick={dismissOverlay}
+              className="absolute top-3 right-3 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+              aria-label="Fermer"
+            >
+              <X className="h-5 w-5" />
+            </button>
             <p className="text-white/60 text-sm mb-2">
               {language === "en" ? "Search results for" : language === "ar" ? "نتائج البحث عن" : "Résultats de recherche pour"}
             </p>
