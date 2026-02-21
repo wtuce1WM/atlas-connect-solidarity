@@ -124,6 +124,10 @@ const HeroSection = () => {
           className="object-contain w-1/2 max-w-xs"
         />
 
+        <p className="text-sm md:text-base text-gold/80 font-medium tracking-wide text-center -mt-4">
+          {language === "ar" ? "أول منصة تجارة إلكترونية تضامنية في المغرب" : language === "en" ? "1st solidarity e-commerce platform in Morocco" : "1ère plateforme de e-commerce solidaire au Maroc"}
+        </p>
+
 
         {/* Titre dynamique selon l'onglet */}
         <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white text-center max-w-4xl min-h-[4.5rem] md:min-h-[3rem]">
