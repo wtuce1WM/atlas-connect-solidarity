@@ -113,6 +113,18 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
     return code.toUpperCase().replace(/./g, (c) => String.fromCodePoint(0x1F1E6 - 65 + c.charCodeAt(0)));
   };
 
+  const priorityCountries = ["Maroc", "France"];
+  const sortedCountries = [...countries].sort((a, b) => {
+    const aName = getCountryName(a);
+    const bName = getCountryName(b);
+    const aIdx = priorityCountries.indexOf(a.name_fr);
+    const bIdx = priorityCountries.indexOf(b.name_fr);
+    if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
+    if (aIdx !== -1) return -1;
+    if (bIdx !== -1) return 1;
+    return aName.localeCompare(bName);
+  });
+
   const getCountryName = (c: typeof countries[0]) => {
     if (language === "en" && c.name_en) return c.name_en;
     if (language === "ar" && c.name_ar) return c.name_ar;
@@ -261,7 +273,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
               </SelectTrigger>
               <SelectContent className="bg-background z-50">
                 <SelectItem value="__none__">—</SelectItem>
-                {countries.map((c) => {
+                {sortedCountries.map((c) => {
                   const flag = countryFlag(c.code);
                   const name = getCountryName(c);
                   return (
