@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { LogOut, Plus, Search, Edit, Trash2, Eye, EyeOff, Building2, Users, Folder, MapPin, Copy, Star, UserCheck, Award, Gem, AlertTriangle, LayoutDashboard, Crown, CheckCircle } from "lucide-react";
@@ -37,6 +38,7 @@ const StaffBackoffice = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [cityFilter, setCityFilter] = useState<string>("all");
+  const [affiliateFilter, setAffiliateFilter] = useState<string | null>(null);
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [subcategoryFilter, setSubcategoryFilter] = useState<string>("all");
   const [subcategories, setSubcategories] = useState<{ id: string; name_fr: string }[]>([]);
@@ -229,7 +231,8 @@ const StaffBackoffice = () => {
     const matchesCity = cityFilter === "all" || business.city === cityFilter;
     const matchesCategory = categoryFilter === "all" || business.main_category === categoryFilter;
     const matchesSubcategory = subcategoryFilter === "all" || (business.categories?.includes(subcategoryFilter));
-    return matchesSearch && matchesCity && matchesCategory && matchesSubcategory;
+    const matchesAffiliate = !affiliateFilter || business.affiliate_id === affiliateFilter;
+    return matchesSearch && matchesCity && matchesCategory && matchesSubcategory && matchesAffiliate;
   }).sort((a, b) => new Date(b[sortBy]).getTime() - new Date(a[sortBy]).getTime());
 
   // Pagination
@@ -497,6 +500,22 @@ const StaffBackoffice = () => {
                 </Button>
               </div>
 
+              {/* Affiliate filter badge */}
+              {affiliateFilter && (
+                <div className="flex items-center gap-2">
+                  <Badge variant="secondary" className="gap-1 py-1 px-3">
+                    <UserCheck className="h-3 w-3" />
+                    Filtre affilié actif
+                    <button 
+                      onClick={() => setAffiliateFilter(null)}
+                      className="ml-1 hover:text-destructive"
+                    >
+                      ✕
+                    </button>
+                  </Badge>
+                </div>
+              )}
+
               {/* Table */}
               <BusinessTable
                 businesses={paginatedBusinesses}
@@ -604,7 +623,12 @@ const StaffBackoffice = () => {
             </TabsContent>
 
             <TabsContent value="affiliates">
-              <AffiliateManagement />
+              <AffiliateManagement 
+                onViewAffiliateBusinesses={(affiliateId) => {
+                  setAffiliateFilter(affiliateId);
+                  setActiveTab("businesses");
+                }}
+              />
             </TabsContent>
 
             {isAdmin && (
