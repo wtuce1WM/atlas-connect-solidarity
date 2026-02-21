@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import AffiliateBusinessesEditor from "./AffiliateBusinessesEditor";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -73,6 +74,7 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
   const [showPassword, setShowPassword] = useState(false);
   const [accountLoading, setAccountLoading] = useState(false);
   const [editingAffiliate, setEditingAffiliate] = useState<Affiliate | null>(null);
+  const [editingBusinessesAffiliate, setEditingBusinessesAffiliate] = useState<Affiliate | null>(null);
   const [saving, setSaving] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -375,6 +377,15 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
   };
 
   const activeCount = affiliates.filter(a => a.is_active).length;
+
+  if (editingBusinessesAffiliate) {
+    return (
+      <AffiliateBusinessesEditor
+        affiliate={editingBusinessesAffiliate}
+        onBack={() => setEditingBusinessesAffiliate(null)}
+      />
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -811,7 +822,7 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => onViewAffiliateBusinesses?.(affiliate.id)}
+                          onClick={() => setEditingBusinessesAffiliate(affiliate)}
                           title="Voir les entreprises de cet affilié"
                           className="h-8 w-8"
                         >
