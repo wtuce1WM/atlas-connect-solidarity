@@ -17,6 +17,7 @@ import GoogleMapEmbed from "@/components/GoogleMapEmbed";
 import ImageLightbox from "@/components/ImageLightbox";
 import RelatedEstablishments from "@/components/RelatedEstablishments";
 import ShareButton from "@/components/ShareButton";
+import BookmarkButton from "@/components/BookmarkButton";
 import ServiceListItem from "@/components/ServiceListItem";
 import { useValidatedImages, useValidatedUrl } from "@/hooks/useValidatedImages";
 import logoGold from "@/assets/logoGOLDsimple.webp";
@@ -330,7 +331,10 @@ const BusinessDetail = () => {
               <h1 className={`text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight ${isVerified ? "text-white" : "text-foreground"}`} style={{ fontFamily: "'Raleway', sans-serif" }}>
                 {business.name}
               </h1>
-              <ShareButton title={business.name} variant={isVerified ? "gold" : "dark"} />
+              <div className="flex items-center gap-2">
+                <BookmarkButton businessId={business.id} variant={isVerified ? "gold" : "dark"} />
+                <ShareButton title={business.name} variant={isVerified ? "gold" : "dark"} />
+              </div>
             </div>
             {/* Labels - desktop only */}
             {businessLabels.length > 0 && (
