@@ -14,6 +14,7 @@ import UserManagement from "@/components/staff/UserManagement";
 import CategoryManagement from "@/components/staff/CategoryManagement";
 import LocationManagement from "@/components/staff/LocationManagement";
 import SponsorManagement from "@/components/staff/SponsorManagement";
+import GuestManagement from "@/components/staff/GuestManagement";
 import AffiliateManagement from "@/components/staff/AffiliateManagement";
 import LabelManagement from "@/components/staff/LabelManagement";
 import GammeManagement from "@/components/staff/GammeManagement";
@@ -321,6 +322,10 @@ const StaffBackoffice = () => {
                 <Star className="h-4 w-4" />
                 Sponsors
               </TabsTrigger>
+              <TabsTrigger value="guests" className="gap-2">
+                <Users className="h-4 w-4" />
+                Invités
+              </TabsTrigger>
               <TabsTrigger value="affiliates" className="gap-2">
                 <UserCheck className="h-4 w-4" />
                 Affiliés
@@ -592,6 +597,10 @@ const StaffBackoffice = () => {
 
             <TabsContent value="sponsors">
               <SponsorManagement />
+            </TabsContent>
+
+            <TabsContent value="guests">
+              <GuestManagement />
             </TabsContent>
 
             <TabsContent value="affiliates">
