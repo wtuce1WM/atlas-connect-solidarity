@@ -18,32 +18,32 @@ const FloatingWhatsAppButton = () => {
   const t = {
     fr: {
       whatsapp: "WhatsApp",
-      title: "Contactez-nous",
-      subtitle: "sur WhatsApp",
+      title: "Bonjour 👋",
+      subtitle: "L'équipe One World Morocco est là pour vous aider, contactez-nous sur WhatsApp.",
       desc: "Une question ? Besoin d'aide pour trouver un établissement ? Écrivez-nous directement sur WhatsApp.",
       chatBtn: "Démarrer le chat",
       defaultMsg: "Bonjour, j'ai une question concernant One World Morocco.",
     },
     en: {
       whatsapp: "WhatsApp",
-      title: "Contact us",
-      subtitle: "on WhatsApp",
+      title: "Hello 👋",
+      subtitle: "The One World Morocco team is here to help, contact us on WhatsApp.",
       desc: "Have a question? Need help finding a place? Write to us directly on WhatsApp.",
       chatBtn: "Start chat",
       defaultMsg: "Hello, I have a question about One World Morocco.",
     },
     ar: {
       whatsapp: "واتساب",
-      title: "تواصل معنا",
-      subtitle: "على واتساب",
+      title: "مرحباً 👋",
+      subtitle: "فريق One World Morocco هنا لمساعدتك، تواصل معنا عبر واتساب.",
       desc: "لديك سؤال؟ تحتاج مساعدة للعثور على مؤسسة؟ راسلنا مباشرة على واتساب.",
       chatBtn: "بدء المحادثة",
       defaultMsg: "مرحباً، لدي سؤال حول One World Morocco.",
     },
   }[language] || {
     whatsapp: "WhatsApp",
-    title: "Contactez-nous",
-    subtitle: "sur WhatsApp",
+    title: "Bonjour 👋",
+    subtitle: "L'équipe One World Morocco est là pour vous aider, contactez-nous sur WhatsApp.",
     desc: "Une question ? Besoin d'aide pour trouver un établissement ? Écrivez-nous directement sur WhatsApp.",
     chatBtn: "Démarrer le chat",
     defaultMsg: "Bonjour, j'ai une question concernant One World Morocco.",
@@ -91,8 +91,8 @@ const FloatingWhatsAppButton = () => {
             >
               <X className="h-5 w-5 pointer-events-none" />
             </button>
-            <p className="text-sm opacity-90">{t.title}</p>
-            <h2 className="text-2xl font-bold mt-1 !font-sans !not-italic">{t.subtitle}</h2>
+            <h2 className="text-2xl font-bold !font-sans !not-italic">{t.title}</h2>
+            <p className="text-sm mt-2 opacity-90 leading-relaxed">{t.subtitle}</p>
           </div>
 
           {/* Body */}
