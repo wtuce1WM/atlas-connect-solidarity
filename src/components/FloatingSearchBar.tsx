@@ -119,10 +119,10 @@ const FloatingSearchBar = () => {
           <div className="flex items-center justify-center gap-2">
             <button
               type="submit"
-              className="flex items-center justify-center gap-2 rounded-full px-5 py-3 text-white font-semibold text-sm shadow-lg h-[48px]"
+              className="flex items-center justify-center rounded-full px-4 py-3 text-white font-semibold text-sm shadow-lg h-[48px]"
               style={{ backgroundColor: "#25D366" }}
             >
-              {buttonLabel}
+              <Search className="h-5 w-5" />
             </button>
             <button
               type="button"
