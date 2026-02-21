@@ -134,7 +134,7 @@ const Club = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.nickname.trim()) return;
+    if (!form.nickname.trim() || !form.email.trim()) return;
 
     setIsSubmitting(true);
     try {
@@ -231,8 +231,10 @@ const Club = () => {
                 </div>
 
                 <div>
-                  <label className="text-sm text-muted-foreground mb-1 block">{t.emailLabel}</label>
-                  <Input type="email" value={form.email} onChange={handleChange("email")} />
+                  <label className="text-sm text-foreground font-semibold mb-1 block">
+                    {t.emailLabel} <span className="text-red-500">*</span>
+                  </label>
+                  <Input type="email" value={form.email} onChange={handleChange("email")} required />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -254,7 +256,7 @@ const Club = () => {
                 <p className="text-xs text-muted-foreground mb-2">{t.required}</p>
                 <Button
                   type="submit"
-                  disabled={isSubmitting || !form.nickname.trim()}
+                  disabled={isSubmitting || !form.nickname.trim() || !form.email.trim()}
                   className="w-full bg-gold text-black hover:bg-gold/90 font-semibold py-6 text-base"
                 >
                   {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : <Crown className="h-5 w-5 mr-2" />}
