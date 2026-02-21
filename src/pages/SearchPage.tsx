@@ -3,6 +3,7 @@ import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
+import { extractTimeSlot, isOpenDuringSlot, type TimeSlot } from "@/lib/timeSlots";
 import zitounMaskImg from "@/assets/zitoun-mask.jpg";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -18,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Building2, ChevronLeft, ChevronRight, Search, Mic, MicOff, Loader, MapPin, MapPinOff, X, Volume2, VolumeX } from "lucide-react";
+import { Loader2, Building2, ChevronLeft, ChevronRight, Search, Mic, MicOff, Loader, MapPin, MapPinOff, X, Volume2, VolumeX, Clock } from "lucide-react";
 import BusinessCard, { type BusinessCardData, type Gamme, type Badge, type SubcategoryRef, type BadgeSubcategoryRef } from "@/components/BusinessCard";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
@@ -59,6 +60,9 @@ interface Business {
   google_review_count?: number | null;
   tripadvisor_review_count?: number | null;
   restaurant_guru_review_count?: number | null;
+  opening_hours?: Record<string, { open?: string; close?: string; closed?: boolean; continuous?: boolean }> | null;
+  is_open_24h?: boolean | null;
+  vacation_dates?: unknown;
 }
 
 interface SearchResult {
@@ -248,6 +252,20 @@ const SearchPage = () => {
   const [celebrityBusinesses, setCelebrityBusinesses] = useState<Business[]>([]);
   const [ttsIntroPhrase, setTtsIntroPhrase] = useState<string>("");
 
+  // Parse time slot from URL params (set by HeroSection or FloatingSearchBar)
+  const activeTimeSlot: TimeSlot | null = useMemo(() => {
+    const timeStart = searchParams.get("timeStart");
+    const timeEnd = searchParams.get("timeEnd");
+    if (timeStart === null || timeEnd === null) return null;
+    return {
+      startHour: parseInt(timeStart),
+      endHour: parseInt(timeEnd),
+      dayOffset: parseInt(searchParams.get("timeDayOffset") || "0"),
+      dayOfWeek: searchParams.get("timeDayOfWeek") ? parseInt(searchParams.get("timeDayOfWeek")!) : null,
+      matchedKeyword: "",
+    };
+  }, [searchParams]);
+
   const spokenText = searchParams.get("spoken") || "";
   const isVoiceSearchRef = useRef(false);
   const [showResultsOverlay, setShowResultsOverlay] = useState(false);
@@ -293,15 +311,33 @@ const SearchPage = () => {
     return computeWeightedRatingOn20(collectRatingSources(b));
   };
 
-  // Filter businesses by city, then sort by rating (highest first)
+  // Filter businesses by city, then boost by time slot, then sort by rating
   const filteredBusinesses = useMemo(() => {
     const filtered = selectedCity === "all" ? allBusinesses : allBusinesses.filter(b => b.city === selectedCity);
+    
+    if (activeTimeSlot) {
+      // Separate into "open during slot" and "rest"
+      const openDuring: Business[] = [];
+      const rest: Business[] = [];
+      for (const b of filtered) {
+        const vacDates = Array.isArray(b.vacation_dates) ? b.vacation_dates as Array<{ start_date: string; end_date: string }> : null;
+        if (isOpenDuringSlot(b.opening_hours || null, !!b.is_open_24h, activeTimeSlot, vacDates)) {
+          openDuring.push(b);
+        } else {
+          rest.push(b);
+        }
+      }
+      // Sort each group by rating, then concat (open first)
+      const sortByRating = (a: Business, b: Business) => (getEffectiveRating(b) ?? -1) - (getEffectiveRating(a) ?? -1);
+      return [...openDuring.sort(sortByRating), ...rest.sort(sortByRating)];
+    }
+    
     return [...filtered].sort((a, b) => {
       const ratingA = getEffectiveRating(a) ?? -1;
       const ratingB = getEffectiveRating(b) ?? -1;
       return ratingB - ratingA;
     });
-  }, [allBusinesses, selectedCity]);
+  }, [allBusinesses, selectedCity, activeTimeSlot]);
 
   // Paginate
   const totalPages = Math.ceil(filteredBusinesses.length / ITEMS_PER_PAGE);
@@ -884,6 +920,21 @@ const SearchPage = () => {
               </>
             )}
           </div>
+
+          {/* Time slot indicator */}
+          {activeTimeSlot && (
+            <div className="mb-4 flex items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gold/20 border border-gold/40 text-gold text-xs font-medium">
+                <Clock className="h-3.5 w-3.5" />
+                {language === "en"
+                  ? `Showing places open ${activeTimeSlot.startHour}h–${activeTimeSlot.endHour}h first`
+                  : language === "ar"
+                    ? `عرض الأماكن المفتوحة ${activeTimeSlot.startHour}h–${activeTimeSlot.endHour}h أولاً`
+                    : `Établissements ouverts ${activeTimeSlot.startHour}h–${activeTimeSlot.endHour}h en priorité`}
+              </span>
+            </div>
+          )}
+
           {/* Mobile-only result count */}
           {isMobile && filteredBusinesses.length > 0 && (
             <p className="mb-4 text-sm text-muted-foreground">

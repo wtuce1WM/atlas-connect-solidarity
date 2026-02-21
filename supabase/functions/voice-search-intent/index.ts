@@ -87,14 +87,16 @@ Règles de traduction sémantique OBLIGATOIRES :
 
 Autres règles :
 - Supprimer les verbes d'intention après traduction (chercher, trouver, vouloir, pouvoir, louer, réserver, visiter, acheter...)
-- Supprimer les références temporelles (semaine, mois, jour, avril, été, hiver, week-end, nuit, soir...)
+- Supprimer les références temporelles (semaine, mois, jour, avril, été, hiver, week-end...)
+- IMPORTANT : NE PAS supprimer les mots temporels suivants, les inclure dans un champ "timeKeyword" : matin, midi, déjeuner, dîner, diner, soir, soirée, nuit, maintenant, ouvert, petit-déjeuner, brunch, apéro, goûter, après-midi, demain, ce soir, tonight, now, open, morning, evening, afternoon, lunch, dinner, breakfast
 - Supprimer les articles, pronoms, prépositions
 - Supprimer les adjectifs vagues (beau, bon, meilleur, original...)
 - Supprimer "Maroc", "au Maroc", "marocain" car l'annuaire est déjà au Maroc — inutile comme filtre
 - Garder : noms de villes (Marrakech, Essaouira, Agadir...), quartiers, types d'établissements traduits, produits, NOMS PROPRES (personnes célèbres, lieux historiques)
 - Ne JAMAIS ajouter "boutique" comme mot-clé — ce mot est trop générique et fait remonter des hôtels. Utiliser plutôt le type de produit spécifique.
 - 2 à 5 mots maximum pour les mots-clés
-- Répondre UNIQUEMENT en JSON avec le format : {"keywords": "mots clés ici", "category": "Catégorie"} ou {"keywords": "mots clés ici"} si pas de catégorie claire
+- Répondre UNIQUEMENT en JSON avec le format : {"keywords": "mots clés ici", "category": "Catégorie", "timeKeyword": "midi"} ou {"keywords": "mots clés ici"} si pas de catégorie/temps clair
+- Le champ "timeKeyword" doit contenir le mot temporel détecté en français (midi, soir, matin, nuit, maintenant, demain matin, demain soir, brunch, etc.) ou être omis si aucun
 
 Exemples :
 "trouve un plombier à Marrakech" → {"keywords": "plombier Marrakech"}
@@ -117,8 +119,12 @@ Exemples :
 "je cherche un endroit pour faire la fête à Marrakech" → {"keywords": "bar boîte nuit soirée Marrakech", "category": "Tourisme"}
 "je voudrais voir une fantasia" → {"keywords": "fantasia", "category": "Tourisme"}
 "je cherche un dîner spectacle à Marrakech" → {"keywords": "live show Marrakech", "category": "Restauration"}
-"je voudrais manger français à Marrakech ce soir" → {"keywords": "cuisine française Marrakech", "category": "Restauration"}
-"je veux manger italien à Essaouira" → {"keywords": "cuisine italienne Essaouira", "category": "Restauration"}`;
+"je voudrais manger français à Marrakech ce soir" → {"keywords": "cuisine française Marrakech", "category": "Restauration", "timeKeyword": "soir"}
+"je veux manger italien à Essaouira" → {"keywords": "cuisine italienne Essaouira", "category": "Restauration"}
+"un restaurant ouvert maintenant" → {"keywords": "restaurant", "category": "Restauration", "timeKeyword": "maintenant"}
+"où manger à midi à Marrakech" → {"keywords": "restaurant Marrakech", "category": "Restauration", "timeKeyword": "midi"}
+"un bon brunch demain" → {"keywords": "brunch", "category": "Restauration", "timeKeyword": "brunch"}
+"petit déjeuner à Essaouira" → {"keywords": "petit-déjeuner Essaouira", "category": "Restauration", "timeKeyword": "petit-déjeuner"}`;
 
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -153,19 +159,21 @@ Exemples :
     // Parse JSON response from LLM
     let query = transcript;
     let category = "";
+    let timeKeyword = "";
     try {
       // Try to parse as JSON first
       const parsed = JSON.parse(rawContent.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim());
       query = parsed.keywords || rawContent;
       category = parsed.category || "";
+      timeKeyword = parsed.timeKeyword || "";
     } catch {
       // Fallback: treat as plain text keywords (backward compat)
       query = rawContent || transcript;
     }
 
-    console.log(`Voice intent: "${transcript}" → keywords="${query}", category="${category}"`);
+    console.log(`Voice intent: "${transcript}" → keywords="${query}", category="${category}", timeKeyword="${timeKeyword}"`);
 
-    return new Response(JSON.stringify({ query, category }), {
+    return new Response(JSON.stringify({ query, category, timeKeyword }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {

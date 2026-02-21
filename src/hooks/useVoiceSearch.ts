@@ -3,7 +3,7 @@ import { useState, useRef, useCallback, useEffect } from "react";
 type VoiceStatus = "idle" | "recording" | "processing" | "error";
 
 interface UseVoiceSearchOptions {
-  onTranscript: (keywords: string, spokenText: string, category?: string) => void;
+  onTranscript: (keywords: string, spokenText: string, category?: string, timeKeyword?: string) => void;
   onError?: (message: string) => void;
   lang?: string;
 }
@@ -43,7 +43,7 @@ declare global {
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
-async function extractSearchIntent(transcript: string): Promise<{ query: string; category: string }> {
+async function extractSearchIntent(transcript: string): Promise<{ query: string; category: string; timeKeyword: string }> {
   try {
     const response = await fetch(`${SUPABASE_URL}/functions/v1/voice-search-intent`, {
       method: "POST",
@@ -61,10 +61,11 @@ async function extractSearchIntent(transcript: string): Promise<{ query: string;
     return {
       query: data.query?.trim() || transcript,
       category: data.category?.trim() || "",
+      timeKeyword: data.timeKeyword?.trim() || "",
     };
   } catch (err) {
     console.warn("LLM intent extraction failed, using raw transcript:", err);
-    return { query: transcript, category: "" };
+    return { query: transcript, category: "", timeKeyword: "" };
   }
 }
 
@@ -96,10 +97,10 @@ export function useVoiceSearch({ onTranscript, onError, lang = "fr-FR" }: UseVoi
       return;
     }
     setStatus("processing");
-    const { query: keywords, category } = await extractSearchIntent(transcript);
+    const { query: keywords, category, timeKeyword } = await extractSearchIntent(transcript);
     setStatus("idle");
     if (keywords) {
-      onTranscriptRef.current(keywords, transcript, category || undefined);
+      onTranscriptRef.current(keywords, transcript, category || undefined, timeKeyword || undefined);
     } else {
       onErrorRef.current?.("Aucun texte détecté, réessayez.");
     }
