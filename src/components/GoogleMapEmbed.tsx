@@ -11,12 +11,16 @@ interface GoogleMapEmbedProps {
   googleMapsUrl?: string | null;
 }
 
+const extractPlaceNameFromMapsUrl = (url: string): string | null => {
+  const placeMatch = url.match(/\/place\/([^/@]+)/);
+  if (placeMatch) return decodeURIComponent(placeMatch[1].replace(/\+/g, ' '));
+  return null;
+};
+
 const extractMarkerCoordsFromMapsUrl = (url: string): { lat: number; lng: number } | null => {
   // !8m2!3d{lat}!4d{lng} = actual pin coordinates in GMB data block
-  // This avoids false matches on !3m, !4m, !4b segments that precede the real coords
   const dataBlockMatch = url.match(/!8m2!3d(-?\d+\.?\d+)!4d(-?\d+\.?\d+)/);
   if (dataBlockMatch) return { lat: parseFloat(dataBlockMatch[1]), lng: parseFloat(dataBlockMatch[2]) };
-  // Fallback: last occurrence of !3d...!4d pattern (most specific coordinates)
   const allMatches = [...url.matchAll(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/g)];
   if (allMatches.length > 0) {
     const last = allMatches[allMatches.length - 1];
@@ -29,6 +33,7 @@ const GoogleMapEmbed = ({ address, businessName, latitude, longitude, googleMaps
   const [activeView, setActiveView] = useState<"map" | "streetview">("map");
 
   const markerCoords = googleMapsUrl ? extractMarkerCoordsFromMapsUrl(googleMapsUrl) : null;
+  const placeName = googleMapsUrl ? extractPlaceNameFromMapsUrl(googleMapsUrl) : null;
 
   // Priority: !3d!4d coords from URL > explicit GPS > fallback defaults
   const resolvedLat = markerCoords?.lat ?? latitude ?? null;
@@ -37,11 +42,14 @@ const GoogleMapEmbed = ({ address, businessName, latitude, longitude, googleMaps
   const encodedAddress = encodeURIComponent(`${businessName}, ${address}`);
 
   // Priority for embed query:
-  // 1. Exact coordinates when available (from URL extraction or explicit GPS)
-  // 2. Name + address text search as fallback
-  const mapQuery = resolvedLat && resolvedLng
-    ? `${resolvedLat},${resolvedLng}`
-    : encodeURIComponent(`${businessName}, ${address}`);
+  // 1. Place name from Google Maps URL (finds GMB listing → labeled marker)
+  // 2. Coordinates (exact pin, no label)
+  // 3. Business name + address text search as fallback
+  const mapQuery = placeName
+    ? encodeURIComponent(placeName)
+    : resolvedLat && resolvedLng
+      ? `${resolvedLat},${resolvedLng}`
+      : encodeURIComponent(`${businessName}, ${address}`);
   const mapEmbedUrl = `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${mapQuery}&zoom=16`;
   const streetViewEmbedUrl = `https://www.google.com/maps/embed/v1/streetview?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&location=${resolvedLat || 31.6295},${resolvedLng || -7.9811}&heading=0&pitch=0&fov=90`;
 
