@@ -309,7 +309,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
         <Button
           onClick={handleSave}
           disabled={isSaving || !form.nickname.trim()}
-          className="w-full bg-gold text-black hover:bg-gold/90 font-semibold py-6 text-base"
+          className="w-full bg-[#25D366] text-white hover:bg-[#20bd5a] font-semibold py-6 text-base"
         >
           {isSaving ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : <Save className="h-5 w-5 mr-2" />}
           {t.save}
