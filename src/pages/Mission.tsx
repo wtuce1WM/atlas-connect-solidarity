@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import ShareButton from "@/components/ShareButton";
 
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -12,9 +13,12 @@ const Mission = () => {
       
       <main className="container mx-auto px-4 pt-32 pb-16">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
-            One World Morocco : L'Excellence Éthique au Meilleur Prix
-          </h1>
+          <div className="flex items-start gap-3 mb-4">
+            <h1 className="text-4xl md:text-5xl font-bold text-foreground">
+              One World Morocco : L'Excellence Éthique au Meilleur Prix
+            </h1>
+            <ShareButton variant="dark" className="mt-2 shrink-0" />
+          </div>
           
           <p className="text-xl text-primary font-semibold mb-4">
             Bien plus qu'une plateforme, un nouveau paradigme de consommation solidaire.

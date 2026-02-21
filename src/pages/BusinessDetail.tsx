@@ -16,6 +16,7 @@ import Footer from "@/components/Footer";
 import GoogleMapEmbed from "@/components/GoogleMapEmbed";
 import ImageLightbox from "@/components/ImageLightbox";
 import RelatedEstablishments from "@/components/RelatedEstablishments";
+import ShareButton from "@/components/ShareButton";
 import ServiceListItem from "@/components/ServiceListItem";
 import { useValidatedImages, useValidatedUrl } from "@/hooks/useValidatedImages";
 import logoGold from "@/assets/logoGOLDsimple.webp";
@@ -325,10 +326,11 @@ const BusinessDetail = () => {
         <div className="mb-6">
           {/* Title row with labels */}
           <div className="flex items-center gap-4 flex-wrap">
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 flex items-center gap-3">
               <h1 className={`text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight ${isVerified ? "text-white" : "text-foreground"}`} style={{ fontFamily: "'Raleway', sans-serif" }}>
                 {business.name}
               </h1>
+              <ShareButton title={business.name} variant={isVerified ? "gold" : "dark"} />
             </div>
             {/* Labels - desktop only */}
             {businessLabels.length > 0 && (

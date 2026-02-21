@@ -23,6 +23,7 @@ import heroBackground from "@/assets/hero-marrakech.jpg";
 
 import BusinessCard, { Gamme, Badge } from "@/components/BusinessCard";
 import DynamicLabelSections from "@/components/DynamicLabelSections";
+import ShareButton from "@/components/ShareButton";
 
 interface Business {
   id: string;
@@ -486,6 +487,7 @@ const CategoryPage = () => {
                 <Building2 className="h-8 w-8 text-gold" />
               )}
               {getCategoryName()}
+              <ShareButton title={getCategoryName()} />
             </h1>
             <p className="text-white/80 mt-2">
               <span className="text-gold font-semibold">{filteredBusinesses.length}</span> {t.establishments} {t.inCategory}
