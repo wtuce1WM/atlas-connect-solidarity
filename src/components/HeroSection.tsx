@@ -212,8 +212,8 @@ const HeroSection = () => {
               <Button
                 type="submit"
                 size="lg"
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-black font-semibold rounded-full px-6 py-5 shadow-md border border-black"
-                style={{ backgroundColor: "#15FF00" }}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-white font-semibold rounded-full px-6 py-5 shadow-md border border-black/10"
+                style={{ backgroundColor: "#25D366" }}
               >
                 {language === "fr" ? "Recherche" : language === "ar" ? "بحث" : "Search"}
               </Button>
@@ -264,8 +264,8 @@ const HeroSection = () => {
               <Button
                 type="submit"
                 size="lg"
-                className="flex-1 text-black font-semibold rounded-full py-6 shadow-md text-lg border border-black"
-                style={{ backgroundColor: "#15FF00" }}
+                className="flex-1 text-white font-semibold rounded-full py-6 shadow-md text-lg border border-black/10"
+                style={{ backgroundColor: "#25D366" }}
               >
                 {language === "fr" ? "Recherche" : language === "ar" ? "بحث" : "Search"}
               </Button>
