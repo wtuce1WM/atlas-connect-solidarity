@@ -4,6 +4,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
@@ -369,17 +370,45 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
                         <ExternalLink className="h-3.5 w-3.5" />
                       </Button>
                     </Link>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-                      onClick={async () => {
-                        await supabase.from("bookmarks" as any).delete().eq("id", bk.id);
-                        setBookmarks(prev => prev.filter(b => b.id !== bk.id));
-                      }}
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>
+                            {language === "en" ? "Remove saved place?" : language === "ar" ? "إزالة المكان المحفوظ؟" : "Retirer l'adresse sauvegardée ?"}
+                          </AlertDialogTitle>
+                          <AlertDialogDescription>
+                            {language === "en"
+                              ? `Are you sure you want to remove "${bk.name}" from your saved places?`
+                              : language === "ar"
+                              ? `هل أنت متأكد من إزالة "${bk.name}" من أماكنك المحفوظة؟`
+                              : `Êtes-vous sûr de vouloir retirer « ${bk.name} » de vos adresses sauvegardées ?`}
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>
+                            {language === "en" ? "Cancel" : language === "ar" ? "إلغاء" : "Annuler"}
+                          </AlertDialogCancel>
+                          <AlertDialogAction
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            onClick={async () => {
+                              await supabase.from("bookmarks" as any).delete().eq("id", bk.id);
+                              setBookmarks(prev => prev.filter(b => b.id !== bk.id));
+                            }}
+                          >
+                            {language === "en" ? "Remove" : language === "ar" ? "إزالة" : "Retirer"}
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                 </div>
                 {bk.promotion && (
