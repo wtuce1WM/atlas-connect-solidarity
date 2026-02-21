@@ -52,7 +52,7 @@ const FloatingClubButton = () => {
       {/* Floating button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 left-6 z-50 flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-primary-foreground shadow-lg transition-all duration-300 hover:bg-primary/90 hover:shadow-xl hover:scale-105 active:scale-95"
+        className="fixed bottom-[76px] md:bottom-6 left-4 md:left-6 z-50 flex items-center gap-2 rounded-full bg-primary px-4 md:px-5 py-2.5 md:py-3 text-primary-foreground shadow-lg transition-all duration-300 hover:bg-primary/90 hover:shadow-xl hover:scale-105 active:scale-95"
         aria-label={t.club}
       >
         {isOpen ? (
