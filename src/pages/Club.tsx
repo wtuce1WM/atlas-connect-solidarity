@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { Crown, Loader2, CheckCircle } from "lucide-react";
+import { Crown, Loader2, CheckCircle, Mail } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,8 @@ const Club = () => {
   const { language } = useLanguage();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isRegistered, setIsRegistered] = useState(false);
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [form, setForm] = useState({
     first_name: "",
     last_name: "",
@@ -44,11 +46,16 @@ const Club = () => {
       phoneLabel: "Téléphone",
       whatsappLabel: "WhatsApp",
       skypeLabel: "Skype",
+      passwordLabel: "Mot de passe",
+      confirmPasswordLabel: "Confirmer le mot de passe",
+      passwordMismatch: "Les mots de passe ne correspondent pas",
+      passwordTooShort: "Le mot de passe doit contenir au moins 6 caractères",
       submit: "S'inscrire",
       required: "* obligatoire",
       successTitle: "Bienvenue au Club OWM !",
-      successMsg: "Votre inscription a bien été enregistrée.",
+      successMsg: "Un email de confirmation vous a été envoyé. Veuillez vérifier votre boîte de réception pour activer votre compte.",
       errorMsg: "Une erreur est survenue, veuillez réessayer.",
+      emailAlreadyUsed: "Cet email est déjà utilisé.",
     },
     en: {
       title: "The OWM Club",
@@ -69,11 +76,16 @@ const Club = () => {
       phoneLabel: "Phone",
       whatsappLabel: "WhatsApp",
       skypeLabel: "Skype",
+      passwordLabel: "Password",
+      confirmPasswordLabel: "Confirm password",
+      passwordMismatch: "Passwords do not match",
+      passwordTooShort: "Password must be at least 6 characters",
       submit: "Register",
       required: "* required",
       successTitle: "Welcome to the OWM Club!",
-      successMsg: "Your registration has been recorded.",
+      successMsg: "A confirmation email has been sent. Please check your inbox to activate your account.",
       errorMsg: "An error occurred, please try again.",
+      emailAlreadyUsed: "This email is already in use.",
     },
     ar: {
       title: "نادي OWM",
@@ -94,11 +106,16 @@ const Club = () => {
       phoneLabel: "الهاتف",
       whatsappLabel: "واتساب",
       skypeLabel: "سكايب",
+      passwordLabel: "كلمة المرور",
+      confirmPasswordLabel: "تأكيد كلمة المرور",
+      passwordMismatch: "كلمتا المرور غير متطابقتين",
+      passwordTooShort: "يجب أن تحتوي كلمة المرور على 6 أحرف على الأقل",
       submit: "تسجيل",
       required: "* مطلوب",
       successTitle: "مرحباً بك في نادي OWM!",
-      successMsg: "تم تسجيلك بنجاح.",
+      successMsg: "تم إرسال بريد تأكيد. يرجى التحقق من صندوق الوارد لتفعيل حسابك.",
       errorMsg: "حدث خطأ، يرجى المحاولة مرة أخرى.",
+      emailAlreadyUsed: "هذا البريد الإلكتروني مستخدم بالفعل.",
     },
   }[language] || {
     title: "Le Club OWM",
@@ -119,11 +136,16 @@ const Club = () => {
     phoneLabel: "Téléphone",
     whatsappLabel: "WhatsApp",
     skypeLabel: "Skype",
+    passwordLabel: "Mot de passe",
+    confirmPasswordLabel: "Confirmer le mot de passe",
+    passwordMismatch: "Les mots de passe ne correspondent pas",
+    passwordTooShort: "Le mot de passe doit contenir au moins 6 caractères",
     submit: "S'inscrire",
     required: "* obligatoire",
     successTitle: "Bienvenue au Club OWM !",
-    successMsg: "Votre inscription a bien été enregistrée.",
+    successMsg: "Un email de confirmation vous a été envoyé. Veuillez vérifier votre boîte de réception pour activer votre compte.",
     errorMsg: "Une erreur est survenue, veuillez réessayer.",
+    emailAlreadyUsed: "Cet email est déjà utilisé.",
   };
 
   const benefits = [t.benefit1, t.benefit2, t.benefit3, t.benefit4];
@@ -136,14 +158,44 @@ const Club = () => {
     e.preventDefault();
     if (!form.nickname.trim() || !form.email.trim()) return;
 
+    if (password.length < 6) {
+      toast({ title: t.passwordTooShort, variant: "destructive" });
+      return;
+    }
+    if (password !== confirmPassword) {
+      toast({ title: t.passwordMismatch, variant: "destructive" });
+      return;
+    }
+
     setIsSubmitting(true);
     try {
-      const payload: Record<string, string> = { nickname: form.nickname.trim() };
+      // 1. Create auth account
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: form.email.trim(),
+        password,
+        options: {
+          emailRedirectTo: window.location.origin,
+        },
+      });
+
+      if (authError) {
+        if (authError.message?.includes("already registered")) {
+          toast({ title: t.emailAlreadyUsed, variant: "destructive" });
+          return;
+        }
+        throw authError;
+      }
+
+      // 2. Insert club member data
+      const payload: Record<string, string> = {
+        nickname: form.nickname.trim(),
+        email: form.email.trim(),
+      };
+      if (authData.user?.id) (payload as any).user_id = authData.user.id;
       if (form.first_name.trim()) payload.first_name = form.first_name.trim();
       if (form.last_name.trim()) payload.last_name = form.last_name.trim();
       if (form.city.trim()) payload.city = form.city.trim();
       if (form.country.trim()) payload.country = form.country.trim();
-      if (form.email.trim()) payload.email = form.email.trim();
       if (form.phone.trim()) payload.phone = form.phone.trim();
       if (form.whatsapp.trim()) payload.whatsapp = form.whatsapp.trim();
       if (form.skype.trim()) payload.skype = form.skype.trim();
@@ -160,6 +212,8 @@ const Club = () => {
       setIsSubmitting(false);
     }
   };
+
+  const isFormValid = form.nickname.trim() && form.email.trim() && password.length >= 6 && password === confirmPassword;
 
   return (
     <div className="min-h-screen bg-background">
@@ -195,7 +249,7 @@ const Club = () => {
 
             {isRegistered ? (
               <div className="text-center py-12">
-                <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
+                <Mail className="h-16 w-16 text-primary mx-auto mb-4" />
                 <p className="text-xl font-bold text-foreground mb-2">{t.successTitle}</p>
                 <p className="text-muted-foreground">{t.successMsg}</p>
               </div>
@@ -214,7 +268,7 @@ const Club = () => {
 
                 <div>
                   <label className="text-sm text-foreground font-semibold mb-1 block">
-                    {t.nickname} <span className="text-red-500">*</span>
+                    {t.nickname} <span className="text-destructive">*</span>
                   </label>
                   <Input value={form.nickname} onChange={handleChange("nickname")} required />
                 </div>
@@ -232,10 +286,40 @@ const Club = () => {
 
                 <div>
                   <label className="text-sm text-foreground font-semibold mb-1 block">
-                    {t.emailLabel} <span className="text-red-500">*</span>
+                    {t.emailLabel} <span className="text-destructive">*</span>
                   </label>
                   <Input type="email" value={form.email} onChange={handleChange("email")} required />
                 </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm text-foreground font-semibold mb-1 block">
+                      {t.passwordLabel} <span className="text-destructive">*</span>
+                    </label>
+                    <Input
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      minLength={6}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm text-foreground font-semibold mb-1 block">
+                      {t.confirmPasswordLabel} <span className="text-destructive">*</span>
+                    </label>
+                    <Input
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      required
+                      minLength={6}
+                    />
+                  </div>
+                </div>
+                {confirmPassword && password !== confirmPassword && (
+                  <p className="text-sm text-destructive">{t.passwordMismatch}</p>
+                )}
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -256,7 +340,7 @@ const Club = () => {
                 <p className="text-xs text-muted-foreground mb-2">{t.required}</p>
                 <Button
                   type="submit"
-                  disabled={isSubmitting || !form.nickname.trim() || !form.email.trim()}
+                  disabled={isSubmitting || !isFormValid}
                   className="w-full bg-gold text-black hover:bg-gold/90 font-semibold py-6 text-base"
                 >
                   {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : <Crown className="h-5 w-5 mr-2" />}
