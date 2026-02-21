@@ -14,6 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      affiliate_business_promotions: {
+        Row: {
+          affiliate_id: string
+          business_id: string
+          created_at: string
+          id: string
+          promotion_currency: string
+          promotion_message: string | null
+          promotion_type: string
+          promotion_value: number
+          updated_at: string
+        }
+        Insert: {
+          affiliate_id: string
+          business_id: string
+          created_at?: string
+          id?: string
+          promotion_currency?: string
+          promotion_message?: string | null
+          promotion_type?: string
+          promotion_value?: number
+          updated_at?: string
+        }
+        Update: {
+          affiliate_id?: string
+          business_id?: string
+          created_at?: string
+          id?: string
+          promotion_currency?: string
+          promotion_message?: string | null
+          promotion_type?: string
+          promotion_value?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_business_promotions_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliate_business_promotions_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       affiliates: {
         Row: {
           account_type: string | null
