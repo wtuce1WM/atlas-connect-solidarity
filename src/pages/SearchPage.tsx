@@ -671,20 +671,31 @@ const SearchPage = () => {
               </button>
             )}
 
-            {/* Geo status */}
-            <div className="mb-6 flex items-center gap-1.5 text-xs text-white/50">
-              {geo.isEnabled ? (
-                <>
-                  <MapPin className="h-3.5 w-3.5 text-gold" />
-                  <span className="text-gold">{language === "en" ? "Location enabled" : language === "ar" ? "الموقع مفعل" : "Position activée"}{geo.detectedCity ? ` — ${geo.detectedCity}` : ""}</span>
-                </>
+            {/* Geo toggle */}
+            <button
+              onClick={geo.toggle}
+              className={`mb-6 inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-medium transition-all ${
+                geo.isEnabled
+                  ? "bg-gold/20 text-gold border border-gold/40"
+                  : "bg-white/10 text-white/60 border border-white/20 hover:border-white/40"
+              }`}
+            >
+              {geo.isDetecting ? (
+                <Loader className="h-3.5 w-3.5 animate-spin" />
+              ) : geo.isEnabled ? (
+                <MapPin className="h-3.5 w-3.5" />
               ) : (
-                <>
-                  <MapPinOff className="h-3.5 w-3.5" />
-                  <span>{language === "en" ? "Location disabled" : language === "ar" ? "الموقع معطل" : "Position désactivée"}</span>
-                </>
+                <MapPinOff className="h-3.5 w-3.5" />
               )}
-            </div>
+              {geo.isDetecting
+                ? (language === "en" ? "Detecting..." : "Détection...")
+                : geo.isEnabled && geo.detectedCity
+                ? `📍 ${geo.detectedCity}`
+                : geo.isEnabled
+                ? (language === "en" ? "No city nearby" : "Aucune ville proche")
+                : (language === "en" ? "Enable location" : language === "ar" ? "تفعيل الموقع" : "Activer la position")
+              }
+            </button>
 
             {/* Dismiss button */}
             <button
