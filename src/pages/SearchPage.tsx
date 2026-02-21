@@ -641,9 +641,9 @@ const SearchPage = () => {
             {(ttsStatus === "playing" || ttsStatus === "loading") ? (
               <button
                 onClick={ttsStop}
-                className="mb-4 inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gold/20 text-gold text-sm font-medium hover:bg-gold/30 transition-colors animate-pulse"
+                className="mb-4 inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gold/20 text-gold text-sm font-medium hover:bg-gold/30 transition-colors"
               >
-                {ttsStatus === "loading" ? <Loader className="h-4 w-4 animate-spin" /> : <Volume2 className="h-4 w-4" />}
+                {ttsStatus === "loading" ? <Loader className="h-4 w-4 animate-spin" /> : <><span className="relative flex h-2 w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-gold opacity-75"></span><span className="relative inline-flex rounded-full h-2 w-2 bg-gold"></span></span><Volume2 className="h-4 w-4" /></>}
                 {ttsStatus === "loading" ? "Chargement…" : "Lecture en cours — stop"}
               </button>
             ) : filteredBusinesses.length > 0 && (
@@ -778,12 +778,12 @@ const SearchPage = () => {
               {(ttsStatus === "playing" || ttsStatus === "loading") ? (
                 <button
                   onClick={ttsStop}
-                  className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold/20 text-gold text-sm font-medium hover:bg-gold/30 transition-colors animate-pulse"
+                  className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold/20 text-gold text-sm font-medium hover:bg-gold/30 transition-colors"
                 >
                   {ttsStatus === "loading" ? (
                     <Loader className="h-4 w-4 animate-spin" />
                   ) : (
-                    <Volume2 className="h-4 w-4" />
+                    <><span className="relative flex h-2 w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-gold opacity-75"></span><span className="relative inline-flex rounded-full h-2 w-2 bg-gold"></span></span><Volume2 className="h-4 w-4" /></>
                   )}
                   {ttsStatus === "loading" ? "Chargement audio…" : "Lecture en cours — cliquez pour arrêter"}
                 </button>
