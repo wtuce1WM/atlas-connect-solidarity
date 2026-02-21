@@ -18,7 +18,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [memberId, setMemberId] = useState<string | null>(null);
-  const [countries, setCountries] = useState<{ id: string; name_fr: string; name_en: string | null; name_ar: string | null }[]>([]);
+  const [countries, setCountries] = useState<{ id: string; name_fr: string; name_en: string | null; name_ar: string | null; code: string | null }[]>([]);
   const [form, setForm] = useState({
     first_name: "",
     last_name: "",
@@ -113,6 +113,11 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
     memberSince: "Membre depuis",
   };
 
+  const countryFlag = (code: string | null) => {
+    if (!code) return "";
+    return code.toUpperCase().replace(/./g, (c) => String.fromCodePoint(0x1F1E6 - 65 + c.charCodeAt(0)));
+  };
+
   const getCountryName = (c: typeof countries[0]) => {
     if (language === "en" && c.name_en) return c.name_en;
     if (language === "ar" && c.name_ar) return c.name_ar;
@@ -125,7 +130,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
       try {
         // Fetch countries and member data in parallel
         const [countriesRes, memberRes] = await Promise.all([
-          supabase.from("countries").select("id, name_fr, name_en, name_ar").order("sort_order"),
+          supabase.from("countries").select("id, name_fr, name_en, name_ar, code").order("sort_order"),
           supabase.from("club_members").select("*").eq("user_id", user.id).maybeSingle(),
         ]);
 
@@ -265,7 +270,10 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
                 <SelectItem value="__none__">—</SelectItem>
                 {countries.map((c) => (
                   <SelectItem key={c.id} value={getCountryName(c)}>
-                    {getCountryName(c)}
+                    <span className="flex items-center gap-2">
+                      <span>{countryFlag(c.code)}</span>
+                      <span>{getCountryName(c)}</span>
+                    </span>
                   </SelectItem>
                 ))}
               </SelectContent>
