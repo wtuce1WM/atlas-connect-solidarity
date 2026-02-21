@@ -617,7 +617,7 @@ const SearchPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-black">
       <Header />
 
       {/* Voice search results overlay */}
