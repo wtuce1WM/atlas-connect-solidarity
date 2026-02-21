@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -45,6 +46,7 @@ const GlobalFloatingSearchBar = () => {
 };
 
 const AppContent = () => {
+  const [activePanel, setActivePanel] = useState<"club" | "whatsapp" | null>(null);
   const { isRTL } = useLanguage();
   
   return (
@@ -83,8 +85,8 @@ const AppContent = () => {
             <Route path="*" element={<NotFound />} />
           </Routes>
           <GlobalFloatingSearchBar />
-          <FloatingClubButton />
-          <FloatingWhatsAppButton />
+          <FloatingClubButton isOpen={activePanel === "club"} onToggle={() => setActivePanel(activePanel === "club" ? null : "club")} />
+          <FloatingWhatsAppButton isOpen={activePanel === "whatsapp"} onToggle={() => setActivePanel(activePanel === "whatsapp" ? null : "whatsapp")} />
         </BrowserRouter>
       </TooltipProvider>
     </div>
