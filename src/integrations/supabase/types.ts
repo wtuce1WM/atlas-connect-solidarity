@@ -759,6 +759,48 @@ export type Database = {
           },
         ]
       }
+      club_members: {
+        Row: {
+          city: string | null
+          country: string | null
+          created_at: string
+          email: string | null
+          first_name: string | null
+          id: string
+          last_name: string | null
+          nickname: string
+          phone: string | null
+          skype: string | null
+          whatsapp: string | null
+        }
+        Insert: {
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          email?: string | null
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          nickname: string
+          phone?: string | null
+          skype?: string | null
+          whatsapp?: string | null
+        }
+        Update: {
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          email?: string | null
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          nickname?: string
+          phone?: string | null
+          skype?: string | null
+          whatsapp?: string | null
+        }
+        Relationships: []
+      }
       countries: {
         Row: {
           code: string | null
