@@ -771,6 +771,7 @@ export type Database = {
           nickname: string
           phone: string | null
           skype: string | null
+          user_id: string | null
           whatsapp: string | null
         }
         Insert: {
@@ -784,6 +785,7 @@ export type Database = {
           nickname: string
           phone?: string | null
           skype?: string | null
+          user_id?: string | null
           whatsapp?: string | null
         }
         Update: {
@@ -797,6 +799,7 @@ export type Database = {
           nickname?: string
           phone?: string | null
           skype?: string | null
+          user_id?: string | null
           whatsapp?: string | null
         }
         Relationships: []
