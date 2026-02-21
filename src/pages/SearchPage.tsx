@@ -854,6 +854,12 @@ const SearchPage = () => {
               </>
             )}
           </div>
+          {/* Mobile-only result count */}
+          {isMobile && filteredBusinesses.length > 0 && (
+            <p className="mb-4 text-sm text-muted-foreground">
+              <span className="text-gold font-semibold">{filteredBusinesses.length}</span> {t.establishments} {t.found}
+            </p>
+          )}
 
           {/* Easter egg: Zitoun Mask/Musk */}
           {showZitounEasterEgg && (
