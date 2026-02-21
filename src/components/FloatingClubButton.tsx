@@ -66,7 +66,7 @@ const FloatingClubButton = ({ isOpen, onToggle }: FloatingClubButtonProps) => {
         ) : (
           <>
             <Crown className="h-5 w-5" />
-            <span className="font-semibold text-sm">{t.club}</span>
+            <span className="font-semibold text-sm hidden lg:inline">{t.club}</span>
           </>
         )}
       </button>
