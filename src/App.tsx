@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
 import FloatingSearchBar from "@/components/FloatingSearchBar";
+import FloatingClubButton from "@/components/FloatingClubButton";
 import Index from "./pages/Index";
 import BusinessDetail from "./pages/BusinessDetail";
 import CityMap from "./pages/CityMap";
@@ -29,6 +30,7 @@ import SubcategoryPage from "./pages/SubcategoryPage";
 import NotFound from "./pages/NotFound";
 import AncienAccueil from "./pages/AncienAccueil";
 import HotelSearch from "./pages/HotelSearch";
+import Club from "./pages/Club";
 import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
@@ -75,10 +77,12 @@ const AppContent = () => {
             <Route path="/carte" element={<AllBusinessesMap />} />
             <Route path="/subcategory/:subcategoryName" element={<SubcategoryPage />} />
             <Route path="/hotels" element={<HotelSearch />} />
+            <Route path="/club" element={<Club />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
           <GlobalFloatingSearchBar />
+          <FloatingClubButton />
         </BrowserRouter>
       </TooltipProvider>
     </div>
