@@ -98,8 +98,8 @@ const FloatingSearchBar = () => {
         </div>
 
         {/* Mobile */}
-        <div className="flex flex-col gap-2 md:hidden">
-          <div className="relative w-full">
+        <div className="flex items-center gap-2 md:hidden">
+          <div className="relative flex-1">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               type="text"
@@ -108,45 +108,43 @@ const FloatingSearchBar = () => {
               onChange={(e) => { setInputValue(e.target.value); setShowSuggestions(true); }}
               onFocus={() => setShowSuggestions(true)}
               onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-              className="w-full pl-11 pr-4 py-5 text-sm bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-full shadow-lg"
+              className="w-full pl-11 pr-20 py-5 text-sm bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-full shadow-lg"
             />
             <SearchSuggestionsDropdown
               suggestions={suggestions}
               visible={showSuggestions && suggestions.length > 0}
               position="top"
             />
-          </div>
-          <div className="flex items-center justify-center gap-2">
             <Button
               type="submit"
               size="sm"
-              className="text-white font-semibold rounded-full px-6 py-2 shadow-md border border-black/10 text-xs"
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-white font-semibold rounded-full px-2 py-1 shadow-md border border-black/10 text-[10px] h-auto"
               style={{ backgroundColor: "#25D366" }}
             >
               {buttonLabel}
             </Button>
-            <button
-              type="button"
-              onClick={toggleRecording}
-              disabled={voiceStatus === "processing"}
-              className={`flex-shrink-0 flex items-center justify-center w-9 h-9 rounded-xl shadow-lg transition-all ${
-                voiceStatus === "recording"
-                  ? "bg-red-100 animate-pulse"
-                  : voiceStatus === "processing"
-                    ? "bg-white/70"
-                    : "bg-white/90 hover:bg-white"
-              }`}
-              title={language === "fr" ? "Recherche vocale" : language === "ar" ? "بحث صوتي" : "Voice search"}
-            >
-              {voiceStatus === "processing" ? (
-                <Loader className="h-4 w-4 text-black animate-spin" />
-              ) : voiceStatus === "recording" ? (
-                <MicOff className="h-4 w-4 text-red-600" />
-              ) : (
-                <Mic className="h-4 w-4 text-black" />
-              )}
-            </button>
           </div>
+          <button
+            type="button"
+            onClick={toggleRecording}
+            disabled={voiceStatus === "processing"}
+            className={`flex-shrink-0 flex items-center justify-center w-9 h-9 rounded-xl shadow-lg transition-all ${
+              voiceStatus === "recording"
+                ? "bg-red-100 animate-pulse"
+                : voiceStatus === "processing"
+                  ? "bg-white/70"
+                  : "bg-white/90 hover:bg-white"
+            }`}
+            title={language === "fr" ? "Recherche vocale" : language === "ar" ? "بحث صوتي" : "Voice search"}
+          >
+            {voiceStatus === "processing" ? (
+              <Loader className="h-4 w-4 text-black animate-spin" />
+            ) : voiceStatus === "recording" ? (
+              <MicOff className="h-4 w-4 text-red-600" />
+            ) : (
+              <Mic className="h-4 w-4 text-black" />
+            )}
+          </button>
         </div>
       </form>
     </div>
