@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
 import FloatingSearchBar from "@/components/FloatingSearchBar";
 import FloatingClubButton from "@/components/FloatingClubButton";
+import FloatingWhatsAppButton from "@/components/FloatingWhatsAppButton";
 import Index from "./pages/Index";
 import BusinessDetail from "./pages/BusinessDetail";
 import CityMap from "./pages/CityMap";
@@ -83,6 +84,7 @@ const AppContent = () => {
           </Routes>
           <GlobalFloatingSearchBar />
           <FloatingClubButton />
+          <FloatingWhatsAppButton />
         </BrowserRouter>
       </TooltipProvider>
     </div>
