@@ -616,7 +616,7 @@ const SearchPage = () => {
           style={{ background: 'transparent' }}
         >
           <div
-            className={`w-full h-[50vh] bg-black/85 backdrop-blur-md flex flex-col items-center justify-center px-6 text-center transition-transform duration-400 ease-in-out ${overlayDismissing ? 'translate-y-full' : 'translate-y-0'}`}
+            className={`w-full h-[50vh] bg-black/95 backdrop-blur-lg flex flex-col items-center justify-center px-6 text-center transition-transform duration-400 ease-in-out ${overlayDismissing ? 'translate-y-full' : 'translate-y-0'}`}
             style={{ animation: overlayDismissing ? undefined : 'slideInFromBottom 0.4s ease-out' }}
           >
             <p className="text-white/60 text-sm mb-2">
