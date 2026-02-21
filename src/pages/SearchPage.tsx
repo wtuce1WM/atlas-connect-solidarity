@@ -1000,8 +1000,8 @@ const SearchPage = () => {
               <Button
                 type="submit"
                 size="lg"
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-black font-semibold rounded-full px-6 py-4 shadow-md border border-black"
-                style={{ backgroundColor: "#15FF00" }}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-white font-semibold rounded-full px-6 py-4 shadow-md border border-black/10"
+                style={{ backgroundColor: "#25D366" }}
               >
                 {language === "fr" ? "Recherche" : language === "ar" ? "بحث" : "Search"}
               </Button>
@@ -1050,8 +1050,8 @@ const SearchPage = () => {
               <Button
                 type="submit"
                 size="sm"
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-black font-semibold rounded-full px-4 py-2 shadow-md border border-black text-xs"
-                style={{ backgroundColor: "#15FF00" }}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-white font-semibold rounded-full px-4 py-2 shadow-md border border-black/10 text-xs"
+                style={{ backgroundColor: "#25D366" }}
               >
                 {language === "fr" ? "Recherche" : language === "ar" ? "بحث" : "Search"}
               </Button>
