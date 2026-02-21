@@ -605,8 +605,19 @@ const SearchPage = () => {
   const showSosMedecin = isSosMedecinQuery(spokenText || searchQuery);
   const showPompiers = isPompiersQuery(spokenText || searchQuery);
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-black flex flex-col">
+        <Header />
+        <div className="flex-1 flex items-center justify-center">
+          <Loader2 className="h-8 w-8 text-gold animate-spin" />
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-background animate-[slideInUp_0.4s_ease-out]">
+    <div className="min-h-screen bg-background">
       <Header />
 
       {/* Voice search results overlay */}
