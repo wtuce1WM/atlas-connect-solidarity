@@ -68,7 +68,7 @@ const FloatingWhatsAppButton = ({ isOpen, onToggle }: FloatingWhatsAppButtonProp
         ) : (
           <>
             <MessageCircle className="h-5 w-5" />
-            <span className="font-semibold text-sm">{t.whatsapp}</span>
+            <span className="font-semibold text-sm hidden lg:inline">{t.whatsapp}</span>
           </>
         )}
       </button>
