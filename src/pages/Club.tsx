@@ -293,7 +293,7 @@ const Club = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main className="pt-24 pb-16">
+      <main className="pt-24 pb-40 md:pb-24">
         {/* Hero */}
         <section className="bg-primary text-primary-foreground py-16 px-4">
           <div className="max-w-3xl mx-auto text-center">
