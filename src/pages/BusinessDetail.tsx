@@ -821,40 +821,107 @@ const BusinessDetail = () => {
 
               {/* Opening Hours */}
               {business.show_opening_hours !== false && (business.is_open_24h || (business.opening_hours && Object.keys(business.opening_hours).length > 0)) && (() => {
+                const dayOrder = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+                const dayNames: { [key: string]: string } = { monday: "Lun", tuesday: "Mar", wednesday: "Mer", thursday: "Jeu", friday: "Ven", saturday: "Sam", sunday: "Dim" };
+                const displayOrder = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+
+                // Determine if currently open
+                const getOpenStatus = (): { isOpen: boolean; label: string } => {
+                  if (business.is_open_24h) return { isOpen: true, label: language === "en" ? "Open 24/7" : language === "ar" ? "مفتوح 24/7" : "Ouvert 24h/24" };
+
+                  // Check vacation dates
+                  if (business.vacation_dates && business.vacation_dates.length > 0) {
+                    const today = new Date().toISOString().split("T")[0];
+                    for (const vd of business.vacation_dates) {
+                      if (today >= vd.start_date && today <= vd.end_date) {
+                        return { isOpen: false, label: language === "en" ? "On vacation" : language === "ar" ? "في إجازة" : "En vacances" };
+                      }
+                    }
+                  }
+
+                  const hours = business.opening_hours as OpeningHours | null;
+                  if (!hours) return { isOpen: false, label: "" };
+
+                  const now = new Date();
+                  const todayKey = dayOrder[now.getDay()] as keyof OpeningHours;
+                  const dh = hours[todayKey];
+
+                  if (!dh || dh.closed) return { isOpen: false, label: language === "en" ? "Closed" : language === "ar" ? "مغلق" : "Fermé" };
+                  if (!dh.open || !dh.close) return { isOpen: false, label: "" };
+
+                  const nowMinutes = now.getHours() * 60 + now.getMinutes();
+                  const [oh, om] = dh.open.split(":").map(Number);
+                  const [ch, cm] = dh.close.split(":").map(Number);
+                  const openMin = oh * 60 + om;
+                  const closeMin = ch * 60 + cm;
+
+                  // Handle overnight (e.g. 20:00 - 02:00)
+                  const isOpen = closeMin > openMin
+                    ? nowMinutes >= openMin && nowMinutes < closeMin
+                    : nowMinutes >= openMin || nowMinutes < closeMin;
+
+                  return {
+                    isOpen,
+                    label: isOpen
+                      ? (language === "en" ? "Open now" : language === "ar" ? "مفتوح الآن" : "Ouvert")
+                      : (language === "en" ? "Closed" : language === "ar" ? "مغلق" : "Fermé"),
+                  };
+                };
+
+                const status = getOpenStatus();
+                const statusBadge = status.label ? (
+                  <span className={`ml-auto text-xs font-semibold px-2 py-0.5 rounded-full ${
+                    status.isOpen
+                      ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                      : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                  }`}>
+                    {status.label}
+                  </span>
+                ) : null;
+
                 if (business.is_open_24h) {
                   return (
                     <Card className={isVerified ? 'bg-white/10 border-white/20' : ''}>
                       <CardContent className="p-5">
                         <h3 className={`font-semibold mb-3 flex items-center gap-2 ${isVerified ? 'text-white' : ''}`}>
                           <Clock className="h-4 w-4" />
-                          Horaires
+                          {language === "en" ? "Hours" : language === "ar" ? "ساعات العمل" : "Horaires"}
+                          {statusBadge}
                         </h3>
-                        <div className={`text-sm font-medium ${isVerified ? 'text-gold' : 'text-primary'}`}>Ouvert 24h/24</div>
+                        <div className={`text-sm font-medium ${isVerified ? 'text-gold' : 'text-primary'}`}>
+                          {language === "en" ? "Open 24/7" : language === "ar" ? "مفتوح 24/7" : "Ouvert 24h/24"}
+                        </div>
                       </CardContent>
                     </Card>
                   );
                 }
-                const dayNames: { [key: string]: string } = { monday: "Lun", tuesday: "Mar", wednesday: "Mer", thursday: "Jeu", friday: "Ven", saturday: "Sam", sunday: "Dim" };
-                const dayOrder = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
                 const hours = business.opening_hours as OpeningHours;
-                const hasAnyHours = dayOrder.some(day => { const dh = hours[day as keyof OpeningHours]; return dh && (dh.closed || (dh.open && dh.close)); });
+                const hasAnyHours = displayOrder.some(day => { const dh = hours[day as keyof OpeningHours]; return dh && (dh.closed || (dh.open && dh.close)); });
                 if (!hasAnyHours) return null;
+
+                const now = new Date();
+                const todayKey = dayOrder[now.getDay()];
+
                 return (
                   <Card className={isVerified ? 'bg-white/10 border-white/20' : ''}>
                     <CardContent className="p-5">
                       <h3 className={`font-semibold mb-3 flex items-center gap-2 ${isVerified ? 'text-white' : ''}`}>
                         <Clock className="h-4 w-4" />
-                        Horaires
+                        {language === "en" ? "Hours" : language === "ar" ? "ساعات العمل" : "Horaires"}
+                        {statusBadge}
                       </h3>
                       <div className="space-y-1.5">
-                        {dayOrder.map(day => {
+                        {displayOrder.map(day => {
                           const dh = hours[day as keyof OpeningHours];
                           if (!dh) return null;
+                          const isToday = day === todayKey;
                           return (
-                            <div key={day} className={`flex justify-between text-sm ${isVerified ? 'text-white/80' : ''}`}>
-                              <span className="font-medium">{dayNames[day]}</span>
+                            <div key={day} className={`flex justify-between text-sm ${isToday ? 'font-bold' : ''} ${isVerified ? 'text-white/80' : ''}`}>
+                              <span className={`font-medium ${isToday && !isVerified ? 'text-foreground' : ''}`}>
+                                {dayNames[day]}{isToday ? ' ●' : ''}
+                              </span>
                               <span className={isVerified ? 'text-white/60' : 'text-muted-foreground'}>
-                                {dh.closed ? "Fermé" : dh.open && dh.close ? `${dh.open} - ${dh.close}${dh.continuous ? ' (continu)' : ''}` : "—"}
+                                {dh.closed ? (language === "en" ? "Closed" : language === "ar" ? "مغلق" : "Fermé") : dh.open && dh.close ? `${dh.open} - ${dh.close}${dh.continuous ? (language === "en" ? ' (continuous)' : language === "ar" ? ' (متواصل)' : ' (continu)') : ''}` : "—"}
                               </span>
                             </div>
                           );
