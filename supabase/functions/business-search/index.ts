@@ -445,10 +445,10 @@ serve(async (req) => {
       if (!hasServiceNameInQuery) {
         // Replace the keyword synonym with the actual service name for tsquery
         queryForExpansion = detectedService + " " + effectiveQuery.split(/\s+/).filter(w => {
-          // Remove the synonym word(s) that triggered the match, keep city etc.
+          // Remove the synonym word(s) that triggered the match AND French stop words, keep city etc.
           const wLower = w.toLowerCase();
-          return !serviceMatchWordsForInjection.includes(wLower);
-        }).join(" ");
+          return !serviceMatchWordsForInjection.includes(wLower) && !FRENCH_STOP_WORDS.has(wLower);
+        }).join(" ").trim();
         console.log(`Injected service name into query: "${queryForExpansion}" (was: "${effectiveQuery}")`);
       }
     }
