@@ -109,7 +109,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
   };
 
   const countryFlag = (code: string | null) => {
-    if (!code) return "";
+    if (!code || code.length !== 2 || !/^[A-Za-z]{2}$/.test(code)) return null;
     return code.toUpperCase().replace(/./g, (c) => String.fromCodePoint(0x1F1E6 - 65 + c.charCodeAt(0)));
   };
 
@@ -261,14 +261,17 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
               </SelectTrigger>
               <SelectContent className="bg-background z-50">
                 <SelectItem value="__none__">—</SelectItem>
-                {countries.map((c) => (
-                  <SelectItem key={c.id} value={getCountryName(c)}>
-                    <span className="flex items-center gap-2">
-                      <span>{countryFlag(c.code)}</span>
-                      <span>{getCountryName(c)}</span>
-                    </span>
-                  </SelectItem>
-                ))}
+                {countries.map((c) => {
+                  const flag = countryFlag(c.code);
+                  return (
+                    <SelectItem key={c.id} value={getCountryName(c)}>
+                      <span className="flex items-center gap-2">
+                        {flag && <span>{flag}</span>}
+                        <span>{getCountryName(c)}</span>
+                      </span>
+                    </SelectItem>
+                  );
+                })}
               </SelectContent>
             </Select>
           </div>
