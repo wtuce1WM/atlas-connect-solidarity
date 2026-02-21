@@ -631,9 +631,9 @@ const SearchPage = () => {
               {language === "en" ? "Search results for" : language === "ar" ? "نتائج البحث عن" : "Résultats de recherche pour"}
             </p>
             <p className="text-xl md:text-2xl font-bold text-white mb-3">
-              «&nbsp;<span className="text-gold">{spokenText || searchQuery}</span>&nbsp;»
+              «&nbsp;{spokenText || searchQuery}&nbsp;»
             </p>
-            <p className="text-gold font-semibold text-lg mb-5">
+            <p className="text-white font-semibold text-lg mb-5">
               {filteredBusinesses.length} {language === "en" ? "establishments found" : language === "ar" ? "مؤسسة وجدت" : "établissements trouvés"}
             </p>
 
