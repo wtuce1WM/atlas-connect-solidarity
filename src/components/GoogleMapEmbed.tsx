@@ -37,14 +37,11 @@ const GoogleMapEmbed = ({ address, businessName, latitude, longitude, googleMaps
   const encodedAddress = encodeURIComponent(`${businessName}, ${address}`);
 
   // Priority for embed query:
-  // 1. Business name alone (finds GMB listing → labeled marker) when a GMB URL exists
-  // 2. Coordinates (exact pin, no label) when no GMB URL
-  // 3. Name + address as last fallback
-  const mapQuery = googleMapsUrl
-    ? encodeURIComponent(`${businessName}, ${address}`)
-    : resolvedLat && resolvedLng
-      ? `${resolvedLat},${resolvedLng}`
-      : encodeURIComponent(businessName + (address ? `, ${address}` : ""));
+  // 1. Exact coordinates when available (from URL extraction or explicit GPS)
+  // 2. Name + address text search as fallback
+  const mapQuery = resolvedLat && resolvedLng
+    ? `${resolvedLat},${resolvedLng}`
+    : encodeURIComponent(`${businessName}, ${address}`);
   const mapEmbedUrl = `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${mapQuery}&zoom=16`;
   const streetViewEmbedUrl = `https://www.google.com/maps/embed/v1/streetview?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&location=${resolvedLat || 31.6295},${resolvedLng || -7.9811}&heading=0&pitch=0&fov=90`;
 
