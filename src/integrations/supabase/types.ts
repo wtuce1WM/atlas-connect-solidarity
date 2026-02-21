@@ -1616,6 +1616,23 @@ export type Database = {
         Args: { lat1: number; lat2: number; lon1: number; lon2: number }
         Returns: number
       }
+      get_club_members_with_last_sign_in: {
+        Args: never
+        Returns: {
+          city: string
+          country: string
+          created_at: string
+          email: string
+          first_name: string
+          id: string
+          last_name: string
+          last_sign_in_at: string
+          nickname: string
+          phone: string
+          user_id: string
+          whatsapp: string
+        }[]
+      }
       get_user_roles_with_emails: {
         Args: never
         Returns: {
