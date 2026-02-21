@@ -250,6 +250,9 @@ const SearchPage = () => {
 
   const spokenText = searchParams.get("spoken") || "";
   const isVoiceSearchRef = useRef(false);
+  const [showResultsOverlay, setShowResultsOverlay] = useState(false);
+  const [overlayDismissing, setOverlayDismissing] = useState(false);
+  const resultsRef = useRef<HTMLDivElement>(null);
 
   const { speak: ttsSpeak, stop: ttsStop, status: ttsStatus } = useTextToSpeech();
   const geo = useGeolocation();
@@ -457,6 +460,23 @@ const SearchPage = () => {
     return parts.join(", ");
   }, [gammes, badges, geo.isEnabled, geo.coords, language]);
 
+  // Show overlay when arriving from voice search with results
+  useEffect(() => {
+    if (!isLoading && spokenText && allBusinesses.length > 0 && !showResultsOverlay && !overlayDismissing) {
+      setShowResultsOverlay(true);
+    }
+  }, [isLoading, spokenText, allBusinesses.length]);
+
+  const dismissOverlay = () => {
+    setOverlayDismissing(true);
+    setTimeout(() => {
+      setShowResultsOverlay(false);
+      setOverlayDismissing(false);
+      // Scroll to results
+      resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 400);
+  };
+
   // Auto-speak results summary after voice search
   useEffect(() => {
     if (!isLoading && isVoiceSearchRef.current && allBusinesses.length > 0) {
@@ -589,6 +609,87 @@ const SearchPage = () => {
     <div className="min-h-screen bg-background animate-[slideInUp_0.4s_ease-out]">
       <Header />
 
+      {/* Voice search results overlay */}
+      {showResultsOverlay && (
+        <div
+          className={`fixed inset-0 z-[60] flex items-end transition-all duration-400 ${overlayDismissing ? 'pointer-events-none' : ''}`}
+          style={{ background: 'transparent' }}
+        >
+          <div
+            className={`w-full h-[50vh] bg-black/85 backdrop-blur-md flex flex-col items-center justify-center px-6 text-center transition-transform duration-400 ease-in-out ${overlayDismissing ? 'translate-y-full' : 'translate-y-0'}`}
+            style={{ animation: overlayDismissing ? undefined : 'slideInFromBottom 0.4s ease-out' }}
+          >
+            <p className="text-white/60 text-sm mb-2">
+              {language === "en" ? "Search results for" : language === "ar" ? "نتائج البحث عن" : "Résultats de recherche pour"}
+            </p>
+            <p className="text-xl md:text-2xl font-bold text-white mb-3">
+              «&nbsp;<span className="text-gold">{spokenText || searchQuery}</span>&nbsp;»
+            </p>
+            <p className="text-gold font-semibold text-lg mb-5">
+              {filteredBusinesses.length} {language === "en" ? "establishments found" : language === "ar" ? "مؤسسة وجدت" : "établissements trouvés"}
+            </p>
+
+            {/* TTS button */}
+            {(ttsStatus === "playing" || ttsStatus === "loading") ? (
+              <button
+                onClick={ttsStop}
+                className="mb-4 inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gold/20 text-gold text-sm font-medium hover:bg-gold/30 transition-colors animate-pulse"
+              >
+                {ttsStatus === "loading" ? <Loader className="h-4 w-4 animate-spin" /> : <Volume2 className="h-4 w-4" />}
+                {ttsStatus === "loading" ? "Chargement…" : "Lecture en cours — stop"}
+              </button>
+            ) : filteredBusinesses.length > 0 && (
+              <button
+                onClick={() => {
+                  const count = filteredBusinesses.length;
+                  const cityText = selectedCity !== "all" ? ` à ${selectedCity}` : "";
+                  const intro = ttsIntroPhrase ? `${ttsIntroPhrase} ` : "";
+                  let speech = `${intro}J'ai trouvé ${count} résultat${count > 1 ? 's' : ''}${cityText}. `;
+                  const top = filteredBusinesses.slice(0, 3);
+                  if (top.length === 1) {
+                    speech += `Le meilleur résultat est ${buildBusinessTTSLine(top[0], 0)}.`;
+                  } else {
+                    speech += "Voici les meilleurs résultats. ";
+                    top.forEach((b, i) => {
+                      speech += `${i === 0 ? 'Premier' : i === 1 ? 'Deuxième' : 'Troisième'}, ${buildBusinessTTSLine(b, i)}. `;
+                    });
+                  }
+                  ttsSpeak(speech);
+                }}
+                className="mb-4 inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-card border border-gold/30 text-gold text-sm font-medium hover:bg-gold/20 transition-colors"
+              >
+                <Volume2 className="h-4 w-4" />
+                {language === "en" ? "Listen to results" : language === "ar" ? "استمع للنتائج" : "Écouter les résultats"}
+              </button>
+            )}
+
+            {/* Geo status */}
+            <div className="mb-6 flex items-center gap-1.5 text-xs text-white/50">
+              {geo.isEnabled ? (
+                <>
+                  <MapPin className="h-3.5 w-3.5 text-gold" />
+                  <span className="text-gold">{language === "en" ? "Location enabled" : language === "ar" ? "الموقع مفعل" : "Position activée"}{geo.detectedCity ? ` — ${geo.detectedCity}` : ""}</span>
+                </>
+              ) : (
+                <>
+                  <MapPinOff className="h-3.5 w-3.5" />
+                  <span>{language === "en" ? "Location disabled" : language === "ar" ? "الموقع معطل" : "Position désactivée"}</span>
+                </>
+              )}
+            </div>
+
+            {/* Dismiss button */}
+            <button
+              onClick={dismissOverlay}
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-gold text-black text-sm font-semibold hover:bg-gold/90 transition-colors"
+            >
+              {language === "en" ? "See results" : language === "ar" ? "عرض النتائج" : "Voir les résultats"}
+              <ChevronRight className="h-4 w-4 rotate-90" />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Geolocation consent banner */}
       {geo.showBanner && (
         <div className="fixed bottom-4 left-4 right-4 z-50 max-w-lg mx-auto bg-card border border-gold/30 rounded-2xl shadow-2xl p-4 animate-in slide-in-from-bottom-4">
@@ -702,7 +803,7 @@ const SearchPage = () => {
       </section>
 
       {/* Filters & Results */}
-      <section className="py-6 lg:py-12 bg-black">
+      <section ref={resultsRef} className="py-6 lg:py-12 bg-black">
         <div className="container mx-auto px-4">
           {/* Filters: City + Geo toggle */}
           <div className="mb-8 flex flex-wrap items-center gap-3">
