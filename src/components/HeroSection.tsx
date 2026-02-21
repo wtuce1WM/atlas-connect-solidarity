@@ -11,6 +11,7 @@ import { toast } from "@/hooks/use-toast";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useSearchSuggestions } from "@/hooks/useSearchSuggestions";
 import SearchSuggestionsDropdown from "@/components/SearchSuggestionsDropdown";
+import { getTimeGreeting, extractTimeSlot } from "@/lib/timeSlots";
 
 const HeroSection = () => {
   const { t, language } = useLanguage();
@@ -32,13 +33,23 @@ const HeroSection = () => {
   const voiceLang = language === "ar" ? "ar-MA" : language === "en" ? "en-US" : "fr-FR";
   const { status: voiceStatus, toggleRecording } = useVoiceSearch({
     lang: voiceLang,
-    onTranscript: (keywords, spokenText, detectedCategory) => {
+    onTranscript: (keywords, spokenText, detectedCategory, timeKeyword) => {
       const params = new URLSearchParams();
       params.set("q", keywords);
       if (spokenText !== keywords) params.set("spoken", spokenText);
       const cat = detectedCategory || (searchCategory !== "all" ? searchCategory : "");
       if (cat) params.set("category", cat);
       if (geo.isEnabled && geo.detectedCity) params.set("city", geo.detectedCity);
+      // Handle temporal keyword from voice
+      if (timeKeyword) {
+        const timeResult = extractTimeSlot(timeKeyword);
+        if (timeResult) {
+          params.set("timeStart", String(timeResult.timeSlot.startHour));
+          params.set("timeEnd", String(timeResult.timeSlot.endHour));
+          params.set("timeDayOffset", String(timeResult.timeSlot.dayOffset));
+          if (timeResult.timeSlot.dayOfWeek !== null) params.set("timeDayOfWeek", String(timeResult.timeSlot.dayOfWeek));
+        }
+      }
       navigateWithSlide(`/search?${params.toString()}`);
     },
     onError: (msg) => toast({ title: msg, variant: "destructive" }),
@@ -60,9 +71,24 @@ const HeroSection = () => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     const params = new URLSearchParams();
-    if (searchQuery.trim()) params.set("q", searchQuery.trim());
+    
+    // Extract temporal keywords from query
+    const timeResult = extractTimeSlot(searchQuery.trim());
+    const effectiveQuery = timeResult ? timeResult.cleanedQuery : searchQuery.trim();
+    
+    if (effectiveQuery) params.set("q", effectiveQuery);
     if (searchCategory !== "all") params.set("category", searchCategory);
+    else if (timeResult?.timeSlot.suggestedCategory) params.set("category", timeResult.timeSlot.suggestedCategory);
     if (geo.isEnabled && geo.detectedCity) params.set("city", geo.detectedCity);
+    
+    // Pass time slot info
+    if (timeResult) {
+      params.set("timeStart", String(timeResult.timeSlot.startHour));
+      params.set("timeEnd", String(timeResult.timeSlot.endHour));
+      params.set("timeDayOffset", String(timeResult.timeSlot.dayOffset));
+      if (timeResult.timeSlot.dayOfWeek !== null) params.set("timeDayOfWeek", String(timeResult.timeSlot.dayOfWeek));
+    }
+    
     if (params.toString()) {
       navigateWithSlide(`/search?${params.toString()}`);
     }
@@ -97,6 +123,11 @@ const HeroSection = () => {
           alt=""
           className="object-contain w-1/2 max-w-xs"
         />
+
+        {/* Time-based greeting */}
+        <p className="text-lg md:text-xl text-gold font-medium animate-fade-in">
+          {getTimeGreeting(language)}
+        </p>
 
         {/* Titre dynamique selon l'onglet */}
         <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white text-center max-w-4xl min-h-[4.5rem] md:min-h-[3rem]">
