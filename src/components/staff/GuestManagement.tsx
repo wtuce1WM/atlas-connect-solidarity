@@ -3,9 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Users, Loader2, Mail, Phone, MapPin } from "lucide-react";
+import { Users, Loader2, Mail, Phone, MapPin, LogIn } from "lucide-react";
 
-interface ClubMember {
+interface ClubMemberWithSignIn {
   id: string;
   first_name: string | null;
   last_name: string | null;
@@ -16,11 +16,13 @@ interface ClubMember {
   city: string | null;
   country: string | null;
   created_at: string;
+  user_id: string | null;
+  last_sign_in_at: string | null;
 }
 
 const GuestManagement = () => {
   const { toast } = useToast();
-  const [members, setMembers] = useState<ClubMember[]>([]);
+  const [members, setMembers] = useState<ClubMemberWithSignIn[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -29,10 +31,7 @@ const GuestManagement = () => {
 
   const fetchMembers = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("club_members")
-      .select("*")
-      .order("created_at", { ascending: false });
+    const { data, error } = await supabase.rpc("get_club_members_with_last_sign_in");
 
     if (error) {
       toast({
@@ -41,7 +40,7 @@ const GuestManagement = () => {
         description: "Impossible de charger les membres du club.",
       });
     } else {
-      setMembers(data || []);
+      setMembers((data as ClubMemberWithSignIn[]) || []);
     }
     setLoading(false);
   };
@@ -99,7 +98,7 @@ const GuestManagement = () => {
                     <TableHead>
                       <div className="flex items-center gap-1">
                         <Phone className="h-3.5 w-3.5" />
-                        Téléphone / WhatsApp
+                        Tél / WhatsApp
                       </div>
                     </TableHead>
                     <TableHead>
@@ -109,6 +108,12 @@ const GuestManagement = () => {
                       </div>
                     </TableHead>
                     <TableHead>Inscrit le</TableHead>
+                    <TableHead>
+                      <div className="flex items-center gap-1">
+                        <LogIn className="h-3.5 w-3.5" />
+                        Dernière connexion
+                      </div>
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -134,6 +139,9 @@ const GuestManagement = () => {
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
                         {formatDate(member.created_at)}
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
+                        {member.last_sign_in_at ? formatDate(member.last_sign_in_at) : "—"}
                       </TableCell>
                     </TableRow>
                   ))}
