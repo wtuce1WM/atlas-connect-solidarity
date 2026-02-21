@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import { Crown, Loader2, LogOut, Save } from "lucide-react";
+import { Crown, Loader2, LogOut, Save, Bookmark, Trash2, ExternalLink } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { Link } from "react-router-dom";
 import type { User } from "@supabase/supabase-js";
 
 interface ClubDashboardProps {
@@ -18,6 +19,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [memberId, setMemberId] = useState<string | null>(null);
+  const [bookmarks, setBookmarks] = useState<{ id: string; business_id: string; name: string; city: string | null; main_category: string | null }[]>([]);
   const [countries, setCountries] = useState<{ id: string; name_fr: string; name_en: string | null; name_ar: string | null; code: string | null }[]>([]);
   const [form, setForm] = useState({
     first_name: "",
@@ -133,10 +135,11 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        // Fetch countries and member data in parallel
-        const [countriesRes, memberRes] = await Promise.all([
+        // Fetch countries, member data, and bookmarks in parallel
+        const [countriesRes, memberRes, bookmarksRes] = await Promise.all([
           supabase.from("countries").select("id, name_fr, name_en, name_ar, code").order("sort_order"),
           supabase.from("club_members").select("*").eq("user_id", user.id).maybeSingle(),
+          supabase.from("bookmarks" as any).select("id, business_id").eq("user_id", user.id).order("created_at", { ascending: false }),
         ]);
 
         if (countriesRes.data) setCountries(countriesRes.data);
@@ -154,8 +157,30 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
             whatsapp: memberRes.data.whatsapp || "",
           });
         } else {
-          // New Google user without club_members row – pre-fill email
           setForm(prev => ({ ...prev, email: user.email || "" }));
+        }
+
+        // Fetch business details for bookmarks
+        if (bookmarksRes.data && bookmarksRes.data.length > 0) {
+          const bIds = (bookmarksRes.data as any[]).map((b: any) => b.business_id);
+          const { data: bizData } = await supabase
+            .from("businesses")
+            .select("id, name, city, main_category")
+            .in("id", bIds);
+          
+          const bizMap = new Map((bizData || []).map(b => [b.id, b]));
+          setBookmarks(
+            (bookmarksRes.data as any[]).map((bk: any) => {
+              const biz = bizMap.get(bk.business_id);
+              return {
+                id: bk.id,
+                business_id: bk.business_id,
+                name: biz?.name || "—",
+                city: biz?.city || null,
+                main_category: biz?.main_category || null,
+              };
+            }).filter((bk: any) => bizMap.has(bk.business_id))
+          );
         }
       } catch (err) {
         console.error("Error fetching club data:", err);
@@ -314,6 +339,48 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
           {isSaving ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : <Save className="h-5 w-5 mr-2" />}
           {t.save}
         </Button>
+      </div>
+
+      {/* Bookmarks section */}
+      <div className="space-y-3">
+        <h3 className="text-lg font-bold flex items-center gap-2">
+          <Bookmark className="h-5 w-5 text-gold" />
+          {language === "en" ? "My saved places" : language === "ar" ? "أماكني المحفوظة" : "Mes adresses sauvegardées"}
+        </h3>
+        {bookmarks.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            {language === "en" ? "No saved places yet. Browse the directory and click the bookmark icon to save your favorites!" : language === "ar" ? "لا توجد أماكن محفوظة بعد." : "Aucune adresse sauvegardée. Parcourez l'annuaire et cliquez sur l'icône marque-page pour sauvegarder vos favoris !"}
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {bookmarks.map((bk) => (
+              <div key={bk.id} className="flex items-center justify-between p-3 rounded-lg border bg-background">
+                <Link to={`/business/${bk.business_id}`} className="flex-1 min-w-0 hover:underline">
+                  <p className="font-medium text-sm truncate">{bk.name}</p>
+                  <p className="text-xs text-muted-foreground">{[bk.city, bk.main_category].filter(Boolean).join(" · ")}</p>
+                </Link>
+                <div className="flex items-center gap-1 ml-2">
+                  <Link to={`/business/${bk.business_id}`}>
+                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                      <ExternalLink className="h-3.5 w-3.5" />
+                    </Button>
+                  </Link>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                    onClick={async () => {
+                      await supabase.from("bookmarks" as any).delete().eq("id", bk.id);
+                      setBookmarks(prev => prev.filter(b => b.id !== bk.id));
+                    }}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
