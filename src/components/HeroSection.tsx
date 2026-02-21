@@ -124,10 +124,6 @@ const HeroSection = () => {
           className="object-contain w-1/2 max-w-xs"
         />
 
-        {/* Time-based greeting */}
-        <p className="text-lg md:text-xl text-gold font-medium animate-fade-in">
-          {getTimeGreeting(language)}
-        </p>
 
         {/* Titre dynamique selon l'onglet */}
         <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white text-center max-w-4xl min-h-[4.5rem] md:min-h-[3rem]">
