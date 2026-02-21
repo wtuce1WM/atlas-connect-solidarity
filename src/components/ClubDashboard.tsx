@@ -263,11 +263,12 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
                 <SelectItem value="__none__">—</SelectItem>
                 {countries.map((c) => {
                   const flag = countryFlag(c.code);
+                  const name = getCountryName(c);
                   return (
-                    <SelectItem key={c.id} value={getCountryName(c)}>
+                    <SelectItem key={c.id} value={name} textValue={name}>
                       <span className="flex items-center gap-2">
                         {flag && <span>{flag}</span>}
-                        <span>{getCountryName(c)}</span>
+                        <span>{name}</span>
                       </span>
                     </SelectItem>
                   );
