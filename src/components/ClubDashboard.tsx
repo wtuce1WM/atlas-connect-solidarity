@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Crown, Loader2, LogOut, Save, Bookmark, Trash2, ExternalLink } from "lucide-react";
+import { Crown, Loader2, LogOut, Save, Bookmark, Trash2, ExternalLink, Tag } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -19,7 +19,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [memberId, setMemberId] = useState<string | null>(null);
-  const [bookmarks, setBookmarks] = useState<{ id: string; business_id: string; name: string; city: string | null; main_category: string | null }[]>([]);
+  const [bookmarks, setBookmarks] = useState<{ id: string; business_id: string; name: string; city: string | null; main_category: string | null; promotion: { type: string; value: number; currency: string; message: string | null } | null }[]>([]);
   const [countries, setCountries] = useState<{ id: string; name_fr: string; name_en: string | null; name_ar: string | null; code: string | null }[]>([]);
   const [form, setForm] = useState({
     first_name: "",
@@ -160,24 +160,27 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
           setForm(prev => ({ ...prev, email: user.email || "" }));
         }
 
-        // Fetch business details for bookmarks
+        // Fetch business details and promotions for bookmarks
         if (bookmarksRes.data && bookmarksRes.data.length > 0) {
           const bIds = (bookmarksRes.data as any[]).map((b: any) => b.business_id);
-          const { data: bizData } = await supabase
-            .from("businesses")
-            .select("id, name, city, main_category")
-            .in("id", bIds);
+          const [bizRes, promoRes] = await Promise.all([
+            supabase.from("businesses").select("id, name, city, main_category").in("id", bIds),
+            supabase.from("affiliate_business_promotions").select("business_id, promotion_type, promotion_value, promotion_currency, promotion_message").in("business_id", bIds),
+          ]);
           
-          const bizMap = new Map((bizData || []).map(b => [b.id, b]));
+          const bizMap = new Map((bizRes.data || []).map(b => [b.id, b]));
+          const promoMap = new Map((promoRes.data || []).map(p => [p.business_id, p]));
           setBookmarks(
             (bookmarksRes.data as any[]).map((bk: any) => {
               const biz = bizMap.get(bk.business_id);
+              const promo = promoMap.get(bk.business_id);
               return {
                 id: bk.id,
                 business_id: bk.business_id,
                 name: biz?.name || "—",
                 city: biz?.city || null,
                 main_category: biz?.main_category || null,
+                promotion: promo ? { type: promo.promotion_type, value: promo.promotion_value, currency: promo.promotion_currency, message: promo.promotion_message } : null,
               };
             }).filter((bk: any) => bizMap.has(bk.business_id))
           );
@@ -354,29 +357,51 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
         ) : (
           <div className="space-y-2">
             {bookmarks.map((bk) => (
-              <div key={bk.id} className="flex items-center justify-between p-3 rounded-lg border bg-background">
-                <Link to={`/business/${bk.business_id}`} className="flex-1 min-w-0 hover:underline">
-                  <p className="font-medium text-sm truncate">{bk.name}</p>
-                  <p className="text-xs text-muted-foreground">{[bk.city, bk.main_category].filter(Boolean).join(" · ")}</p>
-                </Link>
-                <div className="flex items-center gap-1 ml-2">
-                  <Link to={`/business/${bk.business_id}`}>
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                      <ExternalLink className="h-3.5 w-3.5" />
-                    </Button>
+              <div key={bk.id} className="rounded-lg border bg-background overflow-hidden">
+                <div className="flex items-center justify-between p-3">
+                  <Link to={`/business/${bk.business_id}`} className="flex-1 min-w-0 hover:underline">
+                    <p className="font-medium text-sm truncate">{bk.name}</p>
+                    <p className="text-xs text-muted-foreground">{[bk.city, bk.main_category].filter(Boolean).join(" · ")}</p>
                   </Link>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-                    onClick={async () => {
-                      await supabase.from("bookmarks" as any).delete().eq("id", bk.id);
-                      setBookmarks(prev => prev.filter(b => b.id !== bk.id));
-                    }}
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
+                  <div className="flex items-center gap-1 ml-2">
+                    <Link to={`/business/${bk.business_id}`}>
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                        <ExternalLink className="h-3.5 w-3.5" />
+                      </Button>
+                    </Link>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                      onClick={async () => {
+                        await supabase.from("bookmarks" as any).delete().eq("id", bk.id);
+                        setBookmarks(prev => prev.filter(b => b.id !== bk.id));
+                      }}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
                 </div>
+                {bk.promotion && (
+                  <div className="px-3 pb-3 pt-0">
+                    <div className="bg-muted/50 rounded-md p-2.5 border border-dashed border-primary/20">
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <Tag className="h-3.5 w-3.5 text-primary" />
+                        <span className="text-xs font-semibold text-primary">
+                          {bk.promotion.type === "percentage"
+                            ? `-${bk.promotion.value}%`
+                            : `-${bk.promotion.value} ${bk.promotion.currency}`}
+                        </span>
+                      </div>
+                      {bk.promotion.message && (
+                        <div
+                          className="text-xs text-muted-foreground prose prose-xs max-w-none [&_p]:m-0 [&_ul]:m-0 [&_li]:m-0"
+                          dangerouslySetInnerHTML={{ __html: bk.promotion.message }}
+                        />
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>
