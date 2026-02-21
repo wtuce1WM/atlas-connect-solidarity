@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/select";
 
 import BusinessCard, { BusinessCardData, Gamme, Badge } from "@/components/BusinessCard";
+import ShareButton from "@/components/ShareButton";
 
 interface Business {
   id: string;
@@ -489,6 +490,7 @@ const ServicePage = () => {
               {selectedCity !== "all" && (
                 <span className="text-gold"> à {selectedCity}</span>
               )}
+              <ShareButton title={decodedServiceName} />
             </h1>
             <p className="text-white/80 mt-2">
               <span className="text-gold font-semibold">{filteredBusinesses.length}</span> {t.establishments} {t.withService}

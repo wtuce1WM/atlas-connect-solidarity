@@ -11,6 +11,7 @@ import TopCityBusinesses from "@/components/TopCityBusinesses";
 import Footer from "@/components/Footer";
 import DynamicLabelSections from "@/components/DynamicLabelSections";
 import BusinessCard, { Gamme, Badge } from "@/components/BusinessCard";
+import ShareButton from "@/components/ShareButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import heroBackground from "@/assets/hero-marrakech.jpg";
@@ -344,6 +345,7 @@ const NeighborhoodPage = () => {
                 : language === "ar"
                   ? `حي ${decodedNeighborhood}`
                   : `${decodedNeighborhood} Neighborhood`}
+              <ShareButton title={decodedNeighborhood} />
             </h1>
             {cityName && (
               <p className="text-white/80 mt-2">
