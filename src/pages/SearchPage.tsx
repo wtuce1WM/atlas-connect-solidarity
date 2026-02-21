@@ -508,8 +508,8 @@ const SearchPage = () => {
     setTimeout(() => {
       setShowResultsOverlay(false);
       setOverlayDismissing(false);
-      // Scroll to results
-      resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Scroll to top of page to show geo filters
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }, 400);
   };
 
