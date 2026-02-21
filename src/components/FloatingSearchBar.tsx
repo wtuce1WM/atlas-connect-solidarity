@@ -115,13 +115,13 @@ const FloatingSearchBar = () => {
               visible={showSuggestions && suggestions.length > 0}
               position="top"
             />
-            <Button
+            <button
               type="submit"
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-white font-semibold rounded-full px-4 py-2.5 shadow-md border border-black/10 text-sm h-auto"
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-white font-semibold rounded-full px-3 py-1.5 shadow-md border border-black/10 text-[11px] leading-none"
               style={{ backgroundColor: "#25D366" }}
             >
               {buttonLabel}
-            </Button>
+            </button>
           </div>
           <button
             type="button"
