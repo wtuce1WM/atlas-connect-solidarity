@@ -120,7 +120,7 @@ const FloatingSearchBar = () => {
             <Button
               type="submit"
               size="sm"
-              className="text-white font-semibold rounded-full px-3 py-1.5 shadow-md border border-black/10 text-[11px]"
+              className="flex-1 text-white font-semibold rounded-full py-3 shadow-md border border-black/10 text-sm"
               style={{ backgroundColor: "#25D366" }}
             >
               {buttonLabel}
