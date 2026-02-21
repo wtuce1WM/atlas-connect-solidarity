@@ -30,7 +30,6 @@ const Club = () => {
     email: "",
     phone: "",
     whatsapp: "",
-    skype: "",
   });
 
   // Listen for auth state changes + fetch countries
@@ -96,7 +95,6 @@ const Club = () => {
       emailLabel: "Email",
       phoneLabel: "Téléphone",
       whatsappLabel: "WhatsApp",
-      skypeLabel: "Skype",
       passwordLabel: "Mot de passe",
       confirmPasswordLabel: "Confirmer le mot de passe",
       passwordMismatch: "Les mots de passe ne correspondent pas",
@@ -128,7 +126,6 @@ const Club = () => {
       emailLabel: "Email",
       phoneLabel: "Phone",
       whatsappLabel: "WhatsApp",
-      skypeLabel: "Skype",
       passwordLabel: "Password",
       confirmPasswordLabel: "Confirm password",
       passwordMismatch: "Passwords do not match",
@@ -160,7 +157,6 @@ const Club = () => {
       emailLabel: "البريد الإلكتروني",
       phoneLabel: "الهاتف",
       whatsappLabel: "واتساب",
-      skypeLabel: "سكايب",
       passwordLabel: "كلمة المرور",
       confirmPasswordLabel: "تأكيد كلمة المرور",
       passwordMismatch: "كلمتا المرور غير متطابقتين",
@@ -192,7 +188,6 @@ const Club = () => {
     emailLabel: "Email",
     phoneLabel: "Téléphone",
     whatsappLabel: "WhatsApp",
-    skypeLabel: "Skype",
     passwordLabel: "Mot de passe",
     confirmPasswordLabel: "Confirmer le mot de passe",
     passwordMismatch: "Les mots de passe ne correspondent pas",
@@ -265,7 +260,6 @@ const Club = () => {
       if (form.country.trim()) payload.country = form.country.trim();
       if (form.phone.trim()) payload.phone = form.phone.trim();
       if (form.whatsapp.trim()) payload.whatsapp = form.whatsapp.trim();
-      if (form.skype.trim()) payload.skype = form.skype.trim();
 
       const { error } = await supabase.from("club_members" as any).insert(payload as any);
       if (error) throw error;
@@ -460,10 +454,6 @@ const Club = () => {
                         </div>
                       </div>
 
-                      <div>
-                        <label className="text-sm text-muted-foreground mb-1 block">{t.skypeLabel}</label>
-                        <Input value={form.skype} onChange={handleChange("skype")} />
-                      </div>
 
                       <p className="text-xs text-muted-foreground mb-2">{t.required}</p>
                       <Button
