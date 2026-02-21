@@ -168,7 +168,7 @@ const StaffBackoffice = () => {
 
   const handleDuplicate = async (business: Business) => {
     // Create a copy of the business without id and timestamps
-    const { id, created_at, updated_at, ...businessData } = business;
+    const { id, created_at, updated_at, search_vector, ...businessData } = business;
     
     const duplicatedBusiness = {
       ...businessData,
