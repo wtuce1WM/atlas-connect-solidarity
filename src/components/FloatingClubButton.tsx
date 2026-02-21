@@ -76,18 +76,18 @@ const FloatingClubButton = () => {
       {/* Slide-up panel */}
       <div
         className={`fixed bottom-0 left-0 z-50 w-full max-w-md transition-transform duration-300 ease-out ${
-          isOpen ? "translate-y-0" : "translate-y-full"
+          isOpen ? "translate-y-0 pointer-events-auto" : "translate-y-full pointer-events-none"
         }`}
       >
         <div className="mx-4 mb-20 rounded-2xl overflow-hidden shadow-2xl">
           {/* Header */}
           <div style={{ backgroundColor: "#6050DC" }} className="p-6 text-white relative">
             <button
-              onClick={() => setIsOpen(false)}
-              className="absolute top-3 right-3 w-10 h-10 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/40 text-white transition-colors"
+              onClick={(e) => { e.stopPropagation(); setIsOpen(false); }}
+              className="absolute top-3 right-3 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/40 text-white transition-colors cursor-pointer"
               aria-label="Close"
             >
-              <X className="h-5 w-5" />
+              <X className="h-5 w-5 pointer-events-none" />
             </button>
             <p className="text-sm opacity-90">{t.welcome}</p>
             <h2 className="text-2xl font-bold mt-1 !font-sans !not-italic">{t.clubName}</h2>
