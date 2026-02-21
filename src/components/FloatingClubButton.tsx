@@ -84,7 +84,7 @@ const FloatingClubButton = () => {
           <div style={{ backgroundColor: "#6050DC" }} className="p-6 text-white relative">
             <button
               onClick={() => setIsOpen(false)}
-              className="absolute top-3 right-3 w-9 h-9 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/40 text-white transition-colors"
+              className="absolute top-3 right-3 w-10 h-10 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/40 text-white transition-colors"
               aria-label="Close"
             >
               <X className="h-5 w-5" />
