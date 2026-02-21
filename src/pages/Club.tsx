@@ -4,6 +4,7 @@ import Footer from "@/components/Footer";
 import { Crown, Loader2, Mail } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
@@ -15,6 +16,7 @@ const Club = () => {
   const { language } = useLanguage();
   const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const [countries, setCountries] = useState<{ id: string; name_fr: string; name_en: string | null; name_ar: string | null }[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isRegistered, setIsRegistered] = useState(false);
   const [password, setPassword] = useState("");
@@ -31,7 +33,7 @@ const Club = () => {
     skype: "",
   });
 
-  // Listen for auth state changes
+  // Listen for auth state changes + fetch countries
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
@@ -41,8 +43,29 @@ const Club = () => {
       setUser(session?.user ?? null);
       setAuthLoading(false);
     });
+    supabase.from("countries").select("id, name_fr, name_en, name_ar").order("sort_order").then(({ data }) => {
+      if (data) setCountries(data);
+    });
     return () => subscription.unsubscribe();
   }, []);
+
+  const getCountryName = (c: typeof countries[0]) => {
+    if (language === "en" && c.name_en) return c.name_en;
+    if (language === "ar" && c.name_ar) return c.name_ar;
+    return c.name_fr;
+  };
+
+  const priorityCountries = ["Maroc", "France"];
+  const sortedCountries = [...countries].sort((a, b) => {
+    const aName = getCountryName(a);
+    const bName = getCountryName(b);
+    const aIdx = priorityCountries.indexOf(a.name_fr);
+    const bIdx = priorityCountries.indexOf(b.name_fr);
+    if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
+    if (aIdx !== -1) return -1;
+    if (bIdx !== -1) return 1;
+    return aName.localeCompare(bName);
+  });
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -362,7 +385,22 @@ const Club = () => {
                         </div>
                         <div>
                           <label className="text-sm text-muted-foreground mb-1 block">{t.countryLabel}</label>
-                          <Input value={form.country} onChange={handleChange("country")} />
+                          <Select
+                            value={form.country}
+                            onValueChange={(val) => setForm(prev => ({ ...prev, country: val === "__none__" ? "" : val }))}
+                          >
+                            <SelectTrigger className="bg-background">
+                              <SelectValue placeholder={t.countryLabel} />
+                            </SelectTrigger>
+                            <SelectContent className="bg-background z-50">
+                              <SelectItem value="__none__">—</SelectItem>
+                              {sortedCountries.map((c) => (
+                                <SelectItem key={c.id} value={getCountryName(c)}>
+                                  {getCountryName(c)}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </div>
                       </div>
 
