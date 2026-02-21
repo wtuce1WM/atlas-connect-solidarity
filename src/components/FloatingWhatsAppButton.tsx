@@ -80,11 +80,11 @@ const FloatingWhatsAppButton = ({ isOpen, onToggle }: FloatingWhatsAppButtonProp
 
       {/* Slide-up panel */}
       <div
-        className={`fixed bottom-0 right-0 z-50 w-full max-w-md transition-transform duration-300 ease-out ${
-          isOpen ? "translate-y-0 pointer-events-auto" : "translate-y-full pointer-events-none"
+        className={`fixed bottom-0 right-0 z-50 w-full max-w-md transition-transform duration-300 ease-out pointer-events-none ${
+          isOpen ? "translate-y-0" : "translate-y-full"
         }`}
       >
-        <div className="mx-4 mb-20 rounded-2xl overflow-hidden shadow-2xl">
+        <div className="mx-4 mb-20 rounded-2xl overflow-hidden shadow-2xl pointer-events-auto">
           {/* Header */}
           <div style={{ backgroundColor: "#25D366" }} className="p-6 text-white relative">
             <button
