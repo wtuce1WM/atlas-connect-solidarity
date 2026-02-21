@@ -784,9 +784,49 @@ const SearchPage = () => {
           </div>
         </div>
       )}
-      
+
+      {/* Mobile-only: geo + time badges at top */}
+      {isMobile && (
+        <div className="bg-black pt-20 pb-2 px-4 flex flex-wrap items-center gap-2">
+          <button
+            onClick={geo.toggle}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+              geo.isEnabled
+                ? "bg-gold/20 text-gold border border-gold/40"
+                : "bg-card text-muted-foreground border border-border hover:border-gold/30"
+            }`}
+          >
+            {geo.isDetecting ? (
+              <Loader className="h-3.5 w-3.5 animate-spin" />
+            ) : geo.isEnabled ? (
+              <MapPin className="h-3.5 w-3.5" />
+            ) : (
+              <MapPinOff className="h-3.5 w-3.5" />
+            )}
+            {geo.isDetecting
+              ? (language === "en" ? "Detecting..." : "Détection...")
+              : geo.isEnabled && geo.detectedCity
+              ? `📍 ${geo.detectedCity}`
+              : geo.isEnabled
+              ? (language === "en" ? "No city nearby" : "Aucune ville proche")
+              : (language === "en" ? "Location off" : "Position désactivée")
+            }
+          </button>
+          {activeTimeSlot && (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gold/20 border border-gold/40 text-gold text-xs font-medium">
+              <Clock className="h-3.5 w-3.5" />
+              {language === "en"
+                ? `Open ${activeTimeSlot.startHour}h–${activeTimeSlot.endHour}h first`
+                : language === "ar"
+                  ? `مفتوح ${activeTimeSlot.startHour}h–${activeTimeSlot.endHour}h أولاً`
+                  : `Ouverts ${activeTimeSlot.startHour}h–${activeTimeSlot.endHour}h en priorité`}
+            </span>
+          )}
+        </div>
+      )}
+
       {/* Hero Section - hidden on mobile when results found via voice search */}
-      <section className={`bg-black pt-28 pb-8 lg:pb-16 relative overflow-hidden ${isMobile && spokenText && filteredBusinesses.length > 0 ? 'hidden' : ''}`}>
+      <section className={`bg-black pt-6 lg:pt-28 pb-8 lg:pb-16 relative overflow-hidden ${isMobile && spokenText && filteredBusinesses.length > 0 ? 'hidden' : ''}`}>
         <div className="container mx-auto px-4 relative z-10">
           {(searchQuery || categoryFromUrl) && (
             <div className="text-center mb-8">
@@ -871,8 +911,8 @@ const SearchPage = () => {
       {/* Filters & Results */}
       <section ref={resultsRef} className="py-6 lg:py-12 bg-black">
         <div className="container mx-auto px-4">
-          {/* Filters: City + Geo toggle */}
-          <div className="mb-8 flex flex-wrap items-center gap-3">
+          {/* Filters: City + Geo toggle — on mobile shown before hero via order */}
+          <div className={`mb-8 flex flex-wrap items-center gap-3 ${isMobile ? 'hidden' : ''}`}>
             {/* Geo toggle */}
             <button
               onClick={geo.toggle}
