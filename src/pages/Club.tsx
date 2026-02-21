@@ -251,6 +251,7 @@ const Club = () => {
                   <Input value={form.skype} onChange={handleChange("skype")} />
                 </div>
 
+                <p className="text-xs text-muted-foreground mb-2">{t.required}</p>
                 <Button
                   type="submit"
                   disabled={isSubmitting || !form.nickname.trim()}
