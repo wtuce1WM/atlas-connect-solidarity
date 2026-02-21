@@ -900,6 +900,18 @@ const SearchPage = () => {
               }
             </button>
 
+            {/* Time slot indicator */}
+            {activeTimeSlot && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gold/20 border border-gold/40 text-gold text-xs font-medium">
+                <Clock className="h-3.5 w-3.5" />
+                {language === "en"
+                  ? `Showing places open ${activeTimeSlot.startHour}h–${activeTimeSlot.endHour}h first`
+                  : language === "ar"
+                    ? `عرض الأماكن المفتوحة ${activeTimeSlot.startHour}h–${activeTimeSlot.endHour}h أولاً`
+                    : `Établissements ouverts ${activeTimeSlot.startHour}h–${activeTimeSlot.endHour}h en priorité`}
+              </span>
+            )}
+
             {/* City filter dropdown */}
             {availableCities.length > 1 && (
               <>
@@ -921,21 +933,6 @@ const SearchPage = () => {
             )}
           </div>
 
-          {/* Time slot indicator */}
-          {activeTimeSlot && (
-            <div className="mb-4 flex items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gold/20 border border-gold/40 text-gold text-xs font-medium">
-                <Clock className="h-3.5 w-3.5" />
-                {language === "en"
-                  ? `Showing places open ${activeTimeSlot.startHour}h–${activeTimeSlot.endHour}h first`
-                  : language === "ar"
-                    ? `عرض الأماكن المفتوحة ${activeTimeSlot.startHour}h–${activeTimeSlot.endHour}h أولاً`
-                    : `Établissements ouverts ${activeTimeSlot.startHour}h–${activeTimeSlot.endHour}h en priorité`}
-              </span>
-            </div>
-          )}
-
-          {/* Mobile-only result count */}
           {isMobile && filteredBusinesses.length > 0 && (
             <p className="mb-4 text-sm text-muted-foreground">
               <span className="text-gold font-semibold">{filteredBusinesses.length}</span> {t.establishments} {t.found}
