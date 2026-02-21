@@ -28,7 +28,6 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
     email: "",
     phone: "",
     whatsapp: "",
-    skype: "",
   });
 
   const t = {
@@ -44,7 +43,6 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
       emailLabel: "Email",
       phoneLabel: "Téléphone",
       whatsappLabel: "WhatsApp",
-      skypeLabel: "Skype",
       save: "Enregistrer",
       saved: "Modifications enregistrées !",
       errorMsg: "Une erreur est survenue, veuillez réessayer.",
@@ -64,7 +62,6 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
       emailLabel: "Email",
       phoneLabel: "Phone",
       whatsappLabel: "WhatsApp",
-      skypeLabel: "Skype",
       save: "Save",
       saved: "Changes saved!",
       errorMsg: "An error occurred, please try again.",
@@ -84,7 +81,6 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
       emailLabel: "البريد الإلكتروني",
       phoneLabel: "الهاتف",
       whatsappLabel: "واتساب",
-      skypeLabel: "سكايب",
       save: "حفظ",
       saved: "تم حفظ التغييرات!",
       errorMsg: "حدث خطأ، يرجى المحاولة مرة أخرى.",
@@ -103,8 +99,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
     selectCountry: "Sélectionner un pays",
     emailLabel: "Email",
     phoneLabel: "Téléphone",
-    whatsappLabel: "WhatsApp",
-    skypeLabel: "Skype",
+      whatsappLabel: "WhatsApp",
     save: "Enregistrer",
     saved: "Modifications enregistrées !",
     errorMsg: "Une erreur est survenue, veuillez réessayer.",
@@ -147,7 +142,6 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
             email: memberRes.data.email || user.email || "",
             phone: memberRes.data.phone || "",
             whatsapp: memberRes.data.whatsapp || "",
-            skype: memberRes.data.skype || "",
           });
         } else {
           // New Google user without club_members row – pre-fill email
@@ -179,7 +173,6 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
         email: form.email.trim() || null,
         phone: form.phone.trim() || null,
         whatsapp: form.whatsapp.trim() || null,
-        skype: form.skype.trim() || null,
         user_id: user.id,
       };
 
@@ -295,11 +288,6 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
             <label className="text-sm text-muted-foreground mb-1 block">{t.whatsappLabel}</label>
             <Input type="tel" value={form.whatsapp} onChange={handleChange("whatsapp")} />
           </div>
-        </div>
-
-        <div>
-          <label className="text-sm text-muted-foreground mb-1 block">{t.skypeLabel}</label>
-          <Input value={form.skype} onChange={handleChange("skype")} />
         </div>
 
         <p className="text-xs text-muted-foreground">{t.required}</p>
