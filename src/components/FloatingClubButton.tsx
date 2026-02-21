@@ -54,7 +54,8 @@ const FloatingClubButton = () => {
       {/* Floating button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`fixed ${isHome ? "bottom-6" : "bottom-[76px] md:bottom-6"} left-4 md:left-6 z-50 flex items-center gap-2 rounded-full bg-primary px-4 md:px-5 py-2.5 md:py-3 text-primary-foreground shadow-lg transition-all duration-300 hover:bg-primary/90 hover:shadow-xl hover:scale-105 active:scale-95`}
+        style={{ backgroundColor: "#6050DC" }}
+        className={`fixed ${isHome ? "bottom-6" : "bottom-[76px] md:bottom-6"} left-4 md:left-6 z-50 flex items-center gap-2 rounded-full px-4 md:px-5 py-2.5 md:py-3 text-white shadow-lg transition-all duration-300 hover:opacity-90 hover:shadow-xl hover:scale-105 active:scale-95`}
         aria-label={t.club}
       >
         {isOpen ? (
@@ -80,7 +81,7 @@ const FloatingClubButton = () => {
       >
         <div className="mx-4 mb-20 rounded-2xl overflow-hidden shadow-2xl">
           {/* Header */}
-          <div className="bg-primary p-6 text-primary-foreground relative">
+          <div style={{ backgroundColor: "#6050DC" }} className="p-6 text-white relative">
             <button
               onClick={() => setIsOpen(false)}
               className="absolute top-4 right-4 text-primary-foreground/80 hover:text-primary-foreground transition-colors"
@@ -100,7 +101,8 @@ const FloatingClubButton = () => {
             <Link
               to="/club"
               onClick={() => setIsOpen(false)}
-              className="inline-block rounded-full bg-primary px-8 py-3 text-primary-foreground font-semibold text-sm hover:bg-primary/90 transition-colors shadow-md"
+              style={{ backgroundColor: "#6050DC" }}
+              className="inline-block rounded-full px-8 py-3 text-white font-semibold text-sm hover:opacity-90 transition-colors shadow-md"
             >
               {t.joinBtn}
             </Link>
@@ -110,7 +112,8 @@ const FloatingClubButton = () => {
               <Link
                 to="/club"
                 onClick={() => setIsOpen(false)}
-                className="text-primary font-medium hover:underline"
+                style={{ color: "#6050DC" }}
+                className="font-medium hover:underline"
               >
                 {t.login}
               </Link>
