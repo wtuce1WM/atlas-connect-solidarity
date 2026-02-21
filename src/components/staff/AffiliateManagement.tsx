@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Users, TrendingUp, DollarSign, Plus, Edit, Trash2, Key, UserPlus, UserX, Eye, EyeOff } from "lucide-react";
+import { Loader2, Users, TrendingUp, DollarSign, Plus, Edit, Trash2, Key, UserPlus, UserX, Eye, EyeOff, Building2 } from "lucide-react";
 
 interface Affiliate {
   id: string;
@@ -54,7 +54,11 @@ const ACCOUNT_TYPES = [
   { value: "structure_moyenne", label: "Structure Moyenne" },
 ];
 
-const AffiliateManagement = () => {
+interface AffiliateManagementProps {
+  onViewAffiliateBusinesses?: (affiliateId: string) => void;
+}
+
+const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementProps) => {
   const { toast } = useToast();
   const [affiliates, setAffiliates] = useState<Affiliate[]>([]);
   const [categories, setCategories] = useState<{ id: string; name_fr: string }[]>([]);
@@ -789,19 +793,31 @@ const AffiliateManagement = () => {
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Nom</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Catégorie</TableHead>
-                    <TableHead>Contact</TableHead>
-                    <TableHead className="text-center">Compte</TableHead>
-                    <TableHead className="text-center">Statut</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
+                 <TableRow>
+                     <TableHead className="w-12"></TableHead>
+                     <TableHead>Nom</TableHead>
+                     <TableHead>Type</TableHead>
+                     <TableHead>Catégorie</TableHead>
+                     <TableHead>Contact</TableHead>
+                     <TableHead className="text-center">Compte</TableHead>
+                     <TableHead className="text-center">Statut</TableHead>
+                     <TableHead className="text-right">Actions</TableHead>
+                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {affiliates.map((affiliate) => (
-                    <TableRow key={affiliate.id}>
+                   <TableRow key={affiliate.id}>
+                      <TableCell className="p-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => onViewAffiliateBusinesses?.(affiliate.id)}
+                          title="Voir les entreprises de cet affilié"
+                          className="h-8 w-8"
+                        >
+                          <Building2 className="h-4 w-4 text-primary" />
+                        </Button>
+                      </TableCell>
                       <TableCell className="font-medium">
                         {affiliate.name}
                         {affiliate.ice && (
