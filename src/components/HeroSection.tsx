@@ -260,19 +260,18 @@ const HeroSection = () => {
                 visible={showSuggestions && suggestions.length > 0}
               />
             </div>
-            <div className="flex items-center gap-2">
-              <Button
+            <div className="flex items-center justify-center gap-2">
+              <button
                 type="submit"
-                size="lg"
-                className="flex-1 text-white font-semibold rounded-full py-6 shadow-md text-lg border border-black/10"
+                className="flex items-center justify-center gap-2 rounded-full px-4 py-2.5 text-white font-semibold text-sm shadow-lg"
                 style={{ backgroundColor: "#25D366" }}
               >
                 {language === "fr" ? "Recherche" : language === "ar" ? "بحث" : "Search"}
-              </Button>
+              </button>
               <button
                 type="button"
                 onClick={toggleRecording}
-                className={`flex-shrink-0 flex items-center justify-center w-14 h-14 rounded-2xl shadow-lg transition-all ${
+                className={`flex-shrink-0 flex items-center justify-center w-11 h-11 rounded-xl shadow-lg transition-all ${
                   voiceStatus === "recording"
                     ? "bg-red-100 animate-pulse"
                     : voiceStatus === "processing"
@@ -282,9 +281,9 @@ const HeroSection = () => {
                 title={language === "fr" ? "Recherche vocale" : language === "ar" ? "بحث صوتي" : "Voice search"}
               >
                 {voiceStatus === "processing" ? (
-                  <Loader2 className="h-6 w-6 text-black animate-spin" />
+                  <Loader2 className="h-5 w-5 text-black animate-spin" />
                 ) : (
-                  <Mic className={`h-6 w-6 ${voiceStatus === "recording" ? "text-red-600" : "text-black"}`} />
+                  <Mic className={`h-5 w-5 ${voiceStatus === "recording" ? "text-red-600" : "text-black"}`} />
                 )}
               </button>
             </div>
