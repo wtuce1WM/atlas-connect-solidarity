@@ -1,12 +1,15 @@
-import { useState } from "react";
 import { MessageCircle, X } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const WHATSAPP_NUMBER = "212661439221";
 
-const FloatingWhatsAppButton = () => {
-  const [isOpen, setIsOpen] = useState(false);
+interface FloatingWhatsAppButtonProps {
+  isOpen: boolean;
+  onToggle: () => void;
+}
+
+const FloatingWhatsAppButton = ({ isOpen, onToggle }: FloatingWhatsAppButtonProps) => {
   const location = useLocation();
   const { language } = useLanguage();
 
@@ -55,7 +58,7 @@ const FloatingWhatsAppButton = () => {
     <>
       {/* Floating button */}
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={onToggle}
         style={{ backgroundColor: "#25D366" }}
         className={`fixed ${isHome ? "bottom-6" : "bottom-[76px] md:bottom-6"} right-4 md:right-6 ${isOpen ? "z-[60]" : "z-50"} flex items-center gap-2 rounded-full px-4 md:px-5 py-2.5 md:py-3 text-white shadow-lg transition-all duration-300 hover:opacity-90 hover:shadow-xl hover:scale-105 active:scale-95`}
         aria-label={t.whatsapp}
@@ -72,7 +75,7 @@ const FloatingWhatsAppButton = () => {
 
       {/* Panel overlay */}
       {isOpen && (
-        <div className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm" onClick={() => setIsOpen(false)} />
+        <div className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm" onClick={onToggle} />
       )}
 
       {/* Slide-up panel */}
@@ -85,7 +88,7 @@ const FloatingWhatsAppButton = () => {
           {/* Header */}
           <div style={{ backgroundColor: "#25D366" }} className="p-6 text-white relative">
             <button
-              onClick={(e) => { e.stopPropagation(); setIsOpen(false); }}
+              onClick={(e) => { e.stopPropagation(); onToggle(); }}
               className="absolute top-3 right-3 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/40 text-white transition-colors cursor-pointer"
               aria-label="Close"
             >
@@ -103,7 +106,7 @@ const FloatingWhatsAppButton = () => {
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={() => setIsOpen(false)}
+              onClick={onToggle}
               style={{ backgroundColor: "#25D366" }}
               className="inline-flex items-center gap-2 rounded-full px-8 py-3 text-white font-semibold text-sm hover:opacity-90 transition-colors shadow-md"
             >
