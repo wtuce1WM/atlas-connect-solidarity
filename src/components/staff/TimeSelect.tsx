@@ -24,7 +24,7 @@ const TimeSelect = ({ value, onChange, disabled }: TimeSelectProps) => {
   const update = (newH: string, newM: string) => onChange(`${newH}:${newM}`);
 
   return (
-    <div className={`flex items-center gap-0.5 ${disabled ? "opacity-40" : ""}`}>
+    <div className={`flex items-center gap-0.5 ${disabled || isEmpty ? "opacity-40" : ""}`}>
       <Select value={isEmpty ? undefined : hour} onValueChange={(v) => update(v, minute)} disabled={disabled}>
         <SelectTrigger className={`w-[52px] h-8 text-xs px-1.5 ${disabled ? "bg-muted text-muted-foreground" : ""}`}>
           <SelectValue placeholder="--" />
