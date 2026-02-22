@@ -1099,9 +1099,10 @@ const BusinessDetail = () => {
                         </p>
                       )}
                       {dest.description && (
-                        <p className={`text-sm leading-relaxed ${isVerified ? 'text-white/70' : 'text-muted-foreground'}`}>
-                          {dest.description}
-                        </p>
+                        <div
+                          className={`prose prose-sm max-w-none text-sm leading-relaxed ${isVerified ? 'text-white/70 prose-invert' : 'text-muted-foreground'}`}
+                          dangerouslySetInnerHTML={{ __html: dest.description }}
+                        />
                       )}
                     </CardContent>
                   </Card>
