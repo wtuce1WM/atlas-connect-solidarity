@@ -523,19 +523,10 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
       .sort((a, b) => a.name_fr.localeCompare(b.name_fr, 'fr'));
   }, [selectedCategory, gammeCategories, dbGammes]);
 
-  // Get badges available for the selected subcategories
+  // Get all available badges
   const availableBadges = useMemo(() => {
-    const selectedSubcategoryIds = formData.categories
-      .map(catName => dbSubcategories.find(sc => sc.name_fr === catName)?.id)
-      .filter(Boolean) as string[];
-    if (selectedSubcategoryIds.length === 0) return [];
-    const badgeIdsForSubcats = badgeSubcategories
-      .filter(bs => selectedSubcategoryIds.includes(bs.subcategory_id))
-      .map(bs => bs.badge_id);
-    return dbBadges
-      .filter(b => badgeIdsForSubcats.includes(b.id))
-      .sort((a, b) => a.name_fr.localeCompare(b.name_fr, 'fr'));
-  }, [formData.categories, dbSubcategories, badgeSubcategories, dbBadges]);
+    return dbBadges.sort((a, b) => a.name_fr.localeCompare(b.name_fr, 'fr'));
+  }, [dbBadges]);
 
   // Get neighborhoods for the selected city
   const neighborhoodsForCity = useMemo(() => {
