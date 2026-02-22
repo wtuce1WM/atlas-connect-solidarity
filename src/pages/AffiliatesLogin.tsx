@@ -21,7 +21,6 @@ const AffiliatesLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSendingReset, setIsSendingReset] = useState(false);
-  const [resetEmail, setResetEmail] = useState("");
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
   const translations = {
@@ -119,14 +118,17 @@ const AffiliatesLogin = () => {
   };
 
   const handleForgotPassword = async () => {
-    const emailToReset = resetEmail || email;
-    if (!emailToReset) {
-      toast({ title: t.error, description: "Email required", variant: "destructive" });
+    if (!email) {
+      toast({ 
+        title: t.error, 
+        description: language === "en" ? "Please enter your email first" : language === "ar" ? "يرجى إدخال بريدك الإلكتروني أولاً" : "Veuillez d'abord saisir votre email", 
+        variant: "destructive" 
+      });
       return;
     }
     setIsSendingReset(true);
     try {
-      await supabase.auth.resetPasswordForEmail(emailToReset, {
+      await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/affiliates/reset-password`,
       });
       toast({ title: t.resetSent, description: t.resetSentDesc });
