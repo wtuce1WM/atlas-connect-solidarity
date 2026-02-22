@@ -95,6 +95,7 @@ interface Destination {
   wikipedia_fr: string | null;
   wikipedia_en: string | null;
   wikipedia_ar: string | null;
+  hook: string | null;
   description: string | null;
   sort_order: number | null;
   image_url: string | null;
@@ -171,7 +172,7 @@ const LocationManagement = () => {
   const [destinationForm, setDestinationForm] = useState({
     name_fr: "", name_en: "", name_ar: "", region: "",
     latitude: "", longitude: "", wikipedia_fr: "", wikipedia_en: "", wikipedia_ar: "",
-    description: "", sort_order: 0, image_url: "",
+    hook: "", description: "", sort_order: 0, image_url: "",
   });
   const [poiSectionOpen, setPoiSectionOpen] = useState(false);
   const [pois, setPois] = useState<PointOfInterest[]>([]);
@@ -550,7 +551,7 @@ const LocationManagement = () => {
     setDestinationForm({
       name_fr: "", name_en: "", name_ar: "", region: "",
       latitude: "", longitude: "", wikipedia_fr: "", wikipedia_en: "", wikipedia_ar: "",
-      description: "", sort_order: 0, image_url: "",
+      hook: "", description: "", sort_order: 0, image_url: "",
     });
   };
 
@@ -561,7 +562,7 @@ const LocationManagement = () => {
       region: d.region || "",
       latitude: d.latitude?.toString() || "", longitude: d.longitude?.toString() || "",
       wikipedia_fr: d.wikipedia_fr || "", wikipedia_en: d.wikipedia_en || "", wikipedia_ar: d.wikipedia_ar || "",
-      description: d.description || "", sort_order: d.sort_order || 0,
+      hook: d.hook || "", description: d.description || "", sort_order: d.sort_order || 0,
       image_url: d.image_url || "",
     });
     setShowDestinationForm(true);
@@ -586,7 +587,8 @@ const LocationManagement = () => {
       wikipedia_fr: destinationForm.wikipedia_fr.trim() || null,
       wikipedia_en: destinationForm.wikipedia_en.trim() || null,
       wikipedia_ar: destinationForm.wikipedia_ar.trim() || null,
-      description: destinationForm.description.trim().slice(0, 10000) || null,
+      hook: destinationForm.hook.trim().slice(0, 120) || null,
+      description: destinationForm.description.trim().slice(0, 500) || null,
       sort_order: destinationForm.sort_order,
       image_url: destinationForm.image_url.trim() || null,
     };
@@ -1452,13 +1454,39 @@ const LocationManagement = () => {
                 </CardContent>
               </Card>
 
-              {/* Description */}
+              {/* Hook (H2) */}
               <Card>
-                <CardHeader><CardTitle className="text-lg">Description</CardTitle></CardHeader>
+                <CardHeader><CardTitle className="text-lg">Hook (H2)</CardTitle></CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <Input
+                      value={destinationForm.hook}
+                      onChange={(e) => setDestinationForm({ ...destinationForm, hook: e.target.value.slice(0, 120) })}
+                      placeholder="Accroche courte pour la destination (balise H2)..."
+                      maxLength={120}
+                    />
+                    <p className="text-xs text-muted-foreground text-right">{destinationForm.hook.length}/120</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Description Rich Text */}
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg">Description</CardTitle>
+                    <span className="text-xs text-muted-foreground">{destinationForm.description.replace(/<[^>]*>/g, '').length}/500 caractères</span>
+                  </div>
+                </CardHeader>
                 <CardContent>
                   <RichTextEditor
                     content={destinationForm.description}
-                    onChange={(val) => setDestinationForm({ ...destinationForm, description: val })}
+                    onChange={(val) => {
+                      const plainText = val.replace(/<[^>]*>/g, '');
+                      if (plainText.length <= 500) {
+                        setDestinationForm({ ...destinationForm, description: val });
+                      }
+                    }}
                   />
                 </CardContent>
               </Card>
