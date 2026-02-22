@@ -463,7 +463,6 @@ serve(async (req) => {
     // Level 1: Exact full-text search with ts_rank (services/name weight A > description weight B)
     if (queryForExpansion || city || category) {
       const expandedQuery = queryForExpansion ? expandQuery(queryForExpansion) : null;
-      
 
       if (expandedQuery) {
         // Use ranked RPC function: prioritizes matches in services/name over description
@@ -668,6 +667,34 @@ serve(async (req) => {
           const nonTraiteur = cats.filter(c => c !== "traiteurs");
           return nonTraiteur.length > 0;
         });
+      }
+    }
+
+    // Deprioritize visit-only businesses (Musées, Monuments) when intent is commercial (purchase/service)
+    {
+      const VISIT_SERVICES = ["musées", "musées thématiques", "monuments", "patrimoine, histoire & culture"];
+      const VISIT_KEYWORDS = /\b(visiter|visite|voir|découvrir|decouvrir|explorer|admirer|musée|musee|monument|patrimoine|historique)\b/i;
+      const isVisitIntent = effectiveQuery ? VISIT_KEYWORDS.test(effectiveQuery) : false;
+      if (!isVisitIntent && detectedService && businesses.length > 1) {
+        const detectedLower = detectedService.toLowerCase();
+        const isVisitService = VISIT_SERVICES.includes(detectedLower);
+        if (!isVisitService) {
+          const commercial: typeof businesses = [];
+          const visitOnly: typeof businesses = [];
+          for (const b of businesses) {
+            const svcLower = (b.services || []).map((s: string) => s.toLowerCase());
+            const hasVisitService = svcLower.some(s => VISIT_SERVICES.includes(s));
+            const mainCatCulture = (b.main_category || "").toLowerCase() === "culture";
+            if (hasVisitService && mainCatCulture) {
+              visitOnly.push(b);
+            } else {
+              commercial.push(b);
+            }
+          }
+          if (commercial.length > 0) {
+            businesses = [...commercial, ...visitOnly];
+          }
+        }
       }
     }
 
