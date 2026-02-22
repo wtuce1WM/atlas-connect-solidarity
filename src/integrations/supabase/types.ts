@@ -297,6 +297,45 @@ export type Database = {
           },
         ]
       }
+      business_badges: {
+        Row: {
+          badge_id: string
+          business_id: string
+          created_at: string | null
+          id: string
+          is_default: boolean
+        }
+        Insert: {
+          badge_id: string
+          business_id: string
+          created_at?: string | null
+          id?: string
+          is_default?: boolean
+        }
+        Update: {
+          badge_id?: string
+          business_id?: string
+          created_at?: string | null
+          id?: string
+          is_default?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_badges_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "badges"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_badges_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_destinations: {
         Row: {
           business_id: string
