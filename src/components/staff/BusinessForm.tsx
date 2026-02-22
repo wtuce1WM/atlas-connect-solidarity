@@ -415,6 +415,8 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
     poissonnerie_details: (business as any)?.poissonnerie_details || null,
     destination_hook: (business as any)?.destination_hook || "",
     destination_description: (business as any)?.destination_description || "",
+    poi_hook: (business as any)?.poi_hook || "",
+    poi_description: (business as any)?.poi_description || "",
   });
   
   // Business labels state (managed separately)
@@ -658,6 +660,8 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
       poissonnerie_details: formData.poissonnerie_details || null,
       destination_hook: (formData as any).destination_hook?.trim().slice(0, 120) || null,
       destination_description: (formData as any).destination_description?.trim().slice(0, 500) || null,
+      poi_hook: (formData as any).poi_hook?.trim().slice(0, 120) || null,
+      poi_description: (formData as any).poi_description?.trim().slice(0, 500) || null,
     };
 
     try {
@@ -1871,6 +1875,32 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                   </button>
                 );
               })}
+            </div>
+
+            {/* Global POI hook & description */}
+            <div className="mt-3 space-y-3">
+              <div className="space-y-1">
+                <Label className="text-sm font-medium">Hook Points d'intérêt (H2) — {((formData as any).poi_hook || "").length}/120</Label>
+                <Input
+                  value={(formData as any).poi_hook || ""}
+                  onChange={(e) => handleChange("poi_hook" as any, e.target.value.slice(0, 120))}
+                  placeholder="Accroche courte pour la section points d'intérêt..."
+                  maxLength={120}
+                  className="h-9 text-sm"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-sm font-medium">Description Points d'intérêt — {((formData as any).poi_description || "").replace(/<[^>]*>/g, '').length}/500</Label>
+                <RichTextEditor
+                  content={(formData as any).poi_description || ""}
+                  onChange={(val) => {
+                    const plainText = val.replace(/<[^>]*>/g, '');
+                    if (plainText.length <= 500) {
+                      handleChange("poi_description" as any, val);
+                    }
+                  }}
+                />
+              </div>
             </div>
           </div>
         )}
