@@ -63,6 +63,9 @@ interface Business {
   longitude: number | null;
   images: string[] | null;
   pdf_url: string | null;
+  pdf_name: string | null;
+  pdf_2_url: string | null;
+  pdf_2_name: string | null;
   online_shop_url: string | null;
   facebook_url: string | null;
   instagram_url: string | null;
@@ -182,6 +185,7 @@ const BusinessDetail = () => {
 
   const { validImages, isValidating: isValidatingImages, brokenCount: brokenImagesCount } = useValidatedImages(business?.images ?? null);
   const { isValid: isPdfValid, isValidating: isValidatingPdf } = useValidatedUrl(business?.pdf_url ?? null);
+  const { isValid: isPdf2Valid, isValidating: isValidatingPdf2 } = useValidatedUrl(business?.pdf_2_url ?? null);
 
   useEffect(() => {
     const fetchBusiness = async () => {
@@ -668,8 +672,8 @@ const BusinessDetail = () => {
                 </div>
               )}
 
-              {/* PDF */}
-              {business.pdf_url && !isValidatingPdf && isPdfValid && (
+              {/* PDF Documents */}
+              {((business.pdf_url && !isValidatingPdf && isPdfValid) || (business.pdf_2_url && !isValidatingPdf2 && isPdf2Valid)) && (
                 <Card>
                   <CardContent className="p-4">
                     <details className="group">
@@ -680,14 +684,35 @@ const BusinessDetail = () => {
                         </h2>
                         <ChevronDown className="h-5 w-5 text-muted-foreground transition-transform group-open:rotate-180" />
                       </summary>
-                      <div className="space-y-3 mt-4">
-                        <div className="aspect-[3/4] w-full rounded-lg overflow-hidden border bg-muted">
-                          <iframe src={`${business.pdf_url}#toolbar=0&navpanes=0`} className="w-full h-full" title="Documents annexes" />
-                        </div>
-                        <a href={business.pdf_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors">
-                          <Download className="h-4 w-4" />
-                          Télécharger
-                        </a>
+                      <div className="space-y-6 mt-4">
+                        {business.pdf_url && !isValidatingPdf && isPdfValid && (
+                          <div className="space-y-3">
+                            {business.pdf_name && (
+                              <h3 className="font-medium">{business.pdf_name}</h3>
+                            )}
+                            <div className="aspect-[3/4] w-full rounded-lg overflow-hidden border bg-muted">
+                              <iframe src={`${business.pdf_url}#toolbar=0&navpanes=0`} className="w-full h-full" title={business.pdf_name || "Document PDF 1"} />
+                            </div>
+                            <a href={business.pdf_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors">
+                              <Download className="h-4 w-4" />
+                              Télécharger
+                            </a>
+                          </div>
+                        )}
+                        {business.pdf_2_url && !isValidatingPdf2 && isPdf2Valid && (
+                          <div className="space-y-3">
+                            {business.pdf_2_name && (
+                              <h3 className="font-medium">{business.pdf_2_name}</h3>
+                            )}
+                            <div className="aspect-[3/4] w-full rounded-lg overflow-hidden border bg-muted">
+                              <iframe src={`${business.pdf_2_url}#toolbar=0&navpanes=0`} className="w-full h-full" title={business.pdf_2_name || "Document PDF 2"} />
+                            </div>
+                            <a href={business.pdf_2_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors">
+                              <Download className="h-4 w-4" />
+                              Télécharger
+                            </a>
+                          </div>
+                        )}
                       </div>
                     </details>
                   </CardContent>

@@ -500,6 +500,9 @@ export type Database = {
           opening_hours: Json | null
           other_booking_name: string | null
           other_booking_url: string | null
+          pdf_2_name: string | null
+          pdf_2_url: string | null
+          pdf_name: string | null
           pdf_url: string | null
           phone: string | null
           pinterest_url: string | null
@@ -592,6 +595,9 @@ export type Database = {
           opening_hours?: Json | null
           other_booking_name?: string | null
           other_booking_url?: string | null
+          pdf_2_name?: string | null
+          pdf_2_url?: string | null
+          pdf_name?: string | null
           pdf_url?: string | null
           phone?: string | null
           pinterest_url?: string | null
@@ -684,6 +690,9 @@ export type Database = {
           opening_hours?: Json | null
           other_booking_name?: string | null
           other_booking_url?: string | null
+          pdf_2_name?: string | null
+          pdf_2_url?: string | null
+          pdf_name?: string | null
           pdf_url?: string | null
           phone?: string | null
           pinterest_url?: string | null
@@ -1858,6 +1867,9 @@ export type Database = {
           opening_hours: Json | null
           other_booking_name: string | null
           other_booking_url: string | null
+          pdf_2_name: string | null
+          pdf_2_url: string | null
+          pdf_name: string | null
           pdf_url: string | null
           phone: string | null
           pinterest_url: string | null
