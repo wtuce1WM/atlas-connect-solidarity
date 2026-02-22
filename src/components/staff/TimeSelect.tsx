@@ -24,10 +24,10 @@ const TimeSelect = ({ value, onChange, disabled }: TimeSelectProps) => {
   const update = (newH: string, newM: string) => onChange(`${newH}:${newM}`);
 
   return (
-    <div className="flex items-center gap-0.5">
-      <Select value={hour} onValueChange={(v) => update(v, minute)} disabled={disabled}>
-        <SelectTrigger className="w-[52px] h-8 text-xs px-1.5">
-          <SelectValue />
+    <div className={`flex items-center gap-0.5 ${disabled ? "opacity-40" : ""}`}>
+      <Select value={isEmpty ? undefined : hour} onValueChange={(v) => update(v, minute)} disabled={disabled}>
+        <SelectTrigger className={`w-[52px] h-8 text-xs px-1.5 ${disabled ? "bg-muted text-muted-foreground" : ""}`}>
+          <SelectValue placeholder="--" />
         </SelectTrigger>
         <SelectContent>
           {HOURS.map((hh) => (
@@ -35,10 +35,10 @@ const TimeSelect = ({ value, onChange, disabled }: TimeSelectProps) => {
           ))}
         </SelectContent>
       </Select>
-      <span className="text-muted-foreground text-xs">:</span>
-      <Select value={minute} onValueChange={(v) => update(hour, v)} disabled={disabled}>
-        <SelectTrigger className="w-[48px] h-8 text-xs px-1.5">
-          <SelectValue />
+      <span className={`text-xs ${disabled ? "text-muted-foreground/50" : "text-muted-foreground"}`}>:</span>
+      <Select value={isEmpty ? undefined : minute} onValueChange={(v) => update(hour, v)} disabled={disabled}>
+        <SelectTrigger className={`w-[48px] h-8 text-xs px-1.5 ${disabled ? "bg-muted text-muted-foreground" : ""}`}>
+          <SelectValue placeholder="--" />
         </SelectTrigger>
         <SelectContent>
           {MINUTES.map((mm) => (
