@@ -490,8 +490,22 @@ serve(async (req) => {
 
     // Level 1: Exact full-text search with ts_rank (services/name weight A > description weight B)
     if (queryForExpansion || city || category) {
-      const expandedQuery = queryForExpansion ? expandQuery(queryForExpansion) : null;
-      if (expandedQuery) console.log(`expandedQuery: "${expandedQuery}" (from: "${queryForExpansion}")`);
+      // When a service was detected and injected, don't expand service name words with synonyms
+      // to avoid polluting the tsquery with unrelated terms (e.g. "vin" expanding to "bar")
+      let expandedQuery: string | null = null;
+      if (queryForExpansion && detectedService) {
+        const svcWords = detectedService.toLowerCase().split(/\s+/).filter(w => w.length > 0);
+        const remainderWords = queryForExpansion.toLowerCase().split(/\s+/).filter(w => !svcWords.includes(w) && w.length > 0);
+        // Service name words: just sanitize, no synonym expansion
+        const svcTerms = svcWords.map(w => sanitizeTerm(w)).filter(t => t.length > 1);
+        // Remainder words: expand with synonyms
+        const remainderExpanded = remainderWords.length > 0 ? expandQuery(remainderWords.join(" ")) : "";
+        const parts = [svcTerms.join(" & "), remainderExpanded].filter(p => p.length > 0);
+        expandedQuery = parts.join(" & ") || null;
+      } else if (queryForExpansion) {
+        expandedQuery = expandQuery(queryForExpansion);
+      }
+      if (expandedQuery) console.log(`tsquery: "${expandedQuery}" (service: ${detectedService || "none"}, from: "${queryForExpansion}")`);
 
       if (expandedQuery) {
         // Use ranked RPC function: prioritizes matches in services/name over description
