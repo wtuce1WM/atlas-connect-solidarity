@@ -2428,106 +2428,94 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                   </button>
                 )}
               </div>
+
+              {/* Poissonnerie: per-service qualifiers */}
+              {formData.categories.some(c => c.toLowerCase().includes("poisson")) && (() => {
+                const allDetails: Record<string, any> = formData.poissonnerie_details || {};
+                const PROVENANCE_OPTIONS = ["Atlantique", "Méditerranée", "Local", "Importé", "Élevage"];
+                const FRESHNESS_OPTIONS = ["Arrivage du jour", "Frais", "Surgelé", "Sur commande", "Vivant"];
+                const PREPARATION_OPTIONS = ["Écaillage", "Filetage", "Découpe", "Vidage", "Cuisson sur place", "Livraison", "Sous vide"];
+
+                const updateServiceDetail = (serviceName: string, key: string, value: any) => {
+                  const svcDetails = allDetails[serviceName] || {};
+                  const updated = { ...allDetails, [serviceName]: { ...svcDetails, [key]: value } };
+                  handleChange("poissonnerie_details", updated as any);
+                };
+
+                const toggleServiceArrayItem = (serviceName: string, key: string, item: string) => {
+                  const svcDetails = allDetails[serviceName] || {};
+                  const arr: string[] = svcDetails[key] || [];
+                  updateServiceDetail(serviceName, key, arr.includes(item) ? arr.filter((v: string) => v !== item) : [...arr, item]);
+                };
+
+                return (
+                  <div className="mt-4 space-y-3">
+                    <Label className="text-sm font-semibold flex items-center gap-2">
+                      🐟 Détails par service
+                    </Label>
+                    {formData.services.map((service) => {
+                      const svcDetails = allDetails[service] || {};
+                      return (
+                        <details key={service} className="p-3 bg-muted/40 border rounded-lg">
+                          <summary className="cursor-pointer font-medium text-sm flex items-center gap-2">
+                            <span>🐟</span> {service}
+                            {(svcDetails.provenance?.length > 0 || svcDetails.freshness?.length > 0 || svcDetails.preparation?.length > 0) && (
+                              <span className="text-xs text-muted-foreground ml-auto">
+                                ({[svcDetails.provenance?.length || 0, svcDetails.freshness?.length || 0, svcDetails.preparation?.length || 0].reduce((a: number, b: number) => a + b, 0)} options)
+                              </span>
+                            )}
+                          </summary>
+                          <div className="mt-3 space-y-3 pl-2">
+                            {/* Provenance */}
+                            <div className="space-y-1">
+                              <Label className="text-xs font-medium">Provenance</Label>
+                              <div className="flex flex-wrap gap-2">
+                                {PROVENANCE_OPTIONS.map(opt => (
+                                  <label key={opt} className="flex items-center gap-1.5 cursor-pointer text-xs p-1.5 rounded hover:bg-background transition-colors">
+                                    <input type="checkbox" checked={(svcDetails.provenance || []).includes(opt)} onChange={() => toggleServiceArrayItem(service, "provenance", opt)} className="h-3.5 w-3.5 rounded border-input" />
+                                    {opt}
+                                  </label>
+                                ))}
+                              </div>
+                              <Input value={svcDetails.provenance_other || ""} onChange={(e) => updateServiceDetail(service, "provenance_other", e.target.value)} placeholder="Précisions..." className="h-8 text-xs mt-1" />
+                            </div>
+                            {/* Fraîcheur */}
+                            <div className="space-y-1">
+                              <Label className="text-xs font-medium">Fraîcheur / Arrivage</Label>
+                              <div className="flex flex-wrap gap-2">
+                                {FRESHNESS_OPTIONS.map(opt => (
+                                  <label key={opt} className="flex items-center gap-1.5 cursor-pointer text-xs p-1.5 rounded hover:bg-background transition-colors">
+                                    <input type="checkbox" checked={(svcDetails.freshness || []).includes(opt)} onChange={() => toggleServiceArrayItem(service, "freshness", opt)} className="h-3.5 w-3.5 rounded border-input" />
+                                    {opt}
+                                  </label>
+                                ))}
+                              </div>
+                              <Input value={svcDetails.freshness_other || ""} onChange={(e) => updateServiceDetail(service, "freshness_other", e.target.value)} placeholder="Précisions..." className="h-8 text-xs mt-1" />
+                            </div>
+                            {/* Préparation */}
+                            <div className="space-y-1">
+                              <Label className="text-xs font-medium">Services de préparation</Label>
+                              <div className="flex flex-wrap gap-2">
+                                {PREPARATION_OPTIONS.map(opt => (
+                                  <label key={opt} className="flex items-center gap-1.5 cursor-pointer text-xs p-1.5 rounded hover:bg-background transition-colors">
+                                    <input type="checkbox" checked={(svcDetails.preparation || []).includes(opt)} onChange={() => toggleServiceArrayItem(service, "preparation", opt)} className="h-3.5 w-3.5 rounded border-input" />
+                                    {opt}
+                                  </label>
+                                ))}
+                              </div>
+                              <Input value={svcDetails.preparation_other || ""} onChange={(e) => updateServiceDetail(service, "preparation_other", e.target.value)} placeholder="Autres préparations..." className="h-8 text-xs mt-1" />
+                            </div>
+                          </div>
+                        </details>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
             </>
           )}
           </div>
         </div>
-
-        {/* Poissonnerie-specific details */}
-        {formData.categories.some(c => c.toLowerCase().includes("poisson")) && (() => {
-          const details = formData.poissonnerie_details || {};
-          const updateDetails = (key: string, value: any) => {
-            handleChange("poissonnerie_details", { ...details, [key]: value } as any);
-          };
-          const toggleArrayItem = (key: string, item: string) => {
-            const arr: string[] = details[key] || [];
-            updateDetails(key, arr.includes(item) ? arr.filter((v: string) => v !== item) : [...arr, item]);
-          };
-
-          const PROVENANCE_OPTIONS = ["Atlantique", "Méditerranée", "Local", "Importé", "Élevage"];
-          const FRESHNESS_OPTIONS = ["Arrivage du jour", "Frais", "Surgelé", "Sur commande", "Vivant"];
-          const PREPARATION_OPTIONS = ["Écaillage", "Filetage", "Découpe", "Vidage", "Cuisson sur place", "Livraison", "Sous vide"];
-
-          return (
-            <div className="space-y-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <Label className="text-lg font-semibold flex items-center gap-2">
-                🐟 Détails Poissonnerie
-              </Label>
-
-              {/* Provenance */}
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Provenance</Label>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                  {PROVENANCE_OPTIONS.map(opt => (
-                    <label key={opt} className="flex items-center gap-2 cursor-pointer hover:bg-white p-2 rounded-md transition-colors">
-                      <input
-                        type="checkbox"
-                        checked={(details.provenance || []).includes(opt)}
-                        onChange={() => toggleArrayItem("provenance", opt)}
-                        className="h-4 w-4 rounded border-input"
-                      />
-                      <span className="text-sm">{opt}</span>
-                    </label>
-                  ))}
-                </div>
-                <Input
-                  value={details.provenance_other || ""}
-                  onChange={(e) => updateDetails("provenance_other", e.target.value)}
-                  placeholder="Précisions sur la provenance..."
-                  className="mt-1"
-                />
-              </div>
-
-              {/* Fraîcheur / Arrivage */}
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Fraîcheur / Arrivage</Label>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                  {FRESHNESS_OPTIONS.map(opt => (
-                    <label key={opt} className="flex items-center gap-2 cursor-pointer hover:bg-white p-2 rounded-md transition-colors">
-                      <input
-                        type="checkbox"
-                        checked={(details.freshness || []).includes(opt)}
-                        onChange={() => toggleArrayItem("freshness", opt)}
-                        className="h-4 w-4 rounded border-input"
-                      />
-                      <span className="text-sm">{opt}</span>
-                    </label>
-                  ))}
-                </div>
-                <Input
-                  value={details.freshness_other || ""}
-                  onChange={(e) => updateDetails("freshness_other", e.target.value)}
-                  placeholder="Précisions sur la fraîcheur / arrivage..."
-                  className="mt-1"
-                />
-              </div>
-
-              {/* Services de préparation */}
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Services de préparation</Label>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                  {PREPARATION_OPTIONS.map(opt => (
-                    <label key={opt} className="flex items-center gap-2 cursor-pointer hover:bg-white p-2 rounded-md transition-colors">
-                      <input
-                        type="checkbox"
-                        checked={(details.preparation || []).includes(opt)}
-                        onChange={() => toggleArrayItem("preparation", opt)}
-                        className="h-4 w-4 rounded border-input"
-                      />
-                      <span className="text-sm">{opt}</span>
-                    </label>
-                  ))}
-                </div>
-                <Input
-                  value={details.preparation_other || ""}
-                  onChange={(e) => updateDetails("preparation_other", e.target.value)}
-                  placeholder="Autres services de préparation..."
-                  className="mt-1"
-                />
-              </div>
-            </div>
-          );
-        })()}
 
         <div className="space-y-2">
           <Label htmlFor="keywords">Mots-clés (séparés par virgule)</Label>
