@@ -359,7 +359,7 @@ const BusinessDetail = () => {
 
           {/* Rating + reviews count + location line */}
           <div className={`flex items-center gap-2 mt-2 text-sm flex-wrap ${isVerified ? "text-white/70" : "text-muted-foreground"}`}>
-            {!isInstitution && avgOn5 !== null && (
+            {avgOn5 !== null && (
               <>
                 <Star className={`h-4 w-4 fill-current ${isVerified ? 'text-gold' : 'text-primary'}`} />
                 <span className={`font-bold ${isVerified ? 'text-gold' : 'text-primary'}`}>{avgOn20}/20</span>
@@ -1088,7 +1088,7 @@ const BusinessDetail = () => {
         {activeTab === 'reviews' && (
           <div className="max-w-2xl">
             {/* Overall rating */}
-            {!isInstitution && avgOn20 !== null && (
+            {avgOn20 !== null && (
               <div className="flex items-baseline gap-4 mb-8">
                 <span className={`font-bold text-5xl italic ${isVerified ? 'text-gold' : 'text-primary'}`} style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                   {avgOn20}/20
