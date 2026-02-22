@@ -387,6 +387,8 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
     pdf_name: (business as any)?.pdf_name || "",
     pdf_2_url: (business as any)?.pdf_2_url || "",
     pdf_2_name: (business as any)?.pdf_2_name || "",
+    pdf_3_url: (business as any)?.pdf_3_url || "",
+    pdf_3_name: (business as any)?.pdf_3_name || "",
     online_shop_url: (business as any)?.online_shop_url || "",
     opening_hours: (business as any)?.opening_hours as OpeningHours | null,
     rating: (business as any)?.rating?.toString() || "",
@@ -633,6 +635,8 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
       pdf_name: (formData as any).pdf_name?.slice(0, 100) || null,
       pdf_2_url: (formData as any).pdf_2_url || null,
       pdf_2_name: (formData as any).pdf_2_name?.slice(0, 100) || null,
+      pdf_3_url: (formData as any).pdf_3_url || null,
+      pdf_3_name: (formData as any).pdf_3_name?.slice(0, 100) || null,
       online_shop_url: formData.online_shop_url || null,
       opening_hours: formData.opening_hours ? JSON.parse(JSON.stringify(formData.opening_hours)) : null,
       rating: formData.rating ? parseFloat(formData.rating) : null,
@@ -2085,6 +2089,24 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
             <PDFUploader
               pdfUrl={(formData as any).pdf_2_url || ""}
               onChange={(url) => handleChange("pdf_2_url", url)}
+              businessId={business?.id}
+            />
+          </div>
+        </div>
+
+        {/* PDF Document 3 */}
+        <div className="space-y-2">
+          <Label className="text-base font-semibold">Document PDF 3</Label>
+          <div className="space-y-2">
+            <Input
+              placeholder="Nom du document (max 100 caractères)"
+              value={(formData as any).pdf_3_name || ""}
+              onChange={(e) => handleChange("pdf_3_name", e.target.value.slice(0, 100))}
+              maxLength={100}
+            />
+            <PDFUploader
+              pdfUrl={(formData as any).pdf_3_url || ""}
+              onChange={(url) => handleChange("pdf_3_url", url)}
               businessId={business?.id}
             />
           </div>

@@ -9,6 +9,7 @@ interface BrokenFilesMap {
     brokenLogo: boolean;
     brokenPdf: boolean;
     brokenPdf2: boolean;
+    brokenPdf3: boolean;
     brokenLabel: boolean;
     totalBroken: number;
   };
@@ -41,6 +42,9 @@ export const useBusinessBrokenFiles = (businesses: Business[]) => {
       }
       if ((business as any).pdf_2_url) {
         urlMap[(business as any).pdf_2_url] = { businessId: business.id, type: "pdf" };
+      }
+      if ((business as any).pdf_3_url) {
+        urlMap[(business as any).pdf_3_url] = { businessId: business.id, type: "pdf" };
       }
       if (business.label1_url) {
         urlMap[business.label1_url] = { businessId: business.id, type: "label" };
@@ -94,6 +98,7 @@ export const useBusinessBrokenFiles = (businesses: Business[]) => {
       let brokenLogo = false;
       let brokenPdf = false;
       let brokenPdf2 = false;
+      let brokenPdf3 = false;
       let brokenLabel = false;
 
       if (business.images) {
@@ -104,12 +109,13 @@ export const useBusinessBrokenFiles = (businesses: Business[]) => {
       if (business.logo_url && results[business.logo_url]) brokenLogo = true;
       if (business.pdf_url && results[business.pdf_url]) brokenPdf = true;
       if ((business as any).pdf_2_url && results[(business as any).pdf_2_url]) brokenPdf2 = true;
+      if ((business as any).pdf_3_url && results[(business as any).pdf_3_url]) brokenPdf3 = true;
       if (business.label1_url && results[business.label1_url]) brokenLabel = true;
 
-      const totalBroken = brokenImages + (brokenLogo ? 1 : 0) + (brokenPdf ? 1 : 0) + (brokenPdf2 ? 1 : 0) + (brokenLabel ? 1 : 0);
+      const totalBroken = brokenImages + (brokenLogo ? 1 : 0) + (brokenPdf ? 1 : 0) + (brokenPdf2 ? 1 : 0) + (brokenPdf3 ? 1 : 0) + (brokenLabel ? 1 : 0);
 
       if (totalBroken > 0) {
-        newMap[business.id] = { brokenImages, brokenLogo, brokenPdf, brokenPdf2, brokenLabel, totalBroken };
+        newMap[business.id] = { brokenImages, brokenLogo, brokenPdf, brokenPdf2, brokenPdf3, brokenLabel, totalBroken };
       }
     });
 
