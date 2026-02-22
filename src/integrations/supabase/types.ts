@@ -490,6 +490,7 @@ export type Database = {
           wtuce_status: Database["public"]["Enums"]["wtuce_status"] | null
           youtube_url: string | null
           zone_chalandise: string | null
+          zone_city_ids: string[] | null
         }
         Insert: {
           account_type?: string | null
@@ -576,6 +577,7 @@ export type Database = {
           wtuce_status?: Database["public"]["Enums"]["wtuce_status"] | null
           youtube_url?: string | null
           zone_chalandise?: string | null
+          zone_city_ids?: string[] | null
         }
         Update: {
           account_type?: string | null
@@ -662,6 +664,7 @@ export type Database = {
           wtuce_status?: Database["public"]["Enums"]["wtuce_status"] | null
           youtube_url?: string | null
           zone_chalandise?: string | null
+          zone_city_ids?: string[] | null
         }
         Relationships: [
           {
@@ -1824,6 +1827,7 @@ export type Database = {
           wtuce_status: Database["public"]["Enums"]["wtuce_status"] | null
           youtube_url: string | null
           zone_chalandise: string | null
+          zone_city_ids: string[] | null
         }[]
         SetofOptions: {
           from: "*"

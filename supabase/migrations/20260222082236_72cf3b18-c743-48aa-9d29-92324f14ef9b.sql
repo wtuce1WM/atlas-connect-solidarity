@@ -1,0 +1,1 @@
+ALTER TABLE public.businesses ADD COLUMN zone_city_ids uuid[] DEFAULT '{}'::uuid[];
