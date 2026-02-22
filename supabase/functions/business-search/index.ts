@@ -338,14 +338,17 @@ serve(async (req) => {
       radiusKm = 30,
       limit = 51,
       language = "fr",
-    }: SearchParams & { language?: string } = await req.json();
+      mode,
+    }: SearchParams & { language?: string; mode?: string } = await req.json();
+
+    const isAutocomplete = mode === "autocomplete";
 
     let businesses: Business[] = [];
     let searchLevel = "exact";
 
-    // ── Natural language detection: extract keywords via LLM if needed ──
+    // ── Natural language detection: extract keywords via LLM if needed (skip for autocomplete) ──
     let effectiveQuery = query;
-    if (query && isNaturalLanguageQuery(query)) {
+    if (!isAutocomplete && query && isNaturalLanguageQuery(query)) {
       console.log(`Natural language detected: "${query}" → extracting intent...`);
       effectiveQuery = await extractSearchIntent(query);
       console.log(`Intent extracted: "${effectiveQuery}"`);
@@ -669,9 +672,23 @@ serve(async (req) => {
       console.log(`Superlative detected in "${effectiveQuery}" → sorting by rating`);
       businesses = [...businesses].sort((a, b) => getBestRating(b) - getBestRating(a));
     }
-    // LLM Re-ranking: apply only on exact/fuzzy results with a real query AND no superlative override
-    else if (effectiveQuery && businesses.length > 1 && (searchLevel === "exact" || searchLevel === "fuzzy")) {
+    // LLM Re-ranking: apply only on exact/fuzzy results with a real query AND no superlative override (skip for autocomplete)
+    else if (!isAutocomplete && effectiveQuery && businesses.length > 1 && (searchLevel === "exact" || searchLevel === "fuzzy")) {
       businesses = await llmRerank(effectiveQuery, businesses);
+    }
+
+    // Autocomplete mode: return lightweight results
+    if (isAutocomplete) {
+      const lightResults = businesses.slice(0, limit).map(b => ({
+        id: b.id,
+        name: b.name,
+        city: b.city,
+        main_category: b.main_category,
+        logo_url: b.logo_url,
+      }));
+      return new Response(JSON.stringify({ businesses: lightResults, searchLevel, totalResults: lightResults.length }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const result: SearchResult = {
