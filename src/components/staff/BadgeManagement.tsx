@@ -20,6 +20,7 @@ interface BadgeBusiness {
   name: string;
   city: string;
   badge_id: string;
+  is_default: boolean;
 }
 
 interface Subcategory {
@@ -69,11 +70,11 @@ const BadgeManagement = ({ onEditBusiness }: BadgeManagementProps) => {
 
   const fetchData = async () => {
     setLoading(true);
-    const [badgesRes, subcatsRes, badgeSubcatsRes, businessesRes, categoriesRes] = await Promise.all([
+    const [badgesRes, subcatsRes, badgeSubcatsRes, businessBadgesRes, categoriesRes] = await Promise.all([
       supabase.from("badges").select("*").order("name_fr", { ascending: true }),
       supabase.from("subcategories").select("id, name_fr, category_id").order("name_fr"),
       supabase.from("badge_subcategories").select("badge_id, subcategory_id"),
-      supabase.from("businesses").select("id, name, city, badge_id").not("badge_id", "is", null),
+      supabase.from("business_badges" as any).select("business_id, badge_id, is_default"),
       supabase.from("categories").select("id, name_fr"),
     ]);
 
@@ -92,15 +93,41 @@ const BadgeManagement = ({ onEditBusiness }: BadgeManagementProps) => {
     setSubcategories(enrichedSubcats);
     setBadgeSubcategories(badgeSubcatsRes.data || []);
 
+    // Collect unique business IDs per badge from business_badges
+    const bbData = (businessBadgesRes.data || []) as any[];
+    const businessIdsByBadge: Record<string, Set<string>> = {};
+    bbData.forEach((bb: any) => {
+      if (!businessIdsByBadge[bb.badge_id]) businessIdsByBadge[bb.badge_id] = new Set();
+      businessIdsByBadge[bb.badge_id].add(bb.business_id);
+    });
+
+    // Fetch business details for all related businesses
+    const allBusinessIds = [...new Set(bbData.map((bb: any) => bb.business_id))];
+    let businessMap: Record<string, { id: string; name: string; city: string }> = {};
+    if (allBusinessIds.length > 0) {
+      const { data: bizData } = await supabase
+        .from("businesses")
+        .select("id, name, city")
+        .in("id", allBusinessIds);
+      (bizData || []).forEach((b: any) => { businessMap[b.id] = b; });
+    }
+
     const counts: Record<string, number> = {};
     const grouped: Record<string, BadgeBusiness[]> = {};
-    (businessesRes.data || []).forEach((b: any) => {
-      if (b.badge_id) {
-        counts[b.badge_id] = (counts[b.badge_id] || 0) + 1;
-        if (!grouped[b.badge_id]) grouped[b.badge_id] = [];
-        grouped[b.badge_id].push(b);
-      }
-    });
+    for (const [badgeId, bizIds] of Object.entries(businessIdsByBadge)) {
+      counts[badgeId] = bizIds.size;
+      grouped[badgeId] = [...bizIds].map(bizId => {
+        const biz = businessMap[bizId];
+        const isDefault = bbData.some((bb: any) => bb.badge_id === badgeId && bb.business_id === bizId && bb.is_default);
+        return {
+          id: bizId,
+          name: biz?.name || "Inconnu",
+          city: biz?.city || "",
+          badge_id: badgeId,
+          is_default: isDefault,
+        };
+      });
+    }
     setBadgeCounts(counts);
     setBadgeBusinesses(grouped);
     setLoading(false);
@@ -397,7 +424,10 @@ const BadgeManagement = ({ onEditBusiness }: BadgeManagementProps) => {
                           <div className="px-8 py-3 space-y-1">
                             {businesses.map(b => (
                               <div key={b.id} className="flex items-center justify-between py-1.5 px-3 rounded hover:bg-background transition-colors">
-                                <span className="text-sm">{b.name} <span className="text-muted-foreground">— {b.city}</span></span>
+                                <span className="text-sm">
+                                  {b.is_default && <span className="text-amber-600 mr-1" title="Badge par défaut">★</span>}
+                                  {b.name} <span className="text-muted-foreground">— {b.city}</span>
+                                </span>
                                 {onEditBusiness && (
                                   <Button variant="ghost" size="sm" onClick={() => onEditBusiness(b.id)} className="h-7 text-xs gap-1">
                                     <Edit className="h-3 w-3" /> Modifier
