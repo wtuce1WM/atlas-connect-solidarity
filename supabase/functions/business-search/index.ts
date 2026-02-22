@@ -444,21 +444,43 @@ serve(async (req) => {
       }
     }
 
-    // When a service was detected via keywords (not by name match), inject the service name 
-    // into the query so the tsquery matches the search_vector
+    // When a service was detected, build a clean query for tsquery matching.
+    // Remove noise words (like "achat") that don't exist in search vectors, keep service name + city etc.
     let queryForExpansion = effectiveQuery;
     if (detectedService && effectiveQuery) {
       const svcWords = detectedService.toLowerCase().split(/\s+/);
       const queryLower = effectiveQuery.toLowerCase();
       const hasServiceNameInQuery = svcWords.some(w => queryLower.includes(w));
+      
+      // Words that express intent but don't exist in search vectors
+      const INTENT_NOISE = new Set([
+        "achat", "acheter", "achats", "achete", "achète",
+        "vente", "vendre", "vends",
+        "cherche", "chercher", "trouver", "trouve", "besoin",
+        "commander", "commande", "réserver", "reserver",
+        "louer", "location", "loueur",
+      ]);
+      
+      // Filter out intent noise words AND stop words from the remaining query
+      const cleanRemainder = effectiveQuery.split(/\s+/).filter(w => {
+        const wLower = w.toLowerCase();
+        return !serviceMatchWordsForInjection.includes(wLower) 
+          && !FRENCH_STOP_WORDS.has(wLower)
+          && !INTENT_NOISE.has(wLower)
+          // Don't remove words that are part of the service name
+          && !svcWords.includes(wLower);
+      }).join(" ").trim();
+      
       if (!hasServiceNameInQuery) {
         // Replace the keyword synonym with the actual service name for tsquery
-        queryForExpansion = detectedService + " " + effectiveQuery.split(/\s+/).filter(w => {
-          // Remove the synonym word(s) that triggered the match AND French stop words, keep city etc.
-          const wLower = w.toLowerCase();
-          return !serviceMatchWordsForInjection.includes(wLower) && !FRENCH_STOP_WORDS.has(wLower);
-        }).join(" ").trim();
+        queryForExpansion = detectedService + (cleanRemainder ? " " + cleanRemainder : "");
         console.log(`Injected service name into query: "${queryForExpansion}" (was: "${effectiveQuery}")`);
+      } else {
+        // Service name already in query — rebuild with service name + clean remainder
+        queryForExpansion = detectedService + (cleanRemainder ? " " + cleanRemainder : "");
+        if (queryForExpansion !== effectiveQuery) {
+          console.log(`Cleaned query for tsquery: "${queryForExpansion}" (was: "${effectiveQuery}")`);
+        }
       }
     }
 
