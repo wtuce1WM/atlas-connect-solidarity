@@ -1,0 +1,1 @@
+ALTER TABLE public.destinations ADD COLUMN hook text DEFAULT NULL;
