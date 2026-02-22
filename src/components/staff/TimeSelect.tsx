@@ -16,6 +16,7 @@ interface TimeSelectProps {
 }
 
 const TimeSelect = ({ value, onChange, disabled }: TimeSelectProps) => {
+  const isEmpty = !value || value === "";
   const [h, m] = (value || "00:00").split(":");
   const hour = HOURS.includes(h) ? h : "00";
   const minute = MINUTES.includes(m) ? m : "00";
