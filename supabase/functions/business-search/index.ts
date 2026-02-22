@@ -413,6 +413,7 @@ serve(async (req) => {
           let bestScore = 0;
           for (const svc of matchingServices) {
             const svcLower = svc.name_fr.toLowerCase();
+            const svcNorm = stripPlural(svcLower.trim());
             const matchCount = serviceMatchWords.filter(w => svcLower.includes(w)).length;
             const svcWordCount = svcLower.split(/\s+/).length;
             // Check keyword matches too
@@ -424,8 +425,11 @@ serve(async (req) => {
                 return k.includes(w) || w.includes(k) || kNorm === wNorm;
               });
             }).length;
+            // Exact name match bonus: if a query word IS the service name, strongly prefer it
+            const exactNameMatch = serviceMatchWords.some(w => stripPlural(w) === svcNorm || w === svcLower);
+            const exactNameBonus = exactNameMatch ? 200 : 0;
             // Keyword matches (specific food/product terms) should outweigh generic service name matches
-            const score = matchCount * 5 + (matchCount > 1 && svcWordCount > 1 ? 20 : 0) + kwMatchCount * 30;
+            const score = exactNameBonus + matchCount * 5 + (matchCount > 1 && svcWordCount > 1 ? 20 : 0) + kwMatchCount * 30;
             if (score > bestScore) {
               bestScore = score;
               bestMatch = svc.name_fr;
