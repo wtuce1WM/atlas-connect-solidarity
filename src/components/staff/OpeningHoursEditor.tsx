@@ -1,7 +1,7 @@
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Clock } from "lucide-react";
+import TimeSelect from "./TimeSelect";
 
 export interface DayHours {
   open: string;
@@ -140,37 +140,27 @@ const OpeningHoursEditor = ({ value, onChange }: OpeningHoursEditorProps) => {
 
               <div className="grid grid-cols-[auto_auto_auto_auto_auto_auto_auto] gap-2 items-center">
                 {/* Slot 1 */}
-                <Input
-                  type="time"
+                <TimeSelect
                   value={dh.open}
-                  onChange={(e) => handleDayChange(day, "open", e.target.value)}
+                  onChange={(v) => handleDayChange(day, "open", v)}
                   disabled={dh.closed}
-                  className="w-24 h-8 text-sm"
                 />
-                <Input
-                  type="time"
+                <TimeSelect
                   value={dh.close}
-                  onChange={(e) => handleDayChange(day, "close", e.target.value)}
+                  onChange={(v) => handleDayChange(day, "close", v)}
                   disabled={dh.closed}
-                  className="w-24 h-8 text-sm"
                 />
 
                 {/* Slot 2 */}
-                <Input
-                  type="time"
+                <TimeSelect
                   value={dh.open2 || ""}
-                  onChange={(e) => handleDayChange(day, "open2", e.target.value)}
+                  onChange={(v) => handleDayChange(day, "open2", v)}
                   disabled={dh.closed || isContinuous}
-                  className="w-24 h-8 text-sm"
-                  placeholder="—"
                 />
-                <Input
-                  type="time"
+                <TimeSelect
                   value={dh.close2 || ""}
-                  onChange={(e) => handleDayChange(day, "close2", e.target.value)}
+                  onChange={(v) => handleDayChange(day, "close2", v)}
                   disabled={dh.closed || isContinuous}
-                  className="w-24 h-8 text-sm"
-                  placeholder="—"
                 />
 
                 {/* Continuous */}
