@@ -142,7 +142,7 @@ const OpeningHoursEditor = ({ value, onChange }: OpeningHoursEditorProps) => {
                 {/* Slot 1 */}
                 <div className="flex items-center gap-0.5">
                   <TimeSelect
-                    value={dh.open}
+                    value={dh.closed ? "" : dh.open}
                     onChange={(v) => handleDayChange(day, "open", v)}
                     disabled={dh.closed}
                   />
@@ -151,7 +151,7 @@ const OpeningHoursEditor = ({ value, onChange }: OpeningHoursEditorProps) => {
                   )}
                 </div>
                 <TimeSelect
-                  value={dh.close}
+                  value={dh.closed ? "" : dh.close}
                   onChange={(v) => handleDayChange(day, "close", v)}
                   disabled={dh.closed || !dh.open}
                 />
@@ -159,7 +159,7 @@ const OpeningHoursEditor = ({ value, onChange }: OpeningHoursEditorProps) => {
                 {/* Slot 2 */}
                 <div className="flex items-center gap-0.5">
                   <TimeSelect
-                    value={dh.open2 || ""}
+                    value={(dh.closed || isContinuous) ? "" : (dh.open2 || "")}
                     onChange={(v) => handleDayChange(day, "open2", v)}
                     disabled={dh.closed || isContinuous}
                   />
@@ -168,7 +168,7 @@ const OpeningHoursEditor = ({ value, onChange }: OpeningHoursEditorProps) => {
                   )}
                 </div>
                 <TimeSelect
-                  value={dh.close2 || ""}
+                  value={(dh.closed || isContinuous) ? "" : (dh.close2 || "")}
                   onChange={(v) => handleDayChange(day, "close2", v)}
                   disabled={dh.closed || isContinuous || !dh.open2}
                 />
