@@ -366,20 +366,44 @@ const CityMap = () => {
         setCategorySortMap(sortMap);
       }
 
-      // Fetch businesses - ordered by verified status then priority score
-      const { data: businessData, error: businessError } = await supabase
-        .from("businesses")
-        .select("id, name, city, region, address, phone, whatsapp, skype, main_category, categories, default_service, latitude, longitude, google_maps_url, wtuce_status, services, images, rating, google_rating, tripadvisor_rating, restaurant_guru_rating, google_review_count, tripadvisor_review_count, restaurant_guru_review_count, priority_score, opening_hours, show_opening_hours, is_open_24h, logo_url, gamme_id, badge_id, neighborhood, hook_fr, is_featured")
-        .eq("is_active", true)
-        .ilike("city", decodedCity)
-        .order("wtuce_status", { ascending: true, nullsFirst: false })
-        .order("priority_score", { ascending: false });
+      // Fetch city ID for zone_city_ids lookup
+      const { data: cityRow } = await supabase
+        .from("cities")
+        .select("id")
+        .ilike("name_fr", decodedCity)
+        .maybeSingle();
 
-      if (businessError) {
-        console.error("Error fetching businesses:", businessError);
-      } else {
-        setBusinesses(businessData || []);
+      const businessSelectCols = "id, name, city, region, address, phone, whatsapp, skype, main_category, categories, default_service, latitude, longitude, google_maps_url, wtuce_status, services, images, rating, google_rating, tripadvisor_rating, restaurant_guru_rating, google_review_count, tripadvisor_review_count, restaurant_guru_review_count, priority_score, opening_hours, show_opening_hours, is_open_24h, logo_url, gamme_id, badge_id, neighborhood, hook_fr, is_featured";
+
+      // Fetch businesses in this city + businesses with national zone covering this city
+      const [cityBizRes, zoneBizRes] = await Promise.all([
+        supabase
+          .from("businesses")
+          .select(businessSelectCols)
+          .eq("is_active", true)
+          .ilike("city", decodedCity)
+          .order("wtuce_status", { ascending: true, nullsFirst: false })
+          .order("priority_score", { ascending: false }),
+        cityRow?.id
+          ? supabase
+              .from("businesses")
+              .select(businessSelectCols)
+              .eq("is_active", true)
+              .contains("zone_city_ids", [cityRow.id])
+              .order("priority_score", { ascending: false })
+          : Promise.resolve({ data: [] as any[], error: null }),
+      ]);
+
+      if (cityBizRes.error) {
+        console.error("Error fetching businesses:", cityBizRes.error);
       }
+
+      // Merge & deduplicate
+      const cityBiz = cityBizRes.data || [];
+      const zoneBiz = (zoneBizRes.data || []) as typeof cityBiz;
+      const seenIds = new Set(cityBiz.map((b) => b.id));
+      const merged = [...cityBiz, ...zoneBiz.filter((b) => !seenIds.has(b.id))];
+      setBusinesses(merged);
 
       // Fetch city info
       const { data: cityData, error: cityError } = await supabase
