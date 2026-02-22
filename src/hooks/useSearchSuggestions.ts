@@ -15,7 +15,7 @@ export const useSearchSuggestions = (query: string, enabled = true) => {
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
 
   useEffect(() => {
-    if (!enabled || !query || query.trim().length < 2) {
+    if (!enabled || !query || query.trim().length < 10) {
       setSuggestions([]);
       return;
     }
