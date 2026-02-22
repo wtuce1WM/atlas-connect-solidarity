@@ -23,12 +23,15 @@ import { useValidatedImages, useValidatedUrl } from "@/hooks/useValidatedImages"
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import relaisChateauxLogo from "@/assets/relais-chateaux-logo.png";
 import restaurantGuruLogo from "@/assets/restaurant-guru-logo.webp";
+import { formatDayHours as formatDayHoursDisplay, isCurrentlyOpen as isCurrentlyOpenCheck } from "@/lib/formatOpeningHours";
 
 interface OpeningHour {
   open: string;
   close: string;
   closed: boolean;
   continuous?: boolean;
+  open2?: string;
+  close2?: string;
 }
 
 interface OpeningHours {
@@ -853,20 +856,11 @@ const BusinessDetail = () => {
                   if (!dh || dh.closed) return { isOpen: false, label: language === "en" ? "Closed" : language === "ar" ? "مغلق" : "Fermé" };
                   if (!dh.open || !dh.close) return { isOpen: false, label: "" };
 
-                  const nowMinutes = now.getHours() * 60 + now.getMinutes();
-                  const [oh, om] = dh.open.split(":").map(Number);
-                  const [ch, cm] = dh.close.split(":").map(Number);
-                  const openMin = oh * 60 + om;
-                  const closeMin = ch * 60 + cm;
-
-                  // Handle overnight (e.g. 20:00 - 02:00)
-                  const isOpen = closeMin > openMin
-                    ? nowMinutes >= openMin && nowMinutes < closeMin
-                    : nowMinutes >= openMin || nowMinutes < closeMin;
+                  const open = isCurrentlyOpenCheck(dh);
 
                   return {
-                    isOpen,
-                    label: isOpen
+                    isOpen: open,
+                    label: open
                       ? (language === "en" ? "Open now" : language === "ar" ? "مفتوح الآن" : "Ouvert")
                       : (language === "en" ? "Closed" : language === "ar" ? "مغلق" : "Fermé"),
                   };
@@ -925,7 +919,7 @@ const BusinessDetail = () => {
                                 {dayNames[day]}{isToday ? ' ●' : ''}
                               </span>
                               <span className={isVerified ? 'text-white/60' : 'text-muted-foreground'}>
-                                {dh.closed ? (language === "en" ? "Closed" : language === "ar" ? "مغلق" : "Fermé") : dh.open && dh.close ? `${dh.open} - ${dh.close}${dh.continuous ? (language === "en" ? ' (continuous)' : language === "ar" ? ' (متواصل)' : ' (continu)') : ''}` : "—"}
+                                {formatDayHoursDisplay(dh, { language })}
                               </span>
                             </div>
                           );
