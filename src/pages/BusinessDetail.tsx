@@ -149,13 +149,24 @@ const getEmbedUrl = (url: string): { url: string; type: 'iframe' | 'video' | 'fa
   return null;
 };
 
-type TabKey = 'overview' | 'video' | 'services' | 'reviews' | 'location';
+interface Destination {
+  id: string;
+  name_fr: string;
+  name_en: string | null;
+  name_ar: string | null;
+  hook: string | null;
+  description: string | null;
+  image_url: string | null;
+}
+
+type TabKey = 'overview' | 'experiences' | 'video' | 'services' | 'reviews' | 'location';
 
 const BusinessDetail = () => {
   const { id } = useParams<{ id: string }>();
   const [business, setBusiness] = useState<Business | null>(null);
   const [businessLabels, setBusinessLabels] = useState<BusinessLabel[]>([]);
   const [gamme, setGamme] = useState<Gamme | null>(null);
+  const [destinations, setDestinations] = useState<Destination[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
@@ -163,6 +174,8 @@ const BusinessDetail = () => {
   const [activeTab, setActiveTab] = useState<TabKey>('overview');
   const [reviewTexts, setReviewTexts] = useState<{ source: string; author_name: string | null; rating: number | null; text: string | null; relative_time: string | null }[]>([]);
   const [categoriesWithResults, setCategoriesWithResults] = useState<string[]>([]);
+  const [businessDestinationHook, setBusinessDestinationHook] = useState<string | null>(null);
+  const [businessDestinationDescription, setBusinessDestinationDescription] = useState<string | null>(null);
   const { t, language } = useLanguage();
   const navigate = useNavigate();
   const { speak: ttsSpeak, stop: ttsStop, status: ttsStatus } = useTextToSpeech();
@@ -227,6 +240,25 @@ const BusinessDetail = () => {
           .order("rating", { ascending: false })
           .limit(5);
         if (reviewsData) setReviewTexts(reviewsData as any[]);
+
+        // Fetch destinations
+        setBusinessDestinationHook(data.destination_hook || null);
+        setBusinessDestinationDescription(data.destination_description || null);
+        const { data: bdData } = await supabase
+          .from("business_destinations" as any)
+          .select("destination_id")
+          .eq("business_id", id);
+        if (bdData && bdData.length > 0) {
+          const destIds = (bdData as any[]).map(d => d.destination_id);
+          const { data: destData } = await supabase
+            .from("destinations")
+            .select("id, name_fr, name_en, name_ar, hook, description, image_url")
+            .in("id", destIds)
+            .order("sort_order", { ascending: true });
+          if (destData) setDestinations(destData as Destination[]);
+        } else {
+          setDestinations([]);
+        }
       } else {
         setBusiness(null);
       }
@@ -306,6 +338,7 @@ const BusinessDetail = () => {
 
   const tabs: { key: TabKey; label: string; show: boolean }[] = [
     { key: 'overview', label: 'Aperçu', show: true },
+    { key: 'experiences', label: 'Expériences', show: destinations.length > 0 },
     { key: 'video', label: 'Vidéo', show: !!business.video_1_url },
     { key: 'services', label: 'Services', show: !!(business.services && business.services.length > 0) },
     { key: 'reviews', label: 'Avis', show: !!hasReviews },
@@ -1020,6 +1053,62 @@ const BusinessDetail = () => {
             </div>
           </div>
           </>
+        )}
+
+        {/* EXPERIENCES TAB */}
+        {activeTab === 'experiences' && destinations.length > 0 && (
+          <div className="space-y-8">
+            {/* Global hook & description from the business */}
+            {(businessDestinationHook || businessDestinationDescription) && (
+              <div className="mb-6">
+                {businessDestinationHook && (
+                  <h2 className={`text-2xl md:text-3xl font-semibold italic leading-snug mb-4 ${isVerified ? 'text-white' : 'text-foreground/80'}`} style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                    {businessDestinationHook}
+                  </h2>
+                )}
+                {businessDestinationDescription && (
+                  <div
+                    className={`prose max-w-none text-sm leading-relaxed ${isVerified ? 'text-white/70 prose-invert' : 'text-muted-foreground'}`}
+                    dangerouslySetInnerHTML={{ __html: businessDestinationDescription }}
+                  />
+                )}
+              </div>
+            )}
+
+            <div className="grid gap-6 md:grid-cols-2">
+              {destinations.map((dest) => {
+                const destName = language === 'ar' ? (dest.name_ar || dest.name_fr) : language === 'en' ? (dest.name_en || dest.name_fr) : dest.name_fr;
+                return (
+                  <Card key={dest.id} className={`overflow-hidden ${isVerified ? 'bg-white/10 border-white/20' : ''}`}>
+                    {dest.image_url && (
+                      <div className="aspect-[16/9] overflow-hidden">
+                        <img
+                          src={dest.image_url}
+                          alt={destName}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+                    <CardContent className="p-5 space-y-3">
+                      <h3 className={`text-lg font-bold ${isVerified ? 'text-white' : 'text-foreground'}`}>
+                        {destName}
+                      </h3>
+                      {dest.hook && (
+                        <p className={`text-sm italic ${isVerified ? 'text-gold' : 'text-primary'}`} style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                          {dest.hook}
+                        </p>
+                      )}
+                      {dest.description && (
+                        <p className={`text-sm leading-relaxed ${isVerified ? 'text-white/70' : 'text-muted-foreground'}`}>
+                          {dest.description}
+                        </p>
+                      )}
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
         )}
 
         {/* VIDEO TAB */}
