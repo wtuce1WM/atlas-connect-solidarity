@@ -28,7 +28,7 @@ export const useSearchSuggestions = (query: string, enabled = true) => {
         const { data, error } = await supabase.functions.invoke("business-search", {
           body: {
             query: query.trim(),
-            limit: 6,
+            limit: 10,
             mode: "autocomplete",
           },
         });
