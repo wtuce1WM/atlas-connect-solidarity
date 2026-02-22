@@ -761,8 +761,9 @@ serve(async (req) => {
       businesses = await llmRerank(effectiveQuery, businesses);
     }
 
-    // Autocomplete mode: return lightweight results
+    // Autocomplete mode: sort by best rating DESC, then return lightweight results
     if (isAutocomplete) {
+      businesses = [...businesses].sort((a, b) => getBestRating(b) - getBestRating(a));
       const lightResults = businesses.slice(0, limit).map(b => ({
         id: b.id,
         name: b.name,
