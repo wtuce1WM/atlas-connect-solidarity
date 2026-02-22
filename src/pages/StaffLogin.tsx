@@ -5,13 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Lock, Mail, ArrowLeft } from "lucide-react";
+import { Lock, Mail, ArrowLeft, Eye, EyeOff, Loader2 } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 
 const StaffLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isSendingReset, setIsSendingReset] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -87,6 +89,31 @@ const StaffLogin = () => {
     }
   };
 
+  const handleForgotPassword = async () => {
+    if (!email) {
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Veuillez d'abord saisir votre email.",
+      });
+      return;
+    }
+    setIsSendingReset(true);
+    try {
+      await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/staff/login`,
+      });
+      toast({
+        title: "Email envoyé",
+        description: "Si un compte existe avec cet email, vous recevrez un lien de réinitialisation.",
+      });
+    } catch (error: any) {
+      toast({ variant: "destructive", title: "Erreur", description: error.message });
+    } finally {
+      setIsSendingReset(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-foreground flex flex-col items-center justify-center px-4">
       <div className="w-full max-w-md">
@@ -124,14 +151,30 @@ const StaffLogin = () => {
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-background/40" />
               <Input
                 id="password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 required
-                className="pl-10 bg-background/10 border-background/20 text-background placeholder:text-background/40"
+                className="pl-10 pr-10 bg-background/10 border-background/20 text-background placeholder:text-background/40"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-background/40 hover:text-background"
+              >
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
             </div>
+            <button
+              type="button"
+              onClick={handleForgotPassword}
+              disabled={isSendingReset}
+              className="text-sm text-gold hover:text-gold/80 underline underline-offset-2"
+            >
+              {isSendingReset ? <Loader2 className="h-3 w-3 animate-spin inline mr-1" /> : null}
+              Mot de passe oublié ?
+            </button>
           </div>
 
           <Button
