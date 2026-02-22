@@ -1487,20 +1487,12 @@ const LocationManagement = () => {
               {/* Description Rich Text */}
               <Card>
                 <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg">Description</CardTitle>
-                    <span className="text-xs text-muted-foreground">{destinationForm.description.replace(/<[^>]*>/g, '').length}/500 caractères</span>
-                  </div>
+                  <CardTitle className="text-lg">Description</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <RichTextEditor
                     content={destinationForm.description}
-                    onChange={(val) => {
-                      const plainText = val.replace(/<[^>]*>/g, '');
-                      if (plainText.length <= 500) {
-                        setDestinationForm({ ...destinationForm, description: val });
-                      }
-                    }}
+                    onChange={(val) => setDestinationForm({ ...destinationForm, description: val })}
                   />
                 </CardContent>
               </Card>
