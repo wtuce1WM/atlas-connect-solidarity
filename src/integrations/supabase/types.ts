@@ -464,6 +464,8 @@ export type Database = {
           pdf_url: string | null
           phone: string | null
           pinterest_url: string | null
+          poi_description: string | null
+          poi_hook: string | null
           poissonnerie_details: Json | null
           priority_score: number | null
           rating: number | null
@@ -554,6 +556,8 @@ export type Database = {
           pdf_url?: string | null
           phone?: string | null
           pinterest_url?: string | null
+          poi_description?: string | null
+          poi_hook?: string | null
           poissonnerie_details?: Json | null
           priority_score?: number | null
           rating?: number | null
@@ -644,6 +648,8 @@ export type Database = {
           pdf_url?: string | null
           phone?: string | null
           pinterest_url?: string | null
+          poi_description?: string | null
+          poi_hook?: string | null
           poissonnerie_details?: Json | null
           priority_score?: number | null
           rating?: number | null
@@ -1813,6 +1819,8 @@ export type Database = {
           pdf_url: string | null
           phone: string | null
           pinterest_url: string | null
+          poi_description: string | null
+          poi_hook: string | null
           poissonnerie_details: Json | null
           priority_score: number | null
           rating: number | null
