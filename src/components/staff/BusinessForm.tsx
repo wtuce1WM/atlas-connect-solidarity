@@ -296,6 +296,8 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
   const [dbPOIs, setDbPOIs] = useState<Array<{ id: string; name_fr: string; city_id: string }>>([]);
   const [selectedDestinationIds, setSelectedDestinationIds] = useState<string[]>([]);
   const [selectedPOIIds, setSelectedPOIIds] = useState<string[]>([]);
+  const [selectedBadgeIds, setSelectedBadgeIds] = useState<string[]>([]);
+  const [defaultBadgeId, setDefaultBadgeId] = useState<string | null>(null);
 
   // Fetch categories, subcategories, services, cities, gammes and gamme_categories from database
   useEffect(() => {
@@ -426,12 +428,18 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
   useEffect(() => {
     if (!business?.id) return;
     const loadAssociations = async () => {
-      const [destRes, poiRes] = await Promise.all([
+      const [destRes, poiRes, badgeRes] = await Promise.all([
         supabase.from("business_destinations" as any).select("destination_id").eq("business_id", business.id),
         supabase.from("business_points_of_interest" as any).select("point_of_interest_id").eq("business_id", business.id),
+        supabase.from("business_badges" as any).select("badge_id, is_default").eq("business_id", business.id),
       ]);
       if (destRes.data) setSelectedDestinationIds((destRes.data as any[]).map((d: any) => d.destination_id));
       if (poiRes.data) setSelectedPOIIds((poiRes.data as any[]).map((p: any) => p.point_of_interest_id));
+      if (badgeRes.data) {
+        setSelectedBadgeIds((badgeRes.data as any[]).map((b: any) => b.badge_id));
+        const defaultB = (badgeRes.data as any[]).find((b: any) => b.is_default);
+        if (defaultB) setDefaultBadgeId(defaultB.badge_id);
+      }
     };
     loadAssociations();
   }, [business?.id]);
@@ -650,7 +658,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
       other_booking_url: formData.other_booking_url || null,
       other_booking_name: formData.other_booking_name || null,
       gamme_id: formData.gamme_id || null,
-      badge_id: (formData as any).badge_id || null,
+      badge_id: defaultBadgeId || null,
       neighborhood: formData.neighborhood || null,
       hook_fr: formData.hook_fr || null,
       hook_en: formData.hook_en || null,
@@ -735,6 +743,19 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
             point_of_interest_id: poiId,
           }));
           await supabase.from("business_points_of_interest" as any).insert(poisToInsert);
+        }
+      }
+
+      // Save business badges
+      if (businessId) {
+        await supabase.from("business_badges" as any).delete().eq("business_id", businessId);
+        if (selectedBadgeIds.length > 0) {
+          const badgesToInsert = selectedBadgeIds.map(bId => ({
+            business_id: businessId,
+            badge_id: bId,
+            is_default: bId === defaultBadgeId,
+          }));
+          await supabase.from("business_badges" as any).insert(badgesToInsert);
         }
       }
 
@@ -1188,33 +1209,6 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="badge_id">Badge</Label>
-            <Select
-              value={(formData as any).badge_id || "__none__"}
-              onValueChange={(value) => handleChange("badge_id", value === "__none__" ? "" : value)}
-              disabled={availableBadges.length === 0}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder={
-                  formData.categories.length === 0
-                    ? "Choisir des sous-catégories d'abord"
-                    : availableBadges.length === 0
-                      ? "Aucun badge disponible"
-                      : "Sélectionner..."
-                } />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="__none__">— Aucun —</SelectItem>
-                {availableBadges.map((badge) => (
-                  <SelectItem key={badge.id} value={badge.id}>
-                    {badge.name_fr}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
             <Label htmlFor="account_type">Type de compte</Label>
             <Select
               value={formData.account_type || "__none__"}
@@ -1400,6 +1394,74 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
             </p>
           </div>
         </div>
+
+        {/* Caractérisation (multi-badges) */}
+        {availableBadges.length > 0 && (
+          <div className="space-y-3 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+            <Label className="text-base font-semibold">Caractérisation</Label>
+            <div className="flex flex-wrap gap-2">
+              {availableBadges.map((badge) => {
+                const isSelected = selectedBadgeIds.includes(badge.id);
+                const isDefault = defaultBadgeId === badge.id;
+                return (
+                  <button
+                    key={badge.id}
+                    type="button"
+                    onClick={() => {
+                      if (isSelected) {
+                        setSelectedBadgeIds(prev => prev.filter(id => id !== badge.id));
+                        if (isDefault) setDefaultBadgeId(null);
+                      } else {
+                        setSelectedBadgeIds(prev => [...prev, badge.id]);
+                        // Auto-set as default if it's the first one
+                        if (selectedBadgeIds.length === 0) setDefaultBadgeId(badge.id);
+                      }
+                      setIsDirty(true);
+                    }}
+                    className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
+                      isSelected
+                        ? isDefault
+                          ? "bg-amber-600 text-white border-amber-600 ring-2 ring-amber-300"
+                          : "bg-amber-500 text-white border-amber-500"
+                        : "bg-background border-border hover:bg-muted"
+                    }`}
+                  >
+                    {badge.name_fr}
+                    {isDefault && " ★"}
+                  </button>
+                );
+              })}
+            </div>
+            {selectedBadgeIds.length > 1 && (
+              <div className="space-y-1">
+                <Label className="text-sm text-muted-foreground">Badge par défaut (★) :</Label>
+                <div className="flex flex-wrap gap-1">
+                  {selectedBadgeIds.map(bId => {
+                    const badge = dbBadges.find(b => b.id === bId);
+                    if (!badge) return null;
+                    return (
+                      <button
+                        key={bId}
+                        type="button"
+                        onClick={() => { setDefaultBadgeId(bId); setIsDirty(true); }}
+                        className={`px-2 py-1 rounded text-xs border transition-colors ${
+                          defaultBadgeId === bId
+                            ? "bg-amber-600 text-white border-amber-600"
+                            : "bg-background border-border hover:bg-muted"
+                        }`}
+                      >
+                        {badge.name_fr}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+            {formData.categories.length === 0 && (
+              <p className="text-xs text-muted-foreground italic">Sélectionnez des sous-catégories pour voir les badges disponibles.</p>
+            )}
+          </div>
+        )}
 
         <div className="p-4 border rounded-lg bg-orange-50 space-y-4">
           <h3 className="text-sm font-semibold text-orange-800">📍 Contact & Localisation</h3>
