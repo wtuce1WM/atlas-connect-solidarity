@@ -462,6 +462,7 @@ export type Database = {
           pdf_url: string | null
           phone: string | null
           pinterest_url: string | null
+          poissonnerie_details: Json | null
           priority_score: number | null
           rating: number | null
           region: string | null
@@ -549,6 +550,7 @@ export type Database = {
           pdf_url?: string | null
           phone?: string | null
           pinterest_url?: string | null
+          poissonnerie_details?: Json | null
           priority_score?: number | null
           rating?: number | null
           region?: string | null
@@ -636,6 +638,7 @@ export type Database = {
           pdf_url?: string | null
           phone?: string | null
           pinterest_url?: string | null
+          poissonnerie_details?: Json | null
           priority_score?: number | null
           rating?: number | null
           region?: string | null
@@ -1799,6 +1802,7 @@ export type Database = {
           pdf_url: string | null
           phone: string | null
           pinterest_url: string | null
+          poissonnerie_details: Json | null
           priority_score: number | null
           rating: number | null
           region: string | null

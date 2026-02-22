@@ -412,6 +412,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
     menu_url: (business as any)?.menu_url || "",
     logo_bg: (business as any)?.logo_bg || "transparent",
     zone_city_ids: (business as any)?.zone_city_ids || [] as string[],
+    poissonnerie_details: (business as any)?.poissonnerie_details || null,
   });
   
   // Business labels state (managed separately)
@@ -652,6 +653,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
       hook_ar: formData.hook_ar || null,
       menu_url: formData.menu_url || null,
       logo_bg: (formData as any).logo_bg || "transparent",
+      poissonnerie_details: formData.poissonnerie_details || null,
     };
 
     try {
@@ -2430,6 +2432,102 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
           )}
           </div>
         </div>
+
+        {/* Poissonnerie-specific details */}
+        {formData.categories.some(c => c.toLowerCase().includes("poissonnerie")) && (() => {
+          const details = formData.poissonnerie_details || {};
+          const updateDetails = (key: string, value: any) => {
+            handleChange("poissonnerie_details", { ...details, [key]: value } as any);
+          };
+          const toggleArrayItem = (key: string, item: string) => {
+            const arr: string[] = details[key] || [];
+            updateDetails(key, arr.includes(item) ? arr.filter((v: string) => v !== item) : [...arr, item]);
+          };
+
+          const PROVENANCE_OPTIONS = ["Atlantique", "Méditerranée", "Local", "Importé", "Élevage"];
+          const FRESHNESS_OPTIONS = ["Arrivage du jour", "Frais", "Surgelé", "Sur commande", "Vivant"];
+          const PREPARATION_OPTIONS = ["Écaillage", "Filetage", "Découpe", "Vidage", "Cuisson sur place", "Livraison", "Sous vide"];
+
+          return (
+            <div className="space-y-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <Label className="text-lg font-semibold flex items-center gap-2">
+                🐟 Détails Poissonnerie
+              </Label>
+
+              {/* Provenance */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Provenance</Label>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                  {PROVENANCE_OPTIONS.map(opt => (
+                    <label key={opt} className="flex items-center gap-2 cursor-pointer hover:bg-white p-2 rounded-md transition-colors">
+                      <input
+                        type="checkbox"
+                        checked={(details.provenance || []).includes(opt)}
+                        onChange={() => toggleArrayItem("provenance", opt)}
+                        className="h-4 w-4 rounded border-input"
+                      />
+                      <span className="text-sm">{opt}</span>
+                    </label>
+                  ))}
+                </div>
+                <Input
+                  value={details.provenance_other || ""}
+                  onChange={(e) => updateDetails("provenance_other", e.target.value)}
+                  placeholder="Précisions sur la provenance..."
+                  className="mt-1"
+                />
+              </div>
+
+              {/* Fraîcheur / Arrivage */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Fraîcheur / Arrivage</Label>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                  {FRESHNESS_OPTIONS.map(opt => (
+                    <label key={opt} className="flex items-center gap-2 cursor-pointer hover:bg-white p-2 rounded-md transition-colors">
+                      <input
+                        type="checkbox"
+                        checked={(details.freshness || []).includes(opt)}
+                        onChange={() => toggleArrayItem("freshness", opt)}
+                        className="h-4 w-4 rounded border-input"
+                      />
+                      <span className="text-sm">{opt}</span>
+                    </label>
+                  ))}
+                </div>
+                <Input
+                  value={details.freshness_other || ""}
+                  onChange={(e) => updateDetails("freshness_other", e.target.value)}
+                  placeholder="Précisions sur la fraîcheur / arrivage..."
+                  className="mt-1"
+                />
+              </div>
+
+              {/* Services de préparation */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Services de préparation</Label>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                  {PREPARATION_OPTIONS.map(opt => (
+                    <label key={opt} className="flex items-center gap-2 cursor-pointer hover:bg-white p-2 rounded-md transition-colors">
+                      <input
+                        type="checkbox"
+                        checked={(details.preparation || []).includes(opt)}
+                        onChange={() => toggleArrayItem("preparation", opt)}
+                        className="h-4 w-4 rounded border-input"
+                      />
+                      <span className="text-sm">{opt}</span>
+                    </label>
+                  ))}
+                </div>
+                <Input
+                  value={details.preparation_other || ""}
+                  onChange={(e) => updateDetails("preparation_other", e.target.value)}
+                  placeholder="Autres services de préparation..."
+                  className="mt-1"
+                />
+              </div>
+            </div>
+          );
+        })()}
 
         <div className="space-y-2">
           <Label htmlFor="keywords">Mots-clés (séparés par virgule)</Label>
