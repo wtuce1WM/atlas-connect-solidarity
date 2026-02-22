@@ -363,6 +363,7 @@ serve(async (req) => {
 
     // ── Pre-detect matching service from query keywords ──
     let detectedService: string | null = null;
+    let originalDetectedService: string | null = null; // Keep track even after fallback
     let serviceMatchWordsForInjection: string[] = [];
     if (effectiveQuery) {
       const queryWords = effectiveQuery.toLowerCase().split(/\s+/).filter(w => w.length > 1 && !NOISE_ADJECTIVES.has(w));
@@ -436,6 +437,7 @@ serve(async (req) => {
             }
           }
           detectedService = bestMatch;
+          originalDetectedService = bestMatch;
           serviceMatchWordsForInjection = serviceMatchWords;
           console.log(`Detected service for SQL filter: "${detectedService}" (from: ${serviceMatchWords.join(", ")}, candidates: ${matchingServices.map((s: any) => s.name_fr).join(", ")})`);
         }
@@ -675,8 +677,8 @@ serve(async (req) => {
       const VISIT_SERVICES = ["musées", "musées thématiques", "monuments", "patrimoine, histoire & culture"];
       const VISIT_KEYWORDS = /\b(visiter|visite|voir|découvrir|decouvrir|explorer|admirer|musée|musee|monument|patrimoine|historique)\b/i;
       const isVisitIntent = effectiveQuery ? VISIT_KEYWORDS.test(effectiveQuery) : false;
-      if (!isVisitIntent && detectedService && businesses.length > 1) {
-        const detectedLower = detectedService.toLowerCase();
+      if (!isVisitIntent && originalDetectedService && businesses.length > 1) {
+        const detectedLower = originalDetectedService.toLowerCase();
         const isVisitService = VISIT_SERVICES.includes(detectedLower);
         if (!isVisitService) {
           const commercial: typeof businesses = [];
