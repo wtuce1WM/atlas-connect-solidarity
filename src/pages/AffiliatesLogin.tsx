@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Users, Lock, Mail } from "lucide-react";
+import { Loader2, Users, Lock, Mail, Eye, EyeOff } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import logoGold from "@/assets/logoGOLDsimple.webp";
@@ -18,7 +18,10 @@ const AffiliatesLogin = () => {
   const { toast } = useToast();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSendingReset, setIsSendingReset] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
   const translations = {
@@ -31,6 +34,10 @@ const AffiliatesLogin = () => {
       error: "Erreur de connexion",
       invalidCredentials: "Email ou mot de passe incorrect",
       welcome: "Bienvenue dans l'espace affiliés",
+      forgotPassword: "Mot de passe oublié ?",
+      resetSent: "Email envoyé",
+      resetSentDesc: "Si un compte existe avec cet email, vous recevrez un lien de réinitialisation.",
+      sendReset: "Envoyer le lien",
     },
     en: {
       title: "Affiliates Area",
@@ -41,6 +48,10 @@ const AffiliatesLogin = () => {
       error: "Login Error",
       invalidCredentials: "Invalid email or password",
       welcome: "Welcome to the affiliates area",
+      forgotPassword: "Forgot password?",
+      resetSent: "Email sent",
+      resetSentDesc: "If an account exists with this email, you will receive a reset link.",
+      sendReset: "Send reset link",
     },
     ar: {
       title: "منطقة الشركاء",
@@ -51,6 +62,10 @@ const AffiliatesLogin = () => {
       error: "خطأ في تسجيل الدخول",
       invalidCredentials: "البريد الإلكتروني أو كلمة المرور غير صحيحة",
       welcome: "مرحبًا بك في منطقة الشركاء",
+      forgotPassword: "نسيت كلمة المرور؟",
+      resetSent: "تم الإرسال",
+      resetSentDesc: "إذا كان هناك حساب بهذا البريد، ستتلقى رابط إعادة التعيين.",
+      sendReset: "إرسال الرابط",
     },
   };
 
@@ -100,6 +115,25 @@ const AffiliatesLogin = () => {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    const emailToReset = resetEmail || email;
+    if (!emailToReset) {
+      toast({ title: t.error, description: "Email required", variant: "destructive" });
+      return;
+    }
+    setIsSendingReset(true);
+    try {
+      await supabase.auth.resetPasswordForEmail(emailToReset, {
+        redirectTo: `${window.location.origin}/affiliates/reset-password`,
+      });
+      toast({ title: t.resetSent, description: t.resetSentDesc });
+    } catch (error: any) {
+      toast({ title: t.error, description: error.message, variant: "destructive" });
+    } finally {
+      setIsSendingReset(false);
     }
   };
 
@@ -154,13 +188,29 @@ const AffiliatesLogin = () => {
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="password"
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="pl-10 bg-background border-border"
+                      className="pl-10 pr-10 bg-background border-border"
                       required
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
                   </div>
+                  <button
+                    type="button"
+                    onClick={handleForgotPassword}
+                    disabled={isSendingReset}
+                    className="text-sm text-gold hover:text-gold/80 underline underline-offset-2"
+                  >
+                    {isSendingReset ? <Loader2 className="h-3 w-3 animate-spin inline mr-1" /> : null}
+                    {t.forgotPassword}
+                  </button>
                 </div>
                 <Button
                   type="submit"
