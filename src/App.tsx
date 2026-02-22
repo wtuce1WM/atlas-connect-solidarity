@@ -17,6 +17,7 @@ import SearchPage from "./pages/SearchPage";
 import StaffLogin from "./pages/StaffLogin";
 import StaffBackoffice from "./pages/StaffBackoffice";
 import AffiliatesLogin from "./pages/AffiliatesLogin";
+import AffiliatesResetPassword from "./pages/AffiliatesResetPassword";
 import AffiliatesDashboard from "./pages/AffiliatesDashboard";
 import BecomeAffiliate from "./pages/BecomeAffiliate";
 import Mission from "./pages/Mission";
@@ -66,6 +67,7 @@ const AppContent = () => {
             <Route path="/staff/login" element={<StaffLogin />} />
             <Route path="/staff/backoffice" element={<StaffBackoffice />} />
             <Route path="/affiliates" element={<AffiliatesLogin />} />
+            <Route path="/affiliates/reset-password" element={<AffiliatesResetPassword />} />
             <Route path="/affiliates/dashboard" element={<AffiliatesDashboard />} />
             <Route path="/devenir-affilie" element={<BecomeAffiliate />} />
             <Route path="/mission" element={<Mission />} />
