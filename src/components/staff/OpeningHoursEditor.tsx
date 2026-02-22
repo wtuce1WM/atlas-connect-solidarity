@@ -150,11 +150,16 @@ const OpeningHoursEditor = ({ value, onChange }: OpeningHoursEditorProps) => {
                     <button type="button" onClick={() => { handleDayChange(day, "open", ""); handleDayChange(day, "close", ""); }} className="text-muted-foreground hover:text-destructive p-0.5" title="Vider créneau 1"><X className="h-3 w-3" /></button>
                   )}
                 </div>
-                <TimeSelect
-                  value={dh.closed ? "" : dh.close}
-                  onChange={(v) => handleDayChange(day, "close", v)}
-                  disabled={dh.closed || !dh.open}
-                />
+                <div className="flex items-center gap-0.5">
+                  <TimeSelect
+                    value={dh.closed ? "" : dh.close}
+                    onChange={(v) => handleDayChange(day, "close", v)}
+                    disabled={dh.closed || !dh.open}
+                  />
+                  {dh.close && !dh.closed && (
+                    <button type="button" onClick={() => handleDayChange(day, "close", "")} className="text-muted-foreground hover:text-destructive p-0.5" title="Vider fermeture 1"><X className="h-3 w-3" /></button>
+                  )}
+                </div>
 
                 {/* Slot 2 */}
                 <div className="flex items-center gap-0.5">
@@ -167,11 +172,16 @@ const OpeningHoursEditor = ({ value, onChange }: OpeningHoursEditorProps) => {
                     <button type="button" onClick={() => { handleDayChange(day, "open2", ""); handleDayChange(day, "close2", ""); }} className="text-muted-foreground hover:text-destructive p-0.5" title="Vider créneau 2"><X className="h-3 w-3" /></button>
                   )}
                 </div>
-                <TimeSelect
-                  value={(dh.closed || isContinuous) ? "" : (dh.close2 || "")}
-                  onChange={(v) => handleDayChange(day, "close2", v)}
-                  disabled={dh.closed || isContinuous || !dh.open2}
-                />
+                <div className="flex items-center gap-0.5">
+                  <TimeSelect
+                    value={(dh.closed || isContinuous) ? "" : (dh.close2 || "")}
+                    onChange={(v) => handleDayChange(day, "close2", v)}
+                    disabled={dh.closed || isContinuous || !dh.open2}
+                  />
+                  {dh.close2 && !dh.closed && !isContinuous && (
+                    <button type="button" onClick={() => handleDayChange(day, "close2", "")} className="text-muted-foreground hover:text-destructive p-0.5" title="Vider fermeture 2"><X className="h-3 w-3" /></button>
+                  )}
+                </div>
 
                 {/* Continuous */}
                 <div className="w-16 flex justify-center">
