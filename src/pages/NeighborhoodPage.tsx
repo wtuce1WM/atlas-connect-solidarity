@@ -250,11 +250,22 @@ const NeighborhoodPage = () => {
         }
       }
 
+      const selectFields = "id, name, city, region, address, phone, whatsapp, skype, main_category, categories, default_service, latitude, longitude, google_maps_url, wtuce_status, services, images, rating, priority_score, logo_url, gamme_id, badge_id, neighborhood, opening_hours, show_opening_hours, is_open_24h, hook_fr, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, is_featured";
+
+      // Fetch businesses for this neighborhood + "Toute la ville & environs" businesses in same city
+      const CITYWIDE_NEIGHBORHOOD = "Toute la ville & environs";
+      const isCitywideQuery = decodedNeighborhood === CITYWIDE_NEIGHBORHOOD;
+
       let query = supabase
         .from("businesses")
-        .select("id, name, city, region, address, phone, whatsapp, skype, main_category, categories, default_service, latitude, longitude, google_maps_url, wtuce_status, services, images, rating, priority_score, logo_url, gamme_id, badge_id, neighborhood, opening_hours, show_opening_hours, is_open_24h, hook_fr, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, is_featured")
-        .eq("is_active", true)
-        .ilike("neighborhood", decodedNeighborhood);
+        .select(selectFields)
+        .eq("is_active", true);
+
+      if (isCitywideQuery) {
+        query = query.ilike("neighborhood", decodedNeighborhood);
+      } else {
+        query = query.in("neighborhood", [decodedNeighborhood, CITYWIDE_NEIGHBORHOOD]);
+      }
 
       if (cityParam) {
         query = query.ilike("city", cityParam);
