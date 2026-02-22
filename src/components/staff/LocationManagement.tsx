@@ -589,7 +589,7 @@ const LocationManagement = () => {
       wikipedia_en: destinationForm.wikipedia_en.trim() || null,
       wikipedia_ar: destinationForm.wikipedia_ar.trim() || null,
       hook: destinationForm.hook.trim().slice(0, 120) || null,
-      description: destinationForm.description.trim().slice(0, 500) || null,
+      description: destinationForm.description || null,
       sort_order: destinationForm.sort_order,
       image_url: destinationForm.image_url.trim() || null,
     };
@@ -669,7 +669,7 @@ const LocationManagement = () => {
       official_site_en: poiForm.official_site_en.trim() || null,
       official_site_ar: poiForm.official_site_ar.trim() || null,
       hook: poiForm.hook.trim().slice(0, 120) || null,
-      description: poiForm.description.trim().slice(0, 10000) || null,
+      description: poiForm.description || null,
       sort_order: poiForm.sort_order,
       image_url: poiForm.image_url.trim() || null,
     };
