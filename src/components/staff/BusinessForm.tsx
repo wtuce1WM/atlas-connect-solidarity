@@ -295,7 +295,6 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
   const [dbDestinations, setDbDestinations] = useState<Array<{ id: string; name_fr: string; region: string | null }>>([]);
   const [dbPOIs, setDbPOIs] = useState<Array<{ id: string; name_fr: string; city_id: string }>>([]);
   const [selectedDestinationIds, setSelectedDestinationIds] = useState<string[]>([]);
-  const [destinationDetails, setDestinationDetails] = useState<Record<string, { hook: string; description: string }>>({});
   const [selectedPOIIds, setSelectedPOIIds] = useState<string[]>([]);
 
   // Fetch categories, subcategories, services, cities, gammes and gamme_categories from database
@@ -414,6 +413,8 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
     logo_bg: (business as any)?.logo_bg || "transparent",
     zone_city_ids: (business as any)?.zone_city_ids || [] as string[],
     poissonnerie_details: (business as any)?.poissonnerie_details || null,
+    destination_hook: (business as any)?.destination_hook || "",
+    destination_description: (business as any)?.destination_description || "",
   });
   
   // Business labels state (managed separately)
@@ -424,17 +425,10 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
     if (!business?.id) return;
     const loadAssociations = async () => {
       const [destRes, poiRes] = await Promise.all([
-        supabase.from("business_destinations" as any).select("destination_id, hook, description").eq("business_id", business.id),
+        supabase.from("business_destinations" as any).select("destination_id").eq("business_id", business.id),
         supabase.from("business_points_of_interest" as any).select("point_of_interest_id").eq("business_id", business.id),
       ]);
-      if (destRes.data) {
-        setSelectedDestinationIds((destRes.data as any[]).map((d: any) => d.destination_id));
-        const details: Record<string, { hook: string; description: string }> = {};
-        (destRes.data as any[]).forEach((d: any) => {
-          details[d.destination_id] = { hook: d.hook || "", description: d.description || "" };
-        });
-        setDestinationDetails(details);
-      }
+      if (destRes.data) setSelectedDestinationIds((destRes.data as any[]).map((d: any) => d.destination_id));
       if (poiRes.data) setSelectedPOIIds((poiRes.data as any[]).map((p: any) => p.point_of_interest_id));
     };
     loadAssociations();
@@ -662,6 +656,8 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
       menu_url: formData.menu_url || null,
       logo_bg: (formData as any).logo_bg || "transparent",
       poissonnerie_details: formData.poissonnerie_details || null,
+      destination_hook: (formData as any).destination_hook?.trim().slice(0, 120) || null,
+      destination_description: (formData as any).destination_description?.trim().slice(0, 500) || null,
     };
 
     try {
@@ -721,8 +717,6 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
           const destsToInsert = selectedDestinationIds.map(destId => ({
             business_id: businessId,
             destination_id: destId,
-            hook: destinationDetails[destId]?.hook?.trim().slice(0, 120) || null,
-            description: destinationDetails[destId]?.description?.trim().slice(0, 500) || null,
           }));
           await supabase.from("business_destinations" as any).insert(destsToInsert);
         }
@@ -1801,18 +1795,6 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                       setSelectedDestinationIds(prev =>
                         isSelected ? prev.filter(id => id !== dest.id) : [...prev, dest.id]
                       );
-                      if (isSelected) {
-                        setDestinationDetails(prev => {
-                          const copy = { ...prev };
-                          delete copy[dest.id];
-                          return copy;
-                        });
-                      } else {
-                        setDestinationDetails(prev => ({
-                          ...prev,
-                          [dest.id]: prev[dest.id] || { hook: "", description: "" },
-                        }));
-                      }
                       setIsDirty(true);
                     }}
                     className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
@@ -1828,57 +1810,31 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
               })}
             </div>
 
-            {/* Per-destination hook & description */}
-            {selectedDestinationIds.length > 0 && (
-              <div className="mt-3 space-y-3">
-                {selectedDestinationIds.map((destId) => {
-                  const dest = allDestinations.find(d => d.id === destId);
-                  if (!dest) return null;
-                  const details = destinationDetails[destId] || { hook: "", description: "" };
-                  const updateDetail = (key: "hook" | "description", value: string) => {
-                    setDestinationDetails(prev => ({
-                      ...prev,
-                      [destId]: { ...prev[destId], [key]: value },
-                    }));
-                    setIsDirty(true);
-                  };
-                  return (
-                    <details key={destId} className="p-3 bg-background border rounded-lg">
-                      <summary className="cursor-pointer font-medium text-sm flex items-center gap-2">
-                        📍 {dest.name_fr}
-                        {(details.hook || details.description) && (
-                          <span className="text-xs text-muted-foreground ml-auto">✏️</span>
-                        )}
-                      </summary>
-                      <div className="mt-3 space-y-3 pl-2">
-                        <div className="space-y-1">
-                          <Label className="text-xs font-medium">Hook (H2) — {details.hook.length}/120</Label>
-                          <Input
-                            value={details.hook}
-                            onChange={(e) => updateDetail("hook", e.target.value.slice(0, 120))}
-                            placeholder="Accroche courte pour cette destination..."
-                            maxLength={120}
-                            className="h-8 text-sm"
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs font-medium">Description — {details.description.replace(/<[^>]*>/g, '').length}/500</Label>
-                          <RichTextEditor
-                            content={details.description}
-                            onChange={(val) => {
-                              const plainText = val.replace(/<[^>]*>/g, '');
-                              if (plainText.length <= 500) {
-                                updateDetail("description", val);
-                              }
-                            }}
-                          />
-                        </div>
-                      </div>
-                    </details>
-                  );
-                })}
+            {/* Global destination hook & description */}
+            <div className="mt-3 space-y-3">
+              <div className="space-y-1">
+                <Label className="text-sm font-medium">Hook Destination (H2) — {((formData as any).destination_hook || "").length}/120</Label>
+                <Input
+                  value={(formData as any).destination_hook || ""}
+                  onChange={(e) => handleChange("destination_hook" as any, e.target.value.slice(0, 120))}
+                  placeholder="Accroche courte pour la section destination..."
+                  maxLength={120}
+                  className="h-9 text-sm"
+                />
               </div>
-            )}
+              <div className="space-y-1">
+                <Label className="text-sm font-medium">Description Destination — {((formData as any).destination_description || "").replace(/<[^>]*>/g, '').length}/500</Label>
+                <RichTextEditor
+                  content={(formData as any).destination_description || ""}
+                  onChange={(val) => {
+                    const plainText = val.replace(/<[^>]*>/g, '');
+                    if (plainText.length <= 500) {
+                      handleChange("destination_description" as any, val);
+                    }
+                  }}
+                />
+              </div>
+            </div>
           </div>
         )}
 

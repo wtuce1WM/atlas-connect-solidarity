@@ -301,25 +301,19 @@ export type Database = {
         Row: {
           business_id: string
           created_at: string | null
-          description: string | null
           destination_id: string
-          hook: string | null
           id: string
         }
         Insert: {
           business_id: string
           created_at?: string | null
-          description?: string | null
           destination_id: string
-          hook?: string | null
           id?: string
         }
         Update: {
           business_id?: string
           created_at?: string | null
-          description?: string | null
           destination_id?: string
-          hook?: string | null
           id?: string
         }
         Relationships: [
@@ -424,6 +418,8 @@ export type Database = {
           created_at: string
           default_service: string | null
           description: string | null
+          destination_description: string | null
+          destination_hook: string | null
           email: string | null
           facebook_url: string | null
           gamme_id: string | null
@@ -512,6 +508,8 @@ export type Database = {
           created_at?: string
           default_service?: string | null
           description?: string | null
+          destination_description?: string | null
+          destination_hook?: string | null
           email?: string | null
           facebook_url?: string | null
           gamme_id?: string | null
@@ -600,6 +598,8 @@ export type Database = {
           created_at?: string
           default_service?: string | null
           description?: string | null
+          destination_description?: string | null
+          destination_hook?: string | null
           email?: string | null
           facebook_url?: string | null
           gamme_id?: string | null
@@ -1767,6 +1767,8 @@ export type Database = {
           created_at: string
           default_service: string | null
           description: string | null
+          destination_description: string | null
+          destination_hook: string | null
           email: string | null
           facebook_url: string | null
           gamme_id: string | null
