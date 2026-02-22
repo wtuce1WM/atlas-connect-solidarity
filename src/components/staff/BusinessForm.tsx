@@ -384,6 +384,9 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
     images: (business as any)?.images || [] as string[],
     _initialImages: (business as any)?.images || [] as string[], // track original images for cleanup
     pdf_url: (business as any)?.pdf_url || "",
+    pdf_name: (business as any)?.pdf_name || "",
+    pdf_2_url: (business as any)?.pdf_2_url || "",
+    pdf_2_name: (business as any)?.pdf_2_name || "",
     online_shop_url: (business as any)?.online_shop_url || "",
     opening_hours: (business as any)?.opening_hours as OpeningHours | null,
     rating: (business as any)?.rating?.toString() || "",
@@ -627,6 +630,9 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
       vimeo_url: formData.vimeo_url || null,
       images: formData.images.length > 0 ? formData.images : [],
       pdf_url: formData.pdf_url || null,
+      pdf_name: (formData as any).pdf_name?.slice(0, 100) || null,
+      pdf_2_url: (formData as any).pdf_2_url || null,
+      pdf_2_name: (formData as any).pdf_2_name?.slice(0, 100) || null,
       online_shop_url: formData.online_shop_url || null,
       opening_hours: formData.opening_hours ? JSON.parse(JSON.stringify(formData.opening_hours)) : null,
       rating: formData.rating ? parseFloat(formData.rating) : null,
@@ -2048,14 +2054,40 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
           />
         </div>
 
-        {/* PDF Document */}
+        {/* PDF Document 1 */}
         <div className="space-y-2">
-          <Label className="text-base font-semibold">Document PDF</Label>
-          <PDFUploader
-            pdfUrl={formData.pdf_url}
-            onChange={(url) => handleChange("pdf_url", url)}
-            businessId={business?.id}
-          />
+          <Label className="text-base font-semibold">Document PDF 1</Label>
+          <div className="space-y-2">
+            <Input
+              placeholder="Nom du document (max 100 caractères)"
+              value={(formData as any).pdf_name || ""}
+              onChange={(e) => handleChange("pdf_name", e.target.value.slice(0, 100))}
+              maxLength={100}
+            />
+            <PDFUploader
+              pdfUrl={formData.pdf_url}
+              onChange={(url) => handleChange("pdf_url", url)}
+              businessId={business?.id}
+            />
+          </div>
+        </div>
+
+        {/* PDF Document 2 */}
+        <div className="space-y-2">
+          <Label className="text-base font-semibold">Document PDF 2</Label>
+          <div className="space-y-2">
+            <Input
+              placeholder="Nom du document (max 100 caractères)"
+              value={(formData as any).pdf_2_name || ""}
+              onChange={(e) => handleChange("pdf_2_name", e.target.value.slice(0, 100))}
+              maxLength={100}
+            />
+            <PDFUploader
+              pdfUrl={(formData as any).pdf_2_url || ""}
+              onChange={(url) => handleChange("pdf_2_url", url)}
+              businessId={business?.id}
+            />
+          </div>
         </div>
 
         {/* Labels */}

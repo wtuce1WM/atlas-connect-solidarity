@@ -8,6 +8,7 @@ interface BrokenFilesMap {
     brokenImages: number;
     brokenLogo: boolean;
     brokenPdf: boolean;
+    brokenPdf2: boolean;
     brokenLabel: boolean;
     totalBroken: number;
   };
@@ -37,6 +38,9 @@ export const useBusinessBrokenFiles = (businesses: Business[]) => {
       }
       if (business.pdf_url) {
         urlMap[business.pdf_url] = { businessId: business.id, type: "pdf" };
+      }
+      if ((business as any).pdf_2_url) {
+        urlMap[(business as any).pdf_2_url] = { businessId: business.id, type: "pdf" };
       }
       if (business.label1_url) {
         urlMap[business.label1_url] = { businessId: business.id, type: "label" };
@@ -89,6 +93,7 @@ export const useBusinessBrokenFiles = (businesses: Business[]) => {
       let brokenImages = 0;
       let brokenLogo = false;
       let brokenPdf = false;
+      let brokenPdf2 = false;
       let brokenLabel = false;
 
       if (business.images) {
@@ -98,12 +103,13 @@ export const useBusinessBrokenFiles = (businesses: Business[]) => {
       }
       if (business.logo_url && results[business.logo_url]) brokenLogo = true;
       if (business.pdf_url && results[business.pdf_url]) brokenPdf = true;
+      if ((business as any).pdf_2_url && results[(business as any).pdf_2_url]) brokenPdf2 = true;
       if (business.label1_url && results[business.label1_url]) brokenLabel = true;
 
-      const totalBroken = brokenImages + (brokenLogo ? 1 : 0) + (brokenPdf ? 1 : 0) + (brokenLabel ? 1 : 0);
+      const totalBroken = brokenImages + (brokenLogo ? 1 : 0) + (brokenPdf ? 1 : 0) + (brokenPdf2 ? 1 : 0) + (brokenLabel ? 1 : 0);
 
       if (totalBroken > 0) {
-        newMap[business.id] = { brokenImages, brokenLogo, brokenPdf, brokenLabel, totalBroken };
+        newMap[business.id] = { brokenImages, brokenLogo, brokenPdf, brokenPdf2, brokenLabel, totalBroken };
       }
     });
 
