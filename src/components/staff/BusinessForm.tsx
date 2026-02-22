@@ -411,6 +411,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
     hook_ar: (business as any)?.hook_ar || "",
     menu_url: (business as any)?.menu_url || "",
     logo_bg: (business as any)?.logo_bg || "transparent",
+    zone_city_ids: (business as any)?.zone_city_ids || [] as string[],
   });
   
   // Business labels state (managed separately)
@@ -610,6 +611,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
       booking_url: formData.booking_url || null,
       account_type: formData.account_type || null,
       zone_chalandise: (formData as any).zone_chalandise || null,
+      zone_city_ids: (formData as any).zone_chalandise === "nationale" && (formData as any).zone_city_ids?.length > 0 ? (formData as any).zone_city_ids : [],
       languages: (formData as any).languages?.length > 0 ? (formData as any).languages : [],
       affiliate_id: (formData as any).affiliate_id || null,
       internal_notes: formData.internal_notes ? formData.internal_notes.slice(0, 5000) : null,
@@ -1242,6 +1244,45 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
               </SelectContent>
             </Select>
           </div>
+
+          {/* Villes de la zone nationale */}
+          {(formData as any).zone_chalandise === "nationale" && (
+            <div className="space-y-2 col-span-1 md:col-span-5">
+              <Label>Villes couvertes (zone nationale)</Label>
+              <div className="border rounded-md p-3 max-h-48 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                {dbCities.map((city) => {
+                  const isChecked = ((formData as any).zone_city_ids || []).includes(city.id);
+                  return (
+                    <label key={city.id} className="flex items-center gap-1.5 text-sm cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={() => {
+                          const current: string[] = (formData as any).zone_city_ids || [];
+                          const next = isChecked
+                            ? current.filter((id: string) => id !== city.id)
+                            : [...current, city.id];
+                          handleChange("zone_city_ids", next);
+                        }}
+                        className="rounded border-input"
+                      />
+                      {city.name_fr}
+                    </label>
+                  );
+                })}
+              </div>
+              <div className="flex gap-2 mt-1">
+                <Button type="button" variant="outline" size="sm" className="text-xs h-6 px-2"
+                  onClick={() => handleChange("zone_city_ids", dbCities.map(c => c.id))}>
+                  Tout sélectionner
+                </Button>
+                <Button type="button" variant="outline" size="sm" className="text-xs h-6 px-2"
+                  onClick={() => handleChange("zone_city_ids", [])}>
+                  Tout désélectionner
+                </Button>
+              </div>
+            </div>
+          )}
 
           {/* Langues parlées */}
           <div className="mt-4 space-y-2 col-span-1 md:col-span-5">
