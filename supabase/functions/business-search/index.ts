@@ -459,14 +459,17 @@ serve(async (req) => {
         "cherche", "chercher", "trouver", "trouve", "besoin",
         "commander", "commande", "réserver", "reserver",
         "louer", "location", "loueur",
+        "boire", "manger", "déguster", "deguster", "goûter", "gouter",
+        "prendre", "faire", "voir", "visiter",
       ]);
       
-      // Filter out intent noise words AND stop words from the remaining query
+      // Filter out intent noise words, stop words AND noise adjectives from the remaining query
       const cleanRemainder = effectiveQuery.split(/\s+/).filter(w => {
         const wLower = w.toLowerCase();
         return !serviceMatchWordsForInjection.includes(wLower) 
           && !FRENCH_STOP_WORDS.has(wLower)
           && !INTENT_NOISE.has(wLower)
+          && !NOISE_ADJECTIVES.has(wLower)
           // Don't remove words that are part of the service name
           && !svcWords.includes(wLower);
       }).join(" ").trim();
