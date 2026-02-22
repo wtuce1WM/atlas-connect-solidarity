@@ -1359,6 +1359,7 @@ export type Database = {
           city_id: string
           created_at: string | null
           description: string | null
+          hook: string | null
           id: string
           image_url: string | null
           latitude: number | null
@@ -1379,6 +1380,7 @@ export type Database = {
           city_id: string
           created_at?: string | null
           description?: string | null
+          hook?: string | null
           id?: string
           image_url?: string | null
           latitude?: number | null
@@ -1399,6 +1401,7 @@ export type Database = {
           city_id?: string
           created_at?: string | null
           description?: string | null
+          hook?: string | null
           id?: string
           image_url?: string | null
           latitude?: number | null

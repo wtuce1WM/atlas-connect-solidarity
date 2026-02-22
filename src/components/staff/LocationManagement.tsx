@@ -115,6 +115,7 @@ interface PointOfInterest {
   official_site_fr: string | null;
   official_site_en: string | null;
   official_site_ar: string | null;
+  hook: string | null;
   description: string | null;
   sort_order: number | null;
   image_url: string | null;
@@ -182,7 +183,7 @@ const LocationManagement = () => {
     city_id: "", name_fr: "", name_en: "", name_ar: "",
     latitude: "", longitude: "", wikipedia_fr: "", wikipedia_en: "", wikipedia_ar: "",
     official_site_fr: "", official_site_en: "", official_site_ar: "",
-    description: "", sort_order: 0, image_url: "",
+    hook: "", description: "", sort_order: 0, image_url: "",
   });
   const { toast } = useToast();
 
@@ -628,7 +629,7 @@ const LocationManagement = () => {
       city_id: "", name_fr: "", name_en: "", name_ar: "",
       latitude: "", longitude: "", wikipedia_fr: "", wikipedia_en: "", wikipedia_ar: "",
       official_site_fr: "", official_site_en: "", official_site_ar: "",
-      description: "", sort_order: 0, image_url: "",
+      hook: "", description: "", sort_order: 0, image_url: "",
     });
   };
 
@@ -639,7 +640,7 @@ const LocationManagement = () => {
       latitude: p.latitude?.toString() || "", longitude: p.longitude?.toString() || "",
       wikipedia_fr: p.wikipedia_fr || "", wikipedia_en: p.wikipedia_en || "", wikipedia_ar: p.wikipedia_ar || "",
       official_site_fr: (p as any).official_site_fr || "", official_site_en: (p as any).official_site_en || "", official_site_ar: (p as any).official_site_ar || "",
-      description: p.description || "", sort_order: p.sort_order || 0,
+      hook: p.hook || "", description: p.description || "", sort_order: p.sort_order || 0,
       image_url: p.image_url || "",
     });
     setShowPoiForm(true);
@@ -667,6 +668,7 @@ const LocationManagement = () => {
       official_site_fr: poiForm.official_site_fr.trim() || null,
       official_site_en: poiForm.official_site_en.trim() || null,
       official_site_ar: poiForm.official_site_ar.trim() || null,
+      hook: poiForm.hook.trim().slice(0, 120) || null,
       description: poiForm.description.trim().slice(0, 10000) || null,
       sort_order: poiForm.sort_order,
       image_url: poiForm.image_url.trim() || null,
@@ -1301,6 +1303,18 @@ const LocationManagement = () => {
                     logoUrl={poiForm.image_url}
                     onChange={(url) => setPoiForm({ ...poiForm, image_url: url })}
                     businessId={editingPoi?.id || "poi"}
+                  />
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader><CardTitle className="text-lg">Hook (H2) — {poiForm.hook.length}/120</CardTitle></CardHeader>
+                <CardContent>
+                  <Input
+                    value={poiForm.hook}
+                    onChange={(e) => setPoiForm({ ...poiForm, hook: e.target.value.slice(0, 120) })}
+                    placeholder="Accroche courte pour ce point d'intérêt..."
+                    maxLength={120}
                   />
                 </CardContent>
               </Card>
