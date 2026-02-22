@@ -2434,7 +2434,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
         </div>
 
         {/* Poissonnerie-specific details */}
-        {formData.categories.some(c => c.toLowerCase().includes("poissonnerie")) && (() => {
+        {formData.categories.some(c => c.toLowerCase().includes("poisson")) && (() => {
           const details = formData.poissonnerie_details || {};
           const updateDetails = (key: string, value: any) => {
             handleChange("poissonnerie_details", { ...details, [key]: value } as any);
