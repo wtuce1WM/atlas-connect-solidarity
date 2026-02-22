@@ -502,6 +502,8 @@ export type Database = {
           other_booking_url: string | null
           pdf_2_name: string | null
           pdf_2_url: string | null
+          pdf_3_name: string | null
+          pdf_3_url: string | null
           pdf_name: string | null
           pdf_url: string | null
           phone: string | null
@@ -597,6 +599,8 @@ export type Database = {
           other_booking_url?: string | null
           pdf_2_name?: string | null
           pdf_2_url?: string | null
+          pdf_3_name?: string | null
+          pdf_3_url?: string | null
           pdf_name?: string | null
           pdf_url?: string | null
           phone?: string | null
@@ -692,6 +696,8 @@ export type Database = {
           other_booking_url?: string | null
           pdf_2_name?: string | null
           pdf_2_url?: string | null
+          pdf_3_name?: string | null
+          pdf_3_url?: string | null
           pdf_name?: string | null
           pdf_url?: string | null
           phone?: string | null
@@ -1869,6 +1875,8 @@ export type Database = {
           other_booking_url: string | null
           pdf_2_name: string | null
           pdf_2_url: string | null
+          pdf_3_name: string | null
+          pdf_3_url: string | null
           pdf_name: string | null
           pdf_url: string | null
           phone: string | null
