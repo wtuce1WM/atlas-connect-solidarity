@@ -126,7 +126,7 @@ const MapBusinessInfoCard = ({ business, onClose }: MapBusinessInfoCardProps) =>
                 {showHours && (
                   <div className="text-[10px] mt-1 animate-fade-in">
                     {(() => {
-                      const hours = business.opening_hours as Record<string, { open: string; close: string }>;
+                      const hours = business.opening_hours as Record<string, { open?: string; close?: string; open2?: string; close2?: string; closed?: boolean; continuous?: boolean }>;
                       const days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
                       const dayLabels: Record<string, string> = {
                         monday: "Lun", tuesday: "Mar", wednesday: "Mer",
@@ -135,10 +135,13 @@ const MapBusinessInfoCard = ({ business, onClose }: MapBusinessInfoCardProps) =>
                       return days.map((day) => {
                         const dayData = hours[day];
                         if (!dayData) return null;
+                        const slot1 = dayData.open && dayData.close ? `${dayData.open}-${dayData.close}` : "";
+                        const slot2 = dayData.open2 && dayData.close2 && !dayData.continuous ? `${dayData.open2}-${dayData.close2}` : "";
+                        const display = dayData.closed ? "Fermé" : slot1 ? (slot2 ? `${slot1} / ${slot2}` : slot1) : "Fermé";
                         return (
                           <div key={day} className="flex justify-between gap-2">
                             <span>{dayLabels[day]}</span>
-                            <span>{dayData.open && dayData.close ? `${dayData.open}-${dayData.close}` : "Fermé"}</span>
+                            <span>{display}</span>
                           </div>
                         );
                       });

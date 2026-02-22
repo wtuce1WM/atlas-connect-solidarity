@@ -176,7 +176,7 @@ const JS_DAY_TO_KEY = ["sunday", "monday", "tuesday", "wednesday", "thursday", "
  * Returns true if the business is open during at least part of the slot.
  */
 export function isOpenDuringSlot(
-  openingHours: Record<string, { open?: string; close?: string; closed?: boolean; continuous?: boolean }> | null,
+  openingHours: Record<string, { open?: string; close?: string; open2?: string; close2?: string; closed?: boolean; continuous?: boolean }> | null,
   isOpen24h: boolean,
   timeSlot: TimeSlot,
   vacationDates?: Array<{ start_date: string; end_date: string }> | null,
@@ -211,26 +211,35 @@ export function isOpenDuringSlot(
   if (!dh || dh.closed) return false;
   if (!dh.open || !dh.close) return false;
 
-  const [oh, om] = dh.open.split(":").map(Number);
-  const [ch, cm] = dh.close.split(":").map(Number);
-  const openMin = oh * 60 + (om || 0);
-  const closeMin = ch * 60 + (cm || 0);
-
   const slotStartMin = timeSlot.startHour * 60;
   const slotEndMin = timeSlot.endHour * 60;
 
-  // Handle overnight business hours (close < open, e.g., 20:00-02:00)
-  if (closeMin <= openMin) {
-    // Business spans midnight: open from openMin..1440 and 0..closeMin
-    // Slot overlaps if it touches either range
-    return slotEndMin > openMin || slotStartMin < closeMin;
+  // Check if a single business time range overlaps with the target slot
+  const rangeOverlaps = (openStr: string, closeStr: string): boolean => {
+    const [oh, om] = openStr.split(":").map(Number);
+    const [ch, cm] = closeStr.split(":").map(Number);
+    const openMin = oh * 60 + (om || 0);
+    const closeMin = ch * 60 + (cm || 0);
+
+    // Handle overnight business hours (close < open, e.g., 20:00-02:00)
+    if (closeMin <= openMin) {
+      return slotEndMin > openMin || slotStartMin < closeMin;
+    }
+    // Handle overnight slot (e.g., night: 22:00-06:00)
+    if (slotEndMin <= slotStartMin) {
+      return closeMin > slotStartMin || openMin < slotEndMin;
+    }
+    // Normal case: overlap check
+    return slotStartMin < closeMin && slotEndMin > openMin;
+  };
+
+  // Check slot 1
+  if (rangeOverlaps(dh.open, dh.close)) return true;
+
+  // Check slot 2
+  if (dh.open2 && dh.close2 && !dh.continuous) {
+    if (rangeOverlaps(dh.open2, dh.close2)) return true;
   }
 
-  // Handle overnight slot (e.g., night: 22:00-06:00)
-  if (slotEndMin <= slotStartMin) {
-    return closeMin > slotStartMin || openMin < slotEndMin;
-  }
-
-  // Normal case: overlap check
-  return slotStartMin < closeMin && slotEndMin > openMin;
+  return false;
 }
