@@ -346,9 +346,9 @@ serve(async (req) => {
     let businesses: Business[] = [];
     let searchLevel = "exact";
 
-    // ── Natural language detection: extract keywords via LLM if needed (skip for autocomplete) ──
+    // ── Natural language detection: extract keywords via LLM if needed ──
     let effectiveQuery = query;
-    if (!isAutocomplete && query && isNaturalLanguageQuery(query)) {
+    if (query && isNaturalLanguageQuery(query)) {
       console.log(`Natural language detected: "${query}" → extracting intent...`);
       effectiveQuery = await extractSearchIntent(query);
       console.log(`Intent extracted: "${effectiveQuery}"`);
