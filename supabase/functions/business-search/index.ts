@@ -284,10 +284,11 @@ function expandQuery(query: string): string {
       if (a.includes("/")) return a.replace(/['']/g, "").replace(/[^a-zA-Z0-9àâäéèêëïîôùûüÿçœæÀÂÄÉÈÊËÏÎÔÙÛÜŸÇŒÆ/]/g, "");
       return sanitizeTerm(a);
     }).filter(t => t.length > 1);
+    if (sanitized.length === 0) return null; // Skip words that produce no valid terms (e.g. "à")
     return sanitized.length === 1 ? sanitized[0] : `(${sanitized.join(" | ")})`;
   });
 
-  return groups.join(" & ");
+  return groups.filter(Boolean).join(" & ");
 }
 
 function getSearchLevelMessage(level: string, language: string = "fr"): string {
@@ -490,6 +491,7 @@ serve(async (req) => {
     // Level 1: Exact full-text search with ts_rank (services/name weight A > description weight B)
     if (queryForExpansion || city || category) {
       const expandedQuery = queryForExpansion ? expandQuery(queryForExpansion) : null;
+      if (expandedQuery) console.log(`expandedQuery: "${expandedQuery}" (from: "${queryForExpansion}")`);
 
       if (expandedQuery) {
         // Use ranked RPC function: prioritizes matches in services/name over description
