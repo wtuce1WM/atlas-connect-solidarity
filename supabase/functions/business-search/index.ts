@@ -369,7 +369,7 @@ serve(async (req) => {
     if (effectiveQuery) {
       const queryWords = effectiveQuery.toLowerCase().split(/\s+/).filter(w => w.length > 1 && !NOISE_ADJECTIVES.has(w));
       const cityLower = effectiveCity?.toLowerCase();
-      const serviceMatchWords = queryWords.filter(w => !FRENCH_STOP_WORDS.has(w) && w !== cityLower);
+      const serviceMatchWords = [...new Set(queryWords.filter(w => !FRENCH_STOP_WORDS.has(w) && w !== cityLower))];
 
       if (serviceMatchWords.length > 0) {
         // Search by name OR keywords array
@@ -403,21 +403,29 @@ serve(async (req) => {
             });
           });
         });
+        // Merge by name, combining keywords from all duplicate entries
         const allMatched = new Map<string, any>();
         for (const s of [...(matchingByName || []), ...keywordMatches]) {
-          allMatched.set(s.name_fr, s);
+          const existing = allMatched.get(s.name_fr);
+          if (existing) {
+            // Merge keywords arrays
+            const mergedKws = [...new Set([...(existing.keywords || []), ...(s.keywords || [])])];
+            allMatched.set(s.name_fr, { ...existing, keywords: mergedKws });
+          } else {
+            allMatched.set(s.name_fr, s);
+          }
         }
         const matchingServices = Array.from(allMatched.values());
 
         if (matchingServices && matchingServices.length > 0) {
-          // Pick the service that matches the most query words (most specific)
+          // Pick the best matching service, preferring high coverage (query words / service name words)
           let bestMatch = matchingServices[0].name_fr;
-          let bestScore = 0;
+          let bestScore = -Infinity;
           for (const svc of matchingServices) {
             const svcLower = svc.name_fr.toLowerCase();
             const svcNorm = stripPlural(svcLower.trim());
             const matchCount = serviceMatchWords.filter(w => svcLower.includes(w)).length;
-            const svcWordCount = svcLower.split(/\s+/).length;
+            const svcWordCount = svcLower.split(/\s+/).filter(w => w.length > 1).length; // Exclude stop words like "à"
             // Check keyword matches too
             const kws = (svc.keywords || []).map((k: string) => k.toLowerCase());
             const kwMatchCount = serviceMatchWords.filter(w => {
@@ -430,8 +438,10 @@ serve(async (req) => {
             // Exact name match bonus: if a query word IS the service name, strongly prefer it
             const exactNameMatch = serviceMatchWords.some(w => stripPlural(w) === svcNorm || w === svcLower);
             const exactNameBonus = exactNameMatch ? 200 : 0;
-            // Keyword matches (specific food/product terms) should outweigh generic service name matches
-            const score = exactNameBonus + matchCount * 5 + (matchCount > 1 && svcWordCount > 1 ? 20 : 0) + kwMatchCount * 30;
+            // Penalize services with unmatched name words (prefer "Cave à vin" over "Cave à vin d'exception")
+            const unmatchedPenalty = Math.max(0, svcWordCount - matchCount) * 15;
+            const score = exactNameBonus + matchCount * 5 + (matchCount > 1 && svcWordCount > 1 ? 20 : 0) + kwMatchCount * 30 - unmatchedPenalty;
+            
             if (score > bestScore) {
               bestScore = score;
               bestMatch = svc.name_fr;
