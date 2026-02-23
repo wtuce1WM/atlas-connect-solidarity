@@ -2446,7 +2446,13 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
               {isBrokenUrl(formData.google_reviews_url) && <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 animate-pulse" />}
           </div>
             {isBrokenUrl(formData.google_reviews_url) && <BrokenUrlBadge url={formData.google_reviews_url} />}
-          <Button type="button" variant="outline" size="sm" className="text-xs text-muted-foreground hover:text-destructive" onClick={() => setShowClearReviews(true)}>🗑️ Effacer tous les avis</Button>
+          <Button type="button" variant="outline" size="sm" className="text-xs text-muted-foreground" onClick={() => {
+            if (formData.google_maps_url) {
+              handleChange("google_reviews_url", formData.google_maps_url);
+            } else {
+              toast({ variant: "destructive", title: "Erreur", description: "Le champ Google Maps est vide dans la section Contact & Localisation." });
+            }
+          }}>📍 Récupérer le champ Google Maps</Button>
         </div>
 
         {/* Taxonomie */}
