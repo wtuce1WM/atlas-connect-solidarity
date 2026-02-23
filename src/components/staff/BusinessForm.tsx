@@ -2646,21 +2646,45 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
             servicesGroupedBySubcategory.length > 0 ? (
               servicesGroupedBySubcategory.length === 1 ? (
                 // Single subcategory: no tabs needed
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 p-4 border rounded-lg bg-muted/30">
-                  {servicesGroupedBySubcategory[0].services.map((service) => (
-                    <label
-                      key={service}
-                      className="flex items-center gap-2 cursor-pointer hover:bg-background p-2 rounded-md transition-colors"
+                <div>
+                  <div className="flex gap-2 mb-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const toAdd = servicesGroupedBySubcategory[0].services.filter(s => !formData.services.includes(s));
+                        if (toAdd.length > 0) setFormData(prev => ({ ...prev, services: [...prev.services, ...toAdd] }));
+                      }}
+                      className="text-xs px-2 py-1 rounded border border-border hover:bg-muted transition-colors"
                     >
-                      <input
-                        type="checkbox"
-                        checked={formData.services.includes(service)}
-                        onChange={() => handleServiceToggle(service)}
-                        className="h-4 w-4 rounded border-input"
-                      />
-                      <span className="text-sm">{service}</span>
-                    </label>
-                  ))}
+                      ✅ Tout sélectionner
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const groupSet = new Set(servicesGroupedBySubcategory[0].services);
+                        setFormData(prev => ({ ...prev, services: prev.services.filter(s => !groupSet.has(s)) }));
+                      }}
+                      className="text-xs px-2 py-1 rounded border border-border hover:bg-muted transition-colors"
+                    >
+                      ❌ Tout désélectionner
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 p-4 border rounded-lg bg-muted/30">
+                    {servicesGroupedBySubcategory[0].services.map((service) => (
+                      <label
+                        key={service}
+                        className="flex items-center gap-2 cursor-pointer hover:bg-background p-2 rounded-md transition-colors"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={formData.services.includes(service)}
+                          onChange={() => handleServiceToggle(service)}
+                          className="h-4 w-4 rounded border-input"
+                        />
+                        <span className="text-sm">{service}</span>
+                      </label>
+                    ))}
+                  </div>
                 </div>
               ) : (
                 // Multiple subcategories: tabbed display
@@ -2682,6 +2706,28 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                   </TabsList>
                   {servicesGroupedBySubcategory.map((group) => (
                     <TabsContent key={group.subcategoryName} value={group.subcategoryName}>
+                      <div className="flex gap-2 mb-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const toAdd = group.services.filter(s => !formData.services.includes(s));
+                            if (toAdd.length > 0) setFormData(prev => ({ ...prev, services: [...prev.services, ...toAdd] }));
+                          }}
+                          className="text-xs px-2 py-1 rounded border border-border hover:bg-muted transition-colors"
+                        >
+                          ✅ Tout sélectionner
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const groupSet = new Set(group.services);
+                            setFormData(prev => ({ ...prev, services: prev.services.filter(s => !groupSet.has(s)) }));
+                          }}
+                          className="text-xs px-2 py-1 rounded border border-border hover:bg-muted transition-colors"
+                        >
+                          ❌ Tout désélectionner
+                        </button>
+                      </div>
                       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 p-4 border rounded-lg bg-muted/30">
                         {group.services.map((service) => (
                           <label
