@@ -1,0 +1,1 @@
+ALTER TABLE public.businesses ADD COLUMN is_visible_locale boolean NOT NULL DEFAULT false;
