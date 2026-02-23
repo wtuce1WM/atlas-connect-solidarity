@@ -318,7 +318,7 @@ const BusinessDetail = () => {
         <img
           src={logoGold}
           alt="Loading"
-          className="w-64 h-64 object-contain animate-pulse"
+          className="w-64 h-64 object-contain animate-logo-zoom"
         />
       </div>
     );

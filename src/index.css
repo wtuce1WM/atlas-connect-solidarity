@@ -204,3 +204,25 @@ textarea::placeholder {
     transform: translateY(0);
   }
 }
+
+@keyframes logoZoomIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+    filter: brightness(0.5);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+    filter: brightness(1.2) drop-shadow(0 0 30px hsla(43, 75%, 55%, 0.6));
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.15);
+    filter: brightness(1) drop-shadow(0 0 15px hsla(43, 75%, 55%, 0.3));
+  }
+}
+
+.animate-logo-zoom {
+  animation: logoZoomIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
