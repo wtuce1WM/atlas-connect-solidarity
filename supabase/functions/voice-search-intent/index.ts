@@ -68,6 +68,7 @@ Règles de traduction sémantique OBLIGATOIRES :
 - "boules", "jouer aux boules" → "pétanque"
 - "glace", "glaces", "sorbet", "gelato", "crème glacée" → "glacier"
 - "steak", "steaks", "entrecôte", "faux-filet", "bifteck", "côte de bœuf", "viande rouge", "viande grillée" → "viande"
+- "feu de bois", "au feu de bois", "braise", "grillé au feu de bois" → "viande feu bois" (garder les mots pour matcher le service "Au feu de bois")
 - "croissant", "croissants", "pain au chocolat", "viennoiserie", "viennoiseries", "chausson aux pommes" → garder le mot produit tel quel (ex: "croissants") car il correspond à un mot-clé de service dans l'annuaire. Catégorie "Restauration" si contexte "manger", "Commerce" si contexte "acheter".
 - "pain français", "baguette", "pain de campagne", "pain" → garder le terme produit tel quel. "pain français" = garder "pain français". Catégorie "Restauration" (les boulangeries sont en Restauration).
 - IMPORTANT : quand un adjectif qualifie un produit alimentaire (ex: "pain français", "cuisine française", "pâtisserie marocaine"), NE PAS supprimer l'adjectif — il fait partie du nom du service/produit.

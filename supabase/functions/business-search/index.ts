@@ -362,8 +362,9 @@ serve(async (req) => {
     const detectedCity = (!city && effectiveQuery) ? detectCityInQuery(effectiveQuery) : null;
     const effectiveCity = city || detectedCity || undefined;
 
-    // ── Pre-detect matching service from query keywords ──
+    // ── Pre-detect matching service(s) from query keywords ──
     let detectedService: string | null = null;
+    let detectedServices: string[] = []; // ALL fully-matched services
     let originalDetectedService: string | null = null; // Keep track even after fallback
     let serviceMatchWordsForInjection: string[] = [];
     if (effectiveQuery) {
@@ -386,9 +387,8 @@ serve(async (req) => {
           .not("keywords", "eq", "{}");
 
         // Merge: services matched by name + services whose keywords contain a query word
-        // Normalize a French word by stripping common plural suffixes
         const stripPlural = (w: string): string => {
-          if (w.endsWith("aux")) return w.slice(0, -3) + "al"; // animaux→animal
+          if (w.endsWith("aux")) return w.slice(0, -3) + "al";
           if (w.endsWith("eaux")) return w.slice(0, -4) + "eau";
           if (w.endsWith("s")) return w.slice(0, -1);
           return w;
@@ -403,12 +403,10 @@ serve(async (req) => {
             });
           });
         });
-        // Merge by name, combining keywords from all duplicate entries
         const allMatched = new Map<string, any>();
         for (const s of [...(matchingByName || []), ...keywordMatches]) {
           const existing = allMatched.get(s.name_fr);
           if (existing) {
-            // Merge keywords arrays
             const mergedKws = [...new Set([...(existing.keywords || []), ...(s.keywords || [])])];
             allMatched.set(s.name_fr, { ...existing, keywords: mergedKws });
           } else {
@@ -418,54 +416,77 @@ serve(async (req) => {
         const matchingServices = Array.from(allMatched.values());
 
         if (matchingServices && matchingServices.length > 0) {
-          // Pick the best matching service, preferring high coverage (query words / service name words)
-          let bestMatch = matchingServices[0].name_fr;
-          let bestScore = -Infinity;
+          // Collect ALL services whose name words are fully present in the query
+          const fullyMatchedServices: string[] = [];
+          const usedQueryWords = new Set<string>();
           
-          // Pre-compute: check if there's a multi-word service that fully matches the query
-          const hasFullMultiWordMatch = matchingServices.some(svc => {
-            const svcWords = svc.name_fr.toLowerCase().split(/\s+/).filter((w: string) => w.length > 1);
-            return svcWords.length > 1 && svcWords.every((w: string) => serviceMatchWords.some(qw => qw === w || stripPlural(qw) === stripPlural(w)));
+          // First pass: find multi-word services with full match (greedy, longest first)
+          const sortedByWordCount = [...matchingServices].sort((a, b) => {
+            const aWords = a.name_fr.toLowerCase().split(/\s+/).filter((w: string) => w.length > 1).length;
+            const bWords = b.name_fr.toLowerCase().split(/\s+/).filter((w: string) => w.length > 1).length;
+            return bWords - aWords; // longest first
           });
           
-          for (const svc of matchingServices) {
-            const svcLower = svc.name_fr.toLowerCase();
-            const svcNorm = stripPlural(svcLower.trim());
-            const svcWords = svcLower.split(/\s+/).filter((w: string) => w.length > 1);
-            const matchCount = serviceMatchWords.filter(w => svcLower.includes(w)).length;
-            const svcWordCount = svcWords.length;
-            // Check keyword matches too
-            const kws = (svc.keywords || []).map((k: string) => k.toLowerCase());
-            const kwMatchCount = serviceMatchWords.filter(w => {
-              const wNorm = stripPlural(w);
-              return kws.some((k: string) => {
-                const kNorm = stripPlural(k);
-                return k.includes(w) || w.includes(k) || kNorm === wNorm;
-              });
-            }).length;
-            
-            // Full multi-word match bonus: ALL words of the service name are present in the query
-            const allSvcWordsMatched = svcWordCount > 1 && svcWords.every((w: string) => serviceMatchWords.some(qw => qw === w || stripPlural(qw) === stripPlural(w)));
-            const fullMatchBonus = allSvcWordsMatched ? 300 : 0;
-            
-            // Exact name match bonus: if a query word IS the service name, strongly prefer it
-            // BUT suppress this bonus if there's a better multi-word full match available
-            const exactNameMatch = serviceMatchWords.some(w => stripPlural(w) === svcNorm || w === svcLower);
-            const exactNameBonus = (exactNameMatch && !hasFullMultiWordMatch) ? 200 : 0;
-            
-            // Penalize services with unmatched name words (prefer "Cave à vin" over "Cave à vin d'exception")
-            const unmatchedPenalty = Math.max(0, svcWordCount - matchCount) * 15;
-            const score = fullMatchBonus + exactNameBonus + matchCount * 5 + (matchCount > 1 && svcWordCount > 1 ? 20 : 0) + kwMatchCount * 30 - unmatchedPenalty;
-            
-            if (score > bestScore) {
-              bestScore = score;
-              bestMatch = svc.name_fr;
+          for (const svc of sortedByWordCount) {
+            // Filter out stop words from service name for matching (e.g. "Au feu de bois" → ["feu", "bois"])
+            const svcContentWords = svc.name_fr.toLowerCase().split(/\s+/).filter((w: string) => w.length > 1 && !FRENCH_STOP_WORDS.has(w));
+            const svcWords = svc.name_fr.toLowerCase().split(/\s+/).filter((w: string) => w.length > 1);
+            const allSvcWordsMatched = svcContentWords.length > 0 && svcContentWords.every((w: string) => 
+              serviceMatchWords.some(qw => {
+                if (usedQueryWords.has(qw)) return false; // Don't reuse query words
+                return qw === w || stripPlural(qw) === stripPlural(w);
+              })
+            );
+            if (allSvcWordsMatched) {
+              fullyMatchedServices.push(svc.name_fr);
+              // Mark query words as used (only content words, not stop words)
+              for (const sw of svcContentWords) {
+                const matchedQw = serviceMatchWords.find(qw => !usedQueryWords.has(qw) && (qw === sw || stripPlural(qw) === stripPlural(sw)));
+                if (matchedQw) usedQueryWords.add(matchedQw);
+              }
             }
           }
-          detectedService = bestMatch;
-          originalDetectedService = bestMatch;
+          
+          if (fullyMatchedServices.length > 0) {
+            detectedServices = fullyMatchedServices;
+            detectedService = fullyMatchedServices[0]; // Primary service for RPC filter
+          } else {
+            // Fallback: pick best single service by scoring
+            let bestMatch = matchingServices[0].name_fr;
+            let bestScore = -Infinity;
+            
+            for (const svc of matchingServices) {
+              const svcLower = svc.name_fr.toLowerCase();
+              const svcNorm = stripPlural(svcLower.trim());
+              const svcWords = svcLower.split(/\s+/).filter((w: string) => w.length > 1);
+              const matchCount = serviceMatchWords.filter(w => svcLower.includes(w)).length;
+              const svcWordCount = svcWords.length;
+              const kws = (svc.keywords || []).map((k: string) => k.toLowerCase());
+              const kwMatchCount = serviceMatchWords.filter(w => {
+                const wNorm = stripPlural(w);
+                return kws.some((k: string) => {
+                  const kNorm = stripPlural(k);
+                  return k.includes(w) || w.includes(k) || kNorm === wNorm;
+                });
+              }).length;
+              
+              const exactNameMatch = serviceMatchWords.some(w => stripPlural(w) === svcNorm || w === svcLower);
+              const exactNameBonus = exactNameMatch ? 200 : 0;
+              const unmatchedPenalty = Math.max(0, svcWordCount - matchCount) * 15;
+              const score = exactNameBonus + matchCount * 5 + (matchCount > 1 && svcWordCount > 1 ? 20 : 0) + kwMatchCount * 30 - unmatchedPenalty;
+              
+              if (score > bestScore) {
+                bestScore = score;
+                bestMatch = svc.name_fr;
+              }
+            }
+            detectedService = bestMatch;
+            detectedServices = [bestMatch];
+          }
+          
+          originalDetectedService = detectedService;
           serviceMatchWordsForInjection = serviceMatchWords;
-          console.log(`Detected service for SQL filter: "${detectedService}" (from: ${serviceMatchWords.join(", ")}, candidates: ${matchingServices.map((s: any) => s.name_fr).join(", ")})`);
+          console.log(`Detected service(s) for SQL filter: [${detectedServices.join(", ")}] (from: ${serviceMatchWords.join(", ")}, candidates: ${matchingServices.map((s: any) => s.name_fr).join(", ")})`);
         }
       }
     }
@@ -580,6 +601,31 @@ serve(async (req) => {
                 ? calculateDistance(latitude, longitude, b.latitude, b.longitude)
                 : null,
           }));
+          
+          // Post-filter: if multiple services detected, keep only businesses that have ALL of them
+          if (detectedServices.length > 1) {
+            const beforeCount = businesses.length;
+            businesses = businesses.filter((b: any) => {
+              const bServices = (b.services || []).map((s: string) => s.toLowerCase());
+              return detectedServices.every(ds => 
+                bServices.some(bs => bs.includes(ds.toLowerCase()) || ds.toLowerCase().includes(bs))
+              );
+            });
+            console.log(`Multi-service post-filter [${detectedServices.join(", ")}]: ${beforeCount} → ${businesses.length}`);
+            
+            // Fallback: if post-filter gives 0, revert to single-service results
+            if (businesses.length === 0) {
+              console.log(`Multi-service filter returned 0 results, reverting to single-service results`);
+              businesses = data.map((b: any) => ({
+                ...b,
+                distance_km:
+                  latitude && longitude && b.latitude && b.longitude
+                    ? calculateDistance(latitude, longitude, b.latitude, b.longitude)
+                    : null,
+              }));
+            }
+          }
+          
           searchLevel = "exact";
         }
       } else {
