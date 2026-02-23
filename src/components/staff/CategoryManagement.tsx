@@ -76,6 +76,7 @@ interface Subcategory {
   adj_ar: string | null;
   icon: string | null;
   sort_order: number;
+  keywords: string[] | null;
 }
 
 interface Service {
@@ -280,7 +281,7 @@ const CategoryManagement = () => {
         icon: (item as Category).icon || "",
         sort_order: item.sort_order || 0,
         front_color: (item as Category).front_color || "white",
-        keywords: ((item as Service).keywords || []).join(", ")
+        keywords: ((item as Service | Subcategory).keywords || []).join(", ")
       });
     } else {
       setEditForm({ name_fr: "", name_en: "", name_ar: "", adj_fr: "", adj_en: "", adj_ar: "", icon: "", sort_order: 0, front_color: "white", keywords: "" });
@@ -321,6 +322,10 @@ const CategoryManagement = () => {
           toast.success("Catégorie créée");
         }
       } else if (editMode.type === "subcategory") {
+        const keywordsArray = editForm.keywords
+          .split(",")
+          .map(k => k.trim())
+          .filter(k => k.length > 0);
         const subData = {
           category_id: editMode.parentId!,
           name_fr: editForm.name_fr.trim(),
@@ -330,7 +335,8 @@ const CategoryManagement = () => {
           adj_en: editForm.adj_en.trim() || null,
           adj_ar: editForm.adj_ar.trim() || null,
           icon: editForm.icon.trim() || null,
-          sort_order: editForm.sort_order
+          sort_order: editForm.sort_order,
+          keywords: keywordsArray
         };
 
         if (editMode.id) {
@@ -546,7 +552,7 @@ const CategoryManagement = () => {
             onChange={(e) => setEditForm(prev => ({ ...prev, keywords: e.target.value }))}
             placeholder=""
           />
-          <p className="text-[10px] text-muted-foreground mt-0.5">Ces mots permettront de trouver ce service lors d'une recherche</p>
+          <p className="text-[10px] text-muted-foreground mt-0.5">Ces mots permettront de trouver ce {editMode?.type === "subcategory" ? "type d'établissement" : "service"} lors d'une recherche</p>
         </div>
       )}
       {showFrontColor && (
@@ -685,7 +691,7 @@ const CategoryManagement = () => {
 
                     {/* New subcategory form */}
                     {editMode?.type === "subcategory" && editMode.id === null && editMode.parentId === category.id && (
-                      renderEditForm(true, true)
+                      renderEditForm(true, true, false, true)
                     )}
 
                     {subs.map((sub) => {
@@ -740,7 +746,7 @@ const CategoryManagement = () => {
 
                             {subIsEditing && (
                               <div className="px-2 pb-2">
-                                {renderEditForm(true, true)}
+                                {renderEditForm(true, true, false, true)}
                               </div>
                             )}
 

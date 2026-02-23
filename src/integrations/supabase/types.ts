@@ -1711,6 +1711,7 @@ export type Database = {
           created_at: string | null
           icon: string | null
           id: string
+          keywords: string[] | null
           name_ar: string | null
           name_en: string | null
           name_fr: string
@@ -1725,6 +1726,7 @@ export type Database = {
           created_at?: string | null
           icon?: string | null
           id?: string
+          keywords?: string[] | null
           name_ar?: string | null
           name_en?: string | null
           name_fr: string
@@ -1739,6 +1741,7 @@ export type Database = {
           created_at?: string | null
           icon?: string | null
           id?: string
+          keywords?: string[] | null
           name_ar?: string | null
           name_en?: string | null
           name_fr?: string

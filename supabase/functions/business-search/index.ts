@@ -421,12 +421,6 @@ serve(async (req) => {
       console.log(`Auto-detected neighborhood "${detectedNeighborhood}" from query "${effectiveQuery}"`);
     }
 
-    // Auto-détection de sous-catégorie dynamique depuis la DB
-    // Hardcoded exceptions only for keywords that don't match subcategory names
-    const SUBCATEGORY_KEYWORD_OVERRIDES: Record<string, string[]> = {
-      "Boulangerie": ["baguette", "baguettes", "pain français", "pain francais", "pain"],
-      "Taxi / Chauffeur privé": ["taxi", "taxis", "chauffeur privé", "navette", "transfert", "vtc"],
-    };
     // Related subcategories: after main results, also show businesses from these subcategories
     const RELATED_SUBCATEGORIES: Record<string, string[]> = {
       "Supermarché": ["Epicerie fine"],
@@ -436,31 +430,33 @@ serve(async (req) => {
       const qLower = effectiveQuery.toLowerCase();
       const qWords = qLower.split(/\s+/);
 
-      // 1. Check hardcoded overrides first
-      for (const [subcat, keywords] of Object.entries(SUBCATEGORY_KEYWORD_OVERRIDES)) {
-        if (keywords.some(kw => qWords.includes(kw) || (kw.includes(" ") && qLower.includes(kw)))) {
-          detectedSubcategory = subcat;
-          console.log(`Auto-detected subcategory "${subcat}" from override keywords`);
-          break;
-        }
-      }
-
-      // 2. Dynamic lookup: match query words against subcategory names from DB
-      if (!detectedSubcategory) {
-        const { data: subcats } = await supabase
-          .from("subcategories")
-          .select("name_fr");
-        
-        if (subcats) {
-          // Sort by name length DESC so longer names match first (e.g. "Night Club" before "Club")
-          const sorted = [...subcats].sort((a, b) => (b.name_fr?.length || 0) - (a.name_fr?.length || 0));
-          for (const sc of sorted) {
-            const n = sc.name_fr?.toLowerCase();
-            if (!n) continue;
-            // Multi-word: check if the full name is in the query
-            if (n.includes(" ") ? qLower.includes(n) : qWords.includes(n)) {
+      // Dynamic lookup: match query words against subcategory names AND keywords from DB
+      const { data: subcats } = await supabase
+        .from("subcategories")
+        .select("name_fr, keywords");
+      
+      if (subcats) {
+        // Sort by name length DESC so longer names match first (e.g. "Night Club" before "Club")
+        const sorted = [...subcats].sort((a, b) => (b.name_fr?.length || 0) - (a.name_fr?.length || 0));
+        for (const sc of sorted) {
+          const n = sc.name_fr?.toLowerCase();
+          if (!n) continue;
+          // 1. Match by name
+          if (n.includes(" ") ? qLower.includes(n) : qWords.includes(n)) {
+            detectedSubcategory = sc.name_fr;
+            console.log(`Auto-detected subcategory "${sc.name_fr}" from name match in query "${effectiveQuery}"`);
+            break;
+          }
+          // 2. Match by keywords
+          const keywords = (sc.keywords || []) as string[];
+          if (keywords.length > 0) {
+            const matched = keywords.some(kw => {
+              const kwLower = kw.toLowerCase();
+              return kwLower.includes(" ") ? qLower.includes(kwLower) : qWords.includes(kwLower);
+            });
+            if (matched) {
               detectedSubcategory = sc.name_fr;
-              console.log(`Auto-detected subcategory "${sc.name_fr}" from DB match in query "${effectiveQuery}"`);
+              console.log(`Auto-detected subcategory "${sc.name_fr}" from keyword match in query "${effectiveQuery}"`);
               break;
             }
           }
