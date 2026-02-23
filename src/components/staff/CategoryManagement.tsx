@@ -721,6 +721,11 @@ const CategoryManagement = () => {
                               </div>
                               
                               <Badge variant="outline" className="text-xs">{svcs.length} services</Badge>
+                              {(sub.keywords?.length || 0) > 0 && (
+                                <Badge variant="outline" className="text-xs text-amber-600 border-amber-300">
+                                  {sub.keywords!.length} mot{sub.keywords!.length > 1 ? "s" : ""}-clé{sub.keywords!.length > 1 ? "s" : ""}
+                                </Badge>
+                              )}
                               {(businessCountBySub[sub.id] || 0) > 0 && (
                                 <Badge
                                   variant="secondary"
