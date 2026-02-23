@@ -767,10 +767,11 @@ const CategoryManagement = () => {
                                           {(businessCountBySvc[svc.id] || 0) > 0 && (
                                             <Badge
                                               variant="secondary"
-                                              className="text-[10px] px-1.5 py-0 cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
+                                              className="text-[10px] px-1.5 py-0.5 cursor-pointer transition-colors"
+                                              style={{ backgroundColor: '#D4AF37', color: '#000' }}
                                               onClick={(e) => openServiceBusinesses(e, svc.name_fr)}
                                             >
-                                              {businessCountBySvc[svc.id]}
+                                              {businessCountBySvc[svc.id]} entreprise{businessCountBySvc[svc.id] > 1 ? 's' : ''}
                                             </Badge>
                                           )}
                                           <Button
