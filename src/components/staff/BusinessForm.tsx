@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import restaurantGuruLogo from "@/assets/restaurant-guru-logo.webp";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
 import { supabase } from "@/integrations/supabase/client";
@@ -516,6 +517,21 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
       : [],
     [dbServices, selectedSubcategoryIds]
   );
+
+  // Group services by subcategory for tabbed display
+  const servicesGroupedBySubcategory = useMemo(() => {
+    if (selectedSubcategoryIds.length === 0) return [];
+    const selectedSubs = dbSubcategories.filter(sub => formData.categories.includes(sub.name_fr));
+    return selectedSubs
+      .map(sub => ({
+        subcategoryName: sub.name_fr,
+        services: dbServices
+          .filter(srv => srv.subcategory_id === sub.id)
+          .map(srv => srv.name_fr)
+          .sort((a, b) => a.localeCompare(b, 'fr')),
+      }))
+      .filter(group => group.services.length > 0);
+  }, [dbSubcategories, dbServices, formData.categories, selectedSubcategoryIds]);
 
   // Get gammes available for the selected main category
   const availableGammes = useMemo(() => {
@@ -2559,23 +2575,65 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
             )}
           </div>
           {formData.main_category ? (
-            availableServices.length > 0 ? (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 p-4 border rounded-lg bg-muted/30">
-                {availableServices.map((service) => (
-                  <label
-                    key={service}
-                    className="flex items-center gap-2 cursor-pointer hover:bg-background p-2 rounded-md transition-colors"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={formData.services.includes(service)}
-                      onChange={() => handleServiceToggle(service)}
-                      className="h-4 w-4 rounded border-input"
-                    />
-                    <span className="text-sm">{service}</span>
-                  </label>
-                ))}
-              </div>
+            servicesGroupedBySubcategory.length > 0 ? (
+              servicesGroupedBySubcategory.length === 1 ? (
+                // Single subcategory: no tabs needed
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 p-4 border rounded-lg bg-muted/30">
+                  {servicesGroupedBySubcategory[0].services.map((service) => (
+                    <label
+                      key={service}
+                      className="flex items-center gap-2 cursor-pointer hover:bg-background p-2 rounded-md transition-colors"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={formData.services.includes(service)}
+                        onChange={() => handleServiceToggle(service)}
+                        className="h-4 w-4 rounded border-input"
+                      />
+                      <span className="text-sm">{service}</span>
+                    </label>
+                  ))}
+                </div>
+              ) : (
+                // Multiple subcategories: tabbed display
+                <Tabs defaultValue={servicesGroupedBySubcategory[0]?.subcategoryName} className="w-full">
+                  <TabsList className="w-full flex-wrap h-auto gap-1 bg-muted/50">
+                    {servicesGroupedBySubcategory.map((group) => {
+                      const count = group.services.filter(s => formData.services.includes(s)).length;
+                      return (
+                        <TabsTrigger key={group.subcategoryName} value={group.subcategoryName} className="text-xs">
+                          {group.subcategoryName}
+                          {count > 0 && (
+                            <span className="ml-1.5 bg-primary text-primary-foreground rounded-full px-1.5 py-0 text-[10px] font-semibold">
+                              {count}
+                            </span>
+                          )}
+                        </TabsTrigger>
+                      );
+                    })}
+                  </TabsList>
+                  {servicesGroupedBySubcategory.map((group) => (
+                    <TabsContent key={group.subcategoryName} value={group.subcategoryName}>
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 p-4 border rounded-lg bg-muted/30">
+                        {group.services.map((service) => (
+                          <label
+                            key={service}
+                            className="flex items-center gap-2 cursor-pointer hover:bg-background p-2 rounded-md transition-colors"
+                          >
+                            <input
+                              type="checkbox"
+                              checked={formData.services.includes(service)}
+                              onChange={() => handleServiceToggle(service)}
+                              className="h-4 w-4 rounded border-input"
+                            />
+                            <span className="text-sm">{service}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </TabsContent>
+                  ))}
+                </Tabs>
+              )
             ) : (
               <p className="text-muted-foreground text-sm italic">
                 Aucun service disponible pour cette catégorie.
