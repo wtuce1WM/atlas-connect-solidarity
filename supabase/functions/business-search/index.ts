@@ -441,19 +441,16 @@ serve(async (req) => {
       if (!detectedSubcategory) {
         const { data: subcats } = await supabase
           .from("subcategories")
-          .select("name_fr, name_en, name_ar");
+          .select("name_fr");
         
         if (subcats) {
           // Sort by name length DESC so longer names match first (e.g. "Night Club" before "Club")
           const sorted = [...subcats].sort((a, b) => (b.name_fr?.length || 0) - (a.name_fr?.length || 0));
           for (const sc of sorted) {
-            const names = [sc.name_fr, sc.name_en, sc.name_ar].filter(Boolean).map(n => n!.toLowerCase());
-            if (names.some(n => {
-              // Multi-word: check if the full name is in the query
-              if (n.includes(" ")) return qLower.includes(n);
-              // Single-word: check if it's one of the query words
-              return qWords.includes(n);
-            })) {
+            const n = sc.name_fr?.toLowerCase();
+            if (!n) continue;
+            // Multi-word: check if the full name is in the query
+            if (n.includes(" ") ? qLower.includes(n) : qWords.includes(n)) {
               detectedSubcategory = sc.name_fr;
               console.log(`Auto-detected subcategory "${sc.name_fr}" from DB match in query "${effectiveQuery}"`);
               break;
