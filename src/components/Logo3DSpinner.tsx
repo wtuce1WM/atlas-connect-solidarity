@@ -1,33 +1,58 @@
 import { Canvas, useFrame, useLoader } from "@react-three/fiber";
-import { Float } from "@react-three/drei";
 import { useRef, Suspense } from "react";
 import * as THREE from "three";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 
-const SpinningCoin = () => {
+const PulsingLight = () => {
+  const pointRef = useRef<THREE.PointLight>(null);
+
+  useFrame((state) => {
+    if (pointRef.current) {
+      const t = state.clock.elapsedTime;
+      const pulse = (Math.sin(t * 2) + 1) / 2;
+      pointRef.current.intensity = 2 + pulse * 8;
+      pointRef.current.distance = 5 + pulse * 3;
+    }
+  });
+
+  return (
+    <>
+      <ambientLight intensity={0.15} />
+      <pointLight
+        ref={pointRef}
+        position={[0, 0, 2]}
+        color="#d4a84b"
+        intensity={5}
+        distance={8}
+      />
+      <pointLight position={[0, 3, -1]} intensity={0.3} color="#ffffff" />
+    </>
+  );
+};
+
+const LogoCoin = () => {
   const texture = useLoader(THREE.TextureLoader, logoGold);
   const meshRef = useRef<THREE.Mesh>(null);
 
   useFrame((state) => {
     if (meshRef.current) {
-      meshRef.current.rotation.y = state.clock.elapsedTime * 2;
-      meshRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.5) * 0.1;
+      const t = state.clock.elapsedTime;
+      meshRef.current.rotation.y = Math.sin(t * 0.3) * 0.15;
+      meshRef.current.rotation.x = Math.sin(t * 0.2) * 0.05;
     }
   });
 
   return (
-    <Float speed={2} rotationIntensity={0.1} floatIntensity={0.3}>
-      <mesh ref={meshRef}>
-        <planeGeometry args={[2.5, 2.5]} />
-        <meshStandardMaterial
-          map={texture}
-          transparent
-          side={THREE.DoubleSide}
-          metalness={0.4}
-          roughness={0.3}
-        />
-      </mesh>
-    </Float>
+    <mesh ref={meshRef}>
+      <planeGeometry args={[2.5, 2.5]} />
+      <meshStandardMaterial
+        map={texture}
+        transparent
+        side={THREE.DoubleSide}
+        metalness={0.5}
+        roughness={0.2}
+      />
+    </mesh>
   );
 };
 
@@ -39,11 +64,9 @@ const Logo3DSpinner = ({ className = "w-64 h-64" }: Logo3DSpinnerProps) => {
   return (
     <div className={className}>
       <Canvas camera={{ position: [0, 0, 3.5], fov: 50 }} gl={{ antialias: true, alpha: true }}>
-        <ambientLight intensity={0.7} />
-        <directionalLight position={[5, 5, 5]} intensity={1.2} />
-        <pointLight position={[-3, -3, -3]} intensity={0.4} color="#d4a84b" />
         <Suspense fallback={null}>
-          <SpinningCoin />
+          <PulsingLight />
+          <LogoCoin />
         </Suspense>
       </Canvas>
     </div>
