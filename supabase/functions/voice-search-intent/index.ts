@@ -41,6 +41,12 @@ Si l'intention d'ACHAT est claire (acheter, trouver un produit, "où est-ce que 
 Si l'intention est de LOUER un bien immobilier (villa, appartement, maison à louer), la catégorie DOIT être "Services" (agences immobilières).
 Si aucune catégorie ne correspond clairement, ne mets rien.
 
+RÈGLE CRITIQUE sur l'attribution de catégorie :
+- Une catégorie ne doit être attribuée QUE si l'utilisateur exprime une INTENTION claire (verbe d'action ou contexte explicite).
+- Un simple nom de produit/ingrédient SANS verbe d'intention (manger, acheter, chercher, trouver, boire, dormir...) NE DOIT PAS recevoir de catégorie.
+- Exemples SANS catégorie : "langouste Marrakech", "tapis Essaouira", "sushi Casablanca", "homard Agadir"
+- Exemples AVEC catégorie : "manger de la langouste à Marrakech" → Restauration, "acheter de la langouste à Marrakech" → Commerce
+
 Règles de traduction sémantique OBLIGATOIRES :
 - "manger", "déjeuner", "dîner", "se restaurer", "casse-croûte" → "restaurant"
 - "dormir", "séjourner", "loger", "passer la nuit", "réserver une chambre" → "hôtel"
