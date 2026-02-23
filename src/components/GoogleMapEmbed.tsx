@@ -45,10 +45,12 @@ const GoogleMapEmbed = ({ address, businessName, latitude, longitude, googleMaps
   // 1. Place name from Google Maps URL (finds GMB listing → labeled marker)
   // 2. Coordinates (exact pin, no label)
   // 3. Business name + address text search as fallback
-  const mapQuery = placeName
-    ? encodeURIComponent(placeName)
-    : resolvedLat && resolvedLng
-      ? `${resolvedLat},${resolvedLng}`
+  // If we have precise coords, prefer them with the business name for a labeled pin
+  // Using placeName alone (e.g. "Carrefour Market") can match wrong locations in other countries
+  const mapQuery = resolvedLat && resolvedLng
+    ? encodeURIComponent(`${businessName}, ${address}`)
+    : placeName
+      ? encodeURIComponent(placeName)
       : encodeURIComponent(`${businessName}, ${address}`);
   const mapEmbedUrl = `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${mapQuery}&zoom=16`;
   const streetViewEmbedUrl = `https://www.google.com/maps/embed/v1/streetview?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&location=${resolvedLat || 31.6295},${resolvedLng || -7.9811}&heading=0&pitch=0&fov=90`;
