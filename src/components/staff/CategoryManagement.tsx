@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -398,12 +398,17 @@ const CategoryManagement = () => {
     }
   };
 
+  const categoryRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
   const toggleCategory = (id: string) => {
     const newSet = new Set(expandedCategories);
     if (newSet.has(id)) {
       newSet.delete(id);
     } else {
       newSet.add(id);
+      setTimeout(() => {
+        categoryRefs.current[id]?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
     }
     setExpandedCategories(newSet);
   };
@@ -583,7 +588,7 @@ const CategoryManagement = () => {
           const isEditing = editMode?.type === "category" && editMode.id === category.id;
 
           return (
-            <Card key={category.id}>
+            <Card key={category.id} ref={(el) => { categoryRefs.current[category.id] = el; }}>
               <Collapsible open={isExpanded} onOpenChange={() => toggleCategory(category.id)}>
                 <div className="flex items-center gap-2 p-3">
                   <CollapsibleTrigger asChild>
