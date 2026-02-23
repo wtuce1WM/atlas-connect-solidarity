@@ -2761,7 +2761,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
           {formData.services.length > 0 && (
             <>
               <div className="flex flex-wrap gap-2 mt-2">
-                {formData.services.map((service) => (
+                {[...formData.services].sort((a, b) => a.localeCompare(b, 'fr')).map((service) => (
                   <span
                     key={service}
                     className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-sm cursor-pointer ${
