@@ -650,7 +650,7 @@ const CategoryManagement = () => {
                 <CollapsibleContent>
                   <div className="border-t px-3 py-2 bg-muted/30 space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-muted-foreground">Sous-catégories</span>
+                      <span className="text-sm font-bold text-muted-foreground">Sous-catégories</span>
                       <Button
                         size="sm"
                         variant="outline"
