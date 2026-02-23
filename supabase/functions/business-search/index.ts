@@ -358,9 +358,33 @@ serve(async (req) => {
     // Detect superlative intent (meilleur, top, best…) → sort by rating
     const isSuperlatif = effectiveQuery ? detectSuperlative(effectiveQuery) : false;
 
-    // Auto-détection de ville dans la query si aucune ville n'est passée explicitement
+// Auto-détection de ville dans la query si aucune ville n'est passée explicitement
     const detectedCity = (!city && effectiveQuery) ? detectCityInQuery(effectiveQuery) : null;
     const effectiveCity = city || detectedCity || undefined;
+
+    // Auto-détection de catégorie dans la query
+    const CATEGORY_KEYWORDS: Record<string, string[]> = {
+      "Restauration": ["restaurant", "resto", "restaurants", "restos", "brasserie", "brasseries", "table", "tables", "bistrot", "bistrots", "trattoria", "pizzeria"],
+      "Hôtellerie": ["hotel", "hôtel", "hotels", "hôtels", "auberge", "auberges", "hébergement", "logement"],
+      "Transport": ["transport", "taxi", "navette", "transfert", "vtc"],
+      "Artisanat": ["artisan", "artisanat", "artisans"],
+      "Commerce": ["commerce", "boutique", "magasin", "shop"],
+      "Tourisme": ["tourisme", "excursion", "circuit", "visite guidée"],
+      "Bien-être": ["spa", "hammam", "bien-être", "massage"],
+    };
+    let detectedCategory: string | null = null;
+    if (!category && effectiveQuery) {
+      const qLower = effectiveQuery.toLowerCase();
+      const qWords = qLower.split(/\s+/);
+      for (const [cat, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
+        if (keywords.some(kw => qWords.includes(kw) || qLower.includes(kw))) {
+          detectedCategory = cat;
+          console.log(`Auto-detected category "${cat}" from query "${effectiveQuery}"`);
+          break;
+        }
+      }
+    }
+    const effectiveCategory = category || detectedCategory || undefined;
 
     // ── Pre-detect matching service(s) from query keywords ──
     let detectedService: string | null = null;
@@ -539,7 +563,7 @@ serve(async (req) => {
     }
 
     // Level 1: Exact full-text search with ts_rank (services/name weight A > description weight B)
-    if (queryForExpansion || city || category) {
+    if (queryForExpansion || city || effectiveCategory) {
       // When a service was detected and injected, don't expand service name words with synonyms
       // to avoid polluting the tsquery with unrelated terms (e.g. "vin" expanding to "bar")
       // BUT include ALL candidate service names as OR alternatives so synonyms match (e.g. Glacier | Glaces)
@@ -573,7 +597,7 @@ serve(async (req) => {
         const result = await supabase.rpc("search_businesses_with_rank", {
           p_query: expandedQuery,
           p_city: effectiveCity || null,
-          p_category: category || null,
+          p_category: effectiveCategory || null,
           p_service: null,
           p_limit: limit,
         });
@@ -647,8 +671,8 @@ serve(async (req) => {
           queryBuilder = queryBuilder.ilike("city", effectiveCity);
         }
 
-        if (category) {
-          queryBuilder = queryBuilder.or(`main_category.eq.${category},categories.cs.{"${category}"}`);
+        if (effectiveCategory) {
+          queryBuilder = queryBuilder.or(`main_category.eq.${effectiveCategory},categories.cs.{"${effectiveCategory}"}`);
         }
 
         queryBuilder = queryBuilder
