@@ -318,10 +318,8 @@ const BusinessDetail = () => {
         <img
           src={logoGold}
           alt="Loading"
-          className="h-40 w-40 object-contain animate-pulse"
-          style={{ minWidth: 160, minHeight: 160 }}
+          className="w-64 h-64 object-contain animate-pulse"
         />
-        <Loader2 className="mt-6 h-6 w-6 animate-spin text-gold" />
       </div>
     );
   }
