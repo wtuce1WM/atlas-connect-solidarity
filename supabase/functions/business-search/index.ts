@@ -421,11 +421,19 @@ serve(async (req) => {
           // Pick the best matching service, preferring high coverage (query words / service name words)
           let bestMatch = matchingServices[0].name_fr;
           let bestScore = -Infinity;
+          
+          // Pre-compute: check if there's a multi-word service that fully matches the query
+          const hasFullMultiWordMatch = matchingServices.some(svc => {
+            const svcWords = svc.name_fr.toLowerCase().split(/\s+/).filter((w: string) => w.length > 1);
+            return svcWords.length > 1 && svcWords.every((w: string) => serviceMatchWords.some(qw => qw === w || stripPlural(qw) === stripPlural(w)));
+          });
+          
           for (const svc of matchingServices) {
             const svcLower = svc.name_fr.toLowerCase();
             const svcNorm = stripPlural(svcLower.trim());
+            const svcWords = svcLower.split(/\s+/).filter((w: string) => w.length > 1);
             const matchCount = serviceMatchWords.filter(w => svcLower.includes(w)).length;
-            const svcWordCount = svcLower.split(/\s+/).filter(w => w.length > 1).length; // Exclude stop words like "à"
+            const svcWordCount = svcWords.length;
             // Check keyword matches too
             const kws = (svc.keywords || []).map((k: string) => k.toLowerCase());
             const kwMatchCount = serviceMatchWords.filter(w => {
@@ -435,12 +443,19 @@ serve(async (req) => {
                 return k.includes(w) || w.includes(k) || kNorm === wNorm;
               });
             }).length;
+            
+            // Full multi-word match bonus: ALL words of the service name are present in the query
+            const allSvcWordsMatched = svcWordCount > 1 && svcWords.every((w: string) => serviceMatchWords.some(qw => qw === w || stripPlural(qw) === stripPlural(w)));
+            const fullMatchBonus = allSvcWordsMatched ? 300 : 0;
+            
             // Exact name match bonus: if a query word IS the service name, strongly prefer it
+            // BUT suppress this bonus if there's a better multi-word full match available
             const exactNameMatch = serviceMatchWords.some(w => stripPlural(w) === svcNorm || w === svcLower);
-            const exactNameBonus = exactNameMatch ? 200 : 0;
+            const exactNameBonus = (exactNameMatch && !hasFullMultiWordMatch) ? 200 : 0;
+            
             // Penalize services with unmatched name words (prefer "Cave à vin" over "Cave à vin d'exception")
             const unmatchedPenalty = Math.max(0, svcWordCount - matchCount) * 15;
-            const score = exactNameBonus + matchCount * 5 + (matchCount > 1 && svcWordCount > 1 ? 20 : 0) + kwMatchCount * 30 - unmatchedPenalty;
+            const score = fullMatchBonus + exactNameBonus + matchCount * 5 + (matchCount > 1 && svcWordCount > 1 ? 20 : 0) + kwMatchCount * 30 - unmatchedPenalty;
             
             if (score > bestScore) {
               bestScore = score;
