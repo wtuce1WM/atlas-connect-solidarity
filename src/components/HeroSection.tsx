@@ -119,7 +119,7 @@ const HeroSection = () => {
       <div className="relative z-10 flex flex-col items-center px-4 pt-24 pb-16 gap-8">
 
         {/* Logo 3D */}
-        <Logo3DSpinner className="w-80 h-80 -mb-[100px] md:mb-0 md:w-64 md:h-64" />
+        <Logo3DSpinner className="w-80 h-80 -mb-[50px] md:mb-0 md:w-64 md:h-64" />
 
         <p className="text-sm md:text-base text-gold/80 font-medium tracking-wide text-center -mt-4">
           {language === "ar" ? "أول منصة تجارة إلكترونية تضامنية في المغرب" : language === "en" ? "1st solidarity e-commerce platform in Morocco" : "1ère plateforme de e-commerce solidaire au Maroc"}
