@@ -378,7 +378,7 @@ serve(async (req) => {
       "Bar": ["bar", "bars", "pub", "pubs"],
       "Street Food": ["street food", "streetfood", "snack"],
       "Pâtisserie": ["pâtisserie", "patisserie", "pâtisseries"],
-      "Boulangerie": ["boulangerie", "boulangeries"],
+      "Boulangerie": ["boulangerie", "boulangeries", "baguette", "baguettes", "pain français", "pain francais", "pain"],
       "Night Club": ["night club", "nightclub", "discothèque", "boite de nuit"],
       "Hôtel": ["hotel", "hôtel", "hotels", "hôtels"],
       "Riad": ["riad", "riads", "riyad"],
