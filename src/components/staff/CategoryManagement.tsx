@@ -754,6 +754,14 @@ const CategoryManagement = () => {
                                         renderEditForm(true, false, false, true)
                                       ) : (
                                         <div className="flex items-center gap-2 p-1.5 rounded hover:bg-muted/50 group">
+                                          <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="h-5 w-5 p-0 opacity-0 group-hover:opacity-100"
+                                            onClick={() => startEdit({ type: "service", id: svc.id, parentId: sub.id }, svc)}
+                                          >
+                                            <Pencil className="h-3 w-3" />
+                                          </Button>
                                           {svc.icon && (
                                             <DynamicIcon name={svc.icon} className="h-5 w-5 text-primary" />
                                           )}
@@ -785,14 +793,6 @@ const CategoryManagement = () => {
                                               {businessCountBySvc[svc.id]} entreprise{businessCountBySvc[svc.id] > 1 ? 's' : ''}
                                             </Badge>
                                           )}
-                                          <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            className="h-5 w-5 p-0 opacity-0 group-hover:opacity-100"
-                                            onClick={() => startEdit({ type: "service", id: svc.id, parentId: sub.id }, svc)}
-                                          >
-                                            <Pencil className="h-3 w-3" />
-                                          </Button>
                                           <Button
                                             variant="ghost"
                                             size="sm"
