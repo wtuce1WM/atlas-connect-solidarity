@@ -979,7 +979,31 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
         {/* Nom + Logo */}
         <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-4 items-start">
           <div className="space-y-3">
-            <Label htmlFor="name" className="text-xl font-semibold">Nom *</Label>
+            <div className="flex items-center gap-2 flex-wrap">
+              <Label htmlFor="name" className="text-xl font-semibold">Nom *</Label>
+              <div className="flex flex-wrap gap-1 ml-2">
+                {[
+                  { id: "section-contact", label: "Contact" },
+                  { id: "section-description", label: "Description" },
+                  { id: "section-menu", label: "Menu" },
+                  { id: "section-images", label: "Images" },
+                  { id: "section-social", label: "Réseaux" },
+                  { id: "section-avis", label: "Avis" },
+                  { id: "section-taxonomie", label: "Taxonomie" },
+                  { id: "section-horaires", label: "Horaires" },
+                  { id: "section-notes", label: "Notes" },
+                ].map(({ id, label }) => (
+                  <button
+                    key={id}
+                    type="button"
+                    className="text-[11px] px-2 py-0.5 rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground transition-colors"
+                    onClick={() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" })}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
             <Input
               id="name"
               value={formData.name}
@@ -1464,7 +1488,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
           </div>
         )}
 
-        <div className="p-4 border rounded-lg bg-orange-50 space-y-4">
+        <div id="section-contact" className="p-4 border rounded-lg bg-orange-50 space-y-4" style={{ scrollMarginTop: '1rem' }}>
           <h3 className="text-sm font-semibold text-orange-800">📍 Contact & Localisation</h3>
           
           {/* Adresse, Ville, Région, Quartier */}
@@ -1834,7 +1858,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
           <span className="text-xs text-muted-foreground">{formData.hook_fr.length}/120</span>
         </div>
 
-        <div className="space-y-2">
+        <div id="section-description" className="space-y-2" style={{ scrollMarginTop: '1rem' }}>
           <Label htmlFor="description">Description</Label>
           <RichTextEditor
             content={formData.description}
@@ -1968,7 +1992,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
           </div>
         )}
 
-        <div className="space-y-2">
+        <div id="section-menu" className="space-y-2" style={{ scrollMarginTop: '1rem' }}>
           {formData.menu_url ? (
             <Label htmlFor="menu_url"><a href={formData.menu_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">Menu (URL) ↗</a></Label>
           ) : (
@@ -2048,7 +2072,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
         </div>
 
         {/* Images */}
-        <div className="space-y-2">
+        <div id="section-images" className="space-y-2" style={{ scrollMarginTop: '1rem' }}>
           <Label className="text-base font-semibold">Images (max 12)</Label>
           <ImageUploader
             images={formData.images}
@@ -2126,7 +2150,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
           </div>
 
         {/* Social Media */}
-        <div className="space-y-4 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+        <div id="section-social" className="space-y-4 p-4 bg-orange-50 border border-orange-200 rounded-lg" style={{ scrollMarginTop: '1rem' }}>
           <Label className="text-xl font-semibold">Réseaux sociaux</Label>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -2312,7 +2336,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
         </div>
 
         {/* Avis clients */}
-        <div className="space-y-4 p-4 bg-violet-50 border border-violet-200 rounded-lg">
+        <div id="section-avis" className="space-y-4 p-4 bg-violet-50 border border-violet-200 rounded-lg" style={{ scrollMarginTop: '1rem' }}>
           <div className="flex items-center justify-between">
             <Label
               className="text-xl font-semibold cursor-pointer hover:text-violet-700 transition-colors"
@@ -2426,7 +2450,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
         </div>
 
         {/* Taxonomie */}
-        <div className="space-y-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+        <div id="section-taxonomie" className="space-y-6 p-4 bg-orange-50 border border-orange-200 rounded-lg" style={{ scrollMarginTop: '1rem' }}>
           <Label className="text-xl font-semibold">Taxonomie</Label>
           
           {/* Sous-catégories */}
@@ -2695,7 +2719,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
         </div>
 
         {/* Opening Hours */}
-        <div className="space-y-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <div id="section-horaires" className="space-y-4 p-4 bg-blue-50 border border-blue-200 rounded-lg" style={{ scrollMarginTop: '1rem' }}>
           <Label className="text-xl font-semibold">Horaires d'ouverture</Label>
           <OpeningHoursEditor
             value={formData.opening_hours}
@@ -2730,7 +2754,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
         </div>
 
         {/* Internal Notes - Staff Only */}
-        <div className="space-y-2 p-4 border rounded-lg bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800">
+        <div id="section-notes" className="space-y-2 p-4 border rounded-lg bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800" style={{ scrollMarginTop: '1rem' }}>
           <div className="flex items-center justify-between">
             <Label htmlFor="internal_notes" className="text-xl font-semibold text-amber-800 dark:text-amber-200">
               Note interne (staff uniquement)
