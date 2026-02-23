@@ -111,6 +111,34 @@ const effects = [
     animationStyle: "demoGlobalBeam 4.2s ease-in-out forwards",
     isFullWidth: true,
   },
+  {
+    name: "Circular Beam Glow",
+    description: "Halo doré circulaire orbitant sur la page, synchronisé avec le logo",
+    css: `
+      @property --demo-beam-x {
+        syntax: '<percentage>';
+        inherits: false;
+        initial-value: 50%;
+      }
+      @property --demo-beam-y {
+        syntax: '<percentage>';
+        inherits: false;
+        initial-value: 40%;
+      }
+      @keyframes demoCircularGlow {
+        0%   { --demo-beam-x: 20%; --demo-beam-y: 35%; opacity: 0; }
+        10%  { opacity: 1; }
+        25%  { --demo-beam-x: 70%; --demo-beam-y: 30%; }
+        50%  { --demo-beam-x: 80%; --demo-beam-y: 45%; opacity: 0.7; }
+        75%  { --demo-beam-x: 30%; --demo-beam-y: 40%; }
+        90%  { opacity: 1; }
+        100% { --demo-beam-x: 20%; --demo-beam-y: 35%; opacity: 0; }
+      }
+    `,
+    animationStyle: "demoCircularGlow 4.2s ease-in-out forwards",
+    isFullWidth: true,
+    isCircular: true,
+  },
 ];
 
 const EffectCard = ({ effect }: { effect: (typeof effects)[number] }) => {
@@ -128,7 +156,11 @@ const EffectCard = ({ effect }: { effect: (typeof effects)[number] }) => {
           <div
             key={key}
             className="absolute inset-0"
-            style={{
+            style={('isCircular' in effect && effect.isCircular) ? {
+              background: "radial-gradient(ellipse 300px 200px at var(--demo-beam-x, 50%) var(--demo-beam-y, 40%), hsla(43,75%,55%,0.35) 0%, hsla(43,75%,55%,0.12) 30%, transparent 70%)",
+              animation: effect.animationStyle,
+              opacity: 0,
+            } : {
               background: "linear-gradient(90deg, transparent 0%, transparent 35%, #d4a84b 48%, #fff8e7 50%, #d4a84b 52%, transparent 65%, transparent 100%)",
               backgroundSize: "200% 100%",
               animation: effect.animationStyle,
