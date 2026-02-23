@@ -200,6 +200,11 @@ const LocationManagement = () => {
     latitude: "", longitude: "", image_url: "", hook: "", description: "",
   });
 
+  // Filters
+  const [neighborhoodCityFilter, setNeighborhoodCityFilter] = useState<string>("all");
+  const [poiCityFilter, setPoiCityFilter] = useState<string>("all");
+  const [destinationRegionFilter, setDestinationRegionFilter] = useState<string>("all");
+
   const { toast } = useToast();
 
   // Country form state
@@ -1099,7 +1104,23 @@ const LocationManagement = () => {
         </CardHeader>
         {neighborhoodsSectionOpen && (
           <CardContent>
-            {neighborhoods.length === 0 ? (
+            <div className="mb-4">
+              <Select value={neighborhoodCityFilter} onValueChange={setNeighborhoodCityFilter}>
+                <SelectTrigger className="max-w-xs">
+                  <SelectValue placeholder="Filtrer par ville" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Toutes les villes</SelectItem>
+                  {cities
+                    .filter(c => neighborhoods.some(n => n.city_id === c.id))
+                    .sort((a, b) => a.name_fr.localeCompare(b.name_fr, 'fr'))
+                    .map(c => (
+                      <SelectItem key={c.id} value={c.id}>{c.name_fr}</SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            </div>
+            {neighborhoods.filter(n => neighborhoodCityFilter === "all" || n.city_id === neighborhoodCityFilter).length === 0 ? (
               <p className="text-muted-foreground text-sm text-center py-4">Aucun quartier</p>
             ) : (
               <Table>
@@ -1115,6 +1136,7 @@ const LocationManagement = () => {
                 </TableHeader>
                 <TableBody>
                   {neighborhoods
+                    .filter(n => neighborhoodCityFilter === "all" || n.city_id === neighborhoodCityFilter)
                     .sort((a, b) => {
                       const cityA = cities.find(c => c.id === a.city_id)?.name_fr || "";
                       const cityB = cities.find(c => c.id === b.city_id)?.name_fr || "";
@@ -1173,7 +1195,22 @@ const LocationManagement = () => {
         </CardHeader>
         {destinationsSectionOpen && (
           <CardContent>
-            {destinations.length === 0 ? (
+            <div className="mb-4">
+              <Select value={destinationRegionFilter} onValueChange={setDestinationRegionFilter}>
+                <SelectTrigger className="max-w-xs">
+                  <SelectValue placeholder="Filtrer par région" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Toutes les régions</SelectItem>
+                  {[...new Set(destinations.map(d => d.region).filter(Boolean) as string[])]
+                    .sort((a, b) => a.localeCompare(b, 'fr'))
+                    .map(r => (
+                      <SelectItem key={r} value={r}>{r}</SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            </div>
+            {destinations.filter(d => destinationRegionFilter === "all" || d.region === destinationRegionFilter).length === 0 ? (
               <p className="text-muted-foreground text-sm text-center py-4">Aucune destination</p>
             ) : (
               <Table>
@@ -1189,7 +1226,7 @@ const LocationManagement = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {destinations.map((d) => (
+                  {destinations.filter(d => destinationRegionFilter === "all" || d.region === destinationRegionFilter).map((d) => (
                     <TableRow key={d.id}>
                       <TableCell>
                         {(d as any).image_url ? (
@@ -1246,7 +1283,23 @@ const LocationManagement = () => {
         </CardHeader>
         {poiSectionOpen && (
           <CardContent>
-            {pois.length === 0 ? (
+            <div className="mb-4">
+              <Select value={poiCityFilter} onValueChange={setPoiCityFilter}>
+                <SelectTrigger className="max-w-xs">
+                  <SelectValue placeholder="Filtrer par ville" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Toutes les villes</SelectItem>
+                  {cities
+                    .filter(c => pois.some(p => p.city_id === c.id))
+                    .sort((a, b) => a.name_fr.localeCompare(b.name_fr, 'fr'))
+                    .map(c => (
+                      <SelectItem key={c.id} value={c.id}>{c.name_fr}</SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            </div>
+            {pois.filter(p => poiCityFilter === "all" || p.city_id === poiCityFilter).length === 0 ? (
               <p className="text-muted-foreground text-sm text-center py-4">Aucun point d'intérêt</p>
             ) : (
               <Table>
@@ -1262,7 +1315,7 @@ const LocationManagement = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {pois.map((p) => {
+                  {pois.filter(p => poiCityFilter === "all" || p.city_id === poiCityFilter).map((p) => {
                     const city = cities.find(c => c.id === p.city_id);
                     return (
                       <TableRow key={p.id}>
