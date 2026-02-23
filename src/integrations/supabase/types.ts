@@ -812,6 +812,7 @@ export type Database = {
           id: string
           image_url: string | null
           is_active: boolean
+          keywords: string[] | null
           latitude: number | null
           longitude: number | null
           name_ar: string | null
@@ -844,6 +845,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_active?: boolean
+          keywords?: string[] | null
           latitude?: number | null
           longitude?: number | null
           name_ar?: string | null
@@ -876,6 +878,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_active?: boolean
+          keywords?: string[] | null
           latitude?: number | null
           longitude?: number | null
           name_ar?: string | null
