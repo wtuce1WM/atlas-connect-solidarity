@@ -1,13 +1,9 @@
-import logoGold from "@/assets/logoGOLDsimple.webp";
+import Logo3DSpinner from "@/components/Logo3DSpinner";
 
 const LoadingScreen = () => {
   return (
     <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black">
-      <img
-        src={logoGold}
-        alt="Loading"
-        className="w-64 h-64 object-contain animate-logo-zoom"
-      />
+      <Logo3DSpinner className="w-48 h-48" />
     </div>
   );
 };

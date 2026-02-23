@@ -5,6 +5,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import logoGoldOverlay from "@/assets/logoGOLDsimple.webp";
+import Logo3DSpinner from "@/components/Logo3DSpinner";
 import heroBackground from "@/assets/hero-marrakech.jpg";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { toast } from "@/hooks/use-toast";
@@ -117,12 +118,8 @@ const HeroSection = () => {
       {/* Content — logo puis titre puis recherche dans l'ordre naturel */}
       <div className="relative z-10 flex flex-col items-center px-4 pt-24 pb-16 gap-8">
 
-        {/* Logo */}
-        <img
-          src={logoGoldOverlay}
-          alt=""
-          className="object-contain w-1/2 max-w-xs"
-        />
+        {/* Logo 3D */}
+        <Logo3DSpinner className="w-48 h-48 md:w-64 md:h-64" />
 
         <p className="text-sm md:text-base text-gold/80 font-medium tracking-wide text-center -mt-4">
           {language === "ar" ? "أول منصة تجارة إلكترونية تضامنية في المغرب" : language === "en" ? "1st solidarity e-commerce platform in Morocco" : "1ère plateforme de e-commerce solidaire au Maroc"}
