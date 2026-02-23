@@ -456,21 +456,28 @@ serve(async (req) => {
       // Dynamic lookup: match query words against subcategory names AND keywords from DB
       const { data: subcats } = await supabase
         .from("subcategories")
-        .select("name_fr");
+        .select("name_fr, keywords");
       
       if (subcats) {
         // Sort by name length DESC so longer names match first (e.g. "Night Club" before "Club")
-        const sorted = [...subcats].sort((a, b) => (b.name_fr?.length || 0) - (a.name_fr?.length || 0));
+        const sorted = [...subcats].sort((a: any, b: any) => (b.name_fr?.length || 0) - (a.name_fr?.length || 0));
         for (const sc of sorted) {
           const n = sc.name_fr?.toLowerCase();
           if (!n) continue;
           // Match by name: try exact substring first, then try with stop words stripped from both
-          const nWords = n.split(/\s+/).filter(w => w.length > 1);
-          const nContentWords = nWords.filter(w => !FRENCH_STOP_WORDS.has(w));
+          const nWords = n.split(/\s+/).filter((w: string) => w.length > 1);
+          const nContentWords = nWords.filter((w: string) => !FRENCH_STOP_WORDS.has(w));
           const nContent = nContentWords.join(" ");
           if (n.includes(" ") ? (qLower.includes(n) || (nContent.length > 2 && qLower.includes(nContent))) : qWords.includes(n)) {
             detectedSubcategory = sc.name_fr;
             console.log(`Auto-detected subcategory "${sc.name_fr}" from name match in query "${effectiveQuery}"`);
+            break;
+          }
+          // Match by keywords array (e.g. "fleurs" → "Fleuriste")
+          const kws: string[] = (sc.keywords || []).map((k: string) => k.toLowerCase());
+          if (kws.length > 0 && qWords.some((w: string) => kws.includes(w))) {
+            detectedSubcategory = sc.name_fr;
+            console.log(`Auto-detected subcategory "${sc.name_fr}" from keyword match in query "${effectiveQuery}"`);
             break;
           }
         }
@@ -524,9 +531,15 @@ serve(async (req) => {
         : [];
       // Also exclude intent words (manger, acheter, dormir...) and time-related words from service matching
       const TIME_NOISE = new Set(["soir", "matin", "midi", "nuit", "après-midi", "apres-midi", "aujourd'hui", "demain", "semaine", "weekend"]);
+      // Personal context words that should not trigger service matching (e.g. "femme" → service "Femme")
+      const PERSONAL_CONTEXT_NOISE = new Set([
+        "femme", "mari", "homme", "ami", "amie", "copain", "copine", "mère", "mere", "père", "pere",
+        "fils", "fille", "frère", "frere", "soeur", "sœur", "famille", "enfant", "enfants", "bébé", "bebe",
+        "offrir", "cadeau", "anniversaire", "mariage",
+      ]);
       const serviceMatchWords = [...new Set(queryWords.filter(w => 
         !FRENCH_STOP_WORDS.has(w) && w !== cityLower && w !== neighborhoodLower 
-        && !subcatNameWords.includes(w) && !INTENT_TO_CATEGORY[w] && !TIME_NOISE.has(w)
+        && !subcatNameWords.includes(w) && !INTENT_TO_CATEGORY[w] && !TIME_NOISE.has(w) && !PERSONAL_CONTEXT_NOISE.has(w)
       ))];
 
       if (serviceMatchWords.length > 0) {
@@ -710,6 +723,10 @@ serve(async (req) => {
         "louer", "location", "loueur",
         "boire", "manger", "déguster", "deguster", "goûter", "gouter",
         "prendre", "faire", "voir", "visiter",
+        "offrir", "cadeau", "anniversaire", "mariage",
+        "femme", "mari", "homme", "ami", "amie", "copain", "copine",
+        "mère", "mere", "père", "pere", "fils", "fille", "frère", "frere", "soeur", "sœur",
+        "famille", "enfant", "enfants", "bébé", "bebe",
       ]);
       
       // Filter out intent noise words, stop words AND noise adjectives from the remaining query
