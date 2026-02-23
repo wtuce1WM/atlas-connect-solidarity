@@ -24,6 +24,7 @@ import KPGroupManagement from "@/components/staff/KPGroupManagement";
 import { useBusinessBrokenFiles } from "@/hooks/useBusinessBrokenFiles";
 import { useBusinessBrokenLinks } from "@/hooks/useBusinessBrokenLinks";
 import StaffDashboard from "@/components/staff/StaffDashboard";
+import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Business = Tables<"businesses">;
@@ -667,6 +668,9 @@ const StaffBackoffice = () => {
           </Tabs>
         )}
       </main>
+
+      {/* Scroll to top button */}
+      <ScrollToTopButton />
     </div>
   );
 };
