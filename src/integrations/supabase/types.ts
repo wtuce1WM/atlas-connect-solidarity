@@ -460,6 +460,7 @@ export type Database = {
           destination_description: string | null
           destination_hook: string | null
           email: string | null
+          engagements: string[]
           facebook_url: string | null
           gamme_id: string | null
           getyourguide_url: string | null
@@ -558,6 +559,7 @@ export type Database = {
           destination_description?: string | null
           destination_hook?: string | null
           email?: string | null
+          engagements?: string[]
           facebook_url?: string | null
           gamme_id?: string | null
           getyourguide_url?: string | null
@@ -656,6 +658,7 @@ export type Database = {
           destination_description?: string | null
           destination_hook?: string | null
           email?: string | null
+          engagements?: string[]
           facebook_url?: string | null
           gamme_id?: string | null
           getyourguide_url?: string | null
@@ -1857,6 +1860,7 @@ export type Database = {
           destination_description: string | null
           destination_hook: string | null
           email: string | null
+          engagements: string[]
           facebook_url: string | null
           gamme_id: string | null
           getyourguide_url: string | null

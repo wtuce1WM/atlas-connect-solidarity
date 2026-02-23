@@ -1,0 +1,1 @@
+ALTER TABLE public.businesses ADD COLUMN engagements text[] NOT NULL DEFAULT '{}'::text[];
