@@ -1845,7 +1845,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
         </div>
 
         {/* Hook multilingue - affiché en gros comme Nom */}
-        <div className="space-y-3">
+        <div id="section-description" className="space-y-3" style={{ scrollMarginTop: '1rem' }}>
           <Input
             id="hook_fr"
             value={formData.hook_fr}
@@ -1858,7 +1858,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
           <span className="text-xs text-muted-foreground">{formData.hook_fr.length}/120</span>
         </div>
 
-        <div id="section-description" className="space-y-2" style={{ scrollMarginTop: '1rem' }}>
+        <div className="space-y-2">
           <Label htmlFor="description">Description</Label>
           <RichTextEditor
             content={formData.description}
@@ -2016,7 +2016,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
           </div>
 
         {/* Video */}
-        <div className="space-y-4 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+        <div id="section-images" className="space-y-4 p-4 bg-orange-50 border border-orange-200 rounded-lg" style={{ scrollMarginTop: '1rem' }}>
           <Label className="text-base font-semibold">Vidéo</Label>
           <div className="space-y-2">
             <Label htmlFor="video_1_url">URL Vidéo 1 (YouTube, Vimeo, ou lien direct)</Label>
@@ -2072,7 +2072,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
         </div>
 
         {/* Images */}
-        <div id="section-images" className="space-y-2" style={{ scrollMarginTop: '1rem' }}>
+        <div className="space-y-2">
           <Label className="text-base font-semibold">Images (max 12)</Label>
           <ImageUploader
             images={formData.images}
