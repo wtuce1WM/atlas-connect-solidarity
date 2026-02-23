@@ -894,7 +894,7 @@ const CategoryManagement = () => {
                 size="sm"
                 className="h-7 px-2 text-xs gap-1 flex-shrink-0"
                 onClick={() => {
-                  const names = businessesPopup.businesses.map(b => b.name).join(", ");
+                  const names = businessesPopup.businesses.map(b => b.city ? `${b.name} (${b.city})` : b.name).join(", ");
                   navigator.clipboard.writeText(names);
                   toast.success(`${businessesPopup.businesses.length} noms copiés`);
                 }}
