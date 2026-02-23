@@ -1918,6 +1918,8 @@ const LocationManagement = () => {
                           className="h-4 w-4"
                         />
                         <span className="text-sm">{cityForm.is_active ? 'Active' : 'Inactive'}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -1963,8 +1965,6 @@ const LocationManagement = () => {
                       ))}
                     </div>
                   )}
-                </div>
-                  </div>
                 </div>
 
                 {/* Wikipedia Links */}
