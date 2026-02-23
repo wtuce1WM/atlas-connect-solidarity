@@ -112,7 +112,6 @@ const isPompiersQuery = (query: string) => {
   return (
     normalized.includes("pompier") ||
     normalized.includes("incendie") ||
-    normalized.includes("feu de") ||
     normalized.includes("il y a le feu") ||
     normalized.includes("ça brûle") ||
     normalized.includes("ca brule") ||
@@ -124,7 +123,8 @@ const isPompiersQuery = (query: string) => {
     normalized.includes("appeler les pompiers") ||
     normalized.includes("sapeurs") ||
     normalized.includes("brigade") ||
-    normalized.includes("protection civile feu")
+    normalized.includes("protection civile feu") ||
+    /\bau feu\b/.test(normalized) && !normalized.includes("feu de bois") && !normalized.includes("feu de charbon") && !normalized.includes("feu de braise")
   );
 };
 
