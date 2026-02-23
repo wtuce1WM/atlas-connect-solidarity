@@ -115,11 +115,16 @@ const HeroSection = () => {
       {/* Overlay with gradient to black at bottom */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-black" />
 
-      {/* Content — logo puis titre puis recherche dans l'ordre naturel */}
+      {/* Logo 3D — between background and text */}
+      <div className="absolute inset-0 z-[5] flex items-start justify-center pt-24 pointer-events-none">
+        <Logo3DSpinner className="w-80 h-80 md:w-64 md:h-64" />
+      </div>
+
+      {/* Content — text layer above logo */}
       <div className="relative z-10 flex flex-col items-center px-4 pt-24 pb-16 gap-8">
 
-        {/* Logo 3D */}
-        <Logo3DSpinner className="w-80 h-80 -mb-[20px] md:mb-0 md:w-64 md:h-64" />
+        {/* Spacer for logo */}
+        <div className="w-80 h-80 -mb-[20px] md:mb-0 md:w-64 md:h-64" />
 
         <p className="text-sm md:text-base text-gold/80 font-medium tracking-wide text-center -mt-4">
           {language === "ar" ? "أول منصة تجارة إلكترونية تضامنية في المغرب" : language === "en" ? "1st solidarity e-commerce platform in Morocco" : "1ère plateforme de e-commerce solidaire au Maroc"}
