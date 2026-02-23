@@ -35,6 +35,7 @@ import AncienAccueil from "./pages/AncienAccueil";
 import HotelSearch from "./pages/HotelSearch";
 import Club from "./pages/Club";
 import ScrollToTop from "./components/ScrollToTop";
+import RouteTransition from "./components/RouteTransition";
 
 const queryClient = new QueryClient();
 
@@ -57,35 +58,37 @@ const AppContent = () => {
         <Sonner />
         <BrowserRouter>
           <ScrollToTop />
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/business/:id" element={<BusinessDetail />} />
-            <Route path="/city/:city" element={<CityMap />} />
-            <Route path="/category/:categoryName" element={<CategoryPage />} />
-            <Route path="/service/*" element={<ServicePage />} />
-            <Route path="/search" element={<SearchPage />} />
-            <Route path="/staff/login" element={<StaffLogin />} />
-            <Route path="/staff/backoffice" element={<StaffBackoffice />} />
-            <Route path="/affiliates" element={<AffiliatesLogin />} />
-            <Route path="/affiliates/reset-password" element={<AffiliatesResetPassword />} />
-            <Route path="/affiliates/dashboard" element={<AffiliatesDashboard />} />
-            <Route path="/devenir-affilie" element={<BecomeAffiliate />} />
-            <Route path="/mission" element={<Mission />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/blog" element={<Blog />} />
-            <Route path="/blog/essaouira-vue-mer" element={<EssaouiraSeaView />} />
-            <Route path="/blog/animations" element={<BlogAnimations />} />
-            <Route path="/blog/ancien-accueil" element={<AncienAccueil />} />
-            <Route path="/blog/:slug" element={<BlogPost />} />
-            <Route path="/etablissements-notes" element={<RatedBusinesses />} />
-            <Route path="/neighborhood/:neighborhood" element={<NeighborhoodPage />} />
-            <Route path="/carte" element={<AllBusinessesMap />} />
-            <Route path="/subcategory/:subcategoryName" element={<SubcategoryPage />} />
-            <Route path="/hotels" element={<HotelSearch />} />
-            <Route path="/club" element={<Club />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <RouteTransition>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/business/:id" element={<BusinessDetail />} />
+              <Route path="/city/:city" element={<CityMap />} />
+              <Route path="/category/:categoryName" element={<CategoryPage />} />
+              <Route path="/service/*" element={<ServicePage />} />
+              <Route path="/search" element={<SearchPage />} />
+              <Route path="/staff/login" element={<StaffLogin />} />
+              <Route path="/staff/backoffice" element={<StaffBackoffice />} />
+              <Route path="/affiliates" element={<AffiliatesLogin />} />
+              <Route path="/affiliates/reset-password" element={<AffiliatesResetPassword />} />
+              <Route path="/affiliates/dashboard" element={<AffiliatesDashboard />} />
+              <Route path="/devenir-affilie" element={<BecomeAffiliate />} />
+              <Route path="/mission" element={<Mission />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/blog/essaouira-vue-mer" element={<EssaouiraSeaView />} />
+              <Route path="/blog/animations" element={<BlogAnimations />} />
+              <Route path="/blog/ancien-accueil" element={<AncienAccueil />} />
+              <Route path="/blog/:slug" element={<BlogPost />} />
+              <Route path="/etablissements-notes" element={<RatedBusinesses />} />
+              <Route path="/neighborhood/:neighborhood" element={<NeighborhoodPage />} />
+              <Route path="/carte" element={<AllBusinessesMap />} />
+              <Route path="/subcategory/:subcategoryName" element={<SubcategoryPage />} />
+              <Route path="/hotels" element={<HotelSearch />} />
+              <Route path="/club" element={<Club />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </RouteTransition>
           <GlobalFloatingSearchBar />
           <FloatingClubButton isOpen={activePanel === "club"} onToggle={() => setActivePanel(activePanel === "club" ? null : "club")} />
           <FloatingWhatsAppButton isOpen={activePanel === "whatsapp"} onToggle={() => setActivePanel(activePanel === "whatsapp" ? null : "whatsapp")} />
