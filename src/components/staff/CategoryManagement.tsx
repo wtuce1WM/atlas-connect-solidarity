@@ -413,12 +413,17 @@ const CategoryManagement = () => {
     setExpandedCategories(newSet);
   };
 
+  const subcategoryRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
   const toggleSubcategory = (id: string) => {
     const newSet = new Set(expandedSubcategories);
     if (newSet.has(id)) {
       newSet.delete(id);
     } else {
       newSet.add(id);
+      setTimeout(() => {
+        subcategoryRefs.current[id]?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
     }
     setExpandedSubcategories(newSet);
   };
@@ -668,7 +673,7 @@ const CategoryManagement = () => {
 
                       return (
                         <Collapsible key={sub.id} open={subIsExpanded} onOpenChange={() => toggleSubcategory(sub.id)}>
-                          <div className="ml-4 border rounded-lg bg-background">
+                          <div className="ml-4 border rounded-lg bg-background" ref={(el) => { subcategoryRefs.current[sub.id] = el; }}>
                             <div className="flex items-center gap-2 p-2">
                               <CollapsibleTrigger asChild>
                                 <Button variant="ghost" size="sm" className="p-1">
