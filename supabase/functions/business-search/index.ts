@@ -384,6 +384,7 @@ serve(async (req) => {
       "Riad": ["riad", "riads", "riyad"],
       "Maison d'hôtes": ["maison d'hôtes", "maison d'hotes", "guesthouse", "guest house"],
       "Auberge": ["auberge", "auberges", "hébergement"],
+      "Taxi / Chauffeur privé": ["taxi", "taxis", "chauffeur", "chauffeur privé", "navette", "transfert", "vtc"],
     };
     let detectedSubcategory: string | null = null;
     if (!category && effectiveQuery) {
