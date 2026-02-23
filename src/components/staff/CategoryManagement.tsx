@@ -362,8 +362,28 @@ const CategoryManagement = () => {
         }
       }
 
+      // Remember subcategory & category to scroll back after reload
+      let scrollToSubId: string | null = null;
+      let parentCatId: string | null = null;
+      if (editMode.type === "service" && editMode.parentId) {
+        scrollToSubId = editMode.parentId;
+        const sub = subcategories.find(s => s.id === editMode.parentId);
+        if (sub) parentCatId = sub.category_id;
+      }
+
       await fetchData();
       cancelEdit();
+
+      // Restore expanded state and scroll to the subcategory
+      if (scrollToSubId) {
+        if (parentCatId) {
+          setExpandedCategories(prev => new Set([...prev, parentCatId!]));
+        }
+        setExpandedSubcategories(prev => new Set([...prev, scrollToSubId!]));
+        setTimeout(() => {
+          subcategoryRefs.current[scrollToSubId!]?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 150);
+      }
     } catch (error) {
       console.error("Error saving:", error);
       toast.error("Erreur lors de l'enregistrement");
