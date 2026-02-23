@@ -119,6 +119,7 @@ const CategoryManagement = () => {
   const [expandedSubcategories, setExpandedSubcategories] = useState<Set<string>>(new Set());
   
   const [businessesPopup, setBusinessesPopup] = useState<BusinessesPopup | null>(null);
+  const [popupCityFilter, setPopupCityFilter] = useState<string>("all");
 
   const openCategoryBusinesses = async (e: React.MouseEvent, categoryId: string, categoryName: string) => {
     e.stopPropagation();
@@ -884,26 +885,56 @@ const CategoryManagement = () => {
       </AlertDialog>
 
       {/* Businesses popup */}
-      <Dialog open={!!businessesPopup} onOpenChange={(open) => !open && setBusinessesPopup(null)}>
+      <Dialog open={!!businessesPopup} onOpenChange={(open) => { if (!open) { setBusinessesPopup(null); setPopupCityFilter("all"); } }}>
         <DialogContent className="max-w-lg max-h-[80vh] flex flex-col">
           <DialogHeader className="flex flex-row items-center justify-between gap-2">
             <DialogTitle className="flex-1">{businessesPopup?.title}</DialogTitle>
-            {businessesPopup && !businessesPopup.loading && businessesPopup.businesses.length > 0 && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-7 px-2 text-xs gap-1 flex-shrink-0"
-                onClick={() => {
-                  const names = businessesPopup.businesses.map(b => b.city ? `${b.name} (${b.city})` : b.name).join(", ");
-                  navigator.clipboard.writeText(names);
-                  toast.success(`${businessesPopup.businesses.length} noms copiés`);
-                }}
-              >
-                <Copy className="h-3 w-3" />
-                Copier les noms
-              </Button>
-            )}
           </DialogHeader>
+          {businessesPopup && !businessesPopup.loading && businessesPopup.businesses.length > 0 && (() => {
+            const cities = [...new Set(businessesPopup.businesses.map(b => b.city).filter(Boolean) as string[])].sort((a, b) => a.localeCompare(b, 'fr'));
+            const filtered = popupCityFilter === "all" ? businessesPopup.businesses : businessesPopup.businesses.filter(b => b.city === popupCityFilter);
+            return (
+              <>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge
+                    variant={popupCityFilter === "all" ? "default" : "outline"}
+                    className="cursor-pointer text-xs"
+                    onClick={() => setPopupCityFilter("all")}
+                  >
+                    Toutes ({businessesPopup.businesses.length})
+                  </Badge>
+                  {cities.map(city => {
+                    const count = businessesPopup.businesses.filter(b => b.city === city).length;
+                    return (
+                      <Badge
+                        key={city}
+                        variant={popupCityFilter === city ? "default" : "outline"}
+                        className="cursor-pointer text-xs"
+                        onClick={() => setPopupCityFilter(city)}
+                      >
+                        {city} ({count})
+                      </Badge>
+                    );
+                  })}
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-7 px-2 text-xs gap-1"
+                    onClick={() => {
+                      const names = filtered.map(b => b.city ? `${b.name} (${b.city})` : b.name).join(", ");
+                      navigator.clipboard.writeText(names);
+                      toast.success(`${filtered.length} noms copiés`);
+                    }}
+                  >
+                    <Copy className="h-3 w-3" />
+                    Copier {popupCityFilter === "all" ? "tous" : popupCityFilter} ({filtered.length})
+                  </Button>
+                </div>
+              </>
+            );
+          })()}
           <div className="overflow-y-auto flex-1 mt-2">
             {businessesPopup?.loading ? (
               <div className="flex justify-center py-8">
@@ -913,7 +944,7 @@ const CategoryManagement = () => {
               <p className="text-muted-foreground text-sm text-center py-8">Aucune entreprise trouvée</p>
             ) : (
               <div className="space-y-1">
-                {businessesPopup?.businesses.map((b) => (
+                {(popupCityFilter === "all" ? businessesPopup?.businesses : businessesPopup?.businesses.filter(b => b.city === popupCityFilter))?.map((b) => (
                   <div key={b.id} className="flex items-center justify-between gap-2 py-2 px-3 rounded-md hover:bg-muted/50">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
