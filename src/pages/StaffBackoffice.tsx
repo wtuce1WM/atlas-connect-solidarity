@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -49,6 +49,7 @@ const StaffBackoffice = () => {
   const [editingBusiness, setEditingBusiness] = useState<Business | null>(null);
   const [activeTab, setActiveTab] = useState("dashboard");
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { toast } = useToast();
   const { brokenFilesMap, isChecking: isCheckingBrokenFiles, hasChecked: hasCheckedBrokenFiles, checkBrokenFiles } = useBusinessBrokenFiles(businesses);
   const { brokenLinks, isChecking: isCheckingBrokenLinks, hasChecked: hasCheckedBrokenLinks, progress: brokenLinksProgress, checkBrokenLinks } = useBusinessBrokenLinks(businesses);
@@ -92,6 +93,33 @@ const StaffBackoffice = () => {
 
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  // Handle ?edit=<businessId> query param to open business form directly
+  useEffect(() => {
+    const editId = searchParams.get("edit");
+    if (editId && businesses.length > 0) {
+      const found = businesses.find(b => b.id === editId);
+      if (found) {
+        setActiveTab("businesses");
+        setEditingBusiness(found);
+        setShowForm(true);
+        searchParams.delete("edit");
+        setSearchParams(searchParams, { replace: true });
+        window.scrollTo({ top: 0, behavior: "instant" });
+      } else {
+        supabase.from("businesses").select("*").eq("id", editId).single().then(({ data }) => {
+          if (data) {
+            setActiveTab("businesses");
+            setEditingBusiness(data as Business);
+            setShowForm(true);
+            searchParams.delete("edit");
+            setSearchParams(searchParams, { replace: true });
+            window.scrollTo({ top: 0, behavior: "instant" });
+          }
+        });
+      }
+    }
+  }, [searchParams, businesses]);
 
   const fetchBusinesses = async () => {
     setLoading(true);
