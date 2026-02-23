@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -1746,8 +1747,8 @@ const LocationManagement = () => {
 
 
       {showCityForm && (
-        <div className="fixed inset-0 z-50 bg-background overflow-y-auto">
-          <div className="container max-w-4xl mx-auto py-6 px-4">
+        <div className="absolute inset-0 z-50 bg-background overflow-y-auto" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, minHeight: '100vh' }}>
+          <div className="container max-w-4xl mx-auto py-6 px-4 pb-24">
             {/* Header with Save button */}
             <div className="flex items-center justify-between mb-6 sticky top-0 bg-background py-4 border-b z-10">
               <div className="flex items-center gap-4">
@@ -2085,8 +2086,8 @@ const LocationManagement = () => {
       )}
       {/* Neighborhood Full Form Page */}
       {showNeighborhoodFullForm && (
-        <div className="fixed inset-0 z-50 bg-background overflow-y-auto">
-          <div className="container max-w-2xl mx-auto py-6 px-4">
+        <div className="absolute inset-0 z-50 bg-background overflow-y-auto" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, minHeight: '100vh' }}>
+          <div className="container max-w-2xl mx-auto py-6 px-4 pb-24">
             <div className="flex items-center justify-between mb-6 sticky top-0 bg-background py-4 border-b z-10">
               <div className="flex items-center gap-4">
                 <Button variant="ghost" onClick={() => { resetNeighborhoodFullForm(); setShowNeighborhoodFullForm(false); }}>
