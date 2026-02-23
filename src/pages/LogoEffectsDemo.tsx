@@ -1,6 +1,9 @@
 import logoGold from "@/assets/logoGOLDsimple.webp";
-import { useState } from "react";
+import { useState, useRef, Suspense } from "react";
 import Header from "@/components/Header";
+import { Canvas, useFrame, useLoader } from "@react-three/fiber";
+import { Float } from "@react-three/drei";
+import * as THREE from "three";
 
 const effects = [
   {
@@ -152,6 +155,112 @@ const LogoEffectsDemo = () => {
             <EffectCard key={effect.name} effect={effect} />
           ))}
         </div>
+
+        {/* 3D Section */}
+        <div className="mt-12">
+          <h2 className="text-xl font-bold text-gold text-center mb-6" style={{ fontStyle: "normal" }}>Effet 3D — Pièce dorée</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Logo3DCard mode="spin" name="Rotation continue" description="La pièce tourne en boucle sur l'axe Y" />
+            <Logo3DCard mode="flip" name="Flip dramatique" description="Retournement 3D avec rebond" />
+            <Logo3DCard mode="float" name="Flottement orbital" description="Mouvement orbital doux avec oscillation" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ---- 3D Components ---- */
+
+const LogoCoin = ({ mode, triggerKey }: { mode: string; triggerKey: number }) => {
+  const texture = useLoader(THREE.TextureLoader, logoGold);
+  const meshRef = useRef<THREE.Mesh>(null);
+  const startTime = useRef(0);
+
+  useFrame((state) => {
+    if (!meshRef.current) return;
+    const t = state.clock.elapsedTime;
+
+    if (mode === "spin") {
+      meshRef.current.rotation.y = t * 2;
+      meshRef.current.rotation.x = Math.sin(t * 0.5) * 0.1;
+    } else if (mode === "flip") {
+      // Reset on trigger
+      if (triggerKey > 0) {
+        const elapsed = t - startTime.current;
+        if (elapsed < 1.5) {
+          const progress = Math.min(elapsed / 1.2, 1);
+          const eased = 1 - Math.pow(1 - progress, 3);
+          meshRef.current.rotation.y = eased * Math.PI * 2;
+          meshRef.current.scale.setScalar(1 + Math.sin(progress * Math.PI) * 0.3);
+        } else {
+          meshRef.current.rotation.y += 0.005;
+        }
+      } else {
+        meshRef.current.rotation.y += 0.005;
+      }
+    } else if (mode === "float") {
+      meshRef.current.rotation.y = Math.sin(t * 0.8) * 0.4;
+      meshRef.current.rotation.x = Math.sin(t * 0.5) * 0.15;
+      meshRef.current.position.y = Math.sin(t * 1.2) * 0.15;
+    }
+  });
+
+  // Reset start time on trigger
+  if (mode === "flip") {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useFrame((state) => {
+      if (triggerKey > 0 && startTime.current === 0) {
+        startTime.current = state.clock.elapsedTime;
+      }
+    });
+  }
+
+  return (
+    <Float speed={mode === "float" ? 3 : 0} rotationIntensity={mode === "float" ? 0.3 : 0} floatIntensity={mode === "float" ? 0.4 : 0}>
+      <mesh ref={meshRef}>
+        <planeGeometry args={[2.2, 2.2]} />
+        <meshStandardMaterial
+          map={texture}
+          transparent
+          side={THREE.DoubleSide}
+          metalness={0.4}
+          roughness={0.3}
+        />
+      </mesh>
+    </Float>
+  );
+};
+
+const Logo3DCard = ({ mode, name, description }: { mode: string; name: string; description: string }) => {
+  const [triggerKey, setTriggerKey] = useState(0);
+
+  return (
+    <div className="flex flex-col items-center gap-3">
+      <div
+        className="relative w-full aspect-square bg-black rounded-xl overflow-hidden border border-white/10 cursor-pointer hover:border-gold/40 transition-colors"
+        onClick={() => setTriggerKey(k => k + 1)}
+        title="Cliquez pour déclencher"
+      >
+        <Canvas camera={{ position: [0, 0, 3.5], fov: 50 }} gl={{ antialias: true, alpha: false }}>
+          <color attach="background" args={["#000000"]} />
+          <ambientLight intensity={0.7} />
+          <directionalLight position={[5, 5, 5]} intensity={1.2} />
+          <pointLight position={[-3, -3, -3]} intensity={0.4} color="#d4a84b" />
+          <Suspense fallback={null}>
+            <LogoCoin mode={mode} triggerKey={triggerKey} />
+          </Suspense>
+        </Canvas>
+      </div>
+      <div className="text-center">
+        <h3 className="text-sm font-bold text-gold">{name}</h3>
+        <p className="text-xs text-muted-foreground">{description}</p>
+        <button
+          onClick={() => setTriggerKey(k => k + 1)}
+          className="mt-1 text-xs text-gold/60 hover:text-gold transition-colors"
+        >
+          ▶ Rejouer
+        </button>
       </div>
     </div>
   );
