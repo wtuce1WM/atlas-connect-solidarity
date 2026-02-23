@@ -349,6 +349,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
     categories: business?.categories || [] as string[],
     services: business?.services || [] as string[],
     default_service: (business as any)?.default_service || "",
+    engagements: (business as any)?.engagements || [] as string[],
     keywords: business?.keywords?.join(", ") || "",
     latitude: business?.latitude?.toString() || "",
     longitude: business?.longitude?.toString() || "",
@@ -614,6 +615,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
       categories: formData.categories.length > 0 ? formData.categories : [],
       services: formData.services.length > 0 ? formData.services : [],
       default_service: formData.default_service || null,
+      engagements: (formData as any).engagements?.length > 0 ? (formData as any).engagements : [],
       keywords: formData.keywords ? formData.keywords.split(",").map((k) => k.trim()) : [],
       latitude: formData.latitude ? parseFloat(formData.latitude) : null,
       longitude: formData.longitude ? parseFloat(formData.longitude) : null,
@@ -2544,33 +2546,80 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                 ))}
               </div>
               {formData.categories.length > 1 && (
-                <div className="mt-3 space-y-2">
-                  <Label>Sous-catégorie par défaut</Label>
-                  <Select
-                    value={formData.categories[0] || ""}
-                    onValueChange={(value) => {
-                      // Réorganiser les catégories pour mettre la sélectionnée en premier
-                      const newCategories = [
-                        value,
-                        ...formData.categories.filter((c) => c !== value),
-                      ];
-                      handleChange("categories", newCategories);
-                    }}
-                  >
-                    <SelectTrigger className="w-full md:w-80">
-                      <SelectValue placeholder="Choisir la sous-catégorie par défaut..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {formData.categories.map((cat) => (
-                        <SelectItem key={cat} value={cat}>
-                          {cat}
-                        </SelectItem>
+                <div className="mt-3 flex flex-col md:flex-row gap-4">
+                  <div className="space-y-2 flex-1">
+                    <Label>Sous-catégorie par défaut</Label>
+                    <Select
+                      value={formData.categories[0] || ""}
+                      onValueChange={(value) => {
+                        const newCategories = [
+                          value,
+                          ...formData.categories.filter((c) => c !== value),
+                        ];
+                        handleChange("categories", newCategories);
+                      }}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Choisir la sous-catégorie par défaut..." />
+                      </SelectTrigger>
+                      <SelectContent className="bg-background z-50">
+                        {formData.categories.map((cat) => (
+                          <SelectItem key={cat} value={cat}>
+                            {cat}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground">
+                      La sous-catégorie par défaut sera affichée en premier sur la fiche.
+                    </p>
+                  </div>
+                  <div className="space-y-2 flex-1">
+                    <Label>Engagements</Label>
+                    <div className="border rounded-md p-3 space-y-1.5 bg-muted/30">
+                      {["Bio (intégral)", "Bio (partiellement)", "Commerce équitable", "Engagement solidaire", "Engagement éco-responsable"].map((eng) => (
+                        <label key={eng} className="flex items-center gap-2 cursor-pointer text-sm">
+                          <input
+                            type="checkbox"
+                            checked={((formData as any).engagements || []).includes(eng)}
+                            onChange={() => {
+                              const current: string[] = (formData as any).engagements || [];
+                              const updated = current.includes(eng)
+                                ? current.filter(e => e !== eng)
+                                : [...current, eng];
+                              handleChange("engagements", updated);
+                            }}
+                            className="h-4 w-4 rounded border-input"
+                          />
+                          {eng}
+                        </label>
                       ))}
-                    </SelectContent>
-                  </Select>
-                  <p className="text-xs text-muted-foreground">
-                    La sous-catégorie par défaut sera affichée en premier sur la fiche.
-                  </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {formData.categories.length <= 1 && (
+                <div className="mt-3 space-y-2">
+                  <Label>Engagements</Label>
+                  <div className="border rounded-md p-3 space-y-1.5 bg-muted/30">
+                    {["Bio (intégral)", "Bio (partiellement)", "Commerce équitable", "Engagement solidaire", "Engagement éco-responsable"].map((eng) => (
+                      <label key={eng} className="flex items-center gap-2 cursor-pointer text-sm">
+                        <input
+                          type="checkbox"
+                          checked={((formData as any).engagements || []).includes(eng)}
+                          onChange={() => {
+                            const current: string[] = (formData as any).engagements || [];
+                            const updated = current.includes(eng)
+                              ? current.filter(e => e !== eng)
+                              : [...current, eng];
+                            handleChange("engagements", updated);
+                          }}
+                          className="h-4 w-4 rounded border-input"
+                        />
+                        {eng}
+                      </label>
+                    ))}
+                  </div>
                 </div>
               )}
             </>
