@@ -5,6 +5,7 @@ import { useGeolocation } from "@/hooks/useGeolocation";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
 import { extractTimeSlot, isOpenDuringSlot, type TimeSlot } from "@/lib/timeSlots";
 import zitounMaskImg from "@/assets/zitoun-mask.jpg";
+import logoGold from "@/assets/logoGOLDsimple.webp";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
@@ -643,11 +644,12 @@ const SearchPage = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-black flex flex-col">
-        <Header />
-        <div className="flex-1 flex items-center justify-center">
-          <Loader2 className="h-8 w-8 text-gold animate-spin" />
-        </div>
+      <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black">
+        <img
+          src={logoGold}
+          alt="Loading"
+          className="w-64 h-64 object-contain animate-pulse"
+        />
       </div>
     );
   }
