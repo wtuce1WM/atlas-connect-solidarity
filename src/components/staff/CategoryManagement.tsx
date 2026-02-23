@@ -686,7 +686,7 @@ const CategoryManagement = () => {
                                 {sub.icon && (
                                   <DynamicIcon name={sub.icon} className="h-5 w-5 text-primary" />
                                 )}
-                                <span>{sub.name_fr}</span>
+                                <span className="font-bold">{sub.name_fr}</span>
                                 {sub.name_en && (
                                   <span className="text-muted-foreground">({sub.name_en})</span>
                                 )}
