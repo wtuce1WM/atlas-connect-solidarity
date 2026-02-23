@@ -205,24 +205,23 @@ textarea::placeholder {
   }
 }
 
-@keyframes logoZoomIn {
+@keyframes logoZoomOut {
   0% {
-    opacity: 0;
-    transform: scale(0.5);
-    filter: brightness(0.5);
+    opacity: 0.8;
+    transform: scale(3);
+    filter: brightness(1.3) drop-shadow(0 0 40px hsla(43, 75%, 55%, 0.7));
   }
-  50% {
+  60% {
     opacity: 1;
-    transform: scale(1);
-    filter: brightness(1.2) drop-shadow(0 0 30px hsla(43, 75%, 55%, 0.6));
+    filter: brightness(1.1) drop-shadow(0 0 20px hsla(43, 75%, 55%, 0.4));
   }
   100% {
     opacity: 1;
-    transform: scale(1.15);
-    filter: brightness(1) drop-shadow(0 0 15px hsla(43, 75%, 55%, 0.3));
+    transform: scale(1);
+    filter: brightness(1) drop-shadow(0 0 10px hsla(43, 75%, 55%, 0.2));
   }
 }
 
 .animate-logo-zoom {
-  animation: logoZoomIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: logoZoomOut 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
