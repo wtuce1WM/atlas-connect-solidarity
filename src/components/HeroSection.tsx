@@ -118,13 +118,8 @@ const HeroSection = () => {
       {/* Content — logo puis titre puis recherche dans l'ordre naturel */}
       <div className="relative z-10 flex flex-col items-center px-4 pt-24 pb-16 gap-8">
 
-        {/* Logo 3D — absolute background on mobile, inline on desktop */}
-        <div className="absolute inset-0 flex items-start justify-center pt-16 pointer-events-none md:hidden">
-          <Logo3DSpinner className="w-72 h-72 opacity-40" />
-        </div>
-        <div className="hidden md:block">
-          <Logo3DSpinner className="w-64 h-64" />
-        </div>
+        {/* Logo 3D */}
+        <Logo3DSpinner className="w-48 h-48 md:w-64 md:h-64" />
 
         <p className="text-sm md:text-base text-gold/80 font-medium tracking-wide text-center -mt-4">
           {language === "ar" ? "أول منصة تجارة إلكترونية تضامنية في المغرب" : language === "en" ? "1st solidarity e-commerce platform in Morocco" : "1ère plateforme de e-commerce solidaire au Maroc"}
