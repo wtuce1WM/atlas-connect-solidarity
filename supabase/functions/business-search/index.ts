@@ -362,29 +362,35 @@ serve(async (req) => {
     const detectedCity = (!city && effectiveQuery) ? detectCityInQuery(effectiveQuery) : null;
     const effectiveCity = city || detectedCity || undefined;
 
-    // Auto-détection de catégorie dans la query
-    const CATEGORY_KEYWORDS: Record<string, string[]> = {
-      "Restauration": ["restaurant", "resto", "restaurants", "restos", "brasserie", "brasseries", "table", "tables", "bistrot", "bistrots", "trattoria", "pizzeria"],
-      "Hôtellerie": ["hotel", "hôtel", "hotels", "hôtels", "auberge", "auberges", "hébergement", "logement"],
-      "Transport": ["transport", "taxi", "navette", "transfert", "vtc"],
-      "Artisanat": ["artisan", "artisanat", "artisans"],
-      "Commerce": ["commerce", "boutique", "magasin", "shop"],
-      "Tourisme": ["tourisme", "excursion", "circuit", "visite guidée"],
-      "Bien-être": ["spa", "hammam", "bien-être", "massage"],
+    // Auto-détection de sous-catégorie dans la query (plus précis que main_category)
+    // Maps query keywords → subcategory name_fr values
+    const SUBCATEGORY_KEYWORDS: Record<string, string[]> = {
+      "Restaurant": ["restaurant", "resto", "restaurants", "restos", "brasserie", "brasseries", "bistrot", "bistrots", "trattoria"],
+      "Gastronomique": ["gastronomique", "gastronomie", "fine dining"],
+      "Café": ["café", "cafe", "cafés", "cafes", "coffee"],
+      "Bar": ["bar", "bars", "pub", "pubs"],
+      "Street Food": ["street food", "streetfood", "snack"],
+      "Pâtisserie": ["pâtisserie", "patisserie", "pâtisseries"],
+      "Boulangerie": ["boulangerie", "boulangeries"],
+      "Night Club": ["night club", "nightclub", "discothèque", "boite de nuit"],
+      "Hôtel": ["hotel", "hôtel", "hotels", "hôtels"],
+      "Riad": ["riad", "riads", "riyad"],
+      "Maison d'hôtes": ["maison d'hôtes", "maison d'hotes", "guesthouse", "guest house"],
+      "Auberge": ["auberge", "auberges", "hébergement"],
     };
-    let detectedCategory: string | null = null;
+    let detectedSubcategory: string | null = null;
     if (!category && effectiveQuery) {
       const qLower = effectiveQuery.toLowerCase();
       const qWords = qLower.split(/\s+/);
-      for (const [cat, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
-        if (keywords.some(kw => qWords.includes(kw) || qLower.includes(kw))) {
-          detectedCategory = cat;
-          console.log(`Auto-detected category "${cat}" from query "${effectiveQuery}"`);
+      for (const [subcat, keywords] of Object.entries(SUBCATEGORY_KEYWORDS)) {
+        if (keywords.some(kw => qWords.includes(kw) || (kw.includes(" ") && qLower.includes(kw)))) {
+          detectedSubcategory = subcat;
+          console.log(`Auto-detected subcategory "${subcat}" from query "${effectiveQuery}"`);
           break;
         }
       }
     }
-    const effectiveCategory = category || detectedCategory || undefined;
+    const effectiveCategory = category || undefined;
 
     // ── Pre-detect matching service(s) from query keywords ──
     let detectedService: string | null = null;
@@ -395,7 +401,12 @@ serve(async (req) => {
     if (effectiveQuery) {
       const queryWords = effectiveQuery.toLowerCase().split(/\s+/).filter(w => w.length > 1 && !NOISE_ADJECTIVES.has(w));
       const cityLower = effectiveCity?.toLowerCase();
-      const serviceMatchWords = [...new Set(queryWords.filter(w => !FRENCH_STOP_WORDS.has(w) && w !== cityLower))];
+      // When a subcategory was detected, exclude those keywords from service matching
+      // to prevent "restaurant" from being treated as a service filter
+      const subcatKeywords = detectedSubcategory
+        ? (SUBCATEGORY_KEYWORDS[detectedSubcategory] || []).map(k => k.toLowerCase())
+        : [];
+      const serviceMatchWords = [...new Set(queryWords.filter(w => !FRENCH_STOP_WORDS.has(w) && w !== cityLower && !subcatKeywords.includes(w)))];
 
       if (serviceMatchWords.length > 0) {
         // Search by name OR keywords array
@@ -562,8 +573,39 @@ serve(async (req) => {
       }
     }
 
+    // When a subcategory is detected, use direct SQL filtering (bypasses tsquery which matches descriptions)
+    if (detectedSubcategory && businesses.length === 0) {
+      let subBuilder = supabase.from("businesses").select("*").eq("is_active", true)
+        .contains("categories", [detectedSubcategory]);
+      
+      if (effectiveCity) {
+        subBuilder = subBuilder.ilike("city", effectiveCity);
+      }
+      if (effectiveCategory) {
+        subBuilder = subBuilder.or(`main_category.eq.${effectiveCategory},categories.cs.{"${effectiveCategory}"}`);
+      }
+      
+      subBuilder = subBuilder
+        .order("wtuce_status", { ascending: true })
+        .order("priority_score", { ascending: false })
+        .limit(limit);
+      
+      const { data, error } = await subBuilder;
+      if (!error && data && data.length > 0) {
+        businesses = data.map((b: any) => ({
+          ...b,
+          distance_km:
+            latitude && longitude && b.latitude && b.longitude
+              ? calculateDistance(latitude, longitude, b.latitude, b.longitude)
+              : null,
+        }));
+        searchLevel = "exact";
+        console.log(`Subcategory direct query "${detectedSubcategory}" + city "${effectiveCity}": ${businesses.length} results`);
+      }
+    }
+
     // Level 1: Exact full-text search with ts_rank (services/name weight A > description weight B)
-    if (queryForExpansion || city || effectiveCategory) {
+    if ((queryForExpansion || city || effectiveCategory) && businesses.length === 0) {
       // When a service was detected and injected, don't expand service name words with synonyms
       // to avoid polluting the tsquery with unrelated terms (e.g. "vin" expanding to "bar")
       // BUT include ALL candidate service names as OR alternatives so synonyms match (e.g. Glacier | Glaces)
@@ -612,7 +654,21 @@ serve(async (req) => {
                 : null,
           }));
           
-          // Post-filter by services:
+          // FIRST: Post-filter by detected subcategory (more precise than main_category)
+          // This is mandatory — if subcategory was detected, only keep matching businesses
+          if (detectedSubcategory) {
+            const beforeCount = businesses.length;
+            const filtered = businesses.filter((b: any) => {
+              const bCategories = (b.categories || []).map((c: string) => c.toLowerCase());
+              return bCategories.some(c => c.includes(detectedSubcategory!.toLowerCase()) || detectedSubcategory!.toLowerCase().includes(c));
+            });
+            if (filtered.length > 0) {
+              businesses = filtered;
+            }
+            console.log(`Subcategory post-filter "${detectedSubcategory}": ${beforeCount} → ${businesses.length}`);
+          }
+
+          // THEN: Post-filter by services:
           // - If multiple DISTINCT service concepts detected (e.g. "Viande" + "Au feu de bois") → AND
           // - If single concept with synonym candidates (e.g. Glacier, Glaces, Glaces / Sorbets) → OR
           if (detectedServices.length > 1) {
@@ -673,6 +729,11 @@ serve(async (req) => {
 
         if (effectiveCategory) {
           queryBuilder = queryBuilder.or(`main_category.eq.${effectiveCategory},categories.cs.{"${effectiveCategory}"}`);
+        }
+
+        // If subcategory detected, filter by categories array
+        if (detectedSubcategory) {
+          queryBuilder = queryBuilder.contains("categories", [detectedSubcategory]);
         }
 
         queryBuilder = queryBuilder
