@@ -557,8 +557,10 @@ serve(async (req) => {
             detectedService = fullyMatchedServices[0]; // Primary service for RPC filter
           } else {
             // Fallback: pick best single service by scoring
-            let bestMatch = matchingServices[0].name_fr;
+            let bestMatch: string | null = null;
             let bestScore = -Infinity;
+            let bestMatchCount = 0;
+            let bestSvcWordCount = 0;
             
             for (const svc of matchingServices) {
               const svcLower = svc.name_fr.toLowerCase();
@@ -575,6 +577,9 @@ serve(async (req) => {
                 });
               }).length;
               
+              // For multi-word service names, require ≥2 query words to match
+              if (svcWordCount >= 2 && matchCount < 2 && kwMatchCount === 0) continue;
+              
               const exactNameMatch = serviceMatchWords.some(w => stripPlural(w) === svcNorm || w === svcLower);
               const exactNameBonus = exactNameMatch ? 200 : 0;
               const unmatchedPenalty = Math.max(0, svcWordCount - matchCount) * 15;
@@ -583,10 +588,20 @@ serve(async (req) => {
               if (score > bestScore) {
                 bestScore = score;
                 bestMatch = svc.name_fr;
+                bestMatchCount = matchCount;
+                bestSvcWordCount = svcWordCount;
               }
             }
-            detectedService = bestMatch;
-            detectedServices = [bestMatch];
+            if (bestMatch) {
+              detectedService = bestMatch;
+              detectedServices = [bestMatch];
+            } else {
+              // No service met the threshold — skip service detection
+              detectedService = null;
+              detectedServices = [];
+              allCandidateServiceNames = [];
+              console.log(`Service detection skipped: no candidate met the ≥2 word threshold for multi-word services`);
+            }
           }
           
           originalDetectedService = detectedService;
