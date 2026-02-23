@@ -3,29 +3,32 @@ import { useRef, Suspense } from "react";
 import * as THREE from "three";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 
-const PulsingLight = () => {
-  const pointRef = useRef<THREE.PointLight>(null);
+const BeamLight = () => {
+  const lightRef = useRef<THREE.SpotLight>(null);
 
   useFrame((state) => {
-    if (pointRef.current) {
+    if (lightRef.current) {
       const t = state.clock.elapsedTime;
-      const pulse = (Math.sin(t * 2) + 1) / 2;
-      pointRef.current.intensity = 2 + pulse * 8;
-      pointRef.current.distance = 5 + pulse * 3;
+      lightRef.current.position.x = Math.sin(t * 1.5) * 3;
+      lightRef.current.position.y = 4;
+      lightRef.current.position.z = 2;
+      lightRef.current.intensity = 15 + Math.sin(t * 3) * 5;
     }
   });
 
   return (
     <>
       <ambientLight intensity={0.15} />
-      <pointLight
-        ref={pointRef}
-        position={[0, 0, 2]}
+      <spotLight
+        ref={lightRef}
         color="#d4a84b"
-        intensity={5}
-        distance={8}
+        angle={0.3}
+        penumbra={0.8}
+        decay={1.5}
+        intensity={15}
+        position={[0, 4, 2]}
+        castShadow
       />
-      <pointLight position={[0, 3, -1]} intensity={0.3} color="#ffffff" />
     </>
   );
 };
@@ -65,7 +68,7 @@ const Logo3DSpinner = ({ className = "w-64 h-64" }: Logo3DSpinnerProps) => {
     <div className={className}>
       <Canvas camera={{ position: [0, 0, 3.5], fov: 50 }} gl={{ antialias: true, alpha: true }}>
         <Suspense fallback={null}>
-          <PulsingLight />
+          <BeamLight />
           <LogoCoin />
         </Suspense>
       </Canvas>
