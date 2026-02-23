@@ -446,7 +446,7 @@ serve(async (req) => {
 
     // Related subcategories: after main results, also show businesses from these subcategories
     const RELATED_SUBCATEGORIES: Record<string, string[]> = {
-      "Supermarché": ["Epicerie fine"],
+      // Intentionally empty — only add truly equivalent subcategories here
     };
     let detectedSubcategory: string | null = null;
     if (!category && effectiveQuery) {
