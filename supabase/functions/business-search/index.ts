@@ -796,16 +796,9 @@ serve(async (req) => {
             });
             console.log(`Multi-service AND post-filter [${detectedServices.join(", ")}]: ${beforeCount} → ${businesses.length}`);
             
-            // Fallback: if post-filter gives 0, revert to unfiltered results
+            // When multi-service filter gives 0, keep 0 — don't fallback
             if (businesses.length === 0) {
-              console.log(`Multi-service filter returned 0 results, reverting to unfiltered results`);
-              businesses = data.map((b: any) => ({
-                ...b,
-                distance_km:
-                  latitude && longitude && b.latitude && b.longitude
-                    ? calculateDistance(latitude, longitude, b.latitude, b.longitude)
-                    : null,
-              }));
+              console.log(`Multi-service AND filter returned 0 results — no fallback`);
             }
           } else if (allCandidateServiceNames.length > 0) {
             // OR logic: business must have at least ONE of the candidate services
@@ -818,16 +811,10 @@ serve(async (req) => {
             });
             console.log(`Service OR post-filter [${allCandidateServiceNames.join(", ")}]: ${beforeCount} → ${businesses.length}`);
             
-            // Fallback: if post-filter gives 0, revert to unfiltered results
+            // When service filter gives 0, keep 0 — don't fallback to unfiltered results
+            // This prevents returning irrelevant businesses when the service simply doesn't exist in this city
             if (businesses.length === 0) {
-              console.log(`Service OR filter returned 0 results, reverting to unfiltered results`);
-              businesses = data.map((b: any) => ({
-                ...b,
-                distance_km:
-                  latitude && longitude && b.latitude && b.longitude
-                    ? calculateDistance(latitude, longitude, b.latitude, b.longitude)
-                    : null,
-              }));
+              console.log(`Service OR filter returned 0 results — no fallback (service "${detectedService}" not found with these filters)`);
             }
           }
           
@@ -899,31 +886,43 @@ serve(async (req) => {
         .order("priority_score", { ascending: false })
         .limit(limit);
 
-      if (!error && data && data.length > 0) {
-        businesses = data.map((b) => ({
-          ...b,
-          distance_km:
-            latitude && longitude && b.latitude && b.longitude
-              ? calculateDistance(latitude, longitude, b.latitude, b.longitude)
-              : null,
-        }));
-        
-        // Neighborhood post-filter for Level 2 results
-        if (detectedNeighborhood && businesses.length > 0) {
-          const beforeNeighborhood = businesses.length;
-          const neighborhoodFiltered = filterByNeighborhood(businesses, detectedNeighborhood);
-          if (neighborhoodFiltered.length > 0) {
-            businesses = neighborhoodFiltered;
+        if (!error && data && data.length > 0) {
+          businesses = data.map((b) => ({
+            ...b,
+            distance_km:
+              latitude && longitude && b.latitude && b.longitude
+                ? calculateDistance(latitude, longitude, b.latitude, b.longitude)
+                : null,
+          }));
+          
+          // Apply service post-filter on fuzzy results too
+          if (allCandidateServiceNames.length > 0) {
+            const beforeSvc = businesses.length;
+            businesses = businesses.filter((b: any) => {
+              const bServices = (b.services || []).map((s: string) => s.toLowerCase());
+              return allCandidateServiceNames.some(cs => 
+                bServices.some(bs => bs.includes(cs.toLowerCase()) || cs.toLowerCase().includes(bs))
+              );
+            });
+            console.log(`Service post-filter (Level 2): ${beforeSvc} → ${businesses.length}`);
           }
-          console.log(`Neighborhood post-filter "${detectedNeighborhood}" (Level 2): ${beforeNeighborhood} → ${businesses.length}`);
-        }
 
-        searchLevel = "fuzzy";
-      }
+          // Neighborhood post-filter for Level 2 results
+          if (detectedNeighborhood && businesses.length > 0) {
+            const beforeNeighborhood = businesses.length;
+            const neighborhoodFiltered = filterByNeighborhood(businesses, detectedNeighborhood);
+            if (neighborhoodFiltered.length > 0) {
+              businesses = neighborhoodFiltered;
+            }
+            console.log(`Neighborhood post-filter "${detectedNeighborhood}" (Level 2): ${beforeNeighborhood} → ${businesses.length}`);
+          }
+
+          searchLevel = "fuzzy";
+        }
     }
 
-    // Level 3: Expand to radius (30km)
-    if (businesses.length === 0 && latitude && longitude) {
+    // Level 3: Expand to radius (30km) — skip if a service was detected (no point showing random nearby businesses)
+    if (businesses.length === 0 && latitude && longitude && !originalDetectedService) {
       const { data, error } = await supabase
         .from("businesses")
         .select("*")
@@ -953,8 +952,8 @@ serve(async (req) => {
       }
     }
 
-    // Level 4: Expand to region
-    if (businesses.length === 0 && region) {
+    // Level 4: Expand to region — skip if a service was detected
+    if (businesses.length === 0 && region && !originalDetectedService) {
       const { data, error } = await supabase
         .from("businesses")
         .select("*")
@@ -977,7 +976,8 @@ serve(async (req) => {
     }
 
     // Level 5: Featured/Recommended businesses (national fallback)
-    if (businesses.length === 0) {
+    // Skip if a service was explicitly detected — 0 results means the service doesn't exist here, not that we should show random businesses
+    if (businesses.length === 0 && !originalDetectedService) {
       const { data, error } = await supabase
         .from("businesses")
         .select("*")
