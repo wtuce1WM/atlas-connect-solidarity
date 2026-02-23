@@ -364,7 +364,8 @@ serve(async (req) => {
 
     // ── Pre-detect matching service(s) from query keywords ──
     let detectedService: string | null = null;
-    let detectedServices: string[] = []; // ALL fully-matched services
+    let detectedServices: string[] = []; // ALL fully-matched services (distinct concepts → AND)
+    let allCandidateServiceNames: string[] = []; // ALL candidate service names (synonyms → OR)
     let originalDetectedService: string | null = null; // Keep track even after fallback
     let serviceMatchWordsForInjection: string[] = [];
     if (effectiveQuery) {
@@ -416,6 +417,9 @@ serve(async (req) => {
         const matchingServices = Array.from(allMatched.values());
 
         if (matchingServices && matchingServices.length > 0) {
+          // Store ALL candidate service names for OR post-filtering
+          allCandidateServiceNames = matchingServices.map((s: any) => s.name_fr);
+          
           // Collect ALL services whose name words are fully present in the query
           const fullyMatchedServices: string[] = [];
           const usedQueryWords = new Set<string>();
@@ -486,7 +490,7 @@ serve(async (req) => {
           
           originalDetectedService = detectedService;
           serviceMatchWordsForInjection = serviceMatchWords;
-          console.log(`Detected service(s) for SQL filter: [${detectedServices.join(", ")}] (from: ${serviceMatchWords.join(", ")}, candidates: ${matchingServices.map((s: any) => s.name_fr).join(", ")})`);
+          console.log(`Detected service(s) for SQL filter: [${detectedServices.join(", ")}], all candidates: [${allCandidateServiceNames.join(", ")}] (from: ${serviceMatchWords.join(", ")})`);
         }
       }
     }
@@ -538,60 +542,42 @@ serve(async (req) => {
     if (queryForExpansion || city || category) {
       // When a service was detected and injected, don't expand service name words with synonyms
       // to avoid polluting the tsquery with unrelated terms (e.g. "vin" expanding to "bar")
+      // BUT include ALL candidate service names as OR alternatives so synonyms match (e.g. Glacier | Glaces)
       let expandedQuery: string | null = null;
       if (queryForExpansion && detectedService) {
         const svcWords = detectedService.toLowerCase().split(/\s+/).filter(w => w.length > 0);
         const remainderWords = queryForExpansion.toLowerCase().split(/\s+/).filter(w => !svcWords.includes(w) && w.length > 0);
-        // Service name words: just sanitize, no synonym expansion
-        const svcTerms = svcWords.map(w => sanitizeTerm(w)).filter(t => t.length > 1);
+        
+        // Build OR group from ALL candidate service names (not just the primary one)
+        const allSvcTerms = allCandidateServiceNames.flatMap(name => 
+          name.toLowerCase().split(/[\s/]+/).map(w => sanitizeTerm(w)).filter(t => t.length > 1)
+        );
+        const uniqueSvcTerms = [...new Set(allSvcTerms)];
+        const svcPart = uniqueSvcTerms.length > 1
+          ? `(${uniqueSvcTerms.join(" | ")})`
+          : uniqueSvcTerms[0] || "";
+        
         // Remainder words: expand with synonyms
         const remainderExpanded = remainderWords.length > 0 ? expandQuery(remainderWords.join(" ")) : "";
-        const parts = [svcTerms.join(" & "), remainderExpanded].filter(p => p.length > 0);
+        const parts = [svcPart, remainderExpanded].filter(p => p.length > 0);
         expandedQuery = parts.join(" & ") || null;
       } else if (queryForExpansion) {
         expandedQuery = expandQuery(queryForExpansion);
       }
-      if (expandedQuery) console.log(`tsquery: "${expandedQuery}" (service: ${detectedService || "none"}, from: "${queryForExpansion}")`);
+      if (expandedQuery) console.log(`tsquery: "${expandedQuery}" (service: ${detectedService || "none"}, candidates: [${allCandidateServiceNames.join(", ")}], from: "${queryForExpansion}")`);
 
       if (expandedQuery) {
         // Use ranked RPC function: prioritizes matches in services/name over description
-        // First try with service filter
-        let data, error;
-        if (detectedService) {
-          const result = await supabase.rpc("search_businesses_with_rank", {
-            p_query: expandedQuery,
-            p_city: effectiveCity || null,
-            p_category: category || null,
-            p_service: detectedService,
-            p_limit: limit,
-          });
-          data = result.data;
-          error = result.error;
-          
-          // Fallback: if service filter gives 0 results, retry without it
-          if (!error && (!data || data.length === 0)) {
-            console.log(`Service filter "${detectedService}" returned 0 results, falling back without service filter`);
-            const fallback = await supabase.rpc("search_businesses_with_rank", {
-              p_query: expandedQuery,
-              p_city: effectiveCity || null,
-              p_category: category || null,
-              p_limit: limit,
-            });
-            data = fallback.data;
-            error = fallback.error;
-            detectedService = null;
-          }
-        } else {
-          const result = await supabase.rpc("search_businesses_with_rank", {
-            p_query: expandedQuery,
-            p_city: effectiveCity || null,
-            p_category: category || null,
-            p_limit: limit,
-          });
-          data = result.data;
-          error = result.error;
-          
-        }
+        // Don't use p_service filter in RPC — we'll post-filter with all candidates instead
+        // This ensures synonym services (Glacier vs Glaces) are all found
+        const result = await supabase.rpc("search_businesses_with_rank", {
+          p_query: expandedQuery,
+          p_city: effectiveCity || null,
+          p_category: category || null,
+          p_service: null,
+          p_limit: limit,
+        });
+        const { data, error } = result;
 
         if (!error && data && data.length > 0) {
           businesses = data.map((b: any) => ({
@@ -602,8 +588,11 @@ serve(async (req) => {
                 : null,
           }));
           
-          // Post-filter: if multiple services detected, keep only businesses that have ALL of them
+          // Post-filter by services:
+          // - If multiple DISTINCT service concepts detected (e.g. "Viande" + "Au feu de bois") → AND
+          // - If single concept with synonym candidates (e.g. Glacier, Glaces, Glaces / Sorbets) → OR
           if (detectedServices.length > 1) {
+            // AND logic: business must have ALL distinct detected services
             const beforeCount = businesses.length;
             businesses = businesses.filter((b: any) => {
               const bServices = (b.services || []).map((s: string) => s.toLowerCase());
@@ -611,11 +600,33 @@ serve(async (req) => {
                 bServices.some(bs => bs.includes(ds.toLowerCase()) || ds.toLowerCase().includes(bs))
               );
             });
-            console.log(`Multi-service post-filter [${detectedServices.join(", ")}]: ${beforeCount} → ${businesses.length}`);
+            console.log(`Multi-service AND post-filter [${detectedServices.join(", ")}]: ${beforeCount} → ${businesses.length}`);
             
-            // Fallback: if post-filter gives 0, revert to single-service results
+            // Fallback: if post-filter gives 0, revert to unfiltered results
             if (businesses.length === 0) {
-              console.log(`Multi-service filter returned 0 results, reverting to single-service results`);
+              console.log(`Multi-service filter returned 0 results, reverting to unfiltered results`);
+              businesses = data.map((b: any) => ({
+                ...b,
+                distance_km:
+                  latitude && longitude && b.latitude && b.longitude
+                    ? calculateDistance(latitude, longitude, b.latitude, b.longitude)
+                    : null,
+              }));
+            }
+          } else if (allCandidateServiceNames.length > 0) {
+            // OR logic: business must have at least ONE of the candidate services
+            const beforeCount = businesses.length;
+            businesses = businesses.filter((b: any) => {
+              const bServices = (b.services || []).map((s: string) => s.toLowerCase());
+              return allCandidateServiceNames.some(cs => 
+                bServices.some(bs => bs.includes(cs.toLowerCase()) || cs.toLowerCase().includes(bs))
+              );
+            });
+            console.log(`Service OR post-filter [${allCandidateServiceNames.join(", ")}]: ${beforeCount} → ${businesses.length}`);
+            
+            // Fallback: if post-filter gives 0, revert to unfiltered results
+            if (businesses.length === 0) {
+              console.log(`Service OR filter returned 0 results, reverting to unfiltered results`);
               businesses = data.map((b: any) => ({
                 ...b,
                 distance_km:
