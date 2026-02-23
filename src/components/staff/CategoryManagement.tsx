@@ -672,8 +672,9 @@ const CategoryManagement = () => {
                       const subIsEditing = editMode?.type === "subcategory" && editMode.id === sub.id;
 
                       return (
+                        <div ref={(el) => { subcategoryRefs.current[sub.id] = el; }} style={{ scrollMarginTop: '1rem' }}>
                         <Collapsible key={sub.id} open={subIsExpanded} onOpenChange={() => toggleSubcategory(sub.id)}>
-                          <div className="ml-4 border rounded-lg bg-background" ref={(el) => { subcategoryRefs.current[sub.id] = el; }}>
+                          <div className="ml-4 border rounded-lg bg-background">
                             <div className="flex items-center gap-2 p-2">
                               <CollapsibleTrigger asChild>
                                 <Button variant="ghost" size="sm" className="p-1">
@@ -818,6 +819,7 @@ const CategoryManagement = () => {
                             </CollapsibleContent>
                           </div>
                         </Collapsible>
+                        </div>
                       );
                     })}
 
