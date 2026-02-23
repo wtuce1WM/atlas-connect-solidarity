@@ -239,9 +239,17 @@ const KNOWN_NEIGHBORHOODS = [
 
 function detectNeighborhoodInQuery(query: string): string | null {
   const lower = query.toLowerCase();
+  const words = lower.split(/\s+/);
   const sorted = [...KNOWN_NEIGHBORHOODS].sort((a, b) => b.length - a.length);
   for (const n of sorted) {
-    if (lower.includes(n.toLowerCase())) return n;
+    const nLower = n.toLowerCase();
+    if (nLower.includes(" ")) {
+      // Multi-word: substring match is fine
+      if (lower.includes(nLower)) return n;
+    } else {
+      // Single-word: must be a standalone word to avoid "aéroport" matching "Port"
+      if (words.includes(nLower)) return n;
+    }
   }
   return null;
 }
@@ -417,7 +425,7 @@ serve(async (req) => {
     // Hardcoded exceptions only for keywords that don't match subcategory names
     const SUBCATEGORY_KEYWORD_OVERRIDES: Record<string, string[]> = {
       "Boulangerie": ["baguette", "baguettes", "pain français", "pain francais", "pain"],
-      "Taxi / Chauffeur privé": ["chauffeur privé", "navette", "transfert", "vtc"],
+      "Taxi / Chauffeur privé": ["taxi", "taxis", "chauffeur privé", "navette", "transfert", "vtc"],
     };
     // Related subcategories: after main results, also show businesses from these subcategories
     const RELATED_SUBCATEGORIES: Record<string, string[]> = {
