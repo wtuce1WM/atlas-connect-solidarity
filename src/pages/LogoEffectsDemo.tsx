@@ -95,26 +95,37 @@ const effects = [
   },
 ];
 
-const EffectCard = ({ effect, replay }: { effect: typeof effects[0]; replay: number }) => {
+const EffectCard = ({ effect }: { effect: typeof effects[0] }) => {
+  const [key, setKey] = useState(0);
+
   return (
     <div className="flex flex-col items-center gap-3">
-      <div className="relative w-full aspect-square bg-black rounded-xl overflow-hidden flex items-center justify-center border border-white/10">
+      <div
+        className="relative w-full aspect-square bg-black rounded-xl overflow-hidden flex items-center justify-center border border-white/10 cursor-pointer hover:border-gold/40 transition-colors"
+        onClick={() => setKey(k => k + 1)}
+        title="Cliquez pour rejouer"
+      >
         {effect.css && <style>{effect.css}</style>}
         <img
-          key={replay}
+          key={key}
           src={logoGold}
           alt={effect.name}
-          className="w-24 h-24 object-contain"
-          style={{
-            animation: effect.animationStyle || undefined,
-            opacity: effect.animationStyle ? 0 : undefined,
-          }}
-          {...(!effect.animationStyle && { className: `w-24 h-24 object-contain ${effect.animation}` })}
+          className={!effect.animationStyle ? `w-24 h-24 object-contain ${effect.animation}` : "w-24 h-24 object-contain"}
+          style={effect.animationStyle ? {
+            animation: effect.animationStyle,
+            opacity: 0,
+          } : undefined}
         />
       </div>
       <div className="text-center">
         <h3 className="text-sm font-bold text-gold">{effect.name}</h3>
         <p className="text-xs text-muted-foreground">{effect.description}</p>
+        <button
+          onClick={() => setKey(k => k + 1)}
+          className="mt-1 text-xs text-gold/60 hover:text-gold transition-colors"
+        >
+          ▶ Rejouer
+        </button>
       </div>
     </div>
   );
@@ -138,7 +149,7 @@ const LogoEffectsDemo = () => {
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {effects.map((effect) => (
-            <EffectCard key={effect.name} effect={effect} replay={replay} />
+            <EffectCard key={effect.name} effect={effect} />
           ))}
         </div>
       </div>
