@@ -185,6 +185,15 @@ const LocationManagement = () => {
     official_site_fr: "", official_site_en: "", official_site_ar: "",
     hook: "", description: "", sort_order: 0, image_url: "",
   });
+
+  // Neighborhoods full section (like POI)
+  const [neighborhoodsSectionOpen, setNeighborhoodsSectionOpen] = useState(false);
+  const [showNeighborhoodFullForm, setShowNeighborhoodFullForm] = useState(false);
+  const [editingNeighborhoodFull, setEditingNeighborhoodFull] = useState<Neighborhood | null>(null);
+  const [neighborhoodFullForm, setNeighborhoodFullForm] = useState({
+    city_id: "", name: "", sort_order: 0,
+  });
+
   const { toast } = useToast();
 
   // Country form state
@@ -536,6 +545,61 @@ const LocationManagement = () => {
   };
 
   const handleDeleteNeighborhood = async (id: string) => {
+    if (!confirm("Supprimer ce quartier ?")) return;
+    const { error } = await (supabase.from("neighborhoods") as any).delete().eq("id", id);
+    if (error) {
+      toast({ variant: "destructive", title: "Erreur", description: error.message });
+    } else {
+      toast({ title: "Succès", description: "Quartier supprimé." });
+      fetchData();
+    }
+  };
+
+  // Neighborhood full form handlers
+  const resetNeighborhoodFullForm = () => {
+    setEditingNeighborhoodFull(null);
+    setNeighborhoodFullForm({ city_id: "", name: "", sort_order: 0 });
+  };
+
+  const openEditNeighborhoodFull = (n: Neighborhood) => {
+    setEditingNeighborhoodFull(n);
+    setNeighborhoodFullForm({ city_id: n.city_id, name: n.name, sort_order: n.sort_order || 0 });
+    setShowNeighborhoodFullForm(true);
+  };
+
+  const handleSaveNeighborhoodFull = async () => {
+    if (!neighborhoodFullForm.name.trim()) {
+      toast({ variant: "destructive", title: "Erreur", description: "Le nom est requis." });
+      return;
+    }
+    if (!neighborhoodFullForm.city_id) {
+      toast({ variant: "destructive", title: "Erreur", description: "La ville est requise." });
+      return;
+    }
+    const data = {
+      city_id: neighborhoodFullForm.city_id,
+      name: neighborhoodFullForm.name.trim(),
+      sort_order: neighborhoodFullForm.sort_order,
+    };
+    let error;
+    if (editingNeighborhoodFull) {
+      const res = await (supabase.from("neighborhoods") as any).update(data).eq("id", editingNeighborhoodFull.id);
+      error = res.error;
+    } else {
+      const res = await (supabase.from("neighborhoods") as any).insert(data);
+      error = res.error;
+    }
+    if (error) {
+      toast({ variant: "destructive", title: "Erreur", description: error.message });
+    } else {
+      toast({ title: "Succès", description: editingNeighborhoodFull ? "Quartier mis à jour." : "Quartier créé." });
+      resetNeighborhoodFullForm();
+      setShowNeighborhoodFullForm(false);
+      fetchData();
+    }
+  };
+
+  const handleDeleteNeighborhoodFull = async (id: string) => {
     if (!confirm("Supprimer ce quartier ?")) return;
     const { error } = await (supabase.from("neighborhoods") as any).delete().eq("id", id);
     if (error) {
@@ -1001,6 +1065,68 @@ const LocationManagement = () => {
             );
           })()}
         </CardContent>}
+      </Card>
+
+      {/* ===== QUARTIERS ===== */}
+      <Card>
+        <CardHeader className="cursor-pointer select-none" onClick={() => setNeighborhoodsSectionOpen(!neighborhoodsSectionOpen)}>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <Home className="h-5 w-5" />
+              Quartiers
+              <ChevronDown className={`h-4 w-4 transition-transform ${neighborhoodsSectionOpen ? 'rotate-180' : ''}`} />
+            </CardTitle>
+            <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); resetNeighborhoodFullForm(); setShowNeighborhoodFullForm(true); }}>
+              <Plus className="h-4 w-4 mr-2" />
+              Ajouter
+            </Button>
+          </div>
+        </CardHeader>
+        {neighborhoodsSectionOpen && (
+          <CardContent>
+            {neighborhoods.length === 0 ? (
+              <p className="text-muted-foreground text-sm text-center py-4">Aucun quartier</p>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Quartier</TableHead>
+                    <TableHead>Ville</TableHead>
+                    <TableHead>Ordre</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {neighborhoods
+                    .sort((a, b) => {
+                      const cityA = cities.find(c => c.id === a.city_id)?.name_fr || "";
+                      const cityB = cities.find(c => c.id === b.city_id)?.name_fr || "";
+                      if (cityA !== cityB) return cityA.localeCompare(cityB, 'fr');
+                      return (a.sort_order || 0) - (b.sort_order || 0);
+                    })
+                    .map((n) => {
+                      const city = cities.find(c => c.id === n.city_id);
+                      return (
+                        <TableRow key={n.id}>
+                          <TableCell className="font-medium">{n.name}</TableCell>
+                          <TableCell className="text-muted-foreground">{city?.name_fr || "—"}</TableCell>
+                          <TableCell>{n.sort_order ?? 0}</TableCell>
+                          <TableCell className="text-right">
+                            <Button size="sm" variant="ghost" onClick={() => openEditNeighborhoodFull(n)}>
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button size="sm" variant="ghost" onClick={() => handleDeleteNeighborhoodFull(n.id)}>
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                </TableBody>
+              </Table>
+            )}
+          </CardContent>
+        )}
       </Card>
 
       {/* ===== DESTINATIONS ===== */}
@@ -1789,6 +1915,65 @@ const LocationManagement = () => {
                 Annuler
               </Button>
               <Button onClick={handleSaveCity} className="bg-gold hover:bg-gold/90">
+                <Save className="h-4 w-4 mr-2" />
+                Enregistrer
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Neighborhood Full Form Page */}
+      {showNeighborhoodFullForm && (
+        <div className="fixed inset-0 z-50 bg-background overflow-y-auto">
+          <div className="container max-w-2xl mx-auto py-6 px-4">
+            <div className="flex items-center justify-between mb-6 sticky top-0 bg-background py-4 border-b z-10">
+              <div className="flex items-center gap-4">
+                <Button variant="ghost" onClick={() => { resetNeighborhoodFullForm(); setShowNeighborhoodFullForm(false); }}>
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Retour
+                </Button>
+                <h2 className="text-xl font-bold">
+                  {editingNeighborhoodFull ? `Modifier: ${editingNeighborhoodFull.name}` : "Nouveau quartier"}
+                </h2>
+              </div>
+              <Button onClick={handleSaveNeighborhoodFull} className="bg-gold hover:bg-gold/90">
+                <Save className="h-4 w-4 mr-2" />
+                Enregistrer
+              </Button>
+            </div>
+
+            <Card>
+              <CardHeader><CardTitle className="text-lg">Informations</CardTitle></CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Nom du quartier <span className="text-destructive">*</span></Label>
+                  <Input value={neighborhoodFullForm.name} onChange={(e) => setNeighborhoodFullForm({ ...neighborhoodFullForm, name: e.target.value })} placeholder="Ex: Guéliz" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Ville <span className="text-destructive">*</span></Label>
+                  <Select value={neighborhoodFullForm.city_id} onValueChange={(value) => setNeighborhoodFullForm({ ...neighborhoodFullForm, city_id: value })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Sélectionner une ville" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {cities.sort((a, b) => a.name_fr.localeCompare(b.name_fr, 'fr')).map((city) => (
+                        <SelectItem key={city.id} value={city.id}>{city.name_fr}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Ordre d'affichage</Label>
+                  <Input type="number" value={neighborhoodFullForm.sort_order} onChange={(e) => setNeighborhoodFullForm({ ...neighborhoodFullForm, sort_order: parseInt(e.target.value) || 0 })} />
+                </div>
+              </CardContent>
+            </Card>
+
+            <div className="flex justify-end gap-4 mt-6 sticky bottom-0 bg-background py-4 border-t">
+              <Button variant="outline" onClick={() => { resetNeighborhoodFullForm(); setShowNeighborhoodFullForm(false); }}>
+                Annuler
+              </Button>
+              <Button onClick={handleSaveNeighborhoodFull} className="bg-gold hover:bg-gold/90">
                 <Save className="h-4 w-4 mr-2" />
                 Enregistrer
               </Button>
