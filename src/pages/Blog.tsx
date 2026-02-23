@@ -5,7 +5,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, Calendar, User, ArrowRight, Star, MapPin, Play } from "lucide-react";
+import { Loader2, Calendar, User, ArrowRight, Star, MapPin, Play, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { fr, enUS, ar } from "date-fns/locale";
@@ -149,6 +149,29 @@ const Blog = () => {
                       <Play className="h-3 w-3" /> Démo
                     </span>
                     <ArrowRight className="h-4 w-4 text-purple-500" />
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+
+            {/* Carte Effets Logo */}
+            <Link to="/demo-effects">
+              <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-yellow-50 to-amber-50 dark:from-yellow-950/30 dark:to-amber-950/30">
+                <div className="aspect-video overflow-hidden bg-gradient-to-br from-gold/20 to-gold/5 flex items-center justify-center">
+                  <Sparkles className="h-16 w-16 text-gold" />
+                </div>
+                <CardContent className="p-6">
+                  <h2 className="text-xl font-semibold mb-3 font-['Playfair_Display'] italic">
+                    Effets Logo — Démo
+                  </h2>
+                  <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
+                    Prévisualisation de 8 effets d'animation pour le logo WTUCE : zoom, spin, flip 3D, blur reveal et plus.
+                  </p>
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1 text-gold font-medium">
+                      <Sparkles className="h-3 w-3" /> Démo
+                    </span>
+                    <ArrowRight className="h-4 w-4 text-gold" />
                   </div>
                 </CardContent>
               </Card>
