@@ -90,6 +90,8 @@ interface Business {
   google_maps_url: string | null;
   pinterest_url: string | null;
   airbnb_url: string | null;
+  hotels_com_url: string | null;
+  trivago_url: string | null;
   skype: string | null;
   vimeo_url: string | null;
   video_1_url: string | null;
@@ -1068,7 +1070,7 @@ const BusinessDetail = () => {
               )}
 
               {/* Booking platforms */}
-              {(business.booking_url || business.tripadvisor_url || business.airbnb_url) && (
+              {(business.booking_url || business.tripadvisor_url || business.airbnb_url || business.hotels_com_url || business.trivago_url) && (
                 <Card className={isVerified ? 'bg-white/10 border-white/20' : ''}>
                   <CardContent className="p-5">
                     <h3 className={`font-semibold mb-3 ${isVerified ? 'text-white' : ''}`}>Plateformes de réservation</h3>
@@ -1076,6 +1078,16 @@ const BusinessDetail = () => {
                       {business.booking_url && (
                         <a href={business.booking_url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-9 h-9 rounded-full bg-[#003580] text-white hover:opacity-80 transition-opacity" title="Booking.com">
                           <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M2.273 0v24h10.715c6.066 0 8.739-3.098 8.739-7.133 0-2.829-1.558-5.203-4.107-6.174v-.078c1.908-.893 3.136-2.789 3.136-5.066C20.756 2.36 18.238 0 13.183 0H2.273zm5.882 4.344h3.885c2.127 0 3.156.975 3.156 2.477 0 1.658-1.263 2.593-3.506 2.593H8.155V4.344zm0 9.16h4.274c2.594 0 3.786 1.092 3.786 2.789 0 1.736-1.23 2.672-3.786 2.672H8.155v-5.461z"/></svg>
+                        </a>
+                      )}
+                      {business.hotels_com_url && (
+                        <a href={business.hotels_com_url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-9 h-9 rounded-full bg-[#D32F2F] text-white hover:opacity-80 transition-opacity" title="Hotels.com">
+                          <span className="text-xs font-bold">H</span>
+                        </a>
+                      )}
+                      {business.trivago_url && (
+                        <a href={business.trivago_url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-9 h-9 rounded-full bg-[#007FAD] text-white hover:opacity-80 transition-opacity" title="Trivago">
+                          <span className="text-xs font-bold">T</span>
                         </a>
                       )}
                       {business.tripadvisor_url && (
