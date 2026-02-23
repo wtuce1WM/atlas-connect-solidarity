@@ -139,10 +139,88 @@ const effects = [
     isFullWidth: true,
     isCircular: true,
   },
+  {
+    name: "Stormy Lightning",
+    description: "Ambiance orageuse avec éclairs multiples aléatoires",
+    css: `
+      @keyframes stormFlash1 {
+        0%, 100% { opacity: 0; }
+        4% { opacity: 0.9; }
+        6% { opacity: 0; }
+        8% { opacity: 0.6; }
+        9% { opacity: 0; }
+      }
+      @keyframes stormFlash2 {
+        0%, 100% { opacity: 0; }
+        30% { opacity: 0; }
+        33% { opacity: 0.7; }
+        34% { opacity: 0; }
+        36% { opacity: 0.4; }
+        37% { opacity: 0; }
+        38% { opacity: 0.8; }
+        39% { opacity: 0; }
+      }
+      @keyframes stormFlash3 {
+        0%, 100% { opacity: 0; }
+        60% { opacity: 0; }
+        62% { opacity: 1; }
+        63% { opacity: 0; }
+        64% { opacity: 0.5; }
+        65% { opacity: 0; }
+      }
+      @keyframes stormAmbient {
+        0%, 100% { opacity: 0.3; }
+        50% { opacity: 0.6; }
+      }
+    `,
+    animationStyle: "none",
+    isFullWidth: true,
+    isStorm: true,
+  },
 ];
 
 const EffectCard = ({ effect }: { effect: (typeof effects)[number] }) => {
   const [key, setKey] = useState(0);
+
+  if ('isStorm' in effect && effect.isStorm) {
+    return (
+      <div className="flex flex-col items-center gap-3">
+        <div
+          className="relative w-full aspect-square bg-[#0a0a12] rounded-xl overflow-hidden flex items-center justify-center border border-white/10 cursor-pointer hover:border-gold/40 transition-colors"
+          onClick={() => setKey(k => k + 1)}
+          title="Cliquez pour rejouer"
+        >
+          {effect.css && <style>{effect.css}</style>}
+          {/* Dark storm ambient */}
+          <div key={`amb-${key}`} className="absolute inset-0" style={{
+            background: "radial-gradient(ellipse at 50% 0%, hsla(220,40%,15%,0.8) 0%, hsla(220,50%,5%,1) 100%)",
+            animation: "stormAmbient 3s ease-in-out infinite",
+          }} />
+          {/* Lightning flash 1 - top left */}
+          <div key={`f1-${key}`} className="absolute inset-0" style={{
+            background: "radial-gradient(ellipse 120px 200px at 25% 10%, hsla(220,80%,90%,0.9) 0%, hsla(240,60%,70%,0.3) 30%, transparent 60%)",
+            animation: "stormFlash1 2.5s ease-in-out infinite",
+          }} />
+          {/* Lightning flash 2 - top right */}
+          <div key={`f2-${key}`} className="absolute inset-0" style={{
+            background: "radial-gradient(ellipse 100px 180px at 75% 15%, hsla(200,90%,85%,0.9) 0%, hsla(220,70%,60%,0.2) 35%, transparent 55%)",
+            animation: "stormFlash2 3.2s ease-in-out infinite",
+          }} />
+          {/* Lightning flash 3 - center */}
+          <div key={`f3-${key}`} className="absolute inset-0" style={{
+            background: "radial-gradient(ellipse 150px 250px at 50% 5%, hsla(0,0%,100%,0.95) 0%, hsla(220,60%,80%,0.3) 25%, transparent 50%)",
+            animation: "stormFlash3 4s ease-in-out infinite",
+          }} />
+          <img src={logoGold} alt={effect.name} className="w-24 h-24 object-contain relative z-10 drop-shadow-[0_0_8px_hsla(43,75%,55%,0.5)]" />
+        </div>
+        <div className="text-center">
+          <h3 className="text-sm font-bold text-gold">{effect.name}</h3>
+          <p className="text-xs text-muted-foreground">{effect.description}</p>
+          <button onClick={() => setKey(k => k + 1)} className="mt-1 text-xs text-gold/60 hover:text-gold transition-colors">▶ Rejouer</button>
+        </div>
+      </div>
+    );
+  }
 
   if (effect.isFullWidth) {
     return (
