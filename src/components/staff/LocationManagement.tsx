@@ -172,6 +172,7 @@ const LocationManagement = () => {
   const [neighborhoodName, setNeighborhoodName] = useState("");
   const [editingNeighborhood, setEditingNeighborhood] = useState<Neighborhood | null>(null);
   const [expandedCityNeighborhoods, setExpandedCityNeighborhoods] = useState<string | null>(null);
+  const [inlineKeywordInput, setInlineKeywordInput] = useState("");
   const [citiesSectionOpen, setCitiesSectionOpen] = useState(false);
   const [destinationsSectionOpen, setDestinationsSectionOpen] = useState(false);
   const [destinations, setDestinations] = useState<Destination[]>([]);
@@ -1096,6 +1097,66 @@ const LocationManagement = () => {
                                           <Edit className="h-3 w-3" />
                                         </Button>
                                       </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* Mots-clés inline */}
+                              <div className="border-t pt-3 mt-3 space-y-2">
+                                <div className="flex items-center gap-2 text-sm font-medium">
+                                  <FileText className="h-4 w-4" />
+                                  Mots-clés / Variantes orthographiques
+                                  {(city.keywords?.length ?? 0) > 0 && (
+                                    <span className="text-xs bg-amber-500/20 text-amber-700 px-1.5 py-0.5 rounded font-medium">
+                                      {city.keywords!.length}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="flex gap-2">
+                                  <Input
+                                    value={expandedCityNeighborhoods === city.id ? inlineKeywordInput : ""}
+                                    onChange={(e) => setInlineKeywordInput(e.target.value)}
+                                    placeholder="Ajouter un mot-clé puis Entrée"
+                                    className="max-w-xs h-8"
+                                    onKeyDown={async (e) => {
+                                      if (e.key === "Enter" && inlineKeywordInput.trim()) {
+                                        const kw = inlineKeywordInput.trim();
+                                        const existing = city.keywords || [];
+                                        if (existing.includes(kw)) {
+                                          setInlineKeywordInput("");
+                                          return;
+                                        }
+                                        const updated = [...existing, kw];
+                                        const { error } = await supabase.from("cities").update({ keywords: updated }).eq("id", city.id);
+                                        if (!error) {
+                                          setCities(prev => prev.map(c => c.id === city.id ? { ...c, keywords: updated } : c));
+                                          setInlineKeywordInput("");
+                                          toast({ title: "Mot-clé ajouté" });
+                                        }
+                                      }
+                                    }}
+                                  />
+                                </div>
+                                {(city.keywords?.length ?? 0) > 0 && (
+                                  <div className="flex flex-wrap gap-1.5">
+                                    {city.keywords!.map((kw, idx) => (
+                                      <span key={idx} className="inline-flex items-center gap-1 bg-background border rounded px-2 py-0.5 text-xs">
+                                        {kw}
+                                        <button
+                                          className="text-destructive hover:text-destructive/80 ml-0.5"
+                                          onClick={async () => {
+                                            const updated = city.keywords!.filter((_, i) => i !== idx);
+                                            const { error } = await supabase.from("cities").update({ keywords: updated }).eq("id", city.id);
+                                            if (!error) {
+                                              setCities(prev => prev.map(c => c.id === city.id ? { ...c, keywords: updated } : c));
+                                              toast({ title: "Mot-clé supprimé" });
+                                            }
+                                          }}
+                                        >
+                                          <X className="h-3 w-3" />
+                                        </button>
+                                      </span>
                                     ))}
                                   </div>
                                 )}
