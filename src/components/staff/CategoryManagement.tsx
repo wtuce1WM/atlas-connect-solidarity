@@ -522,7 +522,7 @@ const CategoryManagement = () => {
           <Input
             value={editForm.keywords}
             onChange={(e) => setEditForm(prev => ({ ...prev, keywords: e.target.value }))}
-            placeholder="huîtres, moules, palourdes, bigorneaux..."
+            placeholder=""
           />
           <p className="text-[10px] text-muted-foreground mt-0.5">Ces mots permettront de trouver ce service lors d'une recherche</p>
         </div>
