@@ -246,6 +246,26 @@ function detectNeighborhoodInQuery(query: string): string | null {
   return null;
 }
 
+// Post-filter businesses by neighborhood, including "Toute la ville & environs" wildcard
+function filterByNeighborhood(businesses: any[], neighborhood: string): any[] {
+  const nLower = neighborhood.toLowerCase();
+  // Handle accent variants (e.g. Gueliz/Guéliz)
+  const variants = [nLower];
+  if (nLower === "gueliz" || nLower === "guéliz") {
+    variants.push("gueliz", "guéliz");
+  }
+  if (nLower === "médina" || nLower === "medina") {
+    variants.push("médina", "medina", "ancienne médina");
+  }
+  
+  return businesses.filter((b: any) => {
+    const bNeighborhood = (b.neighborhood || "").toLowerCase();
+    if (variants.some(v => bNeighborhood === v || bNeighborhood.includes(v))) return true;
+    if (bNeighborhood.includes("toute la ville")) return true;
+    return false;
+  });
+}
+
 // Sanitize a term for to_tsquery: remove apostrophes and special chars
 function sanitizeTerm(term: string): string {
   return term.replace(/['']/g, "").replace(/[^a-zA-Z0-9àâäéèêëïîôùûüÿçœæÀÂÄÉÈÊËÏÎÔÙÛÜŸÇŒÆ]/g, "");
@@ -393,24 +413,11 @@ serve(async (req) => {
       console.log(`Auto-detected neighborhood "${detectedNeighborhood}" from query "${effectiveQuery}"`);
     }
 
-    // Auto-détection de sous-catégorie dans la query (plus précis que main_category)
-    // Maps query keywords → subcategory name_fr values
-    const SUBCATEGORY_KEYWORDS: Record<string, string[]> = {
-      "Restaurant": ["restaurant", "resto", "restaurants", "restos", "brasserie", "brasseries", "bistrot", "bistrots", "trattoria"],
-      "Gastronomique": ["gastronomique", "gastronomie", "fine dining"],
-      "Café": ["café", "cafe", "cafés", "cafes", "coffee"],
-      "Bar": ["bar", "bars", "pub", "pubs"],
-      "Street Food": ["street food", "streetfood", "snack"],
-      "Pâtisserie": ["pâtisserie", "patisserie", "pâtisseries"],
-      "Boulangerie": ["boulangerie", "boulangeries", "baguette", "baguettes", "pain français", "pain francais", "pain"],
-      "Night Club": ["night club", "nightclub", "discothèque", "boite de nuit"],
-      "Hôtel": ["hotel", "hôtel", "hotels", "hôtels"],
-      "Riad": ["riad", "riads", "riyad"],
-      "Maison d'hôtes": ["maison d'hôtes", "maison d'hotes", "guesthouse", "guest house"],
-      "Auberge": ["auberge", "auberges", "hébergement"],
-      "Taxi / Chauffeur privé": ["taxi", "taxis", "chauffeur", "chauffeur privé", "navette", "transfert", "vtc"],
-      "Supermarché": ["supermarché", "supermarche", "supermarchés", "supermarches", "supermarket"],
-      "Epicerie fine": ["épicerie fine", "epicerie fine"],
+    // Auto-détection de sous-catégorie dynamique depuis la DB
+    // Hardcoded exceptions only for keywords that don't match subcategory names
+    const SUBCATEGORY_KEYWORD_OVERRIDES: Record<string, string[]> = {
+      "Boulangerie": ["baguette", "baguettes", "pain français", "pain francais", "pain"],
+      "Taxi / Chauffeur privé": ["chauffeur privé", "navette", "transfert", "vtc"],
     };
     // Related subcategories: after main results, also show businesses from these subcategories
     const RELATED_SUBCATEGORIES: Record<string, string[]> = {
@@ -420,11 +427,38 @@ serve(async (req) => {
     if (!category && effectiveQuery) {
       const qLower = effectiveQuery.toLowerCase();
       const qWords = qLower.split(/\s+/);
-      for (const [subcat, keywords] of Object.entries(SUBCATEGORY_KEYWORDS)) {
+
+      // 1. Check hardcoded overrides first
+      for (const [subcat, keywords] of Object.entries(SUBCATEGORY_KEYWORD_OVERRIDES)) {
         if (keywords.some(kw => qWords.includes(kw) || (kw.includes(" ") && qLower.includes(kw)))) {
           detectedSubcategory = subcat;
-          console.log(`Auto-detected subcategory "${subcat}" from query "${effectiveQuery}"`);
+          console.log(`Auto-detected subcategory "${subcat}" from override keywords`);
           break;
+        }
+      }
+
+      // 2. Dynamic lookup: match query words against subcategory names from DB
+      if (!detectedSubcategory) {
+        const { data: subcats } = await supabase
+          .from("subcategories")
+          .select("name_fr, name_en, name_ar");
+        
+        if (subcats) {
+          // Sort by name length DESC so longer names match first (e.g. "Night Club" before "Club")
+          const sorted = [...subcats].sort((a, b) => (b.name_fr?.length || 0) - (a.name_fr?.length || 0));
+          for (const sc of sorted) {
+            const names = [sc.name_fr, sc.name_en, sc.name_ar].filter(Boolean).map(n => n!.toLowerCase());
+            if (names.some(n => {
+              // Multi-word: check if the full name is in the query
+              if (n.includes(" ")) return qLower.includes(n);
+              // Single-word: check if it's one of the query words
+              return qWords.includes(n);
+            })) {
+              detectedSubcategory = sc.name_fr;
+              console.log(`Auto-detected subcategory "${sc.name_fr}" from DB match in query "${effectiveQuery}"`);
+              break;
+            }
+          }
         }
       }
     }
@@ -446,10 +480,11 @@ serve(async (req) => {
       const neighborhoodLower = detectedNeighborhood?.toLowerCase();
       // When a subcategory was detected, exclude those keywords from service matching
       // to prevent "restaurant" from being treated as a service filter
-      const subcatKeywords = detectedSubcategory
-        ? (SUBCATEGORY_KEYWORDS[detectedSubcategory] || []).map(k => k.toLowerCase())
+      // When a subcategory was detected, exclude its name words from service matching
+      const subcatNameWords = detectedSubcategory
+        ? detectedSubcategory.toLowerCase().split(/[\s/]+/).filter(w => w.length > 1)
         : [];
-      const serviceMatchWords = [...new Set(queryWords.filter(w => !FRENCH_STOP_WORDS.has(w) && w !== cityLower && w !== neighborhoodLower && !subcatKeywords.includes(w)))];
+      const serviceMatchWords = [...new Set(queryWords.filter(w => !FRENCH_STOP_WORDS.has(w) && w !== cityLower && w !== neighborhoodLower && !subcatNameWords.includes(w)))];
 
       if (serviceMatchWords.length > 0) {
         // Search by name OR keywords array
@@ -793,6 +828,16 @@ serve(async (req) => {
             }
           }
           
+          // Neighborhood post-filter for Level 1 results
+          if (detectedNeighborhood && businesses.length > 0) {
+            const beforeNeighborhood = businesses.length;
+            const neighborhoodFiltered = filterByNeighborhood(businesses, detectedNeighborhood);
+            if (neighborhoodFiltered.length > 0) {
+              businesses = neighborhoodFiltered;
+            }
+            console.log(`Neighborhood post-filter "${detectedNeighborhood}" (Level 1): ${beforeNeighborhood} → ${businesses.length}`);
+          }
+
           searchLevel = "exact";
         }
       } else {
@@ -859,6 +904,17 @@ serve(async (req) => {
               ? calculateDistance(latitude, longitude, b.latitude, b.longitude)
               : null,
         }));
+        
+        // Neighborhood post-filter for Level 2 results
+        if (detectedNeighborhood && businesses.length > 0) {
+          const beforeNeighborhood = businesses.length;
+          const neighborhoodFiltered = filterByNeighborhood(businesses, detectedNeighborhood);
+          if (neighborhoodFiltered.length > 0) {
+            businesses = neighborhoodFiltered;
+          }
+          console.log(`Neighborhood post-filter "${detectedNeighborhood}" (Level 2): ${beforeNeighborhood} → ${businesses.length}`);
+        }
+
         searchLevel = "fuzzy";
       }
     }
