@@ -354,6 +354,13 @@ serve(async (req) => {
       effectiveQuery = await extractSearchIntent(query);
       console.log(`Intent extracted: "${effectiveQuery}"`);
     }
+    
+    // Strip French contractions globally: l'aéroport → aéroport, d'art → art, etc.
+    if (effectiveQuery) {
+      effectiveQuery = effectiveQuery.split(/\s+/).map(w => 
+        w.replace(/^[lLdDsSnNjJcCqQ][\u0027\u2019\u2018\u0060]/g, "")
+      ).filter(w => w.length > 0).join(" ");
+    }
 
     // Detect superlative intent (meilleur, top, best…) → sort by rating
     const isSuperlatif = effectiveQuery ? detectSuperlative(effectiveQuery) : false;
@@ -399,7 +406,11 @@ serve(async (req) => {
     let originalDetectedService: string | null = null; // Keep track even after fallback
     let serviceMatchWordsForInjection: string[] = [];
     if (effectiveQuery) {
-      const queryWords = effectiveQuery.toLowerCase().split(/\s+/).filter(w => w.length > 1 && !NOISE_ADJECTIVES.has(w));
+      // Strip French contractions: l'aéroport → aéroport, d'art → art, etc.
+      const stripContractions = (w: string): string => w.replace(/^[lLdDsSnNjJcCqQ][\u0027\u2019\u2018\u0060]/g, "");
+      const queryWords = effectiveQuery.toLowerCase().split(/\s+/)
+        .map(w => stripContractions(w))
+        .filter(w => w.length > 1 && !NOISE_ADJECTIVES.has(w));
       const cityLower = effectiveCity?.toLowerCase();
       // When a subcategory was detected, exclude those keywords from service matching
       // to prevent "restaurant" from being treated as a service filter
