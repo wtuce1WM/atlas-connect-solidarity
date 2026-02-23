@@ -314,12 +314,14 @@ const BusinessDetail = () => {
 
   if (isLoading) {
     return (
-      <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black">
+      <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black">
         <img
           src={logoGold}
           alt="Loading"
-          className="h-28 w-28 object-contain animate-pulse"
+          className="h-40 w-40 object-contain animate-pulse"
+          style={{ minWidth: 160, minHeight: 160 }}
         />
+        <Loader2 className="mt-6 h-6 w-6 animate-spin text-gold" />
       </div>
     );
   }
