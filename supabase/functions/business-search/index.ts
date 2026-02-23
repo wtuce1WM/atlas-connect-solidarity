@@ -731,8 +731,9 @@ serve(async (req) => {
       searchLevel = "exact";
       console.log(`Subcategory direct query "${detectedSubcategory}" + city "${effectiveCity}" + neighborhood "${detectedNeighborhood}": ${businesses.length} results`);
 
-      // Fallback: if subcategory in categories array gave 0 results, search by services array instead
-      if (businesses.length === 0) {
+      // Always enrich: also find businesses that have this subcategory as a service (e.g. "Hammam" service in hotels)
+      {
+        const existingIds = new Set(businesses.map(b => b.id));
         let svcBuilder = supabase.from("businesses").select("*").eq("is_active", true)
           .contains("services", [detectedSubcategory]);
         if (effectiveCity) svcBuilder = svcBuilder.ilike("city", effectiveCity);
@@ -753,13 +754,16 @@ serve(async (req) => {
           .limit(limit);
         const { data: svcData, error: svcError } = await svcBuilder;
         if (!svcError && svcData && svcData.length > 0) {
-          businesses = svcData.map((b: any) => ({
-            ...b,
-            distance_km: latitude && longitude && b.latitude && b.longitude
-              ? calculateDistance(latitude, longitude, b.latitude, b.longitude) : null,
-          }));
+          const newResults = svcData
+            .filter((b: any) => !existingIds.has(b.id))
+            .map((b: any) => ({
+              ...b,
+              distance_km: latitude && longitude && b.latitude && b.longitude
+                ? calculateDistance(latitude, longitude, b.latitude, b.longitude) : null,
+            }));
+          businesses = [...businesses, ...newResults];
         }
-        console.log(`Subcategory service fallback "${detectedSubcategory}": ${businesses.length} results`);
+        console.log(`Subcategory service enrichment "${detectedSubcategory}": ${businesses.length} total results`);
       }
 
       // Append related subcategories (e.g. "Epicerie fine" after "Supermarché")
