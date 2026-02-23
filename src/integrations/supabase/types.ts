@@ -1377,7 +1377,12 @@ export type Database = {
         Row: {
           city_id: string
           created_at: string | null
+          description: string | null
+          hook: string | null
           id: string
+          image_url: string | null
+          latitude: number | null
+          longitude: number | null
           name: string
           sort_order: number | null
           updated_at: string | null
@@ -1385,7 +1390,12 @@ export type Database = {
         Insert: {
           city_id: string
           created_at?: string | null
+          description?: string | null
+          hook?: string | null
           id?: string
+          image_url?: string | null
+          latitude?: number | null
+          longitude?: number | null
           name: string
           sort_order?: number | null
           updated_at?: string | null
@@ -1393,7 +1403,12 @@ export type Database = {
         Update: {
           city_id?: string
           created_at?: string | null
+          description?: string | null
+          hook?: string | null
           id?: string
+          image_url?: string | null
+          latitude?: number | null
+          longitude?: number | null
           name?: string
           sort_order?: number | null
           updated_at?: string | null

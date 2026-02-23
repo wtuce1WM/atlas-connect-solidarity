@@ -82,6 +82,11 @@ interface Neighborhood {
   city_id: string;
   name: string;
   sort_order: number | null;
+  latitude: number | null;
+  longitude: number | null;
+  image_url: string | null;
+  hook: string | null;
+  description: string | null;
 }
 
 interface Destination {
@@ -192,6 +197,7 @@ const LocationManagement = () => {
   const [editingNeighborhoodFull, setEditingNeighborhoodFull] = useState<Neighborhood | null>(null);
   const [neighborhoodFullForm, setNeighborhoodFullForm] = useState({
     city_id: "", name: "", sort_order: 0,
+    latitude: "", longitude: "", image_url: "", hook: "", description: "",
   });
 
   const { toast } = useToast();
@@ -558,12 +564,16 @@ const LocationManagement = () => {
   // Neighborhood full form handlers
   const resetNeighborhoodFullForm = () => {
     setEditingNeighborhoodFull(null);
-    setNeighborhoodFullForm({ city_id: "", name: "", sort_order: 0 });
+    setNeighborhoodFullForm({ city_id: "", name: "", sort_order: 0, latitude: "", longitude: "", image_url: "", hook: "", description: "" });
   };
 
   const openEditNeighborhoodFull = (n: Neighborhood) => {
     setEditingNeighborhoodFull(n);
-    setNeighborhoodFullForm({ city_id: n.city_id, name: n.name, sort_order: n.sort_order || 0 });
+    setNeighborhoodFullForm({
+      city_id: n.city_id, name: n.name, sort_order: n.sort_order || 0,
+      latitude: n.latitude?.toString() || "", longitude: n.longitude?.toString() || "",
+      image_url: n.image_url || "", hook: n.hook || "", description: n.description || "",
+    });
     setShowNeighborhoodFullForm(true);
   };
 
@@ -580,6 +590,11 @@ const LocationManagement = () => {
       city_id: neighborhoodFullForm.city_id,
       name: neighborhoodFullForm.name.trim(),
       sort_order: neighborhoodFullForm.sort_order,
+      latitude: neighborhoodFullForm.latitude ? parseFloat(neighborhoodFullForm.latitude) : null,
+      longitude: neighborhoodFullForm.longitude ? parseFloat(neighborhoodFullForm.longitude) : null,
+      image_url: neighborhoodFullForm.image_url.trim() || null,
+      hook: neighborhoodFullForm.hook.trim().slice(0, 120) || null,
+      description: neighborhoodFullForm.description || null,
     };
     let error;
     if (editingNeighborhoodFull) {
@@ -1090,8 +1105,10 @@ const LocationManagement = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead>Image</TableHead>
                     <TableHead>Quartier</TableHead>
                     <TableHead>Ville</TableHead>
+                    <TableHead>Coordonnées</TableHead>
                     <TableHead>Ordre</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
@@ -1108,8 +1125,18 @@ const LocationManagement = () => {
                       const city = cities.find(c => c.id === n.city_id);
                       return (
                         <TableRow key={n.id}>
+                          <TableCell>
+                            {n.image_url ? (
+                              <img src={n.image_url} alt="" className="w-10 h-10 rounded object-cover" />
+                            ) : (
+                              <div className="w-10 h-10 rounded bg-muted flex items-center justify-center"><ImageIcon className="h-4 w-4 text-muted-foreground" /></div>
+                            )}
+                          </TableCell>
                           <TableCell className="font-medium">{n.name}</TableCell>
                           <TableCell className="text-muted-foreground">{city?.name_fr || "—"}</TableCell>
+                          <TableCell className="text-muted-foreground text-sm">
+                            {n.latitude && n.longitude ? `${n.latitude.toFixed(4)}, ${n.longitude.toFixed(4)}` : "—"}
+                          </TableCell>
                           <TableCell>{n.sort_order ?? 0}</TableCell>
                           <TableCell className="text-right">
                             <Button size="sm" variant="ghost" onClick={() => openEditNeighborhoodFull(n)}>
@@ -1942,6 +1969,7 @@ const LocationManagement = () => {
               </Button>
             </div>
 
+            <div className="space-y-6">
             <Card>
               <CardHeader><CardTitle className="text-lg">Informations</CardTitle></CardHeader>
               <CardContent className="space-y-4">
@@ -1949,25 +1977,118 @@ const LocationManagement = () => {
                   <Label>Nom du quartier <span className="text-destructive">*</span></Label>
                   <Input value={neighborhoodFullForm.name} onChange={(e) => setNeighborhoodFullForm({ ...neighborhoodFullForm, name: e.target.value })} placeholder="Ex: Guéliz" />
                 </div>
-                <div className="space-y-2">
-                  <Label>Ville <span className="text-destructive">*</span></Label>
-                  <Select value={neighborhoodFullForm.city_id} onValueChange={(value) => setNeighborhoodFullForm({ ...neighborhoodFullForm, city_id: value })}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sélectionner une ville" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {cities.sort((a, b) => a.name_fr.localeCompare(b.name_fr, 'fr')).map((city) => (
-                        <SelectItem key={city.id} value={city.id}>{city.name_fr}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Ordre d'affichage</Label>
-                  <Input type="number" value={neighborhoodFullForm.sort_order} onChange={(e) => setNeighborhoodFullForm({ ...neighborhoodFullForm, sort_order: parseInt(e.target.value) || 0 })} />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Ville <span className="text-destructive">*</span></Label>
+                    <Select value={neighborhoodFullForm.city_id} onValueChange={(value) => setNeighborhoodFullForm({ ...neighborhoodFullForm, city_id: value })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sélectionner une ville" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {cities.sort((a, b) => a.name_fr.localeCompare(b.name_fr, 'fr')).map((city) => (
+                          <SelectItem key={city.id} value={city.id}>{city.name_fr}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Ordre d'affichage</Label>
+                    <Input type="number" value={neighborhoodFullForm.sort_order} onChange={(e) => setNeighborhoodFullForm({ ...neighborhoodFullForm, sort_order: parseInt(e.target.value) || 0 })} />
+                  </div>
                 </div>
               </CardContent>
             </Card>
+
+            {/* GPS */}
+            <Card>
+              <CardHeader><CardTitle className="text-lg flex items-center gap-2"><LocateFixed className="h-4 w-4" />Coordonnées GPS</CardTitle></CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Latitude</Label>
+                    <Input value={neighborhoodFullForm.latitude} onChange={(e) => setNeighborhoodFullForm({ ...neighborhoodFullForm, latitude: e.target.value })} placeholder="31.6295" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Longitude</Label>
+                    <Input value={neighborhoodFullForm.longitude} onChange={(e) => setNeighborhoodFullForm({ ...neighborhoodFullForm, longitude: e.target.value })} placeholder="-7.9811" />
+                  </div>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={geocodingField === 'neighborhood'}
+                  onClick={async () => {
+                    if (!neighborhoodFullForm.name.trim()) return;
+                    setGeocodingField('neighborhood');
+                    const cityName = cities.find(c => c.id === neighborhoodFullForm.city_id)?.name_fr || '';
+                    const result = await handleGeocode(neighborhoodFullForm.name, cityName ? `${cityName}, Maroc` : 'Maroc');
+                    if (result) {
+                      setNeighborhoodFullForm(prev => ({ ...prev, latitude: result.lat, longitude: result.lng }));
+                      toast({ title: "Géolocalisé", description: `${result.lat}, ${result.lng}` });
+                    } else {
+                      toast({ variant: "destructive", title: "Erreur", description: "Impossible de géolocaliser." });
+                    }
+                    setGeocodingField(null);
+                  }}
+                >
+                  {geocodingField === 'neighborhood' ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <LocateFixed className="h-4 w-4 mr-1" />}
+                  Géolocaliser
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Image */}
+            <Card>
+              <CardHeader><CardTitle className="text-lg flex items-center gap-2"><ImageIcon className="h-4 w-4" />Image</CardTitle></CardHeader>
+              <CardContent>
+                <LogoUploader
+                  logoUrl={neighborhoodFullForm.image_url}
+                  onChange={(url) => setNeighborhoodFullForm({ ...neighborhoodFullForm, image_url: url })}
+                  businessId={editingNeighborhoodFull?.id || "neighborhood"}
+                />
+              </CardContent>
+            </Card>
+
+            {/* Hook */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  Hook (H2)
+                  <span className="text-sm font-normal text-muted-foreground">
+                    ({(neighborhoodFullForm.hook || "").length} / 120)
+                  </span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Input
+                  value={neighborhoodFullForm.hook}
+                  onChange={(e) => {
+                    if (e.target.value.length <= 120) setNeighborhoodFullForm({ ...neighborhoodFullForm, hook: e.target.value });
+                  }}
+                  placeholder="Accroche courte du quartier..."
+                  maxLength={120}
+                />
+              </CardContent>
+            </Card>
+
+            {/* Description */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  Description
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <RichTextEditor
+                  content={neighborhoodFullForm.description}
+                  onChange={(value) => setNeighborhoodFullForm({ ...neighborhoodFullForm, description: value })}
+                  placeholder="Description du quartier..."
+                />
+              </CardContent>
+            </Card>
+            </div>
 
             <div className="flex justify-end gap-4 mt-6 sticky bottom-0 bg-background py-4 border-t">
               <Button variant="outline" onClick={() => { resetNeighborhoodFullForm(); setShowNeighborhoodFullForm(false); }}>
