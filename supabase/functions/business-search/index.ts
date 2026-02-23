@@ -210,23 +210,37 @@ async function extractSearchIntent(transcript: string): Promise<string> {
   }
 }
 
-// Villes marocaines connues pour la détection automatique dans la query
-const MOROCCAN_CITIES = [
-  "Marrakech", "Casablanca", "Rabat", "Fès", "Fes", "Agadir", "Tanger", "Tangier",
-  "Essaouira", "Meknès", "Meknes", "Oujda", "Kenitra", "Tétouan", "Tetouan",
-  "Safi", "El Jadida", "Nador", "Béni Mellal", "Beni Mellal", "Khouribga",
-  "Settat", "Berrechid", "Mohammedia", "Laâyoune", "Dakhla", "Ifrane",
-  "Ouarzazate", "Merzouga", "Chefchaouen", "Asilah", "Taroudant", "Tiznit",
-  "Zagora", "Erfoud", "Midelt", "Bouznika", "Azemmour",
-];
+// City detection is now dynamic from DB (loaded at search time)
+// detectCityInQuery is replaced by detectCityInQueryDynamic below
 
-function detectCityInQuery(query: string): string | null {
+async function detectCityInQueryDynamic(query: string, supabase: any): Promise<string | null> {
   const lower = query.toLowerCase();
-  for (const city of MOROCCAN_CITIES) {
-    if (lower.includes(city.toLowerCase())) return city;
+  const { data: cities } = await supabase
+    .from("cities")
+    .select("name_fr, name_en, name_ar, keywords")
+    .eq("is_active", true);
+  
+  if (!cities) return null;
+  
+  // Sort by name length DESC so longer names match first (e.g. "El Jadida" before "Fès")
+  const sorted = [...cities].sort((a: any, b: any) => (b.name_fr?.length || 0) - (a.name_fr?.length || 0));
+  
+  for (const city of sorted) {
+    // Check main names
+    for (const name of [city.name_fr, city.name_en, city.name_ar].filter(Boolean)) {
+      if (lower.includes(name.toLowerCase())) return city.name_fr;
+    }
+    // Check keywords (typos, aliases)
+    if (city.keywords && Array.isArray(city.keywords)) {
+      for (const kw of city.keywords) {
+        if (lower.includes(kw.toLowerCase())) return city.name_fr;
+      }
+    }
   }
   return null;
 }
+
+// detectCityInQuery is no longer used — replaced by detectCityInQueryDynamic
 
 // Known neighborhoods for auto-detection in query
 const KNOWN_NEIGHBORHOODS = [
@@ -412,7 +426,7 @@ serve(async (req) => {
     const isSuperlatif = effectiveQuery ? detectSuperlative(effectiveQuery) : false;
 
 // Auto-détection de ville dans la query si aucune ville n'est passée explicitement
-    const detectedCity = (!city && effectiveQuery) ? detectCityInQuery(effectiveQuery) : null;
+    const detectedCity = (!city && effectiveQuery) ? await detectCityInQueryDynamic(effectiveQuery, supabase) : null;
     const effectiveCity = city || detectedCity || undefined;
 
     // Auto-détection de quartier dans la query

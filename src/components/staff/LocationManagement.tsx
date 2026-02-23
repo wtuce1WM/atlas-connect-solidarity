@@ -56,6 +56,7 @@ interface City {
   latitude: number | null;
   longitude: number | null;
   sort_order: number | null;
+  keywords: string[] | null;
   
   is_active: boolean;
   wikipedia_fr: string | null;
@@ -233,6 +234,7 @@ const LocationManagement = () => {
     longitude: "",
     sort_order: 0,
     is_active: true,
+    keywords: [] as string[],
     wikipedia_fr: "",
     wikipedia_en: "",
     wikipedia_ar: "",
@@ -425,6 +427,7 @@ const LocationManagement = () => {
       official_site_6_url: cityForm.official_site_6_url.trim() || null,
       description: cityForm.description.trim().slice(0, 10000) || null,
       image_url: cityForm.image_url.trim() || null,
+      keywords: cityForm.keywords.length > 0 ? cityForm.keywords : [],
     };
 
     let error;
@@ -469,8 +472,8 @@ const LocationManagement = () => {
       latitude: city.latitude?.toString() || "",
       longitude: city.longitude?.toString() || "",
       sort_order: city.sort_order || 0,
-      
       is_active: city.is_active,
+      keywords: city.keywords || [],
       wikipedia_fr: city.wikipedia_fr || "",
       wikipedia_en: city.wikipedia_en || "",
       wikipedia_ar: city.wikipedia_ar || "",
@@ -509,8 +512,8 @@ const LocationManagement = () => {
       latitude: "",
       longitude: "",
       sort_order: 0,
-      
       is_active: true,
+      keywords: [],
       wikipedia_fr: "",
       wikipedia_en: "",
       wikipedia_ar: "",
@@ -1903,8 +1906,52 @@ const LocationManagement = () => {
                           className="h-4 w-4"
                         />
                         <span className="text-sm">{cityForm.is_active ? 'Active' : 'Inactive'}</span>
-                      </div>
+                  </div>
+                </div>
+
+                {/* Keywords / Variantes */}
+                <div className="space-y-4">
+                  <h3 className="font-medium text-lg flex items-center gap-2">
+                    🔤 Mots-clés / Variantes orthographiques
+                    {cityForm.keywords.length > 0 && (
+                      <span className="bg-amber-100 text-amber-800 text-xs px-2 py-0.5 rounded-full">{cityForm.keywords.length}</span>
+                    )}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    Ajoutez les fautes de frappe courantes, translittérations ou noms alternatifs (ex: essauoira, souiria, mogador)
+                  </p>
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Ajouter un mot-clé..."
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          const val = (e.target as HTMLInputElement).value.trim().toLowerCase();
+                          if (val && !cityForm.keywords.includes(val)) {
+                            setCityForm(prev => ({ ...prev, keywords: [...prev.keywords, val] }));
+                            (e.target as HTMLInputElement).value = "";
+                          }
+                        }
+                      }}
+                    />
+                  </div>
+                  {cityForm.keywords.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {cityForm.keywords.map((kw, idx) => (
+                        <span key={idx} className="inline-flex items-center gap-1 bg-muted text-foreground text-sm px-2 py-1 rounded-md">
+                          {kw}
+                          <button
+                            type="button"
+                            onClick={() => setCityForm(prev => ({ ...prev, keywords: prev.keywords.filter((_, i) => i !== idx) }))}
+                            className="text-muted-foreground hover:text-destructive"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </span>
+                      ))}
                     </div>
+                  )}
+                </div>
                   </div>
                 </div>
 
