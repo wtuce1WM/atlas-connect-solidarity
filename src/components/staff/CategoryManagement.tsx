@@ -593,7 +593,7 @@ const CategoryManagement = () => {
           const isEditing = editMode?.type === "category" && editMode.id === category.id;
 
           return (
-            <Card key={category.id} ref={(el) => { categoryRefs.current[category.id] = el; }} style={{ scrollMarginTop: '50px' }}>
+            <Card key={category.id} ref={(el) => { categoryRefs.current[category.id] = el; }} style={{ scrollMarginTop: '80px' }}>
               <Collapsible open={isExpanded} onOpenChange={() => toggleCategory(category.id)}>
                 <div className="flex items-center gap-2 p-3">
                   <CollapsibleTrigger asChild>
@@ -672,7 +672,7 @@ const CategoryManagement = () => {
                       const subIsEditing = editMode?.type === "subcategory" && editMode.id === sub.id;
 
                       return (
-                        <div ref={(el) => { subcategoryRefs.current[sub.id] = el; }} style={{ scrollMarginTop: '50px' }}>
+                        <div ref={(el) => { subcategoryRefs.current[sub.id] = el; }} style={{ scrollMarginTop: '80px' }}>
                         <Collapsible key={sub.id} open={subIsExpanded} onOpenChange={() => toggleSubcategory(sub.id)}>
                           <div className="ml-4 border rounded-lg bg-background">
                             <div className="flex items-center gap-2 p-2">
