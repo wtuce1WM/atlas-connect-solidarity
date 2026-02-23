@@ -96,10 +96,55 @@ const effects = [
     `,
     animationStyle: "demoBlurReveal 0.8s cubic-bezier(0.16,1,0.3,1) forwards",
   },
+  {
+    name: "Global Beam Sweep",
+    description: "Rayon doré balayant horizontalement toute la page",
+    css: `
+      @keyframes demoGlobalBeam {
+        0% { opacity: 0; background-position: -100% 0; }
+        10% { opacity: 1; }
+        50% { background-position: 200% 0; }
+        90% { opacity: 1; }
+        100% { opacity: 0; background-position: 200% 0; }
+      }
+    `,
+    animationStyle: "demoGlobalBeam 4.2s ease-in-out forwards",
+    isFullWidth: true,
+  },
 ];
 
-const EffectCard = ({ effect }: { effect: typeof effects[0] }) => {
+const EffectCard = ({ effect }: { effect: (typeof effects)[number] }) => {
   const [key, setKey] = useState(0);
+
+  if (effect.isFullWidth) {
+    return (
+      <div className="flex flex-col items-center gap-3">
+        <div
+          className="relative w-full aspect-square bg-black rounded-xl overflow-hidden flex items-center justify-center border border-white/10 cursor-pointer hover:border-gold/40 transition-colors"
+          onClick={() => setKey(k => k + 1)}
+          title="Cliquez pour rejouer"
+        >
+          {effect.css && <style>{effect.css}</style>}
+          <div
+            key={key}
+            className="absolute inset-0"
+            style={{
+              background: "linear-gradient(90deg, transparent 0%, transparent 35%, #d4a84b 48%, #fff8e7 50%, #d4a84b 52%, transparent 65%, transparent 100%)",
+              backgroundSize: "200% 100%",
+              animation: effect.animationStyle,
+              opacity: 0,
+            }}
+          />
+          <img src={logoGold} alt={effect.name} className="w-24 h-24 object-contain relative z-10" />
+        </div>
+        <div className="text-center">
+          <h3 className="text-sm font-bold text-gold">{effect.name}</h3>
+          <p className="text-xs text-muted-foreground">{effect.description}</p>
+          <button onClick={() => setKey(k => k + 1)} className="mt-1 text-xs text-gold/60 hover:text-gold transition-colors">▶ Rejouer</button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col items-center gap-3">
