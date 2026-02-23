@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -63,6 +63,7 @@ const GammeManagement = ({ onEditBusiness }: GammeManagementProps) => {
   const [gammeCounts, setGammeCounts] = useState<Record<string, number>>({});
   const [gammeBusinesses, setGammeBusinesses] = useState<Record<string, GammeBusiness[]>>({});
   const [expandedGammes, setExpandedGammes] = useState<Set<string>>(new Set());
+  const gammeRefs = useRef<Record<string, HTMLTableRowElement | null>>({});
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingGamme, setEditingGamme] = useState<Gamme | null>(null);
@@ -536,13 +537,21 @@ const GammeManagement = ({ onEditBusiness }: GammeManagementProps) => {
                 const businesses = gammeBusinesses[gamme.id] || [];
                 return (
                   <React.Fragment key={gamme.id}>
-                    <TableRow className="cursor-pointer hover:bg-muted/50" onClick={() => {
-                      setExpandedGammes(prev => {
-                        const next = new Set(prev);
-                        if (next.has(gamme.id)) next.delete(gamme.id); else next.add(gamme.id);
-                        return next;
-                      });
-                    }}>
+                    <TableRow
+                      ref={(el) => { gammeRefs.current[gamme.id] = el; }}
+                      style={{ scrollMarginTop: '80px' }}
+                      className="cursor-pointer hover:bg-muted/50"
+                      onClick={() => {
+                        const wasExpanded = expandedGammes.has(gamme.id);
+                        setExpandedGammes(prev => {
+                          const next = new Set(prev);
+                          if (next.has(gamme.id)) next.delete(gamme.id); else next.add(gamme.id);
+                          return next;
+                        });
+                        if (!wasExpanded) {
+                          setTimeout(() => gammeRefs.current[gamme.id]?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
+                        }
+                      }}>
                       <TableCell>
                         <div className="flex items-center gap-2">
                           {count > 0 ? (
