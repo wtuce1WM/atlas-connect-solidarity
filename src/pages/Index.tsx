@@ -7,20 +7,31 @@ import Footer from "@/components/Footer";
 const Index = () => {
   return (
     <div className="min-h-screen bg-black relative overflow-hidden">
-      {/* Global light beam sweep — synced with logo beam */}
+      {/* Circular light glow — synced with logo beam */}
       <div
-        className="pointer-events-none fixed inset-0 z-[2] opacity-[0.07]"
+        className="pointer-events-none fixed inset-0 z-[2]"
         style={{
-          background: "linear-gradient(90deg, transparent 0%, transparent 35%, #d4a84b 48%, #fff8e7 50%, #d4a84b 52%, transparent 65%, transparent 100%)",
-          backgroundSize: "200% 100%",
-          animation: "globalBeamSweep 4.2s ease-in-out infinite",
+          background: "radial-gradient(ellipse 600px 400px at var(--beam-x, 50%) var(--beam-y, 40%), hsla(43,75%,55%,0.08) 0%, hsla(43,75%,55%,0.03) 30%, transparent 70%)",
+          animation: "circularBeamGlow 4.2s ease-in-out infinite",
         }}
       />
       <style>{`
-        @keyframes globalBeamSweep {
-          0% { background-position: -100% 0; }
-          50% { background-position: 200% 0; }
-          100% { background-position: -100% 0; }
+        @keyframes circularBeamGlow {
+          0%   { --beam-x: 20%; --beam-y: 35%; opacity: 0.5; }
+          25%  { --beam-x: 70%; --beam-y: 30%; opacity: 1; }
+          50%  { --beam-x: 80%; --beam-y: 45%; opacity: 0.7; }
+          75%  { --beam-x: 30%; --beam-y: 40%; opacity: 1; }
+          100% { --beam-x: 20%; --beam-y: 35%; opacity: 0.5; }
+        }
+        @property --beam-x {
+          syntax: '<percentage>';
+          inherits: false;
+          initial-value: 50%;
+        }
+        @property --beam-y {
+          syntax: '<percentage>';
+          inherits: false;
+          initial-value: 40%;
         }
       `}</style>
       <Header />
