@@ -141,6 +141,17 @@ const CategoryManagement = () => {
     setBusinessesPopup({ title: `Entreprises – ${subName}`, businesses: data || [], loading: false });
   };
 
+  const openServiceBusinesses = async (e: React.MouseEvent, svcName: string) => {
+    e.stopPropagation();
+    setBusinessesPopup({ title: `Entreprises – ${svcName}`, businesses: [], loading: true });
+    const { data } = await supabase
+      .from("businesses")
+      .select("id, name, city, is_active")
+      .contains("services", [svcName])
+      .order("name");
+    setBusinessesPopup({ title: `Entreprises – ${svcName}`, businesses: data || [], loading: false });
+  };
+
   const [editMode, setEditMode] = useState<EditMode | null>(null);
   const [editForm, setEditForm] = useState({
     name_fr: "",
@@ -754,7 +765,13 @@ const CategoryManagement = () => {
                                             )}
                                           </div>
                                           {(businessCountBySvc[svc.id] || 0) > 0 && (
-                                            <Badge variant="secondary" className="text-[10px] px-1.5 py-0">{businessCountBySvc[svc.id]}</Badge>
+                                            <Badge
+                                              variant="secondary"
+                                              className="text-[10px] px-1.5 py-0 cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
+                                              onClick={(e) => openServiceBusinesses(e, svc.name_fr)}
+                                            >
+                                              {businessCountBySvc[svc.id]}
+                                            </Badge>
                                           )}
                                           <Button
                                             variant="ghost"
