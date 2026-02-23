@@ -953,6 +953,29 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                   <TripAdvisorIcon className="h-3.5 w-3.5" />
                 </a>
               )}
+              <span className="text-muted-foreground/40">|</span>
+              <div className="flex flex-wrap gap-1">
+                {[
+                  { id: "section-contact", label: "Contact" },
+                  { id: "section-description", label: "Description" },
+                  { id: "section-menu", label: "Menu" },
+                  { id: "section-images", label: "Images" },
+                  { id: "section-social", label: "Réseaux" },
+                  { id: "section-avis", label: "Avis" },
+                  { id: "section-taxonomie", label: "Taxonomie" },
+                  { id: "section-horaires", label: "Horaires" },
+                  { id: "section-notes", label: "Notes" },
+                ].map(({ id, label }) => (
+                  <button
+                    key={id}
+                    type="button"
+                    className="text-xs font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground transition-colors"
+                    onClick={() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" })}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
             </div>
           ) : (
             <h2 className="text-lg font-bold">Nouvelle entreprise</h2>
@@ -979,31 +1002,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
         {/* Nom + Logo */}
         <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-4 items-start">
           <div className="space-y-3">
-            <div className="flex items-center gap-2 flex-wrap">
-              <Label htmlFor="name" className="text-xl font-semibold">Nom *</Label>
-              <div className="flex flex-wrap gap-1 ml-2">
-                {[
-                  { id: "section-contact", label: "Contact" },
-                  { id: "section-description", label: "Description" },
-                  { id: "section-menu", label: "Menu" },
-                  { id: "section-images", label: "Images" },
-                  { id: "section-social", label: "Réseaux" },
-                  { id: "section-avis", label: "Avis" },
-                  { id: "section-taxonomie", label: "Taxonomie" },
-                  { id: "section-horaires", label: "Horaires" },
-                  { id: "section-notes", label: "Notes" },
-                ].map(({ id, label }) => (
-                  <button
-                    key={id}
-                    type="button"
-                    className="text-sm font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground transition-colors"
-                    onClick={() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" })}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
-            </div>
+            <Label htmlFor="name" className="text-xl font-semibold">Nom *</Label>
             <Input
               id="name"
               value={formData.name}
