@@ -610,6 +610,8 @@ serve(async (req) => {
           if (fullyMatchedServices.length > 0) {
             detectedServices = fullyMatchedServices;
             detectedService = fullyMatchedServices[0]; // Primary service for RPC filter
+            // Narrow candidates to only the fully matched services (avoids "Surf Trips" polluting "Road Trip 4x4" results)
+            allCandidateServiceNames = fullyMatchedServices;
           } else {
             // Fallback: pick best single service by scoring
             let bestMatch: string | null = null;
@@ -650,6 +652,8 @@ serve(async (req) => {
             if (bestMatch) {
               detectedService = bestMatch;
               detectedServices = [bestMatch];
+              // Narrow candidates to only the detected service (avoids unrelated services polluting results)
+              allCandidateServiceNames = [bestMatch];
             } else {
               // No service met the threshold — skip service detection
               detectedService = null;
