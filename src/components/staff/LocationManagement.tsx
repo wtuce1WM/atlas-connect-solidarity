@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -193,6 +193,12 @@ const LocationManagement = () => {
 
   // Neighborhoods full section (like POI)
   const [neighborhoodsSectionOpen, setNeighborhoodsSectionOpen] = useState(false);
+
+  // Section refs for auto-scroll
+  const citiesSectionRef = useRef<HTMLDivElement>(null);
+  const neighborhoodsSectionRef = useRef<HTMLDivElement>(null);
+  const destinationsSectionRef = useRef<HTMLDivElement>(null);
+  const poiSectionRef = useRef<HTMLDivElement>(null);
   const [showNeighborhoodFullForm, setShowNeighborhoodFullForm] = useState(false);
   const [editingNeighborhoodFull, setEditingNeighborhoodFull] = useState<Neighborhood | null>(null);
   const [neighborhoodFullForm, setNeighborhoodFullForm] = useState({
@@ -912,8 +918,12 @@ const LocationManagement = () => {
       </div>
 
       {/* Cities List — directly shown (single country: Maroc) */}
-      <Card>
-        <CardHeader className="cursor-pointer select-none" onClick={() => setCitiesSectionOpen(!citiesSectionOpen)}>
+      <Card ref={citiesSectionRef} style={{ scrollMarginTop: '80px' }}>
+        <CardHeader className="cursor-pointer select-none" onClick={() => {
+          const opening = !citiesSectionOpen;
+          setCitiesSectionOpen(opening);
+          if (opening) setTimeout(() => citiesSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
+        }}>
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
               <Globe className="h-5 w-5" />
@@ -1088,8 +1098,12 @@ const LocationManagement = () => {
       </Card>
 
       {/* ===== QUARTIERS ===== */}
-      <Card>
-        <CardHeader className="cursor-pointer select-none" onClick={() => setNeighborhoodsSectionOpen(!neighborhoodsSectionOpen)}>
+      <Card ref={neighborhoodsSectionRef} style={{ scrollMarginTop: '80px' }}>
+        <CardHeader className="cursor-pointer select-none" onClick={() => {
+          const opening = !neighborhoodsSectionOpen;
+          setNeighborhoodsSectionOpen(opening);
+          if (opening) setTimeout(() => neighborhoodsSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
+        }}>
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
               <Home className="h-5 w-5" />
@@ -1179,8 +1193,12 @@ const LocationManagement = () => {
       </Card>
 
       {/* ===== DESTINATIONS ===== */}
-      <Card>
-        <CardHeader className="cursor-pointer select-none" onClick={() => setDestinationsSectionOpen(!destinationsSectionOpen)}>
+      <Card ref={destinationsSectionRef} style={{ scrollMarginTop: '80px' }}>
+        <CardHeader className="cursor-pointer select-none" onClick={() => {
+          const opening = !destinationsSectionOpen;
+          setDestinationsSectionOpen(opening);
+          if (opening) setTimeout(() => destinationsSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
+        }}>
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
               <Compass className="h-5 w-5" />
@@ -1267,8 +1285,12 @@ const LocationManagement = () => {
       </Card>
 
       {/* ===== POINTS D'INTÉRÊT ===== */}
-      <Card>
-        <CardHeader className="cursor-pointer select-none" onClick={() => setPoiSectionOpen(!poiSectionOpen)}>
+      <Card ref={poiSectionRef} style={{ scrollMarginTop: '80px' }}>
+        <CardHeader className="cursor-pointer select-none" onClick={() => {
+          const opening = !poiSectionOpen;
+          setPoiSectionOpen(opening);
+          if (opening) setTimeout(() => poiSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
+        }}>
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
               <MapPin className="h-5 w-5" />
