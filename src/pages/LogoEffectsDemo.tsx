@@ -165,6 +165,16 @@ const LogoEffectsDemo = () => {
             <Logo3DCard mode="float" name="Flottement orbital" description="Mouvement orbital doux avec oscillation" />
           </div>
         </div>
+
+        {/* 3D Lighting Effects */}
+        <div className="mt-12">
+          <h2 className="text-xl font-bold text-gold text-center mb-6" style={{ fontStyle: "normal" }}>Effet 3D — Lumière</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Logo3DLightCard mode="beam" name="Rayon vertical" description="Faisceau lumineux vertical balayant le logo" />
+            <Logo3DLightCard mode="spotlight" name="Spotlight dramatique" description="Projecteur tournant avec ombres dynamiques" />
+            <Logo3DLightCard mode="pulse-light" name="Pulsation lumineuse" description="Lumière dorée qui pulse et irradie" />
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -261,6 +271,133 @@ const Logo3DCard = ({ mode, name, description }: { mode: string; name: string; d
         >
           ▶ Rejouer
         </button>
+      </div>
+    </div>
+  );
+};
+
+/* ---- 3D Light Effects ---- */
+
+const LightBeam = ({ mode }: { mode: string }) => {
+  const lightRef = useRef<THREE.SpotLight>(null);
+  const pointRef = useRef<THREE.PointLight>(null);
+
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+
+    if (mode === "beam" && lightRef.current) {
+      // Vertical beam sweeping left to right
+      lightRef.current.position.x = Math.sin(t * 1.5) * 3;
+      lightRef.current.position.y = 4;
+      lightRef.current.position.z = 2;
+      lightRef.current.intensity = 15 + Math.sin(t * 3) * 5;
+    } else if (mode === "spotlight" && lightRef.current) {
+      // Orbiting spotlight
+      lightRef.current.position.x = Math.cos(t * 0.8) * 4;
+      lightRef.current.position.y = 3 + Math.sin(t * 0.5);
+      lightRef.current.position.z = Math.sin(t * 0.8) * 4;
+      lightRef.current.intensity = 20;
+    } else if (mode === "pulse-light" && pointRef.current) {
+      // Pulsing golden light
+      const pulse = (Math.sin(t * 2) + 1) / 2;
+      pointRef.current.intensity = 2 + pulse * 8;
+      pointRef.current.distance = 5 + pulse * 3;
+    }
+  });
+
+  return (
+    <>
+      <ambientLight intensity={0.15} />
+      {mode === "beam" && (
+        <spotLight
+          ref={lightRef}
+          color="#d4a84b"
+          angle={0.3}
+          penumbra={0.8}
+          decay={1.5}
+          intensity={15}
+          position={[0, 4, 2]}
+          target-position={[0, 0, 0]}
+          castShadow
+        />
+      )}
+      {mode === "spotlight" && (
+        <>
+          <spotLight
+            ref={lightRef}
+            color="#d4a84b"
+            angle={0.4}
+            penumbra={0.6}
+            decay={1.5}
+            intensity={20}
+            position={[4, 3, 4]}
+            castShadow
+          />
+          <pointLight position={[0, -2, 1]} intensity={0.5} color="#1a1a2e" />
+        </>
+      )}
+      {mode === "pulse-light" && (
+        <>
+          <pointLight
+            ref={pointRef}
+            position={[0, 0, 2]}
+            color="#d4a84b"
+            intensity={5}
+            distance={8}
+          />
+          <pointLight position={[0, 3, -1]} intensity={0.3} color="#ffffff" />
+        </>
+      )}
+    </>
+  );
+};
+
+const LogoLightCoin = ({ mode }: { mode: string }) => {
+  const texture = useLoader(THREE.TextureLoader, logoGold);
+  const meshRef = useRef<THREE.Mesh>(null);
+
+  useFrame((state) => {
+    if (!meshRef.current) return;
+    const t = state.clock.elapsedTime;
+    meshRef.current.rotation.y = Math.sin(t * 0.3) * 0.15;
+    meshRef.current.rotation.x = Math.sin(t * 0.2) * 0.05;
+  });
+
+  return (
+    <mesh ref={meshRef}>
+      <planeGeometry args={[2.2, 2.2]} />
+      <meshStandardMaterial
+        map={texture}
+        transparent
+        side={THREE.DoubleSide}
+        metalness={0.5}
+        roughness={0.2}
+      />
+    </mesh>
+  );
+};
+
+const Logo3DLightCard = ({ mode, name, description }: { mode: string; name: string; description: string }) => {
+  const [triggerKey, setTriggerKey] = useState(0);
+
+  return (
+    <div className="flex flex-col items-center gap-3">
+      <div
+        className="relative w-full aspect-square bg-black rounded-xl overflow-hidden border border-white/10 cursor-pointer hover:border-gold/40 transition-colors"
+        onClick={() => setTriggerKey(k => k + 1)}
+        title="Cliquez pour déclencher"
+      >
+        <Canvas camera={{ position: [0, 0, 3.5], fov: 50 }} gl={{ antialias: true, alpha: false }} shadows>
+          <color attach="background" args={["#050505"]} />
+          <Suspense fallback={null}>
+            <LightBeam mode={mode} key={triggerKey} />
+            <LogoLightCoin mode={mode} />
+          </Suspense>
+        </Canvas>
+      </div>
+      <div className="text-center">
+        <h3 className="text-sm font-bold text-gold">{name}</h3>
+        <p className="text-xs text-muted-foreground">{description}</p>
       </div>
     </div>
   );
