@@ -20,6 +20,7 @@ import {
   Loader2,
   ExternalLink,
   Settings,
+  Copy,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -885,8 +886,23 @@ const CategoryManagement = () => {
       {/* Businesses popup */}
       <Dialog open={!!businessesPopup} onOpenChange={(open) => !open && setBusinessesPopup(null)}>
         <DialogContent className="max-w-lg max-h-[80vh] flex flex-col">
-          <DialogHeader>
-            <DialogTitle>{businessesPopup?.title}</DialogTitle>
+          <DialogHeader className="flex flex-row items-center justify-between gap-2">
+            <DialogTitle className="flex-1">{businessesPopup?.title}</DialogTitle>
+            {businessesPopup && !businessesPopup.loading && businessesPopup.businesses.length > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 px-2 text-xs gap-1 flex-shrink-0"
+                onClick={() => {
+                  const names = businessesPopup.businesses.map(b => b.name).join(", ");
+                  navigator.clipboard.writeText(names);
+                  toast.success(`${businessesPopup.businesses.length} noms copiés`);
+                }}
+              >
+                <Copy className="h-3 w-3" />
+                Copier les noms
+              </Button>
+            )}
           </DialogHeader>
           <div className="overflow-y-auto flex-1 mt-2">
             {businessesPopup?.loading ? (
