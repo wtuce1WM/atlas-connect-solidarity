@@ -6,6 +6,7 @@ import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUti
 import { extractTimeSlot, isOpenDuringSlot, type TimeSlot } from "@/lib/timeSlots";
 import zitounMaskImg from "@/assets/zitoun-mask.jpg";
 import logoGold from "@/assets/logoGOLDsimple.webp";
+import LoadingScreen from "@/components/LoadingScreen";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
@@ -643,15 +644,7 @@ const SearchPage = () => {
   const showPompiers = isPompiersQuery(spokenText || searchQuery);
 
   if (isLoading) {
-    return (
-      <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black">
-        <img
-          src={logoGold}
-          alt="Loading"
-          className="w-64 h-64 object-contain animate-logo-zoom"
-        />
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   return (

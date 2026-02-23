@@ -21,6 +21,7 @@ import BookmarkButton from "@/components/BookmarkButton";
 import ServiceListItem from "@/components/ServiceListItem";
 import { useValidatedImages, useValidatedUrl } from "@/hooks/useValidatedImages";
 import logoGold from "@/assets/logoGOLDsimple.webp";
+import LoadingScreen from "@/components/LoadingScreen";
 import relaisChateauxLogo from "@/assets/relais-chateaux-logo.png";
 import restaurantGuruLogo from "@/assets/restaurant-guru-logo.webp";
 import { formatDayHours as formatDayHoursDisplay, isCurrentlyOpen as isCurrentlyOpenCheck } from "@/lib/formatOpeningHours";
@@ -313,15 +314,7 @@ const BusinessDetail = () => {
   }, [business?.id, business?.categories, business?.city]);
 
   if (isLoading) {
-    return (
-      <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black">
-        <img
-          src={logoGold}
-          alt="Loading"
-          className="w-64 h-64 object-contain animate-logo-zoom"
-        />
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   if (!business) {
