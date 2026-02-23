@@ -522,7 +522,12 @@ serve(async (req) => {
       const subcatNameWords = detectedSubcategory
         ? detectedSubcategory.toLowerCase().split(/[\s/]+/).filter(w => w.length > 1)
         : [];
-      const serviceMatchWords = [...new Set(queryWords.filter(w => !FRENCH_STOP_WORDS.has(w) && w !== cityLower && w !== neighborhoodLower && !subcatNameWords.includes(w)))];
+      // Also exclude intent words (manger, acheter, dormir...) and time-related words from service matching
+      const TIME_NOISE = new Set(["soir", "matin", "midi", "nuit", "après-midi", "apres-midi", "aujourd'hui", "demain", "semaine", "weekend"]);
+      const serviceMatchWords = [...new Set(queryWords.filter(w => 
+        !FRENCH_STOP_WORDS.has(w) && w !== cityLower && w !== neighborhoodLower 
+        && !subcatNameWords.includes(w) && !INTENT_TO_CATEGORY[w] && !TIME_NOISE.has(w)
+      ))];
 
       if (serviceMatchWords.length > 0) {
         // Search by name OR keywords array
@@ -676,6 +681,15 @@ serve(async (req) => {
       }).join(" ").trim() || queryForExpansion;
       if (queryForExpansion !== effectiveQuery) {
         console.log(`Stripped neighborhood from tsquery: "${queryForExpansion}" (was: "${effectiveQuery}")`);
+      }
+    }
+    // Strip time-related noise words from queryForExpansion (they don't exist in search vectors)
+    const TIME_NOISE_QUERY = new Set(["soir", "matin", "midi", "après-midi", "apres-midi", "aujourd'hui", "demain", "semaine", "weekend", "ce", "cette"]);
+    if (queryForExpansion) {
+      const before = queryForExpansion;
+      queryForExpansion = queryForExpansion.split(/\s+/).filter(w => !TIME_NOISE_QUERY.has(w.toLowerCase())).join(" ").trim() || queryForExpansion;
+      if (queryForExpansion !== before) {
+        console.log(`Stripped time noise from tsquery: "${queryForExpansion}" (was: "${before}")`);
       }
     }
     if (detectedService && effectiveQuery) {
