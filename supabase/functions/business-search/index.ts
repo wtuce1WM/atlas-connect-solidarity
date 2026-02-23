@@ -786,8 +786,9 @@ serve(async (req) => {
         const remainderWords = queryForExpansion.toLowerCase().split(/\s+/).filter(w => !svcWords.includes(w) && w.length > 0);
         
         // Build OR group from ALL candidate service names (not just the primary one)
+        // Filter out French stop words (en, de, à, la, le, etc.) to avoid matching everything
         const allSvcTerms = allCandidateServiceNames.flatMap(name => 
-          name.toLowerCase().split(/[\s/]+/).map(w => sanitizeTerm(w)).filter(t => t.length > 1)
+          name.toLowerCase().split(/[\s/]+/).map(w => sanitizeTerm(w)).filter(t => t.length > 1 && !FRENCH_STOP_WORDS.has(t))
         );
         const uniqueSvcTerms = [...new Set(allSvcTerms)];
         const svcPart = uniqueSvcTerms.length > 1
