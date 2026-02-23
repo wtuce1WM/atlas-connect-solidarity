@@ -2669,7 +2669,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                     {servicesGroupedBySubcategory.map((group) => {
                       const count = group.services.filter(s => formData.services.includes(s)).length;
                       return (
-                        <TabsTrigger key={group.subcategoryName} value={group.subcategoryName} className="text-xs">
+                        <TabsTrigger key={group.subcategoryName} value={group.subcategoryName} className="text-sm font-medium">
                           {group.subcategoryName}
                           {count > 0 && (
                             <span className="ml-1.5 bg-primary text-primary-foreground rounded-full px-1.5 py-0 text-[10px] font-semibold">
