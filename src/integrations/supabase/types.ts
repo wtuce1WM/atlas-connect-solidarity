@@ -481,6 +481,7 @@ export type Database = {
           is_master: boolean
           is_open_24h: boolean
           is_regulated_activity: boolean | null
+          is_visible_locale: boolean
           keywords: string[] | null
           kp_regroupement: string | null
           label1_link_url: string | null
@@ -578,6 +579,7 @@ export type Database = {
           is_master?: boolean
           is_open_24h?: boolean
           is_regulated_activity?: boolean | null
+          is_visible_locale?: boolean
           keywords?: string[] | null
           kp_regroupement?: string | null
           label1_link_url?: string | null
@@ -675,6 +677,7 @@ export type Database = {
           is_master?: boolean
           is_open_24h?: boolean
           is_regulated_activity?: boolean | null
+          is_visible_locale?: boolean
           keywords?: string[] | null
           kp_regroupement?: string | null
           label1_link_url?: string | null
@@ -1875,6 +1878,7 @@ export type Database = {
           is_master: boolean
           is_open_24h: boolean
           is_regulated_activity: boolean | null
+          is_visible_locale: boolean
           keywords: string[] | null
           kp_regroupement: string | null
           label1_link_url: string | null
