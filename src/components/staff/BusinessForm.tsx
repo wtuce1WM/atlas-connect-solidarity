@@ -1271,43 +1271,41 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
            </Select>
           </div>
 
-          <div className="flex gap-4 items-end">
-            <div className="space-y-2 flex-1">
-              <Label htmlFor="zone_chalandise">Zone de chalandise</Label>
-              <Select
-                value={(formData as any).zone_chalandise || "__none__"}
-                onValueChange={(value) => handleChange("zone_chalandise", value === "__none__" ? "" : value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Sélectionner..." />
-                </SelectTrigger>
-                <SelectContent className="bg-background z-50">
-                  <SelectItem value="__none__">— Aucune —</SelectItem>
-                  <SelectItem value="locale">Locale</SelectItem>
-                  <SelectItem value="regionale">Régionale</SelectItem>
-                  <SelectItem value="nationale">Nationale</SelectItem>
-                  <SelectItem value="internationale">Internationale</SelectItem>
-                  <SelectItem value="web_only">Web only</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            {(formData as any).zone_chalandise === "locale" && (
-              <div className="space-y-2 flex-1">
-                <Label>Rendre visible</Label>
-                <Select
-                  value={(formData as any).is_visible_locale ? "oui" : "non"}
-                  onValueChange={(value) => handleChange("is_visible_locale", value === "oui")}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-background z-50">
-                    <SelectItem value="non">Non</SelectItem>
-                    <SelectItem value="oui">Oui</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
+          <div className="space-y-2">
+            <Label htmlFor="zone_chalandise">Zone de chalandise</Label>
+            <Select
+              value={(formData as any).zone_chalandise || "__none__"}
+              onValueChange={(value) => handleChange("zone_chalandise", value === "__none__" ? "" : value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Sélectionner..." />
+              </SelectTrigger>
+              <SelectContent className="bg-background z-50">
+                <SelectItem value="__none__">— Aucune —</SelectItem>
+                <SelectItem value="locale">Locale</SelectItem>
+                <SelectItem value="regionale">Régionale</SelectItem>
+                <SelectItem value="nationale">Nationale</SelectItem>
+                <SelectItem value="internationale">Internationale</SelectItem>
+                <SelectItem value="web_only">Web only</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label className={(formData as any).zone_chalandise !== "locale" ? "text-muted-foreground" : ""}>Rendre visible</Label>
+            <Select
+              value={(formData as any).is_visible_locale ? "oui" : "non"}
+              onValueChange={(value) => handleChange("is_visible_locale", value === "oui")}
+              disabled={(formData as any).zone_chalandise !== "locale"}
+            >
+              <SelectTrigger className={(formData as any).zone_chalandise !== "locale" ? "opacity-50" : ""}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-background z-50">
+                <SelectItem value="non">Non</SelectItem>
+                <SelectItem value="oui">Oui</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Villes de la zone nationale */}
