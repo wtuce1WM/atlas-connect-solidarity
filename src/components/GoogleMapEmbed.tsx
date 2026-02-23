@@ -41,12 +41,10 @@ const GoogleMapEmbed = ({ address, businessName, latitude, longitude, googleMaps
 
   const encodedAddress = encodeURIComponent(`${businessName}, ${address}`);
 
-  // Use coordinates directly when available for precise pinning
-  // Text search (businessName + address) can match wrong branches for chain stores
-  const hasCoords = resolvedLat != null && resolvedLng != null;
-  const mapEmbedUrl = hasCoords
-    ? `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${resolvedLat},${resolvedLng}&zoom=16`
-    : `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(`${businessName}, ${address}`)}&zoom=16`;
+  // Use text search (name + address) to get a labeled marker with the business name,
+  // same approach as subcategory/category pages. Coordinates-only (q=lat,lng) gives unlabeled pin.
+  const query = businessName + (address ? `, ${address}` : "");
+  const mapEmbedUrl = `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(query)}&zoom=17`;
   const streetViewEmbedUrl = `https://www.google.com/maps/embed/v1/streetview?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&location=${resolvedLat || 31.6295},${resolvedLng || -7.9811}&heading=0&pitch=0&fov=90`;
 
   const handleGetDirections = () => {
