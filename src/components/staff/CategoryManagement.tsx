@@ -923,7 +923,7 @@ const CategoryManagement = () => {
                     size="sm"
                     className="h-7 px-2 text-xs gap-1"
                     onClick={() => {
-                      const names = filtered.map(b => b.city ? `${b.name} (${b.city})` : b.name).join(", ");
+                      const names = filtered.map(b => b.name).join(", ");
                       navigator.clipboard.writeText(names);
                       toast.success(`${filtered.length} noms copiés`);
                     }}
