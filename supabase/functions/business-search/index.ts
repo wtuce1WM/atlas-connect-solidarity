@@ -476,7 +476,31 @@ serve(async (req) => {
         }
       }
     }
-    const effectiveCategory = category || undefined;
+    // Auto-detect category from intent words when no explicit category is provided
+    // e.g. "manger" → Restauration, "acheter" → Commerce, "dormir" → Hôtellerie
+    const INTENT_TO_CATEGORY: Record<string, string> = {
+      "manger": "Restauration", "déjeuner": "Restauration", "dejeuner": "Restauration",
+      "dîner": "Restauration", "diner": "Restauration", "souper": "Restauration",
+      "boire": "Restauration", "déguster": "Restauration", "deguster": "Restauration",
+      "goûter": "Restauration", "gouter": "Restauration", "bruncher": "Restauration",
+      "acheter": "Commerce", "achat": "Commerce", "achats": "Commerce",
+      "shopping": "Commerce", "courses": "Commerce",
+      "dormir": "Hôtellerie", "héberger": "Hôtellerie", "heberger": "Hôtellerie",
+      "loger": "Hôtellerie", "séjourner": "Hôtellerie", "sejourner": "Hôtellerie",
+      "nuit": "Hôtellerie", "nuitée": "Hôtellerie", "nuitee": "Hôtellerie",
+    };
+    let intentCategory: string | null = null;
+    if (!category && effectiveQuery) {
+      const qWords = effectiveQuery.toLowerCase().split(/\s+/);
+      for (const w of qWords) {
+        if (INTENT_TO_CATEGORY[w]) {
+          intentCategory = INTENT_TO_CATEGORY[w];
+          console.log(`Intent word "${w}" → category "${intentCategory}"`);
+          break;
+        }
+      }
+    }
+    const effectiveCategory = category || intentCategory || undefined;
 
     // ── Pre-detect matching service(s) from query keywords ──
     let detectedService: string | null = null;
