@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -56,6 +56,7 @@ const BadgeManagement = ({ onEditBusiness }: BadgeManagementProps) => {
   const [badgeCounts, setBadgeCounts] = useState<Record<string, number>>({});
   const [badgeBusinesses, setBadgeBusinesses] = useState<Record<string, BadgeBusiness[]>>({});
   const [expandedBadges, setExpandedBadges] = useState<Set<string>>(new Set());
+  const badgeRefs = useRef<Record<string, HTMLTableRowElement | null>>({});
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingBadge, setEditingBadge] = useState<BadgeData | null>(null);
@@ -376,13 +377,21 @@ const BadgeManagement = ({ onEditBusiness }: BadgeManagementProps) => {
                 const businesses = badgeBusinesses[badge.id] || [];
                 return (
                   <React.Fragment key={badge.id}>
-                    <TableRow className="cursor-pointer hover:bg-muted/50" onClick={() => {
-                      setExpandedBadges(prev => {
-                        const next = new Set(prev);
-                        if (next.has(badge.id)) next.delete(badge.id); else next.add(badge.id);
-                        return next;
-                      });
-                    }}>
+                    <TableRow
+                      ref={(el) => { badgeRefs.current[badge.id] = el; }}
+                      style={{ scrollMarginTop: '80px' }}
+                      className="cursor-pointer hover:bg-muted/50"
+                      onClick={() => {
+                        const wasExpanded = expandedBadges.has(badge.id);
+                        setExpandedBadges(prev => {
+                          const next = new Set(prev);
+                          if (next.has(badge.id)) next.delete(badge.id); else next.add(badge.id);
+                          return next;
+                        });
+                        if (!wasExpanded) {
+                          setTimeout(() => badgeRefs.current[badge.id]?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
+                        }
+                      }}>
                       <TableCell>
                         <div className="flex items-center gap-2">
                           {count > 0 ? (isExpanded ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />) : <GripVertical className="h-4 w-4 text-muted-foreground" />}
