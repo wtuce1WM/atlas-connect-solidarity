@@ -536,6 +536,9 @@ serve(async (req) => {
         "femme", "mari", "homme", "ami", "amie", "copain", "copine", "mère", "mere", "père", "pere",
         "fils", "fille", "frère", "frere", "soeur", "sœur", "famille", "enfant", "enfants", "bébé", "bebe",
         "offrir", "cadeau", "anniversaire", "mariage",
+        // Conversational noise: question forms that carry no search meaning
+        "sais-tu", "sais", "savez", "peux", "pouvez", "pourriez", "voudrais", "voudriez", "vouloir",
+        "stp", "svp",
       ]);
       const serviceMatchWords = [...new Set(queryWords.filter(w => 
         !FRENCH_STOP_WORDS.has(w) && w !== cityLower && w !== neighborhoodLower 
@@ -543,8 +546,18 @@ serve(async (req) => {
       ))];
 
       if (serviceMatchWords.length > 0) {
-        // Search by name OR keywords array
-        const nameConditions = serviceMatchWords.map(w => `name_fr.ilike.%${w}%`).join(",");
+        // Search by name OR keywords array (include singular/plural variants)
+        const stripPluralForName = (w: string): string => {
+          if (w.endsWith("aux")) return w.slice(0, -3) + "al";
+          if (w.endsWith("eaux")) return w.slice(0, -4) + "eau";
+          if (w.endsWith("s")) return w.slice(0, -1);
+          return w;
+        };
+        const nameSearchTerms = [...new Set(serviceMatchWords.flatMap(w => {
+          const stripped = stripPluralForName(w);
+          return stripped !== w ? [w, stripped] : [w];
+        }))];
+        const nameConditions = nameSearchTerms.map(w => `name_fr.ilike.%${w}%`).join(",");
         const { data: matchingByName } = await supabase
           .from("services")
           .select("name_fr, keywords")
@@ -727,6 +740,9 @@ serve(async (req) => {
         "femme", "mari", "homme", "ami", "amie", "copain", "copine",
         "mère", "mere", "père", "pere", "fils", "fille", "frère", "frere", "soeur", "sœur",
         "famille", "enfant", "enfants", "bébé", "bebe",
+        // Conversational noise
+        "sais-tu", "sais", "savez", "peux", "pouvez", "pourriez", "voudrais", "voudriez", "vouloir",
+        "stp", "svp",
       ]);
       
       // Filter out intent noise words, stop words AND noise adjectives from the remaining query
