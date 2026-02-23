@@ -39,6 +39,7 @@ const StaffBackoffice = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [cityFilter, setCityFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   const [affiliateFilter, setAffiliateFilter] = useState<string | null>(null);
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [subcategoryFilter, setSubcategoryFilter] = useState<string>("all");
@@ -258,10 +259,11 @@ const StaffBackoffice = () => {
       (business.city?.toLowerCase().includes(searchQuery.toLowerCase())) ||
       (business.main_category?.toLowerCase().includes(searchQuery.toLowerCase()));
     const matchesCity = cityFilter === "all" || business.city === cityFilter;
+    const matchesStatus = statusFilter === "all" || (statusFilter === "active" ? business.is_active : !business.is_active);
     const matchesCategory = categoryFilter === "all" || business.main_category === categoryFilter;
     const matchesSubcategory = subcategoryFilter === "all" || (business.categories?.includes(subcategoryFilter));
     const matchesAffiliate = !affiliateFilter || business.affiliate_id === affiliateFilter;
-    return matchesSearch && matchesCity && matchesCategory && matchesSubcategory && matchesAffiliate;
+    return matchesSearch && matchesCity && matchesStatus && matchesCategory && matchesSubcategory && matchesAffiliate;
   }).sort((a, b) => new Date(b[sortBy]).getTime() - new Date(a[sortBy]).getTime());
 
   // Pagination
@@ -485,6 +487,16 @@ const StaffBackoffice = () => {
                     className="pl-10"
                   />
                 </div>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="w-[140px]">
+                    <SelectValue placeholder="Statut" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tous les statuts</SelectItem>
+                    <SelectItem value="active">Actif</SelectItem>
+                    <SelectItem value="inactive">Inactif</SelectItem>
+                  </SelectContent>
+                </Select>
                 <Select value={cityFilter} onValueChange={setCityFilter}>
                   <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="Ville" />
