@@ -640,6 +640,20 @@ serve(async (req) => {
     // When a service was detected, build a clean query for tsquery matching.
     // Remove noise words (like "achat") that don't exist in search vectors, keep service name + city etc.
     let queryForExpansion = effectiveQuery;
+
+    // Strip detected neighborhood from queryForExpansion — neighborhood filtering is handled
+    // by post-filter (filterByNeighborhood) which handles accent variants (médina/medina, guéliz/gueliz).
+    // Keeping it in the tsquery causes accent mismatches (e.g. "médina" vs "medina" in search_vector).
+    if (detectedNeighborhood && queryForExpansion) {
+      const nhWords = detectedNeighborhood.toLowerCase().split(/\s+/);
+      queryForExpansion = queryForExpansion.split(/\s+/).filter(w => {
+        const wLower = w.toLowerCase();
+        return !nhWords.some(nw => wLower === nw || wLower === nw.replace(/[éè]/g, "e") || nw === wLower.replace(/[éè]/g, "e"));
+      }).join(" ").trim() || queryForExpansion;
+      if (queryForExpansion !== effectiveQuery) {
+        console.log(`Stripped neighborhood from tsquery: "${queryForExpansion}" (was: "${effectiveQuery}")`);
+      }
+    }
     if (detectedService && effectiveQuery) {
       const svcWords = detectedService.toLowerCase().split(/\s+/);
       const queryLower = effectiveQuery.toLowerCase();
