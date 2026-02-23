@@ -411,8 +411,17 @@ serve(async (req) => {
     let effectiveQuery = query;
     if (query && isNaturalLanguageQuery(query)) {
       console.log(`Natural language detected: "${query}" → extracting intent...`);
-      effectiveQuery = await extractSearchIntent(query);
-      console.log(`Intent extracted: "${effectiveQuery}"`);
+      const extracted = await extractSearchIntent(query);
+      console.log(`Intent extracted: "${extracted}"`);
+      // If LLM extraction returned the same query (failed), strip stop words manually
+      if (extracted === query) {
+        effectiveQuery = query.split(/\s+/)
+          .filter(w => !FRENCH_STOP_WORDS.has(w.toLowerCase().replace(/['']/g, "")))
+          .join(" ");
+        console.log(`LLM extraction unchanged, stripped stop words: "${effectiveQuery}"`);
+      } else {
+        effectiveQuery = extracted;
+      }
     }
     
     // Strip French contractions globally: l'aéroport → aéroport, d'art → art, etc.
@@ -455,8 +464,11 @@ serve(async (req) => {
         for (const sc of sorted) {
           const n = sc.name_fr?.toLowerCase();
           if (!n) continue;
-          // Match by name only (subcategory keywords reserved for future use)
-          if (n.includes(" ") ? qLower.includes(n) : qWords.includes(n)) {
+          // Match by name: try exact substring first, then try with stop words stripped from both
+          const nWords = n.split(/\s+/).filter(w => w.length > 1);
+          const nContentWords = nWords.filter(w => !FRENCH_STOP_WORDS.has(w));
+          const nContent = nContentWords.join(" ");
+          if (n.includes(" ") ? (qLower.includes(n) || (nContent.length > 2 && qLower.includes(nContent))) : qWords.includes(n)) {
             detectedSubcategory = sc.name_fr;
             console.log(`Auto-detected subcategory "${sc.name_fr}" from name match in query "${effectiveQuery}"`);
             break;
@@ -718,6 +730,37 @@ serve(async (req) => {
       businesses = await fetchSubcategoryBusinesses(detectedSubcategory);
       searchLevel = "exact";
       console.log(`Subcategory direct query "${detectedSubcategory}" + city "${effectiveCity}" + neighborhood "${detectedNeighborhood}": ${businesses.length} results`);
+
+      // Fallback: if subcategory in categories array gave 0 results, search by services array instead
+      if (businesses.length === 0) {
+        let svcBuilder = supabase.from("businesses").select("*").eq("is_active", true)
+          .contains("services", [detectedSubcategory]);
+        if (effectiveCity) svcBuilder = svcBuilder.ilike("city", effectiveCity);
+        if (effectiveCategory) svcBuilder = svcBuilder.or(`main_category.eq.${effectiveCategory},categories.cs.{"${effectiveCategory}"}`);
+        if (detectedNeighborhood) {
+          const nLower = detectedNeighborhood.toLowerCase();
+          const neighborhoodVariants = [detectedNeighborhood];
+          if (nLower === "gueliz" || nLower === "guéliz") neighborhoodVariants.push("Gueliz", "Guéliz");
+          if (neighborhoodVariants.length > 1) {
+            svcBuilder = svcBuilder.or(neighborhoodVariants.map(n => `neighborhood.ilike.${n}`).join(","));
+          } else {
+            svcBuilder = svcBuilder.ilike("neighborhood", detectedNeighborhood);
+          }
+        }
+        svcBuilder = svcBuilder
+          .order("wtuce_status", { ascending: true })
+          .order("priority_score", { ascending: false })
+          .limit(limit);
+        const { data: svcData, error: svcError } = await svcBuilder;
+        if (!svcError && svcData && svcData.length > 0) {
+          businesses = svcData.map((b: any) => ({
+            ...b,
+            distance_km: latitude && longitude && b.latitude && b.longitude
+              ? calculateDistance(latitude, longitude, b.latitude, b.longitude) : null,
+          }));
+        }
+        console.log(`Subcategory service fallback "${detectedSubcategory}": ${businesses.length} results`);
+      }
 
       // Append related subcategories (e.g. "Epicerie fine" after "Supermarché")
       const relatedSubcats = RELATED_SUBCATEGORIES[detectedSubcategory];
