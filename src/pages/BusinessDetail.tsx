@@ -314,12 +314,12 @@ const BusinessDetail = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <div className="flex items-center justify-center py-32">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-        <Footer />
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black">
+        <img
+          src={logoGold}
+          alt="Loading"
+          className="h-28 w-28 object-contain animate-pulse"
+        />
       </div>
     );
   }
