@@ -430,18 +430,30 @@ const LocationManagement = () => {
       keywords: cityForm.keywords.length > 0 ? cityForm.keywords : [],
     };
 
+    console.log("[handleSaveCity] keywords in form:", JSON.stringify(cityForm.keywords));
+    console.log("[handleSaveCity] keywords in payload:", JSON.stringify(data.keywords));
+    console.log("[handleSaveCity] full payload:", JSON.stringify(data));
+
     let error;
+    let responseData;
     if (editingCity) {
-      const res = await supabase.from("cities").update(data).eq("id", editingCity.id);
+      console.log("[handleSaveCity] Updating city:", editingCity.id);
+      const res = await supabase.from("cities").update(data).eq("id", editingCity.id).select();
       error = res.error;
+      responseData = res.data;
+      console.log("[handleSaveCity] Update response:", JSON.stringify({ error: res.error, data: res.data, status: res.status }));
     } else {
-      const res = await supabase.from("cities").insert(data);
+      const res = await supabase.from("cities").insert(data).select();
       error = res.error;
+      responseData = res.data;
+      console.log("[handleSaveCity] Insert response:", JSON.stringify({ error: res.error, data: res.data, status: res.status }));
     }
 
     if (error) {
+      console.error("[handleSaveCity] Error:", error.message, error.details, error.hint);
       toast({ variant: "destructive", title: "Erreur", description: error.message });
     } else {
+      console.log("[handleSaveCity] Success! Returned keywords:", responseData?.[0]?.keywords);
       toast({ title: "Succès", description: editingCity ? "Ville mise à jour." : "Ville créée." });
       resetCityForm();
       setShowCityForm(false);
