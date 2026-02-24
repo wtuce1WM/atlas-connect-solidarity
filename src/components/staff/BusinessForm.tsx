@@ -2576,7 +2576,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                    <div className="space-y-2 flex-1">
                     <Label>Engagements</Label>
                     <div className="border rounded-md p-3 space-y-1.5 bg-muted/30">
-                      {["Bio (intégral)", "Bio (partiellement)", "Commerce équitable", "Engagement solidaire", "Engagement éco-responsable", "Marché occasionnel"].map((eng) => (
+                      {["Bio (intégral)", "Bio (partiellement)", "Commerce équitable", "Engagement solidaire", "Engagement éco-responsable", "Vegan", "Régimes spéciaux (sans gluten, sans lactose...)", "Marché occasionnel"].map((eng) => (
                         <label key={eng} className="flex items-center gap-2 cursor-pointer text-sm">
                           <input
                             type="checkbox"
@@ -2655,7 +2655,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                   <div className="space-y-2 flex-1">
                     <Label>Engagements</Label>
                     <div className="border rounded-md p-3 space-y-1.5 bg-muted/30">
-                      {["Bio (intégral)", "Bio (partiellement)", "Commerce équitable", "Engagement solidaire", "Engagement éco-responsable", "Marché occasionnel"].map((eng) => (
+                      {["Bio (intégral)", "Bio (partiellement)", "Commerce équitable", "Engagement solidaire", "Engagement éco-responsable", "Vegan", "Régimes spéciaux (sans gluten, sans lactose...)", "Marché occasionnel"].map((eng) => (
                         <label key={eng} className="flex items-center gap-2 cursor-pointer text-sm">
                           <input
                             type="checkbox"
