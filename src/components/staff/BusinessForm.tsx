@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import restaurantGuruLogo from "@/assets/restaurant-guru-logo.webp";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
 import { supabase } from "@/integrations/supabase/client";
@@ -983,7 +984,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                   { id: "section-images", label: "Images" },
                   { id: "section-social", label: "Réseaux" },
                   { id: "section-avis", label: "Avis" },
-                  { id: "section-taxonomie", label: "Taxonomie" },
+                  { id: "section-taxonomie", label: "Caractérisation" },
                   { id: "section-horaires", label: "Horaires" },
                   { id: "section-notes", label: "Notes" },
                 ].map(({ id, label }) => (
@@ -1906,126 +1907,152 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
 
         {/* Destinations */}
         {allDestinations.length > 0 && (
-          <div className="space-y-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <Label className="text-base font-semibold flex items-center gap-2">
-              <MapPinned className="h-5 w-5" />
-              Destinations
-            </Label>
-            <div className="flex flex-wrap gap-2">
-              {allDestinations.map((dest) => {
-                const isSelected = selectedDestinationIds.includes(dest.id);
-                return (
-                  <button
-                    key={dest.id}
-                    type="button"
-                    onClick={() => {
-                      setSelectedDestinationIds(prev =>
-                        isSelected ? prev.filter(id => id !== dest.id) : [...prev, dest.id]
-                      );
-                      setIsDirty(true);
-                    }}
-                    className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
-                      isSelected
-                        ? "bg-blue-600 text-white border-blue-600"
-                        : "bg-background border-border hover:bg-muted"
-                    }`}
-                  >
-                    {dest.name_fr}
-                    {dest.region && <span className="ml-1 opacity-60 text-xs">({dest.region})</span>}
-                  </button>
-                );
-              })}
-            </div>
+          <Accordion type="single" collapsible>
+            <AccordionItem value="destinations" className="border-none">
+              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <AccordionTrigger className="py-0 hover:no-underline">
+                  <Label className="text-base font-semibold flex items-center gap-2 cursor-pointer">
+                    <MapPinned className="h-5 w-5" />
+                    Destinations
+                    {selectedDestinationIds.length > 0 && (
+                      <span className="ml-1.5 bg-blue-600 text-white rounded-full px-1.5 py-0 text-[10px] font-semibold">{selectedDestinationIds.length}</span>
+                    )}
+                  </Label>
+                </AccordionTrigger>
+                <AccordionContent className="pt-3 pb-0">
+                  <div className="space-y-3">
+                    <div className="flex flex-wrap gap-2">
+                      {allDestinations.map((dest) => {
+                        const isSelected = selectedDestinationIds.includes(dest.id);
+                        return (
+                          <button
+                            key={dest.id}
+                            type="button"
+                            onClick={() => {
+                              setSelectedDestinationIds(prev =>
+                                isSelected ? prev.filter(id => id !== dest.id) : [...prev, dest.id]
+                              );
+                              setIsDirty(true);
+                            }}
+                            className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
+                              isSelected
+                                ? "bg-blue-600 text-white border-blue-600"
+                                : "bg-background border-border hover:bg-muted"
+                            }`}
+                          >
+                            {dest.name_fr}
+                            {dest.region && <span className="ml-1 opacity-60 text-xs">({dest.region})</span>}
+                          </button>
+                        );
+                      })}
+                    </div>
 
-            {/* Global destination hook & description */}
-            <div className="mt-3 space-y-3">
-              <div className="space-y-1">
-                <Label className="text-sm font-medium">Hook Destination (H2) — {((formData as any).destination_hook || "").length}/120</Label>
-                <Input
-                  value={(formData as any).destination_hook || ""}
-                  onChange={(e) => handleChange("destination_hook" as any, e.target.value.slice(0, 120))}
-                  placeholder="Accroche courte pour la section destination..."
-                  maxLength={120}
-                  className="h-9 text-sm"
-                />
+                    {/* Global destination hook & description */}
+                    <div className="mt-3 space-y-3">
+                      <div className="space-y-1">
+                        <Label className="text-sm font-medium">Hook Destination (H2) — {((formData as any).destination_hook || "").length}/120</Label>
+                        <Input
+                          value={(formData as any).destination_hook || ""}
+                          onChange={(e) => handleChange("destination_hook" as any, e.target.value.slice(0, 120))}
+                          placeholder="Accroche courte pour la section destination..."
+                          maxLength={120}
+                          className="h-9 text-sm"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-sm font-medium">Description Destination — {((formData as any).destination_description || "").replace(/<[^>]*>/g, '').length}/500</Label>
+                        <RichTextEditor
+                          content={(formData as any).destination_description || ""}
+                          onChange={(val) => {
+                            const plainText = val.replace(/<[^>]*>/g, '');
+                            if (plainText.length <= 500) {
+                              handleChange("destination_description" as any, val);
+                            }
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </AccordionContent>
               </div>
-              <div className="space-y-1">
-                <Label className="text-sm font-medium">Description Destination — {((formData as any).destination_description || "").replace(/<[^>]*>/g, '').length}/500</Label>
-                <RichTextEditor
-                  content={(formData as any).destination_description || ""}
-                  onChange={(val) => {
-                    const plainText = val.replace(/<[^>]*>/g, '');
-                    if (plainText.length <= 500) {
-                      handleChange("destination_description" as any, val);
-                    }
-                  }}
-                />
-              </div>
-            </div>
-          </div>
+            </AccordionItem>
+          </Accordion>
         )}
 
         {/* Points d'intérêt */}
         {poisForCity.length > 0 && (
-          <div className="space-y-3 p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
-            <Label className="text-base font-semibold flex items-center gap-2">
-              <MapPinned className="h-5 w-5" />
-              Points d'intérêt
-              <span className="text-sm font-normal text-muted-foreground">
-                ({formData.city || formData.region || "aucune ville/région"})
-              </span>
-            </Label>
-            <div className="flex flex-wrap gap-2">
-              {poisForCity.map((poi) => {
-                const isSelected = selectedPOIIds.includes(poi.id);
-                return (
-                  <button
-                    key={poi.id}
-                    type="button"
-                    onClick={() => {
-                      setSelectedPOIIds(prev =>
-                        isSelected ? prev.filter(id => id !== poi.id) : [...prev, poi.id]
-                      );
-                      setIsDirty(true);
-                    }}
-                    className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
-                      isSelected
-                        ? "bg-emerald-600 text-white border-emerald-600"
-                        : "bg-background border-border hover:bg-muted"
-                    }`}
-                  >
-                    {poi.name_fr}
-                  </button>
-                );
-              })}
-            </div>
+          <Accordion type="single" collapsible>
+            <AccordionItem value="pois" className="border-none">
+              <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
+                <AccordionTrigger className="py-0 hover:no-underline">
+                  <Label className="text-base font-semibold flex items-center gap-2 cursor-pointer">
+                    <MapPinned className="h-5 w-5" />
+                    Points d'intérêt
+                    <span className="text-sm font-normal text-muted-foreground">
+                      ({formData.city || formData.region || "aucune ville/région"})
+                    </span>
+                    {selectedPOIIds.length > 0 && (
+                      <span className="ml-1.5 bg-emerald-600 text-white rounded-full px-1.5 py-0 text-[10px] font-semibold">{selectedPOIIds.length}</span>
+                    )}
+                  </Label>
+                </AccordionTrigger>
+                <AccordionContent className="pt-3 pb-0">
+                  <div className="space-y-3">
+                    <div className="flex flex-wrap gap-2">
+                      {poisForCity.map((poi) => {
+                        const isSelected = selectedPOIIds.includes(poi.id);
+                        return (
+                          <button
+                            key={poi.id}
+                            type="button"
+                            onClick={() => {
+                              setSelectedPOIIds(prev =>
+                                isSelected ? prev.filter(id => id !== poi.id) : [...prev, poi.id]
+                              );
+                              setIsDirty(true);
+                            }}
+                            className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
+                              isSelected
+                                ? "bg-emerald-600 text-white border-emerald-600"
+                                : "bg-background border-border hover:bg-muted"
+                            }`}
+                          >
+                            {poi.name_fr}
+                          </button>
+                        );
+                      })}
+                    </div>
 
-            {/* Global POI hook & description */}
-            <div className="mt-3 space-y-3">
-              <div className="space-y-1">
-                <Label className="text-sm font-medium">Hook Points d'intérêt (H2) — {((formData as any).poi_hook || "").length}/120</Label>
-                <Input
-                  value={(formData as any).poi_hook || ""}
-                  onChange={(e) => handleChange("poi_hook" as any, e.target.value.slice(0, 120))}
-                  placeholder="Accroche courte pour la section points d'intérêt..."
-                  maxLength={120}
-                  className="h-9 text-sm"
-                />
+                    {/* Global POI hook & description */}
+                    <div className="mt-3 space-y-3">
+                      <div className="space-y-1">
+                        <Label className="text-sm font-medium">Hook Points d'intérêt (H2) — {((formData as any).poi_hook || "").length}/120</Label>
+                        <Input
+                          value={(formData as any).poi_hook || ""}
+                          onChange={(e) => handleChange("poi_hook" as any, e.target.value.slice(0, 120))}
+                          placeholder="Accroche courte pour la section points d'intérêt..."
+                          maxLength={120}
+                          className="h-9 text-sm"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-sm font-medium">Description Points d'intérêt — {((formData as any).poi_description || "").replace(/<[^>]*>/g, '').length}/500</Label>
+                        <RichTextEditor
+                          content={(formData as any).poi_description || ""}
+                          onChange={(val) => {
+                            const plainText = val.replace(/<[^>]*>/g, '');
+                            if (plainText.length <= 500) {
+                              handleChange("poi_description" as any, val);
+                            }
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </AccordionContent>
               </div>
-              <div className="space-y-1">
-                <Label className="text-sm font-medium">Description Points d'intérêt — {((formData as any).poi_description || "").replace(/<[^>]*>/g, '').length}/500</Label>
-                <RichTextEditor
-                  content={(formData as any).poi_description || ""}
-                  onChange={(val) => {
-                    const plainText = val.replace(/<[^>]*>/g, '');
-                    if (plainText.length <= 500) {
-                      handleChange("poi_description" as any, val);
-                    }
-                  }}
-                />
-              </div>
-            </div>
-          </div>
+            </AccordionItem>
+          </Accordion>
         )}
 
         <div id="section-menu" className="space-y-2" style={{ scrollMarginTop: '130px' }}>
@@ -2072,72 +2099,92 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
           />
         </div>
 
-        {/* PDF Document 1 */}
-        <div className="space-y-2">
-          <Label className="text-base font-semibold">Document PDF 1</Label>
-          <div className="space-y-2">
-            <Input
-              placeholder="Nom du document (max 100 caractères)"
-              value={(formData as any).pdf_name || ""}
-              onChange={(e) => handleChange("pdf_name", e.target.value.slice(0, 100))}
-              maxLength={100}
-            />
-            <PDFUploader
-              pdfUrl={formData.pdf_url}
-              onChange={(url) => handleChange("pdf_url", url)}
-              businessId={business?.id}
-            />
-          </div>
-        </div>
-
-        {/* PDF Document 2 */}
-        <div className="space-y-2">
-          <Label className="text-base font-semibold">Document PDF 2</Label>
-          <div className="space-y-2">
-            <Input
-              placeholder="Nom du document (max 100 caractères)"
-              value={(formData as any).pdf_2_name || ""}
-              onChange={(e) => handleChange("pdf_2_name", e.target.value.slice(0, 100))}
-              maxLength={100}
-            />
-            <PDFUploader
-              pdfUrl={(formData as any).pdf_2_url || ""}
-              onChange={(url) => handleChange("pdf_2_url", url)}
-              businessId={business?.id}
-            />
-          </div>
-        </div>
-
-        {/* PDF Document 3 */}
-        <div className="space-y-2">
-          <Label className="text-base font-semibold">Document PDF 3</Label>
-          <div className="space-y-2">
-            <Input
-              placeholder="Nom du document (max 100 caractères)"
-              value={(formData as any).pdf_3_name || ""}
-              onChange={(e) => handleChange("pdf_3_name", e.target.value.slice(0, 100))}
-              maxLength={100}
-            />
-            <PDFUploader
-              pdfUrl={(formData as any).pdf_3_url || ""}
-              onChange={(url) => handleChange("pdf_3_url", url)}
-              businessId={business?.id}
-            />
-          </div>
-        </div>
+        {/* PDF Documents */}
+        <Accordion type="single" collapsible>
+          <AccordionItem value="pdfs" className="border-none">
+            <AccordionTrigger className="py-2 hover:no-underline">
+              <Label className="text-base font-semibold cursor-pointer flex items-center gap-2">
+                📄 Documents PDF
+                {(formData.pdf_url || (formData as any).pdf_2_url || (formData as any).pdf_3_url) && (
+                  <span className="text-xs text-muted-foreground font-normal">
+                    ({[formData.pdf_url, (formData as any).pdf_2_url, (formData as any).pdf_3_url].filter(Boolean).length} document{[formData.pdf_url, (formData as any).pdf_2_url, (formData as any).pdf_3_url].filter(Boolean).length > 1 ? 's' : ''})
+                  </span>
+                )}
+              </Label>
+            </AccordionTrigger>
+            <AccordionContent className="pt-2 pb-0 space-y-4">
+              {/* PDF 1 */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Document PDF 1</Label>
+                <Input
+                  placeholder="Nom du document (max 100 caractères)"
+                  value={(formData as any).pdf_name || ""}
+                  onChange={(e) => handleChange("pdf_name", e.target.value.slice(0, 100))}
+                  maxLength={100}
+                />
+                <PDFUploader
+                  pdfUrl={formData.pdf_url}
+                  onChange={(url) => handleChange("pdf_url", url)}
+                  businessId={business?.id}
+                />
+              </div>
+              {/* PDF 2 */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Document PDF 2</Label>
+                <Input
+                  placeholder="Nom du document (max 100 caractères)"
+                  value={(formData as any).pdf_2_name || ""}
+                  onChange={(e) => handleChange("pdf_2_name", e.target.value.slice(0, 100))}
+                  maxLength={100}
+                />
+                <PDFUploader
+                  pdfUrl={(formData as any).pdf_2_url || ""}
+                  onChange={(url) => handleChange("pdf_2_url", url)}
+                  businessId={business?.id}
+                />
+              </div>
+              {/* PDF 3 */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Document PDF 3</Label>
+                <Input
+                  placeholder="Nom du document (max 100 caractères)"
+                  value={(formData as any).pdf_3_name || ""}
+                  onChange={(e) => handleChange("pdf_3_name", e.target.value.slice(0, 100))}
+                  maxLength={100}
+                />
+                <PDFUploader
+                  pdfUrl={(formData as any).pdf_3_url || ""}
+                  onChange={(url) => handleChange("pdf_3_url", url)}
+                  businessId={business?.id}
+                />
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
 
         {/* Labels */}
-        <div className="space-y-4 p-4 bg-muted rounded-lg">
-          <Label className="text-base font-semibold flex items-center gap-2">
-            <Award className="h-4 w-4" />
-            Labels / Certifications
-          </Label>
-          <BusinessLabelsEditor
-            businessId={business?.id}
-            value={businessLabels}
-            onChange={setBusinessLabels}
-          />
-          </div>
+        <Accordion type="single" collapsible>
+          <AccordionItem value="labels" className="border-none">
+            <div className="p-4 bg-muted rounded-lg">
+              <AccordionTrigger className="py-0 hover:no-underline">
+                <Label className="text-base font-semibold flex items-center gap-2 cursor-pointer">
+                  <Award className="h-4 w-4" />
+                  Labels / Certifications
+                  {businessLabels.length > 0 && (
+                    <span className="ml-1.5 bg-primary text-primary-foreground rounded-full px-1.5 py-0 text-[10px] font-semibold">{businessLabels.length}</span>
+                  )}
+                </Label>
+              </AccordionTrigger>
+              <AccordionContent className="pt-3 pb-0">
+                <BusinessLabelsEditor
+                  businessId={business?.id}
+                  value={businessLabels}
+                  onChange={setBusinessLabels}
+                />
+              </AccordionContent>
+            </div>
+          </AccordionItem>
+        </Accordion>
 
         {/* Social Media */}
         <div id="section-social" className="space-y-4 p-4 bg-orange-50 border border-orange-200 rounded-lg" style={{ scrollMarginTop: '130px' }}>
@@ -2445,9 +2492,14 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
           }}>📍 Récupérer le champ Google Maps</Button>
         </div>
 
-        {/* Taxonomie */}
-        <div id="section-taxonomie" className="space-y-6 p-4 bg-orange-50 border border-orange-200 rounded-lg" style={{ scrollMarginTop: '130px' }}>
-          <Label className="text-xl font-semibold">Taxonomie</Label>
+        {/* Caractérisation / Taxonomie */}
+        <Accordion type="single" collapsible>
+          <AccordionItem value="taxonomie" className="border-none">
+            <div id="section-taxonomie" className="p-4 bg-orange-50 border border-orange-200 rounded-lg" style={{ scrollMarginTop: '130px' }}>
+              <AccordionTrigger className="py-0 hover:no-underline">
+                <Label className="text-xl font-semibold cursor-pointer">Caractérisation</Label>
+              </AccordionTrigger>
+              <AccordionContent className="pt-4 pb-0 space-y-6">
           
           {/* Sous-catégories */}
           <div className="space-y-3">
@@ -2945,7 +2997,10 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
             </>
           )}
           </div>
-        </div>
+              </AccordionContent>
+            </div>
+          </AccordionItem>
+        </Accordion>
 
         <div className="space-y-2">
           <Label htmlFor="keywords">Mots-clés (séparés par virgule)</Label>
