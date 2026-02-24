@@ -1,16 +1,19 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
+// Global accent-stripping helper — used everywhere for consistent normalization
+const stripAccentsGlobal = (s: string): string => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
 // Detect superlative keywords that indicate the user wants results sorted by rating
 function detectSuperlative(query: string): boolean {
   const superlatives = [
     "meilleur", "meilleurs", "meilleure", "meilleures",
-    "top", "best", "le plus noté", "les plus notés",
-    "le mieux noté", "les mieux notés",
-    "le plus recommandé", "les plus recommandés",
+    "top", "best", "le plus note", "les plus notes",
+    "le mieux note", "les mieux notes",
+    "le plus recommande", "les plus recommandes",
     "le plus populaire", "les plus populaires",
   ];
-  const lower = query.toLowerCase();
+  const lower = stripAccentsGlobal(query.toLowerCase());
   return superlatives.some(s => lower.includes(s));
 }
 
@@ -216,6 +219,7 @@ async function extractSearchIntent(transcript: string): Promise<string> {
 
 async function detectCityInQueryDynamic(query: string, supabase: any): Promise<string | null> {
   const lower = query.toLowerCase();
+  const lowerStripped = stripAccentsGlobal(lower);
   const { data: cities } = await supabase
     .from("cities")
     .select("name_fr, name_en, name_ar, keywords")
@@ -227,14 +231,16 @@ async function detectCityInQueryDynamic(query: string, supabase: any): Promise<s
   const sorted = [...cities].sort((a: any, b: any) => (b.name_fr?.length || 0) - (a.name_fr?.length || 0));
   
   for (const city of sorted) {
-    // Check main names
+    // Check main names (with accent normalization)
     for (const name of [city.name_fr, city.name_en, city.name_ar].filter(Boolean)) {
-      if (lower.includes(name.toLowerCase())) return city.name_fr;
+      const nameLower = name.toLowerCase();
+      if (lower.includes(nameLower) || lowerStripped.includes(stripAccentsGlobal(nameLower))) return city.name_fr;
     }
-    // Check keywords (typos, aliases)
+    // Check keywords (typos, aliases) with accent normalization
     if (city.keywords && Array.isArray(city.keywords)) {
       for (const kw of city.keywords) {
-        if (lower.includes(kw.toLowerCase())) return city.name_fr;
+        const kwLower = kw.toLowerCase();
+        if (lower.includes(kwLower) || lowerStripped.includes(stripAccentsGlobal(kwLower))) return city.name_fr;
       }
     }
   }
@@ -254,16 +260,19 @@ const KNOWN_NEIGHBORHOODS = [
 
 function detectNeighborhoodInQuery(query: string): string | null {
   const lower = query.toLowerCase();
+  const lowerStripped = stripAccentsGlobal(lower);
   const words = lower.split(/\s+/);
+  const wordsStripped = lowerStripped.split(/\s+/);
   const sorted = [...KNOWN_NEIGHBORHOODS].sort((a, b) => b.length - a.length);
   for (const n of sorted) {
     const nLower = n.toLowerCase();
+    const nStripped = stripAccentsGlobal(nLower);
     if (nLower.includes(" ")) {
-      // Multi-word: substring match is fine
-      if (lower.includes(nLower)) return n;
+      // Multi-word: substring match with accent normalization
+      if (lower.includes(nLower) || lowerStripped.includes(nStripped)) return n;
     } else {
       // Single-word: must be a standalone word to avoid "aéroport" matching "Port"
-      if (words.includes(nLower)) return n;
+      if (words.includes(nLower) || wordsStripped.includes(nStripped)) return n;
     }
   }
   return null;
@@ -340,8 +349,8 @@ function expandQuery(query: string): string {
     }
 
     for (const [key, values] of Object.entries(synonyms)) {
-      const sanitizedWord = sanitizeTerm(word);
-      if (sanitizeTerm(key) === sanitizedWord || values.some(v => sanitizeTerm(v.toLowerCase()) === sanitizedWord)) {
+      const sanitizedWord = stripAccentsGlobal(sanitizeTerm(word));
+      if (stripAccentsGlobal(sanitizeTerm(key)) === sanitizedWord || values.some(v => stripAccentsGlobal(sanitizeTerm(v.toLowerCase())) === sanitizedWord)) {
         alternatives.push(key, ...values);
         values.forEach(v => {
           const sv = sanitizeTerm(v);
@@ -575,12 +584,17 @@ serve(async (req) => {
     // (if query contains a configured synonym, detect the corresponding subcategory)
     if (!detectedSubcategory && effectiveQuery) {
       const qLower = effectiveQuery.toLowerCase();
+      const qLowerStripped = stripAccentsGlobal(qLower);
       const qWords = qLower.split(/\s+/);
+      const qWordsStripped = qLowerStripped.split(/\s+/);
       for (const [subcatName, config] of Object.entries(searchConfigs)) {
         if (config.synonyms.length === 0) continue;
         const matched = config.synonyms.some(syn => {
           const synLower = syn.toLowerCase();
-          return synLower.includes(" ") ? qLower.includes(synLower) : qWords.includes(synLower);
+          const synStripped = stripAccentsGlobal(synLower);
+          return synLower.includes(" ") 
+            ? (qLower.includes(synLower) || qLowerStripped.includes(synStripped)) 
+            : (qWords.includes(synLower) || qWordsStripped.includes(synStripped));
         });
         if (matched) {
           // Find the original-case subcategory name
@@ -611,8 +625,10 @@ serve(async (req) => {
     if (!category && effectiveQuery) {
       const qWords = effectiveQuery.toLowerCase().split(/\s+/);
       for (const w of qWords) {
-        if (INTENT_TO_CATEGORY[w]) {
-          intentCategory = INTENT_TO_CATEGORY[w];
+        const wStripped = stripAccentsGlobal(w);
+        const match = INTENT_TO_CATEGORY[w] || INTENT_TO_CATEGORY[wStripped];
+        if (match) {
+          intentCategory = match;
           console.log(`Intent word "${w}" → category "${intentCategory}"`);
           break;
         }
