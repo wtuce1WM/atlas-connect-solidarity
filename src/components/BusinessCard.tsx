@@ -54,6 +54,7 @@ export interface Badge {
 export interface SubcategoryRef {
   id: string;
   name_fr: string;
+  sort_order?: number | null;
 }
 
 export interface BadgeSubcategoryRef {
