@@ -1228,11 +1228,16 @@ const LocationManagement = () => {
                       return (
                         <TableRow key={n.id}>
                           <TableCell>
-                            {n.image_url ? (
-                              <img src={n.image_url} alt="" className="w-10 h-10 rounded object-cover" />
-                            ) : (
-                              <div className="w-10 h-10 rounded bg-muted flex items-center justify-center"><ImageIcon className="h-4 w-4 text-muted-foreground" /></div>
-                            )}
+                            <div className="flex items-center gap-1.5">
+                              {n.image_url ? (
+                                <img src={n.image_url} alt="" className="w-10 h-10 rounded object-cover" />
+                              ) : (
+                                <div className="w-10 h-10 rounded bg-muted flex items-center justify-center"><ImageIcon className="h-4 w-4 text-muted-foreground" /></div>
+                              )}
+                              <a href={`/neighborhood/${encodeURIComponent(n.name)}${city ? `?city=${encodeURIComponent(city.name_fr)}` : ''}`} target="_blank" rel="noopener noreferrer" title="Voir la page quartier">
+                                <Globe className="h-4 w-4 text-muted-foreground hover:text-primary transition-colors" />
+                              </a>
+                            </div>
                           </TableCell>
                           <TableCell className="font-medium">{n.name}</TableCell>
                           <TableCell className="text-muted-foreground">{city?.name_fr || "—"}</TableCell>
