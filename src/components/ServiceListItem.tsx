@@ -52,17 +52,17 @@ const ServiceListItem = ({ service, currentBusinessId, city }: ServiceListItemPr
 
   return (
     <li className="flex flex-col gap-1">
-      <span className="flex items-center gap-2">
+      <span className="flex items-center gap-2 text-sm">
         {iconName ? (
           <DynamicIcon
             name={iconName}
-            className="h-4 w-4 flex-shrink-0 text-primary"
+            className="h-3.5 w-3.5 flex-shrink-0 text-primary"
             fallback={<span className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />}
           />
         ) : (
           <span className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
         )}
-        {service}
+        <span className="first-letter:uppercase">{service.charAt(0).toUpperCase() + service.slice(1)}</span>
       </span>
       {otherCount !== null && otherCount > 0 && (
         <Link
