@@ -1039,6 +1039,7 @@ serve(async (req) => {
         const effectiveLimit = subcategorySearchConfig?.max_results || limit;
         subBuilder = subBuilder
           .order("wtuce_status", { ascending: true })
+          .order("google_rating", { ascending: false, nullsFirst: false })
           .order("priority_score", { ascending: false })
           .limit(effectiveLimit);
         
@@ -1126,7 +1127,8 @@ serve(async (req) => {
       }
 
       // ── Name-match boost: if query strongly matches a business name, move it to the top ──
-      if (effectiveQuery && businesses.length > 1) {
+      // Skip in strict mode to preserve the rating-based sort order from the DB query
+      if (effectiveQuery && businesses.length > 1 && subcategorySearchConfig?.search_mode !== "strict") {
         const qLower = effectiveQuery.toLowerCase();
         const qWords = qLower.split(/\s+/).filter(w => w.length > 1 && !FRENCH_STOP_WORDS.has(w));
         if (qWords.length >= 2) {
