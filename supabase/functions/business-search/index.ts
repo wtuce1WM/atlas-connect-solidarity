@@ -484,9 +484,14 @@ serve(async (req) => {
             console.log(`Auto-detected subcategory "${sc.name_fr}" from name match in query "${effectiveQuery}"`);
             break;
           }
-          // Match by keywords array (e.g. "fleurs" → "Fleuriste")
+          // Match by keywords array (e.g. "fleurs" → "Fleuriste", "fer forgé" → "Ferronnerie")
           const kws: string[] = (sc.keywords || []).map((k: string) => k.toLowerCase());
-          if (kws.length > 0 && qWords.some((w: string) => kws.includes(w))) {
+          if (kws.length > 0 && (
+            // Single-word keyword match
+            qWords.some((w: string) => kws.includes(w)) ||
+            // Multi-word keyword match: check if the full query contains a multi-word keyword
+            kws.some((k: string) => k.includes(" ") && qLower.includes(k))
+          )) {
             detectedSubcategory = sc.name_fr;
             console.log(`Auto-detected subcategory "${sc.name_fr}" from keyword match in query "${effectiveQuery}"`);
             break;
@@ -613,13 +618,20 @@ serve(async (req) => {
           if (w.endsWith("s")) return w.slice(0, -1);
           return w;
         };
+        // Helper: check if word w appears as a whole word in string k (not as a substring of another word)
+        const wordBoundaryMatch = (k: string, w: string): boolean => {
+          if (w.length <= 2) return false; // Too short for substring matching
+          const regex = new RegExp(`(^|\\s|[''/-])${w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}($|\\s|[''/-])`, 'i');
+          return regex.test(k);
+        };
         const keywordMatches = (matchingByKeywords || []).filter(svc => {
           const kws = (svc.keywords || []).map((k: string) => k.toLowerCase());
           return serviceMatchWords.some(w => {
             const wNorm = stripPlural(w);
             return kws.some((k: string) => {
               const kNorm = stripPlural(k);
-              return k.includes(w) || w.includes(k) || kNorm === wNorm;
+              // Exact match or whole-word boundary match (avoids "fer" matching "fermier")
+              return k === w || w === k || kNorm === wNorm || wordBoundaryMatch(k, w) || (w.length > 3 && w.includes(k));
             });
           });
         });
