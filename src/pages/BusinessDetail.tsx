@@ -368,8 +368,8 @@ const BusinessDetail = () => {
             }
             
             setGroupedServices(groups);
-            // Open all groups by default
-            setOpenGroups(new Set(groups.map(g => g.subcategoryName)));
+            // If only one subcategory, open it by default; otherwise all collapsed
+            setOpenGroups(groups.length === 1 ? new Set([groups[0].subcategoryName]) : new Set());
           }
         }
       } else {
