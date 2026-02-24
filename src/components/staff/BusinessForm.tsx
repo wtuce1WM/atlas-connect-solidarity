@@ -984,7 +984,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                   { id: "section-images", label: "Images" },
                   { id: "section-social", label: "Réseaux" },
                   { id: "section-avis", label: "Avis" },
-                  { id: "section-taxonomie", label: "Caractérisation" },
+                  { id: "section-taxonomie", label: "Taxonomie" },
                   { id: "section-horaires", label: "Horaires" },
                   { id: "section-notes", label: "Notes" },
                 ].map(({ id, label }) => (
@@ -2492,14 +2492,9 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
           }}>📍 Récupérer le champ Google Maps</Button>
         </div>
 
-        {/* Caractérisation / Taxonomie */}
-        <Accordion type="single" collapsible>
-          <AccordionItem value="taxonomie" className="border-none">
-            <div id="section-taxonomie" className="p-4 bg-orange-50 border border-orange-200 rounded-lg" style={{ scrollMarginTop: '130px' }}>
-              <AccordionTrigger className="py-0 hover:no-underline">
-                <Label className="text-xl font-semibold cursor-pointer">Caractérisation</Label>
-              </AccordionTrigger>
-              <AccordionContent className="pt-4 pb-0 space-y-6">
+        {/* Taxonomie */}
+        <div id="section-taxonomie" className="p-4 bg-orange-50 border border-orange-200 rounded-lg space-y-6" style={{ scrollMarginTop: '130px' }}>
+          <Label className="text-xl font-semibold">Taxonomie</Label>
           
           {/* Sous-catégories */}
           <div className="space-y-3">
@@ -2997,10 +2992,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
             </>
           )}
           </div>
-              </AccordionContent>
-            </div>
-          </AccordionItem>
-        </Accordion>
+        </div>
 
         <div className="space-y-2">
           <Label htmlFor="keywords">Mots-clés (séparés par virgule)</Label>
