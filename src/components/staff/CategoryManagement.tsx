@@ -765,6 +765,14 @@ const CategoryManagement = () => {
                                 {sub.name_en && (
                                   <span className="text-muted-foreground">({sub.name_en})</span>
                                 )}
+                                {sub.tab_title && (
+                                  <span className="text-xs text-muted-foreground italic">— {sub.tab_title}</span>
+                                )}
+                                {sub.description_fr ? (
+                                  <span className="text-xs text-muted-foreground truncate max-w-[200px]">{sub.description_fr}</span>
+                                ) : (
+                                  <span className="text-xs text-amber-500">⚠ Pas de description</span>
+                                )}
                               </div>
                               
                               <Badge variant="outline" className="text-xs">{svcs.length} services</Badge>
