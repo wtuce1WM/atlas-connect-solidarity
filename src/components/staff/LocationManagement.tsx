@@ -161,7 +161,8 @@ const LocationManagement = () => {
   };
   const [countries, setCountries] = useState<Country[]>([]);
   const [cities, setCities] = useState<City[]>([]);
-  const [businessCounts, setBusinessCounts] = useState<Record<string, number>>({});
+   const [businessCounts, setBusinessCounts] = useState<Record<string, number>>({});
+   const [neighborhoodBusinessCounts, setNeighborhoodBusinessCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [editingCountry, setEditingCountry] = useState<Country | null>(null);
   const [editingCity, setEditingCity] = useState<City | null>(null);
@@ -266,7 +267,7 @@ const LocationManagement = () => {
     const [countriesRes, citiesRes, businessesRes, neighborhoodsRes, destinationsRes, poisRes] = await Promise.all([
       supabase.from("countries").select("*").order("sort_order"),
       supabase.from("cities").select("*").order("sort_order"),
-      supabase.from("businesses").select("city").eq("is_active", true),
+      supabase.from("businesses").select("city, neighborhood").eq("is_active", true),
       supabase.from("neighborhoods").select("*").order("sort_order") as any,
       supabase.from("destinations" as any).select("*").order("sort_order"),
       supabase.from("points_of_interest" as any).select("*").order("sort_order"),
@@ -287,12 +288,18 @@ const LocationManagement = () => {
     // Count businesses per city
     if (!businessesRes.error && businessesRes.data) {
       const counts: Record<string, number> = {};
+      const nhCounts: Record<string, number> = {};
       businessesRes.data.forEach((b) => {
         if (b.city) {
           counts[b.city] = (counts[b.city] || 0) + 1;
         }
+        if (b.neighborhood) {
+          const nhKey = b.neighborhood.toLowerCase();
+          nhCounts[nhKey] = (nhCounts[nhKey] || 0) + 1;
+        }
       });
       setBusinessCounts(counts);
+      setNeighborhoodBusinessCounts(nhCounts);
     }
 
     if (!neighborhoodsRes.error && neighborhoodsRes.data) {
@@ -1060,6 +1067,7 @@ const LocationManagement = () => {
                                     {cityNeighborhoods.map((n) => (
                                       <div key={n.id} className="flex items-center gap-1 bg-background border rounded px-2 py-1 text-sm">
                                         <span>{n.name}</span>
+                                        <span className="text-xs text-muted-foreground ml-1">({neighborhoodBusinessCounts[n.name.toLowerCase()] || 0})</span>
                                         <Button
                                           size="sm"
                                           variant="ghost"
