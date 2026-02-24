@@ -470,6 +470,28 @@ const SearchConfigManagement = () => {
           <p><strong>5. Injection de synonymes</strong> — Les synonymes configurés sont ajoutés dynamiquement à la carte de synonymes globale et utilisés pour la détection automatique de sous-catégorie (si un terme de la requête correspond à un synonyme configuré).</p>
         </CardContent>
       </Card>
+
+      <Card className="border-amber-200 bg-amber-50/50">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-semibold flex items-center gap-2 text-amber-800">
+            <Hash className="h-4 w-4" />
+            Mots-clés vs Synonymes : quelle différence ?
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="text-xs text-muted-foreground space-y-3">
+          <div>
+            <p className="font-semibold text-amber-700 mb-1">Mots-clés de sous-catégorie (onglet Catégories)</p>
+            <p>Servent à <strong>détecter la sous-catégorie</strong> à partir de la requête utilisateur. Ex : le mot-clé <code>"docteur"</code> sur la sous-catégorie « Médecins généralistes » permet au moteur de comprendre que la requête <em>"je cherche un docteur"</em> cible cette sous-catégorie → il filtre alors tous les établissements classés « Médecins généralistes ».</p>
+          </div>
+          <div>
+            <p className="font-semibold text-amber-700 mb-1">Synonymes de recherche (ci-dessus)</p>
+            <p>Servent à <strong>élargir la recherche full-text</strong> (expansion du tsquery). Ex : si <code>"riad"</code> est synonyme de « Maison d'hôtes », le moteur cherchera aussi le terme <em>"riad"</em> dans le contenu textuel des fiches, même si aucun établissement ne contient explicitement ce mot.</p>
+          </div>
+          <div className="border-t border-amber-200 pt-2">
+            <p className="text-amber-700"><strong>En résumé :</strong> un <em>mot-clé</em> dit « ce mot désigne cette sous-catégorie » (filtre structurel), un <em>synonyme</em> dit « cherche aussi ce terme dans le texte » (élargissement textuel). Inutile de mettre un terme dans les deux : le mot-clé suffit s'il déclenche le bon filtre sous-catégorie.</p>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
