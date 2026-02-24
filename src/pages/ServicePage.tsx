@@ -308,34 +308,18 @@ const ServicePage = () => {
 
         if (hasExplicitSubcategory) {
           // Two-segment URL: /service/{subcategory}/{service}
-          // Fetch businesses matching subcategory in categories OR service in services
-          const [catResult, svcResult] = await Promise.all([
-            supabase
-              .from("businesses")
-              .select(selectFields)
-              .eq("is_active", true)
-              .contains("categories", [subcategoryName])
-              .order("wtuce_status", { ascending: true })
-              .order("priority_score", { ascending: false }),
-            supabase
-              .from("businesses")
-              .select(selectFields)
-              .eq("is_active", true)
-              .contains("services", [serviceName])
-              .order("wtuce_status", { ascending: true })
-              .order("priority_score", { ascending: false }),
-          ]);
+          // Fetch businesses matching subcategory in categories AND service in services
+          const { data, error } = await supabase
+            .from("businesses")
+            .select(selectFields)
+            .eq("is_active", true)
+            .contains("categories", [subcategoryName])
+            .contains("services", [serviceName])
+            .order("wtuce_status", { ascending: true })
+            .order("priority_score", { ascending: false });
 
-          if (catResult.error) fetchError = catResult.error;
-          if (svcResult.error) fetchError = svcResult.error;
-
-          // Merge and deduplicate
-          const merged = new Map<string, Business>();
-          for (const b of (catResult.data || [])) merged.set(b.id, b);
-          for (const b of (svcResult.data || [])) {
-            if (!merged.has(b.id)) merged.set(b.id, b);
-          }
-          businessData = Array.from(merged.values());
+          if (error) fetchError = error;
+          businessData = data || [];
         } else if (isSubcategory) {
           // Search in BOTH categories and services arrays, then merge
           const [catResult, svcResult] = await Promise.all([
