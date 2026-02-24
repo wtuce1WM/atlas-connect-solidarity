@@ -1057,10 +1057,24 @@ serve(async (req) => {
 
       // If services were detected alongside the subcategory (e.g. "Restaurant galerie" → Restaurant + Galerie d'Art),
       // filter subcategory results to only those offering the detected service(s)
-      const serviceFilter = detectedServices.length > 0 ? detectedServices : undefined;
+      let serviceFilter = detectedServices.length > 0 ? detectedServices : undefined;
       businesses = await fetchSubcategoryBusinesses(detectedSubcategory, serviceFilter);
       searchLevel = "exact";
       console.log(`Subcategory direct query "${detectedSubcategory}" + city "${effectiveCity}" + neighborhood "${detectedNeighborhood}" + services filter [${(serviceFilter || []).join(", ")}]: ${businesses.length} results`);
+
+      // If service filter yielded 0 results but would have results without it,
+      // the detected service likely doesn't belong to this subcategory (e.g. "Fleurs comestibles" vs "Fleuriste")
+      // → drop the service filter and retry with just the subcategory
+      if (businesses.length === 0 && serviceFilter) {
+        console.log(`Service filter [${serviceFilter.join(", ")}] returned 0 results for subcategory "${detectedSubcategory}" — retrying without service filter`);
+        businesses = await fetchSubcategoryBusinesses(detectedSubcategory);
+        serviceFilter = undefined;
+        // Also clear detected services to prevent post-filtering later
+        detectedServices = [];
+        detectedService = null;
+        allCandidateServiceNames = [];
+        console.log(`Subcategory without service filter "${detectedSubcategory}": ${businesses.length} results`);
+      }
 
       // Enrich: also find businesses that have this subcategory as a service (e.g. "Hammam" service in hotels)
       // Skip generic enrichment when a specific service filter is active (already narrowed)
