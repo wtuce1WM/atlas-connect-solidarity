@@ -758,6 +758,14 @@ const CategoryManagement = () => {
                               </CollapsibleTrigger>
                               
                               <div className="flex-1 text-sm flex items-center gap-2">
+                                <Link
+                                  to={`/subcategory/${encodeURIComponent(sub.name_fr)}`}
+                                  target="_blank"
+                                  onClick={(e) => e.stopPropagation()}
+                                  title={`Voir la page ${sub.name_fr}`}
+                                >
+                                  <ExternalLink className="h-4 w-4 text-muted-foreground hover:text-primary transition-colors" />
+                                </Link>
                                 {sub.icon && (
                                   <DynamicIcon name={sub.icon} className="h-5 w-5 text-primary" />
                                 )}
