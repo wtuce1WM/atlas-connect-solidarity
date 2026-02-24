@@ -1068,7 +1068,7 @@ const LocationManagement = () => {
                                       <div key={n.id} className="flex items-center gap-1 bg-background border rounded px-2 py-1 text-sm">
                                         <span>{n.name}</span>
                                         <span className="text-xs text-muted-foreground ml-1">({neighborhoodBusinessCounts[n.name.toLowerCase()] || 0})</span>
-                                        <a href={`/search?q=${encodeURIComponent(n.name)}`} target="_blank" rel="noopener noreferrer" className="h-5 w-5 p-0 inline-flex items-center justify-center text-muted-foreground hover:text-primary transition-colors" title="Rechercher">
+                                        <a href={`/search?q=${encodeURIComponent(n.name + ' ' + city.name_fr)}`} target="_blank" rel="noopener noreferrer" className="h-5 w-5 p-0 inline-flex items-center justify-center text-muted-foreground hover:text-primary transition-colors" title="Rechercher">
                                           <Search className="h-3 w-3" />
                                         </a>
                                         <Button
