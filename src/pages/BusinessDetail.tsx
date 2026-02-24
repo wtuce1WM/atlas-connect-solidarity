@@ -326,15 +326,24 @@ const BusinessDetail = () => {
               icon: g.icon,
               services: g.services.sort((a, b) => a.localeCompare(b, 'fr')),
             }));
-            // Sort: put the group containing default_service first
+            // Sort: prioritize group matching default_service, then business categories order, then alphabetical
             const defaultSvc = data.default_service;
+            const businessCategories: string[] = data.categories || [];
             groups.sort((a, b) => {
+              // 1. default_service group first
               if (defaultSvc) {
                 const aHasDefault = a.services.includes(defaultSvc);
                 const bHasDefault = b.services.includes(defaultSvc);
                 if (aHasDefault && !bHasDefault) return -1;
                 if (!aHasDefault && bHasDefault) return 1;
               }
+              // 2. Match against business categories order
+              const aIdx = businessCategories.indexOf(a.subcategoryName);
+              const bIdx = businessCategories.indexOf(b.subcategoryName);
+              if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
+              if (aIdx !== -1) return -1;
+              if (bIdx !== -1) return 1;
+              // 3. Alphabetical fallback
               return a.subcategoryName.localeCompare(b.subcategoryName, 'fr');
             });
             
