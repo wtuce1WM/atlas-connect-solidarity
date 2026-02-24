@@ -44,7 +44,7 @@ const SearchConfigManagement = () => {
     const load = async () => {
       setIsLoading(true);
       const [catRes, subRes, configRes] = await Promise.all([
-        supabase.from("categories").select("id, name_fr").order("sort_order"),
+        supabase.from("categories").select("id, name_fr").order("name_fr"),
         supabase.from("subcategories").select("id, name_fr, category_id").order("name_fr"),
         supabase.from("subcategory_search_config").select("*"),
       ]);
