@@ -1282,10 +1282,31 @@ serve(async (req) => {
             });
             console.log(`Service OR post-filter [${allCandidateServiceNames.join(", ")}]: ${beforeCount} → ${businesses.length}`);
             
-            // When service filter gives 0, keep 0 — don't fallback to unfiltered results
-            // This prevents returning irrelevant businesses when the service simply doesn't exist in this city
+            // When service filter gives 0 results, fallback to unfiltered tsquery results
+            // This handles cases like "oursins à Essaouira" where the specific service doesn't exist
+            // in that city but related establishments (seafood restaurants) should still appear
             if (businesses.length === 0) {
-              console.log(`Service OR filter returned 0 results — no fallback (service "${detectedService}" not found with these filters)`);
+              console.log(`Service OR filter returned 0 results — falling back to tsquery without service filter`);
+              // Re-run the tsquery search without service filtering
+              const tsQueryFallback = expandQuery(queryForExpansion);
+              if (tsQueryFallback) {
+                let fallbackBuilder = supabase.from("businesses").select("*").eq("is_active", true)
+                  .textSearch("search_vector", tsQueryFallback, { type: "plain", config: "simple" });
+                if (effectiveCity) fallbackBuilder = fallbackBuilder.ilike("city", effectiveCity);
+                if (effectiveCategory) fallbackBuilder = fallbackBuilder.or(`main_category.eq.${effectiveCategory},categories.cs.{"${effectiveCategory}"}`);
+                fallbackBuilder = fallbackBuilder
+                  .order("priority_score", { ascending: false })
+                  .limit(limit);
+                const { data: fallbackData } = await fallbackBuilder;
+                if (fallbackData && fallbackData.length > 0) {
+                  businesses = fallbackData.map((b: any) => ({
+                    ...b,
+                    distance_km: latitude && longitude && b.latitude && b.longitude
+                      ? calculateDistance(latitude, longitude, b.latitude, b.longitude) : null,
+                  }));
+                  console.log(`Service fallback tsquery "${tsQueryFallback}": ${businesses.length} results`);
+                }
+              }
             }
           }
           
