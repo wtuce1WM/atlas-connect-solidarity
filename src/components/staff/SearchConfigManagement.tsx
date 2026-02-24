@@ -401,16 +401,6 @@ const SearchConfigManagement = () => {
                         <Save className="h-3.5 w-3.5" />
                       )}
                     </Button>
-                    {hasConfig && (
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => deleteConfig(sub.id)}
-                        className="h-8 text-xs text-destructive hover:text-destructive"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    )}
                   </div>
                 </div>
               </CardContent>
