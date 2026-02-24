@@ -408,9 +408,10 @@ const SearchPage = () => {
         
         if (data) {
           setSearchLevel(data.searchLevel || "");
-          // Pour la recherche vocale, ne pas afficher le fallback "recommended"
+          // When user searched for something specific but got "recommended" fallback → show 0 results
           const isVoiceSearch = !!searchParams.get("spoken");
-          if (isVoiceSearch && data.searchLevel === "recommended") {
+          const hasActiveQuery = !!searchQuery.trim();
+          if ((isVoiceSearch || hasActiveQuery) && data.searchLevel === "recommended") {
             setAllBusinesses([]);
             setSearchMessage("");
           } else {
