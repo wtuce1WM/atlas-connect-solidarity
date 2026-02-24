@@ -250,6 +250,7 @@ const SearchPage = () => {
   const [inputValue, setInputValue] = useState(searchParams.get("q") || "");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const { suggestions } = useSearchSuggestions(inputValue);
+  const searchFormRef = useRef<HTMLFormElement>(null);
   const categoryFromUrl = searchParams.get("category") || "";
   const [celebrityBusinesses, setCelebrityBusinesses] = useState<Business[]>([]);
   const [ttsIntroPhrase, setTtsIntroPhrase] = useState<string>("");
@@ -276,6 +277,17 @@ const SearchPage = () => {
 
   const { speak: ttsSpeak, stop: ttsStop, status: ttsStatus } = useTextToSpeech();
   const geo = useGeolocation();
+
+  // Close suggestions on click outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (searchFormRef.current && !searchFormRef.current.contains(e.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // Auto-select city when geolocation detects one (only if no city already set from URL)
   useEffect(() => {
@@ -1199,7 +1211,7 @@ const SearchPage = () => {
 
       {/* Floating Search Bar */}
       <div className="sticky bottom-0 z-40 bg-black/90 backdrop-blur-md border-t border-gold/20 py-3 px-4">
-        <form onSubmit={handleSearch} className="max-w-2xl mx-auto">
+        <form onSubmit={handleSearch} className="max-w-2xl mx-auto" ref={searchFormRef}>
           {/* Desktop */}
           <div className="hidden md:flex items-center gap-2">
             <div className="relative flex-1">
@@ -1210,7 +1222,7 @@ const SearchPage = () => {
                 value={inputValue}
                 onChange={(e) => { setInputValue(e.target.value); setShowSuggestions(true); }}
                 onFocus={() => setShowSuggestions(true)}
-                onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 300)}
                 className="w-full pl-14 pr-36 py-6 text-base bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-full shadow-lg"
               />
               <SearchSuggestionsDropdown
@@ -1260,7 +1272,7 @@ const SearchPage = () => {
                 value={inputValue}
                 onChange={(e) => { setInputValue(e.target.value); setShowSuggestions(true); }}
                 onFocus={() => setShowSuggestions(true)}
-                onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 300)}
                 className="w-full pl-11 pr-28 py-5 text-sm bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-full shadow-lg"
               />
               <SearchSuggestionsDropdown
