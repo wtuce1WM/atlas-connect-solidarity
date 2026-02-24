@@ -639,7 +639,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
       booking_url: formData.booking_url || null,
       account_type: formData.account_type || null,
       zone_chalandise: (formData as any).zone_chalandise || null,
-      is_visible_locale: (formData as any).zone_chalandise === "locale" ? (formData as any).is_visible_locale ?? false : false,
+      is_visible_locale: (formData as any).is_visible_locale ?? false,
       zone_city_ids: (formData as any).zone_chalandise === "nationale" && (formData as any).zone_city_ids?.length > 0 ? (formData as any).zone_city_ids : [],
       languages: (formData as any).languages?.length > 0 ? (formData as any).languages : [],
       affiliate_id: (formData as any).affiliate_id || null,
@@ -1294,13 +1294,12 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
           </div>
 
           <div className="space-y-2">
-            <Label className={(formData as any).zone_chalandise !== "locale" ? "text-muted-foreground" : ""}>Rendre visible</Label>
+            <Label>Rendre visible</Label>
             <Select
               value={(formData as any).is_visible_locale ? "oui" : "non"}
               onValueChange={(value) => handleChange("is_visible_locale", value === "oui")}
-              disabled={(formData as any).zone_chalandise !== "locale"}
             >
-              <SelectTrigger className={(formData as any).zone_chalandise !== "locale" ? "opacity-50" : ""}>
+              <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-background z-50">
