@@ -1164,7 +1164,7 @@ const SearchPage = () => {
                   {groupedBusinesses.map((group) => (
                     <div key={group.subcategory}>
                       <div className="flex items-center gap-3 mb-5">
-                        <h2 className="text-xl font-bold text-primary">{group.subcategory}</h2>
+                        <h2 className="text-xl font-bold text-white">{group.subcategory}</h2>
                         <span className="text-sm text-muted-foreground">({group.businesses.length})</span>
                         <div className="flex-1 h-px bg-border" />
                       </div>
