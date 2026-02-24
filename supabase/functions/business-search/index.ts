@@ -459,6 +459,28 @@ serve(async (req) => {
     const RELATED_SUBCATEGORIES: Record<string, string[]> = {
       // Intentionally empty — only add truly equivalent subcategories here
     };
+    // ── Load subcategory search configs from DB ──
+    let searchConfigs: Record<string, { search_mode: string; max_results: number | null; boost_weight: number; synonyms: string[] }> = {};
+    {
+      const { data: configs } = await supabase
+        .from("subcategory_search_config")
+        .select("subcategory_id, search_mode, max_results, boost_weight, synonyms, subcategories!inner(name_fr)");
+      if (configs) {
+        for (const c of configs) {
+          const name = (c as any).subcategories?.name_fr;
+          if (name) {
+            searchConfigs[name.toLowerCase()] = {
+              search_mode: c.search_mode,
+              max_results: c.max_results,
+              boost_weight: c.boost_weight,
+              synonyms: c.synonyms || [],
+            };
+          }
+        }
+        console.log(`Loaded ${Object.keys(searchConfigs).length} search configs`);
+      }
+    }
+
     let detectedSubcategory: string | null = null;
     if (!category && effectiveQuery) {
       const qLower = effectiveQuery.toLowerCase();
@@ -496,6 +518,47 @@ serve(async (req) => {
             console.log(`Auto-detected subcategory "${sc.name_fr}" from keyword match in query "${effectiveQuery}"`);
             break;
           }
+        }
+      }
+    }
+    // ── Apply search config: inject synonyms into query expansion if configured ──
+    let subcategorySearchConfig: { search_mode: string; max_results: number | null; boost_weight: number; synonyms: string[] } | null = null;
+    if (detectedSubcategory) {
+      subcategorySearchConfig = searchConfigs[detectedSubcategory.toLowerCase()] || null;
+      if (subcategorySearchConfig) {
+        console.log(`Search config for "${detectedSubcategory}": mode=${subcategorySearchConfig.search_mode}, max=${subcategorySearchConfig.max_results}, boost=${subcategorySearchConfig.boost_weight}, synonyms=[${subcategorySearchConfig.synonyms.join(", ")}]`);
+        // Inject configured synonyms into the global synonym map for expandQuery
+        if (subcategorySearchConfig.synonyms.length > 0) {
+          const subcatKey = detectedSubcategory.toLowerCase().replace(/\s+/g, "");
+          if (!synonyms[subcatKey]) {
+            synonyms[subcatKey] = [...subcategorySearchConfig.synonyms];
+          } else {
+            synonyms[subcatKey] = [...new Set([...synonyms[subcatKey], ...subcategorySearchConfig.synonyms])];
+          }
+          console.log(`Injected ${subcategorySearchConfig.synonyms.length} config synonyms for "${detectedSubcategory}"`);
+        }
+      }
+    }
+    // Also check search configs for subcategory detection via synonyms
+    // (if query contains a configured synonym, detect the corresponding subcategory)
+    if (!detectedSubcategory && effectiveQuery) {
+      const qLower = effectiveQuery.toLowerCase();
+      const qWords = qLower.split(/\s+/);
+      for (const [subcatName, config] of Object.entries(searchConfigs)) {
+        if (config.synonyms.length === 0) continue;
+        const matched = config.synonyms.some(syn => {
+          const synLower = syn.toLowerCase();
+          return synLower.includes(" ") ? qLower.includes(synLower) : qWords.includes(synLower);
+        });
+        if (matched) {
+          // Find the original-case subcategory name
+          const { data: subcatRow } = await supabase.from("subcategories").select("name_fr").ilike("name_fr", subcatName).limit(1).single();
+          if (subcatRow) {
+            detectedSubcategory = subcatRow.name_fr;
+            subcategorySearchConfig = config;
+            console.log(`Auto-detected subcategory "${detectedSubcategory}" from config synonym match in query "${effectiveQuery}"`);
+          }
+          break;
         }
       }
     }
@@ -955,10 +1018,12 @@ serve(async (req) => {
           }
         }
         
+        // Apply max_results from search config if available
+        const effectiveLimit = subcategorySearchConfig?.max_results || limit;
         subBuilder = subBuilder
           .order("wtuce_status", { ascending: true })
           .order("priority_score", { ascending: false })
-          .limit(limit);
+          .limit(effectiveLimit);
         
         const { data, error } = await subBuilder;
         if (!error && data && data.length > 0) {
@@ -1051,8 +1116,26 @@ serve(async (req) => {
       }
     }
 
+    // ── Apply boost_weight from search config: re-sort with weighted priority ──
+    if (subcategorySearchConfig && subcategorySearchConfig.boost_weight !== 1.0 && businesses.length > 1) {
+      businesses = [...businesses].sort((a, b) => {
+        const aScore = (a.priority_score || 0) * subcategorySearchConfig!.boost_weight;
+        const bScore = (b.priority_score || 0) * subcategorySearchConfig!.boost_weight;
+        // Keep verified first, then boosted priority
+        if (a.wtuce_status !== b.wtuce_status) return a.wtuce_status === "verified" ? -1 : 1;
+        return bScore - aScore;
+      });
+      console.log(`Applied boost_weight ${subcategorySearchConfig.boost_weight} to ${businesses.length} results`);
+    }
+
+    // In strict mode, if subcategory was detected, do NOT fall through to tsquery
+    const isStrictMode = subcategorySearchConfig?.search_mode === 'strict';
+    if (isStrictMode && detectedSubcategory) {
+      console.log(`Strict mode for "${detectedSubcategory}": skipping tsquery fallback (${businesses.length} results from direct query)`);
+    }
+
     // Level 1: Exact full-text search with ts_rank (services/name weight A > description weight B)
-    if ((queryForExpansion || city || effectiveCategory) && businesses.length === 0) {
+    if ((queryForExpansion || city || effectiveCategory) && businesses.length === 0 && !isStrictMode) {
       // When a service was detected and injected, don't expand service name words with synonyms
       // to avoid polluting the tsquery with unrelated terms (e.g. "vin" expanding to "bar")
       // BUT include ALL candidate service names as OR alternatives so synonyms match (e.g. Glacier | Glaces)
