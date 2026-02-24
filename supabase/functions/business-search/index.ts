@@ -1078,7 +1078,8 @@ serve(async (req) => {
 
       // Enrich: also find businesses that have this subcategory as a service (e.g. "Hammam" service in hotels)
       // Skip generic enrichment when a specific service filter is active (already narrowed)
-      if (!serviceFilter) {
+      // Also skip enrichment in strict mode — only direct subcategory members should appear
+      if (!serviceFilter && subcategorySearchConfig?.search_mode !== "strict") {
         const existingIds = new Set(businesses.map(b => b.id));
         let svcBuilder = supabase.from("businesses").select("*").eq("is_active", true)
           .contains("services", [detectedSubcategory]);
