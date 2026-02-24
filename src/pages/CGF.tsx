@@ -73,6 +73,60 @@ const CGF = () => {
             Les présentes conditions sont régies par le droit marocain. Tout litige relatif à leur interprétation ou leur exécution sera de la compétence exclusive des tribunaux de Marrakech.
           </p>
         </section>
+
+        <hr className="my-12 border-border" />
+
+        <section className="mb-8">
+          <p className="text-muted-foreground leading-relaxed mb-6">
+            Voici une proposition de lettre d'accompagnement (ou e-mail) à adresser à vos affiliés à l'issue de leur période d'essai de 3 mois. L'objectif est de transformer cette phase de test gratuite en un partenariat formel et durable.
+          </p>
+
+          <h2 className="text-xl font-semibold mb-3">Modèle de Lettre d'Accompagnement - Fin de Période d'Essai</h2>
+
+          <p className="text-muted-foreground leading-relaxed mb-4">
+            <strong>Objet :</strong> Prolongation de votre visibilité sur One World Morocco – Contrat d'Affiliation
+          </p>
+
+          <div className="text-muted-foreground leading-relaxed space-y-4">
+            <p>Cher Partenaire,</p>
+
+            <p>
+              Nous arrivons au terme des trois premiers mois de mise en ligne de la plateforme One World Morocco. Durant cette phase de lancement, nous avons eu le plaisir de mettre en avant vos services et de favoriser votre mise en relation avec une audience ciblée d'internautes et de professionnels.
+            </p>
+
+            <p>
+              Comme convenu lors de votre indexation initiale, nous entrons désormais dans la phase de pérennisation de notre collaboration. Afin de maintenir votre référencement et de continuer à bénéficier de la visibilité offerte par notre plateforme, nous vous prions de trouver ci-joint votre Contrat d'Affiliation.
+            </p>
+
+            <p className="font-semibold text-foreground">Ce que ce contrat vous apporte :</p>
+            <ul className="list-disc pl-6 space-y-2">
+              <li>Maintien de votre indexation privilégiée sur notre portail.</li>
+              <li>Accès complet aux outils de mise en relation directe (B2B et B2C).</li>
+              <li>Support technique dédié pour la mise à jour de vos offres et contenus.</li>
+              <li>Promotion active de vos services auprès de notre communauté de voyageurs et de partenaires.</li>
+            </ul>
+
+            <p className="font-semibold text-foreground">Modalités de signature :</p>
+            <p>
+              Nous vous invitons à prendre connaissance des conditions tarifaires et opérationnelles détaillées dans le document joint. Pour confirmer la poursuite de notre partenariat, merci de nous retourner un exemplaire signé et paraphé par e-mail ou via notre interface de gestion d'ici le [Date de fin de validité de l'offre].
+            </p>
+
+            <p>
+              Nous vous rappelons que One World Morocco agit exclusivement en tant qu'intermédiaire technique de mise en relation et n'intervient pas dans vos transactions commerciales finales, vous laissant ainsi une totale liberté dans la gestion de vos clients.
+            </p>
+
+            <p>
+              Nous sommes convaincus que la synergie entre nos services contribuera au rayonnement du tourisme et du commerce au Maroc.
+            </p>
+
+            <p>
+              Dans l'attente de poursuivre cette aventure à vos côtés, nous restons à votre entière disposition pour toute question relative à ce contrat.
+            </p>
+
+            <p>Bien cordialement,</p>
+            <p className="font-semibold text-foreground">L'Équipe One World Morocco</p>
+          </div>
+        </section>
       </main>
       <Footer />
     </div>
