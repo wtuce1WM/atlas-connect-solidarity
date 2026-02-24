@@ -37,6 +37,7 @@ import Club from "./pages/Club";
 import ScrollToTop from "./components/ScrollToTop";
 import RouteTransition from "./components/RouteTransition";
 import LogoEffectsDemo from "./pages/LogoEffectsDemo";
+import CGF from "./pages/CGF";
 
 const queryClient = new QueryClient();
 
@@ -87,6 +88,7 @@ const AppContent = () => {
               <Route path="/hotels" element={<HotelSearch />} />
               <Route path="/club" element={<Club />} />
               <Route path="/demo-effects" element={<LogoEffectsDemo />} />
+              <Route path="/conditions-generales" element={<CGF />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
