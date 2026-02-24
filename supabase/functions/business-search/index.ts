@@ -325,7 +325,8 @@ const NOISE_ADJECTIVES = new Set([
 ]);
 
 function expandQuery(query: string): string {
-  const words = query.toLowerCase().split(/\s+/).filter(w => w.length > 0 && !NOISE_ADJECTIVES.has(w));
+  // Split on whitespace AND hyphens so "Restaurant-galerie" → ["restaurant", "galerie"]
+  const words = query.toLowerCase().split(/[\s\-]+/).filter(w => w.length > 0 && !NOISE_ADJECTIVES.has(w));
 
   const groups = words.map(word => {
     const alternatives: string[] = [word];
@@ -435,6 +436,11 @@ serve(async (req) => {
       }
     }
     
+    // Normalize hyphens to spaces: "Restaurant-galerie" → "Restaurant galerie"
+    if (effectiveQuery) {
+      effectiveQuery = effectiveQuery.replace(/-/g, " ").replace(/\s+/g, " ").trim();
+    }
+
     // Strip French contractions globally: l'aéroport → aéroport, d'art → art, etc.
     if (effectiveQuery) {
       effectiveQuery = effectiveQuery.split(/\s+/).map(w => 
@@ -850,7 +856,12 @@ serve(async (req) => {
               }).length;
               
               // For multi-word service names, require ≥2 query words to match
-              if (svcWordCount >= 2 && matchCount < 2 && kwMatchCount === 0) continue;
+              // Exception: if the service name originally contains a contraction (d', l'), 
+              // the stripped word is a qualifier — 1 match on the main word is enough
+              const originalName = svc.name_fr.toLowerCase();
+              const hasContraction = /[dlsn]['']\w/i.test(originalName);
+              const minMatchRequired = hasContraction ? 1 : 2;
+              if (svcWordCount >= 2 && matchCount < minMatchRequired && kwMatchCount === 0) continue;
               
               const exactNameMatch = serviceMatchWords.some(w => stripPlural(w) === svcNorm || w === svcLower);
               const exactNameBonus = exactNameMatch ? 200 : 0;
