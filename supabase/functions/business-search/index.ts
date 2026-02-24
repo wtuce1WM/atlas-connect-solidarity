@@ -811,14 +811,22 @@ serve(async (req) => {
       ]);
       
       // Filter out intent noise words, stop words AND noise adjectives from the remaining query
+      // Also strip hyphenated compounds that contain a service keyword (e.g. "canapé-lit" when service is "Canapé")
       const cleanRemainder = effectiveQuery.split(/\s+/).filter(w => {
         const wLower = w.toLowerCase();
-        return !serviceMatchWordsForInjection.includes(wLower) 
-          && !FRENCH_STOP_WORDS.has(wLower)
-          && !INTENT_NOISE.has(wLower)
-          && !NOISE_ADJECTIVES.has(wLower)
-          // Don't remove words that are part of the service name
-          && !svcWords.includes(wLower);
+        if (serviceMatchWordsForInjection.includes(wLower)) return false;
+        if (FRENCH_STOP_WORDS.has(wLower)) return false;
+        if (INTENT_NOISE.has(wLower)) return false;
+        if (NOISE_ADJECTIVES.has(wLower)) return false;
+        // Don't remove words that are part of the service name
+        if (svcWords.includes(wLower)) return false;
+        // Strip hyphenated words whose parts are already covered by the service name
+        // e.g. "canapé-lit" → parts ["canapé", "lit"] → "canapé" is in svcWords → strip
+        if (wLower.includes("-")) {
+          const parts = wLower.split("-").filter(p => p.length > 0);
+          if (parts.some(p => svcWords.includes(p) || serviceMatchWordsForInjection.includes(p))) return false;
+        }
+        return true;
       }).join(" ").trim();
       
       if (!hasServiceNameInQuery) {
