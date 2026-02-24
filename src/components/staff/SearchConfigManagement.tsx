@@ -314,6 +314,14 @@ const SearchConfigManagement = () => {
                       }
                       className="h-8 text-xs"
                     />
+                    {config.max_results !== null && (
+                      <button
+                        onClick={() => updateConfig(sub.id, { max_results: null })}
+                        className="text-[10px] text-muted-foreground hover:text-primary transition-colors mt-0.5"
+                      >
+                        ✕ Illimité
+                      </button>
+                    )}
                   </div>
 
                   {/* Boost */}
