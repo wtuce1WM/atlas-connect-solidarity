@@ -1457,72 +1457,86 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
           </div>
         </div>
 
-        {/* Caractérisation (multi-badges) */}
+        {/* Badges (accordéon fermé) */}
         {availableBadges.length > 0 && (
-          <div className="space-y-3 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-            <Label className="text-base font-semibold">Caractérisation</Label>
-            <div className="flex flex-wrap gap-2">
-              {availableBadges.map((badge) => {
-                const isSelected = selectedBadgeIds.includes(badge.id);
-                const isDefault = defaultBadgeId === badge.id;
-                return (
-                  <button
-                    key={badge.id}
-                    type="button"
-                    onClick={() => {
-                      if (isSelected) {
-                        setSelectedBadgeIds(prev => prev.filter(id => id !== badge.id));
-                        if (isDefault) setDefaultBadgeId(null);
-                      } else {
-                        setSelectedBadgeIds(prev => [...prev, badge.id]);
-                        // Auto-set as default if it's the first one
-                        if (selectedBadgeIds.length === 0) setDefaultBadgeId(badge.id);
-                      }
-                      setIsDirty(true);
-                    }}
-                    className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
-                      isSelected
-                        ? isDefault
-                          ? "bg-amber-600 text-white border-amber-600 ring-2 ring-amber-300"
-                          : "bg-amber-500 text-white border-amber-500"
-                        : "bg-background border-border hover:bg-muted"
-                    }`}
-                  >
-                    {badge.name_fr}
-                    {isDefault && " ★"}
-                  </button>
-                );
-              })}
-            </div>
-            {selectedBadgeIds.length > 1 && (
-              <div className="space-y-1">
-                <Label className="text-sm text-muted-foreground">Badge par défaut (★) :</Label>
-                <div className="flex flex-wrap gap-1">
-                  {selectedBadgeIds.map(bId => {
-                    const badge = dbBadges.find(b => b.id === bId);
-                    if (!badge) return null;
-                    return (
-                      <button
-                        key={bId}
-                        type="button"
-                        onClick={() => { setDefaultBadgeId(bId); setIsDirty(true); }}
-                        className={`px-2 py-1 rounded text-xs border transition-colors ${
-                          defaultBadgeId === bId
-                            ? "bg-amber-600 text-white border-amber-600"
-                            : "bg-background border-border hover:bg-muted"
-                        }`}
-                      >
-                        {badge.name_fr}
-                      </button>
-                    );
-                  })}
-                </div>
+          <Accordion type="single" collapsible>
+            <AccordionItem value="badges" className="border-none">
+              <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                <AccordionTrigger className="py-0 hover:no-underline">
+                  <Label className="text-base font-semibold cursor-pointer flex items-center gap-2">
+                    Badges
+                    {selectedBadgeIds.length > 0 && (
+                      <span className="inline-flex items-center justify-center h-5 min-w-[20px] px-1.5 rounded-full bg-amber-600 text-white text-xs font-medium">
+                        {selectedBadgeIds.length}
+                      </span>
+                    )}
+                  </Label>
+                </AccordionTrigger>
+                <AccordionContent className="pt-3 pb-0 space-y-3">
+                  <div className="flex flex-wrap gap-2">
+                    {availableBadges.map((badge) => {
+                      const isSelected = selectedBadgeIds.includes(badge.id);
+                      const isDefault = defaultBadgeId === badge.id;
+                      return (
+                        <button
+                          key={badge.id}
+                          type="button"
+                          onClick={() => {
+                            if (isSelected) {
+                              setSelectedBadgeIds(prev => prev.filter(id => id !== badge.id));
+                              if (isDefault) setDefaultBadgeId(null);
+                            } else {
+                              setSelectedBadgeIds(prev => [...prev, badge.id]);
+                              if (selectedBadgeIds.length === 0) setDefaultBadgeId(badge.id);
+                            }
+                            setIsDirty(true);
+                          }}
+                          className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
+                            isSelected
+                              ? isDefault
+                                ? "bg-amber-600 text-white border-amber-600 ring-2 ring-amber-300"
+                                : "bg-amber-500 text-white border-amber-500"
+                              : "bg-background border-border hover:bg-muted"
+                          }`}
+                        >
+                          {badge.name_fr}
+                          {isDefault && " ★"}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {selectedBadgeIds.length > 1 && (
+                    <div className="space-y-1">
+                      <Label className="text-sm text-muted-foreground">Badge par défaut (★) :</Label>
+                      <div className="flex flex-wrap gap-1">
+                        {selectedBadgeIds.map(bId => {
+                          const badge = dbBadges.find(b => b.id === bId);
+                          if (!badge) return null;
+                          return (
+                            <button
+                              key={bId}
+                              type="button"
+                              onClick={() => { setDefaultBadgeId(bId); setIsDirty(true); }}
+                              className={`px-2 py-1 rounded text-xs border transition-colors ${
+                                defaultBadgeId === bId
+                                  ? "bg-amber-600 text-white border-amber-600"
+                                  : "bg-background border-border hover:bg-muted"
+                              }`}
+                            >
+                              {badge.name_fr}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                  {formData.categories.length === 0 && (
+                    <p className="text-xs text-muted-foreground italic">Sélectionnez des sous-catégories pour voir les badges disponibles.</p>
+                  )}
+                </AccordionContent>
               </div>
-            )}
-            {formData.categories.length === 0 && (
-              <p className="text-xs text-muted-foreground italic">Sélectionnez des sous-catégories pour voir les badges disponibles.</p>
-            )}
-          </div>
+            </AccordionItem>
+          </Accordion>
         )}
 
         <div id="section-contact" className="p-4 border rounded-lg bg-orange-50 space-y-4" style={{ scrollMarginTop: '130px' }}>
