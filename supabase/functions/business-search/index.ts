@@ -1023,6 +1023,32 @@ serve(async (req) => {
           console.log(`Related subcategory "${relSubcat}": +${newResults.length} results (total: ${businesses.length})`);
         }
       }
+
+      // ── Name-match boost: if query strongly matches a business name, move it to the top ──
+      if (effectiveQuery && businesses.length > 1) {
+        const qLower = effectiveQuery.toLowerCase();
+        const qWords = qLower.split(/\s+/).filter(w => w.length > 1 && !FRENCH_STOP_WORDS.has(w));
+        if (qWords.length >= 2) {
+          const boosted: typeof businesses = [];
+          const rest: typeof businesses = [];
+          for (const b of businesses) {
+            const bName = b.name.toLowerCase();
+            const bWords = bName.split(/\s+/).filter((w: string) => w.length > 1);
+            // Count how many query content words appear in the business name
+            const matchCount = qWords.filter(qw => bWords.some((bw: string) => bw.includes(qw) || qw.includes(bw))).length;
+            // Strong match: >= 70% of query content words found in name
+            if (matchCount >= Math.ceil(qWords.length * 0.7)) {
+              boosted.push(b);
+            } else {
+              rest.push(b);
+            }
+          }
+          if (boosted.length > 0 && boosted.length < businesses.length) {
+            businesses = [...boosted, ...rest];
+            console.log(`Name-match boost: moved ${boosted.length} business(es) to top: [${boosted.map(b => b.name).join(", ")}]`);
+          }
+        }
+      }
     }
 
     // Level 1: Exact full-text search with ts_rank (services/name weight A > description weight B)
