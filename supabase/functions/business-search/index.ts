@@ -1000,9 +1000,15 @@ serve(async (req) => {
     // When a subcategory is detected, use direct SQL filtering (bypasses tsquery which matches descriptions)
     if (detectedSubcategory && businesses.length === 0) {
       // Helper to fetch businesses for a given subcategory with current filters
-      const fetchSubcategoryBusinesses = async (subcat: string) => {
+      const fetchSubcategoryBusinesses = async (subcat: string, filterByServices?: string[]) => {
         let subBuilder = supabase.from("businesses").select("*").eq("is_active", true)
           .contains("categories", [subcat]);
+        
+        // When services are detected alongside a subcategory, filter to only businesses offering those services
+        if (filterByServices && filterByServices.length > 0) {
+          // Use overlaps to match businesses that have ANY of the detected services
+          subBuilder = subBuilder.overlaps("services", filterByServices);
+        }
         
         if (effectiveCity) {
           subBuilder = subBuilder.ilike("city", effectiveCity);
@@ -1049,12 +1055,16 @@ serve(async (req) => {
         return [];
       };
 
-      businesses = await fetchSubcategoryBusinesses(detectedSubcategory);
+      // If services were detected alongside the subcategory (e.g. "Restaurant galerie" → Restaurant + Galerie d'Art),
+      // filter subcategory results to only those offering the detected service(s)
+      const serviceFilter = detectedServices.length > 0 ? detectedServices : undefined;
+      businesses = await fetchSubcategoryBusinesses(detectedSubcategory, serviceFilter);
       searchLevel = "exact";
-      console.log(`Subcategory direct query "${detectedSubcategory}" + city "${effectiveCity}" + neighborhood "${detectedNeighborhood}": ${businesses.length} results`);
+      console.log(`Subcategory direct query "${detectedSubcategory}" + city "${effectiveCity}" + neighborhood "${detectedNeighborhood}" + services filter [${(serviceFilter || []).join(", ")}]: ${businesses.length} results`);
 
-      // Always enrich: also find businesses that have this subcategory as a service (e.g. "Hammam" service in hotels)
-      {
+      // Enrich: also find businesses that have this subcategory as a service (e.g. "Hammam" service in hotels)
+      // Skip generic enrichment when a specific service filter is active (already narrowed)
+      if (!serviceFilter) {
         const existingIds = new Set(businesses.map(b => b.id));
         let svcBuilder = supabase.from("businesses").select("*").eq("is_active", true)
           .contains("services", [detectedSubcategory]);
