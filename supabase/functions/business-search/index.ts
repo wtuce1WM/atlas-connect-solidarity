@@ -526,7 +526,33 @@ serve(async (req) => {
     let allCandidateServiceNames: string[] = []; // ALL candidate service names (synonyms → OR)
     let originalDetectedService: string | null = null; // Keep track even after fallback
     let serviceMatchWordsForInjection: string[] = [];
-    if (effectiveQuery) {
+    
+    // ── Check for exact business name match BEFORE service detection ──
+    // If the query closely matches a business name, skip service detection to avoid false positives
+    // (e.g. "Ace Marée" should NOT detect "Glaces" from the substring "ace")
+    let skipServiceDetection = false;
+    if (effectiveQuery && effectiveQuery.split(/\s+/).length <= 4) {
+      const { data: nameMatches } = await supabase
+        .from("businesses")
+        .select("id, name")
+        .eq("is_active", true)
+        .ilike("name", `%${effectiveQuery}%`)
+        .limit(3);
+      if (nameMatches && nameMatches.length > 0) {
+        // Check if query is a strong match (>= 70% of query words appear in a business name)
+        const qWords = effectiveQuery.toLowerCase().split(/\s+/).filter((w: string) => w.length > 1);
+        const hasStrongMatch = nameMatches.some((b: any) => {
+          const bWords = b.name.toLowerCase().split(/\s+/).filter((w: string) => w.length > 1);
+          const matchCount = qWords.filter((qw: string) => bWords.some((bw: string) => bw.includes(qw) || qw.includes(bw))).length;
+          return matchCount >= Math.ceil(qWords.length * 0.7);
+        });
+        if (hasStrongMatch) {
+          skipServiceDetection = true;
+          console.log(`Skipping service detection: query "${effectiveQuery}" matches business name(s): [${nameMatches.map((b: any) => b.name).join(", ")}]`);
+        }
+      }
+    }
+    if (effectiveQuery && !skipServiceDetection) {
       // Strip French contractions: l'aéroport → aéroport, d'art → art, etc.
       const stripContractions = (w: string): string => w.replace(/^[lLdDsSnNjJcCqQ][\u0027\u2019\u2018\u0060]/g, "");
       const queryWords = effectiveQuery.toLowerCase().split(/\s+/)
