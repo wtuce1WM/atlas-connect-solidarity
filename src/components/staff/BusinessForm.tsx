@@ -2573,19 +2573,22 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                       La sous-catégorie par défaut sera affichée en premier sur la fiche.
                     </p>
                   </div>
-                  <div className="space-y-2 flex-1">
+                   <div className="space-y-2 flex-1">
                     <Label>Engagements</Label>
                     <div className="border rounded-md p-3 space-y-1.5 bg-muted/30">
-                      {["Bio (intégral)", "Bio (partiellement)", "Commerce équitable", "Engagement solidaire", "Engagement éco-responsable"].map((eng) => (
+                      {["Bio (intégral)", "Bio (partiellement)", "Commerce équitable", "Engagement solidaire", "Engagement éco-responsable", "Marché occasionnel"].map((eng) => (
                         <label key={eng} className="flex items-center gap-2 cursor-pointer text-sm">
                           <input
                             type="checkbox"
                             checked={((formData as any).engagements || []).includes(eng)}
                             onChange={() => {
                               const current: string[] = (formData as any).engagements || [];
-                              const updated = current.includes(eng)
-                                ? current.filter(e => e !== eng)
-                                : [...current, eng];
+                              let updated: string[];
+                              if (current.includes(eng)) {
+                                updated = current.filter(e => e !== eng && !(eng === "Marché occasionnel" && e.startsWith("Marché:")));
+                              } else {
+                                updated = [...current, eng];
+                              }
                               handleChange("engagements", updated);
                             }}
                             className="h-4 w-4 rounded border-input"
@@ -2593,24 +2596,52 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                           {eng}
                         </label>
                       ))}
+                      {((formData as any).engagements || []).includes("Marché occasionnel") && (
+                        <div className="ml-6 mt-1 p-2 border rounded bg-background space-y-1">
+                          <span className="text-xs text-muted-foreground font-medium">Jours de marché :</span>
+                          <div className="flex flex-wrap gap-x-3 gap-y-1">
+                            {["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"].map((day) => (
+                              <label key={day} className="flex items-center gap-1.5 cursor-pointer text-sm">
+                                <input
+                                  type="checkbox"
+                                  checked={((formData as any).engagements || []).includes(`Marché:${day}`)}
+                                  onChange={() => {
+                                    const current: string[] = (formData as any).engagements || [];
+                                    const tag = `Marché:${day}`;
+                                    const updated = current.includes(tag)
+                                      ? current.filter(e => e !== tag)
+                                      : [...current, tag];
+                                    handleChange("engagements", updated);
+                                  }}
+                                  className="h-3.5 w-3.5 rounded border-input"
+                                />
+                                {day}
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  </div>
+                   </div>
                 </div>
               )}
               {formData.categories.length <= 1 && (
                 <div className="mt-3 space-y-2">
                   <Label>Engagements</Label>
                   <div className="border rounded-md p-3 space-y-1.5 bg-muted/30">
-                    {["Bio (intégral)", "Bio (partiellement)", "Commerce équitable", "Engagement solidaire", "Engagement éco-responsable"].map((eng) => (
+                    {["Bio (intégral)", "Bio (partiellement)", "Commerce équitable", "Engagement solidaire", "Engagement éco-responsable", "Marché occasionnel"].map((eng) => (
                       <label key={eng} className="flex items-center gap-2 cursor-pointer text-sm">
                         <input
                           type="checkbox"
                           checked={((formData as any).engagements || []).includes(eng)}
                           onChange={() => {
                             const current: string[] = (formData as any).engagements || [];
-                            const updated = current.includes(eng)
-                              ? current.filter(e => e !== eng)
-                              : [...current, eng];
+                            let updated: string[];
+                            if (current.includes(eng)) {
+                              updated = current.filter(e => e !== eng && !(eng === "Marché occasionnel" && e.startsWith("Marché:")));
+                            } else {
+                              updated = [...current, eng];
+                            }
                             handleChange("engagements", updated);
                           }}
                           className="h-4 w-4 rounded border-input"
@@ -2618,6 +2649,31 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                         {eng}
                       </label>
                     ))}
+                    {((formData as any).engagements || []).includes("Marché occasionnel") && (
+                      <div className="ml-6 mt-1 p-2 border rounded bg-background space-y-1">
+                        <span className="text-xs text-muted-foreground font-medium">Jours de marché :</span>
+                        <div className="flex flex-wrap gap-x-3 gap-y-1">
+                          {["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"].map((day) => (
+                            <label key={day} className="flex items-center gap-1.5 cursor-pointer text-sm">
+                              <input
+                                type="checkbox"
+                                checked={((formData as any).engagements || []).includes(`Marché:${day}`)}
+                                onChange={() => {
+                                  const current: string[] = (formData as any).engagements || [];
+                                  const tag = `Marché:${day}`;
+                                  const updated = current.includes(tag)
+                                    ? current.filter(e => e !== tag)
+                                    : [...current, tag];
+                                  handleChange("engagements", updated);
+                                }}
+                                className="h-3.5 w-3.5 rounded border-input"
+                              />
+                              {day}
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
