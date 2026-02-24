@@ -329,6 +329,10 @@ const StaffBackoffice = () => {
                 <LayoutDashboard className="h-4 w-4" />
                 Dashboard
               </TabsTrigger>
+              <TabsTrigger value="search-config" className="gap-2">
+                <Settings2 className="h-4 w-4" />
+                Recherche
+              </TabsTrigger>
               <TabsTrigger value="businesses" className="gap-2">
                 <Building2 className="h-4 w-4" />
                 Entreprises
@@ -364,10 +368,6 @@ const StaffBackoffice = () => {
               <TabsTrigger value="affiliates" className="gap-2">
                 <UserCheck className="h-4 w-4" />
                 Affiliés
-              </TabsTrigger>
-              <TabsTrigger value="search-config" className="gap-2">
-                <Settings2 className="h-4 w-4" />
-                Recherche
               </TabsTrigger>
               {isAdmin && (
                 <TabsTrigger value="users" className="gap-2">
