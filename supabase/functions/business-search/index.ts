@@ -1011,15 +1011,31 @@ serve(async (req) => {
     }
 
     // When a subcategory is detected, use direct SQL filtering (bypasses tsquery which matches descriptions)
+    // Fusion rule: "Hôtel" and "Riad" are merged in search results
+    const MERGED_SUBCATEGORIES: Record<string, string[]> = {
+      "hôtel": ["Hôtel", "Riad"],
+      "riad": ["Hôtel", "Riad"],
+    };
+
     if (detectedSubcategory && businesses.length === 0) {
-      // Helper to fetch businesses for a given subcategory with current filters
+      // Helper to fetch businesses for a given subcategory (or merged group) with current filters
       const fetchSubcategoryBusinesses = async (subcat: string, filterByServices?: string[]) => {
-        let subBuilder = supabase.from("businesses").select("*").eq("is_active", true)
-          .contains("categories", [subcat]);
+        // Determine which subcategories to query (merged if applicable)
+        const mergedSubcats = MERGED_SUBCATEGORIES[subcat.toLowerCase()] || [subcat];
+        
+        let subBuilder = supabase.from("businesses").select("*").eq("is_active", true);
+        
+        if (mergedSubcats.length === 1) {
+          subBuilder = subBuilder.contains("categories", [mergedSubcats[0]]);
+        } else {
+          // OR: match businesses that have ANY of the merged subcategories
+          const orClause = mergedSubcats.map(sc => `categories.cs.{"${sc}"}`).join(",");
+          subBuilder = subBuilder.or(orClause);
+          console.log(`Merged subcategory search: [${mergedSubcats.join(", ")}]`);
+        }
         
         // When services are detected alongside a subcategory, filter to only businesses offering those services
         if (filterByServices && filterByServices.length > 0) {
-          // Use overlaps to match businesses that have ANY of the detected services
           subBuilder = subBuilder.overlaps("services", filterByServices);
         }
         
@@ -1029,10 +1045,9 @@ serve(async (req) => {
         if (effectiveCategory) {
           subBuilder = subBuilder.or(`main_category.eq.${effectiveCategory},categories.cs.{"${effectiveCategory}"}`);
         }
-        // Filter by neighborhood if detected (match both with and without accents)
+        // Filter by neighborhood if detected
         if (detectedNeighborhood) {
           const nLower = detectedNeighborhood.toLowerCase();
-          // Handle Gueliz/Guéliz duality and similar accent variants
           const neighborhoodVariants = [detectedNeighborhood];
           if (nLower === "gueliz" || nLower === "guéliz" || nLower === "geliz") {
             neighborhoodVariants.push("Gueliz", "Guéliz", "Geliz");
@@ -1048,7 +1063,6 @@ serve(async (req) => {
           }
         }
         
-        // Apply max_results from search config if available
         const effectiveLimit = subcategorySearchConfig?.max_results || limit;
         subBuilder = subBuilder
           .order("wtuce_status", { ascending: true })
