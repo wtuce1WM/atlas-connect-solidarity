@@ -953,8 +953,18 @@ serve(async (req) => {
             }
           } else if (allCandidateServiceNames.length > 0) {
             // OR logic: business must have at least ONE of the candidate services
+            // BUT always keep businesses whose name closely matches the ORIGINAL query
+            const originalQueryLower = (query || "").toLowerCase().trim();
             const beforeCount = businesses.length;
             businesses = businesses.filter((b: any) => {
+              // Keep if business name matches original query (user searching by name)
+              const bNameLower = (b.name || "").toLowerCase();
+              if (originalQueryLower.length >= 4 && (
+                bNameLower.includes(originalQueryLower) || originalQueryLower.includes(bNameLower) ||
+                bNameLower.split(/\s+/).filter((w: string) => w.length > 2 && originalQueryLower.includes(w)).length >= 2
+              )) {
+                return true;
+              }
               const bServices = (b.services || []).map((s: string) => s.toLowerCase());
               return allCandidateServiceNames.some(cs => 
                 bServices.some(bs => bs.includes(cs.toLowerCase()) || cs.toLowerCase().includes(bs))
