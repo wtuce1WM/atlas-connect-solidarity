@@ -19,6 +19,7 @@ import RelatedEstablishments from "@/components/RelatedEstablishments";
 import ShareButton from "@/components/ShareButton";
 import BookmarkButton from "@/components/BookmarkButton";
 import ServiceListItem from "@/components/ServiceListItem";
+import DynamicIcon from "@/components/DynamicIcon";
 import { useValidatedImages, useValidatedUrl } from "@/hooks/useValidatedImages";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import LoadingScreen from "@/components/LoadingScreen";
@@ -185,7 +186,8 @@ const BusinessDetail = () => {
   const [businessDestinationHook, setBusinessDestinationHook] = useState<string | null>(null);
   const [businessDestinationDescription, setBusinessDestinationDescription] = useState<string | null>(null);
   const [servicesTabTitle, setServicesTabTitle] = useState<string>('Services');
-  const [servicesTabDescription, setServicesTabDescription] = useState<string | null>(null);
+  const [groupedServices, setGroupedServices] = useState<{ subcategoryName: string; description: string | null; icon: string | null; services: string[] }[]>([]);
+  const [openGroups, setOpenGroups] = useState<Set<string>>(new Set());
   const { t, language } = useLanguage();
   const navigate = useNavigate();
   const { speak: ttsSpeak, stop: ttsStop, status: ttsStatus } = useTextToSpeech();
@@ -272,17 +274,66 @@ const BusinessDetail = () => {
           setDestinations([]);
         }
 
-        // Fetch subcategory tab_title and description_fr
+        // Fetch subcategory info and group services
         if (data.categories && data.categories.length > 0) {
           const { data: subcatData } = await supabase
             .from("subcategories")
-            .select("tab_title, description_fr")
+            .select("name_fr, tab_title, description_fr, icon")
             .in("name_fr", data.categories);
           if (subcatData && subcatData.length > 0) {
             const withTitle = (subcatData as any[]).find(sc => sc.tab_title);
             if (withTitle) setServicesTabTitle(withTitle.tab_title);
-            const withDesc = (subcatData as any[]).find(sc => sc.description_fr);
-            if (withDesc) setServicesTabDescription(withDesc.description_fr);
+          }
+          
+          // Fetch service→subcategory mapping for this business's services
+          if (data.services && data.services.length > 0) {
+            const { data: svcRows } = await supabase
+              .from("services")
+              .select("name_fr, subcategory_id, subcategories(name_fr, description_fr, icon)")
+              .in("name_fr", data.services);
+            
+            const groupMap = new Map<string, { description: string | null; icon: string | null; services: string[] }>();
+            const orphanServices: string[] = [];
+            
+            if (svcRows) {
+              for (const row of svcRows as any[]) {
+                const subcatName = row.subcategories?.name_fr || null;
+                if (subcatName) {
+                  if (!groupMap.has(subcatName)) {
+                    groupMap.set(subcatName, {
+                      description: row.subcategories?.description_fr || null,
+                      icon: row.subcategories?.icon || null,
+                      services: [],
+                    });
+                  }
+                  groupMap.get(subcatName)!.services.push(row.name_fr);
+                } else {
+                  orphanServices.push(row.name_fr);
+                }
+              }
+            }
+            
+            // Services not found in DB
+            const foundNames = new Set((svcRows as any[] || []).map((r: any) => r.name_fr));
+            for (const s of data.services) {
+              if (!foundNames.has(s)) orphanServices.push(s);
+            }
+            
+            const groups = Array.from(groupMap.entries()).map(([name, g]) => ({
+              subcategoryName: name,
+              description: g.description,
+              icon: g.icon,
+              services: g.services.sort((a, b) => a.localeCompare(b, 'fr')),
+            }));
+            groups.sort((a, b) => a.subcategoryName.localeCompare(b.subcategoryName, 'fr'));
+            
+            if (orphanServices.length > 0) {
+              groups.push({ subcategoryName: 'Autres', description: null, icon: null, services: orphanServices.sort((a, b) => a.localeCompare(b, 'fr')) });
+            }
+            
+            setGroupedServices(groups);
+            // Open all groups by default
+            setOpenGroups(new Set(groups.map(g => g.subcategoryName)));
           }
         }
       } else {
@@ -1226,10 +1277,56 @@ const BusinessDetail = () => {
         {activeTab === 'services' && (
           <div className="max-w-2xl">
             <h2 className={`text-xl font-semibold mb-4 ${isVerified ? 'text-white' : ''}`}>{servicesTabTitle}</h2>
-            {servicesTabDescription && (
-              <div className={`mb-6 text-sm leading-relaxed prose max-w-none ${isVerified ? 'text-white/80 prose-headings:text-white prose-strong:text-white' : 'text-muted-foreground prose-headings:text-foreground'}`} dangerouslySetInnerHTML={{ __html: servicesTabDescription }} />
-            )}
-            {business.services && business.services.length > 0 ? (
+            {groupedServices.length > 0 ? (
+              <div className="space-y-3">
+                {groupedServices.map((group) => {
+                  const isOpen = openGroups.has(group.subcategoryName);
+                  const showHeader = groupedServices.length > 1 || group.description;
+                  return (
+                    <div key={group.subcategoryName} className={`rounded-xl overflow-hidden ${isVerified ? 'bg-white/10' : 'bg-card border border-border'}`}>
+                      {showHeader && (
+                        <button
+                          onClick={() => {
+                            setOpenGroups(prev => {
+                              const next = new Set(prev);
+                              if (next.has(group.subcategoryName)) next.delete(group.subcategoryName);
+                              else next.add(group.subcategoryName);
+                              return next;
+                            });
+                          }}
+                          className={`w-full flex items-center justify-between px-4 py-3 text-left transition-colors ${isVerified ? 'hover:bg-white/5' : 'hover:bg-muted/50'}`}
+                        >
+                          <div className="flex items-center gap-2">
+                            {group.icon && (
+                              <DynamicIcon name={group.icon} className={`h-5 w-5 ${isVerified ? 'text-gold' : 'text-primary'}`} />
+                            )}
+                            <span className={`font-semibold ${isVerified ? 'text-white' : 'text-foreground'}`}>
+                              {group.subcategoryName}
+                            </span>
+                            <span className={`text-xs ${isVerified ? 'text-white/50' : 'text-muted-foreground'}`}>
+                              ({group.services.length})
+                            </span>
+                          </div>
+                          <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isVerified ? 'text-white/60' : 'text-muted-foreground'} ${isOpen ? 'rotate-180' : ''}`} />
+                        </button>
+                      )}
+                      {(isOpen || !showHeader) && (
+                        <div className={`px-4 pb-4 ${showHeader ? 'pt-0' : 'pt-4'}`}>
+                          {group.description && (
+                            <div className={`mb-3 text-sm leading-relaxed prose max-w-none ${isVerified ? 'text-white/70 prose-headings:text-white prose-strong:text-white' : 'text-muted-foreground prose-headings:text-foreground'}`} dangerouslySetInnerHTML={{ __html: group.description }} />
+                          )}
+                          <ul className="space-y-2">
+                            {group.services.map((service, index) => (
+                              <ServiceListItem key={index} service={service} currentBusinessId={business.id} city={business.city} />
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : business.services && business.services.length > 0 ? (
               <ul className="space-y-3 text-foreground">
                 {[...business.services].sort((a, b) => a.localeCompare(b, 'fr')).map((service, index) => (
                   <ServiceListItem key={index} service={service} currentBusinessId={business.id} city={business.city} />
