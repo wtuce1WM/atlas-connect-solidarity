@@ -127,6 +127,87 @@ const CGF = () => {
             <p className="font-semibold text-foreground">L'Équipe One World Morocco</p>
           </div>
         </section>
+
+        <hr className="my-12 border-border" />
+
+        <section className="mb-8">
+          <p className="text-muted-foreground leading-relaxed mb-3">
+            Voici une proposition de Contrat d'Affiliation structuré pour protéger la plateforme One World Morocco tout en formalisant la relation avec vos partenaires (hébergeurs, prestataires, commerçants).
+          </p>
+          <p className="text-muted-foreground leading-relaxed mb-6">
+            Ce document est conçu pour être annexé à la lettre d'accompagnement envoyée après les 3 mois de gratuité.
+          </p>
+
+          <h2 className="text-2xl font-bold mb-6 text-center">CONTRAT D'AFFILIATION – ONE WORLD MOROCCO</h2>
+
+          <div className="text-muted-foreground leading-relaxed space-y-4">
+            <p><strong className="text-foreground">ENTRE LES SOUSSIGNÉS :</strong></p>
+            <p>La plateforme One World Morocco, représentée par ses fondateurs (ci-après « la Plateforme »),</p>
+
+            <p><strong className="text-foreground">ET :</strong></p>
+            <p>La société / l'établissement : [Nom de l'Affilié]</p>
+            <p>Représenté(e) par : [Nom du Responsable]</p>
+            <p>Adresse : [Adresse complète]</p>
+            <p>(ci-après « l'Affilié »).</p>
+
+            <h3 className="text-lg font-semibold text-foreground pt-4">ARTICLE 1 : OBJET DU CONTRAT</h3>
+            <p>Le présent contrat a pour objet de définir les conditions techniques et commerciales dans lesquelles la Plateforme assure le référencement, l'indexation et la mise en visibilité des services de l'Affilié auprès des Internautes (B2C) et des autres partenaires professionnels (B2B).</p>
+
+            <h3 className="text-lg font-semibold text-foreground pt-4">ARTICLE 2 : NATURE DE LA PRESTATION (INTERMÉDIATION)</h3>
+            <p>L'Affilié reconnaît que One World Morocco intervient exclusivement en tant qu'apporteur d'affaires technologique et prestataire de mise en relation.</p>
+            <ul className="list-disc pl-6 space-y-2">
+              <li>La Plateforme n'intervient pas dans le processus de réservation finale, de facturation ou de prestation de service.</li>
+              <li>Le contrat de vente est conclu directement entre l'Affilié et son client (ou partenaire B2B).</li>
+            </ul>
+
+            <h3 className="text-lg font-semibold text-foreground pt-4">ARTICLE 3 : DURÉE ET PRISE D'EFFET</h3>
+            <p>Le présent contrat prend effet à l'issue de la période de gratuité de trois (3) mois, sous réserve de sa signature par l'Affilié. Il est conclu pour une durée de [12 mois / Indéterminée], renouvelable par tacite reconduction, sauf dénonciation par l'une des parties avec un préavis de [30 jours].</p>
+
+            <h3 className="text-lg font-semibold text-foreground pt-4">ARTICLE 4 : MODALITÉS FINANCIÈRES</h3>
+            <p>En contrepartie du service de mise en relation et du maintien de son indexation, l'Affilié s'engage à régler :</p>
+            <ul className="list-disc pl-6 space-y-2">
+              <li><strong>Option A (Abonnement) :</strong> Un forfait fixe de [Montant] MAD par [Mois/An].</li>
+              <li><strong>Option B (Commission) :</strong> [À définir si vous prélevez un % sur les mises en relation].</li>
+              <li><strong>Paiement :</strong> Le règlement s'effectue par [Virement / Chèque / Carte] à réception de facture.</li>
+            </ul>
+
+            <h3 className="text-lg font-semibold text-foreground pt-4">ARTICLE 5 : EXCLUSION DE RESPONSABILITÉ</h3>
+            <p>La responsabilité de One World Morocco ne pourra en aucun cas être engagée pour :</p>
+            <ul className="list-disc pl-6 space-y-2">
+              <li><strong>Inexécution contractuelle :</strong> Tout défaut de paiement de l'Internaute ou toute annulation de prestation par l'Affilié.</li>
+              <li><strong>Litiges B2B/B2C :</strong> Tout dommage corporel, matériel ou immatériel survenant lors de l'exécution de la prestation vendue via la plateforme.</li>
+              <li><strong>Contenus :</strong> Les erreurs ou omissions dans les descriptifs fournis par l'Affilié (tarifs, photos, disponibilités). L'Affilié est seul responsable de la véracité de ses offres.</li>
+            </ul>
+
+            <h3 className="text-lg font-semibold text-foreground pt-4">ARTICLE 6 : ENGAGEMENTS DE L'AFFILIÉ</h3>
+            <p>L'Affilié s'engage à :</p>
+            <ul className="list-disc pl-6 space-y-2">
+              <li>Maintenir un niveau de service conforme aux standards de qualité de One World Morocco.</li>
+              <li>Mettre à jour régulièrement ses informations sur la plateforme.</li>
+              <li>Garantir qu'il dispose de toutes les autorisations administratives et assurances nécessaires à l'exercice de son activité au Maroc.</li>
+            </ul>
+
+            <h3 className="text-lg font-semibold text-foreground pt-4">ARTICLE 7 : RÉSILIATION</h3>
+            <p>En cas de non-respect par l'une des parties de ses obligations, le contrat pourra être résilié de plein droit après une mise en demeure restée infructueuse pendant 15 jours. La Plateforme se réserve le droit de suspendre l'indexation de l'Affilié en cas de défaut de paiement ou de plaintes récurrentes d'utilisateurs.</p>
+
+            <h3 className="text-lg font-semibold text-foreground pt-4">ARTICLE 8 : DROIT APPLICABLE ET LITIGES</h3>
+            <p>Le présent contrat est régi par le droit marocain. À défaut d'accord amiable, tout litige sera porté devant le Tribunal de Commerce de Marrakech.</p>
+
+            <p className="pt-4">Fait à Marrakech, le [Date]</p>
+            <p>(En deux exemplaires)</p>
+
+            <div className="grid grid-cols-2 gap-8 pt-4 border-t border-border mt-4">
+              <div>
+                <p className="font-semibold text-foreground">Pour l'Affilié</p>
+                <p className="text-sm">(Signature et cachet)</p>
+              </div>
+              <div>
+                <p className="font-semibold text-foreground">Pour One World Morocco</p>
+                <p className="text-sm">(Signature)</p>
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
       <Footer />
     </div>
