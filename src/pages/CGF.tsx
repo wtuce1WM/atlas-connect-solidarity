@@ -208,6 +208,84 @@ const CGF = () => {
             </div>
           </div>
         </section>
+
+        <hr className="my-12 border-border" />
+
+        <section className="mb-8">
+          <p className="text-muted-foreground leading-relaxed mb-3">
+            Voici une proposition de Formulaire de Référencement (Check-list) pour vos affiliés. Ce document est essentiel pour collecter les données nécessaires à la création de leur fiche technique tout en garantissant la conformité administrative de chaque prestataire sur One World Morocco.
+          </p>
+
+          <h2 className="text-2xl font-bold mb-6 text-center">FORMULAIRE D'INDEXATION - ONE WORLD MOROCCO</h2>
+          <p className="text-muted-foreground leading-relaxed mb-6 text-center italic">À compléter et à nous retourner pour l'ouverture de votre fiche partenaire</p>
+
+          <div className="text-muted-foreground leading-relaxed space-y-6">
+            <div>
+              <h3 className="text-lg font-semibold text-foreground mb-2">1. INFORMATIONS ADMINISTRATIVES (OBLIGATOIRE)</h3>
+              <p className="mb-3">Conformément à nos conditions de mise en relation, ces données assurent la transparence et la légalité de votre établissement sur notre plateforme.</p>
+              <ul className="space-y-2 pl-4">
+                <li>Dénomination Sociale (Nom de l'entreprise) : _________________________________</li>
+                <li>Enseigne Commerciale (Si différente) : ________________________________________</li>
+                <li>Forme Juridique (SARL, Auto-entrepreneur, etc.) : ____________________________</li>
+                <li>Identifiant Commun de l'Entreprise (ICE) : _____________________________________</li>
+                <li>Numéro d'affiliation à la CNSS : ______________________________________________</li>
+                <li>Adresse du siège social : ____________________________________________________</li>
+                <li>Ville : _______________________________________________________________________</li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold text-foreground mb-2">2. COORDONNÉES DE CONTACT</h3>
+              <p className="mb-3">Ces informations seront utilisées par la plateforme pour vous transmettre les demandes de mise en relation.</p>
+              <ul className="space-y-2 pl-4">
+                <li>Nom du responsable / interlocuteur : _________________________________________</li>
+                <li>Téléphone professionnel (Direct) : ____________________________________________</li>
+                <li>Adresse E-mail (Pour les réservations/demandes) : ____________________________</li>
+                <li>Lien vers votre site web (si disponible) : _____________________________________</li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold text-foreground mb-2">3. CONTENU DE VOTRE FICHE (PRÉSENTATION)</h3>
+              <p className="mb-3">Ces éléments seront visibles par les Internautes et les autres Affiliés.</p>
+              <ul className="space-y-2 pl-4">
+                <li>Catégorie d'activité : (ex: Hébergement, Restauration, Transport, Artisanat...)</li>
+                <li>Description de vos services (en 3 à 5 lignes) :</li>
+                <li>Points forts / Spécificités : (ex: Vue sur l'Atlas, Bio, Accessible PMR...)</li>
+                <li>Localisation pour la carte (Coordonnées GPS ou Quartier) : ____________________</li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold text-foreground mb-2">4. DOCUMENTS À JOINDRE</h3>
+              <p className="mb-3">Pour valider votre indexation, merci de nous transmettre par e-mail les pièces suivantes :</p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>Copie de l'attestation d'immatriculation à l'ICE.</li>
+                <li>Attestation d'affiliation à la CNSS (ou dernier bordereau).</li>
+                <li>Logo haute définition (Format PNG ou JPEG).</li>
+                <li>3 à 5 photographies professionnelles représentatives de votre établissement ou de vos produits.</li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold text-foreground mb-2">5. DÉCLARATION SUR L'HONNEUR</h3>
+              <p>Je soussigné(e), ________________________, agissant en qualité de ________________________, certifie l'exactitude des informations fournies ci-dessus et confirme que l'établissement est en règle vis-à-vis des obligations sociales (CNSS) et fiscales en vigueur au Maroc.</p>
+              <div className="mt-4 space-y-2">
+                <p>Fait à : _______________ Le : _ / _ / 202___</p>
+                <p>Signature et Cachet de l'entreprise :</p>
+              </div>
+            </div>
+
+            <div className="bg-muted/50 rounded-lg p-6 mt-6">
+              <p className="font-semibold text-foreground mb-3">Pourquoi inclure l'ICE et la CNSS ?</p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li><strong>Sérieux de la plateforme :</strong> Cela rassure les clients (B2C) et les partenaires (B2B) sur le fait qu'ils traitent avec des professionnels déclarés.</li>
+                <li><strong>Responsabilité :</strong> En demandant ces documents, vous prouvez que vous agissez comme un intermédiaire rigoureux, ce qui renforce votre clause de déclinaison de responsabilité.</li>
+                <li><strong>Évolution WTUCE :</strong> Pour votre mouvement global, cela garantit que les membres du réseau respectent des standards éthiques et légaux de base.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
       </main>
       <Footer />
     </div>
