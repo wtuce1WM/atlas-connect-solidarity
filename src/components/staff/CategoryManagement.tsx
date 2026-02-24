@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
@@ -77,6 +78,8 @@ interface Subcategory {
   icon: string | null;
   sort_order: number;
   keywords: string[] | null;
+  tab_title: string | null;
+  description_fr: string | null;
 }
 
 interface Service {
@@ -166,7 +169,9 @@ const CategoryManagement = () => {
     icon: "",
     sort_order: 0,
     front_color: "white",
-    keywords: ""
+    keywords: "",
+    tab_title: "",
+    description_fr: ""
   });
   
   const [deleteDialog, setDeleteDialog] = useState<{
@@ -281,16 +286,18 @@ const CategoryManagement = () => {
         icon: (item as Category).icon || "",
         sort_order: item.sort_order || 0,
         front_color: (item as Category).front_color || "white",
-        keywords: ((item as Service | Subcategory).keywords || []).join(", ")
+        keywords: ((item as Service | Subcategory).keywords || []).join(", "),
+        tab_title: (item as any).tab_title || "",
+        description_fr: (item as any).description_fr || ""
       });
     } else {
-      setEditForm({ name_fr: "", name_en: "", name_ar: "", adj_fr: "", adj_en: "", adj_ar: "", icon: "", sort_order: 0, front_color: "white", keywords: "" });
+      setEditForm({ name_fr: "", name_en: "", name_ar: "", adj_fr: "", adj_en: "", adj_ar: "", icon: "", sort_order: 0, front_color: "white", keywords: "", tab_title: "", description_fr: "" });
     }
   };
 
   const cancelEdit = () => {
     setEditMode(null);
-    setEditForm({ name_fr: "", name_en: "", name_ar: "", adj_fr: "", adj_en: "", adj_ar: "", icon: "", sort_order: 0, front_color: "white", keywords: "" });
+    setEditForm({ name_fr: "", name_en: "", name_ar: "", adj_fr: "", adj_en: "", adj_ar: "", icon: "", sort_order: 0, front_color: "white", keywords: "", tab_title: "", description_fr: "" });
   };
 
   const saveItem = async () => {
@@ -326,7 +333,7 @@ const CategoryManagement = () => {
           .split(",")
           .map(k => k.trim())
           .filter(k => k.length > 0);
-        const subData = {
+        const subData: Record<string, any> = {
           category_id: editMode.parentId!,
           name_fr: editForm.name_fr.trim(),
           name_en: editForm.name_en.trim() || null,
@@ -336,14 +343,16 @@ const CategoryManagement = () => {
           adj_ar: editForm.adj_ar.trim() || null,
           icon: editForm.icon.trim() || null,
           sort_order: editForm.sort_order,
-          keywords: keywordsArray
+          keywords: keywordsArray,
+          tab_title: editForm.tab_title.trim() || null,
+          description_fr: editForm.description_fr.trim() || null
         };
 
         if (editMode.id) {
-          await supabase.from("subcategories").update(subData).eq("id", editMode.id);
+          await supabase.from("subcategories").update(subData as any).eq("id", editMode.id);
           toast.success("Sous-catégorie modifiée");
         } else {
-          await supabase.from("subcategories").insert(subData);
+          await supabase.from("subcategories").insert(subData as any);
           toast.success("Sous-catégorie créée");
         }
       } else if (editMode.type === "service") {
@@ -476,7 +485,7 @@ const CategoryManagement = () => {
     );
   }
 
-  const renderEditForm = (showIcon: boolean = false, showAdj: boolean = false, showFrontColor: boolean = false, showKeywords: boolean = false) => (
+  const renderEditForm = (showIcon: boolean = false, showAdj: boolean = false, showFrontColor: boolean = false, showKeywords: boolean = false, showSubcategoryExtra: boolean = false) => (
     <div className="space-y-3 p-4 bg-muted/50 rounded-lg border">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
         <div>
@@ -553,6 +562,31 @@ const CategoryManagement = () => {
             placeholder=""
           />
           <p className="text-[10px] text-muted-foreground mt-0.5">Ces mots permettront de trouver ce {editMode?.type === "subcategory" ? "type d'établissement" : "service"} lors d'une recherche</p>
+        </div>
+      )}
+      {showSubcategoryExtra && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div>
+            <label className="text-xs font-medium text-muted-foreground">Titre de l'onglet (max 20 car.)</label>
+            <Input
+              value={editForm.tab_title}
+              onChange={(e) => setEditForm(prev => ({ ...prev, tab_title: e.target.value.slice(0, 20) }))}
+              placeholder="Titre court"
+              maxLength={20}
+            />
+            <p className="text-[10px] text-muted-foreground mt-0.5">{editForm.tab_title.length}/20</p>
+          </div>
+          <div>
+            <label className="text-xs font-medium text-muted-foreground">Description (max 500 car.)</label>
+            <Textarea
+              value={editForm.description_fr}
+              onChange={(e) => setEditForm(prev => ({ ...prev, description_fr: e.target.value.slice(0, 500) }))}
+              placeholder="Description de la sous-catégorie..."
+              maxLength={500}
+              className="min-h-[100px]"
+            />
+            <p className="text-[10px] text-muted-foreground mt-0.5">{editForm.description_fr.length}/500</p>
+          </div>
         </div>
       )}
       {showFrontColor && (
@@ -691,7 +725,7 @@ const CategoryManagement = () => {
 
                     {/* New subcategory form */}
                     {editMode?.type === "subcategory" && editMode.id === null && editMode.parentId === category.id && (
-                      renderEditForm(true, true, false, true)
+                      renderEditForm(true, true, false, true, true)
                     )}
 
                     {subs.map((sub) => {
@@ -751,7 +785,7 @@ const CategoryManagement = () => {
 
                             {subIsEditing && (
                               <div className="px-2 pb-2">
-                                {renderEditForm(true, true, false, true)}
+                                {renderEditForm(true, true, false, true, true)}
                               </div>
                             )}
 

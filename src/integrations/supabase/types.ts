@@ -1718,6 +1718,7 @@ export type Database = {
           adj_fr: string | null
           category_id: string
           created_at: string | null
+          description_fr: string | null
           icon: string | null
           id: string
           keywords: string[] | null
@@ -1725,6 +1726,7 @@ export type Database = {
           name_en: string | null
           name_fr: string
           sort_order: number | null
+          tab_title: string | null
           updated_at: string | null
         }
         Insert: {
@@ -1733,6 +1735,7 @@ export type Database = {
           adj_fr?: string | null
           category_id: string
           created_at?: string | null
+          description_fr?: string | null
           icon?: string | null
           id?: string
           keywords?: string[] | null
@@ -1740,6 +1743,7 @@ export type Database = {
           name_en?: string | null
           name_fr: string
           sort_order?: number | null
+          tab_title?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -1748,6 +1752,7 @@ export type Database = {
           adj_fr?: string | null
           category_id?: string
           created_at?: string | null
+          description_fr?: string | null
           icon?: string | null
           id?: string
           keywords?: string[] | null
@@ -1755,6 +1760,7 @@ export type Database = {
           name_en?: string | null
           name_fr?: string
           sort_order?: number | null
+          tab_title?: string | null
           updated_at?: string | null
         }
         Relationships: [
