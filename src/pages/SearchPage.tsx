@@ -371,18 +371,16 @@ const SearchPage = () => {
     
     const keys = Object.keys(groups);
     
-    // Sort groups by subcategory sort_order from DB, then alphabetically
+    // Sort groups: detected subcategory first, then alphabetically
     const sortedKeys = keys.sort((a, b) => {
-      const aSub = subcategories.find(s => s.name_fr.toLowerCase() === a.toLowerCase());
-      const bSub = subcategories.find(s => s.name_fr.toLowerCase() === b.toLowerCase());
-      const aOrder = aSub?.sort_order ?? 9999;
-      const bOrder = bSub?.sort_order ?? 9999;
-      if (aOrder !== bOrder) return aOrder - bOrder;
+      const aIsDetected = a.toLowerCase() === detectedSubcategory.toLowerCase() ? 0 : 1;
+      const bIsDetected = b.toLowerCase() === detectedSubcategory.toLowerCase() ? 0 : 1;
+      if (aIsDetected !== bIsDetected) return aIsDetected - bIsDetected;
       return a.localeCompare(b, 'fr');
     });
     
     return sortedKeys.map(key => ({ subcategory: key, businesses: groups[key] }));
-  }, [filteredBusinesses, detectedSubcategory, subcategories]);
+  }, [filteredBusinesses, detectedSubcategory]);
 
   // Paginate (only for non-grouped view)
   const totalPages = Math.ceil(filteredBusinesses.length / ITEMS_PER_PAGE);
@@ -401,7 +399,7 @@ const SearchPage = () => {
     Promise.all([
       supabase.from("gammes").select("id, name_fr, color_hex, text_color_hex, sort_order"),
       supabase.from("badges").select("id, name_fr, color_hex, text_color_hex").order("sort_order", { ascending: true }),
-      supabase.from("subcategories").select("id, name_fr, sort_order"),
+      supabase.from("subcategories").select("id, name_fr"),
       supabase.from("badge_subcategories").select("badge_id, subcategory_id"),
       supabase.from("staff_notes").select("content").eq("key", "tts_intro_phrase").maybeSingle(),
     ]).then(([gammesRes, badgesRes, subcatsRes, badgeSubcatsRes, ttsIntroRes]) => {
