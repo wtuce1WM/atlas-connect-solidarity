@@ -684,6 +684,14 @@ const CategoryManagement = () => {
                   )}
                   
                   <div className="flex-1 flex items-center gap-2">
+                    <Link
+                      to={`/category/${encodeURIComponent(category.name_fr)}`}
+                      target="_blank"
+                      onClick={(e) => e.stopPropagation()}
+                      title={`Voir la page ${category.name_fr}`}
+                    >
+                      <ExternalLink className="h-4 w-4 text-muted-foreground hover:text-primary transition-colors" />
+                    </Link>
                     <span className="font-medium">{category.name_fr}</span>
                     {category.name_en && (
                       <span className="text-muted-foreground text-sm">({category.name_en})</span>
