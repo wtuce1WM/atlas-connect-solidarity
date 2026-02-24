@@ -21,6 +21,7 @@ const HeroSection = () => {
   const [searchCategory, setSearchCategory] = useState("all");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const { suggestions } = useSearchSuggestions(searchQuery);
+  const searchContainerRef = useRef<HTMLFormElement>(null);
   const heroRef = useRef<HTMLElement>(null);
   const tabsRef = useRef<HTMLDivElement>(null);
   const [scrollY, setScrollY] = useState(0);
@@ -55,6 +56,17 @@ const HeroSection = () => {
     },
     onError: (msg) => toast({ title: msg, variant: "destructive" }),
   });
+
+  // Close suggestions on click outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -186,7 +198,7 @@ const HeroSection = () => {
         </h1>
 
         {/* Search Bar + Tabs */}
-        <form onSubmit={handleSearch} className="w-full max-w-2xl">
+        <form onSubmit={handleSearch} className="w-full max-w-2xl" ref={searchContainerRef}>
           {/* Category Tabs — une seule ligne, scroll si besoin */}
            <div
             ref={tabsRef}
@@ -239,7 +251,7 @@ const HeroSection = () => {
                 value={searchQuery}
                 onChange={(e) => { setSearchQuery(e.target.value); setShowSuggestions(true); }}
                 onFocus={() => setShowSuggestions(true)}
-                onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 300)}
                 className="w-full pl-14 pr-36 py-7 text-lg bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-full shadow-lg"
               />
               <Button
@@ -285,7 +297,7 @@ const HeroSection = () => {
                 value={searchQuery}
                 onChange={(e) => { setSearchQuery(e.target.value); setShowSuggestions(true); }}
                 onFocus={() => setShowSuggestions(true)}
-                onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 300)}
                 className="w-full pl-14 pr-4 py-7 text-lg bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-full shadow-lg"
               />
               <SearchSuggestionsDropdown
