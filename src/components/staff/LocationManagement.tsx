@@ -34,7 +34,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Edit, Trash2, Globe, MapPin, Building, ExternalLink, ArrowLeft, Save, FileText, Home, ChevronDown, Compass, LocateFixed, Loader2, ImageIcon, X } from "lucide-react";
+import { Plus, Edit, Trash2, Globe, MapPin, Building, ExternalLink, ArrowLeft, Save, FileText, Home, ChevronDown, Compass, LocateFixed, Loader2, ImageIcon, X, Search } from "lucide-react";
 import RichTextEditor from "./RichTextEditor";
 import LogoUploader from "./LogoUploader";
 
@@ -1068,6 +1068,9 @@ const LocationManagement = () => {
                                       <div key={n.id} className="flex items-center gap-1 bg-background border rounded px-2 py-1 text-sm">
                                         <span>{n.name}</span>
                                         <span className="text-xs text-muted-foreground ml-1">({neighborhoodBusinessCounts[n.name.toLowerCase()] || 0})</span>
+                                        <a href={`/search?q=${encodeURIComponent(n.name)}`} target="_blank" rel="noopener noreferrer" className="h-5 w-5 p-0 inline-flex items-center justify-center text-muted-foreground hover:text-primary transition-colors" title="Rechercher">
+                                          <Search className="h-3 w-3" />
+                                        </a>
                                         <Button
                                           size="sm"
                                           variant="ghost"
@@ -1241,6 +1244,11 @@ const LocationManagement = () => {
                           </TableCell>
                           <TableCell>{n.sort_order ?? 0}</TableCell>
                           <TableCell className="text-right">
+                            <a href={`/search?q=${encodeURIComponent(n.name)}`} target="_blank" rel="noopener noreferrer">
+                              <Button size="sm" variant="ghost" title="Rechercher">
+                                <Search className="h-4 w-4" />
+                              </Button>
+                            </a>
                             <Button size="sm" variant="ghost" onClick={() => openEditNeighborhoodFull(n)}>
                               <Edit className="h-4 w-4" />
                             </Button>
