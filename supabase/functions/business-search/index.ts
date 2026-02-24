@@ -1029,9 +1029,24 @@ serve(async (req) => {
             });
             console.log(`Multi-service AND post-filter [${detectedServices.join(", ")}]: ${beforeCount} → ${businesses.length}`);
             
-            // When multi-service filter gives 0, keep 0 — don't fallback
-            if (businesses.length === 0) {
-              console.log(`Multi-service AND filter returned 0 results — no fallback`);
+            // When multi-service AND filter gives 0, fallback to OR among detected services
+            if (businesses.length === 0 && beforeCount > 0) {
+              const orFallback = data.map((b: any) => ({
+                ...b,
+                distance_km: latitude && longitude && b.latitude && b.longitude
+                  ? calculateDistance(latitude, longitude, b.latitude, b.longitude) : null,
+              })).filter((b: any) => {
+                const bServices = (b.services || []).map((s: string) => s.toLowerCase());
+                return detectedServices.some(ds => 
+                  bServices.some(bs => bs.includes(ds.toLowerCase()) || ds.toLowerCase().includes(bs))
+                );
+              });
+              if (orFallback.length > 0) {
+                businesses = orFallback;
+                console.log(`Multi-service AND→OR fallback: ${orFallback.length} results`);
+              } else {
+                console.log(`Multi-service AND filter returned 0 results — no OR fallback either`);
+              }
             }
           } else if (allCandidateServiceNames.length > 0) {
             // OR logic: business must have at least ONE of the candidate services
