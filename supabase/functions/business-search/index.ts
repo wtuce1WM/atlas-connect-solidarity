@@ -612,6 +612,7 @@ serve(async (req) => {
     let detectedService: string | null = null;
     let detectedServices: string[] = []; // ALL fully-matched services (distinct concepts → AND)
     let allCandidateServiceNames: string[] = []; // ALL candidate service names (synonyms → OR)
+    let allMatchedServiceNames: string[] = []; // FULL list of matching services before narrowing (for fallback)
     let originalDetectedService: string | null = null; // Keep track even after fallback
     let serviceMatchWordsForInjection: string[] = [];
     let serviceMatchWordsOuter: string[] = []; // All query words used in service detection (for cleanRemainder)
@@ -751,7 +752,7 @@ serve(async (req) => {
         if (matchingServices && matchingServices.length > 0) {
           // Store ALL candidate service names for OR post-filtering
           allCandidateServiceNames = matchingServices.map((s: any) => s.name_fr);
-          
+          allMatchedServiceNames = [...allCandidateServiceNames]; // Preserve full list before narrowing
           // Collect ALL services whose name words are fully present in the query
           const fullyMatchedServices: string[] = [];
           const usedQueryWords = new Set<string>();
@@ -1095,14 +1096,27 @@ serve(async (req) => {
       // the detected service likely doesn't belong to this subcategory (e.g. "Fleurs comestibles" vs "Fleuriste")
       // → drop the service filter and retry with just the subcategory
       if (businesses.length === 0 && serviceFilter) {
-        console.log(`Service filter [${serviceFilter.join(", ")}] returned 0 results for subcategory "${detectedSubcategory}" — retrying without service filter`);
-        businesses = await fetchSubcategoryBusinesses(detectedSubcategory);
-        serviceFilter = undefined;
-        // Also clear detected services to prevent post-filtering later
-        detectedServices = [];
-        detectedService = null;
-        allCandidateServiceNames = [];
-        console.log(`Subcategory without service filter "${detectedSubcategory}": ${businesses.length} results`);
+        // Try with all originally matched service names (e.g. "Vin" failed → try "Cave à vin", "Cave à vin d'exception", etc.)
+        if (allMatchedServiceNames.length > serviceFilter.length) {
+          const broadFilter = [...new Set(allMatchedServiceNames)];
+          console.log(`Service filter [${serviceFilter.join(", ")}] returned 0 results — trying all matched services [${broadFilter.join(", ")}]`);
+          businesses = await fetchSubcategoryBusinesses(detectedSubcategory, broadFilter);
+          if (businesses.length > 0) {
+            serviceFilter = broadFilter;
+            console.log(`Broad service filter matched: ${businesses.length} results`);
+          }
+        }
+        // If still 0, drop service filter entirely
+        if (businesses.length === 0) {
+          console.log(`Service filter [${(serviceFilter || []).join(", ")}] returned 0 results for subcategory "${detectedSubcategory}" — retrying without service filter`);
+          businesses = await fetchSubcategoryBusinesses(detectedSubcategory);
+          serviceFilter = undefined;
+          // Also clear detected services to prevent post-filtering later
+          detectedServices = [];
+          detectedService = null;
+          allCandidateServiceNames = [];
+          console.log(`Subcategory without service filter "${detectedSubcategory}": ${businesses.length} results`);
+        }
       }
 
       // Enrich: also find businesses that have this subcategory as a service (e.g. "Hammam" service in hotels)
