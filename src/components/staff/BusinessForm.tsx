@@ -1547,7 +1547,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
           </Accordion>
         )}
 
-        <div id="section-contact" className="p-4 border rounded-lg bg-orange-50 space-y-4" style={{ scrollMarginTop: '130px' }}>
+        <div id="section-contact" className="p-4 border rounded-lg bg-orange-50 space-y-4" style={{ scrollMarginTop: '160px' }}>
           <h3 className="text-sm font-semibold text-orange-800">📍 Contact & Localisation</h3>
           
           {/* Adresse, Ville, Région, Quartier */}
@@ -1904,7 +1904,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
         </div>
 
         {/* Hook multilingue - affiché en gros comme Nom */}
-        <div id="section-description" className="space-y-3" style={{ scrollMarginTop: '130px' }}>
+        <div id="section-description" className="space-y-3" style={{ scrollMarginTop: '160px' }}>
           <Input
             id="hook_fr"
             value={formData.hook_fr}
@@ -2077,7 +2077,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
           </Accordion>
         )}
 
-        <div id="section-menu" className="space-y-2" style={{ scrollMarginTop: '130px' }}>
+        <div id="section-menu" className="space-y-2" style={{ scrollMarginTop: '160px' }}>
           {formData.menu_url ? (
             <Label htmlFor="menu_url"><a href={formData.menu_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">Menu (URL) ↗</a></Label>
           ) : (
@@ -2101,7 +2101,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
           </div>
 
         {/* Video */}
-        <div id="section-images" className="space-y-4 p-4 bg-orange-50 border border-orange-200 rounded-lg" style={{ scrollMarginTop: '130px' }}>
+        <div id="section-images" className="space-y-4 p-4 bg-orange-50 border border-orange-200 rounded-lg" style={{ scrollMarginTop: '160px' }}>
           <Label className="text-base font-semibold">Vidéo</Label>
           <VideoUploader
             videoUrl={formData.video_1_url}
@@ -2209,7 +2209,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
         </Accordion>
 
         {/* Social Media */}
-        <div id="section-social" className="space-y-4 p-4 bg-orange-50 border border-orange-200 rounded-lg" style={{ scrollMarginTop: '130px' }}>
+        <div id="section-social" className="space-y-4 p-4 bg-orange-50 border border-orange-200 rounded-lg" style={{ scrollMarginTop: '160px' }}>
           <Label className="text-xl font-semibold">Réseaux sociaux</Label>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -2395,7 +2395,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
         </div>
 
         {/* Avis clients */}
-        <div id="section-avis" className="space-y-4 p-4 bg-violet-50 border border-violet-200 rounded-lg" style={{ scrollMarginTop: '130px' }}>
+        <div id="section-avis" className="space-y-4 p-4 bg-violet-50 border border-violet-200 rounded-lg" style={{ scrollMarginTop: '160px' }}>
           <div className="flex items-center justify-between">
             <Label
               className="text-xl font-semibold cursor-pointer hover:text-violet-700 transition-colors"
@@ -2515,7 +2515,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
         </div>
 
         {/* Engagements & Services */}
-        <div id="section-services" className="p-4 bg-red-50 border border-red-200 rounded-lg space-y-4" style={{ scrollMarginTop: '130px' }}>
+        <div id="section-services" className="p-4 bg-red-50 border border-red-200 rounded-lg space-y-4" style={{ scrollMarginTop: '160px' }}>
           <Label className="text-xl font-semibold">Engagements & Services</Label>
           <div className="flex flex-col md:flex-row gap-4">
             <div className="space-y-2 flex-1">
@@ -2597,7 +2597,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
         </div>
 
         {/* Taxonomie */}
-        <div id="section-taxonomie" className="p-4 bg-orange-50 border border-orange-200 rounded-lg space-y-6" style={{ scrollMarginTop: '130px' }}>
+        <div id="section-taxonomie" className="p-4 bg-orange-50 border border-orange-200 rounded-lg space-y-6" style={{ scrollMarginTop: '160px' }}>
           <Label className="text-xl font-semibold">Taxonomie</Label>
           
           {/* Sous-catégories */}
@@ -2955,7 +2955,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
         </div>
 
         {/* Opening Hours */}
-        <div id="section-horaires" className="space-y-4 p-4 bg-blue-50 border border-blue-200 rounded-lg" style={{ scrollMarginTop: '130px' }}>
+        <div id="section-horaires" className="space-y-4 p-4 bg-blue-50 border border-blue-200 rounded-lg" style={{ scrollMarginTop: '160px' }}>
           <Label className="text-xl font-semibold">Horaires d'ouverture</Label>
           <OpeningHoursEditor
             value={formData.opening_hours}
@@ -2990,7 +2990,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
         </div>
 
         {/* Internal Notes - Staff Only */}
-        <div id="section-notes" className="space-y-2 p-4 border rounded-lg bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800" style={{ scrollMarginTop: '130px' }}>
+        <div id="section-notes" className="space-y-2 p-4 border rounded-lg bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800" style={{ scrollMarginTop: '160px' }}>
           <div className="flex items-center justify-between">
             <Label htmlFor="internal_notes" className="text-xl font-semibold text-amber-800 dark:text-amber-200">
               Note interne (staff uniquement)
