@@ -306,6 +306,10 @@ const CategoryManagement = () => {
       toast.error("Le nom français est requis");
       return;
     }
+    if (editMode.type === "subcategory" && editForm.description_fr.replace(/<[^>]*>/g, '').length > 1000) {
+      toast.error("La description dépasse 1000 caractères");
+      return;
+    }
 
     setSaving(true);
     try {
@@ -595,16 +599,19 @@ const CategoryManagement = () => {
             <RichTextEditor
               content={editForm.description_fr}
               onChange={(html) => {
-                // Strip HTML tags to count text length
-                const textOnly = html.replace(/<[^>]*>/g, '');
-                if (textOnly.length <= 1000) {
-                  setEditForm(prev => ({ ...prev, description_fr: html }));
-                }
+                setEditForm(prev => ({ ...prev, description_fr: html }));
               }}
               placeholder="Description de la sous-catégorie..."
               maxHeight="200px"
             />
-            <p className="text-[10px] text-muted-foreground mt-0.5">{editForm.description_fr.replace(/<[^>]*>/g, '').length}/1000</p>
+            {(() => {
+              const charCount = editForm.description_fr.replace(/<[^>]*>/g, '').length;
+              return (
+                <p className={`text-[10px] mt-0.5 ${charCount > 1000 ? 'text-destructive font-medium' : 'text-muted-foreground'}`}>
+                  {charCount}/1000{charCount > 1000 && ' — Trop long, veuillez réduire le texte'}
+                </p>
+              );
+            })()}
           </div>
         </div>
       )}
