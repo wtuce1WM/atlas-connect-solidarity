@@ -788,8 +788,11 @@ const CategoryManagement = () => {
                                 size="sm"
                                 className="h-7 w-7 p-0"
                                 onClick={(e) => {
-                                  e.stopPropagation();
-                                  startEdit({ type: "subcategory", id: sub.id, parentId: category.id }, sub);
+                                   e.stopPropagation();
+                                   startEdit({ type: "subcategory", id: sub.id, parentId: category.id }, sub);
+                                   setTimeout(() => {
+                                     subcategoryRefs.current[sub.id]?.scrollIntoView({ behavior: "smooth", block: "start" });
+                                   }, 50);
                                 }}
                               >
                                 <Pencil className="h-3 w-3" />
