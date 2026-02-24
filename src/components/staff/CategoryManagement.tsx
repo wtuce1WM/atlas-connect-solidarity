@@ -379,26 +379,35 @@ const CategoryManagement = () => {
         }
       }
 
-      // Remember subcategory & category to scroll back after reload
+      // Remember item to scroll back after reload
       let scrollToSubId: string | null = null;
-      let parentCatId: string | null = null;
+      let scrollToCatId: string | null = null;
       if (editMode.type === "service" && editMode.parentId) {
         scrollToSubId = editMode.parentId;
         const sub = subcategories.find(s => s.id === editMode.parentId);
-        if (sub) parentCatId = sub.category_id;
+        if (sub) scrollToCatId = sub.category_id;
+      } else if (editMode.type === "subcategory") {
+        scrollToSubId = editMode.id;
+        scrollToCatId = editMode.parentId || null;
+      } else if (editMode.type === "category") {
+        scrollToCatId = editMode.id;
       }
 
       await fetchData();
       cancelEdit();
 
-      // Restore expanded state and scroll to the subcategory
+      // Restore expanded state and scroll back
+      if (scrollToCatId) {
+        setExpandedCategories(prev => new Set([...prev, scrollToCatId!]));
+      }
       if (scrollToSubId) {
-        if (parentCatId) {
-          setExpandedCategories(prev => new Set([...prev, parentCatId!]));
-        }
         setExpandedSubcategories(prev => new Set([...prev, scrollToSubId!]));
         setTimeout(() => {
           subcategoryRefs.current[scrollToSubId!]?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 150);
+      } else if (scrollToCatId) {
+        setTimeout(() => {
+          categoryRefs.current[scrollToCatId!]?.scrollIntoView({ behavior: "smooth", block: "start" });
         }, 150);
       }
     } catch (error) {
