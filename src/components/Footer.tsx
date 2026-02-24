@@ -26,7 +26,7 @@ const Footer = ({ variant = "default" }: FooterProps) => {
 
   return (
     <footer className={footerBg}>
-      <div className="mx-auto px-4 py-16 w-full">
+      <div className="container mx-auto px-4 py-16">
         <div className="grid gap-12 md:grid-cols-[1fr_auto_auto]">
           {/* Brand */}
           <div>
