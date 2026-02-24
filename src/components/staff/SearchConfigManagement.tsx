@@ -366,7 +366,7 @@ const SearchConfigManagement = () => {
                               addSynonym(sub.id);
                             }
                           }}
-                          className="h-6 text-xs w-24 px-2"
+                          className="h-6 text-xs w-48 px-2"
                         />
                         <button
                           onClick={() => addSynonym(sub.id)}
