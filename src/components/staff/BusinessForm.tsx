@@ -19,6 +19,7 @@ import type { Tables } from "@/integrations/supabase/types";
 import RichTextEditor from "./RichTextEditor";
 import ImageUploader from "./ImageUploader";
 import PDFUploader from "./PDFUploader";
+import VideoUploader from "./VideoUploader";
 import LogoUploader from "./LogoUploader";
 import BusinessLabelsEditor from "./BusinessLabelsEditor";
 import OpeningHoursEditor, { OpeningHours, DEFAULT_OPENING_HOURS } from "./OpeningHoursEditor";
@@ -2053,57 +2054,11 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
         {/* Video */}
         <div id="section-images" className="space-y-4 p-4 bg-orange-50 border border-orange-200 rounded-lg" style={{ scrollMarginTop: '130px' }}>
           <Label className="text-base font-semibold">Vidéo</Label>
-          <div className="space-y-2">
-            <Label htmlFor="video_1_url">URL Vidéo 1 (YouTube, Vimeo, ou lien direct)</Label>
-            <div className="flex items-center gap-2">
-              <Input
-                id="video_1_url"
-                value={formData.video_1_url}
-                onChange={(e) => handleChange("video_1_url", e.target.value)}
-                placeholder="https://youtube.com/watch?v=... ou https://vimeo.com/..."
-                className="flex-1"
-              />
-              {formData.video_1_url && (
-                <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => handleChange("video_1_url", "")}>
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
-          </div>
-          {formData.video_1_url && (
-            <div className="space-y-2">
-              <Label>Prévisualisation</Label>
-              <div className="aspect-video w-full max-w-2xl rounded-lg overflow-hidden border bg-muted">
-                {formData.video_1_url.includes('youtube.com') || formData.video_1_url.includes('youtu.be') ? (
-                  <iframe
-                    src={`https://www.youtube.com/embed/${
-                      formData.video_1_url.includes('youtu.be') 
-                        ? formData.video_1_url.split('youtu.be/')[1]?.split('?')[0]
-                        : formData.video_1_url.split('v=')[1]?.split('&')[0]
-                    }`}
-                    className="w-full h-full"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                ) : formData.video_1_url.includes('vimeo.com') ? (
-                  <iframe
-                    src={`https://player.vimeo.com/video/${formData.video_1_url.split('vimeo.com/')[1]?.split('?')[0]}`}
-                    className="w-full h-full"
-                    allow="autoplay; fullscreen; picture-in-picture"
-                    allowFullScreen
-                  />
-                ) : (
-                  <video
-                    src={formData.video_1_url}
-                    controls
-                    className="w-full h-full object-contain"
-                  >
-                    Votre navigateur ne supporte pas la lecture vidéo.
-                  </video>
-                )}
-              </div>
-            </div>
-          )}
+          <VideoUploader
+            videoUrl={formData.video_1_url}
+            onChange={(url) => handleChange("video_1_url", url)}
+            businessId={business?.id}
+          />
         </div>
 
         {/* Images */}
