@@ -414,6 +414,23 @@ const SearchConfigManagement = () => {
       {filteredSubcategories.length === 0 && (
         <p className="text-center text-muted-foreground py-8">Aucune sous-catégorie trouvée.</p>
       )}
+
+      {/* Documentation */}
+      <Card className="bg-muted/40 border-dashed mt-4">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-semibold flex items-center gap-2">
+            <Settings2 className="h-4 w-4" />
+            Comment la configuration est appliquée au moteur de recherche
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="text-xs text-muted-foreground space-y-2">
+          <p><strong>1. Chargement des configs</strong> — Au lancement d'une recherche, toutes les configurations sont récupérées depuis <code>subcategory_search_config</code> et indexées par sous-catégorie.</p>
+          <p><strong>2. Mode Strict</strong> — Si le mode est <code>strict</code>, le moteur ignore le fallback full-text (tsquery) et filtre uniquement par sous-catégorie directe. Idéal pour les pages catégorie où le comptage doit correspondre exactement.</p>
+          <p><strong>3. Max résultats</strong> — La valeur <code>max_results</code> est appliquée comme limite spécifique à la requête de cette sous-catégorie, indépendamment de la limite globale.</p>
+          <p><strong>4. Boost (poids)</strong> — Le <code>boost_weight</code> multiplie le <code>priority_score</code> des établissements lors du tri final, tout en maintenant la priorité des établissements « vérifiés ».</p>
+          <p><strong>5. Injection de synonymes</strong> — Les synonymes configurés sont ajoutés dynamiquement à la carte de synonymes globale et utilisés pour la détection automatique de sous-catégorie (si un terme de la requête correspond à un synonyme configuré).</p>
+        </CardContent>
+      </Card>
     </div>
   );
 };
