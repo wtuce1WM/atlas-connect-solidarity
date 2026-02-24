@@ -441,11 +441,13 @@ const BusinessDetail = () => {
 
   const hasReviews = business.tripadvisor_review_url || business.restaurant_guru_url || business.google_reviews_url;
 
+  const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
   const tabs: { key: TabKey; label: string; show: boolean }[] = [
     { key: 'overview', label: 'Aperçu', show: true },
     { key: 'experiences', label: 'Expériences', show: destinations.length > 0 },
     { key: 'video', label: 'Vidéo', show: !!business.video_1_url },
-    { key: 'services', label: servicesTabTitle, show: !!(business.services && business.services.length > 0) },
+    { key: 'services', label: capitalize(servicesTabTitle), show: !!(business.services && business.services.length > 0) },
     { key: 'reviews', label: 'Avis', show: !!hasReviews },
     { key: 'location', label: 'Localisation', show: !!(business.google_maps_url || (business.latitude && business.longitude)) },
   ];
