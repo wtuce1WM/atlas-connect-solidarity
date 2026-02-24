@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Plus, Search, Edit, Trash2, Eye, EyeOff, Building2, Users, Folder, MapPin, Copy, Star, UserCheck, Award, Gem, AlertTriangle, LayoutDashboard, Crown, CheckCircle } from "lucide-react";
+import { LogOut, Plus, Search, Edit, Trash2, Eye, EyeOff, Building2, Users, Folder, MapPin, Copy, Star, UserCheck, Award, Gem, AlertTriangle, LayoutDashboard, Crown, CheckCircle, Settings2 } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import BusinessForm from "@/components/staff/BusinessForm";
 import BusinessTable from "@/components/staff/BusinessTable";
@@ -22,6 +22,7 @@ import GammeManagement from "@/components/staff/GammeManagement";
 import BadgeManagement from "@/components/staff/BadgeManagement";
 import KPGroupManagement from "@/components/staff/KPGroupManagement";
 import { useBusinessBrokenFiles } from "@/hooks/useBusinessBrokenFiles";
+import SearchConfigManagement from "@/components/staff/SearchConfigManagement";
 import { useBusinessBrokenLinks } from "@/hooks/useBusinessBrokenLinks";
 import StaffDashboard from "@/components/staff/StaffDashboard";
 import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
@@ -364,6 +365,10 @@ const StaffBackoffice = () => {
                 <UserCheck className="h-4 w-4" />
                 Affiliés
               </TabsTrigger>
+              <TabsTrigger value="search-config" className="gap-2">
+                <Settings2 className="h-4 w-4" />
+                Recherche
+              </TabsTrigger>
               {isAdmin && (
                 <TabsTrigger value="users" className="gap-2">
                   <Users className="h-4 w-4" />
@@ -670,6 +675,10 @@ const StaffBackoffice = () => {
                   setActiveTab("businesses");
                 }}
               />
+            </TabsContent>
+
+            <TabsContent value="search-config">
+              <SearchConfigManagement />
             </TabsContent>
 
             {isAdmin && (

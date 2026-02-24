@@ -1773,6 +1773,47 @@ export type Database = {
           },
         ]
       }
+      subcategory_search_config: {
+        Row: {
+          boost_weight: number
+          created_at: string | null
+          id: string
+          max_results: number | null
+          search_mode: string
+          subcategory_id: string
+          synonyms: string[]
+          updated_at: string | null
+        }
+        Insert: {
+          boost_weight?: number
+          created_at?: string | null
+          id?: string
+          max_results?: number | null
+          search_mode?: string
+          subcategory_id: string
+          synonyms?: string[]
+          updated_at?: string | null
+        }
+        Update: {
+          boost_weight?: number
+          created_at?: string | null
+          id?: string
+          max_results?: number | null
+          search_mode?: string
+          subcategory_id?: string
+          synonyms?: string[]
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subcategory_search_config_subcategory_id_fkey"
+            columns: ["subcategory_id"]
+            isOneToOne: true
+            referencedRelation: "subcategories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
