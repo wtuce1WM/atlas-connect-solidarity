@@ -244,7 +244,7 @@ async function detectCityInQueryDynamic(query: string, supabase: any): Promise<s
 
 // Known neighborhoods for auto-detection in query
 const KNOWN_NEIGHBORHOODS = [
-  "Gueliz", "Guéliz", "Hivernage", "Médina", "Medina", "Ancienne Médina", "Palmeraie",
+  "Gueliz", "Guéliz", "Geliz", "Hivernage", "Médina", "Medina", "Ancienne Médina", "Palmeraie",
   "Agdal", "Semlalia", "Mellah", "Kasbah", "Sidi Ghanem", "Targa", "Menara", "Ménara",
   "Daoudiate", "Anfa", "Maârif", "Corniche", "Bourgogne", "Racine", "Gauthier",
   "Souissi", "Hassan", "Hay Riad", "Marina", "Port", "Taghazout", "Sidi Kaouki",
@@ -273,8 +273,8 @@ function filterByNeighborhood(businesses: any[], neighborhood: string): any[] {
   const nLower = neighborhood.toLowerCase();
   // Handle accent variants (e.g. Gueliz/Guéliz)
   const variants = [nLower];
-  if (nLower === "gueliz" || nLower === "guéliz") {
-    variants.push("gueliz", "guéliz");
+  if (nLower === "gueliz" || nLower === "guéliz" || nLower === "geliz") {
+    variants.push("gueliz", "guéliz", "geliz");
   }
   if (nLower === "médina" || nLower === "medina") {
     variants.push("médina", "medina", "ancienne médina");
@@ -804,8 +804,8 @@ serve(async (req) => {
           const nLower = detectedNeighborhood.toLowerCase();
           // Handle Gueliz/Guéliz duality and similar accent variants
           const neighborhoodVariants = [detectedNeighborhood];
-          if (nLower === "gueliz" || nLower === "guéliz") {
-            neighborhoodVariants.push("Gueliz", "Guéliz");
+          if (nLower === "gueliz" || nLower === "guéliz" || nLower === "geliz") {
+            neighborhoodVariants.push("Gueliz", "Guéliz", "Geliz");
           }
           if (nLower === "menara" || nLower === "ménara") {
             neighborhoodVariants.push("Menara", "Ménara");
