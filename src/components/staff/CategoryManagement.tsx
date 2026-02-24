@@ -869,6 +869,14 @@ const CategoryManagement = () => {
                                           >
                                             <Pencil className="h-3 w-3" />
                                           </Button>
+                                          <Link
+                                            to={`/service/${encodeURIComponent(sub.name_fr)}/${encodeURIComponent(svc.name_fr)}`}
+                                            target="_blank"
+                                            onClick={(e) => e.stopPropagation()}
+                                            title={`Voir la page ${svc.name_fr}`}
+                                          >
+                                            <ExternalLink className="h-3.5 w-3.5 text-muted-foreground hover:text-primary transition-colors" />
+                                          </Link>
                                           {svc.icon && (
                                             <DynamicIcon name={svc.icon} className="h-5 w-5 text-primary" />
                                           )}
