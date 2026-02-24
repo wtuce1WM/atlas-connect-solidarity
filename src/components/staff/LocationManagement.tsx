@@ -266,7 +266,7 @@ const LocationManagement = () => {
     const [countriesRes, citiesRes, businessesRes, neighborhoodsRes, destinationsRes, poisRes] = await Promise.all([
       supabase.from("countries").select("*").order("sort_order"),
       supabase.from("cities").select("*").order("sort_order"),
-      supabase.from("businesses").select("city"),
+      supabase.from("businesses").select("city").eq("is_active", true),
       supabase.from("neighborhoods").select("*").order("sort_order") as any,
       supabase.from("destinations" as any).select("*").order("sort_order"),
       supabase.from("points_of_interest" as any).select("*").order("sort_order"),
@@ -969,8 +969,6 @@ const LocationManagement = () => {
                      <TableHead>Statut</TableHead>
                      <TableHead>Entreprises</TableHead>
                      <TableHead>Région</TableHead>
-                     
-                     <TableHead>Wikipedia</TableHead>
                      <TableHead>Coordonnées</TableHead>
                      <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
@@ -1000,29 +998,6 @@ const LocationManagement = () => {
                           </TableCell>
                           <TableCell className="text-muted-foreground">
                             {city.region || "—"}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex gap-1">
-                              {city.wikipedia_fr && (
-                                <a href={city.wikipedia_fr} target="_blank" rel="noopener noreferrer" 
-                                   className="text-xs px-1.5 py-0.5 bg-blue-500/10 text-blue-600 rounded hover:bg-blue-500/20 transition-colors">
-                                  FR
-                                </a>
-                              )}
-                              {city.wikipedia_en && (
-                                <a href={city.wikipedia_en} target="_blank" rel="noopener noreferrer"
-                                   className="text-xs px-1.5 py-0.5 bg-green-500/10 text-green-600 rounded hover:bg-green-500/20 transition-colors">
-                                  EN
-                                </a>
-                              )}
-                              {city.wikipedia_ar && (
-                                <a href={city.wikipedia_ar} target="_blank" rel="noopener noreferrer"
-                                   className="text-xs px-1.5 py-0.5 bg-orange-500/10 text-orange-600 rounded hover:bg-orange-500/20 transition-colors">
-                                  AR
-                                </a>
-                              )}
-                              {!city.wikipedia_fr && !city.wikipedia_en && !city.wikipedia_ar && "—"}
-                            </div>
                           </TableCell>
                           <TableCell className="text-muted-foreground text-sm">
                             {city.latitude && city.longitude
