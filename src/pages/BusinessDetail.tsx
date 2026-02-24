@@ -317,13 +317,18 @@ const BusinessDetail = () => {
               }
               
               for (const [svcName, info] of serviceToSubcat) {
+                // Only group under subcategories that belong to this business
+                if (!businessCats.has(info.subcatName)) {
+                  orphanServices.push(svcName);
+                  continue;
+                }
                 if (!groupMap.has(info.subcatName)) {
                   groupMap.set(info.subcatName, { description: info.description, icon: info.icon, services: new Set() });
                 }
                 groupMap.get(info.subcatName)!.services.add(svcName);
               }
               
-              // Services with no subcategory at all
+              // Services with no subcategory mapping at all
               const mappedServices = new Set(serviceToSubcat.keys());
               for (const row of svcRows as any[]) {
                 if (!serviceToSubcat.has(row.name_fr)) orphanServices.push(row.name_fr);
