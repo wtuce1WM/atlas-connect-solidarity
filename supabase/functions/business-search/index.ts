@@ -723,15 +723,26 @@ serve(async (req) => {
           const regex = new RegExp(`(^|\\s|[''/-])${w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}($|\\s|[''/-])`, 'i');
           return regex.test(k);
         };
+        // Accent-stripping helper for keyword matching
+        const stripAccentsKw = (w: string): string => w.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        const normalizeWordKw = (w: string): string => stripAccentsKw(stripPlural(w));
         const keywordMatches = (matchingByKeywords || []).filter(svc => {
           const kws = (svc.keywords || []).map((k: string) => k.toLowerCase());
           return serviceMatchWords.some(w => {
             const wNorm = stripPlural(w);
             return kws.some((k: string) => {
               const kNorm = stripPlural(k);
-              // Exact match or whole-word boundary match (avoids "fer" matching "fermier")
-              return k === w || w === k || kNorm === wNorm || wordBoundaryMatch(k, w) || (w.length > 3 && w.includes(k));
+              // Exact match (with accent normalization) or whole-word boundary match
+              return k === w || w === k || kNorm === wNorm || normalizeWordKw(k) === normalizeWordKw(w) || wordBoundaryMatch(k, w) || (w.length > 3 && w.includes(k));
             });
+          }) ||
+          // Multi-word keyword match: if ALL content words of a multi-word keyword appear in the query
+          kws.some((k: string) => {
+            if (!k.includes(" ")) return false;
+            const kwContentWords = k.split(/\s+/).filter((w: string) => w.length > 1 && !FRENCH_STOP_WORDS.has(w));
+            return kwContentWords.length >= 2 && kwContentWords.every((kw: string) =>
+              serviceMatchWords.some(qw => qw === kw || normalizeWordKw(qw) === normalizeWordKw(kw))
+            );
           });
         });
         const allMatched = new Map<string, any>();
@@ -835,15 +846,46 @@ serve(async (req) => {
             }
           }
           
+          // Also find services NOT in fullyMatchedServices but with strong keyword matches
+          // (≥2 distinct query words matching their keywords, or a multi-word keyword fully matched)
+          const strongKeywordServices: string[] = [];
+          for (const svc of matchingServices) {
+            if (fullyMatchedServices.includes(svc.name_fr)) continue;
+            const svcKws = (svc.keywords || []).map((k: string) => k.toLowerCase());
+            if (svcKws.length === 0) continue;
+            // Count distinct query words matching keywords (single or multi-word)
+            let kwScore = 0;
+            for (const w of serviceMatchWords) {
+              const matched = svcKws.some((k: string) => {
+                return k === w || normalizeWordKw(k) === normalizeWordKw(w) || wordBoundaryMatch(k, w);
+              });
+              if (matched) kwScore++;
+            }
+            // Check multi-word keyword full match (e.g. "boite de com" with query words boîte + com)
+            const hasMultiWordMatch = svcKws.some((k: string) => {
+              if (!k.includes(" ")) return false;
+              const kwContentWords = k.split(/\s+/).filter((w: string) => w.length > 1 && !FRENCH_STOP_WORDS.has(w));
+              return kwContentWords.length >= 2 && kwContentWords.every((kw: string) =>
+                serviceMatchWords.some(qw => qw === kw || normalizeWordKw(qw) === normalizeWordKw(kw))
+              );
+            });
+            if (kwScore >= 2 || hasMultiWordMatch) {
+              strongKeywordServices.push(svc.name_fr);
+              console.log(`Strong keyword match: "${svc.name_fr}" (kwScore=${kwScore}, multiWord=${hasMultiWordMatch})`);
+            }
+          }
+
           if (fullyMatchedServices.length > 0) {
-            detectedServices = fullyMatchedServices;
-            detectedService = fullyMatchedServices[0]; // Primary service for RPC filter
+            detectedServices = [...fullyMatchedServices, ...strongKeywordServices];
+            detectedService = strongKeywordServices.length > 0 ? strongKeywordServices[0] : fullyMatchedServices[0];
             
             // If some services consumed query words via keywords (e.g. "artisan" → "Sur-mesure"),
             // exclude services that have empty keywords and were only matched by generic name words.
             // This prevents "Sur mesure" (empty kw) from polluting results when "artisan" was the key signal.
-            if (servicesWithKeywordMatch.size > 0) {
-              const keywordFilteredServices = fullyMatchedServices.filter(svcName => {
+            if (servicesWithKeywordMatch.size > 0 || strongKeywordServices.length > 0) {
+              const keywordFilteredServices = detectedServices.filter(svcName => {
+                // Always keep strong keyword matches
+                if (strongKeywordServices.includes(svcName)) return true;
                 // Keep if this service had a keyword match
                 if (servicesWithKeywordMatch.has(svcName)) return true;
                 // Keep if this service has non-empty keywords (even if they didn't match this specific query)
@@ -852,7 +894,7 @@ serve(async (req) => {
                 return hasKeywords;
               });
               if (keywordFilteredServices.length > 0) {
-                console.log(`Keyword-filtered services: [${fullyMatchedServices.join(", ")}] → [${keywordFilteredServices.join(", ")}]`);
+                console.log(`Keyword-filtered services: [${detectedServices.join(", ")}] → [${keywordFilteredServices.join(", ")}]`);
                 detectedServices = keywordFilteredServices;
                 detectedService = keywordFilteredServices[0];
               }
