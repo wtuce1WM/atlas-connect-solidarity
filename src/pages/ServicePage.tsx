@@ -91,14 +91,26 @@ const ServicePage = () => {
   const [showFilters, setShowFilters] = useState(false);
   const isMobile = useIsMobile();
 
-  // Extract service name from URL path (handles special characters like /, &, etc.)
-  const decodedServiceName = useMemo(() => {
+  // Extract subcategory and service name from URL path
+  // Supports: /service/SubcategoryName/ServiceName OR /service/ServiceName
+  const { subcategoryName, serviceName, decodedServiceName } = useMemo(() => {
     const path = location.pathname;
     const prefix = "/service/";
-    if (path.startsWith(prefix)) {
-      return decodeURIComponent(path.slice(prefix.length));
+    if (!path.startsWith(prefix)) return { subcategoryName: null, serviceName: "", decodedServiceName: "" };
+    
+    const rest = path.slice(prefix.length);
+    // Split on "/" but respect encoded %2F within segments
+    const segments = rest.split("/").map(s => decodeURIComponent(s));
+    
+    if (segments.length >= 2) {
+      // /service/{subcategory}/{service}
+      const subcat = segments[0];
+      const svc = segments.slice(1).join("/"); // in case service name contains /
+      return { subcategoryName: subcat, serviceName: svc, decodedServiceName: svc };
     }
-    return "";
+    // /service/{name} — could be subcategory or service
+    const name = segments[0];
+    return { subcategoryName: null, serviceName: name, decodedServiceName: name };
   }, [location.pathname]);
 
   // Icon rendering is now handled by DynamicIcon component
@@ -183,10 +195,13 @@ const ServicePage = () => {
   }, [selectedCity, selectedGammeFilter]);
 
   // Update document title with service name and city
+  // Build display title
+  const displayTitle = subcategoryName ? `${subcategoryName} / ${serviceName}` : decodedServiceName;
+
   useEffect(() => {
     const cityLabel = selectedCity !== "all" ? ` à ${selectedCity}` : "";
-    document.title = `${decodedServiceName}${cityLabel} | WTUCE`;
-  }, [decodedServiceName, selectedCity]);
+    document.title = `${displayTitle}${cityLabel} | WTUCE`;
+  }, [displayTitle, selectedCity]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -194,40 +209,60 @@ const ServicePage = () => {
       
       setIsLoading(true);
       try {
-        // Check if the name matches a subcategory first
-        const { data: subcategoryMatch } = await supabase
-          .from("subcategories")
-          .select("icon, name_fr")
-          .eq("name_fr", decodedServiceName)
-          .limit(1)
-          .maybeSingle();
-
-        const isSubcategory = !!subcategoryMatch;
-
-        // Fetch icon: from subcategory or service
-        if (subcategoryMatch?.icon) {
-          setServiceIcon(subcategoryMatch.icon);
-        } else {
-          const { data: serviceData } = await supabase
-            .from("services")
-            .select("icon")
+        // Determine what to search for
+        const hasExplicitSubcategory = !!subcategoryName;
+        
+        // Check if the name matches a subcategory first (only when no explicit subcategory)
+        let isSubcategory = false;
+        if (!hasExplicitSubcategory) {
+          const { data: subcategoryMatch } = await supabase
+            .from("subcategories")
+            .select("icon, name_fr")
             .eq("name_fr", decodedServiceName)
-            .not("icon", "is", null)
             .limit(1)
             .maybeSingle();
 
-          if (serviceData?.icon) {
-            setServiceIcon(serviceData.icon);
-          } else {
-            const { data: fallbackData } = await supabase
-              .from("services")
+          isSubcategory = !!subcategoryMatch;
+
+          if (subcategoryMatch?.icon) {
+            setServiceIcon(subcategoryMatch.icon);
+          }
+        }
+
+        // Fetch icon
+        if (!serviceIcon) {
+          // Try subcategory icon first if we have explicit subcategory
+          if (hasExplicitSubcategory) {
+            const { data: subIcon } = await supabase
+              .from("subcategories")
               .select("icon")
-              .eq("name_fr", decodedServiceName)
+              .eq("name_fr", subcategoryName)
+              .not("icon", "is", null)
               .limit(1)
               .maybeSingle();
-            
-            if (fallbackData?.icon) {
-              setServiceIcon(fallbackData.icon);
+            if (subIcon?.icon) setServiceIcon(subIcon.icon);
+          }
+          
+          // Then try service icon
+          if (!serviceIcon) {
+            const { data: serviceData } = await supabase
+              .from("services")
+              .select("icon")
+              .eq("name_fr", serviceName)
+              .not("icon", "is", null)
+              .limit(1)
+              .maybeSingle();
+
+            if (serviceData?.icon) {
+              setServiceIcon(serviceData.icon);
+            } else if (!hasExplicitSubcategory) {
+              const { data: fallbackData } = await supabase
+                .from("services")
+                .select("icon")
+                .eq("name_fr", decodedServiceName)
+                .limit(1)
+                .maybeSingle();
+              if (fallbackData?.icon) setServiceIcon(fallbackData.icon);
             }
           }
         }
@@ -265,13 +300,43 @@ const ServicePage = () => {
         if (subcatsRes.data) setSubcategories(subcatsRes.data);
         if (badgeSubcatsRes.data) setBadgeSubcategories(badgeSubcatsRes.data);
 
-        // Fetch businesses: by subcategory (categories array) OR by service
+        // Fetch businesses
+        const selectFields = "id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, services, default_service, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, opening_hours, show_opening_hours, is_open_24h, rating, gamme_id, badge_id, neighborhood, hook_fr, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count";
+
         let businessData: Business[] | null = null;
         let fetchError: Error | null = null;
 
-        const selectFields = "id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, services, default_service, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, opening_hours, show_opening_hours, is_open_24h, rating, gamme_id, badge_id, neighborhood, hook_fr, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count";
+        if (hasExplicitSubcategory) {
+          // Two-segment URL: /service/{subcategory}/{service}
+          // Fetch businesses matching subcategory in categories OR service in services
+          const [catResult, svcResult] = await Promise.all([
+            supabase
+              .from("businesses")
+              .select(selectFields)
+              .eq("is_active", true)
+              .contains("categories", [subcategoryName])
+              .order("wtuce_status", { ascending: true })
+              .order("priority_score", { ascending: false }),
+            supabase
+              .from("businesses")
+              .select(selectFields)
+              .eq("is_active", true)
+              .contains("services", [serviceName])
+              .order("wtuce_status", { ascending: true })
+              .order("priority_score", { ascending: false }),
+          ]);
 
-        if (isSubcategory) {
+          if (catResult.error) fetchError = catResult.error;
+          if (svcResult.error) fetchError = svcResult.error;
+
+          // Merge and deduplicate
+          const merged = new Map<string, Business>();
+          for (const b of (catResult.data || [])) merged.set(b.id, b);
+          for (const b of (svcResult.data || [])) {
+            if (!merged.has(b.id)) merged.set(b.id, b);
+          }
+          businessData = Array.from(merged.values());
+        } else if (isSubcategory) {
           // Search in BOTH categories and services arrays, then merge
           const [catResult, svcResult] = await Promise.all([
             supabase
@@ -293,7 +358,6 @@ const ServicePage = () => {
           if (catResult.error) fetchError = catResult.error;
           if (svcResult.error) fetchError = svcResult.error;
 
-          // Merge and deduplicate
           const merged = new Map<string, Business>();
           for (const b of (catResult.data || [])) merged.set(b.id, b);
           for (const b of (svcResult.data || [])) {
@@ -318,7 +382,7 @@ const ServicePage = () => {
         
         setAllBusinesses(businessData || []);
         // Pre-select current service in filters
-        setSelectedServices([decodedServiceName]);
+        setSelectedServices([serviceName]);
       } catch (error) {
         console.error("Error fetching service data:", error);
       } finally {
@@ -396,7 +460,7 @@ const ServicePage = () => {
     setSelectedCity(city);
     setSelectedBusiness(null);
     setSelectedGammeFilter("all");
-    setSelectedServices([decodedServiceName]);
+    setSelectedServices([serviceName]);
     scrollToFilterToggle();
   };
 
@@ -486,11 +550,11 @@ const ServicePage = () => {
               ) : (
                 <Sun className="h-8 w-8 text-gold" />
               )}
-              {decodedServiceName}
+              {displayTitle}
               {selectedCity !== "all" && (
                 <span className="text-gold"> à {selectedCity}</span>
               )}
-              <ShareButton title={decodedServiceName} />
+              <ShareButton title={displayTitle} />
             </h1>
             <p className="text-white/80 mt-2">
               <span className="text-gold font-semibold">{filteredBusinesses.length}</span> {t.establishments} {t.withService}
@@ -509,10 +573,10 @@ const ServicePage = () => {
               <div className="mb-6 text-center">
                 <h2 className="mb-2 text-xl sm:text-3xl font-bold text-white">
                   {language === "fr"
-                    ? `Découvrez ${decodedServiceName} `
+                    ? `Découvrez ${displayTitle} `
                     : language === "ar"
-                      ? `اكتشف ${decodedServiceName} `
-                      : `Discover ${decodedServiceName} `}
+                      ? `اكتشف ${displayTitle} `
+                      : `Discover ${displayTitle} `}
                   <span className="text-gold">{language === "fr" ? "dans chaque ville" : language === "ar" ? "في كل مدينة" : "in every city"}</span>
                 </h2>
                 <p className="mx-auto max-w-2xl text-gray-400">
@@ -603,7 +667,7 @@ const ServicePage = () => {
                 allowFullScreen
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
-                title={selectedBusiness ? `Localisation de ${selectedBusiness.name}` : `Carte ${decodedServiceName}${selectedCity !== "all" ? ` à ${selectedCity}` : ""}`}
+                title={selectedBusiness ? `Localisation de ${selectedBusiness.name}` : `Carte ${displayTitle}${selectedCity !== "all" ? ` à ${selectedCity}` : ""}`}
               />
             </CardContent>
           </Card>
@@ -698,7 +762,7 @@ const ServicePage = () => {
                 onClick={() => {
                   setSelectedCity("all");
                   setSelectedGammeFilter("all");
-                  setSelectedServices([decodedServiceName]);
+                  setSelectedServices([serviceName]);
                   scrollToFilterToggle();
                 }}
                 className="text-sm text-gold underline hover:text-gold/80 transition-colors"
@@ -718,7 +782,7 @@ const ServicePage = () => {
               {/* Results count + Sort */}
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
                 <h2 className="text-lg font-bold text-white">
-                  {filteredBusinesses.length} {t.establishments} {language === "fr" ? "pour" : language === "ar" ? "لـ" : "for"} {decodedServiceName}
+                  {filteredBusinesses.length} {t.establishments} {language === "fr" ? "pour" : language === "ar" ? "لـ" : "for"} {displayTitle}
                 </h2>
                 <div className="flex items-center justify-center sm:justify-end gap-2">
                   <Button
