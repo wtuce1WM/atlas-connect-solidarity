@@ -2624,7 +2624,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                     </div>
                    </div>
                    <div className="space-y-2 flex-1">
-                    <Label>Logistique</Label>
+                    <Label>Services</Label>
                     <div className="border rounded-md p-3 space-y-1.5 bg-muted/30">
                       {["Accessible aux personnes à mobilité réduite", "Livraison à domicile", "Paiement à la livraison", "Paiement cash", "Paiement CB", "Web only", "Cliquez et retirez", "Programme de fidélité", "Location possible", "Commandez en ligne et recevez votre colis chez vous", "Garantie 2 ans", "Échange & retours 365 jours"].map((item) => {
                         const tag = `Logistique:${item}`;
@@ -2703,7 +2703,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                     </div>
                   </div>
                   <div className="space-y-2 flex-1">
-                    <Label>Logistique</Label>
+                    <Label>Services</Label>
                     <div className="border rounded-md p-3 space-y-1.5 bg-muted/30">
                       {["Accessible aux personnes à mobilité réduite", "Livraison à domicile", "Paiement à la livraison", "Paiement cash", "Paiement CB", "Web only", "Cliquez et retirez", "Programme de fidélité", "Location possible", "Commandez en ligne et recevez votre colis chez vous", "Garantie 2 ans", "Échange & retours 365 jours"].map((item) => {
                         const tag = `Logistique:${item}`;
