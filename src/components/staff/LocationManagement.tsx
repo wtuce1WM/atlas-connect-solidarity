@@ -1244,7 +1244,7 @@ const LocationManagement = () => {
                           </TableCell>
                           <TableCell>{n.sort_order ?? 0}</TableCell>
                           <TableCell className="text-right">
-                            <a href={`/search?q=${encodeURIComponent(n.name)}`} target="_blank" rel="noopener noreferrer">
+                            <a href={`/search?q=${encodeURIComponent(n.name + ' ' + (city?.name_fr || ''))}`} target="_blank" rel="noopener noreferrer">
                               <Button size="sm" variant="ghost" title="Rechercher">
                                 <Search className="h-4 w-4" />
                               </Button>
