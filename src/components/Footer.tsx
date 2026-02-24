@@ -27,9 +27,9 @@ const Footer = ({ variant = "default" }: FooterProps) => {
   return (
     <footer className={footerBg}>
       <div className="container mx-auto px-4 py-16">
-        <div className="grid gap-12 md:grid-cols-[1fr_auto_auto]">
+        <div className="grid gap-12 md:grid-cols-4">
           {/* Brand */}
-          <div>
+          <div className="md:col-span-2">
             <div className="mb-4 flex items-center gap-2">
               <img src={logoGold} alt="WTUCEMA Logo" className="h-10 w-10 object-contain" />
             <span className="text-xl font-bold tracking-tight">
