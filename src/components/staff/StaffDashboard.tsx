@@ -55,7 +55,7 @@ interface BrokenFilesMap {
 interface BrokenLinksResult {
   businessId: string;
   businessName: string;
-  brokenUrls: { field: string; url: string }[];
+  brokenUrls: { field: string; url: string; status?: number | null; cdnExpired?: boolean }[];
 }
 
 interface StaffDashboardProps {

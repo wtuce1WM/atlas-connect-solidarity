@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Business = Tables<"businesses">;
@@ -6,7 +7,7 @@ type Business = Tables<"businesses">;
 interface BrokenLinksResult {
   businessId: string;
   businessName: string;
-  brokenUrls: { field: string; url: string }[];
+  brokenUrls: { field: string; url: string; status: number | null; cdnExpired?: boolean }[];
 }
 
 const URL_FIELDS: { key: keyof Business; label: string }[] = [
@@ -69,46 +70,50 @@ export const useBusinessBrokenLinks = (businesses: Business[]) => {
     setIsChecking(true);
     setProgress({ checked: 0, total: urls.length });
 
-    const brokenUrls = new Set<string>();
-    const batchSize = 5;
+    const brokenUrlResults: Map<string, { status: number | null; cdnExpired?: boolean }> = new Map();
+    const batchSize = 50;
 
     for (let i = 0; i < urls.length; i += batchSize) {
       const batch = urls.slice(i, i + batchSize);
-      await Promise.all(
-        batch.map(async (url) => {
-          try {
-            const controller = new AbortController();
-            const timeout = setTimeout(() => controller.abort(), 8000);
-            const response = await fetch(url, {
-              method: "HEAD",
-              mode: "no-cors",
-              signal: controller.signal,
-            });
-            clearTimeout(timeout);
-            // In no-cors mode, opaque responses (type === "opaque") are expected and mean the URL is reachable
-            if (response.type !== "opaque" && !response.ok) {
-              brokenUrls.add(url);
+
+      try {
+        const { data, error } = await supabase.functions.invoke("check-links", {
+          body: { urls: batch },
+        });
+
+        if (!error && data?.results) {
+          for (const [url, result] of Object.entries(data.results as Record<string, { ok: boolean; status: number | null; cdnExpired?: boolean }>)) {
+            if (!result.ok) {
+              brokenUrlResults.set(url, { status: result.status, cdnExpired: result.cdnExpired });
             }
-          } catch {
-            // Network error or timeout = broken
-            brokenUrls.add(url);
           }
-        })
-      );
+        }
+      } catch {
+        // If edge function fails, mark all in batch as unknown
+        batch.forEach((url) => {
+          brokenUrlResults.set(url, { status: null, cdnExpired: false });
+        });
+      }
+
       setProgress({ checked: Math.min(i + batchSize, urls.length), total: urls.length });
     }
 
     // Build results grouped by business
     const resultMap: Map<string, BrokenLinksResult> = new Map();
 
-    brokenUrls.forEach((url) => {
+    brokenUrlResults.forEach((result, url) => {
       const entries = urlMap.get(url);
       if (!entries) return;
       entries.forEach(({ businessId, businessName, field }) => {
         if (!resultMap.has(businessId)) {
           resultMap.set(businessId, { businessId, businessName, brokenUrls: [] });
         }
-        resultMap.get(businessId)!.brokenUrls.push({ field, url });
+        resultMap.get(businessId)!.brokenUrls.push({
+          field,
+          url,
+          status: result.status,
+          cdnExpired: result.cdnExpired,
+        });
       });
     });
 
