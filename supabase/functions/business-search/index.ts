@@ -638,13 +638,18 @@ serve(async (req) => {
           });
         });
         const allMatched = new Map<string, any>();
+        // Normalize key: replace hyphens with spaces for merging variants like "Sur-mesure" / "Sur mesure"
+        const normalizeServiceKey = (name: string) => name.toLowerCase().replace(/-/g, " ").replace(/\s+/g, " ").trim();
         for (const s of [...(matchingByName || []), ...keywordMatches]) {
-          const existing = allMatched.get(s.name_fr);
+          const normKey = normalizeServiceKey(s.name_fr);
+          const existing = allMatched.get(normKey);
           if (existing) {
             const mergedKws = [...new Set([...(existing.keywords || []), ...(s.keywords || [])])];
-            allMatched.set(s.name_fr, { ...existing, keywords: mergedKws });
+            // Keep the name with the most keywords (more specific variant)
+            const bestName = mergedKws.length > (existing.keywords || []).length ? s.name_fr : existing.name_fr;
+            allMatched.set(normKey, { ...existing, name_fr: bestName, keywords: mergedKws });
           } else {
-            allMatched.set(s.name_fr, s);
+            allMatched.set(normKey, { ...s });
           }
         }
         const matchingServices = Array.from(allMatched.values());
@@ -666,20 +671,53 @@ serve(async (req) => {
           
           for (const svc of sortedByWordCount) {
             // Filter out stop words from service name for matching (e.g. "Au feu de bois" → ["feu", "bois"])
-            const svcContentWords = svc.name_fr.toLowerCase().split(/\s+/).filter((w: string) => w.length > 1 && !FRENCH_STOP_WORDS.has(w));
+            const svcContentWords = svc.name_fr.toLowerCase().split(/[\s]+/).filter((w: string) => w.length > 1 && !FRENCH_STOP_WORDS.has(w));
+            // Also split hyphenated words for matching (e.g. "Sur-mesure" → ["sur-mesure", "sur", "mesure"])
+            const svcContentWordsExpanded = svcContentWords.flatMap((w: string) => {
+              if (w.includes("-")) {
+                const parts = w.split("-").filter(p => p.length > 1 && !FRENCH_STOP_WORDS.has(p));
+                return [w, ...parts];
+              }
+              return [w];
+            });
             const svcWords = svc.name_fr.toLowerCase().split(/\s+/).filter((w: string) => w.length > 1);
-            const allSvcWordsMatched = svcContentWords.length > 0 && svcContentWords.every((w: string) => 
-              serviceMatchWords.some(qw => {
-                if (usedQueryWords.has(qw)) return false; // Don't reuse query words
-                return qw === w || stripPlural(qw) === stripPlural(w);
-              })
-            );
+            const allSvcWordsMatched = svcContentWords.length > 0 && svcContentWords.every((w: string) => {
+              // For hyphenated words, match if ANY part matches a query word
+              const candidates = w.includes("-") 
+                ? [w, ...w.split("-").filter(p => p.length > 1 && !FRENCH_STOP_WORDS.has(p))]
+                : [w];
+              return candidates.some(cand =>
+                serviceMatchWords.some(qw => {
+                  if (usedQueryWords.has(qw)) return false;
+                  return qw === cand || stripPlural(qw) === stripPlural(cand);
+                })
+              );
+            });
             if (allSvcWordsMatched) {
               fullyMatchedServices.push(svc.name_fr);
               // Mark query words as used (only content words, not stop words)
               for (const sw of svcContentWords) {
-                const matchedQw = serviceMatchWords.find(qw => !usedQueryWords.has(qw) && (qw === sw || stripPlural(qw) === stripPlural(sw)));
-                if (matchedQw) usedQueryWords.add(matchedQw);
+                // For hyphenated words, also try matching individual parts
+                const candidates = sw.includes("-")
+                  ? [sw, ...sw.split("-").filter(p => p.length > 1 && !FRENCH_STOP_WORDS.has(p))]
+                  : [sw];
+                for (const cand of candidates) {
+                  const matchedQw = serviceMatchWords.find(qw => !usedQueryWords.has(qw) && (qw === cand || stripPlural(qw) === stripPlural(cand)));
+                  if (matchedQw) usedQueryWords.add(matchedQw);
+                }
+              }
+              // Also mark query words that matched via this service's keywords as used
+              // e.g. "artisan" matching keyword "artisan sur-mesure" of service "Sur-mesure"
+              const svcKws = (svc.keywords || []).map((k: string) => k.toLowerCase());
+              for (const qw of serviceMatchWords) {
+                if (usedQueryWords.has(qw)) continue;
+                const matched = svcKws.some((k: string) => {
+                  return k === qw || stripPlural(k) === stripPlural(qw) || wordBoundaryMatch(k, qw);
+                });
+                if (matched) {
+                  usedQueryWords.add(qw);
+                  console.log(`Keyword-consumed word "${qw}" by service "${svc.name_fr}"`);
+                }
               }
             }
           }
@@ -963,7 +1001,7 @@ serve(async (req) => {
         // Build OR group from ALL candidate service names (not just the primary one)
         // Filter out French stop words (en, de, à, la, le, etc.) to avoid matching everything
         const allSvcTerms = allCandidateServiceNames.flatMap(name => 
-          name.toLowerCase().split(/[\s/]+/).map(w => sanitizeTerm(w)).filter(t => t.length > 1 && !FRENCH_STOP_WORDS.has(t))
+          name.toLowerCase().split(/[\s/\-]+/).map(w => sanitizeTerm(w)).filter(t => t.length > 1 && !FRENCH_STOP_WORDS.has(t))
         );
         const uniqueSvcTerms = [...new Set(allSvcTerms)];
         const svcPart = uniqueSvcTerms.length > 1
