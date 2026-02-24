@@ -1503,9 +1503,34 @@ serve(async (req) => {
       businesses = await llmRerank(effectiveQuery, businesses);
     }
 
-    // Autocomplete mode: sort by best rating DESC, then return lightweight results
+    // Autocomplete mode: sort by best rating DESC, then apply name-match boost, then return lightweight results
     if (isAutocomplete) {
       businesses = [...businesses].sort((a, b) => getBestRating(b) - getBestRating(a));
+
+      // Name-match boost for autocomplete: move businesses whose name strongly matches the query to the top
+      if (effectiveQuery && businesses.length > 1) {
+        const qLower = effectiveQuery.toLowerCase();
+        const qWords = qLower.split(/\s+/).filter(w => w.length > 1 && !FRENCH_STOP_WORDS.has(w));
+        if (qWords.length >= 2) {
+          const boosted: typeof businesses = [];
+          const rest: typeof businesses = [];
+          for (const b of businesses) {
+            const bName = b.name.toLowerCase();
+            const bWords = bName.split(/\s+/).filter((w: string) => w.length > 1);
+            const matchCount = qWords.filter(qw => bWords.some((bw: string) => bw.includes(qw) || qw.includes(bw))).length;
+            if (matchCount >= Math.ceil(qWords.length * 0.7)) {
+              boosted.push(b);
+            } else {
+              rest.push(b);
+            }
+          }
+          if (boosted.length > 0 && boosted.length < businesses.length) {
+            businesses = [...boosted, ...rest];
+            console.log(`Autocomplete name-match boost: moved ${boosted.length} business(es) to top: [${boosted.map(b => b.name).join(", ")}]`);
+          }
+        }
+      }
+
       const lightResults = businesses.slice(0, limit).map(b => ({
         id: b.id,
         name: b.name,
