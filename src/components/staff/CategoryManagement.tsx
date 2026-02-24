@@ -45,6 +45,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import IconPicker, { ICONS } from "./IconPicker";
+import RichTextEditor from "./RichTextEditor";
 
 // Helper component to render dynamic icons
 const DynamicIcon = ({ name, className }: { name: string; className?: string }) => {
@@ -590,15 +591,20 @@ const CategoryManagement = () => {
             <p className="text-[10px] text-muted-foreground mt-0.5">{editForm.tab_title.length}/20</p>
           </div>
           <div>
-            <label className="text-xs font-medium text-muted-foreground">Description (max 500 car.)</label>
-            <Textarea
-              value={editForm.description_fr}
-              onChange={(e) => setEditForm(prev => ({ ...prev, description_fr: e.target.value.slice(0, 500) }))}
+            <label className="text-xs font-medium text-muted-foreground">Description (max 1000 car., rich text)</label>
+            <RichTextEditor
+              content={editForm.description_fr}
+              onChange={(html) => {
+                // Strip HTML tags to count text length
+                const textOnly = html.replace(/<[^>]*>/g, '');
+                if (textOnly.length <= 1000) {
+                  setEditForm(prev => ({ ...prev, description_fr: html }));
+                }
+              }}
               placeholder="Description de la sous-catégorie..."
-              maxLength={500}
-              className="min-h-[100px]"
+              maxHeight="200px"
             />
-            <p className="text-[10px] text-muted-foreground mt-0.5">{editForm.description_fr.length}/500</p>
+            <p className="text-[10px] text-muted-foreground mt-0.5">{editForm.description_fr.replace(/<[^>]*>/g, '').length}/1000</p>
           </div>
         </div>
       )}
