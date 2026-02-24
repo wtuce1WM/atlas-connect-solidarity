@@ -690,7 +690,16 @@ serve(async (req) => {
           }
           
           originalDetectedService = detectedService;
-          serviceMatchWordsForInjection = serviceMatchWords;
+          // Only inject words that actually matched a detected service name (not all query words)
+          if (usedQueryWords.size > 0) {
+            serviceMatchWordsForInjection = [...usedQueryWords];
+          } else if (detectedService) {
+            // Fallback path: extract content words from the detected service name
+            const dsSvcContentWords = detectedService.toLowerCase().split(/\s+/).filter((w: string) => w.length > 1 && !FRENCH_STOP_WORDS.has(w));
+            serviceMatchWordsForInjection = serviceMatchWords.filter(w => dsSvcContentWords.some((sw: string) => w === sw || stripPlural(w) === stripPlural(sw)));
+          } else {
+            serviceMatchWordsForInjection = [];
+          }
           console.log(`Detected service(s) for SQL filter: [${detectedServices.join(", ")}], all candidates: [${allCandidateServiceNames.join(", ")}] (from: ${serviceMatchWords.join(", ")})`);
         }
       }
@@ -960,10 +969,18 @@ serve(async (req) => {
               // Keep if business name matches original query (user searching by name)
               const bNameLower = (b.name || "").toLowerCase();
               if (originalQueryLower.length >= 4 && (
-                bNameLower.includes(originalQueryLower) || originalQueryLower.includes(bNameLower) ||
-                bNameLower.split(/\s+/).filter((w: string) => w.length > 2 && originalQueryLower.includes(w)).length >= 2
+                bNameLower.includes(originalQueryLower) || originalQueryLower.includes(bNameLower)
               )) {
                 return true;
+              }
+              // Also keep if most significant words of the business name appear in the query
+              const bWords = bNameLower.split(/\s+/).filter((w: string) => w.length > 2);
+              const queryWords = originalQueryLower.split(/\s+/).filter((w: string) => w.length > 2);
+              if (bWords.length >= 2 && queryWords.length >= 2) {
+                const matchCount = bWords.filter((w: string) => queryWords.some((qw: string) => qw.includes(w) || w.includes(qw))).length;
+                if (matchCount >= Math.ceil(bWords.length * 0.7)) {
+                  return true;
+                }
               }
               const bServices = (b.services || []).map((s: string) => s.toLowerCase());
               return allCandidateServiceNames.some(cs => 
