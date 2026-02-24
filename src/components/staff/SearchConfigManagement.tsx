@@ -221,7 +221,7 @@ const SearchConfigManagement = () => {
       <div className="flex items-center gap-4 flex-wrap">
         <Badge variant="outline" className="text-sm px-3 py-1">
           <Settings2 className="h-3.5 w-3.5 mr-1.5" />
-          {configuredCount} / {totalCount} configurées
+          {configuredCount} personnalisée{configuredCount > 1 ? "s" : ""} sur {totalCount}
         </Badge>
         <Badge variant="secondary" className="text-sm px-3 py-1">
           <Zap className="h-3.5 w-3.5 mr-1.5" />
