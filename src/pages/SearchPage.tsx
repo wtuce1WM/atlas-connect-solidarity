@@ -316,7 +316,7 @@ const SearchPage = () => {
     const businessCities = new Set(allBusinesses.map(b => b.city));
     return citiesWithPriority
       .filter(c => businessCities.has(c.name))
-      .sort((a, b) => b.priority - a.priority)
+      .sort((a, b) => a.priority - b.priority)
       .map(c => c.name);
   }, [allBusinesses, citiesWithPriority]);
 
