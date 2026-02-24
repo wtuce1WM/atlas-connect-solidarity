@@ -325,9 +325,12 @@ const SearchPage = () => {
     return computeWeightedRatingOn20(collectRatingSources(b));
   };
 
-  // Filter businesses by city, then boost by time slot, then sort by rating
+  // Filter businesses by city, then boost by time slot
+  // IMPORTANT: When there is an active search query, preserve the server-side relevance order
+  // (name-match boost, LLM reranking, etc.) instead of re-sorting by rating.
   const filteredBusinesses = useMemo(() => {
     const filtered = selectedCity === "all" ? allBusinesses : allBusinesses.filter(b => b.city === selectedCity);
+    const hasActiveQuery = !!searchQuery.trim();
     
     if (activeTimeSlot) {
       // Separate into "open during slot" and "rest"
@@ -341,17 +344,27 @@ const SearchPage = () => {
           rest.push(b);
         }
       }
-      // Sort each group by rating, then concat (open first)
+      if (hasActiveQuery) {
+        // Preserve server relevance order within each group
+        return [...openDuring, ...rest];
+      }
+      // No query: sort each group by rating, then concat (open first)
       const sortByRating = (a: Business, b: Business) => (getEffectiveRating(b) ?? -1) - (getEffectiveRating(a) ?? -1);
       return [...openDuring.sort(sortByRating), ...rest.sort(sortByRating)];
     }
     
+    // When there's an active search query, preserve the server-side order (relevance-based)
+    if (hasActiveQuery) {
+      return filtered;
+    }
+    
+    // No query (e.g. category browse): sort by rating
     return [...filtered].sort((a, b) => {
       const ratingA = getEffectiveRating(a) ?? -1;
       const ratingB = getEffectiveRating(b) ?? -1;
       return ratingB - ratingA;
     });
-  }, [allBusinesses, selectedCity, activeTimeSlot]);
+  }, [allBusinesses, selectedCity, activeTimeSlot, searchQuery]);
 
   // Paginate
   const totalPages = Math.ceil(filteredBusinesses.length / ITEMS_PER_PAGE);
