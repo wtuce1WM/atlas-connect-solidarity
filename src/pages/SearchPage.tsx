@@ -325,12 +325,17 @@ const SearchPage = () => {
     return computeWeightedRatingOn20(collectRatingSources(b));
   };
 
-  // Filter businesses by city, then boost by time slot
-  // IMPORTANT: When there is an active search query, preserve the server-side relevance order
-  // (name-match boost, LLM reranking, etc.) instead of re-sorting by rating.
+  // Sort: WTUCE verified first (by rating desc), then non-verified (by rating desc)
+  const sortWtuceAndRating = (a: Business, b: Business) => {
+    const aVerified = a.wtuce_status === "verified" ? 0 : 1;
+    const bVerified = b.wtuce_status === "verified" ? 0 : 1;
+    if (aVerified !== bVerified) return aVerified - bVerified;
+    return (getEffectiveRating(b) ?? -1) - (getEffectiveRating(a) ?? -1);
+  };
+
+  // Filter businesses by city, then sort by WTUCE status + rating
   const filteredBusinesses = useMemo(() => {
     const filtered = selectedCity === "all" ? allBusinesses : allBusinesses.filter(b => b.city === selectedCity);
-    const hasActiveQuery = !!searchQuery.trim();
     
     if (activeTimeSlot) {
       // Separate into "open during slot" and "rest"
@@ -344,26 +349,10 @@ const SearchPage = () => {
           rest.push(b);
         }
       }
-      if (hasActiveQuery) {
-        // Preserve server relevance order within each group
-        return [...openDuring, ...rest];
-      }
-      // No query: sort each group by rating, then concat (open first)
-      const sortByRating = (a: Business, b: Business) => (getEffectiveRating(b) ?? -1) - (getEffectiveRating(a) ?? -1);
-      return [...openDuring.sort(sortByRating), ...rest.sort(sortByRating)];
+      return [...openDuring.sort(sortWtuceAndRating), ...rest.sort(sortWtuceAndRating)];
     }
     
-    // When there's an active search query, preserve the server-side order (relevance-based)
-    if (hasActiveQuery) {
-      return filtered;
-    }
-    
-    // No query (e.g. category browse): sort by rating
-    return [...filtered].sort((a, b) => {
-      const ratingA = getEffectiveRating(a) ?? -1;
-      const ratingB = getEffectiveRating(b) ?? -1;
-      return ratingB - ratingA;
-    });
+    return [...filtered].sort(sortWtuceAndRating);
   }, [allBusinesses, selectedCity, activeTimeSlot, searchQuery]);
 
   // Paginate
