@@ -368,9 +368,7 @@ const BusinessDetail = () => {
               return a.subcategoryName.localeCompare(b.subcategoryName, 'fr');
             });
             
-            if (orphanServices.length > 0) {
-              groups.push({ subcategoryName: 'Autres', description: null, icon: null, services: orphanServices.sort((a, b) => a.localeCompare(b, 'fr')) });
-            }
+            // Orphan services are silently dropped – never show an "Autres" group
             
             setGroupedServices(groups);
             // If only one subcategory, open it by default; otherwise all collapsed
