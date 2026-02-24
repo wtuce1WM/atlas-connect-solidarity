@@ -2626,7 +2626,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                    <div className="space-y-2 flex-1">
                     <Label>Logistique</Label>
                     <div className="border rounded-md p-3 space-y-1.5 bg-muted/30">
-                      {["Accessible aux personnes à mobilité réduite", "Livraison à domicile", "Paiement à la livraison", "Paiement cash", "Paiement CB"].map((item) => {
+                      {["Accessible aux personnes à mobilité réduite", "Livraison à domicile", "Paiement à la livraison", "Paiement cash", "Paiement CB", "Web only"].map((item) => {
                         const tag = `Logistique:${item}`;
                         return (
                           <label key={item} className="flex items-center gap-2 cursor-pointer text-sm">
@@ -2705,7 +2705,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                   <div className="space-y-2 flex-1">
                     <Label>Logistique</Label>
                     <div className="border rounded-md p-3 space-y-1.5 bg-muted/30">
-                      {["Accessible aux personnes à mobilité réduite", "Livraison à domicile", "Paiement à la livraison", "Paiement cash", "Paiement CB"].map((item) => {
+                      {["Accessible aux personnes à mobilité réduite", "Livraison à domicile", "Paiement à la livraison", "Paiement cash", "Paiement CB", "Web only"].map((item) => {
                         const tag = `Logistique:${item}`;
                         return (
                           <label key={item} className="flex items-center gap-2 cursor-pointer text-sm">
