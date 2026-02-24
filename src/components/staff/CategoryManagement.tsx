@@ -387,8 +387,12 @@ const CategoryManagement = () => {
         const sub = subcategories.find(s => s.id === editMode.parentId);
         if (sub) scrollToCatId = sub.category_id;
       } else if (editMode.type === "subcategory") {
-        scrollToSubId = editMode.id;
+        scrollToSubId = editMode.id; // null for new, but parentCat still scrolls
         scrollToCatId = editMode.parentId || null;
+        // For new subcategory, at least scroll to parent category
+        if (!scrollToSubId && scrollToCatId) {
+          // will fall through to category scroll below
+        }
       } else if (editMode.type === "category") {
         scrollToCatId = editMode.id;
       }
