@@ -269,8 +269,10 @@ function detectNeighborhoodInQuery(query: string): string | null {
 }
 
 // Post-filter businesses by neighborhood, including "Toute la ville & environs" wildcard
-function filterByNeighborhood(businesses: any[], neighborhood: string): any[] {
+function filterByNeighborhood(businesses: any[], neighborhood: string, keepNameMatches = false): any[] {
   const nLower = neighborhood.toLowerCase();
+  // Accent-stripped version for name matching
+  const nStripped = nLower.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   // Handle accent variants (e.g. Gueliz/Guéliz)
   const variants = [nLower];
   if (nLower === "gueliz" || nLower === "guéliz" || nLower === "geliz") {
@@ -287,6 +289,12 @@ function filterByNeighborhood(businesses: any[], neighborhood: string): any[] {
     const bNeighborhood = (b.neighborhood || "").toLowerCase();
     if (variants.some(v => bNeighborhood === v || bNeighborhood.includes(v))) return true;
     if (bNeighborhood.includes("toute la ville")) return true;
+    // Also keep businesses whose name contains the neighborhood term
+    if (keepNameMatches) {
+      const bName = (b.name || "").toLowerCase();
+      const bNameStripped = bName.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      if (variants.some(v => bName.includes(v)) || bNameStripped.includes(nStripped)) return true;
+    }
     return false;
   });
 }
@@ -715,6 +723,7 @@ serve(async (req) => {
     // Strip detected neighborhood from queryForExpansion — neighborhood filtering is handled
     // by post-filter (filterByNeighborhood) which handles accent variants (médina/medina, guéliz/gueliz).
     // Keeping it in the tsquery causes accent mismatches (e.g. "médina" vs "medina" in search_vector).
+    let isNeighborhoodOnlyQuery = false;
     if (detectedNeighborhood && queryForExpansion) {
       const nhWords = detectedNeighborhood.toLowerCase().split(/\s+/);
       const stripped = queryForExpansion.split(/\s+/).filter(w => {
@@ -726,6 +735,7 @@ serve(async (req) => {
         console.log(`Stripped neighborhood from tsquery: "${queryForExpansion}" (was: "${effectiveQuery}")`);
       } else {
         // Query is only the neighborhood — use accent-stripped version for tsquery
+        isNeighborhoodOnlyQuery = true;
         queryForExpansion = detectedNeighborhood.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
         console.log(`Query is neighborhood-only, using accent-stripped: "${queryForExpansion}" (was: "${effectiveQuery}")`);
       }
@@ -1010,7 +1020,7 @@ serve(async (req) => {
           // Neighborhood post-filter for Level 1 results
           if (detectedNeighborhood && businesses.length > 0) {
             const beforeNeighborhood = businesses.length;
-            const neighborhoodFiltered = filterByNeighborhood(businesses, detectedNeighborhood);
+            const neighborhoodFiltered = filterByNeighborhood(businesses, detectedNeighborhood, isNeighborhoodOnlyQuery);
             if (neighborhoodFiltered.length > 0) {
               businesses = neighborhoodFiltered;
             }
@@ -1099,7 +1109,7 @@ serve(async (req) => {
           // Neighborhood post-filter for Level 2 results
           if (detectedNeighborhood && businesses.length > 0) {
             const beforeNeighborhood = businesses.length;
-            const neighborhoodFiltered = filterByNeighborhood(businesses, detectedNeighborhood);
+            const neighborhoodFiltered = filterByNeighborhood(businesses, detectedNeighborhood, isNeighborhoodOnlyQuery);
             if (neighborhoodFiltered.length > 0) {
               businesses = neighborhoodFiltered;
             }
