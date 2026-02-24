@@ -184,6 +184,8 @@ const BusinessDetail = () => {
   const [categoriesWithResults, setCategoriesWithResults] = useState<string[]>([]);
   const [businessDestinationHook, setBusinessDestinationHook] = useState<string | null>(null);
   const [businessDestinationDescription, setBusinessDestinationDescription] = useState<string | null>(null);
+  const [servicesTabTitle, setServicesTabTitle] = useState<string>('Services');
+  const [servicesTabDescription, setServicesTabDescription] = useState<string | null>(null);
   const { t, language } = useLanguage();
   const navigate = useNavigate();
   const { speak: ttsSpeak, stop: ttsStop, status: ttsStatus } = useTextToSpeech();
@@ -269,6 +271,20 @@ const BusinessDetail = () => {
         } else {
           setDestinations([]);
         }
+
+        // Fetch subcategory tab_title and description_fr
+        if (data.categories && data.categories.length > 0) {
+          const { data: subcatData } = await supabase
+            .from("subcategories")
+            .select("tab_title, description_fr")
+            .in("name_fr", data.categories);
+          if (subcatData && subcatData.length > 0) {
+            const withTitle = (subcatData as any[]).find(sc => sc.tab_title);
+            if (withTitle) setServicesTabTitle(withTitle.tab_title);
+            const withDesc = (subcatData as any[]).find(sc => sc.description_fr);
+            if (withDesc) setServicesTabDescription(withDesc.description_fr);
+          }
+        }
       } else {
         setBusiness(null);
       }
@@ -342,7 +358,7 @@ const BusinessDetail = () => {
     { key: 'overview', label: 'Aperçu', show: true },
     { key: 'experiences', label: 'Expériences', show: destinations.length > 0 },
     { key: 'video', label: 'Vidéo', show: !!business.video_1_url },
-    { key: 'services', label: 'Services', show: !!(business.services && business.services.length > 0) },
+    { key: 'services', label: servicesTabTitle, show: !!(business.services && business.services.length > 0) },
     { key: 'reviews', label: 'Avis', show: !!hasReviews },
     { key: 'location', label: 'Localisation', show: !!(business.google_maps_url || (business.latitude && business.longitude)) },
   ];
@@ -1209,7 +1225,10 @@ const BusinessDetail = () => {
         {/* SERVICES TAB */}
         {activeTab === 'services' && (
           <div className="max-w-2xl">
-            <h2 className={`text-xl font-semibold mb-4 ${isVerified ? 'text-white' : ''}`}>Services</h2>
+            <h2 className={`text-xl font-semibold mb-4 ${isVerified ? 'text-white' : ''}`}>{servicesTabTitle}</h2>
+            {servicesTabDescription && (
+              <div className={`mb-6 text-sm leading-relaxed prose max-w-none ${isVerified ? 'text-white/80 prose-headings:text-white prose-strong:text-white' : 'text-muted-foreground prose-headings:text-foreground'}`} dangerouslySetInnerHTML={{ __html: servicesTabDescription }} />
+            )}
             {business.services && business.services.length > 0 ? (
               <ul className="space-y-3 text-foreground">
                 {[...business.services].sort((a, b) => a.localeCompare(b, 'fr')).map((service, index) => (
