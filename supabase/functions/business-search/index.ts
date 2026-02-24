@@ -119,6 +119,7 @@ interface SearchResult {
   searchLevel: string;
   message: string;
   totalResults: number;
+  detectedSubcategory?: string | null;
 }
 
 // Synonymes pour améliorer la recherche
@@ -1717,6 +1718,7 @@ serve(async (req) => {
       searchLevel,
       message: getSearchLevelMessage(searchLevel, language),
       totalResults: businesses.length,
+      detectedSubcategory: detectedSubcategory || null,
     };
 
     return new Response(JSON.stringify(result), {
