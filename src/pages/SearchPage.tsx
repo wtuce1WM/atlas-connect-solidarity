@@ -72,6 +72,7 @@ interface SearchResult {
   searchLevel: string;
   message: string;
   totalResults: number;
+  detectedSubcategory?: string | null;
 }
 
 const ITEMS_PER_PAGE = 20;
@@ -235,6 +236,7 @@ const SearchPage = () => {
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const [allBusinesses, setAllBusinesses] = useState<Business[]>([]);
+  const [detectedSubcategory, setDetectedSubcategory] = useState<string | null>(null);
   const [searchLevel, setSearchLevel] = useState<string>("");
   const [searchMessage, setSearchMessage] = useState<string>("");
   const [citiesWithPriority, setCitiesWithPriority] = useState<{ name: string; priority: number }[]>([]);
@@ -355,7 +357,34 @@ const SearchPage = () => {
     return [...filtered].sort(sortWtuceAndRating);
   }, [allBusinesses, selectedCity, activeTimeSlot, searchQuery]);
 
-  // Paginate
+  // Group businesses by primary subcategory when a subcategory was detected
+  const groupedBusinesses = useMemo(() => {
+    if (!detectedSubcategory || filteredBusinesses.length === 0) return null;
+    
+    const groups: Record<string, Business[]> = {};
+    for (const b of filteredBusinesses) {
+      // Use first category as primary subcategory
+      const primary = b.categories?.[0] || "Autre";
+      if (!groups[primary]) groups[primary] = [];
+      groups[primary].push(b);
+    }
+    
+    // Only group if there are at least 2 different subcategories
+    const keys = Object.keys(groups);
+    if (keys.length < 2) return null;
+    
+    // Sort groups: detected subcategory first, then alphabetically
+    const sortedKeys = keys.sort((a, b) => {
+      const aIsDetected = a.toLowerCase() === detectedSubcategory.toLowerCase() ? 0 : 1;
+      const bIsDetected = b.toLowerCase() === detectedSubcategory.toLowerCase() ? 0 : 1;
+      if (aIsDetected !== bIsDetected) return aIsDetected - bIsDetected;
+      return a.localeCompare(b, 'fr');
+    });
+    
+    return sortedKeys.map(key => ({ subcategory: key, businesses: groups[key] }));
+  }, [filteredBusinesses, detectedSubcategory]);
+
+  // Paginate (only for non-grouped view)
   const totalPages = Math.ceil(filteredBusinesses.length / ITEMS_PER_PAGE);
   const paginatedBusinesses = useMemo(() => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -422,6 +451,7 @@ const SearchPage = () => {
         
         if (data) {
           setSearchLevel(data.searchLevel || "");
+          setDetectedSubcategory(data.detectedSubcategory || null);
           // When user searched for something specific but got "recommended" fallback → show 0 results
           const isVoiceSearch = !!searchParams.get("spoken");
           const hasActiveQuery = !!searchQuery.trim();
@@ -1130,20 +1160,47 @@ const SearchPage = () => {
             </div>
           ) : !showCelebrityGuide && !showSosMedecin && !showPompiers && filteredBusinesses.length > 0 ? (
             <>
-              {/* Results Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {paginatedBusinesses.map((business) => (
-                  <BusinessCard
-                    key={business.id}
-                    business={business as BusinessCardData}
-                    gammes={gammes}
-                    badges={badges}
-                    subcategories={subcategories}
-                    badgeSubcategories={badgeSubcategories}
-                    verifiedLabel={t.verified}
-                  />
-                ))}
-              </div>
+              {/* Results Grid — Grouped by subcategory or flat */}
+              {groupedBusinesses ? (
+                <div className="space-y-10">
+                  {groupedBusinesses.map((group) => (
+                    <div key={group.subcategory}>
+                      <div className="flex items-center gap-3 mb-5">
+                        <h3 className="text-lg font-semibold text-foreground">{group.subcategory}</h3>
+                        <span className="text-sm text-muted-foreground">({group.businesses.length})</span>
+                        <div className="flex-1 h-px bg-border" />
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        {group.businesses.map((business) => (
+                          <BusinessCard
+                            key={business.id}
+                            business={business as BusinessCardData}
+                            gammes={gammes}
+                            badges={badges}
+                            subcategories={subcategories}
+                            badgeSubcategories={badgeSubcategories}
+                            verifiedLabel={t.verified}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {paginatedBusinesses.map((business) => (
+                    <BusinessCard
+                      key={business.id}
+                      business={business as BusinessCardData}
+                      gammes={gammes}
+                      badges={badges}
+                      subcategories={subcategories}
+                      badgeSubcategories={badgeSubcategories}
+                      verifiedLabel={t.verified}
+                    />
+                  ))}
+                </div>
+              )}
 
               {/* Pagination */}
               {totalPages > 1 && (
