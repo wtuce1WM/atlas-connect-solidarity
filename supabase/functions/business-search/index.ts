@@ -521,7 +521,11 @@ serve(async (req) => {
             qw === n || stripPluralSimple(qw) === n || qw === stripPluralSimple(n) ||
             stripAccents(qw) === stripAccents(n) || normalizeWord(qw) === stripAccents(n) || stripAccents(qw) === normalizeWord(n)
           );
-          if (n.includes(" ") ? (qLower.includes(n) || (nContent.length > 2 && qLower.includes(nContent))) : singleWordMatch) {
+          // Multi-word subcategory name: check if ALL content words appear in query (with plural/accent normalization)
+          const multiWordMatch = n.includes(" ") && nContentWords.length > 0 && nContentWords.every((nw: string) =>
+            qWords.some(qw => qw === nw || normalizeWord(qw) === normalizeWord(nw))
+          );
+          if (n.includes(" ") ? (qLower.includes(n) || (nContent.length > 2 && qLower.includes(nContent)) || multiWordMatch) : singleWordMatch) {
             detectedSubcategory = sc.name_fr;
             console.log(`Auto-detected subcategory "${sc.name_fr}" from name match in query "${effectiveQuery}"`);
             break;
@@ -529,10 +533,18 @@ serve(async (req) => {
           // Match by keywords array (e.g. "fleurs" → "Fleuriste", "fer forgé" → "Ferronnerie")
           const kws: string[] = (sc.keywords || []).map((k: string) => k.toLowerCase());
           if (kws.length > 0 && (
-            // Single-word keyword match
-            qWords.some((w: string) => kws.includes(w)) ||
+            // Single-word keyword match (with plural normalization)
+            qWords.some((w: string) => kws.includes(w) || kws.some((k: string) => !k.includes(" ") && normalizeWord(k) === normalizeWord(w))) ||
             // Multi-word keyword match: check if the full query contains a multi-word keyword
-            kws.some((k: string) => k.includes(" ") && qLower.includes(k))
+            kws.some((k: string) => k.includes(" ") && qLower.includes(k)) ||
+            // Multi-word keyword match with normalization: check if ALL content words of a keyword appear in query
+            kws.some((k: string) => {
+              if (!k.includes(" ")) return false;
+              const kwContentWords = k.split(/\s+/).filter((w: string) => w.length > 1 && !FRENCH_STOP_WORDS.has(w));
+              return kwContentWords.length >= 2 && kwContentWords.every((kw: string) =>
+                qWords.some(qw => qw === kw || normalizeWord(qw) === normalizeWord(kw))
+              );
+            })
           )) {
             detectedSubcategory = sc.name_fr;
             console.log(`Auto-detected subcategory "${sc.name_fr}" from keyword match in query "${effectiveQuery}"`);
