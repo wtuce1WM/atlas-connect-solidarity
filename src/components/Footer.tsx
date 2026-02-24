@@ -75,17 +75,6 @@ const Footer = ({ variant = "default" }: FooterProps) => {
             </div>
           </div>
 
-          {/* Services */}
-          <div>
-            <h4 className="mb-4 font-semibold text-gold">{t("footer.services")}</h4>
-            <ul className={`space-y-2 ${textSecondary}`}>
-              <li><a href="#" className="transition-colors hover:text-gold">{t("footer.findServices")}</a></li>
-              <li><a href="#" className="transition-colors hover:text-gold">{t("footer.postJob")}</a></li>
-              <li><a href="#" className="transition-colors hover:text-gold">{t("footer.becomeProvider")}</a></li>
-              <li><a href="#" className="transition-colors hover:text-gold">{t("footer.businessSolutions")}</a></li>
-            </ul>
-          </div>
-
           {/* Company */}
           <div>
             <h4 className="mb-4 font-semibold text-gold">{t("footer.company")}</h4>
