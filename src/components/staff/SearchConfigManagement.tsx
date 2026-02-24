@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Search, Save, Loader2, Plus, Trash2, X, Settings2, Zap, Hash, Type } from "lucide-react";
+import { Search, Save, Loader2, Plus, Trash2, X, Settings2, Zap, Hash, Type, Globe, ExternalLink } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -38,19 +38,35 @@ const SearchConfigManagement = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [savingIds, setSavingIds] = useState<Set<string>>(new Set());
   const [newSynonym, setNewSynonym] = useState<Record<string, string>>({});
+  const [businessCounts, setBusinessCounts] = useState<Record<string, number>>({});
 
   // Load data
   useEffect(() => {
     const load = async () => {
       setIsLoading(true);
-      const [catRes, subRes, configRes] = await Promise.all([
+      const [catRes, subRes, configRes, bizRes] = await Promise.all([
         supabase.from("categories").select("id, name_fr").order("name_fr"),
         supabase.from("subcategories").select("id, name_fr, category_id").order("name_fr"),
         supabase.from("subcategory_search_config").select("*"),
+        supabase.from("businesses").select("categories, is_active"),
       ]);
 
       if (catRes.data) setCategories(catRes.data);
       if (subRes.data) setSubcategories(subRes.data);
+      // Count active businesses per subcategory name
+      if (bizRes.data && subRes.data) {
+        const counts: Record<string, number> = {};
+        const subNames = new Set(subRes.data.map(s => s.name_fr));
+        for (const biz of bizRes.data) {
+          if (!biz.is_active || !biz.categories) continue;
+          for (const cat of biz.categories) {
+            if (subNames.has(cat)) {
+              counts[cat] = (counts[cat] || 0) + 1;
+            }
+          }
+        }
+        setBusinessCounts(counts);
+      }
       if (configRes.data) {
         const map: Record<string, SearchConfig> = {};
         for (const c of configRes.data) {
@@ -265,9 +281,34 @@ const SearchConfigManagement = () => {
                         </Badge>
                       )}
                     </div>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {getCategoryName(sub.category_id)}
-                    </p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <p className="text-xs text-muted-foreground">
+                        {getCategoryName(sub.category_id)}
+                      </p>
+                      <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                        {businessCounts[sub.name_fr] || 0} étab.
+                      </Badge>
+                    </div>
+                    <div className="flex items-center gap-2 mt-1">
+                      <a
+                        href={`/search?q=${encodeURIComponent(sub.name_fr)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[10px] text-muted-foreground hover:text-primary transition-colors flex items-center gap-0.5"
+                        title="Recherche"
+                      >
+                        <Search className="h-3 w-3" /> Recherche
+                      </a>
+                      <a
+                        href={`/subcategory/${encodeURIComponent(sub.name_fr)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[10px] text-muted-foreground hover:text-primary transition-colors flex items-center gap-0.5"
+                        title="Page sous-catégorie"
+                      >
+                        <Globe className="h-3 w-3" /> Sous-cat.
+                      </a>
+                    </div>
                   </div>
 
                   {/* Mode */}
