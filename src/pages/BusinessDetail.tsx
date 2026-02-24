@@ -114,6 +114,7 @@ interface Business {
   menu_url: string | null;
   languages: string[] | null;
   logo_bg: string | null;
+  default_service: string | null;
 }
 
 interface Gamme {
@@ -325,7 +326,17 @@ const BusinessDetail = () => {
               icon: g.icon,
               services: g.services.sort((a, b) => a.localeCompare(b, 'fr')),
             }));
-            groups.sort((a, b) => a.subcategoryName.localeCompare(b.subcategoryName, 'fr'));
+            // Sort: put the group containing default_service first
+            const defaultSvc = data.default_service;
+            groups.sort((a, b) => {
+              if (defaultSvc) {
+                const aHasDefault = a.services.includes(defaultSvc);
+                const bHasDefault = b.services.includes(defaultSvc);
+                if (aHasDefault && !bHasDefault) return -1;
+                if (!aHasDefault && bHasDefault) return 1;
+              }
+              return a.subcategoryName.localeCompare(b.subcategoryName, 'fr');
+            });
             
             if (orphanServices.length > 0) {
               groups.push({ subcategoryName: 'Autres', description: null, icon: null, services: orphanServices.sort((a, b) => a.localeCompare(b, 'fr')) });
