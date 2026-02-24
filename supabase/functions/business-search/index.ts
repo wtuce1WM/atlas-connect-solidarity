@@ -531,6 +531,7 @@ serve(async (req) => {
     let allCandidateServiceNames: string[] = []; // ALL candidate service names (synonyms → OR)
     let originalDetectedService: string | null = null; // Keep track even after fallback
     let serviceMatchWordsForInjection: string[] = [];
+    let serviceMatchWordsOuter: string[] = []; // All query words used in service detection (for cleanRemainder)
     
     // ── Check for exact business name match BEFORE service detection ──
     // If the query closely matches a business name, skip service detection to avoid false positives
@@ -587,6 +588,7 @@ serve(async (req) => {
         && !subcatNameWords.includes(w) && !INTENT_TO_CATEGORY[w] && !TIME_NOISE.has(w) && !PERSONAL_CONTEXT_NOISE.has(w)
       ))];
 
+      serviceMatchWordsOuter = [...serviceMatchWords]; // Store for cleanRemainder later
       if (serviceMatchWords.length > 0) {
         // Search by name OR keywords array (include singular/plural variants)
         const stripPluralForName = (w: string): string => {
@@ -812,19 +814,23 @@ serve(async (req) => {
       
       // Filter out intent noise words, stop words AND noise adjectives from the remaining query
       // Also strip hyphenated compounds that contain a service keyword (e.g. "canapé-lit" when service is "Canapé")
+      // serviceMatchWords contains ALL query words that participated in service detection
+      // (including keyword-matched words like "méridienne" that matched via keyword of "Canapé")
+      const allServiceRelatedWords = new Set([
+        ...serviceMatchWordsForInjection,
+        ...svcWords,
+        ...serviceMatchWordsOuter,
+      ]);
       const cleanRemainder = effectiveQuery.split(/\s+/).filter(w => {
         const wLower = w.toLowerCase();
-        if (serviceMatchWordsForInjection.includes(wLower)) return false;
+        if (allServiceRelatedWords.has(wLower)) return false;
         if (FRENCH_STOP_WORDS.has(wLower)) return false;
         if (INTENT_NOISE.has(wLower)) return false;
         if (NOISE_ADJECTIVES.has(wLower)) return false;
-        // Don't remove words that are part of the service name
-        if (svcWords.includes(wLower)) return false;
-        // Strip hyphenated words whose parts are already covered by the service name
-        // e.g. "canapé-lit" → parts ["canapé", "lit"] → "canapé" is in svcWords → strip
+        // Strip hyphenated words whose parts are already covered by the service
         if (wLower.includes("-")) {
           const parts = wLower.split("-").filter(p => p.length > 0);
-          if (parts.some(p => svcWords.includes(p) || serviceMatchWordsForInjection.includes(p))) return false;
+          if (parts.some(p => allServiceRelatedWords.has(p))) return false;
         }
         return true;
       }).join(" ").trim();
