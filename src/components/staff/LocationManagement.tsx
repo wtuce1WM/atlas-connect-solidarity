@@ -285,17 +285,19 @@ const LocationManagement = () => {
       setCities(citiesRes.data || []);
     }
 
-    // Count businesses per city
+    // Count businesses per city and per city+neighborhood
     if (!businessesRes.error && businessesRes.data) {
       const counts: Record<string, number> = {};
       const nhCounts: Record<string, number> = {};
-      businessesRes.data.forEach((b) => {
+      businessesRes.data.forEach((b: any) => {
         if (b.city) {
           counts[b.city] = (counts[b.city] || 0) + 1;
         }
         if (b.neighborhood) {
           const nhKey = b.neighborhood.toLowerCase();
+          const cityNhKey = (b.city || "").toLowerCase() + "|" + nhKey;
           nhCounts[nhKey] = (nhCounts[nhKey] || 0) + 1;
+          nhCounts[cityNhKey] = (nhCounts[cityNhKey] || 0) + 1;
         }
       });
       setBusinessCounts(counts);
@@ -1067,7 +1069,7 @@ const LocationManagement = () => {
                                     {cityNeighborhoods.map((n) => (
                                       <div key={n.id} className="flex items-center gap-1 bg-background border rounded px-2 py-1 text-sm">
                                         <span>{n.name}</span>
-                                        <span className="text-xs text-muted-foreground ml-1">({neighborhoodBusinessCounts[n.name.toLowerCase()] || 0})</span>
+                                        <span className="text-xs text-muted-foreground ml-1">({neighborhoodBusinessCounts[city.name_fr.toLowerCase() + "|" + n.name.toLowerCase()] || 0})</span>
                                         <a href={`/search?q=${encodeURIComponent(n.name + ' ' + city.name_fr)}`} target="_blank" rel="noopener noreferrer" className="h-5 w-5 p-0 inline-flex items-center justify-center text-muted-foreground hover:text-primary transition-colors" title="Rechercher">
                                           <Search className="h-3 w-3" />
                                         </a>
@@ -1236,7 +1238,7 @@ const LocationManagement = () => {
                           <TableCell className="text-muted-foreground">{city?.name_fr || "—"}</TableCell>
                           <TableCell>
                             <span className="inline-flex items-center justify-center min-w-[2rem] px-2 py-0.5 bg-primary/10 text-primary rounded text-sm font-medium">
-                              {neighborhoodBusinessCounts[n.name.toLowerCase()] || 0}
+                              {neighborhoodBusinessCounts[(city?.name_fr || "").toLowerCase() + "|" + n.name.toLowerCase()] || 0}
                             </span>
                           </TableCell>
                           <TableCell className="text-muted-foreground text-sm">
