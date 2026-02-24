@@ -1203,6 +1203,7 @@ const LocationManagement = () => {
                     <TableHead>Image</TableHead>
                     <TableHead>Quartier</TableHead>
                     <TableHead>Ville</TableHead>
+                    <TableHead>Établissements</TableHead>
                     <TableHead>Coordonnées</TableHead>
                     <TableHead>Ordre</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
@@ -1215,7 +1216,7 @@ const LocationManagement = () => {
                       const cityA = cities.find(c => c.id === a.city_id)?.name_fr || "";
                       const cityB = cities.find(c => c.id === b.city_id)?.name_fr || "";
                       if (cityA !== cityB) return cityA.localeCompare(cityB, 'fr');
-                      return (a.sort_order || 0) - (b.sort_order || 0);
+                      return a.name.localeCompare(b.name, 'fr');
                     })
                     .map((n) => {
                       const city = cities.find(c => c.id === n.city_id);
@@ -1230,6 +1231,11 @@ const LocationManagement = () => {
                           </TableCell>
                           <TableCell className="font-medium">{n.name}</TableCell>
                           <TableCell className="text-muted-foreground">{city?.name_fr || "—"}</TableCell>
+                          <TableCell>
+                            <span className="inline-flex items-center justify-center min-w-[2rem] px-2 py-0.5 bg-primary/10 text-primary rounded text-sm font-medium">
+                              {neighborhoodBusinessCounts[n.name.toLowerCase()] || 0}
+                            </span>
+                          </TableCell>
                           <TableCell className="text-muted-foreground text-sm">
                             {n.latitude && n.longitude ? `${n.latitude.toFixed(4)}, ${n.longitude.toFixed(4)}` : "—"}
                           </TableCell>
