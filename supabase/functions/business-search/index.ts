@@ -507,14 +507,19 @@ serve(async (req) => {
           const nWords = n.split(/\s+/).filter((w: string) => w.length > 1);
           const nContentWords = nWords.filter((w: string) => !FRENCH_STOP_WORDS.has(w));
           const nContent = nContentWords.join(" ");
-          // For single-word subcategory names, also match plural forms (e.g. "restaurants" → "restaurant")
+          // For single-word subcategory names, also match plural forms and accent variants
           const stripPluralSimple = (w: string): string => {
             if (w.endsWith("aux")) return w.slice(0, -3) + "al";
             if (w.endsWith("eaux")) return w.slice(0, -4) + "eau";
             if (w.endsWith("s")) return w.slice(0, -1);
             return w;
           };
-          const singleWordMatch = !n.includes(" ") && qWords.some(qw => qw === n || stripPluralSimple(qw) === n || qw === stripPluralSimple(n));
+          const stripAccents = (w: string): string => w.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+          const normalizeWord = (w: string): string => stripAccents(stripPluralSimple(w));
+          const singleWordMatch = !n.includes(" ") && qWords.some(qw => 
+            qw === n || stripPluralSimple(qw) === n || qw === stripPluralSimple(n) ||
+            stripAccents(qw) === stripAccents(n) || normalizeWord(qw) === stripAccents(n) || stripAccents(qw) === normalizeWord(n)
+          );
           if (n.includes(" ") ? (qLower.includes(n) || (nContent.length > 2 && qLower.includes(nContent))) : singleWordMatch) {
             detectedSubcategory = sc.name_fr;
             console.log(`Auto-detected subcategory "${sc.name_fr}" from name match in query "${effectiveQuery}"`);
