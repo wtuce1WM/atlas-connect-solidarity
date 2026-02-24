@@ -293,24 +293,40 @@ const BusinessDetail = () => {
               .select("name_fr, subcategory_id, subcategories(name_fr, description_fr, icon)")
               .in("name_fr", data.services);
             
-            const groupMap = new Map<string, { description: string | null; icon: string | null; services: string[] }>();
+            const groupMap = new Map<string, { description: string | null; icon: string | null; services: Set<string> }>();
             const orphanServices: string[] = [];
+            const businessCats = new Set(data.categories || []);
             
             if (svcRows) {
+              // For each service, find the best matching subcategory (one that's in business categories)
+              const serviceToSubcat = new Map<string, { subcatName: string; description: string | null; icon: string | null }>();
+              
               for (const row of svcRows as any[]) {
                 const subcatName = row.subcategories?.name_fr || null;
-                if (subcatName) {
-                  if (!groupMap.has(subcatName)) {
-                    groupMap.set(subcatName, {
-                      description: row.subcategories?.description_fr || null,
-                      icon: row.subcategories?.icon || null,
-                      services: [],
-                    });
-                  }
-                  groupMap.get(subcatName)!.services.push(row.name_fr);
-                } else {
-                  orphanServices.push(row.name_fr);
+                if (!subcatName) continue;
+                
+                const svcName = row.name_fr as string;
+                const existing = serviceToSubcat.get(svcName);
+                
+                // Prefer subcategory that matches business categories
+                if (!existing) {
+                  serviceToSubcat.set(svcName, { subcatName, description: row.subcategories?.description_fr || null, icon: row.subcategories?.icon || null });
+                } else if (!businessCats.has(existing.subcatName) && businessCats.has(subcatName)) {
+                  serviceToSubcat.set(svcName, { subcatName, description: row.subcategories?.description_fr || null, icon: row.subcategories?.icon || null });
                 }
+              }
+              
+              for (const [svcName, info] of serviceToSubcat) {
+                if (!groupMap.has(info.subcatName)) {
+                  groupMap.set(info.subcatName, { description: info.description, icon: info.icon, services: new Set() });
+                }
+                groupMap.get(info.subcatName)!.services.add(svcName);
+              }
+              
+              // Services with no subcategory at all
+              const mappedServices = new Set(serviceToSubcat.keys());
+              for (const row of svcRows as any[]) {
+                if (!serviceToSubcat.has(row.name_fr)) orphanServices.push(row.name_fr);
               }
             }
             
@@ -324,7 +340,7 @@ const BusinessDetail = () => {
               subcategoryName: name,
               description: g.description,
               icon: g.icon,
-              services: g.services.sort((a, b) => a.localeCompare(b, 'fr')),
+              services: Array.from(g.services).sort((a, b) => a.localeCompare(b, 'fr')),
             }));
             // Sort: prioritize group matching default_service, then business categories order, then alphabetical
             const defaultSvc = data.default_service;
