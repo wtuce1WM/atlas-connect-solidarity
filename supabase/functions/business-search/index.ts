@@ -1027,6 +1027,70 @@ serve(async (req) => {
             console.log(`Neighborhood post-filter "${detectedNeighborhood}" (Level 1): ${beforeNeighborhood} → ${businesses.length}`);
           }
 
+          // ── Neighborhood enrichment: supplement tsquery results with exact DB matches ──
+          if (detectedNeighborhood && effectiveCity) {
+            const existingIds = new Set(businesses.map((b: any) => b.id));
+            const nhVariants = [detectedNeighborhood.toLowerCase()];
+            const nhLower = detectedNeighborhood.toLowerCase();
+            if (nhLower === "médina" || nhLower === "medina") {
+              nhVariants.push("médina", "medina", "ancienne médina");
+            }
+            if (nhLower === "gueliz" || nhLower === "guéliz" || nhLower === "geliz") {
+              nhVariants.push("gueliz", "guéliz", "geliz");
+            }
+            if (nhLower === "menara" || nhLower === "ménara") {
+              nhVariants.push("menara", "ménara");
+            }
+            
+            // Fetch businesses by exact neighborhood + city
+            let enrichBuilder = supabase
+              .from("businesses")
+              .select("*")
+              .eq("is_active", true)
+              .ilike("city", effectiveCity)
+              .or(nhVariants.map(v => `neighborhood.ilike.%${v}%`).join(","));
+            
+            // Apply category/subcategory/service filters if detected
+            if (effectiveCategory) {
+              enrichBuilder = enrichBuilder.or(`main_category.eq.${effectiveCategory},categories.cs.{"${effectiveCategory}"}`);
+            }
+            if (detectedSubcategory) {
+              enrichBuilder = enrichBuilder.contains("categories", [detectedSubcategory]);
+            }
+            
+            enrichBuilder = enrichBuilder
+              .order("wtuce_status", { ascending: true })
+              .order("priority_score", { ascending: false })
+              .limit(limit);
+            
+            const { data: enrichData, error: enrichError } = await enrichBuilder;
+            if (!enrichError && enrichData) {
+              let newBusinesses = enrichData.filter((b: any) => !existingIds.has(b.id));
+              
+              // Apply service post-filter on enriched results too
+              if (allCandidateServiceNames.length > 0) {
+                newBusinesses = newBusinesses.filter((b: any) => {
+                  const bServices = (b.services || []).map((s: string) => s.toLowerCase());
+                  return allCandidateServiceNames.some(cs => 
+                    bServices.some(bs => bs.includes(cs.toLowerCase()) || cs.toLowerCase().includes(bs))
+                  );
+                });
+              }
+              
+              const enriched = newBusinesses.map((b: any) => ({
+                ...b,
+                distance_km: latitude && longitude && b.latitude && b.longitude
+                  ? calculateDistance(latitude, longitude, b.latitude, b.longitude)
+                  : null,
+              }));
+              
+              if (enriched.length > 0) {
+                console.log(`Neighborhood enrichment "${detectedNeighborhood}" + "${effectiveCity}": +${enriched.length} new businesses (was ${businesses.length})`);
+                businesses = [...businesses, ...enriched];
+              }
+            }
+          }
+
           searchLevel = "exact";
         }
       } else {
