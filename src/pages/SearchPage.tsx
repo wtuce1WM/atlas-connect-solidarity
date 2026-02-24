@@ -369,9 +369,7 @@ const SearchPage = () => {
       groups[primary].push(b);
     }
     
-    // Only group if there are at least 2 different subcategories
     const keys = Object.keys(groups);
-    if (keys.length < 2) return null;
     
     // Sort groups: detected subcategory first, then alphabetically
     const sortedKeys = keys.sort((a, b) => {
