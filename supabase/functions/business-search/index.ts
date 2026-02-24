@@ -245,7 +245,7 @@ async function detectCityInQueryDynamic(query: string, supabase: any): Promise<s
 // Known neighborhoods for auto-detection in query
 const KNOWN_NEIGHBORHOODS = [
   "Gueliz", "Guéliz", "Hivernage", "Médina", "Medina", "Ancienne Médina", "Palmeraie",
-  "Agdal", "Semlalia", "Mellah", "Kasbah", "Sidi Ghanem", "Targa", "Menara",
+  "Agdal", "Semlalia", "Mellah", "Kasbah", "Sidi Ghanem", "Targa", "Menara", "Ménara",
   "Daoudiate", "Anfa", "Maârif", "Corniche", "Bourgogne", "Racine", "Gauthier",
   "Souissi", "Hassan", "Hay Riad", "Marina", "Port", "Taghazout", "Sidi Kaouki",
   "Oudaya", "Dhar El Mehraz",
@@ -278,6 +278,9 @@ function filterByNeighborhood(businesses: any[], neighborhood: string): any[] {
   }
   if (nLower === "médina" || nLower === "medina") {
     variants.push("médina", "medina", "ancienne médina");
+  }
+  if (nLower === "menara" || nLower === "ménara") {
+    variants.push("menara", "ménara");
   }
   
   return businesses.filter((b: any) => {
@@ -714,12 +717,17 @@ serve(async (req) => {
     // Keeping it in the tsquery causes accent mismatches (e.g. "médina" vs "medina" in search_vector).
     if (detectedNeighborhood && queryForExpansion) {
       const nhWords = detectedNeighborhood.toLowerCase().split(/\s+/);
-      queryForExpansion = queryForExpansion.split(/\s+/).filter(w => {
+      const stripped = queryForExpansion.split(/\s+/).filter(w => {
         const wLower = w.toLowerCase();
-        return !nhWords.some(nw => wLower === nw || wLower === nw.replace(/[éè]/g, "e") || nw === wLower.replace(/[éè]/g, "e"));
-      }).join(" ").trim() || queryForExpansion;
-      if (queryForExpansion !== effectiveQuery) {
+        return !nhWords.some(nw => wLower === nw || wLower === nw.replace(/[éèêë]/g, "e").replace(/[àâä]/g, "a") || nw === wLower.replace(/[éèêë]/g, "e").replace(/[àâä]/g, "a"));
+      }).join(" ").trim();
+      if (stripped) {
+        queryForExpansion = stripped;
         console.log(`Stripped neighborhood from tsquery: "${queryForExpansion}" (was: "${effectiveQuery}")`);
+      } else {
+        // Query is only the neighborhood — use accent-stripped version for tsquery
+        queryForExpansion = detectedNeighborhood.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        console.log(`Query is neighborhood-only, using accent-stripped: "${queryForExpansion}" (was: "${effectiveQuery}")`);
       }
     }
     // Strip time-related noise words from queryForExpansion (they don't exist in search vectors)
@@ -798,6 +806,9 @@ serve(async (req) => {
           const neighborhoodVariants = [detectedNeighborhood];
           if (nLower === "gueliz" || nLower === "guéliz") {
             neighborhoodVariants.push("Gueliz", "Guéliz");
+          }
+          if (nLower === "menara" || nLower === "ménara") {
+            neighborhoodVariants.push("Menara", "Ménara");
           }
           if (neighborhoodVariants.length > 1) {
             const orClause = neighborhoodVariants.map(n => `neighborhood.ilike.${n}`).join(",");
