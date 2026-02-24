@@ -1276,7 +1276,7 @@ const BusinessDetail = () => {
         {/* SERVICES TAB */}
         {activeTab === 'services' && (
           <div className="max-w-2xl">
-            <h2 className={`text-xl font-semibold mb-4 ${isVerified ? 'text-white' : ''}`}>{servicesTabTitle}</h2>
+            
             {groupedServices.length > 0 ? (
               <div className="space-y-3">
                 {groupedServices.map((group) => {
