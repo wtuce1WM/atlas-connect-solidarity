@@ -79,7 +79,7 @@ const Footer = ({ variant = "default" }: FooterProps) => {
           <div>
             <h4 className="mb-4 font-semibold text-gold">{t("footer.company")}</h4>
             <ul className={`space-y-2 ${textSecondary}`}>
-              <li><a href="#" className="transition-colors hover:text-gold">{t("footer.aboutUs")}</a></li>
+              <li><Link to="/conditions-generales" className="transition-colors hover:text-gold">Conditions Générales de Fonctionnement</Link></li>
               <li><Link to="/mission" className="transition-colors hover:text-gold">{t("footer.ourMission")}</Link></li>
               <li><a href="/affiliates" className="transition-colors hover:text-gold">{t("footer.affiliates")}</a></li>
               <li><a href="#" className="transition-colors hover:text-gold">{t("footer.press")}</a></li>
