@@ -978,12 +978,14 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
               <span className="text-muted-foreground/40">|</span>
               <div className="flex flex-wrap gap-1">
                 {[
+                  { id: "__top__", label: "Top" },
                   { id: "section-contact", label: "Contact" },
                   { id: "section-description", label: "Description" },
                   { id: "section-menu", label: "Menu" },
                   { id: "section-images", label: "Images" },
                   { id: "section-social", label: "Réseaux" },
                   { id: "section-avis", label: "Avis" },
+                  { id: "section-services", label: "Services" },
                   { id: "section-taxonomie", label: "Taxonomie" },
                   { id: "section-horaires", label: "Horaires" },
                   { id: "section-notes", label: "Notes" },
@@ -992,7 +994,13 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                     key={id}
                     type="button"
                     className="text-xs font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground transition-colors"
-                    onClick={() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" })}
+                    onClick={() => {
+                      if (id === "__top__") {
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                      } else {
+                        document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+                      }
+                    }}
                   >
                     {label}
                   </button>
@@ -2507,7 +2515,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
         </div>
 
         {/* Engagements & Services */}
-        <div className="p-4 bg-red-50 border border-red-200 rounded-lg space-y-4">
+        <div id="section-services" className="p-4 bg-red-50 border border-red-200 rounded-lg space-y-4" style={{ scrollMarginTop: '130px' }}>
           <Label className="text-xl font-semibold">Engagements & Services</Label>
           <div className="flex flex-col md:flex-row gap-4">
             <div className="space-y-2 flex-1">
