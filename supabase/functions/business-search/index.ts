@@ -532,6 +532,7 @@ serve(async (req) => {
     let originalDetectedService: string | null = null; // Keep track even after fallback
     let serviceMatchWordsForInjection: string[] = [];
     let serviceMatchWordsOuter: string[] = []; // All query words used in service detection (for cleanRemainder)
+    let keywordMatchedSubcategories: string[] = []; // Subcategories of services matched via keywords
     
     // ── Check for exact business name match BEFORE service detection ──
     // If the query closely matches a business name, skip service detection to avoid false positives
@@ -604,13 +605,13 @@ serve(async (req) => {
         const nameConditions = nameSearchTerms.map(w => `name_fr.ilike.%${w}%`).join(",");
         const { data: matchingByName } = await supabase
           .from("services")
-          .select("name_fr, keywords")
+          .select("name_fr, keywords, subcategories!inner(name_fr)")
           .or(nameConditions);
 
         // Also search in keywords array using cs (contains) for each word
         const { data: matchingByKeywords } = await supabase
           .from("services")
-          .select("name_fr, keywords")
+          .select("name_fr, keywords, subcategories!inner(name_fr)")
           .not("keywords", "eq", "{}");
 
         // Merge: services matched by name + services whose keywords contain a query word
@@ -642,14 +643,24 @@ serve(async (req) => {
         const normalizeServiceKey = (name: string) => name.toLowerCase().replace(/-/g, " ").replace(/\s+/g, " ").trim();
         for (const s of [...(matchingByName || []), ...keywordMatches]) {
           const normKey = normalizeServiceKey(s.name_fr);
+          // Extract subcategory name from joined data
+          const sSubcat = s.subcategories?.name_fr || null;
           const existing = allMatched.get(normKey);
           if (existing) {
             const mergedKws = [...new Set([...(existing.keywords || []), ...(s.keywords || [])])];
             // Keep the name with the most keywords (more specific variant)
             const bestName = mergedKws.length > (existing.keywords || []).length ? s.name_fr : existing.name_fr;
-            allMatched.set(normKey, { ...existing, name_fr: bestName, keywords: mergedKws });
+            // Merge subcategories list
+            const mergedSubcats = [...new Set([...(existing._allSubcategories || []), ...(sSubcat ? [sSubcat] : [])])];
+            // Track which subcategories have non-empty keywords
+            const kwSubcats = [...new Set([...(existing._keywordSubcategories || []), ...((s.keywords || []).length > 0 && sSubcat ? [sSubcat] : [])])];
+            allMatched.set(normKey, { ...existing, name_fr: bestName, keywords: mergedKws, _allSubcategories: mergedSubcats, _keywordSubcategories: kwSubcats });
           } else {
-            allMatched.set(normKey, { ...s });
+            allMatched.set(normKey, { 
+              ...s, 
+              _allSubcategories: sSubcat ? [sSubcat] : [],
+              _keywordSubcategories: (s.keywords || []).length > 0 && sSubcat ? [sSubcat] : [],
+            });
           }
         }
         const matchingServices = Array.from(allMatched.values());
@@ -661,6 +672,8 @@ serve(async (req) => {
           // Collect ALL services whose name words are fully present in the query
           const fullyMatchedServices: string[] = [];
           const usedQueryWords = new Set<string>();
+          // Track which services consumed query words via keywords (not just name)
+          const servicesWithKeywordMatch = new Set<string>();
           
           // First pass: find multi-word services with full match (greedy, longest first)
           const sortedByWordCount = [...matchingServices].sort((a, b) => {
@@ -716,7 +729,11 @@ serve(async (req) => {
                 });
                 if (matched) {
                   usedQueryWords.add(qw);
-                  console.log(`Keyword-consumed word "${qw}" by service "${svc.name_fr}"`);
+                  servicesWithKeywordMatch.add(svc.name_fr);
+                  // Track subcategories of this keyword-matched service (use merged list)
+                  const svcKwSubcats: string[] = svc._keywordSubcategories || [];
+                  for (const sc of svcKwSubcats) keywordMatchedSubcategories.push(sc);
+                  console.log(`Keyword-consumed word "${qw}" by service "${svc.name_fr}" (subcats: ${svcKwSubcats.join(", ") || "unknown"})`);
                 }
               }
             }
@@ -725,8 +742,28 @@ serve(async (req) => {
           if (fullyMatchedServices.length > 0) {
             detectedServices = fullyMatchedServices;
             detectedService = fullyMatchedServices[0]; // Primary service for RPC filter
-            // Narrow candidates to only the fully matched services (avoids "Surf Trips" polluting "Road Trip 4x4" results)
-            allCandidateServiceNames = fullyMatchedServices;
+            
+            // If some services consumed query words via keywords (e.g. "artisan" → "Sur-mesure"),
+            // exclude services that have empty keywords and were only matched by generic name words.
+            // This prevents "Sur mesure" (empty kw) from polluting results when "artisan" was the key signal.
+            if (servicesWithKeywordMatch.size > 0) {
+              const keywordFilteredServices = fullyMatchedServices.filter(svcName => {
+                // Keep if this service had a keyword match
+                if (servicesWithKeywordMatch.has(svcName)) return true;
+                // Keep if this service has non-empty keywords (even if they didn't match this specific query)
+                const svcData = matchingServices.find((s: any) => s.name_fr === svcName);
+                const hasKeywords = svcData && svcData.keywords && svcData.keywords.length > 0;
+                return hasKeywords;
+              });
+              if (keywordFilteredServices.length > 0) {
+                console.log(`Keyword-filtered services: [${fullyMatchedServices.join(", ")}] → [${keywordFilteredServices.join(", ")}]`);
+                detectedServices = keywordFilteredServices;
+                detectedService = keywordFilteredServices[0];
+              }
+            }
+            
+            // Narrow candidates to only the detected services
+            allCandidateServiceNames = detectedServices;
           } else {
             // Fallback: pick best single service by scoring
             let bestMatch: string | null = null;
@@ -1119,6 +1156,25 @@ serve(async (req) => {
             // This prevents returning irrelevant businesses when the service simply doesn't exist in this city
             if (businesses.length === 0) {
               console.log(`Service OR filter returned 0 results — no fallback (service "${detectedService}" not found with these filters)`);
+            }
+          }
+          
+          // When keyword matching identified specific subcategories, further filter businesses
+          // to only those whose categories include the relevant subcategory.
+          // This prevents e.g. "Sur-mesure" in Mode/Tourisme from matching when "artisan" keyword
+          // only exists in Ferronnerie/Meubles subcategories.
+          const uniqueKwSubcats = [...new Set(keywordMatchedSubcategories)];
+          if (uniqueKwSubcats.length > 0 && businesses.length > 0) {
+            const beforeKwFilter = businesses.length;
+            const kwFiltered = businesses.filter((b: any) => {
+              const bCategories = (b.categories || []).map((c: string) => c.toLowerCase());
+              return uniqueKwSubcats.some(sc => bCategories.includes(sc.toLowerCase()));
+            });
+            if (kwFiltered.length > 0) {
+              businesses = kwFiltered;
+              console.log(`Keyword-subcategory post-filter [${uniqueKwSubcats.join(", ")}]: ${beforeKwFilter} → ${businesses.length}`);
+            } else {
+              console.log(`Keyword-subcategory post-filter [${uniqueKwSubcats.join(", ")}]: ${beforeKwFilter} → 0 (keeping original)`);
             }
           }
           
