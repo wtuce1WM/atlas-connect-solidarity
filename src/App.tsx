@@ -38,13 +38,14 @@ import ScrollToTop from "./components/ScrollToTop";
 import RouteTransition from "./components/RouteTransition";
 import LogoEffectsDemo from "./pages/LogoEffectsDemo";
 import CGF from "./pages/CGF";
+import SearchAnalytics from "./pages/SearchAnalytics";
 
 const queryClient = new QueryClient();
 
 const GlobalFloatingSearchBar = () => {
   const location = useLocation();
   // Hide on home page and staff/affiliate backoffice pages
-  const hiddenPaths = ["/", "/search", "/staff/login", "/staff/backoffice", "/affiliates", "/affiliates/dashboard"];
+  const hiddenPaths = ["/", "/search", "/staff/login", "/staff/backoffice", "/affiliates", "/affiliates/dashboard", "/search-analytics"];
   if (hiddenPaths.includes(location.pathname)) return null;
   return <FloatingSearchBar />;
 };
@@ -88,6 +89,7 @@ const AppContent = () => {
               <Route path="/hotels" element={<HotelSearch />} />
               <Route path="/club" element={<Club />} />
               <Route path="/demo-effects" element={<LogoEffectsDemo />} />
+              <Route path="/search-analytics" element={<SearchAnalytics />} />
               <Route path="/conditions-generales" element={<CGF />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />

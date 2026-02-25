@@ -1598,6 +1598,66 @@ export type Database = {
         }
         Relationships: []
       }
+      search_logs: {
+        Row: {
+          created_at: string
+          detected_city: string | null
+          detected_neighborhood: string | null
+          detected_subcategory: string | null
+          effective_query: string | null
+          id: string
+          is_autocomplete: boolean | null
+          is_superlative: boolean | null
+          movements: Json | null
+          query: string
+          rerank_applied: boolean | null
+          rerank_latency_ms: number | null
+          results_after: Json | null
+          results_before: Json | null
+          search_level: string | null
+          search_mode: string | null
+          total_results: number | null
+        }
+        Insert: {
+          created_at?: string
+          detected_city?: string | null
+          detected_neighborhood?: string | null
+          detected_subcategory?: string | null
+          effective_query?: string | null
+          id?: string
+          is_autocomplete?: boolean | null
+          is_superlative?: boolean | null
+          movements?: Json | null
+          query: string
+          rerank_applied?: boolean | null
+          rerank_latency_ms?: number | null
+          results_after?: Json | null
+          results_before?: Json | null
+          search_level?: string | null
+          search_mode?: string | null
+          total_results?: number | null
+        }
+        Update: {
+          created_at?: string
+          detected_city?: string | null
+          detected_neighborhood?: string | null
+          detected_subcategory?: string | null
+          effective_query?: string | null
+          id?: string
+          is_autocomplete?: boolean | null
+          is_superlative?: boolean | null
+          movements?: Json | null
+          query?: string
+          rerank_applied?: boolean | null
+          rerank_latency_ms?: number | null
+          results_after?: Json | null
+          results_before?: Json | null
+          search_level?: string | null
+          search_mode?: string | null
+          total_results?: number | null
+        }
+        Relationships: []
+      }
       services: {
         Row: {
           created_at: string | null
