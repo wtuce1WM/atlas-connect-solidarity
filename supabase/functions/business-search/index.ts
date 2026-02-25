@@ -659,6 +659,28 @@ serve(async (req) => {
     }
     const effectiveCategory = category || intentCategory || undefined;
 
+    // ── Detect intent-subcategory conflict ──
+    // When intent verb (e.g. "manger" → Restauration) conflicts with detected subcategory's parent
+    // category (e.g. "Poissonnerie" → Commerce), we need to merge results from both
+    let intentSubcategoryConflict = false;
+    let conflictSubcategoryParentCategory: string | null = null;
+    if (intentCategory && detectedSubcategory) {
+      const { data: subcatWithCat } = await supabase
+        .from("subcategories")
+        .select("name_fr, categories!inner(name_fr)")
+        .eq("name_fr", detectedSubcategory)
+        .limit(1)
+        .single();
+      if (subcatWithCat) {
+        const parentCatName = (subcatWithCat as any).categories?.name_fr;
+        if (parentCatName && parentCatName !== intentCategory) {
+          intentSubcategoryConflict = true;
+          conflictSubcategoryParentCategory = parentCatName;
+          console.log(`Intent-subcategory conflict: intent="${intentCategory}" vs subcategory "${detectedSubcategory}" parent="${parentCatName}" → will merge results`);
+        }
+      }
+    }
+
     // ── Pre-detect matching service(s) from query keywords ──
     let detectedService: string | null = null;
     let detectedServices: string[] = []; // ALL fully-matched services (distinct concepts → AND)
@@ -1142,7 +1164,9 @@ serve(async (req) => {
         if (effectiveCity) {
           subBuilder = subBuilder.ilike("city", effectiveCity);
         }
-        if (effectiveCategory) {
+        // Skip category filter when there's an intent-subcategory conflict
+        // (e.g. "manger du poisson" → intent=Restauration but subcategory=Poissonnerie/Commerce)
+        if (effectiveCategory && !intentSubcategoryConflict) {
           subBuilder = subBuilder.or(`main_category.eq.${effectiveCategory},categories.cs.{"${effectiveCategory}"}`);
         }
         // Filter by neighborhood if detected
@@ -1266,7 +1290,54 @@ serve(async (req) => {
         }
       }
 
-      // ── Name-match boost: if query strongly matches a business name, move it to the top ──
+      // ── Intent-subcategory conflict merge ──
+      // When intent (e.g. "manger" → Restauration) conflicts with subcategory (e.g. Poissonnerie → Commerce),
+      // also fetch businesses from the intent category that offer the relevant service, and prepend them
+      if (intentSubcategoryConflict && intentCategory) {
+        const existingIds = new Set(businesses.map(b => b.id));
+        // Find services matching the query words that triggered the subcategory
+        // e.g. "poisson" matched Poissonnerie → look for service "Poisson" in restaurants
+        const qWords = (effectiveQuery || "").toLowerCase().split(/\s+/).filter((w: string) => 
+          w.length > 2 && !FRENCH_STOP_WORDS.has(w) && !INTENT_TO_CATEGORY[w]
+        );
+        // Look up actual service names that match query words
+        const { data: matchingIntentServices } = await supabase
+          .from("services")
+          .select("name_fr")
+          .or(qWords.map(w => `name_fr.ilike.%${w}%`).join(","));
+        const serviceVariants = matchingIntentServices 
+          ? [...new Set(matchingIntentServices.map((s: any) => s.name_fr))]
+          : [detectedSubcategory];
+        
+        if (serviceVariants.length > 0) {
+          let intentBuilder = supabase.from("businesses").select("*").eq("is_active", true)
+            .or(`main_category.eq.${intentCategory},categories.cs.{"${intentCategory}"}`)
+            .overlaps("services", serviceVariants);
+          if (effectiveCity) intentBuilder = intentBuilder.ilike("city", effectiveCity);
+          if (detectedNeighborhood) {
+            intentBuilder = intentBuilder.ilike("neighborhood", detectedNeighborhood);
+          }
+          intentBuilder = intentBuilder
+            .order("wtuce_status", { ascending: true })
+            .order("google_rating", { ascending: false, nullsFirst: false })
+            .order("priority_score", { ascending: false })
+            .limit(limit);
+          const { data: intentData } = await intentBuilder;
+          if (intentData && intentData.length > 0) {
+            const intentResults = intentData
+              .filter((b: any) => !existingIds.has(b.id))
+              .map((b: any) => ({
+                ...b,
+                distance_km: latitude && longitude && b.latitude && b.longitude
+                  ? calculateDistance(latitude, longitude, b.latitude, b.longitude) : null,
+              }));
+            // Prepend intent results (e.g. restaurants first, then poissonneries)
+            businesses = [...intentResults, ...businesses];
+            console.log(`Intent-conflict merge: +${intentResults.length} "${intentCategory}" with services [${serviceVariants.join(", ")}] (total: ${businesses.length})`);
+          }
+        }
+      }
+
       // Skip in strict mode to preserve the rating-based sort order from the DB query
       if (effectiveQuery && businesses.length > 1 && subcategorySearchConfig?.search_mode !== "strict") {
         const qLower = effectiveQuery.toLowerCase();
