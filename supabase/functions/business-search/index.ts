@@ -33,20 +33,32 @@ async function llmRerank(query: string, candidates: Business[]): Promise<Busines
   const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
   if (!LOVABLE_API_KEY) return candidates;
 
-  const candidateList = candidates.map((b, i) => ({
+  const top = candidates.slice(0, 20);
+
+  const candidateList = top.map((b, i) => ({
     rank: i,
     name: b.name,
+    city: b.city ?? "",
     main_category: b.main_category ?? "",
-    services: (b.services ?? []).slice(0, 6).join(", "),
+    categories: (b.categories ?? []).join(", "),
+    services: (b.services ?? []).slice(0, 8).join(", "),
   }));
 
   const prompt = `Tu es un moteur de classement pour un annuaire d'entreprises au Maroc.
 Requête : "${query}"
-Classe ces établissements du plus pertinent au moins pertinent. Critères : spécialisation principale > services correspondants > mention secondaire.
-${candidateList.map(c => `[${c.rank}] ${c.name} | ${c.main_category} | ${c.services}`).join("\n")}
+Classe ces établissements du plus pertinent au moins pertinent.
+Critères de pertinence (par ordre d'importance) :
+1. Correspondance directe avec le TYPE d'établissement recherché
+2. Services spécifiques qui matchent la requête
+3. Localisation (ville/quartier mentionné dans la requête)
+4. Catégorie principale correspondante
+
+${candidateList.map(c => `[${c.rank}] ${c.name} | ${c.city} | ${c.main_category} | cat: ${c.categories} | services: ${c.services}`).join("\n")}
+
 Réponds UNIQUEMENT avec les indices entre crochets dans l'ordre, ex: [2],[0],[4],[1],[3]`;
 
   try {
+    const startMs = Date.now();
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
@@ -58,18 +70,45 @@ Réponds UNIQUEMENT avec les indices entre crochets dans l'ordre, ex: [2],[0],[4
       }),
     });
 
-    if (!response.ok) return candidates;
+    const latencyMs = Date.now() - startMs;
+
+    if (!response.ok) {
+      console.warn(`LLM rerank HTTP error: ${response.status} (${latencyMs}ms)`);
+      return candidates;
+    }
 
     const data = await response.json();
     const content: string = data.choices?.[0]?.message?.content ?? "";
     const matches = [...content.matchAll(/\[(\d+)\]/g)];
-    const orderedIndices = matches.map(m => parseInt(m[1])).filter(i => i >= 0 && i < candidates.length);
-    if (orderedIndices.length === 0) return candidates;
+    const orderedIndices = matches.map(m => parseInt(m[1])).filter(i => i >= 0 && i < top.length);
+    if (orderedIndices.length === 0) {
+      console.warn(`LLM rerank: no valid indices parsed from: "${content}" (${latencyMs}ms)`);
+      return candidates;
+    }
 
-    const reranked = orderedIndices.map(i => candidates[i]);
-    const missing = candidates.filter((_, i) => !orderedIndices.includes(i));
-    console.log(`LLM rerank "${query}": [${orderedIndices.join(",")}]`);
-    return [...reranked, ...missing];
+    const rerankedTop = orderedIndices.map(i => top[i]);
+    const missingFromTop = top.filter((_, i) => !orderedIndices.includes(i));
+    const remainder = candidates.slice(20);
+
+    // Detailed before/after log
+    const beforeNames = top.map((b, i) => `${i + 1}. ${b.name}`).join(" | ");
+    const afterNames = [...rerankedTop, ...missingFromTop].map((b, i) => `${i + 1}. ${b.name}`).join(" | ");
+    const movements = orderedIndices.map((origIdx, newIdx) => {
+      const diff = origIdx - newIdx;
+      if (diff === 0) return null;
+      return `"${top[origIdx].name}" ${diff > 0 ? `↑${diff}` : `↓${Math.abs(diff)}`}`;
+    }).filter(Boolean);
+
+    console.log(`\n🔄 LLM RERANK for "${query}" (${latencyMs}ms, ${orderedIndices.length}/${top.length} ranked)`);
+    console.log(`📋 BEFORE: ${beforeNames}`);
+    console.log(`📋 AFTER:  ${afterNames}`);
+    if (movements.length > 0) {
+      console.log(`📊 MOVES:  ${movements.join(" | ")}`);
+    } else {
+      console.log(`📊 MOVES:  (aucun changement)`);
+    }
+
+    return [...rerankedTop, ...missingFromTop, ...remainder];
   } catch (err) {
     console.warn("LLM rerank failed:", err);
     return candidates;
@@ -2188,10 +2227,26 @@ serve(async (req) => {
         console.log(`Name-match pin: moved ${pinned.length} business(es) to top: [${pinned.map(b => b.name).join(", ")}]`);
       }
     }
-    // LLM Re-ranking: apply only on exact/fuzzy results with a real query AND no superlative override (skip for autocomplete)
-    // Skip LLM reranking when we have pinned name matches (preserve exact match priority)
-    else if (!isAutocomplete && effectiveQuery && businesses.length > 1 && (searchLevel === "exact" || searchLevel === "fuzzy") && nameMatchedBusinessIds.length === 0) {
-      businesses = await llmRerank(effectiveQuery, businesses);
+    // LLM Re-ranking: apply on exact/fuzzy results with a real query (skip autocomplete & superlative)
+    // When name matches exist, rerank only the non-pinned portion to preserve exact match priority
+    const rerankConditions = { isAutocomplete, isSuperlatif, effectiveQuery, count: businesses.length, searchLevel, nameMatches: nameMatchedBusinessIds.length };
+    console.log(`Rerank check: ${JSON.stringify(rerankConditions)}`);
+    if (!isAutocomplete && !isSuperlatif && effectiveQuery && businesses.length > 3 && (searchLevel === "exact" || searchLevel === "fuzzy")) {
+      console.log(`✅ Rerank conditions met — triggering LLM rerank for "${effectiveQuery}"`);
+      if (nameMatchedBusinessIds.length > 0) {
+        // Rerank only the non-pinned businesses
+        const pinnedCount = nameMatchedBusinessIds.filter(id => businesses.some(b => b.id === id)).length;
+        const pinnedPart = businesses.slice(0, pinnedCount);
+        const restPart = businesses.slice(pinnedCount);
+        if (restPart.length > 3) {
+          const rerankedRest = await llmRerank(effectiveQuery, restPart);
+          businesses = [...pinnedPart, ...rerankedRest];
+        }
+      } else {
+        businesses = await llmRerank(effectiveQuery, businesses);
+      }
+    } else {
+      console.log(`⏭️ Rerank skipped`);
     }
 
     // Autocomplete mode: sort by best rating DESC, then apply name-match boost, then return lightweight results
