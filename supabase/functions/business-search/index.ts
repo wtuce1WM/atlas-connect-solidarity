@@ -1280,7 +1280,17 @@ serve(async (req) => {
 
       // If services were detected alongside the subcategory (e.g. "Restaurant galerie" → Restaurant + Galerie d'Art),
       // filter subcategory results to only those offering the detected service(s)
-      let serviceFilter = detectedServices.length > 0 ? detectedServices : undefined;
+      // BUT skip service filter when the detected service is essentially the same concept as the subcategory
+      // (e.g. service "Boucherie" ≈ subcategory "Boucherie / Charcuterie") — the category filter is sufficient
+      const subcatNorm = stripAccentsGlobal(detectedSubcategory.toLowerCase());
+      const serviceIsRedundantWithSubcategory = detectedServices.length > 0 && detectedServices.every(svc => {
+        const svcNorm = stripAccentsGlobal(svc.toLowerCase());
+        return subcatNorm.includes(svcNorm) || svcNorm.includes(subcatNorm);
+      });
+      if (serviceIsRedundantWithSubcategory) {
+        console.log(`Service filter [${detectedServices.join(", ")}] is redundant with subcategory "${detectedSubcategory}" — skipping`);
+      }
+      let serviceFilter = (detectedServices.length > 0 && !serviceIsRedundantWithSubcategory) ? detectedServices : undefined;
       businesses = await fetchSubcategoryBusinesses(detectedSubcategory, serviceFilter);
       searchLevel = "exact";
       console.log(`Subcategory direct query "${detectedSubcategory}" + city "${effectiveCity}" + neighborhood "${detectedNeighborhood}" + services filter [${(serviceFilter || []).join(", ")}]: ${businesses.length} results`);
