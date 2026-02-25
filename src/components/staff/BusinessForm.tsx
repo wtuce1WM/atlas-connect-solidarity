@@ -2519,6 +2519,31 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
           <Label className="text-xl font-semibold">Engagements & Commodités</Label>
           <div className="flex flex-col md:flex-row gap-4">
             <div className="space-y-2 flex-1">
+              <Label>Certifications</Label>
+              <div className="border rounded-md p-3 space-y-1.5 bg-muted/30">
+                {["AFNOR", "Ecocert", "Label RSE"].map((cert) => {
+                  const tag = `Certification:${cert}`;
+                  return (
+                    <label key={cert} className="flex items-center gap-2 cursor-pointer text-sm">
+                      <input
+                        type="checkbox"
+                        checked={((formData as any).engagements || []).includes(tag)}
+                        onChange={() => {
+                          const current: string[] = (formData as any).engagements || [];
+                          const updated = current.includes(tag)
+                            ? current.filter(e => e !== tag)
+                            : [...current, tag];
+                          handleChange("engagements", updated);
+                        }}
+                        className="h-4 w-4 rounded border-input"
+                      />
+                      {cert}
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+            <div className="space-y-2 flex-1">
               <Label>Engagements</Label>
               <div className="border rounded-md p-3 space-y-1.5 bg-muted/30">
                 {["Bio (intégral)", "Bio (partiellement)", "Commerce équitable", "Engagement éco-responsable", "Engagement solidaire", "Marché occasionnel", "Régimes spéciaux (sans gluten, sans lactose...)", "Vegan"].map((eng) => (
