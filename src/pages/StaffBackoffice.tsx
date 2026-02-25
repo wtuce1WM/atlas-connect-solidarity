@@ -356,10 +356,6 @@ const StaffBackoffice = () => {
                 <MapPin className="h-4 w-4" />
                 Pays & Villes
               </TabsTrigger>
-              <TabsTrigger value="sponsors" className="gap-2">
-                <Star className="h-4 w-4" />
-                Sponsors
-              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="dashboard">
@@ -645,9 +641,6 @@ const StaffBackoffice = () => {
               <LocationManagement />
             </TabsContent>
 
-            <TabsContent value="sponsors">
-              <SponsorManagement />
-            </TabsContent>
 
           </Tabs>
         )}

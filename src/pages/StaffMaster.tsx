@@ -3,11 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, Users, UserCheck, Search, ArrowLeft } from "lucide-react";
+import { LogOut, Users, UserCheck, Search, ArrowLeft, Star } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import SearchConfigManagement from "@/components/staff/SearchConfigManagement";
 import AffiliateManagement from "@/components/staff/AffiliateManagement";
 import UserManagement from "@/components/staff/UserManagement";
+import SponsorManagement from "@/components/staff/SponsorManagement";
 import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
 
 const StaffMaster = () => {
@@ -96,6 +97,10 @@ const StaffMaster = () => {
               <UserCheck className="h-4 w-4" />
               Affiliés
             </TabsTrigger>
+            <TabsTrigger value="sponsors" className="gap-2">
+              <Star className="h-4 w-4" />
+              Sponsors
+            </TabsTrigger>
             {isAdmin && (
               <TabsTrigger value="users" className="gap-2">
                 <Users className="h-4 w-4" />
@@ -110,6 +115,10 @@ const StaffMaster = () => {
 
           <TabsContent value="affiliates">
             <AffiliateManagement />
+          </TabsContent>
+
+          <TabsContent value="sponsors">
+            <SponsorManagement />
           </TabsContent>
 
           {isAdmin && (
