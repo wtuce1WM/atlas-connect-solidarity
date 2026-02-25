@@ -802,7 +802,11 @@ serve(async (req) => {
           const stripped = stripPluralForName(w);
           return stripped !== w ? [w, stripped] : [w];
         }))];
-        const nameConditions = nameSearchTerms.map(w => `name_fr.ilike.%${w}%`).join(",");
+        // For short words (≤4 chars), use word-boundary pattern to avoid "art" matching "Artisanat"
+        const nameConditions = nameSearchTerms.map(w => {
+          if (w.length <= 4) return `name_fr.ilike.% ${w} %,name_fr.ilike.% ${w},name_fr.ilike.${w} %,name_fr.ilike.${w},name_fr.ilike.%'${w}%,name_fr.ilike.%'${w}%`;
+          return `name_fr.ilike.%${w}%`;
+        }).join(",");
         const { data: matchingByName } = await supabase
           .from("services")
           .select("name_fr, keywords, subcategories!inner(name_fr)")
@@ -1022,14 +1026,25 @@ serve(async (req) => {
               const svcLower = svc.name_fr.toLowerCase();
               const svcNorm = stripPlural(svcLower.trim());
               const svcWords = svcLower.split(/\s+/).filter((w: string) => w.length > 1);
-              const matchCount = serviceMatchWords.filter(w => svcLower.includes(w)).length;
+              // For short words (≤4 chars), require word-boundary match to avoid "art" matching "artisanat"
+              const wordMatchesService = (w: string, text: string): boolean => {
+                if (w.length <= 4) {
+                  const regex = new RegExp(`(^|[\\s''/-])${w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}($|[\\s''/-])`, 'i');
+                  return regex.test(text);
+                }
+                return text.includes(w);
+              };
+              const matchCount = serviceMatchWords.filter(w => wordMatchesService(w, svcLower)).length;
               const svcWordCount = svcWords.length;
               const kws = (svc.keywords || []).map((k: string) => k.toLowerCase());
               const kwMatchCount = serviceMatchWords.filter(w => {
                 const wNorm = stripPlural(w);
                 return kws.some((k: string) => {
                   const kNorm = stripPlural(k);
-                  return k.includes(w) || w.includes(k) || kNorm === wNorm;
+                  if (k === w || kNorm === wNorm) return true;
+                  // For short words, require word boundary
+                  if (w.length <= 4) return wordBoundaryMatch(k, w);
+                  return k.includes(w) || w.includes(k);
                 });
               }).length;
               
