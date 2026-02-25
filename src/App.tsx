@@ -41,13 +41,14 @@ import RouteTransition from "./components/RouteTransition";
 import LogoEffectsDemo from "./pages/LogoEffectsDemo";
 import CGF from "./pages/CGF";
 import SearchAnalytics from "./pages/SearchAnalytics";
+import StaffMaster from "./pages/StaffMaster";
 
 const queryClient = new QueryClient();
 
 const GlobalFloatingSearchBar = () => {
   const location = useLocation();
   // Hide on home page and staff/affiliate backoffice pages
-  const hiddenPaths = ["/", "/search", "/staff/login", "/staff/backoffice", "/staff/catalogue", "/staff/crm", "/affiliates", "/affiliates/dashboard", "/search-analytics"];
+  const hiddenPaths = ["/", "/search", "/staff/login", "/staff/backoffice", "/staff/catalogue", "/staff/crm", "/staff/master", "/affiliates", "/affiliates/dashboard", "/search-analytics"];
   if (hiddenPaths.includes(location.pathname)) return null;
   return <FloatingSearchBar />;
 };
@@ -75,6 +76,7 @@ const AppContent = () => {
               <Route path="/staff/backoffice" element={<StaffHub />} />
               <Route path="/staff/catalogue" element={<StaffBackoffice />} />
               <Route path="/staff/crm" element={<StaffCRM />} />
+              <Route path="/staff/master" element={<StaffMaster />} />
               <Route path="/affiliates" element={<AffiliatesLogin />} />
               <Route path="/affiliates/reset-password" element={<AffiliatesResetPassword />} />
               <Route path="/affiliates/dashboard" element={<AffiliatesDashboard />} />
