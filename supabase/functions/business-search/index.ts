@@ -1079,6 +1079,57 @@ serve(async (req) => {
         console.log(`Stripped time noise from tsquery: "${queryForExpansion}" (was: "${before}")`);
       }
     }
+    // In broad subcategory mode, remove intent/city/subcategory noise from tsquery input.
+    // Example: "je veux jouer au tennis à Marrakech" => "Tennis" (fallback) instead of "jouer tennis Marrakech".
+    if (detectedSubcategory && queryForExpansion) {
+      const isStrictSubcategoryMode = subcategorySearchConfig?.search_mode === "strict";
+      const BROAD_INTENT_NOISE = new Set([
+        "veux", "veut", "vouloir", "souhaite", "souhaiter", "cherche", "chercher", "trouver", "trouve",
+        "besoin", "faire", "aller", "pratiquer", "jouer", "joue", "tester", "essayer", "visiter",
+      ]);
+
+      const normalizeToken = (value: string) => stripAccentsGlobal(sanitizeTerm(value.toLowerCase()));
+      const subcatWordSet = new Set(
+        detectedSubcategory
+          .toLowerCase()
+          .split(/[\s/\-]+/)
+          .map(normalizeToken)
+          .filter((w) => w.length > 1),
+      );
+      const cityWordSet = new Set(
+        (effectiveCity || "")
+          .toLowerCase()
+          .split(/[\s/\-]+/)
+          .map(normalizeToken)
+          .filter((w) => w.length > 1),
+      );
+
+      const cleanedTokens = queryForExpansion
+        .split(/\s+/)
+        .map((w) => w.trim())
+        .filter(Boolean)
+        .filter((token) => {
+          const normalized = normalizeToken(token);
+          if (!normalized || normalized.length <= 1) return false;
+          if (FRENCH_STOP_WORDS.has(normalized)) return false;
+          if (BROAD_INTENT_NOISE.has(normalized)) return false;
+          if (subcatWordSet.has(normalized)) return false;
+          if (cityWordSet.has(normalized)) return false;
+          return true;
+        });
+
+      if (cleanedTokens.length > 0) {
+        const cleaned = cleanedTokens.join(" ");
+        if (cleaned !== queryForExpansion) {
+          console.log(`Broad subcategory query cleanup: "${cleaned}" (was: "${queryForExpansion}")`);
+        }
+        queryForExpansion = cleaned;
+      } else if (!isStrictSubcategoryMode) {
+        queryForExpansion = detectedSubcategory;
+        console.log(`Broad subcategory query fallback to detected subcategory: "${queryForExpansion}"`);
+      }
+    }
+
     if (detectedService && effectiveQuery) {
       const svcWords = detectedService.toLowerCase().split(/\s+/);
       const queryLower = effectiveQuery.toLowerCase();
