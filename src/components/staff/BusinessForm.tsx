@@ -2521,7 +2521,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
             <div className="space-y-2 flex-1">
               <Label>Engagements</Label>
               <div className="border rounded-md p-3 space-y-1.5 bg-muted/30">
-                {["Bio (intégral)", "Bio (partiellement)", "Commerce équitable", "Engagement solidaire", "Engagement éco-responsable", "Vegan", "Régimes spéciaux (sans gluten, sans lactose...)", "Marché occasionnel"].map((eng) => (
+                {["Bio (intégral)", "Bio (partiellement)", "Commerce équitable", "Engagement éco-responsable", "Engagement solidaire", "Marché occasionnel", "Régimes spéciaux (sans gluten, sans lactose...)", "Vegan"].map((eng) => (
                   <label key={eng} className="flex items-center gap-2 cursor-pointer text-sm">
                     <input
                       type="checkbox"
@@ -2571,7 +2571,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
             <div className="space-y-2 flex-1">
               <Label>Commodités</Label>
               <div className="border rounded-md p-3 space-y-1.5 bg-muted/30">
-                {["Accessible aux personnes à mobilité réduite", "Enfants de moins de 14 ans non acceptés", "Livraison à domicile", "Paiement à la livraison", "Paiement cash", "Paiement CB", "Web only", "Cliquez et retirez", "Programme de fidélité", "Location possible", "Commandez en ligne et recevez votre colis chez vous", "Garantie 2 ans", "Échange & retours 365 jours"].map((item) => {
+                {["Accessible aux personnes à mobilité réduite", "Cliquez et retirez", "Commandez en ligne et recevez votre colis chez vous", "Enfants de moins de 14 ans non acceptés", "Garantie 2 ans", "Livraison à domicile", "Location possible", "Paiement CB", "Paiement cash", "Paiement à la livraison", "Programme de fidélité", "Web only", "Échange & retours 365 jours"].map((item) => {
                   const tag = `Logistique:${item}`;
                   return (
                     <label key={item} className="flex items-center gap-2 cursor-pointer text-sm">
