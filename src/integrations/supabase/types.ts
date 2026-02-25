@@ -1571,6 +1571,33 @@ export type Database = {
           },
         ]
       }
+      search_intent_words: {
+        Row: {
+          category_name: string
+          created_at: string | null
+          id: string
+          merge_on_conflict: boolean
+          updated_at: string | null
+          word: string
+        }
+        Insert: {
+          category_name: string
+          created_at?: string | null
+          id?: string
+          merge_on_conflict?: boolean
+          updated_at?: string | null
+          word: string
+        }
+        Update: {
+          category_name?: string
+          created_at?: string | null
+          id?: string
+          merge_on_conflict?: boolean
+          updated_at?: string | null
+          word?: string
+        }
+        Relationships: []
+      }
       services: {
         Row: {
           created_at: string | null
