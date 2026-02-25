@@ -1062,6 +1062,37 @@ serve(async (req) => {
       }
     }
 
+    // ── Filter out services that don't belong to the detected subcategory ──
+    // e.g. "offrir des fleurs" detects subcategory "Fleuriste" but service "Fleurs comestibles" belongs to "Fruits & Legumes"
+    if (detectedSubcategory && detectedServices.length > 0) {
+      // Look up which subcategory the detected subcategory actually is
+      const { data: detectedSubcatRow } = await supabase
+        .from("subcategories")
+        .select("id, name_fr")
+        .eq("name_fr", detectedSubcategory)
+        .limit(1)
+        .single();
+      if (detectedSubcatRow) {
+        // Get services that belong to this subcategory
+        const { data: subcatServices } = await supabase
+          .from("services")
+          .select("name_fr")
+          .eq("subcategory_id", detectedSubcatRow.id);
+        if (subcatServices) {
+          const validServiceNames = new Set(subcatServices.map((s: any) => s.name_fr));
+          const filteredDetected = detectedServices.filter(s => validServiceNames.has(s));
+          if (filteredDetected.length !== detectedServices.length) {
+            const removed = detectedServices.filter(s => !validServiceNames.has(s));
+            console.log(`Removed services not in subcategory "${detectedSubcategory}": [${removed.join(", ")}]`);
+            detectedServices = filteredDetected;
+            detectedService = filteredDetected.length > 0 ? filteredDetected[0] : null;
+            allCandidateServiceNames = filteredDetected;
+            originalDetectedService = detectedService;
+          }
+        }
+      }
+    }
+
     // ── Resolve search config from service's parent subcategory ──
     // If no subcategorySearchConfig was found from the detected subcategory name,
     // but a service was detected, check if the service's parent subcategory has a config.
