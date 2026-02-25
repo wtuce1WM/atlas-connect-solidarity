@@ -393,8 +393,8 @@ const SearchPage = () => {
       return hasActiveSearch ? [...openDuring, ...rest] : [...openDuring.sort(sortWtuceAndRating), ...rest.sort(sortWtuceAndRating)];
     }
 
-    // Important: do not re-sort explicit search results (keeps name-match pinning from backend)
-    return hasActiveSearch ? filtered : [...filtered].sort(sortWtuceAndRating);
+    // Always sort by WTUCE status first, then by rating (highest first)
+    return [...filtered].sort(sortWtuceAndRating);
   }, [allBusinesses, selectedCity, activeTimeSlot, searchQuery, categoryFromUrl]);
 
   // Group businesses by primary subcategory when a subcategory was detected
