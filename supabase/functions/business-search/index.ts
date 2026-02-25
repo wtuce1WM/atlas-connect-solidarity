@@ -300,6 +300,8 @@ function filterByNeighborhood(businesses: any[], neighborhood: string, keepNameM
     const bNeighborhood = (b.neighborhood || "").toLowerCase();
     if (variants.some(v => bNeighborhood === v || bNeighborhood.includes(v))) return true;
     if (bNeighborhood.includes("toute la ville")) return true;
+    // Businesses with is_visible_locale=true + zone_chalandise="locale" are visible city-wide
+    if (b.is_visible_locale === true) return true;
     // Also keep businesses whose name contains the neighborhood term
     if (keepNameMatches) {
       const bName = (b.name || "").toLowerCase();
@@ -1251,10 +1253,10 @@ serve(async (req) => {
             neighborhoodVariants.push("Menara", "Ménara");
           }
           if (neighborhoodVariants.length > 1) {
-            const orClause = neighborhoodVariants.map(n => `neighborhood.ilike.${n}`).join(",");
+            const orClause = [...neighborhoodVariants.map(n => `neighborhood.ilike.${n}`), 'is_visible_locale.eq.true'].join(",");
             subBuilder = subBuilder.or(orClause);
           } else {
-            subBuilder = subBuilder.ilike("neighborhood", detectedNeighborhood);
+            subBuilder = subBuilder.or(`neighborhood.ilike.${detectedNeighborhood},is_visible_locale.eq.true`);
           }
         }
         
@@ -1336,9 +1338,9 @@ serve(async (req) => {
           const neighborhoodVariants = [detectedNeighborhood];
           if (nLower === "gueliz" || nLower === "guéliz") neighborhoodVariants.push("Gueliz", "Guéliz");
           if (neighborhoodVariants.length > 1) {
-            svcBuilder = svcBuilder.or(neighborhoodVariants.map(n => `neighborhood.ilike.${n}`).join(","));
+            svcBuilder = svcBuilder.or([...neighborhoodVariants.map(n => `neighborhood.ilike.${n}`), 'is_visible_locale.eq.true'].join(","));
           } else {
-            svcBuilder = svcBuilder.ilike("neighborhood", detectedNeighborhood);
+            svcBuilder = svcBuilder.or(`neighborhood.ilike.${detectedNeighborhood},is_visible_locale.eq.true`);
           }
         }
         svcBuilder = svcBuilder
@@ -1396,7 +1398,7 @@ serve(async (req) => {
             .overlaps("services", serviceVariants);
           if (effectiveCity) intentBuilder = intentBuilder.ilike("city", effectiveCity);
           if (detectedNeighborhood) {
-            intentBuilder = intentBuilder.ilike("neighborhood", detectedNeighborhood);
+            intentBuilder = intentBuilder.or(`neighborhood.ilike.${detectedNeighborhood},is_visible_locale.eq.true`);
           }
           intentBuilder = intentBuilder
             .order("wtuce_status", { ascending: true })
