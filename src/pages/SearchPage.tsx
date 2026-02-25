@@ -73,6 +73,7 @@ interface SearchResult {
   message: string;
   totalResults: number;
   detectedSubcategory?: string | null;
+  searchMode?: string | null;
 }
 
 const ITEMS_PER_PAGE = 20;
@@ -237,6 +238,7 @@ const SearchPage = () => {
   const isMobile = useIsMobile();
   const [allBusinesses, setAllBusinesses] = useState<Business[]>([]);
   const [detectedSubcategory, setDetectedSubcategory] = useState<string | null>(null);
+  const [searchMode, setSearchMode] = useState<string | null>(null);
   const [searchLevel, setSearchLevel] = useState<string>("");
   const [searchMessage, setSearchMessage] = useState<string>("");
   const [citiesWithPriority, setCitiesWithPriority] = useState<{ name: string; priority: number }[]>([]);
@@ -457,6 +459,7 @@ const SearchPage = () => {
         if (data) {
           setSearchLevel(data.searchLevel || "");
           setDetectedSubcategory(data.detectedSubcategory || null);
+          setSearchMode(data.searchMode || null);
           // When user searched for something specific but got "recommended" fallback → show 0 results
           const isVoiceSearch = !!searchParams.get("spoken");
           const hasActiveQuery = !!searchQuery.trim();
@@ -945,6 +948,16 @@ const SearchPage = () => {
               )}
               {searchMessage && (
                 <p className="text-sm text-muted-foreground mt-2 italic">{searchMessage}</p>
+              )}
+              {detectedSubcategory && searchMode && (
+                <span className={`mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border ${
+                  searchMode === "strict"
+                    ? "bg-amber-500/10 text-amber-400 border-amber-500/30"
+                    : "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
+                }`}>
+                  <Search className="h-3 w-3" />
+                  {detectedSubcategory} — {searchMode === "strict" ? "Strict" : "Broad"}
+                </span>
               )}
             </div>
           )}
