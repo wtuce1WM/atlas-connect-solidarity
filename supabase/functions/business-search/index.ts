@@ -1784,8 +1784,10 @@ serve(async (req) => {
                 }
               }
               const bServices = (b.services || []).map((s: string) => s.toLowerCase());
+              const bCategories = (b.categories || []).map((s: string) => s.toLowerCase());
+              const allBusinessTags = [...bServices, ...bCategories];
               return allCandidateServiceNames.some(cs => 
-                bServices.some(bs => bs.includes(cs.toLowerCase()) || cs.toLowerCase().includes(bs))
+                allBusinessTags.some(bt => bt.includes(cs.toLowerCase()) || cs.toLowerCase().includes(bt))
               );
             });
             console.log(`Service OR post-filter [${allCandidateServiceNames.join(", ")}]: ${beforeCount} → ${businesses.length}`);
