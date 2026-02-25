@@ -19,6 +19,10 @@ export function collectRatingSources(business: {
   tripadvisor_review_count?: number | null;
   restaurant_guru_rating?: number | null;
   restaurant_guru_review_count?: number | null;
+  getyourguide_rating?: number | null;
+  getyourguide_review_count?: number | null;
+  viator_rating?: number | null;
+  viator_review_count?: number | null;
 }): RatingSource[] {
   const sources: RatingSource[] = [];
   if (business.google_rating && business.google_review_count) {
@@ -29,6 +33,12 @@ export function collectRatingSources(business: {
   }
   if (business.restaurant_guru_rating && business.restaurant_guru_review_count) {
     sources.push({ rating: business.restaurant_guru_rating, count: business.restaurant_guru_review_count });
+  }
+  if (business.getyourguide_rating && business.getyourguide_review_count) {
+    sources.push({ rating: business.getyourguide_rating, count: business.getyourguide_review_count });
+  }
+  if (business.viator_rating && business.viator_review_count) {
+    sources.push({ rating: business.viator_rating, count: business.viator_review_count });
   }
   return sources;
 }
@@ -64,8 +74,10 @@ export function getTotalReviewCount(business: {
   google_review_count?: number | null;
   tripadvisor_review_count?: number | null;
   restaurant_guru_review_count?: number | null;
+  getyourguide_review_count?: number | null;
+  viator_review_count?: number | null;
 }): number {
-  return (business.google_review_count || 0) + (business.tripadvisor_review_count || 0) + (business.restaurant_guru_review_count || 0);
+  return (business.google_review_count || 0) + (business.tripadvisor_review_count || 0) + (business.restaurant_guru_review_count || 0) + (business.getyourguide_review_count || 0) + (business.viator_review_count || 0);
 }
 
 /**
