@@ -534,7 +534,17 @@ serve(async (req) => {
           const multiWordMatch = n.includes(" ") && nContentWords.length > 0 && nContentWords.every((nw: string) =>
             qWords.some(qw => qw === nw || normalizeWord(qw) === normalizeWord(nw))
           );
-          if (n.includes(" ") ? (qLower.includes(n) || (nContent.length > 2 && qLower.includes(nContent)) || multiWordMatch) : singleWordMatch) {
+          // Slash-separated alternative match: "Spa / Hammam" matches if ANY part matches a query word
+          const slashParts = n.includes("/") ? n.split("/").map((p: string) => p.trim()).filter((p: string) => p.length > 1) : [];
+          const slashMatch = slashParts.length > 1 && slashParts.some((part: string) => {
+            const partWords = part.split(/\s+/).filter((w: string) => w.length > 1);
+            if (partWords.length === 1) {
+              return qWords.some(qw => qw === partWords[0] || normalizeWord(qw) === normalizeWord(partWords[0]));
+            }
+            // Multi-word part: all content words must appear
+            return partWords.every((pw: string) => qWords.some(qw => qw === pw || normalizeWord(qw) === normalizeWord(pw)));
+          });
+          if (n.includes(" ") ? (qLower.includes(n) || (nContent.length > 2 && qLower.includes(nContent)) || multiWordMatch || slashMatch) : singleWordMatch) {
             detectedSubcategory = sc.name_fr;
             console.log(`Auto-detected subcategory "${sc.name_fr}" from name match in query "${effectiveQuery}"`);
             break;
