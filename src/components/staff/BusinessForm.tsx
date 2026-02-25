@@ -2482,26 +2482,33 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                 <button type="button" onClick={() => setQuickAddDialog({ type: "certification", value: "" })} className="h-5 w-5 inline-flex items-center justify-center rounded-full border border-border hover:bg-muted transition-colors" title="Ajouter une certification"><Plus className="h-3 w-3" /></button>
               </div>
               <div className="border rounded-md p-3 space-y-1.5 bg-muted/30">
-                {["AFNOR", "Ecocert", "Label RSE"].map((cert) => {
-                  const tag = `Certification:${cert}`;
-                  return (
-                    <label key={cert} className="flex items-center gap-2 cursor-pointer text-sm">
-                      <input
-                        type="checkbox"
-                        checked={((formData as any).engagements || []).includes(tag)}
-                        onChange={() => {
-                          const current: string[] = (formData as any).engagements || [];
-                          const updated = current.includes(tag)
-                            ? current.filter(e => e !== tag)
-                            : [...current, tag];
-                          handleChange("engagements", updated);
-                        }}
-                        className="h-4 w-4 rounded border-input"
-                      />
-                      {cert}
-                    </label>
-                  );
-                })}
+                {(() => {
+                  const hardcoded = ["AFNOR", "Ecocert", "Label RSE"];
+                  const currentEngagements: string[] = (formData as any).engagements || [];
+                  const dynamicCerts = currentEngagements
+                    .filter(e => e.startsWith("Certification:") && !hardcoded.includes(e.replace("Certification:", "")))
+                    .map(e => e.replace("Certification:", ""));
+                  const allCerts = [...hardcoded, ...dynamicCerts].sort((a, b) => a.localeCompare(b, 'fr'));
+                  return allCerts.map((cert) => {
+                    const tag = `Certification:${cert}`;
+                    return (
+                      <label key={cert} className="flex items-center gap-2 cursor-pointer text-sm">
+                        <input
+                          type="checkbox"
+                          checked={currentEngagements.includes(tag)}
+                          onChange={() => {
+                            const updated = currentEngagements.includes(tag)
+                              ? currentEngagements.filter(e => e !== tag)
+                              : [...currentEngagements, tag];
+                            handleChange("engagements", updated);
+                          }}
+                          className="h-4 w-4 rounded border-input"
+                        />
+                        {cert}
+                      </label>
+                    );
+                  });
+                })()}
               </div>
             </div>
             <div className="space-y-2 flex-1">
@@ -2510,26 +2517,32 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                 <button type="button" onClick={() => setQuickAddDialog({ type: "engagement", value: "" })} className="h-5 w-5 inline-flex items-center justify-center rounded-full border border-border hover:bg-muted transition-colors" title="Ajouter un engagement"><Plus className="h-3 w-3" /></button>
               </div>
               <div className="border rounded-md p-3 space-y-1.5 bg-muted/30">
-                {["Bio (intégral)", "Bio (partiellement)", "Commerce équitable", "Engagement éco-responsable", "Engagement solidaire", "Marché occasionnel", "Régimes spéciaux (sans gluten, sans lactose...)", "Vegan"].map((eng) => (
-                  <label key={eng} className="flex items-center gap-2 cursor-pointer text-sm">
-                    <input
-                      type="checkbox"
-                      checked={((formData as any).engagements || []).includes(eng)}
-                      onChange={() => {
-                        const current: string[] = (formData as any).engagements || [];
-                        let updated: string[];
-                        if (current.includes(eng)) {
-                          updated = current.filter(e => e !== eng && !(eng === "Marché occasionnel" && e.startsWith("Marché:")));
-                        } else {
-                          updated = [...current, eng];
-                        }
-                        handleChange("engagements", updated);
-                      }}
-                      className="h-4 w-4 rounded border-input"
-                    />
-                    {eng}
-                  </label>
-                ))}
+                {(() => {
+                  const hardcoded = ["Bio (intégral)", "Bio (partiellement)", "Commerce équitable", "Engagement éco-responsable", "Engagement solidaire", "Marché occasionnel", "Régimes spéciaux (sans gluten, sans lactose...)", "Vegan"];
+                  const currentEngagements: string[] = (formData as any).engagements || [];
+                  const dynamicEngs = currentEngagements
+                    .filter(e => !e.startsWith("Certification:") && !e.startsWith("Logistique:") && !e.startsWith("Marché:") && !hardcoded.includes(e));
+                  const allEngs = [...hardcoded, ...dynamicEngs].sort((a, b) => a.localeCompare(b, 'fr'));
+                  return allEngs.map((eng) => (
+                    <label key={eng} className="flex items-center gap-2 cursor-pointer text-sm">
+                      <input
+                        type="checkbox"
+                        checked={currentEngagements.includes(eng)}
+                        onChange={() => {
+                          let updated: string[];
+                          if (currentEngagements.includes(eng)) {
+                            updated = currentEngagements.filter(e => e !== eng && !(eng === "Marché occasionnel" && e.startsWith("Marché:")));
+                          } else {
+                            updated = [...currentEngagements, eng];
+                          }
+                          handleChange("engagements", updated);
+                        }}
+                        className="h-4 w-4 rounded border-input"
+                      />
+                      {eng}
+                    </label>
+                  ));
+                })()}
                 {((formData as any).engagements || []).includes("Marché occasionnel") && (
                   <div className="ml-6 mt-1 p-2 border rounded bg-background space-y-1">
                     <span className="text-xs text-muted-foreground font-medium">Jours de marché :</span>
@@ -2563,26 +2576,33 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                 <button type="button" onClick={() => setQuickAddDialog({ type: "commodite", value: "" })} className="h-5 w-5 inline-flex items-center justify-center rounded-full border border-border hover:bg-muted transition-colors" title="Ajouter une commodité"><Plus className="h-3 w-3" /></button>
               </div>
               <div className="border rounded-md p-3 space-y-1.5 bg-muted/30">
-                {["Accessible aux personnes à mobilité réduite", "Cliquez et retirez", "Commandez en ligne et recevez votre colis chez vous", "Enfants de moins de 14 ans non acceptés", "Garantie 2 ans", "Livraison à domicile", "Location possible", "Paiement CB", "Paiement cash", "Paiement cash uniquement", "Paiement à la livraison", "Programme de fidélité", "Web only", "Échange & retours 365 jours"].map((item) => {
-                  const tag = `Logistique:${item}`;
-                  return (
-                    <label key={item} className="flex items-center gap-2 cursor-pointer text-sm">
-                      <input
-                        type="checkbox"
-                        checked={((formData as any).engagements || []).includes(tag)}
-                        onChange={() => {
-                          const current: string[] = (formData as any).engagements || [];
-                          const updated = current.includes(tag)
-                            ? current.filter(e => e !== tag)
-                            : [...current, tag];
-                          handleChange("engagements", updated);
-                        }}
-                        className="h-4 w-4 rounded border-input"
-                      />
-                      {item}
-                    </label>
-                  );
-                })}
+                {(() => {
+                  const hardcoded = ["Accessible aux personnes à mobilité réduite", "Cliquez et retirez", "Commandez en ligne et recevez votre colis chez vous", "Enfants de moins de 14 ans non acceptés", "Garantie 2 ans", "Livraison à domicile", "Location possible", "Paiement CB", "Paiement cash", "Paiement cash uniquement", "Paiement à la livraison", "Programme de fidélité", "Web only", "Échange & retours 365 jours"];
+                  const currentEngagements: string[] = (formData as any).engagements || [];
+                  const dynamicItems = currentEngagements
+                    .filter(e => e.startsWith("Logistique:") && !hardcoded.includes(e.replace("Logistique:", "")))
+                    .map(e => e.replace("Logistique:", ""));
+                  const allItems = [...hardcoded, ...dynamicItems].sort((a, b) => a.localeCompare(b, 'fr'));
+                  return allItems.map((item) => {
+                    const tag = `Logistique:${item}`;
+                    return (
+                      <label key={item} className="flex items-center gap-2 cursor-pointer text-sm">
+                        <input
+                          type="checkbox"
+                          checked={currentEngagements.includes(tag)}
+                          onChange={() => {
+                            const updated = currentEngagements.includes(tag)
+                              ? currentEngagements.filter(e => e !== tag)
+                              : [...currentEngagements, tag];
+                            handleChange("engagements", updated);
+                          }}
+                          className="h-4 w-4 rounded border-input"
+                        />
+                        {item}
+                      </label>
+                    );
+                  });
+                })()}
               </div>
             </div>
             {availableBadges.length > 0 && (
@@ -2679,22 +2699,23 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                 onClick={async () => {
                   if (!quickAddDialog?.value?.trim()) return;
                   const val = quickAddDialog.value.trim();
+                  let newEngagements: string[] | null = null;
                   if (quickAddDialog.type === "certification") {
                     const tag = `Certification:${val}`;
                     const current: string[] = (formData as any).engagements || [];
                     if (!current.includes(tag)) {
-                      handleChange("engagements", [...current, tag]);
+                      newEngagements = [...current, tag];
                     }
                   } else if (quickAddDialog.type === "engagement") {
                     const current: string[] = (formData as any).engagements || [];
                     if (!current.includes(val)) {
-                      handleChange("engagements", [...current, val]);
+                      newEngagements = [...current, val];
                     }
                   } else if (quickAddDialog.type === "commodite") {
                     const tag = `Logistique:${val}`;
                     const current: string[] = (formData as any).engagements || [];
                     if (!current.includes(tag)) {
-                      handleChange("engagements", [...current, tag]);
+                      newEngagements = [...current, tag];
                     }
                   } else if (quickAddDialog.type === "badge") {
                     const { data, error } = await supabase.from("badges").insert({ name_fr: val }).select("id, name_fr").single();
@@ -2707,6 +2728,19 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                       setIsDirty(true);
                       toast({ title: "Badge créé", description: `"${val}" ajouté` });
                     }
+                  }
+                  // Save engagements to DB immediately
+                  if (newEngagements && business?.id) {
+                    handleChange("engagements", newEngagements);
+                    const { error } = await supabase.from('businesses').update({ engagements: newEngagements }).eq('id', business.id);
+                    if (error) {
+                      toast({ title: "Erreur de sauvegarde", description: error.message, variant: "destructive" });
+                    } else {
+                      toast({ title: "Ajouté et sauvegardé", description: `"${val}" enregistré` });
+                    }
+                  } else if (newEngagements) {
+                    handleChange("engagements", newEngagements);
+                    toast({ title: "Ajouté", description: `"${val}" ajouté (sauvegardez la fiche)` });
                   }
                   setQuickAddDialog(null);
                 }}
