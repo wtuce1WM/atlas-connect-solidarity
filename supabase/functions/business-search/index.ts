@@ -1704,7 +1704,31 @@ serve(async (req) => {
           // THEN: Post-filter by services:
           // - If multiple DISTINCT service concepts detected (e.g. "Viande" + "Au feu de bois") → AND
           // - If single concept with synonym candidates (e.g. Glacier, Glaces, Glaces / Sorbets) → OR
-          if (detectedServices.length > 1) {
+          // Determine if multiple detected services are truly distinct concepts or variants of the same keyword
+          // e.g. "Vin", "Cave à vin", "Cave à vin d'exception" are all from keyword "vin" → use OR
+          // e.g. "Viande" + "Au feu de bois" are distinct concepts → use AND
+          const areDistinctConcepts = detectedServices.length > 1 && (() => {
+            // If there's only 1 fully matched service and the rest are alias/keyword matches, they're variants
+            const uniqueBaseWords = new Set<string>();
+            for (const ds of detectedServices) {
+              // Use the shortest single word as the "base concept"
+              const words = ds.toLowerCase().split(/[\s''`]+/).filter(w => w.length > 2 && !['à', 'de', 'des', 'du', 'la', 'le', 'les', 'un', 'une', 'aux', 'en'].includes(w));
+              for (const w of words) {
+                // Check if this word is contained in or contains another service's base
+                let merged = false;
+                for (const existing of uniqueBaseWords) {
+                  if (existing.includes(w) || w.includes(existing)) {
+                    merged = true;
+                    break;
+                  }
+                }
+                if (!merged) uniqueBaseWords.add(w);
+              }
+            }
+            return uniqueBaseWords.size > 1;
+          })();
+
+          if (detectedServices.length > 1 && areDistinctConcepts) {
             // AND logic: business must have ALL distinct detected services
             const beforeCount = businesses.length;
             businesses = businesses.filter((b: any) => {
@@ -1734,8 +1758,9 @@ serve(async (req) => {
                 console.log(`Multi-service AND filter returned 0 results — no OR fallback either`);
               }
             }
-          } else if (allCandidateServiceNames.length > 0) {
+          } else if (allCandidateServiceNames.length > 0 || (detectedServices.length > 1 && !areDistinctConcepts)) {
             // OR logic: business must have at least ONE of the candidate services
+            // Also used when multiple detected services are variants of the same concept (e.g. Vin, Cave à vin)
             // BUT always keep businesses whose name closely matches the ORIGINAL query
             const originalQueryLower = (query || "").toLowerCase().trim();
             const beforeCount = businesses.length;
