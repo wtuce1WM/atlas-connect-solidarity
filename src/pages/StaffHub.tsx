@@ -61,10 +61,9 @@ const StaffHub = () => {
       title: "Master",
       description: "Administration avancée, configuration système et contrôle des accès.",
       icon: Shield,
-      href: "#",
+      href: "/staff/master",
       color: "from-purple-500/20 to-pink-500/10",
       iconColor: "text-purple-600",
-      disabled: true,
     },
   ];
 
@@ -111,24 +110,14 @@ const StaffHub = () => {
             return (
               <button
                 key={section.title}
-                onClick={() => !section.disabled && navigate(section.href)}
-                disabled={section.disabled}
-                className={`group relative bg-background rounded-2xl border p-8 text-left transition-all duration-300 ${
-                  section.disabled
-                    ? "opacity-50 cursor-not-allowed"
-                    : "hover:shadow-xl hover:scale-[1.02] hover:border-primary/30 cursor-pointer"
-                }`}
+                onClick={() => navigate(section.href)}
+                className="group relative bg-background rounded-2xl border p-8 text-left transition-all duration-300 hover:shadow-xl hover:scale-[1.02] hover:border-primary/30 cursor-pointer"
               >
                 <div className={`inline-flex p-4 rounded-xl bg-gradient-to-br ${section.color} mb-5`}>
                   <Icon className={`h-8 w-8 ${section.iconColor}`} />
                 </div>
                 <h2 className="text-xl font-bold mb-2">{section.title}</h2>
                 <p className="text-sm text-muted-foreground leading-relaxed">{section.description}</p>
-                {section.disabled && (
-                  <span className="absolute top-4 right-4 text-xs bg-muted px-2 py-1 rounded-full text-muted-foreground">
-                    Bientôt
-                  </span>
-                )}
               </button>
             );
           })}

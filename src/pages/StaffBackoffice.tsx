@@ -332,10 +332,6 @@ const StaffBackoffice = () => {
                 <LayoutDashboard className="h-4 w-4" />
                 Dashboard
               </TabsTrigger>
-              <TabsTrigger value="search-config" className="gap-2">
-                <Settings2 className="h-4 w-4" />
-                Recherche
-              </TabsTrigger>
               <TabsTrigger value="businesses" className="gap-2">
                 <Building2 className="h-4 w-4" />
                 Entreprises
@@ -364,12 +360,6 @@ const StaffBackoffice = () => {
                 <Star className="h-4 w-4" />
                 Sponsors
               </TabsTrigger>
-              {isAdmin && (
-                <TabsTrigger value="users" className="gap-2">
-                  <Users className="h-4 w-4" />
-                  Utilisateurs
-                </TabsTrigger>
-              )}
             </TabsList>
 
             <TabsContent value="dashboard">
@@ -659,15 +649,6 @@ const StaffBackoffice = () => {
               <SponsorManagement />
             </TabsContent>
 
-            <TabsContent value="search-config">
-              <SearchConfigManagement />
-            </TabsContent>
-
-            {isAdmin && (
-              <TabsContent value="users">
-                <UserManagement />
-              </TabsContent>
-            )}
           </Tabs>
         )}
       </main>
