@@ -73,6 +73,22 @@ const TestSuitePanel = () => {
         </p>
       </div>
 
+      <Card className="border-primary/20 bg-primary/5">
+        <CardContent className="pt-6 space-y-3 text-sm leading-relaxed">
+          <p>
+            <strong>À quoi sert cet onglet ?</strong> Il récapitule les <em>tests automatiques</em> du projet. 
+            Un test vérifie qu'une fonctionnalité précise du site fonctionne correctement — par exemple, que les horaires d'ouverture s'affichent bien, ou que le calcul des notes moyennes est juste.
+          </p>
+          <p>
+            Chaque ligne verte <CheckCircle className="inline h-3.5 w-3.5 text-emerald-500" /> signifie qu'un point de contrôle est validé. 
+            Si un développeur modifie le code et qu'un test passe au rouge, on sait immédiatement quelle fonctionnalité est cassée, avant même que les utilisateurs ne le remarquent.
+          </p>
+          <p className="text-muted-foreground">
+            💡 <strong>En résumé :</strong> plus il y a de tests verts, plus le site est fiable. C'est un filet de sécurité qui protège contre les régressions.
+          </p>
+        </CardContent>
+      </Card>
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardContent className="pt-6">
