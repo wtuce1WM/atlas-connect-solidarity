@@ -97,6 +97,23 @@ const SearchAnalytics = ({ embedded = false }: { embedded?: boolean }) => {
 
   const renderContent = () => (
     <div className={embedded ? "space-y-8" : "container mx-auto px-4 py-8 space-y-8"}>
+      {/* Explainer */}
+      <Card className="border-primary/20 bg-primary/5">
+        <CardContent className="pt-6 space-y-3 text-sm leading-relaxed">
+          <p>
+            <strong>À quoi sert cet onglet ?</strong> Il permet de suivre en temps réel comment les visiteurs utilisent le moteur de recherche du site. 
+            Chaque recherche effectuée est enregistrée ici avec ses détails : ville détectée, catégorie, nombre de résultats, etc.
+          </p>
+          <p>
+            Le <strong>re-ranking LLM</strong> est une étape optionnelle où une intelligence artificielle réordonne les résultats pour mieux correspondre à l'intention de l'utilisateur. 
+            Les colonnes « Avant / Après » montrent l'impact concret de ce tri intelligent, avec les flèches <span className="text-emerald-600 font-bold">↑</span> et <span className="text-red-500 font-bold">↓</span> indiquant les mouvements.
+          </p>
+          <p className="text-muted-foreground">
+            💡 <strong>En résumé :</strong> ce tableau de bord aide à comprendre ce que cherchent les utilisateurs, à repérer les recherches sans résultat, et à vérifier que le moteur de recherche fonctionne bien.
+          </p>
+        </CardContent>
+      </Card>
+
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
