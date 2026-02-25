@@ -534,6 +534,7 @@ export type Database = {
           twitter_url: string | null
           updated_at: string
           vacation_dates: Json | null
+          viator_url: string | null
           video_1_url: string | null
           vimeo_url: string | null
           website: string | null
@@ -633,6 +634,7 @@ export type Database = {
           twitter_url?: string | null
           updated_at?: string
           vacation_dates?: Json | null
+          viator_url?: string | null
           video_1_url?: string | null
           vimeo_url?: string | null
           website?: string | null
@@ -732,6 +734,7 @@ export type Database = {
           twitter_url?: string | null
           updated_at?: string
           vacation_dates?: Json | null
+          viator_url?: string | null
           video_1_url?: string | null
           vimeo_url?: string | null
           website?: string | null
@@ -1981,6 +1984,7 @@ export type Database = {
           twitter_url: string | null
           updated_at: string
           vacation_dates: Json | null
+          viator_url: string | null
           video_1_url: string | null
           vimeo_url: string | null
           website: string | null
