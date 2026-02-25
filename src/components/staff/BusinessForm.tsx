@@ -288,6 +288,11 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
   const [customCerts, setCustomCerts] = useState<string[]>([]);
   const [customEngs, setCustomEngs] = useState<string[]>([]);
   const [customCommodites, setCustomCommodites] = useState<string[]>([]);
+  const [globalCustomOptions, setGlobalCustomOptions] = useState<{ certifications: string[]; engagements: string[]; commodites: string[] }>({
+    certifications: [],
+    engagements: [],
+    commodites: [],
+  });
   const { toast } = useToast();
   
   // Dynamic subcategories and services from database
@@ -442,22 +447,108 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
     poi_description: (business as any)?.poi_description || "",
   });
   
-  // Initialize custom items from existing engagements so they persist in the UI even when deselected
-  const initEngagements: string[] = (business as any)?.engagements || [];
-  const [customCertsInit] = useState<string[]>(() =>
-    initEngagements.filter(e => e.startsWith("Certification:")).map(e => e.replace("Certification:", ""))
-  );
-  const [customEngsInit] = useState<string[]>(() =>
-    initEngagements.filter(e => !e.startsWith("Certification:") && !e.startsWith("Logistique:") && !e.startsWith("Marché:"))
-  );
-  const [customCommoditesInit] = useState<string[]>(() =>
-    initEngagements.filter(e => e.startsWith("Logistique:")).map(e => e.replace("Logistique:", ""))
+  const extractCustomOptionsFromEngagements = (engagements: string[]) => ({
+    certifications: engagements
+      .filter((entry) => entry.startsWith("Certification:"))
+      .map((entry) => entry.replace("Certification:", "")),
+    engagements: engagements.filter(
+      (entry) =>
+        !entry.startsWith("Certification:") &&
+        !entry.startsWith("Logistique:") &&
+        !entry.startsWith("Marché:")
+    ),
+    commodites: engagements
+      .filter((entry) => entry.startsWith("Logistique:"))
+      .map((entry) => entry.replace("Logistique:", "")),
+  });
+
+  const normalizeGlobalCustomOptions = (content: string | null) => {
+    if (!content) {
+      return { certifications: [], engagements: [], commodites: [] };
+    }
+
+    try {
+      const parsed = JSON.parse(content);
+      return {
+        certifications: Array.isArray(parsed?.certifications) ? parsed.certifications.filter((v: unknown) => typeof v === "string" && v.trim()) : [],
+        engagements: Array.isArray(parsed?.engagements) ? parsed.engagements.filter((v: unknown) => typeof v === "string" && v.trim()) : [],
+        commodites: Array.isArray(parsed?.commodites) ? parsed.commodites.filter((v: unknown) => typeof v === "string" && v.trim()) : [],
+      };
+    } catch {
+      return { certifications: [], engagements: [], commodites: [] };
+    }
+  };
+
+  useEffect(() => {
+    const loadGlobalCustomOptions = async () => {
+      const { data } = await supabase
+        .from("staff_notes")
+        .select("content")
+        .eq("key", "engagement_custom_options_v1")
+        .maybeSingle();
+
+      setGlobalCustomOptions(normalizeGlobalCustomOptions(data?.content ?? null));
+    };
+
+    loadGlobalCustomOptions();
+  }, []);
+
+  const persistGlobalCustomOption = async (type: "certification" | "engagement" | "commodite", value: string) => {
+    const option = value.trim();
+    if (!option) return;
+
+    const nextOptions = {
+      certifications:
+        type === "certification"
+          ? Array.from(new Set([...globalCustomOptions.certifications, option]))
+          : globalCustomOptions.certifications,
+      engagements:
+        type === "engagement"
+          ? Array.from(new Set([...globalCustomOptions.engagements, option]))
+          : globalCustomOptions.engagements,
+      commodites:
+        type === "commodite"
+          ? Array.from(new Set([...globalCustomOptions.commodites, option]))
+          : globalCustomOptions.commodites,
+    };
+
+    const didChange =
+      nextOptions.certifications.length !== globalCustomOptions.certifications.length ||
+      nextOptions.engagements.length !== globalCustomOptions.engagements.length ||
+      nextOptions.commodites.length !== globalCustomOptions.commodites.length;
+
+    if (!didChange) return;
+
+    setGlobalCustomOptions(nextOptions);
+
+    const content = JSON.stringify(nextOptions);
+    const { data: existing } = await supabase
+      .from("staff_notes")
+      .select("id")
+      .eq("key", "engagement_custom_options_v1")
+      .maybeSingle();
+
+    if (existing) {
+      await supabase
+        .from("staff_notes")
+        .update({ content, updated_at: new Date().toISOString() })
+        .eq("key", "engagement_custom_options_v1");
+    } else {
+      await supabase
+        .from("staff_notes")
+        .insert({ key: "engagement_custom_options_v1", content });
+    }
+  };
+
+  const currentBusinessCustomOptions = useMemo(
+    () => extractCustomOptionsFromEngagements(((formData as any).engagements || []) as string[]),
+    [(formData as any).engagements]
   );
 
-  // Merge initial + newly added custom items
-  const allCustomCerts = [...new Set([...customCertsInit, ...customCerts])];
-  const allCustomEngs = [...new Set([...customEngsInit, ...customEngs])];
-  const allCustomCommodites = [...new Set([...customCommoditesInit, ...customCommodites])];
+  // Merge global + current business + newly added custom items
+  const allCustomCerts = [...new Set([...globalCustomOptions.certifications, ...currentBusinessCustomOptions.certifications, ...customCerts])];
+  const allCustomEngs = [...new Set([...globalCustomOptions.engagements, ...currentBusinessCustomOptions.engagements, ...customEngs])];
+  const allCustomCommodites = [...new Set([...globalCustomOptions.commodites, ...currentBusinessCustomOptions.commodites, ...customCommodites])];
 
   // Business labels state (managed separately)
   const [businessLabels, setBusinessLabels] = useState<Array<{ id?: string; label_id: string; custom_url: string }>>([]);
@@ -2724,26 +2815,29 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                   const val = quickAddDialog.value.trim();
                   let newEngagements: string[] | null = null;
                    if (quickAddDialog.type === "certification") {
-                    const tag = `Certification:${val}`;
-                    const current: string[] = (formData as any).engagements || [];
-                    if (!current.includes(tag)) {
-                      newEngagements = [...current, tag];
-                    }
-                    setCustomCerts(prev => prev.includes(val) ? prev : [...prev, val]);
-                  } else if (quickAddDialog.type === "engagement") {
-                    const current: string[] = (formData as any).engagements || [];
-                    if (!current.includes(val)) {
-                      newEngagements = [...current, val];
-                    }
-                    setCustomEngs(prev => prev.includes(val) ? prev : [...prev, val]);
-                  } else if (quickAddDialog.type === "commodite") {
-                    const tag = `Logistique:${val}`;
-                    const current: string[] = (formData as any).engagements || [];
-                    if (!current.includes(tag)) {
-                      newEngagements = [...current, tag];
-                    }
-                    setCustomCommodites(prev => prev.includes(val) ? prev : [...prev, val]);
-                  } else if (quickAddDialog.type === "badge") {
+                     const tag = `Certification:${val}`;
+                     const current: string[] = (formData as any).engagements || [];
+                     if (!current.includes(tag)) {
+                       newEngagements = [...current, tag];
+                     }
+                     setCustomCerts(prev => prev.includes(val) ? prev : [...prev, val]);
+                     await persistGlobalCustomOption("certification", val);
+                   } else if (quickAddDialog.type === "engagement") {
+                     const current: string[] = (formData as any).engagements || [];
+                     if (!current.includes(val)) {
+                       newEngagements = [...current, val];
+                     }
+                     setCustomEngs(prev => prev.includes(val) ? prev : [...prev, val]);
+                     await persistGlobalCustomOption("engagement", val);
+                   } else if (quickAddDialog.type === "commodite") {
+                     const tag = `Logistique:${val}`;
+                     const current: string[] = (formData as any).engagements || [];
+                     if (!current.includes(tag)) {
+                       newEngagements = [...current, tag];
+                     }
+                     setCustomCommodites(prev => prev.includes(val) ? prev : [...prev, val]);
+                     await persistGlobalCustomOption("commodite", val);
+                   } else if (quickAddDialog.type === "badge") {
                     const { data, error } = await supabase.from("badges").insert({ name_fr: val }).select("id, name_fr").single();
                     if (error) {
                       toast({ title: "Erreur", description: error.message, variant: "destructive" });
