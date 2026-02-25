@@ -12,6 +12,10 @@ interface ReviewResult {
   tripadvisor_review_count?: number | null;
   restaurant_guru_rating?: number | null;
   restaurant_guru_review_count?: number | null;
+  getyourguide_rating?: number | null;
+  getyourguide_review_count?: number | null;
+  viator_rating?: number | null;
+  viator_review_count?: number | null;
 }
 
 interface ReviewText {
@@ -23,12 +27,9 @@ interface ReviewText {
   language: string | null;
 }
 
-// Extract the exact place coordinates from Google Maps URL (!3d lat !4d lng)
-// These are the pin coordinates, not the map center (@lat,lng which is viewport)
 function extractExactCoordsFromGoogleUrl(url: string | null): { lat: number; lng: number } | null {
   if (!url) return null;
   try {
-    // !3d = latitude, !4d = longitude (exact place position)
     const latMatch = url.match(/!3d(-?\d+\.?\d*)/);
     const lngMatch = url.match(/!4d(-?\d+\.?\d*)/);
     if (latMatch && lngMatch) {
@@ -36,7 +37,6 @@ function extractExactCoordsFromGoogleUrl(url: string | null): { lat: number; lng
       const lng = parseFloat(lngMatch[1]);
       if (!isNaN(lat) && !isNaN(lng)) return { lat, lng };
     }
-    // Fallback to @lat,lng (map center)
     const match = url.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
     if (match) {
       const lat = parseFloat(match[1]);
@@ -47,12 +47,10 @@ function extractExactCoordsFromGoogleUrl(url: string | null): { lat: number; lng
   return null;
 }
 
-// Extract place name from the Google Maps URL path
 function extractPlaceNameFromGoogleUrl(url: string | null): string | null {
   if (!url) return null;
   try {
-    // Match /place/Name+Here/ pattern
-    const match = url.match(/\/place\/([^/@]+)/);
+    const match = url.match(/\/place\/([^\/@]+)/);
     if (match) {
       return decodeURIComponent(match[1].replace(/\+/g, ' '));
     }
@@ -60,7 +58,6 @@ function extractPlaceNameFromGoogleUrl(url: string | null): string | null {
   return null;
 }
 
-// Fetch reviews from a Place ID
 async function fetchReviewsFromPlaceId(placeId: string, apiKey: string): Promise<ReviewText[]> {
   const reviewTexts: ReviewText[] = [];
   try {
@@ -88,13 +85,10 @@ async function fetchReviewsFromPlaceId(placeId: string, apiKey: string): Promise
   return reviewTexts;
 }
 
-// Search Google Places with a text query and optional location restriction
-// useRestriction=true forces results within the area (vs bias which is just a preference)
 async function searchGooglePlace(query: string, coords: { lat: number; lng: number } | null, radius: number, apiKey: string, useRestriction = false): Promise<{ id: string; rating: number | null; count: number | null; displayName: string } | null> {
   const requestBody: Record<string, any> = { textQuery: query };
   if (coords) {
     if (useRestriction) {
-      // Convert radius to approximate lat/lng delta (1 degree ≈ 111km)
       const delta = radius / 111000;
       requestBody.locationRestriction = {
         rectangle: {
@@ -135,7 +129,6 @@ async function searchGooglePlace(query: string, coords: { lat: number; lng: numb
   return null;
 }
 
-// Main Google reviews function
 async function fetchGoogleReviews(businessName: string, city: string, googleMapsUrl: string | null): Promise<{ rating: number | null; count: number | null; reviews: ReviewText[] }> {
   const apiKey = Deno.env.get('GOOGLE_MAPS_API_KEY');
   if (!apiKey) {
@@ -146,7 +139,6 @@ async function fetchGoogleReviews(businessName: string, city: string, googleMaps
   const exactCoords = extractExactCoordsFromGoogleUrl(googleMapsUrl);
   const urlPlaceName = extractPlaceNameFromGoogleUrl(googleMapsUrl);
 
-  // Strategy 1: Use the place name from URL + city + exact pin coordinates with locationRestriction (200m)
   if (urlPlaceName && exactCoords) {
     console.log(`Strategy 1: URL place name "${urlPlaceName} ${city}" with restriction @${exactCoords.lat},${exactCoords.lng} (200m)`);
     const place = await searchGooglePlace(`${urlPlaceName} ${city}`, exactCoords, 200.0, apiKey, true);
@@ -159,7 +151,6 @@ async function fetchGoogleReviews(businessName: string, city: string, googleMaps
     console.log('Strategy 1 failed, trying strategy 2');
   }
 
-  // Strategy 2: Use business name from DB + exact coordinates with 100m radius
   if (exactCoords) {
     console.log(`Strategy 2: DB name "${businessName}" with exact coords @${exactCoords.lat},${exactCoords.lng} (100m radius)`);
     const place = await searchGooglePlace(`${businessName} ${city}`, exactCoords, 100.0, apiKey);
@@ -172,7 +163,6 @@ async function fetchGoogleReviews(businessName: string, city: string, googleMaps
     console.log('Strategy 2 failed, trying strategy 3');
   }
 
-  // Strategy 3: Wider search as last resort
   const simplifiedName = businessName.replace(/\s+by\s+.*/i, '').trim();
   const queries = [
     `${businessName} ${city}`,
@@ -194,7 +184,6 @@ async function fetchGoogleReviews(businessName: string, city: string, googleMaps
   return { rating: null, count: null, reviews: [] };
 }
 
-// Firecrawl scraping for TripAdvisor
 async function fetchTripAdvisorReviews(url: string): Promise<{ rating: number | null; count: number | null }> {
   const apiKey = Deno.env.get('FIRECRAWL_API_KEY');
   if (!apiKey) {
@@ -243,7 +232,6 @@ async function fetchTripAdvisorReviews(url: string): Promise<{ rating: number | 
   return { rating: null, count: null };
 }
 
-// Firecrawl scraping for Restaurant Guru
 async function fetchRestaurantGuruReviews(url: string): Promise<{ rating: number | null; count: number | null }> {
   if (!url.includes('restaurantguru.com')) {
     return { rating: null, count: null };
@@ -295,6 +283,104 @@ async function fetchRestaurantGuruReviews(url: string): Promise<{ rating: number
   return { rating: null, count: null };
 }
 
+// Firecrawl scraping for GetYourGuide
+async function fetchGetYourGuideReviews(url: string): Promise<{ rating: number | null; count: number | null }> {
+  const apiKey = Deno.env.get('FIRECRAWL_API_KEY');
+  if (!apiKey) {
+    console.error('FIRECRAWL_API_KEY not configured');
+    return { rating: null, count: null };
+  }
+
+  try {
+    console.log(`Scraping GetYourGuide: ${url}`);
+    const response = await fetch('https://api.firecrawl.dev/v1/scrape', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        url,
+        formats: ['extract'],
+        extract: {
+          prompt: 'Extract the overall rating (out of 5, as a decimal like 4.5) and total number of reviews from this GetYourGuide activity page.',
+          schema: {
+            type: 'object',
+            properties: {
+              rating: { type: 'number', description: 'Overall rating out of 5' },
+              review_count: { type: 'number', description: 'Total number of reviews' },
+            },
+          },
+        },
+        waitFor: 3000,
+      }),
+    });
+
+    const data = await response.json();
+    console.log('GetYourGuide Firecrawl response:', JSON.stringify(data).substring(0, 500));
+
+    const extracted = data?.data?.extract;
+    if (extracted) {
+      return {
+        rating: extracted.rating ? parseFloat(String(extracted.rating)) : null,
+        count: extracted.review_count ? parseInt(String(extracted.review_count)) : null,
+      };
+    }
+  } catch (e) {
+    console.error('Firecrawl GetYourGuide error:', e);
+  }
+  return { rating: null, count: null };
+}
+
+// Firecrawl scraping for Viator
+async function fetchViatorReviews(url: string): Promise<{ rating: number | null; count: number | null }> {
+  const apiKey = Deno.env.get('FIRECRAWL_API_KEY');
+  if (!apiKey) {
+    console.error('FIRECRAWL_API_KEY not configured');
+    return { rating: null, count: null };
+  }
+
+  try {
+    console.log(`Scraping Viator: ${url}`);
+    const response = await fetch('https://api.firecrawl.dev/v1/scrape', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        url,
+        formats: ['extract'],
+        extract: {
+          prompt: 'Extract the overall rating (out of 5, as a decimal like 4.5) and total number of reviews from this Viator activity page.',
+          schema: {
+            type: 'object',
+            properties: {
+              rating: { type: 'number', description: 'Overall rating out of 5' },
+              review_count: { type: 'number', description: 'Total number of reviews' },
+            },
+          },
+        },
+        waitFor: 3000,
+      }),
+    });
+
+    const data = await response.json();
+    console.log('Viator Firecrawl response:', JSON.stringify(data).substring(0, 500));
+
+    const extracted = data?.data?.extract;
+    if (extracted) {
+      return {
+        rating: extracted.rating ? parseFloat(String(extracted.rating)) : null,
+        count: extracted.review_count ? parseInt(String(extracted.review_count)) : null,
+      };
+    }
+  } catch (e) {
+    console.error('Firecrawl Viator error:', e);
+  }
+  return { rating: null, count: null };
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -316,7 +402,7 @@ Deno.serve(async (req) => {
 
     const { data: business, error: fetchError } = await supabase
       .from('businesses')
-      .select('name, city, google_maps_url, google_reviews_url, tripadvisor_review_url, restaurant_guru_url')
+      .select('name, city, google_maps_url, google_reviews_url, tripadvisor_review_url, restaurant_guru_url, getyourguide_url, viator_url')
       .eq('id', business_id)
       .single();
 
@@ -359,6 +445,24 @@ Deno.serve(async (req) => {
       );
     }
 
+    if (!google_only && business.getyourguide_url) {
+      promises.push(
+        fetchGetYourGuideReviews(business.getyourguide_url).then(r => {
+          results.getyourguide_rating = r.rating;
+          results.getyourguide_review_count = r.count;
+        })
+      );
+    }
+
+    if (!google_only && business.viator_url) {
+      promises.push(
+        fetchViatorReviews(business.viator_url).then(r => {
+          results.viator_rating = r.rating;
+          results.viator_review_count = r.count;
+        })
+      );
+    }
+
     await Promise.all(promises);
 
     console.log('Results:', JSON.stringify(results));
@@ -370,6 +474,10 @@ Deno.serve(async (req) => {
     if (results.tripadvisor_review_count != null) updateData.tripadvisor_review_count = results.tripadvisor_review_count;
     if (results.restaurant_guru_rating != null) updateData.restaurant_guru_rating = results.restaurant_guru_rating;
     if (results.restaurant_guru_review_count != null) updateData.restaurant_guru_review_count = results.restaurant_guru_review_count;
+    if (results.getyourguide_rating != null) updateData.getyourguide_rating = results.getyourguide_rating;
+    if (results.getyourguide_review_count != null) updateData.getyourguide_review_count = results.getyourguide_review_count;
+    if (results.viator_rating != null) updateData.viator_rating = results.viator_rating;
+    if (results.viator_review_count != null) updateData.viator_review_count = results.viator_review_count;
 
     if (Object.keys(updateData).length > 0) {
       const { error: updateError } = await supabase

@@ -2371,6 +2371,8 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                       restaurant_guru_url: formData.restaurant_guru_url || null,
                       google_reviews_url: formData.google_reviews_url || null,
                       google_maps_url: formData.google_maps_url || null,
+                      getyourguide_url: (formData as any).getyourguide_url || null,
+                      viator_url: (formData as any).viator_url || null,
                     }).eq('id', business.id);
                     if (saveError) throw saveError;
 
@@ -2386,6 +2388,10 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                       if (r.tripadvisor_review_count != null) handleChange("tripadvisor_review_count" as any, String(r.tripadvisor_review_count));
                       if (r.restaurant_guru_rating != null) handleChange("restaurant_guru_rating" as any, String(r.restaurant_guru_rating));
                       if (r.restaurant_guru_review_count != null) handleChange("restaurant_guru_review_count" as any, String(r.restaurant_guru_review_count));
+                      if (r.getyourguide_rating != null) handleChange("getyourguide_rating" as any, String(r.getyourguide_rating));
+                      if (r.getyourguide_review_count != null) handleChange("getyourguide_review_count" as any, String(r.getyourguide_review_count));
+                      if (r.viator_rating != null) handleChange("viator_rating" as any, String(r.viator_rating));
+                      if (r.viator_review_count != null) handleChange("viator_review_count" as any, String(r.viator_review_count));
                       toast({ title: "Avis récupérés", description: `Champs mis à jour : ${data.updated?.join(', ') || 'aucun'}` });
                     } else {
                       toast({ title: "Aucun avis trouvé", variant: "destructive" });
