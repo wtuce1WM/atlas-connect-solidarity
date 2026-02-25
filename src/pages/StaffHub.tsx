@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { LogOut, BookOpen, Users, Shield } from "lucide-react";
+import { LogOut, BookOpen, Users, Shield, Star } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 
 const StaffHub = () => {
@@ -121,6 +121,24 @@ const StaffHub = () => {
               </button>
             );
           })}
+        </div>
+        {/* Quick access */}
+        <div className="max-w-4xl mx-auto mt-12">
+          <h2 className="text-lg font-semibold text-muted-foreground mb-4">Accès rapide</h2>
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
+            <button
+              onClick={() => navigate("/etablissements-notes")}
+              className="group flex items-center gap-4 bg-background rounded-xl border p-5 text-left transition-all hover:shadow-md hover:border-gold/40 cursor-pointer"
+            >
+              <div className="inline-flex p-3 rounded-lg bg-gradient-to-br from-gold/20 to-amber-500/10">
+                <Star className="h-6 w-6 text-gold" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-sm">Établissements notés</h3>
+                <p className="text-xs text-muted-foreground">Classement par avis Google, TripAdvisor, Guru</p>
+              </div>
+            </button>
+          </div>
         </div>
       </main>
     </div>
