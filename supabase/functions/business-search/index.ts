@@ -567,7 +567,9 @@ serve(async (req) => {
             return w;
           };
           const stripAccents = (w: string): string => w.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-          const normalizeWord = (w: string): string => stripAccents(stripPluralSimple(w));
+          // Strip French elisions: d', l', s', n', m', c', j', qu' → keep only the part after the apostrophe
+          const stripElision = (w: string): string => w.replace(/^[dDlLsSnNmMcCjJ]'|^[qQ]u'/i, "");
+          const normalizeWord = (w: string): string => stripAccents(stripPluralSimple(stripElision(w)));
           const singleWordMatch = !n.includes(" ") && qWords.some(qw => 
             qw === n || stripPluralSimple(qw) === n || qw === stripPluralSimple(n) ||
             stripAccents(qw) === stripAccents(n) || normalizeWord(qw) === stripAccents(n) || stripAccents(qw) === normalizeWord(n)
@@ -1138,16 +1140,31 @@ serve(async (req) => {
         .select("subcategory_id, subcategories!inner(name_fr)")
         .eq("name_fr", detectedService);
       if (svcParents && svcParents.length > 0) {
+        // If detected subcategory exists, prefer the parent that matches it
+        let bestParent: { name: string; config: typeof subcategorySearchConfig } | null = null;
         for (const sp of svcParents) {
           const parentName = (sp as any).subcategories?.name_fr;
           if (parentName) {
-            const parentConfig = searchConfigs[parentName.toLowerCase()] || null;
-            if (parentConfig) {
-              subcategorySearchConfig = parentConfig;
-              console.log(`Resolved search config from service "${detectedService}" parent subcategory "${parentName}": mode=${parentConfig.search_mode}`);
-              break;
+            // If this parent IS the detected subcategory, use it directly
+            if (detectedSubcategory && parentName.toLowerCase() === detectedSubcategory.toLowerCase()) {
+              const parentConfig = searchConfigs[parentName.toLowerCase()] || null;
+              if (parentConfig) {
+                bestParent = { name: parentName, config: parentConfig };
+                break; // Perfect match, stop looking
+              }
+            }
+            // Otherwise store first config found as fallback
+            if (!bestParent) {
+              const parentConfig = searchConfigs[parentName.toLowerCase()] || null;
+              if (parentConfig) {
+                bestParent = { name: parentName, config: parentConfig };
+              }
             }
           }
+        }
+        if (bestParent) {
+          subcategorySearchConfig = bestParent.config;
+          console.log(`Resolved search config from service "${detectedService}" parent subcategory "${bestParent.name}": mode=${bestParent.config!.search_mode}`);
         }
       }
     }
