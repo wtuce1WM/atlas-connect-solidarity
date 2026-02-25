@@ -498,6 +498,44 @@ serve(async (req) => {
       }
     }
 
+    // ── Check for exact business name match BEFORE subcategory/service detection ──
+    let skipServiceDetection = false;
+    let nameMatchedBusinessIds: string[] = [];
+    if (effectiveQuery && effectiveQuery.split(/\s+/).length <= 6) {
+      let nameSearchQuery = effectiveQuery;
+      if (effectiveCity) {
+        const cityWords = effectiveCity.toLowerCase().split(/\s+/);
+        nameSearchQuery = effectiveQuery.split(/\s+/).filter(w => 
+          !cityWords.includes(w.toLowerCase()) && !cityWords.includes(stripAccentsGlobal(w.toLowerCase()))
+        ).join(" ").trim();
+      }
+      if (nameSearchQuery.length >= 3) {
+        const { data: nameMatches } = await supabase
+          .from("businesses")
+          .select("id, name")
+          .eq("is_active", true)
+          .ilike("name", `%${nameSearchQuery}%`)
+          .limit(5);
+        if (nameMatches && nameMatches.length > 0) {
+          const qWords = nameSearchQuery.toLowerCase().split(/\s+/).filter((w: string) => w.length > 1);
+          const hasStrongMatch = nameMatches.some((b: any) => {
+            const bWords = b.name.toLowerCase().split(/\s+/).filter((w: string) => w.length > 1);
+            const matchCount = qWords.filter((qw: string) => bWords.some((bw: string) => {
+              const bwStripped = stripAccentsGlobal(bw);
+              const qwStripped = stripAccentsGlobal(qw);
+              return bw.includes(qw) || qw.includes(bw) || bwStripped.includes(qwStripped) || qwStripped.includes(bwStripped);
+            })).length;
+            return matchCount >= Math.ceil(qWords.length * 0.6);
+          });
+          if (hasStrongMatch) {
+            skipServiceDetection = true;
+            nameMatchedBusinessIds = nameMatches.map((b: any) => b.id);
+            console.log(`Skipping service/subcategory detection: query "${nameSearchQuery}" matches business name(s): [${nameMatches.map((b: any) => b.name).join(", ")}]`);
+          }
+        }
+      }
+    }
+
     let detectedSubcategory: string | null = null;
     if (!category && effectiveQuery && !skipServiceDetection) {
       const qLower = effectiveQuery.toLowerCase();
@@ -697,47 +735,6 @@ serve(async (req) => {
     let serviceMatchWordsOuter: string[] = []; // All query words used in service detection (for cleanRemainder)
     let keywordMatchedSubcategories: string[] = []; // Subcategories of services matched via keywords
     
-    // ── Check for exact business name match BEFORE service detection ──
-    // If the query closely matches a business name, skip service detection to avoid false positives
-    // (e.g. "Ace Marée" should NOT detect "Glaces" from the substring "ace")
-    let skipServiceDetection = false;
-    let nameMatchedBusinessIds: string[] = [];
-    if (effectiveQuery && effectiveQuery.split(/\s+/).length <= 6) {
-      // Strip detected city from query for name matching (e.g. "Café del Mar Marrakech" → "Café del Mar")
-      let nameSearchQuery = effectiveQuery;
-      if (effectiveCity) {
-        const cityWords = effectiveCity.toLowerCase().split(/\s+/);
-        nameSearchQuery = effectiveQuery.split(/\s+/).filter(w => 
-          !cityWords.includes(w.toLowerCase()) && !cityWords.includes(stripAccentsGlobal(w.toLowerCase()))
-        ).join(" ").trim();
-      }
-      if (nameSearchQuery.length >= 3) {
-        const { data: nameMatches } = await supabase
-          .from("businesses")
-          .select("id, name")
-          .eq("is_active", true)
-          .ilike("name", `%${nameSearchQuery}%`)
-          .limit(5);
-        if (nameMatches && nameMatches.length > 0) {
-          // Check if query is a strong match (>= 60% of query words appear in a business name)
-          const qWords = nameSearchQuery.toLowerCase().split(/\s+/).filter((w: string) => w.length > 1);
-          const hasStrongMatch = nameMatches.some((b: any) => {
-            const bWords = b.name.toLowerCase().split(/\s+/).filter((w: string) => w.length > 1);
-            const matchCount = qWords.filter((qw: string) => bWords.some((bw: string) => {
-              const bwStripped = stripAccentsGlobal(bw);
-              const qwStripped = stripAccentsGlobal(qw);
-              return bw.includes(qw) || qw.includes(bw) || bwStripped.includes(qwStripped) || qwStripped.includes(bwStripped);
-            })).length;
-            return matchCount >= Math.ceil(qWords.length * 0.6);
-          });
-          if (hasStrongMatch) {
-            skipServiceDetection = true;
-            nameMatchedBusinessIds = nameMatches.map((b: any) => b.id);
-            console.log(`Skipping service/subcategory detection: query "${nameSearchQuery}" matches business name(s): [${nameMatches.map((b: any) => b.name).join(", ")}]`);
-          }
-        }
-      }
-    }
     if (effectiveQuery && !skipServiceDetection) {
       // Strip French contractions: l'aéroport → aéroport, d'art → art, etc.
       const stripContractions = (w: string): string => w.replace(/^[lLdDsSnNjJcCqQ][\u0027\u2019\u2018\u0060]/g, "");
