@@ -513,12 +513,16 @@ serve(async (req) => {
       }
       nameSearchQueryForDetection = nameSearchQuery;
       if (nameSearchQuery.length >= 3) {
-        const { data: nameMatches } = await supabase
+        let nameMatchBuilder = supabase
           .from("businesses")
           .select("id, name")
           .eq("is_active", true)
-          .ilike("name", `%${nameSearchQuery}%`)
-          .limit(5);
+          .ilike("name", `%${nameSearchQuery}%`);
+        // Filter by city so name matches don't leak results from other cities
+        if (effectiveCity) {
+          nameMatchBuilder = nameMatchBuilder.ilike("city", effectiveCity);
+        }
+        const { data: nameMatches } = await nameMatchBuilder.limit(5);
         if (nameMatches && nameMatches.length > 0) {
           const qWords = nameSearchQuery.toLowerCase().split(/\s+/).filter((w: string) => w.length > 1);
           const hasStrongMatch = nameMatches.some((b: any) => {
