@@ -476,11 +476,8 @@ const SearchPage = () => {
         if (data) {
           setSearchLevel(data.searchLevel || "");
           const safeDetectedSubcategory = data.detectedSubcategory || null;
-          const rawData = data as SearchResult & { search_mode?: string | null; mode?: string | null };
-          const normalizedSearchMode = normalizeSearchMode(rawData.searchMode)
-            ?? normalizeSearchMode(rawData.search_mode)
-            ?? normalizeSearchMode(rawData.mode)
-            ?? (safeDetectedSubcategory ? "broad" : null);
+          // Only use searchMode when explicitly set from back-office config
+          const normalizedSearchMode = normalizeSearchMode(data.searchMode);
 
           setDetectedSubcategory(safeDetectedSubcategory);
           setSearchMode(normalizedSearchMode);

@@ -1979,7 +1979,7 @@ serve(async (req) => {
       message: getSearchLevelMessage(searchLevel, language),
       totalResults: businesses.length,
       detectedSubcategory: detectedSubcategory || null,
-      searchMode: subcategorySearchConfig?.search_mode || (detectedSubcategory ? "broad" : null),
+      searchMode: subcategorySearchConfig?.search_mode || null,
     };
 
     return new Response(JSON.stringify(result), {
