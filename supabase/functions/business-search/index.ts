@@ -841,6 +841,8 @@ serve(async (req) => {
           return serviceMatchWords.some(w => {
             const wNorm = stripPlural(w);
             return kws.some((k: string) => {
+              // Skip multi-word keywords in single-word matching — they are handled separately below
+              if (k.includes(" ")) return false;
               const kNorm = stripPlural(k);
               // Exact match (with accent normalization) or whole-word boundary match
               return k === w || w === k || kNorm === wNorm || normalizeWordKw(k) === normalizeWordKw(w) || wordBoundaryMatch(k, w) || (w.length > 3 && w.includes(k));
@@ -942,6 +944,8 @@ serve(async (req) => {
               for (const qw of serviceMatchWords) {
                 if (usedQueryWords.has(qw)) continue;
                 const matched = svcKws.some((k: string) => {
+                  // Skip multi-word keywords — single query word shouldn't match "pousse pieds" etc.
+                  if (k.includes(" ")) return false;
                   return k === qw || stripPlural(k) === stripPlural(qw) || wordBoundaryMatch(k, qw);
                 });
                 if (matched) {
