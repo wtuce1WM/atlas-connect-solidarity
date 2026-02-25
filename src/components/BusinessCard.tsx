@@ -78,6 +78,7 @@ interface BusinessCardProps {
   };
   mapButtonVariant?: "text" | "button";
   showAddress?: boolean;
+  distanceKm?: number | null;
 }
 
 const WhatsAppIcon = () => (
@@ -148,7 +149,8 @@ const BusinessCard = ({
   showMapButton = false,
   mapButtonLabels = { view: "Voir sur la carte", shown: "Affiché sur la carte" },
   mapButtonVariant = "text",
-  showAddress = false
+  showAddress = false,
+  distanceKm
 }: BusinessCardProps) => {
   const gamme = getBusinessGamme(business, gammes);
   const badge = getBusinessBadge(business, badges, subcategories, badgeSubcategories);
@@ -238,6 +240,11 @@ const BusinessCard = ({
             <div className="flex items-center gap-1 text-sm text-muted-foreground mb-2">
               <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
               <span className="truncate">{locationText}</span>
+              {distanceKm != null && (
+                <span className="ml-auto text-xs text-primary font-medium whitespace-nowrap">
+                  {distanceKm < 1 ? `${Math.round(distanceKm * 1000)} m` : `${distanceKm.toFixed(1)} km`}
+                </span>
+              )}
             </div>
           ) : business.website ? (
             <a
