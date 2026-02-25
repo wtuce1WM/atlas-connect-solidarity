@@ -1202,6 +1202,41 @@ serve(async (req) => {
         console.log(`Stripped time noise from tsquery: "${queryForExpansion}" (was: "${before}")`);
       }
     }
+    // Strip intent words (dormir, manger, etc.) from tsquery when they've already resolved to a category
+    // These verbs don't appear in business search vectors and cause 0 results
+    if (intentCategory && queryForExpansion && INTENT_TO_CATEGORY) {
+      const before = queryForExpansion;
+      const intentWords = new Set(Object.keys(INTENT_TO_CATEGORY));
+      queryForExpansion = queryForExpansion.split(/\s+/).filter(w => {
+        const wLower = w.toLowerCase();
+        const wStripped = stripAccentsGlobal(wLower);
+        return !intentWords.has(wLower) && !intentWords.has(wStripped);
+      }).join(" ").trim() || queryForExpansion;
+      if (queryForExpansion !== before) {
+        console.log(`Stripped intent word from tsquery: "${queryForExpansion}" (was: "${before}")`);
+      }
+    }
+    // Strip auto-detected city from tsquery when no subcategory was detected
+    // (city filtering is handled by p_city parameter, keeping it in tsquery is redundant but harmless
+    // UNLESS it's the only remaining word, which would match everything in that city)
+    if (!detectedSubcategory && effectiveCity && queryForExpansion) {
+      const before = queryForExpansion;
+      const cityWords = effectiveCity.toLowerCase().split(/\s+/);
+      const stripped = queryForExpansion.split(/\s+/).filter(w => {
+        const wLower = w.toLowerCase();
+        const wStripped = stripAccentsGlobal(wLower);
+        return !cityWords.some(cw => wLower === cw.toLowerCase() || wStripped === stripAccentsGlobal(cw.toLowerCase()));
+      }).join(" ").trim();
+      if (stripped && stripped !== queryForExpansion) {
+        queryForExpansion = stripped;
+        console.log(`Stripped city from tsquery: "${queryForExpansion}" (was: "${before}")`);
+      } else if (!stripped && intentCategory) {
+        // Query is only city + intent word (already stripped) → no meaningful tsquery terms
+        // Let the category filter handle it alone
+        queryForExpansion = null;
+        console.log(`Query reduced to empty after stripping city+intent → will use category-only query`);
+      }
+    }
     // In broad subcategory mode, remove intent/city/subcategory noise from tsquery input.
     // Example: "je veux jouer au tennis à Marrakech" => "Tennis" (fallback) instead of "jouer tennis Marrakech".
     if (detectedSubcategory && queryForExpansion) {
@@ -1611,6 +1646,24 @@ serve(async (req) => {
       }
       if (expandedQuery) console.log(`tsquery: "${expandedQuery}" (service: ${detectedService || "none"}, candidates: [${allCandidateServiceNames.join(", ")}], from: "${queryForExpansion}")`);
 
+      if (!expandedQuery && effectiveCategory && !detectedSubcategory) {
+        // No tsquery terms left (e.g. "dormir à essaouira" → intent=Hôtellerie, city=Essaouira)
+        // Do a direct category + city query instead
+        let catBuilder = supabase.from("businesses").select("*").eq("is_active", true)
+          .or(`main_category.eq.${effectiveCategory},categories.cs.{"${effectiveCategory}"}`);
+        if (effectiveCity) catBuilder = catBuilder.ilike("city", effectiveCity);
+        catBuilder = catBuilder.order("priority_score", { ascending: false, nullsFirst: false }).limit(limit);
+        const { data: catData, error: catError } = await catBuilder;
+        if (!catError && catData && catData.length > 0) {
+          businesses = catData.map((b: any) => ({
+            ...b,
+            distance_km: latitude && longitude && b.latitude && b.longitude
+              ? calculateDistance(latitude, longitude, b.latitude, b.longitude) : null,
+          }));
+          searchLevel = "exact";
+          console.log(`Category+city direct query "${effectiveCategory}" + "${effectiveCity}": ${businesses.length} results`);
+        }
+      }
       if (expandedQuery) {
         // Use ranked RPC function: prioritizes matches in services/name over description
         // Don't use p_service filter in RPC — we'll post-filter with all candidates instead
