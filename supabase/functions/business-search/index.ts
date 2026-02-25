@@ -26,6 +26,9 @@ function getBestRating(b: Business): number {
   );
 }
 
+// Rerank metadata stored for logging
+let lastRerankMeta: { latencyMs: number; before: string[]; after: string[]; movements: { name: string; diff: number }[] } | null = null;
+
 // LLM re-ranking: reorder candidates by semantic relevance to the query
 async function llmRerank(query: string, candidates: Business[]): Promise<Business[]> {
   if (candidates.length <= 1) return candidates;
@@ -92,12 +95,22 @@ Réponds UNIQUEMENT avec les indices entre crochets dans l'ordre, ex: [2],[0],[4
 
     // Detailed before/after log
     const beforeNames = top.map((b, i) => `${i + 1}. ${b.name}`).join(" | ");
-    const afterNames = [...rerankedTop, ...missingFromTop].map((b, i) => `${i + 1}. ${b.name}`).join(" | ");
-    const movements = orderedIndices.map((origIdx, newIdx) => {
+    const afterList = [...rerankedTop, ...missingFromTop];
+    const afterNames = afterList.map((b, i) => `${i + 1}. ${b.name}`).join(" | ");
+    const movementDetails = orderedIndices.map((origIdx, newIdx) => {
       const diff = origIdx - newIdx;
       if (diff === 0) return null;
-      return `"${top[origIdx].name}" ${diff > 0 ? `↑${diff}` : `↓${Math.abs(diff)}`}`;
-    }).filter(Boolean);
+      return { name: top[origIdx].name, diff };
+    }).filter(Boolean) as { name: string; diff: number }[];
+    const movements = movementDetails.map(m => `"${m.name}" ${m.diff > 0 ? `↑${m.diff}` : `↓${Math.abs(m.diff)}`}`);
+
+    // Store metadata for logging
+    lastRerankMeta = {
+      latencyMs,
+      before: top.map(b => b.name),
+      after: afterList.map(b => b.name),
+      movements: movementDetails,
+    };
 
     console.log(`\n🔄 LLM RERANK for "${query}" (${latencyMs}ms, ${orderedIndices.length}/${top.length} ranked)`);
     console.log(`📋 BEFORE: ${beforeNames}`);
@@ -2297,6 +2310,30 @@ serve(async (req) => {
       detectedSubcategory: detectedSubcategory || null,
       searchMode: subcategorySearchConfig?.search_mode || null,
     };
+
+    // Async log to search_logs table (fire-and-forget, don't block response)
+    if (!isAutocomplete && effectiveQuery) {
+      supabase.from("search_logs").insert({
+        query: query || "",
+        effective_query: effectiveQuery,
+        detected_city: effectiveCity || null,
+        detected_neighborhood: detectedNeighborhood || null,
+        detected_subcategory: detectedSubcategory || null,
+        search_mode: subcategorySearchConfig?.search_mode || null,
+        search_level: searchLevel,
+        total_results: businesses.length,
+        rerank_applied: !!lastRerankMeta,
+        rerank_latency_ms: lastRerankMeta?.latencyMs || null,
+        results_before: lastRerankMeta?.before || null,
+        results_after: lastRerankMeta?.after || businesses.slice(0, 20).map(b => b.name),
+        movements: lastRerankMeta?.movements || null,
+        is_autocomplete: false,
+        is_superlative: isSuperlatif,
+      }).then(({ error }) => {
+        if (error) console.warn("Failed to log search:", error.message);
+      });
+      lastRerankMeta = null;
+    }
 
     return new Response(JSON.stringify(result), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
