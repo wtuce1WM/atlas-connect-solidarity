@@ -1062,6 +1062,29 @@ serve(async (req) => {
       }
     }
 
+    // ── Resolve search config from service's parent subcategory ──
+    // If no subcategorySearchConfig was found from the detected subcategory name,
+    // but a service was detected, check if the service's parent subcategory has a config.
+    if (!subcategorySearchConfig && detectedService) {
+      const { data: svcParents } = await supabase
+        .from("services")
+        .select("subcategory_id, subcategories!inner(name_fr)")
+        .eq("name_fr", detectedService);
+      if (svcParents && svcParents.length > 0) {
+        for (const sp of svcParents) {
+          const parentName = (sp as any).subcategories?.name_fr;
+          if (parentName) {
+            const parentConfig = searchConfigs[parentName.toLowerCase()] || null;
+            if (parentConfig) {
+              subcategorySearchConfig = parentConfig;
+              console.log(`Resolved search config from service "${detectedService}" parent subcategory "${parentName}": mode=${parentConfig.search_mode}`);
+              break;
+            }
+          }
+        }
+      }
+    }
+
     // When a service was detected, build a clean query for tsquery matching.
     // Remove noise words (like "achat") that don't exist in search vectors, keep service name + city etc.
     let queryForExpansion = effectiveQuery;
