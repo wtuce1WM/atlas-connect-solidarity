@@ -560,7 +560,12 @@ serve(async (req) => {
             kws.some((k: string) => {
               if (!k.includes(" ")) return false;
               const kwContentWords = k.split(/\s+/).filter((w: string) => w.length > 1 && !FRENCH_STOP_WORDS.has(w));
-              return kwContentWords.length >= 2 && kwContentWords.every((kw: string) =>
+              if (kwContentWords.length === 0) return false;
+              // If stop-word stripping reduces a multi-word keyword to 1 word, match it as single-word
+              if (kwContentWords.length === 1) {
+                return qWords.some(qw => qw === kwContentWords[0] || normalizeWord(qw) === normalizeWord(kwContentWords[0]));
+              }
+              return kwContentWords.every((kw: string) =>
                 qWords.some(qw => qw === kw || normalizeWord(qw) === normalizeWord(kw))
               );
             })
