@@ -498,9 +498,9 @@ serve(async (req) => {
       }
     }
 
-    // ── Check for exact business name match BEFORE subcategory/service detection ──
-    let skipServiceDetection = false;
+    // ── Check for exact business name match (for pinning, but don't skip subcategory detection) ──
     let nameMatchedBusinessIds: string[] = [];
+    let nameSearchQueryForDetection = "";
     if (effectiveQuery && effectiveQuery.split(/\s+/).length <= 6) {
       let nameSearchQuery = effectiveQuery;
       if (effectiveCity) {
@@ -509,6 +509,7 @@ serve(async (req) => {
           !cityWords.includes(w.toLowerCase()) && !cityWords.includes(stripAccentsGlobal(w.toLowerCase()))
         ).join(" ").trim();
       }
+      nameSearchQueryForDetection = nameSearchQuery;
       if (nameSearchQuery.length >= 3) {
         const { data: nameMatches } = await supabase
           .from("businesses")
@@ -528,16 +529,16 @@ serve(async (req) => {
             return matchCount >= Math.ceil(qWords.length * 0.6);
           });
           if (hasStrongMatch) {
-            skipServiceDetection = true;
             nameMatchedBusinessIds = nameMatches.map((b: any) => b.id);
-            console.log(`Skipping service/subcategory detection: query "${nameSearchQuery}" matches business name(s): [${nameMatches.map((b: any) => b.name).join(", ")}]`);
+            console.log(`Name match found for pinning: query "${nameSearchQuery}" matches [${nameMatches.map((b: any) => b.name).join(", ")}]`);
           }
         }
       }
     }
 
+    // ── Subcategory detection always runs (no longer skipped by name matches) ──
     let detectedSubcategory: string | null = null;
-    if (!category && effectiveQuery && !skipServiceDetection) {
+    if (!category && effectiveQuery) {
       const qLower = effectiveQuery.toLowerCase();
       const qWords = qLower.split(/\s+/);
 
@@ -735,7 +736,7 @@ serve(async (req) => {
     let serviceMatchWordsOuter: string[] = []; // All query words used in service detection (for cleanRemainder)
     let keywordMatchedSubcategories: string[] = []; // Subcategories of services matched via keywords
     
-    if (effectiveQuery && !skipServiceDetection) {
+    if (effectiveQuery) {
       // Strip French contractions: l'aéroport → aéroport, d'art → art, etc.
       const stripContractions = (w: string): string => w.replace(/^[lLdDsSnNjJcCqQ][\u0027\u2019\u2018\u0060]/g, "");
       const queryWords = effectiveQuery.toLowerCase().split(/\s+/)
