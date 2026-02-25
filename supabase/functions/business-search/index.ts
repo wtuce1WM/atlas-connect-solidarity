@@ -1708,24 +1708,26 @@ serve(async (req) => {
           // e.g. "Vin", "Cave à vin", "Cave à vin d'exception" are all from keyword "vin" → use OR
           // e.g. "Viande" + "Au feu de bois" are distinct concepts → use AND
           const areDistinctConcepts = detectedServices.length > 1 && (() => {
-            // If there's only 1 fully matched service and the rest are alias/keyword matches, they're variants
-            const uniqueBaseWords = new Set<string>();
-            for (const ds of detectedServices) {
-              // Use the shortest single word as the "base concept"
-              const words = ds.toLowerCase().split(/[\s''`]+/).filter(w => w.length > 2 && !['à', 'de', 'des', 'du', 'la', 'le', 'les', 'un', 'une', 'aux', 'en'].includes(w));
-              for (const w of words) {
-                // Check if this word is contained in or contains another service's base
-                let merged = false;
-                for (const existing of uniqueBaseWords) {
-                  if (existing.includes(w) || w.includes(existing)) {
-                    merged = true;
-                    break;
-                  }
+            // Services are variants (not distinct) if they ALL share at least one common significant word
+            // e.g. "Vin", "Cave à vin", "Cave à vin d'exception" all share "vin" → variants
+            const stopWords = new Set(['à', 'de', 'des', 'du', 'la', 'le', 'les', 'un', 'une', 'aux', 'en', 'd']);
+            const serviceWordSets = detectedServices.map(ds => 
+              new Set(ds.toLowerCase().split(/[\s''`]+/).filter(w => w.length > 1 && !stopWords.has(w)))
+            );
+            // Find if any word from the first service appears in ALL other services
+            const firstSet = serviceWordSets[0];
+            for (const word of firstSet) {
+              if (serviceWordSets.every(s => {
+                for (const sw of s) {
+                  if (sw.includes(word) || word.includes(sw)) return true;
                 }
-                if (!merged) uniqueBaseWords.add(w);
+                return false;
+              })) {
+                console.log(`Services share common word "${word}" → treating as variants (OR)`);
+                return false;
               }
             }
-            return uniqueBaseWords.size > 1;
+            return true;
           })();
 
           if (detectedServices.length > 1 && areDistinctConcepts) {
