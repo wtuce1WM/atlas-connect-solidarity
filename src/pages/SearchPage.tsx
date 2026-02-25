@@ -977,7 +977,7 @@ const SearchPage = () => {
               {searchMessage && (
                 <p className="text-sm text-muted-foreground mt-2 italic">{searchMessage}</p>
               )}
-              {detectedSubcategory && searchMode && searchLevel !== "exact" && searchLevel !== "fuzzy" && (
+              {detectedSubcategory && searchMode && (
                 <span className={`mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border ${
                   searchMode === "strict"
                     ? "bg-amber-500/10 text-amber-400 border-amber-500/30"
