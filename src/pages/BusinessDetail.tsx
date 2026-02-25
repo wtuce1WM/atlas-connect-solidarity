@@ -452,7 +452,7 @@ const BusinessDetail = () => {
     { key: 'video', label: 'Vidéo', show: !!business.video_1_url },
     { key: 'services', label: capitalize(servicesTabTitle), show: !!(business.services && business.services.length > 0) },
     { key: 'reviews', label: 'Avis', show: !!hasReviews },
-    { key: 'location', label: 'Localisation', show: !!(business.google_maps_url || (business.latitude && business.longitude)) },
+    { key: 'location', label: 'Localisation', show: !!business.google_maps_url },
   ];
 
   return (
