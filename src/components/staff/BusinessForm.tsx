@@ -985,7 +985,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                   { id: "section-images", label: "Images" },
                   { id: "section-social", label: "Réseaux" },
                   { id: "section-avis", label: "Avis" },
-                  { id: "section-services", label: "Commodités" },
+                  { id: "section-services", label: "Engagements" },
                   { id: "section-taxonomie", label: "Taxonomie" },
                   { id: "section-horaires", label: "Horaires" },
                   { id: "section-notes", label: "Notes" },
