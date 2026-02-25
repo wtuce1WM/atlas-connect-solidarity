@@ -1,0 +1,1 @@
+UPDATE subcategories SET keywords = ARRAY['poisson', 'poissons', 'fruits de mer', 'marée', 'maree'] WHERE id = '2797cd22-b877-4468-8b00-763c93886326';
