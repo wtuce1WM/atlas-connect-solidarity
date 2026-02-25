@@ -623,30 +623,12 @@ const SearchPage = () => {
     }, 400);
   };
 
-  // Auto-speak results summary after voice search
+  // Reset voice search flag when results load (no auto-speak, user clicks button instead)
   useEffect(() => {
-    if (!isLoading && isVoiceSearchRef.current && allBusinesses.length > 0) {
+    if (!isLoading && isVoiceSearchRef.current) {
       isVoiceSearchRef.current = false;
-      const count = allBusinesses.length;
-      const cityText = selectedCity !== "all" ? ` à ${selectedCity}` : "";
-      const intro = ttsIntroPhrase ? `${ttsIntroPhrase} ` : "";
-      let speech = `${intro}J'ai trouvé ${count} résultat${count > 1 ? 's' : ''}${cityText}. `;
-
-      const top = allBusinesses.slice(0, 3);
-      if (top.length === 1) {
-        speech += `Le meilleur résultat est ${buildBusinessTTSLine(top[0], 0)}.`;
-      } else {
-        speech += "Voici les meilleurs résultats. ";
-        top.forEach((b, i) => {
-          speech += `${i === 0 ? 'Premier' : i === 1 ? 'Deuxième' : 'Troisième'}, ${buildBusinessTTSLine(b, i)}. `;
-        });
-      }
-      ttsSpeak(speech);
-    } else if (!isLoading && isVoiceSearchRef.current && allBusinesses.length === 0 && spokenText) {
-      isVoiceSearchRef.current = false;
-      ttsSpeak("Désolé, je n'ai trouvé aucun résultat pour votre recherche.");
     }
-  }, [isLoading, allBusinesses, buildBusinessTTSLine]);
+  }, [isLoading]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
