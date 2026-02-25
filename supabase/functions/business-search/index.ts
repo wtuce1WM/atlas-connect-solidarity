@@ -1607,7 +1607,7 @@ serve(async (req) => {
     }
 
     // In strict mode, if subcategory was detected, do NOT fall through to tsquery
-    const isStrictMode = subcategorySearchConfig?.search_mode === 'strict';
+    const isStrictMode = subcategorySearchConfig?.search_mode === 'strict' && !!detectedSubcategory;
     // In broad mode (default), ALSO run tsquery even if subcategory direct query found results,
     // and merge the results. This is the key difference: broad = subcategory + full-text merged.
     const isBroadWithResults = !isStrictMode && detectedSubcategory && businesses.length > 0;
