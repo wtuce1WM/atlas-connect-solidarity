@@ -463,6 +463,8 @@ export type Database = {
           engagements: string[]
           facebook_url: string | null
           gamme_id: string | null
+          getyourguide_rating: number | null
+          getyourguide_review_count: number | null
           getyourguide_url: string | null
           google_maps_url: string | null
           google_rating: number | null
@@ -534,6 +536,8 @@ export type Database = {
           twitter_url: string | null
           updated_at: string
           vacation_dates: Json | null
+          viator_rating: number | null
+          viator_review_count: number | null
           viator_url: string | null
           video_1_url: string | null
           vimeo_url: string | null
@@ -563,6 +567,8 @@ export type Database = {
           engagements?: string[]
           facebook_url?: string | null
           gamme_id?: string | null
+          getyourguide_rating?: number | null
+          getyourguide_review_count?: number | null
           getyourguide_url?: string | null
           google_maps_url?: string | null
           google_rating?: number | null
@@ -634,6 +640,8 @@ export type Database = {
           twitter_url?: string | null
           updated_at?: string
           vacation_dates?: Json | null
+          viator_rating?: number | null
+          viator_review_count?: number | null
           viator_url?: string | null
           video_1_url?: string | null
           vimeo_url?: string | null
@@ -663,6 +671,8 @@ export type Database = {
           engagements?: string[]
           facebook_url?: string | null
           gamme_id?: string | null
+          getyourguide_rating?: number | null
+          getyourguide_review_count?: number | null
           getyourguide_url?: string | null
           google_maps_url?: string | null
           google_rating?: number | null
@@ -734,6 +744,8 @@ export type Database = {
           twitter_url?: string | null
           updated_at?: string
           vacation_dates?: Json | null
+          viator_rating?: number | null
+          viator_review_count?: number | null
           viator_url?: string | null
           video_1_url?: string | null
           vimeo_url?: string | null
@@ -1913,6 +1925,8 @@ export type Database = {
           engagements: string[]
           facebook_url: string | null
           gamme_id: string | null
+          getyourguide_rating: number | null
+          getyourguide_review_count: number | null
           getyourguide_url: string | null
           google_maps_url: string | null
           google_rating: number | null
@@ -1984,6 +1998,8 @@ export type Database = {
           twitter_url: string | null
           updated_at: string
           vacation_dates: Json | null
+          viator_rating: number | null
+          viator_review_count: number | null
           viator_url: string | null
           video_1_url: string | null
           vimeo_url: string | null
