@@ -78,6 +78,14 @@ interface SearchResult {
 
 const ITEMS_PER_PAGE = 20;
 
+const normalizeSearchMode = (value: unknown): "strict" | "broad" | null => {
+  if (typeof value !== "string") return null;
+  const normalized = value.trim().toLowerCase();
+  if (normalized.includes("strict")) return "strict";
+  if (normalized.includes("broad")) return "broad";
+  return null;
+};
+
 const isZitounMask = (query: string) => {
   const normalized = query.toLowerCase().replace(/\s+/g, " ").trim();
   return (
@@ -278,6 +286,7 @@ const SearchPage = () => {
   const [showResultsOverlay, setShowResultsOverlay] = useState(false);
   const [overlayDismissing, setOverlayDismissing] = useState(false);
   const resultsRef = useRef<HTMLDivElement>(null);
+  const latestFetchIdRef = useRef(0);
 
   const { speak: ttsSpeak, stop: ttsStop, status: ttsStatus } = useTextToSpeech();
   const geo = useGeolocation();
@@ -422,9 +431,14 @@ const SearchPage = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+      const fetchId = ++latestFetchIdRef.current;
+
       if (!searchQuery.trim() && !categoryFromUrl) {
+        if (fetchId !== latestFetchIdRef.current) return;
         setAllBusinesses([]);
         setSearchMessage("");
+        setDetectedSubcategory(null);
+        setSearchMode(null);
         setIsLoading(false);
         return;
       }
@@ -437,6 +451,8 @@ const SearchPage = () => {
           .select("name_fr, sort_order")
           .eq("is_active", true)
           .order("sort_order", { ascending: true });
+
+        if (fetchId !== latestFetchIdRef.current) return;
 
         if (citiesData) {
           setCitiesWithPriority(
@@ -454,12 +470,21 @@ const SearchPage = () => {
           }
         });
 
+        if (fetchId !== latestFetchIdRef.current) return;
         if (error) throw error;
         
         if (data) {
           setSearchLevel(data.searchLevel || "");
-          setDetectedSubcategory(data.detectedSubcategory || null);
-          setSearchMode(data.searchMode || null);
+          const safeDetectedSubcategory = data.detectedSubcategory || null;
+          const rawData = data as SearchResult & { search_mode?: string | null; mode?: string | null };
+          const normalizedSearchMode = normalizeSearchMode(rawData.searchMode)
+            ?? normalizeSearchMode(rawData.search_mode)
+            ?? normalizeSearchMode(rawData.mode)
+            ?? (safeDetectedSubcategory ? "broad" : null);
+
+          setDetectedSubcategory(safeDetectedSubcategory);
+          setSearchMode(normalizedSearchMode);
+
           // When user searched for something specific but got "recommended" fallback → show 0 results
           const isVoiceSearch = !!searchParams.get("spoken");
           const hasActiveQuery = !!searchQuery.trim();
@@ -472,10 +497,12 @@ const SearchPage = () => {
           }
         }
       } catch (error) {
+        if (fetchId !== latestFetchIdRef.current) return;
         console.error("Error fetching search data:", error);
         setAllBusinesses([]);
         setSearchMessage("");
       } finally {
+        if (fetchId !== latestFetchIdRef.current) return;
         setIsLoading(false);
       }
     };
