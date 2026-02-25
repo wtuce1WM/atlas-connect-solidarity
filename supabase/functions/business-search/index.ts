@@ -551,9 +551,17 @@ serve(async (req) => {
           }
           // Match by keywords array (e.g. "fleurs" → "Fleuriste", "fer forgé" → "Ferronnerie")
           const kws: string[] = (sc.keywords || []).map((k: string) => k.toLowerCase());
+          // Generic words too ambiguous to trigger subcategory detection alone via single-word keyword
+          const GENERIC_KEYWORD_BLOCKLIST = new Set([
+            "produit", "produits", "article", "articles", "service", "services",
+            "chose", "choses", "truc", "trucs", "objet", "objets", "materiel",
+            "achat", "achats", "vente", "ventes", "magasin", "magasins",
+            "boutique", "boutiques", "commerce", "commerces",
+          ]);
+          const isBlockedGenericWord = (w: string) => GENERIC_KEYWORD_BLOCKLIST.has(normalizeWord(w));
           if (kws.length > 0 && (
-            // Single-word keyword match (with plural normalization)
-            qWords.some((w: string) => kws.includes(w) || kws.some((k: string) => !k.includes(" ") && normalizeWord(k) === normalizeWord(w))) ||
+            // Single-word keyword match (with plural normalization) — skip generic words
+            qWords.some((w: string) => !isBlockedGenericWord(w) && (kws.includes(w) || kws.some((k: string) => !k.includes(" ") && normalizeWord(k) === normalizeWord(w)))) ||
             // Multi-word keyword match: check if the full query contains a multi-word keyword
             kws.some((k: string) => k.includes(" ") && qLower.includes(k)) ||
             // Multi-word keyword match with normalization: check if ALL content words of a keyword appear in query
