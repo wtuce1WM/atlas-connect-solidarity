@@ -284,6 +284,10 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
   const [showClearBooking, setShowClearBooking] = useState(false);
   const [showClearReviews, setShowClearReviews] = useState(false);
   const [quickAddDialog, setQuickAddDialog] = useState<{ type: "certification" | "engagement" | "commodite" | "badge"; value: string } | null>(null);
+  // Track all custom items ever added so they remain visible even when deselected
+  const [customCerts, setCustomCerts] = useState<string[]>([]);
+  const [customEngs, setCustomEngs] = useState<string[]>([]);
+  const [customCommodites, setCustomCommodites] = useState<string[]>([]);
   const { toast } = useToast();
   
   // Dynamic subcategories and services from database
@@ -438,6 +442,23 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
     poi_description: (business as any)?.poi_description || "",
   });
   
+  // Initialize custom items from existing engagements so they persist in the UI even when deselected
+  const initEngagements: string[] = (business as any)?.engagements || [];
+  const [customCertsInit] = useState<string[]>(() =>
+    initEngagements.filter(e => e.startsWith("Certification:")).map(e => e.replace("Certification:", ""))
+  );
+  const [customEngsInit] = useState<string[]>(() =>
+    initEngagements.filter(e => !e.startsWith("Certification:") && !e.startsWith("Logistique:") && !e.startsWith("Marché:"))
+  );
+  const [customCommoditesInit] = useState<string[]>(() =>
+    initEngagements.filter(e => e.startsWith("Logistique:")).map(e => e.replace("Logistique:", ""))
+  );
+
+  // Merge initial + newly added custom items
+  const allCustomCerts = [...new Set([...customCertsInit, ...customCerts])];
+  const allCustomEngs = [...new Set([...customEngsInit, ...customEngs])];
+  const allCustomCommodites = [...new Set([...customCommoditesInit, ...customCommodites])];
+
   // Business labels state (managed separately)
   const [businessLabels, setBusinessLabels] = useState<Array<{ id?: string; label_id: string; custom_url: string }>>([]);
 
@@ -2492,11 +2513,9 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                 {(() => {
                   const hardcoded = ["AFNOR", "Ecocert", "Label RSE"];
                   const currentEngagements: string[] = (formData as any).engagements || [];
-                  const dynamicCerts = currentEngagements
-                    .filter(e => e.startsWith("Certification:") && !hardcoded.includes(e.replace("Certification:", "")))
-                    .map(e => e.replace("Certification:", ""));
-                  const allCerts = [...hardcoded, ...dynamicCerts].sort((a, b) => a.localeCompare(b, 'fr'));
-                  return allCerts.map((cert) => {
+                  const dynamicCerts = allCustomCerts.filter(c => !hardcoded.includes(c));
+                  const certList = [...new Set([...hardcoded, ...dynamicCerts])].sort((a, b) => a.localeCompare(b, 'fr'));
+                  return certList.map((cert) => {
                     const tag = `Certification:${cert}`;
                     return (
                       <label key={cert} className="flex items-center gap-2 cursor-pointer text-sm">
@@ -2527,10 +2546,9 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                 {(() => {
                   const hardcoded = ["Bio (intégral)", "Bio (partiellement)", "Commerce équitable", "Engagement éco-responsable", "Engagement solidaire", "Marché occasionnel", "Régimes spéciaux (sans gluten, sans lactose...)", "Vegan"];
                   const currentEngagements: string[] = (formData as any).engagements || [];
-                  const dynamicEngs = currentEngagements
-                    .filter(e => !e.startsWith("Certification:") && !e.startsWith("Logistique:") && !e.startsWith("Marché:") && !hardcoded.includes(e));
-                  const allEngs = [...hardcoded, ...dynamicEngs].sort((a, b) => a.localeCompare(b, 'fr'));
-                  return allEngs.map((eng) => (
+                  const dynamicEngs = allCustomEngs.filter(e => !hardcoded.includes(e));
+                  const engList = [...new Set([...hardcoded, ...dynamicEngs])].sort((a, b) => a.localeCompare(b, 'fr'));
+                  return engList.map((eng) => (
                     <label key={eng} className="flex items-center gap-2 cursor-pointer text-sm">
                       <input
                         type="checkbox"
@@ -2586,10 +2604,8 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                 {(() => {
                   const hardcoded = ["Accessible aux personnes à mobilité réduite", "Cliquez et retirez", "Commandez en ligne et recevez votre colis chez vous", "Enfants de moins de 14 ans non acceptés", "Garantie 2 ans", "Livraison à domicile", "Location possible", "Paiement CB", "Paiement cash", "Paiement cash uniquement", "Paiement à la livraison", "Programme de fidélité", "Web only", "Échange & retours 365 jours"];
                   const currentEngagements: string[] = (formData as any).engagements || [];
-                  const dynamicItems = currentEngagements
-                    .filter(e => e.startsWith("Logistique:") && !hardcoded.includes(e.replace("Logistique:", "")))
-                    .map(e => e.replace("Logistique:", ""));
-                  const allItems = [...hardcoded, ...dynamicItems].sort((a, b) => a.localeCompare(b, 'fr'));
+                  const dynamicItems = allCustomCommodites.filter(c => !hardcoded.includes(c));
+                  const allItems = [...new Set([...hardcoded, ...dynamicItems])].sort((a, b) => a.localeCompare(b, 'fr'));
                   return allItems.map((item) => {
                     const tag = `Logistique:${item}`;
                     return (
@@ -2707,23 +2723,26 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                   if (!quickAddDialog?.value?.trim()) return;
                   const val = quickAddDialog.value.trim();
                   let newEngagements: string[] | null = null;
-                  if (quickAddDialog.type === "certification") {
+                   if (quickAddDialog.type === "certification") {
                     const tag = `Certification:${val}`;
                     const current: string[] = (formData as any).engagements || [];
                     if (!current.includes(tag)) {
                       newEngagements = [...current, tag];
                     }
+                    setCustomCerts(prev => prev.includes(val) ? prev : [...prev, val]);
                   } else if (quickAddDialog.type === "engagement") {
                     const current: string[] = (formData as any).engagements || [];
                     if (!current.includes(val)) {
                       newEngagements = [...current, val];
                     }
+                    setCustomEngs(prev => prev.includes(val) ? prev : [...prev, val]);
                   } else if (quickAddDialog.type === "commodite") {
                     const tag = `Logistique:${val}`;
                     const current: string[] = (formData as any).engagements || [];
                     if (!current.includes(tag)) {
                       newEngagements = [...current, tag];
                     }
+                    setCustomCommodites(prev => prev.includes(val) ? prev : [...prev, val]);
                   } else if (quickAddDialog.type === "badge") {
                     const { data, error } = await supabase.from("badges").insert({ name_fr: val }).select("id, name_fr").single();
                     if (error) {
