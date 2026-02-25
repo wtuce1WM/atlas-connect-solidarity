@@ -136,6 +136,20 @@ const SearchAnalytics = ({ embedded = false }: { embedded?: boolean }) => {
         </Card>
       </div>
 
+      {/* Re-rank info */}
+      <Card className="border-amber-500/20 bg-amber-500/5">
+        <CardContent className="pt-6 space-y-2 text-sm leading-relaxed">
+          <p>
+            <strong>💡 À propos de la latence re-rank :</strong> c'est le temps que met l'IA (Gemini Flash) à réordonner les résultats après le tri SQL initial. 
+            Par exemple, <strong>1200ms</strong> signifie que l'IA a mis ~1.2 seconde pour analyser et réorganiser les résultats selon la pertinence sémantique.
+          </p>
+          <p className="text-muted-foreground">
+            ⚠️ Actuellement, ce re-ranking est ensuite <strong>écrasé</strong> par le tri front-end (statut WTUCE → note Google). 
+            La latence est donc "dépensée" sans impact visible pour l'utilisateur final.
+          </p>
+        </CardContent>
+      </Card>
+
       {/* Live test */}
       <Card>
         <CardHeader>
@@ -172,20 +186,6 @@ const SearchAnalytics = ({ embedded = false }: { embedded?: boolean }) => {
               </div>
             </div>
           )}
-        </CardContent>
-      </Card>
-
-      {/* Re-rank info */}
-      <Card className="border-amber-500/20 bg-amber-500/5">
-        <CardContent className="pt-6 space-y-2 text-sm leading-relaxed">
-          <p>
-            <strong>💡 À propos de la latence re-rank :</strong> c'est le temps que met l'IA (Gemini Flash) à réordonner les résultats après le tri SQL initial. 
-            Par exemple, <strong>1200ms</strong> signifie que l'IA a mis ~1.2 seconde pour analyser et réorganiser les résultats selon la pertinence sémantique.
-          </p>
-          <p className="text-muted-foreground">
-            ⚠️ Actuellement, ce re-ranking est ensuite <strong>écrasé</strong> par le tri front-end (statut WTUCE → note Google). 
-            La latence est donc "dépensée" sans impact visible pour l'utilisateur final.
-          </p>
         </CardContent>
       </Card>
 
