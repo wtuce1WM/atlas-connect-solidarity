@@ -123,6 +123,7 @@ interface SearchResult {
   message: string;
   totalResults: number;
   detectedSubcategory?: string | null;
+  searchMode?: string | null;
 }
 
 // Synonymes pour améliorer la recherche
@@ -1907,6 +1908,7 @@ serve(async (req) => {
       message: getSearchLevelMessage(searchLevel, language),
       totalResults: businesses.length,
       detectedSubcategory: detectedSubcategory || null,
+      searchMode: subcategorySearchConfig?.search_mode || (detectedSubcategory ? "broad" : null),
     };
 
     return new Response(JSON.stringify(result), {
