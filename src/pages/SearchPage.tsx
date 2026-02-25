@@ -346,12 +346,13 @@ const SearchPage = () => {
     return (getEffectiveRating(b) ?? -1) - (getEffectiveRating(a) ?? -1);
   };
 
-  // Filter businesses by city, then sort by WTUCE status + rating
+  // Filter businesses by city. Preserve backend ranking for active searches.
   const filteredBusinesses = useMemo(() => {
     const filtered = selectedCity === "all" ? allBusinesses : allBusinesses.filter(b => b.city === selectedCity);
-    
+    const hasActiveSearch = !!searchQuery.trim() || !!categoryFromUrl;
+
     if (activeTimeSlot) {
-      // Separate into "open during slot" and "rest"
+      // Keep backend order inside each bucket, only prioritize "open during slot"
       const openDuring: Business[] = [];
       const rest: Business[] = [];
       for (const b of filtered) {
@@ -362,11 +363,12 @@ const SearchPage = () => {
           rest.push(b);
         }
       }
-      return [...openDuring.sort(sortWtuceAndRating), ...rest.sort(sortWtuceAndRating)];
+      return hasActiveSearch ? [...openDuring, ...rest] : [...openDuring.sort(sortWtuceAndRating), ...rest.sort(sortWtuceAndRating)];
     }
-    
-    return [...filtered].sort(sortWtuceAndRating);
-  }, [allBusinesses, selectedCity, activeTimeSlot, searchQuery]);
+
+    // Important: do not re-sort explicit search results (keeps name-match pinning from backend)
+    return hasActiveSearch ? filtered : [...filtered].sort(sortWtuceAndRating);
+  }, [allBusinesses, selectedCity, activeTimeSlot, searchQuery, categoryFromUrl]);
 
   // Group businesses by primary subcategory when a subcategory was detected
   const groupedBusinesses = useMemo(() => {
