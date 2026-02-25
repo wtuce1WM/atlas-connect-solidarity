@@ -2444,33 +2444,25 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
               toast({ variant: "destructive", title: "Erreur", description: "Le champ Google Maps est vide dans la section Contact & Localisation." });
             }
           }}>📍 Récupérer le champ Google Maps</Button>
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="text-lg">🎟️</span>
-              {(formData as any).getyourguide_url ? <a href={(formData as any).getyourguide_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 text-sm font-medium">GetYourGuide ↗</a> : <span className="text-sm font-medium">GetYourGuide</span>}
-              <Input value={(formData as any).getyourguide_url} onChange={(e) => handleChange("getyourguide_url" as any, e.target.value)} placeholder="https://www.getyourguide.com/..." className="flex-1" />
-              <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" title="Effacer GetYourGuide" onClick={() => handleChange("getyourguide_url" as any, "")}>🗑️</Button>
-            </div>
-            <div className="flex items-center gap-2 ml-8">
-              <Label className="text-xs text-muted-foreground w-16">Note /5</Label>
-              <Input type="number" step="0.1" min="0" max="5" value={(formData as any).getyourguide_rating} onChange={(e) => handleChange("getyourguide_rating" as any, e.target.value)} placeholder="4.5" className="w-20 h-8 text-sm" />
-              <Label className="text-xs text-muted-foreground w-12">Avis</Label>
-              <Input type="number" min="0" value={(formData as any).getyourguide_review_count} onChange={(e) => handleChange("getyourguide_review_count" as any, e.target.value)} placeholder="120" className="w-20 h-8 text-sm" />
-            </div>
+          <div className="flex items-center gap-2">
+            <span className="text-lg">🎟️</span>
+            {(formData as any).getyourguide_url ? <a href={(formData as any).getyourguide_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 text-sm font-medium">GetYourGuide ↗</a> : <span className="text-sm font-medium">GetYourGuide</span>}
+            <Input value={(formData as any).getyourguide_url} onChange={(e) => handleChange("getyourguide_url" as any, e.target.value)} placeholder="https://www.getyourguide.com/..." className="flex-1" />
+            <Input type="number" step="0.1" min="0" max="5" value={(formData as any).getyourguide_rating} onChange={(e) => handleChange("getyourguide_rating" as any, e.target.value)} placeholder="Note" className="w-20" />
+            <span className="text-xs text-muted-foreground">/5</span>
+            <Input type="number" min="0" value={(formData as any).getyourguide_review_count} onChange={(e) => handleChange("getyourguide_review_count" as any, e.target.value)} placeholder="Nb" className="w-20" />
+            <span className="text-xs text-muted-foreground">avis</span>
+            <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" title="Effacer GetYourGuide" onClick={() => { handleChange("getyourguide_url" as any, ""); handleChange("getyourguide_rating" as any, ""); handleChange("getyourguide_review_count" as any, ""); }}>🗑️</Button>
           </div>
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="text-lg">🧭</span>
-              {(formData as any).viator_url ? <a href={(formData as any).viator_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 text-sm font-medium">Viator ↗</a> : <span className="text-sm font-medium">Viator</span>}
-              <Input value={(formData as any).viator_url} onChange={(e) => handleChange("viator_url" as any, e.target.value)} placeholder="https://www.viator.com/..." className="flex-1" />
-              <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" title="Effacer Viator" onClick={() => handleChange("viator_url" as any, "")}>🗑️</Button>
-            </div>
-            <div className="flex items-center gap-2 ml-8">
-              <Label className="text-xs text-muted-foreground w-16">Note /5</Label>
-              <Input type="number" step="0.1" min="0" max="5" value={(formData as any).viator_rating} onChange={(e) => handleChange("viator_rating" as any, e.target.value)} placeholder="4.5" className="w-20 h-8 text-sm" />
-              <Label className="text-xs text-muted-foreground w-12">Avis</Label>
-              <Input type="number" min="0" value={(formData as any).viator_review_count} onChange={(e) => handleChange("viator_review_count" as any, e.target.value)} placeholder="120" className="w-20 h-8 text-sm" />
-            </div>
+          <div className="flex items-center gap-2">
+            <span className="text-lg">🧭</span>
+            {(formData as any).viator_url ? <a href={(formData as any).viator_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 text-sm font-medium">Viator ↗</a> : <span className="text-sm font-medium">Viator</span>}
+            <Input value={(formData as any).viator_url} onChange={(e) => handleChange("viator_url" as any, e.target.value)} placeholder="https://www.viator.com/..." className="flex-1" />
+            <Input type="number" step="0.1" min="0" max="5" value={(formData as any).viator_rating} onChange={(e) => handleChange("viator_rating" as any, e.target.value)} placeholder="Note" className="w-20" />
+            <span className="text-xs text-muted-foreground">/5</span>
+            <Input type="number" min="0" value={(formData as any).viator_review_count} onChange={(e) => handleChange("viator_review_count" as any, e.target.value)} placeholder="Nb" className="w-20" />
+            <span className="text-xs text-muted-foreground">avis</span>
+            <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" title="Effacer Viator" onClick={() => { handleChange("viator_url" as any, ""); handleChange("viator_rating" as any, ""); handleChange("viator_review_count" as any, ""); }}>🗑️</Button>
           </div>
         </div>
 
