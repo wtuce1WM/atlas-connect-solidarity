@@ -499,7 +499,7 @@ serve(async (req) => {
     }
 
     let detectedSubcategory: string | null = null;
-    if (!category && effectiveQuery) {
+    if (!category && effectiveQuery && !skipServiceDetection) {
       const qLower = effectiveQuery.toLowerCase();
       const qWords = qLower.split(/\s+/);
 
@@ -701,24 +701,40 @@ serve(async (req) => {
     // If the query closely matches a business name, skip service detection to avoid false positives
     // (e.g. "Ace Marée" should NOT detect "Glaces" from the substring "ace")
     let skipServiceDetection = false;
-    if (effectiveQuery && effectiveQuery.split(/\s+/).length <= 4) {
-      const { data: nameMatches } = await supabase
-        .from("businesses")
-        .select("id, name")
-        .eq("is_active", true)
-        .ilike("name", `%${effectiveQuery}%`)
-        .limit(3);
-      if (nameMatches && nameMatches.length > 0) {
-        // Check if query is a strong match (>= 70% of query words appear in a business name)
-        const qWords = effectiveQuery.toLowerCase().split(/\s+/).filter((w: string) => w.length > 1);
-        const hasStrongMatch = nameMatches.some((b: any) => {
-          const bWords = b.name.toLowerCase().split(/\s+/).filter((w: string) => w.length > 1);
-          const matchCount = qWords.filter((qw: string) => bWords.some((bw: string) => bw.includes(qw) || qw.includes(bw))).length;
-          return matchCount >= Math.ceil(qWords.length * 0.7);
-        });
-        if (hasStrongMatch) {
-          skipServiceDetection = true;
-          console.log(`Skipping service detection: query "${effectiveQuery}" matches business name(s): [${nameMatches.map((b: any) => b.name).join(", ")}]`);
+    let nameMatchedBusinessIds: string[] = [];
+    if (effectiveQuery && effectiveQuery.split(/\s+/).length <= 6) {
+      // Strip detected city from query for name matching (e.g. "Café del Mar Marrakech" → "Café del Mar")
+      let nameSearchQuery = effectiveQuery;
+      if (effectiveCity) {
+        const cityWords = effectiveCity.toLowerCase().split(/\s+/);
+        nameSearchQuery = effectiveQuery.split(/\s+/).filter(w => 
+          !cityWords.includes(w.toLowerCase()) && !cityWords.includes(stripAccentsGlobal(w.toLowerCase()))
+        ).join(" ").trim();
+      }
+      if (nameSearchQuery.length >= 3) {
+        const { data: nameMatches } = await supabase
+          .from("businesses")
+          .select("id, name")
+          .eq("is_active", true)
+          .ilike("name", `%${nameSearchQuery}%`)
+          .limit(5);
+        if (nameMatches && nameMatches.length > 0) {
+          // Check if query is a strong match (>= 60% of query words appear in a business name)
+          const qWords = nameSearchQuery.toLowerCase().split(/\s+/).filter((w: string) => w.length > 1);
+          const hasStrongMatch = nameMatches.some((b: any) => {
+            const bWords = b.name.toLowerCase().split(/\s+/).filter((w: string) => w.length > 1);
+            const matchCount = qWords.filter((qw: string) => bWords.some((bw: string) => {
+              const bwStripped = stripAccentsGlobal(bw);
+              const qwStripped = stripAccentsGlobal(qw);
+              return bw.includes(qw) || qw.includes(bw) || bwStripped.includes(qwStripped) || qwStripped.includes(bwStripped);
+            })).length;
+            return matchCount >= Math.ceil(qWords.length * 0.6);
+          });
+          if (hasStrongMatch) {
+            skipServiceDetection = true;
+            nameMatchedBusinessIds = nameMatches.map((b: any) => b.id);
+            console.log(`Skipping service/subcategory detection: query "${nameSearchQuery}" matches business name(s): [${nameMatches.map((b: any) => b.name).join(", ")}]`);
+          }
         }
       }
     }
@@ -1928,8 +1944,25 @@ serve(async (req) => {
       console.log(`Superlative detected in "${effectiveQuery}" → sorting by rating`);
       businesses = [...businesses].sort((a, b) => getBestRating(b) - getBestRating(a));
     }
+    // Pin exact name matches to the top before any reranking
+    if (nameMatchedBusinessIds.length > 0 && businesses.length > 1) {
+      const pinned: typeof businesses = [];
+      const rest: typeof businesses = [];
+      for (const b of businesses) {
+        if (nameMatchedBusinessIds.includes(b.id)) {
+          pinned.push(b);
+        } else {
+          rest.push(b);
+        }
+      }
+      if (pinned.length > 0) {
+        businesses = [...pinned, ...rest];
+        console.log(`Name-match pin: moved ${pinned.length} business(es) to top: [${pinned.map(b => b.name).join(", ")}]`);
+      }
+    }
     // LLM Re-ranking: apply only on exact/fuzzy results with a real query AND no superlative override (skip for autocomplete)
-    else if (!isAutocomplete && effectiveQuery && businesses.length > 1 && (searchLevel === "exact" || searchLevel === "fuzzy")) {
+    // Skip LLM reranking when we have pinned name matches (preserve exact match priority)
+    else if (!isAutocomplete && effectiveQuery && businesses.length > 1 && (searchLevel === "exact" || searchLevel === "fuzzy") && nameMatchedBusinessIds.length === 0) {
       businesses = await llmRerank(effectiveQuery, businesses);
     }
 
