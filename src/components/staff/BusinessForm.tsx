@@ -15,7 +15,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, ArrowDown, Save, Award, Trash2, MapPinned, AlertCircle, Copy, ExternalLink, Globe, Star } from "lucide-react";
+import { ArrowLeft, ArrowDown, Save, Award, Trash2, MapPinned, AlertCircle, Copy, ExternalLink, Globe, Star, Plus } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import type { Tables } from "@/integrations/supabase/types";
 import RichTextEditor from "./RichTextEditor";
 import ImageUploader from "./ImageUploader";
@@ -282,6 +283,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
   const [showClearSocial, setShowClearSocial] = useState(false);
   const [showClearBooking, setShowClearBooking] = useState(false);
   const [showClearReviews, setShowClearReviews] = useState(false);
+  const [quickAddDialog, setQuickAddDialog] = useState<{ type: "certification" | "engagement" | "commodite" | "badge"; value: string } | null>(null);
   const { toast } = useToast();
   
   // Dynamic subcategories and services from database
@@ -2439,7 +2441,10 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
           <Label className="text-xl font-semibold">Engagements & Commodités</Label>
           <div className="flex flex-col md:flex-row gap-4 max-h-[350px] overflow-y-auto pr-1">
             <div className="space-y-2 flex-1">
-              <Label>Certifications</Label>
+              <div className="flex items-center gap-1">
+                <Label>Certifications</Label>
+                <button type="button" onClick={() => setQuickAddDialog({ type: "certification", value: "" })} className="h-5 w-5 inline-flex items-center justify-center rounded-full border border-border hover:bg-muted transition-colors" title="Ajouter une certification"><Plus className="h-3 w-3" /></button>
+              </div>
               <div className="border rounded-md p-3 space-y-1.5 bg-muted/30">
                 {["AFNOR", "Ecocert", "Label RSE"].map((cert) => {
                   const tag = `Certification:${cert}`;
@@ -2464,7 +2469,10 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
               </div>
             </div>
             <div className="space-y-2 flex-1">
-              <Label>Engagements</Label>
+              <div className="flex items-center gap-1">
+                <Label>Engagements</Label>
+                <button type="button" onClick={() => setQuickAddDialog({ type: "engagement", value: "" })} className="h-5 w-5 inline-flex items-center justify-center rounded-full border border-border hover:bg-muted transition-colors" title="Ajouter un engagement"><Plus className="h-3 w-3" /></button>
+              </div>
               <div className="border rounded-md p-3 space-y-1.5 bg-muted/30">
                 {["Bio (intégral)", "Bio (partiellement)", "Commerce équitable", "Engagement éco-responsable", "Engagement solidaire", "Marché occasionnel", "Régimes spéciaux (sans gluten, sans lactose...)", "Vegan"].map((eng) => (
                   <label key={eng} className="flex items-center gap-2 cursor-pointer text-sm">
@@ -2514,7 +2522,10 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
               </div>
             </div>
             <div className="space-y-2 flex-1">
-              <Label>Commodités</Label>
+              <div className="flex items-center gap-1">
+                <Label>Commodités</Label>
+                <button type="button" onClick={() => setQuickAddDialog({ type: "commodite", value: "" })} className="h-5 w-5 inline-flex items-center justify-center rounded-full border border-border hover:bg-muted transition-colors" title="Ajouter une commodité"><Plus className="h-3 w-3" /></button>
+              </div>
               <div className="border rounded-md p-3 space-y-1.5 bg-muted/30">
                 {["Accessible aux personnes à mobilité réduite", "Cliquez et retirez", "Commandez en ligne et recevez votre colis chez vous", "Enfants de moins de 14 ans non acceptés", "Garantie 2 ans", "Livraison à domicile", "Location possible", "Paiement CB", "Paiement cash", "Paiement cash uniquement", "Paiement à la livraison", "Programme de fidélité", "Web only", "Échange & retours 365 jours"].map((item) => {
                   const tag = `Logistique:${item}`;
@@ -2540,7 +2551,10 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
             </div>
             {availableBadges.length > 0 && (
               <div className="space-y-2 flex-1">
-                <Label>Badges</Label>
+                <div className="flex items-center gap-1">
+                  <Label>Badges</Label>
+                  <button type="button" onClick={async () => setQuickAddDialog({ type: "badge", value: "" })} className="h-5 w-5 inline-flex items-center justify-center rounded-full border border-border hover:bg-muted transition-colors" title="Ajouter un badge"><Plus className="h-3 w-3" /></button>
+                </div>
                 <div className="border rounded-md p-3 space-y-1.5 bg-muted/30">
                   {availableBadges.map((badge) => {
                     const isSelected = selectedBadgeIds.includes(badge.id);
@@ -2598,7 +2612,76 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
           </div>
         </div>
 
-        {/* Taxonomie */}
+        {/* Dialog création rapide */}
+        <Dialog open={!!quickAddDialog} onOpenChange={(open) => !open && setQuickAddDialog(null)}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>
+                {quickAddDialog?.type === "certification" && "Nouvelle certification"}
+                {quickAddDialog?.type === "engagement" && "Nouvel engagement"}
+                {quickAddDialog?.type === "commodite" && "Nouvelle commodité"}
+                {quickAddDialog?.type === "badge" && "Nouveau badge"}
+              </DialogTitle>
+            </DialogHeader>
+            <Input
+              placeholder="Nom..."
+              value={quickAddDialog?.value || ""}
+              onChange={(e) => setQuickAddDialog(prev => prev ? { ...prev, value: e.target.value } : null)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  document.getElementById("btn-quick-add-confirm")?.click();
+                }
+              }}
+              autoFocus
+            />
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setQuickAddDialog(null)}>Annuler</Button>
+              <Button
+                id="btn-quick-add-confirm"
+                disabled={!quickAddDialog?.value?.trim()}
+                onClick={async () => {
+                  if (!quickAddDialog?.value?.trim()) return;
+                  const val = quickAddDialog.value.trim();
+                  if (quickAddDialog.type === "certification") {
+                    const tag = `Certification:${val}`;
+                    const current: string[] = (formData as any).engagements || [];
+                    if (!current.includes(tag)) {
+                      handleChange("engagements", [...current, tag]);
+                    }
+                  } else if (quickAddDialog.type === "engagement") {
+                    const current: string[] = (formData as any).engagements || [];
+                    if (!current.includes(val)) {
+                      handleChange("engagements", [...current, val]);
+                    }
+                  } else if (quickAddDialog.type === "commodite") {
+                    const tag = `Logistique:${val}`;
+                    const current: string[] = (formData as any).engagements || [];
+                    if (!current.includes(tag)) {
+                      handleChange("engagements", [...current, tag]);
+                    }
+                  } else if (quickAddDialog.type === "badge") {
+                    const { data, error } = await supabase.from("badges").insert({ name_fr: val }).select("id, name_fr").single();
+                    if (error) {
+                      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+                    } else if (data) {
+                      setDbBadges(prev => [...prev, data]);
+                      setSelectedBadgeIds(prev => [...prev, data.id]);
+                      if (selectedBadgeIds.length === 0) setDefaultBadgeId(data.id);
+                      setIsDirty(true);
+                      toast({ title: "Badge créé", description: `"${val}" ajouté` });
+                    }
+                  }
+                  setQuickAddDialog(null);
+                }}
+              >
+                Ajouter
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+
         <div id="section-taxonomie" className="p-4 bg-orange-50 border border-orange-200 rounded-lg space-y-6" style={{ scrollMarginTop: '160px' }}>
           <Label className="text-xl font-semibold">Taxonomie</Label>
           
