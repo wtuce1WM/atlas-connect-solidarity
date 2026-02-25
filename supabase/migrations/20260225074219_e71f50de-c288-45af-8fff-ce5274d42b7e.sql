@@ -1,0 +1,1 @@
+ALTER TABLE public.businesses ADD COLUMN viator_url text;

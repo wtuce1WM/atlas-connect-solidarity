@@ -406,6 +406,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
     hotels_com_url: (business as any)?.hotels_com_url || "",
     trivago_url: (business as any)?.trivago_url || "",
     getyourguide_url: (business as any)?.getyourguide_url || "",
+    viator_url: (business as any)?.viator_url || "",
     tripadvisor_review_url: (business as any)?.tripadvisor_review_url || "",
     tripadvisor_rating: (business as any)?.tripadvisor_rating ?? "",
     tripadvisor_review_count: (business as any)?.tripadvisor_review_count ?? "",
@@ -671,6 +672,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
       hotels_com_url: formData.hotels_com_url || null,
       trivago_url: formData.trivago_url || null,
       getyourguide_url: (formData as any).getyourguide_url || null,
+      viator_url: (formData as any).viator_url || null,
       tripadvisor_review_url: (formData as any).tripadvisor_review_url || null,
       tripadvisor_rating: (formData as any).tripadvisor_rating !== "" ? parseFloat((formData as any).tripadvisor_rating) : null,
       tripadvisor_review_count: (formData as any).tripadvisor_review_count !== "" ? parseInt((formData as any).tripadvisor_review_count) : null,
@@ -2434,6 +2436,18 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
               toast({ variant: "destructive", title: "Erreur", description: "Le champ Google Maps est vide dans la section Contact & Localisation." });
             }
           }}>📍 Récupérer le champ Google Maps</Button>
+          <div className="flex items-center gap-2">
+            <span className="text-lg">🎟️</span>
+            {(formData as any).getyourguide_url ? <a href={(formData as any).getyourguide_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 text-sm font-medium">GetYourGuide ↗</a> : <span className="text-sm font-medium">GetYourGuide</span>}
+            <Input value={(formData as any).getyourguide_url} onChange={(e) => handleChange("getyourguide_url" as any, e.target.value)} placeholder="https://www.getyourguide.com/..." className="flex-1" />
+            <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" title="Effacer GetYourGuide" onClick={() => handleChange("getyourguide_url" as any, "")}>🗑️</Button>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-lg">🧭</span>
+            {(formData as any).viator_url ? <a href={(formData as any).viator_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 text-sm font-medium">Viator ↗</a> : <span className="text-sm font-medium">Viator</span>}
+            <Input value={(formData as any).viator_url} onChange={(e) => handleChange("viator_url" as any, e.target.value)} placeholder="https://www.viator.com/..." className="flex-1" />
+            <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" title="Effacer Viator" onClick={() => handleChange("viator_url" as any, "")}>🗑️</Button>
+          </div>
         </div>
 
         {/* Engagements & Services */}
