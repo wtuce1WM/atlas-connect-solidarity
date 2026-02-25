@@ -267,6 +267,26 @@ const SearchPage = () => {
   const [celebrityBusinesses, setCelebrityBusinesses] = useState<Business[]>([]);
   const [ttsIntroPhrase, setTtsIntroPhrase] = useState<string>("");
 
+  const normalizeText = (value: string) =>
+    value
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9\s]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+
+  const queryHasExplicitCity = useMemo(() => {
+    if (cityFromUrl) return true;
+    const normalizedQuery = normalizeText(searchQuery || inputValue);
+    if (!normalizedQuery) return false;
+
+    return citiesWithPriority.some((c) => {
+      const normalizedCity = normalizeText(c.name);
+      return normalizedCity.length > 2 && normalizedQuery.includes(normalizedCity);
+    });
+  }, [cityFromUrl, searchQuery, inputValue, citiesWithPriority]);
+
   // Parse time slot from URL params (set by HeroSection or FloatingSearchBar)
   const activeTimeSlot: TimeSlot | null = useMemo(() => {
     const timeStart = searchParams.get("timeStart");
@@ -291,6 +311,20 @@ const SearchPage = () => {
   const { speak: ttsSpeak, stop: ttsStop, status: ttsStatus } = useTextToSpeech();
   const geo = useGeolocation();
 
+  // Auto-select city when geolocation detects one only if the query doesn't already target a city
+  useEffect(() => {
+    if (!queryHasExplicitCity && geo.isEnabled && geo.detectedCity && selectedCity === "all") {
+      setSelectedCity(geo.detectedCity);
+    }
+  }, [queryHasExplicitCity, geo.isEnabled, geo.detectedCity, selectedCity]);
+
+  // If query explicitly targets a city (ex: Marrakech), don't keep a stale geo city filter (ex: Rabat)
+  useEffect(() => {
+    if (queryHasExplicitCity && selectedCity !== "all") {
+      setSelectedCity("all");
+    }
+  }, [queryHasExplicitCity, selectedCity]);
+
   // Close suggestions on click outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -301,13 +335,6 @@ const SearchPage = () => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  // Auto-select city when geolocation detects one (only if no city already set from URL)
-  useEffect(() => {
-    if (!cityFromUrl && geo.isEnabled && geo.detectedCity && selectedCity === "all") {
-      setSelectedCity(geo.detectedCity);
-    }
-  }, [geo.isEnabled, geo.detectedCity]);
 
   const { status: voiceStatus, toggleRecording } = useVoiceSearch({
     onTranscript: (keywords, spoken, detectedCategory) => {
