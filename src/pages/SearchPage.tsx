@@ -365,6 +365,20 @@ const SearchPage = () => {
     return computeWeightedRatingOn20(collectRatingSources(b));
   };
 
+  // Compute distance between user coords and a business
+  const getDistanceKm = useCallback((b: Business): number | null => {
+    if (!geo.isEnabled || !geo.coords || b.latitude == null || b.longitude == null) return null;
+    const R = 6371;
+    const dLat = ((b.latitude - geo.coords.lat) * Math.PI) / 180;
+    const dLon = ((b.longitude - geo.coords.lng) * Math.PI) / 180;
+    const a =
+      Math.sin(dLat / 2) ** 2 +
+      Math.cos((geo.coords.lat * Math.PI) / 180) *
+        Math.cos((b.latitude * Math.PI) / 180) *
+        Math.sin(dLon / 2) ** 2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  }, [geo.isEnabled, geo.coords]);
+
   // Sort: WTUCE verified first (by rating desc), then non-verified (by rating desc)
   const sortWtuceAndRating = (a: Business, b: Business) => {
     const aVerified = a.wtuce_status === "verified" ? 0 : 1;
@@ -1106,6 +1120,7 @@ const SearchPage = () => {
                       subcategories={subcategories}
                       badgeSubcategories={badgeSubcategories}
                       verifiedLabel={t.verified}
+                      distanceKm={getDistanceKm(business)}
                     />
                   ))}
                 </div>
@@ -1235,6 +1250,7 @@ const SearchPage = () => {
                             subcategories={subcategories}
                             badgeSubcategories={badgeSubcategories}
                             verifiedLabel={t.verified}
+                            distanceKm={getDistanceKm(business)}
                           />
                         ))}
                       </div>
@@ -1252,6 +1268,7 @@ const SearchPage = () => {
                       subcategories={subcategories}
                       badgeSubcategories={badgeSubcategories}
                       verifiedLabel={t.verified}
+                      distanceKm={getDistanceKm(business)}
                     />
                   ))}
                 </div>
