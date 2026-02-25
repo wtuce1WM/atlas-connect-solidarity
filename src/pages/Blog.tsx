@@ -200,28 +200,6 @@ const Blog = () => {
               </Card>
             </Link>
 
-            {/* Carte Search Analytics */}
-            <Link to="/search-analytics">
-              <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30">
-                <div className="aspect-video overflow-hidden bg-gradient-to-br from-emerald-500/20 to-teal-500/5 flex items-center justify-center">
-                  <BarChart3 className="h-16 w-16 text-emerald-600" />
-                </div>
-                <CardContent className="p-6">
-                  <h2 className="text-xl font-semibold mb-3 font-['Playfair_Display'] italic">
-                    Search Analytics
-                  </h2>
-                  <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
-                    Dashboard de performance du moteur de recherche : historique des requêtes, re-ranking LLM, comparaison avant/après.
-                  </p>
-                  <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1 text-emerald-600 font-medium">
-                      <BarChart3 className="h-3 w-3" /> Analytics
-                    </span>
-                    <ArrowRight className="h-4 w-4 text-emerald-600" />
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
 
             {posts.map((post) => (
               <Link key={post.id} to={`/blog/${post.slug}`}>
