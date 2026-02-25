@@ -864,6 +864,8 @@ serve(async (req) => {
           
           // Also find services NOT in fullyMatchedServices but with strong keyword matches
           // (≥2 distinct query words matching their keywords, or a multi-word keyword fully matched)
+          // Also include services whose keyword exactly matches a fully-matched service name (alias match)
+          const fullyMatchedNamesLower = fullyMatchedServices.map(n => normalizeWordKw(n.toLowerCase()));
           const strongKeywordServices: string[] = [];
           for (const svc of matchingServices) {
             if (fullyMatchedServices.includes(svc.name_fr)) continue;
@@ -885,9 +887,12 @@ serve(async (req) => {
                 serviceMatchWords.some(qw => qw === kw || normalizeWordKw(qw) === normalizeWordKw(kw))
               );
             });
-            if (kwScore >= 2 || hasMultiWordMatch) {
+            // Alias match: a keyword of this service exactly matches the name of a fully-matched service
+            // e.g. "Barber Shop" has keyword "Barbier" which is also a fully-matched service name
+            const hasAliasMatch = svcKws.some((k: string) => fullyMatchedNamesLower.includes(normalizeWordKw(k)));
+            if (kwScore >= 2 || hasMultiWordMatch || hasAliasMatch) {
               strongKeywordServices.push(svc.name_fr);
-              console.log(`Strong keyword match: "${svc.name_fr}" (kwScore=${kwScore}, multiWord=${hasMultiWordMatch})`);
+              console.log(`Strong keyword match: "${svc.name_fr}" (kwScore=${kwScore}, multiWord=${hasMultiWordMatch}, alias=${hasAliasMatch})`);
             }
           }
 
