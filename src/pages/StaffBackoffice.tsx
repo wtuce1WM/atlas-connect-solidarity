@@ -361,14 +361,6 @@ const StaffBackoffice = () => {
                 <Star className="h-4 w-4" />
                 Sponsors
               </TabsTrigger>
-              <TabsTrigger value="guests" className="gap-2">
-                <Users className="h-4 w-4" />
-                Invités
-              </TabsTrigger>
-              <TabsTrigger value="affiliates" className="gap-2">
-                <UserCheck className="h-4 w-4" />
-                Affiliés
-              </TabsTrigger>
               {isAdmin && (
                 <TabsTrigger value="users" className="gap-2">
                   <Users className="h-4 w-4" />
@@ -662,19 +654,6 @@ const StaffBackoffice = () => {
 
             <TabsContent value="sponsors">
               <SponsorManagement />
-            </TabsContent>
-
-            <TabsContent value="guests">
-              <GuestManagement />
-            </TabsContent>
-
-            <TabsContent value="affiliates">
-              <AffiliateManagement 
-                onViewAffiliateBusinesses={(affiliateId) => {
-                  setAffiliateFilter(affiliateId);
-                  setActiveTab("businesses");
-                }}
-              />
             </TabsContent>
 
             <TabsContent value="search-config">

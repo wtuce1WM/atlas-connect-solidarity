@@ -53,10 +53,9 @@ const StaffHub = () => {
       title: "CRM",
       description: "Gestion de la relation client, affiliés et suivi commercial.",
       icon: Users,
-      href: "#",
+      href: "/staff/crm",
       color: "from-blue-500/20 to-cyan-500/10",
       iconColor: "text-blue-600",
-      disabled: true,
     },
     {
       title: "Master",
