@@ -444,6 +444,8 @@ const SearchPage = () => {
       }
       
       setIsLoading(true);
+      setDetectedSubcategory(null);
+      setSearchMode(null);
       try {
         // Fetch cities with sort_order
         const { data: citiesData } = await supabase
@@ -479,7 +481,7 @@ const SearchPage = () => {
           // Only use searchMode when explicitly set from back-office config
           const normalizedSearchMode = normalizeSearchMode(data.searchMode);
 
-          setDetectedSubcategory(safeDetectedSubcategory);
+          setDetectedSubcategory(normalizedSearchMode ? safeDetectedSubcategory : null);
           setSearchMode(normalizedSearchMode);
 
           // When user searched for something specific but got "recommended" fallback → show 0 results
