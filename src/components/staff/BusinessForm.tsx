@@ -919,6 +919,10 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                     tripadvisor_review_count: fd.tripadvisor_review_count ? Number(fd.tripadvisor_review_count) : null,
                     restaurant_guru_rating: fd.restaurant_guru_rating ? Number(fd.restaurant_guru_rating) : null,
                     restaurant_guru_review_count: fd.restaurant_guru_review_count ? Number(fd.restaurant_guru_review_count) : null,
+                    getyourguide_rating: fd.getyourguide_rating ? Number(fd.getyourguide_rating) : null,
+                    getyourguide_review_count: fd.getyourguide_review_count ? Number(fd.getyourguide_review_count) : null,
+                    viator_rating: fd.viator_rating ? Number(fd.viator_rating) : null,
+                    viator_review_count: fd.viator_review_count ? Number(fd.viator_review_count) : null,
                   }));
                   if (avg !== null) {
                     display = `${avg}/20`;
@@ -2340,19 +2344,22 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                 toast({ title: `"${text}" copié !` });
               }}
             >Avis clients / {formData.name || 'Nom Entreprise'}{(() => {
-              const ratings: { rating: number; count: number }[] = [];
-              if (formData.google_rating && formData.google_review_count) {
-                ratings.push({ rating: Number(formData.google_rating), count: Number(formData.google_review_count) });
-              }
-              if (formData.tripadvisor_rating && formData.tripadvisor_review_count) {
-                ratings.push({ rating: Number(formData.tripadvisor_rating), count: Number(formData.tripadvisor_review_count) });
-              }
-              if (formData.restaurant_guru_rating && formData.restaurant_guru_review_count) {
-                ratings.push({ rating: Number(formData.restaurant_guru_rating), count: Number(formData.restaurant_guru_review_count) });
-              }
-              if (ratings.length === 0) return null;
-              const totalCount = ratings.reduce((sum, r) => sum + r.count, 0);
-              const avg = computeWeightedRatingOn20(ratings);
+              const fd = formData as any;
+              const sources = collectRatingSources({
+                google_rating: fd.google_rating ? Number(fd.google_rating) : null,
+                google_review_count: fd.google_review_count ? Number(fd.google_review_count) : null,
+                tripadvisor_rating: fd.tripadvisor_rating ? Number(fd.tripadvisor_rating) : null,
+                tripadvisor_review_count: fd.tripadvisor_review_count ? Number(fd.tripadvisor_review_count) : null,
+                restaurant_guru_rating: fd.restaurant_guru_rating ? Number(fd.restaurant_guru_rating) : null,
+                restaurant_guru_review_count: fd.restaurant_guru_review_count ? Number(fd.restaurant_guru_review_count) : null,
+                getyourguide_rating: fd.getyourguide_rating ? Number(fd.getyourguide_rating) : null,
+                getyourguide_review_count: fd.getyourguide_review_count ? Number(fd.getyourguide_review_count) : null,
+                viator_rating: fd.viator_rating ? Number(fd.viator_rating) : null,
+                viator_review_count: fd.viator_review_count ? Number(fd.viator_review_count) : null,
+              });
+              if (sources.length === 0) return null;
+              const totalCount = sources.reduce((sum, r) => sum + r.count, 0);
+              const avg = computeWeightedRatingOn20(sources);
               if (avg === null) return null;
               const avg20 = String(avg).replace('.', ',');
               return <><span className="text-black font-bold"> / </span><span className="text-red-600 font-bold">{avg20}/20 sur {totalCount.toLocaleString('fr-FR')} avis clients</span></>;
