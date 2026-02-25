@@ -985,7 +985,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                   { id: "section-images", label: "Images" },
                   { id: "section-social", label: "Réseaux" },
                   { id: "section-avis", label: "Avis" },
-                  { id: "section-services", label: "Services" },
+                  { id: "section-services", label: "Commodités" },
                   { id: "section-taxonomie", label: "Taxonomie" },
                   { id: "section-horaires", label: "Horaires" },
                   { id: "section-notes", label: "Notes" },
@@ -2516,7 +2516,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
 
         {/* Engagements & Services */}
         <div id="section-services" className="p-4 bg-red-50 border border-red-200 rounded-lg space-y-4" style={{ scrollMarginTop: '160px' }}>
-          <Label className="text-xl font-semibold">Engagements & Services</Label>
+          <Label className="text-xl font-semibold">Engagements & Commodités</Label>
           <div className="flex flex-col md:flex-row gap-4">
             <div className="space-y-2 flex-1">
               <Label>Engagements</Label>
