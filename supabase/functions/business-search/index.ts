@@ -1385,8 +1385,17 @@ serve(async (req) => {
 
     // In strict mode, if subcategory was detected, do NOT fall through to tsquery
     const isStrictMode = subcategorySearchConfig?.search_mode === 'strict';
+    // In broad mode (default), ALSO run tsquery even if subcategory direct query found results,
+    // and merge the results. This is the key difference: broad = subcategory + full-text merged.
+    const isBroadWithResults = !isStrictMode && detectedSubcategory && businesses.length > 0;
+    const broadExistingBusinesses = isBroadWithResults ? [...businesses] : [];
     if (isStrictMode && detectedSubcategory) {
       console.log(`Strict mode for "${detectedSubcategory}": skipping tsquery fallback (${businesses.length} results from direct query)`);
+    }
+    // In broad mode with existing results, temporarily clear businesses so tsquery runs
+    if (isBroadWithResults) {
+      console.log(`Broad mode for "${detectedSubcategory}": running tsquery to merge with ${businesses.length} direct results`);
+      businesses = [];
     }
 
     // Level 1: Exact full-text search with ts_rank (services/name weight A > description weight B)
@@ -1441,8 +1450,9 @@ serve(async (req) => {
           }));
           
           // FIRST: Post-filter by detected subcategory (more precise than main_category)
-          // This is mandatory — if subcategory was detected, only keep matching businesses
-          if (detectedSubcategory) {
+          // In broad mode with existing direct results, skip this filter to get broader tsquery matches
+          // The direct subcategory results are already preserved in broadExistingBusinesses
+          if (detectedSubcategory && !isBroadWithResults) {
             const beforeCount = businesses.length;
             const filtered = businesses.filter((b: any) => {
               const bCategories = (b.categories || []).map((c: string) => c.toLowerCase());
@@ -1674,6 +1684,16 @@ serve(async (req) => {
           searchLevel = "exact";
         }
       }
+    }
+
+    // ── Broad mode merge: combine direct subcategory results with tsquery results ──
+    if (broadExistingBusinesses.length > 0) {
+      const existingIds = new Set(broadExistingBusinesses.map(b => b.id));
+      const newFromTsquery = businesses.filter(b => !existingIds.has(b.id));
+      // Direct subcategory results first (most relevant), then additional tsquery matches
+      businesses = [...broadExistingBusinesses, ...newFromTsquery];
+      console.log(`Broad mode merge: ${broadExistingBusinesses.length} direct + ${newFromTsquery.length} tsquery = ${businesses.length} total`);
+      searchLevel = "exact";
     }
 
     // Level 2: Fuzzy search with trigram similarity
