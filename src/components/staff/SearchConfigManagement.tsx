@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Search, Save, Loader2, Plus, Trash2, X, Settings2, Zap, Hash, Type, Globe, ExternalLink } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import IntentManagement from "./IntentManagement";
 
 interface Subcategory {
   id: string;
@@ -216,6 +218,17 @@ const SearchConfigManagement = () => {
   }
 
   return (
+    <Tabs defaultValue="subcategories" className="space-y-6">
+      <TabsList>
+        <TabsTrigger value="subcategories">Sous-catégories</TabsTrigger>
+        <TabsTrigger value="intents">Intentions</TabsTrigger>
+      </TabsList>
+
+      <TabsContent value="intents">
+        <IntentManagement />
+      </TabsContent>
+
+      <TabsContent value="subcategories">
     <div className="space-y-6">
       {/* Header stats */}
       <div className="flex items-center gap-4 flex-wrap">
@@ -493,6 +506,8 @@ const SearchConfigManagement = () => {
         </CardContent>
       </Card>
     </div>
+      </TabsContent>
+    </Tabs>
   );
 };
 

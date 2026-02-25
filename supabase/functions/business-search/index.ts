@@ -632,19 +632,23 @@ serve(async (req) => {
       }
     }
     // Auto-detect category from intent words when no explicit category is provided
-    // e.g. "manger" → Restauration, "acheter" → Commerce, "dormir" → Hôtellerie
-    const INTENT_TO_CATEGORY: Record<string, string> = {
-      "manger": "Restauration", "déjeuner": "Restauration", "dejeuner": "Restauration",
-      "dîner": "Restauration", "diner": "Restauration", "souper": "Restauration",
-      "boire": "Restauration", "déguster": "Restauration", "deguster": "Restauration",
-      "goûter": "Restauration", "gouter": "Restauration", "bruncher": "Restauration",
-      "acheter": "Commerce", "achat": "Commerce", "achats": "Commerce",
-      "shopping": "Commerce", "courses": "Commerce",
-      "dormir": "Hôtellerie", "héberger": "Hôtellerie", "heberger": "Hôtellerie",
-      "loger": "Hôtellerie", "séjourner": "Hôtellerie", "sejourner": "Hôtellerie",
-      "nuit": "Hôtellerie", "nuitée": "Hôtellerie", "nuitee": "Hôtellerie",
-    };
+    // Load intent word → category mappings from DB
+    let INTENT_TO_CATEGORY: Record<string, string> = {};
+    let INTENT_MERGE_FLAGS: Record<string, boolean> = {};
+    {
+      const { data: intentWords } = await supabase
+        .from("search_intent_words")
+        .select("word, category_name, merge_on_conflict");
+      if (intentWords) {
+        for (const iw of intentWords) {
+          INTENT_TO_CATEGORY[iw.word.toLowerCase()] = iw.category_name;
+          INTENT_MERGE_FLAGS[iw.word.toLowerCase()] = iw.merge_on_conflict;
+        }
+        console.log(`Loaded ${intentWords.length} intent word mappings`);
+      }
+    }
     let intentCategory: string | null = null;
+    let intentMergeOnConflict = true;
     if (!category && effectiveQuery) {
       const qWords = effectiveQuery.toLowerCase().split(/\s+/);
       for (const w of qWords) {
@@ -652,7 +656,8 @@ serve(async (req) => {
         const match = INTENT_TO_CATEGORY[w] || INTENT_TO_CATEGORY[wStripped];
         if (match) {
           intentCategory = match;
-          console.log(`Intent word "${w}" → category "${intentCategory}"`);
+          intentMergeOnConflict = INTENT_MERGE_FLAGS[w] ?? INTENT_MERGE_FLAGS[wStripped] ?? true;
+          console.log(`Intent word "${w}" → category "${intentCategory}" (merge=${intentMergeOnConflict})`);
           break;
         }
       }
@@ -664,7 +669,7 @@ serve(async (req) => {
     // category (e.g. "Poissonnerie" → Commerce), we need to merge results from both
     let intentSubcategoryConflict = false;
     let conflictSubcategoryParentCategory: string | null = null;
-    if (intentCategory && detectedSubcategory) {
+    if (intentCategory && detectedSubcategory && intentMergeOnConflict) {
       const { data: subcatWithCat } = await supabase
         .from("subcategories")
         .select("name_fr, categories!inner(name_fr)")
