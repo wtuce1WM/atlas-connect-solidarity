@@ -1942,8 +1942,29 @@ serve(async (req) => {
       console.log(`Superlative detected in "${effectiveQuery}" → sorting by rating`);
       businesses = [...businesses].sort((a, b) => getBestRating(b) - getBestRating(a));
     }
-    // Pin exact name matches to the top before any reranking
-    if (nameMatchedBusinessIds.length > 0 && businesses.length > 1) {
+    // Inject name-matched businesses that may have been filtered out by strict mode
+    if (nameMatchedBusinessIds.length > 0) {
+      const existingIds = new Set(businesses.map(b => b.id));
+      const missingIds = nameMatchedBusinessIds.filter(id => !existingIds.has(id));
+      if (missingIds.length > 0) {
+        // Fetch the missing businesses directly
+        const { data: missingBusinesses } = await supabase
+          .from("businesses")
+          .select("id, name, description, categories, services, city, region, latitude, longitude, wtuce_status, priority_score, phone, email, website, address, logo_url, main_category, neighborhood, keywords, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, images, google_maps_url, badge_id, gamme_id, is_featured")
+          .in("id", missingIds)
+          .eq("is_active", true);
+        if (missingBusinesses && missingBusinesses.length > 0) {
+          const mapped = missingBusinesses.map((b: any) => ({
+            ...b,
+            categories: b.categories || [],
+            services: b.services || [],
+            distance_km: null,
+          }));
+          businesses = [...mapped, ...businesses];
+          console.log(`Injected ${mapped.length} name-matched business(es) filtered out by strict mode: [${mapped.map((b: any) => b.name).join(", ")}]`);
+        }
+      }
+      // Pin name matches to top
       const pinned: typeof businesses = [];
       const rest: typeof businesses = [];
       for (const b of businesses) {
