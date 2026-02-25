@@ -2605,11 +2605,11 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
             <Label>Sous-catégories</Label>
             {formData.main_category ? (
             availableSubcategories.length > 0 ? (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 p-4 border rounded-lg bg-muted/30">
+              <div className="columns-2 md:columns-3 lg:columns-4 gap-3 p-4 border rounded-lg bg-muted/30">
                 {availableSubcategories.map((subcat) => (
                   <label
                     key={subcat}
-                    className="flex items-center gap-2 cursor-pointer hover:bg-background p-2 rounded-md transition-colors"
+                    className="flex items-center gap-2 cursor-pointer hover:bg-background p-2 rounded-md transition-colors break-inside-avoid"
                   >
                     <input
                       type="checkbox"
@@ -2728,11 +2728,11 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                       ❌ Tout désélectionner
                     </button>
                   </div>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 p-4 border rounded-lg bg-muted/30">
+                  <div className="columns-2 md:columns-3 lg:columns-4 gap-3 p-4 border rounded-lg bg-muted/30">
                     {servicesGroupedBySubcategory[0].services.map((service) => (
                       <label
                         key={service}
-                        className="flex items-center gap-2 cursor-pointer hover:bg-background p-2 rounded-md transition-colors"
+                        className="flex items-center gap-2 cursor-pointer hover:bg-background p-2 rounded-md transition-colors break-inside-avoid"
                       >
                         <input
                           type="checkbox"
@@ -2787,11 +2787,11 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                           ❌ Tout désélectionner
                         </button>
                       </div>
-                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 p-4 border rounded-lg bg-muted/30">
+                      <div className="columns-2 md:columns-3 lg:columns-4 gap-3 p-4 border rounded-lg bg-muted/30">
                         {group.services.map((service) => (
                           <label
                             key={service}
-                            className="flex items-center gap-2 cursor-pointer hover:bg-background p-2 rounded-md transition-colors"
+                            className="flex items-center gap-2 cursor-pointer hover:bg-background p-2 rounded-md transition-colors break-inside-avoid"
                           >
                             <input
                               type="checkbox"
