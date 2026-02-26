@@ -711,7 +711,7 @@ serve(async (req) => {
 
     // ── Subcategory detection always runs (no longer skipped by name matches) ──
     let detectedSubcategory: string | null = null;
-    if (!category && effectiveQuery) {
+    if (effectiveQuery) {
       const qLower = effectiveQuery.toLowerCase();
       const qWords = qLower.split(/\s+/);
 
