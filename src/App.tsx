@@ -42,6 +42,7 @@ import LogoEffectsDemo from "./pages/LogoEffectsDemo";
 import CGF from "./pages/CGF";
 import SearchAnalytics from "./pages/SearchAnalytics";
 import StaffMaster from "./pages/StaffMaster";
+import DestinationPage from "./pages/DestinationPage";
 
 const queryClient = new QueryClient();
 
@@ -96,6 +97,7 @@ const AppContent = () => {
               <Route path="/club" element={<Club />} />
               <Route path="/demo-effects" element={<LogoEffectsDemo />} />
               <Route path="/search-analytics" element={<SearchAnalytics />} />
+              <Route path="/destination/:destinationName" element={<DestinationPage />} />
               <Route path="/conditions-generales" element={<CGF />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />

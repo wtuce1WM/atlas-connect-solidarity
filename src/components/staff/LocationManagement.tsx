@@ -1414,9 +1414,20 @@ const LocationManagement = () => {
                         </span>
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button size="sm" variant="ghost" onClick={() => openEditDestination(d)}>
-                          <Edit className="h-4 w-4" />
-                        </Button>
+                        <div className="flex items-center justify-end gap-1">
+                          <a
+                            href={`/destination/${encodeURIComponent(d.name_fr)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center justify-center h-8 w-8 rounded-md hover:bg-muted transition-colors text-muted-foreground hover:text-primary"
+                            title="Voir la page destination"
+                          >
+                            <ExternalLink className="h-4 w-4" />
+                          </a>
+                          <Button size="sm" variant="ghost" onClick={() => openEditDestination(d)}>
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
