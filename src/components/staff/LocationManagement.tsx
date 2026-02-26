@@ -275,7 +275,7 @@ const LocationManagement = () => {
       supabase.from("cities").select("*").order("sort_order"),
       supabase.from("businesses").select("city, neighborhood").eq("is_active", true),
       supabase.from("neighborhoods").select("*").order("sort_order") as any,
-      supabase.from("destinations" as any).select("*").order("sort_order"),
+      supabase.from("destinations" as any).select("*").order("name_fr"),
       supabase.from("points_of_interest" as any).select("*").order("sort_order"),
     ]);
 
