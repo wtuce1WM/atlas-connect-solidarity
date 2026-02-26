@@ -315,7 +315,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
   const [selectedPOIIds, setSelectedPOIIds] = useState<string[]>([]);
   const [selectedBadgeIds, setSelectedBadgeIds] = useState<string[]>([]);
   const [defaultBadgeId, setDefaultBadgeId] = useState<string | null>(null);
-  const [intentWords, setIntentWords] = useState<Array<{ id: string; word: string; category_name: string; merge_on_conflict: boolean }>>([]);
+  const [intentWords, setIntentWords] = useState<Array<{ id: string; word: string; category_name: string; merge_on_conflict: boolean; is_active: boolean }>>([]);
   const [intentsLoading, setIntentsLoading] = useState(true);
   const [newIntentWord, setNewIntentWord] = useState("");
   const [newIntentCategory, setNewIntentCategory] = useState("");
@@ -357,11 +357,19 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
 
   
 
-  const updateIntentWord = async (id: string, updates: Partial<{ word: string; category_name: string; merge_on_conflict: boolean }>) => {
+  const updateIntentWord = async (id: string, updates: Partial<{ word: string; category_name: string; merge_on_conflict: boolean; is_active: boolean }>) => {
     const { error } = await supabase.from("search_intent_words").update(updates).eq("id", id);
     if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
     setIntentWords((prev) => prev.map((i) => (i.id === id ? { ...i, ...updates } : i)));
     toast({ title: "Mis à jour" });
+  };
+
+  const deleteIntentWord = async (id: string, word: string) => {
+    if (!confirm(`Supprimer "${word}" ?`)) return;
+    const { error } = await supabase.from("search_intent_words").delete().eq("id", id);
+    if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
+    setIntentWords((prev) => prev.filter((i) => i.id !== id));
+    toast({ title: "Supprimé", description: `"${word}" supprimé.` });
   };
 
   const [formData, setFormData] = useState({
@@ -496,7 +504,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
     }
     const { data, error } = await supabase
       .from("search_intent_words")
-      .insert({ word, category_name: categoryToUse, merge_on_conflict: true })
+      .insert({ word, category_name: categoryToUse, merge_on_conflict: true, is_active: true })
       .select()
       .single();
     if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
@@ -3131,19 +3139,25 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                           </div>
                           <div className="flex flex-wrap gap-1.5">
                             {words.map((intent) => (
-                              <div key={intent.id} className="flex items-center gap-1.5 bg-muted/50 rounded-md px-2.5 py-1 border text-sm">
+                              <div key={intent.id} className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 border text-sm ${intent.is_active ? 'bg-muted/50' : 'bg-muted/20 opacity-60'}`}>
                                 <span className="font-medium">{intent.word}</span>
                                 <div className="flex items-center gap-1 ml-1">
-                                  <Merge className="h-3 w-3 text-muted-foreground" />
                                   <Switch
-                                    checked={intent.merge_on_conflict}
-                                    onCheckedChange={(checked) => updateIntentWord(intent.id, { merge_on_conflict: checked })}
+                                    checked={intent.is_active}
+                                    onCheckedChange={(checked) => updateIntentWord(intent.id, { is_active: checked })}
                                     className="scale-75"
                                   />
                                   <span className="text-[10px] text-muted-foreground">
-                                    {intent.merge_on_conflict ? "Fusion" : "Strict"}
+                                    {intent.is_active ? "Online" : "Offline"}
                                   </span>
                                 </div>
+                                <button
+                                  type="button"
+                                  onClick={() => deleteIntentWord(intent.id, intent.word)}
+                                  className="text-muted-foreground hover:text-destructive transition-colors ml-1"
+                                >
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                </button>
                               </div>
                             ))}
                           </div>

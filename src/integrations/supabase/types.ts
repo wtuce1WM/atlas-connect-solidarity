@@ -1588,6 +1588,7 @@ export type Database = {
           category_name: string
           created_at: string | null
           id: string
+          is_active: boolean
           merge_on_conflict: boolean
           updated_at: string | null
           word: string
@@ -1596,6 +1597,7 @@ export type Database = {
           category_name: string
           created_at?: string | null
           id?: string
+          is_active?: boolean
           merge_on_conflict?: boolean
           updated_at?: string | null
           word: string
@@ -1604,6 +1606,7 @@ export type Database = {
           category_name?: string
           created_at?: string | null
           id?: string
+          is_active?: boolean
           merge_on_conflict?: boolean
           updated_at?: string | null
           word?: string
