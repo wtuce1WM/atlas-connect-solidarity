@@ -1,9 +1,10 @@
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Phone, ShieldCheck, Star, Globe } from "lucide-react";
+import { MapPin, Phone, ShieldCheck, Star, Globe, Clock } from "lucide-react";
 import logoWatermark from "@/assets/logoGOLDsimpleSML.webp";
 import { collectRatingSources, computeWeightedRatingOn20, getTotalReviewCount as getTotalReviews } from "@/lib/ratingUtils";
+import { isOpenDuringSlot, type TimeSlot } from "@/lib/timeSlots";
 
 export interface BusinessCardData {
   id: string;
@@ -34,6 +35,9 @@ export interface BusinessCardData {
   restaurant_guru_review_count?: number | null;
   gamme_id: string | null;
   badge_id?: string | null;
+  opening_hours?: Record<string, { open?: string; close?: string; open2?: string; close2?: string; closed?: boolean; continuous?: boolean }> | unknown;
+  is_open_24h?: boolean | null;
+  vacation_dates?: unknown;
 }
 
 export interface Gamme {
@@ -79,6 +83,7 @@ interface BusinessCardProps {
   mapButtonVariant?: "text" | "button";
   showAddress?: boolean;
   distanceKm?: number | null;
+  activeTimeSlot?: TimeSlot | null;
 }
 
 const WhatsAppIcon = () => (
@@ -150,7 +155,8 @@ const BusinessCard = ({
   mapButtonLabels = { view: "Voir sur la carte", shown: "Affiché sur la carte" },
   mapButtonVariant = "text",
   showAddress = false,
-  distanceKm
+  distanceKm,
+  activeTimeSlot
 }: BusinessCardProps) => {
   const gamme = getBusinessGamme(business, gammes);
   const badge = getBusinessBadge(business, badges, subcategories, badgeSubcategories);
@@ -160,6 +166,16 @@ const BusinessCard = ({
   const isSelected = selectedBusinessId === business.id;
   const hasMapData = business.google_maps_url || (business.latitude && business.longitude);
   const businessImage = getBusinessImage(business);
+
+  // Check if business is open during the active time slot
+  const isOpenDuringActiveSlot = activeTimeSlot
+    ? isOpenDuringSlot(
+        (business.opening_hours as Record<string, { open?: string; close?: string; open2?: string; close2?: string; closed?: boolean; continuous?: boolean }>) || null,
+        !!business.is_open_24h,
+        activeTimeSlot,
+        Array.isArray(business.vacation_dates) ? business.vacation_dates as Array<{ start_date: string; end_date: string }> : null
+      )
+    : false;
 
   const hasLocation = business.city || business.neighborhood || business.region;
   const locationText = hasLocation
@@ -201,6 +217,15 @@ const BusinessCard = ({
               alt="" 
               className="absolute top-2 right-2 w-10 h-10 object-contain opacity-90 pointer-events-none"
             />
+          )}
+          {/* "Ouvert" badge when business is open during active time slot */}
+          {isOpenDuringActiveSlot && (
+            <div className="absolute top-2 left-2 z-10">
+              <Badge className="text-xs bg-emerald-600 text-white border-emerald-700 flex items-center gap-1">
+                <Clock className="h-3 w-3" />
+                Ouvert
+              </Badge>
+            </div>
           )}
           {/* Hook overlay - bottom of image */}
           {business.hook_fr && (
