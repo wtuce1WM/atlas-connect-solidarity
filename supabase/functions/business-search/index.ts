@@ -2588,11 +2588,17 @@ serve(async (req) => {
           if (matchingFilters.length > 0) {
             const requiredServices = matchingFilters.map(f => f.required_service.toLowerCase());
             const before = businesses.length;
-            businesses = businesses.filter(b => {
+            const filtered = businesses.filter(b => {
               const bServices = (b.services || []).map((s: string) => s.toLowerCase());
               return requiredServices.some(rs => bServices.some((bs: string) => bs === rs || bs.includes(rs)));
             });
-            console.log(`Service filter applied: keywords=[${matchingFilters.map(f => f.keyword).join(",")}] required=[${requiredServices.join(",")}] → ${before} → ${businesses.length} results`);
+            // If filter reduces to 0, keep original results (filter was too restrictive for this context)
+            if (filtered.length > 0) {
+              businesses = filtered;
+              console.log(`Service filter applied: keywords=[${matchingFilters.map(f => f.keyword).join(",")}] required=[${requiredServices.join(",")}] → ${before} → ${businesses.length} results`);
+            } else {
+              console.log(`Service filter skipped (would reduce ${before} → 0): keywords=[${matchingFilters.map(f => f.keyword).join(",")}] required=[${requiredServices.join(",")}]`);
+            }
           }
         }
       } catch (e) {
