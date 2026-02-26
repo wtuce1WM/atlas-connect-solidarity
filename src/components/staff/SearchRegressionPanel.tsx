@@ -70,6 +70,13 @@ const SEARCH_TEST_CASES: SearchTestCase[] = [
     minResults: 1,
   },
   {
+    id: "yoga-marrakech-zone",
+    query: "yoga marrakech",
+    description: "\"yoga marrakech\" doit inclure Clubs.ma (zone nationale)",
+    mustInclude: ["Clubs.ma"],
+    minResults: 1,
+  },
+  {
     id: "meilleur-restaurant",
     query: "meilleur restaurant marrakech",
     description: "\"meilleur restaurant\" doit fonctionner (superlatif)",
