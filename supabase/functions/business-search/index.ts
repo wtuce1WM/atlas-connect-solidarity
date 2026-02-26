@@ -567,7 +567,8 @@ serve(async (req) => {
       limit = 51,
       language = "fr",
       mode,
-    }: SearchParams & { language?: string; mode?: string } = await req.json();
+      spoken,
+    }: SearchParams & { language?: string; mode?: string; spoken?: string } = await req.json();
 
     const isAutocomplete = mode === "autocomplete";
 
@@ -887,9 +888,9 @@ serve(async (req) => {
     let intentCategory: string | null = null;
     let intentMergeOnConflict = true;
     if (!category) {
-      // Check both the effective query AND the original query for intent words
+      // Check effectiveQuery, original query, AND spoken text for intent words
       // The LLM extraction may strip intent verbs (e.g. "acheter") from effectiveQuery
-      const queriesToCheck = [effectiveQuery, query].filter(Boolean) as string[];
+      const queriesToCheck = [effectiveQuery, query, spoken].filter(Boolean) as string[];
       for (const q of queriesToCheck) {
         const qWords = q.toLowerCase().split(/\s+/);
         for (const w of qWords) {

@@ -337,12 +337,11 @@ const SearchPage = () => {
   }, []);
 
   const { status: voiceStatus, toggleRecording } = useVoiceSearch({
-    onTranscript: (keywords, spoken, detectedCategory) => {
+    onTranscript: (keywords, spoken) => {
       isVoiceSearchRef.current = true;
       setInputValue(keywords);
       setSearchQuery(keywords);
       const params: Record<string, string> = { q: keywords, spoken };
-      if (detectedCategory) params.category = detectedCategory;
       setSearchParams(params);
       if (isMobile) window.scrollTo({ top: 0, behavior: 'smooth' });
     },
@@ -510,6 +509,7 @@ const SearchPage = () => {
           body: { 
             query: searchQuery.trim() || undefined,
             category: categoryFromUrl || undefined,
+            spoken: spokenText || undefined,
             language: language,
             limit: 100
           }

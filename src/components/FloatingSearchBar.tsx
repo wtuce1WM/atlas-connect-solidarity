@@ -30,9 +30,8 @@ const FloatingSearchBar = () => {
   }, []);
 
   const { status: voiceStatus, toggleRecording } = useVoiceSearch({
-    onTranscript: (keywords, spoken, detectedCategory) => {
+    onTranscript: (keywords, spoken) => {
       const params = new URLSearchParams({ q: keywords, spoken });
-      if (detectedCategory) params.set("category", detectedCategory);
       navigate(`/search?${params.toString()}`);
     },
     onError: (message) => {
