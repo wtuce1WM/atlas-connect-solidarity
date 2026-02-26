@@ -887,12 +887,24 @@ serve(async (req) => {
     }
     let intentCategory: string | null = null;
     let intentMergeOnConflict = true;
-    if (!category) {
-      // Check effectiveQuery, original query, AND spoken text for intent words
-      // The LLM extraction may strip intent verbs (e.g. "acheter") from effectiveQuery
+    // Always check intent words — even when a category is provided (e.g. from LLM voice intent)
+    // Intent words from the DB should override the LLM-derived category
+    {
       const queriesToCheck = [effectiveQuery, query, spoken].filter(Boolean) as string[];
       for (const q of queriesToCheck) {
-        const qWords = q.toLowerCase().split(/\s+/);
+        const qLower = q.toLowerCase();
+        const qWords = qLower.split(/\s+/);
+        // Check multi-word intent phrases first (e.g. "faire livrer")
+        for (const intentPhrase of Object.keys(INTENT_TO_CATEGORY)) {
+          if (intentPhrase.includes(" ") && qLower.includes(intentPhrase)) {
+            intentCategory = INTENT_TO_CATEGORY[intentPhrase];
+            intentMergeOnConflict = INTENT_MERGE_FLAGS[intentPhrase] ?? true;
+            console.log(`Intent phrase "${intentPhrase}" → category "${intentCategory}" (merge=${intentMergeOnConflict})`);
+            break;
+          }
+        }
+        if (intentCategory) break;
+        // Then check single words
         for (const w of qWords) {
           const wStripped = stripAccentsGlobal(w);
           const match = INTENT_TO_CATEGORY[w] || INTENT_TO_CATEGORY[wStripped];
@@ -906,7 +918,11 @@ serve(async (req) => {
         if (intentCategory) break;
       }
     }
-    const effectiveCategory = category || intentCategory || undefined;
+    // Intent words override the URL/LLM category when detected
+    const effectiveCategory = intentCategory || category || undefined;
+    if (intentCategory && category && intentCategory !== category) {
+      console.log(`Intent category "${intentCategory}" overrides URL category "${category}"`);
+    }
 
     // ── Detect category-subcategory conflict ──
     // When the effective category (from intent OR explicit URL param) conflicts with detected subcategory's parent,
