@@ -1,0 +1,1 @@
+ALTER TABLE public.search_intent_words ADD COLUMN IF NOT EXISTS is_active boolean NOT NULL DEFAULT true;
