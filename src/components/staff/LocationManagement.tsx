@@ -1663,7 +1663,7 @@ const LocationManagement = () => {
                 <CardContent>
                   <RichTextEditor
                     content={poiForm.description}
-                    onChange={(val) => setPoiForm({ ...poiForm, description: val })}
+                    onChange={(val) => setPoiForm(prev => ({ ...prev, description: val }))}
                   />
                 </CardContent>
                </Card>
@@ -1862,7 +1862,7 @@ const LocationManagement = () => {
                 <CardContent>
                   <RichTextEditor
                     content={destinationForm.description}
-                    onChange={(val) => setDestinationForm({ ...destinationForm, description: val })}
+                    onChange={(val) => setDestinationForm(prev => ({ ...prev, description: val }))}
                   />
                 </CardContent>
                </Card>
@@ -2213,7 +2213,7 @@ const LocationManagement = () => {
                     content={cityForm.description}
                     onChange={(value) => {
                       if (value.length <= 10000) {
-                        setCityForm({ ...cityForm, description: value });
+                        setCityForm(prev => ({ ...prev, description: value }));
                       }
                     }}
                     placeholder="Description de la ville..."
@@ -2406,7 +2406,7 @@ const LocationManagement = () => {
               <CardContent>
                 <RichTextEditor
                   content={neighborhoodFullForm.description}
-                  onChange={(value) => setNeighborhoodFullForm({ ...neighborhoodFullForm, description: value })}
+                  onChange={(value) => setNeighborhoodFullForm(prev => ({ ...prev, description: value }))}
                   placeholder="Description du quartier..."
                 />
               </CardContent>
