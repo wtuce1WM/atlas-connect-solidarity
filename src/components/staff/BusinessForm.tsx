@@ -355,38 +355,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
     fetchTaxonomy();
   }, []);
 
-  // Fetch intent words
-  useEffect(() => {
-    const fetchIntents = async () => {
-      setIntentsLoading(true);
-      const { data } = await supabase
-        .from("search_intent_words")
-        .select("*")
-        .order("category_name")
-        .order("word");
-      if (data) setIntentWords(data as any[]);
-      setIntentsLoading(false);
-    };
-    fetchIntents();
-  }, []);
-
-  const addIntentWord = async () => {
-    const word = newIntentWord.trim().toLowerCase();
-    if (!word || !newIntentCategory) return;
-    if (intentWords.some((i) => i.word === word)) {
-      toast({ title: "Erreur", description: `"${word}" existe déjà.`, variant: "destructive" });
-      return;
-    }
-    const { data, error } = await supabase
-      .from("search_intent_words")
-      .insert({ word, category_name: newIntentCategory, merge_on_conflict: true })
-      .select()
-      .single();
-    if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
-    setIntentWords((prev) => [...prev, data as any]);
-    setNewIntentWord("");
-    toast({ title: "Ajouté", description: `"${word}" → ${newIntentCategory}` });
-  };
+  
 
   const updateIntentWord = async (id: string, updates: Partial<{ word: string; category_name: string; merge_on_conflict: boolean }>) => {
     const { error } = await supabase.from("search_intent_words").update(updates).eq("id", id);
@@ -494,6 +463,48 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
     poi_hook: (business as any)?.poi_hook || "",
     poi_description: (business as any)?.poi_description || "",
   });
+
+  // Fetch intent words filtered by business main_category
+  useEffect(() => {
+    const fetchIntents = async () => {
+      setIntentsLoading(true);
+      const mainCat = formData.main_category;
+      if (!mainCat) {
+        setIntentWords([]);
+        setIntentsLoading(false);
+        return;
+      }
+      const { data } = await supabase
+        .from("search_intent_words")
+        .select("*")
+        .eq("category_name", mainCat)
+        .order("word");
+      if (data) setIntentWords(data as any[]);
+      setIntentsLoading(false);
+    };
+    fetchIntents();
+  }, [formData.main_category]);
+
+  const addIntentWord = async () => {
+    const word = newIntentWord.trim().toLowerCase();
+    if (!word) return;
+    const categoryToUse = formData.main_category;
+    if (!categoryToUse) return;
+    if (intentWords.some((i) => i.word === word)) {
+      toast({ title: "Erreur", description: `"${word}" existe déjà.`, variant: "destructive" });
+      return;
+    }
+    const { data, error } = await supabase
+      .from("search_intent_words")
+      .insert({ word, category_name: categoryToUse, merge_on_conflict: true })
+      .select()
+      .single();
+    if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
+    setIntentWords((prev) => [...prev, data as any]);
+    setNewIntentWord("");
+    toast({ title: "Ajouté", description: `"${word}" → ${categoryToUse}` });
+  };
+
   
   const extractCustomOptionsFromEngagements = (engagements: string[]) => ({
     certifications: engagements
@@ -3079,36 +3090,29 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
               ) : (
                 <>
                   {/* Add new intent */}
-                  <div className="flex items-end gap-2 flex-wrap">
-                    <div className="flex-1 min-w-[150px]">
-                      <label className="text-xs text-muted-foreground font-medium mb-1 block">Mot</label>
-                      <Input
-                        placeholder="Ex: manger, acheter…"
-                        value={newIntentWord}
-                        onChange={(e) => setNewIntentWord(e.target.value)}
-                        onKeyDown={(e) => e.key === "Enter" && addIntentWord()}
-                        className="h-8 text-sm"
-                      />
+                  {!formData.main_category ? (
+                    <p className="text-sm text-muted-foreground italic">Sélectionnez une catégorie principale pour voir les intentions.</p>
+                  ) : (
+                    <div className="flex items-end gap-2 flex-wrap">
+                      <div className="flex-1 min-w-[150px]">
+                        <label className="text-xs text-muted-foreground font-medium mb-1 block">Mot</label>
+                        <Input
+                          placeholder="Ex: manger, acheter…"
+                          value={newIntentWord}
+                          onChange={(e) => setNewIntentWord(e.target.value)}
+                          onKeyDown={(e) => e.key === "Enter" && addIntentWord()}
+                          className="h-8 text-sm"
+                        />
+                      </div>
+                      <div className="min-w-[120px]">
+                        <label className="text-xs text-muted-foreground font-medium mb-1 block">Catégorie</label>
+                        <Badge variant="secondary" className="h-8 px-3 flex items-center text-sm">{formData.main_category}</Badge>
+                      </div>
+                      <Button type="button" onClick={addIntentWord} disabled={!newIntentWord.trim()} size="sm" className="h-8">
+                        <Plus className="h-3.5 w-3.5 mr-1" /> Ajouter
+                      </Button>
                     </div>
-                    <div className="min-w-[150px]">
-                      <label className="text-xs text-muted-foreground font-medium mb-1 block">Catégorie</label>
-                      <Select value={newIntentCategory} onValueChange={setNewIntentCategory}>
-                        <SelectTrigger className="h-8 text-sm">
-                          <SelectValue placeholder="Choisir…" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-background z-50">
-                          {dbCategories.map((cat) => (
-                            <SelectItem key={cat.id} value={cat.name_fr}>
-                              {cat.name_fr}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <Button type="button" onClick={addIntentWord} disabled={!newIntentWord.trim() || !newIntentCategory} size="sm" className="h-8">
-                      <Plus className="h-3.5 w-3.5 mr-1" /> Ajouter
-                    </Button>
-                  </div>
+                  )}
 
                   {/* Grouped by category */}
                   {(() => {
