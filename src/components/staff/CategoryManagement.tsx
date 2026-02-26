@@ -355,6 +355,22 @@ const CategoryManagement = () => {
         };
 
         if (editMode.id) {
+          // Check if name_fr changed and businesses still reference the old name
+          const existingSub = subcategories.find(s => s.id === editMode.id);
+          if (existingSub && existingSub.name_fr !== editForm.name_fr.trim()) {
+            const affectedCount = businessCountBySub[editMode.id] || 0;
+            if (affectedCount > 0) {
+              const confirmed = window.confirm(
+                `⚠️ Attention : ${affectedCount} entreprise(s) utilisent encore la sous-catégorie "${existingSub.name_fr}".\n\n` +
+                `Le renommage en "${editForm.name_fr.trim()}" va automatiquement modifier le tableau "categories" de ces entreprises via le trigger de synchronisation.\n\n` +
+                `Assurez-vous que c'est bien voulu. Voulez-vous continuer ?`
+              );
+              if (!confirmed) {
+                setSaving(false);
+                return;
+              }
+            }
+          }
           await supabase.from("subcategories").update(subData as any).eq("id", editMode.id);
           toast.success("Sous-catégorie modifiée");
         } else {
