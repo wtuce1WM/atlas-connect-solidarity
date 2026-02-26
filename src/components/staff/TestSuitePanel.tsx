@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, FlaskConical, FileText } from "lucide-react";
+import SearchRegressionPanel from "./SearchRegressionPanel";
 
 interface TestFile {
   name: string;
@@ -54,6 +55,20 @@ const TEST_SUITES: TestFile[] = [
       { name: "ouvert/now", description: "Détecte 'ouvert' → heure courante dynamique" },
       { name: "apéro", description: "Détecte apéro → 17h-20h" },
       { name: "demain soir", description: "Détecte demain soir → 19h-23h, dayOffset=1" },
+    ],
+  },
+  {
+    name: "search-helpers (Deno)",
+    file: "supabase/functions/business-search/index.test.ts",
+    tests: [
+      { name: "tagsMatchCandidate: exact match", description: "'Maillots de bain' matche 'Maillots de bain'" },
+      { name: "tagsMatchCandidate: no partial", description: "'Maillots de bain' ne matche PAS 'Sels de bain'" },
+      { name: "tagsMatchCandidate: no substring", description: "'Golf' ne matche PAS 'Montgolfière'" },
+      { name: "tagsMatchCandidate: contains word", description: "'Golf' matche 'Club de Golf'" },
+      { name: "tagsMatchCandidate: unrelated tags", description: "Tags cosmétiques ne matchent pas 'Maillots de bain'" },
+      { name: "isNaturalLanguageQuery", description: "Détecte phrases vs mots-clés" },
+      { name: "detectSuperlative", description: "Détecte 'meilleur', 'top', 'best'" },
+      { name: "stripAccentsGlobal", description: "Supprime les accents français" },
     ],
   },
 ];
@@ -146,6 +161,11 @@ const TestSuitePanel = () => {
             )}
           </Card>
         ))}
+      </div>
+
+      {/* Search Regression Tests */}
+      <div className="mt-8 pt-8 border-t">
+        <SearchRegressionPanel />
       </div>
     </div>
   );
