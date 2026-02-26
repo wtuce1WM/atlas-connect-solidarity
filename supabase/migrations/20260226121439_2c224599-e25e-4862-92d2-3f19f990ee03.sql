@@ -1,0 +1,1 @@
+ALTER TABLE public.destinations ADD COLUMN is_searchable boolean NOT NULL DEFAULT false;

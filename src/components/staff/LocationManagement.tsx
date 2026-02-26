@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
+import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -108,6 +109,7 @@ interface Destination {
   sort_order: number | null;
   image_url: string | null;
   keywords: string[] | null;
+  is_searchable: boolean;
 }
 
 interface PointOfInterest {
@@ -187,6 +189,7 @@ const LocationManagement = () => {
     name_fr: "", name_en: "", name_ar: "", region: "",
     latitude: "", longitude: "", wikipedia_fr: "", wikipedia_en: "", wikipedia_ar: "",
     hook: "", description: "", sort_order: 0, image_url: "", keywords: [] as string[],
+    is_searchable: false,
   });
   const [poiSectionOpen, setPoiSectionOpen] = useState(false);
   const [pois, setPois] = useState<PointOfInterest[]>([]);
@@ -679,6 +682,7 @@ const LocationManagement = () => {
       name_fr: "", name_en: "", name_ar: "", region: "",
       latitude: "", longitude: "", wikipedia_fr: "", wikipedia_en: "", wikipedia_ar: "",
       hook: "", description: "", sort_order: 0, image_url: "", keywords: [] as string[],
+      is_searchable: false,
     });
   };
 
@@ -691,6 +695,7 @@ const LocationManagement = () => {
       wikipedia_fr: d.wikipedia_fr || "", wikipedia_en: d.wikipedia_en || "", wikipedia_ar: d.wikipedia_ar || "",
       hook: d.hook || "", description: d.description || "", sort_order: d.sort_order || 0,
       image_url: d.image_url || "", keywords: d.keywords || [],
+      is_searchable: (d as any).is_searchable ?? false,
     });
     setShowDestinationForm(true);
     setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 0);
@@ -720,6 +725,7 @@ const LocationManagement = () => {
       sort_order: destinationForm.sort_order,
       image_url: destinationForm.image_url.trim() || null,
       keywords: destinationForm.keywords.length > 0 ? destinationForm.keywords : [],
+      is_searchable: destinationForm.is_searchable,
     };
     let error;
     if (editingDestination) {
@@ -1724,6 +1730,46 @@ const LocationManagement = () => {
             </div>
 
             <div className="space-y-6">
+              {/* Keywords / Search aliases - moved to top */}
+               <Card>
+                 <CardHeader><CardTitle className="text-lg">Mots-clés / Alias de recherche</CardTitle></CardHeader>
+                 <CardContent className="space-y-4">
+                   <p className="text-xs text-muted-foreground">Variantes d'écriture pour la recherche</p>
+                   <div className="flex flex-wrap gap-2 mb-2">
+                     {destinationForm.keywords.map((kw, i) => (
+                       <span key={i} className="inline-flex items-center gap-1 bg-muted px-2 py-1 rounded text-sm">
+                         {kw}
+                         <button type="button" onClick={() => setDestinationForm({ ...destinationForm, keywords: destinationForm.keywords.filter((_, j) => j !== i) })} className="text-muted-foreground hover:text-destructive">
+                           <X className="h-3 w-3" />
+                         </button>
+                       </span>
+                     ))}
+                   </div>
+                   <Input
+                     placeholder="Ajouter un alias…"
+                     onKeyDown={(e) => {
+                       if (e.key === 'Enter') {
+                         e.preventDefault();
+                         const val = (e.target as HTMLInputElement).value.trim();
+                         if (val && !destinationForm.keywords.includes(val)) {
+                           setDestinationForm({ ...destinationForm, keywords: [...destinationForm.keywords, val] });
+                           (e.target as HTMLInputElement).value = '';
+                         }
+                       }
+                     }}
+                   />
+                   <div className="flex items-center gap-3 pt-2 border-t">
+                     <Switch
+                       checked={destinationForm.is_searchable}
+                       onCheckedChange={(checked) => setDestinationForm({ ...destinationForm, is_searchable: checked })}
+                     />
+                     <Label className="text-sm font-medium cursor-pointer" onClick={() => setDestinationForm({ ...destinationForm, is_searchable: !destinationForm.is_searchable })}>
+                       Inclure dans les résultats de recherche
+                     </Label>
+                   </div>
+                 </CardContent>
+               </Card>
+
               {/* Names */}
               <Card>
                 <CardHeader><CardTitle className="text-lg">Informations</CardTitle></CardHeader>
@@ -1867,36 +1913,6 @@ const LocationManagement = () => {
                 </CardContent>
                </Card>
 
-               {/* Keywords */}
-               <Card>
-                 <CardHeader><CardTitle className="text-lg">Mots-clés / Alias de recherche</CardTitle></CardHeader>
-                 <CardContent className="space-y-2">
-                   <p className="text-xs text-muted-foreground">Variantes d'écriture pour la recherche</p>
-                   <div className="flex flex-wrap gap-2 mb-2">
-                     {destinationForm.keywords.map((kw, i) => (
-                       <span key={i} className="inline-flex items-center gap-1 bg-muted px-2 py-1 rounded text-sm">
-                         {kw}
-                         <button type="button" onClick={() => setDestinationForm({ ...destinationForm, keywords: destinationForm.keywords.filter((_, j) => j !== i) })} className="text-muted-foreground hover:text-destructive">
-                           <X className="h-3 w-3" />
-                         </button>
-                       </span>
-                     ))}
-                   </div>
-                   <Input
-                     placeholder="Ajouter un alias…"
-                     onKeyDown={(e) => {
-                       if (e.key === 'Enter') {
-                         e.preventDefault();
-                         const val = (e.target as HTMLInputElement).value.trim();
-                         if (val && !destinationForm.keywords.includes(val)) {
-                           setDestinationForm({ ...destinationForm, keywords: [...destinationForm.keywords, val] });
-                           (e.target as HTMLInputElement).value = '';
-                         }
-                       }
-                     }}
-                   />
-                 </CardContent>
-               </Card>
             </div>
           </div>
         </div>
