@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, Users, UserCheck, Search, ArrowLeft, Star, BarChart3, FlaskConical } from "lucide-react";
+import { LogOut, Users, UserCheck, Search, ArrowLeft, Star, BarChart3, FlaskConical, BookOpen } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import SearchConfigManagement from "@/components/staff/SearchConfigManagement";
 import AffiliateManagement from "@/components/staff/AffiliateManagement";
@@ -12,6 +12,7 @@ import SponsorManagement from "@/components/staff/SponsorManagement";
 import SearchAnalytics from "@/pages/SearchAnalytics";
 import TestSuitePanel from "@/components/staff/TestSuitePanel";
 import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
+import KnowledgeBaseManagement from "@/components/staff/KnowledgeBaseManagement";
 
 const StaffMaster = () => {
   const [user, setUser] = useState<any>(null);
@@ -111,6 +112,10 @@ const StaffMaster = () => {
               <FlaskConical className="h-4 w-4" />
               Tests
             </TabsTrigger>
+            <TabsTrigger value="knowledge" className="gap-2">
+              <BookOpen className="h-4 w-4" />
+              Connaissances
+            </TabsTrigger>
             {isAdmin && (
               <TabsTrigger value="users" className="gap-2">
                 <Users className="h-4 w-4" />
@@ -137,6 +142,10 @@ const StaffMaster = () => {
 
           <TabsContent value="tests">
             <TestSuitePanel />
+          </TabsContent>
+
+          <TabsContent value="knowledge">
+            <KnowledgeBaseManagement />
           </TabsContent>
 
           {isAdmin && (
