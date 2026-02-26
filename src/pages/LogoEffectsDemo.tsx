@@ -316,6 +316,7 @@ const LogoEffectsDemo = () => {
           <h2 className="text-xl font-bold text-gold text-center mb-6" style={{ fontStyle: "normal" }}>Effet 3D — Pièce dorée</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Logo3DCard mode="spin" name="Rotation continue" description="La pièce tourne en boucle sur l'axe Y" />
+            <Logo3DCard mode="single-spin" name="Rotation unique" description="Un seul tour complet sur l'axe Y puis s'arrête" />
             <Logo3DCard mode="flip" name="Flip dramatique" description="Retournement 3D avec rebond" />
             <Logo3DCard mode="float" name="Flottement orbital" description="Mouvement orbital doux avec oscillation" />
           </div>
@@ -341,17 +342,41 @@ const LogoCoin = ({ mode, triggerKey }: { mode: string; triggerKey: number }) =>
   const texture = useLoader(THREE.TextureLoader, logoGold);
   const meshRef = useRef<THREE.Mesh>(null);
   const startTime = useRef(0);
+  const singleSpinStart = useRef<number | null>(null);
+  const prevTrigger = useRef(triggerKey);
 
   useFrame((state) => {
     if (!meshRef.current) return;
     const t = state.clock.elapsedTime;
 
+    // Detect trigger change for single-spin & flip
+    if (triggerKey !== prevTrigger.current) {
+      prevTrigger.current = triggerKey;
+      if (mode === "single-spin") singleSpinStart.current = t;
+      if (mode === "flip") startTime.current = t;
+    }
+
     if (mode === "spin") {
       meshRef.current.rotation.y = t * 2;
       meshRef.current.rotation.x = Math.sin(t * 0.5) * 0.1;
+    } else if (mode === "single-spin") {
+      const duration = 1.2;
+      if (singleSpinStart.current !== null) {
+        const elapsed = t - singleSpinStart.current;
+        if (elapsed < duration) {
+          const progress = elapsed / duration;
+          // ease-out cubic
+          const eased = 1 - Math.pow(1 - progress, 3);
+          meshRef.current.rotation.y = eased * Math.PI * 2;
+        } else {
+          meshRef.current.rotation.y = Math.PI * 2;
+        }
+      } else {
+        meshRef.current.rotation.y = 0;
+      }
+      meshRef.current.rotation.x = Math.sin(t * 0.5) * 0.05;
     } else if (mode === "flip") {
-      // Reset on trigger
-      if (triggerKey > 0) {
+      if (startTime.current > 0) {
         const elapsed = t - startTime.current;
         if (elapsed < 1.5) {
           const progress = Math.min(elapsed / 1.2, 1);
@@ -370,16 +395,6 @@ const LogoCoin = ({ mode, triggerKey }: { mode: string; triggerKey: number }) =>
       meshRef.current.position.y = Math.sin(t * 1.2) * 0.15;
     }
   });
-
-  // Reset start time on trigger
-  if (mode === "flip") {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useFrame((state) => {
-      if (triggerKey > 0 && startTime.current === 0) {
-        startTime.current = state.clock.elapsedTime;
-      }
-    });
-  }
 
   return (
     <Float speed={mode === "float" ? 3 : 0} rotationIntensity={mode === "float" ? 0.3 : 0} floatIntensity={mode === "float" ? 0.4 : 0}>
