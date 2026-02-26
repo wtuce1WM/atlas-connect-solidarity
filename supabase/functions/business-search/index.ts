@@ -608,40 +608,45 @@ serve(async (req) => {
       if (subcats) {
         // Sort by name length DESC so longer names match first (e.g. "Night Club" before "Club")
         const sorted = [...subcats].sort((a: any, b: any) => (b.name_fr?.length || 0) - (a.name_fr?.length || 0));
+        
+        // Helper functions for normalization
+        const stripPluralSimple = (w: string): string => {
+          if (w.endsWith("aux")) return w.slice(0, -3) + "al";
+          if (w.endsWith("eaux")) return w.slice(0, -4) + "eau";
+          if (w.endsWith("s")) return w.slice(0, -1);
+          return w;
+        };
+        const stripAccents = (w: string): string => w.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        const stripElision = (w: string): string => w.replace(/^[dDlLsSnNmMcCjJ]'|^[qQ]u'/i, "");
+        const normalizeWord = (w: string): string => stripAccents(stripPluralSimple(stripElision(w)));
+        const GENERIC_KEYWORD_BLOCKLIST = new Set([
+          "produit", "produits", "article", "articles", "service", "services",
+          "chose", "choses", "truc", "trucs", "objet", "objets", "materiel",
+          "achat", "achats", "vente", "ventes", "magasin", "magasins",
+          "boutique", "boutiques", "commerce", "commerces",
+        ]);
+        const isBlockedGenericWord = (w: string) => GENERIC_KEYWORD_BLOCKLIST.has(normalizeWord(w));
+
+        // ── PASS 1: Name matches only (priority over keyword matches) ──
         for (const sc of sorted) {
           const n = sc.name_fr?.toLowerCase();
           if (!n) continue;
-          // Match by name: try exact substring first, then try with stop words stripped from both
           const nWords = n.split(/\s+/).filter((w: string) => w.length > 1);
           const nContentWords = nWords.filter((w: string) => !FRENCH_STOP_WORDS.has(w));
           const nContent = nContentWords.join(" ");
-          // For single-word subcategory names, also match plural forms and accent variants
-          const stripPluralSimple = (w: string): string => {
-            if (w.endsWith("aux")) return w.slice(0, -3) + "al";
-            if (w.endsWith("eaux")) return w.slice(0, -4) + "eau";
-            if (w.endsWith("s")) return w.slice(0, -1);
-            return w;
-          };
-          const stripAccents = (w: string): string => w.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-          // Strip French elisions: d', l', s', n', m', c', j', qu' → keep only the part after the apostrophe
-          const stripElision = (w: string): string => w.replace(/^[dDlLsSnNmMcCjJ]'|^[qQ]u'/i, "");
-          const normalizeWord = (w: string): string => stripAccents(stripPluralSimple(stripElision(w)));
           const singleWordMatch = !n.includes(" ") && qWords.some(qw => 
             qw === n || stripPluralSimple(qw) === n || qw === stripPluralSimple(n) ||
             stripAccents(qw) === stripAccents(n) || normalizeWord(qw) === stripAccents(n) || stripAccents(qw) === normalizeWord(n)
           );
-          // Multi-word subcategory name: check if ALL content words appear in query (with plural/accent normalization)
           const multiWordMatch = n.includes(" ") && nContentWords.length > 0 && nContentWords.every((nw: string) =>
             qWords.some(qw => qw === nw || normalizeWord(qw) === normalizeWord(nw))
           );
-          // Slash-separated alternative match: "Spa / Hammam" matches if ANY part matches a query word
           const slashParts = n.includes("/") ? n.split("/").map((p: string) => p.trim()).filter((p: string) => p.length > 1) : [];
           const slashMatch = slashParts.length > 1 && slashParts.some((part: string) => {
             const partWords = part.split(/\s+/).filter((w: string) => w.length > 1);
             if (partWords.length === 1) {
               return qWords.some(qw => qw === partWords[0] || normalizeWord(qw) === normalizeWord(partWords[0]));
             }
-            // Multi-word part: all content words must appear
             return partWords.every((pw: string) => qWords.some(qw => qw === pw || normalizeWord(qw) === normalizeWord(pw)));
           });
           if (n.includes(" ") ? (qLower.includes(n) || (nContent.length > 2 && qLower.includes(nContent)) || multiWordMatch || slashMatch) : singleWordMatch) {
@@ -649,38 +654,34 @@ serve(async (req) => {
             console.log(`Auto-detected subcategory "${sc.name_fr}" from name match in query "${effectiveQuery}"`);
             break;
           }
-          // Match by keywords array (e.g. "fleurs" → "Fleuriste", "fer forgé" → "Ferronnerie")
-          const kws: string[] = (sc.keywords || []).map((k: string) => k.toLowerCase());
-          // Generic words too ambiguous to trigger subcategory detection alone via single-word keyword
-          const GENERIC_KEYWORD_BLOCKLIST = new Set([
-            "produit", "produits", "article", "articles", "service", "services",
-            "chose", "choses", "truc", "trucs", "objet", "objets", "materiel",
-            "achat", "achats", "vente", "ventes", "magasin", "magasins",
-            "boutique", "boutiques", "commerce", "commerces",
-          ]);
-          const isBlockedGenericWord = (w: string) => GENERIC_KEYWORD_BLOCKLIST.has(normalizeWord(w));
-          if (kws.length > 0 && (
-            // Single-word keyword match (with plural normalization) — skip generic words
-            qWords.some((w: string) => !isBlockedGenericWord(w) && (kws.includes(w) || kws.some((k: string) => !k.includes(" ") && normalizeWord(k) === normalizeWord(w)))) ||
-            // Multi-word keyword match: check if the full query contains a multi-word keyword
-            kws.some((k: string) => k.includes(" ") && qLower.includes(k)) ||
-            // Multi-word keyword match with normalization: check if ALL content words of a keyword appear in query
-            kws.some((k: string) => {
-              if (!k.includes(" ")) return false;
-              const kwContentWords = k.split(/\s+/).filter((w: string) => w.length > 1 && !FRENCH_STOP_WORDS.has(w));
-              if (kwContentWords.length === 0) return false;
-              // If stop-word stripping reduces a multi-word keyword to 1 word, match it as single-word
-              if (kwContentWords.length === 1) {
-                return qWords.some(qw => qw === kwContentWords[0] || normalizeWord(qw) === normalizeWord(kwContentWords[0]));
-              }
-              return kwContentWords.every((kw: string) =>
-                qWords.some(qw => qw === kw || normalizeWord(qw) === normalizeWord(kw))
-              );
-            })
-          )) {
-            detectedSubcategory = sc.name_fr;
-            console.log(`Auto-detected subcategory "${sc.name_fr}" from keyword match in query "${effectiveQuery}"`);
-            break;
+        }
+
+        // ── PASS 2: Keyword matches (only if no name match found) ──
+        if (!detectedSubcategory) {
+          for (const sc of sorted) {
+            const n = sc.name_fr?.toLowerCase();
+            if (!n) continue;
+            const kws: string[] = (sc.keywords || []).map((k: string) => k.toLowerCase());
+            if (kws.length === 0) continue;
+            if (kws.length > 0 && (
+              qWords.some((w: string) => !isBlockedGenericWord(w) && (kws.includes(w) || kws.some((k: string) => !k.includes(" ") && normalizeWord(k) === normalizeWord(w)))) ||
+              kws.some((k: string) => k.includes(" ") && qLower.includes(k)) ||
+              kws.some((k: string) => {
+                if (!k.includes(" ")) return false;
+                const kwContentWords = k.split(/\s+/).filter((w: string) => w.length > 1 && !FRENCH_STOP_WORDS.has(w));
+                if (kwContentWords.length === 0) return false;
+                if (kwContentWords.length === 1) {
+                  return qWords.some(qw => qw === kwContentWords[0] || normalizeWord(qw) === normalizeWord(kwContentWords[0]));
+                }
+                return kwContentWords.every((kw: string) =>
+                  qWords.some(qw => qw === kw || normalizeWord(qw) === normalizeWord(kw))
+                );
+              })
+            )) {
+              detectedSubcategory = sc.name_fr;
+              console.log(`Auto-detected subcategory "${sc.name_fr}" from keyword match in query "${effectiveQuery}"`);
+              break;
+            }
           }
         }
       }
