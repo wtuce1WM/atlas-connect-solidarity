@@ -29,6 +29,13 @@ serve(async (req) => {
 
 Ta tâche : identifier l'INTENTION sémantique et la traduire en mots-clés concrets (type d'établissement, service, produit, ville, quartier, personnage historique, nom propre).
 
+RÈGLE ABSOLUE — FIDÉLITÉ AU TRANSCRIPT :
+- Tu ne dois JAMAIS inventer, ajouter ou inférer des mots qui ne sont PAS dans le transcript original.
+- Si l'utilisateur dit "pizza", tu gardes "pizza". Tu ne dois PAS ajouter "cuisine italienne" sauf si l'utilisateur dit explicitement "italien" ou "italienne".
+- Si l'utilisateur dit "feu de bois", tu gardes "feu bois". Tu ne dois PAS ajouter "viande" sauf si l'utilisateur mentionne de la viande.
+- Si l'utilisateur dit "sushi", tu gardes "sushi". Tu ne dois PAS ajouter "cuisine japonaise".
+- Les règles de traduction ci-dessous ne s'appliquent QUE quand l'utilisateur utilise les mots exacts listés (ex: "manger italien" → "cuisine italienne"). Un plat spécifique (pizza, sushi, tajine) doit être gardé TEL QUEL.
+
 Tu dois aussi identifier la CATÉGORIE principale quand l'intention est claire. Les catégories possibles sont :
 - "Hôtellerie" : dormir, séjourner, loger, hôtel, riad, maison d'hôtes (ATTENTION : "louer une villa", "location villa", "villa à louer" ne sont PAS de l'hôtellerie — ce sont des agences immobilières = catégorie "Services")
 - "Restauration" : manger, déjeuner, dîner, restaurant, café, boire un verre, boire du champagne, bar
@@ -70,13 +77,15 @@ Règles de traduction sémantique OBLIGATOIRES :
 - "boules", "jouer aux boules" → "pétanque"
 - "glace", "glaces", "sorbet", "gelato", "crème glacée" → "glacier"
 - "steak", "steaks", "entrecôte", "faux-filet", "bifteck", "côte de bœuf", "viande rouge", "viande grillée" → "viande"
-- "feu de bois", "au feu de bois", "braise", "grillé au feu de bois" → "viande feu bois" (garder les mots pour matcher le service "Au feu de bois")
+- "feu de bois", "au feu de bois", "braise", "grillé au feu de bois", "cuit au feu de bois" → "feu bois" (garder les mots pour matcher le service "Au feu de bois", ne PAS ajouter "viande" sauf si l'utilisateur mentionne explicitement de la viande)
 - "croissant", "croissants", "pain au chocolat", "viennoiserie", "viennoiseries", "chausson aux pommes" → garder le mot produit tel quel (ex: "croissants") car il correspond à un mot-clé de service dans l'annuaire. Catégorie "Restauration" si contexte "manger", "Commerce" si contexte "acheter".
 - "pain français", "baguette", "pain de campagne", "pain" → garder le terme produit tel quel. "pain français" = garder "pain français". Catégorie "Restauration" (les boulangeries sont en Restauration).
 - IMPORTANT : quand un adjectif qualifie un produit alimentaire (ex: "pain français", "cuisine française", "pâtisserie marocaine"), NE PAS supprimer l'adjectif — il fait partie du nom du service/produit.
 - "manger français", "cuisine française", "restaurant français", "gastronomie française" → "cuisine française"
-- "manger italien", "cuisine italienne", "restaurant italien", "pizza", "pasta", "pâtes" → "cuisine italienne"
-- "manger japonais", "cuisine japonaise", "restaurant japonais", "sushi", "sashimi" → "cuisine japonaise"
+- "manger italien", "cuisine italienne", "restaurant italien" → "cuisine italienne"
+- ATTENTION : "pizza", "pasta", "pâtes" → garder tel quel ("pizza", "pasta"). NE PAS remplacer par "cuisine italienne". Le mot-clé spécifique est plus précis.
+- "manger japonais", "cuisine japonaise", "restaurant japonais" → "cuisine japonaise"
+- ATTENTION : "sushi", "sashimi", "ramen" → garder tel quel. NE PAS remplacer par "cuisine japonaise".
 - "manger chinois", "cuisine chinoise", "restaurant chinois" → "cuisine chinoise"
 - "manger indien", "cuisine indienne", "restaurant indien" → "cuisine indienne"
 - "manger thaï", "cuisine thaïlandaise", "restaurant thaï" → "cuisine thaïlandaise"
@@ -85,6 +94,7 @@ Règles de traduction sémantique OBLIGATOIRES :
 - "manger asiatique", "cuisine asiatique", "restaurant asiatique" → "cuisine asiatique"
 - "manger mexicain", "cuisine mexicaine", "restaurant mexicain" → "cuisine mexicaine"
 - Quand l'utilisateur dit "manger [nationalité/type]", toujours traduire en "cuisine [adjectif]" pour matcher les services de l'annuaire
+- MAIS quand l'utilisateur mentionne un PLAT spécifique (pizza, sushi, tajine, couscous, burger, tacos...), garder le nom du plat tel quel
 - "faire la fête", "fêter", "sortir", "soirée", "s'amuser", "clubbing" → "bar boîte nuit soirée" (catégorie "Restauration")
 - "boîte de nuit", "boite de nuit", "discothèque", "discotheque", "qu'est-ce qu'il y a comme boîte", "où danser", "danser" → "night club" (catégorie "Restauration")
 - "boire du champagne", "coupe de champagne" + contexte "boire/déguster/siroter/trinquer" → "champagne" (catégorie "Restauration")
@@ -95,6 +105,8 @@ Règles de traduction sémantique OBLIGATOIRES :
 - "dîner spectacle", "soirée spectacle", "dinner show", "show dinner" → "live show" (uniquement pour ces expressions exactes, pas pour "spectacle équestre" ou "fantasia")
 - "j'ai besoin d'un docteur", "j'ai besoin d'un médecin", "médecin urgence", "urgence médicale", "appeler un médecin", "appeler un docteur", "je suis malade", "mal en point", "sos médecin", "sos docteur" → "SOS médecin"
 - "taxi", "taxi aéroport", "transfert aéroport", "navette aéroport", "je cherche un taxi", "taxi pour l'aéroport" → "taxi chauffeur privé" + ville si mentionnée (catégorie "Transport")
+- "piscine" → garder "piscine" tel quel
+- "bar" → garder "bar" tel quel
 
 Autres règles :
 - Supprimer les verbes d'intention après traduction (chercher, trouver, vouloir, pouvoir, louer, réserver, visiter, acheter...)
@@ -134,6 +146,10 @@ Exemples :
 "je cherche un dîner spectacle à Marrakech" → {"keywords": "live show Marrakech", "category": "Restauration"}
 "je voudrais manger français à Marrakech ce soir" → {"keywords": "cuisine française Marrakech", "category": "Restauration", "timeKeyword": "soir"}
 "je veux manger italien à Essaouira" → {"keywords": "cuisine italienne Essaouira", "category": "Restauration"}
+"je veux manger une pizza à Marrakech" → {"keywords": "pizza Marrakech", "category": "Restauration"}
+"je veux manger une pizza cuite au feu de bois à Marrakech" → {"keywords": "pizza feu bois Marrakech", "category": "Restauration"}
+"je veux manger des sushis à Casablanca" → {"keywords": "sushi Casablanca", "category": "Restauration"}
+"je cherche une piscine avec un bar pour faire la fête demain après-midi à Marrakech" → {"keywords": "piscine bar Marrakech", "category": "Sport & Loisirs", "timeKeyword": "après-midi"}
 "un restaurant ouvert maintenant" → {"keywords": "restaurant", "category": "Restauration", "timeKeyword": "maintenant"}
 "où manger à midi à Marrakech" → {"keywords": "restaurant Marrakech", "category": "Restauration", "timeKeyword": "midi"}
 "un bon brunch demain" → {"keywords": "brunch", "category": "Restauration", "timeKeyword": "brunch"}
