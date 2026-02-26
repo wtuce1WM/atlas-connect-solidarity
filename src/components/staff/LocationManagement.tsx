@@ -1269,9 +1269,6 @@ const LocationManagement = () => {
                             <Button size="sm" variant="ghost" onClick={() => openEditNeighborhoodFull(n)}>
                               <Edit className="h-4 w-4" />
                             </Button>
-                            <Button size="sm" variant="ghost" onClick={() => handleDeleteNeighborhoodFull(n.id)}>
-                              <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
                           </TableCell>
                         </TableRow>
                       );
@@ -1361,9 +1358,6 @@ const LocationManagement = () => {
                       <TableCell className="text-right">
                         <Button size="sm" variant="ghost" onClick={() => openEditDestination(d)}>
                           <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button size="sm" variant="ghost" onClick={() => handleDeleteDestination(d.id)}>
-                          <Trash2 className="h-4 w-4 text-destructive" />
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -1456,9 +1450,6 @@ const LocationManagement = () => {
                         <TableCell className="text-right">
                           <Button size="sm" variant="ghost" onClick={() => openEditPoi(p)}>
                             <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button size="sm" variant="ghost" onClick={() => handleDeletePoi(p.id)}>
-                            <Trash2 className="h-4 w-4 text-destructive" />
                           </Button>
                         </TableCell>
                       </TableRow>
