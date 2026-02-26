@@ -886,17 +886,23 @@ serve(async (req) => {
     }
     let intentCategory: string | null = null;
     let intentMergeOnConflict = true;
-    if (!category && effectiveQuery) {
-      const qWords = effectiveQuery.toLowerCase().split(/\s+/);
-      for (const w of qWords) {
-        const wStripped = stripAccentsGlobal(w);
-        const match = INTENT_TO_CATEGORY[w] || INTENT_TO_CATEGORY[wStripped];
-        if (match) {
-          intentCategory = match;
-          intentMergeOnConflict = INTENT_MERGE_FLAGS[w] ?? INTENT_MERGE_FLAGS[wStripped] ?? true;
-          console.log(`Intent word "${w}" → category "${intentCategory}" (merge=${intentMergeOnConflict})`);
-          break;
+    if (!category) {
+      // Check both the effective query AND the original query for intent words
+      // The LLM extraction may strip intent verbs (e.g. "acheter") from effectiveQuery
+      const queriesToCheck = [effectiveQuery, query].filter(Boolean) as string[];
+      for (const q of queriesToCheck) {
+        const qWords = q.toLowerCase().split(/\s+/);
+        for (const w of qWords) {
+          const wStripped = stripAccentsGlobal(w);
+          const match = INTENT_TO_CATEGORY[w] || INTENT_TO_CATEGORY[wStripped];
+          if (match) {
+            intentCategory = match;
+            intentMergeOnConflict = INTENT_MERGE_FLAGS[w] ?? INTENT_MERGE_FLAGS[wStripped] ?? true;
+            console.log(`Intent word "${w}" → category "${intentCategory}" (merge=${intentMergeOnConflict})`);
+            break;
+          }
         }
+        if (intentCategory) break;
       }
     }
     const effectiveCategory = category || intentCategory || undefined;
