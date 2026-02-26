@@ -430,7 +430,12 @@ function tagsMatchCandidate(candidate: string, tags: string[]): boolean {
     const tagNorm = normalizeMatchingText(tag);
     if (!tagNorm) return false;
 
-    if (tagNorm.includes(candidateNorm) || candidateNorm.includes(tagNorm)) return true;
+    // Use word-boundary aware matching instead of raw substring includes
+    // This prevents "golf" from matching "montgolfiere"
+    if (tagNorm === candidateNorm) return true;
+    // Multi-word: check if one fully contains the other as a word sequence
+    if (candidateNorm.includes(" ") && tagNorm.includes(candidateNorm)) return true;
+    if (tagNorm.includes(" ") && candidateNorm.includes(tagNorm)) return true;
 
     const tagTokens = tokenizeForMatching(tag);
     return tagTokens.some((token) => candidateTokens.has(token));
@@ -658,7 +663,8 @@ serve(async (req) => {
             const matchCount = qWords.filter((qw: string) => bWords.some((bw: string) => {
               const bwStripped = stripAccentsGlobal(bw);
               const qwStripped = stripAccentsGlobal(qw);
-              return bw.includes(qw) || qw.includes(bw) || bwStripped.includes(qwStripped) || qwStripped.includes(bwStripped);
+              // Use whole-word comparison: "golf" must equal "golf", not be a substring of "montgolfière"
+              return bw === qw || qw === bw || bwStripped === qwStripped;
             })).length;
             return matchCount >= Math.ceil(qWords.length * 0.6);
           });
