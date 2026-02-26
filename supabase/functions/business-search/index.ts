@@ -425,6 +425,11 @@ function tokenizeForMatching(value: string): string[] {
 function tagsMatchCandidate(candidate: string, tags: string[]): boolean {
   const candidateNorm = normalizeMatchingText(candidate);
   const candidateTokens = new Set(tokenizeForMatching(candidate));
+  // For multi-word candidates, count how many content tokens must match
+  const candidateContentTokens = candidateNorm.split(" ").filter(w => w.length > 1 && !FRENCH_STOP_WORDS.has(w));
+  const isMultiWordCandidate = candidateContentTokens.length >= 2;
+  // For multi-word candidates, require at least 2 content tokens to match (not just 1 like "bain")
+  const minTokenMatches = isMultiWordCandidate ? Math.max(2, Math.ceil(candidateContentTokens.length * 0.5)) : 1;
 
   return tags.some((tag) => {
     const tagNorm = normalizeMatchingText(tag);
@@ -438,7 +443,8 @@ function tagsMatchCandidate(candidate: string, tags: string[]): boolean {
     if (tagNorm.includes(" ") && candidateNorm.includes(tagNorm)) return true;
 
     const tagTokens = tokenizeForMatching(tag);
-    return tagTokens.some((token) => candidateTokens.has(token));
+    const matchCount = tagTokens.filter((token) => candidateTokens.has(token)).length;
+    return matchCount >= minTokenMatches;
   });
 }
 
