@@ -98,7 +98,7 @@ const RatedBusinesses = () => {
       const [catRes, subcatRes, svcRes] = await Promise.all([
         supabase.from("categories").select("id, name_fr").order("sort_order"),
         supabase.from("subcategories").select("id, name_fr, category_id").order("sort_order"),
-        supabase.from("services").select("id, name_fr, subcategory_id").order("sort_order"),
+        supabase.from("services").select("id, name_fr, subcategory_id").order("sort_order").limit(5000),
       ]);
 
       if (catRes.data) {
