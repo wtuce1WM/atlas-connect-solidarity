@@ -169,6 +169,7 @@ const LocationManagement = () => {
   const [cities, setCities] = useState<City[]>([]);
    const [businessCounts, setBusinessCounts] = useState<Record<string, number>>({});
    const [neighborhoodBusinessCounts, setNeighborhoodBusinessCounts] = useState<Record<string, number>>({});
+   const [destinationBusinessCounts, setDestinationBusinessCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [editingCountry, setEditingCountry] = useState<Country | null>(null);
   const [editingCity, setEditingCity] = useState<City | null>(null);
@@ -273,13 +274,14 @@ const LocationManagement = () => {
   const fetchData = async () => {
     setLoading(true);
     
-    const [countriesRes, citiesRes, businessesRes, neighborhoodsRes, destinationsRes, poisRes] = await Promise.all([
+    const [countriesRes, citiesRes, businessesRes, neighborhoodsRes, destinationsRes, poisRes, businessDestRes] = await Promise.all([
       supabase.from("countries").select("*").order("sort_order"),
       supabase.from("cities").select("*").order("sort_order"),
       supabase.from("businesses").select("city, neighborhood").eq("is_active", true),
       supabase.from("neighborhoods").select("*").order("sort_order") as any,
       supabase.from("destinations" as any).select("*").order("name_fr"),
       supabase.from("points_of_interest" as any).select("*").order("sort_order"),
+      supabase.from("business_destinations" as any).select("destination_id"),
     ]);
 
     if (countriesRes.error) {
@@ -319,6 +321,14 @@ const LocationManagement = () => {
 
     if (!destinationsRes.error && destinationsRes.data) {
       setDestinations((destinationsRes.data as any[]) || []);
+    }
+
+    if (!businessDestRes.error && businessDestRes.data) {
+      const destCounts: Record<string, number> = {};
+      (businessDestRes.data as any[]).forEach((bd: any) => {
+        destCounts[bd.destination_id] = (destCounts[bd.destination_id] || 0) + 1;
+      });
+      setDestinationBusinessCounts(destCounts);
     }
 
     if (!poisRes.error && poisRes.data) {
@@ -1348,9 +1358,9 @@ const LocationManagement = () => {
                     <TableHead>Image</TableHead>
                     <TableHead>Destination</TableHead>
                     <TableHead>Région</TableHead>
-                    <TableHead>Wikipedia</TableHead>
+                    <TableHead>Search</TableHead>
                     <TableHead>Coordonnées</TableHead>
-                    <TableHead>Ordre</TableHead>
+                    <TableHead>Établissements</TableHead>
                     <TableHead>Mots clés</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
@@ -1368,17 +1378,16 @@ const LocationManagement = () => {
                       <TableCell className="font-medium">{d.name_fr}</TableCell>
                       <TableCell className="text-muted-foreground">{d.region || "—"}</TableCell>
                       <TableCell>
-                        <div className="flex gap-1">
-                          {d.wikipedia_fr && <a href={d.wikipedia_fr} target="_blank" rel="noopener noreferrer" className="text-xs px-1.5 py-0.5 bg-primary/10 text-primary rounded hover:bg-primary/20 transition-colors">FR</a>}
-                          {d.wikipedia_en && <a href={d.wikipedia_en} target="_blank" rel="noopener noreferrer" className="text-xs px-1.5 py-0.5 bg-primary/10 text-primary rounded hover:bg-primary/20 transition-colors">EN</a>}
-                          {d.wikipedia_ar && <a href={d.wikipedia_ar} target="_blank" rel="noopener noreferrer" className="text-xs px-1.5 py-0.5 bg-primary/10 text-primary rounded hover:bg-primary/20 transition-colors">AR</a>}
-                          {!d.wikipedia_fr && !d.wikipedia_en && !d.wikipedia_ar && "—"}
-                        </div>
+                        <div className={`w-3 h-3 rounded-full ${d.is_searchable ? 'bg-green-500' : 'bg-red-500'}`} title={d.is_searchable ? 'Oui' : 'Non'} />
                       </TableCell>
                       <TableCell className="text-muted-foreground text-sm">
                         {d.latitude && d.longitude ? `${d.latitude.toFixed(4)}, ${d.longitude.toFixed(4)}` : "—"}
                       </TableCell>
-                      <TableCell>{d.sort_order ?? 0}</TableCell>
+                      <TableCell>
+                        <span className="inline-flex items-center justify-center min-w-[2rem] px-2 py-0.5 bg-muted text-muted-foreground rounded text-sm font-medium">
+                          {destinationBusinessCounts[d.id] || 0}
+                        </span>
+                      </TableCell>
                       <TableCell>
                         <span className="inline-flex items-center justify-center min-w-[2rem] px-2 py-0.5 bg-muted text-muted-foreground rounded text-sm font-medium">
                           {d.keywords?.length || 0}
