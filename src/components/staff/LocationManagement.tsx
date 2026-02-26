@@ -34,7 +34,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Edit, Trash2, Globe, MapPin, Building, ExternalLink, ArrowLeft, Save, FileText, Home, ChevronDown, Compass, LocateFixed, Loader2, ImageIcon, X, Search, ArrowUp } from "lucide-react";
+import { Plus, Edit, Trash2, Globe, MapPin, Building, ExternalLink, ArrowLeft, Save, FileText, Home, ChevronDown, Compass, LocateFixed, Loader2, ImageIcon, X, Search } from "lucide-react";
 import RichTextEditor from "./RichTextEditor";
 import LogoUploader from "./LogoUploader";
 
@@ -128,26 +128,6 @@ interface PointOfInterest {
   sort_order: number | null;
   image_url: string | null;
 }
-const NeighborhoodScrollToTop = ({ containerRef }: { containerRef: React.RefObject<HTMLDivElement> }) => {
-  const [visible, setVisible] = useState(false);
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    const onScroll = () => setVisible(el.scrollTop > 400);
-    el.addEventListener("scroll", onScroll, { passive: true });
-    return () => el.removeEventListener("scroll", onScroll);
-  }, [containerRef]);
-  if (!visible) return null;
-  return (
-    <button
-      onClick={() => containerRef.current?.scrollTo({ top: 0, behavior: "smooth" })}
-      className="fixed bottom-20 right-6 z-[60] p-3 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 transition-all"
-      aria-label="Remonter en haut"
-    >
-      <ArrowUp className="h-5 w-5" />
-    </button>
-  );
-};
 
 const LocationManagement = () => {
   const [geocodingField, setGeocodingField] = useState<string | null>(null);
@@ -540,6 +520,7 @@ const LocationManagement = () => {
       image_url: (city as any).image_url || "",
     });
     setShowCityForm(true);
+    setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 0);
   };
 
   const openAddCity = (countryId: string) => {
@@ -637,7 +618,7 @@ const LocationManagement = () => {
       keywords: n.keywords || [],
     });
     setShowNeighborhoodFullForm(true);
-    setTimeout(() => neighborhoodFormRef.current?.scrollTo({ top: 0 }), 0);
+    setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 0);
   };
 
   const handleSaveNeighborhoodFull = async () => {
@@ -710,6 +691,7 @@ const LocationManagement = () => {
       image_url: d.image_url || "",
     });
     setShowDestinationForm(true);
+    setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 0);
   };
 
   const handleSaveDestination = async () => {
@@ -787,6 +769,7 @@ const LocationManagement = () => {
       image_url: p.image_url || "",
     });
     setShowPoiForm(true);
+    setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 0);
   };
 
   const handleSavePoi = async () => {
@@ -2358,7 +2341,7 @@ const LocationManagement = () => {
               </Button>
             </div>
           </div>
-          <NeighborhoodScrollToTop containerRef={neighborhoodFormRef} />
+          
         </div>
       )}
     </div>
