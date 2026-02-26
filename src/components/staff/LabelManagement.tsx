@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchAllRows } from "@/lib/fetchAllRows";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -145,7 +146,7 @@ const LabelManagement = () => {
       supabase.from("categories").select("id, name_fr").order("sort_order", { ascending: true }),
       supabase.from("subcategories").select("id, name_fr, category_id, categories!subcategories_category_id_fkey(name_fr)").order("sort_order", { ascending: true }),
       supabase.from("cities").select("id, name_fr").order("sort_order", { ascending: true }),
-      supabase.from("services").select("id, name_fr, subcategory_id, subcategories!services_subcategory_id_fkey(name_fr)").order("sort_order", { ascending: true }).limit(5000),
+      fetchAllRows("services", "id, name_fr, subcategory_id", "sort_order"),
       supabase.from("neighborhoods").select("id, name, city_id, cities!neighborhoods_city_id_fkey(name_fr)").order("sort_order", { ascending: true }),
       supabase.from("label_categories" as any).select("label_id, category_id"),
       supabase.from("label_subcategories" as any).select("label_id, subcategory_id"),
@@ -176,7 +177,10 @@ const LabelManagement = () => {
     setRefCategories((catRes.data || []).map((c: any) => ({ id: c.id, name: c.name_fr })));
     setRefSubcategories((subcatRes.data || []).map((s: any) => ({ id: s.id, name: `${(s as any).categories?.name_fr || "?"} → ${s.name_fr}` })));
     setRefCities((cityRes.data || []).map((c: any) => ({ id: c.id, name: c.name_fr })));
-    setRefServices((svcRes.data || []).map((s: any) => ({ id: s.id, name: `${(s as any).subcategories?.name_fr || "?"} → ${s.name_fr}` })));
+    // Build subcategory id->name map for service display
+    const subcatIdToName: Record<string, string> = {};
+    (subcatRes.data || []).forEach((s: any) => { subcatIdToName[s.id] = s.name_fr; });
+    setRefServices((svcRes as any[]).map((s: any) => ({ id: s.id, name: `${subcatIdToName[s.subcategory_id] || "?"} → ${s.name_fr}` })));
     setRefNeighborhoods((neighRes.data || []).map((n: any) => ({ id: n.id, name: `${(n as any).cities?.name_fr || "?"} → ${n.name}` })));
 
     // Build associations map

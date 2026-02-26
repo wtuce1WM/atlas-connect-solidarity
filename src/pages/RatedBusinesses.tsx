@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from "react";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchAllRows } from "@/lib/fetchAllRows";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -95,10 +96,10 @@ const RatedBusinesses = () => {
       if (data) setBusinesses(data);
 
       // Fetch categories, subcategories, services for filter mapping
-      const [catRes, subcatRes, svcRes] = await Promise.all([
+      const [catRes, subcatRes, svcData] = await Promise.all([
         supabase.from("categories").select("id, name_fr").order("sort_order"),
         supabase.from("subcategories").select("id, name_fr, category_id").order("sort_order"),
-        supabase.from("services").select("id, name_fr, subcategory_id").order("sort_order").limit(5000),
+        fetchAllRows("services", "id, name_fr, subcategory_id", "sort_order"),
       ]);
 
       if (catRes.data) {
@@ -112,7 +113,7 @@ const RatedBusinesses = () => {
         subcatRes.data.forEach((s) => (map[s.name_fr] = s.id));
         setAllSubcatMap(map);
       }
-      if (svcRes.data) setAllServices(svcRes.data);
+      setAllServices(svcData as any[]);
 
       setIsLoading(false);
     };

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchAllRows } from "@/lib/fetchAllRows";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -195,16 +196,16 @@ const CategoryManagement = () => {
     const [catRes, subRes, svcRes, bizRes] = await Promise.all([
       supabase.from("categories").select("*").order("name_fr"),
       supabase.from("subcategories").select("*").order("sort_order"),
-      supabase.from("services").select("*").order("sort_order").limit(5000),
+      fetchAllRows("services", "*", "sort_order"),
       supabase.from("businesses").select("main_category, categories, services").eq("is_active", true),
     ]);
 
     if (catRes.data) setCategories(catRes.data);
     if (subRes.data) setSubcategories(subRes.data);
-    if (svcRes.data) setServices(svcRes.data);
+    setServices(svcRes as any[]);
 
     // Count businesses per subcategory name and service name
-    if (bizRes.data && catRes.data && subRes.data && svcRes.data) {
+    if (bizRes.data && catRes.data && subRes.data && svcRes) {
       const subCounts: Record<string, number> = {};
       const svcCounts: Record<string, number> = {};
       const catCounts: Record<string, number> = {};
@@ -227,7 +228,7 @@ const CategoryManagement = () => {
         }
       }
       const svcNameToIds: Record<string, string[]> = {};
-      for (const s of svcRes.data) {
+      for (const s of svcRes as any[]) {
         const names = [s.name_fr, s.name_en, s.name_ar].filter(Boolean) as string[];
         for (const n of names) {
           if (!svcNameToIds[n]) svcNameToIds[n] = [];
