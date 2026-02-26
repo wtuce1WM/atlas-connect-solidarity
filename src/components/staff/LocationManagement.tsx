@@ -89,6 +89,7 @@ interface Neighborhood {
   image_url: string | null;
   hook: string | null;
   description: string | null;
+  keywords: string[] | null;
 }
 
 interface Destination {
@@ -208,6 +209,7 @@ const LocationManagement = () => {
   const [neighborhoodFullForm, setNeighborhoodFullForm] = useState({
     city_id: "", name: "", sort_order: 0,
     latitude: "", longitude: "", image_url: "", hook: "", description: "",
+    keywords: [] as string[],
   });
 
   // Filters
@@ -601,7 +603,7 @@ const LocationManagement = () => {
   // Neighborhood full form handlers
   const resetNeighborhoodFullForm = () => {
     setEditingNeighborhoodFull(null);
-    setNeighborhoodFullForm({ city_id: "", name: "", sort_order: 0, latitude: "", longitude: "", image_url: "", hook: "", description: "" });
+    setNeighborhoodFullForm({ city_id: "", name: "", sort_order: 0, latitude: "", longitude: "", image_url: "", hook: "", description: "", keywords: [] });
   };
 
   const openEditNeighborhoodFull = (n: Neighborhood) => {
@@ -610,6 +612,7 @@ const LocationManagement = () => {
       city_id: n.city_id, name: n.name, sort_order: n.sort_order || 0,
       latitude: n.latitude?.toString() || "", longitude: n.longitude?.toString() || "",
       image_url: n.image_url || "", hook: n.hook || "", description: n.description || "",
+      keywords: n.keywords || [],
     });
     setShowNeighborhoodFullForm(true);
   };
@@ -632,6 +635,7 @@ const LocationManagement = () => {
       image_url: neighborhoodFullForm.image_url.trim() || null,
       hook: neighborhoodFullForm.hook.trim().slice(0, 120) || null,
       description: neighborhoodFullForm.description || null,
+      keywords: neighborhoodFullForm.keywords.length > 0 ? neighborhoodFullForm.keywords : [],
     };
     let error;
     if (editingNeighborhoodFull) {
@@ -2194,6 +2198,37 @@ const LocationManagement = () => {
                   <div className="space-y-2">
                     <Label>Ordre d'affichage</Label>
                     <Input type="number" value={neighborhoodFullForm.sort_order} onChange={(e) => setNeighborhoodFullForm({ ...neighborhoodFullForm, sort_order: parseInt(e.target.value) || 0 })} />
+                  </div>
+                </div>
+
+                {/* Keywords / Alias */}
+                <div className="space-y-2">
+                  <Label>Mots-clés / Alias de recherche</Label>
+                  <p className="text-xs text-muted-foreground">Variantes d'écriture pour la recherche (ex: Medina, Ancienne Médina, Old Medina)</p>
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {neighborhoodFullForm.keywords.map((kw, i) => (
+                      <span key={i} className="inline-flex items-center gap-1 bg-muted px-2 py-1 rounded text-sm">
+                        {kw}
+                        <button type="button" onClick={() => setNeighborhoodFullForm({ ...neighborhoodFullForm, keywords: neighborhoodFullForm.keywords.filter((_, j) => j !== i) })} className="text-muted-foreground hover:text-destructive">
+                          <X className="h-3 w-3" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Ajouter un alias…"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          const val = (e.target as HTMLInputElement).value.trim();
+                          if (val && !neighborhoodFullForm.keywords.includes(val)) {
+                            setNeighborhoodFullForm({ ...neighborhoodFullForm, keywords: [...neighborhoodFullForm.keywords, val] });
+                            (e.target as HTMLInputElement).value = '';
+                          }
+                        }
+                      }}
+                    />
                   </div>
                 </div>
               </CardContent>
