@@ -5,6 +5,7 @@ import { MapPin, Phone, ShieldCheck, Star, Globe, Clock } from "lucide-react";
 import logoWatermark from "@/assets/logoGOLDsimpleSML.webp";
 import { collectRatingSources, computeWeightedRatingOn20, getTotalReviewCount as getTotalReviews } from "@/lib/ratingUtils";
 import { isOpenDuringSlot, type TimeSlot } from "@/lib/timeSlots";
+import { isCurrentlyOpen, type DayHoursData } from "@/lib/formatOpeningHours";
 
 export interface BusinessCardData {
   id: string;
@@ -167,15 +168,25 @@ const BusinessCard = ({
   const hasMapData = business.google_maps_url || (business.latitude && business.longitude);
   const businessImage = getBusinessImage(business);
 
-  // Check if business is open during the active time slot
+  // Check if business is open during the active time slot OR right now
+  const openingHoursTyped = (business.opening_hours as Record<string, DayHoursData>) || null;
+  const vacationDatesTyped = Array.isArray(business.vacation_dates) ? business.vacation_dates as Array<{ start_date: string; end_date: string }> : null;
+
   const isOpenDuringActiveSlot = activeTimeSlot
-    ? isOpenDuringSlot(
-        (business.opening_hours as Record<string, { open?: string; close?: string; open2?: string; close2?: string; closed?: boolean; continuous?: boolean }>) || null,
-        !!business.is_open_24h,
-        activeTimeSlot,
-        Array.isArray(business.vacation_dates) ? business.vacation_dates as Array<{ start_date: string; end_date: string }> : null
-      )
+    ? isOpenDuringSlot(openingHoursTyped, !!business.is_open_24h, activeTimeSlot, vacationDatesTyped)
     : false;
+
+  // Fallback: check if currently open in real-time when no time slot filter
+  const isCurrentlyOpenNow = !activeTimeSlot && (
+    !!business.is_open_24h || (() => {
+      if (!openingHoursTyped) return false;
+      const days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+      const today = days[new Date().getDay()];
+      return isCurrentlyOpen(openingHoursTyped[today]);
+    })()
+  );
+
+  const showOpenBadge = isOpenDuringActiveSlot || isCurrentlyOpenNow;
 
   const hasLocation = business.city || business.neighborhood || business.region;
   const locationText = hasLocation
@@ -219,7 +230,7 @@ const BusinessCard = ({
             />
           )}
           {/* "Ouvert" badge when business is open during active time slot */}
-          {isOpenDuringActiveSlot && (
+          {showOpenBadge && (
             <div className="absolute top-2 left-2 z-10">
               <Badge className="text-xs bg-emerald-600 text-white border-emerald-700 flex items-center gap-1">
                 <Clock className="h-3 w-3" />
