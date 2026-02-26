@@ -36,13 +36,26 @@ const BeamLight = () => {
 const LogoCoin = () => {
   const texture = useLoader(THREE.TextureLoader, logoGold);
   const meshRef = useRef<THREE.Mesh>(null);
+  const startTime = useRef<number | null>(null);
+  const duration = 1.2;
 
   useFrame((state) => {
-    if (meshRef.current) {
-      const t = state.clock.elapsedTime;
-      meshRef.current.rotation.y = Math.sin(t * 0.3) * 0.15;
-      meshRef.current.rotation.x = Math.sin(t * 0.2) * 0.05;
+    if (!meshRef.current) return;
+    const t = state.clock.elapsedTime;
+
+    // Capture start time on first frame
+    if (startTime.current === null) startTime.current = t;
+
+    const elapsed = t - startTime.current;
+    if (elapsed < duration) {
+      const progress = elapsed / duration;
+      // ease-out cubic
+      const eased = 1 - Math.pow(1 - progress, 3);
+      meshRef.current.rotation.y = eased * Math.PI * 2;
+    } else {
+      meshRef.current.rotation.y = Math.PI * 2;
     }
+    meshRef.current.rotation.x = Math.sin(t * 0.5) * 0.05;
   });
 
   return (
