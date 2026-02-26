@@ -363,6 +363,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
     categories: business?.categories || [] as string[],
     services: business?.services || [] as string[],
     default_service: (business as any)?.default_service || "",
+    business_type: (business as any)?.business_type || "",
     engagements: (business as any)?.engagements || [] as string[],
     keywords: business?.keywords?.join(", ") || "",
     latitude: business?.latitude?.toString() || "",
@@ -737,6 +738,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
       categories: formData.categories.length > 0 ? formData.categories : [],
       services: formData.services.length > 0 ? formData.services : [],
       default_service: formData.default_service || null,
+      business_type: formData.business_type || null,
       engagements: (formData as any).engagements?.length > 0 ? (formData as any).engagements : [],
       keywords: formData.keywords ? formData.keywords.split(",").map((k) => k.trim()) : [],
       latitude: formData.latitude ? parseFloat(formData.latitude) : null,
@@ -2957,6 +2959,30 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                   </div>
                 </div>
               )}
+              <div className="space-y-2 mt-3">
+                <Label>Type</Label>
+                <Select
+                  value={formData.business_type || ""}
+                  onValueChange={(value) => handleChange("business_type", value)}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Choisir le type..." />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background z-50">
+                    <SelectItem value="Vente">Vente</SelectItem>
+                    <SelectItem value="Location">Location</SelectItem>
+                  </SelectContent>
+                </Select>
+                {formData.business_type && (
+                  <button
+                    type="button"
+                    onClick={() => handleChange("business_type", "")}
+                    className="text-xs text-destructive hover:underline"
+                  >
+                    Aucun
+                  </button>
+                )}
+              </div>
             </>
           )}
         </div>

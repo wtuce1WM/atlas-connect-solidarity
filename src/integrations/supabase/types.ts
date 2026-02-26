@@ -451,6 +451,7 @@ export type Database = {
           airbnb_url: string | null
           badge_id: string | null
           booking_url: string | null
+          business_type: string | null
           categories: string[] | null
           city: string | null
           country: string | null
@@ -555,6 +556,7 @@ export type Database = {
           airbnb_url?: string | null
           badge_id?: string | null
           booking_url?: string | null
+          business_type?: string | null
           categories?: string[] | null
           city?: string | null
           country?: string | null
@@ -659,6 +661,7 @@ export type Database = {
           airbnb_url?: string | null
           badge_id?: string | null
           booking_url?: string | null
+          business_type?: string | null
           categories?: string[] | null
           city?: string | null
           country?: string | null
@@ -2009,6 +2012,7 @@ export type Database = {
           airbnb_url: string | null
           badge_id: string | null
           booking_url: string | null
+          business_type: string | null
           categories: string[] | null
           city: string | null
           country: string | null
