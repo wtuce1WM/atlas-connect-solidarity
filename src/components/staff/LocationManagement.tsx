@@ -988,6 +988,7 @@ const LocationManagement = () => {
                      <TableHead>Statut</TableHead>
                      <TableHead>Entreprises</TableHead>
                      <TableHead>Région</TableHead>
+                     <TableHead>Mots clés</TableHead>
                      <TableHead>Coordonnées</TableHead>
                      <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
@@ -1017,6 +1018,11 @@ const LocationManagement = () => {
                           </TableCell>
                           <TableCell className="text-muted-foreground">
                             {city.region || "—"}
+                          </TableCell>
+                          <TableCell>
+                            <span className="inline-flex items-center justify-center min-w-[2rem] px-2 py-0.5 bg-muted text-muted-foreground rounded text-sm font-medium">
+                              {city.keywords?.length || 0}
+                            </span>
                           </TableCell>
                           <TableCell className="text-muted-foreground text-sm">
                             {city.latitude && city.longitude
