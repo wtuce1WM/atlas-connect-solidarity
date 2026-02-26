@@ -397,6 +397,54 @@ function sanitizeTerm(term: string): string {
   return term.replace(/['']/g, "").replace(/[^a-zA-Z0-9àâäéèêëïîôùûüÿçœæÀÂÄÉÈÊËÏÎÔÙÛÜŸÇŒÆ]/g, "");
 }
 
+function normalizeMatchingText(value: string): string {
+  return stripAccentsGlobal(value.toLowerCase())
+    .replace(/[^\p{L}\p{N}\s]/gu, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function tokenizeForMatching(value: string): string[] {
+  const normalized = normalizeMatchingText(value);
+  if (!normalized) return [];
+  const baseTokens = normalized.split(" ").filter(Boolean);
+  const expanded = new Set<string>(baseTokens);
+
+  for (const token of baseTokens) {
+    if (token.length > 3 && token.endsWith("s")) {
+      expanded.add(token.slice(0, -1));
+    }
+    if (token.length > 4 && token.endsWith("es")) {
+      expanded.add(token.slice(0, -2));
+    }
+  }
+
+  return [...expanded];
+}
+
+function tagsMatchCandidate(candidate: string, tags: string[]): boolean {
+  const candidateNorm = normalizeMatchingText(candidate);
+  const candidateTokens = new Set(tokenizeForMatching(candidate));
+
+  return tags.some((tag) => {
+    const tagNorm = normalizeMatchingText(tag);
+    if (!tagNorm) return false;
+
+    if (tagNorm.includes(candidateNorm) || candidateNorm.includes(tagNorm)) return true;
+
+    const tagTokens = tokenizeForMatching(tag);
+    return tagTokens.some((token) => candidateTokens.has(token));
+  });
+}
+
+function collectBusinessTags(business: any): string[] {
+  return [
+    ...((business.services || []) as string[]),
+    ...((business.categories || []) as string[]),
+    ...((business.keywords || []) as string[]),
+  ].filter(Boolean);
+}
+
 // Adjectives that don't exist in business search vectors and should be dropped
 const NOISE_ADJECTIVES = new Set([
   "traditionnel", "traditionnelle", "traditionnels", "traditionnelles",
@@ -1805,11 +1853,8 @@ serve(async (req) => {
             const beforeCount = businesses.length;
             businesses = businesses.filter((b: any) => {
               const bServices = (b.services || []).map((s: string) => s.toLowerCase());
-              const bKeywords = (b.keywords || []).map((k: string) => k.toLowerCase());
-              const allTags = [...bServices, ...bKeywords];
-              return detectedServices.every(ds => 
-                allTags.some(bt => bt.includes(ds.toLowerCase()) || ds.toLowerCase().includes(bt))
-              );
+              const allTags = collectBusinessTags(b);
+              return detectedServices.every(ds => tagsMatchCandidate(ds, allTags));
             });
             console.log(`Multi-service AND post-filter [${detectedServices.join(", ")}]: ${beforeCount} → ${businesses.length}`);
             
@@ -1855,13 +1900,8 @@ serve(async (req) => {
                   return true;
                 }
               }
-              const bServices = (b.services || []).map((s: string) => s.toLowerCase());
-              const bCategories = (b.categories || []).map((s: string) => s.toLowerCase());
-              const bKeywords = (b.keywords || []).map((k: string) => k.toLowerCase());
-              const allBusinessTags = [...bServices, ...bCategories, ...bKeywords];
-              return allCandidateServiceNames.some(cs => 
-                allBusinessTags.some(bt => bt.includes(cs.toLowerCase()) || cs.toLowerCase().includes(bt))
-              );
+              const allBusinessTags = collectBusinessTags(b);
+              return allCandidateServiceNames.some(cs => tagsMatchCandidate(cs, allBusinessTags));
             });
             console.log(`Service OR post-filter [${allCandidateServiceNames.join(", ")}]: ${beforeCount} → ${businesses.length}`);
             
@@ -1888,6 +1928,40 @@ serve(async (req) => {
                       ? calculateDistance(latitude, longitude, b.latitude, b.longitude) : null,
                   }));
                   console.log(`Service fallback tsquery "${tsQueryFallback}": ${businesses.length} results`);
+                }
+              }
+            }
+
+            // Final fallback: when search_vector misses relevant businesses (e.g. keyword-only entries),
+            // fetch a broader candidate set and apply semantic tag matching in memory.
+            if (businesses.length === 0 && allCandidateServiceNames.length > 0) {
+              let semanticFallbackBuilder = supabase.from("businesses").select("*").eq("is_active", true);
+              if (effectiveCity) semanticFallbackBuilder = semanticFallbackBuilder.ilike("city", effectiveCity);
+              if (effectiveCategory) {
+                semanticFallbackBuilder = semanticFallbackBuilder.or(`main_category.eq.${effectiveCategory},categories.cs.{"${effectiveCategory}"}`);
+              }
+              if (detectedSubcategory) {
+                semanticFallbackBuilder = semanticFallbackBuilder.contains("categories", [detectedSubcategory]);
+              }
+
+              const { data: semanticFallbackData } = await semanticFallbackBuilder
+                .order("priority_score", { ascending: false })
+                .limit(500);
+
+              if (semanticFallbackData && semanticFallbackData.length > 0) {
+                const semanticFiltered = semanticFallbackData.filter((b: any) => {
+                  const allTags = collectBusinessTags(b);
+                  return allCandidateServiceNames.some(cs => tagsMatchCandidate(cs, allTags));
+                });
+
+                if (semanticFiltered.length > 0) {
+                  businesses = semanticFiltered.map((b: any) => ({
+                    ...b,
+                    distance_km: latitude && longitude && b.latitude && b.longitude
+                      ? calculateDistance(latitude, longitude, b.latitude, b.longitude)
+                      : null,
+                  }));
+                  console.log(`Service semantic fallback [${allCandidateServiceNames.join(", ")}]: ${businesses.length} results`);
                 }
               }
             }
@@ -1955,10 +2029,8 @@ serve(async (req) => {
               // Apply service post-filter on enriched results too
               if (allCandidateServiceNames.length > 0) {
                 newBusinesses = newBusinesses.filter((b: any) => {
-                  const bServices = (b.services || []).map((s: string) => s.toLowerCase());
-                  return allCandidateServiceNames.some(cs => 
-                    bServices.some(bs => bs.includes(cs.toLowerCase()) || cs.toLowerCase().includes(bs))
-                  );
+                  const allTags = collectBusinessTags(b);
+                  return allCandidateServiceNames.some(cs => tagsMatchCandidate(cs, allTags));
                 });
               }
               
@@ -1977,6 +2049,37 @@ serve(async (req) => {
           }
 
           searchLevel = "exact";
+        } else if (allCandidateServiceNames.length > 0) {
+          let semanticFallbackBuilder = supabase.from("businesses").select("*").eq("is_active", true);
+          if (effectiveCity) semanticFallbackBuilder = semanticFallbackBuilder.ilike("city", effectiveCity);
+          if (effectiveCategory) {
+            semanticFallbackBuilder = semanticFallbackBuilder.or(`main_category.eq.${effectiveCategory},categories.cs.{"${effectiveCategory}"}`);
+          }
+          if (detectedSubcategory) {
+            semanticFallbackBuilder = semanticFallbackBuilder.contains("categories", [detectedSubcategory]);
+          }
+
+          const { data: semanticFallbackData, error: semanticFallbackError } = await semanticFallbackBuilder
+            .order("priority_score", { ascending: false })
+            .limit(500);
+
+          if (!semanticFallbackError && semanticFallbackData && semanticFallbackData.length > 0) {
+            const semanticFiltered = semanticFallbackData.filter((b: any) => {
+              const allTags = collectBusinessTags(b);
+              return allCandidateServiceNames.some(cs => tagsMatchCandidate(cs, allTags));
+            });
+
+            if (semanticFiltered.length > 0) {
+              businesses = semanticFiltered.map((b: any) => ({
+                ...b,
+                distance_km: latitude && longitude && b.latitude && b.longitude
+                  ? calculateDistance(latitude, longitude, b.latitude, b.longitude)
+                  : null,
+              }));
+              searchLevel = "exact";
+              console.log(`Service semantic fallback [${allCandidateServiceNames.join(", ")}]: ${businesses.length} results`);
+            }
+          }
         }
       } else {
         // No text query, just filter by city/category
@@ -2057,12 +2160,8 @@ serve(async (req) => {
           if (allCandidateServiceNames.length > 0) {
             const beforeSvc = businesses.length;
             businesses = businesses.filter((b: any) => {
-              const bServices = (b.services || []).map((s: string) => s.toLowerCase());
-              const bKeywords = (b.keywords || []).map((k: string) => k.toLowerCase());
-              const allTags = [...bServices, ...bKeywords];
-              return allCandidateServiceNames.some(cs => 
-                allTags.some(bt => bt.includes(cs.toLowerCase()) || cs.toLowerCase().includes(bt))
-              );
+              const allTags = collectBusinessTags(b);
+              return allCandidateServiceNames.some(cs => tagsMatchCandidate(cs, allTags));
             });
             console.log(`Service post-filter (Level 2): ${beforeSvc} → ${businesses.length}`);
           }
