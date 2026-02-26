@@ -2929,7 +2929,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                 ))}
               </div>
               {formData.categories.length > 1 && (
-                <div className="mt-3">
+                <div className="mt-3 grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>Sous-catégorie par défaut</Label>
                     <Select
@@ -2957,32 +2957,60 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                       La sous-catégorie par défaut sera affichée en premier sur la fiche.
                     </p>
                   </div>
+                  <div className="space-y-2">
+                    <Label>Type</Label>
+                    <Select
+                      value={formData.business_type || ""}
+                      onValueChange={(value) => handleChange("business_type", value)}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Choisir le type..." />
+                      </SelectTrigger>
+                      <SelectContent className="bg-background z-50">
+                        <SelectItem value="Location">Location</SelectItem>
+                        <SelectItem value="Service">Service</SelectItem>
+                        <SelectItem value="Vente">Vente</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {formData.business_type && (
+                      <button
+                        type="button"
+                        onClick={() => handleChange("business_type", "")}
+                        className="text-xs text-destructive hover:underline"
+                      >
+                        Aucun
+                      </button>
+                    )}
+                  </div>
                 </div>
               )}
-              <div className="space-y-2 mt-3">
-                <Label>Type</Label>
-                <Select
-                  value={formData.business_type || ""}
-                  onValueChange={(value) => handleChange("business_type", value)}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Choisir le type..." />
-                  </SelectTrigger>
-                  <SelectContent className="bg-background z-50">
-                    <SelectItem value="Vente">Vente</SelectItem>
-                    <SelectItem value="Location">Location</SelectItem>
-                  </SelectContent>
-                </Select>
-                {formData.business_type && (
-                  <button
-                    type="button"
-                    onClick={() => handleChange("business_type", "")}
-                    className="text-xs text-destructive hover:underline"
+              {formData.categories.length <= 1 && (
+                <div className="space-y-2 mt-3">
+                  <Label>Type</Label>
+                  <Select
+                    value={formData.business_type || ""}
+                    onValueChange={(value) => handleChange("business_type", value)}
                   >
-                    Aucun
-                  </button>
-                )}
-              </div>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Choisir le type..." />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background z-50">
+                      <SelectItem value="Location">Location</SelectItem>
+                      <SelectItem value="Service">Service</SelectItem>
+                      <SelectItem value="Vente">Vente</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {formData.business_type && (
+                    <button
+                      type="button"
+                      onClick={() => handleChange("business_type", "")}
+                      className="text-xs text-destructive hover:underline"
+                    >
+                      Aucun
+                    </button>
+                  )}
+                </div>
+              )}
             </>
           )}
         </div>
