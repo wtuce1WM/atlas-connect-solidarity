@@ -337,11 +337,22 @@ const SearchPage = () => {
   }, []);
 
   const { status: voiceStatus, toggleRecording } = useVoiceSearch({
-    onTranscript: (keywords, spoken) => {
+    onTranscript: (keywords, spoken, category, timeKeyword) => {
       isVoiceSearchRef.current = true;
       setInputValue(keywords);
       setSearchQuery(keywords);
       const params: Record<string, string> = { q: keywords, spoken };
+      if (category) params.category = category;
+      // Handle temporal keyword from voice search
+      if (timeKeyword) {
+        const timeResult = extractTimeSlot(timeKeyword);
+        if (timeResult) {
+          params.timeStart = String(timeResult.timeSlot.startHour);
+          params.timeEnd = String(timeResult.timeSlot.endHour);
+          params.timeDayOffset = String(timeResult.timeSlot.dayOffset);
+          if (timeResult.timeSlot.dayOfWeek !== null) params.timeDayOfWeek = String(timeResult.timeSlot.dayOfWeek);
+        }
+      }
       setSearchParams(params);
       if (isMobile) window.scrollTo({ top: 0, behavior: 'smooth' });
     },
@@ -648,7 +659,16 @@ const SearchPage = () => {
     e.preventDefault();
     if (inputValue.trim()) {
       setSearchQuery(inputValue.trim());
-      setSearchParams({ q: inputValue.trim() });
+      const params: Record<string, string> = { q: inputValue.trim() };
+      // Detect time keywords in typed query
+      const timeResult = extractTimeSlot(inputValue.trim());
+      if (timeResult) {
+        params.timeStart = String(timeResult.timeSlot.startHour);
+        params.timeEnd = String(timeResult.timeSlot.endHour);
+        params.timeDayOffset = String(timeResult.timeSlot.dayOffset);
+        if (timeResult.timeSlot.dayOfWeek !== null) params.timeDayOfWeek = String(timeResult.timeSlot.dayOfWeek);
+      }
+      setSearchParams(params);
       if (isMobile) window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
