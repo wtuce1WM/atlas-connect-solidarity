@@ -1354,14 +1354,21 @@ serve(async (req) => {
     if (!subcategorySearchConfig && detectedService) {
       const { data: svcParents } = await supabase
         .from("services")
-        .select("subcategory_id, subcategories!inner(name_fr)")
+        .select("subcategory_id, subcategories!inner(name_fr, category_id, categories!inner(name_fr))")
         .eq("name_fr", detectedService);
       if (svcParents && svcParents.length > 0) {
         // If detected subcategory exists, prefer the parent that matches it
         let bestParent: { name: string; config: typeof subcategorySearchConfig } | null = null;
         for (const sp of svcParents) {
           const parentName = (sp as any).subcategories?.name_fr;
+          const parentCategoryName = (sp as any).subcategories?.categories?.name_fr;
           if (parentName) {
+            // Skip if the service's parent category conflicts with the intent category
+            // e.g. don't apply Yoga/strict config when intent is Commerce
+            if (intentCategory && parentCategoryName && parentCategoryName.toLowerCase() !== intentCategory.toLowerCase()) {
+              console.log(`Skipping search config from service "${detectedService}" parent "${parentName}" (category "${parentCategoryName}" ≠ intent "${intentCategory}")`);
+              continue;
+            }
             // If this parent IS the detected subcategory, use it directly
             if (detectedSubcategory && parentName.toLowerCase() === detectedSubcategory.toLowerCase()) {
               const parentConfig = searchConfigs[parentName.toLowerCase()] || null;
