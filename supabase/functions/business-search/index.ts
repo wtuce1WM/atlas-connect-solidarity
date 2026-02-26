@@ -2347,6 +2347,32 @@ serve(async (req) => {
       console.log(`Superlative detected in "${effectiveQuery}" → sorting by rating`);
       businesses = [...businesses].sort((a, b) => getBestRating(b) - getBestRating(a));
     }
+    // Filter out name-matched businesses that are irrelevant when a subcategory/service is detected
+    // e.g. "Gypsy Queens La Piscine" (a clothing store) should NOT be pinned for "piscine" search
+    if (nameMatchedBusinessIds.length > 0 && (detectedSubcategory || detectedServices.length > 0)) {
+      // Fetch the name-matched businesses to check their categories/services
+      const { data: nameMatchData } = await supabase
+        .from("businesses")
+        .select("id, categories, services")
+        .in("id", nameMatchedBusinessIds)
+        .eq("is_active", true);
+      if (nameMatchData) {
+        const relevantIds = nameMatchData.filter((b: any) => {
+          const bCats = (b.categories || []).map((c: string) => c.toLowerCase());
+          const bSvcs = (b.services || []).map((s: string) => s.toLowerCase());
+          // Check if business has the detected subcategory in its categories
+          if (detectedSubcategory && bCats.some(c => c.includes(detectedSubcategory!.toLowerCase()) || detectedSubcategory!.toLowerCase().includes(c))) return true;
+          // Check if business has any of the detected services
+          if (detectedServices.length > 0 && detectedServices.some(ds => bSvcs.some(bs => bs.includes(ds.toLowerCase()) || ds.toLowerCase().includes(bs)))) return true;
+          return false;
+        }).map((b: any) => b.id);
+        const removedNames = nameMatchData.filter((b: any) => !relevantIds.includes(b.id));
+        if (removedNames.length > 0) {
+          console.log(`Removed ${removedNames.length} irrelevant name match(es) (no matching subcategory/service): [${removedNames.map((b: any) => b.id).join(", ")}]`);
+        }
+        nameMatchedBusinessIds = relevantIds;
+      }
+    }
     // Inject name-matched businesses that may have been filtered out by strict mode
     if (nameMatchedBusinessIds.length > 0) {
       const existingIds = new Set(businesses.map(b => b.id));
