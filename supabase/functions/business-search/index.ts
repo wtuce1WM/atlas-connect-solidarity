@@ -916,9 +916,38 @@ serve(async (req) => {
       if (subcatWithCat) {
         const parentCatName = (subcatWithCat as any).categories?.name_fr;
         if (parentCatName && parentCatName !== intentCategory) {
-          intentSubcategoryConflict = true;
-          conflictSubcategoryParentCategory = parentCatName;
-          console.log(`Intent-subcategory conflict: intent="${intentCategory}" vs subcategory "${detectedSubcategory}" parent="${parentCatName}" → will merge results`);
+          // Before declaring a conflict, check if there's a better subcategory under the INTENT category
+          // e.g. "acheter du poisson" → intent=Commerce, detected="Poisson" (Agriculture)
+          // → prefer "Poissonnerie" (Commerce) which has "poisson" in its keywords
+          const qLower = (effectiveQuery || "").toLowerCase();
+          const qWords = qLower.split(/\s+/).filter((w: string) => w.length > 1);
+          const { data: intentSubcats } = await supabase
+            .from("subcategories")
+            .select("name_fr, keywords, categories!inner(name_fr)")
+            .eq("categories.name_fr", intentCategory);
+          let betterSubcat: string | null = null;
+          if (intentSubcats) {
+            for (const sc of intentSubcats) {
+              const scName = (sc.name_fr || "").toLowerCase();
+              const scKws: string[] = ((sc as any).keywords || []).map((k: string) => k.toLowerCase());
+              // Check if any query word matches this subcategory's name or keywords
+              const nameMatch = qWords.some(qw => scName.includes(qw) || qw.includes(scName));
+              const kwMatch = qWords.some(qw => scKws.some(k => k === qw || k.includes(qw) || qw.includes(k)));
+              if (nameMatch || kwMatch) {
+                betterSubcat = sc.name_fr;
+                break;
+              }
+            }
+          }
+          if (betterSubcat) {
+            console.log(`Intent-subcategory re-evaluation: switching from "${detectedSubcategory}" (${parentCatName}) to "${betterSubcat}" (${intentCategory}) — better match for intent`);
+            detectedSubcategory = betterSubcat;
+            // No conflict since we found a matching subcategory under the intent category
+          } else {
+            intentSubcategoryConflict = true;
+            conflictSubcategoryParentCategory = parentCatName;
+            console.log(`Intent-subcategory conflict: intent="${intentCategory}" vs subcategory "${detectedSubcategory}" parent="${parentCatName}" → will merge results`);
+          }
         }
       }
     }
