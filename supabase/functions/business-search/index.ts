@@ -424,26 +424,29 @@ function tokenizeForMatching(value: string): string[] {
 
 function tagsMatchCandidate(candidate: string, tags: string[]): boolean {
   const candidateNorm = normalizeMatchingText(candidate);
-  const candidateTokens = new Set(tokenizeForMatching(candidate));
-  // For multi-word candidates, count how many content tokens must match
-  const candidateContentTokens = candidateNorm.split(" ").filter(w => w.length > 1 && !FRENCH_STOP_WORDS.has(w));
-  const isMultiWordCandidate = candidateContentTokens.length >= 2;
-  // For multi-word candidates, require at least 2 content tokens to match (not just 1 like "bain")
-  const minTokenMatches = isMultiWordCandidate ? Math.max(2, Math.ceil(candidateContentTokens.length * 0.5)) : 1;
+  const candidateTokensAll = new Set(tokenizeForMatching(candidate));
+  // Build content-only token set (exclude stop words and very short words)
+  const candidateContentTokensSet = new Set(
+    [...candidateTokensAll].filter(t => t.length > 1 && !FRENCH_STOP_WORDS.has(t))
+  );
+  const candidateContentTokensList = candidateNorm.split(" ").filter(w => w.length > 1 && !FRENCH_STOP_WORDS.has(w));
+  const isMultiWordCandidate = candidateContentTokensList.length >= 2;
+  // For multi-word candidates, require at least 2 content tokens to match
+  const minTokenMatches = isMultiWordCandidate ? Math.max(2, Math.ceil(candidateContentTokensList.length * 0.5)) : 1;
 
   return tags.some((tag) => {
     const tagNorm = normalizeMatchingText(tag);
     if (!tagNorm) return false;
 
-    // Use word-boundary aware matching instead of raw substring includes
-    // This prevents "golf" from matching "montgolfiere"
+    // Exact match
     if (tagNorm === candidateNorm) return true;
     // Multi-word: check if one fully contains the other as a word sequence
     if (candidateNorm.includes(" ") && tagNorm.includes(candidateNorm)) return true;
     if (tagNorm.includes(" ") && candidateNorm.includes(tagNorm)) return true;
 
-    const tagTokens = tokenizeForMatching(tag);
-    const matchCount = tagTokens.filter((token) => candidateTokens.has(token)).length;
+    // Token matching: only count CONTENT tokens (exclude stop words like "de", "du", "à")
+    const tagContentTokens = tokenizeForMatching(tag).filter(t => t.length > 1 && !FRENCH_STOP_WORDS.has(t));
+    const matchCount = tagContentTokens.filter((token) => candidateContentTokensSet.has(token)).length;
     return matchCount >= minTokenMatches;
   });
 }
