@@ -1,0 +1,1 @@
+UPDATE businesses SET categories = array_replace(categories, 'Yoga 2', 'Yoga') WHERE 'Yoga 2' = ANY(categories);
