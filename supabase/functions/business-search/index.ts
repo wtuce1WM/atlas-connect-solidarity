@@ -658,19 +658,19 @@ serve(async (req) => {
         const { data: nameMatches } = await nameMatchBuilder.limit(5);
         if (nameMatches && nameMatches.length > 0) {
           const qWords = nameSearchQuery.toLowerCase().split(/\s+/).filter((w: string) => w.length > 1);
-          const hasStrongMatch = nameMatches.some((b: any) => {
+          const strongNameMatches = nameMatches.filter((b: any) => {
             const bWords = b.name.toLowerCase().split(/\s+/).filter((w: string) => w.length > 1);
             const matchCount = qWords.filter((qw: string) => bWords.some((bw: string) => {
               const bwStripped = stripAccentsGlobal(bw);
               const qwStripped = stripAccentsGlobal(qw);
-              // Use whole-word comparison: "golf" must equal "golf", not be a substring of "montgolfière"
-              return bw === qw || qw === bw || bwStripped === qwStripped;
+              // Whole-word comparison only: "golf" !== "montgolfière"
+              return bw === qw || bwStripped === qwStripped;
             })).length;
             return matchCount >= Math.ceil(qWords.length * 0.6);
           });
-          if (hasStrongMatch) {
-            nameMatchedBusinessIds = nameMatches.map((b: any) => b.id);
-            console.log(`Name match found for pinning: query "${nameSearchQuery}" matches [${nameMatches.map((b: any) => b.name).join(", ")}]`);
+          if (strongNameMatches.length > 0) {
+            nameMatchedBusinessIds = strongNameMatches.map((b: any) => b.id);
+            console.log(`Name match found for pinning: query "${nameSearchQuery}" matches [${strongNameMatches.map((b: any) => b.name).join(", ")}]`);
           }
         }
       }
