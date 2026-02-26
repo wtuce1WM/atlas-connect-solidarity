@@ -637,6 +637,7 @@ const LocationManagement = () => {
       keywords: n.keywords || [],
     });
     setShowNeighborhoodFullForm(true);
+    setTimeout(() => neighborhoodFormRef.current?.scrollTo({ top: 0 }), 0);
   };
 
   const handleSaveNeighborhoodFull = async () => {
