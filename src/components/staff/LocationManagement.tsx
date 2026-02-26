@@ -1222,6 +1222,7 @@ const LocationManagement = () => {
                     <TableHead>Établissements</TableHead>
                     <TableHead>Coordonnées</TableHead>
                     <TableHead>Ordre</TableHead>
+                    <TableHead>Mots clés</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -1261,6 +1262,11 @@ const LocationManagement = () => {
                             {n.latitude && n.longitude ? `${n.latitude.toFixed(4)}, ${n.longitude.toFixed(4)}` : "—"}
                           </TableCell>
                           <TableCell>{n.sort_order ?? 0}</TableCell>
+                          <TableCell>
+                            <span className="inline-flex items-center justify-center min-w-[2rem] px-2 py-0.5 bg-muted text-muted-foreground rounded text-sm font-medium">
+                              {n.keywords?.length || 0}
+                            </span>
+                          </TableCell>
                           <TableCell className="text-right">
                             <a href={`/search?q=${encodeURIComponent(n.name + ' ' + (city?.name_fr || ''))}`} target="_blank" rel="noopener noreferrer">
                               <Button size="sm" variant="ghost" title="Rechercher">
