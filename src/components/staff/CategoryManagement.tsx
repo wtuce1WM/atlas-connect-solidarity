@@ -195,7 +195,7 @@ const CategoryManagement = () => {
     const [catRes, subRes, svcRes, bizRes] = await Promise.all([
       supabase.from("categories").select("*").order("name_fr"),
       supabase.from("subcategories").select("*").order("sort_order"),
-      supabase.from("services").select("*").order("sort_order"),
+      supabase.from("services").select("*").order("sort_order").limit(5000),
       supabase.from("businesses").select("main_category, categories, services").eq("is_active", true),
     ]);
 

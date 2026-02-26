@@ -319,7 +319,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
       const [catRes, subRes, servRes, citiesRes, gammesRes, gammeCatRes, neighborhoodsRes, affiliatesRes, badgesRes, badgeSubcatsRes, destRes, poiRes] = await Promise.all([
         supabase.from("categories").select("id, name_fr").order("sort_order"),
         supabase.from("subcategories").select("id, name_fr, category_id").order("sort_order"),
-        supabase.from("services").select("id, name_fr, subcategory_id").order("sort_order"),
+        supabase.from("services").select("id, name_fr, subcategory_id").order("sort_order").limit(5000),
         supabase.from("cities").select("id, name_fr, region").order("name_fr"),
         supabase.from("gammes").select("id, name_fr").order("sort_order"),
         supabase.from("gamme_categories").select("gamme_id, category_id"),

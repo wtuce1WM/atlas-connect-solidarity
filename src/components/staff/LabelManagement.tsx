@@ -145,7 +145,7 @@ const LabelManagement = () => {
       supabase.from("categories").select("id, name_fr").order("sort_order", { ascending: true }),
       supabase.from("subcategories").select("id, name_fr, category_id, categories!subcategories_category_id_fkey(name_fr)").order("sort_order", { ascending: true }),
       supabase.from("cities").select("id, name_fr").order("sort_order", { ascending: true }),
-      supabase.from("services").select("id, name_fr, subcategory_id, subcategories!services_subcategory_id_fkey(name_fr)").order("sort_order", { ascending: true }),
+      supabase.from("services").select("id, name_fr, subcategory_id, subcategories!services_subcategory_id_fkey(name_fr)").order("sort_order", { ascending: true }).limit(5000),
       supabase.from("neighborhoods").select("id, name, city_id, cities!neighborhoods_city_id_fkey(name_fr)").order("sort_order", { ascending: true }),
       supabase.from("label_categories" as any).select("label_id, category_id"),
       supabase.from("label_subcategories" as any).select("label_id, subcategory_id"),
