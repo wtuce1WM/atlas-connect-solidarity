@@ -170,6 +170,7 @@ const LocationManagement = () => {
    const [businessCounts, setBusinessCounts] = useState<Record<string, number>>({});
    const [neighborhoodBusinessCounts, setNeighborhoodBusinessCounts] = useState<Record<string, number>>({});
    const [destinationBusinessCounts, setDestinationBusinessCounts] = useState<Record<string, number>>({});
+   const [destinationBusinessNames, setDestinationBusinessNames] = useState<{destId: string; names: string[]} | null>(null);
   const [loading, setLoading] = useState(true);
   const [editingCountry, setEditingCountry] = useState<Country | null>(null);
   const [editingCity, setEditingCity] = useState<City | null>(null);
@@ -1384,9 +1385,28 @@ const LocationManagement = () => {
                         {d.latitude && d.longitude ? `${d.latitude.toFixed(4)}, ${d.longitude.toFixed(4)}` : "—"}
                       </TableCell>
                       <TableCell>
-                        <span className="inline-flex items-center justify-center min-w-[2rem] px-2 py-0.5 bg-muted text-muted-foreground rounded text-sm font-medium">
-                          {destinationBusinessCounts[d.id] || 0}
-                        </span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="inline-flex items-center justify-center min-w-[2rem] px-2 py-0.5 bg-muted text-muted-foreground rounded text-sm font-medium">
+                            {destinationBusinessCounts[d.id] || 0}
+                          </span>
+                          {(destinationBusinessCounts[d.id] || 0) > 0 && (
+                            <button
+                              type="button"
+                              className="text-muted-foreground hover:text-primary transition-colors"
+                              title="Voir les établissements liés"
+                              onClick={async () => {
+                                const { data } = await supabase
+                                  .from("business_destinations" as any)
+                                  .select("business_id, businesses!inner(name)")
+                                  .eq("destination_id", d.id) as any;
+                                const names = (data || []).map((r: any) => r.businesses?.name).filter(Boolean).sort((a: string, b: string) => a.localeCompare(b, 'fr'));
+                                setDestinationBusinessNames({ destId: d.id, names });
+                              }}
+                            >
+                              <Search className="h-3.5 w-3.5" />
+                            </button>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell>
                         <span className="inline-flex items-center justify-center min-w-[2rem] px-2 py-0.5 bg-muted text-muted-foreground rounded text-sm font-medium">
@@ -1403,6 +1423,21 @@ const LocationManagement = () => {
                 </TableBody>
               </Table>
             )}
+
+            {/* Dialog listing businesses linked to a destination */}
+            <Dialog open={!!destinationBusinessNames} onOpenChange={(open) => { if (!open) setDestinationBusinessNames(null); }}>
+              <DialogContent className="max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Établissements liés</DialogTitle>
+                </DialogHeader>
+                <div className="max-h-80 overflow-y-auto space-y-1">
+                  {destinationBusinessNames?.names.length === 0 && <p className="text-muted-foreground text-sm">Aucun établissement</p>}
+                  {destinationBusinessNames?.names.map((name, i) => (
+                    <p key={i} className="text-sm py-1 border-b last:border-0">{name}</p>
+                  ))}
+                </div>
+              </DialogContent>
+            </Dialog>
           </CardContent>
         )}
       </Card>
