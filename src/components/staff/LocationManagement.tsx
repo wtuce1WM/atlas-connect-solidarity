@@ -34,7 +34,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Edit, Trash2, Globe, MapPin, Building, ExternalLink, ArrowLeft, Save, FileText, Home, ChevronDown, Compass, LocateFixed, Loader2, ImageIcon, X, Search } from "lucide-react";
+import { Plus, Edit, Trash2, Globe, MapPin, Building, ExternalLink, ArrowLeft, Save, FileText, Home, ChevronDown, Compass, LocateFixed, Loader2, ImageIcon, X, Search, ArrowUp } from "lucide-react";
 import RichTextEditor from "./RichTextEditor";
 import LogoUploader from "./LogoUploader";
 
@@ -128,6 +128,27 @@ interface PointOfInterest {
   sort_order: number | null;
   image_url: string | null;
 }
+const NeighborhoodScrollToTop = ({ containerRef }: { containerRef: React.RefObject<HTMLDivElement> }) => {
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const onScroll = () => setVisible(el.scrollTop > 400);
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => el.removeEventListener("scroll", onScroll);
+  }, [containerRef]);
+  if (!visible) return null;
+  return (
+    <button
+      onClick={() => containerRef.current?.scrollTo({ top: 0, behavior: "smooth" })}
+      className="fixed bottom-20 right-6 z-[60] p-3 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 transition-all"
+      aria-label="Remonter en haut"
+    >
+      <ArrowUp className="h-5 w-5" />
+    </button>
+  );
+};
+
 const LocationManagement = () => {
   const [geocodingField, setGeocodingField] = useState<string | null>(null);
   const [batchGeocoding, setBatchGeocoding] = useState(false);
@@ -201,6 +222,7 @@ const LocationManagement = () => {
 
   // Section refs for auto-scroll
   const citiesSectionRef = useRef<HTMLDivElement>(null);
+  const neighborhoodFormRef = useRef<HTMLDivElement>(null);
   const neighborhoodsSectionRef = useRef<HTMLDivElement>(null);
   const destinationsSectionRef = useRef<HTMLDivElement>(null);
   const poiSectionRef = useRef<HTMLDivElement>(null);
@@ -2155,7 +2177,7 @@ const LocationManagement = () => {
       )}
       {/* Neighborhood Full Form Page */}
       {showNeighborhoodFullForm && (
-        <div className="absolute inset-0 z-50 bg-background overflow-y-auto" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, minHeight: '100vh' }}>
+        <div ref={neighborhoodFormRef} className="absolute inset-0 z-50 bg-background overflow-y-auto" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, minHeight: '100vh' }}>
           <div className="container max-w-2xl mx-auto py-6 px-4 pb-24">
             <div className="flex items-center justify-between mb-6 sticky top-0 bg-background py-4 border-b z-10">
               <div className="flex items-center gap-4">
@@ -2335,6 +2357,7 @@ const LocationManagement = () => {
               </Button>
             </div>
           </div>
+          <NeighborhoodScrollToTop containerRef={neighborhoodFormRef} />
         </div>
       )}
     </div>
