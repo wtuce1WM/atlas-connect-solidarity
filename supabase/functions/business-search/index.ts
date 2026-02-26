@@ -1596,7 +1596,7 @@ serve(async (req) => {
 
     if (detectedSubcategory && businesses.length === 0) {
       // Helper to fetch businesses for a given subcategory (or merged group) with current filters
-      const fetchSubcategoryBusinesses = async (subcat: string, filterByServices?: string[]) => {
+      const fetchSubcategoryBusinesses = async (subcat: string, filterByServices?: string[], options?: { skipNeighborhood?: boolean }) => {
         // Determine which subcategories to query (merged if applicable)
         const mergedSubcats = MERGED_SUBCATEGORIES[subcat.toLowerCase()] || [subcat];
         
@@ -1624,8 +1624,8 @@ serve(async (req) => {
         if (effectiveCategory && !intentSubcategoryConflict) {
           subBuilder = subBuilder.or(`main_category.eq.${effectiveCategory},categories.cs.{"${effectiveCategory}"}`);
         }
-        // Filter by neighborhood if detected
-        if (detectedNeighborhood) {
+        // Filter by neighborhood if detected (unless explicitly skipped)
+        if (detectedNeighborhood && !options?.skipNeighborhood) {
           const nhOrClause = buildNeighborhoodOrClause(detectedNeighborhood, loadedNeighborhoods);
           subBuilder = subBuilder.or(nhOrClause);
         }
@@ -1694,7 +1694,13 @@ serve(async (req) => {
         }
       }
 
-      // Enrich: also find businesses that have this subcategory as a service (e.g. "Hammam" service in hotels)
+      // ── Neighborhood fallback: if still 0 results and neighborhood was applied, retry without it ──
+      if (businesses.length === 0 && detectedNeighborhood) {
+        console.log(`Neighborhood "${detectedNeighborhood}" yielded 0 results for subcategory "${detectedSubcategory}" — retrying without neighborhood filter`);
+        businesses = await fetchSubcategoryBusinesses(detectedSubcategory, serviceFilter, { skipNeighborhood: true });
+        console.log(`Subcategory without neighborhood "${detectedSubcategory}": ${businesses.length} results`);
+      }
+
       // Skip generic enrichment when a specific service filter is active (already narrowed)
       // In strict mode, still enrich but mark as service-based (they'll be grouped separately on frontend)
       if (!serviceFilter) {
