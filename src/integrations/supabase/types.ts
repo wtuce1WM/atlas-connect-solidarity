@@ -1676,6 +1676,44 @@ export type Database = {
         }
         Relationships: []
       }
+      search_service_filters: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_active: boolean
+          keyword: string
+          required_service: string
+          subcategory_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean
+          keyword: string
+          required_service: string
+          subcategory_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean
+          keyword?: string
+          required_service?: string
+          subcategory_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "search_service_filters_subcategory_id_fkey"
+            columns: ["subcategory_id"]
+            isOneToOne: false
+            referencedRelation: "subcategories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       services: {
         Row: {
           created_at: string | null
