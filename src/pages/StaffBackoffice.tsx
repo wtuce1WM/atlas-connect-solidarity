@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Plus, Search, Edit, Trash2, Eye, EyeOff, Building2, Users, Folder, MapPin, Copy, Star, UserCheck, Award, Gem, AlertTriangle, LayoutDashboard, Crown, CheckCircle, Settings2, ArrowLeft, BookOpen } from "lucide-react";
+import { LogOut, Plus, Search, Edit, Trash2, Eye, EyeOff, Building2, Users, Folder, MapPin, Copy, Star, UserCheck, Award, Gem, AlertTriangle, LayoutDashboard, Crown, CheckCircle, Settings2, ArrowLeft } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import BusinessForm from "@/components/staff/BusinessForm";
 import BusinessTable from "@/components/staff/BusinessTable";
@@ -26,7 +26,7 @@ import SearchConfigManagement from "@/components/staff/SearchConfigManagement";
 import { useBusinessBrokenLinks } from "@/hooks/useBusinessBrokenLinks";
 import StaffDashboard from "@/components/staff/StaffDashboard";
 import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
-import KnowledgeBaseManagement from "@/components/staff/KnowledgeBaseManagement";
+
 import type { Tables } from "@/integrations/supabase/types";
 
 type Business = Tables<"businesses">;
@@ -357,10 +357,6 @@ const StaffBackoffice = () => {
                 <MapPin className="h-4 w-4" />
                 Pays & Villes
               </TabsTrigger>
-              <TabsTrigger value="knowledge" className="gap-2">
-                <BookOpen className="h-4 w-4" />
-                Connaissances
-              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="dashboard">
@@ -646,9 +642,6 @@ const StaffBackoffice = () => {
               <LocationManagement />
             </TabsContent>
 
-            <TabsContent value="knowledge">
-              <KnowledgeBaseManagement />
-            </TabsContent>
 
 
           </Tabs>
