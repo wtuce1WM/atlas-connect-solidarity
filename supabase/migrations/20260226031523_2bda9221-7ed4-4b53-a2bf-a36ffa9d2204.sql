@@ -1,0 +1,1 @@
+ALTER TABLE public.neighborhoods ADD COLUMN keywords text[] DEFAULT '{}'::text[];

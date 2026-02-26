@@ -302,66 +302,94 @@ async function detectCityInQueryDynamic(query: string, supabase: any): Promise<s
 
 // detectCityInQuery is no longer used — replaced by detectCityInQueryDynamic
 
-// Known neighborhoods for auto-detection in query
-const KNOWN_NEIGHBORHOODS = [
-  "Gueliz", "Guéliz", "Geliz", "Hivernage", "Médina", "Medina", "Ancienne Médina", "Palmeraie",
-  "Agdal", "Semlalia", "Mellah", "Kasbah", "Sidi Ghanem", "Targa", "Menara", "Ménara",
-  "Daoudiate", "Anfa", "Maârif", "Corniche", "Bourgogne", "Racine", "Gauthier",
-  "Souissi", "Hassan", "Hay Riad", "Marina", "Port", "Taghazout", "Sidi Kaouki",
-  "Oudaya", "Dhar El Mehraz",
-];
+// Neighborhood data loaded from DB (name + keywords/aliases)
+interface NeighborhoodEntry { name: string; keywords: string[] }
+let loadedNeighborhoods: NeighborhoodEntry[] = [];
 
-function detectNeighborhoodInQuery(query: string): string | null {
+async function loadNeighborhoods(supabase: any): Promise<NeighborhoodEntry[]> {
+  if (loadedNeighborhoods.length > 0) return loadedNeighborhoods;
+  const { data } = await supabase.from("neighborhoods").select("name, keywords");
+  if (data) {
+    loadedNeighborhoods = data.map((n: any) => ({ name: n.name, keywords: n.keywords || [] }));
+  }
+  return loadedNeighborhoods;
+}
+
+// Build all known names + aliases for detection
+function getAllNeighborhoodNames(neighborhoods: NeighborhoodEntry[]): string[] {
+  const all: string[] = [];
+  for (const n of neighborhoods) {
+    all.push(n.name);
+    all.push(...n.keywords);
+  }
+  return all;
+}
+
+// Find the canonical neighborhood name from a detected alias
+function resolveNeighborhoodName(detected: string, neighborhoods: NeighborhoodEntry[]): string {
+  const detectedLower = detected.toLowerCase();
+  const detectedStripped = stripAccentsGlobal(detectedLower);
+  for (const n of neighborhoods) {
+    if (n.name.toLowerCase() === detectedLower || stripAccentsGlobal(n.name.toLowerCase()) === detectedStripped) return n.name;
+    for (const kw of n.keywords) {
+      if (kw.toLowerCase() === detectedLower || stripAccentsGlobal(kw.toLowerCase()) === detectedStripped) return n.name;
+    }
+  }
+  return detected;
+}
+
+// Get all variants (name + keywords) for a neighborhood, for SQL OR filtering
+function getNeighborhoodVariants(name: string, neighborhoods: NeighborhoodEntry[]): string[] {
+  const entry = neighborhoods.find(n => n.name.toLowerCase() === name.toLowerCase());
+  if (!entry) return [name];
+  return [entry.name, ...entry.keywords];
+}
+
+async function detectNeighborhoodInQuery(query: string, supabase: any): Promise<string | null> {
+  const neighborhoods = await loadNeighborhoods(supabase);
+  const allNames = getAllNeighborhoodNames(neighborhoods);
   const lower = query.toLowerCase();
   const lowerStripped = stripAccentsGlobal(lower);
   const words = lower.split(/\s+/);
   const wordsStripped = lowerStripped.split(/\s+/);
-  const sorted = [...KNOWN_NEIGHBORHOODS].sort((a, b) => b.length - a.length);
+  const sorted = [...allNames].sort((a, b) => b.length - a.length);
   for (const n of sorted) {
     const nLower = n.toLowerCase();
     const nStripped = stripAccentsGlobal(nLower);
     if (nLower.includes(" ")) {
-      // Multi-word: substring match with accent normalization
-      if (lower.includes(nLower) || lowerStripped.includes(nStripped)) return n;
+      if (lower.includes(nLower) || lowerStripped.includes(nStripped)) return resolveNeighborhoodName(n, neighborhoods);
     } else {
-      // Single-word: must be a standalone word to avoid "aéroport" matching "Port"
-      if (words.includes(nLower) || wordsStripped.includes(nStripped)) return n;
+      if (words.includes(nLower) || wordsStripped.includes(nStripped)) return resolveNeighborhoodName(n, neighborhoods);
     }
   }
   return null;
 }
 
-// Post-filter businesses by neighborhood, including "Toute la ville & environs" wildcard
-function filterByNeighborhood(businesses: any[], neighborhood: string, keepNameMatches = false): any[] {
-  const nLower = neighborhood.toLowerCase();
-  // Accent-stripped version for name matching
-  const nStripped = nLower.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-  // Handle accent variants (e.g. Gueliz/Guéliz)
-  const variants = [nLower];
-  if (nLower === "gueliz" || nLower === "guéliz" || nLower === "geliz") {
-    variants.push("gueliz", "guéliz", "geliz");
-  }
-  if (nLower === "médina" || nLower === "medina") {
-    variants.push("médina", "medina", "ancienne médina");
-  }
-  if (nLower === "menara" || nLower === "ménara") {
-    variants.push("menara", "ménara");
-  }
+// Post-filter businesses by neighborhood, using dynamic variants from DB
+function filterByNeighborhood(businesses: any[], neighborhood: string, keepNameMatches = false, neighborhoods: NeighborhoodEntry[] = []): any[] {
+  const variants = getNeighborhoodVariants(neighborhood, neighborhoods).map(v => v.toLowerCase());
+  // Always include accent-stripped versions
+  const allVariants = [...new Set([...variants, ...variants.map(v => stripAccentsGlobal(v))])];
+  const nStripped = stripAccentsGlobal(neighborhood.toLowerCase());
   
   return businesses.filter((b: any) => {
     const bNeighborhood = (b.neighborhood || "").toLowerCase();
-    if (variants.some(v => bNeighborhood === v || bNeighborhood.includes(v))) return true;
+    if (allVariants.some(v => bNeighborhood === v || bNeighborhood.includes(v))) return true;
     if (bNeighborhood.includes("toute la ville")) return true;
-    // Businesses with is_visible_locale=true + zone_chalandise="locale" are visible city-wide
     if (b.is_visible_locale === true) return true;
-    // Also keep businesses whose name contains the neighborhood term
     if (keepNameMatches) {
       const bName = (b.name || "").toLowerCase();
       const bNameStripped = bName.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-      if (variants.some(v => bName.includes(v)) || bNameStripped.includes(nStripped)) return true;
+      if (allVariants.some(v => bName.includes(v)) || bNameStripped.includes(nStripped)) return true;
     }
     return false;
   });
+}
+
+// Build SQL OR clause for neighborhood variants
+function buildNeighborhoodOrClause(neighborhood: string, neighborhoods: NeighborhoodEntry[]): string {
+  const variants = getNeighborhoodVariants(neighborhood, neighborhoods);
+  return [...variants.map(n => `neighborhood.ilike.${n}`), 'is_visible_locale.eq.true'].join(",");
 }
 
 // Sanitize a term for to_tsquery: remove apostrophes and special chars
@@ -521,7 +549,7 @@ serve(async (req) => {
     const effectiveCity = city || detectedCity || undefined;
 
     // Auto-détection de quartier dans la query
-    const detectedNeighborhood = effectiveQuery ? detectNeighborhoodInQuery(effectiveQuery) : null;
+    const detectedNeighborhood = effectiveQuery ? await detectNeighborhoodInQuery(effectiveQuery, supabase) : null;
     if (detectedNeighborhood) {
       console.log(`Auto-detected neighborhood "${detectedNeighborhood}" from query "${effectiveQuery}"`);
     }
@@ -1447,23 +1475,8 @@ serve(async (req) => {
         }
         // Filter by neighborhood if detected
         if (detectedNeighborhood) {
-          const nLower = detectedNeighborhood.toLowerCase();
-          const neighborhoodVariants = [detectedNeighborhood];
-          if (nLower === "gueliz" || nLower === "guéliz" || nLower === "geliz") {
-            neighborhoodVariants.push("Gueliz", "Guéliz", "Geliz");
-          }
-          if (nLower === "menara" || nLower === "ménara") {
-            neighborhoodVariants.push("Menara", "Ménara");
-          }
-          if (nLower === "médina" || nLower === "medina" || nLower === "ancienne médina") {
-            neighborhoodVariants.push("Médina", "Medina", "Ancienne Médina", "Ancienne Medina");
-          }
-          if (neighborhoodVariants.length > 1) {
-            const orClause = [...neighborhoodVariants.map(n => `neighborhood.ilike.${n}`), 'is_visible_locale.eq.true'].join(",");
-            subBuilder = subBuilder.or(orClause);
-          } else {
-            subBuilder = subBuilder.or(`neighborhood.ilike.${detectedNeighborhood},is_visible_locale.eq.true`);
-          }
+          const nhOrClause = buildNeighborhoodOrClause(detectedNeighborhood, loadedNeighborhoods);
+          subBuilder = subBuilder.or(nhOrClause);
         }
         
         const effectiveLimit = subcategorySearchConfig?.max_results || limit;
@@ -1540,15 +1553,7 @@ serve(async (req) => {
         if (effectiveCity) svcBuilder = svcBuilder.ilike("city", effectiveCity);
         if (effectiveCategory) svcBuilder = svcBuilder.or(`main_category.eq.${effectiveCategory},categories.cs.{"${effectiveCategory}"}`);
         if (detectedNeighborhood) {
-          const nLower = detectedNeighborhood.toLowerCase();
-          const neighborhoodVariants = [detectedNeighborhood];
-          if (nLower === "gueliz" || nLower === "guéliz") neighborhoodVariants.push("Gueliz", "Guéliz");
-          if (nLower === "médina" || nLower === "medina") neighborhoodVariants.push("Médina", "Medina", "Ancienne Médina", "Ancienne Medina");
-          if (neighborhoodVariants.length > 1) {
-            svcBuilder = svcBuilder.or([...neighborhoodVariants.map(n => `neighborhood.ilike.${n}`), 'is_visible_locale.eq.true'].join(","));
-          } else {
-            svcBuilder = svcBuilder.or(`neighborhood.ilike.${detectedNeighborhood},is_visible_locale.eq.true`);
-          }
+          svcBuilder = svcBuilder.or(buildNeighborhoodOrClause(detectedNeighborhood, loadedNeighborhoods));
         }
         svcBuilder = svcBuilder
           .order("wtuce_status", { ascending: true })
@@ -1605,15 +1610,7 @@ serve(async (req) => {
             .overlaps("services", serviceVariants);
           if (effectiveCity) intentBuilder = intentBuilder.ilike("city", effectiveCity);
           if (detectedNeighborhood) {
-            const nLower2 = detectedNeighborhood.toLowerCase();
-            const nhVariants2 = [detectedNeighborhood];
-            if (nLower2 === "gueliz" || nLower2 === "guéliz" || nLower2 === "geliz") nhVariants2.push("Gueliz", "Guéliz", "Geliz");
-            if (nLower2 === "médina" || nLower2 === "medina") nhVariants2.push("Médina", "Medina", "Ancienne Médina", "Ancienne Medina");
-            if (nhVariants2.length > 1) {
-              intentBuilder = intentBuilder.or([...nhVariants2.map(n => `neighborhood.ilike.${n}`), 'is_visible_locale.eq.true'].join(","));
-            } else {
-              intentBuilder = intentBuilder.or(`neighborhood.ilike.${detectedNeighborhood},is_visible_locale.eq.true`);
-            }
+            intentBuilder = intentBuilder.or(buildNeighborhoodOrClause(detectedNeighborhood, loadedNeighborhoods));
           }
           intentBuilder = intentBuilder
             .order("wtuce_status", { ascending: true })
@@ -1915,7 +1912,7 @@ serve(async (req) => {
           // Neighborhood post-filter for Level 1 results
           if (detectedNeighborhood && businesses.length > 0) {
             const beforeNeighborhood = businesses.length;
-            const neighborhoodFiltered = filterByNeighborhood(businesses, detectedNeighborhood, isNeighborhoodOnlyQuery);
+            const neighborhoodFiltered = filterByNeighborhood(businesses, detectedNeighborhood, isNeighborhoodOnlyQuery, loadedNeighborhoods);
             if (neighborhoodFiltered.length > 0) {
               businesses = neighborhoodFiltered;
             }
@@ -1925,17 +1922,7 @@ serve(async (req) => {
           // ── Neighborhood enrichment: supplement tsquery results with exact DB matches ──
           if (detectedNeighborhood && effectiveCity) {
             const existingIds = new Set(businesses.map((b: any) => b.id));
-            const nhVariants = [detectedNeighborhood.toLowerCase()];
-            const nhLower = detectedNeighborhood.toLowerCase();
-            if (nhLower === "médina" || nhLower === "medina") {
-              nhVariants.push("médina", "medina", "ancienne médina");
-            }
-            if (nhLower === "gueliz" || nhLower === "guéliz" || nhLower === "geliz") {
-              nhVariants.push("gueliz", "guéliz", "geliz");
-            }
-            if (nhLower === "menara" || nhLower === "ménara") {
-              nhVariants.push("menara", "ménara");
-            }
+            const nhVariants = getNeighborhoodVariants(detectedNeighborhood, loadedNeighborhoods).map(v => v.toLowerCase());
             
             // Fetch businesses by exact neighborhood + city
             let enrichBuilder = supabase
@@ -2078,7 +2065,7 @@ serve(async (req) => {
           // Neighborhood post-filter for Level 2 results
           if (detectedNeighborhood && businesses.length > 0) {
             const beforeNeighborhood = businesses.length;
-            const neighborhoodFiltered = filterByNeighborhood(businesses, detectedNeighborhood, isNeighborhoodOnlyQuery);
+            const neighborhoodFiltered = filterByNeighborhood(businesses, detectedNeighborhood, isNeighborhoodOnlyQuery, loadedNeighborhoods);
             if (neighborhoodFiltered.length > 0) {
               businesses = neighborhoodFiltered;
             }
