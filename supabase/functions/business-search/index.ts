@@ -2541,7 +2541,7 @@ serve(async (req) => {
             const before = businesses.length;
             businesses = businesses.filter(b => {
               const bServices = (b.services || []).map((s: string) => s.toLowerCase());
-              return requiredServices.some(rs => bServices.some((bs: string) => bs.includes(rs) || rs.includes(bs)));
+              return requiredServices.some(rs => bServices.some((bs: string) => bs === rs || bs.includes(rs)));
             });
             console.log(`Service filter applied: keywords=[${matchingFilters.map(f => f.keyword).join(",")}] required=[${requiredServices.join(",")}] → ${before} → ${businesses.length} results`);
           }
