@@ -2053,6 +2053,31 @@ serve(async (req) => {
                 }
               }
             }
+
+            // If still 0 results and we have a category constraint, retry semantic fallback WITHOUT category
+            // This handles cases where voice intent returns wrong category (e.g. "Services" instead of "Commerce")
+            if (businesses.length === 0 && allCandidateServiceNames.length > 0 && effectiveCategory) {
+              let noCatBuilder = supabase.from("businesses").select("*").eq("is_active", true);
+              if (effectiveCity) noCatBuilder = applyCityFilter(noCatBuilder);
+              const { data: noCatData } = await noCatBuilder
+                .order("priority_score", { ascending: false })
+                .limit(500);
+              if (noCatData && noCatData.length > 0) {
+                const noCatFiltered = noCatData.filter((b: any) => {
+                  const allTags = collectBusinessTags(b);
+                  return allCandidateServiceNames.some(cs => tagsMatchCandidate(cs, allTags));
+                });
+                if (noCatFiltered.length > 0) {
+                  businesses = noCatFiltered.map((b: any) => ({
+                    ...b,
+                    distance_km: latitude && longitude && b.latitude && b.longitude
+                      ? calculateDistance(latitude, longitude, b.latitude, b.longitude) : null,
+                  }));
+                  searchLevel = "exact";
+                  console.log(`Service semantic fallback (no category) [${allCandidateServiceNames.join(", ")}]: ${businesses.length} results`);
+                }
+              }
+            }
           }
           
           // When keyword matching identified specific subcategories, further filter businesses
@@ -2166,6 +2191,30 @@ serve(async (req) => {
               }));
               searchLevel = "exact";
               console.log(`Service semantic fallback [${allCandidateServiceNames.join(", ")}]: ${businesses.length} results`);
+            }
+          }
+
+          // If still 0 results with category constraint, retry without category
+          if (businesses.length === 0 && allCandidateServiceNames.length > 0 && effectiveCategory) {
+            let noCatBuilder = supabase.from("businesses").select("*").eq("is_active", true);
+            if (effectiveCity) noCatBuilder = applyCityFilter(noCatBuilder);
+            const { data: noCatData } = await noCatBuilder
+              .order("priority_score", { ascending: false })
+              .limit(500);
+            if (noCatData && noCatData.length > 0) {
+              const noCatFiltered = noCatData.filter((b: any) => {
+                const allTags = collectBusinessTags(b);
+                return allCandidateServiceNames.some(cs => tagsMatchCandidate(cs, allTags));
+              });
+              if (noCatFiltered.length > 0) {
+                businesses = noCatFiltered.map((b: any) => ({
+                  ...b,
+                  distance_km: latitude && longitude && b.latitude && b.longitude
+                    ? calculateDistance(latitude, longitude, b.latitude, b.longitude) : null,
+                }));
+                searchLevel = "exact";
+                console.log(`Service semantic fallback (no category) [${allCandidateServiceNames.join(", ")}]: ${businesses.length} results`);
+              }
             }
           }
         }
