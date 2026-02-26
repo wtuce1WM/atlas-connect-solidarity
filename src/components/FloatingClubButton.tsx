@@ -12,7 +12,7 @@ const FloatingClubButton = ({ isOpen, onToggle }: FloatingClubButtonProps) => {
   const { language } = useLanguage();
 
   // Hide on staff/affiliate backoffice pages and on the club page itself
-  const hiddenPaths = ["/staff/login", "/staff/backoffice", "/affiliates", "/affiliates/dashboard", "/club"];
+  const hiddenPaths = ["/staff/login", "/staff/backoffice", "/staff/catalogue", "/staff/crm", "/staff/master", "/affiliates", "/affiliates/dashboard", "/club"];
   if (hiddenPaths.includes(location.pathname)) return null;
 
   const translations = {
