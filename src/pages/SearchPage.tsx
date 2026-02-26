@@ -1141,6 +1141,7 @@ const SearchPage = () => {
                       badgeSubcategories={badgeSubcategories}
                       verifiedLabel={t.verified}
                       distanceKm={getDistanceKm(business)}
+                      activeTimeSlot={activeTimeSlot}
                     />
                   ))}
                 </div>
@@ -1271,6 +1272,7 @@ const SearchPage = () => {
                             badgeSubcategories={badgeSubcategories}
                             verifiedLabel={t.verified}
                             distanceKm={getDistanceKm(business)}
+                            activeTimeSlot={activeTimeSlot}
                           />
                         ))}
                       </div>
@@ -1289,6 +1291,7 @@ const SearchPage = () => {
                       badgeSubcategories={badgeSubcategories}
                       verifiedLabel={t.verified}
                       distanceKm={getDistanceKm(business)}
+                      activeTimeSlot={activeTimeSlot}
                     />
                   ))}
                 </div>
