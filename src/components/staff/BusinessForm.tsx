@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
 import restaurantGuruLogo from "@/assets/restaurant-guru-logo.webp";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, ArrowDown, Save, Award, Trash2, MapPinned, AlertCircle, Copy, ExternalLink, Globe, Star, Plus } from "lucide-react";
+import { ArrowLeft, ArrowDown, Save, Award, Trash2, MapPinned, AlertCircle, Copy, ExternalLink, Globe, Star, Plus, Merge, ArrowRight, Loader2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import type { Tables } from "@/integrations/supabase/types";
 import RichTextEditor from "./RichTextEditor";
@@ -313,6 +315,10 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
   const [selectedPOIIds, setSelectedPOIIds] = useState<string[]>([]);
   const [selectedBadgeIds, setSelectedBadgeIds] = useState<string[]>([]);
   const [defaultBadgeId, setDefaultBadgeId] = useState<string | null>(null);
+  const [intentWords, setIntentWords] = useState<Array<{ id: string; word: string; category_name: string; merge_on_conflict: boolean }>>([]);
+  const [intentsLoading, setIntentsLoading] = useState(true);
+  const [newIntentWord, setNewIntentWord] = useState("");
+  const [newIntentCategory, setNewIntentCategory] = useState("");
 
   // Fetch categories, subcategories, services, cities, gammes and gamme_categories from database
   useEffect(() => {
@@ -348,6 +354,46 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
     
     fetchTaxonomy();
   }, []);
+
+  // Fetch intent words
+  useEffect(() => {
+    const fetchIntents = async () => {
+      setIntentsLoading(true);
+      const { data } = await supabase
+        .from("search_intent_words")
+        .select("*")
+        .order("category_name")
+        .order("word");
+      if (data) setIntentWords(data as any[]);
+      setIntentsLoading(false);
+    };
+    fetchIntents();
+  }, []);
+
+  const addIntentWord = async () => {
+    const word = newIntentWord.trim().toLowerCase();
+    if (!word || !newIntentCategory) return;
+    if (intentWords.some((i) => i.word === word)) {
+      toast({ title: "Erreur", description: `"${word}" existe déjà.`, variant: "destructive" });
+      return;
+    }
+    const { data, error } = await supabase
+      .from("search_intent_words")
+      .insert({ word, category_name: newIntentCategory, merge_on_conflict: true })
+      .select()
+      .single();
+    if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
+    setIntentWords((prev) => [...prev, data as any]);
+    setNewIntentWord("");
+    toast({ title: "Ajouté", description: `"${word}" → ${newIntentCategory}` });
+  };
+
+  const updateIntentWord = async (id: string, updates: Partial<{ word: string; category_name: string; merge_on_conflict: boolean }>) => {
+    const { error } = await supabase.from("search_intent_words").update(updates).eq("id", id);
+    if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
+    setIntentWords((prev) => prev.map((i) => (i.id === id ? { ...i, ...updates } : i)));
+    toast({ title: "Mis à jour" });
+  };
 
   const [formData, setFormData] = useState({
     name: business?.name || "",
@@ -1595,7 +1641,6 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
             </p>
           </div>
         </div>
-
 
 
         <div id="section-contact" className="p-4 border rounded-lg bg-orange-50 space-y-4" style={{ scrollMarginTop: '160px' }}>
@@ -3014,6 +3059,102 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
             </>
           )}
         </div>
+
+        {/* Intentions accordion */}
+        <Accordion type="single" collapsible className="mt-2">
+          <AccordionItem value="intentions" className="border rounded-lg">
+            <AccordionTrigger className="px-4 py-3 text-sm font-semibold hover:no-underline">
+              <span className="flex items-center gap-2">
+                Intentions
+                <Badge variant="outline" className="text-[10px]">
+                  {intentWords.length}
+                </Badge>
+              </span>
+            </AccordionTrigger>
+            <AccordionContent className="px-4 pb-4 space-y-4">
+              {intentsLoading ? (
+                <div className="flex items-center justify-center py-4">
+                  <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                </div>
+              ) : (
+                <>
+                  {/* Add new intent */}
+                  <div className="flex items-end gap-2 flex-wrap">
+                    <div className="flex-1 min-w-[150px]">
+                      <label className="text-xs text-muted-foreground font-medium mb-1 block">Mot</label>
+                      <Input
+                        placeholder="Ex: manger, acheter…"
+                        value={newIntentWord}
+                        onChange={(e) => setNewIntentWord(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && addIntentWord()}
+                        className="h-8 text-sm"
+                      />
+                    </div>
+                    <div className="min-w-[150px]">
+                      <label className="text-xs text-muted-foreground font-medium mb-1 block">Catégorie</label>
+                      <Select value={newIntentCategory} onValueChange={setNewIntentCategory}>
+                        <SelectTrigger className="h-8 text-sm">
+                          <SelectValue placeholder="Choisir…" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-background z-50">
+                          {dbCategories.map((cat) => (
+                            <SelectItem key={cat.id} value={cat.name_fr}>
+                              {cat.name_fr}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <Button type="button" onClick={addIntentWord} disabled={!newIntentWord.trim() || !newIntentCategory} size="sm" className="h-8">
+                      <Plus className="h-3.5 w-3.5 mr-1" /> Ajouter
+                    </Button>
+                  </div>
+
+                  {/* Grouped by category */}
+                  {(() => {
+                    const grouped = intentWords.reduce<Record<string, typeof intentWords>>((acc, i) => {
+                      (acc[i.category_name] = acc[i.category_name] || []).push(i);
+                      return acc;
+                    }, {});
+                    return Object.entries(grouped)
+                      .sort(([a], [b]) => a.localeCompare(b, "fr"))
+                      .map(([catName, words]) => (
+                        <div key={catName} className="space-y-1.5">
+                          <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
+                            <ArrowRight className="h-3.5 w-3.5 text-primary" />
+                            {catName}
+                            <Badge variant="outline" className="text-[10px]">{words.length}</Badge>
+                          </div>
+                          <div className="flex flex-wrap gap-1.5">
+                            {words.map((intent) => (
+                              <div key={intent.id} className="flex items-center gap-1.5 bg-muted/50 rounded-md px-2.5 py-1 border text-sm">
+                                <span className="font-medium">{intent.word}</span>
+                                <div className="flex items-center gap-1 ml-1">
+                                  <Merge className="h-3 w-3 text-muted-foreground" />
+                                  <Switch
+                                    checked={intent.merge_on_conflict}
+                                    onCheckedChange={(checked) => updateIntentWord(intent.id, { merge_on_conflict: checked })}
+                                    className="scale-75"
+                                  />
+                                  <span className="text-[10px] text-muted-foreground">
+                                    {intent.merge_on_conflict ? "Fusion" : "Strict"}
+                                  </span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ));
+                  })()}
+
+                  {intentWords.length === 0 && (
+                    <p className="text-center text-muted-foreground text-sm py-4">Aucun mot d'intention.</p>
+                  )}
+                </>
+              )}
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
 
         <div className="space-y-3">
           <div className="flex items-center justify-between">
