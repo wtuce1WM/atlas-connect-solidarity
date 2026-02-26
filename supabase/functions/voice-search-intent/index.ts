@@ -50,7 +50,9 @@ RÈGLE CRITIQUE sur l'attribution de catégorie :
 Règles de traduction sémantique OBLIGATOIRES :
 - "manger", "déjeuner", "dîner", "se restaurer", "casse-croûte" → "restaurant"
 - "dormir", "séjourner", "loger", "passer la nuit", "réserver une chambre" → "hôtel"
-- "se détendre", "relaxation", "soin", "massage", "bien-être" → "spa hammam"
+- "se détendre", "relaxation", "soin", "bien-être" → "spa hammam"
+- "massage" → garder "massage" tel quel (ne PAS remplacer par "spa hammam" — "massage" est un mot-clé de service dans l'annuaire)
+- "massage à domicile" → "massage domicile"
 - "boire un verre", "prendre un café", "boire quelque chose" → "café bar"
 - "faire du shopping", "acheter", "trouver" + produit → garder le produit SANS ajouter "boutique" (le mot "boutique" est trop générique et matche des hôtels)
 - "sac à main", "sac en cuir", "maroquinerie" → "sac cuir maroquinerie"
@@ -126,6 +128,7 @@ Exemples :
 "je cherche une bonne baguette" → {"keywords": "pain français", "category": "Restauration"}
 "je veux acheter un beau sac à main en cuir" → {"keywords": "sac cuir maroquinerie", "category": "Commerce"}
 "je cherche un spa à Marrakech" → {"keywords": "spa hammam Marrakech", "category": "Bien-être"}
+"je cherche un massage à domicile à hivernage" → {"keywords": "massage domicile hivernage", "category": "Bien-être"}
 "je cherche un endroit pour faire la fête à Marrakech" → {"keywords": "bar boîte nuit soirée Marrakech", "category": "Tourisme"}
 "je voudrais voir une fantasia" → {"keywords": "fantasia", "category": "Tourisme"}
 "je cherche un dîner spectacle à Marrakech" → {"keywords": "live show Marrakech", "category": "Restauration"}
