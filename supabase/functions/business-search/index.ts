@@ -1455,6 +1455,9 @@ serve(async (req) => {
           if (nLower === "menara" || nLower === "ménara") {
             neighborhoodVariants.push("Menara", "Ménara");
           }
+          if (nLower === "médina" || nLower === "medina" || nLower === "ancienne médina") {
+            neighborhoodVariants.push("Médina", "Medina", "Ancienne Médina", "Ancienne Medina");
+          }
           if (neighborhoodVariants.length > 1) {
             const orClause = [...neighborhoodVariants.map(n => `neighborhood.ilike.${n}`), 'is_visible_locale.eq.true'].join(",");
             subBuilder = subBuilder.or(orClause);
@@ -1540,6 +1543,7 @@ serve(async (req) => {
           const nLower = detectedNeighborhood.toLowerCase();
           const neighborhoodVariants = [detectedNeighborhood];
           if (nLower === "gueliz" || nLower === "guéliz") neighborhoodVariants.push("Gueliz", "Guéliz");
+          if (nLower === "médina" || nLower === "medina") neighborhoodVariants.push("Médina", "Medina", "Ancienne Médina", "Ancienne Medina");
           if (neighborhoodVariants.length > 1) {
             svcBuilder = svcBuilder.or([...neighborhoodVariants.map(n => `neighborhood.ilike.${n}`), 'is_visible_locale.eq.true'].join(","));
           } else {
@@ -1601,7 +1605,15 @@ serve(async (req) => {
             .overlaps("services", serviceVariants);
           if (effectiveCity) intentBuilder = intentBuilder.ilike("city", effectiveCity);
           if (detectedNeighborhood) {
-            intentBuilder = intentBuilder.or(`neighborhood.ilike.${detectedNeighborhood},is_visible_locale.eq.true`);
+            const nLower2 = detectedNeighborhood.toLowerCase();
+            const nhVariants2 = [detectedNeighborhood];
+            if (nLower2 === "gueliz" || nLower2 === "guéliz" || nLower2 === "geliz") nhVariants2.push("Gueliz", "Guéliz", "Geliz");
+            if (nLower2 === "médina" || nLower2 === "medina") nhVariants2.push("Médina", "Medina", "Ancienne Médina", "Ancienne Medina");
+            if (nhVariants2.length > 1) {
+              intentBuilder = intentBuilder.or([...nhVariants2.map(n => `neighborhood.ilike.${n}`), 'is_visible_locale.eq.true'].join(","));
+            } else {
+              intentBuilder = intentBuilder.or(`neighborhood.ilike.${detectedNeighborhood},is_visible_locale.eq.true`);
+            }
           }
           intentBuilder = intentBuilder
             .order("wtuce_status", { ascending: true })
