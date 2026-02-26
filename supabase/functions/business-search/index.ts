@@ -2513,6 +2513,37 @@ serve(async (req) => {
       });
     }
 
+    // ── Service filter: exclude businesses missing required services based on query keywords ──
+    if (businesses.length > 0 && effectiveQuery) {
+      try {
+        const { data: serviceFilters } = await supabase
+          .from("search_service_filters")
+          .select("keyword, required_service")
+          .eq("is_active", true);
+        
+        if (serviceFilters && serviceFilters.length > 0) {
+          const queryLower = stripAccentsGlobal((effectiveQuery || "").toLowerCase());
+          const spokenLower = stripAccentsGlobal((spoken || "").toLowerCase());
+          const matchingFilters = serviceFilters.filter(f => {
+            const kw = stripAccentsGlobal(f.keyword.toLowerCase());
+            return queryLower.includes(kw) || spokenLower.includes(kw);
+          });
+          
+          if (matchingFilters.length > 0) {
+            const requiredServices = matchingFilters.map(f => f.required_service.toLowerCase());
+            const before = businesses.length;
+            businesses = businesses.filter(b => {
+              const bServices = (b.services || []).map((s: string) => s.toLowerCase());
+              return requiredServices.some(rs => bServices.some((bs: string) => bs.includes(rs) || rs.includes(bs)));
+            });
+            console.log(`Service filter applied: keywords=[${matchingFilters.map(f => f.keyword).join(",")}] required=[${requiredServices.join(",")}] → ${before} → ${businesses.length} results`);
+          }
+        }
+      } catch (e) {
+        console.warn("Service filter query failed:", e);
+      }
+    }
+
     const result: SearchResult = {
       businesses,
       searchLevel,
