@@ -215,7 +215,7 @@ const LocationManagement = () => {
   });
 
   // Filters
-  const [neighborhoodCityFilter, setNeighborhoodCityFilter] = useState<string>("all");
+  const [neighborhoodCityFilter, setNeighborhoodCityFilter] = useState<string>("");
   const [poiCityFilter, setPoiCityFilter] = useState<string>("all");
   const [destinationRegionFilter, setDestinationRegionFilter] = useState<string>("all");
 
@@ -1199,7 +1199,6 @@ const LocationManagement = () => {
                   <SelectValue placeholder="Filtrer par ville" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Toutes les villes</SelectItem>
                   {cities
                     .filter(c => neighborhoods.some(n => n.city_id === c.id))
                     .sort((a, b) => a.name_fr.localeCompare(b.name_fr, 'fr'))
@@ -1209,8 +1208,10 @@ const LocationManagement = () => {
                 </SelectContent>
               </Select>
             </div>
-            {neighborhoods.filter(n => neighborhoodCityFilter === "all" || n.city_id === neighborhoodCityFilter).length === 0 ? (
-              <p className="text-muted-foreground text-sm text-center py-4">Aucun quartier</p>
+            {!neighborhoodCityFilter ? (
+              <p className="text-muted-foreground text-sm text-center py-4">Sélectionnez une ville pour afficher ses quartiers</p>
+            ) : neighborhoods.filter(n => n.city_id === neighborhoodCityFilter).length === 0 ? (
+              <p className="text-muted-foreground text-sm text-center py-4">Aucun quartier pour cette ville</p>
             ) : (
               <Table>
                 <TableHeader>
@@ -1226,7 +1227,7 @@ const LocationManagement = () => {
                 </TableHeader>
                 <TableBody>
                   {neighborhoods
-                    .filter(n => neighborhoodCityFilter === "all" || n.city_id === neighborhoodCityFilter)
+                    .filter(n => n.city_id === neighborhoodCityFilter)
                     .sort((a, b) => {
                       const cityA = cities.find(c => c.id === a.city_id)?.name_fr || "";
                       const cityB = cities.find(c => c.id === b.city_id)?.name_fr || "";
