@@ -1020,6 +1020,7 @@ export type Database = {
           hook: string | null
           id: string
           image_url: string | null
+          keywords: string[] | null
           latitude: number | null
           longitude: number | null
           name_ar: string | null
@@ -1038,6 +1039,7 @@ export type Database = {
           hook?: string | null
           id?: string
           image_url?: string | null
+          keywords?: string[] | null
           latitude?: number | null
           longitude?: number | null
           name_ar?: string | null
@@ -1056,6 +1058,7 @@ export type Database = {
           hook?: string | null
           id?: string
           image_url?: string | null
+          keywords?: string[] | null
           latitude?: number | null
           longitude?: number | null
           name_ar?: string | null
@@ -1458,6 +1461,7 @@ export type Database = {
           hook: string | null
           id: string
           image_url: string | null
+          keywords: string[] | null
           latitude: number | null
           longitude: number | null
           name_ar: string | null
@@ -1479,6 +1483,7 @@ export type Database = {
           hook?: string | null
           id?: string
           image_url?: string | null
+          keywords?: string[] | null
           latitude?: number | null
           longitude?: number | null
           name_ar?: string | null
@@ -1500,6 +1505,7 @@ export type Database = {
           hook?: string | null
           id?: string
           image_url?: string | null
+          keywords?: string[] | null
           latitude?: number | null
           longitude?: number | null
           name_ar?: string | null

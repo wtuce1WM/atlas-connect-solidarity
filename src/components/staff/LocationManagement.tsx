@@ -107,6 +107,7 @@ interface Destination {
   description: string | null;
   sort_order: number | null;
   image_url: string | null;
+  keywords: string[] | null;
 }
 
 interface PointOfInterest {
@@ -127,6 +128,7 @@ interface PointOfInterest {
   description: string | null;
   sort_order: number | null;
   image_url: string | null;
+  keywords: string[] | null;
 }
 
 const LocationManagement = () => {
@@ -184,7 +186,7 @@ const LocationManagement = () => {
   const [destinationForm, setDestinationForm] = useState({
     name_fr: "", name_en: "", name_ar: "", region: "",
     latitude: "", longitude: "", wikipedia_fr: "", wikipedia_en: "", wikipedia_ar: "",
-    hook: "", description: "", sort_order: 0, image_url: "",
+    hook: "", description: "", sort_order: 0, image_url: "", keywords: [] as string[],
   });
   const [poiSectionOpen, setPoiSectionOpen] = useState(false);
   const [pois, setPois] = useState<PointOfInterest[]>([]);
@@ -194,7 +196,7 @@ const LocationManagement = () => {
     city_id: "", name_fr: "", name_en: "", name_ar: "",
     latitude: "", longitude: "", wikipedia_fr: "", wikipedia_en: "", wikipedia_ar: "",
     official_site_fr: "", official_site_en: "", official_site_ar: "",
-    hook: "", description: "", sort_order: 0, image_url: "",
+    hook: "", description: "", sort_order: 0, image_url: "", keywords: [] as string[],
   });
 
   // Neighborhoods full section (like POI)
@@ -676,7 +678,7 @@ const LocationManagement = () => {
     setDestinationForm({
       name_fr: "", name_en: "", name_ar: "", region: "",
       latitude: "", longitude: "", wikipedia_fr: "", wikipedia_en: "", wikipedia_ar: "",
-      hook: "", description: "", sort_order: 0, image_url: "",
+      hook: "", description: "", sort_order: 0, image_url: "", keywords: [] as string[],
     });
   };
 
@@ -688,7 +690,7 @@ const LocationManagement = () => {
       latitude: d.latitude?.toString() || "", longitude: d.longitude?.toString() || "",
       wikipedia_fr: d.wikipedia_fr || "", wikipedia_en: d.wikipedia_en || "", wikipedia_ar: d.wikipedia_ar || "",
       hook: d.hook || "", description: d.description || "", sort_order: d.sort_order || 0,
-      image_url: d.image_url || "",
+      image_url: d.image_url || "", keywords: d.keywords || [],
     });
     setShowDestinationForm(true);
     setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 0);
@@ -717,6 +719,7 @@ const LocationManagement = () => {
       description: destinationForm.description || null,
       sort_order: destinationForm.sort_order,
       image_url: destinationForm.image_url.trim() || null,
+      keywords: destinationForm.keywords.length > 0 ? destinationForm.keywords : [],
     };
     let error;
     if (editingDestination) {
@@ -754,7 +757,7 @@ const LocationManagement = () => {
       city_id: "", name_fr: "", name_en: "", name_ar: "",
       latitude: "", longitude: "", wikipedia_fr: "", wikipedia_en: "", wikipedia_ar: "",
       official_site_fr: "", official_site_en: "", official_site_ar: "",
-      hook: "", description: "", sort_order: 0, image_url: "",
+      hook: "", description: "", sort_order: 0, image_url: "", keywords: [] as string[],
     });
   };
 
@@ -766,7 +769,7 @@ const LocationManagement = () => {
       wikipedia_fr: p.wikipedia_fr || "", wikipedia_en: p.wikipedia_en || "", wikipedia_ar: p.wikipedia_ar || "",
       official_site_fr: (p as any).official_site_fr || "", official_site_en: (p as any).official_site_en || "", official_site_ar: (p as any).official_site_ar || "",
       hook: p.hook || "", description: p.description || "", sort_order: p.sort_order || 0,
-      image_url: p.image_url || "",
+      image_url: p.image_url || "", keywords: p.keywords || [],
     });
     setShowPoiForm(true);
     setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 0);
@@ -798,6 +801,7 @@ const LocationManagement = () => {
       description: poiForm.description || null,
       sort_order: poiForm.sort_order,
       image_url: poiForm.image_url.trim() || null,
+      keywords: poiForm.keywords.length > 0 ? poiForm.keywords : [],
     };
     let error;
     if (editingPoi) {
@@ -1341,6 +1345,7 @@ const LocationManagement = () => {
                     <TableHead>Wikipedia</TableHead>
                     <TableHead>Coordonnées</TableHead>
                     <TableHead>Ordre</TableHead>
+                    <TableHead>Mots clés</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -1368,6 +1373,11 @@ const LocationManagement = () => {
                         {d.latitude && d.longitude ? `${d.latitude.toFixed(4)}, ${d.longitude.toFixed(4)}` : "—"}
                       </TableCell>
                       <TableCell>{d.sort_order ?? 0}</TableCell>
+                      <TableCell>
+                        <span className="inline-flex items-center justify-center min-w-[2rem] px-2 py-0.5 bg-muted text-muted-foreground rounded text-sm font-medium">
+                          {d.keywords?.length || 0}
+                        </span>
+                      </TableCell>
                       <TableCell className="text-right">
                         <Button size="sm" variant="ghost" onClick={() => openEditDestination(d)}>
                           <Edit className="h-4 w-4" />
@@ -1431,6 +1441,7 @@ const LocationManagement = () => {
                     <TableHead>Wikipedia</TableHead>
                     <TableHead>Coordonnées</TableHead>
                     <TableHead>Ordre</TableHead>
+                    <TableHead>Mots clés</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -1460,6 +1471,11 @@ const LocationManagement = () => {
                           {p.latitude && p.longitude ? `${p.latitude.toFixed(4)}, ${p.longitude.toFixed(4)}` : "—"}
                         </TableCell>
                         <TableCell>{p.sort_order ?? 0}</TableCell>
+                        <TableCell>
+                          <span className="inline-flex items-center justify-center min-w-[2rem] px-2 py-0.5 bg-muted text-muted-foreground rounded text-sm font-medium">
+                            {(p as any).keywords?.length || 0}
+                          </span>
+                        </TableCell>
                         <TableCell className="text-right">
                           <Button size="sm" variant="ghost" onClick={() => openEditPoi(p)}>
                             <Edit className="h-4 w-4" />
@@ -1650,7 +1666,38 @@ const LocationManagement = () => {
                     onChange={(val) => setPoiForm({ ...poiForm, description: val })}
                   />
                 </CardContent>
-              </Card>
+               </Card>
+
+               {/* Keywords */}
+               <Card>
+                 <CardHeader><CardTitle className="text-lg">Mots-clés / Alias de recherche</CardTitle></CardHeader>
+                 <CardContent className="space-y-2">
+                   <p className="text-xs text-muted-foreground">Variantes d'écriture pour la recherche</p>
+                   <div className="flex flex-wrap gap-2 mb-2">
+                     {poiForm.keywords.map((kw, i) => (
+                       <span key={i} className="inline-flex items-center gap-1 bg-muted px-2 py-1 rounded text-sm">
+                         {kw}
+                         <button type="button" onClick={() => setPoiForm({ ...poiForm, keywords: poiForm.keywords.filter((_, j) => j !== i) })} className="text-muted-foreground hover:text-destructive">
+                           <X className="h-3 w-3" />
+                         </button>
+                       </span>
+                     ))}
+                   </div>
+                   <Input
+                     placeholder="Ajouter un alias…"
+                     onKeyDown={(e) => {
+                       if (e.key === 'Enter') {
+                         e.preventDefault();
+                         const val = (e.target as HTMLInputElement).value.trim();
+                         if (val && !poiForm.keywords.includes(val)) {
+                           setPoiForm({ ...poiForm, keywords: [...poiForm.keywords, val] });
+                           (e.target as HTMLInputElement).value = '';
+                         }
+                       }
+                     }}
+                   />
+                 </CardContent>
+               </Card>
             </div>
           </div>
         </div>
@@ -1818,7 +1865,38 @@ const LocationManagement = () => {
                     onChange={(val) => setDestinationForm({ ...destinationForm, description: val })}
                   />
                 </CardContent>
-              </Card>
+               </Card>
+
+               {/* Keywords */}
+               <Card>
+                 <CardHeader><CardTitle className="text-lg">Mots-clés / Alias de recherche</CardTitle></CardHeader>
+                 <CardContent className="space-y-2">
+                   <p className="text-xs text-muted-foreground">Variantes d'écriture pour la recherche</p>
+                   <div className="flex flex-wrap gap-2 mb-2">
+                     {destinationForm.keywords.map((kw, i) => (
+                       <span key={i} className="inline-flex items-center gap-1 bg-muted px-2 py-1 rounded text-sm">
+                         {kw}
+                         <button type="button" onClick={() => setDestinationForm({ ...destinationForm, keywords: destinationForm.keywords.filter((_, j) => j !== i) })} className="text-muted-foreground hover:text-destructive">
+                           <X className="h-3 w-3" />
+                         </button>
+                       </span>
+                     ))}
+                   </div>
+                   <Input
+                     placeholder="Ajouter un alias…"
+                     onKeyDown={(e) => {
+                       if (e.key === 'Enter') {
+                         e.preventDefault();
+                         const val = (e.target as HTMLInputElement).value.trim();
+                         if (val && !destinationForm.keywords.includes(val)) {
+                           setDestinationForm({ ...destinationForm, keywords: [...destinationForm.keywords, val] });
+                           (e.target as HTMLInputElement).value = '';
+                         }
+                       }
+                     }}
+                   />
+                 </CardContent>
+               </Card>
             </div>
           </div>
         </div>
