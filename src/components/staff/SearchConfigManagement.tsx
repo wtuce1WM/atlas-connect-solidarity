@@ -10,6 +10,7 @@ import { Slider } from "@/components/ui/slider";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import IntentManagement from "./IntentManagement";
+import ServiceFilterManagement from "./ServiceFilterManagement";
 
 interface Subcategory {
   id: string;
@@ -222,6 +223,7 @@ const SearchConfigManagement = () => {
       <TabsList>
         <TabsTrigger value="subcategories">Sous-catégories</TabsTrigger>
         <TabsTrigger value="intents">Intentions</TabsTrigger>
+        <TabsTrigger value="service-filters">Filtres de services</TabsTrigger>
       </TabsList>
 
       <TabsContent value="intents">
@@ -506,6 +508,9 @@ const SearchConfigManagement = () => {
         </CardContent>
       </Card>
     </div>
+      </TabsContent>
+      <TabsContent value="service-filters">
+        <ServiceFilterManagement />
       </TabsContent>
     </Tabs>
   );
