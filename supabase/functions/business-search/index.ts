@@ -1805,8 +1805,10 @@ serve(async (req) => {
             const beforeCount = businesses.length;
             businesses = businesses.filter((b: any) => {
               const bServices = (b.services || []).map((s: string) => s.toLowerCase());
+              const bKeywords = (b.keywords || []).map((k: string) => k.toLowerCase());
+              const allTags = [...bServices, ...bKeywords];
               return detectedServices.every(ds => 
-                bServices.some(bs => bs.includes(ds.toLowerCase()) || ds.toLowerCase().includes(bs))
+                allTags.some(bt => bt.includes(ds.toLowerCase()) || ds.toLowerCase().includes(bt))
               );
             });
             console.log(`Multi-service AND post-filter [${detectedServices.join(", ")}]: ${beforeCount} → ${businesses.length}`);
@@ -1855,7 +1857,8 @@ serve(async (req) => {
               }
               const bServices = (b.services || []).map((s: string) => s.toLowerCase());
               const bCategories = (b.categories || []).map((s: string) => s.toLowerCase());
-              const allBusinessTags = [...bServices, ...bCategories];
+              const bKeywords = (b.keywords || []).map((k: string) => k.toLowerCase());
+              const allBusinessTags = [...bServices, ...bCategories, ...bKeywords];
               return allCandidateServiceNames.some(cs => 
                 allBusinessTags.some(bt => bt.includes(cs.toLowerCase()) || cs.toLowerCase().includes(bt))
               );
@@ -2055,8 +2058,10 @@ serve(async (req) => {
             const beforeSvc = businesses.length;
             businesses = businesses.filter((b: any) => {
               const bServices = (b.services || []).map((s: string) => s.toLowerCase());
+              const bKeywords = (b.keywords || []).map((k: string) => k.toLowerCase());
+              const allTags = [...bServices, ...bKeywords];
               return allCandidateServiceNames.some(cs => 
-                bServices.some(bs => bs.includes(cs.toLowerCase()) || cs.toLowerCase().includes(bs))
+                allTags.some(bt => bt.includes(cs.toLowerCase()) || cs.toLowerCase().includes(bt))
               );
             });
             console.log(`Service post-filter (Level 2): ${beforeSvc} → ${businesses.length}`);
