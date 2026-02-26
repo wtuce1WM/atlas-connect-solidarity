@@ -610,6 +610,30 @@ serve(async (req) => {
     const detectedCity = (!city && effectiveQuery) ? await detectCityInQueryDynamic(effectiveQuery, supabase) : null;
     const effectiveCity = city || detectedCity || undefined;
 
+    // Resolve city name → UUID for zone_city_ids filtering
+    let effectiveCityId: string | null = null;
+    if (effectiveCity) {
+      const { data: cityRow } = await supabase
+        .from("cities")
+        .select("id")
+        .ilike("name_fr", effectiveCity)
+        .limit(1)
+        .single();
+      if (cityRow) {
+        effectiveCityId = cityRow.id;
+        console.log(`Resolved city "${effectiveCity}" → ID ${effectiveCityId}`);
+      }
+    }
+
+    // Helper: build city OR clause including zone_city_ids coverage
+    const applyCityFilter = (builder: any) => {
+      if (!effectiveCity) return builder;
+      if (effectiveCityId) {
+        return builder.or(`city.ilike.${effectiveCity},zone_city_ids.cs.{"${effectiveCityId}"}`);
+      }
+      return builder.ilike("city", effectiveCity);
+    };
+
     // Auto-détection de quartier dans la query
     const detectedNeighborhood = effectiveQuery ? await detectNeighborhoodInQuery(effectiveQuery, supabase) : null;
     if (detectedNeighborhood) {
@@ -1529,7 +1553,7 @@ serve(async (req) => {
         }
         
         if (effectiveCity) {
-          subBuilder = subBuilder.ilike("city", effectiveCity);
+          subBuilder = applyCityFilter(subBuilder);
         }
         // Skip category filter when there's an intent-subcategory conflict
         // (e.g. "manger du poisson" → intent=Restauration but subcategory=Poissonnerie/Commerce)
@@ -1613,7 +1637,7 @@ serve(async (req) => {
         const existingIds = new Set(businesses.map(b => b.id));
         let svcBuilder = supabase.from("businesses").select("*").eq("is_active", true)
           .contains("services", [detectedSubcategory]);
-        if (effectiveCity) svcBuilder = svcBuilder.ilike("city", effectiveCity);
+        if (effectiveCity) svcBuilder = applyCityFilter(svcBuilder);
         if (effectiveCategory) svcBuilder = svcBuilder.or(`main_category.eq.${effectiveCategory},categories.cs.{"${effectiveCategory}"}`);
         if (detectedNeighborhood) {
           svcBuilder = svcBuilder.or(buildNeighborhoodOrClause(detectedNeighborhood, loadedNeighborhoods));
@@ -1671,7 +1695,7 @@ serve(async (req) => {
           let intentBuilder = supabase.from("businesses").select("*").eq("is_active", true)
             .or(`main_category.eq.${intentCategory},categories.cs.{"${intentCategory}"}`)
             .overlaps("services", serviceVariants);
-          if (effectiveCity) intentBuilder = intentBuilder.ilike("city", effectiveCity);
+          if (effectiveCity) intentBuilder = applyCityFilter(intentBuilder);
           if (detectedNeighborhood) {
             intentBuilder = intentBuilder.or(buildNeighborhoodOrClause(detectedNeighborhood, loadedNeighborhoods));
           }
@@ -1784,7 +1808,7 @@ serve(async (req) => {
         // Do a direct category + city query instead
         let catBuilder = supabase.from("businesses").select("*").eq("is_active", true)
           .or(`main_category.eq.${effectiveCategory},categories.cs.{"${effectiveCategory}"}`);
-        if (effectiveCity) catBuilder = catBuilder.ilike("city", effectiveCity);
+        if (effectiveCity) catBuilder = applyCityFilter(catBuilder);
         catBuilder = catBuilder.order("priority_score", { ascending: false, nullsFirst: false }).limit(limit);
         const { data: catData, error: catError } = await catBuilder;
         if (!catError && catData && catData.length > 0) {
@@ -1807,6 +1831,7 @@ serve(async (req) => {
           p_category: effectiveCategory || null,
           p_service: null,
           p_limit: limit,
+          p_city_id: effectiveCityId || null,
         });
         const { data, error } = result;
 
@@ -1930,7 +1955,7 @@ serve(async (req) => {
               if (tsQueryFallback) {
                 let fallbackBuilder = supabase.from("businesses").select("*").eq("is_active", true)
                   .textSearch("search_vector", tsQueryFallback, { type: "plain", config: "simple" });
-                if (effectiveCity) fallbackBuilder = fallbackBuilder.ilike("city", effectiveCity);
+                if (effectiveCity) fallbackBuilder = applyCityFilter(fallbackBuilder);
                 if (effectiveCategory) fallbackBuilder = fallbackBuilder.or(`main_category.eq.${effectiveCategory},categories.cs.{"${effectiveCategory}"}`);
                 fallbackBuilder = fallbackBuilder
                   .order("priority_score", { ascending: false })
@@ -1951,7 +1976,7 @@ serve(async (req) => {
             // fetch a broader candidate set and apply semantic tag matching in memory.
             if (businesses.length === 0 && allCandidateServiceNames.length > 0) {
               let semanticFallbackBuilder = supabase.from("businesses").select("*").eq("is_active", true);
-              if (effectiveCity) semanticFallbackBuilder = semanticFallbackBuilder.ilike("city", effectiveCity);
+              if (effectiveCity) semanticFallbackBuilder = applyCityFilter(semanticFallbackBuilder);
               if (effectiveCategory) {
                 semanticFallbackBuilder = semanticFallbackBuilder.or(`main_category.eq.${effectiveCategory},categories.cs.{"${effectiveCategory}"}`);
               }
@@ -2066,7 +2091,7 @@ serve(async (req) => {
           searchLevel = "exact";
         } else if (allCandidateServiceNames.length > 0) {
           let semanticFallbackBuilder = supabase.from("businesses").select("*").eq("is_active", true);
-          if (effectiveCity) semanticFallbackBuilder = semanticFallbackBuilder.ilike("city", effectiveCity);
+          if (effectiveCity) semanticFallbackBuilder = applyCityFilter(semanticFallbackBuilder);
           if (effectiveCategory) {
             semanticFallbackBuilder = semanticFallbackBuilder.or(`main_category.eq.${effectiveCategory},categories.cs.{"${effectiveCategory}"}`);
           }
@@ -2101,7 +2126,7 @@ serve(async (req) => {
         let queryBuilder = supabase.from("businesses").select("*").eq("is_active", true);
 
         if (effectiveCity) {
-          queryBuilder = queryBuilder.ilike("city", effectiveCity);
+          queryBuilder = applyCityFilter(queryBuilder);
         }
 
         if (effectiveCategory) {
@@ -2154,7 +2179,7 @@ serve(async (req) => {
         );
 
       if (effectiveCity) {
-        fuzzyBuilder = fuzzyBuilder.ilike("city", effectiveCity);
+        fuzzyBuilder = applyCityFilter(fuzzyBuilder);
       }
 
       const { data, error } = await fuzzyBuilder
