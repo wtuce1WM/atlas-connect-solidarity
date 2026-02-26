@@ -907,12 +907,13 @@ serve(async (req) => {
     }
     const effectiveCategory = category || intentCategory || undefined;
 
-    // ── Detect intent-subcategory conflict ──
-    // When intent verb (e.g. "manger" → Restauration) conflicts with detected subcategory's parent
-    // category (e.g. "Poissonnerie" → Commerce), we need to merge results from both
+    // ── Detect category-subcategory conflict ──
+    // When the effective category (from intent OR explicit URL param) conflicts with detected subcategory's parent,
+    // try to find a better subcategory under the target category, or merge results from both
     let intentSubcategoryConflict = false;
     let conflictSubcategoryParentCategory: string | null = null;
-    if (intentCategory && detectedSubcategory && intentMergeOnConflict) {
+    const categoryForConflictCheck = intentCategory || category || null;
+    if (categoryForConflictCheck && detectedSubcategory) {
       const { data: subcatWithCat } = await supabase
         .from("subcategories")
         .select("name_fr, categories!inner(name_fr)")
@@ -921,19 +922,19 @@ serve(async (req) => {
         .single();
       if (subcatWithCat) {
         const parentCatName = (subcatWithCat as any).categories?.name_fr;
-        if (parentCatName && parentCatName !== intentCategory) {
-          // Before declaring a conflict, check if there's a better subcategory under the INTENT category
-          // e.g. "acheter du poisson" → intent=Commerce, detected="Poisson" (Agriculture)
+        if (parentCatName && parentCatName !== categoryForConflictCheck) {
+          // Before declaring a conflict, check if there's a better subcategory under the target category
+          // e.g. "poisson" + category=Commerce → detected="Poisson" (Agriculture)
           // → prefer "Poissonnerie" (Commerce) which has "poisson" in its keywords
           const qLower = (effectiveQuery || "").toLowerCase();
           const qWords = qLower.split(/\s+/).filter((w: string) => w.length > 1);
-          const { data: intentSubcats } = await supabase
+          const { data: targetSubcats } = await supabase
             .from("subcategories")
             .select("name_fr, keywords, categories!inner(name_fr)")
-            .eq("categories.name_fr", intentCategory);
+            .eq("categories.name_fr", categoryForConflictCheck);
           let betterSubcat: string | null = null;
-          if (intentSubcats) {
-            for (const sc of intentSubcats) {
+          if (targetSubcats) {
+            for (const sc of targetSubcats) {
               const scName = (sc.name_fr || "").toLowerCase();
               const scKws: string[] = ((sc as any).keywords || []).map((k: string) => k.toLowerCase());
               // Check if any query word matches this subcategory's name or keywords
@@ -946,13 +947,17 @@ serve(async (req) => {
             }
           }
           if (betterSubcat) {
-            console.log(`Intent-subcategory re-evaluation: switching from "${detectedSubcategory}" (${parentCatName}) to "${betterSubcat}" (${intentCategory}) — better match for intent`);
+            console.log(`Category-subcategory re-evaluation: switching from "${detectedSubcategory}" (${parentCatName}) to "${betterSubcat}" (${categoryForConflictCheck}) — better match for category`);
             detectedSubcategory = betterSubcat;
-            // No conflict since we found a matching subcategory under the intent category
-          } else {
+            // No conflict since we found a matching subcategory under the target category
+          } else if (intentCategory && intentMergeOnConflict) {
             intentSubcategoryConflict = true;
             conflictSubcategoryParentCategory = parentCatName;
             console.log(`Intent-subcategory conflict: intent="${intentCategory}" vs subcategory "${detectedSubcategory}" parent="${parentCatName}" → will merge results`);
+          } else if (category) {
+            // Explicit category from URL — just switch subcategory to null to avoid wrong results
+            console.log(`Explicit category "${category}" conflicts with detected subcategory "${detectedSubcategory}" (${parentCatName}) — dropping subcategory`);
+            detectedSubcategory = null;
           }
         }
       }
