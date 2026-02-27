@@ -629,10 +629,13 @@ const SearchPage = () => {
           const distinctCategories = new Set(businesses.map(b => b.categories?.[0]).filter(Boolean));
           const hasMultipleSubcategories = distinctCategories.size >= 3;
           
+          // Determine a fallback subcategory for grouping when backend doesn't provide one
+          const fallbackSubcategory = hasMultipleSubcategories
+            ? (businesses[0]?.categories?.[0] || null)
+            : null;
+          
           setDetectedSubcategory(
-            normalizedSearchMode ? safeDetectedSubcategory 
-            : hasMultipleSubcategories ? (safeDetectedSubcategory || businesses[0]?.categories?.[0] || null)
-            : null
+            safeDetectedSubcategory || fallbackSubcategory || null
           );
           setSearchMode(normalizedSearchMode);
 
