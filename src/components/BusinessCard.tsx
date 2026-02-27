@@ -259,10 +259,10 @@ const BusinessCard = ({
           {/* Open status badge */}
           {openBadgeText && (
             <div className="absolute top-2 left-2 z-10">
-              <Badge className={`text-xs border flex items-center gap-1 backdrop-blur-sm ${
+              <Badge variant="outline" className={`text-xs flex items-center gap-1 backdrop-blur-sm ${
                 openBadgeText === "Ouvert" || openBadgeText === "Ouvert 24h"
-                  ? "bg-[#25D366]/60 text-white border border-black"
-                  : "bg-white/60 text-foreground border border-black"
+                  ? "bg-[#25D366]/60 text-white border-black"
+                  : "bg-white/60 text-foreground border-black"
               }`}>
                 <Clock className="h-3 w-3" />
                 {openBadgeText}
