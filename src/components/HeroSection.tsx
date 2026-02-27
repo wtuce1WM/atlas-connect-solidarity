@@ -236,6 +236,7 @@ const HeroSection = () => {
                 type="text"
                 placeholder={language === "fr" ? "Que cherchez-vous ?" : language === "ar" ? "ماذا تبحث عنه؟" : "What are you looking for?"}
                 value={searchQuery}
+                autoComplete="off"
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-14 pr-36 py-7 text-lg bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-full shadow-lg"
               />
@@ -276,6 +277,7 @@ const HeroSection = () => {
                 type="text"
                 placeholder={language === "fr" ? "Que cherchez-vous ?" : language === "ar" ? "ماذا تبحث عنه؟" : "What are you looking for?"}
                 value={searchQuery}
+                autoComplete="off"
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-14 pr-4 py-7 text-lg bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-full shadow-lg"
               />
