@@ -3,7 +3,7 @@ import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
-import { extractTimeSlot, isOpenDuringSlot, type TimeSlot } from "@/lib/timeSlots";
+import { extractTimeSlot, isOpenDuringSlot, getCurrentTimePeriod, type TimeSlot, type TimePeriod } from "@/lib/timeSlots";
 import zitounMaskImg from "@/assets/zitoun-mask.jpg";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import LoadingScreen from "@/components/LoadingScreen";
@@ -74,6 +74,7 @@ interface SearchResult {
   totalResults: number;
   detectedSubcategory?: string | null;
   searchMode?: string | null;
+  bundleTimeSlots?: string[];
 }
 
 const ITEMS_PER_PAGE = 20;
@@ -547,6 +548,49 @@ const SearchPage = () => {
           } else {
             setAllBusinesses(data.businesses || []);
             setSearchMessage(data.message || "");
+            
+            // Auto-activate time slot when bundle has time_slots and current time matches
+            if (data.bundleTimeSlots?.length && !searchParams.get("timeStart")) {
+              const period = getCurrentTimePeriod();
+              const periodToSlot: Record<TimePeriod, string> = {
+                morning: "matinee",
+                midday: "dejeuner",
+                afternoon: "apres-midi",
+                evening: "soiree",
+                night: "nuit",
+              };
+              const currentSlot = periodToSlot[period];
+              // Also check "diner" for evening (18-22h)
+              const hour = new Date().getHours();
+              const matchesSlot = data.bundleTimeSlots.includes(currentSlot) ||
+                (hour >= 19 && hour < 23 && data.bundleTimeSlots.includes("diner"));
+              
+              if (matchesSlot) {
+                const slotToHours: Record<string, [number, number]> = {
+                  matinee: [7, 12],
+                  dejeuner: [12, 14],
+                  "apres-midi": [14, 18],
+                  diner: [19, 23],
+                  soiree: [19, 23],
+                  nuit: [22, 6],
+                };
+                // Pick the best matching slot
+                const bestSlot = data.bundleTimeSlots.find((s: string) => {
+                  const [start, end] = slotToHours[s] || [0, 24];
+                  return end > start ? (hour >= start && hour < end) : (hour >= start || hour < end);
+                });
+                if (bestSlot) {
+                  const [start, end] = slotToHours[bestSlot];
+                  setSearchParams(prev => {
+                    const p = new URLSearchParams(prev);
+                    p.set("timeStart", String(start));
+                    p.set("timeEnd", String(end));
+                    p.set("timeDayOffset", "0");
+                    return p;
+                  }, { replace: true });
+                }
+              }
+            }
           }
         }
       } catch (error) {

@@ -1629,6 +1629,7 @@ export type Database = {
           required_service: string | null
           sort_order: number
           subcategory_name: string | null
+          time_slots: string[]
           updated_at: string | null
         }
         Insert: {
@@ -1640,6 +1641,7 @@ export type Database = {
           required_service?: string | null
           sort_order?: number
           subcategory_name?: string | null
+          time_slots?: string[]
           updated_at?: string | null
         }
         Update: {
@@ -1651,6 +1653,7 @@ export type Database = {
           required_service?: string | null
           sort_order?: number
           subcategory_name?: string | null
+          time_slots?: string[]
           updated_at?: string | null
         }
         Relationships: [

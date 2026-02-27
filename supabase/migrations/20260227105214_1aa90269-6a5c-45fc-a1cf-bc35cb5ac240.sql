@@ -1,0 +1,1 @@
+ALTER TABLE public.search_bundles ADD COLUMN time_slots text[] NOT NULL DEFAULT '{}'::text[];
