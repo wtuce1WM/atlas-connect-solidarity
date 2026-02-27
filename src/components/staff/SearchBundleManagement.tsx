@@ -32,9 +32,9 @@ const SearchBundleManagement = () => {
   const [bundles, setBundles] = useState<BundleEntry[]>([]);
   const [badges, setBadges] = useState<BadgeOption[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [newEntry, setNewEntry] = useState({ keyword: "", subcategory_name: "", required_service: "" });
+  const [newEntry, setNewEntry] = useState({ keyword: "", subcategory_name: "", required_service: "", badge_id: "" });
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editValues, setEditValues] = useState<{ subcategory_name: string; required_service: string }>({ subcategory_name: "", required_service: "" });
+  const [editValues, setEditValues] = useState<{ subcategory_name: string; required_service: string; badge_id: string }>({ subcategory_name: "", required_service: "", badge_id: "" });
   const [editingKeyword, setEditingKeyword] = useState<string | null>(null);
   const [editKeywordValue, setEditKeywordValue] = useState("");
 
@@ -66,13 +66,14 @@ const SearchBundleManagement = () => {
       keyword: newEntry.keyword.trim().toLowerCase(),
       subcategory_name: newEntry.subcategory_name.trim() || null,
       required_service: newEntry.required_service.trim() || null,
+      badge_id: newEntry.badge_id || null,
       sort_order: bundles.filter(b => b.keyword === newEntry.keyword.trim().toLowerCase()).length + 1,
     } as any);
     if (error) {
       toast({ title: "Erreur", description: error.message, variant: "destructive" });
     } else {
       toast({ title: "Ajouté" });
-      setNewEntry({ keyword: "", subcategory_name: "", required_service: "" });
+      setNewEntry({ keyword: "", subcategory_name: "", required_service: "", badge_id: "" });
       loadBundles();
     }
   };
@@ -88,18 +89,19 @@ const SearchBundleManagement = () => {
 
   const startEdit = (entry: BundleEntry) => {
     setEditingId(entry.id);
-    setEditValues({ subcategory_name: entry.subcategory_name || "", required_service: entry.required_service || "" });
+    setEditValues({ subcategory_name: entry.subcategory_name || "", required_service: entry.required_service || "", badge_id: entry.badge_id || "" });
   };
 
   const saveEdit = async (id: string) => {
     const { error } = await supabase.from("search_bundles").update({
       subcategory_name: editValues.subcategory_name.trim() || null,
       required_service: editValues.required_service.trim() || null,
+      badge_id: editValues.badge_id || null,
     } as any).eq("id", id);
     if (error) {
       toast({ title: "Erreur", description: error.message, variant: "destructive" });
     } else {
-      setBundles(prev => prev.map(b => b.id === id ? { ...b, subcategory_name: editValues.subcategory_name.trim() || null, required_service: editValues.required_service.trim() || null } : b));
+      setBundles(prev => prev.map(b => b.id === id ? { ...b, subcategory_name: editValues.subcategory_name.trim() || null, required_service: editValues.required_service.trim() || null, badge_id: editValues.badge_id || null } : b));
       setEditingId(null);
       toast({ title: "Sauvegardé" });
     }
@@ -166,16 +168,6 @@ const SearchBundleManagement = () => {
     }
   };
 
-  const updateBundleBadge = async (keyword: string, entries: BundleEntry[], badgeId: string | null) => {
-    const ids = entries.map(e => e.id);
-    const { error } = await supabase.from("search_bundles").update({ badge_id: badgeId } as any).in("id", ids);
-    if (error) {
-      toast({ title: "Erreur", description: error.message, variant: "destructive" });
-    } else {
-      setBundles(prev => prev.map(b => ids.includes(b.id) ? { ...b, badge_id: badgeId } : b));
-      toast({ title: "Badge mis à jour" });
-    }
-  };
 
   // Group by keyword
   const grouped = bundles.reduce<Record<string, BundleEntry[]>>((acc, b) => {
@@ -229,6 +221,25 @@ const SearchBundleManagement = () => {
                 onChange={e => setNewEntry(prev => ({ ...prev, required_service: e.target.value }))}
               />
             </div>
+            <div className="flex-1 space-y-1">
+              <label className="text-xs font-medium text-muted-foreground">Badge</label>
+              <Select value={newEntry.badge_id || "none"} onValueChange={val => setNewEntry(prev => ({ ...prev, badge_id: val === "none" ? "" : val }))}>
+                <SelectTrigger className="h-9">
+                  <SelectValue placeholder="Aucun" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Aucun</SelectItem>
+                  {badges.map(b => (
+                    <SelectItem key={b.id} value={b.id}>
+                      <span className="flex items-center gap-1.5">
+                        <span className="inline-block w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: b.color_hex || '#ccc' }} />
+                        {b.name_fr}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <Button onClick={addEntry} size="sm" className="shrink-0" disabled={!canAddEntry}>
               <Plus className="h-4 w-4 mr-1" /> Ajouter
             </Button>
@@ -266,28 +277,6 @@ const SearchBundleManagement = () => {
                         </Badge>
                       )}
                       <span className="text-xs text-muted-foreground">{entries.length} entrée(s)</span>
-                      <Select
-                        value={entries[0]?.badge_id || "none"}
-                        onValueChange={(val) => updateBundleBadge(keyword, entries, val === "none" ? null : val)}
-                      >
-                        <SelectTrigger className="h-7 w-36 text-xs">
-                          <SelectValue placeholder="Badge" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="none">Aucun badge</SelectItem>
-                          {badges.map(b => (
-                            <SelectItem key={b.id} value={b.id}>
-                              <span className="flex items-center gap-1.5">
-                                <span
-                                  className="inline-block w-2.5 h-2.5 rounded-full shrink-0"
-                                  style={{ backgroundColor: b.color_hex || '#ccc' }}
-                                />
-                                {b.name_fr}
-                              </span>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
                       <div className="ml-auto flex items-center gap-1.5">
                         <span className="text-xs text-muted-foreground">
                           {entries.every(e => e.is_active) ? "Actif" : entries.some(e => e.is_active) ? "Partiel" : "Inactif"}
@@ -316,6 +305,7 @@ const SearchBundleManagement = () => {
                         <TableRow>
                           <TableHead>Sous-catégorie</TableHead>
                           <TableHead>Service requis</TableHead>
+                          <TableHead>Badge</TableHead>
                           <TableHead className="w-20">Actif</TableHead>
                           <TableHead className="w-12"></TableHead>
                         </TableRow>
@@ -344,6 +334,35 @@ const SearchBundleManagement = () => {
                                 />
                               ) : (
                                 entry.required_service || <span className="text-muted-foreground italic">— (aucun)</span>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              {editingId === entry.id ? (
+                                <Select value={editValues.badge_id || "none"} onValueChange={val => setEditValues(prev => ({ ...prev, badge_id: val === "none" ? "" : val }))}>
+                                  <SelectTrigger className="h-8 w-32 text-xs">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="none">Aucun</SelectItem>
+                                    {badges.map(b => (
+                                      <SelectItem key={b.id} value={b.id}>
+                                        <span className="flex items-center gap-1.5">
+                                          <span className="inline-block w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: b.color_hex || '#ccc' }} />
+                                          {b.name_fr}
+                                        </span>
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              ) : (
+                                (() => {
+                                  const bdg = badges.find(b => b.id === entry.badge_id);
+                                  return bdg ? (
+                                    <span className="inline-flex items-center gap-1 text-xs px-1.5 py-0.5 rounded" style={{ backgroundColor: bdg.color_hex || '#ccc', color: bdg.text_color_hex || '#fff' }}>
+                                      {bdg.name_fr}
+                                    </span>
+                                  ) : <span className="text-muted-foreground italic text-xs">—</span>;
+                                })()
                               )}
                             </TableCell>
                             <TableCell>
