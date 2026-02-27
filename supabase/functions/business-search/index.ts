@@ -2612,7 +2612,7 @@ serve(async (req) => {
             const before = businesses.length;
             const filtered = businesses.filter(b => {
               const bServices = (b.services || []).map((s: string) => s.toLowerCase());
-              return requiredServices.some(rs => bServices.some((bs: string) => bs === rs || bs.includes(rs)));
+              return requiredServices.some(rs => bServices.some((bs: string) => bs === rs));
             });
             // If filter reduces to 0, keep original results (filter was too restrictive for this context)
             if (filtered.length > 0) {
