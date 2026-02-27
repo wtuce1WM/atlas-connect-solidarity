@@ -148,7 +148,7 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
         case "destinations": return getDestsForBusiness(b.id).length;
         case "gps": return (b.latitude != null && b.longitude != null) ? 1 : 0;
         case "certifications": return (b.engagements?.filter(e => e.startsWith("Certification:")).length) || 0;
-        case "labels": return getLabelsForBusiness(b.id).length;
+        
         default: return "";
       }
     };
@@ -345,9 +345,6 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
                   <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("certifications")}>
                     <span className="inline-flex items-center">Certifications<SortIcon col="certifications" /></span>
                   </TableHead>
-                  <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("labels")}>
-                    <span className="inline-flex items-center">Labels<SortIcon col="labels" /></span>
-                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -522,20 +519,6 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
                         })()}
                       </TableCell>
 
-                      {/* Labels */}
-                      <TableCell>
-                        {bLabels.length > 0 ? (
-                          <div className="flex flex-wrap gap-1">
-                            {bLabels.map((l, i) => (
-                              <Badge key={i} variant="secondary" className="text-xs font-normal">
-                                {l.name_fr}
-                              </Badge>
-                            ))}
-                          </div>
-                        ) : (
-                          <span className="text-muted-foreground text-sm">-</span>
-                        )}
-                      </TableCell>
                     </TableRow>
                   );
                 })}
