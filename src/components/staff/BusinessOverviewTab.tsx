@@ -332,31 +332,34 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
                         </Badge>
                       </TableCell>
 
-                      {/* Commodités (engagements) */}
+                      {/* Engagements */}
                       <TableCell>
-                        {business.engagements && business.engagements.length > 0 ? (
-                          <div className="flex flex-wrap gap-1 max-w-[200px]">
-                            {business.engagements.slice(0, 3).map((s, i) => (
-                              <Badge key={i} variant="outline" className="text-xs font-normal">
-                                {s}
-                              </Badge>
-                            ))}
-                            {business.engagements.length > 3 && (
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Badge variant="outline" className="text-xs font-normal cursor-help">
-                                    +{business.engagements.length - 3}
-                                  </Badge>
-                                </TooltipTrigger>
-                                <TooltipContent side="top" className="max-w-xs">
-                                  <p className="text-xs">{business.engagements.slice(3).join(", ")}</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            )}
-                          </div>
-                        ) : (
-                          <span className="text-muted-foreground text-sm">-</span>
-                        )}
+                        {(() => {
+                          const cleanLabel = (s: string) => s.replace(/^(Logistique:|Certification:|Marché:)/, "");
+                          const items = business.engagements?.filter(e => e.length > 0) || [];
+                          if (items.length === 0) return <span className="text-muted-foreground text-sm">-</span>;
+                          return (
+                            <div className="flex flex-wrap gap-1 max-w-[200px]">
+                              {items.slice(0, 3).map((s, i) => (
+                                <Badge key={i} variant="outline" className="text-xs font-normal">
+                                  {cleanLabel(s)}
+                                </Badge>
+                              ))}
+                              {items.length > 3 && (
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Badge variant="outline" className="text-xs font-normal cursor-help">
+                                      +{items.length - 3}
+                                    </Badge>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" className="max-w-xs">
+                                    <p className="text-xs">{items.slice(3).map(cleanLabel).join(", ")}</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              )}
+                            </div>
+                          );
+                        })()}
                       </TableCell>
 
                       {/* Badges */}
