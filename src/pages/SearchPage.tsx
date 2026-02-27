@@ -622,7 +622,18 @@ const SearchPage = () => {
           // Only use searchMode when explicitly set from back-office config
           const normalizedSearchMode = normalizeSearchMode(data.searchMode);
 
-          setDetectedSubcategory(normalizedSearchMode ? safeDetectedSubcategory : null);
+          // Enable grouped view when:
+          // 1. Backend explicitly signals a detected subcategory with a search mode, OR
+          // 2. Results naturally contain multiple subcategories (3+ distinct categories)
+          const businesses = data.businesses || [];
+          const distinctCategories = new Set(businesses.map(b => b.categories?.[0]).filter(Boolean));
+          const hasMultipleSubcategories = distinctCategories.size >= 3;
+          
+          setDetectedSubcategory(
+            normalizedSearchMode ? safeDetectedSubcategory 
+            : hasMultipleSubcategories ? (safeDetectedSubcategory || businesses[0]?.categories?.[0] || null)
+            : null
+          );
           setSearchMode(normalizedSearchMode);
 
           // When user searched for something specific but got "recommended" fallback → show 0 results
