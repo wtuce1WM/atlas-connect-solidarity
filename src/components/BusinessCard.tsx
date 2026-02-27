@@ -191,11 +191,25 @@ const BusinessCard = ({
   if (canShowOpenBadge) {
     if (isCurrentlyOpenNow) {
       openBadgeText = business.is_open_24h ? "Ouvert 24h" : "Ouvert";
-    } else if (activeTimeSlot) {
-      // Business will be open during the filtered slot but isn't open right now
-      const openingTime = getOpeningTimeForSlot(openingHoursTyped, !!business.is_open_24h, activeTimeSlot, vacationDatesTyped);
-      if (openingTime && openingTime !== "00:00") {
-        openBadgeText = `Ouvre à ${openingTime}`;
+    } else if (openingHoursTyped) {
+      // Show next opening time for today regardless of activeTimeSlot
+      const days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+      const now = new Date();
+      const todayKey = days[now.getDay()];
+      const dh = openingHoursTyped[todayKey];
+      if (dh && !dh.closed && dh.open) {
+        const [oh, om] = dh.open.split(":").map(Number);
+        const openMin = oh * 60 + (om || 0);
+        const nowMin = now.getHours() * 60 + now.getMinutes();
+        if (openMin > nowMin) {
+          openBadgeText = `Ouvre à ${dh.open}`;
+        } else if (dh.open2 && dh.close2 && !dh.continuous) {
+          const [oh2, om2] = dh.open2.split(":").map(Number);
+          const open2Min = oh2 * 60 + (om2 || 0);
+          if (open2Min > nowMin) {
+            openBadgeText = `Ouvre à ${dh.open2}`;
+          }
+        }
       }
     }
   }
