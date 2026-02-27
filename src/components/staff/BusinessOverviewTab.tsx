@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,11 @@ import {
 import {
   Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle,
+} from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useToast } from "@/hooks/use-toast";
 import { Search, Edit, ExternalLink, Star, MapPin, Navigation, ArrowUpDown, ArrowUp, ArrowDown, ChevronDown } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -54,6 +59,64 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
   const [businessDestinations, setBusinessDestinations] = useState<BusinessDestRow[]>([]);
   const [labels, setLabels] = useState<LabelRow[]>([]);
   const [businessLabels, setBusinessLabels] = useState<BusinessLabelRow[]>([]);
+
+  // Badge editor popup state
+  const [badgeEditBusinessId, setBadgeEditBusinessId] = useState<string | null>(null);
+  const [badgeEditBusinessName, setBadgeEditBusinessName] = useState("");
+  const [badgeEditSelected, setBadgeEditSelected] = useState<{ badge_id: string; is_default: boolean }[]>([]);
+  const [badgeEditSaving, setBadgeEditSaving] = useState(false);
+  const { toast } = useToast();
+
+  const refetchBusinessBadges = useCallback(async () => {
+    const { data } = await supabase.from("business_badges").select("business_id, badge_id, is_default");
+    if (data) setBusinessBadges(data);
+  }, []);
+
+  const openBadgeEditor = (businessId: string, businessName: string) => {
+    const current = businessBadges
+      .filter(bb => bb.business_id === businessId)
+      .map(bb => ({ badge_id: bb.badge_id, is_default: bb.is_default }));
+    setBadgeEditSelected(current);
+    setBadgeEditBusinessId(businessId);
+    setBadgeEditBusinessName(businessName);
+  };
+
+  const toggleBadgeSelection = (badgeId: string) => {
+    setBadgeEditSelected(prev => {
+      const exists = prev.find(b => b.badge_id === badgeId);
+      if (exists) return prev.filter(b => b.badge_id !== badgeId);
+      return [...prev, { badge_id: badgeId, is_default: prev.length === 0 }];
+    });
+  };
+
+  const toggleBadgeDefault = (badgeId: string) => {
+    setBadgeEditSelected(prev =>
+      prev.map(b => ({ ...b, is_default: b.badge_id === badgeId }))
+    );
+  };
+
+  const saveBadgeEdit = async () => {
+    if (!badgeEditBusinessId) return;
+    setBadgeEditSaving(true);
+    await supabase.from("business_badges").delete().eq("business_id", badgeEditBusinessId);
+    if (badgeEditSelected.length > 0) {
+      const rows = badgeEditSelected.map(b => ({
+        business_id: badgeEditBusinessId,
+        badge_id: b.badge_id,
+        is_default: b.is_default,
+      }));
+      const { error } = await supabase.from("business_badges").insert(rows);
+      if (error) {
+        toast({ variant: "destructive", title: "Erreur", description: "Impossible de sauvegarder les badges." });
+        setBadgeEditSaving(false);
+        return;
+      }
+    }
+    toast({ title: "Succès", description: "Badges mis à jour." });
+    await refetchBusinessBadges();
+    setBadgeEditBusinessId(null);
+    setBadgeEditSaving(false);
+  };
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -548,8 +611,11 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
                         })()}
                       </TableCell>
 
-                      {/* Badges */}
-                      <TableCell>
+                      {/* Badges (clickable to edit) */}
+                      <TableCell
+                        className="cursor-pointer hover:bg-muted/50"
+                        onClick={() => openBadgeEditor(business.id, business.name)}
+                      >
                         {bBadges.length > 0 ? (
                           <div className="flex flex-wrap gap-1 max-w-[150px]">
                             {bBadges.map((badge, i) => (
@@ -571,7 +637,7 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
                             ))}
                           </div>
                         ) : (
-                          <span className="text-muted-foreground text-sm">-</span>
+                          <span className="text-muted-foreground text-sm hover:text-foreground">+ Ajouter</span>
                         )}
                       </TableCell>
 
@@ -704,6 +770,58 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
             </div>
           )}
         </div>
+
+        {/* Badge editor dialog */}
+        <Dialog open={badgeEditBusinessId !== null} onOpenChange={(open) => { if (!open) setBadgeEditBusinessId(null); }}>
+          <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-lg">Badges — {badgeEditBusinessName}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-2">
+              {badges.map(badge => {
+                const isSelected = badgeEditSelected.some(b => b.badge_id === badge.id);
+                const isDefault = badgeEditSelected.find(b => b.badge_id === badge.id)?.is_default || false;
+                return (
+                  <div key={badge.id} className="flex items-center gap-3 p-2 rounded-lg border hover:bg-muted/50">
+                    <Checkbox
+                      checked={isSelected}
+                      onCheckedChange={() => toggleBadgeSelection(badge.id)}
+                    />
+                    <Badge
+                      className="text-xs border border-black shrink-0"
+                      style={{
+                        backgroundColor: badge.color_hex || '#666666',
+                        color: badge.text_color_hex || '#000000',
+                      }}
+                    >
+                      {badge.name_fr}
+                    </Badge>
+                    {isSelected && (
+                      <button
+                        type="button"
+                        onClick={() => toggleBadgeDefault(badge.id)}
+                        className={`ml-auto p-1 rounded ${isDefault ? 'text-amber-500' : 'text-muted-foreground hover:text-amber-400'}`}
+                        title={isDefault ? "Badge par défaut" : "Définir comme défaut"}
+                      >
+                        <Star className={`h-4 w-4 ${isDefault ? 'fill-current' : ''}`} />
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+              {badges.length === 0 && (
+                <p className="text-muted-foreground text-sm text-center py-4">Aucun badge disponible.</p>
+              )}
+            </div>
+            <div className="flex justify-end gap-2 pt-4 border-t">
+              <Button variant="outline" onClick={() => setBadgeEditBusinessId(null)}>Annuler</Button>
+              <Button onClick={saveBadgeEdit} disabled={badgeEditSaving} className="bg-amber-600 hover:bg-amber-700 text-white">
+                {badgeEditSaving ? "Enregistrement..." : "Enregistrer"}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
       </TooltipProvider>
     </div>
   );
