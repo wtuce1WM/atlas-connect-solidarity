@@ -455,7 +455,7 @@ const SearchConfigManagement = () => {
                       variant="default"
                       onClick={() => saveConfig(sub.id)}
                       disabled={isSaving}
-                      className="h-8 text-xs"
+                      className="h-8 text-xs bg-amber-600 hover:bg-amber-700 text-white"
                     >
                       {isSaving ? (
                         <Loader2 className="h-3.5 w-3.5 animate-spin" />

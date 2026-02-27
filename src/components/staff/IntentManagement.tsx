@@ -12,6 +12,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
@@ -89,13 +100,12 @@ const IntentManagement = () => {
     }
   }, []);
 
-  const deleteIntent = useCallback(async (id: string, word: string) => {
-    if (!confirm(`Supprimer le mot d'intention "${word}" ?`)) return;
+  const deleteIntent = useCallback(async (id: string) => {
     try {
       const { error } = await supabase.from("search_intent_words").delete().eq("id", id);
       if (error) throw error;
       setIntents((prev) => prev.filter((i) => i.id !== id));
-      toast({ title: "Supprimé", description: `"${word}" supprimé.` });
+      toast({ title: "Supprimé" });
     } catch (err: any) {
       toast({ title: "Erreur", description: err.message, variant: "destructive" });
     }
@@ -163,7 +173,7 @@ const IntentManagement = () => {
                 </SelectContent>
               </Select>
             </div>
-            <Button onClick={addIntent} disabled={!newWord.trim() || !newCategory} className="h-9">
+            <Button onClick={addIntent} disabled={!newWord.trim() || !newCategory} className="h-9 bg-amber-600 hover:bg-amber-700 text-white">
               <Plus className="h-4 w-4 mr-1" /> Ajouter
             </Button>
           </div>
@@ -192,7 +202,7 @@ const IntentManagement = () => {
           <Card key={catName}>
             <CardHeader className="pb-2 pt-4 px-4">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <ArrowRight className="h-4 w-4 text-primary" />
+                <ArrowRight className="h-4 w-4 text-amber-600" />
                 {catName}
                 <Badge variant="outline" className="text-[10px] ml-1">
                   {words.length} mot{words.length > 1 ? "s" : ""}
@@ -220,12 +230,25 @@ const IntentManagement = () => {
                         {intent.merge_on_conflict ? "Fusion" : "Strict"}
                       </span>
                     </div>
-                    <button
-                      onClick={() => deleteIntent(intent.id, intent.word)}
-                      className="text-muted-foreground hover:text-destructive transition-colors ml-1"
-                    >
-                      <X className="h-3.5 w-3.5" />
-                    </button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <button className="text-muted-foreground hover:text-destructive transition-colors ml-1">
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Supprimer ?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Voulez-vous vraiment supprimer le mot d'intention « {intent.word} » ?
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Non</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => deleteIntent(intent.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Oui</AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                 ))}
               </div>

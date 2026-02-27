@@ -5,6 +5,17 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
@@ -72,7 +83,7 @@ const NoiseWordsManagement = () => {
             onKeyDown={e => e.key === "Enter" && addWord()}
             className="max-w-xs"
           />
-          <Button size="sm" onClick={addWord}><Plus className="h-4 w-4 mr-1" />Ajouter</Button>
+          <Button size="sm" onClick={addWord} className="bg-amber-600 hover:bg-amber-700 text-white"><Plus className="h-4 w-4 mr-1" />Ajouter</Button>
         </div>
         <div className="flex flex-wrap gap-2">
           {words.map(w => (
@@ -87,9 +98,25 @@ const NoiseWordsManagement = () => {
                 className="scale-75"
               />
               <span className={w.is_active ? "" : "line-through opacity-50"}>{w.word}</span>
-              <button onClick={() => deleteWord(w.id)} className="opacity-0 group-hover:opacity-100 transition-opacity">
-                <Trash2 className="h-3 w-3 text-destructive" />
-              </button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <button className="opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Trash2 className="h-3 w-3 text-destructive" />
+                  </button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Supprimer ?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Voulez-vous vraiment supprimer le mot « {w.word} » ?
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Non</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => deleteWord(w.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Oui</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </Badge>
           ))}
         </div>

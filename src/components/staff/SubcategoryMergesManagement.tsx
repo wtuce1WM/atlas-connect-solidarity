@@ -1,10 +1,21 @@
 import { useState, useEffect } from "react";
-import { Loader2, Save, Link2, Unlink } from "lucide-react";
+import { Loader2, Link2, Unlink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
@@ -89,7 +100,7 @@ const SubcategoryMergesManagement = () => {
               placeholder="Nom du groupe (ex: hebergement)"
               className="max-w-[200px]"
             />
-            <Button size="sm" onClick={assignGroup}>
+            <Button size="sm" onClick={assignGroup} className="bg-amber-600 hover:bg-amber-700 text-white">
               <Link2 className="h-4 w-4 mr-1" />Assigner
             </Button>
           </div>
@@ -107,9 +118,25 @@ const SubcategoryMergesManagement = () => {
               {subcats.map(s => (
                 <Badge key={s.id} variant="outline" className="gap-1.5 group py-1">
                   {s.name_fr}
-                  <button onClick={() => removeFromGroup(s.id)} className="opacity-0 group-hover:opacity-100">
-                    <Unlink className="h-3 w-3 text-destructive" />
-                  </button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <button className="opacity-0 group-hover:opacity-100">
+                        <Unlink className="h-3 w-3 text-destructive" />
+                      </button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Supprimer ?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Retirer « {s.name_fr} » du groupe « {group} » ?
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Non</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => removeFromGroup(s.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Oui</AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </Badge>
               ))}
             </div>
