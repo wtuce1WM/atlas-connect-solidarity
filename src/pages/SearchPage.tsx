@@ -26,8 +26,6 @@ import BusinessCard, { type BusinessCardData, type Gamme, type Badge, type Subca
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { useToast } from "@/hooks/use-toast";
-import { useSearchSuggestions } from "@/hooks/useSearchSuggestions";
-import SearchSuggestionsDropdown from "@/components/SearchSuggestionsDropdown";
 
 interface Business {
   id: string;
@@ -360,8 +358,6 @@ const SearchPage = () => {
   const [selectedCity, setSelectedCity] = useState<string>(cityFromUrl || "all");
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
   const [inputValue, setInputValue] = useState(searchParams.get("q") || "");
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const { suggestions } = useSearchSuggestions(inputValue);
   const searchFormRef = useRef<HTMLFormElement>(null);
   const categoryFromUrl = searchParams.get("category") || "";
   const [celebrityBusinesses, setCelebrityBusinesses] = useState<Business[]>([]);
@@ -426,15 +422,6 @@ const SearchPage = () => {
   }, [queryHasExplicitCity, selectedCity]);
 
   // Close suggestions on click outside
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (searchFormRef.current && !searchFormRef.current.contains(e.target as Node)) {
-        setShowSuggestions(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   const { status: voiceStatus, toggleRecording } = useVoiceSearch({
     onTranscript: (keywords, spoken, category, timeKeyword) => {
@@ -1509,15 +1496,8 @@ const SearchPage = () => {
                 placeholder={t.placeholder}
                 value={inputValue}
                 autoComplete="off"
-                onChange={(e) => { setInputValue(e.target.value); setShowSuggestions(true); }}
-                onFocus={() => setShowSuggestions(true)}
-                onBlur={() => setTimeout(() => setShowSuggestions(false), 300)}
+                onChange={(e) => setInputValue(e.target.value)}
                 className="w-full pl-14 pr-36 py-6 text-base bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-full shadow-lg"
-              />
-              <SearchSuggestionsDropdown
-                suggestions={suggestions}
-                visible={showSuggestions && suggestions.length > 0}
-                position="top"
               />
               <Button
                 type="submit"
@@ -1560,15 +1540,8 @@ const SearchPage = () => {
                 placeholder={t.placeholder}
                 value={inputValue}
                 autoComplete="off"
-                onChange={(e) => { setInputValue(e.target.value); setShowSuggestions(true); }}
-                onFocus={() => setShowSuggestions(true)}
-                onBlur={() => setTimeout(() => setShowSuggestions(false), 300)}
+                onChange={(e) => setInputValue(e.target.value)}
                 className="w-full pl-11 pr-28 py-5 text-sm bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-full shadow-lg"
-              />
-              <SearchSuggestionsDropdown
-                suggestions={suggestions}
-                visible={showSuggestions && suggestions.length > 0}
-                position="top"
               />
               <Button
                 type="submit"
