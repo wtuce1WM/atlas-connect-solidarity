@@ -431,15 +431,20 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
 
                       {/* GPS */}
                       <TableCell>
-                        <div
-                          className={`inline-flex items-center justify-center h-8 w-8 rounded-full ${
-                            hasGPS
-                              ? "bg-green-500/10 text-green-600"
-                              : "bg-red-500/10 text-red-600"
-                          }`}
-                        >
-                          <Navigation className="h-4 w-4" />
-                        </div>
+                        {hasGPS ? (
+                          <a
+                            href={business.google_maps_url || `https://www.google.com/maps?q=${business.latitude},${business.longitude}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-green-500/10 text-green-600 hover:bg-green-500/20"
+                          >
+                            <Navigation className="h-4 w-4" />
+                          </a>
+                        ) : (
+                          <div className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-red-500/10 text-red-600">
+                            <Navigation className="h-4 w-4" />
+                          </div>
+                        )}
                       </TableCell>
 
                       {/* Certifications (labels) */}
