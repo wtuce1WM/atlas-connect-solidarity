@@ -256,10 +256,15 @@ const StaffBackoffice = () => {
   );
 
   const filteredBusinesses = businesses.filter((business) => {
-    const matchesSearch = !searchQuery || 
-      business.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (business.city?.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (business.main_category?.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchesSearch = !searchQuery || (() => {
+      const q = searchQuery.toLowerCase();
+      return business.name.toLowerCase().includes(q) ||
+        (business.city?.toLowerCase().includes(q)) ||
+        (business.main_category?.toLowerCase().includes(q)) ||
+        (business.hook_fr?.toLowerCase().includes(q)) ||
+        (business.description?.toLowerCase().includes(q)) ||
+        (business.keywords?.some(k => k.toLowerCase().includes(q)));
+    })();
     const matchesCity = cityFilter === "all" || business.city === cityFilter;
     const matchesStatus = statusFilter === "all" || (statusFilter === "active" ? business.is_active : !business.is_active);
     const matchesCategory = categoryFilter === "all" || business.main_category === categoryFilter;
@@ -468,7 +473,7 @@ const StaffBackoffice = () => {
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
-                    placeholder="Rechercher par nom, ville ou catégorie..."
+                    placeholder="Rechercher par nom, ville, catégorie, hook, description, mots-clés..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pl-10"
