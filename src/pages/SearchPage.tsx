@@ -1253,19 +1253,29 @@ const SearchPage = () => {
             </p>
           )}
 
-          {/* Easter egg: Zitoun Mask/Musk */}
+          {/* Easter egg: Zitoun Mask/Musk - fullscreen overlay */}
           {showZitounEasterEgg && (
-            <div className="flex flex-col items-center mb-10">
-              <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-gold/30 max-w-md w-full">
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm">
+              <div className="relative w-full h-full flex items-center justify-center p-4">
                 <img
                   src={zitounMaskImg}
                   alt="Zitoun Mask"
-                  className="w-full object-cover"
+                  className="max-w-full max-h-[85vh] object-contain rounded-2xl shadow-2xl"
                 />
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent px-4 py-3">
-                  <p className="text-gold font-semibold text-lg">Zitoun Mask</p>
-                  <p className="text-white/70 text-sm">Le légendaire habitué du Zitoun</p>
+                <div className="absolute bottom-8 left-1/2 -translate-x-1/2 bg-black/70 backdrop-blur-md px-8 py-4 rounded-2xl border border-gold/30 text-center">
+                  <p className="text-gold font-semibold text-2xl">Zitoun Mask</p>
+                  <p className="text-white/70 text-sm mt-1">Le légendaire habitué du Zitoun</p>
                 </div>
+                <button
+                  onClick={() => {
+                    const input = document.querySelector<HTMLInputElement>('input[type="text"]');
+                    if (input) { input.value = ''; input.dispatchEvent(new Event('input', { bubbles: true })); }
+                    window.history.back();
+                  }}
+                  className="absolute top-6 right-6 bg-black/50 hover:bg-black/70 text-white rounded-full p-3 transition-colors"
+                >
+                  <X className="h-6 w-6" />
+                </button>
               </div>
             </div>
           )}
