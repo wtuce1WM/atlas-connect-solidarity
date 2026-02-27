@@ -236,7 +236,7 @@ const BusinessCard = ({
               (e.target as HTMLImageElement).src = "/placeholder.svg";
             }}
           />
-          {/* Gamme badge - top center */}
+          {/* Gamme badge - top center (désactivé temporairement)
           {gamme && (
             <div className="absolute top-2 left-1/2 -translate-x-1/2 z-10">
               <Badge 
@@ -247,6 +247,7 @@ const BusinessCard = ({
               </Badge>
             </div>
           )}
+          */}
           {/* Watermark logo for verified businesses - top right of image */}
           {business.wtuce_status === "verified" && (
             <img 
