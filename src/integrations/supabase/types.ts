@@ -1619,6 +1619,39 @@ export type Database = {
           },
         ]
       }
+      search_bundles: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_active: boolean
+          keyword: string
+          required_service: string
+          sort_order: number
+          subcategory_name: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean
+          keyword: string
+          required_service: string
+          sort_order?: number
+          subcategory_name?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean
+          keyword?: string
+          required_service?: string
+          sort_order?: number
+          subcategory_name?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       search_intent_words: {
         Row: {
           category_name: string
