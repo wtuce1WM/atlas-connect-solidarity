@@ -1717,18 +1717,11 @@ serve(async (req) => {
         }
       }
 
-      // ── Neighborhood fallback: if still 0 results and neighborhood was applied, retry without it ──
-      // But if no city was detected, use the neighborhood's associated city to avoid returning nationwide results
+      // ── Neighborhood: compute associated city for enrichment scope, but NEVER widen results ──
+      // When a user searches in a specific neighborhood, respect that constraint strictly
       const neighborhoodCity = detectedNeighborhood && !effectiveCity ? getNeighborhoodCity(detectedNeighborhood, loadedNeighborhoods) : null;
       if (businesses.length === 0 && detectedNeighborhood) {
-        if (neighborhoodCity) {
-          console.log(`Neighborhood "${detectedNeighborhood}" yielded 0 results — falling back to city "${neighborhoodCity}" (from neighborhood DB)`);
-          businesses = await fetchSubcategoryBusinesses(detectedSubcategory, serviceFilter, { skipNeighborhood: true, overrideCity: neighborhoodCity });
-        } else {
-          console.log(`Neighborhood "${detectedNeighborhood}" yielded 0 results for subcategory "${detectedSubcategory}" — retrying without neighborhood filter`);
-          businesses = await fetchSubcategoryBusinesses(detectedSubcategory, serviceFilter, { skipNeighborhood: true });
-        }
-        console.log(`Subcategory without neighborhood "${detectedSubcategory}": ${businesses.length} results`);
+        console.log(`Neighborhood "${detectedNeighborhood}" yielded 0 results for subcategory "${detectedSubcategory}" — NOT widening to city (strict neighborhood mode)`);
       }
 
       // Enrichment by services within the same location scope
