@@ -1003,10 +1003,11 @@ serve(async (req) => {
     let serviceMatchWordsOuter: string[] = []; // All query words used in service detection (for cleanRemainder)
     let keywordMatchedSubcategories: string[] = []; // Subcategories of services matched via keywords
     
-    if (effectiveQuery) {
+    if (effectiveQuery || query || spoken) {
       // Strip French contractions: l'aéroport → aéroport, d'art → art, etc.
       const stripContractions = (w: string): string => w.replace(/^[lLdDsSnNjJcCqQ][\u0027\u2019\u2018\u0060]/g, "");
-      const queryWords = effectiveQuery.toLowerCase().split(/\s+/)
+      const serviceSourceText = [effectiveQuery, query, spoken].filter(Boolean).join(" ");
+      const queryWords = serviceSourceText.toLowerCase().split(/\s+/)
         .map(w => stripContractions(w))
         .filter(w => w.length > 1 && !NOISE_ADJECTIVES.has(w));
       const cityLower = effectiveCity?.toLowerCase();
@@ -1348,7 +1349,8 @@ serve(async (req) => {
 
     // ── Filter out services that don't belong to the detected subcategory ──
     // e.g. "offrir des fleurs" detects subcategory "Fleuriste" but service "Fleurs comestibles" belongs to "Fruits & Legumes"
-    if (detectedSubcategory && detectedServices.length > 0) {
+    // For neighborhood-driven queries, keep cross-subcategory services (same local intent can span multiple subcategories)
+    if (detectedSubcategory && detectedServices.length > 0 && !detectedNeighborhood) {
       // Look up which subcategory the detected subcategory actually is
       const { data: detectedSubcatRow } = await supabase
         .from("subcategories")
@@ -1705,10 +1707,12 @@ serve(async (req) => {
           console.log(`Service filter [${(serviceFilter || []).join(", ")}] returned 0 results for subcategory "${detectedSubcategory}" — retrying without service filter`);
           businesses = await fetchSubcategoryBusinesses(detectedSubcategory);
           serviceFilter = undefined;
-          // Also clear detected services to prevent post-filtering later
-          detectedServices = [];
-          detectedService = null;
-          allCandidateServiceNames = [];
+          // Keep detected services for neighborhood-driven enrichment (cross-subcategory local intent)
+          if (!detectedNeighborhood) {
+            detectedServices = [];
+            detectedService = null;
+            allCandidateServiceNames = [];
+          }
           console.log(`Subcategory without service filter "${detectedSubcategory}": ${businesses.length} results`);
         }
       }
@@ -1727,14 +1731,19 @@ serve(async (req) => {
         console.log(`Subcategory without neighborhood "${detectedSubcategory}": ${businesses.length} results`);
       }
 
-      // Skip generic enrichment when a specific service filter is active (already narrowed)
-      // In strict mode, still enrich but mark as service-based (they'll be grouped separately on frontend)
-      // Also use neighborhoodCity as city fallback when effectiveCity is empty
+      // Enrichment by services within the same location scope
+      // - If a specific service filter exists, enrich by that service list (e.g. "alcool")
+      // - Otherwise, fallback to subcategory-as-service enrichment (legacy behavior)
       const enrichmentCity = effectiveCity || neighborhoodCity;
-      if (!serviceFilter) {
+      const enrichmentServiceNames = (serviceFilter && serviceFilter.length > 0)
+        ? serviceFilter
+        : (detectedServices.length > 0 ? detectedServices : [detectedSubcategory]);
+
+      if (enrichmentServiceNames.length > 0) {
         const existingIds = new Set(businesses.map(b => b.id));
         let svcBuilder = supabase.from("businesses").select("*").eq("is_active", true)
-          .contains("services", [detectedSubcategory]);
+          .overlaps("services", enrichmentServiceNames);
+
         if (enrichmentCity) {
           if (enrichmentCity === effectiveCity) {
             svcBuilder = applyCityFilter(svcBuilder);
@@ -1742,14 +1751,20 @@ serve(async (req) => {
             svcBuilder = svcBuilder.ilike("city", enrichmentCity);
           }
         }
-        if (effectiveCategory) svcBuilder = svcBuilder.or(`main_category.eq.${effectiveCategory},categories.cs.{"${effectiveCategory}"}`);
+
+        if (effectiveCategory && !intentSubcategoryConflict) {
+          svcBuilder = svcBuilder.or(`main_category.eq.${effectiveCategory},categories.cs.{"${effectiveCategory}"}`);
+        }
+
         if (detectedNeighborhood) {
           svcBuilder = svcBuilder.or(buildNeighborhoodOrClause(detectedNeighborhood, loadedNeighborhoods));
         }
+
         svcBuilder = svcBuilder
           .order("wtuce_status", { ascending: true })
           .order("priority_score", { ascending: false })
           .limit(limit);
+
         const { data: svcData, error: svcError } = await svcBuilder;
         if (!svcError && svcData && svcData.length > 0) {
           const newResults = svcData
@@ -1761,7 +1776,51 @@ serve(async (req) => {
             }));
           businesses = [...businesses, ...newResults];
         }
-        console.log(`Subcategory service enrichment "${detectedSubcategory}": ${businesses.length} total results`);
+        console.log(`Service enrichment [${enrichmentServiceNames.join(", ")}] for subcategory "${detectedSubcategory}": ${businesses.length} total results`);
+      }
+
+      // Neighborhood alias fallback for alcohol intents when LLM rewrites the query too aggressively
+      const rawNeighborhoodQuery = [query, spoken].filter(Boolean).join(" ");
+      const rawNeighborhoodQueryNorm = stripAccentsGlobal(rawNeighborhoodQuery.toLowerCase());
+      if (
+        detectedNeighborhood &&
+        rawNeighborhoodQueryNorm &&
+        /(alcool|vin|biere|champagne|spiritueux)/.test(rawNeighborhoodQueryNorm)
+      ) {
+        const existingIds = new Set(businesses.map(b => b.id));
+        const alcoholServiceHints = ["Alcool", "Alcool, vin", "Vin", "Champagne", "Bière", "Spiritueux"];
+        let alcoholBuilder = supabase.from("businesses").select("*").eq("is_active", true)
+          .overlaps("services", alcoholServiceHints);
+
+        if (enrichmentCity) {
+          if (enrichmentCity === effectiveCity) {
+            alcoholBuilder = applyCityFilter(alcoholBuilder);
+          } else {
+            alcoholBuilder = alcoholBuilder.ilike("city", enrichmentCity);
+          }
+        }
+
+        if (detectedNeighborhood) {
+          alcoholBuilder = alcoholBuilder.or(buildNeighborhoodOrClause(detectedNeighborhood, loadedNeighborhoods));
+        }
+
+        alcoholBuilder = alcoholBuilder
+          .order("wtuce_status", { ascending: true })
+          .order("priority_score", { ascending: false })
+          .limit(limit);
+
+        const { data: alcoholData, error: alcoholError } = await alcoholBuilder;
+        if (!alcoholError && alcoholData && alcoholData.length > 0) {
+          const newResults = alcoholData
+            .filter((b: any) => !existingIds.has(b.id))
+            .map((b: any) => ({
+              ...b,
+              distance_km: latitude && longitude && b.latitude && b.longitude
+                ? calculateDistance(latitude, longitude, b.latitude, b.longitude) : null,
+            }));
+          businesses = [...businesses, ...newResults];
+        }
+        console.log(`Neighborhood alcohol fallback applied for "${detectedNeighborhood}": ${businesses.length} total results`);
       }
 
       // Append related subcategories (e.g. "Epicerie fine" after "Supermarché")
