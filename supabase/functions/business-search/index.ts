@@ -1592,14 +1592,15 @@ serve(async (req) => {
         .eq("is_active", true)
         .order("sort_order");
       
-      if (bundleData && bundleData.length > 0 && effectiveQuery) {
-        const qLower = stripAccentsGlobal(effectiveQuery.toLowerCase());
-        const qWords = qLower.split(/\s+/);
+      if (bundleData && bundleData.length > 0) {
+        // Check all available text sources for bundle keyword matches
+        const textsToCheck = [effectiveQuery, query, spoken].filter(Boolean) as string[];
+        const allText = textsToCheck.map(t => stripAccentsGlobal(t.toLowerCase())).join(" ");
+        const allWords = allText.split(/\s+/);
         
-        // Find matching bundle keyword
-        const matchedKeyword = bundleData
-          .map((b: any) => stripAccentsGlobal(b.keyword.toLowerCase()))
-          .find(kw => qWords.includes(kw) || qLower.includes(kw));
+        // Find matching bundle keyword (deduplicated)
+        const uniqueKeywords = [...new Set(bundleData.map((b: any) => stripAccentsGlobal(b.keyword.toLowerCase())))];
+        const matchedKeyword = uniqueKeywords.find(kw => allWords.includes(kw) || allText.includes(kw));
         
         if (matchedKeyword) {
           const entries = bundleData.filter((b: any) => stripAccentsGlobal(b.keyword.toLowerCase()) === matchedKeyword);
