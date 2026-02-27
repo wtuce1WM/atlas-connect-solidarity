@@ -143,6 +143,23 @@ const SearchBundleManagement = () => {
                     <div className="flex items-center gap-2">
                       <Badge variant="secondary" className="text-sm font-mono">{keyword}</Badge>
                       <span className="text-xs text-muted-foreground">{entries.length} entrée(s)</span>
+                      <div className="ml-auto flex items-center gap-1.5">
+                        <span className="text-xs text-muted-foreground">
+                          {entries.every(e => e.is_active) ? "Actif" : entries.some(e => e.is_active) ? "Partiel" : "Inactif"}
+                        </span>
+                        <Switch
+                          checked={entries.every(e => e.is_active)}
+                          onCheckedChange={async (checked) => {
+                            const ids = entries.map(e => e.id);
+                            const { error } = await supabase.from("search_bundles").update({ is_active: checked } as any).in("id", ids);
+                            if (error) {
+                              toast({ title: "Erreur", description: error.message, variant: "destructive" });
+                            } else {
+                              setBundles(prev => prev.map(b => ids.includes(b.id) ? { ...b, is_active: checked } : b));
+                            }
+                          }}
+                        />
+                      </div>
                     </div>
                   </CardHeader>
                   <CardContent className="px-4 pb-3 pt-0">
