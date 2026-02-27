@@ -243,3 +243,58 @@ export function isOpenDuringSlot(
 
   return false;
 }
+
+/**
+ * Get the opening time string (e.g. "19:30") for the first slot that overlaps
+ * with the target time slot. Returns null if not open during the slot.
+ */
+export function getOpeningTimeForSlot(
+  openingHours: Record<string, { open?: string; close?: string; open2?: string; close2?: string; closed?: boolean; continuous?: boolean }> | null,
+  isOpen24h: boolean,
+  timeSlot: TimeSlot,
+  vacationDates?: Array<{ start_date: string; end_date: string }> | null,
+): string | null {
+  if (isOpen24h) return "00:00";
+  if (!openingHours) return null;
+
+  const now = new Date();
+  let targetDate: Date;
+  if (timeSlot.dayOfWeek !== null) {
+    const diff = (timeSlot.dayOfWeek - now.getDay() + 7) % 7;
+    targetDate = new Date(now);
+    targetDate.setDate(now.getDate() + (diff === 0 ? 0 : diff));
+  } else {
+    targetDate = new Date(now);
+    targetDate.setDate(now.getDate() + timeSlot.dayOffset);
+  }
+
+  if (vacationDates && vacationDates.length > 0) {
+    const dateStr = targetDate.toISOString().split("T")[0];
+    for (const vd of vacationDates) {
+      if (dateStr >= vd.start_date && dateStr <= vd.end_date) return null;
+    }
+  }
+
+  const dayKey = JS_DAY_TO_KEY[targetDate.getDay()];
+  const dh = openingHours[dayKey];
+  if (!dh || dh.closed || !dh.open || !dh.close) return null;
+
+  const slotStartMin = timeSlot.startHour * 60;
+  const slotEndMin = timeSlot.endHour * 60;
+
+  const rangeOverlaps = (openStr: string, closeStr: string): boolean => {
+    const [oh, om] = openStr.split(":").map(Number);
+    const [ch, cm] = closeStr.split(":").map(Number);
+    const openMin = oh * 60 + (om || 0);
+    const closeMin = ch * 60 + (cm || 0);
+    if (closeMin <= openMin) return slotEndMin > openMin || slotStartMin < closeMin;
+    if (slotEndMin <= slotStartMin) return closeMin > slotStartMin || openMin < slotEndMin;
+    return slotStartMin < closeMin && slotEndMin > openMin;
+  };
+
+  // Return the earliest overlapping opening time
+  if (rangeOverlaps(dh.open, dh.close)) return dh.open;
+  if (dh.open2 && dh.close2 && !dh.continuous && rangeOverlaps(dh.open2, dh.close2)) return dh.open2;
+
+  return null;
+}
