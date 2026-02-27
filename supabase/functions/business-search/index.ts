@@ -178,46 +178,27 @@ interface SearchResult {
   searchMode?: string | null;
 }
 
-// Synonymes pour améliorer la recherche
-const synonyms: Record<string, string[]> = {
-  hotel: ["hôtel", "hébergement", "riad", "ryad"],
-  riad: ["ryad", "riad", "hôtel", "hébergement"],
-  restaurant: ["resto", "gastronomie", "cuisine", "brasserie", "table", "manger", "déjeuner", "dîner"],
-  francais: ["française", "francaise", "français", "french"],
-  italien: ["italienne", "italiana", "italien", "italian", "pizza", "pasta", "pâtes", "rital"],
-  japonais: ["japonaise", "japanese", "sushi", "sashimi", "niakoué", "niak"],
-  marocain: ["marocaine", "moroccan", "tajine", "couscous"],
-  libanais: ["libanaise", "lebanese", "levantin"],
-  asiatique: ["asian", "chinois", "chinoise", "thaï", "thaïlandais", "thaïlandaise"],
-  spa: ["hammam", "bien-être", "massage", "détente", "relaxation", "soin"],
-  transport: ["taxi", "navette", "transfert", "voiture"],
-  tour: ["excursion", "visite", "circuit", "guide"],
-  shop: ["boutique", "artisanat", "souvenir", "shopping"],
-  animaux: ["animaux", "animal", "chien", "chat", "pet"],
-  piscine: ["piscine", "pool", "baignade"],
-  parking: ["parking", "garage", "stationnement"],
-  wifi: ["wifi", "internet", "connexion"],
-  climatisation: ["climatisation", "climatisé", "clim", "ac"],
-  terrasse: ["terrasse", "toit"],
-  rooftop: ["rooftop", "toit-terrasse"],
-  halal: ["halal", "casher", "végétarien", "vegan"],
-  tapis: ["tapis", "berbere", "berberes", "kilim", "zellige", "artisanat", "tissage"],
-  bijoux: ["bijoux", "bijou", "argent", "or", "joaillerie", "bague", "collier", "bracelet", "boucle d'oreille", "pendentif"],
-  epices: ["epices", "épice", "herbes", "aromates", "souk", "curcuma", "safran", "poivre", "cumin", "thym", "romarin", "laurier"],
-  cuir: ["cuir", "maroquinerie", "babouche", "sac"],
-  poterie: ["poterie", "ceramique", "faience", "zellige"],
-  plage: ["plage", "mer", "ocean", "océan", "bord de mer", "front de mer", "vue mer", "bord eau", "littoral", "cote", "côte", "atlantique", "pieds dans l'eau", "pieds dans le sable", "coucher de soleil face à la mer", "coucher de soleil face à l'océan", "coucher de soleil sur la plage"],
-  bar: ["bar", "café", "lounge", "boire", "cocktail", "whisky", "rhum", "pastis", "ricard", "apéritif", "prendre une cuite", "alcool fort", "digestif", "bourbon", "brandy", "martini", "champagne", "vin", "vin rosé", "vin blanc", "vin rouge"],
-  cafe: ["café", "café", "coffee", "thé", "pâtisserie"],
-  art: ["art", "galerie", "galerie d'art", "artistique", "exposition", "expo", "musee", "musée", "culture", "culturel"],
-  petanque: ["pétanque", "petanque", "boules", "boulodrome"],
-  glacier: ["glacier", "glace", "glaces", "sorbet", "gelato", "creme glacee", "crème glacée"],
-  boite: ["boîte", "boite", "boîte de nuit", "discothèque", "discotheque", "nightclub", "clubbing", "soirée", "sortir", "fête", "fete"],
-  nightclub: ["night club", "nightclub", "boîte de nuit", "boite de nuit", "discothèque", "discotheque", "clubbing", "danser", "dancing"],
-  vin: ["vin", "vins", "alcool", "cave", "cave à vin", "bière", "biere", "spiritueux", "liqueur", "whisky", "champagne", "épicerie fine"],
-  liveshow: ["live show", "liveshow", "spectacle", "dîner spectacle", "dinner show", "show", "animation", "soirée spectacle"],
-  historique: ["historique", "lieu historique", "lieu historiques", "historiques", "patrimoine", "ancien", "histoire"],
-};
+// Synonyms and noise words are now loaded from DB (search_synonyms, search_noise_words)
+let synonyms: Record<string, string[]> = {};
+let NOISE_ADJECTIVES = new Set<string>();
+let searchConfigLoadedAt = 0;
+const SEARCH_CONFIG_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+async function loadSearchConfig(supabase: any) {
+  if (Date.now() - searchConfigLoadedAt < SEARCH_CONFIG_TTL_MS && Object.keys(synonyms).length > 0) return;
+  const { data: synData } = await supabase.from("search_synonyms").select("key_word, synonyms").eq("is_active", true);
+  if (synData) {
+    synonyms = {};
+    for (const row of synData) {
+      synonyms[row.key_word] = row.synonyms || [];
+    }
+  }
+  const { data: noiseData } = await supabase.from("search_noise_words").select("word").eq("is_active", true);
+  if (noiseData) {
+    NOISE_ADJECTIVES = new Set(noiseData.map((r: any) => r.word));
+  }
+  searchConfigLoadedAt = Date.now();
+}
 
 // French stop words used to detect natural language queries
 const FRENCH_STOP_WORDS = new Set([
@@ -472,25 +453,7 @@ function collectBusinessTags(business: any): string[] {
   ].filter(Boolean);
 }
 
-// Adjectives that don't exist in business search vectors and should be dropped
-const NOISE_ADJECTIVES = new Set([
-  "traditionnel", "traditionnelle", "traditionnels", "traditionnelles",
-  "authentique", "authentiques", "typique", "typiques",
-  "vrai", "vraie", "vrais", "vraies", "véritable", "véritables",
-  "local", "locale", "locaux", "locales",
-  "ancien", "ancienne", "anciens", "anciennes",
-  "moderne", "modernes", "contemporain", "contemporaine",
-  "luxueux", "luxueuse", "chic", "élégant", "élégante",
-  "petit", "petite", "petits", "petites",
-  "grand", "grande", "grands", "grandes",
-  "joli", "jolie", "jolis", "jolies",
-  "beau", "belle", "beaux", "belles",
-  "bon", "bonne", "bons", "bonnes",
-  "meilleur", "meilleure", "meilleurs", "meilleures",
-  "original", "originale", "originaux", "originales",
-  "fameux", "fameuse", "célèbre", "célèbres",
-  "populaire", "populaires",
-]);
+// NOISE_ADJECTIVES is now loaded from DB via loadSearchConfig()
 
 function expandQuery(query: string): string {
   // Split on whitespace AND hyphens so "Restaurant-galerie" → ["restaurant", "galerie"]
@@ -585,6 +548,9 @@ serve(async (req) => {
 
     const isAutocomplete = mode === "autocomplete";
 
+    // Load search config from DB (synonyms, noise words)
+    await loadSearchConfig(supabase);
+
     let businesses: Business[] = [];
     let searchLevel = "exact";
 
@@ -654,10 +620,24 @@ serve(async (req) => {
       console.log(`Auto-detected neighborhood "${detectedNeighborhood}" from query "${effectiveQuery}"`);
     }
 
-    // Related subcategories: after main results, also show businesses from these subcategories
-    const RELATED_SUBCATEGORIES: Record<string, string[]> = {
-      // Intentionally empty — only add truly equivalent subcategories here
-    };
+    // Related subcategories: loaded from DB (subcategory_relations table)
+    let RELATED_SUBCATEGORIES: Record<string, string[]> = {};
+    {
+      const { data: relData } = await supabase
+        .from("subcategory_relations")
+        .select("source_subcategory_id, target_subcategory_id, subcategories!subcategory_relations_source_subcategory_id_fkey(name_fr), target:subcategories!subcategory_relations_target_subcategory_id_fkey(name_fr)")
+        .eq("is_active", true);
+      if (relData) {
+        for (const row of relData) {
+          const srcName = (row as any).subcategories?.name_fr;
+          const tgtName = (row as any).target?.name_fr;
+          if (srcName && tgtName) {
+            if (!RELATED_SUBCATEGORIES[srcName]) RELATED_SUBCATEGORIES[srcName] = [];
+            RELATED_SUBCATEGORIES[srcName].push(tgtName);
+          }
+        }
+      }
+    }
     // ── Load subcategory search configs from DB ──
     let searchConfigs: Record<string, { search_mode: string; max_results: number | null; boost_weight: number; synonyms: string[] }> = {};
     {
@@ -1604,10 +1584,27 @@ serve(async (req) => {
 
     // When a subcategory is detected, use direct SQL filtering (bypasses tsquery which matches descriptions)
     // Fusion rule: "Hôtel" and "Riad" are merged in search results
-    const MERGED_SUBCATEGORIES: Record<string, string[]> = {
-      "hôtel": ["Hôtel", "Riad"],
-      "riad": ["Hôtel", "Riad"],
-    };
+    // Fusion rule: load merge_group from subcategories DB
+    let MERGED_SUBCATEGORIES: Record<string, string[]> = {};
+    {
+      const { data: mergeData } = await supabase
+        .from("subcategories")
+        .select("name_fr, merge_group")
+        .not("merge_group", "is", null);
+      if (mergeData) {
+        const groups: Record<string, string[]> = {};
+        for (const row of mergeData) {
+          if (!row.merge_group) continue;
+          if (!groups[row.merge_group]) groups[row.merge_group] = [];
+          groups[row.merge_group].push(row.name_fr);
+        }
+        for (const names of Object.values(groups)) {
+          for (const name of names) {
+            MERGED_SUBCATEGORIES[name.toLowerCase()] = names;
+          }
+        }
+      }
+    }
 
     if (detectedSubcategory && businesses.length === 0) {
       // Helper to fetch businesses for a given subcategory (or merged group) with current filters
