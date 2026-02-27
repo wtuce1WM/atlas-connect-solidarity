@@ -8,6 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
@@ -246,10 +247,48 @@ const SearchBundleManagement = () => {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Package className="h-5 w-5" />
-            Regroupements de recherche (Bundles)
-          </CardTitle>
+          <div className="flex items-center gap-3">
+            <CardTitle className="flex items-center gap-2">
+              <Package className="h-5 w-5" />
+              Regroupements de recherche (Bundles)
+            </CardTitle>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-7 w-7" title="Mapping heure → créneau">
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-4" align="start">
+                <h4 className="font-semibold text-sm mb-3">Mapping heure → créneau</h4>
+                <table className="text-xs">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="text-left pr-4 pb-1.5 font-medium text-muted-foreground">Créneau</th>
+                      <th className="text-left pb-1.5 font-medium text-muted-foreground">Heures</th>
+                    </tr>
+                  </thead>
+                  <tbody className="space-y-1">
+                    {[
+                      { label: "Matinée", hours: "7h – 12h" },
+                      { label: "Déjeuner", hours: "12h – 14h" },
+                      { label: "Après-midi", hours: "14h – 18h" },
+                      { label: "Dîner", hours: "19h – 23h" },
+                      { label: "Soirée", hours: "19h – 23h" },
+                      { label: "Nuit", hours: "22h – 6h" },
+                    ].map(row => (
+                      <tr key={row.label}>
+                        <td className="pr-4 py-1">{row.label}</td>
+                        <td className="py-1 font-mono text-muted-foreground">{row.hours}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <p className="text-xs text-muted-foreground mt-3 max-w-[250px]">
+                  Si l'heure actuelle correspond à un créneau sélectionné, les résultats priorisent les établissements ouverts pendant ce créneau.
+                </p>
+              </PopoverContent>
+            </Popover>
+          </div>
           <p className="text-sm text-muted-foreground">
             Quand un mot-clé est détecté dans la requête, le moteur cherche dans toutes les sous-catégories listées, 
             en filtrant par le service requis pour chacune. Un <code>subcategory_name</code> vide = wildcard (toutes les sous-catégories).
