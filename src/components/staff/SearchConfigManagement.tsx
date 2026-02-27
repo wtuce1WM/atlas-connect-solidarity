@@ -11,6 +11,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import IntentManagement from "./IntentManagement";
 import ServiceFilterManagement from "./ServiceFilterManagement";
+import NoiseWordsManagement from "./NoiseWordsManagement";
+import SynonymsManagement from "./SynonymsManagement";
+import SubcategoryMergesManagement from "./SubcategoryMergesManagement";
 
 interface Subcategory {
   id: string;
@@ -220,10 +223,13 @@ const SearchConfigManagement = () => {
 
   return (
     <Tabs defaultValue="subcategories" className="space-y-6">
-      <TabsList>
+      <TabsList className="flex-wrap h-auto">
         <TabsTrigger value="subcategories">Sous-catégories</TabsTrigger>
         <TabsTrigger value="intents">Intentions</TabsTrigger>
         <TabsTrigger value="service-filters">Filtres de services</TabsTrigger>
+        <TabsTrigger value="synonyms">Synonymes</TabsTrigger>
+        <TabsTrigger value="noise-words">Mots bruyants</TabsTrigger>
+        <TabsTrigger value="merges">Fusions</TabsTrigger>
       </TabsList>
 
       <TabsContent value="intents">
@@ -511,6 +517,15 @@ const SearchConfigManagement = () => {
       </TabsContent>
       <TabsContent value="service-filters">
         <ServiceFilterManagement />
+      </TabsContent>
+      <TabsContent value="synonyms">
+        <SynonymsManagement />
+      </TabsContent>
+      <TabsContent value="noise-words">
+        <NoiseWordsManagement />
+      </TabsContent>
+      <TabsContent value="merges">
+        <SubcategoryMergesManagement />
       </TabsContent>
     </Tabs>
   );
