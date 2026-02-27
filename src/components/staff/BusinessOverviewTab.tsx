@@ -37,6 +37,9 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
   const [statusFilter, setStatusFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [badgeFilter, setBadgeFilter] = useState<string | null>(null);
+  const [engagementFilter, setEngagementFilter] = useState<string | null>(null);
+  const [destinationFilter, setDestinationFilter] = useState<string | null>(null);
+  const [certificationFilter, setCertificationFilter] = useState<string | null>(null);
   const [subcategoryFilter, setSubcategoryFilter] = useState("all");
   const [subcategories, setSubcategories] = useState<{ id: string; name_fr: string }[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -94,7 +97,20 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
     fetchSubs();
   }, [categoryFilter]);
 
-  useEffect(() => { setCurrentPage(1); }, [searchQuery, cityFilter, statusFilter, categoryFilter, subcategoryFilter, badgeFilter]);
+  useEffect(() => { setCurrentPage(1); }, [searchQuery, cityFilter, statusFilter, categoryFilter, subcategoryFilter, badgeFilter, engagementFilter, destinationFilter, certificationFilter]);
+
+  // Unique engagements & certifications across all businesses
+  const uniqueEngagements = useMemo(() => {
+    const set = new Set<string>();
+    businesses.forEach(b => b.engagements?.filter(e => e.length > 0 && !e.startsWith("Certification:")).forEach(e => set.add(e)));
+    return [...set].sort((a, b) => a.localeCompare(b, 'fr'));
+  }, [businesses]);
+
+  const uniqueCertifications = useMemo(() => {
+    const set = new Set<string>();
+    businesses.forEach(b => b.engagements?.filter(e => e.startsWith("Certification:")).forEach(e => set.add(e.replace("Certification:", ""))));
+    return [...set].sort((a, b) => a.localeCompare(b, 'fr'));
+  }, [businesses]);
 
   const filteredBusinesses = useMemo(() => {
     return businesses.filter((b) => {
@@ -112,9 +128,12 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
       const matchesCategory = categoryFilter === "all" || b.main_category === categoryFilter;
       const matchesSubcategory = subcategoryFilter === "all" || (b.categories?.includes(subcategoryFilter));
       const matchesBadge = !badgeFilter || businessBadges.some(bb => bb.business_id === b.id && bb.badge_id === badgeFilter);
-      return matchesSearch && matchesCity && matchesStatus && matchesCategory && matchesSubcategory && matchesBadge;
+      const matchesEngagement = !engagementFilter || b.engagements?.includes(engagementFilter);
+      const matchesDestination = !destinationFilter || businessDestinations.some(bd => bd.business_id === b.id && bd.destination_id === destinationFilter);
+      const matchesCertification = !certificationFilter || b.engagements?.includes(`Certification:${certificationFilter}`);
+      return matchesSearch && matchesCity && matchesStatus && matchesCategory && matchesSubcategory && matchesBadge && matchesEngagement && matchesDestination && matchesCertification;
     }).sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
-  }, [businesses, searchQuery, cityFilter, statusFilter, categoryFilter, subcategoryFilter, badgeFilter, businessBadges]);
+  }, [businesses, searchQuery, cityFilter, statusFilter, categoryFilter, subcategoryFilter, badgeFilter, businessBadges, engagementFilter, destinationFilter, destinationFilter, businessDestinations, certificationFilter]);
 
   const toggleSort = (col: string) => {
     if (sortColumn === col) {
@@ -291,9 +310,87 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
             </CollapsibleContent>
           </Collapsible>
         )}
+        {/* Engagement filter */}
+        {uniqueEngagements.length > 0 && (
+          <Collapsible defaultOpen={!!engagementFilter}>
+            <CollapsibleTrigger className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mt-3">
+              <ChevronDown className="h-3.5 w-3.5 transition-transform [[data-state=open]>svg]:rotate-180" />
+              Filtrer par engagement {engagementFilter && `(${engagementFilter.replace(/^(Logistique:|Marché:)/, "")})`}
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {uniqueEngagements.map(eng => {
+                  const cleanLabel = eng.replace(/^(Logistique:|Marché:)/, "");
+                  return (
+                    <button
+                      key={eng}
+                      type="button"
+                      onClick={() => setEngagementFilter(engagementFilter === eng ? null : eng)}
+                      className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border transition-all ${
+                        engagementFilter === eng ? "ring-2 ring-offset-1 ring-primary scale-105 bg-primary/10 text-foreground" : "opacity-70 hover:opacity-100 bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      {cleanLabel}
+                    </button>
+                  );
+                })}
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
+        )}
+        {/* Destination filter */}
+        {destinations.length > 0 && (
+          <Collapsible defaultOpen={!!destinationFilter}>
+            <CollapsibleTrigger className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mt-3">
+              <ChevronDown className="h-3.5 w-3.5 transition-transform [[data-state=open]>svg]:rotate-180" />
+              Filtrer par destination {destinationFilter && `(${destinations.find(d => d.id === destinationFilter)?.name_fr})`}
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {destinations.map(dest => (
+                  <button
+                    key={dest.id}
+                    type="button"
+                    onClick={() => setDestinationFilter(destinationFilter === dest.id ? null : dest.id)}
+                    className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border transition-all ${
+                      destinationFilter === dest.id ? "ring-2 ring-offset-1 ring-primary scale-105 bg-primary/10 text-foreground" : "opacity-70 hover:opacity-100 bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    {dest.name_fr}
+                  </button>
+                ))}
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
+        )}
+        {/* Certification filter */}
+        {uniqueCertifications.length > 0 && (
+          <Collapsible defaultOpen={!!certificationFilter}>
+            <CollapsibleTrigger className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mt-3">
+              <ChevronDown className="h-3.5 w-3.5 transition-transform [[data-state=open]>svg]:rotate-180" />
+              Filtrer par certification {certificationFilter && `(${certificationFilter})`}
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {uniqueCertifications.map(cert => (
+                  <button
+                    key={cert}
+                    type="button"
+                    onClick={() => setCertificationFilter(certificationFilter === cert ? null : cert)}
+                    className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border transition-all ${
+                      certificationFilter === cert ? "ring-2 ring-offset-1 ring-primary scale-105 bg-primary/10 text-foreground" : "opacity-70 hover:opacity-100 bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    {cert}
+                  </button>
+                ))}
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
+        )}
         <div className="flex items-center gap-3 mt-2">
           <p className="text-sm text-muted-foreground">{filteredBusinesses.length} résultat(s)</p>
-          {(searchQuery || cityFilter !== "all" || statusFilter !== "all" || categoryFilter !== "all" || subcategoryFilter !== "all" || badgeFilter) && (
+          {(searchQuery || cityFilter !== "all" || statusFilter !== "all" || categoryFilter !== "all" || subcategoryFilter !== "all" || badgeFilter || engagementFilter || destinationFilter || certificationFilter) && (
             <Button
               variant="ghost"
               size="sm"
@@ -305,6 +402,9 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
                 setCategoryFilter("all");
                 setSubcategoryFilter("all");
                 setBadgeFilter(null);
+                setEngagementFilter(null);
+                setDestinationFilter(null);
+                setCertificationFilter(null);
               }}
             >
               Effacer les filtres
