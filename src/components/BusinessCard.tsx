@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Phone, ShieldCheck, Star, Globe, Clock } from "lucide-react";
 import logoWatermark from "@/assets/logoGOLDsimpleSML.webp";
+import logoGold from "@/assets/logoGOLDsimple.webp";
 import { collectRatingSources, computeWeightedRatingOn20, getTotalReviewCount as getTotalReviews } from "@/lib/ratingUtils";
 import { isOpenDuringSlot, getOpeningTimeForSlot, type TimeSlot } from "@/lib/timeSlots";
 import { isCurrentlyOpen, type DayHoursData } from "@/lib/formatOpeningHours";
@@ -295,7 +296,17 @@ const BusinessCard = ({
           )}
         </div>
         
-        <CardContent className="p-4">
+        <CardContent className="p-4 relative overflow-hidden">
+          {/* CSS 3D spinning logo watermark for verified businesses */}
+          {business.wtuce_status === "verified" && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none [perspective:800px]">
+              <img
+                src={logoGold}
+                alt=""
+                className="w-24 h-24 object-contain opacity-[0.07] animate-[coinSpin_1.2s_cubic-bezier(0.16,1,0.3,1)_forwards]"
+              />
+            </div>
+          )}
           {/* Badges */}
           <div className="flex flex-wrap gap-2 mb-3">
             {business.categories && business.categories.length > 0 && (
