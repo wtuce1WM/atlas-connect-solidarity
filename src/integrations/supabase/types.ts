@@ -1709,6 +1709,30 @@ export type Database = {
         }
         Relationships: []
       }
+      search_noise_words: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_active: boolean
+          updated_at: string | null
+          word: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean
+          updated_at?: string | null
+          word: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean
+          updated_at?: string | null
+          word?: string
+        }
+        Relationships: []
+      }
       search_service_filters: {
         Row: {
           created_at: string | null
@@ -1746,6 +1770,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      search_synonyms: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_active: boolean
+          key_word: string
+          synonyms: string[]
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean
+          key_word: string
+          synonyms?: string[]
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean
+          key_word?: string
+          synonyms?: string[]
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       services: {
         Row: {
@@ -1913,6 +1964,7 @@ export type Database = {
           icon: string | null
           id: string
           keywords: string[] | null
+          merge_group: string | null
           name_ar: string | null
           name_en: string | null
           name_fr: string
@@ -1930,6 +1982,7 @@ export type Database = {
           icon?: string | null
           id?: string
           keywords?: string[] | null
+          merge_group?: string | null
           name_ar?: string | null
           name_en?: string | null
           name_fr: string
@@ -1947,6 +2000,7 @@ export type Database = {
           icon?: string | null
           id?: string
           keywords?: string[] | null
+          merge_group?: string | null
           name_ar?: string | null
           name_en?: string | null
           name_fr?: string
@@ -1960,6 +2014,45 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subcategory_relations: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_active: boolean
+          source_subcategory_id: string
+          target_subcategory_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean
+          source_subcategory_id: string
+          target_subcategory_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean
+          source_subcategory_id?: string
+          target_subcategory_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subcategory_relations_source_subcategory_id_fkey"
+            columns: ["source_subcategory_id"]
+            isOneToOne: false
+            referencedRelation: "subcategories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subcategory_relations_target_subcategory_id_fkey"
+            columns: ["target_subcategory_id"]
+            isOneToOne: false
+            referencedRelation: "subcategories"
             referencedColumns: ["id"]
           },
         ]
