@@ -33,6 +33,7 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
   const [cityFilter, setCityFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
+  const [badgeFilter, setBadgeFilter] = useState<string | null>(null);
   const [subcategoryFilter, setSubcategoryFilter] = useState("all");
   const [subcategories, setSubcategories] = useState<{ id: string; name_fr: string }[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -90,7 +91,7 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
     fetchSubs();
   }, [categoryFilter]);
 
-  useEffect(() => { setCurrentPage(1); }, [searchQuery, cityFilter, statusFilter, categoryFilter, subcategoryFilter]);
+  useEffect(() => { setCurrentPage(1); }, [searchQuery, cityFilter, statusFilter, categoryFilter, subcategoryFilter, badgeFilter]);
 
   const filteredBusinesses = useMemo(() => {
     return businesses.filter((b) => {
@@ -107,9 +108,10 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
       const matchesStatus = statusFilter === "all" || (statusFilter === "active" ? b.is_active : !b.is_active);
       const matchesCategory = categoryFilter === "all" || b.main_category === categoryFilter;
       const matchesSubcategory = subcategoryFilter === "all" || (b.categories?.includes(subcategoryFilter));
-      return matchesSearch && matchesCity && matchesStatus && matchesCategory && matchesSubcategory;
+      const matchesBadge = !badgeFilter || businessBadges.some(bb => bb.business_id === b.id && bb.badge_id === badgeFilter);
+      return matchesSearch && matchesCity && matchesStatus && matchesCategory && matchesSubcategory && matchesBadge;
     }).sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
-  }, [businesses, searchQuery, cityFilter, statusFilter, categoryFilter, subcategoryFilter]);
+  }, [businesses, searchQuery, cityFilter, statusFilter, categoryFilter, subcategoryFilter, badgeFilter, businessBadges]);
 
   const toggleSort = (col: string) => {
     if (sortColumn === col) {
@@ -255,6 +257,29 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
             </Select>
           )}
         </div>
+        {/* Badge filter */}
+        {badges.length > 0 && (
+          <div className="flex flex-wrap gap-2 mt-3">
+            <span className="text-sm text-muted-foreground self-center mr-1">Badges :</span>
+            {badges.map(badge => (
+              <button
+                key={badge.id}
+                type="button"
+                onClick={() => setBadgeFilter(badgeFilter === badge.id ? null : badge.id)}
+                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border transition-all ${
+                  badgeFilter === badge.id ? "ring-2 ring-offset-1 ring-primary scale-105" : "opacity-70 hover:opacity-100"
+                }`}
+                style={{
+                  backgroundColor: badge.color_hex || '#666666',
+                  color: badge.text_color_hex || '#000000',
+                  borderColor: badgeFilter === badge.id ? 'transparent' : '#00000030',
+                }}
+              >
+                {badge.name_fr}
+              </button>
+            ))}
+          </div>
+        )}
         <p className="text-sm text-muted-foreground mt-2">{filteredBusinesses.length} résultat(s)</p>
       </div>
 
