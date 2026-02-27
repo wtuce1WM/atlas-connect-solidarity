@@ -147,7 +147,8 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
         case "badges": return getBadgesForBusiness(b.id).length;
         case "destinations": return getDestsForBusiness(b.id).length;
         case "gps": return (b.latitude != null && b.longitude != null) ? 1 : 0;
-        case "certifications": return getLabelsForBusiness(b.id).length;
+        case "certifications": return (b.engagements?.filter(e => e.startsWith("Certification:")).length) || 0;
+        case "labels": return getLabelsForBusiness(b.id).length;
         default: return "";
       }
     };
@@ -344,6 +345,9 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
                   <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("certifications")}>
                     <span className="inline-flex items-center">Certifications<SortIcon col="certifications" /></span>
                   </TableHead>
+                  <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("labels")}>
+                    <span className="inline-flex items-center">Labels<SortIcon col="labels" /></span>
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -501,7 +505,24 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
                         )}
                       </TableCell>
 
-                      {/* Certifications (labels) */}
+                      {/* Certifications (from engagements) */}
+                      <TableCell>
+                        {(() => {
+                          const certs = business.engagements?.filter(e => e.startsWith("Certification:")).map(e => e.replace("Certification:", "")) || [];
+                          if (certs.length === 0) return <span className="text-muted-foreground text-sm">-</span>;
+                          return (
+                            <div className="flex flex-wrap gap-1">
+                              {certs.map((c, i) => (
+                                <Badge key={i} variant="outline" className="text-xs font-normal">
+                                  {c}
+                                </Badge>
+                              ))}
+                            </div>
+                          );
+                        })()}
+                      </TableCell>
+
+                      {/* Labels */}
                       <TableCell>
                         {bLabels.length > 0 ? (
                           <div className="flex flex-wrap gap-1">
