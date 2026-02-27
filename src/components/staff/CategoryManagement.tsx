@@ -155,7 +155,7 @@ const CategoryManagement = () => {
     const { data } = await supabase
       .from("businesses")
       .select("id, name, city, is_active")
-      .contains("services", [svcName])
+      .filter("services", "cs", `{"${svcName}"}`)
       .order("name");
     setBusinessesPopup({ title: `Entreprises – ${svcName}`, businesses: data || [], loading: false });
   };
