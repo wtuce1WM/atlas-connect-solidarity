@@ -1,33 +1,18 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { useToast } from "@/hooks/use-toast";
-import { useSearchSuggestions } from "@/hooks/useSearchSuggestions";
-import SearchSuggestionsDropdown from "@/components/SearchSuggestionsDropdown";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, Mic, MicOff, Loader } from "lucide-react";
 
 const FloatingSearchBar = () => {
   const [inputValue, setInputValue] = useState("");
-  const [showSuggestions, setShowSuggestions] = useState(false);
   const { language } = useLanguage();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { suggestions } = useSearchSuggestions(inputValue);
   const formRef = useRef<HTMLFormElement>(null);
-
-  // Close suggestions on click outside
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (formRef.current && !formRef.current.contains(e.target as Node)) {
-        setShowSuggestions(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   const { status: voiceStatus, toggleRecording } = useVoiceSearch({
     onTranscript: (keywords, spoken) => {
@@ -66,15 +51,8 @@ const FloatingSearchBar = () => {
               type="text"
               placeholder={placeholder}
               value={inputValue}
-              onChange={(e) => { setInputValue(e.target.value); setShowSuggestions(true); }}
-              onFocus={() => setShowSuggestions(true)}
-              onBlur={() => setTimeout(() => setShowSuggestions(false), 300)}
+              onChange={(e) => setInputValue(e.target.value)}
               className="w-full pl-14 pr-36 py-6 text-base bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-full shadow-lg"
-            />
-            <SearchSuggestionsDropdown
-              suggestions={suggestions}
-              visible={showSuggestions && suggestions.length > 0}
-              position="top"
             />
             <Button
               type="submit"
@@ -116,15 +94,8 @@ const FloatingSearchBar = () => {
               type="text"
               placeholder={placeholder}
               value={inputValue}
-              onChange={(e) => { setInputValue(e.target.value); setShowSuggestions(true); }}
-              onFocus={() => setShowSuggestions(true)}
-              onBlur={() => setTimeout(() => setShowSuggestions(false), 300)}
+              onChange={(e) => setInputValue(e.target.value)}
               className="w-full pl-11 pr-4 py-5 text-sm bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-full shadow-lg"
-            />
-            <SearchSuggestionsDropdown
-              suggestions={suggestions}
-              visible={showSuggestions && suggestions.length > 0}
-              position="top"
             />
           </div>
           <div className="flex items-center justify-center gap-2">
