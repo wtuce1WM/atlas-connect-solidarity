@@ -1598,36 +1598,36 @@ serve(async (req) => {
         const allText = textsToCheck.map(t => stripAccentsGlobal(t.toLowerCase())).join(" ");
         const allWords = allText.split(/\s+/);
         
+        // Build synonym-expanded version of the query text:
+        // For each word in the query, if it's a key_word in synonyms, append all its synonym values
+        // If it appears as a synonym value, append the key_word
+        let expandedText = allText;
+        for (const [synKey, synValues] of Object.entries(synonyms)) {
+          const normalizedKey = stripAccentsGlobal(synKey.toLowerCase());
+          // If query contains a synonym value, expand with the key_word
+          for (const sv of synValues) {
+            const normalizedSv = stripAccentsGlobal(sv.toLowerCase());
+            if (allText.includes(normalizedSv) && !allText.includes(normalizedKey)) {
+              expandedText += " " + normalizedKey;
+            }
+            if (allText.includes(normalizedKey) && !allText.includes(normalizedSv)) {
+              expandedText += " " + normalizedSv;
+            }
+          }
+        }
+        const expandedWords = expandedText.split(/\s+/);
+        
         // Build a reverse map: synonym → bundle keyword, using the loaded synonyms config
         const uniqueKeywords = [...new Set(bundleData.map((b: any) => stripAccentsGlobal(b.keyword.toLowerCase())))];
         
-        // Try direct match first, then synonym match
+        // Try direct match first on original text, then on synonym-expanded text
         let matchedKeyword = uniqueKeywords.find(kw => allWords.includes(kw) || allText.includes(kw));
         
         if (!matchedKeyword) {
-          // Check if any word in the query is a synonym that maps to a bundle keyword
-          for (const kw of uniqueKeywords) {
-            // Check if kw has synonyms that appear in allWords
-            const kwSynonyms = synonyms[kw] || [];
-            const found = kwSynonyms.some(syn => {
-              const normalizedSyn = stripAccentsGlobal(syn.toLowerCase());
-              return allWords.includes(normalizedSyn) || allText.includes(normalizedSyn);
-            });
-            if (found) {
-              matchedKeyword = kw;
-              console.log(`📦 BUNDLE synonym match: query word matched synonym of "${kw}"`);
-              break;
-            }
-            // Also check reverse: if a query word is a key_word whose synonyms include kw
-            for (const [synKey, synValues] of Object.entries(synonyms)) {
-              const normalizedKey = stripAccentsGlobal(synKey.toLowerCase());
-              if ((allWords.includes(normalizedKey) || allText.includes(normalizedKey)) &&
-                  synValues.some(sv => stripAccentsGlobal(sv.toLowerCase()) === kw)) {
-                matchedKeyword = kw;
-                console.log(`📦 BUNDLE reverse synonym match: "${synKey}" → "${kw}"`);
-                break;
-              }
-            }
+          // Try matching on expanded text (with synonym replacements)
+          matchedKeyword = uniqueKeywords.find(kw => expandedWords.includes(kw) || expandedText.includes(kw));
+          if (matchedKeyword) {
+            console.log(`📦 BUNDLE synonym-expanded match: "${matchedKeyword}" found in expanded query`);
           }
         }
         
