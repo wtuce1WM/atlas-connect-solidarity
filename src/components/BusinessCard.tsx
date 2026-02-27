@@ -309,8 +309,8 @@ const BusinessCard = ({
                 <img
                   src={logoGold}
                   alt=""
-                  className="w-10 h-10 object-contain animate-[coinSpin_1.2s_cubic-bezier(0.16,1,0.3,1)_forwards]"
-                  style={{ transformStyle: "preserve-3d" }}
+                  className="object-contain animate-[coinSpin_1.2s_cubic-bezier(0.16,1,0.3,1)_forwards]"
+                  style={{ width: 50, height: 50, transformStyle: "preserve-3d" }}
                 />
               </div>
             )}
