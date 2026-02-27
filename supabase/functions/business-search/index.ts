@@ -1779,54 +1779,7 @@ serve(async (req) => {
         console.log(`Service enrichment [${enrichmentServiceNames.join(", ")}] for subcategory "${detectedSubcategory}": ${businesses.length} total results`);
       }
 
-      // Neighborhood alias fallback for alcohol intents when LLM rewrites the query too aggressively
-      const rawNeighborhoodQuery = [query, spoken].filter(Boolean).join(" ");
-      const rawNeighborhoodQueryNorm = stripAccentsGlobal(rawNeighborhoodQuery.toLowerCase());
-      if (
-        detectedNeighborhood &&
-        rawNeighborhoodQueryNorm &&
-        /(alcool|vin|biere|champagne|spiritueux)/.test(rawNeighborhoodQueryNorm)
-      ) {
-        const existingIds = new Set(businesses.map(b => b.id));
-        const alcoholServiceHints = ["Alcool", "Alcool, vin", "Vin", "Champagne", "Bière", "Spiritueux"];
-        let alcoholBuilder = supabase.from("businesses").select("*").eq("is_active", true)
-          .overlaps("services", alcoholServiceHints);
-
-        if (enrichmentCity) {
-          if (enrichmentCity === effectiveCity) {
-            alcoholBuilder = applyCityFilter(alcoholBuilder);
-          } else {
-            alcoholBuilder = alcoholBuilder.ilike("city", enrichmentCity);
-          }
-        }
-
-        // Apply category filter (e.g. Commerce) to prevent restaurants from leaking in
-        if (effectiveCategory && !intentSubcategoryConflict) {
-          alcoholBuilder = alcoholBuilder.or(`main_category.eq.${effectiveCategory},categories.cs.{"${effectiveCategory}"}`);
-        }
-
-        if (detectedNeighborhood) {
-          alcoholBuilder = alcoholBuilder.or(buildNeighborhoodOrClause(detectedNeighborhood, loadedNeighborhoods));
-        }
-
-        alcoholBuilder = alcoholBuilder
-          .order("wtuce_status", { ascending: true })
-          .order("priority_score", { ascending: false })
-          .limit(limit);
-
-        const { data: alcoholData, error: alcoholError } = await alcoholBuilder;
-        if (!alcoholError && alcoholData && alcoholData.length > 0) {
-          const newResults = alcoholData
-            .filter((b: any) => !existingIds.has(b.id))
-            .map((b: any) => ({
-              ...b,
-              distance_km: latitude && longitude && b.latitude && b.longitude
-                ? calculateDistance(latitude, longitude, b.latitude, b.longitude) : null,
-            }));
-          businesses = [...businesses, ...newResults];
-        }
-        console.log(`Neighborhood alcohol fallback applied for "${detectedNeighborhood}": ${businesses.length} total results`);
-      }
+      // (Alcohol-specific fallback removed — now handled generically by the service enrichment block above)
 
       // Append related subcategories (e.g. "Epicerie fine" after "Supermarché")
       const relatedSubcats = RELATED_SUBCATEGORIES[detectedSubcategory];
