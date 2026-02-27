@@ -193,7 +193,7 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
                   <TableHead>Nom</TableHead>
                   <TableHead>Ville / Quartier</TableHead>
                   <TableHead>Actif</TableHead>
-                  <TableHead>Commodités</TableHead>
+                  <TableHead>Engagements</TableHead>
                   <TableHead>Badges</TableHead>
                   <TableHead>Destinations</TableHead>
                   <TableHead>GPS</TableHead>
