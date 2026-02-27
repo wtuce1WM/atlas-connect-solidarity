@@ -303,16 +303,29 @@ async function detectCityInQueryDynamic(query: string, supabase: any): Promise<s
 // detectCityInQuery is no longer used — replaced by detectCityInQueryDynamic
 
 // Neighborhood data loaded from DB (name + keywords/aliases)
-interface NeighborhoodEntry { name: string; keywords: string[] }
+interface NeighborhoodEntry { name: string; keywords: string[]; city_name: string | null }
 let loadedNeighborhoods: NeighborhoodEntry[] = [];
 
 async function loadNeighborhoods(supabase: any): Promise<NeighborhoodEntry[]> {
   if (loadedNeighborhoods.length > 0) return loadedNeighborhoods;
-  const { data } = await supabase.from("neighborhoods").select("name, keywords");
+  const { data } = await supabase.from("neighborhoods").select("name, keywords, cities!inner(name_fr)");
   if (data) {
-    loadedNeighborhoods = data.map((n: any) => ({ name: n.name, keywords: n.keywords || [] }));
+    loadedNeighborhoods = data.map((n: any) => ({ name: n.name, keywords: n.keywords || [], city_name: n.cities?.name_fr || null }));
   }
   return loadedNeighborhoods;
+}
+
+// Get the city associated with a neighborhood
+function getNeighborhoodCity(neighborhood: string, neighborhoods: NeighborhoodEntry[]): string | null {
+  const lower = neighborhood.toLowerCase();
+  const stripped = stripAccentsGlobal(lower);
+  for (const n of neighborhoods) {
+    if (n.name.toLowerCase() === lower || stripAccentsGlobal(n.name.toLowerCase()) === stripped) return n.city_name;
+    for (const kw of n.keywords) {
+      if (kw.toLowerCase() === lower || stripAccentsGlobal(kw.toLowerCase()) === stripped) return n.city_name;
+    }
+  }
+  return null;
 }
 
 // Build all known names + aliases for detection
@@ -1596,7 +1609,7 @@ serve(async (req) => {
 
     if (detectedSubcategory && businesses.length === 0) {
       // Helper to fetch businesses for a given subcategory (or merged group) with current filters
-      const fetchSubcategoryBusinesses = async (subcat: string, filterByServices?: string[], options?: { skipNeighborhood?: boolean }) => {
+      const fetchSubcategoryBusinesses = async (subcat: string, filterByServices?: string[], options?: { skipNeighborhood?: boolean; overrideCity?: string }) => {
         // Determine which subcategories to query (merged if applicable)
         const mergedSubcats = MERGED_SUBCATEGORIES[subcat.toLowerCase()] || [subcat];
         
@@ -1616,8 +1629,14 @@ serve(async (req) => {
           subBuilder = subBuilder.overlaps("services", filterByServices);
         }
         
-        if (effectiveCity) {
-          subBuilder = applyCityFilter(subBuilder);
+        // City filter: use overrideCity if provided, otherwise effectiveCity
+        const cityToUse = options?.overrideCity || effectiveCity;
+        if (cityToUse) {
+          if (cityToUse === effectiveCity) {
+            subBuilder = applyCityFilter(subBuilder);
+          } else {
+            subBuilder = subBuilder.ilike("city", cityToUse);
+          }
         }
         // Skip category filter when there's an intent-subcategory conflict
         // (e.g. "manger du poisson" → intent=Restauration but subcategory=Poissonnerie/Commerce)
@@ -1695,9 +1714,16 @@ serve(async (req) => {
       }
 
       // ── Neighborhood fallback: if still 0 results and neighborhood was applied, retry without it ──
+      // But if no city was detected, use the neighborhood's associated city to avoid returning nationwide results
       if (businesses.length === 0 && detectedNeighborhood) {
-        console.log(`Neighborhood "${detectedNeighborhood}" yielded 0 results for subcategory "${detectedSubcategory}" — retrying without neighborhood filter`);
-        businesses = await fetchSubcategoryBusinesses(detectedSubcategory, serviceFilter, { skipNeighborhood: true });
+        const neighborhoodCity = !effectiveCity ? getNeighborhoodCity(detectedNeighborhood, loadedNeighborhoods) : null;
+        if (neighborhoodCity) {
+          console.log(`Neighborhood "${detectedNeighborhood}" yielded 0 results — falling back to city "${neighborhoodCity}" (from neighborhood DB)`);
+          businesses = await fetchSubcategoryBusinesses(detectedSubcategory, serviceFilter, { skipNeighborhood: true, overrideCity: neighborhoodCity });
+        } else {
+          console.log(`Neighborhood "${detectedNeighborhood}" yielded 0 results for subcategory "${detectedSubcategory}" — retrying without neighborhood filter`);
+          businesses = await fetchSubcategoryBusinesses(detectedSubcategory, serviceFilter, { skipNeighborhood: true });
+        }
         console.log(`Subcategory without neighborhood "${detectedSubcategory}": ${businesses.length} results`);
       }
 
