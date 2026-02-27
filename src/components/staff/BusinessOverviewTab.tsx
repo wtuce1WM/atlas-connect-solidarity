@@ -527,11 +527,18 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
                           const defaultSvc = business.default_service;
                           if (total === 0 && !defaultSvc) return <span className="text-muted-foreground text-sm">-</span>;
                           return (
-                            <div className="flex flex-col gap-0.5">
+                            <div className="flex flex-col gap-0.5 max-w-[150px]">
                               {defaultSvc && (
-                                <Badge variant="default" className="text-xs font-normal w-fit">
-                                  {defaultSvc}
-                                </Badge>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Badge variant="default" className="text-xs font-normal w-fit max-w-[140px] truncate block">
+                                      {defaultSvc}
+                                    </Badge>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" className="max-w-xs">
+                                    <p className="text-xs">{defaultSvc}</p>
+                                  </TooltipContent>
+                                </Tooltip>
                               )}
                               {total > 0 && (
                                 <span className="text-xs text-muted-foreground">{total} service{total > 1 ? "s" : ""}</span>
@@ -544,19 +551,23 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
                       {/* Badges */}
                       <TableCell>
                         {bBadges.length > 0 ? (
-                          <div className="flex flex-wrap gap-1">
+                          <div className="flex flex-wrap gap-1 max-w-[150px]">
                             {bBadges.map((badge, i) => (
-                              <Badge
-                                key={i}
-                                className="text-xs border border-black gap-1"
-                                style={{
-                                  backgroundColor: badge.color_hex || '#666666',
-                                  color: badge.text_color_hex || '#000000',
-                                }}
-                              >
-                                {badge.is_default && <Star className="h-3 w-3 fill-current" />}
-                                {badge.name_fr}
-                              </Badge>
+                              <Tooltip key={i}>
+                                <TooltipTrigger asChild>
+                                  <Badge
+                                    className="text-xs border border-black gap-1 max-w-[140px] truncate"
+                                    style={{
+                                      backgroundColor: badge.color_hex || '#666666',
+                                      color: badge.text_color_hex || '#000000',
+                                    }}
+                                  >
+                                    {badge.is_default && <Star className="h-3 w-3 fill-current shrink-0" />}
+                                    <span className="truncate">{badge.name_fr}</span>
+                                  </Badge>
+                                </TooltipTrigger>
+                                <TooltipContent side="top"><p className="text-xs">{badge.name_fr}</p></TooltipContent>
+                              </Tooltip>
                             ))}
                           </div>
                         ) : (
@@ -567,11 +578,16 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
                       {/* Destinations */}
                       <TableCell>
                         {bDests.length > 0 ? (
-                          <div className="flex flex-wrap gap-1">
+                          <div className="flex flex-wrap gap-1 max-w-[150px]">
                             {bDests.map((d, i) => (
-                              <Badge key={i} variant="outline" className="text-xs font-normal">
-                                {d.name_fr}
-                              </Badge>
+                              <Tooltip key={i}>
+                                <TooltipTrigger asChild>
+                                  <Badge variant="outline" className="text-xs font-normal max-w-[140px] truncate">
+                                    {d.name_fr}
+                                  </Badge>
+                                </TooltipTrigger>
+                                <TooltipContent side="top"><p className="text-xs">{d.name_fr}</p></TooltipContent>
+                              </Tooltip>
                             ))}
                           </div>
                         ) : (
@@ -606,9 +622,14 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
                           return (
                             <div className="flex flex-wrap gap-1 max-w-[200px]">
                               {items.slice(0, 3).map((s, i) => (
-                                <Badge key={i} variant="outline" className="text-xs font-normal">
-                                  {cleanLabel(s)}
-                                </Badge>
+                                <Tooltip key={i}>
+                                  <TooltipTrigger asChild>
+                                    <Badge variant="outline" className="text-xs font-normal max-w-[140px] truncate">
+                                      {cleanLabel(s)}
+                                    </Badge>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top"><p className="text-xs">{cleanLabel(s)}</p></TooltipContent>
+                                </Tooltip>
                               ))}
                               {items.length > 3 && (
                                 <Tooltip>
@@ -633,11 +654,16 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
                           const certs = business.engagements?.filter(e => e.startsWith("Certification:")).map(e => e.replace("Certification:", "")) || [];
                           if (certs.length === 0) return <span className="text-muted-foreground text-sm">-</span>;
                           return (
-                            <div className="flex flex-wrap gap-1">
+                            <div className="flex flex-wrap gap-1 max-w-[150px]">
                               {certs.map((c, i) => (
-                                <Badge key={i} variant="outline" className="text-xs font-normal">
-                                  {c}
-                                </Badge>
+                                <Tooltip key={i}>
+                                  <TooltipTrigger asChild>
+                                    <Badge variant="outline" className="text-xs font-normal max-w-[140px] truncate">
+                                      {c}
+                                    </Badge>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top"><p className="text-xs">{c}</p></TooltipContent>
+                                </Tooltip>
                               ))}
                             </div>
                           );
