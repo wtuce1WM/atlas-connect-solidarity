@@ -192,30 +192,40 @@ const BusinessCard = ({
     if (isCurrentlyOpenNow) {
       openBadgeText = business.is_open_24h ? "Ouvert 24h" : "Ouvert";
     } else if (openingHoursTyped) {
-      // Show next opening time for today, or "Fermé" if none
       const days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
       const now = new Date();
+      const nowMin = now.getHours() * 60 + now.getMinutes();
       const todayKey = days[now.getDay()];
       const dh = openingHoursTyped[todayKey];
+
+      // Try to find next opening time today
+      let foundToday = false;
       if (dh && !dh.closed && dh.open) {
         const [oh, om] = dh.open.split(":").map(Number);
         const openMin = oh * 60 + (om || 0);
-        const nowMin = now.getHours() * 60 + now.getMinutes();
         if (openMin > nowMin) {
           openBadgeText = `Ouvre à ${dh.open}`;
+          foundToday = true;
         } else if (dh.open2 && dh.close2 && !dh.continuous) {
           const [oh2, om2] = dh.open2.split(":").map(Number);
           const open2Min = oh2 * 60 + (om2 || 0);
           if (open2Min > nowMin) {
             openBadgeText = `Ouvre à ${dh.open2}`;
-          } else {
-            openBadgeText = "Fermé";
+            foundToday = true;
           }
-        } else {
-          openBadgeText = "Fermé";
         }
-      } else if (dh?.closed) {
-        openBadgeText = "Fermé";
+      }
+
+      // If nothing found today, show next day's opening time
+      if (!foundToday) {
+        for (let i = 1; i <= 7; i++) {
+          const nextDayKey = days[(now.getDay() + i) % 7];
+          const nextDh = openingHoursTyped[nextDayKey];
+          if (nextDh && !nextDh.closed && nextDh.open) {
+            openBadgeText = `Ouvre à ${nextDh.open}`;
+            break;
+          }
+        }
       }
     }
   }
@@ -268,9 +278,7 @@ const BusinessCard = ({
               <Badge variant="outline" className={`text-xs flex items-center gap-1 ${
                 openBadgeText === "Ouvert" || openBadgeText === "Ouvert 24h"
                   ? "bg-atlas/85 text-atlas-foreground border-foreground/70"
-                  : openBadgeText === "Fermé"
-                    ? "bg-destructive/85 text-destructive-foreground border-foreground/70"
-                    : "bg-card/85 text-foreground border-foreground/70"
+                  : "bg-card/85 text-foreground border-foreground/70"
               }`}>
                 <Clock className="h-3 w-3" />
                 {openBadgeText}
