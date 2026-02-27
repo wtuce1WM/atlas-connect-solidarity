@@ -270,7 +270,7 @@ const SearchLayoutDemo = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 pt-28 pb-8">
         <div className="text-center mb-10">
           <h1 className="text-3xl font-bold text-foreground mb-2">
             Démo — Affichage des résultats de Search
