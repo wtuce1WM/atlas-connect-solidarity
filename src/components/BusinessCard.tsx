@@ -290,28 +290,29 @@ const BusinessCard = ({
         </div>
         
         <CardContent className="p-4 relative overflow-hidden">
-          {/* CSS 3D spinning logo watermark for verified businesses */}
-          {business.wtuce_status === "verified" && (
-            <div className="absolute top-2 right-2 pointer-events-none [perspective:600px]" style={{ transformStyle: "preserve-3d" }}>
-              <img
-                src={logoGold}
-                alt=""
-                className="w-10 h-10 object-contain animate-[coinSpin_1.2s_cubic-bezier(0.16,1,0.3,1)_forwards]"
-                style={{ transformStyle: "preserve-3d" }}
-              />
+          {/* Badges + verified coin */}
+          <div className="flex items-center gap-2 mb-3">
+            <div className="flex flex-wrap gap-2 flex-1 min-w-0">
+              {business.categories && business.categories.length > 0 && (
+                <Badge variant="secondary" className="text-xs bg-gold text-gold-foreground">
+                  {business.categories[0]}
+                </Badge>
+              )}
+              {business.default_service && (
+                <Badge variant="outline" className="text-xs bg-black text-white border-black">
+                  {business.default_service}
+                </Badge>
+              )}
             </div>
-          )}
-          {/* Badges */}
-          <div className="flex flex-wrap gap-2 mb-3">
-            {business.categories && business.categories.length > 0 && (
-              <Badge variant="secondary" className="text-xs bg-gold text-gold-foreground">
-                {business.categories[0]}
-              </Badge>
-            )}
-            {business.default_service && (
-              <Badge variant="outline" className="text-xs bg-black text-white border-black">
-                {business.default_service}
-              </Badge>
+            {business.wtuce_status === "verified" && (
+              <div className="flex-shrink-0 [perspective:600px]" style={{ transformStyle: "preserve-3d" }}>
+                <img
+                  src={logoGold}
+                  alt=""
+                  className="w-8 h-8 object-contain animate-[coinSpin_1.2s_cubic-bezier(0.16,1,0.3,1)_forwards]"
+                  style={{ transformStyle: "preserve-3d" }}
+                />
+              </div>
             )}
           </div>
 
