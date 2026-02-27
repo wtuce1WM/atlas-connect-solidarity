@@ -269,24 +269,24 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
                         </Badge>
                       </TableCell>
 
-                      {/* Commodités (services) */}
+                      {/* Commodités (engagements) */}
                       <TableCell>
-                        {business.services && business.services.length > 0 ? (
+                        {business.engagements && business.engagements.length > 0 ? (
                           <div className="flex flex-wrap gap-1 max-w-[200px]">
-                            {business.services.slice(0, 3).map((s, i) => (
+                            {business.engagements.slice(0, 3).map((s, i) => (
                               <Badge key={i} variant="outline" className="text-xs font-normal">
                                 {s}
                               </Badge>
                             ))}
-                            {business.services.length > 3 && (
+                            {business.engagements.length > 3 && (
                               <Tooltip>
                                 <TooltipTrigger asChild>
                                   <Badge variant="outline" className="text-xs font-normal cursor-help">
-                                    +{business.services.length - 3}
+                                    +{business.engagements.length - 3}
                                   </Badge>
                                 </TooltipTrigger>
                                 <TooltipContent side="top" className="max-w-xs">
-                                  <p className="text-xs">{business.services.slice(3).join(", ")}</p>
+                                  <p className="text-xs">{business.engagements.slice(3).join(", ")}</p>
                                 </TooltipContent>
                               </Tooltip>
                             )}
