@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { Plus, Trash2, Save, Loader2, Package, Copy, Link2 } from "lucide-react";
+import { Plus, Trash2, Save, Loader2, Package, Copy, Link2, ExternalLink } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -325,6 +325,15 @@ const SearchBundleManagement = () => {
                         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => duplicateBundle(keyword, entries)} title="Dupliquer le bundle">
                           <Copy className="h-3.5 w-3.5" />
                         </Button>
+                        <a
+                          href={`/search?q=${encodeURIComponent(keyword)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title="Tester ce bundle sur le front"
+                          className="inline-flex items-center justify-center h-7 w-7 rounded-md hover:bg-accent transition-colors"
+                        >
+                          <ExternalLink className="h-3.5 w-3.5 text-muted-foreground" />
+                        </a>
                       </div>
                     </div>
                     {(() => {
