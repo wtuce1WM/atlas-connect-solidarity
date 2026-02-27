@@ -299,11 +299,12 @@ const BusinessCard = ({
         <CardContent className="p-4 relative overflow-hidden">
           {/* CSS 3D spinning logo watermark for verified businesses */}
           {business.wtuce_status === "verified" && (
-            <div className="absolute top-2 right-2 pointer-events-none [perspective:800px]">
+            <div className="absolute top-2 right-2 pointer-events-none [perspective:600px]" style={{ transformStyle: "preserve-3d" }}>
               <img
                 src={logoGold}
                 alt=""
                 className="w-10 h-10 object-contain opacity-50 animate-[coinSpin_1.2s_cubic-bezier(0.16,1,0.3,1)_forwards]"
+                style={{ transformStyle: "preserve-3d" }}
               />
             </div>
           )}
