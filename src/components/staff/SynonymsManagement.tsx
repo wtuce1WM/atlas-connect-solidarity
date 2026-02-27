@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { Plus, Trash2, Loader2, Save } from "lucide-react";
+import { Plus, Trash2, Loader2, Save, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
 import {
   AlertDialog,
@@ -94,7 +95,50 @@ const SynonymsManagement = () => {
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Synonymes de recherche</CardTitle>
+          <div className="flex items-center gap-2">
+            <CardTitle className="text-base">Synonymes de recherche</CardTitle>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="rounded-full text-muted-foreground hover:text-foreground transition-colors" title="Comprendre les synonymes">
+                  <HelpCircle className="h-4 w-4" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[420px] p-4 text-sm space-y-3" align="start">
+                <h4 className="font-semibold">Synonymes vs Mots-clés : quelle différence ?</h4>
+
+                <div className="space-y-2">
+                  <div>
+                    <span className="font-medium">🔍 Synonymes de recherche</span>
+                    <span className="text-muted-foreground"> (cette page)</span>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Agissent côté <strong>requête</strong> (tsquery). Quand l'utilisateur tape un mot, ses synonymes sont ajoutés automatiquement à la recherche via OR.
+                      <br />Ex : <code className="bg-muted px-1 rounded">riad</code> → cherche aussi <code className="bg-muted px-1 rounded">maison d'hôtes</code>, <code className="bg-muted px-1 rounded">guesthouse</code>.
+                    </p>
+                  </div>
+
+                  <div>
+                    <span className="font-medium">📦 Mots-clés de sous-catégories</span>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Indexés dans le <code className="bg-muted px-1 rounded">search_vector</code> de chaque établissement (Poids A — fort). Permettent à une sous-catégorie d'être trouvée par des termes alternatifs.
+                      <br />Ex : sous-catégorie « Riad » avec keywords <code className="bg-muted px-1 rounded">dar, maison d'hôtes</code>.
+                    </p>
+                  </div>
+
+                  <div>
+                    <span className="font-medium">🏷️ Mots-clés de services</span>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Indexés dans le <code className="bg-muted px-1 rounded">search_vector</code> (Poids B — moyen). Permettent à un service d'être trouvé par des variantes.
+                      <br />Ex : service « Piscine » avec keywords <code className="bg-muted px-1 rounded">pool, bassin, baignade</code>.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="border-t pt-2 text-xs text-muted-foreground">
+                  <strong>En résumé :</strong> les synonymes élargissent <em>ce qu'on cherche</em>, les mots-clés élargissent <em>ce qu'on trouve</em>.
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
           <p className="text-sm text-muted-foreground">
             Chaque mot-clé est étendu avec ses synonymes dans les requêtes tsquery.
           </p>
