@@ -10,8 +10,6 @@ import heroBackground from "@/assets/hero-marrakech.jpg";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { toast } from "@/hooks/use-toast";
 import { useGeolocation } from "@/hooks/useGeolocation";
-import { useSearchSuggestions } from "@/hooks/useSearchSuggestions";
-import SearchSuggestionsDropdown from "@/components/SearchSuggestionsDropdown";
 import { getTimeGreeting, extractTimeSlot } from "@/lib/timeSlots";
 
 const HeroSection = () => {
@@ -19,8 +17,6 @@ const HeroSection = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [searchCategory, setSearchCategory] = useState("all");
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const { suggestions } = useSearchSuggestions(searchQuery);
   const searchContainerRef = useRef<HTMLFormElement>(null);
   const heroRef = useRef<HTMLElement>(null);
   const tabsRef = useRef<HTMLDivElement>(null);
@@ -58,15 +54,6 @@ const HeroSection = () => {
   });
 
   // Close suggestions on click outside
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
-        setShowSuggestions(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -249,9 +236,7 @@ const HeroSection = () => {
                 type="text"
                 placeholder={language === "fr" ? "Que cherchez-vous ?" : language === "ar" ? "ماذا تبحث عنه؟" : "What are you looking for?"}
                 value={searchQuery}
-                onChange={(e) => { setSearchQuery(e.target.value); setShowSuggestions(true); }}
-                onFocus={() => setShowSuggestions(true)}
-                onBlur={() => setTimeout(() => setShowSuggestions(false), 300)}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-14 pr-36 py-7 text-lg bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-full shadow-lg"
               />
               <Button
@@ -262,10 +247,6 @@ const HeroSection = () => {
               >
                 {language === "fr" ? "Recherche" : language === "ar" ? "بحث" : "Search"}
               </Button>
-              <SearchSuggestionsDropdown
-                suggestions={suggestions}
-                visible={showSuggestions && suggestions.length > 0}
-              />
             </div>
             <button
               type="button"
@@ -295,14 +276,8 @@ const HeroSection = () => {
                 type="text"
                 placeholder={language === "fr" ? "Que cherchez-vous ?" : language === "ar" ? "ماذا تبحث عنه؟" : "What are you looking for?"}
                 value={searchQuery}
-                onChange={(e) => { setSearchQuery(e.target.value); setShowSuggestions(true); }}
-                onFocus={() => setShowSuggestions(true)}
-                onBlur={() => setTimeout(() => setShowSuggestions(false), 300)}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-14 pr-4 py-7 text-lg bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-full shadow-lg"
-              />
-              <SearchSuggestionsDropdown
-                suggestions={suggestions}
-                visible={showSuggestions && suggestions.length > 0}
               />
             </div>
             <div className="flex items-center justify-center gap-2">
