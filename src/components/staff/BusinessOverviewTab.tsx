@@ -430,9 +430,6 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
                   <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("active")}>
                     <span className="inline-flex items-center">Actif<SortIcon col="active" /></span>
                   </TableHead>
-                  <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("engagements")}>
-                    <span className="inline-flex items-center">Engagements<SortIcon col="engagements" /></span>
-                  </TableHead>
                   <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("badges")}>
                     <span className="inline-flex items-center">Badges<SortIcon col="badges" /></span>
                   </TableHead>
@@ -441,6 +438,9 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
                   </TableHead>
                   <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("gps")}>
                     <span className="inline-flex items-center">GPS<SortIcon col="gps" /></span>
+                  </TableHead>
+                  <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("engagements")}>
+                    <span className="inline-flex items-center">Engagements<SortIcon col="engagements" /></span>
                   </TableHead>
                   <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("certifications")}>
                     <span className="inline-flex items-center">Certifications<SortIcon col="certifications" /></span>
@@ -516,36 +516,6 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
                         </Badge>
                       </TableCell>
 
-                      {/* Engagements */}
-                      <TableCell>
-                        {(() => {
-                          const cleanLabel = (s: string) => s.replace(/^(Logistique:|Certification:|Marché:)/, "");
-                          const items = business.engagements?.filter(e => e.length > 0) || [];
-                          if (items.length === 0) return <span className="text-muted-foreground text-sm">-</span>;
-                          return (
-                            <div className="flex flex-wrap gap-1 max-w-[200px]">
-                              {items.slice(0, 3).map((s, i) => (
-                                <Badge key={i} variant="outline" className="text-xs font-normal">
-                                  {cleanLabel(s)}
-                                </Badge>
-                              ))}
-                              {items.length > 3 && (
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Badge variant="outline" className="text-xs font-normal cursor-help">
-                                      +{items.length - 3}
-                                    </Badge>
-                                  </TooltipTrigger>
-                                  <TooltipContent side="top" className="max-w-xs">
-                                    <p className="text-xs">{items.slice(3).map(cleanLabel).join(", ")}</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              )}
-                            </div>
-                          );
-                        })()}
-                      </TableCell>
-
                       {/* Badges */}
                       <TableCell>
                         {bBadges.length > 0 ? (
@@ -600,6 +570,36 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
                             <Navigation className="h-4 w-4" />
                           </div>
                         )}
+                      </TableCell>
+
+                      {/* Engagements */}
+                      <TableCell>
+                        {(() => {
+                          const cleanLabel = (s: string) => s.replace(/^(Logistique:|Certification:|Marché:)/, "");
+                          const items = business.engagements?.filter(e => e.length > 0) || [];
+                          if (items.length === 0) return <span className="text-muted-foreground text-sm">-</span>;
+                          return (
+                            <div className="flex flex-wrap gap-1 max-w-[200px]">
+                              {items.slice(0, 3).map((s, i) => (
+                                <Badge key={i} variant="outline" className="text-xs font-normal">
+                                  {cleanLabel(s)}
+                                </Badge>
+                              ))}
+                              {items.length > 3 && (
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Badge variant="outline" className="text-xs font-normal cursor-help">
+                                      +{items.length - 3}
+                                    </Badge>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" className="max-w-xs">
+                                    <p className="text-xs">{items.slice(3).map(cleanLabel).join(", ")}</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              )}
+                            </div>
+                          );
+                        })()}
                       </TableCell>
 
                       {/* Certifications (from engagements) */}
