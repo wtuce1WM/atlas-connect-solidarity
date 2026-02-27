@@ -1621,6 +1621,7 @@ export type Database = {
       }
       search_bundles: {
         Row: {
+          badge_id: string | null
           created_at: string | null
           id: string
           is_active: boolean
@@ -1631,6 +1632,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          badge_id?: string | null
           created_at?: string | null
           id?: string
           is_active?: boolean
@@ -1641,6 +1643,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          badge_id?: string | null
           created_at?: string | null
           id?: string
           is_active?: boolean
@@ -1650,7 +1653,15 @@ export type Database = {
           subcategory_name?: string | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "search_bundles_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "badges"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       search_intent_words: {
         Row: {
