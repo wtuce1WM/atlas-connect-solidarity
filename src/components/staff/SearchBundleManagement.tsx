@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Plus, Trash2, Save, Loader2, Package, Pencil } from "lucide-react";
+import { Plus, Trash2, Save, Loader2, Package } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -24,6 +24,8 @@ const SearchBundleManagement = () => {
   const [newEntry, setNewEntry] = useState({ keyword: "", subcategory_name: "", required_service: "" });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValues, setEditValues] = useState<{ subcategory_name: string; required_service: string }>({ subcategory_name: "", required_service: "" });
+
+  const canAddEntry = newEntry.keyword.trim().length > 0 && newEntry.required_service.trim().length > 0;
 
   const loadBundles = useCallback(async () => {
     setIsLoading(true);
@@ -155,7 +157,7 @@ const SearchBundleManagement = () => {
                 onChange={e => setNewEntry(prev => ({ ...prev, required_service: e.target.value }))}
               />
             </div>
-            <Button onClick={addEntry} size="sm" className="shrink-0">
+            <Button onClick={addEntry} size="sm" className="shrink-0" disabled={!canAddEntry}>
               <Plus className="h-4 w-4 mr-1" /> Ajouter
             </Button>
           </div>
@@ -236,7 +238,7 @@ const SearchBundleManagement = () => {
                               <div className="flex gap-1">
                                 {editingId === entry.id ? (
                                   <Button variant="ghost" size="icon" onClick={() => saveEdit(entry.id)}>
-                                    <Save className="h-4 w-4 text-green-600" />
+                                    <Save className="h-4 w-4 text-primary" />
                                   </Button>
                                 ) : null}
                                 <Button variant="ghost" size="icon" onClick={() => deleteEntry(entry.id)}>
