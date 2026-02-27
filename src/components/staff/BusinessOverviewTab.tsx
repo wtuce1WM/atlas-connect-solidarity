@@ -10,7 +10,7 @@ import {
 import {
   Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Search, Edit, ExternalLink, Star, MapPin, Navigation } from "lucide-react";
+import { Search, Edit, ExternalLink, Star, MapPin, Navigation, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Business = Tables<"businesses">;
@@ -34,6 +34,8 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
   const [statusFilter, setStatusFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
+  const [sortColumn, setSortColumn] = useState<string | null>(null);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const PAGE_SIZE = 50;
 
   // Extra data
@@ -93,9 +95,54 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
     }).sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
   }, [businesses, searchQuery, cityFilter, statusFilter, categoryFilter]);
 
-  const totalPages = Math.max(1, Math.ceil(filteredBusinesses.length / PAGE_SIZE));
+  const toggleSort = (col: string) => {
+    if (sortColumn === col) {
+      setSortDirection(prev => prev === "asc" ? "desc" : "asc");
+    } else {
+      setSortColumn(col);
+      setSortDirection("asc");
+    }
+    setCurrentPage(1);
+  };
+
+  const SortIcon = ({ col }: { col: string }) => {
+    if (sortColumn !== col) return <ArrowUpDown className="h-3 w-3 ml-1 opacity-40" />;
+    return sortDirection === "asc"
+      ? <ArrowUp className="h-3 w-3 ml-1" />
+      : <ArrowDown className="h-3 w-3 ml-1" />;
+  };
+
+  // Sort after filter
+  const sortedBusinesses = useMemo(() => {
+    if (!sortColumn) return filteredBusinesses;
+    const dir = sortDirection === "asc" ? 1 : -1;
+
+    const getVal = (b: Business): string | number => {
+      switch (sortColumn) {
+        case "name": return b.name.toLowerCase();
+        case "city": return (b.city || "").toLowerCase() + " " + (b.neighborhood || "").toLowerCase();
+        case "active": return b.is_active ? 1 : 0;
+        case "engagements": return b.engagements?.length || 0;
+        case "badges": return getBadgesForBusiness(b.id).length;
+        case "destinations": return getDestsForBusiness(b.id).length;
+        case "gps": return (b.latitude != null && b.longitude != null) ? 1 : 0;
+        case "certifications": return getLabelsForBusiness(b.id).length;
+        default: return "";
+      }
+    };
+
+    return [...filteredBusinesses].sort((a, b) => {
+      const va = getVal(a);
+      const vb = getVal(b);
+      if (va < vb) return -1 * dir;
+      if (va > vb) return 1 * dir;
+      return 0;
+    });
+  }, [filteredBusinesses, sortColumn, sortDirection, businessBadges, businessDestinations, businessLabels]);
+
+  const totalPages = Math.max(1, Math.ceil(sortedBusinesses.length / PAGE_SIZE));
   const safeCurrentPage = Math.min(currentPage, totalPages);
-  const paginatedBusinesses = filteredBusinesses.slice((safeCurrentPage - 1) * PAGE_SIZE, safeCurrentPage * PAGE_SIZE);
+  const paginatedBusinesses = sortedBusinesses.slice((safeCurrentPage - 1) * PAGE_SIZE, safeCurrentPage * PAGE_SIZE);
 
   // Lookup maps
   const badgeMap = useMemo(() => new Map(badges.map(b => [b.id, b])), [badges]);
@@ -190,14 +237,30 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-10"></TableHead>
-                  <TableHead>Nom</TableHead>
-                  <TableHead>Ville / Quartier</TableHead>
-                  <TableHead>Actif</TableHead>
-                  <TableHead>Engagements</TableHead>
-                  <TableHead>Badges</TableHead>
-                  <TableHead>Destinations</TableHead>
-                  <TableHead>GPS</TableHead>
-                  <TableHead>Certifications</TableHead>
+                  <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("name")}>
+                    <span className="inline-flex items-center">Nom<SortIcon col="name" /></span>
+                  </TableHead>
+                  <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("city")}>
+                    <span className="inline-flex items-center">Ville / Quartier<SortIcon col="city" /></span>
+                  </TableHead>
+                  <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("active")}>
+                    <span className="inline-flex items-center">Actif<SortIcon col="active" /></span>
+                  </TableHead>
+                  <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("engagements")}>
+                    <span className="inline-flex items-center">Engagements<SortIcon col="engagements" /></span>
+                  </TableHead>
+                  <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("badges")}>
+                    <span className="inline-flex items-center">Badges<SortIcon col="badges" /></span>
+                  </TableHead>
+                  <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("destinations")}>
+                    <span className="inline-flex items-center">Destinations<SortIcon col="destinations" /></span>
+                  </TableHead>
+                  <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("gps")}>
+                    <span className="inline-flex items-center">GPS<SortIcon col="gps" /></span>
+                  </TableHead>
+                  <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("certifications")}>
+                    <span className="inline-flex items-center">Certifications<SortIcon col="certifications" /></span>
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
