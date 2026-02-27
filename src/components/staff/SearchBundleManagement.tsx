@@ -105,26 +105,29 @@ const SearchBundleManagement = () => {
         </CardHeader>
         <CardContent>
           {/* Add form */}
-          <div className="flex gap-2 mb-6 flex-wrap">
-            <Input
-              placeholder="Mot-clé (ex: louer)"
-              value={newEntry.keyword}
-              onChange={e => setNewEntry(prev => ({ ...prev, keyword: e.target.value }))}
-              className="w-40"
-            />
-            <Input
-              placeholder="Sous-catégorie (vide = wildcard)"
-              value={newEntry.subcategory_name}
-              onChange={e => setNewEntry(prev => ({ ...prev, subcategory_name: e.target.value }))}
-              className="w-52"
-            />
-            <Input
-              placeholder="Service requis"
-              value={newEntry.required_service}
-              onChange={e => setNewEntry(prev => ({ ...prev, required_service: e.target.value }))}
-              className="flex-1 min-w-60"
-            />
-            <Button onClick={addEntry} size="sm">
+          <div className="flex gap-2 mb-6 items-end">
+            <div className="flex-1">
+              <Input
+                placeholder="Mot-clé (ex: louer)"
+                value={newEntry.keyword}
+                onChange={e => setNewEntry(prev => ({ ...prev, keyword: e.target.value }))}
+              />
+            </div>
+            <div className="flex-1">
+              <Input
+                placeholder="Sous-catégorie (vide = wildcard)"
+                value={newEntry.subcategory_name}
+                onChange={e => setNewEntry(prev => ({ ...prev, subcategory_name: e.target.value }))}
+              />
+            </div>
+            <div className="flex-1">
+              <Input
+                placeholder="Service requis"
+                value={newEntry.required_service}
+                onChange={e => setNewEntry(prev => ({ ...prev, required_service: e.target.value }))}
+              />
+            </div>
+            <Button onClick={addEntry} size="sm" className="shrink-0">
               <Plus className="h-4 w-4 mr-1" /> Ajouter
             </Button>
           </div>
