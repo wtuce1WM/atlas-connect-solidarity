@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { Plus, Trash2, Save, Loader2, Package, Copy, Link2, ExternalLink } from "lucide-react";
+import { Plus, Trash2, Save, Loader2, Package, Copy, Link2, ExternalLink, Clock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -23,6 +23,15 @@ interface SynonymEntry {
   synonyms: string[];
 }
 
+const TIME_SLOT_OPTIONS = [
+  { value: "matinee", label: "Matinée" },
+  { value: "dejeuner", label: "Déjeuner" },
+  { value: "apres-midi", label: "Après-midi" },
+  { value: "diner", label: "Dîner" },
+  { value: "soiree", label: "Soirée" },
+  { value: "nuit", label: "Nuit" },
+] as const;
+
 interface BundleEntry {
   id: string;
   keyword: string;
@@ -31,6 +40,7 @@ interface BundleEntry {
   is_active: boolean;
   sort_order: number;
   badge_id: string | null;
+  time_slots: string[];
 }
 
 const SearchBundleManagement = () => {
@@ -76,6 +86,7 @@ const SearchBundleManagement = () => {
       required_service: newEntry.required_service.trim() || null,
       badge_id: newEntry.badge_id || null,
       sort_order: bundles.filter(b => b.keyword === newEntry.keyword.trim().toLowerCase()).length + 1,
+      time_slots: [],
     } as any);
     if (error) {
       toast({ title: "Erreur", description: error.message, variant: "destructive" });
@@ -124,6 +135,7 @@ const SearchBundleManagement = () => {
       sort_order: i + 1,
       is_active: e.is_active,
       badge_id: e.badge_id,
+      time_slots: e.time_slots || [],
     }));
     const { error } = await supabase.from("search_bundles").insert(inserts as any);
     if (error) {
@@ -140,6 +152,7 @@ const SearchBundleManagement = () => {
       subcategory_name: entry.subcategory_name,
       required_service: entry.required_service,
       sort_order: bundles.filter(b => b.keyword === entry.keyword).length + 1,
+      time_slots: entry.time_slots || [],
     } as any);
     if (error) {
       toast({ title: "Erreur", description: error.message, variant: "destructive" });
@@ -176,6 +189,25 @@ const SearchBundleManagement = () => {
     }
   };
 
+
+  const toggleTimeSlot = async (keyword: string, slot: string) => {
+    const entries = bundles.filter(b => b.keyword === keyword);
+    if (entries.length === 0) return;
+    const currentSlots = entries[0].time_slots || [];
+    const newSlots = currentSlots.includes(slot)
+      ? currentSlots.filter(s => s !== slot)
+      : [...currentSlots, slot].sort((a, b) => {
+          const order: string[] = TIME_SLOT_OPTIONS.map(t => t.value);
+          return order.indexOf(a) - order.indexOf(b);
+        });
+    const ids = entries.map(e => e.id);
+    const { error } = await supabase.from("search_bundles").update({ time_slots: newSlots } as any).in("id", ids);
+    if (error) {
+      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+    } else {
+      setBundles(prev => prev.map(b => ids.includes(b.id) ? { ...b, time_slots: newSlots } : b));
+    }
+  };
 
   // Group by keyword
   const grouped = bundles.reduce<Record<string, BundleEntry[]>>((acc, b) => {
@@ -352,6 +384,29 @@ const SearchBundleManagement = () => {
                         </div>
                       );
                     })()}
+                    {/* Time slots */}
+                    <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+                      <Clock className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                      {TIME_SLOT_OPTIONS.map(ts => {
+                        const isActive = (entries[0].time_slots || []).includes(ts.value);
+                        return (
+                          <button
+                            key={ts.value}
+                            onClick={() => toggleTimeSlot(keyword, ts.value)}
+                            className={`text-xs px-2 py-0.5 rounded-full border transition-colors ${
+                              isActive
+                                ? "bg-primary text-primary-foreground border-primary"
+                                : "bg-background text-muted-foreground border-border hover:border-primary/50"
+                            }`}
+                          >
+                            {ts.label}
+                          </button>
+                        );
+                      })}
+                      {(entries[0].time_slots || []).length === 0 && (
+                        <span className="text-xs text-muted-foreground italic">Toute la journée</span>
+                      )}
+                    </div>
                   </CardHeader>
                   <CardContent className="px-4 pb-3 pt-0">
                     <Table>

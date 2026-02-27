@@ -176,6 +176,7 @@ interface SearchResult {
   totalResults: number;
   detectedSubcategory?: string | null;
   searchMode?: string | null;
+  bundleTimeSlots?: string[];
 }
 
 // Synonyms and noise words are now loaded from DB (search_synonyms, search_noise_words)
@@ -1585,10 +1586,11 @@ serve(async (req) => {
     // ── Search Bundles: multi-subcategory intent mapping ──
     // When a bundle keyword is detected, run parallel queries per bundle entry instead of single-subcategory search
     let bundleActivated = false;
+    let bundleTimeSlots: string[] = [];
     {
       const { data: bundleData } = await supabase
         .from("search_bundles")
-        .select("keyword, subcategory_name, required_service, badge_id, sort_order")
+        .select("keyword, subcategory_name, required_service, badge_id, sort_order, time_slots")
         .eq("is_active", true)
         .order("sort_order");
       
@@ -1641,6 +1643,7 @@ serve(async (req) => {
           const entries = bundleData.filter((b: any) => stripAccentsGlobal(b.keyword.toLowerCase()) === matchedKeyword);
           console.log(`\n📦 BUNDLE activated for keyword "${matchedKeyword}" → ${entries.length} entries`);
           bundleActivated = true;
+          bundleTimeSlots = (entries[0] as any).time_slots || [];
           
           const allBundleResults: any[] = [];
           const seenIds = new Set<string>();
@@ -2798,6 +2801,7 @@ serve(async (req) => {
       totalResults: businesses.length,
       detectedSubcategory: detectedSubcategory || null,
       searchMode: subcategorySearchConfig?.search_mode || null,
+      bundleTimeSlots: bundleTimeSlots.length > 0 ? bundleTimeSlots : undefined,
     };
 
     // Async log to search_logs table (fire-and-forget, don't block response)
