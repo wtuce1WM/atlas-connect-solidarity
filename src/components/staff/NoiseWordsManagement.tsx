@@ -90,7 +90,7 @@ const NoiseWordsManagement = () => {
             <Badge
               key={w.id}
               variant={w.is_active ? "default" : "outline"}
-              className={`gap-1.5 py-1 px-2 cursor-pointer group ${w.is_active ? "bg-amber-600 hover:bg-amber-700 text-white border-amber-600" : ""}`}
+              className={`gap-1.5 py-1 px-2 cursor-pointer group ${w.is_active ? "bg-green-200 hover:bg-green-300 text-black border-green-300" : ""}`}
             >
               <Switch
                 checked={w.is_active}
