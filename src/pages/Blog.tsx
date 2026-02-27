@@ -5,7 +5,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, Calendar, User, ArrowRight, Star, MapPin, Play, Sparkles, BarChart3 } from "lucide-react";
+import { Loader2, Calendar, User, ArrowRight, Star, MapPin, Play, Sparkles, BarChart3, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { fr, enUS, ar } from "date-fns/locale";
@@ -218,6 +218,29 @@ const Blog = () => {
                       <BarChart3 className="h-3 w-3" /> Démo
                     </span>
                     <ArrowRight className="h-4 w-4 text-emerald-500" />
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+
+            {/* Carte Copie page Search */}
+            <Link to="/blog/search-copy">
+              <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-sky-50 to-indigo-50 dark:from-sky-950/30 dark:to-indigo-950/30">
+                <div className="aspect-video overflow-hidden bg-gradient-to-br from-sky-500/20 to-indigo-500/5 flex items-center justify-center">
+                  <Search className="h-16 w-16 text-sky-500" />
+                </div>
+                <CardContent className="p-6">
+                  <h2 className="text-xl font-semibold mb-3 font-['Playfair_Display'] italic">
+                    Copie de la page Search
+                  </h2>
+                  <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
+                    Copie fidèle de la page de recherche actuelle pour comparaison et tests de modifications futures.
+                  </p>
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1 text-sky-500 font-medium">
+                      <Search className="h-3 w-3" /> Search
+                    </span>
+                    <ArrowRight className="h-4 w-4 text-sky-500" />
                   </div>
                 </CardContent>
               </Card>
