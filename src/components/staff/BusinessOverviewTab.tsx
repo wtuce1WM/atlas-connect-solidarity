@@ -35,6 +35,7 @@ type BusinessDestRow = { business_id: string; destination_id: string };
 type DestRow = { id: string; name_fr: string };
 type BusinessLabelRow = { business_id: string; label_id: string };
 type LabelRow = { id: string; name_fr: string };
+type ServiceRow = { name_fr: string };
 
 const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTabProps) => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -59,19 +60,53 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
   const [businessDestinations, setBusinessDestinations] = useState<BusinessDestRow[]>([]);
   const [labels, setLabels] = useState<LabelRow[]>([]);
   const [businessLabels, setBusinessLabels] = useState<BusinessLabelRow[]>([]);
+  const [allServiceNames, setAllServiceNames] = useState<string[]>([]);
 
   // Badge editor popup state
   const [badgeEditBusinessId, setBadgeEditBusinessId] = useState<string | null>(null);
   const [badgeEditBusinessName, setBadgeEditBusinessName] = useState("");
   const [badgeEditSelected, setBadgeEditSelected] = useState<{ badge_id: string; is_default: boolean }[]>([]);
   const [badgeEditSaving, setBadgeEditSaving] = useState(false);
+
+  // Service editor popup state
+  const [serviceEditBusinessId, setServiceEditBusinessId] = useState<string | null>(null);
+  const [serviceEditBusinessName, setServiceEditBusinessName] = useState("");
+  const [serviceEditSelected, setServiceEditSelected] = useState<string[]>([]);
+  const [serviceEditDefault, setServiceEditDefault] = useState<string | null>(null);
+  const [serviceEditSaving, setServiceEditSaving] = useState(false);
+
+  // Destination editor popup state
+  const [destEditBusinessId, setDestEditBusinessId] = useState<string | null>(null);
+  const [destEditBusinessName, setDestEditBusinessName] = useState("");
+  const [destEditSelected, setDestEditSelected] = useState<string[]>([]);
+  const [destEditSaving, setDestEditSaving] = useState(false);
+
+  // Engagement editor popup state
+  const [engEditBusinessId, setEngEditBusinessId] = useState<string | null>(null);
+  const [engEditBusinessName, setEngEditBusinessName] = useState("");
+  const [engEditSelected, setEngEditSelected] = useState<string[]>([]);
+  const [engEditSaving, setEngEditSaving] = useState(false);
+
+  // Certification editor popup state
+  const [certEditBusinessId, setCertEditBusinessId] = useState<string | null>(null);
+  const [certEditBusinessName, setCertEditBusinessName] = useState("");
+  const [certEditSelected, setCertEditSelected] = useState<string[]>([]);
+  const [certEditSaving, setCertEditSaving] = useState(false);
+
   const { toast } = useToast();
 
+  // ---- Refetch helpers ----
   const refetchBusinessBadges = useCallback(async () => {
     const { data } = await supabase.from("business_badges").select("business_id, badge_id, is_default");
     if (data) setBusinessBadges(data);
   }, []);
 
+  const refetchBusinessDestinations = useCallback(async () => {
+    const { data } = await supabase.from("business_destinations").select("business_id, destination_id");
+    if (data) setBusinessDestinations(data);
+  }, []);
+
+  // ---- Badge editor ----
   const openBadgeEditor = (businessId: string, businessName: string) => {
     const current = businessBadges
       .filter(bb => bb.business_id === businessId)
@@ -118,15 +153,157 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
     setBadgeEditSaving(false);
   };
 
+  // ---- Service editor ----
+  const openServiceEditor = (business: Business) => {
+    setServiceEditSelected([...(business.services || [])]);
+    setServiceEditDefault(business.default_service || null);
+    setServiceEditBusinessId(business.id);
+    setServiceEditBusinessName(business.name);
+  };
+
+  const toggleServiceSelection = (svc: string) => {
+    setServiceEditSelected(prev => {
+      if (prev.includes(svc)) {
+        const next = prev.filter(s => s !== svc);
+        if (serviceEditDefault === svc) setServiceEditDefault(next[0] || null);
+        return next;
+      }
+      return [...prev, svc];
+    });
+  };
+
+  const saveServiceEdit = async () => {
+    if (!serviceEditBusinessId) return;
+    setServiceEditSaving(true);
+    const { error } = await supabase.from("businesses").update({
+      services: serviceEditSelected,
+      default_service: serviceEditDefault,
+    }).eq("id", serviceEditBusinessId);
+    if (error) {
+      toast({ variant: "destructive", title: "Erreur", description: "Impossible de sauvegarder les services." });
+    } else {
+      toast({ title: "Succès", description: "Services mis à jour." });
+    }
+    setServiceEditBusinessId(null);
+    setServiceEditSaving(false);
+  };
+
+  // ---- Destination editor ----
+  const openDestEditor = (businessId: string, businessName: string) => {
+    const current = businessDestinations
+      .filter(bd => bd.business_id === businessId)
+      .map(bd => bd.destination_id);
+    setDestEditSelected(current);
+    setDestEditBusinessId(businessId);
+    setDestEditBusinessName(businessName);
+  };
+
+  const toggleDestSelection = (destId: string) => {
+    setDestEditSelected(prev =>
+      prev.includes(destId) ? prev.filter(d => d !== destId) : [...prev, destId]
+    );
+  };
+
+  const saveDestEdit = async () => {
+    if (!destEditBusinessId) return;
+    setDestEditSaving(true);
+    await supabase.from("business_destinations").delete().eq("business_id", destEditBusinessId);
+    if (destEditSelected.length > 0) {
+      const rows = destEditSelected.map(d => ({
+        business_id: destEditBusinessId,
+        destination_id: d,
+      }));
+      const { error } = await supabase.from("business_destinations").insert(rows);
+      if (error) {
+        toast({ variant: "destructive", title: "Erreur", description: "Impossible de sauvegarder les destinations." });
+        setDestEditSaving(false);
+        return;
+      }
+    }
+    toast({ title: "Succès", description: "Destinations mises à jour." });
+    await refetchBusinessDestinations();
+    setDestEditBusinessId(null);
+    setDestEditSaving(false);
+  };
+
+  // ---- Engagement editor ----
+  const openEngEditor = (business: Business) => {
+    const currentEngs = (business.engagements || []).filter(e => e.length > 0 && !e.startsWith("Certification:"));
+    setEngEditSelected(currentEngs);
+    setEngEditBusinessId(business.id);
+    setEngEditBusinessName(business.name);
+  };
+
+  const toggleEngSelection = (eng: string) => {
+    setEngEditSelected(prev =>
+      prev.includes(eng) ? prev.filter(e => e !== eng) : [...prev, eng]
+    );
+  };
+
+  const saveEngEdit = async () => {
+    if (!engEditBusinessId) return;
+    setEngEditSaving(true);
+    // Keep certifications intact
+    const biz = businesses.find(b => b.id === engEditBusinessId);
+    const certs = (biz?.engagements || []).filter(e => e.startsWith("Certification:"));
+    const newEngagements = [...engEditSelected, ...certs];
+    const { error } = await supabase.from("businesses").update({
+      engagements: newEngagements,
+    }).eq("id", engEditBusinessId);
+    if (error) {
+      toast({ variant: "destructive", title: "Erreur", description: "Impossible de sauvegarder les engagements." });
+    } else {
+      toast({ title: "Succès", description: "Engagements mis à jour." });
+    }
+    setEngEditBusinessId(null);
+    setEngEditSaving(false);
+  };
+
+  // ---- Certification editor ----
+  const openCertEditor = (business: Business) => {
+    const currentCerts = (business.engagements || [])
+      .filter(e => e.startsWith("Certification:"))
+      .map(e => e.replace("Certification:", ""));
+    setCertEditSelected(currentCerts);
+    setCertEditBusinessId(business.id);
+    setCertEditBusinessName(business.name);
+  };
+
+  const toggleCertSelection = (cert: string) => {
+    setCertEditSelected(prev =>
+      prev.includes(cert) ? prev.filter(c => c !== cert) : [...prev, cert]
+    );
+  };
+
+  const saveCertEdit = async () => {
+    if (!certEditBusinessId) return;
+    setCertEditSaving(true);
+    const biz = businesses.find(b => b.id === certEditBusinessId);
+    const nonCerts = (biz?.engagements || []).filter(e => !e.startsWith("Certification:"));
+    const newEngagements = [...nonCerts, ...certEditSelected.map(c => `Certification:${c}`)];
+    const { error } = await supabase.from("businesses").update({
+      engagements: newEngagements,
+    }).eq("id", certEditBusinessId);
+    if (error) {
+      toast({ variant: "destructive", title: "Erreur", description: "Impossible de sauvegarder les certifications." });
+    } else {
+      toast({ title: "Succès", description: "Certifications mises à jour." });
+    }
+    setCertEditBusinessId(null);
+    setCertEditSaving(false);
+  };
+
+  // ---- Data fetch ----
   useEffect(() => {
     const fetchAll = async () => {
-      const [badgesRes, bbRes, destRes, bdRes, labelsRes, blRes] = await Promise.all([
+      const [badgesRes, bbRes, destRes, bdRes, labelsRes, blRes, svcRes] = await Promise.all([
         supabase.from("badges").select("id, name_fr, color_hex, text_color_hex").order("sort_order"),
         supabase.from("business_badges").select("business_id, badge_id, is_default"),
         supabase.from("destinations").select("id, name_fr").order("name_fr"),
         supabase.from("business_destinations").select("business_id, destination_id"),
         supabase.from("labels").select("id, name_fr").order("name_fr"),
         supabase.from("business_labels").select("business_id, label_id"),
+        supabase.from("services").select("name_fr").order("name_fr"),
       ]);
       if (badgesRes.data) setBadges(badgesRes.data);
       if (bbRes.data) setBusinessBadges(bbRes.data);
@@ -134,6 +311,10 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
       if (bdRes.data) setBusinessDestinations(bdRes.data);
       if (labelsRes.data) setLabels(labelsRes.data);
       if (blRes.data) setBusinessLabels(blRes.data);
+      if (svcRes.data) {
+        const names = [...new Set(svcRes.data.map(s => s.name_fr))].sort((a, b) => a.localeCompare(b, 'fr'));
+        setAllServiceNames(names);
+      }
     };
     fetchAll();
   }, []);
@@ -147,7 +328,6 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
     [businesses]
   );
 
-  // Fetch subcategories when category changes
   useEffect(() => {
     setSubcategoryFilter("all");
     if (categoryFilter === "all") { setSubcategories([]); return; }
@@ -162,7 +342,6 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
 
   useEffect(() => { setCurrentPage(1); }, [searchQuery, cityFilter, statusFilter, categoryFilter, subcategoryFilter, badgeFilter, engagementFilter, destinationFilter, certificationFilter]);
 
-  // Unique engagements & certifications across all businesses
   const uniqueEngagements = useMemo(() => {
     const set = new Set<string>();
     businesses.forEach(b => b.engagements?.filter(e => e.length > 0 && !e.startsWith("Certification:")).forEach(e => set.add(e)));
@@ -196,7 +375,7 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
       const matchesCertification = !certificationFilter || b.engagements?.includes(`Certification:${certificationFilter}`);
       return matchesSearch && matchesCity && matchesStatus && matchesCategory && matchesSubcategory && matchesBadge && matchesEngagement && matchesDestination && matchesCertification;
     }).sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
-  }, [businesses, searchQuery, cityFilter, statusFilter, categoryFilter, subcategoryFilter, badgeFilter, businessBadges, engagementFilter, destinationFilter, destinationFilter, businessDestinations, certificationFilter]);
+  }, [businesses, searchQuery, cityFilter, statusFilter, categoryFilter, subcategoryFilter, badgeFilter, businessBadges, engagementFilter, destinationFilter, businessDestinations, certificationFilter]);
 
   const toggleSort = (col: string) => {
     if (sortColumn === col) {
@@ -215,7 +394,6 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
       : <ArrowDown className="h-3 w-3 ml-1" />;
   };
 
-  // Sort after filter
   const sortedBusinesses = useMemo(() => {
     if (!sortColumn) return filteredBusinesses;
     const dir = sortDirection === "asc" ? 1 : -1;
@@ -518,7 +696,6 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
                 {paginatedBusinesses.map((business) => {
                   const bBadges = getBadgesForBusiness(business.id);
                   const bDests = getDestsForBusiness(business.id);
-                  const bLabels = getLabelsForBusiness(business.id);
                   const hasGPS = business.latitude != null && business.longitude != null;
 
                   return (
@@ -583,12 +760,15 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
                         </Badge>
                       </TableCell>
 
-                      {/* Services */}
-                      <TableCell>
+                      {/* Services (clickable to edit) */}
+                      <TableCell
+                        className="cursor-pointer hover:bg-muted/50"
+                        onClick={() => openServiceEditor(business)}
+                      >
                         {(() => {
                           const total = business.services?.length || 0;
                           const defaultSvc = business.default_service;
-                          if (total === 0 && !defaultSvc) return <span className="text-muted-foreground text-sm">-</span>;
+                          if (total === 0 && !defaultSvc) return <span className="text-muted-foreground text-sm hover:text-foreground">+ Ajouter</span>;
                           return (
                             <div className="flex flex-col gap-0.5 max-w-[150px]">
                               {defaultSvc && (
@@ -641,8 +821,11 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
                         )}
                       </TableCell>
 
-                      {/* Destinations */}
-                      <TableCell>
+                      {/* Destinations (clickable to edit) */}
+                      <TableCell
+                        className="cursor-pointer hover:bg-muted/50"
+                        onClick={() => openDestEditor(business.id, business.name)}
+                      >
                         {bDests.length > 0 ? (
                           <div className="flex flex-wrap gap-1 max-w-[150px]">
                             {bDests.map((d, i) => (
@@ -657,16 +840,19 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
                             ))}
                           </div>
                         ) : (
-                          <span className="text-muted-foreground text-sm">-</span>
+                          <span className="text-muted-foreground text-sm hover:text-foreground">+ Ajouter</span>
                         )}
                       </TableCell>
 
-                      {/* Engagements */}
-                      <TableCell>
+                      {/* Engagements (clickable to edit) */}
+                      <TableCell
+                        className="cursor-pointer hover:bg-muted/50"
+                        onClick={() => openEngEditor(business)}
+                      >
                         {(() => {
                           const cleanLabel = (s: string) => s.replace(/^(Logistique:|Certification:|Marché:)/, "");
-                          const items = business.engagements?.filter(e => e.length > 0) || [];
-                          if (items.length === 0) return <span className="text-muted-foreground text-sm">-</span>;
+                          const items = business.engagements?.filter(e => e.length > 0 && !e.startsWith("Certification:")) || [];
+                          if (items.length === 0) return <span className="text-muted-foreground text-sm hover:text-foreground">+ Ajouter</span>;
                           return (
                             <div className="flex flex-wrap gap-1 max-w-[200px]">
                               {items.slice(0, 3).map((s, i) => (
@@ -696,11 +882,14 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
                         })()}
                       </TableCell>
 
-                      {/* Certifications (from engagements) */}
-                      <TableCell>
+                      {/* Certifications (clickable to edit) */}
+                      <TableCell
+                        className="cursor-pointer hover:bg-muted/50"
+                        onClick={() => openCertEditor(business)}
+                      >
                         {(() => {
                           const certs = business.engagements?.filter(e => e.startsWith("Certification:")).map(e => e.replace("Certification:", "")) || [];
-                          if (certs.length === 0) return <span className="text-muted-foreground text-sm">-</span>;
+                          if (certs.length === 0) return <span className="text-muted-foreground text-sm hover:text-foreground">+ Ajouter</span>;
                           return (
                             <div className="flex flex-wrap gap-1 max-w-[150px]">
                               {certs.map((c, i) => (
@@ -818,6 +1007,150 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
               <Button variant="outline" onClick={() => setBadgeEditBusinessId(null)}>Annuler</Button>
               <Button onClick={saveBadgeEdit} disabled={badgeEditSaving} className="bg-amber-600 hover:bg-amber-700 text-white">
                 {badgeEditSaving ? "Enregistrement..." : "Enregistrer"}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Service editor dialog */}
+        <Dialog open={serviceEditBusinessId !== null} onOpenChange={(open) => { if (!open) setServiceEditBusinessId(null); }}>
+          <DialogContent className="max-w-4xl w-[90vw]">
+            <DialogHeader>
+              <DialogTitle className="text-lg">Services — {serviceEditBusinessName}</DialogTitle>
+            </DialogHeader>
+            <div className="flex flex-wrap gap-2">
+              {allServiceNames.map(svc => {
+                const isSelected = serviceEditSelected.includes(svc);
+                const isDefault = serviceEditDefault === svc;
+                return (
+                  <div
+                    key={svc}
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-full border cursor-pointer transition-colors ${isSelected ? 'border-primary bg-primary/10' : 'hover:bg-muted/50'}`}
+                    onClick={() => toggleServiceSelection(svc)}
+                  >
+                    <Checkbox checked={isSelected} onCheckedChange={() => toggleServiceSelection(svc)} className="h-3.5 w-3.5" />
+                    <span className="text-xs">{svc}</span>
+                    {isSelected && (
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); setServiceEditDefault(svc); }}
+                        className={`p-0.5 rounded ${isDefault ? 'text-amber-500' : 'text-muted-foreground hover:text-amber-400'}`}
+                        title={isDefault ? "Service par défaut" : "Définir comme défaut"}
+                      >
+                        <Star className={`h-3.5 w-3.5 ${isDefault ? 'fill-current' : ''}`} />
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+              {allServiceNames.length === 0 && (
+                <p className="text-muted-foreground text-sm text-center py-4 w-full">Aucun service disponible.</p>
+              )}
+            </div>
+            <div className="flex justify-end gap-2 pt-4 border-t">
+              <Button variant="outline" onClick={() => setServiceEditBusinessId(null)}>Annuler</Button>
+              <Button onClick={saveServiceEdit} disabled={serviceEditSaving}>
+                {serviceEditSaving ? "Enregistrement..." : "Enregistrer"}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Destination editor dialog */}
+        <Dialog open={destEditBusinessId !== null} onOpenChange={(open) => { if (!open) setDestEditBusinessId(null); }}>
+          <DialogContent className="max-w-4xl w-[90vw]">
+            <DialogHeader>
+              <DialogTitle className="text-lg">Destinations — {destEditBusinessName}</DialogTitle>
+            </DialogHeader>
+            <div className="flex flex-wrap gap-2">
+              {destinations.map(dest => {
+                const isSelected = destEditSelected.includes(dest.id);
+                return (
+                  <div
+                    key={dest.id}
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-full border cursor-pointer transition-colors ${isSelected ? 'border-primary bg-primary/10' : 'hover:bg-muted/50'}`}
+                    onClick={() => toggleDestSelection(dest.id)}
+                  >
+                    <Checkbox checked={isSelected} onCheckedChange={() => toggleDestSelection(dest.id)} className="h-3.5 w-3.5" />
+                    <span className="text-xs">{dest.name_fr}</span>
+                  </div>
+                );
+              })}
+              {destinations.length === 0 && (
+                <p className="text-muted-foreground text-sm text-center py-4 w-full">Aucune destination disponible.</p>
+              )}
+            </div>
+            <div className="flex justify-end gap-2 pt-4 border-t">
+              <Button variant="outline" onClick={() => setDestEditBusinessId(null)}>Annuler</Button>
+              <Button onClick={saveDestEdit} disabled={destEditSaving}>
+                {destEditSaving ? "Enregistrement..." : "Enregistrer"}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Engagement editor dialog */}
+        <Dialog open={engEditBusinessId !== null} onOpenChange={(open) => { if (!open) setEngEditBusinessId(null); }}>
+          <DialogContent className="max-w-4xl w-[90vw]">
+            <DialogHeader>
+              <DialogTitle className="text-lg">Engagements — {engEditBusinessName}</DialogTitle>
+            </DialogHeader>
+            <div className="flex flex-wrap gap-2">
+              {uniqueEngagements.map(eng => {
+                const isSelected = engEditSelected.includes(eng);
+                const cleanLabel = eng.replace(/^(Logistique:|Marché:)/, "");
+                return (
+                  <div
+                    key={eng}
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-full border cursor-pointer transition-colors ${isSelected ? 'border-primary bg-primary/10' : 'hover:bg-muted/50'}`}
+                    onClick={() => toggleEngSelection(eng)}
+                  >
+                    <Checkbox checked={isSelected} onCheckedChange={() => toggleEngSelection(eng)} className="h-3.5 w-3.5" />
+                    <span className="text-xs">{cleanLabel}</span>
+                  </div>
+                );
+              })}
+              {uniqueEngagements.length === 0 && (
+                <p className="text-muted-foreground text-sm text-center py-4 w-full">Aucun engagement disponible.</p>
+              )}
+            </div>
+            <div className="flex justify-end gap-2 pt-4 border-t">
+              <Button variant="outline" onClick={() => setEngEditBusinessId(null)}>Annuler</Button>
+              <Button onClick={saveEngEdit} disabled={engEditSaving}>
+                {engEditSaving ? "Enregistrement..." : "Enregistrer"}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Certification editor dialog */}
+        <Dialog open={certEditBusinessId !== null} onOpenChange={(open) => { if (!open) setCertEditBusinessId(null); }}>
+          <DialogContent className="max-w-4xl w-[90vw]">
+            <DialogHeader>
+              <DialogTitle className="text-lg">Certifications — {certEditBusinessName}</DialogTitle>
+            </DialogHeader>
+            <div className="flex flex-wrap gap-2">
+              {uniqueCertifications.map(cert => {
+                const isSelected = certEditSelected.includes(cert);
+                return (
+                  <div
+                    key={cert}
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-full border cursor-pointer transition-colors ${isSelected ? 'border-primary bg-primary/10' : 'hover:bg-muted/50'}`}
+                    onClick={() => toggleCertSelection(cert)}
+                  >
+                    <Checkbox checked={isSelected} onCheckedChange={() => toggleCertSelection(cert)} className="h-3.5 w-3.5" />
+                    <span className="text-xs">{cert}</span>
+                  </div>
+                );
+              })}
+              {uniqueCertifications.length === 0 && (
+                <p className="text-muted-foreground text-sm text-center py-4 w-full">Aucune certification disponible.</p>
+              )}
+            </div>
+            <div className="flex justify-end gap-2 pt-4 border-t">
+              <Button variant="outline" onClick={() => setCertEditBusinessId(null)}>Annuler</Button>
+              <Button onClick={saveCertEdit} disabled={certEditSaving}>
+                {certEditSaving ? "Enregistrement..." : "Enregistrer"}
               </Button>
             </div>
           </DialogContent>
