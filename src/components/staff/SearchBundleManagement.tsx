@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Plus, Trash2, Save, Loader2, Package } from "lucide-react";
+import { Plus, Trash2, Save, Loader2, Package, Copy } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -93,6 +93,21 @@ const SearchBundleManagement = () => {
       setBundles(prev => prev.map(b => b.id === id ? { ...b, subcategory_name: editValues.subcategory_name.trim() || null, required_service: editValues.required_service.trim() } : b));
       setEditingId(null);
       toast({ title: "Sauvegardé" });
+    }
+  };
+
+  const duplicateEntry = async (entry: BundleEntry) => {
+    const { error } = await supabase.from("search_bundles").insert({
+      keyword: entry.keyword,
+      subcategory_name: entry.subcategory_name,
+      required_service: entry.required_service,
+      sort_order: bundles.filter(b => b.keyword === entry.keyword).length + 1,
+    } as any);
+    if (error) {
+      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Dupliqué" });
+      loadBundles();
     }
   };
 
@@ -241,6 +256,9 @@ const SearchBundleManagement = () => {
                                     <Save className="h-4 w-4 text-primary" />
                                   </Button>
                                 ) : null}
+                                <Button variant="ghost" size="icon" onClick={() => duplicateEntry(entry)} title="Dupliquer">
+                                  <Copy className="h-4 w-4" />
+                                </Button>
                                 <Button variant="ghost" size="icon" onClick={() => deleteEntry(entry.id)}>
                                   <Trash2 className="h-4 w-4 text-destructive" />
                                 </Button>
