@@ -1588,7 +1588,7 @@ serve(async (req) => {
     {
       const { data: bundleData } = await supabase
         .from("search_bundles")
-        .select("keyword, subcategory_name, required_service, sort_order")
+        .select("keyword, subcategory_name, required_service, badge_id, sort_order")
         .eq("is_active", true)
         .order("sort_order");
       
@@ -1598,9 +1598,38 @@ serve(async (req) => {
         const allText = textsToCheck.map(t => stripAccentsGlobal(t.toLowerCase())).join(" ");
         const allWords = allText.split(/\s+/);
         
-        // Find matching bundle keyword (deduplicated)
+        // Build a reverse map: synonym → bundle keyword, using the loaded synonyms config
         const uniqueKeywords = [...new Set(bundleData.map((b: any) => stripAccentsGlobal(b.keyword.toLowerCase())))];
-        const matchedKeyword = uniqueKeywords.find(kw => allWords.includes(kw) || allText.includes(kw));
+        
+        // Try direct match first, then synonym match
+        let matchedKeyword = uniqueKeywords.find(kw => allWords.includes(kw) || allText.includes(kw));
+        
+        if (!matchedKeyword) {
+          // Check if any word in the query is a synonym that maps to a bundle keyword
+          for (const kw of uniqueKeywords) {
+            // Check if kw has synonyms that appear in allWords
+            const kwSynonyms = synonyms[kw] || [];
+            const found = kwSynonyms.some(syn => {
+              const normalizedSyn = stripAccentsGlobal(syn.toLowerCase());
+              return allWords.includes(normalizedSyn) || allText.includes(normalizedSyn);
+            });
+            if (found) {
+              matchedKeyword = kw;
+              console.log(`📦 BUNDLE synonym match: query word matched synonym of "${kw}"`);
+              break;
+            }
+            // Also check reverse: if a query word is a key_word whose synonyms include kw
+            for (const [synKey, synValues] of Object.entries(synonyms)) {
+              const normalizedKey = stripAccentsGlobal(synKey.toLowerCase());
+              if ((allWords.includes(normalizedKey) || allText.includes(normalizedKey)) &&
+                  synValues.some(sv => stripAccentsGlobal(sv.toLowerCase()) === kw)) {
+                matchedKeyword = kw;
+                console.log(`📦 BUNDLE reverse synonym match: "${synKey}" → "${kw}"`);
+                break;
+              }
+            }
+          }
+        }
         
         if (matchedKeyword) {
           const entries = bundleData.filter((b: any) => stripAccentsGlobal(b.keyword.toLowerCase()) === matchedKeyword);
@@ -1618,9 +1647,10 @@ serve(async (req) => {
               builder = builder.contains("categories", [entry.subcategory_name]);
             }
             
-            // Filter by required service using robust array literal syntax
-            builder = builder.filter("services", "cs", `{"${entry.required_service}"}`);
-            
+            // Filter by required service if specified
+            if (entry.required_service) {
+              builder = builder.filter("services", "cs", `{"${entry.required_service}"}`);
+            }
             // Apply city filter
             if (effectiveCity) builder = applyCityFilter(builder);
             
@@ -1647,9 +1677,9 @@ serve(async (req) => {
                   });
                 }
               }
-              console.log(`  Bundle entry [${entry.subcategory_name || "*"}] + service "${entry.required_service}": ${data.length} results`);
+              console.log(`  Bundle entry [${entry.subcategory_name || "*"}] + service "${entry.required_service || "*"}": ${data.length} results`);
             } else {
-              console.log(`  Bundle entry [${entry.subcategory_name || "*"}] + service "${entry.required_service}": 0 results`);
+              console.log(`  Bundle entry [${entry.subcategory_name || "*"}] + service "${entry.required_service || "*"}": 0 results`);
             }
           }
           
