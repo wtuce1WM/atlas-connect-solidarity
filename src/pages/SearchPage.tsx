@@ -1418,6 +1418,7 @@ const SearchPage = () => {
                 type="text"
                 placeholder={t.placeholder}
                 value={inputValue}
+                autoComplete="off"
                 onChange={(e) => { setInputValue(e.target.value); setShowSuggestions(true); }}
                 onFocus={() => setShowSuggestions(true)}
                 onBlur={() => setTimeout(() => setShowSuggestions(false), 300)}
@@ -1468,6 +1469,7 @@ const SearchPage = () => {
                 type="text"
                 placeholder={t.placeholder}
                 value={inputValue}
+                autoComplete="off"
                 onChange={(e) => { setInputValue(e.target.value); setShowSuggestions(true); }}
                 onFocus={() => setShowSuggestions(true)}
                 onBlur={() => setTimeout(() => setShowSuggestions(false), 300)}
