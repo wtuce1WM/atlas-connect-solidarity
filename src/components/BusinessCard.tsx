@@ -38,6 +38,7 @@ export interface BusinessCardData {
   badge_id?: string | null;
   opening_hours?: Record<string, { open?: string; close?: string; open2?: string; close2?: string; closed?: boolean; continuous?: boolean }> | unknown;
   is_open_24h?: boolean | null;
+  show_opening_hours?: boolean | null;
   vacation_dates?: unknown;
 }
 
@@ -172,12 +173,15 @@ const BusinessCard = ({
   const openingHoursTyped = (business.opening_hours as Record<string, DayHoursData>) || null;
   const vacationDatesTyped = Array.isArray(business.vacation_dates) ? business.vacation_dates as Array<{ start_date: string; end_date: string }> : null;
 
-  const isOpenDuringActiveSlot = activeTimeSlot
+  // Only show open badge if show_opening_hours is enabled (or is_open_24h)
+  const canShowOpenBadge = !!business.show_opening_hours || !!business.is_open_24h;
+
+  const isOpenDuringActiveSlot = canShowOpenBadge && activeTimeSlot
     ? isOpenDuringSlot(openingHoursTyped, !!business.is_open_24h, activeTimeSlot, vacationDatesTyped)
     : false;
 
   // Fallback: check if currently open in real-time when no time slot filter
-  const isCurrentlyOpenNow = !activeTimeSlot && (
+  const isCurrentlyOpenNow = canShowOpenBadge && !activeTimeSlot && (
     !!business.is_open_24h || (() => {
       if (!openingHoursTyped) return false;
       const days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
