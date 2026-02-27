@@ -246,8 +246,8 @@ const BusinessCard = ({
             <div className="absolute top-2 left-2 z-10">
               <Badge className={`text-xs border flex items-center gap-1 ${
                 openBadgeText === "Ouvert" || openBadgeText === "Ouvert 24h"
-                  ? "bg-emerald-600 text-white border-emerald-700"
-                  : "bg-amber-500 text-white border-amber-600"
+                  ? "bg-[#25D366] text-white border-[#25D366]"
+                  : "bg-gold text-gold-foreground border-gold"
               }`}>
                 <Clock className="h-3 w-3" />
                 {openBadgeText}

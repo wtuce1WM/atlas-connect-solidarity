@@ -223,7 +223,7 @@ export function isOpenDuringSlot(
 
     // Handle overnight business hours (close < open, e.g., 20:00-02:00)
     if (closeMin <= openMin) {
-      return slotEndMin > openMin || slotStartMin < closeMin;
+      return slotEndMin >= openMin || slotStartMin < closeMin;
     }
     // Handle overnight slot (e.g., night: 22:00-06:00)
     if (slotEndMin <= slotStartMin) {
@@ -287,7 +287,7 @@ export function getOpeningTimeForSlot(
     const [ch, cm] = closeStr.split(":").map(Number);
     const openMin = oh * 60 + (om || 0);
     const closeMin = ch * 60 + (cm || 0);
-    if (closeMin <= openMin) return slotEndMin > openMin || slotStartMin < closeMin;
+    if (closeMin <= openMin) return slotEndMin >= openMin || slotStartMin < closeMin;
     if (slotEndMin <= slotStartMin) return closeMin > slotStartMin || openMin < slotEndMin;
     return slotStartMin < closeMin && slotEndMin > openMin;
   };
