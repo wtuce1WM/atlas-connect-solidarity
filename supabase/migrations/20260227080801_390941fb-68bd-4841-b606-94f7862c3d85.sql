@@ -1,0 +1,1 @@
+ALTER TABLE search_bundles ADD COLUMN badge_id uuid REFERENCES badges(id) ON DELETE SET NULL DEFAULT NULL;

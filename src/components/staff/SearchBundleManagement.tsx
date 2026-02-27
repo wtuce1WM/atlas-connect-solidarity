@@ -5,10 +5,18 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+
+interface BadgeOption {
+  id: string;
+  name_fr: string;
+  color_hex: string | null;
+  text_color_hex: string | null;
+}
 
 interface BundleEntry {
   id: string;
@@ -17,10 +25,12 @@ interface BundleEntry {
   required_service: string | null;
   is_active: boolean;
   sort_order: number;
+  badge_id: string | null;
 }
 
 const SearchBundleManagement = () => {
   const [bundles, setBundles] = useState<BundleEntry[]>([]);
+  const [badges, setBadges] = useState<BadgeOption[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [newEntry, setNewEntry] = useState({ keyword: "", subcategory_name: "", required_service: "" });
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -32,16 +42,16 @@ const SearchBundleManagement = () => {
 
   const loadBundles = useCallback(async () => {
     setIsLoading(true);
-    const { data, error } = await supabase
-      .from("search_bundles")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .order("sort_order");
-    if (error) {
-      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+    const [bundlesRes, badgesRes] = await Promise.all([
+      supabase.from("search_bundles").select("*").order("created_at", { ascending: false }).order("sort_order"),
+      supabase.from("badges").select("id, name_fr, color_hex, text_color_hex").order("sort_order"),
+    ]);
+    if (bundlesRes.error) {
+      toast({ title: "Erreur", description: bundlesRes.error.message, variant: "destructive" });
     } else {
-      setBundles((data as any[]) || []);
+      setBundles((bundlesRes.data as any[]) || []);
     }
+    if (badgesRes.data) setBadges(badgesRes.data);
     setIsLoading(false);
   }, []);
 
@@ -103,6 +113,7 @@ const SearchBundleManagement = () => {
       required_service: e.required_service,
       sort_order: i + 1,
       is_active: e.is_active,
+      badge_id: e.badge_id,
     }));
     const { error } = await supabase.from("search_bundles").insert(inserts as any);
     if (error) {
@@ -152,6 +163,17 @@ const SearchBundleManagement = () => {
       setBundles(prev => prev.map(b => ids.includes(b.id) ? { ...b, keyword: newKw } : b));
       setEditingKeyword(null);
       toast({ title: "Mot-clé mis à jour" });
+    }
+  };
+
+  const updateBundleBadge = async (keyword: string, entries: BundleEntry[], badgeId: string | null) => {
+    const ids = entries.map(e => e.id);
+    const { error } = await supabase.from("search_bundles").update({ badge_id: badgeId } as any).in("id", ids);
+    if (error) {
+      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+    } else {
+      setBundles(prev => prev.map(b => ids.includes(b.id) ? { ...b, badge_id: badgeId } : b));
+      toast({ title: "Badge mis à jour" });
     }
   };
 
@@ -244,6 +266,28 @@ const SearchBundleManagement = () => {
                         </Badge>
                       )}
                       <span className="text-xs text-muted-foreground">{entries.length} entrée(s)</span>
+                      <Select
+                        value={entries[0]?.badge_id || "none"}
+                        onValueChange={(val) => updateBundleBadge(keyword, entries, val === "none" ? null : val)}
+                      >
+                        <SelectTrigger className="h-7 w-36 text-xs">
+                          <SelectValue placeholder="Badge" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">Aucun badge</SelectItem>
+                          {badges.map(b => (
+                            <SelectItem key={b.id} value={b.id}>
+                              <span className="flex items-center gap-1.5">
+                                <span
+                                  className="inline-block w-2.5 h-2.5 rounded-full shrink-0"
+                                  style={{ backgroundColor: b.color_hex || '#ccc' }}
+                                />
+                                {b.name_fr}
+                              </span>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <div className="ml-auto flex items-center gap-1.5">
                         <span className="text-xs text-muted-foreground">
                           {entries.every(e => e.is_active) ? "Actif" : entries.some(e => e.is_active) ? "Partiel" : "Inactif"}
