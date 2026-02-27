@@ -35,7 +35,7 @@ type BusinessDestRow = { business_id: string; destination_id: string };
 type DestRow = { id: string; name_fr: string };
 type BusinessLabelRow = { business_id: string; label_id: string };
 type LabelRow = { id: string; name_fr: string };
-type ServiceRow = { name_fr: string };
+
 
 const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTabProps) => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -60,7 +60,8 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
   const [businessDestinations, setBusinessDestinations] = useState<BusinessDestRow[]>([]);
   const [labels, setLabels] = useState<LabelRow[]>([]);
   const [businessLabels, setBusinessLabels] = useState<BusinessLabelRow[]>([]);
-  const [allServiceNames, setAllServiceNames] = useState<string[]>([]);
+  const [serviceEditOptions, setServiceEditOptions] = useState<string[]>([]);
+  const [serviceEditLoading, setServiceEditLoading] = useState(false);
 
   // Badge editor popup state
   const [badgeEditBusinessId, setBadgeEditBusinessId] = useState<string | null>(null);
@@ -154,11 +155,35 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
   };
 
   // ---- Service editor ----
-  const openServiceEditor = (business: Business) => {
+  const openServiceEditor = async (business: Business) => {
     setServiceEditSelected([...(business.services || [])]);
     setServiceEditDefault(business.default_service || null);
     setServiceEditBusinessId(business.id);
     setServiceEditBusinessName(business.name);
+    setServiceEditLoading(true);
+    setServiceEditOptions([]);
+
+    // Fetch services belonging to this business's subcategories
+    const subcatNames = business.categories || [];
+    if (subcatNames.length > 0) {
+      const { data: subs } = await supabase
+        .from("subcategories")
+        .select("id")
+        .in("name_fr", subcatNames);
+      if (subs && subs.length > 0) {
+        const subIds = subs.map(s => s.id);
+        const { data: svcs } = await supabase
+          .from("services")
+          .select("name_fr")
+          .in("subcategory_id", subIds)
+          .order("name_fr");
+        if (svcs) {
+          const names = [...new Set(svcs.map(s => s.name_fr))].sort((a, b) => a.localeCompare(b, 'fr'));
+          setServiceEditOptions(names);
+        }
+      }
+    }
+    setServiceEditLoading(false);
   };
 
   const toggleServiceSelection = (svc: string) => {
@@ -296,14 +321,13 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
   // ---- Data fetch ----
   useEffect(() => {
     const fetchAll = async () => {
-      const [badgesRes, bbRes, destRes, bdRes, labelsRes, blRes, svcRes] = await Promise.all([
+      const [badgesRes, bbRes, destRes, bdRes, labelsRes, blRes] = await Promise.all([
         supabase.from("badges").select("id, name_fr, color_hex, text_color_hex").order("sort_order"),
         supabase.from("business_badges").select("business_id, badge_id, is_default"),
         supabase.from("destinations").select("id, name_fr").order("name_fr"),
         supabase.from("business_destinations").select("business_id, destination_id"),
         supabase.from("labels").select("id, name_fr").order("name_fr"),
         supabase.from("business_labels").select("business_id, label_id"),
-        supabase.from("services").select("name_fr").order("name_fr"),
       ]);
       if (badgesRes.data) setBadges(badgesRes.data);
       if (bbRes.data) setBusinessBadges(bbRes.data);
@@ -311,10 +335,6 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
       if (bdRes.data) setBusinessDestinations(bdRes.data);
       if (labelsRes.data) setLabels(labelsRes.data);
       if (blRes.data) setBusinessLabels(blRes.data);
-      if (svcRes.data) {
-        const names = [...new Set(svcRes.data.map(s => s.name_fr))].sort((a, b) => a.localeCompare(b, 'fr'));
-        setAllServiceNames(names);
-      }
     };
     fetchAll();
   }, []);
@@ -1019,7 +1039,8 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
               <DialogTitle className="text-lg">Services — {serviceEditBusinessName}</DialogTitle>
             </DialogHeader>
             <div className="flex flex-wrap gap-2">
-              {allServiceNames.map(svc => {
+              {serviceEditLoading && <p className="text-muted-foreground text-sm py-4 w-full text-center">Chargement...</p>}
+              {serviceEditOptions.map(svc => {
                 const isSelected = serviceEditSelected.includes(svc);
                 const isDefault = serviceEditDefault === svc;
                 return (
@@ -1043,8 +1064,8 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
                   </div>
                 );
               })}
-              {allServiceNames.length === 0 && (
-                <p className="text-muted-foreground text-sm text-center py-4 w-full">Aucun service disponible.</p>
+              {!serviceEditLoading && serviceEditOptions.length === 0 && (
+                <p className="text-muted-foreground text-sm text-center py-4 w-full">Aucun service disponible pour ces sous-catégories.</p>
               )}
             </div>
             <div className="flex justify-end gap-2 pt-4 border-t">
