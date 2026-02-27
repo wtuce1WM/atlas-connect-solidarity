@@ -4,6 +4,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
@@ -91,7 +102,7 @@ const ServiceFilterManagement = () => {
               className="h-8 text-sm"
             />
           </div>
-          <Button size="sm" onClick={addFilter} disabled={!newKeyword.trim() || !newService.trim()}>
+          <Button size="sm" onClick={addFilter} disabled={!newKeyword.trim() || !newService.trim()} className="bg-amber-600 hover:bg-amber-700 text-white">
             <Plus className="h-4 w-4 mr-1" /> Ajouter
           </Button>
         </div>
@@ -109,9 +120,25 @@ const ServiceFilterManagement = () => {
                   <span className="text-xs text-muted-foreground mx-2">→</span>
                   <span className="text-sm text-primary">{f.required_service}</span>
                 </div>
-                <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteFilter(f.id)}>
-                  <Trash2 className="h-3.5 w-3.5" />
-                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive">
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Supprimer ?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Voulez-vous vraiment supprimer le filtre « {f.keyword} → {f.required_service} » ?
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Non</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => deleteFilter(f.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Oui</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             ))}
           </div>

@@ -5,6 +5,17 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
@@ -92,7 +103,7 @@ const SynonymsManagement = () => {
           <div className="flex gap-2 flex-wrap">
             <Input value={newKey} onChange={e => setNewKey(e.target.value)} placeholder="Mot-clé" className="max-w-[150px]" />
             <Input value={newSynonyms} onChange={e => setNewSynonyms(e.target.value)} placeholder="Synonymes (séparés par virgule)" className="flex-1" />
-            <Button size="sm" onClick={addEntry}><Plus className="h-4 w-4 mr-1" />Ajouter</Button>
+            <Button size="sm" onClick={addEntry} className="bg-amber-600 hover:bg-amber-700 text-white"><Plus className="h-4 w-4 mr-1" />Ajouter</Button>
           </div>
         </CardContent>
       </Card>
@@ -106,17 +117,49 @@ const SynonymsManagement = () => {
                 <code className="font-mono text-sm font-bold bg-muted px-2 py-0.5 rounded">{entry.key_word}</code>
                 <span className="text-xs text-muted-foreground">→ {entry.synonyms.length} synonyme(s)</span>
               </div>
-              <Button variant="ghost" size="sm" onClick={() => deleteEntry(entry.id)}>
-                <Trash2 className="h-4 w-4 text-destructive" />
-              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="ghost" size="sm">
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Supprimer ?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Voulez-vous vraiment supprimer le groupe de synonymes « {entry.key_word} » ?
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Non</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => deleteEntry(entry.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Oui</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
             <div className="flex flex-wrap gap-1.5">
               {entry.synonyms.map(syn => (
                 <Badge key={syn} variant="outline" className="gap-1 group">
                   {syn}
-                  <button onClick={() => removeSynonymFromEntry(entry.id, syn)} className="opacity-0 group-hover:opacity-100">
-                    <Trash2 className="h-3 w-3 text-destructive" />
-                  </button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <button className="opacity-0 group-hover:opacity-100">
+                        <Trash2 className="h-3 w-3 text-destructive" />
+                      </button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Supprimer ?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Retirer le synonyme « {syn} » de « {entry.key_word} » ?
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Non</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => removeSynonymFromEntry(entry.id, syn)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Oui</AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </Badge>
               ))}
             </div>
@@ -128,7 +171,7 @@ const SynonymsManagement = () => {
                 className="max-w-xs text-sm"
                 onKeyDown={e => e.key === "Enter" && addSynonymToEntry(entry.id)}
               />
-              <Button size="sm" variant="outline" onClick={() => addSynonymToEntry(entry.id)}>
+              <Button size="sm" variant="outline" onClick={() => addSynonymToEntry(entry.id)} className="border-amber-600 text-amber-700 hover:bg-amber-50">
                 <Plus className="h-3 w-3" />
               </Button>
             </div>
