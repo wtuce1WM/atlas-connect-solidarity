@@ -51,6 +51,7 @@ const FloatingSearchBar = () => {
               type="text"
               placeholder={placeholder}
               value={inputValue}
+              autoComplete="off"
               onChange={(e) => setInputValue(e.target.value)}
               className="w-full pl-14 pr-36 py-6 text-base bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-full shadow-lg"
             />
@@ -94,6 +95,7 @@ const FloatingSearchBar = () => {
               type="text"
               placeholder={placeholder}
               value={inputValue}
+              autoComplete="off"
               onChange={(e) => setInputValue(e.target.value)}
               className="w-full pl-11 pr-4 py-5 text-sm bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-full shadow-lg"
             />
