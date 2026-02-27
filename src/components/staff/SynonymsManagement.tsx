@@ -169,6 +169,19 @@ const SynonymsManagement = () => {
                 <p className="text-xs text-muted-foreground italic">
                   Les synonymes élargissent <em>ce qu'on cherche</em>, les mots-clés élargissent <em>ce qu'on trouve</em>.
                 </p>
+
+                <div className="border-t pt-2 space-y-1">
+                  <h5 className="font-semibold text-xs">⚡ Impact sur les performances</h5>
+                  <p className="text-xs text-muted-foreground">
+                    <strong>Synonymes</strong> : chargés par l'Edge Function à chaque recherche (cache TTL 5 min). Impact minime.
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    <strong>Mots-clés</strong> : pré-indexés dans le <code className="bg-muted px-1 rounded">search_vector</code> via un trigger PostgreSQL. Coût payé une seule fois à l'écriture, <strong>zéro impact à la lecture</strong>.
+                  </p>
+                  <p className="text-xs text-muted-foreground italic">
+                    → Les mots-clés sont la solution la plus performante car tout est pré-calculé dans l'index.
+                  </p>
+                </div>
               </PopoverContent>
             </Popover>
           </div>
