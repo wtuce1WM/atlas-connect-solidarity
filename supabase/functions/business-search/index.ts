@@ -2612,7 +2612,13 @@ serve(async (req) => {
             const before = businesses.length;
             const filtered = businesses.filter(b => {
               const bServices = (b.services || []).map((s: string) => s.toLowerCase());
-              return requiredServices.some(rs => bServices.some((bs: string) => bs === rs));
+              // Match if business service equals required OR starts/ends with the required word as a whole word
+              return requiredServices.some(rs => bServices.some((bs: string) => {
+                if (bs === rs) return true;
+                // Check whole-word boundary match: "hammam privatif" matches "privatif", but "balcons privatifs" does not
+                const regex = new RegExp(`\\b${rs.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`);
+                return regex.test(bs);
+              }));
             });
             // If filter reduces to 0, keep original results (filter was too restrictive for this context)
             if (filtered.length > 0) {
