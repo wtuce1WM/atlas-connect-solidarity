@@ -44,7 +44,7 @@ const SearchBundleManagement = () => {
     setIsLoading(true);
     const [bundlesRes, badgesRes] = await Promise.all([
       supabase.from("search_bundles").select("*").order("created_at", { ascending: false }).order("sort_order"),
-      supabase.from("badges").select("id, name_fr, color_hex, text_color_hex").order("sort_order"),
+      supabase.from("badges").select("id, name_fr, color_hex, text_color_hex").order("name_fr"),
     ]);
     if (bundlesRes.error) {
       toast({ title: "Erreur", description: bundlesRes.error.message, variant: "destructive" });
