@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Plus, Trash2, Save, Loader2, Package } from "lucide-react";
+import { Plus, Trash2, Save, Loader2, Package, Pencil } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +22,8 @@ const SearchBundleManagement = () => {
   const [bundles, setBundles] = useState<BundleEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [newEntry, setNewEntry] = useState({ keyword: "", subcategory_name: "", required_service: "" });
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editValues, setEditValues] = useState<{ subcategory_name: string; required_service: string }>({ subcategory_name: "", required_service: "" });
 
   const loadBundles = useCallback(async () => {
     setIsLoading(true);
@@ -66,6 +68,29 @@ const SearchBundleManagement = () => {
       toast({ title: "Erreur", description: error.message, variant: "destructive" });
     } else {
       setBundles(prev => prev.map(b => b.id === id ? { ...b, is_active } : b));
+    }
+  };
+
+  const startEdit = (entry: BundleEntry) => {
+    setEditingId(entry.id);
+    setEditValues({ subcategory_name: entry.subcategory_name || "", required_service: entry.required_service });
+  };
+
+  const saveEdit = async (id: string) => {
+    if (!editValues.required_service.trim()) {
+      toast({ title: "Service requis obligatoire", variant: "destructive" });
+      return;
+    }
+    const { error } = await supabase.from("search_bundles").update({
+      subcategory_name: editValues.subcategory_name.trim() || null,
+      required_service: editValues.required_service.trim(),
+    } as any).eq("id", id);
+    if (error) {
+      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+    } else {
+      setBundles(prev => prev.map(b => b.id === id ? { ...b, subcategory_name: editValues.subcategory_name.trim() || null, required_service: editValues.required_service.trim() } : b));
+      setEditingId(null);
+      toast({ title: "Sauvegardé" });
     }
   };
 
@@ -174,11 +199,30 @@ const SearchBundleManagement = () => {
                       </TableHeader>
                       <TableBody>
                         {entries.map(entry => (
-                          <TableRow key={entry.id}>
+                          <TableRow key={entry.id} onDoubleClick={() => startEdit(entry)}>
                             <TableCell className="font-medium">
-                              {entry.subcategory_name || <span className="text-muted-foreground italic">* (wildcard)</span>}
+                              {editingId === entry.id ? (
+                                <Input
+                                  value={editValues.subcategory_name}
+                                  onChange={e => setEditValues(prev => ({ ...prev, subcategory_name: e.target.value }))}
+                                  placeholder="* (wildcard)"
+                                  className="h-8"
+                                />
+                              ) : (
+                                entry.subcategory_name || <span className="text-muted-foreground italic">* (wildcard)</span>
+                              )}
                             </TableCell>
-                            <TableCell className="text-sm">{entry.required_service}</TableCell>
+                            <TableCell className="text-sm">
+                              {editingId === entry.id ? (
+                                <Input
+                                  value={editValues.required_service}
+                                  onChange={e => setEditValues(prev => ({ ...prev, required_service: e.target.value }))}
+                                  className="h-8"
+                                />
+                              ) : (
+                                entry.required_service
+                              )}
+                            </TableCell>
                             <TableCell>
                               <Switch
                                 checked={entry.is_active}
@@ -186,9 +230,16 @@ const SearchBundleManagement = () => {
                               />
                             </TableCell>
                             <TableCell>
-                              <Button variant="ghost" size="icon" onClick={() => deleteEntry(entry.id)}>
-                                <Trash2 className="h-4 w-4 text-destructive" />
-                              </Button>
+                              <div className="flex gap-1">
+                                {editingId === entry.id ? (
+                                  <Button variant="ghost" size="icon" onClick={() => saveEdit(entry.id)}>
+                                    <Save className="h-4 w-4 text-green-600" />
+                                  </Button>
+                                ) : null}
+                                <Button variant="ghost" size="icon" onClick={() => deleteEntry(entry.id)}>
+                                  <Trash2 className="h-4 w-4 text-destructive" />
+                                </Button>
+                              </div>
                             </TableCell>
                           </TableRow>
                         ))}
