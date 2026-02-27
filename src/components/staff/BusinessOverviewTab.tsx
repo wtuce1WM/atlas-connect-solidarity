@@ -163,6 +163,7 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
         case "city": return (b.city || "").toLowerCase() + " " + (b.neighborhood || "").toLowerCase();
         case "active": return b.is_active ? 1 : 0;
         case "engagements": return b.engagements?.length || 0;
+        case "services": return b.services?.length || 0;
         case "badges": return getBadgesForBusiness(b.id).length;
         case "destinations": return getDestsForBusiness(b.id).length;
         case "gps": return (b.latitude != null && b.longitude != null) ? 1 : 0;
@@ -430,6 +431,9 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
                   <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("active")}>
                     <span className="inline-flex items-center">Actif<SortIcon col="active" /></span>
                   </TableHead>
+                  <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("services")}>
+                    <span className="inline-flex items-center">Services<SortIcon col="services" /></span>
+                  </TableHead>
                   <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("badges")}>
                     <span className="inline-flex items-center">Badges<SortIcon col="badges" /></span>
                   </TableHead>
@@ -514,6 +518,27 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
                         >
                           {business.is_active ? "Oui" : "Non"}
                         </Badge>
+                      </TableCell>
+
+                      {/* Services */}
+                      <TableCell>
+                        {(() => {
+                          const total = business.services?.length || 0;
+                          const defaultSvc = business.default_service;
+                          if (total === 0 && !defaultSvc) return <span className="text-muted-foreground text-sm">-</span>;
+                          return (
+                            <div className="flex flex-col gap-0.5">
+                              {defaultSvc && (
+                                <Badge variant="default" className="text-xs font-normal w-fit">
+                                  {defaultSvc}
+                                </Badge>
+                              )}
+                              {total > 0 && (
+                                <span className="text-xs text-muted-foreground">{total} service{total > 1 ? "s" : ""}</span>
+                              )}
+                            </div>
+                          );
+                        })()}
                       </TableCell>
 
                       {/* Badges */}
