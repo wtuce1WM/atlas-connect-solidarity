@@ -1263,8 +1263,8 @@ const SearchPage = () => {
                   className="max-w-full max-h-[85vh] object-contain rounded-2xl shadow-2xl"
                 />
                 <div className="absolute bottom-8 left-1/2 -translate-x-1/2 bg-black/70 backdrop-blur-md px-8 py-4 rounded-2xl border border-gold/30 text-center">
-                  <p className="text-gold font-semibold text-2xl">Zitoun Mask</p>
-                  <p className="text-white/70 text-sm mt-1">Le légendaire habitué du Zitoun</p>
+                  <p className="text-gold font-semibold text-2xl">Zitoun Musk</p>
+                  <p className="text-white/70 text-sm mt-1">Le légendaire gnawa proctologue</p>
                 </div>
                 <button
                   onClick={() => {
