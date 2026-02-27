@@ -268,7 +268,7 @@ const BusinessCard = ({
           {/* Badges */}
           <div className="flex flex-wrap gap-2 mb-3">
             {business.categories && business.categories.length > 0 && (
-              <Badge variant="secondary" className="text-xs">
+              <Badge variant="secondary" className="text-xs bg-gold text-gold-foreground">
                 {business.categories[0]}
               </Badge>
             )}
