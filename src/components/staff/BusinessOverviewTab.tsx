@@ -773,20 +773,21 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
 
         {/* Badge editor dialog */}
         <Dialog open={badgeEditBusinessId !== null} onOpenChange={(open) => { if (!open) setBadgeEditBusinessId(null); }}>
-          <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
+          <DialogContent className="max-w-4xl w-[90vw]">
             <DialogHeader>
               <DialogTitle className="text-lg">Badges — {badgeEditBusinessName}</DialogTitle>
             </DialogHeader>
-            <div className="space-y-2">
+            <div className="flex flex-wrap gap-2">
               {badges.map(badge => {
                 const isSelected = badgeEditSelected.some(b => b.badge_id === badge.id);
                 const isDefault = badgeEditSelected.find(b => b.badge_id === badge.id)?.is_default || false;
                 return (
-                  <div key={badge.id} className="flex items-center gap-3 p-2 rounded-lg border hover:bg-muted/50">
-                    <Checkbox
-                      checked={isSelected}
-                      onCheckedChange={() => toggleBadgeSelection(badge.id)}
-                    />
+                  <div
+                    key={badge.id}
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-full border cursor-pointer transition-colors ${isSelected ? 'border-amber-500 bg-amber-500/10' : 'hover:bg-muted/50'}`}
+                    onClick={() => toggleBadgeSelection(badge.id)}
+                  >
+                    <Checkbox checked={isSelected} onCheckedChange={() => toggleBadgeSelection(badge.id)} className="h-3.5 w-3.5" />
                     <Badge
                       className="text-xs border border-black shrink-0"
                       style={{
@@ -799,18 +800,18 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
                     {isSelected && (
                       <button
                         type="button"
-                        onClick={() => toggleBadgeDefault(badge.id)}
-                        className={`ml-auto p-1 rounded ${isDefault ? 'text-amber-500' : 'text-muted-foreground hover:text-amber-400'}`}
+                        onClick={(e) => { e.stopPropagation(); toggleBadgeDefault(badge.id); }}
+                        className={`p-0.5 rounded ${isDefault ? 'text-amber-500' : 'text-muted-foreground hover:text-amber-400'}`}
                         title={isDefault ? "Badge par défaut" : "Définir comme défaut"}
                       >
-                        <Star className={`h-4 w-4 ${isDefault ? 'fill-current' : ''}`} />
+                        <Star className={`h-3.5 w-3.5 ${isDefault ? 'fill-current' : ''}`} />
                       </button>
                     )}
                   </div>
                 );
               })}
               {badges.length === 0 && (
-                <p className="text-muted-foreground text-sm text-center py-4">Aucun badge disponible.</p>
+                <p className="text-muted-foreground text-sm text-center py-4 w-full">Aucun badge disponible.</p>
               )}
             </div>
             <div className="flex justify-end gap-2 pt-4 border-t">
