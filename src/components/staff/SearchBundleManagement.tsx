@@ -25,6 +25,8 @@ const SearchBundleManagement = () => {
   const [newEntry, setNewEntry] = useState({ keyword: "", subcategory_name: "", required_service: "" });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValues, setEditValues] = useState<{ subcategory_name: string; required_service: string }>({ subcategory_name: "", required_service: "" });
+  const [editingKeyword, setEditingKeyword] = useState<string | null>(null);
+  const [editKeywordValue, setEditKeywordValue] = useState("");
 
   const canAddEntry = newEntry.keyword.trim().length > 0 && newEntry.required_service.trim().length > 0;
 
@@ -122,12 +124,30 @@ const SearchBundleManagement = () => {
     }
   };
 
+  const saveKeyword = async (oldKeyword: string) => {
+    const newKw = editKeywordValue.trim().toLowerCase();
+    if (!newKw) {
+      toast({ title: "Mot-clé requis", variant: "destructive" });
+      return;
+    }
+    const ids = bundles.filter(b => b.keyword === oldKeyword).map(b => b.id);
+    const { error } = await supabase.from("search_bundles").update({ keyword: newKw } as any).in("id", ids);
+    if (error) {
+      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+    } else {
+      setBundles(prev => prev.map(b => ids.includes(b.id) ? { ...b, keyword: newKw } : b));
+      setEditingKeyword(null);
+      toast({ title: "Mot-clé mis à jour" });
+    }
+  };
+
   // Group by keyword
   const grouped = bundles.reduce<Record<string, BundleEntry[]>>((acc, b) => {
     if (!acc[b.keyword]) acc[b.keyword] = [];
     acc[b.keyword].push(b);
     return acc;
   }, {});
+
 
   if (isLoading) {
     return <div className="flex items-center justify-center py-12"><Loader2 className="h-6 w-6 animate-spin" /></div>;
@@ -187,7 +207,28 @@ const SearchBundleManagement = () => {
                 <Card key={keyword} className="border">
                   <CardHeader className="py-3 px-4">
                     <div className="flex items-center gap-2">
-                      <Badge variant="secondary" className="text-sm font-mono">{keyword}</Badge>
+                      {editingKeyword === keyword ? (
+                        <div className="flex items-center gap-1">
+                          <Input
+                            value={editKeywordValue}
+                            onChange={e => setEditKeywordValue(e.target.value)}
+                            className="h-7 w-40 text-sm font-mono"
+                            onKeyDown={e => { if (e.key === "Enter") saveKeyword(keyword); if (e.key === "Escape") setEditingKeyword(null); }}
+                            autoFocus
+                          />
+                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => saveKeyword(keyword)}>
+                            <Save className="h-3.5 w-3.5 text-primary" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <Badge
+                          variant="secondary"
+                          className="text-sm font-mono cursor-pointer hover:opacity-80"
+                          onClick={() => { setEditingKeyword(keyword); setEditKeywordValue(keyword); }}
+                        >
+                          {keyword}
+                        </Badge>
+                      )}
                       <span className="text-xs text-muted-foreground">{entries.length} entrée(s)</span>
                       <div className="ml-auto flex items-center gap-1.5">
                         <span className="text-xs text-muted-foreground">
