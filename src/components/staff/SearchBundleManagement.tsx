@@ -131,23 +131,26 @@ const SearchBundleManagement = () => {
         <CardContent>
           {/* Add form */}
           <div className="flex gap-2 mb-6 items-end">
-            <div className="flex-1">
+            <div className="flex-1 space-y-1">
+              <label className="text-xs font-medium text-muted-foreground">Mot-clé</label>
               <Input
-                placeholder="Mot-clé (ex: louer)"
+                placeholder="ex: louer"
                 value={newEntry.keyword}
                 onChange={e => setNewEntry(prev => ({ ...prev, keyword: e.target.value }))}
               />
             </div>
-            <div className="flex-1">
+            <div className="flex-1 space-y-1">
+              <label className="text-xs font-medium text-muted-foreground">Sous-catégorie</label>
               <Input
-                placeholder="Sous-catégorie (vide = wildcard)"
+                placeholder="vide = wildcard"
                 value={newEntry.subcategory_name}
                 onChange={e => setNewEntry(prev => ({ ...prev, subcategory_name: e.target.value }))}
               />
             </div>
-            <div className="flex-1">
+            <div className="flex-1 space-y-1">
+              <label className="text-xs font-medium text-muted-foreground">Service requis</label>
               <Input
-                placeholder="Service requis"
+                placeholder="ex: A louer"
                 value={newEntry.required_service}
                 onChange={e => setNewEntry(prev => ({ ...prev, required_service: e.target.value }))}
               />
