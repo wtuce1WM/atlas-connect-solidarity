@@ -1625,7 +1625,7 @@ export type Database = {
           id: string
           is_active: boolean
           keyword: string
-          required_service: string
+          required_service: string | null
           sort_order: number
           subcategory_name: string | null
           updated_at: string | null
@@ -1635,7 +1635,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           keyword: string
-          required_service: string
+          required_service?: string | null
           sort_order?: number
           subcategory_name?: string | null
           updated_at?: string | null
@@ -1645,7 +1645,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           keyword?: string
-          required_service?: string
+          required_service?: string | null
           sort_order?: number
           subcategory_name?: string | null
           updated_at?: string | null
