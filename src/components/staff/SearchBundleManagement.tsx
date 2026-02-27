@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
-import { Plus, Trash2, Save, Loader2, Package, Copy } from "lucide-react";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { Plus, Trash2, Save, Loader2, Package, Copy, Link2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +18,11 @@ interface BadgeOption {
   text_color_hex: string | null;
 }
 
+interface SynonymEntry {
+  key_word: string;
+  synonyms: string[];
+}
+
 interface BundleEntry {
   id: string;
   keyword: string;
@@ -31,6 +36,7 @@ interface BundleEntry {
 const SearchBundleManagement = () => {
   const [bundles, setBundles] = useState<BundleEntry[]>([]);
   const [badges, setBadges] = useState<BadgeOption[]>([]);
+  const [synonymEntries, setSynonymEntries] = useState<SynonymEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [newEntry, setNewEntry] = useState({ keyword: "", subcategory_name: "", required_service: "", badge_id: "" });
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -42,9 +48,10 @@ const SearchBundleManagement = () => {
 
   const loadBundles = useCallback(async () => {
     setIsLoading(true);
-    const [bundlesRes, badgesRes] = await Promise.all([
+    const [bundlesRes, badgesRes, synRes] = await Promise.all([
       supabase.from("search_bundles").select("*").order("created_at", { ascending: false }).order("sort_order"),
       supabase.from("badges").select("id, name_fr, color_hex, text_color_hex").order("name_fr"),
+      supabase.from("search_synonyms").select("key_word, synonyms").eq("is_active", true),
     ]);
     if (bundlesRes.error) {
       toast({ title: "Erreur", description: bundlesRes.error.message, variant: "destructive" });
@@ -52,6 +59,7 @@ const SearchBundleManagement = () => {
       setBundles((bundlesRes.data as any[]) || []);
     }
     if (badgesRes.data) setBadges(badgesRes.data);
+    if (synRes.data) setSynonymEntries(synRes.data as SynonymEntry[]);
     setIsLoading(false);
   }, []);
 
@@ -176,6 +184,27 @@ const SearchBundleManagement = () => {
     return acc;
   }, {});
 
+  // Find synonym connections for a bundle keyword
+  const getSynonymConnections = useCallback((keyword: string) => {
+    const normalizedKw = keyword.toLowerCase();
+    const kwWords = normalizedKw.split(/\s+/);
+    const connections: { type: 'direct' | 'reverse'; key_word: string; synonyms: string[] }[] = [];
+    
+    for (const entry of synonymEntries) {
+      const entryKey = entry.key_word.toLowerCase();
+      const entrySyns = entry.synonyms.map(s => s.toLowerCase());
+      
+      // Direct: bundle keyword (or a word in it) is a key_word in synonyms table
+      if (kwWords.includes(entryKey) || normalizedKw.includes(entryKey)) {
+        connections.push({ type: 'direct', key_word: entry.key_word, synonyms: entry.synonyms });
+      }
+      // Reverse: bundle keyword (or a word in it) appears as a synonym value
+      else if (entrySyns.some(syn => kwWords.includes(syn) || normalizedKw.includes(syn))) {
+        connections.push({ type: 'reverse', key_word: entry.key_word, synonyms: entry.synonyms });
+      }
+    }
+    return connections;
+  }, [synonymEntries]);
 
   if (isLoading) {
     return <div className="flex items-center justify-center py-12"><Loader2 className="h-6 w-6 animate-spin" /></div>;
@@ -298,6 +327,22 @@ const SearchBundleManagement = () => {
                         </Button>
                       </div>
                     </div>
+                    {(() => {
+                      const connections = getSynonymConnections(keyword);
+                      if (connections.length === 0) return null;
+                      return (
+                        <div className="flex items-start gap-1.5 mt-2 flex-wrap">
+                          <Link2 className="h-3.5 w-3.5 text-muted-foreground mt-0.5 shrink-0" />
+                          {connections.map((c, i) => (
+                            <span key={i} className="text-xs">
+                              <span className="font-medium text-primary">{c.key_word}</span>
+                              <span className="text-muted-foreground"> → {c.synonyms.join(", ")}</span>
+                              {i < connections.length - 1 && <span className="text-muted-foreground ml-1">│</span>}
+                            </span>
+                          ))}
+                        </div>
+                      );
+                    })()}
                   </CardHeader>
                   <CardContent className="px-4 pb-3 pt-0">
                     <Table>
