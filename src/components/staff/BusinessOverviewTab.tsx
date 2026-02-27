@@ -280,7 +280,26 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
             ))}
           </div>
         )}
-        <p className="text-sm text-muted-foreground mt-2">{filteredBusinesses.length} résultat(s)</p>
+        <div className="flex items-center gap-3 mt-2">
+          <p className="text-sm text-muted-foreground">{filteredBusinesses.length} résultat(s)</p>
+          {(searchQuery || cityFilter !== "all" || statusFilter !== "all" || categoryFilter !== "all" || subcategoryFilter !== "all" || badgeFilter) && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-xs h-7 text-destructive hover:text-destructive"
+              onClick={() => {
+                setSearchQuery("");
+                setCityFilter("all");
+                setStatusFilter("all");
+                setCategoryFilter("all");
+                setSubcategoryFilter("all");
+                setBadgeFilter(null);
+              }}
+            >
+              Effacer les filtres
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Table */}
