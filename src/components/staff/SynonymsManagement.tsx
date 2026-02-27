@@ -133,9 +133,42 @@ const SynonymsManagement = () => {
                   </div>
                 </div>
 
-                <div className="border-t pt-2 text-xs text-muted-foreground">
-                  <strong>En résumé :</strong> les synonymes élargissent <em>ce qu'on cherche</em>, les mots-clés élargissent <em>ce qu'on trouve</em>.
+                <div className="border-t pt-2">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left pb-1 pr-3 font-medium text-muted-foreground"></th>
+                        <th className="text-left pb-1 pr-3 font-medium text-muted-foreground">Où ça agit</th>
+                        <th className="text-left pb-1 pr-3 font-medium text-muted-foreground">Côté</th>
+                        <th className="text-left pb-1 font-medium text-muted-foreground">Poids</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr className="border-b border-border/50">
+                        <td className="py-1.5 pr-3 font-medium">Synonymes</td>
+                        <td className="py-1.5 pr-3 text-muted-foreground">Requête (tsquery)</td>
+                        <td className="py-1.5 pr-3">🔍 Recherche</td>
+                        <td className="py-1.5 text-muted-foreground">—</td>
+                      </tr>
+                      <tr className="border-b border-border/50">
+                        <td className="py-1.5 pr-3 font-medium">Keywords sous-cat</td>
+                        <td className="py-1.5 pr-3 text-muted-foreground">Index (search_vector)</td>
+                        <td className="py-1.5 pr-3">📦 Données</td>
+                        <td className="py-1.5 text-muted-foreground">A (fort)</td>
+                      </tr>
+                      <tr>
+                        <td className="py-1.5 pr-3 font-medium">Keywords services</td>
+                        <td className="py-1.5 pr-3 text-muted-foreground">Index (search_vector)</td>
+                        <td className="py-1.5 pr-3">📦 Données</td>
+                        <td className="py-1.5 text-muted-foreground">B (moyen)</td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
+
+                <p className="text-xs text-muted-foreground italic">
+                  Les synonymes élargissent <em>ce qu'on cherche</em>, les mots-clés élargissent <em>ce qu'on trouve</em>.
+                </p>
               </PopoverContent>
             </Popover>
           </div>
