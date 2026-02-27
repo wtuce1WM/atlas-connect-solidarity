@@ -265,14 +265,7 @@ const BusinessCard = ({
             </div>
           )}
           */}
-          {/* Watermark logo for verified businesses - top right of image */}
-          {business.wtuce_status === "verified" && (
-            <img 
-              src={logoWatermark} 
-              alt="" 
-              className="absolute top-2 right-2 w-10 h-10 object-contain opacity-90 pointer-events-none"
-            />
-          )}
+          {/* Watermark logo removed — now using CSS 3D spin in CardContent */}
           {/* Open status badge */}
           {openBadgeText && (
             <div className="absolute top-2 left-2 z-10">
