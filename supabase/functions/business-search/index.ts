@@ -2653,7 +2653,8 @@ serve(async (req) => {
       }
     }
     // Inject name-matched businesses that may have been filtered out by strict mode
-    if (nameMatchedBusinessIds.length > 0) {
+    // Skip injection when a bundle is activated — bundles define precise intent, name matches would pollute results
+    if (nameMatchedBusinessIds.length > 0 && !bundleActivated) {
       const existingIds = new Set(businesses.map(b => b.id));
       const missingIds = nameMatchedBusinessIds.filter(id => !existingIds.has(id));
       if (missingIds.length > 0) {
@@ -2688,6 +2689,8 @@ serve(async (req) => {
         businesses = [...pinned, ...rest];
         console.log(`Name-match pin: moved ${pinned.length} business(es) to top: [${pinned.map(b => b.name).join(", ")}]`);
       }
+    } else if (nameMatchedBusinessIds.length > 0 && bundleActivated) {
+      console.log(`⏭️ Name-match injection/pinning skipped (bundle activated, ${nameMatchedBusinessIds.length} name matches ignored)`);
     }
     // LLM Re-ranking: apply on exact/fuzzy results with a real query (skip autocomplete & superlative)
     // When name matches exist, rerank only the non-pinned portion to preserve exact match priority
