@@ -13,11 +13,27 @@ import BusinessCard, {
 import { ChevronLeft, ChevronRight, Grid3X3, List, Star, MapPin, Phone, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge as UiBadge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { collectRatingSources, computeWeightedRatingOn20, getTotalReviewCount } from "@/lib/ratingUtils";
 import { isCurrentlyOpen, type DayHoursData } from "@/lib/formatOpeningHours";
 import logoWatermark from "@/assets/logoGOLDsimpleSML.webp";
 
-const DEMO_QUERY = "passer la nuit à marrakech";
+const QUERIES = [
+  "passer la nuit à marrakech",
+  "manger à marrakech",
+  "restaurant à marrakech",
+  "acheter du poisson à marrakech",
+  "faire la fête ce soir",
+  "aller à la piscine",
+  "louer une maison",
+  "faire la fête cet après-midi",
+  "acheter du vin",
+  "boire du vin",
+  "faire un massage",
+  "acheter un tapis",
+  "acheter des fleurs",
+  "jouer au tennis",
+];
 
 /* ─── Compact List Item ─── */
 const CompactListItem = ({
@@ -196,6 +212,7 @@ const HorizontalCarousel = ({
 
 /* ─── Main Page ─── */
 const SearchLayoutDemo = () => {
+  const [query, setQuery] = useState(QUERIES[0]);
   const [businesses, setBusinesses] = useState<BusinessCardData[]>([]);
   const [gammes, setGammes] = useState<Gamme[]>([]);
   const [badges, setBadges] = useState<Badge[]>([]);
@@ -209,9 +226,9 @@ const SearchLayoutDemo = () => {
   useEffect(() => {
     const fetchAll = async () => {
       setIsLoading(true);
-      const [searchRes, gammesRes, badgesRes, subcatsRes, bsRes] = await Promise.all([
-        supabase.functions.invoke("business-search", {
-          body: { query: DEMO_QUERY, limit: 60, mode: "fulltext" },
+        const [searchRes, gammesRes, badgesRes, subcatsRes, bsRes] = await Promise.all([
+          supabase.functions.invoke("business-search", {
+            body: { query, limit: 60, mode: "fulltext" },
         }),
         supabase.from("gammes").select("id, name_fr, color_hex, text_color_hex, sort_order"),
         supabase.from("badges").select("id, name_fr, color_hex, text_color_hex"),
@@ -231,7 +248,8 @@ const SearchLayoutDemo = () => {
       setIsLoading(false);
     };
     fetchAll();
-  }, []);
+    setMiniPage(1);
+  }, [query]);
 
   // Group by primary category
   const grouped = useMemo(() => {
@@ -276,8 +294,20 @@ const SearchLayoutDemo = () => {
             Démo — Affichage des résultats de Search
           </h1>
           <p className="text-muted-foreground">
-            Requête : <span className="text-gold font-semibold">« {DEMO_QUERY} »</span> — {businesses.length} résultats
+            Requête : <span className="text-gold font-semibold">« {query} »</span> — {businesses.length} résultats
           </p>
+          <div className="mt-4 flex justify-center">
+            <Select value={query} onValueChange={setQuery}>
+              <SelectTrigger className="w-[340px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {QUERIES.map((q) => (
+                  <SelectItem key={q} value={q}>« {q} »</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         {/* ── OPTION 1: Carrousel horizontal ── */}
