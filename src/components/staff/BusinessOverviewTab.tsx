@@ -33,6 +33,8 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
   const [cityFilter, setCityFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
+  const [subcategoryFilter, setSubcategoryFilter] = useState("all");
+  const [subcategories, setSubcategories] = useState<{ id: string; name_fr: string }[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
@@ -75,7 +77,20 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
     [businesses]
   );
 
-  useEffect(() => { setCurrentPage(1); }, [searchQuery, cityFilter, statusFilter, categoryFilter]);
+  // Fetch subcategories when category changes
+  useEffect(() => {
+    setSubcategoryFilter("all");
+    if (categoryFilter === "all") { setSubcategories([]); return; }
+    const fetchSubs = async () => {
+      const { data: cat } = await supabase.from("categories").select("id").eq("name_fr", categoryFilter).single();
+      if (!cat) { setSubcategories([]); return; }
+      const { data } = await supabase.from("subcategories").select("id, name_fr").eq("category_id", cat.id).order("name_fr");
+      setSubcategories(data || []);
+    };
+    fetchSubs();
+  }, [categoryFilter]);
+
+  useEffect(() => { setCurrentPage(1); }, [searchQuery, cityFilter, statusFilter, categoryFilter, subcategoryFilter]);
 
   const filteredBusinesses = useMemo(() => {
     return businesses.filter((b) => {
@@ -91,9 +106,10 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
       const matchesCity = cityFilter === "all" || b.city === cityFilter;
       const matchesStatus = statusFilter === "all" || (statusFilter === "active" ? b.is_active : !b.is_active);
       const matchesCategory = categoryFilter === "all" || b.main_category === categoryFilter;
-      return matchesSearch && matchesCity && matchesStatus && matchesCategory;
+      const matchesSubcategory = subcategoryFilter === "all" || (b.categories?.includes(subcategoryFilter));
+      return matchesSearch && matchesCity && matchesStatus && matchesCategory && matchesSubcategory;
     }).sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
-  }, [businesses, searchQuery, cityFilter, statusFilter, categoryFilter]);
+  }, [businesses, searchQuery, cityFilter, statusFilter, categoryFilter, subcategoryFilter]);
 
   const toggleSort = (col: string) => {
     if (sortColumn === col) {
@@ -225,6 +241,19 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
               ))}
             </SelectContent>
           </Select>
+          {subcategories.length > 0 && (
+            <Select value={subcategoryFilter} onValueChange={setSubcategoryFilter}>
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="Sous-catégorie" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Toutes sous-catégories</SelectItem>
+                {subcategories.map(sub => (
+                  <SelectItem key={sub.id} value={sub.name_fr}>{sub.name_fr}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
         </div>
         <p className="text-sm text-muted-foreground mt-2">{filteredBusinesses.length} résultat(s)</p>
       </div>
