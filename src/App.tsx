@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -38,7 +38,7 @@ import HotelSearch from "./pages/HotelSearch";
 import Club from "./pages/Club";
 import ScrollToTop from "./components/ScrollToTop";
 import RouteTransition from "./components/RouteTransition";
-import LogoEffectsDemo from "./pages/LogoEffectsDemo";
+const LogoEffectsDemo = lazy(() => import("./pages/LogoEffectsDemo"));
 import CGF from "./pages/CGF";
 import SearchAnalytics from "./pages/SearchAnalytics";
 import StaffMaster from "./pages/StaffMaster";
@@ -97,7 +97,7 @@ const AppContent = () => {
               <Route path="/subcategory/:subcategoryName" element={<SubcategoryPage />} />
               <Route path="/hotels" element={<HotelSearch />} />
               <Route path="/club" element={<Club />} />
-              <Route path="/demo-effects" element={<LogoEffectsDemo />} />
+              <Route path="/demo-effects" element={<Suspense fallback={null}><LogoEffectsDemo /></Suspense>} />
               <Route path="/search-analytics" element={<SearchAnalytics />} />
               <Route path="/destination/:destinationName" element={<DestinationPage />} />
               <Route path="/conditions-generales" element={<CGF />} />
