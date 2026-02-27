@@ -240,6 +240,105 @@ const CELEBRITY_IDS = [
   "21dfaabb-56fe-4da0-9942-34b2803465cf", // Comptoir Darna
 ];
 
+// Horizontal scroll row for grouped subcategory view
+const GroupedSubcategoryRow = ({
+  subcategory,
+  businesses,
+  gammes,
+  badges,
+  subcategories: subcategoriesRef,
+  badgeSubcategories,
+  verifiedLabel,
+  getDistanceKm,
+  activeTimeSlot,
+}: {
+  subcategory: string;
+  businesses: Business[];
+  gammes: Gamme[];
+  badges: Badge[];
+  subcategories: SubcategoryRef[];
+  badgeSubcategories: BadgeSubcategoryRef[];
+  verifiedLabel: string;
+  getDistanceKm: (b: Business) => number | null;
+  activeTimeSlot: TimeSlot | null;
+}) => {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const checkScroll = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 2);
+    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 2);
+  }, []);
+
+  useEffect(() => {
+    checkScroll();
+    const el = scrollRef.current;
+    if (!el) return;
+    el.addEventListener("scroll", checkScroll, { passive: true });
+    const ro = new ResizeObserver(checkScroll);
+    ro.observe(el);
+    return () => { el.removeEventListener("scroll", checkScroll); ro.disconnect(); };
+  }, [checkScroll, businesses.length]);
+
+  const scroll = (dir: "left" | "right") => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const amount = el.clientWidth * 0.8;
+    el.scrollBy({ left: dir === "left" ? -amount : amount, behavior: "smooth" });
+  };
+
+  return (
+    <div>
+      <div className="flex items-center gap-3 mb-4">
+        <h2 className="text-xl font-bold text-white">{subcategory}</h2>
+        <span className="text-sm text-muted-foreground">({businesses.length})</span>
+        <div className="flex-1 h-px bg-border" />
+        {(canScrollLeft || canScrollRight) && (
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => scroll("left")}
+              disabled={!canScrollLeft}
+              className="w-8 h-8 rounded-full border border-border bg-card flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-gold/40 disabled:opacity-30 disabled:cursor-default transition-colors"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <button
+              onClick={() => scroll("right")}
+              disabled={!canScrollRight}
+              className="w-8 h-8 rounded-full border border-border bg-card flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-gold/40 disabled:opacity-30 disabled:cursor-default transition-colors"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+        )}
+      </div>
+      <div
+        ref={scrollRef}
+        className="flex gap-5 overflow-x-auto pb-4 scroll-smooth snap-x snap-mandatory"
+        style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch" }}
+      >
+        {businesses.map((business) => (
+          <div key={business.id} className="snap-start shrink-0 w-[280px] sm:w-[300px]">
+            <BusinessCard
+              business={business as BusinessCardData}
+              gammes={gammes}
+              badges={badges}
+              subcategories={subcategoriesRef}
+              badgeSubcategories={badgeSubcategories}
+              verifiedLabel={verifiedLabel}
+              distanceKm={getDistanceKm(business)}
+              activeTimeSlot={activeTimeSlot}
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const SearchPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { language } = useLanguage();
@@ -1078,6 +1177,7 @@ const SearchPage = () => {
           )}
 
 
+
         </div>
       </section>
 
@@ -1295,32 +1395,22 @@ const SearchPage = () => {
             </div>
           ) : !showCelebrityGuide && !showSosMedecin && !showPompiers && filteredBusinesses.length > 0 ? (
             <>
-              {/* Results Grid — Grouped by subcategory or flat */}
+              {/* Results — Grouped by subcategory with horizontal scroll, or flat paginated grid */}
               {groupedBusinesses ? (
                 <div className="space-y-10">
                   {groupedBusinesses.map((group) => (
-                    <div key={group.subcategory}>
-                      <div className="flex items-center gap-3 mb-5">
-                        <h2 className="text-xl font-bold text-white">{group.subcategory}</h2>
-                        <span className="text-sm text-muted-foreground">({group.businesses.length})</span>
-                        <div className="flex-1 h-px bg-border" />
-                      </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        {group.businesses.map((business) => (
-                          <BusinessCard
-                            key={business.id}
-                            business={business as BusinessCardData}
-                            gammes={gammes}
-                            badges={badges}
-                            subcategories={subcategories}
-                            badgeSubcategories={badgeSubcategories}
-                            verifiedLabel={t.verified}
-                            distanceKm={getDistanceKm(business)}
-                            activeTimeSlot={activeTimeSlot}
-                          />
-                        ))}
-                      </div>
-                    </div>
+                    <GroupedSubcategoryRow
+                      key={group.subcategory}
+                      subcategory={group.subcategory}
+                      businesses={group.businesses}
+                      gammes={gammes}
+                      badges={badges}
+                      subcategories={subcategories}
+                      badgeSubcategories={badgeSubcategories}
+                      verifiedLabel={t.verified}
+                      getDistanceKm={getDistanceKm}
+                      activeTimeSlot={activeTimeSlot}
+                    />
                   ))}
                 </div>
               ) : (
