@@ -1800,6 +1800,11 @@ serve(async (req) => {
           }
         }
 
+        // Apply category filter (e.g. Commerce) to prevent restaurants from leaking in
+        if (effectiveCategory && !intentSubcategoryConflict) {
+          alcoholBuilder = alcoholBuilder.or(`main_category.eq.${effectiveCategory},categories.cs.{"${effectiveCategory}"}`);
+        }
+
         if (detectedNeighborhood) {
           alcoholBuilder = alcoholBuilder.or(buildNeighborhoodOrClause(detectedNeighborhood, loadedNeighborhoods));
         }

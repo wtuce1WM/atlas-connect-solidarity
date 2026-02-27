@@ -94,6 +94,13 @@ const SEARCH_TEST_CASES: SearchTestCase[] = [
     description: "\"sels de bain\" doit retourner des cosmétiques (Natus etc.)",
     minResults: 1,
   },
+  {
+    id: "alcool-gueliz-no-restaurants",
+    query: "je veux acheter de l'alcool à Guéliz",
+    description: "\"acheter alcool Guéliz\" ne doit pas retourner de restaurants ni La Maison de Bacchus",
+    mustExclude: ["La Maison de Bacchus"],
+    minResults: 1,
+  },
 ];
 
 const SearchRegressionPanel = () => {
