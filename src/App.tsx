@@ -43,6 +43,7 @@ import CGF from "./pages/CGF";
 import SearchAnalytics from "./pages/SearchAnalytics";
 import StaffMaster from "./pages/StaffMaster";
 import DestinationPage from "./pages/DestinationPage";
+import SearchLayoutDemo from "./pages/SearchLayoutDemo";
 
 const queryClient = new QueryClient();
 
@@ -99,6 +100,7 @@ const AppContent = () => {
               <Route path="/search-analytics" element={<SearchAnalytics />} />
               <Route path="/destination/:destinationName" element={<DestinationPage />} />
               <Route path="/conditions-generales" element={<CGF />} />
+              <Route path="/blog/search-layouts" element={<SearchLayoutDemo />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
