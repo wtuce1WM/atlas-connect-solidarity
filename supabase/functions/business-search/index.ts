@@ -1582,6 +1582,85 @@ serve(async (req) => {
       }
     }
 
+    // ── Search Bundles: multi-subcategory intent mapping ──
+    // When a bundle keyword is detected, run parallel queries per bundle entry instead of single-subcategory search
+    let bundleActivated = false;
+    {
+      const { data: bundleData } = await supabase
+        .from("search_bundles")
+        .select("keyword, subcategory_name, required_service, sort_order")
+        .eq("is_active", true)
+        .order("sort_order");
+      
+      if (bundleData && bundleData.length > 0 && effectiveQuery) {
+        const qLower = stripAccentsGlobal(effectiveQuery.toLowerCase());
+        const qWords = qLower.split(/\s+/);
+        
+        // Find matching bundle keyword
+        const matchedKeyword = bundleData
+          .map((b: any) => stripAccentsGlobal(b.keyword.toLowerCase()))
+          .find(kw => qWords.includes(kw) || qLower.includes(kw));
+        
+        if (matchedKeyword) {
+          const entries = bundleData.filter((b: any) => stripAccentsGlobal(b.keyword.toLowerCase()) === matchedKeyword);
+          console.log(`\n📦 BUNDLE activated for keyword "${matchedKeyword}" → ${entries.length} entries`);
+          bundleActivated = true;
+          
+          const allBundleResults: any[] = [];
+          const seenIds = new Set<string>();
+          
+          for (const entry of entries) {
+            let builder = supabase.from("businesses").select("*").eq("is_active", true);
+            
+            // Filter by subcategory if specified (non-wildcard)
+            if (entry.subcategory_name) {
+              builder = builder.contains("categories", [entry.subcategory_name]);
+            }
+            
+            // Filter by required service using robust array literal syntax
+            builder = builder.filter("services", "cs", `{"${entry.required_service}"}`);
+            
+            // Apply city filter
+            if (effectiveCity) builder = applyCityFilter(builder);
+            
+            // Apply neighborhood filter
+            if (detectedNeighborhood) {
+              builder = builder.or(buildNeighborhoodOrClause(detectedNeighborhood, loadedNeighborhoods));
+            }
+            
+            builder = builder
+              .order("wtuce_status", { ascending: true })
+              .order("google_rating", { ascending: false, nullsFirst: false })
+              .order("priority_score", { ascending: false })
+              .limit(limit);
+            
+            const { data, error } = await builder;
+            if (!error && data && data.length > 0) {
+              for (const b of data) {
+                if (!seenIds.has(b.id)) {
+                  seenIds.add(b.id);
+                  allBundleResults.push({
+                    ...b,
+                    distance_km: latitude && longitude && b.latitude && b.longitude
+                      ? calculateDistance(latitude, longitude, b.latitude, b.longitude) : null,
+                  });
+                }
+              }
+              console.log(`  Bundle entry [${entry.subcategory_name || "*"}] + service "${entry.required_service}": ${data.length} results`);
+            } else {
+              console.log(`  Bundle entry [${entry.subcategory_name || "*"}] + service "${entry.required_service}": 0 results`);
+            }
+          }
+          
+          if (allBundleResults.length > 0) {
+            businesses = allBundleResults;
+            searchLevel = "exact";
+            console.log(`📦 BUNDLE total: ${businesses.length} unique results`);
+          }
+        }
+      }
+    }
+
     // When a subcategory is detected, use direct SQL filtering (bypasses tsquery which matches descriptions)
     // Fusion rule: "Hôtel" and "Riad" are merged in search results
     // Fusion rule: load merge_group from subcategories DB
@@ -1874,7 +1953,7 @@ serve(async (req) => {
     const isStrictMode = subcategorySearchConfig?.search_mode === 'strict' && !!detectedSubcategory;
     // In broad mode (default), ALSO run tsquery even if subcategory direct query found results,
     // and merge the results. This is the key difference: broad = subcategory + full-text merged.
-    const isBroadWithResults = !isStrictMode && detectedSubcategory && businesses.length > 0;
+    const isBroadWithResults = !isStrictMode && !bundleActivated && detectedSubcategory && businesses.length > 0;
     const broadExistingBusinesses = isBroadWithResults ? [...businesses] : [];
     if (isStrictMode && detectedSubcategory) {
       console.log(`Strict mode for "${detectedSubcategory}": skipping tsquery fallback (${businesses.length} results from direct query)`);

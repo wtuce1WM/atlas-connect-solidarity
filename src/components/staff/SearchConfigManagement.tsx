@@ -14,6 +14,7 @@ import ServiceFilterManagement from "./ServiceFilterManagement";
 import NoiseWordsManagement from "./NoiseWordsManagement";
 import SynonymsManagement from "./SynonymsManagement";
 import SubcategoryMergesManagement from "./SubcategoryMergesManagement";
+import SearchBundleManagement from "./SearchBundleManagement";
 
 interface Subcategory {
   id: string;
@@ -230,6 +231,7 @@ const SearchConfigManagement = () => {
         <TabsTrigger value="synonyms">Synonymes</TabsTrigger>
         <TabsTrigger value="noise-words">Mots bruyants</TabsTrigger>
         <TabsTrigger value="merges">Fusions</TabsTrigger>
+        <TabsTrigger value="bundles">Regroupements</TabsTrigger>
       </TabsList>
 
       <TabsContent value="intents">
@@ -526,6 +528,9 @@ const SearchConfigManagement = () => {
       </TabsContent>
       <TabsContent value="merges">
         <SubcategoryMergesManagement />
+      </TabsContent>
+      <TabsContent value="bundles">
+        <SearchBundleManagement />
       </TabsContent>
     </Tabs>
   );
