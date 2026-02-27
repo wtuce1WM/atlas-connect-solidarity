@@ -1596,38 +1596,44 @@ serve(async (req) => {
         // Check all available text sources for bundle keyword matches
         const textsToCheck = [effectiveQuery, query, spoken].filter(Boolean) as string[];
         const allText = textsToCheck.map(t => stripAccentsGlobal(t.toLowerCase())).join(" ");
-        const allWords = allText.split(/\s+/);
+        const allWords = new Set(allText.split(/\s+/));
         
-        // Build synonym-expanded version of the query text:
-        // For each word in the query, if it's a key_word in synonyms, append all its synonym values
-        // If it appears as a synonym value, append the key_word
-        let expandedText = allText;
+        // Build synonym-expanded word set: for each word, add its synonyms (both directions)
+        const expandedWords = new Set(allWords);
         for (const [synKey, synValues] of Object.entries(synonyms)) {
           const normalizedKey = stripAccentsGlobal(synKey.toLowerCase());
-          // If query contains a synonym value, expand with the key_word
-          for (const sv of synValues) {
-            const normalizedSv = stripAccentsGlobal(sv.toLowerCase());
-            if (allText.includes(normalizedSv) && !allText.includes(normalizedKey)) {
-              expandedText += " " + normalizedKey;
+          const normalizedValues = synValues.map(sv => stripAccentsGlobal(sv.toLowerCase()));
+          
+          // If any synonym value words are in the query, add the key_word's words
+          for (const sv of normalizedValues) {
+            const svWords = sv.split(/\s+/);
+            if (svWords.some(w => allWords.has(w))) {
+              // Add all words from the key
+              for (const w of normalizedKey.split(/\s+/)) expandedWords.add(w);
             }
-            if (allText.includes(normalizedKey) && !allText.includes(normalizedSv)) {
-              expandedText += " " + normalizedSv;
+          }
+          // If key_word is in the query, add synonym value words
+          if (normalizedKey.split(/\s+/).every(w => allWords.has(w))) {
+            for (const sv of normalizedValues) {
+              for (const w of sv.split(/\s+/)) expandedWords.add(w);
             }
           }
         }
-        const expandedWords = expandedText.split(/\s+/);
         
-        // Build a reverse map: synonym → bundle keyword, using the loaded synonyms config
         const uniqueKeywords = [...new Set(bundleData.map((b: any) => stripAccentsGlobal(b.keyword.toLowerCase())))];
         
-        // Try direct match first on original text, then on synonym-expanded text
-        let matchedKeyword = uniqueKeywords.find(kw => allWords.includes(kw) || allText.includes(kw));
+        // Try direct match first (exact substring or single-word match)
+        let matchedKeyword = uniqueKeywords.find(kw => allWords.has(kw) || allText.includes(kw));
         
         if (!matchedKeyword) {
-          // Try matching on expanded text (with synonym replacements)
-          matchedKeyword = uniqueKeywords.find(kw => expandedWords.includes(kw) || expandedText.includes(kw));
+          // Try word-by-word match using synonym-expanded word set
+          // A multi-word bundle keyword matches if ALL its content words appear in expanded set
+          matchedKeyword = uniqueKeywords.find(kw => {
+            const kwWords = kw.split(/\s+/).filter(w => w.length > 1);
+            return kwWords.length > 0 && kwWords.every(w => expandedWords.has(w));
+          });
           if (matchedKeyword) {
-            console.log(`📦 BUNDLE synonym-expanded match: "${matchedKeyword}" found in expanded query`);
+            console.log(`📦 BUNDLE synonym-expanded match: "${matchedKeyword}" (expanded words: ${[...expandedWords].join(", ")})`);
           }
         }
         
