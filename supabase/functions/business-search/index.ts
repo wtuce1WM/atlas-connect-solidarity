@@ -1715,8 +1715,8 @@ serve(async (req) => {
 
       // ── Neighborhood fallback: if still 0 results and neighborhood was applied, retry without it ──
       // But if no city was detected, use the neighborhood's associated city to avoid returning nationwide results
+      const neighborhoodCity = detectedNeighborhood && !effectiveCity ? getNeighborhoodCity(detectedNeighborhood, loadedNeighborhoods) : null;
       if (businesses.length === 0 && detectedNeighborhood) {
-        const neighborhoodCity = !effectiveCity ? getNeighborhoodCity(detectedNeighborhood, loadedNeighborhoods) : null;
         if (neighborhoodCity) {
           console.log(`Neighborhood "${detectedNeighborhood}" yielded 0 results — falling back to city "${neighborhoodCity}" (from neighborhood DB)`);
           businesses = await fetchSubcategoryBusinesses(detectedSubcategory, serviceFilter, { skipNeighborhood: true, overrideCity: neighborhoodCity });
@@ -1729,11 +1729,19 @@ serve(async (req) => {
 
       // Skip generic enrichment when a specific service filter is active (already narrowed)
       // In strict mode, still enrich but mark as service-based (they'll be grouped separately on frontend)
+      // Also use neighborhoodCity as city fallback when effectiveCity is empty
+      const enrichmentCity = effectiveCity || neighborhoodCity;
       if (!serviceFilter) {
         const existingIds = new Set(businesses.map(b => b.id));
         let svcBuilder = supabase.from("businesses").select("*").eq("is_active", true)
           .contains("services", [detectedSubcategory]);
-        if (effectiveCity) svcBuilder = applyCityFilter(svcBuilder);
+        if (enrichmentCity) {
+          if (enrichmentCity === effectiveCity) {
+            svcBuilder = applyCityFilter(svcBuilder);
+          } else {
+            svcBuilder = svcBuilder.ilike("city", enrichmentCity);
+          }
+        }
         if (effectiveCategory) svcBuilder = svcBuilder.or(`main_category.eq.${effectiveCategory},categories.cs.{"${effectiveCategory}"}`);
         if (detectedNeighborhood) {
           svcBuilder = svcBuilder.or(buildNeighborhoodOrClause(detectedNeighborhood, loadedNeighborhoods));
