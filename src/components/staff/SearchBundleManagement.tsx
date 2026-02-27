@@ -99,6 +99,24 @@ const SearchBundleManagement = () => {
     }
   };
 
+  const duplicateBundle = async (keyword: string, entries: BundleEntry[]) => {
+    const newKeyword = keyword + "-copie";
+    const inserts = entries.map((e, i) => ({
+      keyword: newKeyword,
+      subcategory_name: e.subcategory_name,
+      required_service: e.required_service,
+      sort_order: i + 1,
+      is_active: e.is_active,
+    }));
+    const { error } = await supabase.from("search_bundles").insert(inserts as any);
+    if (error) {
+      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: `Bundle "${keyword}" dupliqué` });
+      loadBundles();
+    }
+  };
+
   const duplicateEntry = async (entry: BundleEntry) => {
     const { error } = await supabase.from("search_bundles").insert({
       keyword: entry.keyword,
@@ -246,6 +264,9 @@ const SearchBundleManagement = () => {
                             }
                           }}
                         />
+                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => duplicateBundle(keyword, entries)} title="Dupliquer le bundle">
+                          <Copy className="h-3.5 w-3.5" />
+                        </Button>
                       </div>
                     </div>
                   </CardHeader>
