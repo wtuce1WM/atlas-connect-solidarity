@@ -440,14 +440,14 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
                   <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("destinations")}>
                     <span className="inline-flex items-center">Destinations<SortIcon col="destinations" /></span>
                   </TableHead>
-                  <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("gps")}>
-                    <span className="inline-flex items-center">GPS<SortIcon col="gps" /></span>
-                  </TableHead>
                   <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("engagements")}>
                     <span className="inline-flex items-center">Engagements<SortIcon col="engagements" /></span>
                   </TableHead>
                   <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("certifications")}>
                     <span className="inline-flex items-center">Certifications<SortIcon col="certifications" /></span>
+                  </TableHead>
+                  <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("gps")}>
+                    <span className="inline-flex items-center">GPS<SortIcon col="gps" /></span>
                   </TableHead>
                 </TableRow>
               </TableHeader>
@@ -595,24 +595,6 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
                         )}
                       </TableCell>
 
-                      {/* GPS */}
-                      <TableCell>
-                        {hasGPS ? (
-                          <a
-                            href={business.google_maps_url || `https://www.google.com/maps?q=${business.latitude},${business.longitude}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-green-500/10 text-green-600 hover:bg-green-500/20"
-                          >
-                            <Navigation className="h-4 w-4" />
-                          </a>
-                        ) : (
-                          <div className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-red-500/10 text-red-600">
-                            <Navigation className="h-4 w-4" />
-                          </div>
-                        )}
-                      </TableCell>
-
                       {/* Engagements */}
                       <TableCell>
                         {(() => {
@@ -668,6 +650,24 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
                             </div>
                           );
                         })()}
+                      </TableCell>
+
+                      {/* GPS */}
+                      <TableCell>
+                        {hasGPS ? (
+                          <a
+                            href={business.google_maps_url || `https://www.google.com/maps?q=${business.latitude},${business.longitude}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-green-500/10 text-green-600 hover:bg-green-500/20"
+                          >
+                            <Navigation className="h-4 w-4" />
+                          </a>
+                        ) : (
+                          <div className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-red-500/10 text-red-600">
+                            <Navigation className="h-4 w-4" />
+                          </div>
+                        )}
                       </TableCell>
 
                     </TableRow>
