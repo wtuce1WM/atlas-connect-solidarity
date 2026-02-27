@@ -35,7 +35,7 @@ const SearchBundleManagement = () => {
     const { data, error } = await supabase
       .from("search_bundles")
       .select("*")
-      .order("keyword")
+      .order("created_at", { ascending: false })
       .order("sort_order");
     if (error) {
       toast({ title: "Erreur", description: error.message, variant: "destructive" });
