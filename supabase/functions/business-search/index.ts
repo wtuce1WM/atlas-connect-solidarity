@@ -589,7 +589,7 @@ serve(async (req) => {
 
 // Auto-détection de ville dans la query si aucune ville n'est passée explicitement
     const detectedCity = (!city && effectiveQuery) ? await detectCityInQueryDynamic(effectiveQuery, supabase) : null;
-    const effectiveCity = city || detectedCity || undefined;
+    let effectiveCity = city || detectedCity || undefined;
 
     // Resolve city name → UUID for zone_city_ids filtering
     let effectiveCityId: string | null = null;
@@ -619,6 +619,27 @@ serve(async (req) => {
     const detectedNeighborhood = effectiveQuery ? await detectNeighborhoodInQuery(effectiveQuery, supabase) : null;
     if (detectedNeighborhood) {
       console.log(`Auto-detected neighborhood "${detectedNeighborhood}" from query "${effectiveQuery}"`);
+      // Derive city from neighborhood if no city was detected
+      if (!effectiveCity) {
+        const neighborhoodCity = getNeighborhoodCity(detectedNeighborhood, await loadNeighborhoods(supabase));
+        if (neighborhoodCity) {
+          effectiveCity = neighborhoodCity;
+          console.log(`Derived city "${effectiveCity}" from neighborhood "${detectedNeighborhood}"`);
+          // Also resolve city ID for zone_city_ids filtering
+          if (!effectiveCityId) {
+            const { data: cityRow } = await supabase
+              .from("cities")
+              .select("id")
+              .ilike("name_fr", effectiveCity)
+              .limit(1)
+              .single();
+            if (cityRow) {
+              effectiveCityId = cityRow.id;
+              console.log(`Resolved derived city "${effectiveCity}" → ID ${effectiveCityId}`);
+            }
+          }
+        }
+      }
     }
 
     // Related subcategories: loaded from DB (subcategory_relations table)
@@ -2285,9 +2306,8 @@ serve(async (req) => {
           if (detectedNeighborhood && businesses.length > 0) {
             const beforeNeighborhood = businesses.length;
             const neighborhoodFiltered = filterByNeighborhood(businesses, detectedNeighborhood, isNeighborhoodOnlyQuery, loadedNeighborhoods);
-            if (neighborhoodFiltered.length > 0) {
-              businesses = neighborhoodFiltered;
-            }
+            // Always enforce neighborhood filter when explicitly detected — don't silently drop it
+            businesses = neighborhoodFiltered;
             console.log(`Neighborhood post-filter "${detectedNeighborhood}" (Level 1): ${beforeNeighborhood} → ${businesses.length}`);
           }
 
