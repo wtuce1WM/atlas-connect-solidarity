@@ -2755,8 +2755,8 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
             </div>
             <div className="space-y-2 flex-1">
               <div className="flex items-center gap-1">
-                <Label>Commodités</Label>
-                <button type="button" onClick={() => setQuickAddDialog({ type: "commodite", value: "" })} className="h-5 w-5 inline-flex items-center justify-center rounded-full border border-border hover:bg-muted transition-colors" title="Ajouter une commodité"><Plus className="h-3 w-3" /></button>
+                <Label>Engagements</Label>
+                <button type="button" onClick={() => setQuickAddDialog({ type: "commodite", value: "" })} className="h-5 w-5 inline-flex items-center justify-center rounded-full border border-border hover:bg-muted transition-colors" title="Ajouter un engagement"><Plus className="h-3 w-3" /></button>
               </div>
               <div className="border rounded-md p-3 space-y-1.5 bg-muted/30">
                 {(() => {
