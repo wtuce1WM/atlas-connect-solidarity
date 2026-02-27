@@ -1264,7 +1264,7 @@ const SearchPage = () => {
                 />
                 <div className="absolute bottom-8 left-1/2 -translate-x-1/2 bg-black/70 backdrop-blur-md px-8 py-4 rounded-2xl border border-gold/30 text-center">
                   <p className="text-gold font-semibold text-2xl">Zitoun Musk</p>
-                  <p className="text-white/70 text-sm mt-1">Le légendaire gnawa proctologue</p>
+                  <p className="text-white/70 text-sm mt-1">Le légendaire gnawa en string léopard</p>
                 </div>
                 <button
                   onClick={() => {
