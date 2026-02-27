@@ -8,9 +8,12 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import {
+  Collapsible, CollapsibleContent, CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import {
   Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Search, Edit, ExternalLink, Star, MapPin, Navigation, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { Search, Edit, ExternalLink, Star, MapPin, Navigation, ArrowUpDown, ArrowUp, ArrowDown, ChevronDown } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Business = Tables<"businesses">;
@@ -259,26 +262,33 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
         </div>
         {/* Badge filter */}
         {badges.length > 0 && (
-          <div className="flex flex-wrap gap-2 mt-3">
-            <span className="text-sm text-muted-foreground self-center mr-1">Badges :</span>
-            {badges.map(badge => (
-              <button
-                key={badge.id}
-                type="button"
-                onClick={() => setBadgeFilter(badgeFilter === badge.id ? null : badge.id)}
-                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border transition-all ${
-                  badgeFilter === badge.id ? "ring-2 ring-offset-1 ring-primary scale-105" : "opacity-70 hover:opacity-100"
-                }`}
-                style={{
-                  backgroundColor: badge.color_hex || '#666666',
-                  color: badge.text_color_hex || '#000000',
-                  borderColor: badgeFilter === badge.id ? 'transparent' : '#00000030',
-                }}
-              >
-                {badge.name_fr}
-              </button>
-            ))}
-          </div>
+          <Collapsible defaultOpen={!!badgeFilter}>
+            <CollapsibleTrigger className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mt-3">
+              <ChevronDown className="h-3.5 w-3.5 transition-transform [[data-state=open]>svg]:rotate-180" />
+              Filtrer par badge {badgeFilter && `(${badges.find(b => b.id === badgeFilter)?.name_fr})`}
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {badges.map(badge => (
+                  <button
+                    key={badge.id}
+                    type="button"
+                    onClick={() => setBadgeFilter(badgeFilter === badge.id ? null : badge.id)}
+                    className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border transition-all ${
+                      badgeFilter === badge.id ? "ring-2 ring-offset-1 ring-primary scale-105" : "opacity-70 hover:opacity-100"
+                    }`}
+                    style={{
+                      backgroundColor: badge.color_hex || '#666666',
+                      color: badge.text_color_hex || '#000000',
+                      borderColor: badgeFilter === badge.id ? 'transparent' : '#00000030',
+                    }}
+                  >
+                    {badge.name_fr}
+                  </button>
+                ))}
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
         )}
         <div className="flex items-center gap-3 mt-2">
           <p className="text-sm text-muted-foreground">{filteredBusinesses.length} résultat(s)</p>
