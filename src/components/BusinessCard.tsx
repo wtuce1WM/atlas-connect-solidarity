@@ -192,7 +192,7 @@ const BusinessCard = ({
     if (isCurrentlyOpenNow) {
       openBadgeText = business.is_open_24h ? "Ouvert 24h" : "Ouvert";
     } else if (openingHoursTyped) {
-      // Show next opening time for today regardless of activeTimeSlot
+      // Show next opening time for today, or "Fermé" if none
       const days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
       const now = new Date();
       const todayKey = days[now.getDay()];
@@ -208,8 +208,14 @@ const BusinessCard = ({
           const open2Min = oh2 * 60 + (om2 || 0);
           if (open2Min > nowMin) {
             openBadgeText = `Ouvre à ${dh.open2}`;
+          } else {
+            openBadgeText = "Fermé";
           }
+        } else {
+          openBadgeText = "Fermé";
         }
+      } else if (dh?.closed) {
+        openBadgeText = "Fermé";
       }
     }
   }
@@ -262,7 +268,9 @@ const BusinessCard = ({
               <Badge variant="outline" className={`text-xs flex items-center gap-1 ${
                 openBadgeText === "Ouvert" || openBadgeText === "Ouvert 24h"
                   ? "bg-atlas/85 text-atlas-foreground border-foreground/70"
-                  : "bg-card/85 text-foreground border-foreground/70"
+                  : openBadgeText === "Fermé"
+                    ? "bg-destructive/85 text-destructive-foreground border-foreground/70"
+                    : "bg-card/85 text-foreground border-foreground/70"
               }`}>
                 <Clock className="h-3 w-3" />
                 {openBadgeText}
