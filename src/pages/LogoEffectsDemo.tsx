@@ -1,5 +1,6 @@
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import { useState, useRef, Suspense } from "react";
+import LogoCSSSpinner from "@/components/LogoCSSSpinner";
 import Header from "@/components/Header";
 import { Canvas, useFrame, useLoader } from "@react-three/fiber";
 import { Float } from "@react-three/drei";
@@ -311,9 +312,22 @@ const LogoEffectsDemo = () => {
           ))}
         </div>
 
-        {/* 3D Section */}
+        {/* CSS 3D Spinner (production) */}
         <div className="mt-12">
-          <h2 className="text-xl font-bold text-gold text-center mb-6" style={{ fontStyle: "normal" }}>Effet 3D — Pièce dorée</h2>
+          <h2 className="text-xl font-bold text-gold text-center mb-6" style={{ fontStyle: "normal" }}>CSS 3D — Pièce dorée (production)</h2>
+          <p className="text-center text-muted-foreground text-sm mb-4">Utilisé en production (Hero + Loading). 0 KB de dépendances supplémentaires.</p>
+          <div className="flex justify-center">
+            <div className="bg-black rounded-xl p-8 w-72 flex flex-col items-center gap-4">
+              <LogoCSSSpinner className="w-48 h-48" key={`css-spin-${replay}`} />
+              <span className="text-gold text-sm font-semibold">CSS Rotation unique + flottement</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Three.js 3D Section */}
+        <div className="mt-12">
+          <h2 className="text-xl font-bold text-gold text-center mb-6" style={{ fontStyle: "normal" }}>Effet 3D — Pièce dorée (Three.js)</h2>
+          <p className="text-center text-muted-foreground text-sm mb-4">Démo uniquement. ~250 KB de dépendances (three.js).</p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Logo3DCard mode="spin" name="Rotation continue" description="La pièce tourne en boucle sur l'axe Y" />
             <Logo3DCard mode="single-spin" name="Rotation unique" description="Un seul tour complet sur l'axe Y puis s'arrête" />
