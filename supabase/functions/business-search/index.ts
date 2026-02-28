@@ -1827,13 +1827,20 @@ serve(async (req) => {
       const subcatResults = await fetchSubcategoryBusinesses(detectedSubcategory, serviceFilter);
       // Merge with any existing bundle results, avoiding duplicates
       if (bundleResultIds.size > 0) {
+        // When a bundle is active, it means the query has a specific qualifier (e.g. "artistique").
+        // Cap the total to avoid flooding with irrelevant subcategory results.
+        // The LLM reranker will sort by relevance to the full query.
+        const BUNDLE_MERGE_CAP = 20;
+        let added = 0;
         for (const b of subcatResults) {
+          if (businesses.length >= BUNDLE_MERGE_CAP) break;
           if (!bundleResultIds.has(b.id)) {
             businesses.push(b);
             bundleResultIds.add(b.id);
+            added++;
           }
         }
-        console.log(`Merged ${subcatResults.length} subcategory results with ${bundleResultIds.size - subcatResults.length} bundle results → ${businesses.length} total`);
+        console.log(`Merged ${added} subcategory results (capped at ${BUNDLE_MERGE_CAP}) with ${bundleResultIds.size - added} bundle results → ${businesses.length} total`);
       } else {
         businesses = subcatResults;
       }
