@@ -84,7 +84,7 @@ RÈGLES :
 - Cite 3-4 établissements de la liste par leur nom exact, en expliquant pourquoi ils correspondent à la recherche (ambiance, spécialités, vue, note, etc.).
 - Si un établissement a une note, mentionne-la.` : ''}${boostVerified && hasResults ? `\n- Les établissements marqués ✅ Vérifié sont des adresses de confiance validées par notre équipe. Privilégie-les dans ta réponse et mentionne qu'ils sont vérifiés.` : ''}${noResultsInstructions}
 - Si la liste ne semble pas correspondre à la question, dis-le honnêtement.
-- N'utilise pas de formatage markdown (pas de **, pas de #, pas de listes à puces). Écris en texte simple avec émojis.
+- Entoure chaque nom d'établissement de doubles astérisques, par exemple **Nom de l'établissement**. N'utilise pas d'autre formatage markdown (pas de #, pas de listes à puces). Écris en texte simple avec émojis.
 - ${tone}
 - Commence par une accroche engageante liée à la recherche de l'utilisateur.${extraInstructions ? `\n- ${extraInstructions}` : ''}
 
