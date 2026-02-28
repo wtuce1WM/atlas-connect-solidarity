@@ -82,6 +82,7 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
   const [isLoading, setIsLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
 
   useEffect(() => {
     const fetch = async () => {
@@ -257,10 +258,21 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
 
           {/* Description */}
           {business.description && (
-            <div
-              className="text-sm text-foreground leading-relaxed [&>p]:mb-3 [&>p:last-child]:mb-0 [&>br]:content-[''] [&>br]:block [&>br]:mb-2"
-              dangerouslySetInnerHTML={{ __html: business.description }}
-            />
+            <div className="relative">
+              <div
+                className={`text-sm text-foreground leading-relaxed [&>p]:mb-3 [&>p:last-child]:mb-0 [&>br]:content-[''] [&>br]:block [&>br]:mb-2 overflow-hidden transition-all duration-300 ${isDescriptionExpanded ? "" : "max-h-[21em]"}`}
+                dangerouslySetInnerHTML={{ __html: business.description }}
+              />
+              {!isDescriptionExpanded && (
+                <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-background to-transparent pointer-events-none" />
+              )}
+              <button
+                onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+                className="mt-1 text-xs font-medium text-gold hover:text-gold/80 transition-colors"
+              >
+                {isDescriptionExpanded ? "Voir −" : "Voir +"}
+              </button>
+            </div>
           )}
 
           {/* Contact info */}
