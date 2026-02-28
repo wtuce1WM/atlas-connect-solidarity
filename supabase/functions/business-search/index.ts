@@ -891,7 +891,8 @@ serve(async (req) => {
     {
       const { data: intentWords } = await supabase
         .from("search_intent_words")
-        .select("word, category_name, merge_on_conflict");
+        .select("word, category_name, merge_on_conflict")
+        .eq("is_active", true);
       if (intentWords) {
         for (const iw of intentWords) {
           INTENT_TO_CATEGORY[iw.word.toLowerCase()] = iw.category_name;
