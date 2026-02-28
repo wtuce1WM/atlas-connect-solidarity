@@ -207,7 +207,7 @@ const AISearchAnswer = ({ query, businesses, isSearchLoading }: AISearchAnswerPr
         }`}
         style={isPanelOpen ? { animationName: "none" } : undefined}
       >
-        <div className={`relative rounded-2xl border border-gold/30 bg-gradient-to-br from-gold/5 to-background backdrop-blur-sm ${isPanelOpen ? "w-full max-w-2xl mt-16" : ""}`}>
+        <div className={`relative isolate rounded-2xl border border-gold/30 bg-gradient-to-br from-gold/5 to-background backdrop-blur-sm ${isPanelOpen ? "w-full max-w-2xl mt-16" : ""}`}>
           {/* Header */}
           <div className="flex items-center px-4 py-2.5 border-b border-gold/15">
             <div className="flex items-center gap-2">
