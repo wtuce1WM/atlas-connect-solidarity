@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { X, MapPin, Phone, Mail, Globe, Star, BadgeCheck, ChevronLeft, ChevronRight, Clock, Loader2, ExternalLink, CookingPot } from "lucide-react";
+import { X, MapPin, Phone, Mail, Globe, Star, BadgeCheck, ChevronLeft, ChevronRight, Clock, Loader2, ExternalLink, CookingPot, Volume2, VolumeX } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Link } from "react-router-dom";
@@ -103,6 +103,7 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
   const [isLoading, setIsLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [isVideoMuted, setIsVideoMuted] = useState(true);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
 
   useEffect(() => {
@@ -253,7 +254,8 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
                 if (ytMatch) {
                   return (
                     <iframe
-                      src={`https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&mute=1&loop=1&playlist=${ytMatch[1]}&controls=0&modestbranding=1&rel=0`}
+                      key={`yt-${isVideoMuted}`}
+                      src={`https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&mute=${isVideoMuted ? 1 : 0}&loop=1&playlist=${ytMatch[1]}&controls=0&modestbranding=1&rel=0`}
                       className="w-full h-full"
                       allow="autoplay; encrypted-media"
                       allowFullScreen
@@ -265,7 +267,8 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
                 if (vimeoMatch) {
                   return (
                     <iframe
-                      src={`https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1&muted=1&loop=1&background=1`}
+                      key={`vi-${isVideoMuted}`}
+                      src={`https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1&muted=${isVideoMuted ? 1 : 0}&loop=1&background=${isVideoMuted ? 1 : 0}`}
                       className="w-full h-full"
                       allow="autoplay; encrypted-media"
                       allowFullScreen
@@ -277,7 +280,7 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
                   <video
                     src={url}
                     autoPlay
-                    muted
+                    muted={isVideoMuted}
                     loop
                     playsInline
                     className="w-full h-full object-cover"
@@ -290,6 +293,15 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
                 alt={`${business.name} - ${currentImageIndex - videoOffset + 1}`}
                 className="w-full h-full object-cover"
               />
+            )}
+            {/* Mute/Unmute button */}
+            {hasVideo && currentImageIndex === 0 && (
+              <button
+                onClick={(e) => { e.stopPropagation(); setIsVideoMuted(m => !m); }}
+                className="absolute bottom-2 right-2 p-2 rounded-full bg-background/80 hover:bg-background transition-colors shadow z-10"
+              >
+                {isVideoMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+              </button>
             )}
             {isVerified && !isInstitution && (
               <img src={logoGold} alt="WTUCE" className="absolute top-3 right-3 w-12 h-12 object-contain opacity-90 pointer-events-none drop-shadow-lg" />
