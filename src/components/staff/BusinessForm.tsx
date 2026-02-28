@@ -456,6 +456,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
     google_review_count: (business as any)?.google_review_count ?? "",
     other_booking_url: (business as any)?.other_booking_url || "",
     other_booking_name: (business as any)?.other_booking_name || "",
+    glovo_url: (business as any)?.glovo_url || "",
     gamme_id: (business as any)?.gamme_id || "",
     badge_id: (business as any)?.badge_id || "",
     neighborhood: (business as any)?.neighborhood || "",
@@ -872,6 +873,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
       google_review_count: (formData as any).google_review_count !== "" ? parseInt((formData as any).google_review_count) : null,
       other_booking_url: formData.other_booking_url || null,
       other_booking_name: formData.other_booking_name || null,
+      glovo_url: (formData as any).glovo_url || null,
       gamme_id: formData.gamme_id || null,
       badge_id: defaultBadgeId || null,
       neighborhood: formData.neighborhood || null,
@@ -2505,6 +2507,16 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
               {isBrokenUrl((formData as any).getyourguide_url) && <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 animate-pulse" />}
             </div>
             {isBrokenUrl((formData as any).getyourguide_url) && <BrokenUrlBadge url={(formData as any).getyourguide_url} />}
+
+            <div className="flex items-center gap-2">
+              <span>🛵</span>
+              {(formData as any).glovo_url ? <a href={(formData as any).glovo_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 text-sm font-medium">Glovo ↗</a> : <span className="text-sm font-medium">Glovo</span>}
+              <Input id="glovo_url" value={(formData as any).glovo_url} onChange={(e) => handleChange("glovo_url", e.target.value)} placeholder="https://glovoapp.com/..." className="flex-1" />
+              {(formData as any).glovo_url && <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => handleChange("glovo_url", "")}><Trash2 className="h-4 w-4" /></Button>}
+              {(formData as any).glovo_url && <Button type="button" variant="ghost" size="sm" className="text-xs px-2 shrink-0" title="Utiliser comme lien Réserver maintenant" onClick={() => { handleChange("reserve_now_url", (formData as any).glovo_url); toast({ title: "URL Glovo → Réserver maintenant" }); }}>→ Réserver</Button>}
+              {isBrokenUrl((formData as any).glovo_url) && <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 animate-pulse" />}
+            </div>
+            {isBrokenUrl((formData as any).glovo_url) && <BrokenUrlBadge url={(formData as any).glovo_url} />}
           </div>
           <Button type="button" variant="outline" size="sm" className="text-xs text-muted-foreground hover:text-destructive" onClick={() => setShowClearBooking(true)}>🗑️ Effacer toutes les plateformes</Button>
         </div>

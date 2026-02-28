@@ -467,6 +467,7 @@ export type Database = {
           getyourguide_rating: number | null
           getyourguide_review_count: number | null
           getyourguide_url: string | null
+          glovo_url: string | null
           google_maps_url: string | null
           google_rating: number | null
           google_review_count: number | null
@@ -572,6 +573,7 @@ export type Database = {
           getyourguide_rating?: number | null
           getyourguide_review_count?: number | null
           getyourguide_url?: string | null
+          glovo_url?: string | null
           google_maps_url?: string | null
           google_rating?: number | null
           google_review_count?: number | null
@@ -677,6 +679,7 @@ export type Database = {
           getyourguide_rating?: number | null
           getyourguide_review_count?: number | null
           getyourguide_url?: string | null
+          glovo_url?: string | null
           google_maps_url?: string | null
           google_rating?: number | null
           google_review_count?: number | null
@@ -2246,6 +2249,7 @@ export type Database = {
               getyourguide_rating: number | null
               getyourguide_review_count: number | null
               getyourguide_url: string | null
+              glovo_url: string | null
               google_maps_url: string | null
               google_rating: number | null
               google_review_count: number | null
@@ -2367,6 +2371,7 @@ export type Database = {
               getyourguide_rating: number | null
               getyourguide_review_count: number | null
               getyourguide_url: string | null
+              glovo_url: string | null
               google_maps_url: string | null
               google_rating: number | null
               google_review_count: number | null
