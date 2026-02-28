@@ -115,6 +115,7 @@ interface Business {
   languages: string[] | null;
   logo_bg: string | null;
   default_service: string | null;
+  matterport_url: string | null;
 }
 
 interface Gamme {
@@ -169,7 +170,7 @@ interface Destination {
   image_url: string | null;
 }
 
-type TabKey = 'overview' | 'experiences' | 'video' | 'services' | 'reviews' | 'location';
+type TabKey = 'overview' | 'experiences' | 'video' | 'virtual-tour' | 'services' | 'reviews' | 'location';
 
 const BusinessDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -450,6 +451,7 @@ const BusinessDetail = () => {
     { key: 'overview', label: 'Aperçu', show: true },
     { key: 'experiences', label: 'Expériences', show: destinations.length > 0 },
     { key: 'video', label: 'Vidéo', show: !!business.video_1_url },
+    { key: 'virtual-tour', label: 'Visite 3D', show: !!business.matterport_url },
     { key: 'services', label: capitalize(servicesTabTitle), show: !!(business.services && business.services.length > 0) },
     { key: 'reviews', label: 'Avis', show: !!hasReviews },
     { key: 'location', label: 'Localisation', show: !!business.google_maps_url },
@@ -1313,6 +1315,23 @@ const BusinessDetail = () => {
             </div>
           );
         })()}
+
+        {/* VIRTUAL TOUR (MATTERPORT) TAB */}
+        {activeTab === 'virtual-tour' && business.matterport_url && (
+          <div className="flex justify-center">
+            <Card className="overflow-hidden max-w-4xl w-full">
+              <div className="w-full aspect-[4/3]">
+                <iframe
+                  src={business.matterport_url}
+                  className="w-full h-full border-0"
+                  allowFullScreen
+                  allow="fullscreen; xr-spatial-tracking"
+                  title="Visite virtuelle 3D"
+                />
+              </div>
+            </Card>
+          </div>
+        )}
 
         {/* SERVICES TAB */}
         {activeTab === 'services' && (

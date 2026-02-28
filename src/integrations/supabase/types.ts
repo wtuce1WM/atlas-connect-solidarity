@@ -499,6 +499,7 @@ export type Database = {
           logo_url: string | null
           longitude: number | null
           main_category: string | null
+          matterport_url: string | null
           menu_url: string | null
           name: string
           neighborhood: string | null
@@ -605,6 +606,7 @@ export type Database = {
           logo_url?: string | null
           longitude?: number | null
           main_category?: string | null
+          matterport_url?: string | null
           menu_url?: string | null
           name: string
           neighborhood?: string | null
@@ -711,6 +713,7 @@ export type Database = {
           logo_url?: string | null
           longitude?: number | null
           main_category?: string | null
+          matterport_url?: string | null
           menu_url?: string | null
           name?: string
           neighborhood?: string | null
@@ -2317,6 +2320,7 @@ export type Database = {
               logo_url: string | null
               longitude: number | null
               main_category: string | null
+              matterport_url: string | null
               menu_url: string | null
               name: string
               neighborhood: string | null
@@ -2439,6 +2443,7 @@ export type Database = {
               logo_url: string | null
               longitude: number | null
               main_category: string | null
+              matterport_url: string | null
               menu_url: string | null
               name: string
               neighborhood: string | null

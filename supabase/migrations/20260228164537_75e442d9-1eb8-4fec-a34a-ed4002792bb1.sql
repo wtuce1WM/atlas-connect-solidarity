@@ -1,0 +1,1 @@
+ALTER TABLE public.businesses ADD COLUMN matterport_url text NULL;
