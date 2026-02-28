@@ -525,19 +525,9 @@ const SearchPage = () => {
     // If all results belong to a single subcategory, use flat paginated grid instead of carousel
     if (keys.length <= 1) return null;
     
-    // Sort groups: detected subcategory first, then by DB sort_order, then alphabetically
-    const getSubcatSortOrder = (name: string): number => {
-      const sc = subcategories.find(s => s.name_fr.toLowerCase() === name.toLowerCase());
-      return sc?.sort_order ?? 9999;
-    };
+    // Sort groups: most results first, least results last
     const sortedKeys = keys.sort((a, b) => {
-      const aIsDetected = a.toLowerCase() === detectedSubcategory.toLowerCase() ? 0 : 1;
-      const bIsDetected = b.toLowerCase() === detectedSubcategory.toLowerCase() ? 0 : 1;
-      if (aIsDetected !== bIsDetected) return aIsDetected - bIsDetected;
-      const aOrder = getSubcatSortOrder(a);
-      const bOrder = getSubcatSortOrder(b);
-      if (aOrder !== bOrder) return aOrder - bOrder;
-      return a.localeCompare(b, 'fr');
+      return (groups[b]?.length || 0) - (groups[a]?.length || 0);
     });
     
     return sortedKeys.map(key => ({ subcategory: key, businesses: groups[key] }));
