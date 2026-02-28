@@ -437,7 +437,7 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
             if (socials.length === 0 && platforms.length === 0) return null;
 
             return (
-              <div className="border-y border-border py-5">
+              <div className="border-b border-border pb-5">
                 <div className="grid grid-cols-2 gap-4">
                   {socials.length > 0 && (
                     <div className="space-y-2">
