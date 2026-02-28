@@ -293,6 +293,9 @@ const SearchBundleManagement = () => {
             Quand un mot-clé est détecté dans la requête, le moteur cherche dans toutes les sous-catégories listées, 
             en filtrant par le service requis pour chacune. Un <code>subcategory_name</code> vide = wildcard (toutes les sous-catégories).
           </p>
+          <p className="text-xs text-amber-600 mt-1">
+            ⚠️ Le champ <strong>service requis</strong> est <strong>sensible à la casse</strong> — il doit correspondre exactement au nom du service tel qu'il apparaît dans les fiches établissements.
+          </p>
         </CardHeader>
         <CardContent>
           {/* Add form */}
