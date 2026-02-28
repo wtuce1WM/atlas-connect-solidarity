@@ -28,6 +28,7 @@ interface FullBusiness {
   wtuce_status: string | null;
   account_type: string | null;
   logo_url: string | null;
+  logo_bg: string | null;
   images: string[] | null;
   categories: string[] | null;
   services: string[] | null;
@@ -297,7 +298,15 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
                 </div>
               </div>
               {business.logo_url && (
-                <div className="w-16 h-16 p-1.5 rounded-lg border border-border shrink-0 bg-background flex items-center justify-center">
+                <div
+                  className="w-16 h-16 p-1.5 rounded-lg border border-border shrink-0 flex items-center justify-center"
+                  style={{
+                    backgroundColor:
+                      business.logo_bg === 'blanc' || business.logo_bg === 'white' ? '#ffffff'
+                      : business.logo_bg === 'noir' || business.logo_bg === 'black' ? '#000000'
+                      : 'transparent',
+                  }}
+                >
                   <img src={business.logo_url} alt="" className="max-w-full max-h-full object-contain" />
                 </div>
               )}
