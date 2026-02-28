@@ -3,7 +3,7 @@ import { Sparkles, Loader2, MapPin, Star, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
-import { Link } from "react-router-dom";
+import BusinessSlidePanel from "@/components/BusinessSlidePanel";
 
 interface BusinessData {
   id: string;
@@ -42,25 +42,6 @@ const getImage = (b: BusinessData): string | null => {
   if (b.images && b.images.length > 0) return b.images[0];
   if (b.logo_url) return b.logo_url;
   return null;
-};
-
-// Slide-in panel for a business
-const BusinessSlidePanel = ({ business, onClose }: { business: BusinessData; onClose: () => void }) => {
-  return (
-    <>
-      <div className="sticky top-0 z-10 flex items-center justify-between px-4 py-3 bg-background border-b border-border">
-        <h2 className="text-lg font-semibold text-foreground truncate">{business.name}</h2>
-        <button onClick={onClose} className="p-2 rounded-full hover:bg-muted transition-colors">
-          <X className="h-5 w-5 text-muted-foreground" />
-        </button>
-      </div>
-      <iframe
-        src={`/business/${business.id}`}
-        className="w-full h-[calc(100%-56px)] border-0"
-        title={business.name}
-      />
-    </>
-  );
 };
 
 const BusinessHoverCard = ({ name, business, onClickBusiness }: { name: string; business: BusinessData; onClickBusiness: (b: BusinessData) => void }) => {
@@ -262,8 +243,8 @@ const AISearchAnswer = ({ query, businesses, isSearchLoading }: AISearchAnswerPr
 
       {/* Slide-in panel — right half */}
       {isPanelOpen && (
-        <div className="fixed top-0 right-0 z-[100] h-full w-1/2 bg-background shadow-2xl border-l border-border animate-slide-in-right overflow-y-auto">
-          <BusinessSlidePanel business={selectedBusiness!} onClose={() => setSelectedBusiness(null)} />
+        <div className="fixed top-0 right-0 z-[100] h-full w-1/2 bg-background shadow-2xl border-l border-border animate-slide-in-right overflow-hidden">
+          <BusinessSlidePanel businessId={selectedBusiness!.id} onClose={() => setSelectedBusiness(null)} />
         </div>
       )}
     </>
