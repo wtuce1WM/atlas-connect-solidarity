@@ -1674,8 +1674,9 @@ serve(async (req) => {
             let builder = supabase.from("businesses").select("*").eq("is_active", true);
             
             // Filter by subcategory if specified (non-wildcard)
+            // Check both categories array AND main_category field
             if (entry.subcategory_name) {
-              builder = builder.contains("categories", [entry.subcategory_name]);
+              builder = builder.or(`categories.cs.{"${entry.subcategory_name}"},main_category.eq.${entry.subcategory_name}`);
             }
             
             // Filter by required service if specified
