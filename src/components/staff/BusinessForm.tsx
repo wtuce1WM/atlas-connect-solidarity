@@ -3423,9 +3423,10 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                       handleChange("default_service", "");
                     }
                   }}
-                  className="mt-2 flex items-center gap-1.5 text-xs text-destructive hover:underline"
+                  className="mt-3 flex items-center gap-2 rounded-full bg-destructive/10 px-4 py-2 text-sm text-destructive hover:bg-destructive/20 transition-colors"
                 >
-                  🗑 Supprimer tous les services
+                  <Trash2 className="h-4 w-4" />
+                  Supprimer tous les services
                 </button>
               )}
 
