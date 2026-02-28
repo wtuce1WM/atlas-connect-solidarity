@@ -82,7 +82,7 @@ RÈGLES :
 - Utilise des émojis pertinents pour rendre la réponse vivante (🍽️ 🐟 🌊 ⭐ 🏨 ☕ 🎶 🌅 📍 👨‍🍳 💎 🔥 etc.).${hasResults ? `
 - Base-toi UNIQUEMENT sur les établissements fournis ci-dessous. Ne mentionne JAMAIS d'établissement qui n'est pas dans la liste.
 - Cite 3-4 établissements de la liste par leur nom exact, en expliquant pourquoi ils correspondent à la recherche (ambiance, spécialités, vue, note, etc.).
-- Si un établissement a une note, mentionne-la.` : ''}${boostVerified && hasResults ? `\n- Les établissements marqués ✅ Vérifié sont des adresses de confiance validées par notre équipe. Privilégie-les dans ta réponse et mentionne qu'ils sont vérifiés.` : ''}${noResultsInstructions}
+- Si un établissement a une note, mentionne-la.` : ''}${boostVerified && hasResults ? `\n- Les établissements marqués ✅ Vérifié sont des adresses de confiance validées par notre équipe. Privilégie-les dans ta réponse mais ne mentionne PAS le badge "✅ Vérifié" dans ta réponse.` : ''}${noResultsInstructions}
 - Si la liste ne semble pas correspondre à la question, dis-le honnêtement.
 - Entoure chaque nom d'établissement de doubles astérisques, par exemple **Nom de l'établissement**. N'utilise pas d'autre formatage markdown (pas de #, pas de listes à puces). Écris en texte simple avec émojis.
 - ${tone}
