@@ -129,19 +129,13 @@ const AISearchAnswer = ({ query, businesses, isSearchLoading }: AISearchAnswerPr
     <div className="w-[70%] mx-auto mb-6 animate-in fade-in slide-in-from-top-2 duration-500">
       <div className="relative rounded-2xl border border-gold/30 bg-gradient-to-br from-gold/5 to-transparent backdrop-blur-sm overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-2.5 border-b border-gold/15">
+        <div className="flex items-center px-4 py-2.5 border-b border-gold/15">
           <div className="flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-muted-foreground" />
             <span className="text-xs font-medium text-muted-foreground">
               {language === "en" ? "AI Suggestion" : language === "ar" ? "اقتراح ذكي" : "Suggestion IA"}
             </span>
           </div>
-          <button
-            onClick={() => setIsDismissed(true)}
-            className="text-muted-foreground hover:text-foreground transition-colors p-1 rounded-full hover:bg-white/10"
-          >
-            <X className="h-3.5 w-3.5" />
-          </button>
         </div>
 
         {/* Content */}
