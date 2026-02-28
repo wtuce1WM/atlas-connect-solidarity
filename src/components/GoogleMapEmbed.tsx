@@ -41,13 +41,11 @@ const GoogleMapEmbed = ({ address, businessName, latitude, longitude, googleMaps
 
   const encodedAddress = encodeURIComponent(`${businessName}, ${address}`);
 
-  // Build map embed URL: prefer explicit GPS coords when available to avoid
-  // place-name collisions, then place name from URL, then text search
-  const embedQuery = (resolvedLat && resolvedLng)
-    ? `${resolvedLat},${resolvedLng}`
-    : placeName
-      ? placeName
-      : businessName + (address ? `, ${address}` : "");
+  // Build map embed URL: prefer place name from URL (shows nice marker label),
+  // then business name + address. Raw coords as absolute last resort.
+  const embedQuery = placeName 
+    ? placeName 
+    : businessName + (address ? `, ${address}` : resolvedLat && resolvedLng ? `, ${resolvedLat},${resolvedLng}` : "");
   const mapEmbedUrl = `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(embedQuery)}&zoom=17`;
   const streetViewEmbedUrl = `https://www.google.com/maps/embed/v1/streetview?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&location=${resolvedLat || 31.6295},${resolvedLng || -7.9811}&heading=0&pitch=0&fov=90`;
 
