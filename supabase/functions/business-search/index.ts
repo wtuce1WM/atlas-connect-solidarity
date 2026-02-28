@@ -1646,18 +1646,43 @@ serve(async (req) => {
         
         const uniqueKeywords = [...new Set(bundleData.map((b: any) => stripAccentsGlobal(b.keyword.toLowerCase())))];
         
+        // Simple French plural stemmer for matching tolerance
+        const stemFr = (w: string): string => {
+          if (w.length <= 3) return w;
+          if (w.endsWith("eaux")) return w.slice(0, -1);
+          if (w.endsWith("aux")) return w.slice(0, -2) + "l";
+          if (w.endsWith("s") || w.endsWith("x")) return w.slice(0, -1);
+          return w;
+        };
+        const stemSet = (words: Iterable<string>): Set<string> => {
+          const s = new Set<string>();
+          for (const w of words) { s.add(w); s.add(stemFr(w)); }
+          return s;
+        };
+        const stemmedExpandedWords = stemSet(expandedWords);
+        
         // Try direct match first (exact substring or single-word match)
         let matchedKeyword = uniqueKeywords.find(kw => allWords.has(kw) || allText.includes(kw));
         
         if (!matchedKeyword) {
           // Try word-by-word match using synonym-expanded word set
-          // A multi-word bundle keyword matches if ALL its content words appear in expanded set
           matchedKeyword = uniqueKeywords.find(kw => {
             const kwWords = kw.split(/\s+/).filter(w => w.length > 1);
             return kwWords.length > 0 && kwWords.every(w => expandedWords.has(w));
           });
           if (matchedKeyword) {
             console.log(`📦 BUNDLE synonym-expanded match: "${matchedKeyword}" (expanded words: ${[...expandedWords].join(", ")})`);
+          }
+        }
+        
+        if (!matchedKeyword) {
+          // Try plural-tolerant match: stem both keyword words and query words
+          matchedKeyword = uniqueKeywords.find(kw => {
+            const kwWords = kw.split(/\s+/).filter(w => w.length > 1);
+            return kwWords.length > 0 && kwWords.every(w => stemmedExpandedWords.has(w) || stemmedExpandedWords.has(stemFr(w)));
+          });
+          if (matchedKeyword) {
+            console.log(`📦 BUNDLE plural-tolerant match: "${matchedKeyword}"`);
           }
         }
         
@@ -1671,6 +1696,50 @@ serve(async (req) => {
           const seenIds = new Set<string>();
           
           for (const entry of entries) {
+            // If badge_id is set, fetch businesses via business_badges join
+            if (entry.badge_id && !entry.subcategory_name && !entry.required_service) {
+              const { data: bbData } = await supabase
+                .from("business_badges")
+                .select("business_id")
+                .eq("badge_id", entry.badge_id);
+              
+              if (bbData && bbData.length > 0) {
+                const businessIds = bbData.map((bb: any) => bb.business_id);
+                let builder = supabase.from("businesses").select("*")
+                  .eq("is_active", true)
+                  .in("id", businessIds);
+                
+                if (effectiveCity) builder = applyCityFilter(builder);
+                if (detectedNeighborhood) {
+                  builder = builder.or(buildNeighborhoodOrClause(detectedNeighborhood, loadedNeighborhoods));
+                }
+                
+                builder = builder
+                  .order("wtuce_status", { ascending: true })
+                  .order("google_rating", { ascending: false, nullsFirst: false })
+                  .order("priority_score", { ascending: false })
+                  .limit(limit);
+                
+                const { data, error } = await builder;
+                if (!error && data && data.length > 0) {
+                  for (const b of data) {
+                    if (!seenIds.has(b.id)) {
+                      seenIds.add(b.id);
+                      allBundleResults.push({
+                        ...b,
+                        distance_km: latitude && longitude && b.latitude && b.longitude
+                          ? calculateDistance(latitude, longitude, b.latitude, b.longitude) : null,
+                      });
+                    }
+                  }
+                  console.log(`  Bundle entry [badge:${entry.badge_id}]: ${data.length} results`);
+                } else {
+                  console.log(`  Bundle entry [badge:${entry.badge_id}]: 0 results`);
+                }
+              }
+              continue;
+            }
+            
             let builder = supabase.from("businesses").select("*").eq("is_active", true);
             
             // Filter by subcategory if specified (non-wildcard)
@@ -1680,6 +1749,17 @@ serve(async (req) => {
               const resolvedSubcat = subcatRow?.name_fr || entry.subcategory_name;
               builder = builder.or(`categories.cs.{"${resolvedSubcat}"},main_category.eq.${resolvedSubcat}`);
               console.log(`  Bundle subcategory resolved: "${entry.subcategory_name}" → "${resolvedSubcat}"`);
+            }
+            
+            // Filter by badge_id via join if specified alongside subcategory/service
+            if (entry.badge_id) {
+              const { data: bbData } = await supabase
+                .from("business_badges")
+                .select("business_id")
+                .eq("badge_id", entry.badge_id);
+              if (bbData && bbData.length > 0) {
+                builder = builder.in("id", bbData.map((bb: any) => bb.business_id));
+              }
             }
             
             // Filter by required service if specified
