@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/select";
 import { Loader2, Building2, ChevronLeft, ChevronRight, Search, Mic, MicOff, Loader, MapPin, MapPinOff, X, Volume2, VolumeX, Clock } from "lucide-react";
 import BusinessCard, { type BusinessCardData, type Gamme, type Badge, type SubcategoryRef, type BadgeSubcategoryRef } from "@/components/BusinessCard";
+import AISearchAnswer from "@/components/AISearchAnswer";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { useToast } from "@/hooks/use-toast";
@@ -1170,6 +1171,15 @@ const SearchPage = () => {
             </div>
           )}
 
+
+          {/* AI Search Answer */}
+          {searchQuery && !isLoading && filteredBusinesses.length > 0 && (
+            <AISearchAnswer
+              query={spokenText || searchQuery}
+              businesses={filteredBusinesses}
+              isSearchLoading={isLoading}
+            />
+          )}
 
 
         </div>
