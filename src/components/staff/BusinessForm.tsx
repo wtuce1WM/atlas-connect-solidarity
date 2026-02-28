@@ -320,8 +320,8 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
   const [intentsLoading, setIntentsLoading] = useState(true);
   const [newIntentWord, setNewIntentWord] = useState("");
   const [newIntentCategory, setNewIntentCategory] = useState("");
-
-  // Fetch categories, subcategories, services, cities, gammes and gamme_categories from database
+  const [newServiceName, setNewServiceName] = useState("");
+  const [creatingService, setCreatingService] = useState(false);
   useEffect(() => {
     const fetchTaxonomy = async () => {
       const [catRes, subRes, servRes, citiesRes, gammesRes, gammeCatRes, neighborhoodsRes, affiliatesRes, badgesRes, badgeSubcatsRes, destRes, poiRes] = await Promise.all([
@@ -674,7 +674,28 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
     });
   };
 
-  // Find the category ID for the selected main_category
+  const handleCreateService = async (subcategoryId: string) => {
+    const name = newServiceName.trim();
+    if (!name) return;
+    // Check if service already exists for this subcategory
+    const exists = dbServices.some(s => s.subcategory_id === subcategoryId && s.name_fr.toLowerCase() === name.toLowerCase());
+    if (exists) {
+      toast({ variant: "destructive", title: "Existe déjà", description: `Le service "${name}" existe déjà pour cette sous-catégorie.` });
+      return;
+    }
+    setCreatingService(true);
+    const { data, error } = await supabase.from("services").insert({ name_fr: name, subcategory_id: subcategoryId }).select("id, name_fr, subcategory_id").single();
+    if (error) {
+      toast({ variant: "destructive", title: "Erreur", description: "Impossible de créer le service." });
+    } else if (data) {
+      setDbServices(prev => [...prev, data]);
+      setNewServiceName("");
+      toast({ title: "Créé", description: `Service "${name}" ajouté.` });
+    }
+    setCreatingService(false);
+  };
+
+
   const selectedCategory = useMemo(() => 
     dbCategories.find(c => c.name_fr === formData.main_category),
     [dbCategories, formData.main_category]
@@ -716,13 +737,13 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
     const selectedSubs = dbSubcategories.filter(sub => formData.categories.includes(sub.name_fr));
     return selectedSubs
       .map(sub => ({
+        subcategoryId: sub.id,
         subcategoryName: sub.name_fr,
         services: dbServices
           .filter(srv => srv.subcategory_id === sub.id)
           .map(srv => srv.name_fr)
           .sort((a, b) => a.localeCompare(b, 'fr')),
-      }))
-      .filter(group => group.services.length > 0);
+      }));
   }, [dbSubcategories, dbServices, formData.categories, selectedSubcategoryIds]);
 
   // Get gammes available for the selected main category
@@ -3246,6 +3267,24 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                       </label>
                     ))}
                   </div>
+                  <div className="flex items-center gap-2 mt-2">
+                    <Input
+                      value={newServiceName}
+                      onChange={(e) => setNewServiceName(e.target.value)}
+                      placeholder="Nouveau service..."
+                      className="flex-1 h-8 text-sm"
+                      onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleCreateService(servicesGroupedBySubcategory[0].subcategoryId); } }}
+                    />
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      disabled={!newServiceName.trim() || creatingService}
+                      onClick={() => handleCreateService(servicesGroupedBySubcategory[0].subcategoryId)}
+                    >
+                      {creatingService ? <Loader2 className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3" />}
+                    </Button>
+                  </div>
                 </div>
               ) : (
                 // Multiple subcategories: tabbed display
@@ -3304,6 +3343,24 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                             <span className="text-sm">{service}</span>
                           </label>
                         ))}
+                      </div>
+                      <div className="flex items-center gap-2 mt-2">
+                        <Input
+                          value={newServiceName}
+                          onChange={(e) => setNewServiceName(e.target.value)}
+                          placeholder="Nouveau service..."
+                          className="flex-1 h-8 text-sm"
+                          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleCreateService(group.subcategoryId); } }}
+                        />
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          disabled={!newServiceName.trim() || creatingService}
+                          onClick={() => handleCreateService(group.subcategoryId)}
+                        >
+                          {creatingService ? <Loader2 className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3" />}
+                        </Button>
                       </div>
                     </TabsContent>
                   ))}
