@@ -6,7 +6,6 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Loader2, Calendar, User, ArrowRight, Star, MapPin, Play, Sparkles, BarChart3, Search } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { fr, enUS, ar } from "date-fns/locale";
 
@@ -85,6 +84,50 @@ const Blog = () => {
           </div>
         ) : (
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {/* Articles de blog (les plus récents en premier) */}
+            {posts.map((post) => (
+              <Link key={post.id} to={`/blog/${post.slug}`}>
+                <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full">
+                  {post.cover_image_url && (
+                    <div className="aspect-video overflow-hidden">
+                      <img
+                        src={post.cover_image_url}
+                        alt={getTitle(post)}
+                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                  )}
+                  <CardContent className="p-6">
+                    <h2 className="text-xl font-semibold mb-3 line-clamp-2 font-['Playfair_Display'] italic">
+                      {getTitle(post)}
+                    </h2>
+                    {getExcerpt(post) && (
+                      <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
+                        {getExcerpt(post)}
+                      </p>
+                    )}
+                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                      <div className="flex items-center gap-4">
+                        {post.author_name && (
+                          <span className="flex items-center gap-1">
+                            <User className="h-3 w-3" />
+                            {post.author_name}
+                          </span>
+                        )}
+                        {post.published_at && (
+                          <span className="flex items-center gap-1">
+                            <Calendar className="h-3 w-3" />
+                            {format(new Date(post.published_at), "d MMM yyyy", { locale: getDateLocale() })}
+                          </span>
+                        )}
+                      </div>
+                      <ArrowRight className="h-4 w-4 text-primary" />
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+
             {/* Carte Essaouira Vue sur Mer */}
             <Link to="/blog/essaouira-vue-mer">
               <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30">
@@ -177,29 +220,6 @@ const Blog = () => {
               </Card>
             </Link>
 
-            {/* Carte Ancien Accueil */}
-            <Link to="/blog/ancien-accueil">
-              <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-stone-50 to-amber-50 dark:from-stone-950/30 dark:to-amber-950/30">
-                <div className="aspect-video overflow-hidden bg-gradient-to-br from-gold/20 to-gold/5 flex items-center justify-center">
-                  <span className="text-5xl">🏠</span>
-                </div>
-                <CardContent className="p-6">
-                  <h2 className="text-xl font-semibold mb-3 font-['Playfair_Display'] italic">
-                    Ancien Accueil
-                  </h2>
-                  <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
-                    Copie de la page d'accueil : hero, sections labels dynamiques et liste des établissements.
-                  </p>
-                  <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1 text-gold font-medium">
-                      🏠 Accueil
-                    </span>
-                    <ArrowRight className="h-4 w-4 text-gold" />
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-
             {/* Carte Affichage résultats Search */}
             <Link to="/blog/search-layouts">
               <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30">
@@ -245,50 +265,6 @@ const Blog = () => {
                 </CardContent>
               </Card>
             </Link>
-
-
-            {posts.map((post) => (
-              <Link key={post.id} to={`/blog/${post.slug}`}>
-                <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full">
-                  {post.cover_image_url && (
-                    <div className="aspect-video overflow-hidden">
-                      <img
-                        src={post.cover_image_url}
-                        alt={getTitle(post)}
-                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                      />
-                    </div>
-                  )}
-                  <CardContent className="p-6">
-                    <h2 className="text-xl font-semibold mb-3 line-clamp-2 font-['Playfair_Display'] italic">
-                      {getTitle(post)}
-                    </h2>
-                    {getExcerpt(post) && (
-                      <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
-                        {getExcerpt(post)}
-                      </p>
-                    )}
-                    <div className="flex items-center justify-between text-xs text-muted-foreground">
-                      <div className="flex items-center gap-4">
-                        {post.author_name && (
-                          <span className="flex items-center gap-1">
-                            <User className="h-3 w-3" />
-                            {post.author_name}
-                          </span>
-                        )}
-                        {post.published_at && (
-                          <span className="flex items-center gap-1">
-                            <Calendar className="h-3 w-3" />
-                            {format(new Date(post.published_at), "d MMM yyyy", { locale: getDateLocale() })}
-                          </span>
-                        )}
-                      </div>
-                      <ArrowRight className="h-4 w-4 text-primary" />
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
           </div>
         )}
       </div>
