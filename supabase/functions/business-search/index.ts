@@ -1749,11 +1749,13 @@ serve(async (req) => {
     }
 
     const bundleResultIds = new Set(businesses.map(b => b.id));
+    const bundleIsActive = bundleResultIds.size > 0;
     if (detectedSubcategory) {
       // Helper to fetch businesses for a given subcategory (or merged group) with current filters
       const fetchSubcategoryBusinesses = async (subcat: string, filterByServices?: string[], options?: { skipNeighborhood?: boolean; overrideCity?: string }) => {
-        // Determine which subcategories to query (merged if applicable)
-        const mergedSubcats = MERGED_SUBCATEGORIES[subcat.toLowerCase()] || [subcat];
+        // When a bundle is active, do NOT apply merge groups (e.g. don't merge Riad+Hôtel)
+        // because the bundle already targeted the precise subcategory+service combination
+        const mergedSubcats = bundleIsActive ? [subcat] : (MERGED_SUBCATEGORIES[subcat.toLowerCase()] || [subcat]);
         
         let subBuilder = supabase.from("businesses").select("*").eq("is_active", true);
         
@@ -1824,28 +1826,18 @@ serve(async (req) => {
         console.log(`Service filter [${detectedServices.join(", ")}] is redundant with subcategory "${detectedSubcategory}" — skipping`);
       }
       let serviceFilter = (detectedServices.length > 0 && !serviceIsRedundantWithSubcategory) ? detectedServices : undefined;
-      const subcatResults = await fetchSubcategoryBusinesses(detectedSubcategory, serviceFilter);
-      // Merge with any existing bundle results, avoiding duplicates
-      if (bundleResultIds.size > 0) {
-        // When a bundle is active, it means the query has a specific qualifier (e.g. "artistique").
-        // Cap the total to avoid flooding with irrelevant subcategory results.
-        // The LLM reranker will sort by relevance to the full query.
-        const BUNDLE_MERGE_CAP = 20;
-        let added = 0;
-        for (const b of subcatResults) {
-          if (businesses.length >= BUNDLE_MERGE_CAP) break;
-          if (!bundleResultIds.has(b.id)) {
-            businesses.push(b);
-            bundleResultIds.add(b.id);
-            added++;
-          }
-        }
-        console.log(`Merged ${added} subcategory results (capped at ${BUNDLE_MERGE_CAP}) with ${bundleResultIds.size - added} bundle results → ${businesses.length} total`);
-      } else {
+      
+      // When a bundle is active, skip the broader subcategory merge entirely.
+      // The bundle already queried the precise subcategory+service combination.
+      // Adding unfiltered subcategory results would flood with irrelevant entries.
+      if (!bundleIsActive) {
+        const subcatResults = await fetchSubcategoryBusinesses(detectedSubcategory, serviceFilter);
         businesses = subcatResults;
+      } else {
+        console.log(`Bundle is active — skipping broader subcategory merge for "${detectedSubcategory}"`);
       }
       searchLevel = "exact";
-      console.log(`Subcategory direct query "${detectedSubcategory}" + city "${effectiveCity}" + neighborhood "${detectedNeighborhood}" + services filter [${(serviceFilter || []).join(", ")}]: ${subcatResults.length} results`);
+      console.log(`Subcategory direct query "${detectedSubcategory}" + city "${effectiveCity}" + neighborhood "${detectedNeighborhood}" + services filter [${(serviceFilter || []).join(", ")}]: ${businesses.length} results (bundleActive=${bundleIsActive})`);
 
       // If service filter yielded 0 results but would have results without it,
       // the detected service likely doesn't belong to this subcategory (e.g. "Fleurs comestibles" vs "Fleuriste")
