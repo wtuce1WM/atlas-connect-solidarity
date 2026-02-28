@@ -268,7 +268,7 @@ const BusinessCard = ({
           {/* Watermark logo removed — now using CSS 3D spin in CardContent */}
           {/* Open status badge */}
           {openBadgeText && (
-            <div className="absolute top-2 left-2 z-10">
+            <div className="absolute top-2 left-2 z-[1]">
               <Badge variant="outline" className={`text-xs flex items-center gap-1 ${
                 openBadgeText === "Ouvert" || openBadgeText === "Ouvert 24h"
                   ? "bg-atlas/85 text-atlas-foreground border-foreground/70"
