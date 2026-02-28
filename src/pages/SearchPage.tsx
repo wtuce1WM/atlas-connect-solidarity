@@ -1084,7 +1084,7 @@ const SearchPage = () => {
 
       {/* Hero Section - hidden on mobile when results found via voice search */}
       <section className={`bg-background pt-6 lg:pt-28 pb-8 lg:pb-16 relative overflow-hidden ${isMobile && spokenText && filteredBusinesses.length > 0 ? 'hidden' : ''}`}>
-        <div className="container mx-auto px-4 relative z-10">
+        <div className="mx-auto px-4 relative z-10">
           {(searchQuery || categoryFromUrl) && (
             <div className="text-center mb-8">
               <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-2">
@@ -1187,7 +1187,7 @@ const SearchPage = () => {
 
       {/* Filters & Results */}
       <section ref={resultsRef} className="py-6 lg:py-12 bg-background">
-        <div className="container mx-auto px-4">
+        <div className="mx-auto px-4">
           {/* Filters: City + Geo toggle — on mobile shown before hero via order */}
           <div className={`mb-8 flex flex-wrap items-center gap-3 ${isMobile ? 'hidden' : ''}`}>
             {/* Geo toggle */}
