@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { Search, Edit, ExternalLink, Star, MapPin, Navigation, ArrowUpDown, ArrowUp, ArrowDown, ChevronDown } from "lucide-react";
+import { Search, Edit, ExternalLink, Star, MapPin, Navigation, ArrowUpDown, ArrowUp, ArrowDown, ChevronDown, Video, AlertTriangle } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Business = Tables<"businesses">;
@@ -94,7 +94,42 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
   const [certEditSelected, setCertEditSelected] = useState<string[]>([]);
   const [certEditSaving, setCertEditSaving] = useState(false);
 
+  // Video preview popup state
+  const [videoPreviewUrl, setVideoPreviewUrl] = useState<string | null>(null);
+  const [videoPreviewName, setVideoPreviewName] = useState("");
+  const [brokenVideos, setBrokenVideos] = useState<Set<string>>(new Set());
+
   const { toast } = useToast();
+
+  // ---- Check broken videos ----
+  useEffect(() => {
+    const checkVideos = async () => {
+      const withVideo = businesses.filter(b => b.video_1_url);
+      const broken = new Set<string>();
+      await Promise.allSettled(
+        withVideo.map(async (b) => {
+          try {
+            const res = await fetch(b.video_1_url!, { method: "HEAD", mode: "no-cors" });
+            // no-cors always returns opaque, so we can't truly check status
+            // Instead try a regular fetch with a timeout
+          } catch {
+            broken.add(b.id);
+          }
+        })
+      );
+      // Use a more reliable approach: try loading via video element
+      withVideo.forEach((b) => {
+        const video = document.createElement("video");
+        video.preload = "metadata";
+        video.onloadedmetadata = () => { /* valid */ };
+        video.onerror = () => {
+          setBrokenVideos(prev => new Set([...prev, b.id]));
+        };
+        video.src = b.video_1_url!;
+      });
+    };
+    if (businesses.length > 0) checkVideos();
+  }, [businesses]);
 
   // ---- Refetch helpers ----
   const refetchBusinessBadges = useCallback(async () => {
@@ -428,6 +463,7 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
         case "badges": return getBadgesForBusiness(b.id).length;
         case "destinations": return getDestsForBusiness(b.id).length;
         case "gps": return (b.latitude != null && b.longitude != null) ? 1 : 0;
+        case "video": return b.video_1_url ? (brokenVideos.has(b.id) ? 1 : 2) : 0;
         case "certifications": return (b.engagements?.filter(e => e.startsWith("Certification:")).length) || 0;
         
         default: return "";
@@ -707,6 +743,9 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
                   <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("certifications")}>
                     <span className="inline-flex items-center">Certifications<SortIcon col="certifications" /></span>
                   </TableHead>
+                  <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("video")}>
+                    <span className="inline-flex items-center">Vidéo<SortIcon col="video" /></span>
+                  </TableHead>
                   <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("gps")}>
                     <span className="inline-flex items-center">GPS<SortIcon col="gps" /></span>
                   </TableHead>
@@ -925,6 +964,33 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
                             </div>
                           );
                         })()}
+                      </TableCell>
+
+                      {/* Vidéo */}
+                      <TableCell>
+                        {business.video_1_url ? (
+                          brokenVideos.has(business.id) ? (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-red-500/10 text-red-600">
+                                  <AlertTriangle className="h-4 w-4" />
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent side="top"><p className="text-xs">Vidéo cassée</p></TooltipContent>
+                            </Tooltip>
+                          ) : (
+                            <button
+                              onClick={() => { setVideoPreviewUrl(business.video_1_url!); setVideoPreviewName(business.name); }}
+                              className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-green-500/10 text-green-600 hover:bg-green-500/20"
+                            >
+                              <Video className="h-4 w-4" />
+                            </button>
+                          )
+                        ) : (
+                          <div className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-muted text-muted-foreground">
+                            <Video className="h-4 w-4" />
+                          </div>
+                        )}
                       </TableCell>
 
                       {/* GPS */}
@@ -1174,6 +1240,23 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
                 {certEditSaving ? "Enregistrement..." : "Enregistrer"}
               </Button>
             </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Video preview dialog */}
+        <Dialog open={videoPreviewUrl !== null} onOpenChange={(open) => { if (!open) setVideoPreviewUrl(null); }}>
+          <DialogContent className="max-w-3xl w-[90vw]">
+            <DialogHeader>
+              <DialogTitle>Vidéo — {videoPreviewName}</DialogTitle>
+            </DialogHeader>
+            {videoPreviewUrl && (
+              <video
+                src={videoPreviewUrl}
+                controls
+                autoPlay
+                className="w-full rounded-lg max-h-[70vh]"
+              />
+            )}
           </DialogContent>
         </Dialog>
 
