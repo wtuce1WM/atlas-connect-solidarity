@@ -229,7 +229,7 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
     <div className="flex flex-col h-full">
       {/* Sticky header */}
       <div className="sticky top-0 z-10 flex items-center justify-between px-5 py-3 bg-background border-b border-border shrink-0">
-        <h2 className="text-base font-semibold text-foreground truncate">{business.name}</h2>
+        <h2 className="text-lg font-semibold text-foreground truncate">{business.name}</h2>
         <button onClick={onClose} className="p-1.5 rounded-full hover:bg-muted transition-colors">
           <X className="h-5 w-5 text-muted-foreground" />
         </button>
@@ -275,7 +275,7 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
           <div>
             <div className="flex items-start gap-3">
               <div className="flex-1 min-w-0">
-                <h3 className="text-xl font-bold text-foreground leading-tight">{business.name}</h3>
+                <h3 className="text-2xl font-bold text-foreground leading-tight">{business.name}</h3>
                 <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground flex-wrap">
                   {avgOn20 !== null && (
                     <>
