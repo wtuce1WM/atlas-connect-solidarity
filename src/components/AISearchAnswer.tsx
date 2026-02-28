@@ -1,0 +1,120 @@
+import { useState, useEffect, useRef } from "react";
+import { Sparkles, Loader2, X } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useLanguage } from "@/contexts/LanguageContext";
+
+interface AISearchAnswerProps {
+  query: string;
+  businesses: Array<{
+    name: string;
+    city: string;
+    main_category: string | null;
+    categories: string[] | null;
+    hook_fr: string | null;
+    rating: number | null;
+  }>;
+  isSearchLoading: boolean;
+}
+
+const AISearchAnswer = ({ query, businesses, isSearchLoading }: AISearchAnswerProps) => {
+  const { language } = useLanguage();
+  const [answer, setAnswer] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isDismissed, setIsDismissed] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const lastQueryRef = useRef("");
+
+  useEffect(() => {
+    // Reset on new query
+    if (query !== lastQueryRef.current) {
+      setIsDismissed(false);
+      setAnswer("");
+      setError(null);
+    }
+  }, [query]);
+
+  useEffect(() => {
+    if (!query || isSearchLoading || businesses.length === 0 || isDismissed) return;
+    if (query === lastQueryRef.current && answer) return;
+
+    lastQueryRef.current = query;
+    setIsLoading(true);
+    setError(null);
+
+    const fetchAnswer = async () => {
+      try {
+        const { data, error: fnError } = await supabase.functions.invoke("ai-search-answer", {
+          body: {
+            query,
+            businesses: businesses.slice(0, 10).map(b => ({
+              name: b.name,
+              city: b.city,
+              main_category: b.main_category,
+              categories: b.categories,
+              hook_fr: b.hook_fr,
+              rating: b.rating,
+            })),
+            language,
+          },
+        });
+
+        if (fnError) {
+          console.error("AI answer error:", fnError);
+          setError(fnError.message);
+          return;
+        }
+
+        if (data?.answer) {
+          setAnswer(data.answer);
+        }
+      } catch (err) {
+        console.error("AI answer fetch error:", err);
+        setError("Erreur lors de la génération de la réponse");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchAnswer();
+  }, [query, businesses, isSearchLoading, isDismissed, language]);
+
+  if (isDismissed || (!isLoading && !answer) || error) return null;
+
+  return (
+    <div className="max-w-3xl mx-auto mb-6 animate-in fade-in slide-in-from-top-2 duration-500">
+      <div className="relative rounded-2xl border border-gold/30 bg-gradient-to-br from-gold/5 to-transparent backdrop-blur-sm overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 py-2.5 border-b border-gold/15">
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-gold" />
+            <span className="text-xs font-medium text-gold/80">
+              {language === "en" ? "AI Suggestion" : language === "ar" ? "اقتراح ذكي" : "Suggestion IA"}
+            </span>
+          </div>
+          <button
+            onClick={() => setIsDismissed(true)}
+            className="text-muted-foreground hover:text-foreground transition-colors p-1 rounded-full hover:bg-white/10"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="px-5 py-4">
+          {isLoading ? (
+            <div className="flex items-center gap-3 text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin text-gold" />
+              <span className="text-sm italic">
+                {language === "en" ? "Thinking..." : language === "ar" ? "جاري التفكير..." : "Réflexion en cours..."}
+              </span>
+            </div>
+          ) : (
+            <p className="text-sm leading-relaxed text-foreground/90">{answer}</p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AISearchAnswer;
