@@ -1609,6 +1609,7 @@ serve(async (req) => {
     // When a bundle keyword is detected, run parallel queries per bundle entry instead of single-subcategory search
     let bundleActivated = false;
     let bundleTimeSlots: string[] = [];
+    let bundleRequiredServices: string[] = [];
     {
       const { data: bundleData } = await supabase
         .from("search_bundles")
@@ -1691,6 +1692,10 @@ serve(async (req) => {
           console.log(`\n📦 BUNDLE activated for keyword "${matchedKeyword}" → ${entries.length} entries`);
           bundleActivated = true;
           bundleTimeSlots = (entries[0] as any).time_slots || [];
+          // Collect required_services from bundle entries for enrichment scoping
+          bundleRequiredServices = entries
+            .filter((e: any) => e.required_service)
+            .map((e: any) => e.required_service as string);
           
           const allBundleResults: any[] = [];
           const seenIds = new Set<string>();
@@ -1962,7 +1967,9 @@ serve(async (req) => {
       // - If a specific service filter exists, enrich by that service list (e.g. "alcool")
       // - Otherwise, fallback to subcategory-as-service enrichment (legacy behavior)
       const enrichmentCity = effectiveCity || neighborhoodCity;
-      const enrichmentServiceNames = (serviceFilter && serviceFilter.length > 0)
+      const enrichmentServiceNames = (bundleActivated && bundleRequiredServices.length > 0)
+        ? bundleRequiredServices
+        : (serviceFilter && serviceFilter.length > 0)
         ? serviceFilter
         : (detectedServices.length > 0 ? detectedServices : [detectedSubcategory]);
 
