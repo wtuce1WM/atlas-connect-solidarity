@@ -2820,7 +2820,7 @@ serve(async (req) => {
     // When name matches exist, rerank only the non-pinned portion to preserve exact match priority
     const rerankConditions = { isAutocomplete, isSuperlatif, effectiveQuery, count: businesses.length, searchLevel, nameMatches: nameMatchedBusinessIds.length };
     console.log(`Rerank check: ${JSON.stringify(rerankConditions)}`);
-    if (!isAutocomplete && !isSuperlatif && effectiveQuery && businesses.length > 3 && (searchLevel === "exact" || searchLevel === "fuzzy")) {
+    if (!isAutocomplete && !isSuperlatif && effectiveQuery && businesses.length >= 10 && (searchLevel === "exact" || searchLevel === "fuzzy")) {
       console.log(`✅ Rerank conditions met — triggering LLM rerank for "${effectiveQuery}"`);
       if (nameMatchedBusinessIds.length > 0) {
         // Rerank only the non-pinned businesses
