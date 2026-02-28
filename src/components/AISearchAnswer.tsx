@@ -3,6 +3,19 @@ import { Sparkles, Loader2, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 
+// Format AI answer: add line breaks before emojis
+const formatAnswer = (text: string) => {
+  const emojiRegex = /(\s)([\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE00}-\u{FE0F}\u{1F900}-\u{1F9FF}\u{200D}\u{2702}-\u{27B0}])/gu;
+  const withBreaks = text.replace(emojiRegex, '\n$2');
+  const lines = withBreaks.split('\n').filter(l => l.trim());
+  return lines.map((line, i) => (
+    <span key={i}>
+      {i > 0 && <br />}
+      {line}
+    </span>
+  ));
+};
+
 interface AISearchAnswerProps {
   query: string;
   businesses: Array<{
@@ -102,8 +115,8 @@ const AISearchAnswer = ({ query, businesses, isSearchLoading }: AISearchAnswerPr
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-2.5 border-b border-gold/15">
           <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-gold" />
-            <span className="text-xs font-medium text-gold/80">
+            <Sparkles className="h-4 w-4 text-muted-foreground" />
+            <span className="text-xs font-medium text-muted-foreground">
               {language === "en" ? "AI Suggestion" : language === "ar" ? "اقتراح ذكي" : "Suggestion IA"}
             </span>
           </div>
@@ -125,7 +138,9 @@ const AISearchAnswer = ({ query, businesses, isSearchLoading }: AISearchAnswerPr
               </span>
             </div>
           ) : (
-            <p className="text-sm leading-relaxed text-gold/95">{answer}</p>
+            <div className="text-sm leading-relaxed text-foreground whitespace-pre-line">
+              {formatAnswer(answer)}
+            </div>
           )}
         </div>
       </div>
