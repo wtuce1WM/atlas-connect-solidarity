@@ -2921,6 +2921,76 @@ serve(async (req) => {
       }
     }
 
+    // ── Destination enrichment: merge businesses linked to searchable destinations ──
+    if (effectiveQuery) {
+      try {
+        const queryLower = stripAccentsGlobal(effectiveQuery.toLowerCase());
+        const queryWords = queryLower.split(/\s+/).filter(w => w.length > 2);
+        
+        // Fetch searchable destinations
+        const { data: destinations } = await supabase
+          .from("destinations")
+          .select("id, name_fr, name_en, name_ar, keywords")
+          .eq("is_searchable", true);
+        
+        if (destinations && destinations.length > 0) {
+          const matchedDestinations: string[] = [];
+          
+          for (const dest of destinations) {
+            const names = [dest.name_fr, dest.name_en, dest.name_ar].filter(Boolean).map((n: string) => stripAccentsGlobal(n.toLowerCase()));
+            const kws = (dest.keywords || []).map((k: string) => stripAccentsGlobal(k.toLowerCase()));
+            const allTerms = [...names, ...kws];
+            
+            // Check if any query word matches a destination name/keyword (word boundary)
+            const matched = allTerms.some(term => {
+              const termWords = term.split(/\s+/);
+              // Single word: check if query contains it
+              if (termWords.length === 1) return queryWords.some(qw => qw.includes(term) || term.includes(qw));
+              // Multi-word: all words must be present
+              return termWords.every(tw => queryWords.some(qw => qw.includes(tw) || tw.includes(qw)));
+            });
+            
+            if (matched) matchedDestinations.push(dest.id);
+          }
+          
+          if (matchedDestinations.length > 0) {
+            // Fetch business IDs linked to matched destinations
+            const { data: bdLinks } = await supabase
+              .from("business_destinations")
+              .select("business_id")
+              .in("destination_id", matchedDestinations);
+            
+            if (bdLinks && bdLinks.length > 0) {
+              const existingIds = new Set(businesses.map(b => b.id));
+              const newBusinessIds = bdLinks.map(l => l.business_id).filter(id => !existingIds.has(id));
+              
+              if (newBusinessIds.length > 0) {
+                const { data: destBusinesses } = await supabase
+                  .from("businesses")
+                  .select("*")
+                  .eq("is_active", true)
+                  .in("id", newBusinessIds)
+                  .order("priority_score", { ascending: false })
+                  .limit(20);
+                
+                if (destBusinesses && destBusinesses.length > 0) {
+                  const mapped = destBusinesses.map((b: any) => ({
+                    ...b,
+                    distance_km: latitude && longitude && b.latitude && b.longitude
+                      ? calculateDistance(latitude, longitude, b.latitude, b.longitude) : null,
+                  }));
+                  businesses = [...businesses, ...mapped];
+                  console.log(`🗺️ Destination enrichment: +${mapped.length} businesses from ${matchedDestinations.length} destination(s) (total: ${businesses.length})`);
+                }
+              }
+            }
+          }
+        }
+      } catch (e) {
+        console.warn("Destination enrichment failed:", e);
+      }
+    }
+
     const result: SearchResult = {
       businesses,
       searchLevel,
