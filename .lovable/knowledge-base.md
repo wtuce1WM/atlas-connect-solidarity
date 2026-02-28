@@ -56,6 +56,19 @@ Journal des décisions d'architecture, règles métier et apprentissages issus d
 
 ---
 
+## 🎨 Mise en page des résultats de recherche
+
+### Logique d'affichage hybride
+- **Grille plate paginée** : Affichage par défaut. Utilisé quand tous les résultats appartiennent à **une seule sous-catégorie** (ex: « riad artistique » → que des Riads).
+- **Carrousels horizontaux groupés par sous-catégorie** : Activés uniquement quand les résultats contiennent **2+ sous-catégories distinctes** (ex: « salade » → Restaurants, Traiteurs, Épiceries).
+- Les carrousels sont triés : la sous-catégorie détectée apparaît en premier, puis par `sort_order` de la table `subcategories`.
+
+### Search Bundles
+- Quand un bundle est actif, les **merge groups de sous-catégories** (ex: Riad + Hôtel) sont **désactivés** pour garantir la précision.
+- Le bundle associe sous-catégorie + service sur la même ligne (ex: Riad + Galerie d'Art).
+- La résolution de casse est automatique (« riad » → « Riad » via lookup `ilike` dans la table `subcategories`).
+
+
 ## 📝 Notes diverses
 
 - Le mot "boutique" ne doit JAMAIS être ajouté comme mot-clé de recherche (trop générique, matche des hôtels).
