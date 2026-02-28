@@ -3,15 +3,28 @@ import { Sparkles, Loader2, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-// Format AI answer: add line breaks before emojis
+// Format AI answer: add line breaks before emojis + bold business names
 const formatAnswer = (text: string) => {
   const emojiRegex = /(\s)([\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE00}-\u{FE0F}\u{1F900}-\u{1F9FF}\u{200D}\u{2702}-\u{27B0}])/gu;
   const withBreaks = text.replace(emojiRegex, '\n$2');
   const lines = withBreaks.split('\n').filter(l => l.trim());
+
+  // Parse **bold** segments within a line
+  const parseBold = (line: string, lineIdx: number) => {
+    const parts = line.split(/\*\*(.+?)\*\*/g);
+    return parts.map((part, j) =>
+      j % 2 === 1 ? (
+        <strong key={`${lineIdx}-${j}`} className="text-base font-semibold text-foreground">{part}</strong>
+      ) : (
+        <span key={`${lineIdx}-${j}`}>{part}</span>
+      )
+    );
+  };
+
   return lines.map((line, i) => (
     <span key={i}>
       {i > 0 && <br />}
-      {line}
+      {parseBold(line, i)}
     </span>
   ));
 };
