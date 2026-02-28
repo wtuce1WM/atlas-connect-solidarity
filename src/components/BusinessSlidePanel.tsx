@@ -512,14 +512,6 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
             </a>
           )}
 
-          {/* CTA to full page */}
-          <Link
-            to={`/business/${business.id}`}
-            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border border-border text-sm font-medium text-foreground hover:bg-muted transition-colors"
-          >
-            Voir la fiche complète
-            <ExternalLink className="h-3.5 w-3.5" />
-          </Link>
         </div>
       </div>
 
