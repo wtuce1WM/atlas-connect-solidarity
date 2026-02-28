@@ -292,7 +292,7 @@ const GroupedSubcategoryRow = ({
   return (
     <div>
       <div className="flex items-center gap-3 mb-4">
-        <h2 className="text-xl font-bold text-white">{subcategory}</h2>
+        <h2 className="text-xl font-bold text-foreground">{subcategory}</h2>
         <span className="text-sm text-muted-foreground">({businesses.length})</span>
         <div className="flex-1 h-px bg-border" />
         {(canScrollLeft || canScrollRight) && (
@@ -910,7 +910,7 @@ const SearchPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-background">
       <Header />
 
       {/* Voice search results overlay */}
@@ -920,24 +920,24 @@ const SearchPage = () => {
           style={{ background: 'transparent' }}
         >
           <div
-            className={`relative w-full h-[50vh] bg-black/30 backdrop-blur-lg flex flex-col items-center justify-center px-6 text-center transition-transform duration-400 ease-in-out ${overlayDismissing ? 'translate-y-full' : 'translate-y-0'}`}
+            className={`relative w-full h-[50vh] bg-foreground/5 backdrop-blur-lg flex flex-col items-center justify-center px-6 text-center transition-transform duration-400 ease-in-out ${overlayDismissing ? 'translate-y-full' : 'translate-y-0'}`}
             style={{ animation: overlayDismissing ? undefined : 'slideInFromBottom 0.4s ease-out' }}
           >
             {/* Close button */}
             <button
               onClick={dismissOverlay}
-              className="absolute top-3 right-3 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+              className="absolute top-3 right-3 w-10 h-10 flex items-center justify-center rounded-full bg-foreground/10 text-foreground hover:bg-foreground/20 transition-colors"
               aria-label="Fermer"
             >
               <X className="h-5 w-5" />
             </button>
-            <p className="text-white/60 text-sm mb-2">
+            <p className="text-foreground/60 text-sm mb-2">
               {language === "en" ? "Search results for" : language === "ar" ? "نتائج البحث عن" : "Résultats de recherche pour"}
             </p>
-            <p className="text-xl md:text-2xl font-bold text-white mb-3">
+            <p className="text-xl md:text-2xl font-bold text-foreground mb-3">
               «&nbsp;{spokenText || searchQuery}&nbsp;»
             </p>
-            <p className="text-white font-semibold text-lg mb-5">
+            <p className="text-foreground font-semibold text-lg mb-5">
               {filteredBusinesses.length} {language === "en" ? "establishments found" : language === "ar" ? "مؤسسة وجدت" : "établissements trouvés"}
             </p>
 
@@ -981,7 +981,7 @@ const SearchPage = () => {
               className={`mb-6 inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-medium transition-all ${
                 geo.isEnabled
                   ? "bg-gold/20 text-gold border border-gold/40"
-                  : "bg-white/10 text-white/60 border border-white/20 hover:border-white/40"
+                  : "bg-foreground/10 text-foreground/60 border border-foreground/20 hover:border-foreground/40"
               }`}
             >
               {geo.isDetecting ? (
@@ -1044,7 +1044,7 @@ const SearchPage = () => {
 
       {/* Mobile-only: geo + time badges at top */}
       {isMobile && (
-        <div className="bg-black pt-20 pb-2 px-4 flex flex-wrap items-center gap-2">
+        <div className="bg-background pt-20 pb-2 px-4 flex flex-wrap items-center gap-2">
           <button
             onClick={geo.toggle}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
@@ -1083,11 +1083,11 @@ const SearchPage = () => {
       )}
 
       {/* Hero Section - hidden on mobile when results found via voice search */}
-      <section className={`bg-black pt-6 lg:pt-28 pb-8 lg:pb-16 relative overflow-hidden ${isMobile && spokenText && filteredBusinesses.length > 0 ? 'hidden' : ''}`}>
+      <section className={`bg-background pt-6 lg:pt-28 pb-8 lg:pb-16 relative overflow-hidden ${isMobile && spokenText && filteredBusinesses.length > 0 ? 'hidden' : ''}`}>
         <div className="container mx-auto px-4 relative z-10">
           {(searchQuery || categoryFromUrl) && (
             <div className="text-center mb-8">
-              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2">
+              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-2">
                 {searchQuery ? (
                   <>{t.searchResults} {t.for}<br />«&nbsp;<span className="text-gold">{spokenText || searchQuery}</span>&nbsp;»</>
                 ) : (() => {
@@ -1186,7 +1186,7 @@ const SearchPage = () => {
       </section>
 
       {/* Filters & Results */}
-      <section ref={resultsRef} className="py-6 lg:py-12 bg-black">
+      <section ref={resultsRef} className="py-6 lg:py-12 bg-background">
         <div className="container mx-auto px-4">
           {/* Filters: City + Geo toggle — on mobile shown before hero via order */}
           <div className={`mb-8 flex flex-wrap items-center gap-3 ${isMobile ? 'hidden' : ''}`}>
@@ -1512,7 +1512,7 @@ const SearchPage = () => {
       </section>
 
       {/* Floating Search Bar */}
-      <div className="sticky bottom-0 z-40 bg-black/90 backdrop-blur-md border-t border-gold/20 py-3 px-4">
+      <div className="sticky bottom-0 z-40 bg-background/90 backdrop-blur-md border-t border-gold/20 py-3 px-4">
         <form onSubmit={handleSearch} className="max-w-2xl mx-auto" ref={searchFormRef}>
           {/* Desktop */}
           <div className="hidden md:flex items-center gap-2">
