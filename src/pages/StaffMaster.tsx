@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, Users, UserCheck, Search, ArrowLeft, Star, BarChart3, FlaskConical, BookOpen } from "lucide-react";
+import { LogOut, Users, UserCheck, Search, ArrowLeft, Star, BarChart3, FlaskConical, BookOpen, Egg } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import SearchConfigManagement from "@/components/staff/SearchConfigManagement";
 import AffiliateManagement from "@/components/staff/AffiliateManagement";
@@ -13,6 +13,7 @@ import SearchAnalytics from "@/pages/SearchAnalytics";
 import TestSuitePanel from "@/components/staff/TestSuitePanel";
 import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
 import KnowledgeBaseManagement from "@/components/staff/KnowledgeBaseManagement";
+import EasterEggManagement from "@/components/staff/EasterEggManagement";
 
 const StaffMaster = () => {
   const [user, setUser] = useState<any>(null);
@@ -116,6 +117,10 @@ const StaffMaster = () => {
               <BookOpen className="h-4 w-4" />
               Connaissances
             </TabsTrigger>
+            <TabsTrigger value="easter-eggs" className="gap-2">
+              <Egg className="h-4 w-4" />
+              Easter Eggs
+            </TabsTrigger>
             {isAdmin && (
               <TabsTrigger value="users" className="gap-2">
                 <Users className="h-4 w-4" />
@@ -146,6 +151,10 @@ const StaffMaster = () => {
 
           <TabsContent value="knowledge">
             <KnowledgeBaseManagement />
+          </TabsContent>
+
+          <TabsContent value="easter-eggs">
+            <EasterEggManagement />
           </TabsContent>
 
           {isAdmin && (
