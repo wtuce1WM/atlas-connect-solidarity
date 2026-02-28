@@ -1082,6 +1082,42 @@ export type Database = {
         }
         Relationships: []
       }
+      easter_eggs: {
+        Row: {
+          config: Json
+          created_at: string
+          id: string
+          is_active: boolean
+          keywords: string[]
+          name: string
+          sort_order: number
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          config?: Json
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          keywords?: string[]
+          name: string
+          sort_order?: number
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          config?: Json
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          keywords?: string[]
+          name?: string
+          sort_order?: number
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       gamme_categories: {
         Row: {
           category_id: string
