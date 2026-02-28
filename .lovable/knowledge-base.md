@@ -8,8 +8,8 @@ Journal des décisions d'architecture, règles métier et apprentissages issus d
 
 ### Architecture générale (v8)
 - Le moteur utilise SQL (`ts_rank` sur `search_vector`) avec repli sémantique.
-- Le `search_vector` inclut : nom, ville, quartier, sous-catégories (Poids A) ; services, mots-clés de services et mots-clés de sous-catégories (Poids B).
-- Les mots-clés de l'établissement, la description et le hook sont EXCLUS du search_vector.
+- Le `search_vector` inclut : nom, ville, quartier, sous-catégories (Poids A) ; services, mots-clés de services, mots-clés de sous-catégories ET mots-clés de l'établissement (Poids B).
+- La description et le hook sont EXCLUS du search_vector.
 - L'intention détectée (via `search_intent_words`) PRIORISE sur le paramètre `category` de l'URL.
 - En cas d'échec sémantique (0 résultat) avec catégorie+services, un second essai est tenté sans filtre de catégorie.
 
