@@ -11,6 +11,17 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, Trash2, Edit, Egg, X, GripVertical, AlertTriangle, Phone, Eye } from "lucide-react";
+import zitounMaskImg from "@/assets/zitoun-mask.jpg";
+
+// Map known asset paths to imported modules
+const ASSET_MAP: Record<string, string> = {
+  "/assets/zitoun-mask.jpg": zitounMaskImg,
+};
+
+const resolveAsset = (path: string | undefined): string | undefined => {
+  if (!path) return undefined;
+  return ASSET_MAP[path] || path;
+};
 
 interface EasterEgg {
   id: string;
@@ -344,7 +355,7 @@ const EasterEggManagement = () => {
             <div className="relative bg-black flex items-center justify-center min-h-[400px] p-6">
               {previewEgg.config?.image && (
                 <img
-                  src={previewEgg.config.image}
+                  src={resolveAsset(previewEgg.config.image)}
                   alt={previewEgg.name}
                   className="max-w-full max-h-[60vh] object-contain rounded-2xl shadow-2xl"
                 />
