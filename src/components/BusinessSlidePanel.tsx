@@ -463,46 +463,62 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
 
               {/* Opening Hours */}
               {canShowOpenBadge && (
-                <div className="col-span-2 flex items-start gap-3">
-                  <Clock className="h-5 w-5 shrink-0 mt-0.5 text-foreground" />
-                  <div className="flex-1">
-                    <p className="font-semibold text-sm text-foreground mb-1.5">
-                      Horaires
-                      {openBadgeText && (
-                        <span className={`ml-2 text-xs font-medium px-2 py-0.5 rounded-full ${openBadgeIsOpen ? 'bg-green-500/15 text-green-600' : 'bg-muted text-muted-foreground'}`}>
-                          {openBadgeText}
-                        </span>
-                      )}
-                    </p>
-                    {business.is_open_24h ? (
-                      <p className="text-sm text-muted-foreground">Ouvert 24h/24</p>
-                    ) : business.opening_hours ? (
-                      <div className="space-y-0.5">
-                        {(() => {
-                          const dayOrder = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
-                          const dayNames: Record<string, string> = { monday: "Lun", tuesday: "Mar", wednesday: "Mer", thursday: "Jeu", friday: "Ven", saturday: "Sam", sunday: "Dim" };
-                          const displayOrder = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
-                          const hours = business.opening_hours as Record<string, any>;
-                          const now = new Date();
-                          const todayKey = dayOrder[now.getDay()];
-                          return displayOrder.map(day => {
-                            const dh = hours[day];
-                            if (!dh) return null;
-                            const isToday = day === todayKey;
-                            return (
-                              <div key={day} className={`flex justify-between text-sm ${isToday ? 'font-bold' : ''}`}>
-                                <span className={`font-medium ${isToday ? 'text-foreground' : ''}`}>
-                                  {dayNames[day]}{isToday ? ' ●' : ''}
-                                </span>
-                                <span className="text-muted-foreground">
-                                  {formatDayHoursDisplay(dh, { language })}
-                                </span>
-                              </div>
-                            );
-                          });
-                        })()}
+                <div className="col-span-2 flex justify-center">
+                  <div className="w-[40%]">
+                    <div className="flex items-start gap-3">
+                      <Clock className="h-5 w-5 shrink-0 mt-0.5 text-foreground" />
+                      <div className="flex-1">
+                        <p className="font-semibold text-sm text-foreground mb-1.5">
+                          Horaires
+                          {openBadgeText && (
+                            <span className={`ml-2 text-xs font-medium px-2 py-0.5 rounded-full ${openBadgeIsOpen ? 'bg-green-500/15 text-green-600' : 'bg-muted text-muted-foreground'}`}>
+                              {openBadgeText}
+                            </span>
+                          )}
+                        </p>
+                        {business.is_open_24h ? (
+                          <p className="text-sm text-muted-foreground">Ouvert 24h/24</p>
+                        ) : business.opening_hours ? (
+                          <div className="space-y-0.5">
+                            {(() => {
+                              const dayOrder = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+                              const dayNames: Record<string, string> = { monday: "Lun", tuesday: "Mar", wednesday: "Mer", thursday: "Jeu", friday: "Ven", saturday: "Sam", sunday: "Dim" };
+                              const displayOrder = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+                              const hours = business.opening_hours as Record<string, any>;
+                              const now = new Date();
+                              const todayKey = dayOrder[now.getDay()];
+                              return displayOrder.map(day => {
+                                const dh = hours[day];
+                                if (!dh) return null;
+                                const isToday = day === todayKey;
+                                return (
+                                  <div key={day} className={`flex justify-between text-sm ${isToday ? 'font-bold' : ''}`}>
+                                    <span className={`font-medium ${isToday ? 'text-foreground' : ''}`}>
+                                      {dayNames[day]}{isToday ? ' ●' : ''}
+                                    </span>
+                                    <span className="text-muted-foreground">
+                                      {formatDayHoursDisplay(dh, { language })}
+                                    </span>
+                                  </div>
+                                );
+                              });
+                            })()}
+                          </div>
+                        ) : null}
                       </div>
-                    ) : null}
+                    </div>
+                    {/* Reserve now CTA — under hours */}
+                    {business.reserve_now_url && (
+                      <a
+                        href={business.reserve_now_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center gap-2 w-full mt-4 py-3 rounded-xl bg-gold text-gold-foreground font-semibold text-sm hover:bg-gold/90 transition-colors"
+                      >
+                        Réserver maintenant
+                        <ExternalLink className="h-3.5 w-3.5" />
+                      </a>
+                    )}
                   </div>
                 </div>
               )}
@@ -624,18 +640,6 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
             </div>
           )}
 
-          {/* Reserve now CTA */}
-          {business.reserve_now_url && (
-            <a
-              href={business.reserve_now_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-gold text-gold-foreground font-semibold text-sm hover:bg-gold/90 transition-colors"
-            >
-              Réserver maintenant
-              <ExternalLink className="h-3.5 w-3.5" />
-            </a>
-          )}
 
         </div>
       </div>
