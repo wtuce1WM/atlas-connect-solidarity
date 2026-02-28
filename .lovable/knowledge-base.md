@@ -66,7 +66,9 @@ Journal des décisions d'architecture, règles métier et apprentissages issus d
 ### Search Bundles
 - Quand un bundle est actif, les **merge groups de sous-catégories** (ex: Riad + Hôtel) sont **désactivés** pour garantir la précision.
 - Le bundle associe sous-catégorie + service sur la même ligne (ex: Riad + Galerie d'Art).
+- Le bundle peut aussi filtrer par **badge_id** (ex: badge "Enfants") via la table `business_badges`.
 - La résolution de casse est automatique (« riad » → « Riad » via lookup `ilike` dans la table `subcategories`).
+- La correspondance de mot-clé est **tolérante aux pluriels** : « activités » matche « activité » grâce à un stemmer français simplifié.
 
 
 ## 📝 Notes diverses
