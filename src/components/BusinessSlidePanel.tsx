@@ -422,7 +422,7 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
             </div>
           </div>
 
-          {/* Social media */}
+          {/* Social & Booking — single row */}
           {(() => {
             const socials = [
               { url: business.facebook_url, label: "Facebook", color: "#1877F2", icon: <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg> },
@@ -434,46 +434,35 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
               { url: business.pinterest_url, label: "Pinterest", color: "#E60023", icon: <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor"><path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 01.083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.631-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12.017 24c6.624 0 11.99-5.367 11.99-11.988C24.007 5.367 18.641 0 12.017 0z"/></svg> },
             ].filter(s => s.url);
 
-            if (socials.length === 0) return null;
-            return (
-              <div className="space-y-2">
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Réseaux sociaux</p>
-                <div className="flex flex-wrap gap-3">
-                  {socials.map(s => (
-                    <a key={s.label} href={s.url!} target="_blank" rel="noopener noreferrer" title={s.label} className="p-2 rounded-lg border border-border hover:bg-muted transition-colors" style={{ color: s.color }}>
-                      {s.icon}
-                    </a>
-                  ))}
-                </div>
-              </div>
-            );
-          })()}
-
-          {/* Booking platforms */}
-          {(() => {
             const platforms = [
-              { url: business.booking_url, label: "Booking.com" },
-              { url: business.reserve_now_url, label: "Réserver" },
-              { url: business.airbnb_url, label: "Airbnb" },
-              { url: business.hotels_com_url, label: "Hotels.com" },
-              { url: business.trivago_url, label: "Trivago" },
-              { url: business.glovo_url, label: "Glovo" },
-              { url: business.getyourguide_url, label: "GetYourGuide" },
-              { url: business.viator_url, label: "Viator" },
-              { url: business.other_booking_url, label: business.other_booking_name || "Autre" },
+              { url: business.booking_url, label: "Booking.com", icon: <svg className="h-5 w-5" viewBox="0 0 24 24" fill="#003580"><path d="M2.732 0A2.732 2.732 0 000 2.732v18.536A2.732 2.732 0 002.732 24h18.536A2.732 2.732 0 0024 21.268V2.732A2.732 2.732 0 0021.268 0zm7.477 5.63h3.428c2.57 0 4.152 1.214 4.152 3.263 0 1.253-.678 2.274-1.904 2.763v.063c1.58.32 2.457 1.467 2.457 2.92 0 2.322-1.741 3.732-4.593 3.732H10.21zm2.488 2.088v2.763h.878c1.106 0 1.71-.488 1.71-1.382 0-.893-.604-1.381-1.71-1.381zm0 4.788v3.012h1.066c1.169 0 1.804-.552 1.804-1.506s-.635-1.506-1.804-1.506z"/></svg> },
+              { url: business.airbnb_url, label: "Airbnb", icon: <svg className="h-5 w-5" viewBox="0 0 24 24" fill="#FF5A5F"><path d="M12.001 18.275c-1.353-1.697-2.148-3.398-2.488-4.736-.404-1.618-.18-2.835.564-3.54.477-.452 1.102-.66 1.753-.66h.34c.652 0 1.277.208 1.754.66.744.705.968 1.922.564 3.54-.34 1.338-1.135 3.04-2.487 4.736zm9.394-1.142c-.273 1.787-1.658 3.252-3.472 3.716-.603.155-1.224.224-1.841.224-1.17 0-2.305-.31-3.33-.82a14.37 14.37 0 01-.752-.423c-.23.293-.477.578-.735.853a8.04 8.04 0 01-2.73 2.034c-1.03.51-2.164.82-3.334.82-.617 0-1.238-.069-1.841-.224-1.814-.464-3.199-1.929-3.472-3.716-.211-1.395.07-2.844.815-4.293.512-1.003 1.232-2.01 2.134-2.994a26.478 26.478 0 011.676-1.69c.086-.08.17-.158.256-.234-.02-.07-.036-.14-.053-.211-.3-1.28-.292-2.47.078-3.514C5.685 3.24 6.605 2.496 7.79 2.15c.39-.114.808-.174 1.245-.174 1.352 0 2.834.67 4.407 2.004l.559.485.56-.485C16.153 2.646 17.635 1.976 18.987 1.976c.437 0 .854.06 1.245.174 1.184.346 2.104 1.09 2.594 2.097.37 1.043.378 2.234.077 3.514-.016.071-.033.141-.052.211.085.076.17.155.255.234a26.478 26.478 0 011.677 1.69c.902.985 1.622 1.991 2.134 2.994.745 1.449 1.026 2.898.815 4.293z"/></svg> },
+              { url: business.hotels_com_url, label: "Hotels.com", icon: <svg className="h-5 w-5" viewBox="0 0 24 24" fill="#D32F2F"><rect width="24" height="24" rx="4" fill="#D32F2F"/><text x="12" y="16" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">H</text></svg> },
+              { url: business.trivago_url, label: "Trivago", icon: <svg className="h-5 w-5" viewBox="0 0 24 24" fill="#007FAD"><rect width="24" height="24" rx="4" fill="#007FAD"/><text x="12" y="16" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">T</text></svg> },
+              { url: business.glovo_url, label: "Glovo", icon: <svg className="h-5 w-5" viewBox="0 0 24 24" fill="#FFC244"><circle cx="12" cy="12" r="12" fill="#FFC244"/><text x="12" y="16" textAnchor="middle" fill="#1A1A1A" fontSize="10" fontWeight="bold">G</text></svg> },
+              { url: business.getyourguide_url, label: "GetYourGuide", icon: <svg className="h-5 w-5" viewBox="0 0 24 24" fill="#FF4E00"><rect width="24" height="24" rx="4" fill="#FF4E00"/><text x="12" y="16" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">G</text></svg> },
+              { url: business.viator_url, label: "Viator", icon: <svg className="h-5 w-5" viewBox="0 0 24 24" fill="#3B7D23"><rect width="24" height="24" rx="4" fill="#3B7D23"/><text x="12" y="16" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">V</text></svg> },
+              { url: business.reserve_now_url, label: "Réserver", icon: <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> },
+              { url: business.other_booking_url, label: business.other_booking_name || "Autre", icon: <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg> },
             ].filter(p => p.url);
 
-            if (platforms.length === 0) return null;
+            if (socials.length === 0 && platforms.length === 0) return null;
+
             return (
-              <div className="space-y-2">
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Plateformes de réservation</p>
-                <div className="flex flex-wrap gap-2">
-                  {platforms.map(p => (
-                    <a key={p.label} href={p.url!} target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 rounded-lg border border-border text-sm font-medium text-foreground hover:bg-muted transition-colors">
-                      {p.label}
-                    </a>
-                  ))}
-                </div>
+              <div className="flex flex-wrap items-center gap-2">
+                {socials.map(s => (
+                  <a key={s.label} href={s.url!} target="_blank" rel="noopener noreferrer" title={s.label} className="p-2 rounded-lg border border-border hover:bg-muted transition-colors" style={{ color: s.color }}>
+                    {s.icon}
+                  </a>
+                ))}
+                {socials.length > 0 && platforms.length > 0 && (
+                  <div className="w-px h-6 bg-border mx-1" />
+                )}
+                {platforms.map(p => (
+                  <a key={p.label} href={p.url!} target="_blank" rel="noopener noreferrer" title={p.label} className="p-2 rounded-lg border border-border hover:bg-muted transition-colors">
+                    {p.icon}
+                  </a>
+                ))}
               </div>
             );
           })()}
