@@ -55,7 +55,7 @@ async function fetchReviewsFromPlaceId(placeId: string, apiKey: string): Promise
     });
     const detailData = await detailRes.json();
     if (detailData.reviews) {
-      for (const r of detailData.reviews.slice(0, 3)) {
+      for (const r of detailData.reviews.slice(0, 5)) {
         reviewTexts.push({
           source: 'google',
           author_name: r.authorAttribution?.displayName || null,
