@@ -278,37 +278,72 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
           )}
 
           {/* Contact info */}
-          <div className="space-y-2">
-            {business.address && (
-              <div className="flex items-start gap-2 text-sm text-muted-foreground">
-                <MapPin className="h-4 w-4 shrink-0 mt-0.5" />
-                <span>{business.address}</span>
-              </div>
-            )}
-            {business.phone && (
-              <a href={`tel:${business.phone}`} className="flex items-center gap-2 text-sm text-foreground hover:text-gold transition-colors">
-                <Phone className="h-4 w-4 shrink-0" />
-                {business.phone}
-              </a>
-            )}
-            {business.whatsapp && (
-              <a href={`https://wa.me/${business.whatsapp.replace(/\D/g, "")}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-foreground hover:text-emerald-500 transition-colors">
-                <WhatsAppIcon />
-                WhatsApp
-              </a>
-            )}
-            {business.email && (
-              <a href={`mailto:${business.email}`} className="flex items-center gap-2 text-sm text-foreground hover:text-gold transition-colors">
-                <Mail className="h-4 w-4 shrink-0" />
-                {business.email}
-              </a>
-            )}
-            {business.website && (
-              <a href={business.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-foreground hover:text-gold transition-colors">
-                <Globe className="h-4 w-4 shrink-0" />
-                {business.website.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")}
-              </a>
-            )}
+          <div className="border-y border-border py-5">
+            <div className="grid grid-cols-2 gap-6">
+              {/* Address */}
+              {business.address && (
+                <div className="flex items-start gap-3">
+                  <MapPin className="h-5 w-5 shrink-0 mt-0.5 text-foreground" />
+                  <div>
+                    <p className="font-semibold text-sm text-foreground">Adresse</p>
+                    <p className="text-sm text-muted-foreground mt-0.5">{business.address}</p>
+                    {business.city && <p className="text-sm text-muted-foreground">{business.city}</p>}
+                  </div>
+                </div>
+              )}
+
+              {/* Website */}
+              {business.website && (
+                <div className="flex items-start gap-3">
+                  <ExternalLink className="h-5 w-5 shrink-0 mt-0.5 text-foreground" />
+                  <div>
+                    <p className="font-semibold text-sm text-foreground">Website</p>
+                    <a href={business.website} target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground transition-colors mt-0.5 block">
+                      {business.website.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")}
+                    </a>
+                  </div>
+                </div>
+              )}
+
+              {/* Phone */}
+              {business.phone && (
+                <div className="flex items-start gap-3">
+                  <Phone className="h-5 w-5 shrink-0 mt-0.5 text-foreground" />
+                  <div>
+                    <p className="font-semibold text-sm text-foreground">Phone</p>
+                    <a href={`tel:${business.phone}`} className="text-sm text-muted-foreground hover:text-foreground transition-colors mt-0.5 block">
+                      {business.phone}
+                    </a>
+                  </div>
+                </div>
+              )}
+
+              {/* Email */}
+              {business.email && (
+                <div className="flex items-start gap-3">
+                  <Mail className="h-5 w-5 shrink-0 mt-0.5 text-foreground" />
+                  <div>
+                    <p className="font-semibold text-sm text-foreground">Email</p>
+                    <a href={`mailto:${business.email}`} className="text-sm text-muted-foreground hover:text-foreground transition-colors mt-0.5 block">
+                      {business.email}
+                    </a>
+                  </div>
+                </div>
+              )}
+
+              {/* WhatsApp */}
+              {business.whatsapp && (
+                <div className="flex items-start gap-3">
+                  <WhatsAppIcon />
+                  <div>
+                    <p className="font-semibold text-sm text-foreground">WhatsApp</p>
+                    <a href={`https://wa.me/${business.whatsapp.replace(/\D/g, "")}`} target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground transition-colors mt-0.5 block">
+                      {business.whatsapp}
+                    </a>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Review sources */}
