@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
 import { Save, Loader2, RefreshCw, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -249,6 +250,22 @@ const AIConfigManagement = () => {
               step={0.05}
             />
           </CardContent>
+        </Card>
+
+        {/* Boost verified */}
+        <Card className="md:col-span-2">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-base">Privilégier les établissements vérifiés</CardTitle>
+                <CardDescription>{configs.boost_verified?.description || "L'IA mentionnera en priorité les établissements au statut WTUCE vérifié"}</CardDescription>
+              </div>
+              <Switch
+                checked={editValues.boost_verified !== "false"}
+                onCheckedChange={v => updateVal("boost_verified", v ? "true" : "false")}
+              />
+            </div>
+          </CardHeader>
         </Card>
       </div>
     </div>

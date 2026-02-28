@@ -12,6 +12,7 @@ interface AISearchAnswerProps {
     categories: string[] | null;
     hook_fr: string | null;
     rating: number | null;
+    wtuce_status: string | null;
   }>;
   isSearchLoading: boolean;
 }
@@ -61,6 +62,7 @@ const AISearchAnswer = ({ query, businesses, isSearchLoading }: AISearchAnswerPr
               categories: b.categories,
               hook_fr: b.hook_fr,
               rating: b.rating,
+              wtuce_status: b.wtuce_status,
             })),
             language,
           },
