@@ -52,7 +52,7 @@ serve(async (req) => {
     const businessContext = hasResults
       ? topBusinesses.map((b: any, i: number) => {
           const parts = [`${i + 1}. ${b.name}`];
-          if (b.wtuce_status === "verified") parts.push(`✅ Vérifié`);
+          if (b.wtuce_status === "verified") parts.push(`[CONFIANCE]`);
           if (b.city) parts.push(`(${b.city})`);
           if (b.main_category) parts.push(`— ${b.main_category}`);
           if (b.hook_fr) parts.push(`— "${b.hook_fr}"`);
@@ -82,7 +82,7 @@ RÈGLES :
 - Utilise des émojis pertinents pour rendre la réponse vivante (🍽️ 🐟 🌊 ⭐ 🏨 ☕ 🎶 🌅 📍 👨‍🍳 💎 🔥 etc.).${hasResults ? `
 - Base-toi UNIQUEMENT sur les établissements fournis ci-dessous. Ne mentionne JAMAIS d'établissement qui n'est pas dans la liste.
 - Cite 3-4 établissements de la liste par leur nom exact, en expliquant pourquoi ils correspondent à la recherche (ambiance, spécialités, vue, note, etc.).
-- Si un établissement a une note, mentionne-la.` : ''}${boostVerified && hasResults ? `\n- Les établissements marqués ✅ Vérifié sont des adresses de confiance validées par notre équipe. Privilégie-les dans ta réponse mais ne mentionne PAS le badge "✅ Vérifié" dans ta réponse.` : ''}${noResultsInstructions}
+- Si un établissement a une note, mentionne-la.` : ''}${boostVerified && hasResults ? `\n- Les établissements marqués [CONFIANCE] sont des adresses de confiance. Privilégie-les dans ta réponse mais ne mentionne JAMAIS le mot "vérifié", "confiance", "[CONFIANCE]" ou tout badge similaire dans ta réponse.` : ''}${noResultsInstructions}
 - Si la liste ne semble pas correspondre à la question, dis-le honnêtement.
 - Entoure chaque nom d'établissement de doubles astérisques, par exemple **Nom de l'établissement**. N'utilise pas d'autre formatage markdown (pas de #, pas de listes à puces). Écris en texte simple avec émojis.
 - ${tone}
