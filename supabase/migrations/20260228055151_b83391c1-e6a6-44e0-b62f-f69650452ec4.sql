@@ -1,0 +1,1 @@
+ALTER TABLE public.businesses ADD COLUMN glovo_url text DEFAULT NULL;

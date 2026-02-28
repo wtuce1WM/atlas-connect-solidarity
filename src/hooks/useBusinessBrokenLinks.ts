@@ -34,6 +34,7 @@ const URL_FIELDS: { key: keyof Business; label: string }[] = [
   { key: "menu_url", label: "Menu" },
   { key: "other_booking_url", label: "Autre réservation" },
   { key: "video_1_url", label: "Vidéo" },
+  { key: "glovo_url" as any, label: "Glovo" },
 ];
 
 export const useBusinessBrokenLinks = (businesses: Business[]) => {
