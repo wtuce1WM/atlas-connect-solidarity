@@ -247,14 +247,43 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
         {mediaCount > 0 && (
           <div className="relative w-full aspect-[16/9] bg-muted cursor-pointer" onClick={() => { if (!(hasVideo && currentImageIndex === 0)) setIsLightboxOpen(true); }}>
             {hasVideo && currentImageIndex === 0 ? (
-              <video
-                src={business.video_1_url!}
-                autoPlay
-                muted
-                loop
-                playsInline
-                className="w-full h-full object-cover"
-              />
+              (() => {
+                const url = business.video_1_url!;
+                const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]+)/);
+                if (ytMatch) {
+                  return (
+                    <iframe
+                      src={`https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&mute=1&loop=1&playlist=${ytMatch[1]}&controls=0&modestbranding=1&rel=0`}
+                      className="w-full h-full"
+                      allow="autoplay; encrypted-media"
+                      allowFullScreen
+                      frameBorder="0"
+                    />
+                  );
+                }
+                const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+                if (vimeoMatch) {
+                  return (
+                    <iframe
+                      src={`https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1&muted=1&loop=1&background=1`}
+                      className="w-full h-full"
+                      allow="autoplay; encrypted-media"
+                      allowFullScreen
+                      frameBorder="0"
+                    />
+                  );
+                }
+                return (
+                  <video
+                    src={url}
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    className="w-full h-full object-cover"
+                  />
+                );
+              })()
             ) : (
               <img
                 src={images[currentImageIndex - videoOffset]}
