@@ -790,6 +790,10 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Auto-clear orphan default_service before saving
+    const cleanDefaultService = formData.default_service && !formData.services.includes(formData.default_service)
+      ? "" : formData.default_service;
+
     // Hard limit: max 12 images
     if (formData.images && formData.images.length > 12) {
       toast({
@@ -825,7 +829,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
       main_category: formData.main_category || null,
       categories: formData.categories.length > 0 ? formData.categories : [],
       services: formData.services.length > 0 ? formData.services : [],
-      default_service: formData.default_service || null,
+      default_service: cleanDefaultService || null,
       business_type: formData.business_type || null,
       engagements: (formData as any).engagements?.length > 0 ? (formData as any).engagements : [],
       keywords: formData.keywords ? formData.keywords.split(",").map((k) => k.trim()) : [],
@@ -3375,6 +3379,24 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
             <p className="text-muted-foreground text-sm italic">
               Sélectionnez d'abord une catégorie principale.
             </p>
+          )}
+          {/* Orphan default_service warning */}
+          {formData.default_service && !formData.services.includes(formData.default_service) && (
+            <div className="flex items-center gap-2 mt-2 p-3 rounded-lg border border-destructive/30 bg-destructive/5">
+              <span className="text-sm text-destructive">
+                ⚠️ Service par défaut orphelin : <strong>"{formData.default_service}"</strong> (absent de la liste des services)
+              </span>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => handleChange("default_service", "")}
+                className="text-destructive border-destructive/30 hover:bg-destructive/10"
+              >
+                <Trash2 className="h-3.5 w-3.5 mr-1" />
+                Supprimer
+              </Button>
+            </div>
           )}
           {formData.services.length > 0 && (
             <>
