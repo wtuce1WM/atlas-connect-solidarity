@@ -57,7 +57,7 @@ const BusinessHoverCard = ({ name, business }: { name: string; business: Busines
           {name}
         </Link>
       </HoverCardTrigger>
-      <HoverCardContent side="top" className="w-72 p-0 overflow-hidden rounded-xl border border-gold/20 shadow-xl">
+      <HoverCardContent side="top" align="center" avoidCollisions sideOffset={8} className="z-[100] w-72 p-0 overflow-hidden rounded-xl border border-gold/20 shadow-xl">
         {img && (
           <div className="h-32 w-full overflow-hidden">
             <img src={img} alt={business.name} className="w-full h-full object-cover" />
@@ -188,7 +188,7 @@ const AISearchAnswer = ({ query, businesses, isSearchLoading }: AISearchAnswerPr
 
   return (
     <div className="w-[70%] mx-auto mb-6 animate-in fade-in slide-in-from-top-2 duration-500">
-      <div className="relative rounded-2xl border border-gold/30 bg-gradient-to-br from-gold/5 to-transparent backdrop-blur-sm overflow-hidden">
+      <div className="relative rounded-2xl border border-gold/30 bg-gradient-to-br from-gold/5 to-transparent backdrop-blur-sm">
         {/* Header */}
         <div className="flex items-center px-4 py-2.5 border-b border-gold/15">
           <div className="flex items-center gap-2">
