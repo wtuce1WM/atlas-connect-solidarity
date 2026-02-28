@@ -158,14 +158,59 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
 
   const hook = language === "en" ? business.hook_en : language === "ar" ? business.hook_ar : business.hook_fr;
 
-  // Opening hours
-  let openStatus: { isOpen: boolean; label: string } | null = null;
-  if (business.is_open_24h) {
-    openStatus = { isOpen: true, label: "Ouvert 24h/24" };
-  } else if (business.show_opening_hours !== false && business.opening_hours) {
-    const check = isCurrentlyOpenCheck(business.opening_hours);
-    if (check !== null) {
-      openStatus = { isOpen: check, label: check ? "Ouvert" : "Fermé" };
+  // Opening hours — same logic as BusinessCard badge
+  const canShowOpenBadge = !!business.show_opening_hours || !!business.is_open_24h;
+  let openBadgeText: string | null = null;
+  let openBadgeIsOpen = false;
+
+  if (canShowOpenBadge) {
+    if (business.is_open_24h) {
+      openBadgeText = "Ouvert 24h";
+      openBadgeIsOpen = true;
+    } else if (business.opening_hours) {
+      const oh = business.opening_hours as Record<string, { open?: string; close?: string; open2?: string; close2?: string; closed?: boolean; continuous?: boolean }>;
+      const days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+      const now = new Date();
+      const todayKey = days[now.getDay()];
+
+      // Check if currently open
+      const currentlyOpen = isCurrentlyOpenCheck(oh[todayKey]);
+      if (currentlyOpen) {
+        openBadgeText = "Ouvert";
+        openBadgeIsOpen = true;
+      } else {
+        // Find next opening time
+        const nowMin = now.getHours() * 60 + now.getMinutes();
+        const dh = oh[todayKey];
+        let foundToday = false;
+
+        if (dh && !dh.closed && dh.open) {
+          const [oH, oM] = dh.open.split(":").map(Number);
+          const openMin = oH * 60 + (oM || 0);
+          if (openMin > nowMin) {
+            openBadgeText = `Ouvre à ${dh.open}`;
+            foundToday = true;
+          } else if (dh.open2 && !dh.continuous) {
+            const [oH2, oM2] = dh.open2.split(":").map(Number);
+            const open2Min = oH2 * 60 + (oM2 || 0);
+            if (open2Min > nowMin) {
+              openBadgeText = `Ouvre à ${dh.open2}`;
+              foundToday = true;
+            }
+          }
+        }
+
+        if (!foundToday) {
+          for (let i = 1; i <= 7; i++) {
+            const nextDayKey = days[(now.getDay() + i) % 7];
+            const nextDh = oh[nextDayKey];
+            if (nextDh && !nextDh.closed && nextDh.open) {
+              openBadgeText = `Ouvre à ${nextDh.open}`;
+              break;
+            }
+          }
+        }
+      }
     }
   }
 
@@ -249,10 +294,10 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
           </div>
 
           {/* Opening status */}
-          {openStatus && (
-            <div className={`flex items-center gap-2 text-sm font-medium ${openStatus.isOpen ? "text-emerald-600" : "text-red-500"}`}>
+          {openBadgeText && (
+            <div className={`flex items-center gap-2 text-sm font-medium ${openBadgeIsOpen ? "text-emerald-600" : "text-muted-foreground"}`}>
               <Clock className="h-4 w-4" />
-              {openStatus.label}
+              {openBadgeText}
             </div>
           )}
 
