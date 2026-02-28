@@ -298,9 +298,9 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
             {hasVideo && currentImageIndex === 0 && (
               <button
                 onClick={(e) => { e.stopPropagation(); setIsVideoMuted(m => !m); }}
-                className="absolute bottom-2 right-2 p-2 rounded-full bg-background/80 hover:bg-background transition-colors shadow z-10"
+                className="absolute bottom-3 right-3 p-3 rounded-full bg-background/80 hover:bg-background transition-colors shadow-lg z-10"
               >
-                {isVideoMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                {isVideoMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
               </button>
             )}
             {isVerified && !isInstitution && (
