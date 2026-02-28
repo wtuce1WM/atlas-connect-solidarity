@@ -27,9 +27,9 @@ const AISearchAnswer = ({ query, businesses, isSearchLoading }: AISearchAnswerPr
 
   // Stable fingerprint of query + first business names
   const fetchKey = useMemo(() => {
-    if (!query || businesses.length === 0) return "";
+    if (!query) return "";
     const names = businesses.slice(0, 5).map(b => b.name).join("|");
-    return `${query}::${names}`;
+    return `${query}::${names || "no-results"}`;
   }, [query, businesses]);
 
   // Reset dismiss when query changes
