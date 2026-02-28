@@ -1632,7 +1632,7 @@ serve(async (req) => {
           // If any synonym value words are in the query, add the key_word's words
           for (const sv of normalizedValues) {
             const svWords = sv.split(/\s+/);
-            if (svWords.some(w => allWords.has(w))) {
+            if (svWords.every(w => allWords.has(w))) {
               // Add all words from the key
               for (const w of normalizedKey.split(/\s+/)) expandedWords.add(w);
             }
