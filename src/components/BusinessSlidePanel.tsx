@@ -350,7 +350,7 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
                   <div>
                     <p className="font-semibold text-sm text-foreground">Adresse</p>
                     <p className="text-sm text-muted-foreground mt-0.5">{business.address}</p>
-                    {business.city && <p className="text-sm text-muted-foreground">{business.city}</p>}
+                    
                   </div>
                 </div>
               )}
