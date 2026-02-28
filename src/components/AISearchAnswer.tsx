@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from "react";
-import { Sparkles, Loader2, MapPin, Star, X, Phone, Globe } from "lucide-react";
+import { Sparkles, Loader2, MapPin, Star, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
@@ -46,76 +46,19 @@ const getImage = (b: BusinessData): string | null => {
 
 // Slide-in panel for a business
 const BusinessSlidePanel = ({ business, onClose }: { business: BusinessData; onClose: () => void }) => {
-  const img = getImage(business);
-
   return (
     <>
-      <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 bg-background border-b border-border">
+      <div className="sticky top-0 z-10 flex items-center justify-between px-4 py-3 bg-background border-b border-border">
         <h2 className="text-lg font-semibold text-foreground truncate">{business.name}</h2>
         <button onClick={onClose} className="p-2 rounded-full hover:bg-muted transition-colors">
           <X className="h-5 w-5 text-muted-foreground" />
         </button>
       </div>
-
-        <div className="p-6 space-y-6">
-          {/* Image */}
-          {img && (
-            <div className="w-full h-64 rounded-xl overflow-hidden">
-              <img src={img} alt={business.name} className="w-full h-full object-cover" />
-            </div>
-          )}
-
-          {/* Info */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <MapPin className="h-4 w-4 shrink-0" />
-              <span>{business.city}{business.neighborhood ? ` · ${business.neighborhood}` : ""}</span>
-            </div>
-
-            {business.address && (
-              <p className="text-sm text-muted-foreground">{business.address}</p>
-            )}
-
-            {business.rating && (
-              <div className="flex items-center gap-1.5">
-                <Star className="h-4 w-4 text-gold fill-gold" />
-                <span className="font-semibold text-foreground">{business.rating}/20</span>
-              </div>
-            )}
-
-            {business.main_category && (
-              <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-gold/10 text-gold border border-gold/20">
-                {business.main_category}
-              </span>
-            )}
-
-            {business.hook_fr && (
-              <p className="text-sm text-muted-foreground italic leading-relaxed">{business.hook_fr}</p>
-            )}
-
-            {business.phone && (
-              <a href={`tel:${business.phone}`} className="flex items-center gap-2 text-sm text-foreground hover:text-gold transition-colors">
-                <Phone className="h-4 w-4" />
-                {business.phone}
-              </a>
-            )}
-
-            {business.website && (
-              <a href={business.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-foreground hover:text-gold transition-colors">
-                <Globe className="h-4 w-4" />
-                {business.website.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")}
-              </a>
-            )}
-          </div>
-
-          {/* CTA */}
-          <Link
-            to={`/business/${business.id}`}
-            className="block w-full text-center py-3 rounded-xl bg-gold text-gold-foreground font-semibold hover:bg-gold/90 transition-colors"
-          >
-            Voir la fiche complète
-          </Link>
-        </div>
+      <iframe
+        src={`/business/${business.id}`}
+        className="w-full h-[calc(100%-56px)] border-0"
+        title={business.name}
+      />
     </>
   );
 };
