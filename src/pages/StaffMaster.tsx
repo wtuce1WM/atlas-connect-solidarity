@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, Users, UserCheck, Search, ArrowLeft, Star, BarChart3, FlaskConical, BookOpen, Egg } from "lucide-react";
+import { LogOut, Users, UserCheck, Search, ArrowLeft, Star, BarChart3, FlaskConical, BookOpen, Egg, Sparkles } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import SearchConfigManagement from "@/components/staff/SearchConfigManagement";
 import AffiliateManagement from "@/components/staff/AffiliateManagement";
@@ -14,6 +14,7 @@ import TestSuitePanel from "@/components/staff/TestSuitePanel";
 import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
 import KnowledgeBaseManagement from "@/components/staff/KnowledgeBaseManagement";
 import EasterEggManagement from "@/components/staff/EasterEggManagement";
+import AIConfigManagement from "@/components/staff/AIConfigManagement";
 
 const StaffMaster = () => {
   const [user, setUser] = useState<any>(null);
@@ -97,6 +98,10 @@ const StaffMaster = () => {
               <Search className="h-4 w-4" />
               Recherche
             </TabsTrigger>
+            <TabsTrigger value="ai-config" className="gap-2">
+              <Sparkles className="h-4 w-4" />
+              IA
+            </TabsTrigger>
             <TabsTrigger value="affiliates" className="gap-2">
               <UserCheck className="h-4 w-4" />
               Affiliés
@@ -131,6 +136,10 @@ const StaffMaster = () => {
 
           <TabsContent value="search-config">
             <SearchConfigManagement />
+          </TabsContent>
+
+          <TabsContent value="ai-config">
+            <AIConfigManagement />
           </TabsContent>
 
           <TabsContent value="affiliates">

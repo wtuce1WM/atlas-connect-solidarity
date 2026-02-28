@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -25,6 +26,24 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
+    // Fetch AI config from DB
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const sb = createClient(supabaseUrl, supabaseKey);
+    
+    const { data: configRows } = await sb.from("ai_config").select("key, value");
+    const cfg: Record<string, string> = {};
+    (configRows || []).forEach((r: any) => { cfg[r.key] = r.value; });
+
+    const persona = cfg.persona || "Tu es un concierge expert du Maroc, chaleureux et passionné. Tu aides les utilisateurs à trouver les meilleurs établissements.";
+    const tone = cfg.tone || "Sois naturel et enthousiaste, comme un ami local passionné qui partage ses meilleures adresses.";
+    const responseLength = cfg.response_length || "5-8";
+    const model = cfg.model || "google/gemini-3-flash-preview";
+    const maxTokens = parseInt(cfg.max_tokens || "600", 10);
+    const temperature = parseFloat(cfg.temperature || "0.7");
+    const extraInstructions = cfg.extra_instructions || "";
+    const noResultsCfg = cfg.no_results_instructions || "";
+
     // Build context from top search results (max 10)
     const topBusinesses = businesses.slice(0, 10);
     const hasResults = topBusinesses.length > 0;
@@ -48,25 +67,24 @@ serve(async (req) => {
         : "Réponds en français.";
 
     const noResultsInstructions = !hasResults
-      ? `\n- Aucun établissement n'a été trouvé dans notre annuaire. Utilise tes connaissances générales sur le Maroc pour donner des conseils utiles sur la recherche de l'utilisateur.
-- Explique honnêtement que tu n'as pas d'établissement spécifique à recommander dans l'annuaire, mais partage des conseils pratiques et des suggestions générales.
-- Si la recherche mentionne une ville marocaine, partage ce que tu sais sur cette ville en rapport avec la requête (quartiers, marchés, spécialités locales, etc.).
+      ? `\n- ${noResultsCfg || "Utilise tes connaissances générales sur le Maroc pour donner des conseils utiles."}
+- Si la recherche mentionne une ville marocaine, partage ce que tu sais sur cette ville en rapport avec la requête.
 - Propose à l'utilisateur d'affiner sa recherche ou de chercher avec d'autres mots-clés.`
       : `\n- Si la liste contient peu de résultats (1-2), complète ta réponse avec des conseils généraux sur la destination/thématique pour enrichir l'expérience.`;
 
-    const systemPrompt = `Tu es un concierge expert du Maroc, chaleureux et passionné. Tu aides les utilisateurs à trouver les meilleurs établissements.
+    const systemPrompt = `${persona}
 
 RÈGLES :
 - ${langInstructions}
-- Réponds en 5-8 phrases, de façon détaillée, chaleureuse et enthousiaste.
+- Réponds en ${responseLength} phrases, de façon détaillée, chaleureuse et enthousiaste.
 - Utilise des émojis pertinents pour rendre la réponse vivante (🍽️ 🐟 🌊 ⭐ 🏨 ☕ 🎶 🌅 📍 👨‍🍳 💎 🔥 etc.).${hasResults ? `
 - Base-toi UNIQUEMENT sur les établissements fournis ci-dessous. Ne mentionne JAMAIS d'établissement qui n'est pas dans la liste.
 - Cite 3-4 établissements de la liste par leur nom exact, en expliquant pourquoi ils correspondent à la recherche (ambiance, spécialités, vue, note, etc.).
 - Si un établissement a une note, mentionne-la.` : ''}${noResultsInstructions}
 - Si la liste ne semble pas correspondre à la question, dis-le honnêtement.
 - N'utilise pas de formatage markdown (pas de **, pas de #, pas de listes à puces). Écris en texte simple avec émojis.
-- Sois naturel et enthousiaste, comme un ami local passionné qui partage ses meilleures adresses.
-- Commence par une accroche engageante liée à la recherche de l'utilisateur.
+- ${tone}
+- Commence par une accroche engageante liée à la recherche de l'utilisateur.${extraInstructions ? `\n- ${extraInstructions}` : ''}
 
 ÉTABLISSEMENTS TROUVÉS :
 ${businessContext}`;
@@ -78,13 +96,13 @@ ${businessContext}`;
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model,
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: query },
         ],
-        max_tokens: 600,
-        temperature: 0.7,
+        max_tokens: maxTokens,
+        temperature,
       }),
     });
 
