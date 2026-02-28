@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { X, MapPin, Phone, Mail, Globe, Star, BadgeCheck, ChevronLeft, ChevronRight, Clock, Loader2, ExternalLink } from "lucide-react";
+import { X, MapPin, Phone, Mail, Globe, Star, BadgeCheck, ChevronLeft, ChevronRight, Clock, Loader2, ExternalLink, CookingPot } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Link } from "react-router-dom";
@@ -73,6 +73,7 @@ interface FullBusiness {
   viator_url: string | null;
   other_booking_name: string | null;
   other_booking_url: string | null;
+  menu_url: string | null;
 }
 
 interface Gamme {
@@ -391,7 +392,19 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
                 </div>
               )}
 
-              {/* WhatsApp */}
+              {/* Menu */}
+              {business.menu_url && (
+                <div className="flex items-start gap-3">
+                  <CookingPot className="h-5 w-5 shrink-0 mt-0.5 text-foreground" />
+                  <div>
+                    <p className="font-semibold text-sm text-foreground">Menu</p>
+                    <a href={business.menu_url} target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground transition-colors mt-0.5 block">
+                      Voir le menu <ExternalLink className="inline h-3 w-3 ml-0.5" />
+                    </a>
+                  </div>
+                </div>
+              )}
+
               {business.whatsapp && (
                 <div className="flex items-start gap-3">
                   <WhatsAppIcon className="h-5 w-5 shrink-0 mt-0.5" />
