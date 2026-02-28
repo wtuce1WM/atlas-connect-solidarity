@@ -74,6 +74,7 @@ interface FullBusiness {
   other_booking_name: string | null;
   other_booking_url: string | null;
   menu_url: string | null;
+  video_1_url: string | null;
 }
 
 interface Gamme {
@@ -159,6 +160,9 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
   const isVerified = business.wtuce_status === "verified";
   const isInstitution = business.account_type?.toLowerCase() === "institution";
   const images = business.images || [];
+  const hasVideo = !!business.video_1_url;
+  const mediaCount = (hasVideo ? 1 : 0) + images.length;
+  const videoOffset = hasVideo ? 1 : 0;
   const ratingSourcesForCalc = collectRatingSources(business);
   const computedOn20 = computeWeightedRatingOn20(ratingSourcesForCalc);
   const avgOn20 = business.rating ?? computedOn20;
@@ -240,32 +244,43 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
       {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto">
         {/* Image carousel */}
-        {images.length > 0 && (
-          <div className="relative w-full aspect-[16/9] bg-muted cursor-pointer" onClick={() => setIsLightboxOpen(true)}>
-            <img
-              src={images[currentImageIndex]}
-              alt={`${business.name} - ${currentImageIndex + 1}`}
-              className="w-full h-full object-cover"
-            />
+        {mediaCount > 0 && (
+          <div className="relative w-full aspect-[16/9] bg-muted cursor-pointer" onClick={() => { if (!(hasVideo && currentImageIndex === 0)) setIsLightboxOpen(true); }}>
+            {hasVideo && currentImageIndex === 0 ? (
+              <video
+                src={business.video_1_url!}
+                autoPlay
+                muted
+                loop
+                playsInline
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <img
+                src={images[currentImageIndex - videoOffset]}
+                alt={`${business.name} - ${currentImageIndex - videoOffset + 1}`}
+                className="w-full h-full object-cover"
+              />
+            )}
             {isVerified && !isInstitution && (
               <img src={logoGold} alt="WTUCE" className="absolute top-3 right-3 w-12 h-12 object-contain opacity-90 pointer-events-none drop-shadow-lg" />
             )}
-            {images.length > 1 && (
+            {mediaCount > 1 && (
               <>
                 <button
-                  onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(i => i === 0 ? images.length - 1 : i - 1); }}
+                  onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(i => i === 0 ? mediaCount - 1 : i - 1); }}
                   className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-background/80 hover:bg-background transition-colors shadow"
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </button>
                 <button
-                  onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(i => i === images.length - 1 ? 0 : i + 1); }}
+                  onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(i => i === mediaCount - 1 ? 0 : i + 1); }}
                   className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-background/80 hover:bg-background transition-colors shadow"
                 >
                   <ChevronRight className="h-4 w-4" />
                 </button>
                 <div className="absolute bottom-2 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full bg-background/80 text-xs text-foreground">
-                  {currentImageIndex + 1} / {images.length}
+                  {currentImageIndex + 1} / {mediaCount}
                 </div>
               </>
             )}
