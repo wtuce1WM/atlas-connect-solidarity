@@ -3413,6 +3413,20 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                     Aucun
                   </button>
                 )}
+                {formData.services && formData.services.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (window.confirm(`Supprimer les ${formData.services.length} services ?`)) {
+                        handleChange("services", []);
+                        handleChange("default_service", "");
+                      }
+                    }}
+                    className="text-xs text-destructive hover:underline ml-2"
+                  >
+                    🗑 Supprimer tous les services
+                  </button>
+                )}
               </div>
 
               {/* Poissonnerie: per-service qualifiers */}
