@@ -258,21 +258,23 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
 
           {/* Description */}
           {business.description && (
-            <div className="relative">
-              <div
-                className={`text-sm text-foreground leading-relaxed [&>p]:mb-3 [&>p:last-child]:mb-0 [&>br]:content-[''] [&>br]:block [&>br]:mb-2 overflow-hidden transition-all duration-300 ${isDescriptionExpanded ? "" : "max-h-[21em]"}`}
-                dangerouslySetInnerHTML={{ __html: business.description }}
-              />
-              {!isDescriptionExpanded && (
-                <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-background to-transparent pointer-events-none" />
-              )}
+            <>
+              <div className="relative">
+                <div
+                  className={`text-sm text-foreground leading-relaxed [&>p]:mb-3 [&>p:last-child]:mb-0 [&>br]:content-[''] [&>br]:block [&>br]:mb-2 overflow-hidden transition-all duration-300 ${isDescriptionExpanded ? "" : "max-h-[21em]"}`}
+                  dangerouslySetInnerHTML={{ __html: business.description }}
+                />
+                {!isDescriptionExpanded && (
+                  <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-background to-transparent pointer-events-none" />
+                )}
+              </div>
               <button
                 onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
-                className="mt-2 w-full py-2 rounded-lg border border-border bg-muted/50 text-sm font-semibold text-muted-foreground hover:bg-muted transition-colors"
+                className="w-full py-2 rounded-lg border border-border bg-muted/50 text-sm font-semibold text-muted-foreground hover:bg-muted transition-colors"
               >
                 {isDescriptionExpanded ? "Voir −" : "Voir +"}
               </button>
-            </div>
+            </>
           )}
 
           {/* Contact info */}
