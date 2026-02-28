@@ -60,6 +60,7 @@ interface FullBusiness {
   linkedin_url: string | null;
   youtube_url: string | null;
   tiktok_url: string | null;
+  skype: string | null;
 }
 
 interface Gamme {
@@ -69,9 +70,15 @@ interface Gamme {
   text_color_hex: string | null;
 }
 
-const WhatsAppIcon = () => (
-  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="#25D366">
+const WhatsAppIcon = ({ className = "h-5 w-5" }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="#25D366">
     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+  </svg>
+);
+
+const SkypeIcon = ({ className = "h-5 w-5" }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="#00AFF0">
+    <path d="M12.069 18.874c-4.023 0-5.82-1.979-5.82-3.464 0-.765.561-1.296 1.333-1.296 1.723 0 1.273 2.477 4.487 2.477 1.641 0 2.55-.895 2.55-1.811 0-.551-.269-1.16-1.354-1.429l-3.576-.895c-2.88-.724-3.403-2.286-3.403-3.751 0-3.047 2.861-4.191 5.549-4.191 2.471 0 5.393 1.373 5.393 3.199 0 .784-.688 1.24-1.453 1.24-1.469 0-1.198-2.037-4.164-2.037-1.469 0-2.292.664-2.292 1.617s1.153 1.258 2.157 1.487l2.637.587c2.891.649 3.624 2.346 3.624 3.944 0 2.476-1.902 4.324-5.722 4.324m11.084-4.882a7.508 7.508 0 01.12 1.357c0 4.456-4.214 8.07-9.413 8.07a9.643 9.643 0 01-2.987-.463 5.56 5.56 0 01-2.559.631c-3.024 0-5.478-2.455-5.478-5.478 0-.957.245-1.878.681-2.683a8.4 8.4 0 01-.152-1.603c0-4.456 4.214-8.07 9.413-8.07.967 0 1.914.122 2.816.353A5.478 5.478 0 0120.593 5c3.024 0 5.478 2.455 5.478 5.478a5.48 5.48 0 01-.918 3.514"/>
   </svg>
 );
 
@@ -310,7 +317,7 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
                 <div className="flex items-start gap-3">
                   <Phone className="h-5 w-5 shrink-0 mt-0.5 text-foreground" />
                   <div>
-                    <p className="font-semibold text-sm text-foreground">Phone</p>
+                    <p className="font-semibold text-sm text-foreground">Téléphone</p>
                     <a href={`tel:${business.phone}`} className="text-sm text-muted-foreground hover:text-foreground transition-colors mt-0.5 block">
                       {business.phone}
                     </a>
@@ -334,11 +341,24 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
               {/* WhatsApp */}
               {business.whatsapp && (
                 <div className="flex items-start gap-3">
-                  <WhatsAppIcon />
+                  <WhatsAppIcon className="h-5 w-5 shrink-0 mt-0.5" />
                   <div>
-                    <p className="font-semibold text-sm text-foreground">WhatsApp</p>
+                    <p className="font-semibold text-sm" style={{ color: "#25D366" }}>WhatsApp</p>
                     <a href={`https://wa.me/${business.whatsapp.replace(/\D/g, "")}`} target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground transition-colors mt-0.5 block">
                       {business.whatsapp}
+                    </a>
+                  </div>
+                </div>
+              )}
+
+              {/* Skype */}
+              {business.skype && (
+                <div className="flex items-start gap-3">
+                  <SkypeIcon className="h-5 w-5 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold text-sm" style={{ color: "#00AFF0" }}>Skype</p>
+                    <a href={`skype:${business.skype}?chat`} className="text-sm text-muted-foreground hover:text-foreground transition-colors mt-0.5 block">
+                      {business.skype}
                     </a>
                   </div>
                 </div>
