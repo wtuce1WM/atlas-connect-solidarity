@@ -81,6 +81,7 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
   const [gamme, setGamme] = useState<Gamme | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
   useEffect(() => {
     const fetch = async () => {
@@ -174,7 +175,7 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
       <div className="flex-1 overflow-y-auto">
         {/* Image carousel */}
         {images.length > 0 && (
-          <div className="relative w-full aspect-[16/9] bg-muted">
+          <div className="relative w-full aspect-[16/9] bg-muted cursor-pointer" onClick={() => setIsLightboxOpen(true)}>
             <img
               src={images[currentImageIndex]}
               alt={`${business.name} - ${currentImageIndex + 1}`}
@@ -186,13 +187,13 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
             {images.length > 1 && (
               <>
                 <button
-                  onClick={() => setCurrentImageIndex(i => i === 0 ? images.length - 1 : i - 1)}
+                  onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(i => i === 0 ? images.length - 1 : i - 1); }}
                   className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-background/80 hover:bg-background transition-colors shadow"
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </button>
                 <button
-                  onClick={() => setCurrentImageIndex(i => i === images.length - 1 ? 0 : i + 1)}
+                  onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(i => i === images.length - 1 ? 0 : i + 1); }}
                   className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-background/80 hover:bg-background transition-colors shadow"
                 >
                   <ChevronRight className="h-4 w-4" />
@@ -232,30 +233,11 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
                 </div>
               </div>
               {business.logo_url && (
-                <img src={business.logo_url} alt="" className="w-14 h-14 object-contain rounded-lg border border-border shrink-0" />
+                <div className="w-16 h-16 p-1.5 rounded-lg border border-border shrink-0 bg-background flex items-center justify-center">
+                  <img src={business.logo_url} alt="" className="max-w-full max-h-full object-contain" />
+                </div>
               )}
             </div>
-
-            {/* Gamme */}
-            {gamme && (
-              <Badge
-                className="mt-2 text-xs border border-foreground/20"
-                style={{ backgroundColor: gamme.color_hex || "#666", color: gamme.text_color_hex || "#000" }}
-              >
-                {gamme.name_fr}
-              </Badge>
-            )}
-
-            {/* Categories */}
-            {business.categories && business.categories.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 mt-2">
-                {business.categories.filter(c => c.trim() !== "?").map(cat => (
-                  <span key={cat} className="px-2 py-0.5 rounded-full text-xs bg-muted text-muted-foreground">
-                    {cat}
-                  </span>
-                ))}
-              </div>
-            )}
           </div>
 
           {/* Opening status */}
@@ -275,9 +257,10 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
 
           {/* Description */}
           {business.description && (
-            <p className="text-sm text-foreground leading-relaxed">
-              {business.description}
-            </p>
+            <div
+              className="text-sm text-foreground leading-relaxed"
+              dangerouslySetInnerHTML={{ __html: business.description }}
+            />
           )}
 
           {/* Contact info */}
@@ -383,6 +366,40 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
           </Link>
         </div>
       </div>
+
+      {/* Fullscreen lightbox */}
+      {isLightboxOpen && images.length > 0 && (
+        <div className="fixed inset-0 z-[200] bg-black flex items-center justify-center" onClick={() => setIsLightboxOpen(false)}>
+          <button onClick={() => setIsLightboxOpen(false)} className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors z-10">
+            <X className="h-6 w-6 text-white" />
+          </button>
+          <img
+            src={images[currentImageIndex]}
+            alt={`${business.name} - ${currentImageIndex + 1}`}
+            className="max-w-[90%] max-h-[90vh] object-contain"
+            onClick={(e) => e.stopPropagation()}
+          />
+          {images.length > 1 && (
+            <>
+              <button
+                onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(i => i === 0 ? images.length - 1 : i - 1); }}
+                className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+              >
+                <ChevronLeft className="h-6 w-6 text-white" />
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(i => i === images.length - 1 ? 0 : i + 1); }}
+                className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+              >
+                <ChevronRight className="h-6 w-6 text-white" />
+              </button>
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-white/10 text-sm text-white">
+                {currentImageIndex + 1} / {images.length}
+              </div>
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 };
