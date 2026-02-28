@@ -522,6 +522,9 @@ const SearchPage = () => {
     
     const keys = Object.keys(groups);
     
+    // If all results belong to a single subcategory, use flat paginated grid instead of carousel
+    if (keys.length <= 1) return null;
+    
     // Sort groups: detected subcategory first, then by DB sort_order, then alphabetically
     const getSubcatSortOrder = (name: string): number => {
       const sc = subcategories.find(s => s.name_fr.toLowerCase() === name.toLowerCase());
