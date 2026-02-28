@@ -463,6 +463,15 @@ function expandQuery(query: string): string {
   const groups = words.map(word => {
     const alternatives: string[] = [word];
 
+    // Auto-generate singular/plural variants for every word (simple French stemming)
+    // This ensures "caviar" matches "caviars" in search_vector (which uses 'simple' config, no stemming)
+    if (word.length > 3 && word.endsWith("s") && !word.endsWith("ss")) {
+      alternatives.push(word.slice(0, -1)); // caviars → caviar
+    }
+    if (word.length > 2 && !word.endsWith("s")) {
+      alternatives.push(word + "s"); // caviar → caviars
+    }
+
     // If word contains "/" keep it as-is (e.g. "maison/villa") for tsquery
     // Also add the individual parts so they can match separately
     if (word.includes("/")) {
