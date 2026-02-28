@@ -986,11 +986,7 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
                               <Video className="h-4 w-4" />
                             </button>
                           )
-                        ) : (
-                          <div className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-muted text-muted-foreground">
-                            <Video className="h-4 w-4" />
-                          </div>
-                        )}
+                        ) : null}
                       </TableCell>
 
                       {/* GPS */}
