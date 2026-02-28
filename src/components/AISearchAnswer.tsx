@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { Sparkles, Loader2, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -22,23 +22,31 @@ const AISearchAnswer = ({ query, businesses, isSearchLoading }: AISearchAnswerPr
   const [isLoading, setIsLoading] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const lastQueryRef = useRef("");
+  const fetchIdRef = useRef(0);
+  const lastFetchKeyRef = useRef("");
 
+  // Stable fingerprint of query + first business names
+  const fetchKey = useMemo(() => {
+    if (!query || businesses.length === 0) return "";
+    const names = businesses.slice(0, 5).map(b => b.name).join("|");
+    return `${query}::${names}`;
+  }, [query, businesses]);
+
+  // Reset dismiss when query changes
   useEffect(() => {
-    // Reset on new query
-    if (query !== lastQueryRef.current) {
-      setIsDismissed(false);
-      setAnswer("");
-      setError(null);
-    }
+    setIsDismissed(false);
+    setAnswer("");
+    setError(null);
   }, [query]);
 
   useEffect(() => {
-    if (!query || isSearchLoading || businesses.length === 0 || isDismissed) return;
-    if (query === lastQueryRef.current && answer) return;
+    if (!fetchKey || isSearchLoading || isDismissed) return;
+    if (fetchKey === lastFetchKeyRef.current && answer) return;
 
-    lastQueryRef.current = query;
+    const currentFetchId = ++fetchIdRef.current;
+    lastFetchKeyRef.current = fetchKey;
     setIsLoading(true);
+    setAnswer("");
     setError(null);
 
     const fetchAnswer = async () => {
@@ -58,6 +66,9 @@ const AISearchAnswer = ({ query, businesses, isSearchLoading }: AISearchAnswerPr
           },
         });
 
+        // Ignore stale responses
+        if (currentFetchId !== fetchIdRef.current) return;
+
         if (fnError) {
           console.error("AI answer error:", fnError);
           setError(fnError.message);
@@ -68,15 +79,18 @@ const AISearchAnswer = ({ query, businesses, isSearchLoading }: AISearchAnswerPr
           setAnswer(data.answer);
         }
       } catch (err) {
+        if (currentFetchId !== fetchIdRef.current) return;
         console.error("AI answer fetch error:", err);
         setError("Erreur lors de la génération de la réponse");
       } finally {
-        setIsLoading(false);
+        if (currentFetchId === fetchIdRef.current) {
+          setIsLoading(false);
+        }
       }
     };
 
     fetchAnswer();
-  }, [query, businesses, isSearchLoading, isDismissed, language]);
+  }, [fetchKey, isSearchLoading, isDismissed, language]);
 
   if (isDismissed || (!isLoading && !answer) || error) return null;
 
