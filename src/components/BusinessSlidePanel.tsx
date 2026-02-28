@@ -258,7 +258,7 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
           {/* Description */}
           {business.description && (
             <div
-              className="text-sm text-foreground leading-relaxed"
+              className="text-sm text-foreground leading-relaxed [&>p]:mb-3 [&>p:last-child]:mb-0 [&>br]:content-[''] [&>br]:block [&>br]:mb-2"
               dangerouslySetInnerHTML={{ __html: business.description }}
             />
           )}
