@@ -355,18 +355,6 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
                 </div>
               )}
 
-              {/* Website */}
-              {business.website && (
-                <div className="flex items-start gap-3">
-                  <ExternalLink className="h-5 w-5 shrink-0 mt-0.5 text-foreground" />
-                  <div>
-                    <p className="font-semibold text-sm text-foreground">Website</p>
-                    <a href={business.website} target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground transition-colors mt-0.5 block">
-                      {business.website.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")}
-                    </a>
-                  </div>
-                </div>
-              )}
 
               {/* Phone */}
               {business.phone && (
@@ -449,20 +437,31 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
             if (socials.length === 0 && platforms.length === 0) return null;
 
             return (
-              <div className="flex flex-wrap items-center gap-2">
-                {socials.map(s => (
-                  <a key={s.label} href={s.url!} target="_blank" rel="noopener noreferrer" title={s.label} className="p-2 rounded-lg border border-border hover:bg-muted transition-colors" style={{ color: s.color }}>
-                    {s.icon}
-                  </a>
-                ))}
-                {socials.length > 0 && platforms.length > 0 && (
-                  <div className="w-px h-6 bg-border mx-1" />
+              <div className="space-y-4">
+                {socials.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Réseaux sociaux</p>
+                    <div className="flex flex-wrap items-center gap-2">
+                      {socials.map(s => (
+                        <a key={s.label} href={s.url!} target="_blank" rel="noopener noreferrer" title={s.label} className="p-2 rounded-lg border border-border hover:bg-muted transition-colors" style={{ color: s.color }}>
+                          {s.icon}
+                        </a>
+                      ))}
+                    </div>
+                  </div>
                 )}
-                {platforms.map(p => (
-                  <a key={p.label} href={p.url!} target="_blank" rel="noopener noreferrer" title={p.label} className="p-2 rounded-lg border border-border hover:bg-muted transition-colors">
-                    {p.icon}
-                  </a>
-                ))}
+                {platforms.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Plateformes de réservation</p>
+                    <div className="flex flex-wrap items-center gap-2">
+                      {platforms.map(p => (
+                        <a key={p.label} href={p.url!} target="_blank" rel="noopener noreferrer" title={p.label} className="p-2 rounded-lg border border-border hover:bg-muted transition-colors">
+                          {p.icon}
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })()}
