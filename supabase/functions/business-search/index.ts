@@ -1748,7 +1748,8 @@ serve(async (req) => {
       }
     }
 
-    if (detectedSubcategory && businesses.length === 0) {
+    const bundleResultIds = new Set(businesses.map(b => b.id));
+    if (detectedSubcategory) {
       // Helper to fetch businesses for a given subcategory (or merged group) with current filters
       const fetchSubcategoryBusinesses = async (subcat: string, filterByServices?: string[], options?: { skipNeighborhood?: boolean; overrideCity?: string }) => {
         // Determine which subcategories to query (merged if applicable)
@@ -1823,9 +1824,21 @@ serve(async (req) => {
         console.log(`Service filter [${detectedServices.join(", ")}] is redundant with subcategory "${detectedSubcategory}" — skipping`);
       }
       let serviceFilter = (detectedServices.length > 0 && !serviceIsRedundantWithSubcategory) ? detectedServices : undefined;
-      businesses = await fetchSubcategoryBusinesses(detectedSubcategory, serviceFilter);
+      const subcatResults = await fetchSubcategoryBusinesses(detectedSubcategory, serviceFilter);
+      // Merge with any existing bundle results, avoiding duplicates
+      if (bundleResultIds.size > 0) {
+        for (const b of subcatResults) {
+          if (!bundleResultIds.has(b.id)) {
+            businesses.push(b);
+            bundleResultIds.add(b.id);
+          }
+        }
+        console.log(`Merged ${subcatResults.length} subcategory results with ${bundleResultIds.size - subcatResults.length} bundle results → ${businesses.length} total`);
+      } else {
+        businesses = subcatResults;
+      }
       searchLevel = "exact";
-      console.log(`Subcategory direct query "${detectedSubcategory}" + city "${effectiveCity}" + neighborhood "${detectedNeighborhood}" + services filter [${(serviceFilter || []).join(", ")}]: ${businesses.length} results`);
+      console.log(`Subcategory direct query "${detectedSubcategory}" + city "${effectiveCity}" + neighborhood "${detectedNeighborhood}" + services filter [${(serviceFilter || []).join(", ")}]: ${subcatResults.length} results`);
 
       // If service filter yielded 0 results but would have results without it,
       // the detected service likely doesn't belong to this subcategory (e.g. "Fleurs comestibles" vs "Fleuriste")
