@@ -8,6 +8,7 @@ import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUti
 import { formatDayHours as formatDayHoursDisplay, isCurrentlyOpen as isCurrentlyOpenCheck } from "@/lib/formatOpeningHours";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import restaurantGuruLogo from "@/assets/restaurant-guru-logo.webp";
+import tripadvisorLogo from "@/assets/tripadvisor-logo.png";
 
 interface BusinessSlidePanelProps {
   businessId: string;
@@ -654,9 +655,7 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
                             </div>
                           )}
                           {r.label === 'TripAdvisor' && (
-                            <div className="w-10 h-10 rounded-full bg-[#34e0a1] flex items-center justify-center shrink-0">
-                              <svg viewBox="0 0 24 24" className="w-5 h-5 text-white" fill="currentColor"><path d="M12.006 4.295c-2.67 0-5.338.784-7.645 2.353H0l1.963 2.135a5.997 5.997 0 0 0 4.04 10.43 5.976 5.976 0 0 0 4.075-1.6L12 19.705l1.922-2.09a5.972 5.972 0 0 0 4.075 1.598 5.997 5.997 0 0 0 4.04-10.43L24 6.648h-4.35a13.573 13.573 0 0 0-7.644-2.353z"/></svg>
-                            </div>
+                            <img src={tripadvisorLogo} alt="TripAdvisor" className="w-10 h-10 rounded-full object-cover shrink-0" />
                           )}
                           {r.label === 'Restaurant Guru' && (
                             <img src={restaurantGuruLogo} alt="Restaurant Guru" className="w-10 h-10 rounded-full object-contain shrink-0" />
