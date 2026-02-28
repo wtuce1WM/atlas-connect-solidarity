@@ -464,7 +464,7 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
               {/* Opening Hours */}
               {canShowOpenBadge && (
                 <div className="col-span-2 flex justify-center">
-                  <div className="w-[60%]">
+                  <div className="w-1/2">
                     <div className="flex items-start gap-3">
                       <Clock className="h-5 w-5 shrink-0 mt-0.5 text-foreground" />
                       <div className="flex-1">
@@ -509,15 +509,17 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
                     </div>
                     {/* Reserve now CTA — under hours */}
                     {business.reserve_now_url && (
-                      <a
-                        href={business.reserve_now_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-2 w-full mt-4 py-3 rounded-xl bg-gold text-gold-foreground font-semibold text-sm hover:bg-gold/90 transition-colors"
-                      >
-                        Réserver maintenant
-                        <ExternalLink className="h-3.5 w-3.5" />
-                      </a>
+                      <div className="flex justify-center mt-4">
+                        <a
+                          href={business.reserve_now_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-center gap-2 w-[60%] py-3 rounded-xl bg-gold text-gold-foreground font-semibold text-sm hover:bg-gold/90 transition-colors"
+                        >
+                          Réserver maintenant
+                          <ExternalLink className="h-3.5 w-3.5" />
+                        </a>
+                      </div>
                     )}
                   </div>
                 </div>
