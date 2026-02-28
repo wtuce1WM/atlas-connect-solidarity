@@ -464,7 +464,7 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
               {/* Opening Hours */}
               {canShowOpenBadge && (
                 <div className="col-span-2 flex justify-center">
-                  <div className="w-[40%]">
+                  <div className="w-[60%]">
                     <div className="flex items-start gap-3">
                       <Clock className="h-5 w-5 shrink-0 mt-0.5 text-foreground" />
                       <div className="flex-1">
