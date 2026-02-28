@@ -43,6 +43,7 @@ serve(async (req) => {
     const temperature = parseFloat(cfg.temperature || "0.7");
     const extraInstructions = cfg.extra_instructions || "";
     const noResultsCfg = cfg.no_results_instructions || "";
+    const boostVerified = cfg.boost_verified !== "false";
 
     // Build context from top search results (max 10)
     const topBusinesses = businesses.slice(0, 10);
@@ -51,6 +52,7 @@ serve(async (req) => {
     const businessContext = hasResults
       ? topBusinesses.map((b: any, i: number) => {
           const parts = [`${i + 1}. ${b.name}`];
+          if (b.wtuce_status === "verified") parts.push(`✅ Vérifié`);
           if (b.city) parts.push(`(${b.city})`);
           if (b.main_category) parts.push(`— ${b.main_category}`);
           if (b.hook_fr) parts.push(`— "${b.hook_fr}"`);
@@ -80,7 +82,7 @@ RÈGLES :
 - Utilise des émojis pertinents pour rendre la réponse vivante (🍽️ 🐟 🌊 ⭐ 🏨 ☕ 🎶 🌅 📍 👨‍🍳 💎 🔥 etc.).${hasResults ? `
 - Base-toi UNIQUEMENT sur les établissements fournis ci-dessous. Ne mentionne JAMAIS d'établissement qui n'est pas dans la liste.
 - Cite 3-4 établissements de la liste par leur nom exact, en expliquant pourquoi ils correspondent à la recherche (ambiance, spécialités, vue, note, etc.).
-- Si un établissement a une note, mentionne-la.` : ''}${noResultsInstructions}
+- Si un établissement a une note, mentionne-la.` : ''}${boostVerified && hasResults ? `\n- Les établissements marqués ✅ Vérifié sont des adresses de confiance validées par notre équipe. Privilégie-les dans ta réponse et mentionne qu'ils sont vérifiés.` : ''}${noResultsInstructions}
 - Si la liste ne semble pas correspondre à la question, dis-le honnêtement.
 - N'utilise pas de formatage markdown (pas de **, pas de #, pas de listes à puces). Écris en texte simple avec émojis.
 - ${tone}
