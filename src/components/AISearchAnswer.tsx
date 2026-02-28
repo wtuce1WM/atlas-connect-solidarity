@@ -1,23 +1,105 @@
 import { useState, useEffect, useRef, useMemo } from "react";
-import { Sparkles, Loader2, X } from "lucide-react";
+import { Sparkles, Loader2, MapPin, Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
+import { Link } from "react-router-dom";
 
-// Format AI answer: double line break after each sentence, bold business names
-const formatAnswer = (text: string) => {
-  // Split on ". " or "." followed by space/end, keeping the dot with the sentence
+interface BusinessData {
+  id: string;
+  name: string;
+  city: string;
+  main_category: string | null;
+  categories: string[] | null;
+  hook_fr: string | null;
+  rating: number | null;
+  wtuce_status: string | null;
+  images?: string[] | null;
+  logo_url?: string | null;
+  neighborhood?: string | null;
+}
+
+interface AISearchAnswerProps {
+  query: string;
+  businesses: BusinessData[];
+  isSearchLoading: boolean;
+}
+
+// Normalize string for fuzzy matching
+const normalize = (s: string) =>
+  s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[''`]/g, "'").trim();
+
+// Find matching business by name
+const findBusiness = (name: string, businesses: BusinessData[]): BusinessData | null => {
+  const n = normalize(name);
+  return businesses.find(b => normalize(b.name) === n)
+    || businesses.find(b => n.includes(normalize(b.name)) || normalize(b.name).includes(n))
+    || null;
+};
+
+const getImage = (b: BusinessData): string | null => {
+  if (b.images && b.images.length > 0) return b.images[0];
+  if (b.logo_url) return b.logo_url;
+  return null;
+};
+
+const BusinessHoverCard = ({ name, business }: { name: string; business: BusinessData }) => {
+  const img = getImage(business);
+  const slug = business.name.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]/g, "");
+
+  return (
+    <HoverCard openDelay={200} closeDelay={100}>
+      <HoverCardTrigger asChild>
+        <Link
+          to={`/business/${business.id}`}
+          className="text-base font-semibold text-foreground underline decoration-gold/40 underline-offset-2 hover:decoration-gold transition-colors cursor-pointer"
+        >
+          {name}
+        </Link>
+      </HoverCardTrigger>
+      <HoverCardContent side="top" className="w-72 p-0 overflow-hidden rounded-xl border border-gold/20 shadow-xl">
+        {img && (
+          <div className="h-32 w-full overflow-hidden">
+            <img src={img} alt={business.name} className="w-full h-full object-cover" />
+          </div>
+        )}
+        <div className="p-3 space-y-1.5">
+          <p className="font-semibold text-sm text-foreground leading-tight">{business.name}</p>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <MapPin className="h-3 w-3 shrink-0" />
+            <span>{business.city}{business.neighborhood ? ` · ${business.neighborhood}` : ""}</span>
+          </div>
+          {business.rating && (
+            <div className="flex items-center gap-1 text-xs">
+              <Star className="h-3 w-3 text-gold fill-gold" />
+              <span className="font-medium text-foreground">{business.rating}/20</span>
+            </div>
+          )}
+          {business.hook_fr && (
+            <p className="text-xs text-muted-foreground line-clamp-2 italic">{business.hook_fr}</p>
+          )}
+        </div>
+      </HoverCardContent>
+    </HoverCard>
+  );
+};
+
+// Format AI answer: double line break after each sentence, bold business names with hover
+const formatAnswer = (text: string, businesses: BusinessData[]) => {
   const sentences = text.split(/(?<=\.)\s+/).filter(s => s.trim());
 
-  // Parse **bold** segments within a line
   const parseBold = (line: string, lineIdx: number) => {
     const parts = line.split(/\*\*(.+?)\*\*/g);
-    return parts.map((part, j) =>
-      j % 2 === 1 ? (
-        <strong key={`${lineIdx}-${j}`} className="text-base font-semibold text-foreground">{part}</strong>
-      ) : (
-        <span key={`${lineIdx}-${j}`}>{part}</span>
-      )
-    );
+    return parts.map((part, j) => {
+      if (j % 2 === 1) {
+        const match = findBusiness(part, businesses);
+        if (match) {
+          return <BusinessHoverCard key={`${lineIdx}-${j}`} name={part} business={match} />;
+        }
+        return <strong key={`${lineIdx}-${j}`} className="text-base font-semibold text-foreground">{part}</strong>;
+      }
+      return <span key={`${lineIdx}-${j}`}>{part}</span>;
+    });
   };
 
   return sentences.map((line, i) => (
@@ -28,20 +110,6 @@ const formatAnswer = (text: string) => {
   ));
 };
 
-interface AISearchAnswerProps {
-  query: string;
-  businesses: Array<{
-    name: string;
-    city: string;
-    main_category: string | null;
-    categories: string[] | null;
-    hook_fr: string | null;
-    rating: number | null;
-    wtuce_status: string | null;
-  }>;
-  isSearchLoading: boolean;
-}
-
 const AISearchAnswer = ({ query, businesses, isSearchLoading }: AISearchAnswerProps) => {
   const { language } = useLanguage();
   const [answer, setAnswer] = useState("");
@@ -51,14 +119,12 @@ const AISearchAnswer = ({ query, businesses, isSearchLoading }: AISearchAnswerPr
   const fetchIdRef = useRef(0);
   const lastFetchKeyRef = useRef("");
 
-  // Stable fingerprint of query + first business names
   const fetchKey = useMemo(() => {
     if (!query) return "";
     const names = businesses.slice(0, 5).map(b => b.name).join("|");
     return `${query}::${names || "no-results"}`;
   }, [query, businesses]);
 
-  // Reset dismiss when query changes
   useEffect(() => {
     setIsDismissed(false);
     setAnswer("");
@@ -93,7 +159,6 @@ const AISearchAnswer = ({ query, businesses, isSearchLoading }: AISearchAnswerPr
           },
         });
 
-        // Ignore stale responses
         if (currentFetchId !== fetchIdRef.current) return;
 
         if (fnError) {
@@ -145,7 +210,7 @@ const AISearchAnswer = ({ query, businesses, isSearchLoading }: AISearchAnswerPr
             </div>
           ) : (
             <div className="text-sm leading-relaxed text-foreground whitespace-pre-line">
-              {formatAnswer(answer)}
+              {formatAnswer(answer, businesses)}
             </div>
           )}
         </div>
