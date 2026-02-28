@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from "react";
-import { Sparkles, Loader2, MapPin, Star } from "lucide-react";
+import { Sparkles, Loader2, MapPin, Star, X, Phone, Globe } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
@@ -17,6 +17,9 @@ interface BusinessData {
   images?: string[] | null;
   logo_url?: string | null;
   neighborhood?: string | null;
+  phone?: string | null;
+  website?: string | null;
+  address?: string | null;
 }
 
 interface AISearchAnswerProps {
@@ -25,11 +28,9 @@ interface AISearchAnswerProps {
   isSearchLoading: boolean;
 }
 
-// Normalize string for fuzzy matching
 const normalize = (s: string) =>
   s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[''`]/g, "'").trim();
 
-// Find matching business by name
 const findBusiness = (name: string, businesses: BusinessData[]): BusinessData | null => {
   const n = normalize(name);
   return businesses.find(b => normalize(b.name) === n)
@@ -43,19 +44,100 @@ const getImage = (b: BusinessData): string | null => {
   return null;
 };
 
-const BusinessHoverCard = ({ name, business }: { name: string; business: BusinessData }) => {
+// Slide-in panel for a business
+const BusinessSlidePanel = ({ business, onClose }: { business: BusinessData; onClose: () => void }) => {
   const img = getImage(business);
-  const slug = business.name.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]/g, "");
+
+  return (
+    <>
+      {/* Backdrop */}
+      <div className="fixed inset-0 z-[90] bg-black/30 backdrop-blur-sm" onClick={onClose} />
+      {/* Panel */}
+      <div className="fixed top-0 right-0 z-[100] h-full w-1/2 bg-background shadow-2xl border-l border-border animate-in slide-in-from-right duration-300 overflow-y-auto">
+        <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 bg-background border-b border-border">
+          <h2 className="text-lg font-semibold text-foreground truncate">{business.name}</h2>
+          <button onClick={onClose} className="p-2 rounded-full hover:bg-muted transition-colors">
+            <X className="h-5 w-5 text-muted-foreground" />
+          </button>
+        </div>
+
+        <div className="p-6 space-y-6">
+          {/* Image */}
+          {img && (
+            <div className="w-full h-64 rounded-xl overflow-hidden">
+              <img src={img} alt={business.name} className="w-full h-full object-cover" />
+            </div>
+          )}
+
+          {/* Info */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <MapPin className="h-4 w-4 shrink-0" />
+              <span>{business.city}{business.neighborhood ? ` · ${business.neighborhood}` : ""}</span>
+            </div>
+
+            {business.address && (
+              <p className="text-sm text-muted-foreground">{business.address}</p>
+            )}
+
+            {business.rating && (
+              <div className="flex items-center gap-1.5">
+                <Star className="h-4 w-4 text-gold fill-gold" />
+                <span className="font-semibold text-foreground">{business.rating}/20</span>
+              </div>
+            )}
+
+            {business.main_category && (
+              <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-gold/10 text-gold border border-gold/20">
+                {business.main_category}
+              </span>
+            )}
+
+            {business.hook_fr && (
+              <p className="text-sm text-muted-foreground italic leading-relaxed">{business.hook_fr}</p>
+            )}
+
+            {business.phone && (
+              <a href={`tel:${business.phone}`} className="flex items-center gap-2 text-sm text-foreground hover:text-gold transition-colors">
+                <Phone className="h-4 w-4" />
+                {business.phone}
+              </a>
+            )}
+
+            {business.website && (
+              <a href={business.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-foreground hover:text-gold transition-colors">
+                <Globe className="h-4 w-4" />
+                {business.website.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")}
+              </a>
+            )}
+          </div>
+
+          {/* CTA */}
+          <Link
+            to={`/business/${business.id}`}
+            className="block w-full text-center py-3 rounded-xl bg-gold text-gold-foreground font-semibold hover:bg-gold/90 transition-colors"
+          >
+            Voir la fiche complète
+          </Link>
+        </div>
+      </div>
+    </>
+  );
+};
+
+const BusinessHoverCard = ({ name, business, onClickBusiness }: { name: string; business: BusinessData; onClickBusiness: (b: BusinessData) => void }) => {
+  const img = getImage(business);
 
   return (
     <HoverCard openDelay={200} closeDelay={100}>
       <HoverCardTrigger asChild>
-        <Link
-          to={`/business/${business.id}`}
+        <button
+          type="button"
+          onClick={() => onClickBusiness(business)}
           className="text-base font-semibold text-foreground underline decoration-gold/40 underline-offset-2 hover:decoration-gold transition-colors cursor-pointer"
         >
           {name}
-        </Link>
+        </button>
       </HoverCardTrigger>
       <HoverCardContent side="top" align="center" avoidCollisions sideOffset={8} className="z-[100] w-72 p-0 overflow-hidden rounded-xl border border-gold/20 shadow-xl">
         {img && (
@@ -84,8 +166,8 @@ const BusinessHoverCard = ({ name, business }: { name: string; business: Busines
   );
 };
 
-// Format AI answer: double line break after each sentence, bold business names with hover
-const formatAnswer = (text: string, businesses: BusinessData[]) => {
+// Format AI answer
+const formatAnswer = (text: string, businesses: BusinessData[], onClickBusiness: (b: BusinessData) => void) => {
   const sentences = text.split(/(?<=\.)\s+/).filter(s => s.trim());
 
   const parseBold = (line: string, lineIdx: number) => {
@@ -94,7 +176,7 @@ const formatAnswer = (text: string, businesses: BusinessData[]) => {
       if (j % 2 === 1) {
         const match = findBusiness(part, businesses);
         if (match) {
-          return <BusinessHoverCard key={`${lineIdx}-${j}`} name={part} business={match} />;
+          return <BusinessHoverCard key={`${lineIdx}-${j}`} name={part} business={match} onClickBusiness={onClickBusiness} />;
         }
         return <strong key={`${lineIdx}-${j}`} className="text-base font-semibold text-foreground">{part}</strong>;
       }
@@ -116,6 +198,7 @@ const AISearchAnswer = ({ query, businesses, isSearchLoading }: AISearchAnswerPr
   const [isLoading, setIsLoading] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedBusiness, setSelectedBusiness] = useState<BusinessData | null>(null);
   const fetchIdRef = useRef(0);
   const lastFetchKeyRef = useRef("");
 
@@ -129,6 +212,7 @@ const AISearchAnswer = ({ query, businesses, isSearchLoading }: AISearchAnswerPr
     setIsDismissed(false);
     setAnswer("");
     setError(null);
+    setSelectedBusiness(null);
   }, [query]);
 
   useEffect(() => {
@@ -187,35 +271,42 @@ const AISearchAnswer = ({ query, businesses, isSearchLoading }: AISearchAnswerPr
   if (isDismissed || (!isLoading && !answer) || error) return null;
 
   return (
-    <div className="w-[70%] mx-auto mb-6 animate-in fade-in slide-in-from-top-2 duration-500">
-      <div className="relative rounded-2xl border border-gold/30 bg-gradient-to-br from-gold/5 to-transparent backdrop-blur-sm">
-        {/* Header */}
-        <div className="flex items-center px-4 py-2.5 border-b border-gold/15">
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-muted-foreground" />
-            <span className="text-xs font-medium text-muted-foreground">
-              {language === "en" ? "AI Suggestion" : language === "ar" ? "اقتراح ذكي" : "Suggestion IA"}
-            </span>
-          </div>
-        </div>
-
-        {/* Content */}
-        <div className="px-5 py-4">
-          {isLoading ? (
-            <div className="flex items-center gap-3 text-gold/90">
-              <Loader2 className="h-4 w-4 animate-spin text-gold" />
-              <span className="text-sm italic">
-                {language === "en" ? "Thinking..." : language === "ar" ? "جاري التفكير..." : "Réflexion en cours..."}
+    <>
+      <div className="w-[70%] mx-auto mb-6 animate-in fade-in slide-in-from-top-2 duration-500">
+        <div className="relative rounded-2xl border border-gold/30 bg-gradient-to-br from-gold/5 to-transparent backdrop-blur-sm">
+          {/* Header */}
+          <div className="flex items-center px-4 py-2.5 border-b border-gold/15">
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-muted-foreground" />
+              <span className="text-xs font-medium text-muted-foreground">
+                {language === "en" ? "AI Suggestion" : language === "ar" ? "اقتراح ذكي" : "Suggestion IA"}
               </span>
             </div>
-          ) : (
-            <div className="text-sm leading-relaxed text-foreground whitespace-pre-line">
-              {formatAnswer(answer, businesses)}
-            </div>
-          )}
+          </div>
+
+          {/* Content */}
+          <div className="px-5 py-4">
+            {isLoading ? (
+              <div className="flex items-center gap-3 text-gold/90">
+                <Loader2 className="h-4 w-4 animate-spin text-gold" />
+                <span className="text-sm italic">
+                  {language === "en" ? "Thinking..." : language === "ar" ? "جاري التفكير..." : "Réflexion en cours..."}
+                </span>
+              </div>
+            ) : (
+              <div className="text-sm leading-relaxed text-foreground whitespace-pre-line">
+                {formatAnswer(answer, businesses, setSelectedBusiness)}
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+
+      {/* Slide-in panel */}
+      {selectedBusiness && (
+        <BusinessSlidePanel business={selectedBusiness} onClose={() => setSelectedBusiness(null)} />
+      )}
+    </>
   );
 };
 
