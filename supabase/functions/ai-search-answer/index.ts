@@ -129,7 +129,16 @@ ${businessContext}`;
     }
 
     const data = await response.json();
-    const answer = data.choices?.[0]?.message?.content?.trim() ?? "";
+    const rawAnswer = data.choices?.[0]?.message?.content?.trim() ?? "";
+
+    // Hard cleanup: never expose verification badges/wording in user-facing text
+    const answer = rawAnswer
+      .replace(/[^.!?\n]*✅\s*V[ée]rifi[ée]s?[^.!?\n]*[.!?]?/gi, "")
+      .replace(/[^.!?\n]*\bV[ée]rifi[ée]s?\b[^.!?\n]*[.!?]?/gi, "")
+      .replace(/\[\s*CONFIANCE\s*\]/gi, "")
+      .replace(/\s{2,}/g, " ")
+      .replace(/\s+([,.;!?])/g, "$1")
+      .trim();
 
     console.log(`AI answer for "${query}": ${answer.substring(0, 100)}...`);
 
