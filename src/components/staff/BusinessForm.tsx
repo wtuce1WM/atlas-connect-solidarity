@@ -3554,11 +3554,13 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
 
         <div className="space-y-2">
           <Label htmlFor="keywords">Mots-clés (séparés par virgule)</Label>
-          <Input
+          <textarea
             id="keywords"
             value={formData.keywords}
             onChange={(e) => handleChange("keywords", e.target.value)}
             placeholder="luxe, traditionnel, médina"
+            rows={4}
+            className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-y"
           />
         </div>
 
