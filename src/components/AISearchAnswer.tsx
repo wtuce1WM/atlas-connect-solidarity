@@ -50,16 +50,12 @@ const BusinessSlidePanel = ({ business, onClose }: { business: BusinessData; onC
 
   return (
     <>
-      {/* Backdrop */}
-      <div className="fixed inset-0 z-[90] bg-black/30 backdrop-blur-sm" onClick={onClose} />
-      {/* Panel */}
-      <div className="fixed top-0 right-0 z-[100] h-full w-1/2 bg-background shadow-2xl border-l border-border animate-in slide-in-from-right duration-300 overflow-y-auto">
-        <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 bg-background border-b border-border">
-          <h2 className="text-lg font-semibold text-foreground truncate">{business.name}</h2>
-          <button onClick={onClose} className="p-2 rounded-full hover:bg-muted transition-colors">
-            <X className="h-5 w-5 text-muted-foreground" />
-          </button>
-        </div>
+      <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 bg-background border-b border-border">
+        <h2 className="text-lg font-semibold text-foreground truncate">{business.name}</h2>
+        <button onClick={onClose} className="p-2 rounded-full hover:bg-muted transition-colors">
+          <X className="h-5 w-5 text-muted-foreground" />
+        </button>
+      </div>
 
         <div className="p-6 space-y-6">
           {/* Image */}
@@ -120,7 +116,6 @@ const BusinessSlidePanel = ({ business, onClose }: { business: BusinessData; onC
             Voir la fiche complète
           </Link>
         </div>
-      </div>
     </>
   );
 };
@@ -270,10 +265,25 @@ const AISearchAnswer = ({ query, businesses, isSearchLoading }: AISearchAnswerPr
 
   if (isDismissed || (!isLoading && !answer) || error) return null;
 
+  const isPanelOpen = !!selectedBusiness;
+
   return (
     <>
-      <div className="w-[70%] mx-auto mb-6 animate-in fade-in slide-in-from-top-2 duration-500">
-        <div className="relative rounded-2xl border border-gold/30 bg-gradient-to-br from-gold/5 to-transparent backdrop-blur-sm">
+      {/* Backdrop when panel is open */}
+      {isPanelOpen && (
+        <div className="fixed inset-0 z-[90] bg-black/30 backdrop-blur-sm" onClick={() => setSelectedBusiness(null)} />
+      )}
+
+      {/* AI Suggestion — slides to left half when panel opens */}
+      <div
+        className={`mb-6 transition-all duration-300 ease-out ${
+          isPanelOpen
+            ? "fixed top-0 left-0 z-[100] w-1/2 h-full overflow-y-auto p-6 flex items-start justify-center"
+            : "w-[70%] mx-auto"
+        }`}
+        style={isPanelOpen ? { animationName: "none" } : undefined}
+      >
+        <div className={`relative rounded-2xl border border-gold/30 bg-gradient-to-br from-gold/5 to-background backdrop-blur-sm ${isPanelOpen ? "w-full max-w-2xl mt-16" : ""}`}>
           {/* Header */}
           <div className="flex items-center px-4 py-2.5 border-b border-gold/15">
             <div className="flex items-center gap-2">
@@ -282,6 +292,11 @@ const AISearchAnswer = ({ query, businesses, isSearchLoading }: AISearchAnswerPr
                 {language === "en" ? "AI Suggestion" : language === "ar" ? "اقتراح ذكي" : "Suggestion IA"}
               </span>
             </div>
+            {isPanelOpen && (
+              <button onClick={() => setSelectedBusiness(null)} className="ml-auto p-1 rounded-full hover:bg-muted transition-colors">
+                <X className="h-4 w-4 text-muted-foreground" />
+              </button>
+            )}
           </div>
 
           {/* Content */}
@@ -302,9 +317,11 @@ const AISearchAnswer = ({ query, businesses, isSearchLoading }: AISearchAnswerPr
         </div>
       </div>
 
-      {/* Slide-in panel */}
-      {selectedBusiness && (
-        <BusinessSlidePanel business={selectedBusiness} onClose={() => setSelectedBusiness(null)} />
+      {/* Slide-in panel — right half */}
+      {isPanelOpen && (
+        <div className="fixed top-0 right-0 z-[100] h-full w-1/2 bg-background shadow-2xl border-l border-border animate-slide-in-right overflow-y-auto">
+          <BusinessSlidePanel business={selectedBusiness!} onClose={() => setSelectedBusiness(null)} />
+        </div>
       )}
     </>
   );
