@@ -1674,9 +1674,12 @@ serve(async (req) => {
             let builder = supabase.from("businesses").select("*").eq("is_active", true);
             
             // Filter by subcategory if specified (non-wildcard)
-            // Check both categories array AND main_category field
+            // Resolve proper casing from DB since bundle entries may have lowercase names
             if (entry.subcategory_name) {
-              builder = builder.or(`categories.cs.{"${entry.subcategory_name}"},main_category.eq.${entry.subcategory_name}`);
+              const { data: subcatRow } = await supabase.from("subcategories").select("name_fr").ilike("name_fr", entry.subcategory_name).limit(1).single();
+              const resolvedSubcat = subcatRow?.name_fr || entry.subcategory_name;
+              builder = builder.or(`categories.cs.{"${resolvedSubcat}"},main_category.eq.${resolvedSubcat}`);
+              console.log(`  Bundle subcategory resolved: "${entry.subcategory_name}" → "${resolvedSubcat}"`);
             }
             
             // Filter by required service if specified
