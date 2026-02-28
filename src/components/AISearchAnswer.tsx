@@ -123,7 +123,7 @@ const AISearchAnswer = ({ query, businesses, isSearchLoading }: AISearchAnswerPr
               </span>
             </div>
           ) : (
-            <p className="text-sm leading-relaxed text-foreground/90">{answer}</p>
+            <p className="text-sm leading-relaxed text-foreground">{answer}</p>
           )}
         </div>
       </div>
