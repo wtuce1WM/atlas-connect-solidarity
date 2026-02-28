@@ -183,12 +183,21 @@ Deno.serve(async (req) => {
           }
 
           if (g.reviews.length > 0) {
-            await supabase.from('reviews').delete().eq('business_id', biz.id);
-            const rows = g.reviews.filter(r => r.text).map(r => ({
+            const newRows = g.reviews.filter(r => r.text).map(r => ({
               business_id: biz.id, source: r.source, author_name: r.author_name,
               rating: r.rating, text: r.text, relative_time: r.relative_time, language: r.language,
             }));
-            if (rows.length > 0) await supabase.from('reviews').insert(rows);
+            // Deduplicate: only insert reviews not already in DB (by author_name + source)
+            if (newRows.length > 0) {
+              const { data: existing } = await supabase.from('reviews')
+                .select('author_name, source')
+                .eq('business_id', biz.id);
+              const existingKeys = new Set(
+                (existing || []).map(e => `${e.source}::${e.author_name}`)
+              );
+              const toInsert = newRows.filter(r => !existingKeys.has(`${r.source}::${r.author_name}`));
+              if (toInsert.length > 0) await supabase.from('reviews').insert(toInsert);
+            }
           }
 
           return { name: biz.name, status: 'ok', google_rating: g.rating, reviews: g.reviews.length };

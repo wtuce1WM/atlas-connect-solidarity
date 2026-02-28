@@ -488,7 +488,6 @@ Deno.serve(async (req) => {
     }
 
     if (googleReviewTexts.length > 0) {
-      await supabase.from('reviews').delete().eq('business_id', business_id);
       const reviewRows = googleReviewTexts
         .filter(r => r.text)
         .map(r => ({
@@ -496,9 +495,21 @@ Deno.serve(async (req) => {
           rating: r.rating, text: r.text, relative_time: r.relative_time, language: r.language,
         }));
       if (reviewRows.length > 0) {
-        const { error: insertError } = await supabase.from('reviews').insert(reviewRows);
-        if (insertError) console.error('Error inserting reviews:', insertError);
-        else console.log(`Saved ${reviewRows.length} review texts`);
+        // Deduplicate: only insert reviews not already in DB (by author_name + source)
+        const { data: existing } = await supabase.from('reviews')
+          .select('author_name, source')
+          .eq('business_id', business_id);
+        const existingKeys = new Set(
+          (existing || []).map((e: any) => `${e.source}::${e.author_name}`)
+        );
+        const toInsert = reviewRows.filter(r => !existingKeys.has(`${r.source}::${r.author_name}`));
+        if (toInsert.length > 0) {
+          const { error: insertError } = await supabase.from('reviews').insert(toInsert);
+          if (insertError) console.error('Error inserting reviews:', insertError);
+          else console.log(`Saved ${toInsert.length} new review texts (${reviewRows.length - toInsert.length} duplicates skipped)`);
+        } else {
+          console.log(`All ${reviewRows.length} reviews already exist, skipped`);
+        }
       }
     }
 
