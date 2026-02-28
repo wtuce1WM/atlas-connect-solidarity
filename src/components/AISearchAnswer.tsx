@@ -116,14 +116,14 @@ const AISearchAnswer = ({ query, businesses, isSearchLoading }: AISearchAnswerPr
         {/* Content */}
         <div className="px-5 py-4">
           {isLoading ? (
-            <div className="flex items-center gap-3 text-muted-foreground">
+            <div className="flex items-center gap-3 text-gold/90">
               <Loader2 className="h-4 w-4 animate-spin text-gold" />
               <span className="text-sm italic">
                 {language === "en" ? "Thinking..." : language === "ar" ? "جاري التفكير..." : "Réflexion en cours..."}
               </span>
             </div>
           ) : (
-            <p className="text-sm leading-relaxed text-foreground">{answer}</p>
+            <p className="text-sm leading-relaxed text-gold/95">{answer}</p>
           )}
         </div>
       </div>
