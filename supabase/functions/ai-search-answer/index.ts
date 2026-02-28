@@ -12,9 +12,9 @@ serve(async (req) => {
   }
 
   try {
-    const { query, businesses, language = "fr" } = await req.json();
+    const { query, businesses = [], language = "fr" } = await req.json();
 
-    if (!query || !businesses?.length) {
+    if (!query) {
       return new Response(JSON.stringify({ answer: "" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -27,15 +27,19 @@ serve(async (req) => {
 
     // Build context from top search results (max 10)
     const topBusinesses = businesses.slice(0, 10);
-    const businessContext = topBusinesses.map((b: any, i: number) => {
-      const parts = [`${i + 1}. ${b.name}`];
-      if (b.city) parts.push(`(${b.city})`);
-      if (b.main_category) parts.push(`— ${b.main_category}`);
-      if (b.hook_fr) parts.push(`— "${b.hook_fr}"`);
-      if (b.rating) parts.push(`— Note: ${b.rating}/20`);
-      if (b.categories?.length) parts.push(`— Sous-catégories: ${b.categories.join(", ")}`);
-      return parts.join(" ");
-    }).join("\n");
+    const hasResults = topBusinesses.length > 0;
+    
+    const businessContext = hasResults
+      ? topBusinesses.map((b: any, i: number) => {
+          const parts = [`${i + 1}. ${b.name}`];
+          if (b.city) parts.push(`(${b.city})`);
+          if (b.main_category) parts.push(`— ${b.main_category}`);
+          if (b.hook_fr) parts.push(`— "${b.hook_fr}"`);
+          if (b.rating) parts.push(`— Note: ${b.rating}/20`);
+          if (b.categories?.length) parts.push(`— Sous-catégories: ${b.categories.join(", ")}`);
+          return parts.join(" ");
+        }).join("\n")
+      : "(Aucun établissement trouvé dans l'annuaire pour cette recherche)";
 
     const langInstructions = language === "en"
       ? "Answer in English."
@@ -43,15 +47,22 @@ serve(async (req) => {
         ? "Answer in Arabic."
         : "Réponds en français.";
 
+    const noResultsInstructions = !hasResults
+      ? `\n- Aucun établissement n'a été trouvé dans notre annuaire. Utilise tes connaissances générales sur le Maroc pour donner des conseils utiles sur la recherche de l'utilisateur.
+- Explique honnêtement que tu n'as pas d'établissement spécifique à recommander dans l'annuaire, mais partage des conseils pratiques et des suggestions générales.
+- Si la recherche mentionne une ville marocaine, partage ce que tu sais sur cette ville en rapport avec la requête (quartiers, marchés, spécialités locales, etc.).
+- Propose à l'utilisateur d'affiner sa recherche ou de chercher avec d'autres mots-clés.`
+      : `\n- Si la liste contient peu de résultats (1-2), complète ta réponse avec des conseils généraux sur la destination/thématique pour enrichir l'expérience.`;
+
     const systemPrompt = `Tu es un concierge expert du Maroc, chaleureux et passionné. Tu aides les utilisateurs à trouver les meilleurs établissements.
 
 RÈGLES :
 - ${langInstructions}
 - Réponds en 5-8 phrases, de façon détaillée, chaleureuse et enthousiaste.
-- Utilise des émojis pertinents pour rendre la réponse vivante (🍽️ 🐟 🌊 ⭐ 🏨 ☕ 🎶 🌅 📍 👨‍🍳 💎 🔥 etc.).
+- Utilise des émojis pertinents pour rendre la réponse vivante (🍽️ 🐟 🌊 ⭐ 🏨 ☕ 🎶 🌅 📍 👨‍🍳 💎 🔥 etc.).${hasResults ? `
 - Base-toi UNIQUEMENT sur les établissements fournis ci-dessous. Ne mentionne JAMAIS d'établissement qui n'est pas dans la liste.
 - Cite 3-4 établissements de la liste par leur nom exact, en expliquant pourquoi ils correspondent à la recherche (ambiance, spécialités, vue, note, etc.).
-- Si un établissement a une note, mentionne-la.
+- Si un établissement a une note, mentionne-la.` : ''}${noResultsInstructions}
 - Si la liste ne semble pas correspondre à la question, dis-le honnêtement.
 - N'utilise pas de formatage markdown (pas de **, pas de #, pas de listes à puces). Écris en texte simple avec émojis.
 - Sois naturel et enthousiaste, comme un ami local passionné qui partage ses meilleures adresses.
