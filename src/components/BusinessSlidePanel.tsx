@@ -497,31 +497,6 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
             </div>
           )}
 
-          {/* Booking / Reserve */}
-          {(business.booking_url || business.reserve_now_url) && (
-            <div className="flex gap-2">
-              {business.reserve_now_url && (
-                <a
-                  href={business.reserve_now_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-1 text-center py-2.5 rounded-xl bg-gold text-gold-foreground font-semibold text-sm hover:bg-gold/90 transition-colors"
-                >
-                  Réserver
-                </a>
-              )}
-              {business.booking_url && (
-                <a
-                  href={business.booking_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-1 text-center py-2.5 rounded-xl border border-gold text-gold font-semibold text-sm hover:bg-gold/10 transition-colors"
-                >
-                  Booking
-                </a>
-              )}
-            </div>
-          )}
 
           {/* CTA to full page */}
           <Link
