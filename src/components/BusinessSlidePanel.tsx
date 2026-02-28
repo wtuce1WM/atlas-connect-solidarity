@@ -100,6 +100,7 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
   const { language } = useLanguage();
   const [business, setBusiness] = useState<FullBusiness | null>(null);
   const [gamme, setGamme] = useState<Gamme | null>(null);
+  const [reviewTexts, setReviewTexts] = useState<{ source: string; author_name: string | null; rating: number | null; text: string | null; relative_time: string | null }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
@@ -125,6 +126,16 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
       }
 
       setBusiness(data as any);
+
+      // Fetch review texts
+      const { data: reviewsData } = await supabase
+        .from("reviews" as any)
+        .select("source, author_name, rating, text, relative_time")
+        .eq("business_id", businessId)
+        .order("rating", { ascending: false })
+        .limit(5);
+      if (reviewsData) setReviewTexts(reviewsData as any[]);
+      else setReviewTexts([]);
 
       if (data.gamme_id) {
         const { data: g } = await supabase
@@ -611,8 +622,9 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
             );
           })()}
           {reviews.length > 0 && (
-            <div className="space-y-1.5">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Notes</p>
+            <div className="space-y-3">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Avis clients</p>
+              {/* Rating summary per platform */}
               <div className="flex flex-wrap gap-3">
                 {reviews.map(r => (
                   <div key={r.label} className="flex items-center gap-1.5 text-sm">
@@ -622,6 +634,43 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
                   </div>
                 ))}
               </div>
+              {/* Review comments */}
+              {reviewTexts.length > 0 && (
+                <div className="space-y-2.5 mt-2">
+                  {reviewTexts.map((review, idx) => (
+                    <div key={idx} className="p-3 rounded-xl bg-card border border-border">
+                      <div className="flex items-center gap-2 mb-1.5">
+                        {review.rating && (
+                          <div className="flex items-center gap-0.5">
+                            {[...Array(5)].map((_, i) => (
+                              <Star
+                                key={i}
+                                className={`h-3 w-3 ${i < review.rating! ? 'fill-amber-400 text-amber-400' : 'text-muted-foreground/30'}`}
+                              />
+                            ))}
+                          </div>
+                        )}
+                        <span className="text-sm font-medium text-foreground">
+                          {review.author_name || 'Anonyme'}
+                        </span>
+                        {review.relative_time && (
+                          <span className="text-xs text-muted-foreground">
+                            · {review.relative_time}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-sm leading-relaxed text-muted-foreground line-clamp-3">
+                        {review.text}
+                      </p>
+                      <div className="mt-1.5">
+                        <Badge variant="outline" className="text-[10px]">
+                          {review.source === 'google' ? 'Google' : review.source === 'tripadvisor' ? 'TripAdvisor' : review.source}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
