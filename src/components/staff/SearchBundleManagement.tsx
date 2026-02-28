@@ -296,6 +296,9 @@ const SearchBundleManagement = () => {
           <p className="text-xs text-amber-600 mt-1">
             ⚠️ Le champ <strong>service requis</strong> est <strong>sensible à la casse</strong> — il doit correspondre exactement au nom du service tel qu'il apparaît dans les fiches établissements.
           </p>
+          <p className="text-xs text-muted-foreground mt-1">
+            🕐 Les <strong>créneaux horaires</strong> permettent d'activer automatiquement le bundle selon l'heure de la recherche. Si aucun créneau n'est sélectionné, le bundle est actif en permanence. Si des créneaux sont cochés, le bundle ne se déclenche que lorsque l'heure actuelle correspond à l'un d'eux.
+          </p>
         </CardHeader>
         <CardContent>
           {/* Add form */}
