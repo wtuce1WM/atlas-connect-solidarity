@@ -621,54 +621,92 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
               </div>
             );
           })()}
-          {reviews.length > 0 && (
-            <div className="space-y-3">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Avis clients</p>
-              {/* Rating summary per platform */}
-              <div className="flex flex-wrap gap-3">
-                {reviews.map(r => (
-                  <div key={r.label} className="flex items-center gap-1.5 text-sm">
-                    <Star className="h-3.5 w-3.5 text-gold fill-gold" />
-                    <span className="font-medium text-foreground">{r.rating}/5</span>
-                    <span className="text-muted-foreground">({r.count}) {r.label}</span>
-                  </div>
-                ))}
-              </div>
+          {(reviews.length > 0 || avgOn20) && (
+            <div className="space-y-4">
+              {/* Global score */}
+              {avgOn20 && (
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl font-bold text-gold">{avgOn20}/20</span>
+                  {totalReviewCount > 0 && (
+                    <span className="text-sm text-muted-foreground">sur {totalReviewCount.toLocaleString('fr-FR')} avis</span>
+                  )}
+                </div>
+              )}
+
+              {/* Platform cards */}
+              {reviews.length > 0 && (
+                <div className="space-y-2">
+                  {reviews.map(r => {
+                    const reviewUrl = r.label === "Google"
+                      ? (business.google_reviews_url || business.google_maps_url)
+                      : r.label === "TripAdvisor"
+                      ? (business.tripadvisor_review_url || business.tripadvisor_url)
+                      : r.label === "Restaurant Guru"
+                      ? business.restaurant_guru_url
+                      : null;
+                    return (
+                      <div key={r.label} className="flex items-center justify-between p-3 rounded-xl border border-border">
+                        <div className="flex items-center gap-3">
+                          <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center text-xs font-bold text-muted-foreground shrink-0">
+                            {r.label === "Google" ? "G" : r.label === "TripAdvisor" ? "TA" : "RG"}
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold text-foreground">{r.label}</p>
+                            <p className="text-sm">
+                              <span className="font-semibold text-gold">{r.rating}/5</span>
+                              <span className="text-muted-foreground"> · {r.count.toLocaleString('fr-FR')} avis</span>
+                            </p>
+                          </div>
+                        </div>
+                        {reviewUrl && (
+                          <a href={reviewUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-gold hover:underline flex items-center gap-1 shrink-0">
+                            Voir les avis <ExternalLink className="h-3 w-3" />
+                          </a>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
               {/* Review comments */}
               {reviewTexts.length > 0 && (
-                <div className="space-y-2.5 mt-2">
-                  {reviewTexts.map((review, idx) => (
-                    <div key={idx} className="p-3 rounded-xl bg-card border border-border">
-                      <div className="flex items-center gap-2 mb-1.5">
-                        {review.rating && (
-                          <div className="flex items-center gap-0.5">
-                            {[...Array(5)].map((_, i) => (
-                              <Star
-                                key={i}
-                                className={`h-3 w-3 ${i < review.rating! ? 'fill-amber-400 text-amber-400' : 'text-muted-foreground/30'}`}
-                              />
-                            ))}
-                          </div>
-                        )}
-                        <span className="text-sm font-medium text-foreground">
-                          {review.author_name || 'Anonyme'}
-                        </span>
-                        {review.relative_time && (
-                          <span className="text-xs text-muted-foreground">
-                            · {review.relative_time}
+                <div>
+                  <p className="text-base font-semibold text-foreground mb-3">Ce que disent les clients</p>
+                  <div className="space-y-2.5">
+                    {reviewTexts.map((review, idx) => (
+                      <div key={idx} className="p-3 rounded-xl border border-border">
+                        <div className="flex items-center gap-2 mb-2">
+                          {review.rating && (
+                            <div className="flex items-center gap-0.5">
+                              {[...Array(5)].map((_, i) => (
+                                <Star
+                                  key={i}
+                                  className={`h-3.5 w-3.5 ${i < review.rating! ? 'fill-amber-400 text-amber-400' : 'text-muted-foreground/30'}`}
+                                />
+                              ))}
+                            </div>
+                          )}
+                          <span className="text-sm font-semibold text-foreground">
+                            {review.author_name || 'Anonyme'}
                           </span>
-                        )}
+                          {review.relative_time && (
+                            <span className="text-xs text-muted-foreground">
+                              · {review.relative_time}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-sm leading-relaxed text-muted-foreground">
+                          {review.text}
+                        </p>
+                        <div className="mt-2">
+                          <Badge variant="outline" className="text-[10px]">
+                            {review.source === 'google' ? 'Google' : review.source === 'tripadvisor' ? 'TripAdvisor' : review.source}
+                          </Badge>
+                        </div>
                       </div>
-                      <p className="text-sm leading-relaxed text-muted-foreground line-clamp-3">
-                        {review.text}
-                      </p>
-                      <div className="mt-1.5">
-                        <Badge variant="outline" className="text-[10px]">
-                          {review.source === 'google' ? 'Google' : review.source === 'tripadvisor' ? 'TripAdvisor' : review.source}
-                        </Badge>
-                      </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
