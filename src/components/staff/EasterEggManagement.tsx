@@ -44,6 +44,7 @@ const EasterEggManagement = () => {
   const [formKeywords, setFormKeywords] = useState<string[]>([]);
   const [formConfig, setFormConfig] = useState("{}");
   const [formIsActive, setFormIsActive] = useState(true);
+  const [previewEgg, setPreviewEgg] = useState<EasterEgg | null>(null);
 
   const fetchEggs = async () => {
     const { data, error } = await supabase
@@ -218,6 +219,9 @@ const EasterEggManagement = () => {
 
                   <div className="flex items-center gap-2 shrink-0">
                     <Switch checked={egg.is_active} onCheckedChange={() => toggleActive(egg)} />
+                    <Button variant="ghost" size="icon" onClick={() => setPreviewEgg(egg)} title="Aperçu">
+                      <Eye className="h-4 w-4" />
+                    </Button>
                     <Button variant="ghost" size="icon" onClick={() => openEditForm(egg)}>
                       <Edit className="h-4 w-4" />
                     </Button>
@@ -327,6 +331,66 @@ const EasterEggManagement = () => {
               {editingEgg ? "Enregistrer" : "Créer"}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Preview Dialog */}
+      <Dialog open={previewEgg !== null} onOpenChange={(open) => { if (!open) setPreviewEgg(null); }}>
+        <DialogContent className="max-w-2xl p-0 overflow-hidden border-0">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Aperçu : {previewEgg?.name}</DialogTitle>
+          </DialogHeader>
+          {previewEgg?.type === "overlay" && (
+            <div className="relative bg-black flex items-center justify-center min-h-[400px] p-6">
+              {previewEgg.config?.image && (
+                <img
+                  src={previewEgg.config.image}
+                  alt={previewEgg.name}
+                  className="max-w-full max-h-[60vh] object-contain rounded-2xl shadow-2xl"
+                />
+              )}
+              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/70 backdrop-blur-md px-8 py-4 rounded-2xl border border-gold/30 text-center">
+                <p className="text-gold font-semibold text-2xl">{previewEgg.config?.title || previewEgg.name}</p>
+                {previewEgg.config?.subtitle && (
+                  <p className="text-white/70 text-sm mt-1">{previewEgg.config.subtitle}</p>
+                )}
+              </div>
+            </div>
+          )}
+          {previewEgg?.type === "emergency" && (
+            <div className={`rounded-2xl overflow-hidden bg-gradient-to-br from-black to-zinc-900`}>
+              <div className={`px-6 py-5 border-b bg-gradient-to-r ${previewEgg.config?.color === "orange" ? "border-orange-500/20 from-orange-500/10" : "border-red-500/20 from-red-500/10"} to-transparent`}>
+                <p className={`${previewEgg.config?.color === "orange" ? "text-orange-400" : "text-red-400"} font-semibold text-lg flex items-center gap-2`}>
+                  {previewEgg.config?.color === "orange" ? "🔥" : "🚨"} {previewEgg.config?.label || previewEgg.name}
+                </p>
+                <p className="text-white/50 text-sm mt-0.5">Appelez immédiatement en cas d'urgence</p>
+              </div>
+              <div className="px-6 py-5 space-y-3">
+                <div className={`flex items-center justify-between rounded-xl border ${previewEgg.config?.color === "orange" ? "border-orange-500/30 bg-orange-500/5" : "border-red-500/30 bg-red-500/5"} px-4 py-3`}>
+                  <div>
+                    <p className="text-white font-semibold text-sm">{previewEgg.config?.label}</p>
+                    <p className="text-white/40 text-xs">Numéro d'urgence</p>
+                  </div>
+                  <span className={`${previewEgg.config?.color === "orange" ? "text-orange-400" : "text-red-400"} font-bold text-2xl`}>
+                    {previewEgg.config?.phone}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+          {previewEgg?.type === "celebrity_guide" && (
+            <div className="bg-gradient-to-br from-black to-zinc-900 p-6 rounded-2xl">
+              <div className="text-center space-y-3">
+                <p className="text-gold font-semibold text-xl">🌟 Guide Insider</p>
+                <p className="text-white/60 text-sm">Cet easter egg affiche le guide des célébrités et personnalités de Marrakech avec les établissements associés.</p>
+                <div className="flex flex-wrap gap-1.5 justify-center mt-4">
+                  {previewEgg.keywords.slice(0, 6).map((kw, i) => (
+                    <span key={i} className="px-2.5 py-1 rounded-full text-xs bg-gold/10 text-gold border border-gold/30">{kw}</span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>
