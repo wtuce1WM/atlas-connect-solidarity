@@ -123,7 +123,7 @@ const AISearchAnswer = ({ query, businesses, isSearchLoading }: AISearchAnswerPr
   if (isDismissed || (!isLoading && !answer) || error) return null;
 
   return (
-    <div className="w-full mb-6 animate-in fade-in slide-in-from-top-2 duration-500">
+    <div className="w-[70%] mx-auto mb-6 animate-in fade-in slide-in-from-top-2 duration-500">
       <div className="relative rounded-2xl border border-gold/30 bg-gradient-to-br from-gold/5 to-transparent backdrop-blur-sm overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-2.5 border-b border-gold/15">
