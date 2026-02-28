@@ -625,6 +625,7 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
           })()}
           {(reviews.length > 0 || avgOn20) && (
             <div className="space-y-4">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Avis clients</p>
               {/* Global score */}
               {avgOn20 && (
                 <div className="flex items-baseline gap-2">
