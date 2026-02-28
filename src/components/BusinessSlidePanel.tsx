@@ -437,31 +437,33 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
             if (socials.length === 0 && platforms.length === 0) return null;
 
             return (
-              <div className="grid grid-cols-2 gap-4">
-                {socials.length > 0 && (
-                  <div className="space-y-2">
-                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Réseaux sociaux</p>
-                    <div className="flex flex-wrap items-center gap-2">
-                      {socials.map(s => (
-                        <a key={s.label} href={s.url!} target="_blank" rel="noopener noreferrer" title={s.label} className="p-2 rounded-lg border border-border hover:bg-muted transition-colors" style={{ color: s.color }}>
-                          {s.icon}
-                        </a>
-                      ))}
+              <div className="border-y border-border py-5">
+                <div className="grid grid-cols-2 gap-4">
+                  {socials.length > 0 && (
+                    <div className="space-y-2">
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Réseaux sociaux</p>
+                      <div className="flex flex-wrap items-center gap-2">
+                        {socials.map(s => (
+                          <a key={s.label} href={s.url!} target="_blank" rel="noopener noreferrer" title={s.label} className="p-2 rounded-lg border border-border hover:bg-muted transition-colors" style={{ color: s.color }}>
+                            {s.icon}
+                          </a>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
-                {platforms.length > 0 && (
-                  <div className="space-y-2">
-                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Plateformes de réservation</p>
-                    <div className="flex flex-wrap items-center gap-2">
-                      {platforms.map(p => (
-                        <a key={p.label} href={p.url!} target="_blank" rel="noopener noreferrer" title={p.label} className="p-2 rounded-lg border border-border hover:bg-muted transition-colors">
-                          {p.icon}
-                        </a>
-                      ))}
+                  )}
+                  {platforms.length > 0 && (
+                    <div className="space-y-2">
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Plateformes de réservation</p>
+                      <div className="flex flex-wrap items-center gap-2">
+                        {platforms.map(p => (
+                          <a key={p.label} href={p.url!} target="_blank" rel="noopener noreferrer" title={p.label} className="p-2 rounded-lg border border-border hover:bg-muted transition-colors">
+                            {p.icon}
+                          </a>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             );
           })()}
