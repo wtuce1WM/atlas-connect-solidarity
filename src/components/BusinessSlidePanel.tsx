@@ -268,7 +268,7 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
               )}
               <button
                 onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
-                className="mt-1 text-xs font-medium text-gold hover:text-gold/80 transition-colors"
+                className="mt-2 w-full py-2 rounded-lg border border-gold/30 bg-gold/5 text-sm font-semibold text-gold hover:bg-gold/10 transition-colors"
               >
                 {isDescriptionExpanded ? "Voir −" : "Voir +"}
               </button>
