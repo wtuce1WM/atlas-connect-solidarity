@@ -92,7 +92,7 @@ const StaffMaster = () => {
 
       <main className="container mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="mb-6 flex-wrap">
+          <TabsList className="mb-6 flex flex-wrap h-auto gap-1">
             <TabsTrigger value="search-config" className="gap-2">
               <Search className="h-4 w-4" />
               Recherche
