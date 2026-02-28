@@ -4,6 +4,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import restaurantGuruLogo from "@/assets/restaurant-guru-logo.webp";
+import glovoLogo from "@/assets/glovo-logo.png";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchAllRows } from "@/lib/fetchAllRows";
@@ -2509,7 +2510,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
             {isBrokenUrl((formData as any).getyourguide_url) && <BrokenUrlBadge url={(formData as any).getyourguide_url} />}
 
             <div className="flex items-center gap-2">
-              <span>🛵</span>
+              <img src={glovoLogo} alt="Glovo" className="h-5 w-5 object-contain" />
               {(formData as any).glovo_url ? <a href={(formData as any).glovo_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 text-sm font-medium">Glovo ↗</a> : <span className="text-sm font-medium">Glovo</span>}
               <Input id="glovo_url" value={(formData as any).glovo_url} onChange={(e) => handleChange("glovo_url", e.target.value)} placeholder="https://glovoapp.com/..." className="flex-1" />
               {(formData as any).glovo_url && <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => handleChange("glovo_url", "")}><Trash2 className="h-4 w-4" /></Button>}
