@@ -35,7 +35,8 @@ const Blog = () => {
         .from("blog_posts")
         .select("id, title_fr, title_en, title_ar, slug, excerpt_fr, excerpt_en, excerpt_ar, cover_image_url, author_name, published_at, created_at")
         .eq("is_published", true)
-        .order("published_at", { ascending: false });
+        .order("published_at", { ascending: false, nullsFirst: false })
+        .order("created_at", { ascending: false });
 
       if (data) setPosts(data);
       setIsLoading(false);
