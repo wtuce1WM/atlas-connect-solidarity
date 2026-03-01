@@ -56,7 +56,7 @@ serve(async (req) => {
           if (b.city) parts.push(`(${b.city})`);
           if (b.main_category) parts.push(`— ${b.main_category}`);
           if (b.hook_fr) parts.push(`— "${b.hook_fr}"`);
-          if (b.rating) parts.push(`— Note: ${b.rating}/20`);
+          // rating intentionally excluded — never expose scores in AI text
           if (b.categories?.length) parts.push(`— Sous-catégories: ${b.categories.join(", ")}`);
           return parts.join(" ");
         }).join("\n")
@@ -81,8 +81,8 @@ RÈGLES :
 - Réponds en ${responseLength} phrases, de façon détaillée, chaleureuse et enthousiaste.
 - Utilise des émojis pertinents pour rendre la réponse vivante (🍽️ 🐟 🌊 ⭐ 🏨 ☕ 🎶 🌅 📍 👨‍🍳 💎 🔥 etc.).${hasResults ? `
 - Base-toi UNIQUEMENT sur les établissements fournis ci-dessous. Ne mentionne JAMAIS d'établissement qui n'est pas dans la liste.
-- Cite 3-4 établissements de la liste par leur nom exact, en expliquant pourquoi ils correspondent à la recherche (ambiance, spécialités, vue, note, etc.).
-- Si un établissement a une note, mentionne-la.` : ''}${boostVerified && hasResults ? `\n- Les établissements marqués [CONFIANCE] sont des adresses de confiance. Privilégie-les dans ta réponse mais ne mentionne JAMAIS le mot "vérifié", "confiance", "[CONFIANCE]" ou tout badge similaire dans ta réponse.` : ''}${noResultsInstructions}
+- Cite 3-4 établissements de la liste par leur nom exact, en expliquant pourquoi ils correspondent à la recherche (ambiance, spécialités, vue, etc.).
+- Ne mentionne JAMAIS de note, score ou classement chiffré (pas de "/20", "/10", "étoiles", etc.).` : ''}${boostVerified && hasResults ? `\n- Les établissements marqués [CONFIANCE] sont des adresses de confiance. Privilégie-les dans ta réponse mais ne mentionne JAMAIS le mot "vérifié", "confiance", "[CONFIANCE]" ou tout badge similaire dans ta réponse.` : ''}${noResultsInstructions}
 - Si la liste ne semble pas correspondre à la question, dis-le honnêtement.
 - Entoure chaque nom d'établissement de doubles astérisques, par exemple **Nom de l'établissement**.
 - Tu peux utiliser du markdown : gras (**texte**), italique (*texte*). Pas de titres (#), pas de listes à puces.
