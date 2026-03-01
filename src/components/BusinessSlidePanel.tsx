@@ -591,27 +591,49 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                   </div>
                 </div>
               </div>
-              {/* Remaining images grid below the collage */}
-              {images.length > 5 && (
-                <div className="grid grid-cols-3 gap-1 mt-1">
-                  {images.slice(hasVideo ? 4 : 5).map((img, i) => {
-                    const globalIdx = videoOffset + (hasVideo ? 4 : 5) + i;
-                    return (
+              {/* Remaining images — same mosaic style as product detail page */}
+              {images.length > 5 && (() => {
+                const remaining = images.slice(hasVideo ? 4 : 5);
+                const startIdx = hasVideo ? 4 : 5;
+                const rows: string[][] = [];
+                for (let i = 0; i < remaining.length; i += 4) {
+                  rows.push(remaining.slice(i, i + 4));
+                }
+                return (
+                  <div className="flex flex-col gap-1 mt-1">
+                    {rows.map((row, rIdx) => (
                       <div
-                        key={i}
-                        className="relative aspect-[4/3] cursor-pointer overflow-hidden"
-                        onClick={() => { setCurrentImageIndex(globalIdx); setIsLightboxOpen(true); }}
+                        key={rIdx}
+                        className={`grid gap-1 ${
+                          row.length === 1 ? 'grid-cols-1' :
+                          row.length === 2 ? 'grid-cols-2' :
+                          row.length === 3 ? 'grid-cols-3' :
+                          'grid-cols-2 sm:grid-cols-4'
+                        }`}
+                        style={row.length >= 4 ? { height: 180 } : undefined}
                       >
-                        <img
-                          src={img}
-                          alt={`${business.name} - ${globalIdx + 1}`}
-                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                        />
+                        {row.map((img, cIdx) => {
+                          const globalIdx = videoOffset + startIdx + rIdx * 4 + cIdx;
+                          return (
+                            <div
+                              key={cIdx}
+                              className="relative cursor-pointer overflow-hidden group aspect-[4/3] sm:aspect-auto"
+                              style={row.length < 4 ? { height: 180 } : undefined}
+                              onClick={() => { setCurrentImageIndex(globalIdx); setIsLightboxOpen(true); }}
+                            >
+                              <img
+                                src={img}
+                                alt={`${business.name} - ${globalIdx + 1}`}
+                                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                              />
+                            </div>
+                          );
+                        })}
                       </div>
-                    );
-                  })}
-                </div>
-              )}
+                    ))}
+                  </div>
+                );
+              })()}
               </>
             ) : (
               /* Standard carousel for non-expanded or few images */
