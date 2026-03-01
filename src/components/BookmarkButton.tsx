@@ -35,23 +35,17 @@ const BookmarkButton = ({ businessId, variant = "dark", onLoginRequired }: Bookm
   };
 
   return (
-    <Button
-      variant="outline"
-      size="icon"
+    <button
       onClick={handleClick}
       disabled={isLoading}
-      className={`${
-        isBookmarked
-          ? "bg-[#6050DC]/10 border-[#6050DC] text-[#6050DC] hover:bg-[#6050DC]/20"
-          : variant === "gold"
-            ? "border-[#6050DC]/30 text-[#6050DC] hover:bg-[#6050DC]/10"
-            : "border-border text-[#6050DC]"
-      }`}
+      className="p-1 hover:opacity-70 transition-opacity disabled:opacity-50"
+      aria-label={isBookmarked ? t.saved : t.save}
     >
       <Heart
-        className={`h-4 w-4 ${isBookmarked ? "fill-[#6050DC]" : ""}`}
+        className={`h-5 w-5 text-[#6050DC] ${isBookmarked ? "fill-[#6050DC]" : ""}`}
+        strokeWidth={2.5}
       />
-    </Button>
+    </button>
   );
 };
 
