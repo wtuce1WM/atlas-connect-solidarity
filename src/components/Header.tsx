@@ -18,8 +18,8 @@ const Header = ({ variant = "default" }: HeaderProps) => {
       ? "bg-transparent"
       : "bg-transparent";
 
-  const textColor = variant === "city" ? "text-black" : "text-white";
-  const logoSecondary = variant === "city" ? "text-black" : "text-white";
+  const textColor = "text-black";
+  const logoSecondary = "text-black";
 
   return (
     <header className={`fixed left-0 right-0 top-0 z-50 ${headerBg}`}>
