@@ -13,6 +13,8 @@ import logoGold from "@/assets/logoGOLDsimple.webp";
 import restaurantGuruLogo from "@/assets/restaurant-guru-logo.webp";
 import tripadvisorLogo from "@/assets/tripadvisor-logo.png";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
+import ShareButton from "@/components/ShareButton";
+import BookmarkButton from "@/components/BookmarkButton";
 
 interface BusinessSlidePanelProps {
   businessId: string;
@@ -353,8 +355,12 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
             </button>
           )}
         </div>
-        <h2 className="text-lg font-semibold text-foreground truncate flex-1 text-right ml-3">{business.name}</h2>
       </div>
+        <h2 className="text-lg font-semibold text-foreground truncate flex-1 text-right ml-3">{business.name}</h2>
+        <div className="flex items-center gap-1 ml-2 shrink-0">
+          <ShareButton title={business.name} variant="dark" />
+          <BookmarkButton businessId={business.id} variant="gold" />
+        </div>
 
       {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto">
