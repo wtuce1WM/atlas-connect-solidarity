@@ -284,6 +284,16 @@ const SearchConfigManagement = () => {
 
       <TabsContent value="subcategories">
     <div className="space-y-6">
+      {/* Explanation */}
+      <div className="rounded-lg border border-muted bg-muted/30 p-4 text-sm text-muted-foreground space-y-1">
+        <p className="font-medium text-foreground">💡 Héritage implicite des modes de recherche</p>
+        <p>
+          Quand une sous-catégorie n'a <strong>pas de configuration propre</strong>, le moteur de recherche vérifie si son nom existe aussi comme <strong>service</strong> d'une autre sous-catégorie. Si c'est le cas, elle <strong>hérite automatiquement</strong> du mode de recherche du parent (ex : « Café » hérite du mode <em>strict</em> d'« Épicerie »).
+        </p>
+        <p>
+          Cela peut <strong>filtrer des résultats légitimes</strong> (ex : un bar qui sert du café). Pour corriger, cliquez <strong>« Forcer Broad »</strong> sur les cartes marquées en orange ci-dessous, ou configurez manuellement le mode souhaité.
+        </p>
+      </div>
       {/* Header stats */}
       <div className="flex items-center gap-4 flex-wrap">
         <Badge variant="outline" className="text-sm px-3 py-1">
