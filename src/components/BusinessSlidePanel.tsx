@@ -151,6 +151,11 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
   const mediaEndSentinelRef = useRef<HTMLDivElement>(null);
   const [showStickyHeader, setShowStickyHeader] = useState(false);
   const mapSectionRef = useRef<HTMLDivElement>(null);
+  const contactSectionRef = useRef<HTMLDivElement>(null);
+  const reviewsSectionRef = useRef<HTMLDivElement>(null);
+  const servicesSectionRef = useRef<HTMLDivElement>(null);
+  const descriptionRef = useRef<HTMLDivElement>(null);
+  const [activeTab, setActiveTab] = useState<string>("apercu");
 
   const handleFullscreen = useCallback(() => {
     // For native video, use the video element's fullscreen
@@ -817,10 +822,46 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
             </p>
           )}
 
+          {/* Tabs navigation */}
+          <div className="flex gap-1 overflow-x-auto no-scrollbar border-b border-border -mx-5 px-5">
+            {[
+              { id: "apercu", label: "Aperçu", show: !!business.description },
+              { id: "contact", label: "Contact", show: !!(business.address || business.phone || business.email || business.whatsapp) },
+              { id: "avis", label: "Avis clients", show: !!(reviews.length > 0 || avgOn20) },
+              { id: "localiser", label: "Localiser", show: !!(business.latitude || business.longitude || business.address || business.google_maps_url) },
+              { id: "services", label: "Services", show: !!(business.services && business.services.length > 0) },
+            ].filter(t => t.show).map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => {
+                  setActiveTab(tab.id);
+                  if (tab.id === "apercu") {
+                    descriptionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+                  } else if (tab.id === "contact") {
+                    contactSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+                  } else if (tab.id === "avis") {
+                    reviewsSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+                  } else if (tab.id === "localiser") {
+                    mapSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+                  } else if (tab.id === "services") {
+                    servicesSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }
+                }}
+                className={`whitespace-nowrap px-3 py-2.5 text-sm font-medium transition-colors border-b-2 ${
+                  activeTab === tab.id
+                    ? "border-primary text-primary"
+                    : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
           {/* Description */}
           {business.description && (
             <>
-              <div className="relative">
+              <div ref={descriptionRef} className="relative">
                 <div
                   className={`text-sm text-foreground leading-relaxed [&>p]:mb-3 [&>p:last-child]:mb-0 [&>br]:content-[''] [&>br]:block [&>br]:mb-2 [&>h2]:text-xl [&>h2]:font-bold [&>h2]:mb-4 [&>h2]:mt-5 [&>h3]:text-lg [&>h3]:font-semibold [&>h3]:mb-3 [&>h3]:mt-4 overflow-hidden transition-all duration-300 ${isDescriptionExpanded ? "" : "max-h-[21em]"}`}
                   dangerouslySetInnerHTML={{ __html: business.description }}
@@ -839,7 +880,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
           )}
 
           {/* Contact info */}
-          <div className="border-y border-border py-5">
+          <div ref={contactSectionRef} className="border-y border-border py-5">
             <div className="grid grid-cols-2 gap-6">
               {/* Address */}
               {business.address && (
@@ -1044,7 +1085,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
             );
           })()}
           {(reviews.length > 0 || avgOn20) && (
-            <div className="space-y-4">
+            <div ref={reviewsSectionRef} className="space-y-4">
               <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wide">{language === "en" ? "Customer reviews" : language === "ar" ? "آراء العملاء" : "Avis clients"}</h3>
               {/* Global score */}
               {avgOn20 && (
@@ -1224,7 +1265,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
 
           {/* Services */}
           {business.services && business.services.length > 0 && (
-            <div className="space-y-1.5">
+            <div ref={servicesSectionRef} className="space-y-1.5">
               <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Services</h3>
               <div className="flex flex-wrap gap-1.5">
                 {business.services.slice(0, 12).map(s => (
