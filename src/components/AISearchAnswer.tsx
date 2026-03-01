@@ -142,8 +142,12 @@ const splitIntoParagraphs = (text: string): string[] => {
   let currentPara = "";
   for (let i = 1; i < sentences.length; i++) {
     const sentence = sentences[i];
-    // Break before each sentence that contains a bold marker (if current para already has content with bold)
-    if (/\*\*/.test(sentence) && currentPara.length > 0 && /\*\*/.test(currentPara)) {
+    const isLast = i === sentences.length - 1;
+    // Break before the last sentence OR before each sentence that contains a bold marker
+    if (isLast && currentPara.length > 0) {
+      segments.push(currentPara.trim());
+      currentPara = sentence;
+    } else if (/\*\*/.test(sentence) && currentPara.length > 0 && /\*\*/.test(currentPara)) {
       segments.push(currentPara.trim());
       currentPara = sentence;
     } else {
