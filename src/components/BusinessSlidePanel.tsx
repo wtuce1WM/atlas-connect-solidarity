@@ -470,13 +470,12 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
       <div ref={scrollContainerRef} className="flex-1 overflow-y-auto relative">
         {/* EXPANDED MODE: Full media mosaic gallery */}
         {isExpanded ? (
-          <div className="p-2">
-            <div className="flex flex-wrap gap-1.5" style={{ alignItems: "stretch" }}>
+          <div className="p-2" style={{ columns: "250px 3", columnGap: 6 }}>
               {/* Video tile */}
               {hasVideo && (
                 <div
-                  className="relative cursor-pointer overflow-hidden rounded-lg"
-                  style={{ height: 220, flexGrow: 1, flexBasis: 280, minWidth: 200 }}
+                  className="relative cursor-pointer overflow-hidden rounded-lg mb-1.5 break-inside-avoid"
+                  style={{ aspectRatio: "16/10" }}
                   onClick={() => { setCurrentImageIndex(0); setIsLightboxOpen(true); }}
                 >
                   {(() => {
@@ -512,33 +511,27 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                   </div>
                 </div>
               )}
-              {/* Image tiles — flex-grow fills rows, object-cover crops to fit */}
+              {/* Image tiles — CSS columns masonry, natural proportions */}
               {images.map((img, i) => (
-                <div
+                <img
                   key={i}
-                  className="relative cursor-pointer overflow-hidden rounded-lg"
-                  style={{ height: 220, flexGrow: 1, flexBasis: 200, minWidth: 140 }}
+                  src={img}
+                  alt={`${business.name} - ${i + 1}`}
+                  className="w-full rounded-lg cursor-pointer hover:scale-[1.03] transition-transform duration-300 mb-1.5 break-inside-avoid"
                   onClick={() => { setCurrentImageIndex(videoOffset + i); setIsLightboxOpen(true); }}
-                >
-                  <img
-                    src={img}
-                    alt={`${business.name} - ${i + 1}`}
-                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
+                />
               ))}
               {/* Matterport tile */}
               {hasMatterport && (
                 <div
-                  className="relative cursor-pointer overflow-hidden rounded-lg flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-muted to-muted/60 hover:from-primary/10 hover:to-primary/5 transition-colors"
-                  style={{ height: 220, flexGrow: 1, flexBasis: 200, minWidth: 140 }}
+                  className="cursor-pointer overflow-hidden rounded-lg flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-muted to-muted/60 hover:from-primary/10 hover:to-primary/5 transition-colors mb-1.5 break-inside-avoid"
+                  style={{ aspectRatio: "16/10" }}
                   onClick={() => { setCurrentImageIndex(matterportIndex); setIsLightboxOpen(true); }}
                 >
                   <Box className="h-10 w-10 text-primary" />
                   <span className="text-sm font-semibold text-primary">Visite 3D</span>
                 </div>
               )}
-            </div>
           </div>
         ) : (
         <>
