@@ -342,18 +342,18 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
   return (
     <div className="flex flex-col h-full">
       {/* Sticky header */}
-      <div className="sticky top-0 z-10 flex items-center justify-between px-5 py-3 bg-background border-b border-border shrink-0">
-        <div className="flex items-center gap-1">
-          <button onClick={onClose} className="p-1.5 rounded-full hover:bg-muted transition-colors" title="Fermer">
-            <X className="h-5 w-5 text-muted-foreground" />
+      <div className="sticky top-0 z-20 flex items-center justify-between px-5 py-3 bg-background border-b border-border shrink-0">
+        <div className="flex items-center gap-2">
+          <button onClick={onClose} className="p-2 rounded-full hover:bg-muted transition-colors" title="Fermer">
+            <X className="h-5 w-5 text-foreground" />
           </button>
           {onToggleExpand && (
-            <button onClick={onToggleExpand} className="p-1.5 rounded-full hover:bg-muted transition-colors" title={isExpanded ? "Réduire" : "Agrandir"}>
-              {isExpanded ? <Minimize2 className="h-4.5 w-4.5 text-muted-foreground" /> : <Maximize2 className="h-4.5 w-4.5 text-muted-foreground" />}
+            <button onClick={onToggleExpand} className="p-2 rounded-full hover:bg-muted transition-colors" title={isExpanded ? "Réduire" : "Agrandir"}>
+              {isExpanded ? <Minimize2 className="h-5 w-5 text-foreground" /> : <Maximize2 className="h-5 w-5 text-foreground" />}
             </button>
           )}
         </div>
-        <h2 className="text-lg font-semibold text-foreground truncate">{business.name}</h2>
+        <h2 className="text-lg font-semibold text-foreground truncate flex-1 text-right ml-3">{business.name}</h2>
       </div>
 
       {/* Scrollable content */}
