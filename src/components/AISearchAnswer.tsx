@@ -235,12 +235,12 @@ const AISearchAnswer = ({ query, businesses, isSearchLoading, onAnswerReady }: A
           isPanelExpanded
             ? "fixed top-0 left-0 z-[100] w-0 h-full overflow-hidden opacity-0 pointer-events-none"
             : isPanelOpen
-              ? "fixed top-[64px] left-0 z-[100] w-1/2 h-[calc(100%-64px)] overflow-y-auto p-6 flex items-start justify-center bg-background animate-slide-down-from-top"
+              ? "fixed top-[62px] left-0 z-[100] w-1/2 h-[calc(100%-62px)] overflow-y-auto p-6 flex items-start justify-center bg-background animate-slide-down-from-top"
               : "w-[70%] mx-auto"
         }`}
         style={isPanelOpen ? { animationName: undefined } : undefined}
       >
-        <div className={`relative isolate rounded-2xl border border-gold/30 bg-gradient-to-br from-gold/5 to-background backdrop-blur-sm ${isPanelOpen ? "w-full max-w-2xl mt-16" : ""}`}>
+        <div className={`relative isolate rounded-2xl border border-gold/30 bg-gradient-to-br from-gold/5 to-background backdrop-blur-sm ${isPanelOpen ? "w-full max-w-2xl" : ""}`}>
           {/* Header */}
           <div className="flex items-center px-4 py-2.5 border-b border-gold/15">
             <div className="flex items-center gap-2">
