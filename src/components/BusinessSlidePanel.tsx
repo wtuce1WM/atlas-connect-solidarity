@@ -187,15 +187,29 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
 
       setBusiness(data as any);
 
-      // Fetch review texts
-      const { data: reviewsData } = await supabase
+      // Fetch review texts – prefer reviews in the current UI language
+      const langCode = language === "en" ? "en" : language === "ar" ? "ar" : "fr";
+      const { data: langReviews } = await supabase
         .from("reviews" as any)
-        .select("source, author_name, rating, text, relative_time")
+        .select("source, author_name, rating, text, relative_time, language")
         .eq("business_id", businessId)
+        .eq("language", langCode)
+        .not("text", "is", null)
         .order("rating", { ascending: false })
         .limit(5);
-      if (reviewsData) setReviewTexts(reviewsData as any[]);
-      else setReviewTexts([]);
+      if (langReviews && langReviews.length >= 2) {
+        setReviewTexts(langReviews as any[]);
+      } else {
+        // Fallback: fetch best reviews regardless of language
+        const { data: allReviews } = await supabase
+          .from("reviews" as any)
+          .select("source, author_name, rating, text, relative_time, language")
+          .eq("business_id", businessId)
+          .not("text", "is", null)
+          .order("rating", { ascending: false })
+          .limit(5);
+        setReviewTexts(allReviews ? (allReviews as any[]) : []);
+      }
 
       if (data.gamme_id) {
         const { data: g } = await supabase
