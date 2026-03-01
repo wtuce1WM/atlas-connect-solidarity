@@ -684,7 +684,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                 { url: business.vimeo_url, color: "#1AB7EA", icon: <VimeoIcon className="h-6 w-6" /> },
               ].filter(s => s.url);
               return socials.length > 0 ? (
-                <div className="flex items-center gap-1.5 shrink-0">
+                <div className="flex items-center gap-3 shrink-0">
                   {socials.map((s, i) => (
                     <a key={i} href={s.url!} target="_blank" rel="noopener noreferrer" style={{ color: s.color }} className="hover:opacity-70 transition-opacity">
                       {s.icon}
