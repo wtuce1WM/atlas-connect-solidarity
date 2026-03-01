@@ -929,7 +929,14 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                 )}
               </div>
               <button
-                onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+                onClick={() => {
+                  if (isDescriptionExpanded) {
+                    setIsDescriptionExpanded(false);
+                    contactSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+                  } else {
+                    setIsDescriptionExpanded(true);
+                  }
+                }}
                 className="w-full py-2 rounded-lg border border-border bg-muted/50 text-sm font-semibold text-muted-foreground hover:bg-muted transition-colors"
               >
                 {isDescriptionExpanded ? "Voir −" : "Voir +"}
