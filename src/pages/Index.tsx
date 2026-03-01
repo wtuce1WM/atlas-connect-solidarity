@@ -6,12 +6,12 @@ import Footer from "@/components/Footer";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-black relative overflow-hidden">
+    <div className="min-h-screen bg-white relative overflow-hidden">
       <Header />
       <HeroSection />
       <DynamicLabelSections pageType="home" />
       
-      <Footer />
+      <Footer variant="verified" />
     </div>
   );
 };
