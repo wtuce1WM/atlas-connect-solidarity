@@ -737,6 +737,7 @@ serve(async (req) => {
     // ── Subcategory detection always runs (no longer skipped by name matches) ──
     let detectedSubcategory: string | null = null;
     let detectedSubcategoryIsReal = false;
+    let subcategoryParentCategory: string | null = null;
     if (effectiveQuery) {
       const qLower = effectiveQuery.toLowerCase();
       const qWords = qLower.split(/\s+/);
@@ -830,6 +831,17 @@ serve(async (req) => {
           detectedSubcategoryIsReal = subcats.some(
             (sc: any) => sc.name_fr?.toLowerCase() === detectedSubcategory!.toLowerCase()
           );
+          // Resolve parent category for enrichment filtering
+          const { data: parentCatData } = await supabase
+            .from("subcategories")
+            .select("categories!inner(name_fr)")
+            .eq("name_fr", detectedSubcategory)
+            .limit(1)
+            .single();
+          if (parentCatData) {
+            subcategoryParentCategory = (parentCatData as any).categories?.name_fr || null;
+            console.log(`Subcategory "${detectedSubcategory}" parent category: "${subcategoryParentCategory}"`);
+          }
         }
       }
     }
@@ -2009,8 +2021,10 @@ serve(async (req) => {
           }
         }
 
-        if (effectiveCategory && !intentSubcategoryConflict) {
-          svcBuilder = svcBuilder.or(`main_category.eq.${effectiveCategory},categories.cs.{"${effectiveCategory}"}`);
+        // Filter by category: use effectiveCategory (from intent/URL) or fall back to detected subcategory's parent
+        const enrichmentCategory = effectiveCategory || subcategoryParentCategory;
+        if (enrichmentCategory && !intentSubcategoryConflict) {
+          svcBuilder = svcBuilder.or(`main_category.eq.${enrichmentCategory},categories.cs.{"${enrichmentCategory}"}`);
         }
 
         if (detectedNeighborhood) {
