@@ -335,8 +335,8 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
             {/* Video controls: Mute + Fullscreen */}
             {hasVideo && currentImageIndex === 0 && (
               <div className="absolute bottom-3 right-3 flex items-center gap-2 z-10">
-                {/* Play/Pause for native video */}
-                {videoRef.current && (
+                {/* Play/Pause for native video (not YouTube/Vimeo) */}
+                {business.video_1_url && !business.video_1_url.match(/youtube\.com|youtu\.be|vimeo\.com/) && (
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
