@@ -1,4 +1,4 @@
-import { useState, lazy, Suspense } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -59,6 +59,13 @@ const GlobalFloatingSearchBar = () => {
 const AppContent = () => {
   const [activePanel, setActivePanel] = useState<"club" | "whatsapp" | null>(null);
   const { isRTL } = useLanguage();
+
+  // Listen for "open-club-panel" custom event (e.g. from BookmarkButton)
+  useEffect(() => {
+    const handler = () => setActivePanel("club");
+    window.addEventListener("open-club-panel", handler);
+    return () => window.removeEventListener("open-club-panel", handler);
+  }, []);
   
   return (
     <div dir={isRTL ? "rtl" : "ltr"} className={isRTL ? "font-arabic" : ""}>
@@ -108,7 +115,7 @@ const AppContent = () => {
             </Routes>
           </RouteTransition>
           <GlobalFloatingSearchBar />
-          {/* <FloatingClubButton isOpen={activePanel === "club"} onToggle={() => setActivePanel(activePanel === "club" ? null : "club")} /> */}
+          <FloatingClubButton isOpen={activePanel === "club"} onToggle={() => setActivePanel(activePanel === "club" ? null : "club")} />
           {/* <FloatingWhatsAppButton isOpen={activePanel === "whatsapp"} onToggle={() => setActivePanel(activePanel === "whatsapp" ? null : "whatsapp")} /> */}
         </BrowserRouter>
       </TooltipProvider>

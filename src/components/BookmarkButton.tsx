@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { useBookmark } from "@/hooks/useBookmark";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
 
 interface BookmarkButtonProps {
   businessId: string;
@@ -13,7 +12,6 @@ interface BookmarkButtonProps {
 const BookmarkButton = ({ businessId, variant = "dark" }: BookmarkButtonProps) => {
   const { isBookmarked, isLoading, isLoggedIn, toggle } = useBookmark(businessId);
   const { language } = useLanguage();
-  const navigate = useNavigate();
 
   const labels = {
     fr: { save: "Sauvegarder", saved: "Sauvegardé", login: "Connectez-vous au Club pour sauvegarder" },
@@ -25,7 +23,7 @@ const BookmarkButton = ({ businessId, variant = "dark" }: BookmarkButtonProps) =
   const handleClick = async () => {
     if (!isLoggedIn) {
       toast({ title: t.login });
-      navigate("/club");
+      window.dispatchEvent(new CustomEvent("open-club-panel"));
       return;
     }
     await toggle();
