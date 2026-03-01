@@ -954,10 +954,10 @@ const SearchPage = () => {
             ) : filteredBusinesses.length > 0 && (
               <button
                 onClick={() => {
-                  if (aiAnswerText) {
-                    // Strip markdown bold markers for clean speech
-                    const cleanText = aiAnswerText.replace(/\*\*/g, "");
-                    ttsSpeak(cleanText);
+                   if (aiAnswerText) {
+                     const cleanText = aiAnswerText.replace(/\*\*/g, "");
+                     const intro = ttsIntroPhrase ? `${ttsIntroPhrase}. ` : "";
+                     ttsSpeak(intro + cleanText);
                   } else {
                     const count = filteredBusinesses.length;
                     const cityText = selectedCity !== "all" ? ` à ${selectedCity}` : "";
@@ -1141,9 +1141,10 @@ const SearchPage = () => {
               ) : !isLoading && filteredBusinesses.length > 0 && (
                 <button
                   onClick={() => {
-                    if (aiAnswerText) {
-                      const cleanText = aiAnswerText.replace(/\*\*/g, "");
-                      ttsSpeak(cleanText);
+                     if (aiAnswerText) {
+                       const cleanText = aiAnswerText.replace(/\*\*/g, "");
+                       const intro = ttsIntroPhrase ? `${ttsIntroPhrase}. ` : "";
+                       ttsSpeak(intro + cleanText);
                     } else {
                       const count = filteredBusinesses.length;
                       const cityText = selectedCity !== "all" ? ` à ${selectedCity}` : "";
