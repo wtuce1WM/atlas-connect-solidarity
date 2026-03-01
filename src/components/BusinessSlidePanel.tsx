@@ -113,7 +113,15 @@ const SkypeIcon = ({ className = "h-5 w-5" }: { className?: string }) => (
   </svg>
 );
 
-const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }: BusinessSlidePanelProps) => {
+const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpanded, onToggleExpand }: BusinessSlidePanelProps) => {
+  const [internalBusinessId, setInternalBusinessId] = useState(externalBusinessId);
+  const businessId = internalBusinessId;
+
+  // Sync when parent changes the business
+  useEffect(() => {
+    setInternalBusinessId(externalBusinessId);
+  }, [externalBusinessId]);
+
   const { language } = useLanguage();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -1279,6 +1287,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
             currentBusinessId={business.id}
             categories={business.categories}
             city={business.city}
+            onNavigate={(id) => { setInternalBusinessId(id); scrollContainerRef.current?.scrollTo({ top: 0 }); if (isExpanded) onToggleExpand?.(); }}
             onLoginRequired={() => setShowClubCard(true)}
           />
           <Separator />
