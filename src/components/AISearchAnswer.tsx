@@ -278,7 +278,7 @@ const AISearchAnswer = ({ query, businesses, isSearchLoading, onAnswerReady }: A
       {isPanelOpen && (
         <div className={`fixed top-[62px] right-0 z-[100] bg-background shadow-2xl border-l border-border overflow-hidden transition-all duration-500 ease-out animate-slide-in-right flex flex-col ${isPanelExpanded ? "w-full" : "w-1/2"}`} style={{ height: "calc(100vh - 62px)" }}>
           {/* Fixed button bar above image */}
-          <div className="shrink-0 flex items-center px-4 py-2 bg-background border-b border-border z-[999]">
+          <div className="shrink-0 flex items-center px-4 py-2 bg-background border-b border-border z-40">
             <div className="flex items-center gap-3 shrink-0">
               <button
                 onClick={() => { setSelectedBusiness(null); setIsPanelExpanded(false); }}
