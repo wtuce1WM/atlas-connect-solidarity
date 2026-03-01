@@ -16,6 +16,7 @@ import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import ShareButton from "@/components/ShareButton";
 import BookmarkButton from "@/components/BookmarkButton";
 import SimilarBusinesses from "@/components/SimilarBusinesses";
+import NearbyBusinesses from "@/components/NearbyBusinesses";
 import { Separator } from "@/components/ui/separator";
 import { FacebookIcon, InstagramIcon, LinkedInIcon, YouTubeIcon, TikTokIcon, TwitterIcon, PinterestIcon, VimeoIcon } from "@/components/staff/SocialMediaIcons";
 
@@ -1287,6 +1288,16 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
             currentBusinessId={business.id}
             categories={business.categories}
             city={business.city}
+            onNavigate={(id) => { setInternalBusinessId(id); scrollContainerRef.current?.scrollTo({ top: 0 }); if (isExpanded) onToggleExpand?.(); }}
+            onLoginRequired={() => setShowClubCard(true)}
+          />
+          <Separator />
+
+          {/* Nearby businesses */}
+          <NearbyBusinesses
+            currentBusinessId={business.id}
+            latitude={business.latitude}
+            longitude={business.longitude}
             onNavigate={(id) => { setInternalBusinessId(id); scrollContainerRef.current?.scrollTo({ top: 0 }); if (isExpanded) onToggleExpand?.(); }}
             onLoginRequired={() => setShowClubCard(true)}
           />
