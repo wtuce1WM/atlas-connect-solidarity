@@ -1,6 +1,6 @@
 const LoadingScreen = () => {
   return (
-    <div className="fixed inset-0 z-[9999] bg-background" />
+    <div className="fixed inset-0 z-[9999] bg-white" />
   );
 };
 
