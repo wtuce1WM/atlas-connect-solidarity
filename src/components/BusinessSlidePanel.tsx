@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
-import { X, MapPin, Phone, Mail, Globe, Star, BadgeCheck, ChevronLeft, ChevronRight, Clock, Loader2, ExternalLink, CookingPot, Volume2, VolumeX, Maximize, Play, Pause, Headphones, Mic, Maximize2, Minimize2, Navigation } from "lucide-react";
+import { X, MapPin, Phone, Mail, Globe, Star, BadgeCheck, ChevronLeft, ChevronRight, Clock, Loader2, ExternalLink, CookingPot, Volume2, VolumeX, Maximize, Play, Pause, Headphones, Mic, Maximize2, Minimize2, Navigation, Box } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Link, useNavigate } from "react-router-dom";
@@ -91,6 +91,7 @@ interface FullBusiness {
   video_1_url: string | null;
   default_service: string | null;
   ai_review_summary: any;
+  matterport_url: string | null;
 }
 
 interface Gamme {
@@ -145,6 +146,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
   const [isVideoMuted, setIsVideoMuted] = useState(true);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [showClubCard, setShowClubCard] = useState(false);
+  const [isMatterportOpen, setIsMatterportOpen] = useState(false);
   const [isVideoPaused, setIsVideoPaused] = useState(false);
   const [videoError, setVideoError] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -488,20 +490,38 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                   {/* 4 smaller items right in 2x2 grid */}
                   <div className="grid grid-cols-2 grid-rows-2 gap-1.5">
                     {(() => {
-                      const rightSlots: { type: "image" | "video"; src: string; globalIdx: number }[] = [];
+                      const hasMatterport = !!business.matterport_url;
+                      const rightSlots: { type: "image" | "video" | "matterport"; src: string; globalIdx: number }[] = [];
                       if (hasVideo) {
                         rightSlots.push({ type: "video", src: business.video_1_url!, globalIdx: 0 });
-                        images.slice(1, 4).forEach((img, i) => rightSlots.push({ type: "image", src: img, globalIdx: videoOffset + i + 1 }));
+                        const imgCount = hasMatterport ? 2 : 3;
+                        images.slice(1, 1 + imgCount).forEach((img, i) => rightSlots.push({ type: "image", src: img, globalIdx: videoOffset + i + 1 }));
                       } else {
-                        images.slice(1, 5).forEach((img, i) => rightSlots.push({ type: "image", src: img, globalIdx: i + 1 }));
+                        const imgCount = hasMatterport ? 3 : 4;
+                        images.slice(1, 1 + imgCount).forEach((img, i) => rightSlots.push({ type: "image", src: img, globalIdx: i + 1 }));
+                      }
+                      if (hasMatterport) {
+                        rightSlots.push({ type: "matterport", src: business.matterport_url!, globalIdx: -1 });
                       }
                       return rightSlots.map((slot, idx) => (
                         <div
                           key={idx}
                           className="relative cursor-pointer overflow-hidden rounded-lg"
-                          onClick={() => { setCurrentImageIndex(slot.globalIdx); setIsLightboxOpen(true); }}
+                          onClick={() => {
+                            if (slot.type === "matterport") {
+                              setIsMatterportOpen(true);
+                            } else {
+                              setCurrentImageIndex(slot.globalIdx);
+                              setIsLightboxOpen(true);
+                            }
+                          }}
                         >
-                          {slot.type === "video" ? (
+                          {slot.type === "matterport" ? (
+                            <div className="w-full h-full bg-gradient-to-br from-muted to-muted/60 flex flex-col items-center justify-center gap-2 hover:from-primary/10 hover:to-primary/5 transition-colors">
+                              <Box className="h-8 w-8 text-primary" />
+                              <span className="text-xs font-semibold text-primary">Visite 3D</span>
+                            </div>
+                          ) : slot.type === "video" ? (
                             (() => {
                               const url = slot.src;
                               const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]+)/);
@@ -1380,7 +1400,28 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                 {currentImageIndex + 1} / {mediaCount}
               </div>
             </>
-          )}
+      )}
+      {/* Matterport 3D tour — fullscreen portal */}
+      {isMatterportOpen && business.matterport_url && createPortal(
+        <div className="fixed inset-0 z-[9999] bg-black flex items-center justify-center">
+          <button
+            onClick={() => setIsMatterportOpen(false)}
+            className="absolute top-6 left-6 z-20 flex items-center gap-2 px-4 py-2.5 rounded-full bg-white text-black font-semibold text-sm shadow-2xl hover:bg-white/90 transition-colors"
+          >
+            <X className="h-5 w-5" />
+            <span>Fermer</span>
+          </button>
+          <iframe
+            src={business.matterport_url}
+            className="w-full h-full"
+            allow="fullscreen; vr; xr"
+            allowFullScreen
+            frameBorder="0"
+            title={`Visite 3D - ${business.name}`}
+          />
+        </div>,
+        document.body
+      )}
         </div>,
         document.body
       )}
