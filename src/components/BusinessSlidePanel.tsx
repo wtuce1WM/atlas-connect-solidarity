@@ -741,6 +741,8 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
           )}
 
 
+          {/* Bottom spacer for floating bar */}
+          <div className="h-24" />
         </div>
       </div>
 
