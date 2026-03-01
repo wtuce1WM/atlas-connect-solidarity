@@ -98,7 +98,8 @@ const SimilarBusinesses = ({ currentBusinessId, categories, city, onNavigate, on
   const businesses = allBusinesses.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
   return (
-    <div className="space-y-3" ref={sectionRef}>
+    <div className="space-y-3">
+      <div ref={sectionRef} className="scroll-mt-2" />
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Similaires</h3>
         <span className="text-xs text-muted-foreground">
