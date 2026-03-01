@@ -296,7 +296,7 @@ const AISearchAnswer = ({ query, businesses, isSearchLoading, onAnswerReady }: A
               {isPanelExpanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
             </button>
             {/* Portal target for action icons from BusinessSlidePanel */}
-            <div id="slide-panel-toolbar" className="flex items-center gap-3 ml-2" />
+            <div id="slide-panel-toolbar" className="flex items-center gap-3 ml-auto" />
           </div>
 
           <div className="flex-1 min-h-0">

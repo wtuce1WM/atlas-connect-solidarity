@@ -38,11 +38,11 @@ const BookmarkButton = ({ businessId, variant = "dark", onLoginRequired }: Bookm
     <button
       onClick={handleClick}
       disabled={isLoading}
-      className="p-1 hover:opacity-70 transition-opacity disabled:opacity-50"
+      className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors disabled:opacity-50"
       aria-label={isBookmarked ? t.saved : t.save}
     >
       <Heart
-        className={`h-5 w-5 text-[#6050DC] ${isBookmarked ? "fill-[#6050DC]" : ""}`}
+        className={`h-4 w-4 text-[#6050DC] ${isBookmarked ? "fill-[#6050DC]" : ""}`}
         strokeWidth={2.5}
       />
     </button>

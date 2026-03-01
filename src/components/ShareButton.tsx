@@ -84,11 +84,11 @@ const ShareButton = ({ title, variant = "gold", className = "" }: ShareButtonPro
     <div className={`relative inline-flex ${className}`} ref={menuRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`p-1.5 rounded-full transition-colors ${buttonColor}`}
+        className={`h-9 w-9 flex items-center justify-center rounded-full bg-muted transition-colors ${buttonColor}`}
         aria-label="Partager"
         title="Partager"
       >
-        {isOpen ? <X className="h-5 w-5" /> : <Share2 className="h-5 w-5" />}
+        {isOpen ? <X className="h-4 w-4" /> : <Share2 className="h-4 w-4" />}
       </button>
 
       {isOpen && (
