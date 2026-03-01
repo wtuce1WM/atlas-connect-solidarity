@@ -95,8 +95,13 @@ const NearbyBusinesses = ({ currentBusinessId, businessName, latitude, longitude
             distance: b.latitude && b.longitude ? haversine(latitude, longitude, b.latitude, b.longitude) : Infinity,
           }))
           .filter((b) => b.distance <= RADIUS_KM)
-          // Exclude businesses with the same default subcategory
-          .filter((b) => !currentSubcategory || !b.default_service || b.default_service !== currentSubcategory)
+          // Exclude businesses with same default subcategory as the current business
+          .filter((b) => {
+            if (!currentSubcategory) return true;
+            const current = currentSubcategory.trim().toLowerCase();
+            const candidate = b.default_service?.trim().toLowerCase();
+            return !!candidate && candidate !== current;
+          })
           .sort((a, b) => a.distance - b.distance);
 
         setAllBusinesses(withDistance);
