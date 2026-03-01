@@ -167,6 +167,8 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   const contactSectionRef = useRef<HTMLDivElement>(null);
   const reviewsSectionRef = useRef<HTMLDivElement>(null);
   const servicesSectionRef = useRef<HTMLDivElement>(null);
+  const similarSectionRef = useRef<HTMLDivElement>(null);
+  const nearbySectionRef = useRef<HTMLDivElement>(null);
   const descriptionRef = useRef<HTMLDivElement>(null);
   const tabsSentinelRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState<string>("apercu");
@@ -742,6 +744,8 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                   { id: "avis", label: "Avis clients", show: !!(reviews.length > 0 || avgOn20) },
                   { id: "localiser", label: "Localiser", show: !!(business.latitude || business.longitude || business.address || business.google_maps_url) },
                   { id: "services", label: "Services", show: !!(business.services && business.services.length > 0) },
+                  { id: "similaires", label: "Similaires", show: true },
+                  { id: "acote", label: "À côté", show: !!(business.latitude && business.longitude) },
                 ].filter(t => t.show).map(tab => (
                   <button
                     key={tab.id}
@@ -755,6 +759,8 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                           avis: reviewsSectionRef,
                           localiser: mapSectionRef,
                           services: servicesSectionRef,
+                          similaires: similarSectionRef,
+                          acote: nearbySectionRef,
                         };
                         refMap[tab.id]?.current?.scrollIntoView({ behavior: "smooth", block: "start" });
                       }
@@ -853,6 +859,8 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
               { id: "avis", label: "Avis clients", show: !!(reviews.length > 0 || avgOn20) },
               { id: "localiser", label: "Localiser", show: !!(business.latitude || business.longitude || business.address || business.google_maps_url) },
               { id: "services", label: "Services", show: !!(business.services && business.services.length > 0) },
+              { id: "similaires", label: "Similaires", show: true },
+              { id: "acote", label: "À côté", show: !!(business.latitude && business.longitude) },
             ].filter(t => t.show).map(tab => (
               <button
                 key={tab.id}
@@ -868,6 +876,10 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                     mapSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
                   } else if (tab.id === "services") {
                     servicesSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+                  } else if (tab.id === "similaires") {
+                    similarSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+                  } else if (tab.id === "acote") {
+                    nearbySectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
                   }
                 }}
                 className={`whitespace-nowrap px-3 py-2.5 text-sm font-medium transition-colors border-b-2 ${
@@ -1284,6 +1296,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
           )}
 
           {/* Similar businesses */}
+          <div ref={similarSectionRef} className="scroll-mt-28" />
           <SimilarBusinesses
             currentBusinessId={business.id}
             categories={business.categories}
@@ -1294,6 +1307,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
           <Separator />
 
           {/* Nearby businesses */}
+          <div ref={nearbySectionRef} className="scroll-mt-28" />
           <NearbyBusinesses
             currentBusinessId={business.id}
             businessName={business.name}
