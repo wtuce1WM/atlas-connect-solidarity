@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { MapPin, Star, Loader2 } from "lucide-react";
+import { MapPin, Star, Loader2, Heart } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
+import BookmarkButton from "@/components/BookmarkButton";
 
 interface SimilarBusiness {
   id: string;
@@ -119,6 +120,10 @@ const SimilarBusinesses = ({ currentBusinessId, categories, city, onNavigate }: 
               {/* Overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
+              {/* Bookmark heart - top right */}
+              <div className="absolute top-1.5 right-1.5 z-10" onClick={(e) => e.preventDefault()}>
+                <BookmarkButton businessId={biz.id} />
+              </div>
               {/* Info at bottom */}
               <div className="absolute bottom-0 left-0 right-0 p-2 space-y-0.5">
                 <p className="font-semibold text-[11px] text-white leading-tight line-clamp-2">{biz.name}</p>
