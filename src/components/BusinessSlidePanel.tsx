@@ -760,7 +760,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                 </div>
               </div>
               {business.default_service && (
-                <Badge variant="secondary" className="shrink-0 text-xs">{business.default_service}</Badge>
+                <Badge className="shrink-0 text-xs bg-orange-500 text-white hover:bg-orange-600 border-orange-500">{business.default_service}</Badge>
               )}
               {/* Social media icons */}
               {(() => {
