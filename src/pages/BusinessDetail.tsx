@@ -23,6 +23,7 @@ import DynamicIcon from "@/components/DynamicIcon";
 import { useValidatedImages, useValidatedUrl } from "@/hooks/useValidatedImages";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import LoadingScreen from "@/components/LoadingScreen";
+import ProxyPdfViewer from "@/components/ProxyPdfViewer";
 import relaisChateauxLogo from "@/assets/relais-chateaux-logo.png";
 import restaurantGuruLogo from "@/assets/restaurant-guru-logo.webp";
 import tripadvisorLogo from "@/assets/tripadvisor-logo.png";
@@ -799,21 +800,11 @@ const BusinessDetail = () => {
                             {business.pdf_name && (
                               <h3 className="font-medium">{business.pdf_name}</h3>
                             )}
-                            <div className="aspect-[3/4] w-full rounded-lg overflow-hidden border bg-muted">
-                              <iframe
-                                src={`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/pdf-proxy?url=${encodeURIComponent(business.pdf_url)}#toolbar=0&navpanes=0`}
-                                className="w-full h-full"
-                                title={business.pdf_name || "Document PDF 1"}
-                              />
-                            </div>
-                            <a
-                              href={`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/pdf-proxy?url=${encodeURIComponent(business.pdf_url)}`}
-                              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
-                              download={business.pdf_name || "document-1.pdf"}
-                            >
-                              <Download className="h-4 w-4" />
-                              Télécharger
-                            </a>
+                            <ProxyPdfViewer
+                              pdfUrl={business.pdf_url}
+                              title={business.pdf_name || "Document PDF 1"}
+                              downloadName={business.pdf_name || "document-1.pdf"}
+                            />
                           </div>
                         )}
                         {business.pdf_2_url && !isValidatingPdf2 && isPdf2Valid && (
@@ -821,21 +812,11 @@ const BusinessDetail = () => {
                             {business.pdf_2_name && (
                               <h3 className="font-medium">{business.pdf_2_name}</h3>
                             )}
-                            <div className="aspect-[3/4] w-full rounded-lg overflow-hidden border bg-muted">
-                              <iframe
-                                src={`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/pdf-proxy?url=${encodeURIComponent(business.pdf_2_url)}#toolbar=0&navpanes=0`}
-                                className="w-full h-full"
-                                title={business.pdf_2_name || "Document PDF 2"}
-                              />
-                            </div>
-                            <a
-                              href={`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/pdf-proxy?url=${encodeURIComponent(business.pdf_2_url)}`}
-                              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
-                              download={business.pdf_2_name || "document-2.pdf"}
-                            >
-                              <Download className="h-4 w-4" />
-                              Télécharger
-                            </a>
+                            <ProxyPdfViewer
+                              pdfUrl={business.pdf_2_url}
+                              title={business.pdf_2_name || "Document PDF 2"}
+                              downloadName={business.pdf_2_name || "document-2.pdf"}
+                            />
                           </div>
                         )}
                         {business.pdf_3_url && !isValidatingPdf3 && isPdf3Valid && (
@@ -843,21 +824,11 @@ const BusinessDetail = () => {
                             {business.pdf_3_name && (
                               <h3 className="font-medium">{business.pdf_3_name}</h3>
                             )}
-                            <div className="aspect-[3/4] w-full rounded-lg overflow-hidden border bg-muted">
-                              <iframe
-                                src={`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/pdf-proxy?url=${encodeURIComponent(business.pdf_3_url)}#toolbar=0&navpanes=0`}
-                                className="w-full h-full"
-                                title={business.pdf_3_name || "Document PDF 3"}
-                              />
-                            </div>
-                            <a
-                              href={`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/pdf-proxy?url=${encodeURIComponent(business.pdf_3_url)}`}
-                              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
-                              download={business.pdf_3_name || "document-3.pdf"}
-                            >
-                              <Download className="h-4 w-4" />
-                              Télécharger
-                            </a>
+                            <ProxyPdfViewer
+                              pdfUrl={business.pdf_3_url}
+                              title={business.pdf_3_name || "Document PDF 3"}
+                              downloadName={business.pdf_3_name || "document-3.pdf"}
+                            />
                           </div>
                         )}
                       </div>
