@@ -1315,8 +1315,8 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
       {/* Fullscreen lightbox — unified media (video at index 0 when present, then images) */}
       {isLightboxOpen && mediaCount > 0 && (
         <div className="fixed inset-0 z-[200] bg-black flex items-center justify-center" onClick={() => setIsLightboxOpen(false)}>
-          <button onClick={() => setIsLightboxOpen(false)} className="absolute top-4 left-4 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors z-10">
-            <X className="h-6 w-6 text-white" />
+          <button onClick={(e) => { e.stopPropagation(); setIsLightboxOpen(false); }} className="absolute top-4 left-4 p-2.5 rounded-full bg-white/80 hover:bg-white text-black shadow-lg transition-colors z-10">
+            <X className="h-5 w-5" />
           </button>
           {hasVideo && currentImageIndex === 0 ? (
             (() => {
