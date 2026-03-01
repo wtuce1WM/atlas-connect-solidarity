@@ -53,7 +53,7 @@ const Header = ({ variant = "default" }: HeaderProps) => {
 
       {/* Dropdown Menu */}
       {isMenuOpen && (
-        <div className="border-t border-border border-b border-b-foreground bg-background">
+        <div className="border-t border-border border-b border-b-foreground bg-background/70 backdrop-blur-md">
           <nav className="container mx-auto flex flex-col items-center gap-4 px-4 py-6">
             <Link to="/mission" className="text-foreground transition-colors hover:text-gold">
               {t("footer.ourMission")}
