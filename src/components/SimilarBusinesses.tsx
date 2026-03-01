@@ -34,7 +34,7 @@ interface SimilarBusinessesProps {
   onLoginRequired?: () => void;
 }
 
-const PAGE_SIZE = 12;
+const PAGE_SIZE = 6;
 
 const SimilarBusinesses = ({ currentBusinessId, categories, city, onNavigate, onLoginRequired }: SimilarBusinessesProps) => {
   const sectionRef = useRef<HTMLDivElement>(null);
