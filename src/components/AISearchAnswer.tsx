@@ -120,16 +120,15 @@ const BusinessHoverCard = ({ name, business, onClickBusiness }: { name: string; 
 
 // Format AI answer
 const formatAnswer = (text: string, businesses: BusinessData[], onClickBusiness: (b: BusinessData) => void) => {
-  // First, normalize bold markers that span across newlines by removing inner newlines
+  // Normalize bold markers that span across newlines by removing inner newlines
   const normalized = text.replace(/\*\*([^*]*?)\*\*/gs, (_, inner) => {
     return `**${inner.replace(/\n/g, " ")}**`;
   });
 
-  // Split into paragraphs (double newline or sentence-end + space)
-  const paragraphs = normalized.split(/\n{2,}/).filter(s => s.trim());
+  // Split on double newlines into paragraphs
+  const paragraphs = normalized.split(/\n{2,}/);
 
   const parseLine = (line: string, lineIdx: number) => {
-    // Parse bold markers and convert business names to clickable links
     const parts = line.split(/\*\*(.+?)\*\*/g);
     return parts.map((part, j) => {
       if (j % 2 === 1) {
@@ -139,19 +138,11 @@ const formatAnswer = (text: string, businesses: BusinessData[], onClickBusiness:
         }
         return <strong key={`${lineIdx}-${j}`} className="text-base font-semibold text-foreground">{part}</strong>;
       }
-      // Handle single newlines within paragraphs
-      if (part.includes("\n")) {
-        return part.split("\n").map((seg, k) => (
-          <span key={`${lineIdx}-${j}-${k}`}>
-            {k > 0 && <br />}
-            {seg}
-          </span>
-        ));
-      }
       return <span key={`${lineIdx}-${j}`}>{part}</span>;
     });
   };
 
+  // Build elements: each paragraph separated by double <br>, single \n preserved via whitespace-pre-line on container
   return paragraphs.map((para, i) => (
     <span key={i}>
       {i > 0 && <><br /><br /></>}
