@@ -470,13 +470,13 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
       <div ref={scrollContainerRef} className="flex-1 overflow-y-auto relative">
         {/* EXPANDED MODE: Full media mosaic gallery */}
         {isExpanded ? (
-          <div className="p-4">
-            <div className="flex flex-wrap items-start gap-2">
+          <div className="p-2">
+            <div className="flex flex-wrap gap-1.5" style={{ alignItems: "stretch" }}>
               {/* Video tile */}
               {hasVideo && (
                 <div
-                  className="relative cursor-pointer overflow-hidden rounded-lg shrink-0"
-                  style={{ width: "40%", aspectRatio: "16/10" }}
+                  className="relative cursor-pointer overflow-hidden rounded-lg"
+                  style={{ height: 220, flexGrow: 1, flexBasis: 280, minWidth: 200 }}
                   onClick={() => { setCurrentImageIndex(0); setIsLightboxOpen(true); }}
                 >
                   {(() => {
@@ -512,22 +512,26 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                   </div>
                 </div>
               )}
-              {/* Image tiles — natural proportions at 60% */}
+              {/* Image tiles — flex-grow fills rows, object-cover crops to fit */}
               {images.map((img, i) => (
-                <img
+                <div
                   key={i}
-                  src={img}
-                  alt={`${business.name} - ${i + 1}`}
-                  className="rounded-lg cursor-pointer hover:scale-[1.03] transition-transform duration-300"
-                  style={{ maxWidth: "30%", height: "auto" }}
+                  className="relative cursor-pointer overflow-hidden rounded-lg"
+                  style={{ height: 220, flexGrow: 1, flexBasis: 200, minWidth: 140 }}
                   onClick={() => { setCurrentImageIndex(videoOffset + i); setIsLightboxOpen(true); }}
-                />
+                >
+                  <img
+                    src={img}
+                    alt={`${business.name} - ${i + 1}`}
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
               ))}
               {/* Matterport tile */}
               {hasMatterport && (
                 <div
-                  className="relative cursor-pointer overflow-hidden rounded-lg shrink-0 flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-muted to-muted/60 hover:from-primary/10 hover:to-primary/5 transition-colors"
-                  style={{ width: "40%", aspectRatio: "16/10" }}
+                  className="relative cursor-pointer overflow-hidden rounded-lg flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-muted to-muted/60 hover:from-primary/10 hover:to-primary/5 transition-colors"
+                  style={{ height: 220, flexGrow: 1, flexBasis: 200, minWidth: 140 }}
                   onClick={() => { setCurrentImageIndex(matterportIndex); setIsLightboxOpen(true); }}
                 >
                   <Box className="h-10 w-10 text-primary" />
