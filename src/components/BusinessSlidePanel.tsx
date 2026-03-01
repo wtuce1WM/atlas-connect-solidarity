@@ -932,7 +932,12 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                 onClick={() => {
                   if (isDescriptionExpanded) {
                     setIsDescriptionExpanded(false);
-                    contactSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+                    // Wait for DOM to update after collapse before scrolling
+                    requestAnimationFrame(() => {
+                      requestAnimationFrame(() => {
+                        contactSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+                      });
+                    });
                   } else {
                     setIsDescriptionExpanded(true);
                   }
