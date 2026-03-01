@@ -508,13 +508,12 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
               </div>
             )}
             {isExpanded && images.length >= 5 ? (
-              <>
-              {/* Multi-image collage grid for expanded mode */}
-              <div className="relative w-full bg-muted flex-shrink-0 overflow-hidden" style={{ height: 320 }}>
-                <div className="grid grid-cols-2 gap-1 h-full">
+              /* Multi-image collage grid for expanded mode */
+              <div className="relative w-full bg-muted flex-shrink-0 overflow-hidden rounded-xl" style={{ height: 420 }}>
+                <div className="grid grid-cols-2 gap-1.5 h-full">
                   {/* Large image left */}
                   <div 
-                    className="relative cursor-pointer overflow-hidden"
+                    className="relative cursor-pointer overflow-hidden rounded-lg"
                     onClick={() => { setCurrentImageIndex(videoOffset); setIsLightboxOpen(true); }}
                   >
                     <img
@@ -527,7 +526,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                     )}
                   </div>
                   {/* 4 smaller items right in 2x2 grid */}
-                  <div className="grid grid-cols-2 grid-rows-2 gap-1">
+                  <div className="grid grid-cols-2 grid-rows-2 gap-1.5">
                     {(() => {
                       const rightSlots: { type: "image" | "video"; src: string; globalIdx: number }[] = [];
                       if (hasVideo) {
@@ -539,7 +538,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                       return rightSlots.map((slot, idx) => (
                         <div
                           key={idx}
-                          className="relative cursor-pointer overflow-hidden"
+                          className="relative cursor-pointer overflow-hidden rounded-lg"
                           onClick={() => { setCurrentImageIndex(slot.globalIdx); setIsLightboxOpen(true); }}
                         >
                           {slot.type === "video" ? (
@@ -585,56 +584,21 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                               </div>
                             </div>
                           )}
+                          {/* "Voir les X photos" button on last visible image */}
+                          {idx === 3 && mediaCount > 5 && (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(0); setIsLightboxOpen(true); }}
+                              className="absolute bottom-3 right-3 px-3 py-1.5 rounded-full bg-background/90 text-xs font-medium text-foreground shadow-md hover:bg-background transition-colors"
+                            >
+                              {language === "en" ? `View all ${mediaCount} photos` : language === "ar" ? `عرض ${mediaCount} صور` : `Voir les ${mediaCount} photos`}
+                            </button>
+                          )}
                         </div>
                       ));
                     })()}
                   </div>
                 </div>
               </div>
-              {/* Remaining images — same mosaic style as product detail page */}
-              {images.length > 5 && (() => {
-                const remaining = images.slice(hasVideo ? 4 : 5);
-                const startIdx = hasVideo ? 4 : 5;
-                const rows: string[][] = [];
-                for (let i = 0; i < remaining.length; i += 4) {
-                  rows.push(remaining.slice(i, i + 4));
-                }
-                return (
-                  <div className="flex flex-col gap-1 mt-1">
-                    {rows.map((row, rIdx) => (
-                      <div
-                        key={rIdx}
-                        className={`grid gap-1 ${
-                          row.length === 1 ? 'grid-cols-1' :
-                          row.length === 2 ? 'grid-cols-2' :
-                          row.length === 3 ? 'grid-cols-3' :
-                          'grid-cols-2 sm:grid-cols-4'
-                        }`}
-                        style={row.length >= 4 ? { height: 180 } : undefined}
-                      >
-                        {row.map((img, cIdx) => {
-                          const globalIdx = videoOffset + startIdx + rIdx * 4 + cIdx;
-                          return (
-                            <div
-                              key={cIdx}
-                              className="relative cursor-pointer overflow-hidden group aspect-[4/3] sm:aspect-auto"
-                              style={row.length < 4 ? { height: 180 } : undefined}
-                              onClick={() => { setCurrentImageIndex(globalIdx); setIsLightboxOpen(true); }}
-                            >
-                              <img
-                                src={img}
-                                alt={`${business.name} - ${globalIdx + 1}`}
-                                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                              />
-                            </div>
-                          );
-                        })}
-                      </div>
-                    ))}
-                  </div>
-                );
-              })()}
-              </>
             ) : (
               /* Standard carousel for non-expanded or few images */
               <div ref={mediaContainerRef} className="relative w-full aspect-[16/9] bg-muted cursor-pointer" onClick={() => { if (!(hasVideo && currentImageIndex === 0)) setIsLightboxOpen(true); }}>
