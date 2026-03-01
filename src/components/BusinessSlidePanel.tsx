@@ -760,7 +760,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                 </div>
               </div>
               {business.default_service && (
-                <Badge className="shrink-0 text-xs bg-orange-500 text-white hover:bg-orange-600 border-orange-500">{business.default_service}</Badge>
+                <Badge className="shrink-0 text-xs bg-gold text-black hover:bg-gold/90 border-gold">{business.default_service}</Badge>
               )}
               {/* Social media icons */}
               {(() => {
@@ -857,7 +857,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
               </div>
               <div className="flex items-center gap-2 shrink-0">
                 {business.default_service && (
-                  <Badge className="text-xs bg-orange-500 text-white hover:bg-orange-600 border-orange-500">{business.default_service}</Badge>
+                  <Badge className="text-xs bg-gold text-black hover:bg-gold/90 border-gold">{business.default_service}</Badge>
                 )}
                 {voiceStatus === "recording" && (
                   <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-destructive/10 text-destructive text-xs font-medium animate-pulse">
