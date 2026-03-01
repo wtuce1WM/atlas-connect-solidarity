@@ -978,15 +978,18 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                           setPdfLoading(true);
                           try {
                             const proxyUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/pdf-proxy?url=${encodeURIComponent(business.pdf_url!)}`;
-                            const res = await fetch(proxyUrl);
+                            const res = await fetch(proxyUrl, {
+                              headers: {
+                                apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+                                Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+                              },
+                            });
                             if (!res.ok) throw new Error("Fetch failed");
                             const blob = await res.blob();
                             const url = URL.createObjectURL(blob);
                             setPdfBlobUrl(url);
                           } catch (err) {
                             console.error("PDF proxy error:", err);
-                            // Fallback: open in new tab
-                            window.open(business.pdf_url!, "_blank");
                             setShowPdfViewer(false);
                           } finally {
                             setPdfLoading(false);
@@ -1463,7 +1466,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
           <div className="flex items-center justify-between px-4 py-3 border-b border-border">
             <h3 className="font-semibold text-sm truncate flex-1 mr-2">{business.pdf_name || "Document"}</h3>
             <a
-              href={business.pdf_url}
+              href={`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/pdf-proxy?url=${encodeURIComponent(business.pdf_url)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="text-xs text-muted-foreground hover:text-foreground transition-colors mr-3 shrink-0"
