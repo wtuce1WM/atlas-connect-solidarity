@@ -39,7 +39,7 @@ serve(async (req) => {
     const tone = cfg.tone || "Sois naturel et enthousiaste, comme un ami local passionné qui partage ses meilleures adresses.";
     const responseLength = cfg.response_length || "5-8";
     const model = cfg.model || "google/gemini-3-flash-preview";
-    const maxTokens = parseInt(cfg.max_tokens || "600", 10);
+    const maxTokens = parseInt(cfg.max_tokens || "1200", 10);
     const temperature = parseFloat(cfg.temperature || "0.7");
     const extraInstructions = cfg.extra_instructions || "";
     const noResultsCfg = cfg.no_results_instructions || "";
@@ -81,7 +81,7 @@ RÈGLES :
 - Réponds en ${responseLength} phrases, de façon détaillée, chaleureuse et enthousiaste.
 - Utilise des émojis pertinents pour rendre la réponse vivante (🍽️ 🐟 🌊 ⭐ 🏨 ☕ 🎶 🌅 📍 👨‍🍳 💎 🔥 etc.).${hasResults ? `
 - Base-toi UNIQUEMENT sur les établissements fournis ci-dessous. Ne mentionne JAMAIS d'établissement qui n'est pas dans la liste.
-- Cite 3-4 établissements de la liste par leur nom exact, en expliquant pourquoi ils correspondent à la recherche (ambiance, spécialités, vue, etc.).
+- Cite jusqu'à 10 établissements de la liste par leur nom exact, en expliquant pourquoi ils correspondent à la recherche (ambiance, spécialités, vue, etc.).
 - Ne mentionne JAMAIS de note, score ou classement chiffré (pas de "/20", "/10", "étoiles", etc.).` : ''}${boostVerified && hasResults ? `\n- Les établissements marqués [CONFIANCE] sont des adresses de confiance. Privilégie-les dans ta réponse mais ne mentionne JAMAIS le mot "vérifié", "confiance", "[CONFIANCE]" ou tout badge similaire dans ta réponse.` : ''}${noResultsInstructions}
 - Si la liste ne semble pas correspondre à la question, dis-le honnêtement.
 - Entoure chaque nom d'établissement de doubles astérisques, par exemple **Nom de l'établissement**.
