@@ -1479,14 +1479,6 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
               <div className="flex items-center gap-3 mr-3 shrink-0">
                 <a
                   href={pdfBlobUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Ouvrir <ExternalLink className="inline h-3 w-3 ml-0.5" />
-                </a>
-                <a
-                  href={pdfBlobUrl}
                   download={activeDocumentName || "document.pdf"}
                   className="text-xs text-muted-foreground hover:text-foreground transition-colors"
                 >
@@ -1514,28 +1506,19 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
               <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
           ) : pdfBlobUrl ? (
-            <div className="flex-1 flex items-center justify-center p-6">
-              <div className="w-full max-w-md rounded-lg border border-border bg-card p-4 text-center space-y-3">
-                <p className="text-sm text-foreground font-medium">Document prêt</p>
-                <p className="text-xs text-muted-foreground">Chrome bloque parfois l’affichage intégré, utilisez un des boutons ci-dessous.</p>
-                <div className="flex items-center justify-center gap-3">
-                  <a
-                    href={pdfBlobUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    Ouvrir <ExternalLink className="inline h-3 w-3 ml-0.5" />
-                  </a>
-                  <a
-                    href={pdfBlobUrl}
-                    download={activeDocumentName || "document.pdf"}
-                    className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    Télécharger <ExternalLink className="inline h-3 w-3 ml-0.5" />
-                  </a>
-                </div>
-              </div>
+            <div className="flex-1 min-h-0">
+              <object
+                data={pdfBlobUrl}
+                type="application/pdf"
+                className="h-full w-full"
+                aria-label={activeDocumentName || "Document PDF"}
+              >
+                <iframe
+                  src={pdfBlobUrl}
+                  className="h-full w-full border-0"
+                  title={activeDocumentName || "Document PDF"}
+                />
+              </object>
             </div>
           ) : (
             <div className="flex-1 flex items-center justify-center text-muted-foreground text-sm">
