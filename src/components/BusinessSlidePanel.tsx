@@ -744,14 +744,17 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                     key={tab.id}
                     onClick={() => {
                       setActiveTab(tab.id);
-                      const refMap: Record<string, React.RefObject<HTMLDivElement | null>> = {
-                        apercu: descriptionRef,
-                        contact: contactSectionRef,
-                        avis: reviewsSectionRef,
-                        localiser: mapSectionRef,
-                        services: servicesSectionRef,
-                      };
-                      refMap[tab.id]?.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+                      if (tab.id === "apercu") {
+                        scrollContainerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+                      } else {
+                        const refMap: Record<string, React.RefObject<HTMLDivElement | null>> = {
+                          contact: contactSectionRef,
+                          avis: reviewsSectionRef,
+                          localiser: mapSectionRef,
+                          services: servicesSectionRef,
+                        };
+                        refMap[tab.id]?.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+                      }
                     }}
                     className={`whitespace-nowrap px-3 py-2.5 text-sm font-medium transition-colors border-b-2 ${
                       activeTab === tab.id
