@@ -969,6 +969,30 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
               <div className="space-y-2">
                 <hr className="border-border" />
                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{language === "en" ? "Location" : language === "ar" ? "الموقع" : "Localisation"}</p>
+                <div className="space-y-1.5 text-sm">
+                  {business.address && (
+                    <div className="flex items-start gap-2">
+                      <MapPin className="h-4 w-4 flex-shrink-0 mt-0.5 text-muted-foreground" />
+                      <span>{business.address}</span>
+                    </div>
+                  )}
+                  {business.city && (
+                    <div className="flex items-start gap-2">
+                      <MapPin className="h-4 w-4 flex-shrink-0 mt-0.5 text-primary" />
+                      <span>
+                        <a href={`/city/${encodeURIComponent(business.city)}`} className="font-bold underline underline-offset-2 text-primary hover:text-foreground transition-colors">
+                          {business.city}
+                        </a>
+                        {business.neighborhood && (
+                          <>, <a href={`/neighborhood/${encodeURIComponent(business.neighborhood)}?city=${encodeURIComponent(business.city)}`} className="font-bold underline underline-offset-2 text-primary hover:text-foreground transition-colors">
+                            {business.neighborhood}
+                          </a></>
+                        )}
+                        {business.region && <>, {business.region}</>}
+                      </span>
+                    </div>
+                  )}
+                </div>
                 <div className="rounded-lg overflow-hidden border border-border">
                   <iframe
                     src={mapUrl}
