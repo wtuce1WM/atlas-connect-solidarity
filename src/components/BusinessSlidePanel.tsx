@@ -381,8 +381,8 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
           <>
             {isExpanded && images.length >= 5 ? (
               /* Multi-image collage grid for expanded mode */
-              <div className="relative w-full aspect-[2.5/1] bg-muted">
-                <div className="grid grid-cols-2 gap-1 h-full">
+              <div className="relative w-full bg-muted" style={{ minHeight: 320 }}>
+                <div className="grid grid-cols-2 gap-1" style={{ height: 320 }}>
                   {/* Large image left */}
                   <div 
                     className="relative cursor-pointer overflow-hidden"
@@ -397,30 +397,79 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                       <img src={logoGold} alt="WTUCE" className="absolute top-3 right-3 w-12 h-12 object-contain opacity-90 pointer-events-none drop-shadow-lg" />
                     )}
                   </div>
-                  {/* 4 smaller images right in 2x2 grid */}
+                  {/* 4 smaller items right in 2x2 grid — video replaces slot 0 if available */}
                   <div className="grid grid-cols-2 grid-rows-2 gap-1">
-                    {images.slice(1, 5).map((img, idx) => (
-                      <div
-                        key={idx}
-                        className="relative cursor-pointer overflow-hidden"
-                        onClick={() => { setCurrentImageIndex(videoOffset + idx + 1); setIsLightboxOpen(true); }}
-                      >
-                        <img
-                          src={img}
-                          alt={`${business.name} - ${idx + 2}`}
-                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                        />
-                        {/* "Voir les X photos" button on last image */}
-                        {idx === 3 && images.length > 5 && (
-                          <button
-                            onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(videoOffset); setIsLightboxOpen(true); }}
-                            className="absolute bottom-3 right-3 px-3 py-1.5 rounded-full bg-background/90 text-xs font-medium text-foreground shadow-md hover:bg-background transition-colors"
-                          >
-                            {language === "en" ? `View all ${images.length} photos` : language === "ar" ? `عرض ${images.length} صور` : `Voir les ${images.length} photos`}
-                          </button>
-                        )}
-                      </div>
-                    ))}
+                    {(() => {
+                      const rightSlots: { type: "image" | "video"; src: string; globalIdx: number }[] = [];
+                      if (hasVideo) {
+                        rightSlots.push({ type: "video", src: business.video_1_url!, globalIdx: 0 });
+                        // fill remaining 3 slots with images 1-3
+                        images.slice(1, 4).forEach((img, i) => rightSlots.push({ type: "image", src: img, globalIdx: videoOffset + i + 1 }));
+                      } else {
+                        images.slice(1, 5).forEach((img, i) => rightSlots.push({ type: "image", src: img, globalIdx: i + 1 }));
+                      }
+                      return rightSlots.map((slot, idx) => (
+                        <div
+                          key={idx}
+                          className="relative cursor-pointer overflow-hidden"
+                          onClick={() => { setCurrentImageIndex(slot.globalIdx); setIsLightboxOpen(true); }}
+                        >
+                          {slot.type === "video" ? (
+                            (() => {
+                              const url = slot.src;
+                              const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]+)/);
+                              if (ytMatch) {
+                                return (
+                                  <iframe
+                                    src={`https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&mute=1&loop=1&playlist=${ytMatch[1]}&controls=0&modestbranding=1&rel=0`}
+                                    className="w-full h-full pointer-events-none"
+                                    allow="autoplay; encrypted-media"
+                                    frameBorder="0"
+                                  />
+                                );
+                              }
+                              const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+                              if (vimeoMatch) {
+                                return (
+                                  <iframe
+                                    src={`https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1&muted=1&loop=1&background=1`}
+                                    className="w-full h-full pointer-events-none"
+                                    allow="autoplay; encrypted-media"
+                                    frameBorder="0"
+                                  />
+                                );
+                              }
+                              return (
+                                <video src={url} autoPlay muted loop playsInline className="w-full h-full object-cover" />
+                              );
+                            })()
+                          ) : (
+                            <img
+                              src={slot.src}
+                              alt={`${business.name} - ${idx + 2}`}
+                              className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                            />
+                          )}
+                          {/* Play icon overlay on video thumbnail */}
+                          {slot.type === "video" && (
+                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                              <div className="p-2 rounded-full bg-background/70">
+                                <Play className="h-5 w-5 text-foreground" />
+                              </div>
+                            </div>
+                          )}
+                          {/* "Voir les X photos" button on last image */}
+                          {idx === 3 && (images.length + (hasVideo ? 1 : 0)) > 5 && (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(0); setIsLightboxOpen(true); }}
+                              className="absolute bottom-3 right-3 px-3 py-1.5 rounded-full bg-background/90 text-xs font-medium text-foreground shadow-md hover:bg-background transition-colors"
+                            >
+                              {language === "en" ? `View all ${mediaCount} photos` : language === "ar" ? `عرض ${mediaCount} صور` : `Voir les ${mediaCount} photos`}
+                            </button>
+                          )}
+                        </div>
+                      ));
+                    })()}
                   </div>
                 </div>
               </div>
