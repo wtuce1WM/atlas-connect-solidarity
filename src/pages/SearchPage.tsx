@@ -1212,6 +1212,7 @@ const SearchPage = () => {
           {searchQuery && !isLoading && filteredBusinesses.length > 0 && (
             <AISearchAnswer
               query={spokenText || searchQuery}
+              spokenText={spokenText || undefined}
               businesses={filteredBusinesses}
               isSearchLoading={isLoading}
               onAnswerReady={setAiAnswerText}
