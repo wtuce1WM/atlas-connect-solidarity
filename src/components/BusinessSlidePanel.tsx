@@ -996,7 +996,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                 <div className="rounded-lg overflow-hidden border border-border">
                   <iframe
                     src={mapUrl}
-                    className="w-full h-[250px] border-0"
+                    className="w-full h-[350px] border-0"
                     allowFullScreen
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"
