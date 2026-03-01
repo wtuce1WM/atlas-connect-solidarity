@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
-import { X, MapPin, Phone, Mail, Globe, Star, BadgeCheck, ChevronLeft, ChevronRight, Clock, Loader2, ExternalLink, CookingPot, Volume2, VolumeX, Maximize, Play, Pause, Headphones } from "lucide-react";
+import { X, MapPin, Phone, Mail, Globe, Star, BadgeCheck, ChevronLeft, ChevronRight, Clock, Loader2, ExternalLink, CookingPot, Volume2, VolumeX, Maximize, Play, Pause, Headphones, Mic } from "lucide-react";
 import { useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useVoiceSearch } from "@/hooks/useVoiceSearch";
+import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
 import { formatDayHours as formatDayHoursDisplay, isCurrentlyOpen as isCurrentlyOpenCheck } from "@/lib/formatOpeningHours";
@@ -104,7 +106,28 @@ const SkypeIcon = ({ className = "h-5 w-5" }: { className?: string }) => (
 
 const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) => {
   const { language } = useLanguage();
-  const { speak: ttsSpeak, stop: ttsStop, status: ttsStatus } = useTextToSpeech();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const voiceLoopRef = useRef(false);
+
+  const { status: voiceStatus, toggleRecording } = useVoiceSearch({
+    onTranscript: (keywords, spoken) => {
+      const params = new URLSearchParams({ q: keywords, spoken });
+      navigate(`/search?${params.toString()}`);
+    },
+    onError: (message) => {
+      toast({ variant: "destructive", title: "Erreur", description: message });
+    },
+  });
+
+  const { speak: ttsSpeak, stop: ttsStop, status: ttsStatus } = useTextToSpeech({
+    onEnd: () => {
+      if (voiceLoopRef.current) {
+        voiceLoopRef.current = false;
+        setTimeout(() => toggleRecording(), 400);
+      }
+    },
+  });
   const [business, setBusiness] = useState<FullBusiness | null>(null);
   const [gamme, setGamme] = useState<Gamme | null>(null);
   const [reviewTexts, setReviewTexts] = useState<{ source: string; author_name: string | null; rating: number | null; text: string | null; relative_time: string | null }[]>([]);
@@ -461,12 +484,21 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
                 </div>
               </div>
               <div className="flex items-center gap-2 shrink-0">
+                {voiceStatus === "recording" && (
+                  <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-destructive/10 text-destructive text-xs font-medium animate-pulse">
+                    <Mic className="h-3.5 w-3.5" />
+                    <span>Je vous écoute…</span>
+                  </div>
+                )}
                 <button
                   onClick={() => {
                     if (ttsStatus === "playing" || ttsStatus === "loading") {
                       ttsStop();
+                      voiceLoopRef.current = false;
                     } else {
-                      ttsSpeak(buildTtsSynthesis());
+                      voiceLoopRef.current = true;
+                      const synthesis = buildTtsSynthesis();
+                      ttsSpeak(synthesis + " … Vous pouvez me poser une autre question.");
                     }
                   }}
                   className={`p-1.5 rounded-full transition-colors ${ttsStatus === "playing" || ttsStatus === "loading" ? "bg-gold/20 text-gold" : "hover:bg-muted text-muted-foreground"}`}
