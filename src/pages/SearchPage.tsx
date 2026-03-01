@@ -24,6 +24,7 @@ import {
 import { Loader2, Building2, ChevronLeft, ChevronRight, Search, Mic, MicOff, Loader, MapPin, MapPinOff, X, Volume2, VolumeX, Clock } from "lucide-react";
 import BusinessCard, { type BusinessCardData, type Gamme, type Badge, type SubcategoryRef, type BadgeSubcategoryRef } from "@/components/BusinessCard";
 import AISearchAnswer from "@/components/AISearchAnswer";
+import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { useToast } from "@/hooks/use-toast";
@@ -435,7 +436,7 @@ const SearchPage = () => {
 
   // Close suggestions on click outside
 
-  const { status: voiceStatus, toggleRecording } = useVoiceSearch({
+  const { status: voiceStatus, toggleRecording, liveTranscript } = useVoiceSearch({
     onTranscript: (keywords, spoken, category, timeKeyword) => {
       isVoiceSearchRef.current = true;
       setInputValue(keywords);
@@ -1641,6 +1642,13 @@ const SearchPage = () => {
 
       <div className="h-20" />
       <Footer />
+
+      {/* Google-style voice search overlay */}
+      <VoiceSearchOverlay
+        isOpen={voiceStatus === "recording" || voiceStatus === "processing"}
+        liveTranscript={liveTranscript}
+        onClose={() => toggleRecording()}
+      />
     </div>
   );
 };

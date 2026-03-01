@@ -8,6 +8,7 @@ import logoGoldOverlay from "@/assets/logoGOLDsimple.webp";
 import Logo3DSpinner from "@/components/Logo3DSpinner";
 import heroBackground from "@/assets/hero-marrakech.jpg";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
+import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
 import { toast } from "@/hooks/use-toast";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { getTimeGreeting, extractTimeSlot } from "@/lib/timeSlots";
@@ -29,7 +30,7 @@ const HeroSection = () => {
   };
 
   const voiceLang = language === "ar" ? "ar-MA" : language === "en" ? "en-US" : "fr-FR";
-  const { status: voiceStatus, toggleRecording } = useVoiceSearch({
+  const { status: voiceStatus, toggleRecording, liveTranscript } = useVoiceSearch({
     lang: voiceLang,
     onTranscript: (keywords, spokenText, detectedCategory, timeKeyword) => {
       const params = new URLSearchParams();
@@ -371,6 +372,13 @@ const HeroSection = () => {
           </button>
         </div>
       )}
+
+      {/* Google-style voice search overlay */}
+      <VoiceSearchOverlay
+        isOpen={voiceStatus === "recording" || voiceStatus === "processing"}
+        liveTranscript={liveTranscript}
+        onClose={() => toggleRecording()}
+      />
     </section>
   );
 };
