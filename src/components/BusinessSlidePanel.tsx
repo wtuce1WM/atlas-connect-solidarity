@@ -544,20 +544,19 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                               </div>
                             </div>
                           )}
-                          {/* "Voir les X photos" button on last visible image */}
-                          {idx === 3 && mediaCount > 5 && (
-                            <button
-                              onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(0); setIsLightboxOpen(true); }}
-                              className="absolute bottom-3 right-3 px-3 py-1.5 rounded-full bg-background/90 text-xs font-medium text-foreground shadow-md hover:bg-background transition-colors"
-                            >
-                              {language === "en" ? `View all ${mediaCount} photos` : language === "ar" ? `عرض ${mediaCount} صور` : `Voir les ${mediaCount} photos`}
-                            </button>
-                          )}
                         </div>
                       ));
                     })()}
                   </div>
                 </div>
+                {mediaCount >= 5 && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(0); setIsLightboxOpen(true); }}
+                    className="absolute bottom-3 right-3 z-20 px-3 py-1.5 rounded-full bg-background/95 text-xs font-semibold text-foreground shadow-lg hover:bg-background transition-colors"
+                  >
+                    {language === "en" ? `View all ${mediaCount} photos` : language === "ar" ? `عرض ${mediaCount} صور` : `Voir les ${mediaCount} photos`}
+                  </button>
+                )}
               </div>
             ) : (
               /* Standard carousel for non-expanded or few images */
