@@ -41,21 +41,21 @@ const Header = ({ variant = "default" }: HeaderProps) => {
 
       {/* Dropdown Menu */}
       {isMenuOpen && (
-        <div className="border-t border-white/10 bg-black/90 backdrop-blur-lg">
+        <div className="border-t border-border bg-background">
           <nav className="container mx-auto flex flex-col items-center gap-4 px-4 py-6">
-            <Link to="/mission" className="text-white/90 transition-colors hover:text-gold">
+            <Link to="/mission" className="text-foreground transition-colors hover:text-gold">
               {t("footer.ourMission")}
             </Link>
-            <Link to="/search" className="text-white/90 transition-colors hover:text-gold">
+            <Link to="/search" className="text-foreground transition-colors hover:text-gold">
               Recherche
             </Link>
-            <Link to="/hotels" className="text-white/90 transition-colors hover:text-gold">
+            <Link to="/hotels" className="text-foreground transition-colors hover:text-gold">
               Hôtels
             </Link>
-            <Link to="/contact" className="text-white/90 transition-colors hover:text-gold">
+            <Link to="/contact" className="text-foreground transition-colors hover:text-gold">
               {t("footer.contact")}
             </Link>
-            <hr className="w-full border-white/20" />
+            <hr className="w-full border-border" />
             <Link to="/devenir-affilie" className="rounded-lg bg-gold px-4 py-2 font-semibold text-gold-foreground">
               {t("nav.joinNow")}
             </Link>
