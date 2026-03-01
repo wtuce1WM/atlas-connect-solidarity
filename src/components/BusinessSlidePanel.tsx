@@ -777,7 +777,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                 return socials.length > 0 ? (
                   <div className="flex items-center gap-3 shrink-0">
                     {socials.map((s, i) => (
-                      <a key={i} href={s.url!} target="_blank" rel="noopener noreferrer" style={{ color: s.color }} className="hover:opacity-70 transition-opacity">
+                      <a key={i} href={s.url!} target="_blank" rel="noopener noreferrer" className="text-foreground hover:opacity-70 transition-opacity grayscale">
                         {s.icon}
                       </a>
                     ))}
