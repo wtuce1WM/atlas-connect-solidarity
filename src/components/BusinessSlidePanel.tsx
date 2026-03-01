@@ -173,6 +173,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   const tabsSentinelRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState<string>("apercu");
   const [showStickyTabs, setShowStickyTabs] = useState(false);
+  const isScrollingToTabRef = useRef(false);
 
   const handleFullscreen = useCallback(() => {
     // For native video, use the video element's fullscreen
@@ -239,6 +240,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
 
     const observer = new IntersectionObserver(
       (entries) => {
+        if (isScrollingToTabRef.current) return;
         entries.forEach((entry) => {
           const sectionId = (entry.target as HTMLElement).dataset.sectionId;
           if (!sectionId) return;
@@ -800,20 +802,22 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                   <button
                     key={tab.id}
                     onClick={() => {
-                      setActiveTab(tab.id);
-                      if (tab.id === "apercu") {
-                        scrollContainerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
-                      } else {
-                        const refMap: Record<string, React.RefObject<HTMLDivElement | null>> = {
-                          contact: contactSectionRef,
-                          avis: reviewsSectionRef,
-                          localiser: mapSectionRef,
-                          services: servicesSectionRef,
-                          similaires: similarSectionRef,
-                          acote: nearbySectionRef,
-                        };
-                        refMap[tab.id]?.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-                      }
+                       setActiveTab(tab.id);
+                       isScrollingToTabRef.current = true;
+                       setTimeout(() => { isScrollingToTabRef.current = false; }, 800);
+                       if (tab.id === "apercu") {
+                         scrollContainerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+                       } else {
+                         const refMap: Record<string, React.RefObject<HTMLDivElement | null>> = {
+                           contact: contactSectionRef,
+                           avis: reviewsSectionRef,
+                           localiser: mapSectionRef,
+                           services: servicesSectionRef,
+                           similaires: similarSectionRef,
+                           acote: nearbySectionRef,
+                         };
+                         refMap[tab.id]?.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+                       }
                     }}
                     className={`whitespace-nowrap px-3 py-2.5 text-sm font-medium transition-colors border-b-2 ${
                       activeTab === tab.id
@@ -915,22 +919,24 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
               <button
                 key={tab.id}
                 onClick={() => {
-                  setActiveTab(tab.id);
-                  if (tab.id === "apercu") {
-                    descriptionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-                  } else if (tab.id === "contact") {
-                    contactSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-                  } else if (tab.id === "avis") {
-                    reviewsSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-                  } else if (tab.id === "localiser") {
-                    mapSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-                  } else if (tab.id === "services") {
-                    servicesSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-                  } else if (tab.id === "similaires") {
-                    similarSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-                  } else if (tab.id === "acote") {
-                    nearbySectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-                  }
+                   setActiveTab(tab.id);
+                   isScrollingToTabRef.current = true;
+                   setTimeout(() => { isScrollingToTabRef.current = false; }, 800);
+                   if (tab.id === "apercu") {
+                     descriptionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+                   } else if (tab.id === "contact") {
+                     contactSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+                   } else if (tab.id === "avis") {
+                     reviewsSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+                   } else if (tab.id === "localiser") {
+                     mapSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+                   } else if (tab.id === "services") {
+                     servicesSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+                   } else if (tab.id === "similaires") {
+                     similarSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+                   } else if (tab.id === "acote") {
+                     nearbySectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+                   }
                 }}
                 className={`whitespace-nowrap px-3 py-2.5 text-sm font-medium transition-colors border-b-2 ${
                   activeTab === tab.id
