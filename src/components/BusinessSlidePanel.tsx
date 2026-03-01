@@ -165,7 +165,8 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
   const [showPdfViewer, setShowPdfViewer] = useState(false);
   const [pdfBlobUrl, setPdfBlobUrl] = useState<string | null>(null);
   const [pdfLoading, setPdfLoading] = useState(false);
-
+  const [activeDocumentUrl, setActiveDocumentUrl] = useState<string | null>(null);
+  const [activeDocumentName, setActiveDocumentName] = useState<string | null>(null);
   const handleFullscreen = useCallback(() => {
     // For native video, use the video element's fullscreen
     if (videoRef.current) {
@@ -966,22 +967,31 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
               )}
 
               {/* Menu / PDF */}
-              {(business.pdf_url || business.menu_url) && (
-                <div className="flex items-start gap-3">
-                  <CookingPot className="h-5 w-5 shrink-0 mt-0.5 text-foreground" />
-                  <div>
-                    <p className="font-semibold text-sm text-foreground">{business.pdf_url ? (business.pdf_name || "Document") : "Menu"}</p>
-                    {business.pdf_url ? (
+              {(business.pdf_url || business.menu_url) && (() => {
+                const documentUrl = business.pdf_url || business.menu_url;
+                const documentName = business.pdf_name || (business.pdf_url ? "Document" : "Menu");
+
+                return (
+                  <div className="flex items-start gap-3">
+                    <CookingPot className="h-5 w-5 shrink-0 mt-0.5 text-foreground" />
+                    <div>
+                      <p className="font-semibold text-sm text-foreground">{documentName}</p>
                       <button
                         onClick={async () => {
+                          if (!documentUrl) return;
+
                           setShowPdfViewer(true);
                           setPdfLoading(true);
+                          setActiveDocumentUrl(documentUrl);
+                          setActiveDocumentName(documentName);
+
                           if (pdfBlobUrl) {
                             URL.revokeObjectURL(pdfBlobUrl);
                             setPdfBlobUrl(null);
                           }
+
                           try {
-                            const proxyUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/pdf-proxy?url=${encodeURIComponent(business.pdf_url!)}`;
+                            const proxyUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/pdf-proxy?url=${encodeURIComponent(documentUrl)}`;
                             const res = await fetch(proxyUrl, {
                               headers: {
                                 apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
@@ -996,23 +1006,20 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                           } catch (err) {
                             console.error("PDF proxy error:", err);
                             setShowPdfViewer(false);
+                            setActiveDocumentUrl(null);
+                            setActiveDocumentName(null);
                           } finally {
                             setPdfLoading(false);
                           }
                         }}
                         className="text-sm text-muted-foreground hover:text-foreground transition-colors mt-0.5 block"
                       >
-                        {business.pdf_name || "Voir le document"} <ExternalLink className="inline h-3 w-3 ml-0.5" />
+                        Voir le document <ExternalLink className="inline h-3 w-3 ml-0.5" />
                       </button>
-                    ) : (
-                      <a href={business.menu_url!} target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground transition-colors mt-0.5 block">
-                        Voir le menu <ExternalLink className="inline h-3 w-3 ml-0.5" />
-                      </a>
-                    )}
+                    </div>
                   </div>
-                </div>
-              )}
-
+                );
+              })()}
               {/* WhatsApp */}
               {business.whatsapp && (
                 <div className="flex items-start gap-3">
@@ -1466,10 +1473,10 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
       )}
 
       {/* PDF Viewer popup — covers the panel */}
-      {showPdfViewer && business?.pdf_url && (
+      {showPdfViewer && activeDocumentUrl && (
         <div className="absolute inset-0 z-50 bg-background flex flex-col">
           <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-            <h3 className="font-semibold text-sm truncate flex-1 mr-2">{business.pdf_name || "Document"}</h3>
+            <h3 className="font-semibold text-sm truncate flex-1 mr-2">{activeDocumentName || "Document"}</h3>
             {pdfBlobUrl && (
               <div className="flex items-center gap-3 mr-3 shrink-0">
                 <a
@@ -1482,7 +1489,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                 </a>
                 <a
                   href={pdfBlobUrl}
-                  download={business.pdf_name || "document.pdf"}
+                  download={activeDocumentName || "document.pdf"}
                   className="text-xs text-muted-foreground hover:text-foreground transition-colors"
                 >
                   Télécharger <ExternalLink className="inline h-3 w-3 ml-0.5" />
@@ -1492,6 +1499,8 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
             <button
               onClick={() => {
                 setShowPdfViewer(false);
+                setActiveDocumentUrl(null);
+                setActiveDocumentName(null);
                 if (pdfBlobUrl) {
                   URL.revokeObjectURL(pdfBlobUrl);
                   setPdfBlobUrl(null);
@@ -1511,17 +1520,17 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
               data={pdfBlobUrl}
               type="application/pdf"
               className="flex-1 w-full"
-              aria-label={business.pdf_name || "Document PDF"}
+              aria-label={activeDocumentName || "Document PDF"}
             >
               <iframe
                 src={pdfBlobUrl}
                 className="flex-1 w-full border-0"
-                title={business.pdf_name || "Document PDF"}
+                title={activeDocumentName || "Document PDF"}
               />
             </object>
           ) : (
             <div className="flex-1 flex items-center justify-center text-muted-foreground text-sm">
-              Impossible de charger le PDF
+              Impossible de charger le document
             </div>
           )}
         </div>
