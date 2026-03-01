@@ -139,6 +139,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
   const [isVideoMuted, setIsVideoMuted] = useState(true);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [isVideoPaused, setIsVideoPaused] = useState(false);
+  const [videoError, setVideoError] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const mediaContainerRef = useRef<HTMLDivElement>(null);
 
@@ -166,6 +167,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
     const fetch = async () => {
       setIsLoading(true);
       setCurrentImageIndex(0);
+      setVideoError(false);
 
       const { data, error } = await supabase
         .from("businesses")
@@ -227,7 +229,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
   const isVerified = business.wtuce_status === "verified";
   const isInstitution = business.account_type?.toLowerCase() === "institution";
   const images = business.images || [];
-  const hasVideo = !!business.video_1_url;
+  const hasVideo = !!business.video_1_url && !videoError;
   const mediaCount = (hasVideo ? 1 : 0) + images.length;
   const videoOffset = hasVideo ? 1 : 0;
   const ratingSourcesForCalc = collectRatingSources(business);
@@ -364,7 +366,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                 const url = business.video_1_url!;
                 const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]+)/);
                 if (ytMatch) {
-                  return (
+                   return (
                     <iframe
                       key={`yt-${isVideoMuted}`}
                       src={`https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&mute=${isVideoMuted ? 1 : 0}&loop=1&playlist=${ytMatch[1]}&controls=0&modestbranding=1&rel=0`}
@@ -372,12 +374,13 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                       allow="autoplay; encrypted-media"
                       allowFullScreen
                       frameBorder="0"
+                      onError={() => setVideoError(true)}
                     />
                   );
                 }
                 const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
                 if (vimeoMatch) {
-                  return (
+                   return (
                     <iframe
                       key={`vi-${isVideoMuted}`}
                       src={`https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1&muted=${isVideoMuted ? 1 : 0}&loop=1&background=${isVideoMuted ? 1 : 0}`}
@@ -385,6 +388,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                       allow="autoplay; encrypted-media"
                       allowFullScreen
                       frameBorder="0"
+                      onError={() => setVideoError(true)}
                     />
                   );
                 }
@@ -397,6 +401,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                     loop
                     playsInline
                     className="w-full h-full object-cover"
+                    onError={() => setVideoError(true)}
                   />
                 );
               })()
