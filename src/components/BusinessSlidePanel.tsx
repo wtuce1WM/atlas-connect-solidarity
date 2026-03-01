@@ -709,6 +709,14 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                     <div className="absolute bottom-2 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full bg-background/80 text-xs text-foreground">
                       {currentImageIndex + 1} / {mediaCount}
                     </div>
+                    {mediaCount > 1 && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(0); setIsLightboxOpen(true); }}
+                        className="absolute bottom-2 right-2 px-3 py-1.5 rounded-lg bg-background/90 backdrop-blur-sm text-xs font-semibold text-foreground shadow-md hover:bg-background transition-colors"
+                      >
+                        {language === "en" ? `View all ${mediaCount} photos` : language === "ar" ? `عرض ${mediaCount} صور` : `Voir les ${mediaCount} photos`}
+                      </button>
+                    )}
                   </>
                 )}
               </div>
