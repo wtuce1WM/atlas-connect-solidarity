@@ -518,8 +518,8 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                   key={i}
                   src={img}
                   alt={`${business.name} - ${i + 1}`}
-                  className="rounded-lg cursor-pointer hover:scale-[1.03] transition-transform duration-300 shrink-0"
-                  style={{ maxWidth: "60%", height: "auto" }}
+                  className="rounded-lg cursor-pointer hover:scale-[1.03] transition-transform duration-300"
+                  style={{ maxWidth: "30%", height: "auto" }}
                   onClick={() => { setCurrentImageIndex(videoOffset + i); setIsLightboxOpen(true); }}
                 />
               ))}
@@ -1304,9 +1304,9 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
 
       {/* Fullscreen lightbox — rendered via portal to escape panel stacking context */}
       {isLightboxOpen && mediaCount > 0 && createPortal(
-        <div className="fixed inset-0 z-[9999] bg-black flex items-center justify-center" onClick={() => setIsLightboxOpen(false)}>
+        <div className="fixed inset-0 z-[9999] bg-black flex items-center justify-center" onClick={() => { setIsLightboxOpen(false); if (isExpanded) onToggleExpand?.(); scrollContainerRef.current?.scrollTo({ top: 0 }); }}>
           <button
-            onClick={(e) => { e.stopPropagation(); setIsLightboxOpen(false); }}
+            onClick={(e) => { e.stopPropagation(); setIsLightboxOpen(false); if (isExpanded) onToggleExpand?.(); scrollContainerRef.current?.scrollTo({ top: 0 }); }}
             className="absolute top-6 left-6 z-20 flex items-center gap-2 px-4 py-2.5 rounded-full bg-white text-black font-semibold text-sm shadow-2xl hover:bg-white/90 transition-colors"
           >
             <X className="h-5 w-5" />
