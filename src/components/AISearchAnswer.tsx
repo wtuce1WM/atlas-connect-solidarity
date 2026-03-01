@@ -278,25 +278,29 @@ const AISearchAnswer = ({ query, businesses, isSearchLoading, onAnswerReady }: A
       {isPanelOpen && (
         <div className={`fixed top-[62px] right-0 z-[100] bg-background shadow-2xl border-l border-border overflow-hidden transition-all duration-500 ease-out animate-slide-in-right flex flex-col ${isPanelExpanded ? "w-full" : "w-1/2"}`} style={{ height: "calc(100vh - 62px)" }}>
           {/* Fixed button bar above image */}
-          <div className="shrink-0 flex items-center gap-3 px-4 py-2 bg-background border-b border-border z-[999]">
-            <button
-              onClick={() => { setSelectedBusiness(null); setIsPanelExpanded(false); }}
-              className="h-9 w-9 flex items-center justify-center rounded-full bg-black text-white border-2 border-white/20 shadow-2xl hover:opacity-90 transition-opacity"
-              title="Fermer"
-              aria-label="Fermer le panneau"
-            >
-              <X className="h-4 w-4" />
-            </button>
-            <button
-              onClick={() => setIsPanelExpanded(prev => !prev)}
-              className="h-9 w-9 flex items-center justify-center rounded-full bg-black text-white border-2 border-white/20 shadow-2xl hover:opacity-90 transition-opacity"
-              title={isPanelExpanded ? "Réduire" : "Agrandir"}
-              aria-label={isPanelExpanded ? "Réduire le panneau" : "Agrandir le panneau"}
-            >
-              {isPanelExpanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-            </button>
-            {/* Portal target for action icons from BusinessSlidePanel */}
-            <div id="slide-panel-toolbar" className="flex items-center gap-3 ml-auto" />
+          <div className="shrink-0 flex items-center px-4 py-2 bg-background border-b border-border z-[999]">
+            <div className="flex items-center gap-3 shrink-0">
+              <button
+                onClick={() => { setSelectedBusiness(null); setIsPanelExpanded(false); }}
+                className="h-9 w-9 flex items-center justify-center rounded-full bg-black text-white border-2 border-white/20 shadow-2xl hover:opacity-90 transition-opacity"
+                title="Fermer"
+                aria-label="Fermer le panneau"
+              >
+                <X className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => setIsPanelExpanded(prev => !prev)}
+                className="h-9 w-9 flex items-center justify-center rounded-full bg-black text-white border-2 border-white/20 shadow-2xl hover:opacity-90 transition-opacity"
+                title={isPanelExpanded ? "Réduire" : "Agrandir"}
+                aria-label={isPanelExpanded ? "Réduire le panneau" : "Agrandir le panneau"}
+              >
+                {isPanelExpanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+              </button>
+            </div>
+            {/* Contact icons - centered */}
+            <div id="slide-panel-toolbar-center" className="flex-1 flex items-center justify-center gap-4" />
+            {/* Action icons - right */}
+            <div id="slide-panel-toolbar" className="flex items-center gap-3 shrink-0" />
           </div>
 
           <div className="flex-1 min-h-0">

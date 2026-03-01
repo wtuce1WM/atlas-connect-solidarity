@@ -375,11 +375,12 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
   }
 
   const toolbarPortal = document.getElementById("slide-panel-toolbar");
+  const toolbarCenterPortal = document.getElementById("slide-panel-toolbar-center");
 
   return (
     <div className="flex flex-col h-full">
-      {/* Portal action icons into the fixed bar */}
-      {toolbarPortal && createPortal(
+      {/* Portal contact icons into center of fixed bar */}
+      {toolbarCenterPortal && createPortal(
         <>
           {business.whatsapp && (
             <a href={`https://wa.me/${business.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="hover:opacity-70 transition-opacity" style={{ color: "#25D366" }}>
@@ -396,6 +397,12 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
               <Phone className="h-6 w-6" />
             </a>
           )}
+        </>,
+        toolbarCenterPortal
+      )}
+      {/* Portal action icons into right of fixed bar */}
+      {toolbarPortal && createPortal(
+        <>
           <ShareButton title={business.name} variant="dark" className="toolbar-icon" />
           <BookmarkButton businessId={business.id} variant="gold" onLoginRequired={() => setShowClubCard(true)} />
           <button
