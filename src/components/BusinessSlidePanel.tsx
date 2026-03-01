@@ -1296,6 +1296,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
           {/* Nearby businesses */}
           <NearbyBusinesses
             currentBusinessId={business.id}
+            businessName={business.name}
             latitude={business.latitude}
             longitude={business.longitude}
             onNavigate={(id) => { setInternalBusinessId(id); scrollContainerRef.current?.scrollTo({ top: 0 }); if (isExpanded) onToggleExpand?.(); }}

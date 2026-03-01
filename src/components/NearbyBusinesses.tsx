@@ -30,6 +30,7 @@ interface NearbyBusiness {
 
 interface NearbyBusinessesProps {
   currentBusinessId: string;
+  businessName: string;
   latitude: number | null;
   longitude: number | null;
   onNavigate?: (businessId: string) => void;
@@ -50,7 +51,7 @@ function haversine(lat1: number, lon1: number, lat2: number, lon2: number): numb
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-const NearbyBusinesses = ({ currentBusinessId, latitude, longitude, onNavigate, onLoginRequired }: NearbyBusinessesProps) => {
+const NearbyBusinesses = ({ currentBusinessId, businessName, latitude, longitude, onNavigate, onLoginRequired }: NearbyBusinessesProps) => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const [allBusinesses, setAllBusinesses] = useState<NearbyBusiness[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -122,6 +123,7 @@ const NearbyBusinesses = ({ currentBusinessId, latitude, longitude, onNavigate, 
           {allBusinesses.length} résultats
         </span>
       </div>
+      <p className="text-xs text-muted-foreground -mt-1">À moins de 1 km de {businessName}</p>
 
       <div className="grid grid-cols-3 gap-2">
         {businesses.map((biz) => {
