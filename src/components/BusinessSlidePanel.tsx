@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { X, MapPin, Phone, Mail, Globe, Star, BadgeCheck, ChevronLeft, ChevronRight, Clock, Loader2, ExternalLink, CookingPot, Volume2, VolumeX, Maximize } from "lucide-react";
+import { X, MapPin, Phone, Mail, Globe, Star, BadgeCheck, ChevronLeft, ChevronRight, Clock, Loader2, ExternalLink, CookingPot, Volume2, VolumeX, Maximize, Play, Pause } from "lucide-react";
 import { useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -109,6 +109,7 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [isVideoMuted, setIsVideoMuted] = useState(true);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+  const [isVideoPaused, setIsVideoPaused] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const mediaContainerRef = useRef<HTMLDivElement>(null);
 
@@ -334,6 +335,25 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
             {/* Video controls: Mute + Fullscreen */}
             {hasVideo && currentImageIndex === 0 && (
               <div className="absolute bottom-3 right-3 flex items-center gap-2 z-10">
+                {/* Play/Pause for native video */}
+                {videoRef.current && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (videoRef.current?.paused) {
+                        videoRef.current.play();
+                        setIsVideoPaused(false);
+                      } else {
+                        videoRef.current?.pause();
+                        setIsVideoPaused(true);
+                      }
+                    }}
+                    className="p-3 rounded-full bg-background/80 hover:bg-background transition-colors shadow-lg"
+                    title={isVideoPaused ? "Lecture" : "Pause"}
+                  >
+                    {isVideoPaused ? <Play className="h-5 w-5" /> : <Pause className="h-5 w-5" />}
+                  </button>
+                )}
                 <button
                   onClick={(e) => { e.stopPropagation(); handleFullscreen(); }}
                   className="p-3 rounded-full bg-background/80 hover:bg-background transition-colors shadow-lg"
