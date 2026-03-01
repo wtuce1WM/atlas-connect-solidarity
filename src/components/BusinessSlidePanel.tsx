@@ -464,7 +464,47 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
       <div ref={scrollContainerRef} className="flex-1 overflow-y-auto relative">
         {/* Image display */}
         {mediaCount > 0 && (
-          <>
+          <div className="relative">
+            {/* Club signup card overlay on image area */}
+            {showClubCard && (
+              <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/40 animate-in fade-in-0">
+                <div className="w-3/4 max-w-xs rounded-2xl overflow-hidden shadow-xl border border-border animate-in slide-in-from-top-4">
+                  <div style={{ backgroundColor: "#6050DC" }} className="p-5 text-white relative">
+                    <button
+                      type="button"
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowClubCard(false); }}
+                      className="absolute top-2 right-2 z-10 w-8 h-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/40 text-white transition-colors cursor-pointer"
+                    >
+                      <X className="h-4 w-4 pointer-events-none" />
+                    </button>
+                    <p className="text-sm opacity-90">{language === "en" ? "Welcome to" : language === "ar" ? "مرحباً بكم في" : "Bienvenue dans"}</p>
+                    <h3 className="text-xl font-bold mt-1">{language === "en" ? "the OWM Club" : language === "ar" ? "نادي OWM" : "le Club OWM"}</h3>
+                  </div>
+                  <div className="bg-card p-5 text-center">
+                    <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+                      {language === "en"
+                        ? "Sign up to save your favorite addresses and access exclusive benefits."
+                        : language === "ar"
+                          ? "سجّل لحفظ عناوينك المفضلة والحصول على مزايا حصرية."
+                          : "Inscrivez-vous pour sauvegarder vos adresses favorites et accéder à des avantages exclusifs."}
+                    </p>
+                    <a
+                      href="/club"
+                      style={{ backgroundColor: "#6050DC" }}
+                      className="inline-block rounded-full px-8 py-3 text-white font-semibold text-sm hover:opacity-90 transition-colors shadow-md"
+                    >
+                      {language === "en" ? "Join now" : language === "ar" ? "سجّل الآن" : "Je m'inscris"}
+                    </a>
+                    <p className="mt-3 text-xs text-muted-foreground">
+                      {language === "en" ? "Already have an account? " : language === "ar" ? "لديك حساب بالفعل؟ " : "Vous avez déjà un compte ? "}
+                      <a href="/club" className="font-semibold hover:underline" style={{ color: "#6050DC" }}>
+                        {language === "en" ? "Sign in" : language === "ar" ? "تسجيل الدخول" : "Connectez-vous"}
+                      </a>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
             {isExpanded && images.length >= 5 ? (
               /* Multi-image collage grid for expanded mode */
               <div className="relative w-full bg-muted flex-shrink-0 overflow-hidden" style={{ height: 320 }}>
@@ -673,7 +713,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                 )}
               </div>
             )}
-          </>
+          </div>
         )}
 
         {/* Sentinel to detect when images are scrolled past */}
@@ -823,44 +863,6 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
             </div>
           </div>
 
-          {/* Inline Club signup card */}
-          {showClubCard && (
-            <div className="w-1/2 mx-auto rounded-2xl overflow-hidden shadow-xl border border-border animate-in fade-in-0 slide-in-from-top-4">
-              <div style={{ backgroundColor: "#6050DC" }} className="p-5 text-white relative">
-                <button
-                  type="button"
-                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowClubCard(false); }}
-                  className="absolute top-2 right-2 z-10 w-8 h-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/40 text-white transition-colors cursor-pointer"
-                >
-                  <X className="h-4 w-4 pointer-events-none" />
-                </button>
-                <p className="text-sm opacity-90">{language === "en" ? "Welcome to" : language === "ar" ? "مرحباً بكم في" : "Bienvenue dans"}</p>
-                <h3 className="text-xl font-bold mt-1">{language === "en" ? "the OWM Club" : language === "ar" ? "نادي OWM" : "le Club OWM"}</h3>
-              </div>
-              <div className="bg-card p-5 text-center">
-                <p className="text-muted-foreground text-sm leading-relaxed mb-4">
-                  {language === "en"
-                    ? "Sign up to save your favorite addresses and access exclusive benefits."
-                    : language === "ar"
-                      ? "سجّل لحفظ عناوينك المفضلة والحصول على مزايا حصرية."
-                      : "Inscrivez-vous pour sauvegarder vos adresses favorites et accéder à des avantages exclusifs."}
-                </p>
-                <a
-                  href="/club"
-                  style={{ backgroundColor: "#6050DC" }}
-                  className="inline-block rounded-full px-8 py-3 text-white font-semibold text-sm hover:opacity-90 transition-colors shadow-md"
-                >
-                  {language === "en" ? "Join now" : language === "ar" ? "سجّل الآن" : "Je m'inscris"}
-                </a>
-                <p className="mt-3 text-xs text-muted-foreground">
-                  {language === "en" ? "Already have an account? " : language === "ar" ? "لديك حساب بالفعل؟ " : "Vous avez déjà un compte ? "}
-                  <a href="/club" className="font-semibold hover:underline" style={{ color: "#6050DC" }}>
-                    {language === "en" ? "Sign in" : language === "ar" ? "تسجيل الدخول" : "Connectez-vous"}
-                  </a>
-                </p>
-              </div>
-            </div>
-          )}
 
           {/* Opening status */}
           {openBadgeText && (
