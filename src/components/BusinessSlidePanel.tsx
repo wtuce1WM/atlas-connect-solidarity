@@ -1144,34 +1144,69 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
         </div>
       </div>
 
-      {/* Fullscreen lightbox */}
-      {isLightboxOpen && images.length > 0 && (
+      {/* Fullscreen lightbox — unified media (video at index 0 when present, then images) */}
+      {isLightboxOpen && mediaCount > 0 && (
         <div className="fixed inset-0 z-[200] bg-black flex items-center justify-center" onClick={() => setIsLightboxOpen(false)}>
           <button onClick={() => setIsLightboxOpen(false)} className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors z-10">
             <X className="h-6 w-6 text-white" />
           </button>
-          <img
-            src={images[currentImageIndex]}
-            alt={`${business.name} - ${currentImageIndex + 1}`}
-            className="max-w-[90%] max-h-[90vh] object-contain"
-            onClick={(e) => e.stopPropagation()}
-          />
-          {images.length > 1 && (
+          {hasVideo && currentImageIndex === 0 ? (
+            (() => {
+              const url = business.video_1_url!;
+              const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]+)/);
+              if (ytMatch) {
+                return (
+                  <iframe
+                    src={`https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&mute=0&loop=1&playlist=${ytMatch[1]}&rel=0`}
+                    className="w-[90%] max-h-[90vh] aspect-video"
+                    allow="autoplay; encrypted-media; fullscreen"
+                    allowFullScreen
+                    frameBorder="0"
+                    onClick={(e: any) => e.stopPropagation()}
+                  />
+                );
+              }
+              const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+              if (vimeoMatch) {
+                return (
+                  <iframe
+                    src={`https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1&loop=1`}
+                    className="w-[90%] max-h-[90vh] aspect-video"
+                    allow="autoplay; encrypted-media; fullscreen"
+                    allowFullScreen
+                    frameBorder="0"
+                    onClick={(e: any) => e.stopPropagation()}
+                  />
+                );
+              }
+              return (
+                <video src={url} autoPlay controls loop playsInline className="max-w-[90%] max-h-[90vh] object-contain" onClick={(e) => e.stopPropagation()} />
+              );
+            })()
+          ) : (
+            <img
+              src={images[currentImageIndex - videoOffset]}
+              alt={`${business.name} - ${currentImageIndex - videoOffset + 1}`}
+              className="max-w-[90%] max-h-[90vh] object-contain"
+              onClick={(e) => e.stopPropagation()}
+            />
+          )}
+          {mediaCount > 1 && (
             <>
               <button
-                onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(i => i === 0 ? images.length - 1 : i - 1); }}
+                onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(i => i === 0 ? mediaCount - 1 : i - 1); }}
                 className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
               >
                 <ChevronLeft className="h-6 w-6 text-white" />
               </button>
               <button
-                onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(i => i === images.length - 1 ? 0 : i + 1); }}
+                onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(i => i === mediaCount - 1 ? 0 : i + 1); }}
                 className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
               >
                 <ChevronRight className="h-6 w-6 text-white" />
               </button>
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-white/10 text-sm text-white">
-                {currentImageIndex + 1} / {images.length}
+                {currentImageIndex + 1} / {mediaCount}
               </div>
             </>
           )}
