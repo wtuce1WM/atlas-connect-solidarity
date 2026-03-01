@@ -1303,6 +1303,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
             currentBusinessId={business.id}
             categories={business.categories}
             city={business.city}
+            onLoginRequired={() => setShowClubCard(true)}
           />
           <Separator />
 
