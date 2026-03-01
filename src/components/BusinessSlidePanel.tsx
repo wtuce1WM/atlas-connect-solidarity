@@ -551,13 +551,14 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
 
           {/* Inline Club signup card */}
           {showClubCard && (
-            <div className="rounded-2xl overflow-hidden shadow-xl border border-border animate-in fade-in-0 slide-in-from-top-4">
+            <div className="w-1/2 mx-auto rounded-2xl overflow-hidden shadow-xl border border-border animate-in fade-in-0 slide-in-from-top-4">
               <div style={{ backgroundColor: "#6050DC" }} className="p-5 text-white relative">
                 <button
-                  onClick={() => setShowClubCard(false)}
-                  className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/40 text-white transition-colors"
+                  type="button"
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowClubCard(false); }}
+                  className="absolute top-2 right-2 z-10 w-8 h-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/40 text-white transition-colors cursor-pointer"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-4 w-4 pointer-events-none" />
                 </button>
                 <p className="text-sm opacity-90">{language === "en" ? "Welcome to" : language === "ar" ? "مرحباً بكم في" : "Bienvenue dans"}</p>
                 <h3 className="text-xl font-bold mt-1">{language === "en" ? "the OWM Club" : language === "ar" ? "نادي OWM" : "le Club OWM"}</h3>
