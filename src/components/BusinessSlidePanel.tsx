@@ -980,16 +980,6 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                         onClick={async () => {
                           if (!documentUrl) return;
 
-                          setShowPdfViewer(true);
-                          setPdfLoading(true);
-                          setActiveDocumentUrl(documentUrl);
-                          setActiveDocumentName(documentName);
-
-                          if (pdfBlobUrl) {
-                            URL.revokeObjectURL(pdfBlobUrl);
-                            setPdfBlobUrl(null);
-                          }
-
                           try {
                             const proxyUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/pdf-proxy?url=${encodeURIComponent(documentUrl)}`;
                             const res = await fetch(proxyUrl, {
@@ -1002,14 +992,11 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                             const buffer = await res.arrayBuffer();
                             const blob = new Blob([buffer], { type: "application/pdf" });
                             const url = URL.createObjectURL(blob);
-                            setPdfBlobUrl(url);
+                            window.open(url, "_blank");
                           } catch (err) {
                             console.error("PDF proxy error:", err);
-                            setShowPdfViewer(false);
-                            setActiveDocumentUrl(null);
-                            setActiveDocumentName(null);
-                          } finally {
-                            setPdfLoading(false);
+                            // Fallback: open direct URL
+                            window.open(documentUrl, "_blank");
                           }
                         }}
                         className="text-sm text-muted-foreground hover:text-foreground transition-colors mt-0.5 block"
