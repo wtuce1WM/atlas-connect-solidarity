@@ -976,6 +976,10 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                         onClick={async () => {
                           setShowPdfViewer(true);
                           setPdfLoading(true);
+                          if (pdfBlobUrl) {
+                            URL.revokeObjectURL(pdfBlobUrl);
+                            setPdfBlobUrl(null);
+                          }
                           try {
                             const proxyUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/pdf-proxy?url=${encodeURIComponent(business.pdf_url!)}`;
                             const res = await fetch(proxyUrl, {
@@ -985,7 +989,8 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                               },
                             });
                             if (!res.ok) throw new Error("Fetch failed");
-                            const blob = await res.blob();
+                            const buffer = await res.arrayBuffer();
+                            const blob = new Blob([buffer], { type: "application/pdf" });
                             const url = URL.createObjectURL(blob);
                             setPdfBlobUrl(url);
                           } catch (err) {
@@ -1466,13 +1471,23 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
           <div className="flex items-center justify-between px-4 py-3 border-b border-border">
             <h3 className="font-semibold text-sm truncate flex-1 mr-2">{business.pdf_name || "Document"}</h3>
             {pdfBlobUrl && (
-              <a
-                href={pdfBlobUrl}
-                download={business.pdf_name || "document.pdf"}
-                className="text-xs text-muted-foreground hover:text-foreground transition-colors mr-3 shrink-0"
-              >
-                Télécharger <ExternalLink className="inline h-3 w-3 ml-0.5" />
-              </a>
+              <div className="flex items-center gap-3 mr-3 shrink-0">
+                <a
+                  href={pdfBlobUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Ouvrir <ExternalLink className="inline h-3 w-3 ml-0.5" />
+                </a>
+                <a
+                  href={pdfBlobUrl}
+                  download={business.pdf_name || "document.pdf"}
+                  className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Télécharger <ExternalLink className="inline h-3 w-3 ml-0.5" />
+                </a>
+              </div>
             )}
             <button
               onClick={() => {
@@ -1492,11 +1507,18 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
               <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
           ) : pdfBlobUrl ? (
-            <iframe
-              src={pdfBlobUrl}
-              className="flex-1 w-full border-0"
-              title={business.pdf_name || "Document PDF"}
-            />
+            <object
+              data={pdfBlobUrl}
+              type="application/pdf"
+              className="flex-1 w-full"
+              aria-label={business.pdf_name || "Document PDF"}
+            >
+              <iframe
+                src={pdfBlobUrl}
+                className="flex-1 w-full border-0"
+                title={business.pdf_name || "Document PDF"}
+              />
+            </object>
           ) : (
             <div className="flex-1 flex items-center justify-center text-muted-foreground text-sm">
               Impossible de charger le PDF
