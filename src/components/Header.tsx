@@ -54,10 +54,10 @@ const Header = ({ variant = "default" }: HeaderProps) => {
       {/* Dropdown Menu */}
       {isMenuOpen && (
         <div
-          className="border-t border-border border-b border-b-foreground backdrop-blur-sm"
+          className="border-t border-border border-b border-b-foreground backdrop-blur-[1px]"
           style={{
             background:
-              "linear-gradient(to bottom, hsl(var(--background) / 0.45), hsl(var(--background) / 0.06))",
+              "linear-gradient(to bottom, hsl(var(--background) / 0.18), hsl(var(--background) / 0))",
           }}
         >
           <nav className="container mx-auto flex flex-col items-center gap-4 px-4 py-6">
