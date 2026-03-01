@@ -190,6 +190,7 @@ const AISearchAnswer = ({ query, businesses, isSearchLoading, onAnswerReady }: A
   }, [fetchKey, isSearchLoading, isDismissed, language]);
 
   const isPanelOpen = !!selectedBusiness;
+  const [isPanelExpanded, setIsPanelExpanded] = useState(false);
 
   // Disable background scroll when panel is open
   useEffect(() => {
@@ -210,12 +211,14 @@ const AISearchAnswer = ({ query, businesses, isSearchLoading, onAnswerReady }: A
         <div className="fixed inset-0 z-[90] bg-black/30 backdrop-blur-sm" onClick={() => setSelectedBusiness(null)} />
       )}
 
-      {/* AI Suggestion — slides to left half when panel opens */}
+      {/* AI Suggestion — slides to left half when panel opens, hidden when expanded */}
       <div
-        className={`mb-6 transition-all duration-300 ease-out ${
-          isPanelOpen
-            ? "fixed top-0 left-0 z-[100] w-1/2 h-full overflow-y-auto p-6 flex items-start justify-center bg-background"
-            : "w-[70%] mx-auto"
+        className={`mb-6 transition-all duration-500 ease-out ${
+          isPanelExpanded
+            ? "fixed top-0 left-0 z-[100] w-0 h-full overflow-hidden opacity-0 pointer-events-none"
+            : isPanelOpen
+              ? "fixed top-0 left-0 z-[100] w-1/2 h-full overflow-y-auto p-6 flex items-start justify-center bg-background"
+              : "w-[70%] mx-auto"
         }`}
         style={isPanelOpen ? { animationName: "none" } : undefined}
       >
@@ -253,10 +256,15 @@ const AISearchAnswer = ({ query, businesses, isSearchLoading, onAnswerReady }: A
         </div>
       </div>
 
-      {/* Slide-in panel — right half */}
+      {/* Slide-in panel — right half or full width */}
       {isPanelOpen && (
-        <div className="fixed top-0 right-0 z-[100] h-full w-1/2 bg-background shadow-2xl border-l border-border animate-slide-in-right overflow-hidden">
-          <BusinessSlidePanel businessId={selectedBusiness!.id} onClose={() => setSelectedBusiness(null)} />
+        <div className={`fixed top-0 right-0 z-[100] h-full bg-background shadow-2xl border-l border-border overflow-hidden transition-all duration-500 ease-out ${isPanelExpanded ? "w-full" : "w-1/2"}`}>
+          <BusinessSlidePanel
+            businessId={selectedBusiness!.id}
+            onClose={() => { setSelectedBusiness(null); setIsPanelExpanded(false); }}
+            isExpanded={isPanelExpanded}
+            onToggleExpand={() => setIsPanelExpanded(prev => !prev)}
+          />
         </div>
       )}
     </>
