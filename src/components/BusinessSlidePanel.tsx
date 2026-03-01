@@ -364,7 +364,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
       {/* Portal action icons into the fixed bar */}
       {toolbarPortal && createPortal(
         <>
-          <ShareButton title={business.name} variant="dark" />
+          <ShareButton title={business.name} variant="dark" className="toolbar-icon" />
           <BookmarkButton businessId={business.id} variant="gold" onLoginRequired={() => setShowClubCard(true)} />
           <button
             onClick={() => {
@@ -377,13 +377,13 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                 ttsSpeak(synthesis + " … Vous pouvez me poser une autre question.");
               }
             }}
-            className={`p-1.5 rounded-full transition-colors ${ttsStatus === "playing" || ttsStatus === "loading" ? "bg-gold/20 text-gold" : "hover:bg-muted text-muted-foreground"}`}
+            className={`h-9 w-9 flex items-center justify-center rounded-full transition-colors ${ttsStatus === "playing" || ttsStatus === "loading" ? "bg-gold/20 text-gold" : "bg-muted text-muted-foreground hover:bg-muted/80"}`}
             title={ttsStatus === "playing" ? "Arrêter la lecture" : "Écouter la synthèse"}
           >
             {ttsStatus === "loading" ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
+              <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              <Headphones className="h-5 w-5" />
+              <Headphones className="h-4 w-4" />
             )}
           </button>
         </>,
