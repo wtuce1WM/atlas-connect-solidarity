@@ -53,13 +53,22 @@ const SimilarBusinesses = ({ currentBusinessId, categories, city, onNavigate }: 
         .eq("city", city)
         .contains("categories", [subcategory])
         .neq("id", currentBusinessId)
-        .order("wtuce_status", { ascending: false })
-        .order("rating", { ascending: false, nullsFirst: false })
         .order("priority_score", { ascending: false })
-        .limit(9);
+        .limit(50);
 
       if (!error && data) {
-        setBusinesses(data as SimilarBusiness[]);
+        // Sort client-side: verified first, then by computed rating desc
+        const sorted = (data as SimilarBusiness[]).sort((a, b) => {
+          // Verified first
+          const aV = a.wtuce_status === "verified" ? 1 : 0;
+          const bV = b.wtuce_status === "verified" ? 1 : 0;
+          if (bV !== aV) return bV - aV;
+          // Then by computed rating desc
+          const aRating = a.rating ?? computeWeightedRatingOn20(collectRatingSources(a)) ?? 0;
+          const bRating = b.rating ?? computeWeightedRatingOn20(collectRatingSources(b)) ?? 0;
+          return bRating - aRating;
+        });
+        setBusinesses(sorted.slice(0, 9));
         setTotalCount(count ?? data.length);
       }
       setIsLoading(false);
