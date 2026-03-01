@@ -127,7 +127,7 @@ const HeroSection = () => {
         {/* Spacer for logo */}
         <div className="w-96 h-96 -mb-[20px] md:mb-0 md:w-96 md:h-96" />
 
-        <p className="text-sm md:text-base text-gold/80 font-medium tracking-wide text-center -mt-4">
+        <p className="text-sm md:text-base text-foreground/70 font-medium tracking-wide text-center -mt-4">
           {language === "ar" ? "أول منصة تجارة إلكترونية تضامنية في المغرب" : language === "en" ? "1st solidarity e-commerce platform in Morocco" : "1ère plateforme de e-commerce solidaire au Maroc"}
         </p>
 
