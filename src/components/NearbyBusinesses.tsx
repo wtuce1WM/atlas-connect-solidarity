@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import { Link } from "react-router-dom";
 import { MapPin, Star, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -35,6 +35,7 @@ interface NearbyBusinessesProps {
   longitude: number | null;
   onNavigate?: (businessId: string) => void;
   onLoginRequired?: () => void;
+  scrollRef?: RefObject<HTMLDivElement | null>;
 }
 
 const PAGE_SIZE = 6;
@@ -51,8 +52,9 @@ function haversine(lat1: number, lon1: number, lat2: number, lon2: number): numb
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-const NearbyBusinesses = ({ currentBusinessId, businessName, latitude, longitude, onNavigate, onLoginRequired }: NearbyBusinessesProps) => {
-  const sectionRef = useRef<HTMLDivElement>(null);
+const NearbyBusinesses = ({ currentBusinessId, businessName, latitude, longitude, onNavigate, onLoginRequired, scrollRef }: NearbyBusinessesProps) => {
+  const internalRef = useRef<HTMLDivElement>(null);
+  const sectionRef = scrollRef || internalRef;
   const [allBusinesses, setAllBusinesses] = useState<NearbyBusiness[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [page, setPage] = useState(0);

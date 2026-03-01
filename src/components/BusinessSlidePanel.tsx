@@ -1303,6 +1303,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
             city={business.city}
             onNavigate={(id) => { setInternalBusinessId(id); scrollContainerRef.current?.scrollTo({ top: 0 }); if (isExpanded) onToggleExpand?.(); }}
             onLoginRequired={() => setShowClubCard(true)}
+            scrollRef={similarSectionRef}
           />
           <Separator />
 
@@ -1315,6 +1316,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
             longitude={business.longitude}
             onNavigate={(id) => { setInternalBusinessId(id); scrollContainerRef.current?.scrollTo({ top: 0 }); if (isExpanded) onToggleExpand?.(); }}
             onLoginRequired={() => setShowClubCard(true)}
+            scrollRef={nearbySectionRef}
           />
           <Separator />
 

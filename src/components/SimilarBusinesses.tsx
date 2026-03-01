@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import { Link } from "react-router-dom";
 import { MapPin, Star, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -32,12 +32,14 @@ interface SimilarBusinessesProps {
   city: string | null;
   onNavigate?: (businessId: string) => void;
   onLoginRequired?: () => void;
+  scrollRef?: RefObject<HTMLDivElement | null>;
 }
 
 const PAGE_SIZE = 6;
 
-const SimilarBusinesses = ({ currentBusinessId, categories, city, onNavigate, onLoginRequired }: SimilarBusinessesProps) => {
-  const sectionRef = useRef<HTMLDivElement>(null);
+const SimilarBusinesses = ({ currentBusinessId, categories, city, onNavigate, onLoginRequired, scrollRef }: SimilarBusinessesProps) => {
+  const internalRef = useRef<HTMLDivElement>(null);
+  const sectionRef = scrollRef || internalRef;
   const [allBusinesses, setAllBusinesses] = useState<SimilarBusiness[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
