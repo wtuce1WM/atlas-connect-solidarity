@@ -31,9 +31,10 @@ interface SimilarBusinessesProps {
   categories: string[] | null;
   city: string | null;
   onNavigate?: (businessId: string) => void;
+  onLoginRequired?: () => void;
 }
 
-const SimilarBusinesses = ({ currentBusinessId, categories, city, onNavigate }: SimilarBusinessesProps) => {
+const SimilarBusinesses = ({ currentBusinessId, categories, city, onNavigate, onLoginRequired }: SimilarBusinessesProps) => {
   const [businesses, setBusinesses] = useState<SimilarBusiness[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -122,7 +123,7 @@ const SimilarBusinesses = ({ currentBusinessId, categories, city, onNavigate }: 
 
               {/* Bookmark heart - top right */}
               <div className="absolute top-1.5 right-1.5 z-10" onClick={(e) => e.preventDefault()}>
-                <BookmarkButton businessId={biz.id} />
+                <BookmarkButton businessId={biz.id} onLoginRequired={onLoginRequired} />
               </div>
               {/* Info at bottom */}
               <div className="absolute bottom-0 left-0 right-0 p-2 space-y-0.5">
