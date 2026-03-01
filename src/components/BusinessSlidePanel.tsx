@@ -150,6 +150,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const mediaEndSentinelRef = useRef<HTMLDivElement>(null);
   const [showStickyHeader, setShowStickyHeader] = useState(false);
+  const mapSectionRef = useRef<HTMLDivElement>(null);
 
   const handleFullscreen = useCallback(() => {
     // For native video, use the video element's fullscreen
@@ -396,6 +397,16 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
             <a href={`tel:${business.phone}`} className="hover:opacity-70 transition-opacity" style={{ color: "#404040" }}>
               <Phone className="h-6 w-6" />
             </a>
+          )}
+          {(business.latitude || business.google_maps_url) && (
+            <button
+              onClick={() => mapSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+              className="hover:opacity-70 transition-opacity"
+              style={{ color: "#4285F4" }}
+              title="Voir sur la carte"
+            >
+              <MapPin className="h-6 w-6" />
+            </button>
           )}
         </>,
         toolbarCenterPortal
@@ -1148,7 +1159,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
             const dest = lat && lng ? `${lat},${lng}` : encodeURIComponent(`${business.name}, ${fallbackAddr}`);
             
             return (
-              <div className="space-y-2">
+              <div ref={mapSectionRef} className="space-y-2">
                 <hr className="border-border" />
                 <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wide">{language === "en" ? "Location" : language === "ar" ? "الموقع" : "Localisation"}</h3>
                 <div className="space-y-1.5 text-sm">
