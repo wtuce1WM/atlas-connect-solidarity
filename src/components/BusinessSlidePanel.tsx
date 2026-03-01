@@ -649,13 +649,25 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                 )}
               </div>
             </div>
-            {/* Contact + Social media icons */}
+            {/* Contact icons - centered */}
             {(() => {
               const contacts = [
-                { url: business.phone ? `tel:${business.phone}` : null, color: "#16a34a", icon: <Phone className="h-6 w-6" /> },
+                { url: business.phone ? `tel:${business.phone}` : null, color: "#404040", icon: <Phone className="h-6 w-6" /> },
                 { url: business.whatsapp ? `https://wa.me/${business.whatsapp.replace(/[^0-9]/g, '')}` : null, color: "#25D366", icon: <WhatsAppIcon className="h-6 w-6" /> },
                 { url: business.skype ? `skype:${business.skype}?chat` : null, color: "#00AFF0", icon: <SkypeIcon className="h-6 w-6" /> },
-              ];
+              ].filter(s => s.url);
+              return contacts.length > 0 ? (
+                <div className="flex items-center gap-4 shrink-0">
+                  {contacts.map((s, i) => (
+                    <a key={i} href={s.url!} target="_blank" rel="noopener noreferrer" style={{ color: s.color }} className="hover:opacity-70 transition-opacity">
+                      {s.icon}
+                    </a>
+                  ))}
+                </div>
+              ) : null;
+            })()}
+            {/* Social media icons */}
+            {(() => {
               const socials = [
                 { url: business.facebook_url, color: "#1877F2", icon: <FacebookIcon className="h-6 w-6" /> },
                 { url: business.instagram_url, color: "#E4405F", icon: <InstagramIcon className="h-6 w-6" /> },
@@ -665,11 +677,10 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                 { url: business.twitter_url, color: "#000000", icon: <TwitterIcon className="h-6 w-6" /> },
                 { url: business.pinterest_url, color: "#E60023", icon: <PinterestIcon className="h-6 w-6" /> },
                 { url: business.vimeo_url, color: "#1AB7EA", icon: <VimeoIcon className="h-6 w-6" /> },
-              ];
-              const all = [...contacts, ...socials].filter(s => s.url);
-              return all.length > 0 ? (
+              ].filter(s => s.url);
+              return socials.length > 0 ? (
                 <div className="flex items-center gap-1.5 shrink-0">
-                  {all.map((s, i) => (
+                  {socials.map((s, i) => (
                     <a key={i} href={s.url!} target="_blank" rel="noopener noreferrer" style={{ color: s.color }} className="hover:opacity-70 transition-opacity">
                       {s.icon}
                     </a>
