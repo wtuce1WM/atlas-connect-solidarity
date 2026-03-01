@@ -224,7 +224,7 @@ const AISearchAnswer = ({ query, businesses, isSearchLoading, onAnswerReady }: A
               main_category: b.main_category,
               categories: b.categories,
               hook_fr: b.hook_fr,
-              rating: b.rating,
+              
               wtuce_status: b.wtuce_status,
             })),
             language,
