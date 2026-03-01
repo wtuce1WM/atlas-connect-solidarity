@@ -360,7 +360,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
   return (
     <div className="flex flex-col h-full">
       {/* Sticky header */}
-      <div className="sticky top-0 z-20 flex items-center justify-between px-5 py-3 bg-background border-b border-border shrink-0">
+      <div className="z-20 flex items-center justify-between px-5 py-3 bg-background border-b border-border shrink-0">
         <div className="flex items-center gap-2">
           <button onClick={onClose} className="p-2 rounded-full hover:bg-muted transition-colors" title="Fermer">
             <X className="h-5 w-5 text-foreground" />
