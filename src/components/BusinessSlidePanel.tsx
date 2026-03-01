@@ -904,7 +904,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
               {/* Review comments */}
               {reviewTexts.length > 0 && (
                 <div>
-                  <p className="text-base text-foreground mb-3">{language === "en" ? "What customers say" : language === "ar" ? "ماذا يقول العملاء" : "Ce que disent les clients"}</p>
+                  
                   <div className="space-y-2.5">
                     {reviewTexts.map((review, idx) => (
                       <div key={idx} className="p-3 rounded-xl border border-border">
