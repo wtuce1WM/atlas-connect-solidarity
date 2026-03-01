@@ -359,6 +359,31 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
 
   return (
     <div className="flex flex-col h-full">
+      {/* Fixed toolbar with action icons */}
+      <div className="shrink-0 flex items-center gap-3 px-4 py-2 bg-background border-b border-border">
+        <ShareButton title={business.name} variant="dark" />
+        <BookmarkButton businessId={business.id} variant="gold" onLoginRequired={() => setShowClubCard(true)} />
+        <button
+          onClick={() => {
+            if (ttsStatus === "playing" || ttsStatus === "loading") {
+              ttsStop();
+              voiceLoopRef.current = false;
+            } else {
+              voiceLoopRef.current = true;
+              const synthesis = buildTtsSynthesis();
+              ttsSpeak(synthesis + " … Vous pouvez me poser une autre question.");
+            }
+          }}
+          className={`p-1.5 rounded-full transition-colors ${ttsStatus === "playing" || ttsStatus === "loading" ? "bg-gold/20 text-gold" : "hover:bg-muted text-muted-foreground"}`}
+          title={ttsStatus === "playing" ? "Arrêter la lecture" : "Écouter la synthèse"}
+        >
+          {ttsStatus === "loading" ? (
+            <Loader2 className="h-5 w-5 animate-spin" />
+          ) : (
+            <Headphones className="h-5 w-5" />
+          )}
+        </button>
+      </div>
       {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto">
         {/* Image display */}
@@ -608,28 +633,6 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                     <span>Je vous écoute…</span>
                   </div>
                 )}
-                <ShareButton title={business.name} variant="dark" />
-                <BookmarkButton businessId={business.id} variant="gold" onLoginRequired={() => setShowClubCard(true)} />
-                <button
-                  onClick={() => {
-                    if (ttsStatus === "playing" || ttsStatus === "loading") {
-                      ttsStop();
-                      voiceLoopRef.current = false;
-                    } else {
-                      voiceLoopRef.current = true;
-                      const synthesis = buildTtsSynthesis();
-                      ttsSpeak(synthesis + " … Vous pouvez me poser une autre question.");
-                    }
-                  }}
-                  className={`p-1.5 rounded-full transition-colors ${ttsStatus === "playing" || ttsStatus === "loading" ? "bg-gold/20 text-gold" : "hover:bg-muted text-muted-foreground"}`}
-                  title={ttsStatus === "playing" ? "Arrêter la lecture" : "Écouter la synthèse"}
-                >
-                  {ttsStatus === "loading" ? (
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                  ) : (
-                    <Headphones className="h-5 w-5" />
-                  )}
-                </button>
                 {business.logo_url && (
                   <div
                     className="w-16 h-16 p-1.5 rounded-lg border border-border flex items-center justify-center"
