@@ -197,7 +197,7 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
 
   const fetchKey = useMemo(() => {
     if (!query) return "";
-    const names = businesses.slice(0, 5).map(b => b.name).join("|");
+    const names = businesses.slice(0, 10).map(b => b.name).join("|");
     return `${query}::${names || "no-results"}`;
   }, [query, businesses]);
 
