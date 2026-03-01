@@ -831,13 +831,13 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
           })()}
           {(reviews.length > 0 || avgOn20) && (
             <div className="space-y-4">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Avis clients</p>
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{language === "en" ? "Customer reviews" : language === "ar" ? "آراء العملاء" : "Avis clients"}</p>
               {/* Global score */}
               {avgOn20 && (
                 <div className="flex items-baseline gap-2">
                   <span className="text-3xl font-bold text-gold">{avgOn20}/20</span>
                   {totalReviewCount > 0 && (
-                    <span className="text-sm text-muted-foreground">sur {totalReviewCount.toLocaleString('fr-FR')} avis</span>
+                    <span className="text-sm text-muted-foreground">{language === "en" ? `on ${totalReviewCount.toLocaleString('en')} reviews` : language === "ar" ? `على ${totalReviewCount.toLocaleString('ar')} تقييم` : `sur ${totalReviewCount.toLocaleString('fr-FR')} avis`}</span>
                   )}
                 </div>
               )}
@@ -871,13 +871,13 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                             <p className="text-sm font-semibold text-foreground">{r.label}</p>
                             <p className="text-sm">
                               <span className="font-semibold text-gold">{r.rating}/5</span>
-                              <span className="text-muted-foreground"> · {r.count.toLocaleString('fr-FR')} avis</span>
+                              <span className="text-muted-foreground"> · {r.count.toLocaleString(language === "en" ? 'en' : language === "ar" ? 'ar' : 'fr-FR')} {language === "en" ? "reviews" : language === "ar" ? "تقييم" : "avis"}</span>
                             </p>
                           </div>
                         </div>
                         {reviewUrl && (
                           <a href={reviewUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-gold hover:underline flex items-center gap-1 shrink-0">
-                            Voir les avis <ExternalLink className="h-3 w-3" />
+                            {language === "en" ? "See reviews" : language === "ar" ? "عرض التقييمات" : "Voir les avis"} <ExternalLink className="h-3 w-3" />
                           </a>
                         )}
                       </div>
@@ -889,7 +889,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
               {/* Review comments */}
               {reviewTexts.length > 0 && (
                 <div>
-                  <p className="text-base font-semibold text-foreground mb-3">Ce que disent les clients</p>
+                  <p className="text-base font-semibold text-foreground mb-3">{language === "en" ? "What customers say" : language === "ar" ? "ماذا يقول العملاء" : "Ce que disent les clients"}</p>
                   <div className="space-y-2.5">
                     {reviewTexts.map((review, idx) => (
                       <div key={idx} className="p-3 rounded-xl border border-border">
@@ -905,7 +905,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                             </div>
                           )}
                           <span className="text-sm font-semibold text-foreground">
-                            {review.author_name || 'Anonyme'}
+                            {review.author_name || (language === "en" ? "Anonymous" : language === "ar" ? "مجهول" : "Anonyme")}
                           </span>
                           {review.relative_time && (
                             <span className="text-xs text-muted-foreground">
