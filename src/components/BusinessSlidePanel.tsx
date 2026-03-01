@@ -932,8 +932,6 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
             </div>
           )}
 
-          {/* Sentinel: triggers sticky tabs when opening status scrolls out */}
-          <div ref={tabsSentinelRef} className="h-0 w-full" />
 
           {/* Hook */}
           {hook && (
@@ -966,6 +964,9 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
               </button>
             ))}
           </div>
+
+          {/* Sentinel: triggers sticky tabs when inline tabs scroll out */}
+          <div ref={tabsSentinelRef} className="h-0 w-full" />
 
           {/* Description */}
           {business.description && (
