@@ -113,7 +113,7 @@ const HeroSection = () => {
       />
 
       {/* Overlay with gradient to black at bottom */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-black" />
+      <div className="absolute inset-0 bg-gradient-to-b from-white/20 via-white/40 to-white" />
 
       {/* Logo 3D — single spin */}
       <div className="absolute inset-0 z-[5] flex items-start justify-center pt-24 pointer-events-none">
@@ -132,7 +132,7 @@ const HeroSection = () => {
 
 
         {/* Titre dynamique selon l'onglet */}
-        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white text-center max-w-4xl min-h-[4.5rem] md:min-h-[3rem]">
+        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-black text-center max-w-4xl min-h-[4.5rem] md:min-h-[3rem]">
           {(() => {
             const texts: Record<string, { fr: string; fr2?: string; en: string; en2?: string; ar: string; ar2?: string }> = {
               all: {
@@ -218,8 +218,8 @@ const HeroSection = () => {
                   }}
                   className={`flex items-center gap-1.5 pb-2 text-sm font-semibold transition-all border-b-2 whitespace-nowrap ${
                     isActive
-                      ? "border-white text-white"
-                      : "border-transparent text-white/70 hover:text-white hover:border-white/40"
+                      ? "border-black text-black"
+                      : "border-transparent text-black/60 hover:text-black hover:border-black/40"
                   }`}
                 >
                   <Icon className="h-5 w-5 shrink-0" />
@@ -321,8 +321,8 @@ const HeroSection = () => {
             geo.isEnabled && geo.detectedCity
               ? "bg-gold/20 border-gold/50 text-gold"
               : geo.isEnabled
-                ? "bg-white/10 border-white/20 text-white/60"
-                : "bg-white/10 border-white/20 text-white/50"
+                ? "bg-black/5 border-black/10 text-black/60"
+                : "bg-black/5 border-black/10 text-black/50"
           }`}
         >
           <MapPin className="h-3.5 w-3.5" />
@@ -336,7 +336,7 @@ const HeroSection = () => {
         </button>
 
         {/* Listez votre entreprise */}
-        <p className="text-2xl md:text-3xl text-white/80 font-medium mt-4">
+        <p className="text-2xl md:text-3xl text-black/80 font-medium mt-4">
           {language === "fr"
             ? <>Listez votre <Link to="/devenir-affilie" className="text-gold hover:underline font-bold">entreprise</Link></>
             : language === "ar"
