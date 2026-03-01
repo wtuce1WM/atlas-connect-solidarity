@@ -118,15 +118,42 @@ const BusinessHoverCard = ({ name, business, onClickBusiness }: { name: string; 
   );
 };
 
+// Split a flat AI text into visual paragraphs by breaking before each bold business name
+const splitIntoParagraphs = (text: string): string[] => {
+  // Normalize bold markers that span across newlines
+  const normalized = text.replace(/\*\*([^*]*?)\*\*/gs, (_, inner) =>
+    `**${inner.replace(/\n/g, " ")}**`
+  );
+
+  // If text already has newlines, use those
+  if (/\n/.test(normalized)) {
+    return normalized.split(/\n+/).filter(s => s.trim());
+  }
+
+  // Otherwise, split before each sentence that contains a bold marker
+  // We look for ". " or "! " or "? " followed by text that eventually has **
+  const segments: string[] = [];
+  // Split on sentence boundaries, keeping the delimiter
+  const sentences = normalized.split(/(?<=[.!?])\s+(?=[A-ZÀ-ÖØ-öø-ÿ])/);
+  
+  let currentPara = "";
+  for (const sentence of sentences) {
+    // If this sentence contains a bold marker and current paragraph already has content, break
+    if (/\*\*/.test(sentence) && currentPara.length > 0 && /\*\*/.test(currentPara)) {
+      segments.push(currentPara.trim());
+      currentPara = sentence;
+    } else {
+      currentPara += (currentPara ? " " : "") + sentence;
+    }
+  }
+  if (currentPara.trim()) segments.push(currentPara.trim());
+
+  return segments.length > 0 ? segments : [normalized];
+};
+
 // Format AI answer with paragraph spacing
 const formatAnswer = (text: string, businesses: BusinessData[], onClickBusiness: (b: BusinessData) => void) => {
-  // Normalize bold markers that span across newlines by removing inner newlines
-  const normalized = text.replace(/\*\*([^*]*?)\*\*/gs, (_, inner) => {
-    return `**${inner.replace(/\n/g, " ")}**`;
-  });
-
-  // Split on double newlines into paragraphs, also treat single newlines as soft paragraphs
-  const paragraphs = normalized.split(/\n+/).filter(s => s.trim());
+  const paragraphs = splitIntoParagraphs(text);
 
   const parseLine = (line: string, lineIdx: number) => {
     const parts = line.split(/\*\*(.+?)\*\*/g);
@@ -143,7 +170,7 @@ const formatAnswer = (text: string, businesses: BusinessData[], onClickBusiness:
   };
 
   return paragraphs.map((para, i) => (
-    <p key={i} className="mb-3 last:mb-0 leading-relaxed">
+    <p key={i} className="mb-3 last:mb-0 leading-[1.8]">
       {parseLine(para, i)}
     </p>
   ));
