@@ -216,7 +216,6 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
     if (!sentinel || !root) return;
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (isScrollingToTabRef.current) return;
         setShowStickyTabs(!entry.isIntersecting);
       },
       { root, threshold: 0 }
@@ -279,12 +278,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   const navigateToTab = useCallback((tabId: string) => {
     setActiveTab(tabId);
     isScrollingToTabRef.current = true;
-    // Force sticky tabs visible/hidden depending on direction
-    if (tabId === "apercu") {
-      setShowStickyTabs(false);
-    } else {
-      setShowStickyTabs(true);
-    }
+    // Let the sticky tabs observer handle visibility naturally (no forcing)
 
     if (tabScrollUnlockTimeoutRef.current) {
       window.clearTimeout(tabScrollUnlockTimeoutRef.current);
