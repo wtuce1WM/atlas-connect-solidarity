@@ -867,15 +867,15 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
             </div>
           )}
 
+          {/* Sentinel: triggers sticky tabs when opening status scrolls out */}
+          <div ref={tabsSentinelRef} className="h-0 w-full" />
+
           {/* Hook */}
           {hook && (
             <p className="text-sm text-muted-foreground italic leading-relaxed border-l-2 border-gold/30 pl-3">
               {hook}
             </p>
           )}
-
-          {/* Sentinel: triggers sticky tabs when hook scrolls out */}
-          <div ref={tabsSentinelRef} className="h-0 w-full" />
 
           {/* Tabs navigation */}
           <div className="flex gap-1 overflow-x-auto no-scrollbar border-b border-border -mx-5 px-5">
