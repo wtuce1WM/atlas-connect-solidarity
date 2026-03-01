@@ -818,7 +818,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                 <div className="grid grid-cols-2 gap-4">
                   {socials.length > 0 && (
                     <div className="space-y-2">
-                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Réseaux sociaux</p>
+                      <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Réseaux sociaux</h3>
                       <div className="flex flex-wrap items-center gap-2">
                         {socials.map(s => (
                           <a key={s.label} href={s.url!} target="_blank" rel="noopener noreferrer" title={s.label} className="p-2 rounded-lg border border-border hover:bg-muted transition-colors" style={{ color: s.color }}>
@@ -830,7 +830,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                   )}
                   {platforms.length > 0 && (
                     <div className="space-y-2">
-                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Plateformes de réservation</p>
+                      <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Plateformes de réservation</h3>
                       <div className="flex flex-wrap items-center gap-2">
                         {platforms.map(p => (
                           <a key={p.label} href={p.url!} target="_blank" rel="noopener noreferrer" title={p.label} className="p-2 rounded-lg border border-border hover:bg-muted transition-colors">
@@ -846,7 +846,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
           })()}
           {(reviews.length > 0 || avgOn20) && (
             <div className="space-y-4">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{language === "en" ? "Customer reviews" : language === "ar" ? "آراء العملاء" : "Avis clients"}</p>
+              <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{language === "en" ? "Customer reviews" : language === "ar" ? "آراء العملاء" : "Avis clients"}</h3>
               {/* Global score */}
               {avgOn20 && (
                 <div className="flex items-baseline gap-2">
@@ -968,7 +968,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
             return (
               <div className="space-y-2">
                 <hr className="border-border" />
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{language === "en" ? "Location" : language === "ar" ? "الموقع" : "Localisation"}</p>
+                <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{language === "en" ? "Location" : language === "ar" ? "الموقع" : "Localisation"}</h3>
                 <div className="space-y-1.5 text-sm">
                   {business.address && (
                     <div className="flex items-start gap-2">
@@ -1026,7 +1026,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
           {/* Services */}
           {business.services && business.services.length > 0 && (
             <div className="space-y-1.5">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Services</p>
+              <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Services</h3>
               <div className="flex flex-wrap gap-1.5">
                 {business.services.slice(0, 12).map(s => (
                   <span key={s} className="px-2 py-0.5 rounded-full text-xs bg-gold/10 text-gold border border-gold/20">
