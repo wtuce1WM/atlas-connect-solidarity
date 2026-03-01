@@ -155,7 +155,9 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
   const reviewsSectionRef = useRef<HTMLDivElement>(null);
   const servicesSectionRef = useRef<HTMLDivElement>(null);
   const descriptionRef = useRef<HTMLDivElement>(null);
+  const tabsSentinelRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState<string>("apercu");
+  const [showStickyTabs, setShowStickyTabs] = useState(false);
 
   const handleFullscreen = useCallback(() => {
     // For native video, use the video element's fullscreen
@@ -184,6 +186,19 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
     if (!sentinel || !root) return;
     const observer = new IntersectionObserver(
       ([entry]) => setShowStickyHeader(!entry.isIntersecting),
+      { root, threshold: 0 }
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [isLoading, business]);
+
+  // Sticky tabs: show when inline tabs scroll out of view
+  useEffect(() => {
+    const sentinel = tabsSentinelRef.current;
+    const root = scrollContainerRef.current;
+    if (!sentinel || !root) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setShowStickyTabs(!entry.isIntersecting),
       { root, threshold: 0 }
     );
     observer.observe(sentinel);
@@ -716,7 +731,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
               })()}
             </div>
             {/* Sticky tabs bar */}
-            {activeTab && (
+            {showStickyTabs && (
               <div className="flex gap-1 overflow-x-auto no-scrollbar border-t border-border px-4">
                 {[
                   { id: "apercu", label: "Aperçu", show: !!business.description },
@@ -860,7 +875,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
           )}
 
           {/* Tabs navigation */}
-          <div className="flex gap-1 overflow-x-auto no-scrollbar border-b border-border -mx-5 px-5">
+          <div ref={tabsSentinelRef} className="flex gap-1 overflow-x-auto no-scrollbar border-b border-border -mx-5 px-5">
             {[
               { id: "apercu", label: "Aperçu", show: !!business.description },
               { id: "contact", label: "Contact", show: !!(business.address || business.phone || business.email || business.whatsapp) },
