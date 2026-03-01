@@ -140,6 +140,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [isVideoMuted, setIsVideoMuted] = useState(true);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+  const [showClubCard, setShowClubCard] = useState(false);
   const [isVideoPaused, setIsVideoPaused] = useState(false);
   const [videoError, setVideoError] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -510,7 +511,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                   </div>
                 )}
                 <ShareButton title={business.name} variant="dark" />
-                <BookmarkButton businessId={business.id} variant="gold" />
+                <BookmarkButton businessId={business.id} variant="gold" onLoginRequired={() => setShowClubCard(true)} />
                 <button
                   onClick={() => {
                     if (ttsStatus === "playing" || ttsStatus === "loading") {
@@ -547,6 +548,38 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
               </div>
             </div>
           </div>
+
+          {/* Inline Club signup card */}
+          {showClubCard && (
+            <div className="rounded-2xl overflow-hidden shadow-xl border border-border animate-in fade-in-0 slide-in-from-top-4">
+              <div style={{ backgroundColor: "#6050DC" }} className="p-5 text-white relative">
+                <button
+                  onClick={() => setShowClubCard(false)}
+                  className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/40 text-white transition-colors"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+                <p className="text-sm opacity-90">{language === "en" ? "Welcome to" : language === "ar" ? "مرحباً بكم في" : "Bienvenue dans"}</p>
+                <h3 className="text-xl font-bold mt-1">{language === "en" ? "the OWM Club" : language === "ar" ? "نادي OWM" : "le Club OWM"}</h3>
+              </div>
+              <div className="bg-card p-5 text-center">
+                <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+                  {language === "en"
+                    ? "Sign up to save your favorite addresses and access exclusive benefits."
+                    : language === "ar"
+                      ? "سجّل لحفظ عناوينك المفضلة والحصول على مزايا حصرية."
+                      : "Inscrivez-vous pour sauvegarder vos adresses favorites et accéder à des avantages exclusifs."}
+                </p>
+                <a
+                  href="/club"
+                  style={{ backgroundColor: "#6050DC" }}
+                  className="inline-block rounded-full px-8 py-3 text-white font-semibold text-sm hover:opacity-90 transition-colors shadow-md"
+                >
+                  {language === "en" ? "Join now" : language === "ar" ? "سجّل الآن" : "Je m'inscris"}
+                </a>
+              </div>
+            </div>
+          )}
 
           {/* Opening status */}
           {openBadgeText && (

@@ -7,9 +7,10 @@ import { toast } from "@/hooks/use-toast";
 interface BookmarkButtonProps {
   businessId: string;
   variant?: "gold" | "dark";
+  onLoginRequired?: () => void;
 }
 
-const BookmarkButton = ({ businessId, variant = "dark" }: BookmarkButtonProps) => {
+const BookmarkButton = ({ businessId, variant = "dark", onLoginRequired }: BookmarkButtonProps) => {
   const { isBookmarked, isLoading, isLoggedIn, toggle } = useBookmark(businessId);
   const { language } = useLanguage();
 
@@ -23,7 +24,11 @@ const BookmarkButton = ({ businessId, variant = "dark" }: BookmarkButtonProps) =
   const handleClick = async () => {
     if (!isLoggedIn) {
       toast({ title: t.login });
-      window.dispatchEvent(new CustomEvent("open-club-panel"));
+      if (onLoginRequired) {
+        onLoginRequired();
+      } else {
+        window.dispatchEvent(new CustomEvent("open-club-panel"));
+      }
       return;
     }
     await toggle();
@@ -37,14 +42,14 @@ const BookmarkButton = ({ businessId, variant = "dark" }: BookmarkButtonProps) =
       disabled={isLoading}
       className={`gap-1.5 ${
         isBookmarked
-          ? "bg-gold/10 border-gold text-gold hover:bg-gold/20"
+          ? "bg-[#6050DC]/10 border-[#6050DC] text-[#6050DC] hover:bg-[#6050DC]/20"
           : variant === "gold"
-            ? "border-gold/30 text-gold hover:bg-gold/10"
-            : "border-border"
+            ? "border-[#6050DC]/30 text-[#6050DC] hover:bg-[#6050DC]/10"
+            : "border-border text-[#6050DC]"
       }`}
     >
       <Bookmark
-        className={`h-4 w-4 ${isBookmarked ? "fill-gold" : ""}`}
+        className={`h-4 w-4 ${isBookmarked ? "fill-[#6050DC]" : ""}`}
       />
       <span className="hidden sm:inline">{isBookmarked ? t.saved : t.save}</span>
     </Button>
