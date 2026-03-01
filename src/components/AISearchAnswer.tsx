@@ -34,8 +34,26 @@ const normalize = (s: string) =>
 
 const findBusiness = (name: string, businesses: BusinessData[]): BusinessData | null => {
   const n = normalize(name);
-  return businesses.find(b => normalize(b.name) === n)
-    || businesses.find(b => n.includes(normalize(b.name)) || normalize(b.name).includes(n))
+  // Try exact match first
+  const exact = businesses.find(b => normalize(b.name) === n);
+  if (exact) return exact;
+  // Check if the bold text includes a city hint (e.g. "Name à City" or "Name - City")
+  const cityPattern = /(.+?)(?:\s+[àa]\s+|\s*[-–—]\s*)(.+)$/i;
+  const cityMatch = n.match(cityPattern);
+  if (cityMatch) {
+    const namePart = cityMatch[1].trim();
+    const cityPart = cityMatch[2].trim();
+    const withCity = businesses.find(b => normalize(b.name) === namePart && normalize(b.city) === cityPart);
+    if (withCity) return withCity;
+    // Partial city match
+    const withCityPartial = businesses.find(b =>
+      (normalize(b.name) === namePart || normalize(b.name).includes(namePart)) &&
+      normalize(b.city).includes(cityPart)
+    );
+    if (withCityPartial) return withCityPartial;
+  }
+  // Fallback: partial name match
+  return businesses.find(b => n.includes(normalize(b.name)) || normalize(b.name).includes(n))
     || null;
 };
 
