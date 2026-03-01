@@ -750,11 +750,10 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                                 if (!dh) return null;
                                 const isToday = day === todayKey;
                                 return (
-                                  <div key={day} className={`text-sm ${isToday ? 'font-bold' : ''}`}>
+                                  <div key={day} className={`inline-flex gap-2 text-sm ${isToday ? 'font-bold' : ''}`}>
                                     <span className={`font-medium ${isToday ? 'text-foreground' : ''}`}>
                                       {dayNames[day]}{isToday ? ' ●' : ''}
                                     </span>
-                                    {' '}
                                     <span className="text-muted-foreground">
                                       {formatDayHoursDisplay(dh, { language })}
                                     </span>
