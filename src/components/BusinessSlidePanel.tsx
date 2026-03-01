@@ -15,6 +15,7 @@ import tripadvisorLogo from "@/assets/tripadvisor-logo.png";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import ShareButton from "@/components/ShareButton";
 import BookmarkButton from "@/components/BookmarkButton";
+import GoogleMapEmbed from "@/components/GoogleMapEmbed";
 
 interface BusinessSlidePanelProps {
   businessId: string;
@@ -940,6 +941,20 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                   </div>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Google Maps */}
+          {(business.latitude || business.longitude || business.address || business.google_maps_url) && (
+            <div className="space-y-2">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{language === "en" ? "Location" : language === "ar" ? "الموقع" : "Localisation"}</p>
+              <GoogleMapEmbed
+                address={business.address || (business.neighborhood ? `${business.neighborhood}, ${business.city}` : `${business.city}, ${business.region}`)}
+                businessName={business.name}
+                latitude={business.latitude}
+                longitude={business.longitude}
+                googleMapsUrl={business.google_maps_url}
+              />
             </div>
           )}
 
