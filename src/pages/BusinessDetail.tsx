@@ -800,9 +800,17 @@ const BusinessDetail = () => {
                               <h3 className="font-medium">{business.pdf_name}</h3>
                             )}
                             <div className="aspect-[3/4] w-full rounded-lg overflow-hidden border bg-muted">
-                              <iframe src={`${business.pdf_url}#toolbar=0&navpanes=0`} className="w-full h-full" title={business.pdf_name || "Document PDF 1"} />
+                              <iframe
+                                src={`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/pdf-proxy?url=${encodeURIComponent(business.pdf_url)}#toolbar=0&navpanes=0`}
+                                className="w-full h-full"
+                                title={business.pdf_name || "Document PDF 1"}
+                              />
                             </div>
-                            <a href={business.pdf_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors">
+                            <a
+                              href={`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/pdf-proxy?url=${encodeURIComponent(business.pdf_url)}`}
+                              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
+                              download={business.pdf_name || "document-1.pdf"}
+                            >
                               <Download className="h-4 w-4" />
                               Télécharger
                             </a>
@@ -814,9 +822,17 @@ const BusinessDetail = () => {
                               <h3 className="font-medium">{business.pdf_2_name}</h3>
                             )}
                             <div className="aspect-[3/4] w-full rounded-lg overflow-hidden border bg-muted">
-                              <iframe src={`${business.pdf_2_url}#toolbar=0&navpanes=0`} className="w-full h-full" title={business.pdf_2_name || "Document PDF 2"} />
+                              <iframe
+                                src={`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/pdf-proxy?url=${encodeURIComponent(business.pdf_2_url)}#toolbar=0&navpanes=0`}
+                                className="w-full h-full"
+                                title={business.pdf_2_name || "Document PDF 2"}
+                              />
                             </div>
-                            <a href={business.pdf_2_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors">
+                            <a
+                              href={`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/pdf-proxy?url=${encodeURIComponent(business.pdf_2_url)}`}
+                              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
+                              download={business.pdf_2_name || "document-2.pdf"}
+                            >
                               <Download className="h-4 w-4" />
                               Télécharger
                             </a>
@@ -828,9 +844,17 @@ const BusinessDetail = () => {
                               <h3 className="font-medium">{business.pdf_3_name}</h3>
                             )}
                             <div className="aspect-[3/4] w-full rounded-lg overflow-hidden border bg-muted">
-                              <iframe src={`${business.pdf_3_url}#toolbar=0&navpanes=0`} className="w-full h-full" title={business.pdf_3_name || "Document PDF 3"} />
+                              <iframe
+                                src={`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/pdf-proxy?url=${encodeURIComponent(business.pdf_3_url)}#toolbar=0&navpanes=0`}
+                                className="w-full h-full"
+                                title={business.pdf_3_name || "Document PDF 3"}
+                              />
                             </div>
-                            <a href={business.pdf_3_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors">
+                            <a
+                              href={`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/pdf-proxy?url=${encodeURIComponent(business.pdf_3_url)}`}
+                              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
+                              download={business.pdf_3_name || "document-3.pdf"}
+                            >
                               <Download className="h-4 w-4" />
                               Télécharger
                             </a>
