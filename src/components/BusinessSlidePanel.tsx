@@ -174,6 +174,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   const [activeTab, setActiveTab] = useState<string>("apercu");
   const [showStickyTabs, setShowStickyTabs] = useState(false);
   const isScrollingToTabRef = useRef(false);
+  const tabScrollUnlockTimeoutRef = useRef<number | null>(null);
 
   const handleFullscreen = useCallback(() => {
     // For native video, use the video element's fullscreen
@@ -214,7 +215,10 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
     const root = scrollContainerRef.current;
     if (!sentinel || !root) return;
     const observer = new IntersectionObserver(
-      ([entry]) => setShowStickyTabs(!entry.isIntersecting),
+      ([entry]) => {
+        if (isScrollingToTabRef.current) return;
+        setShowStickyTabs(!entry.isIntersecting);
+      },
       { root, threshold: 0 }
     );
     observer.observe(sentinel);
@@ -271,6 +275,56 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
 
     return () => observer.disconnect();
   }, [isLoading, business]);
+
+  const navigateToTab = useCallback((tabId: string) => {
+    setActiveTab(tabId);
+    isScrollingToTabRef.current = true;
+
+    if (tabScrollUnlockTimeoutRef.current) {
+      window.clearTimeout(tabScrollUnlockTimeoutRef.current);
+    }
+
+    const root = scrollContainerRef.current;
+    const refMap: Record<string, React.RefObject<HTMLDivElement | null>> = {
+      contact: contactSectionRef,
+      avis: reviewsSectionRef,
+      localiser: mapSectionRef,
+      services: servicesSectionRef,
+      similaires: similarSectionRef,
+      acote: nearbySectionRef,
+      apercu: descriptionRef,
+    };
+
+    const target = refMap[tabId]?.current;
+    if (!root || !target) {
+      tabScrollUnlockTimeoutRef.current = window.setTimeout(() => {
+        isScrollingToTabRef.current = false;
+      }, 550);
+      return;
+    }
+
+    const rootRect = root.getBoundingClientRect();
+    const targetRect = target.getBoundingClientRect();
+    const stickyOffset = 92;
+    const nextTop = root.scrollTop + (targetRect.top - rootRect.top) - stickyOffset;
+
+    root.scrollTo({
+      top: Math.max(0, nextTop),
+      behavior: "smooth",
+    });
+
+    tabScrollUnlockTimeoutRef.current = window.setTimeout(() => {
+      isScrollingToTabRef.current = false;
+    }, 550);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (tabScrollUnlockTimeoutRef.current) {
+        window.clearTimeout(tabScrollUnlockTimeoutRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const fetch = async () => {
@@ -801,24 +855,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                 ].filter(t => t.show).map(tab => (
                   <button
                     key={tab.id}
-                    onClick={() => {
-                       setActiveTab(tab.id);
-                       isScrollingToTabRef.current = true;
-                       setTimeout(() => { isScrollingToTabRef.current = false; }, 800);
-                       if (tab.id === "apercu") {
-                         scrollContainerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
-                       } else {
-                         const refMap: Record<string, React.RefObject<HTMLDivElement | null>> = {
-                           contact: contactSectionRef,
-                           avis: reviewsSectionRef,
-                           localiser: mapSectionRef,
-                           services: servicesSectionRef,
-                           similaires: similarSectionRef,
-                           acote: nearbySectionRef,
-                         };
-                         refMap[tab.id]?.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-                       }
-                    }}
+                    onClick={() => navigateToTab(tab.id)}
                     className={`whitespace-nowrap px-3 py-2.5 text-sm font-medium transition-colors border-b-2 ${
                       activeTab === tab.id
                         ? "border-primary text-primary"
@@ -918,26 +955,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
             ].filter(t => t.show).map(tab => (
               <button
                 key={tab.id}
-                onClick={() => {
-                   setActiveTab(tab.id);
-                   isScrollingToTabRef.current = true;
-                   setTimeout(() => { isScrollingToTabRef.current = false; }, 800);
-                   if (tab.id === "apercu") {
-                     descriptionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-                   } else if (tab.id === "contact") {
-                     contactSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-                   } else if (tab.id === "avis") {
-                     reviewsSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-                   } else if (tab.id === "localiser") {
-                     mapSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-                   } else if (tab.id === "services") {
-                     servicesSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-                   } else if (tab.id === "similaires") {
-                     similarSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-                   } else if (tab.id === "acote") {
-                     nearbySectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-                   }
-                }}
+                onClick={() => navigateToTab(tab.id)}
                 className={`whitespace-nowrap px-3 py-2.5 text-sm font-medium transition-colors border-b-2 ${
                   activeTab === tab.id
                     ? "border-primary text-primary"
