@@ -732,7 +732,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
             </div>
             {/* Sticky tabs bar */}
             {showStickyTabs && (
-              <div className="flex gap-1 overflow-x-auto no-scrollbar border-t border-border px-4">
+              <div className="flex gap-1 overflow-x-auto no-scrollbar border-t border-border px-5">
                 {[
                   { id: "apercu", label: "Aperçu", show: !!business.description },
                   { id: "contact", label: "Contact", show: !!(business.address || business.phone || business.email || business.whatsapp) },
