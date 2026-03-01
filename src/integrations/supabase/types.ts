@@ -472,6 +472,7 @@ export type Database = {
           account_type: string | null
           address: string | null
           affiliate_id: string | null
+          ai_review_summary: Json | null
           airbnb_url: string | null
           badge_id: string | null
           booking_url: string | null
@@ -579,6 +580,7 @@ export type Database = {
           account_type?: string | null
           address?: string | null
           affiliate_id?: string | null
+          ai_review_summary?: Json | null
           airbnb_url?: string | null
           badge_id?: string | null
           booking_url?: string | null
@@ -686,6 +688,7 @@ export type Database = {
           account_type?: string | null
           address?: string | null
           affiliate_id?: string | null
+          ai_review_summary?: Json | null
           airbnb_url?: string | null
           badge_id?: string | null
           booking_url?: string | null
@@ -2293,6 +2296,7 @@ export type Database = {
               account_type: string | null
               address: string | null
               affiliate_id: string | null
+              ai_review_summary: Json | null
               airbnb_url: string | null
               badge_id: string | null
               booking_url: string | null
@@ -2416,6 +2420,7 @@ export type Database = {
               account_type: string | null
               address: string | null
               affiliate_id: string | null
+              ai_review_summary: Json | null
               airbnb_url: string | null
               badge_id: string | null
               booking_url: string | null
