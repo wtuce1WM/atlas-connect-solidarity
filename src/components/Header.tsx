@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Menu, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -11,6 +11,18 @@ interface HeaderProps {
 const Header = ({ variant = "default" }: HeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { t } = useLanguage();
+  const headerRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    if (!isMenuOpen) return;
+    const handleClick = (e: MouseEvent) => {
+      if (headerRef.current && !headerRef.current.contains(e.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [isMenuOpen]);
 
   const headerBg = variant === "morocco"
     ? "bg-gradient-to-b from-morocco-red to-morocco-red/80 backdrop-blur-sm"
@@ -22,7 +34,7 @@ const Header = ({ variant = "default" }: HeaderProps) => {
   const logoSecondary = "text-black";
 
   return (
-    <header className={`fixed left-0 right-0 top-0 z-50 ${headerBg}`}>
+    <header ref={headerRef} className={`fixed left-0 right-0 top-0 z-50 ${headerBg}`}>
       <div className="container mx-auto flex items-center justify-between gap-3 px-4 py-3">
         {/* Logo */}
         <a href="/" className="flex items-center gap-2 shrink-0">
