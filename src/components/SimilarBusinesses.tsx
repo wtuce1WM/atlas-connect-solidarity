@@ -2,8 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { MapPin, Star, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent } from "@/components/ui/card";
-import logoWatermark from "@/assets/logoGOLDsimpleSML.webp";
+import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
 
 interface SimilarBusiness {
   id: string;
@@ -12,6 +11,16 @@ interface SimilarBusiness {
   neighborhood: string | null;
   images: string[] | null;
   rating: number | null;
+  google_rating: number | null;
+  google_review_count: number | null;
+  tripadvisor_rating: number | null;
+  tripadvisor_review_count: number | null;
+  restaurant_guru_rating: number | null;
+  restaurant_guru_review_count: number | null;
+  getyourguide_rating: number | null;
+  getyourguide_review_count: number | null;
+  viator_rating: number | null;
+  viator_review_count: number | null;
   wtuce_status: string | null;
   categories: string[] | null;
 }
@@ -35,12 +44,11 @@ const SimilarBusinesses = ({ currentBusinessId, categories, city, onNavigate }: 
         return;
       }
 
-      // Use first subcategory for matching
       const subcategory = categories[0];
 
       const { data, count, error } = await supabase
         .from("businesses")
-        .select("id, name, city, neighborhood, images, rating, wtuce_status, categories", { count: "exact" })
+        .select("id, name, city, neighborhood, images, rating, wtuce_status, categories, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, getyourguide_rating, getyourguide_review_count, viator_rating, viator_review_count", { count: "exact" })
         .eq("is_active", true)
         .eq("city", city)
         .contains("categories", [subcategory])
@@ -78,64 +86,51 @@ const SimilarBusinesses = ({ currentBusinessId, categories, city, onNavigate }: 
       </div>
 
       <div className="grid grid-cols-3 gap-2">
-        {businesses.map((biz) => (
-          <Link
-            key={biz.id}
-            to={`/business/${biz.id}`}
-            onClick={(e) => {
-              if (onNavigate) {
-                e.preventDefault();
-                onNavigate(biz.id);
-              }
-            }}
-            className="group"
-          >
-            <Card className="h-full overflow-hidden transition-all duration-200 hover:shadow-md hover:shadow-gold/10 border border-border relative">
+        {businesses.map((biz) => {
+          const img = biz.images && biz.images.length > 0 ? biz.images[0] : null;
+          const sources = collectRatingSources(biz);
+          const avgOn20 = biz.rating ?? computeWeightedRatingOn20(sources);
+          const totalReviews = sources.reduce((s, r) => s + r.count, 0);
+
+          return (
+            <Link
+              key={biz.id}
+              to={`/business/${biz.id}`}
+              onClick={(e) => {
+                if (onNavigate) {
+                  e.preventDefault();
+                  onNavigate(biz.id);
+                }
+              }}
+              className="group overflow-hidden rounded-xl border border-gold/20 shadow-sm hover:shadow-md transition-shadow"
+            >
               {/* Image */}
-              {biz.images && biz.images.length > 0 ? (
-                <div className="absolute inset-0">
-                  <img
-                    src={biz.images[0]}
-                    alt={biz.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute inset-0 bg-black/50 group-hover:bg-black/40 transition-colors" />
-                </div>
-              ) : (
-                <div className="absolute inset-0 bg-muted" />
-              )}
-
-              {/* Rating badge */}
-              {biz.rating && (
-                <div className="absolute top-1 left-1 flex items-center gap-0.5 bg-black/60 rounded-full px-1.5 py-0.5 z-10">
-                  <Star className="h-3 w-3 fill-gold text-gold" />
-                  <span className="text-gold font-bold text-[10px]">{biz.rating}</span>
+              {img && (
+                <div className="h-20 w-full overflow-hidden">
+                  <img src={img} alt={biz.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                 </div>
               )}
 
-              {/* Verified watermark */}
-              {biz.wtuce_status === "verified" && (
-                <img
-                  src={logoWatermark}
-                  alt=""
-                  className="absolute top-1 right-1 w-6 h-6 object-contain opacity-90 pointer-events-none z-10"
-                />
-              )}
-
-              <CardContent className="p-2 relative z-10 flex flex-col items-center justify-end min-h-[100px] text-center">
-                <h4 className="text-[11px] font-semibold text-white group-hover:text-gold transition-colors line-clamp-2 leading-tight">
-                  {biz.name}
-                </h4>
-                {biz.neighborhood && (
-                  <div className="flex items-center gap-0.5 mt-0.5">
-                    <MapPin className="h-2.5 w-2.5 text-gray-300" />
-                    <span className="text-[9px] text-gray-300 truncate max-w-[80px]">{biz.neighborhood}</span>
+              {/* Info */}
+              <div className="p-2 space-y-1">
+                <p className="font-semibold text-[11px] text-foreground leading-tight line-clamp-2">{biz.name}</p>
+                <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                  <MapPin className="h-2.5 w-2.5 shrink-0" />
+                  <span className="truncate">{biz.city}{biz.neighborhood ? ` · ${biz.neighborhood}` : ""}</span>
+                </div>
+                {avgOn20 && (
+                  <div className="flex items-center gap-1 text-[10px]">
+                    <Star className="h-2.5 w-2.5 text-gold fill-gold" />
+                    <span className="font-medium text-foreground">{avgOn20}/20</span>
+                    {totalReviews > 0 && (
+                      <span className="text-muted-foreground">· {totalReviews} avis</span>
+                    )}
                   </div>
                 )}
-              </CardContent>
-            </Card>
-          </Link>
-        ))}
+              </div>
+            </Link>
+          );
+        })}
       </div>
     </div>
   );
