@@ -666,6 +666,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                 </div>
               ) : null;
             })()}
+            <div className="w-px h-6 bg-border shrink-0" />
             {/* Social media icons */}
             {(() => {
               const socials = [
