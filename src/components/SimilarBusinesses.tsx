@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { MapPin, Star, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -37,6 +37,7 @@ interface SimilarBusinessesProps {
 const PAGE_SIZE = 12;
 
 const SimilarBusinesses = ({ currentBusinessId, categories, city, onNavigate, onLoginRequired }: SimilarBusinessesProps) => {
+  const sectionRef = useRef<HTMLDivElement>(null);
   const [allBusinesses, setAllBusinesses] = useState<SimilarBusiness[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -97,7 +98,7 @@ const SimilarBusinesses = ({ currentBusinessId, categories, city, onNavigate, on
   const businesses = allBusinesses.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3" ref={sectionRef}>
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Similaires</h3>
         <span className="text-xs text-muted-foreground">
@@ -156,7 +157,7 @@ const SimilarBusinesses = ({ currentBusinessId, categories, city, onNavigate, on
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-1 pt-1">
           <button
-            onClick={() => setPage(p => Math.max(0, p - 1))}
+            onClick={() => { setPage(p => Math.max(0, p - 1)); sectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }); }}
             disabled={page === 0}
             className="p-1 rounded-md text-muted-foreground hover:bg-accent disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
           >
@@ -165,7 +166,7 @@ const SimilarBusinesses = ({ currentBusinessId, categories, city, onNavigate, on
           {Array.from({ length: totalPages }, (_, i) => (
             <button
               key={i}
-              onClick={() => setPage(i)}
+              onClick={() => { setPage(i); sectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }); }}
               className={`h-7 w-7 rounded-md text-xs font-medium transition-colors ${
                 i === page
                   ? "bg-primary text-primary-foreground"
@@ -176,7 +177,7 @@ const SimilarBusinesses = ({ currentBusinessId, categories, city, onNavigate, on
             </button>
           ))}
           <button
-            onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
+            onClick={() => { setPage(p => Math.min(totalPages - 1, p + 1)); sectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }); }}
             disabled={page === totalPages - 1}
             className="p-1 rounded-md text-muted-foreground hover:bg-accent disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
           >
