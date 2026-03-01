@@ -274,26 +274,29 @@ const AISearchAnswer = ({ query, businesses, isSearchLoading, onAnswerReady }: A
         </div>
       </div>
 
+      {/* Floating panel controls — always visible */}
+      {isPanelOpen && (
+        <div className={`fixed top-3 ${isPanelExpanded ? "left-3" : "left-[calc(50%+12px)]"} z-[200] flex items-center gap-2`}>
+          <button
+            onClick={() => { setSelectedBusiness(null); setIsPanelExpanded(false); }}
+            className="p-2 rounded-full bg-background/95 border border-border shadow-md hover:bg-muted transition-colors"
+            title="Fermer"
+          >
+            <X className="h-5 w-5 text-foreground" />
+          </button>
+          <button
+            onClick={() => setIsPanelExpanded(prev => !prev)}
+            className="p-2 rounded-full bg-background/95 border border-border shadow-md hover:bg-muted transition-colors"
+            title={isPanelExpanded ? "Réduire" : "Agrandir"}
+          >
+            {isPanelExpanded ? <Minimize2 className="h-5 w-5 text-foreground" /> : <Maximize2 className="h-5 w-5 text-foreground" />}
+          </button>
+        </div>
+      )}
+
       {/* Slide-in panel — right half or full width */}
       {isPanelOpen && (
         <div className={`fixed top-0 right-0 z-[100] h-full bg-background shadow-2xl border-l border-border overflow-hidden transition-all duration-500 ease-out ${isPanelExpanded ? "w-full" : "w-1/2"}`}>
-          <div className="absolute top-3 left-3 z-[130] flex items-center gap-2">
-            <button
-              onClick={() => { setSelectedBusiness(null); setIsPanelExpanded(false); }}
-              className="p-2 rounded-full bg-background/90 border border-border hover:bg-muted transition-colors"
-              title="Fermer"
-            >
-              <X className="h-5 w-5 text-foreground" />
-            </button>
-            <button
-              onClick={() => setIsPanelExpanded(prev => !prev)}
-              className="p-2 rounded-full bg-background/90 border border-border hover:bg-muted transition-colors"
-              title={isPanelExpanded ? "Réduire" : "Agrandir"}
-            >
-              {isPanelExpanded ? <Minimize2 className="h-5 w-5 text-foreground" /> : <Maximize2 className="h-5 w-5 text-foreground" />}
-            </button>
-          </div>
-
           <BusinessSlidePanel
             businessId={selectedBusiness!.id}
             onClose={() => { setSelectedBusiness(null); setIsPanelExpanded(false); }}
