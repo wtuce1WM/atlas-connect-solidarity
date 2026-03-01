@@ -363,6 +363,7 @@ const SearchPage = () => {
   const categoryFromUrl = searchParams.get("category") || "";
   const [celebrityBusinesses, setCelebrityBusinesses] = useState<Business[]>([]);
   const [ttsIntroPhrase, setTtsIntroPhrase] = useState<string>("");
+  const [aiAnswerText, setAiAnswerText] = useState<string>("");
 
   const normalizeText = (value: string) =>
     value
@@ -953,20 +954,26 @@ const SearchPage = () => {
             ) : filteredBusinesses.length > 0 && (
               <button
                 onClick={() => {
-                  const count = filteredBusinesses.length;
-                  const cityText = selectedCity !== "all" ? ` à ${selectedCity}` : "";
-                  const intro = ttsIntroPhrase ? `${ttsIntroPhrase} ` : "";
-                  let speech = `${intro}J'ai trouvé ${count} résultat${count > 1 ? 's' : ''}${cityText}. `;
-                  const top = filteredBusinesses.slice(0, 3);
-                  if (top.length === 1) {
-                    speech += `Le meilleur résultat est ${buildBusinessTTSLine(top[0], 0)}.`;
+                  if (aiAnswerText) {
+                    // Strip markdown bold markers for clean speech
+                    const cleanText = aiAnswerText.replace(/\*\*/g, "");
+                    ttsSpeak(cleanText);
                   } else {
-                    speech += "Voici les meilleurs résultats. ";
-                    top.forEach((b, i) => {
-                      speech += `${i === 0 ? 'Premier' : i === 1 ? 'Deuxième' : 'Troisième'}, ${buildBusinessTTSLine(b, i)}. `;
-                    });
+                    const count = filteredBusinesses.length;
+                    const cityText = selectedCity !== "all" ? ` à ${selectedCity}` : "";
+                    const intro = ttsIntroPhrase ? `${ttsIntroPhrase} ` : "";
+                    let speech = `${intro}J'ai trouvé ${count} résultat${count > 1 ? 's' : ''}${cityText}. `;
+                    const top = filteredBusinesses.slice(0, 3);
+                    if (top.length === 1) {
+                      speech += `Le meilleur résultat est ${buildBusinessTTSLine(top[0], 0)}.`;
+                    } else {
+                      speech += "Voici les meilleurs résultats. ";
+                      top.forEach((b, i) => {
+                        speech += `${i === 0 ? 'Premier' : i === 1 ? 'Deuxième' : 'Troisième'}, ${buildBusinessTTSLine(b, i)}. `;
+                      });
+                    }
+                    ttsSpeak(speech);
                   }
-                  ttsSpeak(speech);
                 }}
                 className="mb-4 inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-card border border-gold/30 text-gold text-sm font-medium hover:bg-gold/20 transition-colors"
               >
@@ -1134,20 +1141,25 @@ const SearchPage = () => {
               ) : !isLoading && filteredBusinesses.length > 0 && (
                 <button
                   onClick={() => {
-                    const count = filteredBusinesses.length;
-                    const cityText = selectedCity !== "all" ? ` à ${selectedCity}` : "";
-                    const intro = ttsIntroPhrase ? `${ttsIntroPhrase} ` : "";
-                    let speech = `${intro}J'ai trouvé ${count} résultat${count > 1 ? 's' : ''}${cityText}. `;
-                    const top = filteredBusinesses.slice(0, 3);
-                    if (top.length === 1) {
-                      speech += `Le meilleur résultat est ${buildBusinessTTSLine(top[0], 0)}.`;
+                    if (aiAnswerText) {
+                      const cleanText = aiAnswerText.replace(/\*\*/g, "");
+                      ttsSpeak(cleanText);
                     } else {
-                      speech += "Voici les meilleurs résultats. ";
-                      top.forEach((b, i) => {
-                        speech += `${i === 0 ? 'Premier' : i === 1 ? 'Deuxième' : 'Troisième'}, ${buildBusinessTTSLine(b, i)}. `;
-                      });
+                      const count = filteredBusinesses.length;
+                      const cityText = selectedCity !== "all" ? ` à ${selectedCity}` : "";
+                      const intro = ttsIntroPhrase ? `${ttsIntroPhrase} ` : "";
+                      let speech = `${intro}J'ai trouvé ${count} résultat${count > 1 ? 's' : ''}${cityText}. `;
+                      const top = filteredBusinesses.slice(0, 3);
+                      if (top.length === 1) {
+                        speech += `Le meilleur résultat est ${buildBusinessTTSLine(top[0], 0)}.`;
+                      } else {
+                        speech += "Voici les meilleurs résultats. ";
+                        top.forEach((b, i) => {
+                          speech += `${i === 0 ? 'Premier' : i === 1 ? 'Deuxième' : 'Troisième'}, ${buildBusinessTTSLine(b, i)}. `;
+                        });
+                      }
+                      ttsSpeak(speech);
                     }
-                    ttsSpeak(speech);
                   }}
                   className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card border border-gold/30 text-gold text-sm font-medium hover:bg-gold/20 transition-colors"
                 >
@@ -1178,6 +1190,7 @@ const SearchPage = () => {
               query={spokenText || searchQuery}
               businesses={filteredBusinesses}
               isSearchLoading={isLoading}
+              onAnswerReady={setAiAnswerText}
             />
           )}
 

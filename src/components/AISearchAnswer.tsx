@@ -26,6 +26,7 @@ interface AISearchAnswerProps {
   query: string;
   businesses: BusinessData[];
   isSearchLoading: boolean;
+  onAnswerReady?: (answer: string) => void;
 }
 
 const normalize = (s: string) =>
@@ -111,7 +112,7 @@ const formatAnswer = (text: string, businesses: BusinessData[], onClickBusiness:
   ));
 };
 
-const AISearchAnswer = ({ query, businesses, isSearchLoading }: AISearchAnswerProps) => {
+const AISearchAnswer = ({ query, businesses, isSearchLoading, onAnswerReady }: AISearchAnswerProps) => {
   const { language } = useLanguage();
   const [answer, setAnswer] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -172,6 +173,7 @@ const AISearchAnswer = ({ query, businesses, isSearchLoading }: AISearchAnswerPr
 
         if (data?.answer) {
           setAnswer(data.answer);
+          onAnswerReady?.(data.answer);
         }
       } catch (err) {
         if (currentFetchId !== fetchIdRef.current) return;
