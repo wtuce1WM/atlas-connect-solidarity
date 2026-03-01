@@ -53,6 +53,8 @@ const SimilarBusinesses = ({ currentBusinessId, categories, city, onNavigate }: 
         .eq("city", city)
         .contains("categories", [subcategory])
         .neq("id", currentBusinessId)
+        .order("wtuce_status", { ascending: false })
+        .order("rating", { ascending: false, nullsFirst: false })
         .order("priority_score", { ascending: false })
         .limit(9);
 
