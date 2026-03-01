@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { X, MapPin, Phone, Mail, Globe, Star, BadgeCheck, ChevronLeft, ChevronRight, Clock, Loader2, ExternalLink, CookingPot, Volume2, VolumeX, Maximize, Play, Pause } from "lucide-react";
+import { X, MapPin, Phone, Mail, Globe, Star, BadgeCheck, ChevronLeft, ChevronRight, Clock, Loader2, ExternalLink, CookingPot, Volume2, VolumeX, Maximize, Play, Pause, Headphones } from "lucide-react";
 import { useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -10,6 +10,7 @@ import { formatDayHours as formatDayHoursDisplay, isCurrentlyOpen as isCurrently
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import restaurantGuruLogo from "@/assets/restaurant-guru-logo.webp";
 import tripadvisorLogo from "@/assets/tripadvisor-logo.png";
+import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 
 interface BusinessSlidePanelProps {
   businessId: string;
@@ -78,6 +79,8 @@ interface FullBusiness {
   other_booking_url: string | null;
   menu_url: string | null;
   video_1_url: string | null;
+  default_service: string | null;
+  ai_review_summary: any;
 }
 
 interface Gamme {
@@ -101,6 +104,7 @@ const SkypeIcon = ({ className = "h-5 w-5" }: { className?: string }) => (
 
 const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) => {
   const { language } = useLanguage();
+  const { speak: ttsSpeak, stop: ttsStop, status: ttsStatus } = useTextToSpeech();
   const [business, setBusiness] = useState<FullBusiness | null>(null);
   const [gamme, setGamme] = useState<Gamme | null>(null);
   const [reviewTexts, setReviewTexts] = useState<{ source: string; author_name: string | null; rating: number | null; text: string | null; relative_time: string | null }[]>([]);
@@ -213,6 +217,31 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
 
   const hook = language === "en" ? business.hook_en : language === "ar" ? business.hook_ar : business.hook_fr;
 
+  // Build TTS synthesis text (~30 seconds)
+  const buildTtsSynthesis = () => {
+    const parts: string[] = [];
+    parts.push(`${business.name}, situé à ${business.city}${business.neighborhood ? `, quartier ${business.neighborhood}` : ""}.`);
+    if (business.default_service) {
+      parts.push(`Leur spécialité : ${business.default_service}.`);
+    }
+    if (hook) {
+      parts.push(hook.replace(/<[^>]+>/g, ""));
+    }
+    if (business.services && business.services.length > 0) {
+      const svcList = business.services.slice(0, 5).join(", ");
+      parts.push(`Parmi leurs services : ${svcList}.`);
+    }
+    if (avgOn20) {
+      parts.push(`Note globale : ${avgOn20} sur 20, basée sur ${totalReviewCount} avis.`);
+    }
+    const bestReview = reviewTexts.find(r => r.text && r.text.length > 20);
+    if (bestReview) {
+      const snippet = bestReview.text!.slice(0, 150).replace(/<[^>]+>/g, "");
+      parts.push(`Un client témoigne : "${snippet}".`);
+    }
+    return parts.join(" ");
+  };
+
   // Opening hours — same logic as BusinessCard badge
   const canShowOpenBadge = !!business.show_opening_hours || !!business.is_open_24h;
   let openBadgeText: string | null = null;
@@ -274,9 +303,28 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
       {/* Sticky header */}
       <div className="sticky top-0 z-10 flex items-center justify-between px-5 py-3 bg-background border-b border-border shrink-0">
         <h2 className="text-lg font-semibold text-foreground truncate">{business.name}</h2>
-        <button onClick={onClose} className="p-1.5 rounded-full hover:bg-muted transition-colors">
-          <X className="h-5 w-5 text-muted-foreground" />
-        </button>
+        <div className="flex items-center gap-1.5">
+          <button
+            onClick={() => {
+              if (ttsStatus === "playing" || ttsStatus === "loading") {
+                ttsStop();
+              } else {
+                ttsSpeak(buildTtsSynthesis());
+              }
+            }}
+            className={`p-1.5 rounded-full transition-colors ${ttsStatus === "playing" || ttsStatus === "loading" ? "bg-gold/20 text-gold" : "hover:bg-muted text-muted-foreground"}`}
+            title={ttsStatus === "playing" ? "Arrêter la lecture" : "Écouter la synthèse"}
+          >
+            {ttsStatus === "loading" ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <Headphones className="h-5 w-5" />
+            )}
+          </button>
+          <button onClick={onClose} className="p-1.5 rounded-full hover:bg-muted transition-colors">
+            <X className="h-5 w-5 text-muted-foreground" />
+          </button>
+        </div>
       </div>
 
       {/* Scrollable content */}
