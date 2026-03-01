@@ -28,7 +28,7 @@ const Header = ({ variant = "default" }: HeaderProps) => {
     ? "bg-gradient-to-b from-morocco-red to-morocco-red/80 backdrop-blur-sm"
     : variant === "city"
       ? "bg-transparent"
-      : "bg-background/70 backdrop-blur-md";
+      : "bg-background";
 
   const textColor = "text-black";
   const logoSecondary = "text-black";
@@ -53,7 +53,7 @@ const Header = ({ variant = "default" }: HeaderProps) => {
 
       {/* Dropdown Menu */}
       {isMenuOpen && (
-        <div className="border-t border-border border-b border-b-foreground bg-background/70 backdrop-blur-md">
+        <div className="border-t border-border border-b border-b-foreground bg-gradient-to-b from-background to-background/60 backdrop-blur-sm">
           <nav className="container mx-auto flex flex-col items-center gap-4 px-4 py-6">
             <Link to="/mission" className="text-foreground transition-colors hover:text-gold">
               {t("footer.ourMission")}
