@@ -682,6 +682,9 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                 )}
               </div>
             </div>
+            {business.default_service && (
+              <Badge variant="secondary" className="shrink-0 text-xs">{business.default_service}</Badge>
+            )}
             {/* Social media icons */}
             {(() => {
               const socials = [
