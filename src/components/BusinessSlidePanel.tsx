@@ -1441,16 +1441,25 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
       {showPdfViewer && business?.pdf_url && (
         <div className="absolute inset-0 z-50 bg-background flex flex-col">
           <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-            <h3 className="font-semibold text-sm truncate">{business.pdf_name || "Document"}</h3>
+            <h3 className="font-semibold text-sm truncate flex-1 mr-2">{business.pdf_name || "Document"}</h3>
+            <a
+              href={business.pdf_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors mr-3 shrink-0"
+            >
+              Ouvrir dans un nouvel onglet <ExternalLink className="inline h-3 w-3 ml-0.5" />
+            </a>
             <button
               onClick={() => setShowPdfViewer(false)}
-              className="p-1.5 rounded-full hover:bg-muted transition-colors"
+              className="p-1.5 rounded-full hover:bg-muted transition-colors shrink-0"
             >
               <X className="h-5 w-5" />
             </button>
           </div>
-          <iframe
-            src={business.pdf_url}
+          <embed
+            src={business.pdf_url + "#toolbar=1&navpanes=0"}
+            type="application/pdf"
             className="flex-1 w-full"
             title={business.pdf_name || "Document PDF"}
           />
