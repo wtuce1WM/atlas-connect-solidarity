@@ -468,115 +468,86 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
       )}
       {/* Scrollable content */}
       <div ref={scrollContainerRef} className="flex-1 overflow-y-auto relative">
+        {/* EXPANDED MODE: Full media mosaic gallery */}
+        {isExpanded ? (
+          <div className="p-4">
+            <div className="grid grid-cols-3 gap-2">
+              {/* Video tile */}
+              {hasVideo && (
+                <div
+                  className="relative cursor-pointer overflow-hidden rounded-lg"
+                  style={{ width: "60%", aspectRatio: "16/10" }}
+                  onClick={() => { setCurrentImageIndex(0); setIsLightboxOpen(true); }}
+                >
+                  {(() => {
+                    const url = business.video_1_url!;
+                    const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]+)/);
+                    if (ytMatch) {
+                      return (
+                        <iframe
+                          src={`https://www.youtube.com/embed/${ytMatch[1]}?autoplay=0&mute=1&controls=0&modestbranding=1&rel=0`}
+                          className="w-full h-full pointer-events-none"
+                          allow="encrypted-media"
+                          frameBorder="0"
+                        />
+                      );
+                    }
+                    const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+                    if (vimeoMatch) {
+                      return (
+                        <iframe
+                          src={`https://player.vimeo.com/video/${vimeoMatch[1]}?muted=1&background=1`}
+                          className="w-full h-full pointer-events-none"
+                          allow="encrypted-media"
+                          frameBorder="0"
+                        />
+                      );
+                    }
+                    return <video src={url} muted loop playsInline className="w-full h-full object-cover" />;
+                  })()}
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <div className="p-3 rounded-full bg-background/70">
+                      <Play className="h-6 w-6 text-foreground" />
+                    </div>
+                  </div>
+                </div>
+              )}
+              {/* Image tiles */}
+              {images.map((img, i) => (
+                <div
+                  key={i}
+                  className="relative cursor-pointer overflow-hidden rounded-lg"
+                  style={{ width: "60%", aspectRatio: "16/10" }}
+                  onClick={() => { setCurrentImageIndex(videoOffset + i); setIsLightboxOpen(true); }}
+                >
+                  <img
+                    src={img}
+                    alt={`${business.name} - ${i + 1}`}
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+              ))}
+              {/* Matterport tile */}
+              {hasMatterport && (
+                <div
+                  className="relative cursor-pointer overflow-hidden rounded-lg"
+                  style={{ width: "60%", aspectRatio: "16/10" }}
+                  onClick={() => { setCurrentImageIndex(matterportIndex); setIsLightboxOpen(true); }}
+                >
+                  <div className="w-full h-full bg-gradient-to-br from-muted to-muted/60 flex flex-col items-center justify-center gap-2 hover:from-primary/10 hover:to-primary/5 transition-colors">
+                    <Box className="h-10 w-10 text-primary" />
+                    <span className="text-sm font-semibold text-primary">Visite 3D</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        ) : (
+        <>
         {/* Image display */}
         {mediaCount > 0 && (
           <div className="relative">
-            {isExpanded && images.length >= 5 ? (
-              /* Multi-image collage grid for expanded mode */
-              <div className="relative w-full bg-muted flex-shrink-0 rounded-xl overflow-hidden" style={{ aspectRatio: "16/10", marginLeft: 5 }}>
-                <div className="grid grid-cols-2 gap-1.5 h-full">
-                  {/* Large image left */}
-                  <div 
-                    className="relative cursor-pointer overflow-hidden rounded-lg"
-                    onClick={() => { setCurrentImageIndex(videoOffset); setIsLightboxOpen(true); }}
-                  >
-                    <img
-                      src={images[0]}
-                      alt={`${business.name} - 1`}
-                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                    />
-                    {isVerified && !isInstitution && (
-                      <img src={logoGold} alt="WTUCE" className="absolute top-3 right-3 w-12 h-12 object-contain opacity-90 pointer-events-none drop-shadow-lg" />
-                    )}
-                  </div>
-                  {/* 4 smaller items right in 2x2 grid */}
-                  <div className="grid grid-cols-2 grid-rows-2 gap-1.5">
-                    {(() => {
-                       const rightSlots: { type: "image" | "video" | "matterport"; src: string; globalIdx: number }[] = [];
-                       if (hasVideo) {
-                         rightSlots.push({ type: "video", src: business.video_1_url!, globalIdx: 0 });
-                         const imgCount = hasMatterport ? 2 : 3;
-                         images.slice(1, 1 + imgCount).forEach((img, i) => rightSlots.push({ type: "image", src: img, globalIdx: videoOffset + i + 1 }));
-                       } else {
-                         const imgCount = hasMatterport ? 3 : 4;
-                         images.slice(1, 1 + imgCount).forEach((img, i) => rightSlots.push({ type: "image", src: img, globalIdx: i + 1 }));
-                       }
-                       if (hasMatterport) {
-                         rightSlots.push({ type: "matterport", src: business.matterport_url!, globalIdx: matterportIndex });
-                       }
-                      return rightSlots.map((slot, idx) => (
-                        <div
-                          key={idx}
-                          className="relative cursor-pointer overflow-hidden rounded-lg"
-                          onClick={(e) => {
-                             e.stopPropagation();
-                             setCurrentImageIndex(slot.globalIdx);
-                             setIsLightboxOpen(true);
-                           }}
-                        >
-                          {slot.type === "matterport" ? (
-                            <div className="w-full h-full bg-gradient-to-br from-muted to-muted/60 flex flex-col items-center justify-center gap-2 hover:from-primary/10 hover:to-primary/5 transition-colors">
-                              <Box className="h-8 w-8 text-primary" />
-                              <span className="text-xs font-semibold text-primary">Visite 3D</span>
-                            </div>
-                          ) : slot.type === "video" ? (
-                            (() => {
-                              const url = slot.src;
-                              const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]+)/);
-                              if (ytMatch) {
-                                return (
-                                  <iframe
-                                    src={`https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&mute=1&loop=1&playlist=${ytMatch[1]}&controls=0&modestbranding=1&rel=0`}
-                                    className="w-full h-full pointer-events-none"
-                                    allow="autoplay; encrypted-media"
-                                    frameBorder="0"
-                                  />
-                                );
-                              }
-                              const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
-                              if (vimeoMatch) {
-                                return (
-                                  <iframe
-                                    src={`https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1&muted=1&loop=1&background=1`}
-                                    className="w-full h-full pointer-events-none"
-                                    allow="autoplay; encrypted-media"
-                                    frameBorder="0"
-                                  />
-                                );
-                              }
-                              return (
-                                <video src={url} autoPlay muted loop playsInline className="w-full h-full object-cover" />
-                              );
-                            })()
-                          ) : (
-                            <img
-                              src={slot.src}
-                              alt={`${business.name} - ${idx + 2}`}
-                              className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                            />
-                          )}
-                          {slot.type === "video" && (
-                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                              <div className="p-2 rounded-full bg-background/70">
-                                <Play className="h-5 w-5 text-foreground" />
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      ));
-                    })()}
-                  </div>
-                </div>
-                {mediaCount >= 5 && (
-                  <button
-                    onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(0); setIsLightboxOpen(true); }}
-                    className="absolute bottom-3 right-3 z-20 px-3 py-1.5 rounded-full bg-background/95 text-xs font-semibold text-foreground shadow-lg hover:bg-background transition-colors"
-                  >
-                    {language === "en" ? `View all ${mediaCount} photos` : language === "ar" ? `عرض ${mediaCount} صور` : `Voir les ${mediaCount} photos`}
-                  </button>
-                )}
-              </div>
-            ) : (
+            {(
               /* Standard carousel for non-expanded or few images */
               <div ref={mediaContainerRef} className="relative w-full aspect-[16/9] bg-muted cursor-pointer" onClick={() => { if (!(hasVideo && currentImageIndex === 0)) setIsLightboxOpen(true); }}>
                 {hasVideo && currentImageIndex === 0 ? (
@@ -1333,6 +1304,8 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
           {/* Bottom spacer for floating bar */}
           <div className="h-24" />
         </div>
+        </>
+        )}
       </div>
 
       {/* Fullscreen lightbox — rendered via portal to escape panel stacking context */}
