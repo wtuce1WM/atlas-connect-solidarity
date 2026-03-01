@@ -15,6 +15,7 @@ import tripadvisorLogo from "@/assets/tripadvisor-logo.png";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import ShareButton from "@/components/ShareButton";
 import BookmarkButton from "@/components/BookmarkButton";
+import { FacebookIcon, InstagramIcon, LinkedInIcon, YouTubeIcon, TikTokIcon, TwitterIcon, PinterestIcon, VimeoIcon } from "@/components/staff/SocialMediaIcons";
 
 
 interface BusinessSlidePanelProps {
@@ -648,6 +649,28 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                 )}
               </div>
             </div>
+            {/* Social media icons */}
+            {(() => {
+              const socials = [
+                { url: business.facebook_url, color: "#1877F2", icon: <FacebookIcon className="h-3.5 w-3.5" /> },
+                { url: business.instagram_url, color: "#E4405F", icon: <InstagramIcon className="h-3.5 w-3.5" /> },
+                { url: business.linkedin_url, color: "#0A66C2", icon: <LinkedInIcon className="h-3.5 w-3.5" /> },
+                { url: business.youtube_url, color: "#FF0000", icon: <YouTubeIcon className="h-3.5 w-3.5" /> },
+                { url: business.tiktok_url, color: "#000000", icon: <TikTokIcon className="h-3.5 w-3.5" /> },
+                { url: business.twitter_url, color: "#000000", icon: <TwitterIcon className="h-3.5 w-3.5" /> },
+                { url: business.pinterest_url, color: "#E60023", icon: <PinterestIcon className="h-3.5 w-3.5" /> },
+                { url: business.vimeo_url, color: "#1AB7EA", icon: <VimeoIcon className="h-3.5 w-3.5" /> },
+              ].filter(s => s.url);
+              return socials.length > 0 ? (
+                <div className="flex items-center gap-1.5 shrink-0">
+                  {socials.map((s, i) => (
+                    <a key={i} href={s.url!} target="_blank" rel="noopener noreferrer" style={{ color: s.color }} className="hover:opacity-70 transition-opacity">
+                      {s.icon}
+                    </a>
+                  ))}
+                </div>
+              ) : null;
+            })()}
             {business.logo_url && (
               <div
                 className="w-10 h-10 p-1 rounded-md border border-border flex items-center justify-center shrink-0"
