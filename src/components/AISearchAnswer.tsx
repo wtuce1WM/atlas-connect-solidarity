@@ -276,7 +276,7 @@ const AISearchAnswer = ({ query, businesses, isSearchLoading, onAnswerReady }: A
 
       {/* Slide-in panel — right half or full width */}
       {isPanelOpen && (
-        <div className={`fixed top-0 right-0 z-[100] h-full bg-background shadow-2xl border-l border-border overflow-hidden transition-all duration-500 ease-out ${isPanelExpanded ? "w-full" : "w-1/2"}`}>
+        <div className={`fixed top-0 right-0 z-[100] h-full bg-background shadow-2xl border-l border-border overflow-hidden transition-all duration-500 ease-out animate-slide-in-right ${isPanelExpanded ? "w-full" : "w-1/2"}`}>
           <div className="absolute top-20 left-4 z-[999] flex items-center gap-3">
             <button
               onClick={() => { setSelectedBusiness(null); setIsPanelExpanded(false); }}
