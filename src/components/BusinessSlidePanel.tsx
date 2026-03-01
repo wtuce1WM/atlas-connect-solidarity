@@ -381,6 +381,21 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
       {/* Portal action icons into the fixed bar */}
       {toolbarPortal && createPortal(
         <>
+          {business.whatsapp && (
+            <a href={`https://wa.me/${business.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="hover:opacity-70 transition-opacity" style={{ color: "#25D366" }}>
+              <WhatsAppIcon className="h-6 w-6" />
+            </a>
+          )}
+          {business.skype && (
+            <a href={`skype:${business.skype}?chat`} target="_blank" rel="noopener noreferrer" className="hover:opacity-70 transition-opacity" style={{ color: "#00AFF0" }}>
+              <SkypeIcon className="h-6 w-6" />
+            </a>
+          )}
+          {business.phone && (
+            <a href={`tel:${business.phone}`} className="hover:opacity-70 transition-opacity" style={{ color: "#404040" }}>
+              <Phone className="h-6 w-6" />
+            </a>
+          )}
           <ShareButton title={business.name} variant="dark" className="toolbar-icon" />
           <BookmarkButton businessId={business.id} variant="gold" onLoginRequired={() => setShowClubCard(true)} />
           <button
@@ -649,24 +664,6 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                 )}
               </div>
             </div>
-            {/* Contact icons - centered */}
-            {(() => {
-              const contacts = [
-                { url: business.whatsapp ? `https://wa.me/${business.whatsapp.replace(/[^0-9]/g, '')}` : null, color: "#25D366", icon: <WhatsAppIcon className="h-6 w-6" /> },
-                { url: business.skype ? `skype:${business.skype}?chat` : null, color: "#00AFF0", icon: <SkypeIcon className="h-6 w-6" /> },
-                { url: business.phone ? `tel:${business.phone}` : null, color: "#404040", icon: <Phone className="h-6 w-6" /> },
-              ].filter(s => s.url);
-              return contacts.length > 0 ? (
-                <div className="flex items-center gap-4 shrink-0">
-                  {contacts.map((s, i) => (
-                    <a key={i} href={s.url!} target="_blank" rel="noopener noreferrer" style={{ color: s.color }} className="hover:opacity-70 transition-opacity">
-                      {s.icon}
-                    </a>
-                  ))}
-                </div>
-              ) : null;
-            })()}
-            <div className="w-px h-6 bg-border shrink-0" />
             {/* Social media icons */}
             {(() => {
               const socials = [
