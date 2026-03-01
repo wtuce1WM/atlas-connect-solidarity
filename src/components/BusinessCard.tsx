@@ -1,3 +1,4 @@
+import { useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +9,7 @@ import { collectRatingSources, computeWeightedRatingOn20, getTotalReviewCount as
 import { isOpenDuringSlot, getOpeningTimeForSlot, type TimeSlot } from "@/lib/timeSlots";
 import { isCurrentlyOpen, type DayHoursData } from "@/lib/formatOpeningHours";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface BusinessCardData {
   id: string;
@@ -172,23 +174,43 @@ const BusinessCard = ({
   const hasMapData = business.google_maps_url || (business.latitude && business.longitude);
   const businessImage = getBusinessImage(business);
 
-  const buildCardSynthesis = () => {
+  const buildCardSynthesis = useCallback(async () => {
+    // Fetch description + ai_review_summary from DB
+    const { data } = await supabase
+      .from("businesses")
+      .select("description, ai_review_summary")
+      .eq("id", business.id)
+      .single();
+
     const parts: string[] = [];
     parts.push(`${business.name}, situé à ${business.city}${business.neighborhood ? `, quartier ${business.neighborhood}` : ""}.`);
     if (business.default_service) {
       parts.push(`Leur spécialité : ${business.default_service}.`);
     }
-    if (business.hook_fr) {
-      parts.push(business.hook_fr.replace(/<[^>]+>/g, ""));
+
+    // Description nettoyée
+    if (data?.description) {
+      const clean = data.description.replace(/<[^>]+>/g, "").trim();
+      if (clean.length > 0) {
+        // Limiter à ~200 caractères pour rester dans les 30s
+        parts.push(clean.length > 200 ? clean.slice(0, 200) + "…" : clean);
+      }
     }
-    if (business.categories && business.categories.length > 0) {
-      parts.push(`Catégorie : ${business.categories.join(", ")}.`);
+
+    // Synthèse des avis
+    const summary = data?.ai_review_summary as { pros?: string[]; cons?: string[] } | null;
+    if (summary?.pros && summary.pros.length > 0) {
+      parts.push(`Les clients apprécient : ${summary.pros.slice(0, 3).join(", ")}.`);
     }
+    if (summary?.cons && summary.cons.length > 0) {
+      parts.push(`Points à améliorer : ${summary.cons.slice(0, 2).join(", ")}.`);
+    }
+
     if (displayRating) {
-      parts.push(`Note : ${displayRating} sur 20, basée sur ${totalReviews} avis.`);
+      parts.push(`Note globale : ${displayRating} sur 20, basée sur ${totalReviews} avis.`);
     }
     return parts.join(" ");
-  };
+  }, [business, displayRating, totalReviews]);
 
   // Check if business is open during the active time slot OR right now
   const openingHoursTyped = (business.opening_hours as Record<string, DayHoursData>) || null;
@@ -332,7 +354,7 @@ const BusinessCard = ({
                   if (ttsStatus === "playing" || ttsStatus === "loading") {
                     ttsStop();
                   } else {
-                    ttsSpeak(buildCardSynthesis());
+                    buildCardSynthesis().then(text => ttsSpeak(text));
                   }
                 }}
                 className={`p-1 rounded-full transition-colors ${ttsStatus === "playing" || ttsStatus === "loading" ? "bg-gold/20 text-gold" : "hover:bg-muted text-muted-foreground"}`}
