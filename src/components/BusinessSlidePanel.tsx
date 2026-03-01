@@ -163,6 +163,8 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
   const [activeTab, setActiveTab] = useState<string>("apercu");
   const [showStickyTabs, setShowStickyTabs] = useState(false);
   const [showPdfViewer, setShowPdfViewer] = useState(false);
+  const [pdfBlobUrl, setPdfBlobUrl] = useState<string | null>(null);
+  const [pdfLoading, setPdfLoading] = useState(false);
 
   const handleFullscreen = useCallback(() => {
     // For native video, use the video element's fullscreen
@@ -971,7 +973,25 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                     <p className="font-semibold text-sm text-foreground">{business.pdf_url ? (business.pdf_name || "Document") : "Menu"}</p>
                     {business.pdf_url ? (
                       <button
-                        onClick={() => setShowPdfViewer(true)}
+                        onClick={async () => {
+                          setShowPdfViewer(true);
+                          setPdfLoading(true);
+                          try {
+                            const proxyUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/pdf-proxy?url=${encodeURIComponent(business.pdf_url!)}`;
+                            const res = await fetch(proxyUrl);
+                            if (!res.ok) throw new Error("Fetch failed");
+                            const blob = await res.blob();
+                            const url = URL.createObjectURL(blob);
+                            setPdfBlobUrl(url);
+                          } catch (err) {
+                            console.error("PDF proxy error:", err);
+                            // Fallback: open in new tab
+                            window.open(business.pdf_url!, "_blank");
+                            setShowPdfViewer(false);
+                          } finally {
+                            setPdfLoading(false);
+                          }
+                        }}
                         className="text-sm text-muted-foreground hover:text-foreground transition-colors mt-0.5 block"
                       >
                         {business.pdf_name || "Voir le document"} <ExternalLink className="inline h-3 w-3 ml-0.5" />
@@ -1451,18 +1471,33 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
               Ouvrir dans un nouvel onglet <ExternalLink className="inline h-3 w-3 ml-0.5" />
             </a>
             <button
-              onClick={() => setShowPdfViewer(false)}
+              onClick={() => {
+                setShowPdfViewer(false);
+                if (pdfBlobUrl) {
+                  URL.revokeObjectURL(pdfBlobUrl);
+                  setPdfBlobUrl(null);
+                }
+              }}
               className="p-1.5 rounded-full hover:bg-muted transition-colors shrink-0"
             >
               <X className="h-5 w-5" />
             </button>
           </div>
-          <embed
-            src={business.pdf_url + "#toolbar=1&navpanes=0"}
-            type="application/pdf"
-            className="flex-1 w-full"
-            title={business.pdf_name || "Document PDF"}
-          />
+          {pdfLoading ? (
+            <div className="flex-1 flex items-center justify-center">
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            </div>
+          ) : pdfBlobUrl ? (
+            <iframe
+              src={pdfBlobUrl}
+              className="flex-1 w-full border-0"
+              title={business.pdf_name || "Document PDF"}
+            />
+          ) : (
+            <div className="flex-1 flex items-center justify-center text-muted-foreground text-sm">
+              Impossible de charger le PDF
+            </div>
+          )}
         </div>
       )}
     </div>
