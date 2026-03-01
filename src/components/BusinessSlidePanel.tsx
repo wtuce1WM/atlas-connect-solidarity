@@ -883,7 +883,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                   <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-background to-transparent pointer-events-none" />
                 )}
               </div>
-              {!isDescriptionExpanded && business.description.replace(/<[^>]+>/g, "").length > 1000 && (
+              {!isDescriptionExpanded && (business.description?.length ?? 0) > 500 && (
                 <button
                   onClick={() => setIsDescriptionExpanded(true)}
                   className="w-[20%] py-2 rounded-lg border border-border bg-muted/50 text-sm font-semibold text-muted-foreground hover:bg-muted transition-colors"
