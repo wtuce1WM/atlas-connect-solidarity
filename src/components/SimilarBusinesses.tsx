@@ -57,18 +57,15 @@ const SimilarBusinesses = ({ currentBusinessId, categories, city, onNavigate }: 
         .limit(50);
 
       if (!error && data) {
-        // Sort client-side: verified first, then by computed rating desc
         const sorted = (data as SimilarBusiness[]).sort((a, b) => {
-          // Verified first
           const aV = a.wtuce_status === "verified" ? 1 : 0;
           const bV = b.wtuce_status === "verified" ? 1 : 0;
           if (bV !== aV) return bV - aV;
-          // Then by computed rating desc
           const aRating = a.rating ?? computeWeightedRatingOn20(collectRatingSources(a)) ?? 0;
           const bRating = b.rating ?? computeWeightedRatingOn20(collectRatingSources(b)) ?? 0;
           return bRating - aRating;
         });
-        setBusinesses(sorted.slice(0, 9));
+        setBusinesses(sorted.slice(0, 12));
         setTotalCount(count ?? data.length);
       }
       setIsLoading(false);
@@ -113,28 +110,28 @@ const SimilarBusinesses = ({ currentBusinessId, categories, city, onNavigate }: 
                   onNavigate(biz.id);
                 }
               }}
-              className="group overflow-hidden rounded-xl border border-gold/20 shadow-sm hover:shadow-md transition-shadow"
+              className="group overflow-hidden rounded-xl border border-gold/20 shadow-sm hover:shadow-md transition-shadow aspect-square relative"
             >
-              {/* Image */}
+              {/* Background image */}
               {img && (
-                <div className="h-20 w-full overflow-hidden">
-                  <img src={img} alt={biz.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                </div>
+                <img src={img} alt={biz.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
               )}
+              {/* Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
-              {/* Info */}
-              <div className="p-2 space-y-1">
-                <p className="font-semibold text-[11px] text-foreground leading-tight line-clamp-2">{biz.name}</p>
-                <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+              {/* Info at bottom */}
+              <div className="absolute bottom-0 left-0 right-0 p-2 space-y-0.5">
+                <p className="font-semibold text-[11px] text-white leading-tight line-clamp-2">{biz.name}</p>
+                <div className="flex items-center gap-1 text-[10px] text-white/80">
                   <MapPin className="h-2.5 w-2.5 shrink-0" />
                   <span className="truncate">{biz.city}{biz.neighborhood ? ` · ${biz.neighborhood}` : ""}</span>
                 </div>
                 {avgOn20 && (
                   <div className="flex items-center gap-1 text-[10px]">
                     <Star className="h-2.5 w-2.5 text-gold fill-gold" />
-                    <span className="font-medium text-foreground">{avgOn20}/20</span>
+                    <span className="font-medium text-white">{avgOn20}/20</span>
                     {totalReviews > 0 && (
-                      <span className="text-muted-foreground">· {totalReviews} avis</span>
+                      <span className="text-white/70">· {totalReviews} avis</span>
                     )}
                   </div>
                 )}
