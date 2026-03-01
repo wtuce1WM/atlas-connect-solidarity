@@ -279,8 +279,10 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   const navigateToTab = useCallback((tabId: string) => {
     setActiveTab(tabId);
     isScrollingToTabRef.current = true;
-    // Force sticky tabs visible when scrolling to any section below apercu
-    if (tabId !== "apercu") {
+    // Force sticky tabs visible/hidden depending on direction
+    if (tabId === "apercu") {
+      setShowStickyTabs(false);
+    } else {
       setShowStickyTabs(true);
     }
 
