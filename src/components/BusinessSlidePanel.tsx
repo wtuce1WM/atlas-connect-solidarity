@@ -652,14 +652,14 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
             {/* Social media icons */}
             {(() => {
               const socials = [
-                { url: business.facebook_url, color: "#1877F2", icon: <FacebookIcon className="h-5 w-5" /> },
-                { url: business.instagram_url, color: "#E4405F", icon: <InstagramIcon className="h-5 w-5" /> },
-                { url: business.linkedin_url, color: "#0A66C2", icon: <LinkedInIcon className="h-5 w-5" /> },
-                { url: business.youtube_url, color: "#FF0000", icon: <YouTubeIcon className="h-5 w-5" /> },
-                { url: business.tiktok_url, color: "#000000", icon: <TikTokIcon className="h-5 w-5" /> },
-                { url: business.twitter_url, color: "#000000", icon: <TwitterIcon className="h-5 w-5" /> },
-                { url: business.pinterest_url, color: "#E60023", icon: <PinterestIcon className="h-5 w-5" /> },
-                { url: business.vimeo_url, color: "#1AB7EA", icon: <VimeoIcon className="h-5 w-5" /> },
+                { url: business.facebook_url, color: "#1877F2", icon: <FacebookIcon className="h-6 w-6" /> },
+                { url: business.instagram_url, color: "#E4405F", icon: <InstagramIcon className="h-6 w-6" /> },
+                { url: business.linkedin_url, color: "#0A66C2", icon: <LinkedInIcon className="h-6 w-6" /> },
+                { url: business.youtube_url, color: "#FF0000", icon: <YouTubeIcon className="h-6 w-6" /> },
+                { url: business.tiktok_url, color: "#000000", icon: <TikTokIcon className="h-6 w-6" /> },
+                { url: business.twitter_url, color: "#000000", icon: <TwitterIcon className="h-6 w-6" /> },
+                { url: business.pinterest_url, color: "#E60023", icon: <PinterestIcon className="h-6 w-6" /> },
+                { url: business.vimeo_url, color: "#1AB7EA", icon: <VimeoIcon className="h-6 w-6" /> },
               ].filter(s => s.url);
               return socials.length > 0 ? (
                 <div className="flex items-center gap-1.5 shrink-0">
