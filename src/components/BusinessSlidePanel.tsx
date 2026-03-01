@@ -15,6 +15,8 @@ import tripadvisorLogo from "@/assets/tripadvisor-logo.png";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import ShareButton from "@/components/ShareButton";
 import BookmarkButton from "@/components/BookmarkButton";
+import SimilarBusinesses from "@/components/SimilarBusinesses";
+import { Separator } from "@/components/ui/separator";
 import { FacebookIcon, InstagramIcon, LinkedInIcon, YouTubeIcon, TikTokIcon, TwitterIcon, PinterestIcon, VimeoIcon } from "@/components/staff/SocialMediaIcons";
 
 
@@ -1311,21 +1313,32 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
 
           {/* Services */}
           {business.services && business.services.length > 0 && (
-            <div ref={servicesSectionRef} className="space-y-1.5 scroll-mt-28">
-              <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Services</h3>
-              <div className="flex flex-wrap gap-1.5">
-                {business.services.slice(0, 12).map(s => (
-                  <span key={s} className="px-2 py-0.5 rounded-full text-xs bg-gold/10 text-gold border border-gold/20">
-                    {s}
-                  </span>
-                ))}
-                {business.services.length > 12 && (
-                  <span className="px-2 py-0.5 text-xs text-muted-foreground">+{business.services.length - 12}</span>
-                )}
+            <>
+              <Separator />
+              <div ref={servicesSectionRef} className="space-y-1.5 scroll-mt-28">
+                <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Services</h3>
+                <div className="flex flex-wrap gap-1.5">
+                  {business.services.slice(0, 12).map(s => (
+                    <span key={s} className="px-2 py-0.5 rounded-full text-xs bg-gold/10 text-gold border border-gold/20">
+                      {s}
+                    </span>
+                  ))}
+                  {business.services.length > 12 && (
+                    <span className="px-2 py-0.5 text-xs text-muted-foreground">+{business.services.length - 12}</span>
+                  )}
+                </div>
               </div>
-            </div>
+              <Separator />
+            </>
           )}
 
+          {/* Similar businesses */}
+          <SimilarBusinesses
+            currentBusinessId={business.id}
+            categories={business.categories}
+            city={business.city}
+          />
+          <Separator />
 
           {/* Bottom spacer for floating bar */}
           <div className="h-24" />
