@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { X, MapPin, Phone, Mail, Globe, Star, BadgeCheck, ChevronLeft, ChevronRight, Clock, Loader2, ExternalLink, CookingPot, Volume2, VolumeX, Maximize, Play, Pause, Headphones, Mic, Maximize2, Minimize2, Navigation } from "lucide-react";
-import { useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Link, useNavigate } from "react-router-dom";
@@ -357,33 +357,38 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
     }
   }
 
+  const toolbarPortal = document.getElementById("slide-panel-toolbar");
+
   return (
     <div className="flex flex-col h-full">
-      {/* Fixed toolbar with action icons */}
-      <div className="shrink-0 flex items-center gap-3 px-4 py-2 bg-background border-b border-border">
-        <ShareButton title={business.name} variant="dark" />
-        <BookmarkButton businessId={business.id} variant="gold" onLoginRequired={() => setShowClubCard(true)} />
-        <button
-          onClick={() => {
-            if (ttsStatus === "playing" || ttsStatus === "loading") {
-              ttsStop();
-              voiceLoopRef.current = false;
-            } else {
-              voiceLoopRef.current = true;
-              const synthesis = buildTtsSynthesis();
-              ttsSpeak(synthesis + " … Vous pouvez me poser une autre question.");
-            }
-          }}
-          className={`p-1.5 rounded-full transition-colors ${ttsStatus === "playing" || ttsStatus === "loading" ? "bg-gold/20 text-gold" : "hover:bg-muted text-muted-foreground"}`}
-          title={ttsStatus === "playing" ? "Arrêter la lecture" : "Écouter la synthèse"}
-        >
-          {ttsStatus === "loading" ? (
-            <Loader2 className="h-5 w-5 animate-spin" />
-          ) : (
-            <Headphones className="h-5 w-5" />
-          )}
-        </button>
-      </div>
+      {/* Portal action icons into the fixed bar */}
+      {toolbarPortal && createPortal(
+        <>
+          <ShareButton title={business.name} variant="dark" />
+          <BookmarkButton businessId={business.id} variant="gold" onLoginRequired={() => setShowClubCard(true)} />
+          <button
+            onClick={() => {
+              if (ttsStatus === "playing" || ttsStatus === "loading") {
+                ttsStop();
+                voiceLoopRef.current = false;
+              } else {
+                voiceLoopRef.current = true;
+                const synthesis = buildTtsSynthesis();
+                ttsSpeak(synthesis + " … Vous pouvez me poser une autre question.");
+              }
+            }}
+            className={`p-1.5 rounded-full transition-colors ${ttsStatus === "playing" || ttsStatus === "loading" ? "bg-gold/20 text-gold" : "hover:bg-muted text-muted-foreground"}`}
+            title={ttsStatus === "playing" ? "Arrêter la lecture" : "Écouter la synthèse"}
+          >
+            {ttsStatus === "loading" ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <Headphones className="h-5 w-5" />
+            )}
+          </button>
+        </>,
+        toolbarPortal
+      )}
       {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto">
         {/* Image display */}
