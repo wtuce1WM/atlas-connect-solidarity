@@ -34,7 +34,7 @@ serve(async (req) => {
     const truncatedText = text.slice(0, 5000);
 
     // Default voice: Sarah (feminine, warm, multilingual)
-    const selectedVoice = voiceId || "egTToTzW6GojvddLj0zd";
+    const selectedVoice = voiceId || "l4Coq6695JDX9xtLqXDE";
 
     const response = await fetch(
       `https://api.elevenlabs.io/v1/text-to-speech/${selectedVoice}?output_format=mp3_44100_128`,
