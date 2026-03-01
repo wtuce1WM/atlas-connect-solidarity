@@ -509,7 +509,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
             )}
             {isExpanded && images.length >= 5 ? (
               /* Multi-image collage grid for expanded mode */
-              <div className="relative w-full bg-muted flex-shrink-0 overflow-hidden rounded-xl" style={{ height: 420 }}>
+              <div className="relative w-full bg-muted flex-shrink-0 rounded-xl overflow-hidden aspect-[16/9]">
                 <div className="grid grid-cols-2 gap-1.5 h-full">
                   {/* Large image left */}
                   <div 
