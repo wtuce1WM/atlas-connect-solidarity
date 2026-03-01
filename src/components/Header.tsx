@@ -54,11 +54,7 @@ const Header = ({ variant = "default" }: HeaderProps) => {
       {/* Dropdown Menu */}
       {isMenuOpen && (
         <div
-          className="border-t border-border border-b border-b-foreground bg-transparent"
-          style={{
-            background:
-              "linear-gradient(to bottom, hsl(var(--foreground) / 0.08), hsl(var(--foreground) / 0))",
-          }}
+          className="border-t border-border bg-background"
         >
           <nav className="container mx-auto flex flex-col items-center gap-4 px-4 py-6">
             <Link to="/mission" className="text-foreground transition-colors hover:text-gold">
