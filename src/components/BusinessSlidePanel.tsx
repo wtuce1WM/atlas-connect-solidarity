@@ -88,6 +88,8 @@ interface FullBusiness {
   other_booking_name: string | null;
   other_booking_url: string | null;
   menu_url: string | null;
+  pdf_url: string | null;
+  pdf_name: string | null;
   video_1_url: string | null;
   default_service: string | null;
   ai_review_summary: any;
@@ -160,6 +162,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
   const tabsSentinelRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState<string>("apercu");
   const [showStickyTabs, setShowStickyTabs] = useState(false);
+  const [showPdfViewer, setShowPdfViewer] = useState(false);
 
   const handleFullscreen = useCallback(() => {
     // For native video, use the video element's fullscreen
@@ -960,15 +963,24 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                 </div>
               )}
 
-              {/* Menu */}
-              {business.menu_url && (
+              {/* Menu / PDF */}
+              {(business.pdf_url || business.menu_url) && (
                 <div className="flex items-start gap-3">
                   <CookingPot className="h-5 w-5 shrink-0 mt-0.5 text-foreground" />
                   <div>
-                    <p className="font-semibold text-sm text-foreground">Menu</p>
-                    <a href={business.menu_url} target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground transition-colors mt-0.5 block">
-                      Voir le menu <ExternalLink className="inline h-3 w-3 ml-0.5" />
-                    </a>
+                    <p className="font-semibold text-sm text-foreground">{business.pdf_url ? (business.pdf_name || "Document") : "Menu"}</p>
+                    {business.pdf_url ? (
+                      <button
+                        onClick={() => setShowPdfViewer(true)}
+                        className="text-sm text-muted-foreground hover:text-foreground transition-colors mt-0.5 block"
+                      >
+                        {business.pdf_name || "Voir le document"} <ExternalLink className="inline h-3 w-3 ml-0.5" />
+                      </button>
+                    ) : (
+                      <a href={business.menu_url!} target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground transition-colors mt-0.5 block">
+                        Voir le menu <ExternalLink className="inline h-3 w-3 ml-0.5" />
+                      </a>
+                    )}
                   </div>
                 </div>
               )}
@@ -1422,6 +1434,26 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
               </p>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* PDF Viewer popup — covers the panel */}
+      {showPdfViewer && business?.pdf_url && (
+        <div className="absolute inset-0 z-50 bg-background flex flex-col">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+            <h3 className="font-semibold text-sm truncate">{business.pdf_name || "Document"}</h3>
+            <button
+              onClick={() => setShowPdfViewer(false)}
+              className="p-1.5 rounded-full hover:bg-muted transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+          <iframe
+            src={business.pdf_url}
+            className="flex-1 w-full"
+            title={business.pdf_name || "Document PDF"}
+          />
         </div>
       )}
     </div>
