@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from "react";
-import { Sparkles, Loader2, MapPin, Star, X, Maximize2, Minimize2 } from "lucide-react";
+import { Sparkles, Loader2, MapPin, Star, X, Maximize2, Minimize2, AArrowUp, AArrowDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
@@ -118,15 +118,15 @@ const BusinessHoverCard = ({ name, business, onClickBusiness }: { name: string; 
   );
 };
 
-// Format AI answer
+// Format AI answer with paragraph spacing
 const formatAnswer = (text: string, businesses: BusinessData[], onClickBusiness: (b: BusinessData) => void) => {
   // Normalize bold markers that span across newlines by removing inner newlines
   const normalized = text.replace(/\*\*([^*]*?)\*\*/gs, (_, inner) => {
     return `**${inner.replace(/\n/g, " ")}**`;
   });
 
-  // Split on double newlines into paragraphs
-  const paragraphs = normalized.split(/\n{2,}/);
+  // Split on double newlines into paragraphs, also treat single newlines as soft paragraphs
+  const paragraphs = normalized.split(/\n+/).filter(s => s.trim());
 
   const parseLine = (line: string, lineIdx: number) => {
     const parts = line.split(/\*\*(.+?)\*\*/g);
@@ -136,18 +136,16 @@ const formatAnswer = (text: string, businesses: BusinessData[], onClickBusiness:
         if (match) {
           return <BusinessHoverCard key={`${lineIdx}-${j}`} name={part} business={match} onClickBusiness={onClickBusiness} />;
         }
-        return <strong key={`${lineIdx}-${j}`} className="text-base font-semibold text-foreground">{part}</strong>;
+        return <strong key={`${lineIdx}-${j}`} className="font-semibold text-foreground">{part}</strong>;
       }
       return <span key={`${lineIdx}-${j}`}>{part}</span>;
     });
   };
 
-  // Build elements: each paragraph separated by double <br>, single \n preserved via whitespace-pre-line on container
   return paragraphs.map((para, i) => (
-    <span key={i}>
-      {i > 0 && <><br /><br /></>}
+    <p key={i} className="mb-3 last:mb-0 leading-relaxed">
       {parseLine(para, i)}
-    </span>
+    </p>
   ));
 };
 
@@ -158,6 +156,7 @@ const AISearchAnswer = ({ query, businesses, isSearchLoading, onAnswerReady }: A
   const [isDismissed, setIsDismissed] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedBusiness, setSelectedBusiness] = useState<BusinessData | null>(null);
+  const [fontSize, setFontSize] = useState(0); // -1 = small, 0 = normal, 1 = large
   const fetchIdRef = useRef(0);
   const lastFetchKeyRef = useRef("");
 
@@ -270,11 +269,29 @@ const AISearchAnswer = ({ query, businesses, isSearchLoading, onAnswerReady }: A
                 {language === "en" ? "AI Suggestion" : language === "ar" ? "اقتراح ذكي" : "Suggestion IA"}
               </span>
             </div>
-            {isPanelOpen && (
-              <button onClick={() => setSelectedBusiness(null)} className="ml-auto p-1 rounded-full hover:bg-muted transition-colors">
-                <X className="h-4 w-4 text-muted-foreground" />
+            <div className="ml-auto flex items-center gap-1">
+              <button
+                onClick={() => setFontSize(prev => Math.max(prev - 1, -1))}
+                disabled={fontSize <= -1}
+                className="p-1 rounded hover:bg-muted transition-colors disabled:opacity-30"
+                title={language === "en" ? "Smaller text" : "Réduire le texte"}
+              >
+                <AArrowDown className="h-3.5 w-3.5 text-muted-foreground" />
               </button>
-            )}
+              <button
+                onClick={() => setFontSize(prev => Math.min(prev + 1, 1))}
+                disabled={fontSize >= 1}
+                className="p-1 rounded hover:bg-muted transition-colors disabled:opacity-30"
+                title={language === "en" ? "Larger text" : "Agrandir le texte"}
+              >
+                <AArrowUp className="h-3.5 w-3.5 text-muted-foreground" />
+              </button>
+              {isPanelOpen && (
+                <button onClick={() => setSelectedBusiness(null)} className="p-1 rounded-full hover:bg-muted transition-colors ml-1">
+                  <X className="h-4 w-4 text-muted-foreground" />
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Content */}
@@ -287,7 +304,9 @@ const AISearchAnswer = ({ query, businesses, isSearchLoading, onAnswerReady }: A
                 </span>
               </div>
             ) : (
-              <div className="text-sm leading-relaxed text-foreground whitespace-pre-line">
+              <div className={`leading-relaxed text-foreground transition-all duration-200 ${
+                fontSize === -1 ? "text-xs" : fontSize === 1 ? "text-base" : "text-sm"
+              }`}>
                 {formatAnswer(answer, businesses, setSelectedBusiness)}
               </div>
             )}
