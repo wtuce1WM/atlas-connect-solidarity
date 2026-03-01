@@ -277,20 +277,22 @@ const AISearchAnswer = ({ query, businesses, isSearchLoading, onAnswerReady }: A
       {/* Slide-in panel — right half or full width */}
       {isPanelOpen && (
         <div className={`fixed top-0 right-0 z-[100] h-full bg-background shadow-2xl border-l border-border overflow-hidden transition-all duration-500 ease-out ${isPanelExpanded ? "w-full" : "w-1/2"}`}>
-          <div className="absolute top-3 left-3 z-[300] flex items-center gap-2">
+          <div className="absolute top-4 left-4 z-[999] flex items-center gap-3">
             <button
               onClick={() => { setSelectedBusiness(null); setIsPanelExpanded(false); }}
-              className="p-2 rounded-full bg-background border border-border shadow-md hover:bg-muted transition-colors"
+              className="h-11 w-11 flex items-center justify-center rounded-full bg-primary text-primary-foreground border-2 border-background shadow-2xl hover:opacity-90 transition-opacity"
               title="Fermer"
+              aria-label="Fermer le panneau"
             >
-              <X className="h-5 w-5 text-foreground" />
+              <X className="h-5 w-5" />
             </button>
             <button
               onClick={() => setIsPanelExpanded(prev => !prev)}
-              className="p-2 rounded-full bg-background border border-border shadow-md hover:bg-muted transition-colors"
+              className="h-11 w-11 flex items-center justify-center rounded-full bg-primary text-primary-foreground border-2 border-background shadow-2xl hover:opacity-90 transition-opacity"
               title={isPanelExpanded ? "Réduire" : "Agrandir"}
+              aria-label={isPanelExpanded ? "Réduire le panneau" : "Agrandir le panneau"}
             >
-              {isPanelExpanded ? <Minimize2 className="h-5 w-5 text-foreground" /> : <Maximize2 className="h-5 w-5 text-foreground" />}
+              {isPanelExpanded ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
             </button>
           </div>
 
