@@ -376,120 +376,169 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
 
       {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto">
-        {/* Image carousel */}
+        {/* Image display */}
         {mediaCount > 0 && (
-          <div ref={mediaContainerRef} className="relative w-full aspect-[16/9] bg-muted cursor-pointer" onClick={() => { if (!(hasVideo && currentImageIndex === 0)) setIsLightboxOpen(true); }}>
-            {hasVideo && currentImageIndex === 0 ? (
-              (() => {
-                const url = business.video_1_url!;
-                const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]+)/);
-                if (ytMatch) {
-                   return (
-                    <iframe
-                      key={`yt-${isVideoMuted}`}
-                      src={`https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&mute=${isVideoMuted ? 1 : 0}&loop=1&playlist=${ytMatch[1]}&controls=0&modestbranding=1&rel=0`}
-                      className="w-full h-full"
-                      allow="autoplay; encrypted-media"
-                      allowFullScreen
-                      frameBorder="0"
-                      onError={() => setVideoError(true)}
-                    />
-                  );
-                }
-                const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
-                if (vimeoMatch) {
-                   return (
-                    <iframe
-                      key={`vi-${isVideoMuted}`}
-                      src={`https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1&muted=${isVideoMuted ? 1 : 0}&loop=1&background=${isVideoMuted ? 1 : 0}`}
-                      className="w-full h-full"
-                      allow="autoplay; encrypted-media"
-                      allowFullScreen
-                      frameBorder="0"
-                      onError={() => setVideoError(true)}
-                    />
-                  );
-                }
-                return (
-                  <video
-                    ref={videoRef}
-                    src={url}
-                    autoPlay
-                    muted={isVideoMuted}
-                    loop
-                    playsInline
-                    className="w-full h-full object-cover"
-                    onError={() => setVideoError(true)}
-                  />
-                );
-              })()
-            ) : (
-              <img
-                src={images[currentImageIndex - videoOffset]}
-                alt={`${business.name} - ${currentImageIndex - videoOffset + 1}`}
-                className="w-full h-full object-cover"
-              />
-            )}
-            {/* Video controls: Mute + Fullscreen */}
-            {hasVideo && currentImageIndex === 0 && (
-              <div className="absolute bottom-3 right-3 flex items-center gap-2 z-10">
-                {/* Play/Pause for native video (not YouTube/Vimeo) */}
-                {business.video_1_url && !business.video_1_url.match(/youtube\.com|youtu\.be|vimeo\.com/) && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (videoRef.current?.paused) {
-                        videoRef.current.play();
-                        setIsVideoPaused(false);
-                      } else {
-                        videoRef.current?.pause();
-                        setIsVideoPaused(true);
-                      }
-                    }}
-                    className="p-3 rounded-full bg-background/80 hover:bg-background transition-colors shadow-lg"
-                    title={isVideoPaused ? "Lecture" : "Pause"}
+          <>
+            {isExpanded && images.length >= 5 ? (
+              /* Multi-image collage grid for expanded mode */
+              <div className="relative w-full aspect-[2.5/1] bg-muted">
+                <div className="grid grid-cols-2 gap-1 h-full">
+                  {/* Large image left */}
+                  <div 
+                    className="relative cursor-pointer overflow-hidden"
+                    onClick={() => { setCurrentImageIndex(videoOffset); setIsLightboxOpen(true); }}
                   >
-                    {isVideoPaused ? <Play className="h-5 w-5" /> : <Pause className="h-5 w-5" />}
-                  </button>
+                    <img
+                      src={images[0]}
+                      alt={`${business.name} - 1`}
+                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                    />
+                    {isVerified && !isInstitution && (
+                      <img src={logoGold} alt="WTUCE" className="absolute top-3 right-3 w-12 h-12 object-contain opacity-90 pointer-events-none drop-shadow-lg" />
+                    )}
+                  </div>
+                  {/* 4 smaller images right in 2x2 grid */}
+                  <div className="grid grid-cols-2 grid-rows-2 gap-1">
+                    {images.slice(1, 5).map((img, idx) => (
+                      <div
+                        key={idx}
+                        className="relative cursor-pointer overflow-hidden"
+                        onClick={() => { setCurrentImageIndex(videoOffset + idx + 1); setIsLightboxOpen(true); }}
+                      >
+                        <img
+                          src={img}
+                          alt={`${business.name} - ${idx + 2}`}
+                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                        />
+                        {/* "Voir les X photos" button on last image */}
+                        {idx === 3 && images.length > 5 && (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(videoOffset); setIsLightboxOpen(true); }}
+                            className="absolute bottom-3 right-3 px-3 py-1.5 rounded-full bg-background/90 text-xs font-medium text-foreground shadow-md hover:bg-background transition-colors"
+                          >
+                            {language === "en" ? `View all ${images.length} photos` : language === "ar" ? `عرض ${images.length} صور` : `Voir les ${images.length} photos`}
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              /* Standard carousel for non-expanded or few images */
+              <div ref={mediaContainerRef} className="relative w-full aspect-[16/9] bg-muted cursor-pointer" onClick={() => { if (!(hasVideo && currentImageIndex === 0)) setIsLightboxOpen(true); }}>
+                {hasVideo && currentImageIndex === 0 ? (
+                  (() => {
+                    const url = business.video_1_url!;
+                    const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]+)/);
+                    if (ytMatch) {
+                       return (
+                        <iframe
+                          key={`yt-${isVideoMuted}`}
+                          src={`https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&mute=${isVideoMuted ? 1 : 0}&loop=1&playlist=${ytMatch[1]}&controls=0&modestbranding=1&rel=0`}
+                          className="w-full h-full"
+                          allow="autoplay; encrypted-media"
+                          allowFullScreen
+                          frameBorder="0"
+                          onError={() => setVideoError(true)}
+                        />
+                      );
+                    }
+                    const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+                    if (vimeoMatch) {
+                       return (
+                        <iframe
+                          key={`vi-${isVideoMuted}`}
+                          src={`https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1&muted=${isVideoMuted ? 1 : 0}&loop=1&background=${isVideoMuted ? 1 : 0}`}
+                          className="w-full h-full"
+                          allow="autoplay; encrypted-media"
+                          allowFullScreen
+                          frameBorder="0"
+                          onError={() => setVideoError(true)}
+                        />
+                      );
+                    }
+                    return (
+                      <video
+                        ref={videoRef}
+                        src={url}
+                        autoPlay
+                        muted={isVideoMuted}
+                        loop
+                        playsInline
+                        className="w-full h-full object-cover"
+                        onError={() => setVideoError(true)}
+                      />
+                    );
+                  })()
+                ) : (
+                  <img
+                    src={images[currentImageIndex - videoOffset]}
+                    alt={`${business.name} - ${currentImageIndex - videoOffset + 1}`}
+                    className="w-full h-full object-cover"
+                  />
                 )}
-                <button
-                  onClick={(e) => { e.stopPropagation(); handleFullscreen(); }}
-                  className="p-3 rounded-full bg-background/80 hover:bg-background transition-colors shadow-lg"
-                  title="Plein écran"
-                >
-                  <Maximize className="h-5 w-5" />
-                </button>
-                <button
-                  onClick={(e) => { e.stopPropagation(); setIsVideoMuted(m => !m); }}
-                  className="p-3 rounded-full bg-background/80 hover:bg-background transition-colors shadow-lg"
-                >
-                  {isVideoMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
-                </button>
+                {/* Video controls: Mute + Fullscreen */}
+                {hasVideo && currentImageIndex === 0 && (
+                  <div className="absolute bottom-3 right-3 flex items-center gap-2 z-10">
+                    {business.video_1_url && !business.video_1_url.match(/youtube\.com|youtu\.be|vimeo\.com/) && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (videoRef.current?.paused) {
+                            videoRef.current.play();
+                            setIsVideoPaused(false);
+                          } else {
+                            videoRef.current?.pause();
+                            setIsVideoPaused(true);
+                          }
+                        }}
+                        className="p-3 rounded-full bg-background/80 hover:bg-background transition-colors shadow-lg"
+                        title={isVideoPaused ? "Lecture" : "Pause"}
+                      >
+                        {isVideoPaused ? <Play className="h-5 w-5" /> : <Pause className="h-5 w-5" />}
+                      </button>
+                    )}
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleFullscreen(); }}
+                      className="p-3 rounded-full bg-background/80 hover:bg-background transition-colors shadow-lg"
+                      title="Plein écran"
+                    >
+                      <Maximize className="h-5 w-5" />
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setIsVideoMuted(m => !m); }}
+                      className="p-3 rounded-full bg-background/80 hover:bg-background transition-colors shadow-lg"
+                    >
+                      {isVideoMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+                    </button>
+                  </div>
+                )}
+                {isVerified && !isInstitution && (
+                  <img src={logoGold} alt="WTUCE" className="absolute top-3 right-3 w-12 h-12 object-contain opacity-90 pointer-events-none drop-shadow-lg" />
+                )}
+                {mediaCount > 1 && (
+                  <>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(i => i === 0 ? mediaCount - 1 : i - 1); }}
+                      className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-background/80 hover:bg-background transition-colors shadow"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(i => i === mediaCount - 1 ? 0 : i + 1); }}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-background/80 hover:bg-background transition-colors shadow"
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
+                    <div className="absolute bottom-2 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full bg-background/80 text-xs text-foreground">
+                      {currentImageIndex + 1} / {mediaCount}
+                    </div>
+                  </>
+                )}
               </div>
             )}
-            {isVerified && !isInstitution && (
-              <img src={logoGold} alt="WTUCE" className="absolute top-3 right-3 w-12 h-12 object-contain opacity-90 pointer-events-none drop-shadow-lg" />
-            )}
-            {mediaCount > 1 && (
-              <>
-                <button
-                  onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(i => i === 0 ? mediaCount - 1 : i - 1); }}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-background/80 hover:bg-background transition-colors shadow"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </button>
-                <button
-                  onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(i => i === mediaCount - 1 ? 0 : i + 1); }}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-background/80 hover:bg-background transition-colors shadow"
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full bg-background/80 text-xs text-foreground">
-                  {currentImageIndex + 1} / {mediaCount}
-                </div>
-              </>
-            )}
-          </div>
+          </>
         )}
 
         <div className="p-5 space-y-5">
