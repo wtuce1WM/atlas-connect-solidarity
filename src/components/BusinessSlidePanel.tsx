@@ -1311,12 +1311,12 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
         </div>
       </div>
 
-      {/* Fullscreen lightbox — unified media (video at index 0 when present, then images) */}
-      {isLightboxOpen && mediaCount > 0 && (
-        <div className="fixed inset-0 z-[200] bg-black flex items-center justify-center" onClick={() => setIsLightboxOpen(false)}>
+      {/* Fullscreen lightbox — rendered via portal to escape panel stacking context */}
+      {isLightboxOpen && mediaCount > 0 && createPortal(
+        <div className="fixed inset-0 z-[9999] bg-black flex items-center justify-center" onClick={() => setIsLightboxOpen(false)}>
           <button
             onClick={(e) => { e.stopPropagation(); setIsLightboxOpen(false); }}
-            className="absolute top-20 left-6 z-20 flex items-center gap-2 px-4 py-2.5 rounded-full bg-white text-black font-semibold text-sm shadow-2xl hover:bg-white/90 transition-colors"
+            className="absolute top-6 left-6 z-20 flex items-center gap-2 px-4 py-2.5 rounded-full bg-white text-black font-semibold text-sm shadow-2xl hover:bg-white/90 transition-colors"
           >
             <X className="h-5 w-5" />
             <span>Fermer</span>
@@ -1381,7 +1381,8 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
               </div>
             </>
           )}
-        </div>
+        </div>,
+        document.body
       )}
       {/* Club signup floating overlay - centered in panel */}
       {showClubCard && (
