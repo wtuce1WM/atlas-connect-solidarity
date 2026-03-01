@@ -23,7 +23,6 @@ const BookmarkButton = ({ businessId, variant = "dark", onLoginRequired }: Bookm
 
   const handleClick = async () => {
     if (!isLoggedIn) {
-      toast({ title: t.login });
       if (onLoginRequired) {
         onLoginRequired();
       } else {
