@@ -58,7 +58,7 @@ const FloatingClubButton = ({ isOpen, onToggle }: FloatingClubButtonProps) => {
       <button
         onClick={onToggle}
         style={{ backgroundColor: "#6050DC" }}
-        className={`fixed ${isHome ? "bottom-6" : "bottom-4 md:bottom-6"} left-4 md:left-6 ${isOpen ? "z-[60]" : "z-30"} flex items-center gap-2 rounded-full px-4 md:px-5 py-2.5 md:py-3 text-white shadow-lg transition-all duration-300 hover:opacity-90 hover:shadow-xl hover:scale-105 active:scale-95`}
+        className={`fixed ${isHome ? "bottom-6" : "bottom-2 md:bottom-4"} left-4 md:left-6 ${isOpen ? "z-[60]" : "z-30"} flex items-center gap-2 rounded-full px-4 md:px-5 py-2.5 md:py-3 text-white shadow-lg transition-all duration-300 hover:opacity-90 hover:shadow-xl hover:scale-105 active:scale-95`}
         aria-label={t.club}
       >
         {isOpen ? (
