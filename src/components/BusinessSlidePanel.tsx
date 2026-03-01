@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { X, MapPin, Phone, Mail, Globe, Star, BadgeCheck, ChevronLeft, ChevronRight, Clock, Loader2, ExternalLink, CookingPot, Volume2, VolumeX } from "lucide-react";
+import { X, MapPin, Phone, Mail, Globe, Star, BadgeCheck, ChevronLeft, ChevronRight, Clock, Loader2, ExternalLink, CookingPot, Volume2, VolumeX, Maximize } from "lucide-react";
+import { useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Link } from "react-router-dom";
@@ -108,6 +109,28 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [isVideoMuted, setIsVideoMuted] = useState(true);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const mediaContainerRef = useRef<HTMLDivElement>(null);
+
+  const handleFullscreen = useCallback(() => {
+    // For native video, use the video element's fullscreen
+    if (videoRef.current) {
+      if (videoRef.current.requestFullscreen) {
+        videoRef.current.requestFullscreen();
+      } else if ((videoRef.current as any).webkitEnterFullscreen) {
+        (videoRef.current as any).webkitEnterFullscreen();
+      }
+      return;
+    }
+    // For iframes (YouTube/Vimeo), fullscreen the container
+    if (mediaContainerRef.current) {
+      if (mediaContainerRef.current.requestFullscreen) {
+        mediaContainerRef.current.requestFullscreen();
+      } else if ((mediaContainerRef.current as any).webkitRequestFullscreen) {
+        (mediaContainerRef.current as any).webkitRequestFullscreen();
+      }
+    }
+  }, []);
 
   useEffect(() => {
     const fetch = async () => {
@@ -259,7 +282,7 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
       <div className="flex-1 overflow-y-auto">
         {/* Image carousel */}
         {mediaCount > 0 && (
-          <div className="relative w-full aspect-[16/9] bg-muted cursor-pointer" onClick={() => { if (!(hasVideo && currentImageIndex === 0)) setIsLightboxOpen(true); }}>
+          <div ref={mediaContainerRef} className="relative w-full aspect-[16/9] bg-muted cursor-pointer" onClick={() => { if (!(hasVideo && currentImageIndex === 0)) setIsLightboxOpen(true); }}>
             {hasVideo && currentImageIndex === 0 ? (
               (() => {
                 const url = business.video_1_url!;
@@ -291,6 +314,7 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
                 }
                 return (
                   <video
+                    ref={videoRef}
                     src={url}
                     autoPlay
                     muted={isVideoMuted}
@@ -307,14 +331,23 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
                 className="w-full h-full object-cover"
               />
             )}
-            {/* Mute/Unmute button */}
+            {/* Video controls: Mute + Fullscreen */}
             {hasVideo && currentImageIndex === 0 && (
-              <button
-                onClick={(e) => { e.stopPropagation(); setIsVideoMuted(m => !m); }}
-                className="absolute bottom-3 right-3 p-3 rounded-full bg-background/80 hover:bg-background transition-colors shadow-lg z-10"
-              >
-                {isVideoMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
-              </button>
+              <div className="absolute bottom-3 right-3 flex items-center gap-2 z-10">
+                <button
+                  onClick={(e) => { e.stopPropagation(); handleFullscreen(); }}
+                  className="p-3 rounded-full bg-background/80 hover:bg-background transition-colors shadow-lg"
+                  title="Plein écran"
+                >
+                  <Maximize className="h-5 w-5" />
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); setIsVideoMuted(m => !m); }}
+                  className="p-3 rounded-full bg-background/80 hover:bg-background transition-colors shadow-lg"
+                >
+                  {isVideoMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+                </button>
+              </div>
             )}
             {isVerified && !isInstitution && (
               <img src={logoGold} alt="WTUCE" className="absolute top-3 right-3 w-12 h-12 object-contain opacity-90 pointer-events-none drop-shadow-lg" />
