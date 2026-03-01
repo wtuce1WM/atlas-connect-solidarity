@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { MapPin, Star, Loader2, Heart } from "lucide-react";
+import { MapPin, Star, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
 import BookmarkButton from "@/components/BookmarkButton";
@@ -34,10 +34,17 @@ interface SimilarBusinessesProps {
   onLoginRequired?: () => void;
 }
 
+const PAGE_SIZE = 12;
+
 const SimilarBusinesses = ({ currentBusinessId, categories, city, onNavigate, onLoginRequired }: SimilarBusinessesProps) => {
-  const [businesses, setBusinesses] = useState<SimilarBusiness[]>([]);
+  const [allBusinesses, setAllBusinesses] = useState<SimilarBusiness[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [page, setPage] = useState(0);
+
+  useEffect(() => {
+    setPage(0);
+  }, [currentBusinessId]);
 
   useEffect(() => {
     const fetchSimilar = async () => {
@@ -56,7 +63,7 @@ const SimilarBusinesses = ({ currentBusinessId, categories, city, onNavigate, on
         .contains("categories", [subcategory])
         .neq("id", currentBusinessId)
         .order("priority_score", { ascending: false })
-        .limit(50);
+        .limit(200);
 
       if (!error && data) {
         const sorted = (data as SimilarBusiness[]).sort((a, b) => {
@@ -67,7 +74,7 @@ const SimilarBusinesses = ({ currentBusinessId, categories, city, onNavigate, on
           const bRating = b.rating ?? computeWeightedRatingOn20(collectRatingSources(b)) ?? 0;
           return bRating - aRating;
         });
-        setBusinesses(sorted.slice(0, 12));
+        setAllBusinesses(sorted);
         setTotalCount(count ?? data.length);
       }
       setIsLoading(false);
@@ -84,14 +91,17 @@ const SimilarBusinesses = ({ currentBusinessId, categories, city, onNavigate, on
     );
   }
 
-  if (businesses.length === 0) return null;
+  if (allBusinesses.length === 0) return null;
+
+  const totalPages = Math.ceil(allBusinesses.length / PAGE_SIZE);
+  const businesses = allBusinesses.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Similaires</h3>
         <span className="text-xs text-muted-foreground">
-          {businesses.length} sur {totalCount}
+          {allBusinesses.length} résultats
         </span>
       </div>
 
@@ -114,18 +124,14 @@ const SimilarBusinesses = ({ currentBusinessId, categories, city, onNavigate, on
               }}
               className="group overflow-hidden rounded-xl border border-gold/20 shadow-sm hover:shadow-md transition-shadow aspect-square relative"
             >
-              {/* Background image */}
               {img && (
                 <img src={img} alt={biz.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
               )}
-              {/* Overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
-              {/* Bookmark heart - top right */}
               <div className="absolute top-1.5 right-1.5 z-10" onClick={(e) => e.preventDefault()}>
                 <BookmarkButton businessId={biz.id} onLoginRequired={onLoginRequired} />
               </div>
-              {/* Info at bottom */}
               <div className="absolute bottom-0 left-0 right-0 p-2 space-y-0.5">
                 <p className="font-semibold text-[11px] text-white leading-tight line-clamp-2">{biz.name}</p>
                 <div className="flex items-center gap-1 text-[10px] text-white/80">
@@ -146,6 +152,38 @@ const SimilarBusinesses = ({ currentBusinessId, categories, city, onNavigate, on
           );
         })}
       </div>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-1 pt-1">
+          <button
+            onClick={() => setPage(p => Math.max(0, p - 1))}
+            disabled={page === 0}
+            className="p-1 rounded-md text-muted-foreground hover:bg-accent disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          {Array.from({ length: totalPages }, (_, i) => (
+            <button
+              key={i}
+              onClick={() => setPage(i)}
+              className={`h-7 w-7 rounded-md text-xs font-medium transition-colors ${
+                i === page
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-accent"
+              }`}
+            >
+              {i + 1}
+            </button>
+          ))}
+          <button
+            onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
+            disabled={page === totalPages - 1}
+            className="p-1 rounded-md text-muted-foreground hover:bg-accent disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
+      )}
     </div>
   );
 };
