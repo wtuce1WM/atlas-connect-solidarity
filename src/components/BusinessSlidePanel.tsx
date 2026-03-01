@@ -753,7 +753,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                       };
                       refMap[tab.id]?.current?.scrollIntoView({ behavior: "smooth", block: "start" });
                     }}
-                    className={`whitespace-nowrap px-3 py-2 text-xs font-medium transition-colors border-b-2 ${
+                    className={`whitespace-nowrap px-3 py-2.5 text-sm font-medium transition-colors border-b-2 ${
                       activeTab === tab.id
                         ? "border-primary text-primary"
                         : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
