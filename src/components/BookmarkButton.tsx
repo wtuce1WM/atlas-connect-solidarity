@@ -1,4 +1,4 @@
-import { Bookmark } from "lucide-react";
+import { Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useBookmark } from "@/hooks/useBookmark";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -37,10 +37,10 @@ const BookmarkButton = ({ businessId, variant = "dark", onLoginRequired }: Bookm
   return (
     <Button
       variant="outline"
-      size="sm"
+      size="icon"
       onClick={handleClick}
       disabled={isLoading}
-      className={`gap-1.5 ${
+      className={`${
         isBookmarked
           ? "bg-[#6050DC]/10 border-[#6050DC] text-[#6050DC] hover:bg-[#6050DC]/20"
           : variant === "gold"
@@ -48,10 +48,9 @@ const BookmarkButton = ({ businessId, variant = "dark", onLoginRequired }: Bookm
             : "border-border text-[#6050DC]"
       }`}
     >
-      <Bookmark
+      <Heart
         className={`h-4 w-4 ${isBookmarked ? "fill-[#6050DC]" : ""}`}
       />
-      <span className="hidden sm:inline">{isBookmarked ? t.saved : t.save}</span>
     </Button>
   );
 };
