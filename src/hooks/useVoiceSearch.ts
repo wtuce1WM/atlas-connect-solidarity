@@ -73,6 +73,7 @@ const SILENCE_DELAY_MS = 2000;
 
 export function useVoiceSearch({ onTranscript, onError, lang = "fr-FR" }: UseVoiceSearchOptions) {
   const [status, setStatus] = useState<VoiceStatus>("idle");
+  const [liveTranscript, setLiveTranscript] = useState("");
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const accumulatedTranscriptRef = useRef<string>("");
@@ -116,6 +117,7 @@ export function useVoiceSearch({ onTranscript, onError, lang = "fr-FR" }: UseVoi
     }
 
     accumulatedTranscriptRef.current = "";
+    setLiveTranscript("");
     clearSilenceTimer();
 
     const recognition = new SpeechRecognitionAPI();
@@ -126,16 +128,22 @@ export function useVoiceSearch({ onTranscript, onError, lang = "fr-FR" }: UseVoi
 
     recognition.onstart = () => {
       setStatus("recording");
+      setLiveTranscript("");
     };
 
     recognition.onresult = (event) => {
-      // Accumuler uniquement les résultats finaux
       let finalTranscript = "";
+      let interimTranscript = "";
       for (let i = 0; i < event.results.length; i++) {
         if (event.results[i].isFinal) {
           finalTranscript += event.results[i][0].transcript + " ";
+        } else {
+          interimTranscript += event.results[i][0].transcript;
         }
       }
+
+      // Update live transcript for display
+      setLiveTranscript((finalTranscript + interimTranscript).trim());
 
       if (finalTranscript.trim()) {
         accumulatedTranscriptRef.current = finalTranscript.trim();
@@ -193,6 +201,7 @@ export function useVoiceSearch({ onTranscript, onError, lang = "fr-FR" }: UseVoi
   const stopRecording = useCallback(() => {
     clearSilenceTimer();
     accumulatedTranscriptRef.current = "";
+    setLiveTranscript("");
     if (recognitionRef.current) {
       recognitionRef.current.stop();
       recognitionRef.current = null;
@@ -208,5 +217,5 @@ export function useVoiceSearch({ onTranscript, onError, lang = "fr-FR" }: UseVoi
     }
   }, [status, startRecording, stopRecording]);
 
-  return { status, toggleRecording };
+  return { status, toggleRecording, liveTranscript };
 }
