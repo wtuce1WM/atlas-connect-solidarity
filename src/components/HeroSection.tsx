@@ -102,7 +102,7 @@ const HeroSection = () => {
         isExiting ? "opacity-0 -translate-y-16" : "opacity-100 translate-y-0"
       }`}
     >
-      {/* Hero Background Image — parallax + Ken Burns */}
+      {/* Hero Background Image — disabled
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat animate-[kenburns_25s_ease-in-out_infinite_alternate]"
         style={{
@@ -111,6 +111,7 @@ const HeroSection = () => {
           willChange: "transform",
         }}
       />
+      */}
 
       {/* Overlay with gradient to black at bottom */}
       <div className="absolute inset-0 bg-gradient-to-b from-white/20 via-white/40 to-white" />
