@@ -578,6 +578,12 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                 >
                   {language === "en" ? "Join now" : language === "ar" ? "سجّل الآن" : "Je m'inscris"}
                 </a>
+                <p className="mt-3 text-xs text-muted-foreground">
+                  {language === "en" ? "Already have an account? " : language === "ar" ? "لديك حساب بالفعل؟ " : "Vous avez déjà un compte ? "}
+                  <a href="/club" className="font-semibold hover:underline" style={{ color: "#6050DC" }}>
+                    {language === "en" ? "Sign in" : language === "ar" ? "تسجيل الدخول" : "Connectez-vous"}
+                  </a>
+                </p>
               </div>
             </div>
           )}
