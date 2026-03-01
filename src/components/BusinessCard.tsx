@@ -1,12 +1,13 @@
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Phone, ShieldCheck, Star, Globe, Clock } from "lucide-react";
+import { MapPin, Phone, ShieldCheck, Star, Globe, Clock, Headphones, Loader2 } from "lucide-react";
 import logoWatermark from "@/assets/logoGOLDsimpleSML.webp";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import { collectRatingSources, computeWeightedRatingOn20, getTotalReviewCount as getTotalReviews } from "@/lib/ratingUtils";
 import { isOpenDuringSlot, getOpeningTimeForSlot, type TimeSlot } from "@/lib/timeSlots";
 import { isCurrentlyOpen, type DayHoursData } from "@/lib/formatOpeningHours";
+import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 
 export interface BusinessCardData {
   id: string;
@@ -161,6 +162,7 @@ const BusinessCard = ({
   distanceKm,
   activeTimeSlot
 }: BusinessCardProps) => {
+  const { speak: ttsSpeak, stop: ttsStop, status: ttsStatus } = useTextToSpeech();
   const gamme = getBusinessGamme(business, gammes);
   const badge = getBusinessBadge(business, badges, subcategories, badgeSubcategories);
   const calculatedRating = getCalculatedRating(business);
@@ -169,6 +171,24 @@ const BusinessCard = ({
   const isSelected = selectedBusinessId === business.id;
   const hasMapData = business.google_maps_url || (business.latitude && business.longitude);
   const businessImage = getBusinessImage(business);
+
+  const buildCardSynthesis = () => {
+    const parts: string[] = [];
+    parts.push(`${business.name}, situé à ${business.city}${business.neighborhood ? `, quartier ${business.neighborhood}` : ""}.`);
+    if (business.default_service) {
+      parts.push(`Leur spécialité : ${business.default_service}.`);
+    }
+    if (business.hook_fr) {
+      parts.push(business.hook_fr.replace(/<[^>]+>/g, ""));
+    }
+    if (business.categories && business.categories.length > 0) {
+      parts.push(`Catégorie : ${business.categories.join(", ")}.`);
+    }
+    if (displayRating) {
+      parts.push(`Note : ${displayRating} sur 20, basée sur ${totalReviews} avis.`);
+    }
+    return parts.join(" ");
+  };
 
   // Check if business is open during the active time slot OR right now
   const openingHoursTyped = (business.opening_hours as Record<string, DayHoursData>) || null;
@@ -304,16 +324,37 @@ const BusinessCard = ({
                 </Badge>
               )}
             </div>
-            {business.wtuce_status === "verified" && (
-              <div className="flex-shrink-0 [perspective:600px]" style={{ transformStyle: "preserve-3d" }}>
-                <img
-                  src={logoGold}
-                  alt=""
-                  className="object-contain animate-[coinSpin_1.2s_cubic-bezier(0.16,1,0.3,1)_forwards]"
-                  style={{ width: 60, height: 60, transformStyle: "preserve-3d" }}
-                />
-              </div>
-            )}
+            <div className="flex items-center gap-1.5 flex-shrink-0">
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (ttsStatus === "playing" || ttsStatus === "loading") {
+                    ttsStop();
+                  } else {
+                    ttsSpeak(buildCardSynthesis());
+                  }
+                }}
+                className={`p-1 rounded-full transition-colors ${ttsStatus === "playing" || ttsStatus === "loading" ? "bg-gold/20 text-gold" : "hover:bg-muted text-muted-foreground"}`}
+                title={ttsStatus === "playing" ? "Arrêter" : "Écouter la synthèse"}
+              >
+                {ttsStatus === "loading" ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Headphones className="h-4 w-4" />
+                )}
+              </button>
+              {business.wtuce_status === "verified" && (
+                <div className="[perspective:600px]" style={{ transformStyle: "preserve-3d" }}>
+                  <img
+                    src={logoGold}
+                    alt=""
+                    className="object-contain animate-[coinSpin_1.2s_cubic-bezier(0.16,1,0.3,1)_forwards]"
+                    style={{ width: 60, height: 60, transformStyle: "preserve-3d" }}
+                  />
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Name - selectable for copy-paste */}
