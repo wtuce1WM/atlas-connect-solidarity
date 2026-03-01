@@ -8,6 +8,7 @@ import BookmarkButton from "@/components/BookmarkButton";
 interface NearbyBusiness {
   id: string;
   name: string;
+  default_service: string | null;
   city: string | null;
   neighborhood: string | null;
   images: string[] | null;
@@ -33,6 +34,7 @@ interface NearbyBusinessesProps {
   businessName: string;
   latitude: number | null;
   longitude: number | null;
+  currentSubcategory?: string | null;
   onNavigate?: (businessId: string) => void;
   onLoginRequired?: () => void;
   scrollRef?: RefObject<HTMLDivElement | null>;
@@ -52,7 +54,7 @@ function haversine(lat1: number, lon1: number, lat2: number, lon2: number): numb
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-const NearbyBusinesses = ({ currentBusinessId, businessName, latitude, longitude, onNavigate, onLoginRequired, scrollRef }: NearbyBusinessesProps) => {
+const NearbyBusinesses = ({ currentBusinessId, businessName, latitude, longitude, currentSubcategory, onNavigate, onLoginRequired, scrollRef }: NearbyBusinessesProps) => {
   const internalRef = useRef<HTMLDivElement>(null);
   const sectionRef = scrollRef || internalRef;
   const [allBusinesses, setAllBusinesses] = useState<NearbyBusiness[]>([]);
@@ -76,7 +78,7 @@ const NearbyBusinesses = ({ currentBusinessId, businessName, latitude, longitude
 
       const { data, error } = await supabase
         .from("businesses")
-        .select("id, name, city, neighborhood, images, rating, wtuce_status, latitude, longitude, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, getyourguide_rating, getyourguide_review_count, viator_rating, viator_review_count")
+        .select("id, name, city, neighborhood, images, rating, wtuce_status, latitude, longitude, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, getyourguide_rating, getyourguide_review_count, viator_rating, viator_review_count, default_service")
         .eq("is_active", true)
         .neq("id", currentBusinessId)
         .gte("latitude", latitude - latDelta)
@@ -93,6 +95,8 @@ const NearbyBusinesses = ({ currentBusinessId, businessName, latitude, longitude
             distance: b.latitude && b.longitude ? haversine(latitude, longitude, b.latitude, b.longitude) : Infinity,
           }))
           .filter((b) => b.distance <= RADIUS_KM)
+          // Exclude businesses with the same default subcategory
+          .filter((b) => !currentSubcategory || !b.default_service || b.default_service !== currentSubcategory)
           .sort((a, b) => a.distance - b.distance);
 
         setAllBusinesses(withDistance);
@@ -101,7 +105,7 @@ const NearbyBusinesses = ({ currentBusinessId, businessName, latitude, longitude
     };
 
     fetchNearby();
-  }, [currentBusinessId, latitude, longitude]);
+  }, [currentBusinessId, latitude, longitude, currentSubcategory]);
 
   if (isLoading) {
     return (
