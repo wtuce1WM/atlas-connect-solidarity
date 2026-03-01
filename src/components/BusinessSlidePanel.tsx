@@ -621,6 +621,32 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
                 </div>
               )}
 
+              {/* WhatsApp */}
+              {business.whatsapp && (
+                <div className="flex items-start gap-3">
+                  <WhatsAppIcon className="h-5 w-5 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold text-sm" style={{ color: "#25D366" }}>WhatsApp</p>
+                    <a href={`https://wa.me/${business.whatsapp.replace(/\D/g, "")}`} target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground transition-colors mt-0.5 block">
+                      {business.whatsapp}
+                    </a>
+                  </div>
+                </div>
+              )}
+
+              {/* Skype */}
+              {business.skype && (
+                <div className="flex items-start gap-3">
+                  <SkypeIcon className="h-5 w-5 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold text-sm" style={{ color: "#00AFF0" }}>Skype</p>
+                    <a href={`skype:${business.skype}?chat`} className="text-sm text-muted-foreground hover:text-foreground transition-colors mt-0.5 block">
+                      {business.skype}
+                    </a>
+                  </div>
+                </div>
+              )}
+
               {/* Opening Hours */}
               {canShowOpenBadge && (
                 <div className="col-span-2 flex justify-center">
@@ -685,31 +711,6 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
                 </div>
               )}
 
-              {/* WhatsApp */}
-              {business.whatsapp && (
-                <div className="flex items-start gap-3">
-                  <WhatsAppIcon className="h-5 w-5 shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-semibold text-sm" style={{ color: "#25D366" }}>WhatsApp</p>
-                    <a href={`https://wa.me/${business.whatsapp.replace(/\D/g, "")}`} target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground transition-colors mt-0.5 block">
-                      {business.whatsapp}
-                    </a>
-                  </div>
-                </div>
-              )}
-
-              {/* Skype */}
-              {business.skype && (
-                <div className="flex items-start gap-3">
-                  <SkypeIcon className="h-5 w-5 shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-semibold text-sm" style={{ color: "#00AFF0" }}>Skype</p>
-                    <a href={`skype:${business.skype}?chat`} className="text-sm text-muted-foreground hover:text-foreground transition-colors mt-0.5 block">
-                      {business.skype}
-                    </a>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
 
