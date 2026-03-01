@@ -195,6 +195,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
       setIsLoading(true);
       setCurrentImageIndex(0);
       setVideoError(false);
+      setActiveTab("apercu");
 
       const { data, error } = await supabase
         .from("businesses")
