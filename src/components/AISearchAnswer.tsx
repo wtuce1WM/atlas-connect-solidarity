@@ -189,9 +189,19 @@ const AISearchAnswer = ({ query, businesses, isSearchLoading, onAnswerReady }: A
     fetchAnswer();
   }, [fetchKey, isSearchLoading, isDismissed, language]);
 
-  if (isDismissed || (!isLoading && !answer) || error) return null;
-
   const isPanelOpen = !!selectedBusiness;
+
+  // Disable background scroll when panel is open
+  useEffect(() => {
+    if (isPanelOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => { document.body.style.overflow = ""; };
+  }, [isPanelOpen]);
+
+  if (isDismissed || (!isLoading && !answer) || error) return null;
 
   return (
     <>
@@ -204,7 +214,7 @@ const AISearchAnswer = ({ query, businesses, isSearchLoading, onAnswerReady }: A
       <div
         className={`mb-6 transition-all duration-300 ease-out ${
           isPanelOpen
-            ? "fixed top-0 left-0 z-[100] w-1/2 h-full overflow-y-auto p-6 flex items-start justify-center"
+            ? "fixed top-0 left-0 z-[100] w-1/2 h-full overflow-y-auto p-6 flex items-start justify-center bg-background"
             : "w-[70%] mx-auto"
         }`}
         style={isPanelOpen ? { animationName: "none" } : undefined}
