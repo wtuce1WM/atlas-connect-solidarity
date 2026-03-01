@@ -108,8 +108,8 @@ const AppContent = () => {
             </Routes>
           </RouteTransition>
           <GlobalFloatingSearchBar />
-          <FloatingClubButton isOpen={activePanel === "club"} onToggle={() => setActivePanel(activePanel === "club" ? null : "club")} />
-          <FloatingWhatsAppButton isOpen={activePanel === "whatsapp"} onToggle={() => setActivePanel(activePanel === "whatsapp" ? null : "whatsapp")} />
+          {/* <FloatingClubButton isOpen={activePanel === "club"} onToggle={() => setActivePanel(activePanel === "club" ? null : "club")} /> */}
+          {/* <FloatingWhatsAppButton isOpen={activePanel === "whatsapp"} onToggle={() => setActivePanel(activePanel === "whatsapp" ? null : "whatsapp")} /> */}
         </BrowserRouter>
       </TooltipProvider>
     </div>
