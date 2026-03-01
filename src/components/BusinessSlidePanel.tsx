@@ -1465,14 +1465,15 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
         <div className="absolute inset-0 z-50 bg-background flex flex-col">
           <div className="flex items-center justify-between px-4 py-3 border-b border-border">
             <h3 className="font-semibold text-sm truncate flex-1 mr-2">{business.pdf_name || "Document"}</h3>
-            <a
-              href={`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/pdf-proxy?url=${encodeURIComponent(business.pdf_url)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs text-muted-foreground hover:text-foreground transition-colors mr-3 shrink-0"
-            >
-              Ouvrir dans un nouvel onglet <ExternalLink className="inline h-3 w-3 ml-0.5" />
-            </a>
+            {pdfBlobUrl && (
+              <a
+                href={pdfBlobUrl}
+                download={business.pdf_name || "document.pdf"}
+                className="text-xs text-muted-foreground hover:text-foreground transition-colors mr-3 shrink-0"
+              >
+                Télécharger <ExternalLink className="inline h-3 w-3 ml-0.5" />
+              </a>
+            )}
             <button
               onClick={() => {
                 setShowPdfViewer(false);
