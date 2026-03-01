@@ -736,6 +736,7 @@ serve(async (req) => {
 
     // ── Subcategory detection always runs (no longer skipped by name matches) ──
     let detectedSubcategory: string | null = null;
+    let detectedSubcategoryIsReal = false;
     if (effectiveQuery) {
       const qLower = effectiveQuery.toLowerCase();
       const qWords = qLower.split(/\s+/);
@@ -824,6 +825,12 @@ serve(async (req) => {
             }
           }
         }
+
+        if (detectedSubcategory) {
+          detectedSubcategoryIsReal = subcats.some(
+            (sc: any) => sc.name_fr?.toLowerCase() === detectedSubcategory!.toLowerCase()
+          );
+        }
       }
     }
     // ── Apply search config: inject synonyms into query expansion if configured ──
@@ -835,11 +842,7 @@ serve(async (req) => {
       // IMPORTANT: Only inherit if the detected term is NOT itself a real subcategory name.
       // A subcategory identity takes priority over a service identity → defaults to broad.
       if (!subcategorySearchConfig) {
-        // Check if this detected term is actually a real subcategory
-        const isRealSubcategory = subcats && subcats.some(
-          (sc: any) => sc.name_fr?.toLowerCase() === detectedSubcategory!.toLowerCase()
-        );
-        if (!isRealSubcategory) {
+        if (!detectedSubcategoryIsReal) {
           // Only inherit from service parent if NOT a real subcategory
           const { data: svcAsService } = await supabase
             .from("services")
