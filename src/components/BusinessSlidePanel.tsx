@@ -897,7 +897,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
           {/* Description */}
           {business.description && (
             <>
-              <div ref={descriptionRef} className="relative">
+              <div ref={descriptionRef} className="relative scroll-mt-28">
                 <div
                   className={`text-sm text-foreground leading-relaxed [&>p]:mb-3 [&>p:last-child]:mb-0 [&>br]:content-[''] [&>br]:block [&>br]:mb-2 [&>h2]:text-xl [&>h2]:font-bold [&>h2]:mb-4 [&>h2]:mt-5 [&>h3]:text-lg [&>h3]:font-semibold [&>h3]:mb-3 [&>h3]:mt-4 overflow-hidden transition-all duration-300 ${isDescriptionExpanded ? "" : "max-h-[21em]"}`}
                   dangerouslySetInnerHTML={{ __html: business.description }}
@@ -916,7 +916,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
           )}
 
           {/* Contact info */}
-          <div ref={contactSectionRef} className="border-y border-border py-5">
+          <div ref={contactSectionRef} className="border-y border-border py-5 scroll-mt-28">
             <div className="grid grid-cols-2 gap-6">
               {/* Address */}
               {business.address && (
@@ -1121,7 +1121,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
             );
           })()}
           {(reviews.length > 0 || avgOn20) && (
-            <div ref={reviewsSectionRef} className="space-y-4">
+            <div ref={reviewsSectionRef} className="space-y-4 scroll-mt-28">
               <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wide">{language === "en" ? "Customer reviews" : language === "ar" ? "آراء العملاء" : "Avis clients"}</h3>
               {/* Global score */}
               {avgOn20 && (
@@ -1242,7 +1242,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
             const dest = lat && lng ? `${lat},${lng}` : encodeURIComponent(`${business.name}, ${fallbackAddr}`);
             
             return (
-              <div ref={mapSectionRef} className="space-y-2">
+              <div ref={mapSectionRef} className="space-y-2 scroll-mt-28">
                 <hr className="border-border" />
                 <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wide">{language === "en" ? "Location" : language === "ar" ? "الموقع" : "Localisation"}</h3>
                 <div className="space-y-1.5 text-sm">
@@ -1301,7 +1301,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
 
           {/* Services */}
           {business.services && business.services.length > 0 && (
-            <div ref={servicesSectionRef} className="space-y-1.5">
+            <div ref={servicesSectionRef} className="space-y-1.5 scroll-mt-28">
               <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Services</h3>
               <div className="flex flex-wrap gap-1.5">
                 {business.services.slice(0, 12).map(s => (
