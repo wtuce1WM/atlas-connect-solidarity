@@ -18,7 +18,7 @@ const ProxyPdfViewer = ({ pdfUrl, title = "Document PDF", downloadName = "docume
       setLoading(true);
       setError(false);
       try {
-        const proxyUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/pdf-proxy?url=${encodeURIComponent(pdfUrl)}`;
+        const proxyUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/pdf-view?url=${encodeURIComponent(pdfUrl)}`;
         const res = await fetch(proxyUrl, {
           headers: {
             apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,

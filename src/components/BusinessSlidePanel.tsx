@@ -991,7 +991,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                           }
 
                           try {
-                            const proxyUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/pdf-proxy?url=${encodeURIComponent(documentUrl)}`;
+                            const proxyUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/pdf-view?url=${encodeURIComponent(documentUrl)}`;
                             const res = await fetch(proxyUrl, {
                               headers: {
                                 apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
