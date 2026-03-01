@@ -665,53 +665,89 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
 
         {/* Sticky sub-header: name, rating, logo, open badge */}
         {showStickyHeader && (
-          <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b border-border px-4 py-2.5 flex items-center gap-3 animate-in fade-in-0 slide-in-from-top-2 duration-200">
-            <div className="flex-1 min-w-0">
-              <h4 className="text-sm font-bold text-foreground truncate">{business.name}</h4>
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                {avgOn20 !== null && (
-                  <>
-                    <Star className="h-3 w-3 text-gold fill-gold" />
-                    <span className="font-bold text-gold">{avgOn20}/20</span>
-                    {totalReviewCount > 0 && <span>· {totalReviewCount.toLocaleString("fr-FR")} avis</span>}
-                  </>
-                )}
-                {openBadgeText && (
-                  <>
-                    <span>·</span>
-                    <span className={`inline-flex items-center gap-1 font-medium ${openBadgeIsOpen ? "text-emerald-600" : "text-muted-foreground"}`}>
-                      <Clock className="h-3 w-3" />
-                      {openBadgeText}
-                    </span>
-                  </>
-                )}
-              </div>
-            </div>
-            {business.default_service && (
-              <Badge variant="secondary" className="shrink-0 text-xs">{business.default_service}</Badge>
-            )}
-            {/* Social media icons */}
-            {(() => {
-              const socials = [
-                { url: business.facebook_url, color: "#1877F2", icon: <FacebookIcon className="h-6 w-6" /> },
-                { url: business.instagram_url, color: "#E4405F", icon: <InstagramIcon className="h-6 w-6" /> },
-                { url: business.linkedin_url, color: "#0A66C2", icon: <LinkedInIcon className="h-6 w-6" /> },
-                { url: business.youtube_url, color: "#FF0000", icon: <YouTubeIcon className="h-6 w-6" /> },
-                { url: business.tiktok_url, color: "#000000", icon: <TikTokIcon className="h-6 w-6" /> },
-                { url: business.twitter_url, color: "#000000", icon: <TwitterIcon className="h-6 w-6" /> },
-                { url: business.pinterest_url, color: "#E60023", icon: <PinterestIcon className="h-6 w-6" /> },
-                { url: business.vimeo_url, color: "#1AB7EA", icon: <VimeoIcon className="h-6 w-6" /> },
-              ].filter(s => s.url);
-              return socials.length > 0 ? (
-                <div className="flex items-center gap-3 shrink-0">
-                  {socials.map((s, i) => (
-                    <a key={i} href={s.url!} target="_blank" rel="noopener noreferrer" style={{ color: s.color }} className="hover:opacity-70 transition-opacity">
-                      {s.icon}
-                    </a>
-                  ))}
+          <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b border-border">
+            <div className="px-4 py-2.5 flex items-center gap-3">
+              <div className="flex-1 min-w-0">
+                <h4 className="text-sm font-bold text-foreground truncate">{business.name}</h4>
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  {avgOn20 !== null && (
+                    <>
+                      <Star className="h-3 w-3 text-gold fill-gold" />
+                      <span className="font-bold text-gold">{avgOn20}/20</span>
+                      {totalReviewCount > 0 && <span>· {totalReviewCount.toLocaleString("fr-FR")} avis</span>}
+                    </>
+                  )}
+                  {openBadgeText && (
+                    <>
+                      <span>·</span>
+                      <span className={`inline-flex items-center gap-1 font-medium ${openBadgeIsOpen ? "text-emerald-600" : "text-muted-foreground"}`}>
+                        <Clock className="h-3 w-3" />
+                        {openBadgeText}
+                      </span>
+                    </>
+                  )}
                 </div>
-              ) : null;
-            })()}
+              </div>
+              {business.default_service && (
+                <Badge variant="secondary" className="shrink-0 text-xs">{business.default_service}</Badge>
+              )}
+              {/* Social media icons */}
+              {(() => {
+                const socials = [
+                  { url: business.facebook_url, color: "#1877F2", icon: <FacebookIcon className="h-6 w-6" /> },
+                  { url: business.instagram_url, color: "#E4405F", icon: <InstagramIcon className="h-6 w-6" /> },
+                  { url: business.linkedin_url, color: "#0A66C2", icon: <LinkedInIcon className="h-6 w-6" /> },
+                  { url: business.youtube_url, color: "#FF0000", icon: <YouTubeIcon className="h-6 w-6" /> },
+                  { url: business.tiktok_url, color: "#000000", icon: <TikTokIcon className="h-6 w-6" /> },
+                  { url: business.twitter_url, color: "#000000", icon: <TwitterIcon className="h-6 w-6" /> },
+                  { url: business.pinterest_url, color: "#E60023", icon: <PinterestIcon className="h-6 w-6" /> },
+                  { url: business.vimeo_url, color: "#1AB7EA", icon: <VimeoIcon className="h-6 w-6" /> },
+                ].filter(s => s.url);
+                return socials.length > 0 ? (
+                  <div className="flex items-center gap-3 shrink-0">
+                    {socials.map((s, i) => (
+                      <a key={i} href={s.url!} target="_blank" rel="noopener noreferrer" style={{ color: s.color }} className="hover:opacity-70 transition-opacity">
+                        {s.icon}
+                      </a>
+                    ))}
+                  </div>
+                ) : null;
+              })()}
+            </div>
+            {/* Sticky tabs bar */}
+            {activeTab && (
+              <div className="flex gap-1 overflow-x-auto no-scrollbar border-t border-border px-4">
+                {[
+                  { id: "apercu", label: "Aperçu", show: !!business.description },
+                  { id: "contact", label: "Contact", show: !!(business.address || business.phone || business.email || business.whatsapp) },
+                  { id: "avis", label: "Avis clients", show: !!(reviews.length > 0 || avgOn20) },
+                  { id: "localiser", label: "Localiser", show: !!(business.latitude || business.longitude || business.address || business.google_maps_url) },
+                  { id: "services", label: "Services", show: !!(business.services && business.services.length > 0) },
+                ].filter(t => t.show).map(tab => (
+                  <button
+                    key={tab.id}
+                    onClick={() => {
+                      setActiveTab(tab.id);
+                      const refMap: Record<string, React.RefObject<HTMLDivElement | null>> = {
+                        apercu: descriptionRef,
+                        contact: contactSectionRef,
+                        avis: reviewsSectionRef,
+                        localiser: mapSectionRef,
+                        services: servicesSectionRef,
+                      };
+                      refMap[tab.id]?.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }}
+                    className={`whitespace-nowrap px-3 py-2 text-xs font-medium transition-colors border-b-2 ${
+                      activeTab === tab.id
+                        ? "border-primary text-primary"
+                        : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
