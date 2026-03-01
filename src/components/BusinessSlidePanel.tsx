@@ -224,20 +224,31 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
     if (business.default_service) {
       parts.push(`Leur spécialité : ${business.default_service}.`);
     }
-    if (hook) {
-      parts.push(hook.replace(/<[^>]+>/g, ""));
+    // Description nettoyée
+    if (business.description) {
+      const clean = business.description.replace(/<[^>]+>/g, "").trim();
+      if (clean.length > 0) {
+        parts.push(clean.length > 250 ? clean.slice(0, 250) + "…" : clean);
+      }
     }
-    if (business.services && business.services.length > 0) {
-      const svcList = business.services.slice(0, 5).join(", ");
-      parts.push(`Parmi leurs services : ${svcList}.`);
+    // Synthèse IA des avis
+    const summary = business.ai_review_summary as { pros?: string[]; cons?: string[] } | null;
+    if (summary?.pros && summary.pros.length > 0) {
+      parts.push(`Les clients apprécient : ${summary.pros.slice(0, 3).join(", ")}.`);
+    }
+    if (summary?.cons && summary.cons.length > 0) {
+      parts.push(`Points à améliorer : ${summary.cons.slice(0, 2).join(", ")}.`);
+    }
+    // Avis individuel si pas de synthèse IA
+    if (!summary?.pros) {
+      const bestReview = reviewTexts.find(r => r.text && r.text.length > 20);
+      if (bestReview) {
+        const snippet = bestReview.text!.slice(0, 150).replace(/<[^>]+>/g, "");
+        parts.push(`Un client témoigne : "${snippet}".`);
+      }
     }
     if (avgOn20) {
       parts.push(`Note globale : ${avgOn20} sur 20, basée sur ${totalReviewCount} avis.`);
-    }
-    const bestReview = reviewTexts.find(r => r.text && r.text.length > 20);
-    if (bestReview) {
-      const snippet = bestReview.text!.slice(0, 150).replace(/<[^>]+>/g, "");
-      parts.push(`Un client témoigne : "${snippet}".`);
     }
     return parts.join(" ");
   };
@@ -303,28 +314,9 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
       {/* Sticky header */}
       <div className="sticky top-0 z-10 flex items-center justify-between px-5 py-3 bg-background border-b border-border shrink-0">
         <h2 className="text-lg font-semibold text-foreground truncate">{business.name}</h2>
-        <div className="flex items-center gap-1.5">
-          <button
-            onClick={() => {
-              if (ttsStatus === "playing" || ttsStatus === "loading") {
-                ttsStop();
-              } else {
-                ttsSpeak(buildTtsSynthesis());
-              }
-            }}
-            className={`p-1.5 rounded-full transition-colors ${ttsStatus === "playing" || ttsStatus === "loading" ? "bg-gold/20 text-gold" : "hover:bg-muted text-muted-foreground"}`}
-            title={ttsStatus === "playing" ? "Arrêter la lecture" : "Écouter la synthèse"}
-          >
-            {ttsStatus === "loading" ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
-            ) : (
-              <Headphones className="h-5 w-5" />
-            )}
-          </button>
-          <button onClick={onClose} className="p-1.5 rounded-full hover:bg-muted transition-colors">
-            <X className="h-5 w-5 text-muted-foreground" />
-          </button>
-        </div>
+        <button onClick={onClose} className="p-1.5 rounded-full hover:bg-muted transition-colors">
+          <X className="h-5 w-5 text-muted-foreground" />
+        </button>
       </div>
 
       {/* Scrollable content */}
@@ -468,19 +460,38 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
                   <span>{business.city}{business.neighborhood ? `, ${business.neighborhood}` : ""}</span>
                 </div>
               </div>
-              {business.logo_url && (
-                <div
-                  className="w-16 h-16 p-1.5 rounded-lg border border-border shrink-0 flex items-center justify-center"
-                  style={{
-                    backgroundColor:
-                      business.logo_bg === 'blanc' || business.logo_bg === 'white' ? '#ffffff'
-                      : business.logo_bg === 'noir' || business.logo_bg === 'black' ? '#000000'
-                      : 'transparent',
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  onClick={() => {
+                    if (ttsStatus === "playing" || ttsStatus === "loading") {
+                      ttsStop();
+                    } else {
+                      ttsSpeak(buildTtsSynthesis());
+                    }
                   }}
+                  className={`p-1.5 rounded-full transition-colors ${ttsStatus === "playing" || ttsStatus === "loading" ? "bg-gold/20 text-gold" : "hover:bg-muted text-muted-foreground"}`}
+                  title={ttsStatus === "playing" ? "Arrêter la lecture" : "Écouter la synthèse"}
                 >
-                  <img src={business.logo_url} alt="" className="max-w-full max-h-full object-contain" />
-                </div>
-              )}
+                  {ttsStatus === "loading" ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <Headphones className="h-5 w-5" />
+                  )}
+                </button>
+                {business.logo_url && (
+                  <div
+                    className="w-16 h-16 p-1.5 rounded-lg border border-border flex items-center justify-center"
+                    style={{
+                      backgroundColor:
+                        business.logo_bg === 'blanc' || business.logo_bg === 'white' ? '#ffffff'
+                        : business.logo_bg === 'noir' || business.logo_bg === 'black' ? '#000000'
+                        : 'transparent',
+                    }}
+                  >
+                    <img src={business.logo_url} alt="" className="max-w-full max-h-full object-contain" />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
