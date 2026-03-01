@@ -508,7 +508,8 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
               </div>
             )}
             {isExpanded && images.length >= 5 ? (
-              /* Multi-image collage grid for expanded mode */
+              <>
+              {/* Multi-image collage grid for expanded mode */}
               <div className="relative w-full bg-muted flex-shrink-0 overflow-hidden" style={{ height: 320 }}>
                 <div className="grid grid-cols-2 gap-1 h-full">
                   {/* Large image left */}
@@ -525,13 +526,12 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                       <img src={logoGold} alt="WTUCE" className="absolute top-3 right-3 w-12 h-12 object-contain opacity-90 pointer-events-none drop-shadow-lg" />
                     )}
                   </div>
-                  {/* 4 smaller items right in 2x2 grid — video replaces slot 0 if available */}
+                  {/* 4 smaller items right in 2x2 grid */}
                   <div className="grid grid-cols-2 grid-rows-2 gap-1">
                     {(() => {
                       const rightSlots: { type: "image" | "video"; src: string; globalIdx: number }[] = [];
                       if (hasVideo) {
                         rightSlots.push({ type: "video", src: business.video_1_url!, globalIdx: 0 });
-                        // fill remaining 3 slots with images 1-3
                         images.slice(1, 4).forEach((img, i) => rightSlots.push({ type: "image", src: img, globalIdx: videoOffset + i + 1 }));
                       } else {
                         images.slice(1, 5).forEach((img, i) => rightSlots.push({ type: "image", src: img, globalIdx: i + 1 }));
@@ -578,7 +578,6 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                               className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                             />
                           )}
-                          {/* Play icon overlay on video thumbnail */}
                           {slot.type === "video" && (
                             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                               <div className="p-2 rounded-full bg-background/70">
@@ -586,21 +585,34 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                               </div>
                             </div>
                           )}
-                          {/* "Voir les X photos" button on last image */}
-                          {idx === 3 && (images.length + (hasVideo ? 1 : 0)) > 5 && (
-                            <button
-                              onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(0); setIsLightboxOpen(true); }}
-                              className="absolute bottom-3 right-3 px-3 py-1.5 rounded-full bg-background/90 text-xs font-medium text-foreground shadow-md hover:bg-background transition-colors"
-                            >
-                              {language === "en" ? `View all ${mediaCount} photos` : language === "ar" ? `عرض ${mediaCount} صور` : `Voir les ${mediaCount} photos`}
-                            </button>
-                          )}
                         </div>
                       ));
                     })()}
                   </div>
                 </div>
               </div>
+              {/* Remaining images grid below the collage */}
+              {images.length > 5 && (
+                <div className="grid grid-cols-3 gap-1 mt-1">
+                  {images.slice(hasVideo ? 4 : 5).map((img, i) => {
+                    const globalIdx = videoOffset + (hasVideo ? 4 : 5) + i;
+                    return (
+                      <div
+                        key={i}
+                        className="relative aspect-[4/3] cursor-pointer overflow-hidden"
+                        onClick={() => { setCurrentImageIndex(globalIdx); setIsLightboxOpen(true); }}
+                      >
+                        <img
+                          src={img}
+                          alt={`${business.name} - ${globalIdx + 1}`}
+                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+              </>
             ) : (
               /* Standard carousel for non-expanded or few images */
               <div ref={mediaContainerRef} className="relative w-full aspect-[16/9] bg-muted cursor-pointer" onClick={() => { if (!(hasVideo && currentImageIndex === 0)) setIsLightboxOpen(true); }}>
