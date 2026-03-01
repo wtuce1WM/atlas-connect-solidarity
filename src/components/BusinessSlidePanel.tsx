@@ -146,6 +146,9 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
   const [videoError, setVideoError] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const mediaContainerRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const mediaEndSentinelRef = useRef<HTMLDivElement>(null);
+  const [showStickyHeader, setShowStickyHeader] = useState(false);
 
   const handleFullscreen = useCallback(() => {
     // For native video, use the video element's fullscreen
@@ -166,6 +169,19 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
       }
     }
   }, []);
+
+  // Sticky header: show when scrolled past media
+  useEffect(() => {
+    const sentinel = mediaEndSentinelRef.current;
+    const root = scrollContainerRef.current;
+    if (!sentinel || !root) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setShowStickyHeader(!entry.isIntersecting),
+      { root, threshold: 0 }
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [isLoading, business]);
 
   useEffect(() => {
     const fetch = async () => {
@@ -390,7 +406,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
         toolbarPortal
       )}
       {/* Scrollable content */}
-      <div className="flex-1 overflow-y-auto">
+      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto relative">
         {/* Image display */}
         {mediaCount > 0 && (
           <>
@@ -603,6 +619,49 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
               </div>
             )}
           </>
+        )}
+
+        {/* Sentinel to detect when images are scrolled past */}
+        <div ref={mediaEndSentinelRef} className="h-0 w-full" />
+
+        {/* Sticky sub-header: name, rating, logo, open badge */}
+        {showStickyHeader && (
+          <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b border-border px-4 py-2.5 flex items-center gap-3 animate-in fade-in-0 slide-in-from-top-2 duration-200">
+            <div className="flex-1 min-w-0">
+              <h4 className="text-sm font-bold text-foreground truncate">{business.name}</h4>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                {avgOn20 !== null && (
+                  <>
+                    <Star className="h-3 w-3 text-gold fill-gold" />
+                    <span className="font-bold text-gold">{avgOn20}/20</span>
+                    {totalReviewCount > 0 && <span>· {totalReviewCount.toLocaleString("fr-FR")} avis</span>}
+                  </>
+                )}
+                {openBadgeText && (
+                  <>
+                    <span>·</span>
+                    <span className={`inline-flex items-center gap-1 font-medium ${openBadgeIsOpen ? "text-emerald-600" : "text-muted-foreground"}`}>
+                      <Clock className="h-3 w-3" />
+                      {openBadgeText}
+                    </span>
+                  </>
+                )}
+              </div>
+            </div>
+            {business.logo_url && (
+              <div
+                className="w-10 h-10 p-1 rounded-md border border-border flex items-center justify-center shrink-0"
+                style={{
+                  backgroundColor:
+                    business.logo_bg === 'blanc' || business.logo_bg === 'white' ? '#ffffff'
+                    : business.logo_bg === 'noir' || business.logo_bg === 'black' ? '#000000'
+                    : 'transparent',
+                }}
+              >
+                <img src={business.logo_url} alt="" className="max-w-full max-h-full object-contain" />
+              </div>
+            )}
+          </div>
         )}
 
         <div className="p-5 space-y-5 relative z-10 bg-background">
