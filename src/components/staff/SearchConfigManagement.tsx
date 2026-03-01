@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Search, Save, Loader2, Plus, Trash2, X, Settings2, Zap, Hash, Type, Globe, ExternalLink } from "lucide-react";
+import { Search, Save, Loader2, Plus, Trash2, X, Settings2, Zap, Hash, Type, Globe, ExternalLink, AlertTriangle, ShieldOff } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -36,6 +36,14 @@ interface SearchConfig {
   synonyms: string[];
 }
 
+// Inheritance info: which subcategories inherit config from a service's parent
+interface InheritanceInfo {
+  parentSubcategoryName: string;
+  parentSubcategoryId: string;
+  parentSearchMode: string;
+  serviceName: string;
+}
+
 const SearchConfigManagement = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
@@ -46,16 +54,20 @@ const SearchConfigManagement = () => {
   const [savingIds, setSavingIds] = useState<Set<string>>(new Set());
   const [newSynonym, setNewSynonym] = useState<Record<string, string>>({});
   const [businessCounts, setBusinessCounts] = useState<Record<string, number>>({});
+  // Map subcategory ID → inheritance info (only for subcats without their own config)
+  const [inheritanceMap, setInheritanceMap] = useState<Record<string, InheritanceInfo>>({});
 
   // Load data
   useEffect(() => {
     const load = async () => {
       setIsLoading(true);
-      const [catRes, subRes, configRes, bizRes] = await Promise.all([
+      const [catRes, subRes, configRes, bizRes, svcRes] = await Promise.all([
         supabase.from("categories").select("id, name_fr").order("name_fr"),
         supabase.from("subcategories").select("id, name_fr, category_id").order("name_fr"),
         supabase.from("subcategory_search_config").select("*"),
         supabase.from("businesses").select("categories, is_active"),
+        // Load services with their parent subcategory name for inheritance detection
+        supabase.from("services").select("name_fr, subcategory_id, subcategories!inner(name_fr)"),
       ]);
 
       if (catRes.data) setCategories(catRes.data);
@@ -74,10 +86,11 @@ const SearchConfigManagement = () => {
         }
         setBusinessCounts(counts);
       }
+
+      const configMap: Record<string, SearchConfig> = {};
       if (configRes.data) {
-        const map: Record<string, SearchConfig> = {};
         for (const c of configRes.data) {
-          map[c.subcategory_id] = {
+          configMap[c.subcategory_id] = {
             id: c.id,
             subcategory_id: c.subcategory_id,
             search_mode: c.search_mode as "strict" | "broad",
@@ -86,8 +99,39 @@ const SearchConfigManagement = () => {
             synonyms: c.synonyms || [],
           };
         }
-        setConfigs(map);
+        setConfigs(configMap);
       }
+
+      // Build inheritance map: for each subcategory that has no config,
+      // check if its name also exists as a service → would inherit parent's config
+      if (subRes.data && svcRes.data && configRes.data) {
+        const configuredSubIds = new Set(configRes.data.map((c: any) => c.subcategory_id));
+        const inhMap: Record<string, InheritanceInfo> = {};
+
+        for (const sub of subRes.data) {
+          if (configuredSubIds.has(sub.id)) continue; // has its own config, no inheritance
+          // Check if this subcategory name exists as a service
+          const matchingService = svcRes.data.find(
+            (svc: any) => svc.name_fr?.toLowerCase() === sub.name_fr.toLowerCase()
+          );
+          if (matchingService) {
+            const parentSubName = (matchingService as any).subcategories?.name_fr;
+            const parentSubId = matchingService.subcategory_id;
+            // Check if parent subcategory has a config
+            const parentConfig = configRes.data.find((c: any) => c.subcategory_id === parentSubId);
+            if (parentConfig) {
+              inhMap[sub.id] = {
+                parentSubcategoryName: parentSubName || "?",
+                parentSubcategoryId: parentSubId,
+                parentSearchMode: parentConfig.search_mode,
+                serviceName: matchingService.name_fr,
+              };
+            }
+          }
+        }
+        setInheritanceMap(inhMap);
+      }
+
       setIsLoading(false);
     };
     load();
@@ -246,6 +290,12 @@ const SearchConfigManagement = () => {
           <Settings2 className="h-3.5 w-3.5 mr-1.5" />
           {configuredCount} personnalisée{configuredCount > 1 ? "s" : ""} sur {totalCount}
         </Badge>
+        {Object.keys(inheritanceMap).length > 0 && (
+          <Badge variant="outline" className="text-sm px-3 py-1 border-orange-300 text-orange-700 cursor-pointer hover:bg-orange-50" onClick={() => setSearchQuery("")}>
+            <AlertTriangle className="h-3.5 w-3.5 mr-1.5" />
+            {Object.keys(inheritanceMap).length} héritage{Object.keys(inheritanceMap).length > 1 ? "s" : ""} implicite{Object.keys(inheritanceMap).length > 1 ? "s" : ""}
+          </Badge>
+        )}
         <Badge variant="secondary" className="text-sm px-3 py-1">
           <Zap className="h-3.5 w-3.5 mr-1.5" />
           Strict = filtre sous-catégorie uniquement
@@ -288,11 +338,39 @@ const SearchConfigManagement = () => {
           const config = getConfig(sub.id);
           const hasConfig = !!configs[sub.id];
           const isSaving = savingIds.has(sub.id);
-          const isModified = hasConfig || config.search_mode !== "broad" || config.max_results !== null || config.boost_weight !== 1.0 || config.synonyms.length > 0;
+          const inheritance = inheritanceMap[sub.id];
 
           return (
-            <Card key={sub.id} className={`transition-colors ${hasConfig ? "border-primary/30 bg-primary/[0.02]" : ""}`}>
+            <Card key={sub.id} className={`transition-colors ${hasConfig ? "border-primary/30 bg-primary/[0.02]" : ""} ${inheritance && !hasConfig ? "border-orange-300/50" : ""}`}>
               <CardContent className="p-4">
+                {/* Inheritance warning banner */}
+                {inheritance && !hasConfig && (
+                  <div className="flex items-center gap-2 mb-3 p-2 rounded-md bg-orange-50 border border-orange-200 text-orange-800 text-xs">
+                    <AlertTriangle className="h-3.5 w-3.5 flex-shrink-0" />
+                    <span>
+                      <strong>Héritage implicite :</strong> « {sub.name_fr} » existe aussi comme service de <strong>{inheritance.parentSubcategoryName}</strong> → hérite du mode <strong className="uppercase">{inheritance.parentSearchMode}</strong>
+                    </span>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="ml-auto h-6 text-[10px] px-2 border-orange-300 text-orange-700 hover:bg-orange-100"
+                      onClick={() => {
+                        updateConfig(sub.id, { search_mode: "broad", boost_weight: 1.0, max_results: null, synonyms: [] });
+                        saveConfig(sub.id).then(() => {
+                          // Remove from inheritance map after saving
+                          setInheritanceMap(prev => {
+                            const next = { ...prev };
+                            delete next[sub.id];
+                            return next;
+                          });
+                        });
+                      }}
+                    >
+                      <ShieldOff className="h-3 w-3 mr-1" />
+                      Forcer Broad
+                    </Button>
+                  </div>
+                )}
                 <div className="flex items-start gap-4 flex-wrap lg:flex-nowrap">
                   {/* Name & category */}
                   <div className="min-w-[200px] flex-shrink-0">
