@@ -146,7 +146,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
   const [isVideoMuted, setIsVideoMuted] = useState(true);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [showClubCard, setShowClubCard] = useState(false);
-  const [isMatterportOpen, setIsMatterportOpen] = useState(false);
+  // isMatterportOpen removed — Matterport is now part of the unified lightbox
   const [isVideoPaused, setIsVideoPaused] = useState(false);
   const [videoError, setVideoError] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -289,10 +289,12 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
 
   const isVerified = business.wtuce_status === "verified";
   const isInstitution = business.account_type?.toLowerCase() === "institution";
-  const images = business.images || [];
-  const hasVideo = !!business.video_1_url && !videoError;
-  const mediaCount = (hasVideo ? 1 : 0) + images.length;
-  const videoOffset = hasVideo ? 1 : 0;
+   const images = business.images || [];
+   const hasVideo = !!business.video_1_url && !videoError;
+   const hasMatterport = !!business.matterport_url;
+   const mediaCount = (hasVideo ? 1 : 0) + images.length + (hasMatterport ? 1 : 0);
+   const videoOffset = hasVideo ? 1 : 0;
+   const matterportIndex = hasMatterport ? mediaCount - 1 : -1;
   const ratingSourcesForCalc = collectRatingSources(business);
   const computedOn20 = computeWeightedRatingOn20(ratingSourcesForCalc);
   const avgOn20 = business.rating ?? computedOn20;
@@ -490,31 +492,27 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                   {/* 4 smaller items right in 2x2 grid */}
                   <div className="grid grid-cols-2 grid-rows-2 gap-1.5">
                     {(() => {
-                      const hasMatterport = !!business.matterport_url;
-                      const rightSlots: { type: "image" | "video" | "matterport"; src: string; globalIdx: number }[] = [];
-                      if (hasVideo) {
-                        rightSlots.push({ type: "video", src: business.video_1_url!, globalIdx: 0 });
-                        const imgCount = hasMatterport ? 2 : 3;
-                        images.slice(1, 1 + imgCount).forEach((img, i) => rightSlots.push({ type: "image", src: img, globalIdx: videoOffset + i + 1 }));
-                      } else {
-                        const imgCount = hasMatterport ? 3 : 4;
-                        images.slice(1, 1 + imgCount).forEach((img, i) => rightSlots.push({ type: "image", src: img, globalIdx: i + 1 }));
-                      }
-                      if (hasMatterport) {
-                        rightSlots.push({ type: "matterport", src: business.matterport_url!, globalIdx: -1 });
-                      }
+                       const rightSlots: { type: "image" | "video" | "matterport"; src: string; globalIdx: number }[] = [];
+                       if (hasVideo) {
+                         rightSlots.push({ type: "video", src: business.video_1_url!, globalIdx: 0 });
+                         const imgCount = hasMatterport ? 2 : 3;
+                         images.slice(1, 1 + imgCount).forEach((img, i) => rightSlots.push({ type: "image", src: img, globalIdx: videoOffset + i + 1 }));
+                       } else {
+                         const imgCount = hasMatterport ? 3 : 4;
+                         images.slice(1, 1 + imgCount).forEach((img, i) => rightSlots.push({ type: "image", src: img, globalIdx: i + 1 }));
+                       }
+                       if (hasMatterport) {
+                         rightSlots.push({ type: "matterport", src: business.matterport_url!, globalIdx: matterportIndex });
+                       }
                       return rightSlots.map((slot, idx) => (
                         <div
                           key={idx}
                           className="relative cursor-pointer overflow-hidden rounded-lg"
-                          onClick={() => {
-                            if (slot.type === "matterport") {
-                              setIsMatterportOpen(true);
-                            } else {
-                              setCurrentImageIndex(slot.globalIdx);
-                              setIsLightboxOpen(true);
-                            }
-                          }}
+                          onClick={(e) => {
+                             e.stopPropagation();
+                             setCurrentImageIndex(slot.globalIdx);
+                             setIsLightboxOpen(true);
+                           }}
                         >
                           {slot.type === "matterport" ? (
                             <div className="w-full h-full bg-gradient-to-br from-muted to-muted/60 flex flex-col items-center justify-center gap-2 hover:from-primary/10 hover:to-primary/5 transition-colors">
@@ -625,6 +623,12 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                       />
                     );
                   })()
+                ) : hasMatterport && currentImageIndex === matterportIndex ? (
+                  <div className="w-full h-full bg-gradient-to-br from-muted to-muted/60 flex flex-col items-center justify-center gap-3">
+                    <Box className="h-12 w-12 text-primary" />
+                    <span className="text-sm font-semibold text-primary">Visite 3D</span>
+                    <span className="text-xs text-muted-foreground">Cliquez pour lancer</span>
+                  </div>
                 ) : (
                   <img
                     src={images[currentImageIndex - videoOffset]}
@@ -1341,47 +1345,57 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
             <X className="h-5 w-5" />
             <span>Fermer</span>
           </button>
-          {hasVideo && currentImageIndex === 0 ? (
-            (() => {
-              const url = business.video_1_url!;
-              const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]+)/);
-              if (ytMatch) {
-                return (
-                  <iframe
-                    src={`https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&mute=0&loop=1&playlist=${ytMatch[1]}&rel=0`}
-                    className="w-[90%] max-h-[90vh] aspect-video"
-                    allow="autoplay; encrypted-media; fullscreen"
-                    allowFullScreen
-                    frameBorder="0"
-                    onClick={(e: any) => e.stopPropagation()}
-                  />
-                );
-              }
-              const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
-              if (vimeoMatch) {
-                return (
-                  <iframe
-                    src={`https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1&loop=1`}
-                    className="w-[90%] max-h-[90vh] aspect-video"
-                    allow="autoplay; encrypted-media; fullscreen"
-                    allowFullScreen
-                    frameBorder="0"
-                    onClick={(e: any) => e.stopPropagation()}
-                  />
-                );
-              }
-              return (
-                <video src={url} autoPlay controls loop playsInline className="max-w-[90%] max-h-[90vh] object-contain" onClick={(e) => e.stopPropagation()} />
-              );
-            })()
-          ) : (
-            <img
-              src={images[currentImageIndex - videoOffset]}
-              alt={`${business.name} - ${currentImageIndex - videoOffset + 1}`}
-              className="max-w-[90%] max-h-[90vh] object-contain"
-              onClick={(e) => e.stopPropagation()}
-            />
-          )}
+           {hasMatterport && currentImageIndex === matterportIndex ? (
+             <iframe
+               src={business.matterport_url!}
+               className="w-[95%] h-[90vh]"
+               allow="fullscreen; vr; xr"
+               allowFullScreen
+               frameBorder="0"
+               title={`Visite 3D - ${business.name}`}
+               onClick={(e: any) => e.stopPropagation()}
+             />
+           ) : hasVideo && currentImageIndex === 0 ? (
+             (() => {
+               const url = business.video_1_url!;
+               const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]+)/);
+               if (ytMatch) {
+                 return (
+                   <iframe
+                     src={`https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&mute=0&loop=1&playlist=${ytMatch[1]}&rel=0`}
+                     className="w-[90%] max-h-[90vh] aspect-video"
+                     allow="autoplay; encrypted-media; fullscreen"
+                     allowFullScreen
+                     frameBorder="0"
+                     onClick={(e: any) => e.stopPropagation()}
+                   />
+                 );
+               }
+               const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+               if (vimeoMatch) {
+                 return (
+                   <iframe
+                     src={`https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1&loop=1`}
+                     className="w-[90%] max-h-[90vh] aspect-video"
+                     allow="autoplay; encrypted-media; fullscreen"
+                     allowFullScreen
+                     frameBorder="0"
+                     onClick={(e: any) => e.stopPropagation()}
+                   />
+                 );
+               }
+               return (
+                 <video src={url} autoPlay controls loop playsInline className="max-w-[90%] max-h-[90vh] object-contain" onClick={(e) => e.stopPropagation()} />
+               );
+             })()
+           ) : (
+             <img
+               src={images[currentImageIndex - videoOffset]}
+               alt={`${business.name} - ${currentImageIndex - videoOffset + 1}`}
+               className="max-w-[90%] max-h-[90vh] object-contain"
+               onClick={(e) => e.stopPropagation()}
+             />
+           )}
           {mediaCount > 1 && (
             <>
               <button
@@ -1400,27 +1414,6 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                 {currentImageIndex + 1} / {mediaCount}
               </div>
             </>
-      )}
-      {/* Matterport 3D tour — fullscreen portal */}
-      {isMatterportOpen && business.matterport_url && createPortal(
-        <div className="fixed inset-0 z-[9999] bg-black flex items-center justify-center">
-          <button
-            onClick={() => setIsMatterportOpen(false)}
-            className="absolute top-6 left-6 z-20 flex items-center gap-2 px-4 py-2.5 rounded-full bg-white text-black font-semibold text-sm shadow-2xl hover:bg-white/90 transition-colors"
-          >
-            <X className="h-5 w-5" />
-            <span>Fermer</span>
-          </button>
-          <iframe
-            src={business.matterport_url}
-            className="w-full h-full"
-            allow="fullscreen; vr; xr"
-            allowFullScreen
-            frameBorder="0"
-            title={`Visite 3D - ${business.name}`}
-          />
-        </div>,
-        document.body
       )}
         </div>,
         document.body
