@@ -911,7 +911,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                     setIsDescriptionExpanded(true);
                   }
                 }}
-                className="w-full py-2 rounded-lg border border-border bg-muted/50 text-sm font-semibold text-muted-foreground hover:bg-muted transition-colors"
+                className="w-[20%] py-2 rounded-lg border border-border bg-muted/50 text-sm font-semibold text-muted-foreground hover:bg-muted transition-colors"
               >
                 {isDescriptionExpanded ? "Voir −" : "Voir +"}
               </button>
