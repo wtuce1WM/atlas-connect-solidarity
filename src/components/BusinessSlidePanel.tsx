@@ -737,6 +737,9 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
                 </div>
               </div>
               <div className="flex items-center gap-2 shrink-0">
+                {business.default_service && (
+                  <Badge variant="secondary" className="text-xs">{business.default_service}</Badge>
+                )}
                 {voiceStatus === "recording" && (
                   <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-destructive/10 text-destructive text-xs font-medium animate-pulse">
                     <Mic className="h-3.5 w-3.5" />
