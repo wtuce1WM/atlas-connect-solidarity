@@ -5,6 +5,21 @@ type TTSStatus = "idle" | "loading" | "playing" | "error";
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
+/** Normalize abbreviations for natural speech */
+const normalizeTTSText = (text: string): string =>
+  text
+    .replace(/(\d+)\s*j\s*\/\s*(\d+)/gi, "$1 jours sur $2")
+    .replace(/(\d+)\s*h\s*\/\s*(\d+)/gi, "$1 heures sur $2")
+    .replace(/24\s*\/\s*24/g, "24 heures sur 24")
+    .replace(/7\s*\/\s*7/g, "7 jours sur 7")
+    .replace(/(\d+)\s*h\s*(\d+)/gi, "$1 heures $2")
+    .replace(/(\d+)\s*h\b/gi, "$1 heures")
+    .replace(/(\d+)\s*min\b/gi, "$1 minutes")
+    .replace(/(\d+)\s*km\b/gi, "$1 kilomètres")
+    .replace(/(\d+)\s*m²/gi, "$1 mètres carrés")
+    .replace(/n°\s*/gi, "numéro ")
+    .replace(/\betc\b\.?/gi, "et cætera");
+
 export function useTextToSpeech() {
   const [status, setStatus] = useState<TTSStatus>("idle");
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -32,6 +47,8 @@ export function useTextToSpeech() {
 
     if (!text.trim()) return;
 
+    const normalizedText = normalizeTTSText(text);
+
     setStatus("loading");
 
     try {
@@ -44,7 +61,7 @@ export function useTextToSpeech() {
             apikey: SUPABASE_KEY,
             Authorization: `Bearer ${SUPABASE_KEY}`,
           },
-          body: JSON.stringify({ text, voiceId }),
+          body: JSON.stringify({ text: normalizedText, voiceId }),
         }
       );
 
