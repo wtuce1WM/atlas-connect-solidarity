@@ -53,7 +53,12 @@ const Header = ({ variant = "default" }: HeaderProps) => {
 
       {/* Dropdown Menu */}
       {isMenuOpen && (
-        <div className="border-t border-border border-b border-b-foreground bg-gradient-to-b from-background/80 to-background/20 backdrop-blur-sm">
+        <div
+          className="border-t border-border border-b border-b-foreground backdrop-blur-sm"
+          style={{
+            background: "linear-gradient(to bottom, hsl(30 25% 97% / 0.85), hsl(30 25% 97% / 0.15))",
+          }}
+        >
           <nav className="container mx-auto flex flex-col items-center gap-4 px-4 py-6">
             <Link to="/mission" className="text-foreground transition-colors hover:text-gold">
               {t("footer.ourMission")}
