@@ -280,7 +280,7 @@ const AISearchAnswer = ({ query, businesses, isSearchLoading, onAnswerReady }: A
           <div className="absolute top-20 left-4 z-[999] flex items-center gap-3">
             <button
               onClick={() => { setSelectedBusiness(null); setIsPanelExpanded(false); }}
-              className="h-11 w-11 flex items-center justify-center rounded-full bg-primary text-primary-foreground border-2 border-background shadow-2xl hover:opacity-90 transition-opacity"
+              className="h-11 w-11 flex items-center justify-center rounded-full bg-black text-white border-2 border-white/20 shadow-2xl hover:opacity-90 transition-opacity"
               title="Fermer"
               aria-label="Fermer le panneau"
             >
@@ -288,7 +288,7 @@ const AISearchAnswer = ({ query, businesses, isSearchLoading, onAnswerReady }: A
             </button>
             <button
               onClick={() => setIsPanelExpanded(prev => !prev)}
-              className="h-11 w-11 flex items-center justify-center rounded-full bg-primary text-primary-foreground border-2 border-background shadow-2xl hover:opacity-90 transition-opacity"
+              className="h-11 w-11 flex items-center justify-center rounded-full bg-black text-white border-2 border-white/20 shadow-2xl hover:opacity-90 transition-opacity"
               title={isPanelExpanded ? "Réduire" : "Agrandir"}
               aria-label={isPanelExpanded ? "Réduire le panneau" : "Agrandir le panneau"}
             >
