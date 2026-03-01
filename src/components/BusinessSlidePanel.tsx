@@ -541,7 +541,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
           <div className="relative">
             {(
               /* Standard carousel for non-expanded or few images */
-              <div ref={mediaContainerRef} className="relative w-full aspect-[16/9] bg-muted cursor-pointer" onClick={() => { if (!(hasVideo && currentImageIndex === 0)) setIsLightboxOpen(true); }}>
+              <div ref={mediaContainerRef} className={`relative w-full aspect-[16/9] bg-muted ${mediaCount > 1 ? "cursor-pointer" : ""}`} onClick={() => { if (mediaCount > 1 && !(hasVideo && currentImageIndex === 0)) setIsLightboxOpen(true); }}>
                 {hasVideo && currentImageIndex === 0 ? (
                   (() => {
                     const url = business.video_1_url!;
