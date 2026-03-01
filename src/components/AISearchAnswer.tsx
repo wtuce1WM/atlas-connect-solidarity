@@ -3,6 +3,7 @@ import { Sparkles, Loader2, MapPin, Star, X, Maximize2, Minimize2 } from "lucide
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
+import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
 import BusinessSlidePanel from "@/components/BusinessSlidePanel";
 
 interface BusinessData {
@@ -20,6 +21,16 @@ interface BusinessData {
   phone?: string | null;
   website?: string | null;
   address?: string | null;
+  google_rating?: number | null;
+  google_review_count?: number | null;
+  tripadvisor_rating?: number | null;
+  tripadvisor_review_count?: number | null;
+  restaurant_guru_rating?: number | null;
+  restaurant_guru_review_count?: number | null;
+  getyourguide_rating?: number | null;
+  getyourguide_review_count?: number | null;
+  viator_rating?: number | null;
+  viator_review_count?: number | null;
 }
 
 interface AISearchAnswerProps {
@@ -65,6 +76,9 @@ const getImage = (b: BusinessData): string | null => {
 
 const BusinessHoverCard = ({ name, business, onClickBusiness }: { name: string; business: BusinessData; onClickBusiness: (b: BusinessData) => void }) => {
   const img = getImage(business);
+  const sources = collectRatingSources(business as any);
+  const avgOn20 = business.rating ?? computeWeightedRatingOn20(sources);
+  const totalReviews = sources.reduce((s, r) => s + r.count, 0);
 
   return (
     <HoverCard openDelay={200} closeDelay={100}>
@@ -89,14 +103,14 @@ const BusinessHoverCard = ({ name, business, onClickBusiness }: { name: string; 
             <MapPin className="h-3 w-3 shrink-0" />
             <span>{business.city}{business.neighborhood ? ` · ${business.neighborhood}` : ""}</span>
           </div>
-          {business.rating && (
+          {avgOn20 && (
             <div className="flex items-center gap-1 text-xs">
               <Star className="h-3 w-3 text-gold fill-gold" />
-              <span className="font-medium text-foreground">{business.rating}/20</span>
+              <span className="font-medium text-foreground">{avgOn20}/20</span>
+              {totalReviews > 0 && (
+                <span className="text-muted-foreground">· {totalReviews.toLocaleString("fr-FR")} avis</span>
+              )}
             </div>
-          )}
-          {business.hook_fr && (
-            <p className="text-xs text-muted-foreground line-clamp-2 italic">{business.hook_fr}</p>
           )}
         </div>
       </HoverCardContent>
