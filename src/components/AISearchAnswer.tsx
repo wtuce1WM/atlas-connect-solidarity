@@ -35,6 +35,7 @@ interface BusinessData {
 
 interface AISearchAnswerProps {
   query: string;
+  spokenText?: string;
   businesses: BusinessData[];
   isSearchLoading: boolean;
   onAnswerReady?: (answer: string) => void;
@@ -179,7 +180,7 @@ const formatAnswer = (text: string, businesses: BusinessData[], onClickBusiness:
   ));
 };
 
-const AISearchAnswer = ({ query, businesses, isSearchLoading, onAnswerReady }: AISearchAnswerProps) => {
+const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnswerReady }: AISearchAnswerProps) => {
   const { language } = useLanguage();
   const [answer, setAnswer] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -215,16 +216,28 @@ const AISearchAnswer = ({ query, businesses, isSearchLoading, onAnswerReady }: A
 
     const fetchAnswer = async () => {
       try {
+        // Prioritize businesses from the most relevant city
+        const top10 = businesses.slice(0, 10);
+        const cityCounts: Record<string, number> = {};
+        top10.forEach(b => { if (b.city) cityCounts[b.city] = (cityCounts[b.city] || 0) + 1; });
+        const topCity = Object.entries(cityCounts).sort((a, b) => b[1] - a[1])[0]?.[0];
+        // Sort: businesses from the dominant city first, then others
+        const sortedForAI = [...top10].sort((a, b) => {
+          const aMatch = a.city === topCity ? 0 : 1;
+          const bMatch = b.city === topCity ? 0 : 1;
+          return aMatch - bMatch;
+        });
+
         const { data, error: fnError } = await supabase.functions.invoke("ai-search-answer", {
           body: {
             query,
-            businesses: businesses.slice(0, 10).map(b => ({
+            spokenText: spokenText || undefined,
+            businesses: sortedForAI.map(b => ({
               name: b.name,
               city: b.city,
               main_category: b.main_category,
               categories: b.categories,
               hook_fr: b.hook_fr,
-              
               wtuce_status: b.wtuce_status,
             })),
             language,

@@ -13,7 +13,7 @@ serve(async (req) => {
   }
 
   try {
-    const { query, businesses = [], language = "fr" } = await req.json();
+    const { query, spokenText, businesses = [], language = "fr" } = await req.json();
 
     if (!query) {
       return new Response(JSON.stringify({ answer: "" }), {
@@ -88,7 +88,7 @@ RÈGLES :
 - Tu peux utiliser du markdown : gras (**texte**), italique (*texte*). Pas de titres (#), pas de listes à puces.
 - Commence par une phrase d'accroche engageante liée à la recherche, puis laisse DEUX lignes vides avant de continuer avec les recommandations.
 - ${tone}
-- Commence par une accroche engageante liée à la recherche de l'utilisateur.${extraInstructions ? `\n- ${extraInstructions}` : ''}
+- Commence par une accroche engageante liée à la recherche de l'utilisateur.${extraInstructions ? `\n- ${extraInstructions}` : ''}${spokenText ? `\n- CONTEXTE IMPORTANT : L'utilisateur a dit textuellement : "${spokenText}". Utilise ce contexte pour mieux comprendre son intention réelle et ne recommande QUE les établissements qui correspondent à cette intention. Si certains établissements de la liste ne correspondent pas au contexte (mauvaise ville, mauvais type), ignore-les.` : ''}
 
 ÉTABLISSEMENTS TROUVÉS :
 ${businessContext}`;
