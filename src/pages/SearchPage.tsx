@@ -406,7 +406,17 @@ const SearchPage = () => {
   const resultsRef = useRef<HTMLDivElement>(null);
   const latestFetchIdRef = useRef(0);
 
-  const { speak: ttsSpeak, stop: ttsStop, status: ttsStatus } = useTextToSpeech();
+  const voiceLoopRef = useRef(false);
+  const { speak: ttsSpeak, stop: ttsStop, status: ttsStatus } = useTextToSpeech({
+    onEnd: () => {
+      if (voiceLoopRef.current) {
+        voiceLoopRef.current = false;
+        // Small delay so audio output stops before mic starts
+        setTimeout(() => toggleRecordingRef.current?.(), 400);
+      }
+    },
+  });
+  const toggleRecordingRef = useRef<(() => void) | null>(null);
   const geo = useGeolocation();
 
   // Auto-select city when geolocation detects one only if the query doesn't already target a city
@@ -449,6 +459,7 @@ const SearchPage = () => {
       toast({ variant: "destructive", title: "Erreur microphone", description: message });
     },
   });
+  toggleRecordingRef.current = toggleRecording;
 
   // Get cities available in results, sorted by priority score
   const availableCities = useMemo(() => {
@@ -957,7 +968,8 @@ const SearchPage = () => {
                    if (aiAnswerText) {
                      const cleanText = aiAnswerText.replace(/\*\*/g, "");
                      const intro = ttsIntroPhrase ? `${ttsIntroPhrase}. ` : "";
-                     ttsSpeak(intro + cleanText);
+                     voiceLoopRef.current = true;
+                     ttsSpeak(intro + cleanText + " … Vous pouvez me poser une autre question.");
                   } else {
                     const count = filteredBusinesses.length;
                     const cityText = selectedCity !== "all" ? ` à ${selectedCity}` : "";
@@ -972,6 +984,8 @@ const SearchPage = () => {
                         speech += `${i === 0 ? 'Premier' : i === 1 ? 'Deuxième' : 'Troisième'}, ${buildBusinessTTSLine(b, i)}. `;
                       });
                     }
+                    speech += " Vous pouvez me poser une autre question.";
+                    voiceLoopRef.current = true;
                     ttsSpeak(speech);
                   }
                 }}
@@ -980,6 +994,12 @@ const SearchPage = () => {
                 <Volume2 className="h-4 w-4" />
                 {language === "en" ? "Listen to results" : language === "ar" ? "استمع للنتائج" : "Écouter les résultats"}
               </button>
+            )}
+            {voiceStatus === "recording" && (
+              <div className="mb-4 inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-destructive/10 border border-destructive/30 text-destructive text-sm font-medium animate-pulse">
+                <Mic className="h-4 w-4" />
+                Je vous écoute… dites votre prochaine recherche
+              </div>
             )}
 
             {/* Geo toggle */}
@@ -1141,10 +1161,11 @@ const SearchPage = () => {
               ) : !isLoading && filteredBusinesses.length > 0 && (
                 <button
                   onClick={() => {
-                     if (aiAnswerText) {
+                      if (aiAnswerText) {
                        const cleanText = aiAnswerText.replace(/\*\*/g, "");
                        const intro = ttsIntroPhrase ? `${ttsIntroPhrase}. ` : "";
-                       ttsSpeak(intro + cleanText);
+                       voiceLoopRef.current = true;
+                       ttsSpeak(intro + cleanText + " … Vous pouvez me poser une autre question.");
                     } else {
                       const count = filteredBusinesses.length;
                       const cityText = selectedCity !== "all" ? ` à ${selectedCity}` : "";
@@ -1159,6 +1180,8 @@ const SearchPage = () => {
                           speech += `${i === 0 ? 'Premier' : i === 1 ? 'Deuxième' : 'Troisième'}, ${buildBusinessTTSLine(b, i)}. `;
                         });
                       }
+                      speech += " Vous pouvez me poser une autre question.";
+                      voiceLoopRef.current = true;
                       ttsSpeak(speech);
                     }
                   }}
@@ -1184,7 +1207,6 @@ const SearchPage = () => {
             </div>
           )}
 
-
           {/* AI Search Answer */}
           {searchQuery && !isLoading && filteredBusinesses.length > 0 && (
             <AISearchAnswer
@@ -1194,7 +1216,6 @@ const SearchPage = () => {
               onAnswerReady={setAiAnswerText}
             />
           )}
-
 
         </div>
       </section>

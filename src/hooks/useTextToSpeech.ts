@@ -20,10 +20,12 @@ const normalizeTTSText = (text: string): string =>
     .replace(/n°\s*/gi, "numéro ")
     .replace(/\betc\b\.?/gi, "et cætera");
 
-export function useTextToSpeech() {
+export function useTextToSpeech(options?: { onEnd?: () => void }) {
   const [status, setStatus] = useState<TTSStatus>("idle");
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const objectUrlRef = useRef<string | null>(null);
+  const onEndRef = useRef(options?.onEnd);
+  onEndRef.current = options?.onEnd;
 
   const stop = useCallback(() => {
     if (audioRef.current) {
@@ -83,6 +85,7 @@ export function useTextToSpeech() {
           objectUrlRef.current = null;
         }
         audioRef.current = null;
+        onEndRef.current?.();
       };
 
       audio.onerror = () => {
