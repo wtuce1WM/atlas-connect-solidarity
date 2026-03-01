@@ -967,6 +967,7 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
             
             return (
               <div className="space-y-2">
+                <hr className="border-border" />
                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{language === "en" ? "Location" : language === "ar" ? "الموقع" : "Localisation"}</p>
                 <div className="rounded-lg overflow-hidden border border-border">
                   <iframe
