@@ -196,9 +196,9 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
   const lastFetchKeyRef = useRef("");
 
   const fetchKey = useMemo(() => {
-    if (!query) return "";
+    if (!query || !businesses.length) return "";
     const names = businesses.slice(0, 10).map(b => b.name).join("|");
-    return `${query}::${names || "no-results"}`;
+    return `${query}::${names}`;
   }, [query, businesses]);
 
   useEffect(() => {
