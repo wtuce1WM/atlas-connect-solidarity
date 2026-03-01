@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -164,6 +165,7 @@ const BusinessCard = ({
   distanceKm,
   activeTimeSlot
 }: BusinessCardProps) => {
+  const { language } = useLanguage();
   const { speak: ttsSpeak, stop: ttsStop, status: ttsStatus } = useTextToSpeech();
   const gamme = getBusinessGamme(business, gammes);
   const badge = getBusinessBadge(business, badges, subcategories, badgeSubcategories);
@@ -197,13 +199,16 @@ const BusinessCard = ({
       }
     }
 
-    // Synthèse des avis
-    const summary = data?.ai_review_summary as { pros?: string[]; cons?: string[] } | null;
-    if (summary?.pros && summary.pros.length > 0) {
-      parts.push(`Les clients apprécient : ${summary.pros.slice(0, 3).join(", ")}.`);
+    // Synthèse des avis (multilingual: picks fr/en based on interface language)
+    const rawSummary = data?.ai_review_summary as any;
+    const langSummary = rawSummary?.[language] || rawSummary; // fallback to legacy top-level
+    const prosLabel = language === "en" ? "Customers appreciate" : "Les clients apprécient";
+    const consLabel = language === "en" ? "Areas for improvement" : "Points à améliorer";
+    if (langSummary?.pros && langSummary.pros.length > 0) {
+      parts.push(`${prosLabel} : ${langSummary.pros.slice(0, 3).join(", ")}.`);
     }
-    if (summary?.cons && summary.cons.length > 0) {
-      parts.push(`Points à améliorer : ${summary.cons.slice(0, 2).join(", ")}.`);
+    if (langSummary?.cons && langSummary.cons.length > 0) {
+      parts.push(`${consLabel} : ${langSummary.cons.slice(0, 2).join(", ")}.`);
     }
 
     if (displayRating) {

@@ -254,16 +254,19 @@ const BusinessSlidePanel = ({ businessId, onClose }: BusinessSlidePanelProps) =>
         parts.push(clean.length > 250 ? clean.slice(0, 250) + "…" : clean);
       }
     }
-    // Synthèse IA des avis
-    const summary = business.ai_review_summary as { pros?: string[]; cons?: string[] } | null;
-    if (summary?.pros && summary.pros.length > 0) {
-      parts.push(`Les clients apprécient : ${summary.pros.slice(0, 3).join(", ")}.`);
+    // Synthèse IA des avis (multilingual: picks fr/en based on interface language)
+    const rawSummary = business.ai_review_summary as any;
+    const langSummary = rawSummary?.[language] || rawSummary; // fallback to legacy top-level
+    const prosLabel = language === "en" ? "Customers appreciate" : "Les clients apprécient";
+    const consLabel = language === "en" ? "Areas for improvement" : "Points à améliorer";
+    if (langSummary?.pros && langSummary.pros.length > 0) {
+      parts.push(`${prosLabel} : ${langSummary.pros.slice(0, 3).join(", ")}.`);
     }
-    if (summary?.cons && summary.cons.length > 0) {
-      parts.push(`Points à améliorer : ${summary.cons.slice(0, 2).join(", ")}.`);
+    if (langSummary?.cons && langSummary.cons.length > 0) {
+      parts.push(`${consLabel} : ${langSummary.cons.slice(0, 2).join(", ")}.`);
     }
     // Avis individuel si pas de synthèse IA
-    if (!summary?.pros) {
+    if (!langSummary?.pros) {
       const bestReview = reviewTexts.find(r => r.text && r.text.length > 20);
       if (bestReview) {
         const snippet = bestReview.text!.slice(0, 150).replace(/<[^>]+>/g, "");
