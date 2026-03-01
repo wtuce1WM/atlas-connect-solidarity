@@ -56,7 +56,8 @@ const Header = ({ variant = "default" }: HeaderProps) => {
         <div
           className="border-t border-border border-b border-b-foreground backdrop-blur-sm"
           style={{
-            background: "linear-gradient(to bottom, hsl(30 25% 97% / 0.85), hsl(30 25% 97% / 0.15))",
+            background:
+              "linear-gradient(to bottom, hsl(var(--background) / 0.45), hsl(var(--background) / 0.06))",
           }}
         >
           <nav className="container mx-auto flex flex-col items-center gap-4 px-4 py-6">
