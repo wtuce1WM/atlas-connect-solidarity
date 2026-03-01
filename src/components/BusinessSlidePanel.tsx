@@ -874,8 +874,11 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
             </p>
           )}
 
+          {/* Sentinel: triggers sticky tabs when hook scrolls out */}
+          <div ref={tabsSentinelRef} className="h-0 w-full" />
+
           {/* Tabs navigation */}
-          <div ref={tabsSentinelRef} className="flex gap-1 overflow-x-auto no-scrollbar border-b border-border -mx-5 px-5">
+          <div className="flex gap-1 overflow-x-auto no-scrollbar border-b border-border -mx-5 px-5">
             {[
               { id: "apercu", label: "Aperçu", show: !!business.description },
               { id: "contact", label: "Contact", show: !!(business.address || business.phone || business.email || business.whatsapp) },
