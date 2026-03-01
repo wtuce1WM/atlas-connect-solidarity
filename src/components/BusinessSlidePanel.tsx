@@ -652,9 +652,9 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
             {/* Contact icons - centered */}
             {(() => {
               const contacts = [
-                { url: business.phone ? `tel:${business.phone}` : null, color: "#404040", icon: <Phone className="h-6 w-6" /> },
                 { url: business.whatsapp ? `https://wa.me/${business.whatsapp.replace(/[^0-9]/g, '')}` : null, color: "#25D366", icon: <WhatsAppIcon className="h-6 w-6" /> },
                 { url: business.skype ? `skype:${business.skype}?chat` : null, color: "#00AFF0", icon: <SkypeIcon className="h-6 w-6" /> },
+                { url: business.phone ? `tel:${business.phone}` : null, color: "#404040", icon: <Phone className="h-6 w-6" /> },
               ].filter(s => s.url);
               return contacts.length > 0 ? (
                 <div className="flex items-center gap-4 shrink-0">
