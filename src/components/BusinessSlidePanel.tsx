@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { X, MapPin, Phone, Mail, Globe, Star, BadgeCheck, ChevronLeft, ChevronRight, Clock, Loader2, ExternalLink, CookingPot, Volume2, VolumeX, Maximize, Play, Pause, Headphones, Mic, Maximize2, Minimize2 } from "lucide-react";
+import { X, MapPin, Phone, Mail, Globe, Star, BadgeCheck, ChevronLeft, ChevronRight, Clock, Loader2, ExternalLink, CookingPot, Volume2, VolumeX, Maximize, Play, Pause, Headphones, Mic, Maximize2, Minimize2, Navigation } from "lucide-react";
 import { useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -15,7 +15,7 @@ import tripadvisorLogo from "@/assets/tripadvisor-logo.png";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import ShareButton from "@/components/ShareButton";
 import BookmarkButton from "@/components/BookmarkButton";
-import GoogleMapEmbed from "@/components/GoogleMapEmbed";
+
 
 interface BusinessSlidePanelProps {
   businessId: string;
@@ -944,19 +944,59 @@ const BusinessSlidePanel = ({ businessId, onClose, isExpanded, onToggleExpand }:
             </div>
           )}
 
-          {/* Google Maps */}
-          {(business.latitude || business.longitude || business.address || business.google_maps_url) && (
-            <div className="space-y-2">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{language === "en" ? "Location" : language === "ar" ? "الموقع" : "Localisation"}</p>
-              <GoogleMapEmbed
-                address={business.address || (business.neighborhood ? `${business.neighborhood}, ${business.city}` : `${business.city}, ${business.region}`)}
-                businessName={business.name}
-                latitude={business.latitude}
-                longitude={business.longitude}
-                googleMapsUrl={business.google_maps_url}
-              />
-            </div>
-          )}
+          {/* Google Maps - map only */}
+          {(business.latitude || business.longitude || business.address || business.google_maps_url) && (() => {
+            const extractPlaceName = (url: string) => {
+              const m = url.match(/\/place\/([^/@]+)/);
+              return m ? decodeURIComponent(m[1].replace(/\+/g, ' ')) : null;
+            };
+            const extractCoords = (url: string) => {
+              const m = url.match(/!8m2!3d(-?\d+\.?\d+)!4d(-?\d+\.?\d+)/);
+              if (m) return { lat: parseFloat(m[1]), lng: parseFloat(m[2]) };
+              const all = [...url.matchAll(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/g)];
+              return all.length > 0 ? { lat: parseFloat(all[all.length-1][1]), lng: parseFloat(all[all.length-1][2]) } : null;
+            };
+            const coords = business.google_maps_url ? extractCoords(business.google_maps_url) : null;
+            const placeName = business.google_maps_url ? extractPlaceName(business.google_maps_url) : null;
+            const lat = coords?.lat ?? business.latitude ?? null;
+            const lng = coords?.lng ?? business.longitude ?? null;
+            const fallbackAddr = business.address || (business.neighborhood ? `${business.neighborhood}, ${business.city}` : `${business.city}, ${business.region}`);
+            const embedQuery = placeName || (business.name + (fallbackAddr ? `, ${fallbackAddr}` : lat && lng ? `, ${lat},${lng}` : ""));
+            const mapUrl = `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(embedQuery)}&zoom=17`;
+            const dest = lat && lng ? `${lat},${lng}` : encodeURIComponent(`${business.name}, ${fallbackAddr}`);
+            
+            return (
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{language === "en" ? "Location" : language === "ar" ? "الموقع" : "Localisation"}</p>
+                <div className="rounded-lg overflow-hidden border border-border">
+                  <iframe
+                    src={mapUrl}
+                    className="w-full h-[250px] border-0"
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    title={`Carte de ${business.name}`}
+                  />
+                  <div className="p-2 flex gap-2">
+                    <button
+                      onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&destination=${dest}`, "_blank")}
+                      className="flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-medium rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+                    >
+                      <Navigation className="h-3.5 w-3.5" />
+                      {language === "en" ? "Directions" : language === "ar" ? "الاتجاهات" : "Itinéraire"}
+                    </button>
+                    <button
+                      onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${dest}`, "_blank")}
+                      className="flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-medium rounded-md border border-border text-foreground hover:bg-muted transition-colors"
+                    >
+                      <ExternalLink className="h-3.5 w-3.5" />
+                      Google Maps
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
 
           {/* Services */}
           {business.services && business.services.length > 0 && (
