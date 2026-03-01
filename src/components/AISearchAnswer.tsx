@@ -130,15 +130,18 @@ const splitIntoParagraphs = (text: string): string[] => {
     return normalized.split(/\n+/).filter(s => s.trim());
   }
 
-  // Otherwise, split before each sentence that contains a bold marker
-  // We look for ". " or "! " or "? " followed by text that eventually has **
-  const segments: string[] = [];
-  // Split on sentence boundaries, keeping the delimiter
+  // Split on sentence boundaries
   const sentences = normalized.split(/(?<=[.!?])\s+(?=[A-ZÀ-ÖØ-öø-ÿ])/);
   
+  if (sentences.length <= 1) return [normalized];
+
+  // Always break after the first sentence
+  const segments: string[] = [sentences[0].trim()];
+  
   let currentPara = "";
-  for (const sentence of sentences) {
-    // If this sentence contains a bold marker and current paragraph already has content, break
+  for (let i = 1; i < sentences.length; i++) {
+    const sentence = sentences[i];
+    // Break before each sentence that contains a bold marker (if current para already has content with bold)
     if (/\*\*/.test(sentence) && currentPara.length > 0 && /\*\*/.test(currentPara)) {
       segments.push(currentPara.trim());
       currentPara = sentence;
@@ -148,7 +151,7 @@ const splitIntoParagraphs = (text: string): string[] => {
   }
   if (currentPara.trim()) segments.push(currentPara.trim());
 
-  return segments.length > 0 ? segments : [normalized];
+  return segments;
 };
 
 // Format AI answer with paragraph spacing
