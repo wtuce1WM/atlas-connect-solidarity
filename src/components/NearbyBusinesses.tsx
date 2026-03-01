@@ -118,7 +118,7 @@ const NearbyBusinesses = ({ currentBusinessId, businessName, latitude, longitude
 
   return (
     <div className="space-y-3">
-      <div ref={sectionRef} className="scroll-mt-2" />
+      {!scrollRef && <div ref={internalRef} className="scroll-mt-2" />}
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wide">À côté</h3>
         <span className="text-xs text-muted-foreground">
