@@ -220,6 +220,56 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
     return () => observer.disconnect();
   }, [isLoading, business]);
 
+  // Auto-update active tab based on scroll position (IntersectionObserver)
+  useEffect(() => {
+    const root = scrollContainerRef.current;
+    if (!root || isLoading || !business) return;
+
+    const sectionMap: { id: string; ref: React.RefObject<HTMLDivElement | null> }[] = [
+      { id: "acote", ref: nearbySectionRef },
+      { id: "similaires", ref: similarSectionRef },
+      { id: "services", ref: servicesSectionRef },
+      { id: "localiser", ref: mapSectionRef },
+      { id: "avis", ref: reviewsSectionRef },
+      { id: "contact", ref: contactSectionRef },
+      { id: "apercu", ref: descriptionRef },
+    ];
+
+    const visibleSections = new Set<string>();
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const sectionId = (entry.target as HTMLElement).dataset.sectionId;
+          if (!sectionId) return;
+          if (entry.isIntersecting) {
+            visibleSections.add(sectionId);
+          } else {
+            visibleSections.delete(sectionId);
+          }
+        });
+
+        // Pick the lowest section (highest priority = furthest down the page)
+        for (const section of sectionMap) {
+          if (visibleSections.has(section.id)) {
+            setActiveTab(section.id);
+            return;
+          }
+        }
+      },
+      { root, threshold: 0, rootMargin: "-120px 0px -60% 0px" }
+    );
+
+    sectionMap.forEach(({ id, ref }) => {
+      if (ref.current) {
+        ref.current.dataset.sectionId = id;
+        observer.observe(ref.current);
+      }
+    });
+
+    return () => observer.disconnect();
+  }, [isLoading, business]);
+
   useEffect(() => {
     const fetch = async () => {
       setIsLoading(true);
