@@ -67,15 +67,23 @@ Deno.serve(async (req) => {
 
     const systemPrompt = `Tu es un analyste d'avis clients. À partir des avis fournis, génère une synthèse structurée en JSON avec exactement ce format :
 {
-  "pros": ["point positif 1", "point positif 2", ...],
-  "cons": ["point négatif 1", "point négatif 2", ...],
-  "summary": "Une phrase de synthèse globale"
+  "fr": {
+    "pros": ["point positif 1", "point positif 2", ...],
+    "cons": ["point négatif 1", "point négatif 2", ...],
+    "summary": "Une phrase de synthèse globale en français"
+  },
+  "en": {
+    "pros": ["positive point 1", "positive point 2", ...],
+    "cons": ["negative point 1", "negative point 2", ...],
+    "summary": "A one-sentence global summary in English"
+  }
 }
 
 Règles :
 - 3 à 6 pros, 1 à 4 cons (ou moins s'il n'y en a pas)
 - Chaque point doit être concis (max 15 mots)
-- Rédige en français
+- Le bloc "fr" est rédigé en français, le bloc "en" en anglais
+- Les deux blocs doivent contenir les mêmes informations, traduits fidèlement
 - Base-toi uniquement sur les avis fournis, n'invente rien
 - S'il n'y a pas de points négatifs, mets un tableau vide pour cons
 - Réponds UNIQUEMENT avec le JSON, sans markdown ni explication`;
@@ -111,10 +119,10 @@ Règles :
     const rawContent = aiData.choices?.[0]?.message?.content || '';
 
     // Parse JSON from AI response (strip potential markdown fences)
-    let summary: { pros: string[]; cons: string[]; summary: string };
+    let parsed: { fr: { pros: string[]; cons: string[]; summary: string }; en: { pros: string[]; cons: string[]; summary: string } };
     try {
       const cleaned = rawContent.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
-      summary = JSON.parse(cleaned);
+      parsed = JSON.parse(cleaned);
     } catch {
       console.error('Failed to parse AI response:', rawContent);
       return new Response(JSON.stringify({ error: 'Failed to parse AI response', raw: rawContent }), {
@@ -122,9 +130,14 @@ Règles :
       });
     }
 
-    // Store in DB
+    // Support both new multilingual format and legacy fallback
     const summaryData = {
-      ...summary,
+      fr: parsed.fr,
+      en: parsed.en,
+      // Legacy top-level fields for backward compatibility
+      pros: parsed.fr.pros,
+      cons: parsed.fr.cons,
+      summary: parsed.fr.summary,
       review_count: reviews.length,
       generated_at: new Date().toISOString(),
     };
@@ -141,7 +154,7 @@ Règles :
       });
     }
 
-    console.log(`Generated summary for ${biz.name}: ${summary.pros.length} pros, ${summary.cons.length} cons`);
+    console.log(`Generated multilingual summary for ${biz.name}: FR(${parsed.fr.pros.length} pros), EN(${parsed.en.pros.length} pros)`);
 
     return new Response(JSON.stringify({ success: true, business: biz.name, summary: summaryData }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
