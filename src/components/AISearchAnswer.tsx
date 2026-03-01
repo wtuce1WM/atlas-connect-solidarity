@@ -276,8 +276,9 @@ const AISearchAnswer = ({ query, businesses, isSearchLoading, onAnswerReady }: A
 
       {/* Slide-in panel — right half or full width */}
       {isPanelOpen && (
-        <div className={`fixed top-0 right-0 z-[100] h-full bg-background shadow-2xl border-l border-border overflow-hidden transition-all duration-500 ease-out animate-slide-in-right ${isPanelExpanded ? "w-full" : "w-1/2"}`}>
-          <div className="absolute top-20 left-4 z-[999] flex items-center gap-3">
+        <div className={`fixed top-[60px] right-0 z-[100] bg-background shadow-2xl border-l border-border overflow-hidden transition-all duration-500 ease-out animate-slide-in-right flex flex-col ${isPanelExpanded ? "w-full" : "w-1/2"}`} style={{ height: "calc(100vh - 60px)" }}>
+          {/* Fixed button bar above image */}
+          <div className="shrink-0 flex items-center gap-3 px-4 py-3 bg-background border-b border-border z-[999]">
             <button
               onClick={() => { setSelectedBusiness(null); setIsPanelExpanded(false); }}
               className="h-11 w-11 flex items-center justify-center rounded-full bg-black text-white border-2 border-white/20 shadow-2xl hover:opacity-90 transition-opacity"
@@ -296,12 +297,14 @@ const AISearchAnswer = ({ query, businesses, isSearchLoading, onAnswerReady }: A
             </button>
           </div>
 
-          <BusinessSlidePanel
-            businessId={selectedBusiness!.id}
-            onClose={() => { setSelectedBusiness(null); setIsPanelExpanded(false); }}
-            isExpanded={isPanelExpanded}
-            onToggleExpand={() => setIsPanelExpanded(prev => !prev)}
-          />
+          <div className="flex-1 min-h-0">
+            <BusinessSlidePanel
+              businessId={selectedBusiness!.id}
+              onClose={() => { setSelectedBusiness(null); setIsPanelExpanded(false); }}
+              isExpanded={isPanelExpanded}
+              onToggleExpand={() => setIsPanelExpanded(prev => !prev)}
+            />
+          </div>
         </div>
       )}
     </>
