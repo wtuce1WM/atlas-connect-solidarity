@@ -832,23 +832,34 @@ serve(async (req) => {
       subcategorySearchConfig = searchConfigs[detectedSubcategory.toLowerCase()] || null;
       // Fallback: if no config for this subcategory, check if it also exists as a SERVICE
       // and inherit config from the service's parent subcategory (e.g. "Tapis" service → parent "Décoration" → strict)
+      // IMPORTANT: Only inherit if the detected term is NOT itself a real subcategory name.
+      // A subcategory identity takes priority over a service identity → defaults to broad.
       if (!subcategorySearchConfig) {
-        const { data: svcAsService } = await supabase
-          .from("services")
-          .select("subcategory_id, subcategories!inner(name_fr)")
-          .eq("name_fr", detectedSubcategory);
-        if (svcAsService && svcAsService.length > 0) {
-          for (const sp of svcAsService) {
-            const parentName = (sp as any).subcategories?.name_fr;
-            if (parentName) {
-              const parentConfig = searchConfigs[parentName.toLowerCase()] || null;
-              if (parentConfig) {
-                subcategorySearchConfig = parentConfig;
-                console.log(`Inherited search config from service "${detectedSubcategory}" parent subcategory "${parentName}": mode=${parentConfig.search_mode}`);
-                break;
+        // Check if this detected term is actually a real subcategory
+        const isRealSubcategory = subcats && subcats.some(
+          (sc: any) => sc.name_fr?.toLowerCase() === detectedSubcategory!.toLowerCase()
+        );
+        if (!isRealSubcategory) {
+          // Only inherit from service parent if NOT a real subcategory
+          const { data: svcAsService } = await supabase
+            .from("services")
+            .select("subcategory_id, subcategories!inner(name_fr)")
+            .eq("name_fr", detectedSubcategory);
+          if (svcAsService && svcAsService.length > 0) {
+            for (const sp of svcAsService) {
+              const parentName = (sp as any).subcategories?.name_fr;
+              if (parentName) {
+                const parentConfig = searchConfigs[parentName.toLowerCase()] || null;
+                if (parentConfig) {
+                  subcategorySearchConfig = parentConfig;
+                  console.log(`Inherited search config from service "${detectedSubcategory}" parent subcategory "${parentName}": mode=${parentConfig.search_mode}`);
+                  break;
+                }
               }
             }
           }
+        } else {
+          console.log(`"${detectedSubcategory}" is a real subcategory — skipping service inheritance, defaulting to broad`);
         }
       }
       if (subcategorySearchConfig) {
