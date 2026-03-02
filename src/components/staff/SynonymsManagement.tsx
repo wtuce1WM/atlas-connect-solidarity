@@ -51,6 +51,8 @@ const SynonymsManagement = () => {
   const [filterSubcategory, setFilterSubcategory] = useState("");
   const [expandedServices, setExpandedServices] = useState<Record<string, boolean>>({});
   const [serviceSearchFilter, setServiceSearchFilter] = useState<Record<string, string>>({});
+  const [dirtyEntries, setDirtyEntries] = useState<Set<string>>(new Set());
+  const [savingEntries, setSavingEntries] = useState<Set<string>>(new Set());
 
   const getServiceFilterRows = (entryId: string) => serviceFilterRows[entryId] || [{ catId: "", subcatId: "" }];
 
@@ -140,68 +142,67 @@ const SynonymsManagement = () => {
     setEntries(prev => prev.map(e => e.id === id ? { ...e, synonyms: updated } : e));
   };
 
-  const addSubcategoryToEntry = async (id: string) => {
+  const addSubcategoryToEntry = (id: string) => {
     const name = (editingSubcat[id] || "").trim();
     if (!name) return;
     const entry = entries.find(e => e.id === id);
     if (!entry || entry.subcategory_names.includes(name)) return;
-    const updated = [...entry.subcategory_names, name];
-    await supabase.from("search_synonyms").update({ subcategory_names: updated }).eq("id", id);
-    setEntries(prev => prev.map(e => e.id === id ? { ...e, subcategory_names: updated } : e));
+    setEntries(prev => prev.map(e => e.id === id ? { ...e, subcategory_names: [...e.subcategory_names, name] } : e));
     setEditingSubcat(prev => ({ ...prev, [id]: "" }));
+    setDirtyEntries(prev => new Set(prev).add(id));
   };
 
-  const removeSubcategoryFromEntry = async (id: string, name: string) => {
-    const entry = entries.find(e => e.id === id);
-    if (!entry) return;
-    const updated = entry.subcategory_names.filter(s => s !== name);
-    await supabase.from("search_synonyms").update({ subcategory_names: updated }).eq("id", id);
-    setEntries(prev => prev.map(e => e.id === id ? { ...e, subcategory_names: updated } : e));
+  const removeSubcategoryFromEntry = (id: string, name: string) => {
+    setEntries(prev => prev.map(e => e.id === id ? { ...e, subcategory_names: e.subcategory_names.filter(s => s !== name) } : e));
+    setDirtyEntries(prev => new Set(prev).add(id));
   };
 
-  const addServiceToEntry = async (id: string, serviceName?: string) => {
+  const addServiceToEntry = (id: string, serviceName?: string) => {
     const name = (serviceName || editingService[id] || "").trim();
     if (!name) return;
     const entry = entries.find(e => e.id === id);
     if (!entry || entry.service_names.includes(name)) return;
-    const updated = [...entry.service_names, name];
-    await supabase.from("search_synonyms").update({ service_names: updated } as any).eq("id", id);
-    setEntries(prev => prev.map(e => e.id === id ? { ...e, service_names: updated } : e));
+    setEntries(prev => prev.map(e => e.id === id ? { ...e, service_names: [...e.service_names, name] } : e));
     if (!serviceName) setEditingService(prev => ({ ...prev, [id]: "" }));
+    setDirtyEntries(prev => new Set(prev).add(id));
   };
 
-  const removeServiceFromEntry = async (id: string, name: string) => {
-    const entry = entries.find(e => e.id === id);
-    if (!entry) return;
-    const updated = entry.service_names.filter(s => s !== name);
-    await supabase.from("search_synonyms").update({ service_names: updated } as any).eq("id", id);
-    setEntries(prev => prev.map(e => e.id === id ? { ...e, service_names: updated } : e));
+  const removeServiceFromEntry = (id: string, name: string) => {
+    setEntries(prev => prev.map(e => e.id === id ? { ...e, service_names: e.service_names.filter(s => s !== name) } : e));
+    setDirtyEntries(prev => new Set(prev).add(id));
   };
 
-  const renameSubcategoryInEntry = async (id: string, oldName: string, newName: string) => {
+  const renameSubcategoryInEntry = (id: string, oldName: string, newName: string) => {
     const trimmed = newName.trim();
     if (!trimmed || trimmed === oldName) { setEditingSubcatName(null); return; }
-    const entry = entries.find(e => e.id === id);
-    if (!entry) return;
-    const updated = entry.subcategory_names.map(s => s === oldName ? trimmed : s);
-    const { error } = await supabase.from("search_synonyms").update({ subcategory_names: updated }).eq("id", id);
-    if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
-    setEntries(prev => prev.map(e => e.id === id ? { ...e, subcategory_names: updated } : e));
+    setEntries(prev => prev.map(e => e.id === id ? { ...e, subcategory_names: e.subcategory_names.map(s => s === oldName ? trimmed : s) } : e));
     setEditingSubcatName(null);
-    toast({ title: "Sous-catégorie renommée" });
+    setDirtyEntries(prev => new Set(prev).add(id));
   };
 
-  const renameServiceInEntry = async (id: string, oldName: string, newName: string) => {
+  const renameServiceInEntry = (id: string, oldName: string, newName: string) => {
     const trimmed = newName.trim();
     if (!trimmed || trimmed === oldName) { setEditingServiceName(null); return; }
+    setEntries(prev => prev.map(e => e.id === id ? { ...e, service_names: e.service_names.map(s => s === oldName ? trimmed : s) } : e));
+    setEditingServiceName(null);
+    setDirtyEntries(prev => new Set(prev).add(id));
+  };
+
+  const saveEntryChanges = async (id: string) => {
     const entry = entries.find(e => e.id === id);
     if (!entry) return;
-    const updated = entry.service_names.map(s => s === oldName ? trimmed : s);
-    const { error } = await supabase.from("search_synonyms").update({ service_names: updated } as any).eq("id", id);
-    if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
-    setEntries(prev => prev.map(e => e.id === id ? { ...e, service_names: updated } : e));
-    setEditingServiceName(null);
-    toast({ title: "Service renommé" });
+    setSavingEntries(prev => new Set(prev).add(id));
+    const { error } = await supabase.from("search_synonyms").update({
+      subcategory_names: entry.subcategory_names,
+      service_names: entry.service_names,
+    } as any).eq("id", id);
+    setSavingEntries(prev => { const n = new Set(prev); n.delete(id); return n; });
+    if (error) {
+      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+    } else {
+      setDirtyEntries(prev => { const n = new Set(prev); n.delete(id); return n; });
+      toast({ title: "Sauvegardé ✓" });
+    }
   };
 
   if (isLoading) return <div className="flex justify-center p-8"><Loader2 className="h-6 w-6 animate-spin" /></div>;
@@ -376,25 +377,16 @@ const SynonymsManagement = () => {
                 <code className="font-mono text-sm font-bold bg-muted px-2 py-0.5 rounded">{entry.key_word}</code>
                 <span className="text-xs text-muted-foreground">→ {entry.synonyms.length} synonyme(s)</span>
               </div>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="ghost" size="sm">
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Supprimer ?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Voulez-vous vraiment supprimer le groupe de synonymes « {entry.key_word} » ?
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Non</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => deleteEntry(entry.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Oui</AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+              <Button
+                size="sm"
+                onClick={() => saveEntryChanges(entry.id)}
+                disabled={!dirtyEntries.has(entry.id) || savingEntries.has(entry.id)}
+                className={dirtyEntries.has(entry.id) ? "bg-amber-600 hover:bg-amber-700 text-white" : ""}
+                variant={dirtyEntries.has(entry.id) ? "default" : "outline"}
+              >
+                {savingEntries.has(entry.id) ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Save className="h-4 w-4 mr-1" />}
+                Sauvegarder
+              </Button>
             </div>
             <div className="flex flex-wrap gap-1.5">
               {entry.synonyms.map(syn => (
