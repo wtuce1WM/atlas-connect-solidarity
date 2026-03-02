@@ -214,7 +214,7 @@ const SearchAnalytics = ({ embedded = false }: { embedded?: boolean }) => {
               <Loader2 className="h-6 w-6 animate-spin text-primary" />
             </div>
           ) : (
-            <div className="space-y-1 max-h-[500px] overflow-y-auto">
+            <div className="space-y-1 max-h-[800px] overflow-y-auto">
               {logs.map(log => (
                 <button
                   key={log.id}
