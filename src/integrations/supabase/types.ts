@@ -1225,6 +1225,7 @@ export type Database = {
       }
       knowledge_entries: {
         Row: {
+          business_id: string | null
           category: string
           content: string
           created_at: string
@@ -1237,6 +1238,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          business_id?: string | null
           category?: string
           content: string
           created_at?: string
@@ -1249,6 +1251,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          business_id?: string | null
           category?: string
           content?: string
           created_at?: string
@@ -1260,7 +1263,15 @@ export type Database = {
           title?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "knowledge_entries_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       label_categories: {
         Row: {

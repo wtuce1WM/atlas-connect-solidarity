@@ -148,6 +148,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   });
   const [business, setBusiness] = useState<FullBusiness | null>(null);
   const [gamme, setGamme] = useState<Gamme | null>(null);
+  const [knowledgeContent, setKnowledgeContent] = useState<string | null>(null);
   const [reviewTexts, setReviewTexts] = useState<{ source: string; author_name: string | null; rating: number | null; text: string | null; relative_time: string | null }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -386,6 +387,19 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
         if (g) setGamme(g);
       } else {
         setGamme(null);
+      }
+
+      // Fetch linked knowledge entries
+      const { data: knowledgeData } = await supabase
+        .from("knowledge_entries")
+        .select("content")
+        .eq("business_id", businessId)
+        .eq("is_active", true)
+        .limit(3);
+      if (knowledgeData && knowledgeData.length > 0) {
+        setKnowledgeContent((knowledgeData as any[]).map(k => k.content).join("\n\n"));
+      } else {
+        setKnowledgeContent(null);
       }
 
       setIsLoading(false);
@@ -996,7 +1010,13 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
             </>
           )}
 
-          {/* Contact info */}
+          {/* Knowledge enrichment */}
+          {knowledgeContent && (
+            <div className="text-sm text-foreground leading-relaxed whitespace-pre-wrap border-t border-border pt-4 mt-2">
+              {knowledgeContent}
+            </div>
+          )}
+
           {hasContact && (
           <div ref={contactSectionRef} className="border-t border-border py-5 scroll-mt-28">
             <div className="grid grid-cols-2 gap-6">

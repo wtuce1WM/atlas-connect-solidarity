@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash2, Edit, Save, X, Search, BookOpen, ChevronDown, ChevronUp } from "lucide-react";
+import { Plus, Trash2, Edit, Save, X, Search, BookOpen, ChevronDown, ChevronUp, Link2 } from "lucide-react";
 import RichTextEditor from "./RichTextEditor";
 
 interface KnowledgeEntry {
@@ -21,6 +21,8 @@ interface KnowledgeEntry {
   source: string | null;
   notes: string | null;
   is_active: boolean;
+  business_id: string | null;
+  business_name?: string | null;
 }
 
 interface KnowledgeBaseManagementProps {
@@ -59,6 +61,26 @@ const KnowledgeBaseManagement = ({
   const [formTags, setFormTags] = useState("");
   const [formSource, setFormSource] = useState("manual");
   const [formNotes, setFormNotes] = useState("");
+  const [formBusinessId, setFormBusinessId] = useState<string | null>(null);
+  const [businessSearch, setBusinessSearch] = useState("");
+  const [businessOptions, setBusinessOptions] = useState<{ id: string; name: string; city: string | null }[]>([]);
+  const [showBusinessDropdown, setShowBusinessDropdown] = useState(false);
+
+  // Search businesses for linking
+  useEffect(() => {
+    if (businessSearch.length < 2) { setBusinessOptions([]); return; }
+    const timeout = setTimeout(async () => {
+      const { data } = await supabase
+        .from("businesses")
+        .select("id, name, city")
+        .ilike("name", `%${businessSearch}%`)
+        .eq("is_active", true)
+        .limit(8);
+      setBusinessOptions(data || []);
+      setShowBusinessDropdown(true);
+    }, 300);
+    return () => clearTimeout(timeout);
+  }, [businessSearch]);
 
   const fetchEntries = async () => {
     setLoading(true);
@@ -70,7 +92,18 @@ const KnowledgeBaseManagement = ({
     if (error) {
       toast({ variant: "destructive", title: "Erreur", description: "Impossible de charger les entrées." });
     } else {
-      setEntries((data as KnowledgeEntry[]) || []);
+      const entries = (data as any[]) || [];
+      // Fetch linked business names
+      const bizIds = entries.map(e => e.business_id).filter(Boolean);
+      if (bizIds.length > 0) {
+        const { data: bizData } = await supabase
+          .from("businesses")
+          .select("id, name")
+          .in("id", bizIds);
+        const bizMap = new Map((bizData || []).map((b: any) => [b.id, b.name]));
+        entries.forEach(e => { e.business_name = e.business_id ? bizMap.get(e.business_id) || null : null; });
+      }
+      setEntries(entries as KnowledgeEntry[]);
     }
     setLoading(false);
   };
@@ -84,6 +117,8 @@ const KnowledgeBaseManagement = ({
     setFormTags("");
     setFormSource("manual");
     setFormNotes("");
+    setFormBusinessId(null);
+    setBusinessSearch("");
     setEditingId(null);
     setShowNew(false);
   };
@@ -96,6 +131,8 @@ const KnowledgeBaseManagement = ({
     setFormTags(entry.tags.join(", "));
     setFormSource(entry.source || "manual");
     setFormNotes(entry.notes || "");
+    setFormBusinessId(entry.business_id);
+    setBusinessSearch(entry.business_name || "");
     setShowNew(false);
   };
 
@@ -113,6 +150,7 @@ const KnowledgeBaseManagement = ({
       tags,
       source: formSource,
       notes: formNotes.trim() || null,
+      business_id: formBusinessId || null,
       updated_at: new Date().toISOString(),
     };
 
@@ -183,6 +221,40 @@ const KnowledgeBaseManagement = ({
               <Input placeholder="Tags (séparés par des virgules)" value={formTags} onChange={e => setFormTags(e.target.value)} />
               <Input placeholder="Source" value={formSource} onChange={e => setFormSource(e.target.value)} />
             </div>
+            {/* Business link */}
+            <div className="relative">
+              <label className="text-sm font-medium text-muted-foreground mb-1 block">🔗 Établissement lié (optionnel)</label>
+              <div className="flex gap-2 items-center">
+                <div className="relative flex-1">
+                  <Input
+                    placeholder="Rechercher un établissement…"
+                    value={businessSearch}
+                    onChange={e => { setBusinessSearch(e.target.value); setFormBusinessId(null); }}
+                    onFocus={() => businessOptions.length > 0 && setShowBusinessDropdown(true)}
+                    onBlur={() => setTimeout(() => setShowBusinessDropdown(false), 200)}
+                  />
+                  {showBusinessDropdown && businessOptions.length > 0 && (
+                    <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-popover border rounded-md shadow-lg max-h-48 overflow-y-auto">
+                      {businessOptions.map(b => (
+                        <button
+                          key={b.id}
+                          className="w-full text-left px-3 py-2 hover:bg-muted text-sm"
+                          onMouseDown={(e) => { e.preventDefault(); setFormBusinessId(b.id); setBusinessSearch(b.name); setShowBusinessDropdown(false); }}
+                        >
+                          {b.name} {b.city && <span className="text-muted-foreground">— {b.city}</span>}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                {formBusinessId && (
+                  <Button variant="ghost" size="icon" onClick={() => { setFormBusinessId(null); setBusinessSearch(""); }}>
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+              {formBusinessId && <p className="text-xs text-green-600 mt-1">✓ Lié à : {businessSearch}</p>}
+            </div>
             <Textarea placeholder="Contenu" value={formContent} onChange={e => setFormContent(e.target.value)} rows={6} />
             <div>
               <label className="text-sm font-medium text-muted-foreground mb-1 block">📝 Notes personnelles</label>
@@ -240,6 +312,7 @@ const KnowledgeBaseManagement = ({
                       <h3 className="font-semibold text-sm">{entry.title}</h3>
                       <Badge variant="outline" className="text-xs">{entry.category}</Badge>
                       {entry.source && <Badge variant="secondary" className="text-xs">{entry.source}</Badge>}
+                      {entry.business_name && <Badge variant="secondary" className="text-xs"><Link2 className="h-3 w-3 mr-1 inline" />{entry.business_name}</Badge>}
                       {!entry.is_active && <Badge variant="destructive" className="text-xs">Désactivé</Badge>}
                     </div>
                     <p className={`text-sm text-muted-foreground whitespace-pre-wrap ${expandedIds.has(entry.id) ? '' : 'line-clamp-3'}`}>{entry.content}</p>
