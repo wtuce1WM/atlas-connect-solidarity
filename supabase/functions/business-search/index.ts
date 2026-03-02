@@ -1463,7 +1463,12 @@ serve(async (req) => {
           return serviceMatchWords.some((w) => {
             const wNorm = normalizeWordKw(w);
             if (wNorm.length <= 1) return false;
-            return nameTokens.some((t) => t === wNorm || t.includes(wNorm) || wNorm.includes(t));
+            return nameTokens.some((t) => {
+              if (t === wNorm) return true;
+              // For short words (≤4 chars), require exact match to avoid "ana" matching "ananas"
+              if (wNorm.length <= 4) return false;
+              return t.includes(wNorm) || wNorm.includes(t);
+            });
           });
         });
 
@@ -3237,15 +3242,20 @@ serve(async (req) => {
     }
     // Filter out name-matched businesses that are irrelevant when a subcategory/service is detected
     // e.g. "Gypsy Queens La Piscine" (a clothing store) should NOT be pinned for "piscine" search
+    // BUT: never remove a business whose name is an exact match for the full query
     if (nameMatchedBusinessIds.length > 0 && (detectedSubcategory || detectedServices.length > 0)) {
       // Fetch the name-matched businesses to check their categories/services
       const { data: nameMatchData } = await supabase
         .from("businesses")
-        .select("id, categories, services")
+        .select("id, name, categories, services")
         .in("id", nameMatchedBusinessIds)
         .eq("is_active", true);
       if (nameMatchData) {
+        const qNorm = stripAccentsGlobal(effectiveQuery.toLowerCase().trim());
         const relevantIds = nameMatchData.filter((b: any) => {
+          // Never remove exact name matches (the query IS the business name)
+          const bNameNorm = stripAccentsGlobal((b.name || "").toLowerCase().trim());
+          if (bNameNorm === qNorm) return true;
           const bCats = (b.categories || []).map((c: string) => c.toLowerCase());
           const bSvcs = (b.services || []).map((s: string) => s.toLowerCase());
           // Check if business has the detected subcategory in its categories
