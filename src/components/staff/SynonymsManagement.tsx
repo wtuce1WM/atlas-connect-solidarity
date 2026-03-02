@@ -28,6 +28,7 @@ interface SynonymEntry {
   subcategory_names: string[];
   service_names: string[];
   is_active: boolean;
+  created_at: string;
 }
 
 const SynonymsManagement = () => {
@@ -41,7 +42,7 @@ const SynonymsManagement = () => {
   const [allServices, setAllServices] = useState<{name: string; subcategory_id: string}[]>([]);
   const [editingSubcat, setEditingSubcat] = useState<Record<string, string>>({});
   const [selectedCategory, setSelectedCategory] = useState<Record<string, string>>({});
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc" | "oldest" | "newest">("asc");
   const [editingService, setEditingService] = useState<Record<string, string>>({});
   const [serviceSubcatFilter, setServiceSubcatFilter] = useState<Record<string, string>>({});
   const [serviceCatFilter, setServiceCatFilter] = useState<Record<string, string>>({});
@@ -286,11 +287,13 @@ const SynonymsManagement = () => {
             <span className="text-xs text-muted-foreground">Tri :</span>
             <select
               value={sortOrder}
-              onChange={e => setSortOrder(e.target.value as "asc" | "desc")}
+              onChange={e => setSortOrder(e.target.value as "asc" | "desc" | "oldest" | "newest")}
               className="text-sm border rounded px-2 py-1 bg-background"
             >
               <option value="asc">A → Z</option>
               <option value="desc">Z → A</option>
+              <option value="oldest">Plus ancien</option>
+              <option value="newest">Plus récent</option>
             </select>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
@@ -332,7 +335,12 @@ const SynonymsManagement = () => {
           const subcatNamesInCat = allSubcategories.filter(sc => sc.category_id === filterCategory).map(sc => sc.name);
           return entry.subcategory_names.some(sn => subcatNamesInCat.includes(sn));
         })
-        .sort((a, b) => sortOrder === "asc" ? a.key_word.localeCompare(b.key_word) : b.key_word.localeCompare(a.key_word)).map(entry => (
+        .sort((a, b) => {
+          if (sortOrder === "asc") return a.key_word.localeCompare(b.key_word);
+          if (sortOrder === "desc") return b.key_word.localeCompare(a.key_word);
+          if (sortOrder === "oldest") return (a.created_at || "").localeCompare(b.created_at || "");
+          return (b.created_at || "").localeCompare(a.created_at || "");
+        }).map(entry => (
         <Card key={entry.id} className={entry.is_active ? "" : "opacity-50"}>
           <CardContent className="pt-4 space-y-2">
             <div className="flex items-center justify-between">
