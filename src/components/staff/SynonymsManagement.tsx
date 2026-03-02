@@ -42,7 +42,7 @@ const SynonymsManagement = () => {
   const [allServices, setAllServices] = useState<{name: string; subcategory_id: string}[]>([]);
   const [editingSubcat, setEditingSubcat] = useState<Record<string, string>>({});
   const [selectedCategory, setSelectedCategory] = useState<Record<string, string>>({});
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc" | "oldest" | "newest">("asc");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc" | "oldest" | "newest">("newest");
   const [editingService, setEditingService] = useState<Record<string, string>>({});
   const [serviceSubcatFilter, setServiceSubcatFilter] = useState<Record<string, string>>({});
   const [serviceCatFilter, setServiceCatFilter] = useState<Record<string, string>>({});
