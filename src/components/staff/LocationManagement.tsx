@@ -1335,7 +1335,10 @@ const LocationManagement = () => {
         </CardHeader>
         {destinationsSectionOpen && (
           <CardContent>
-            <div className="mb-4">
+            <div className="mb-4 space-y-3">
+              <p className="text-sm text-muted-foreground">
+                <strong>« Inclure dans les résultats de recherche »</strong> : lorsque activé, la destination apparaît comme filtre géographique dans la recherche. Les établissements associés à cette destination seront retournés quand un utilisateur recherche son nom (ex : « Palmeraie », « Route de l'Ourika »).
+              </p>
               <Select value={destinationRegionFilter} onValueChange={setDestinationRegionFilter}>
                 <SelectTrigger className="max-w-xs">
                   <SelectValue placeholder="Filtrer par région" />
