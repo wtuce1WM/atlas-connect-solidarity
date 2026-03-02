@@ -173,6 +173,8 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   const tabsSentinelRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState<string>("apercu");
   const [showStickyTabs, setShowStickyTabs] = useState(false);
+  const [similarCount, setSimilarCount] = useState<number | null>(null);
+  const [nearbyCount, setNearbyCount] = useState<number | null>(null);
   const isScrollingToTabRef = useRef(false);
   const tabScrollUnlockTimeoutRef = useRef<number | null>(null);
 
@@ -333,6 +335,8 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
       setVideoError(false);
       setActiveTab("apercu");
       setIsDescriptionExpanded(false);
+      setSimilarCount(null);
+      setNearbyCount(null);
 
       const { data, error } = await supabase
         .from("businesses")
@@ -424,6 +428,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   const totalReviewCount = reviews.reduce((s, r) => s + r.count, 0);
 
   const hook = language === "en" ? business.hook_en : language === "ar" ? business.hook_ar : business.hook_fr;
+  const hasContact = !!(business.address || business.phone || business.email || business.whatsapp || business.skype || business.menu_url || (business.show_opening_hours !== false && (business.is_open_24h || business.opening_hours)));
 
   // Build TTS synthesis text (~30 seconds)
   const buildTtsSynthesis = () => {
@@ -944,12 +949,12 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
           <div ref={descriptionRef} className="flex gap-1 overflow-x-auto no-scrollbar border-b border-border -mx-5 px-5 scroll-mt-28">
             {[
               { id: "apercu", label: "Aperçu", show: !!business.description },
-              { id: "contact", label: "Contact", show: !!(business.address || business.phone || business.email || business.whatsapp) },
+              { id: "contact", label: "Contact", show: hasContact },
               { id: "avis", label: "Avis clients", show: !!(reviews.length > 0 || avgOn20) },
               { id: "localiser", label: "Localiser", show: !!(business.latitude || business.longitude || business.address || business.google_maps_url) },
               { id: "services", label: "Services", show: !!(business.services && business.services.length > 0) },
-              { id: "similaires", label: "Similaires", show: true },
-              { id: "acote", label: "À côté", show: !!(business.latitude && business.longitude) },
+              { id: "similaires", label: "Similaires", show: similarCount === null || similarCount > 0 },
+              { id: "acote", label: "À côté", show: nearbyCount === null || nearbyCount > 0 },
             ].filter(t => t.show).map(tab => (
               <button
                 key={tab.id}
@@ -992,6 +997,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
           )}
 
           {/* Contact info */}
+          {hasContact && (
           <div ref={contactSectionRef} className="border-y border-border py-5 scroll-mt-28">
             <div className="grid grid-cols-2 gap-6">
               {/* Address */}
@@ -1138,6 +1144,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
 
             </div>
           </div>
+          )}
 
           {/* Booking platforms */}
           {(() => {
@@ -1379,8 +1386,9 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
             onNavigate={(id) => { setInternalBusinessId(id); scrollContainerRef.current?.scrollTo({ top: 0 }); if (isExpanded) onToggleExpand?.(); }}
             onLoginRequired={() => setShowClubCard(true)}
             scrollRef={similarSectionRef}
+            onResultCount={setSimilarCount}
           />
-          <Separator />
+          {similarCount !== 0 && nearbyCount !== 0 && <Separator />}
 
           {/* Nearby businesses */}
           <div ref={nearbySectionRef} className="scroll-mt-28" />
@@ -1393,8 +1401,9 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
             onNavigate={(id) => { setInternalBusinessId(id); scrollContainerRef.current?.scrollTo({ top: 0 }); if (isExpanded) onToggleExpand?.(); }}
             onLoginRequired={() => setShowClubCard(true)}
             scrollRef={nearbySectionRef}
+            onResultCount={setNearbyCount}
           />
-          <Separator />
+          {nearbyCount !== 0 && <Separator />}
 
           {/* Bottom spacer for floating bar */}
           <div className="h-24" />

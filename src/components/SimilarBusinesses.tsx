@@ -33,11 +33,12 @@ interface SimilarBusinessesProps {
   onNavigate?: (businessId: string) => void;
   onLoginRequired?: () => void;
   scrollRef?: RefObject<HTMLDivElement | null>;
+  onResultCount?: (count: number) => void;
 }
 
 const PAGE_SIZE = 6;
 
-const SimilarBusinesses = ({ currentBusinessId, categories, city, onNavigate, onLoginRequired, scrollRef }: SimilarBusinessesProps) => {
+const SimilarBusinesses = ({ currentBusinessId, categories, city, onNavigate, onLoginRequired, scrollRef, onResultCount }: SimilarBusinessesProps) => {
   const internalRef = useRef<HTMLDivElement>(null);
   const sectionRef = scrollRef || internalRef;
   const [allBusinesses, setAllBusinesses] = useState<SimilarBusiness[]>([]);
@@ -53,6 +54,7 @@ const SimilarBusinesses = ({ currentBusinessId, categories, city, onNavigate, on
     const fetchSimilar = async () => {
       if (!categories || categories.length === 0 || !city) {
         setIsLoading(false);
+        onResultCount?.(0);
         return;
       }
 
@@ -79,6 +81,9 @@ const SimilarBusinesses = ({ currentBusinessId, categories, city, onNavigate, on
         });
         setAllBusinesses(sorted);
         setTotalCount(count ?? data.length);
+        onResultCount?.(sorted.length);
+      } else {
+        onResultCount?.(0);
       }
       setIsLoading(false);
     };

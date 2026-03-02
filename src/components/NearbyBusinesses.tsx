@@ -38,6 +38,7 @@ interface NearbyBusinessesProps {
   onNavigate?: (businessId: string) => void;
   onLoginRequired?: () => void;
   scrollRef?: RefObject<HTMLDivElement | null>;
+  onResultCount?: (count: number) => void;
 }
 
 const PAGE_SIZE = 6;
@@ -54,7 +55,7 @@ function haversine(lat1: number, lon1: number, lat2: number, lon2: number): numb
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-const NearbyBusinesses = ({ currentBusinessId, businessName, latitude, longitude, currentSubcategory, onNavigate, onLoginRequired, scrollRef }: NearbyBusinessesProps) => {
+const NearbyBusinesses = ({ currentBusinessId, businessName, latitude, longitude, currentSubcategory, onNavigate, onLoginRequired, scrollRef, onResultCount }: NearbyBusinessesProps) => {
   const internalRef = useRef<HTMLDivElement>(null);
   const sectionRef = scrollRef || internalRef;
   const [allBusinesses, setAllBusinesses] = useState<NearbyBusiness[]>([]);
@@ -69,6 +70,7 @@ const NearbyBusinesses = ({ currentBusinessId, businessName, latitude, longitude
     const fetchNearby = async () => {
       if (!latitude || !longitude) {
         setIsLoading(false);
+        onResultCount?.(0);
         return;
       }
 
@@ -105,6 +107,9 @@ const NearbyBusinesses = ({ currentBusinessId, businessName, latitude, longitude
           .sort((a, b) => a.distance - b.distance);
 
         setAllBusinesses(withDistance);
+        onResultCount?.(withDistance.length);
+      } else {
+        onResultCount?.(0);
       }
       setIsLoading(false);
     };
