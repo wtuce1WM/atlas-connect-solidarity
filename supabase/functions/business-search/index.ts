@@ -1112,6 +1112,45 @@ serve(async (req) => {
       }
     }
 
+    // ── SERVICE SHORTCUT: when synonym has service_names, skip entire FTS chain ──
+    let serviceShortcutActivated = false;
+    if (synonymLinkedServices.length > 0) {
+      console.log(`⚡ Service shortcut PRIORITY: fetching businesses with services [${synonymLinkedServices.join(", ")}] — skipping FTS`);
+      const existingIds = new Set<string>();
+      for (const svcName of synonymLinkedServices) {
+        let svcBuilder = supabase.from("businesses").select("*").eq("is_active", true)
+          .filter("services", "cs", `{"${svcName}"}`);
+        if (effectiveCity) svcBuilder = applyCityFilter(svcBuilder);
+        if (detectedNeighborhood) {
+          svcBuilder = svcBuilder.or(buildNeighborhoodOrClause(detectedNeighborhood, loadedNeighborhoods));
+        }
+        svcBuilder = svcBuilder
+          .order("wtuce_status", { ascending: true })
+          .order("google_rating", { ascending: false, nullsFirst: false })
+          .order("priority_score", { ascending: false })
+          .limit(limit);
+        const { data: svcData, error: svcError } = await svcBuilder;
+        if (!svcError && svcData && svcData.length > 0) {
+          const newResults = svcData
+            .filter((b: any) => !existingIds.has(b.id))
+            .map((b: any) => ({
+              ...b,
+              distance_km: latitude && longitude && b.latitude && b.longitude
+                ? calculateDistance(latitude, longitude, b.latitude, b.longitude) : null,
+            }));
+          for (const b of newResults) existingIds.add(b.id);
+          businesses = [...businesses, ...newResults];
+          console.log(`⚡ Service shortcut "${svcName}": +${newResults.length} results (total: ${businesses.length})`);
+        }
+      }
+      if (businesses.length > 0) {
+        searchLevel = "exact";
+        serviceShortcutActivated = true;
+        console.log(`⚡ Service shortcut complete: ${businesses.length} results — skipping FTS chain`);
+      }
+    }
+
+    if (!serviceShortcutActivated) {
     // ── Pre-detect matching service(s) from query keywords ──
     let detectedService: string | null = null;
     let detectedServices: string[] = []; // ALL fully-matched services (distinct concepts → AND)
@@ -2344,78 +2383,7 @@ serve(async (req) => {
       }
     }
 
-    // ── Synonym-linked services: merge AFTER strict mode (when results already exist) ──
-    if (synonymLinkedServices.length > 0 && businesses.length > 0) {
-      const existingIds = new Set(businesses.map(b => b.id));
-      for (const svcName of synonymLinkedServices) {
-        let svcBuilder = supabase.from("businesses").select("*").eq("is_active", true)
-          .filter("services", "cs", `{"${svcName}"}`);
-        if (effectiveCity) svcBuilder = applyCityFilter(svcBuilder);
-        svcBuilder = svcBuilder
-          .order("wtuce_status", { ascending: true })
-          .order("google_rating", { ascending: false, nullsFirst: false })
-          .order("priority_score", { ascending: false })
-          .limit(limit);
-        const { data: svcData } = await svcBuilder;
-        if (svcData) {
-          const newResults = svcData
-            .filter((b: any) => !existingIds.has(b.id))
-            .map((b: any) => ({
-              ...b,
-              distance_km: latitude && longitude && b.latitude && b.longitude
-                ? calculateDistance(latitude, longitude, b.latitude, b.longitude) : null,
-            }));
-          for (const b of newResults) existingIds.add(b.id);
-          businesses = [...businesses, ...newResults];
-          if (newResults.length > 0) {
-            console.log(`Synonym-linked service "${svcName}": +${newResults.length} merged (total: ${businesses.length})`);
-          }
-        }
-      }
-    }
-
     // In broad mode with existing results, temporarily clear businesses so tsquery runs
-    if (isBroadWithResults) {
-      console.log(`Broad mode for "${detectedSubcategory}": running tsquery to merge with ${businesses.length} direct results`);
-      businesses = [];
-    }
-
-    // ── Synonym-linked services: SHORT-CIRCUIT — fetch directly by service, skip FTS ──
-    if (synonymLinkedServices.length > 0 && businesses.length === 0) {
-      console.log(`⚡ Service shortcut: fetching businesses with services [${synonymLinkedServices.join(", ")}]`);
-      const existingIds = new Set(businesses.map(b => b.id));
-      for (const svcName of synonymLinkedServices) {
-        let svcBuilder = supabase.from("businesses").select("*").eq("is_active", true)
-          .filter("services", "cs", `{"${svcName}"}`);
-        if (effectiveCity) svcBuilder = applyCityFilter(svcBuilder);
-        if (detectedNeighborhood) {
-          svcBuilder = svcBuilder.or(buildNeighborhoodOrClause(detectedNeighborhood, loadedNeighborhoods));
-        }
-        svcBuilder = svcBuilder
-          .order("wtuce_status", { ascending: true })
-          .order("google_rating", { ascending: false, nullsFirst: false })
-          .order("priority_score", { ascending: false })
-          .limit(limit);
-        const { data: svcData, error: svcError } = await svcBuilder;
-        if (!svcError && svcData && svcData.length > 0) {
-          const newResults = svcData
-            .filter((b: any) => !existingIds.has(b.id))
-            .map((b: any) => ({
-              ...b,
-              distance_km: latitude && longitude && b.latitude && b.longitude
-                ? calculateDistance(latitude, longitude, b.latitude, b.longitude) : null,
-            }));
-          for (const b of newResults) existingIds.add(b.id);
-          businesses = [...businesses, ...newResults];
-          console.log(`Service shortcut "${svcName}": +${newResults.length} results (total: ${businesses.length})`);
-        }
-      }
-      if (businesses.length > 0) {
-        searchLevel = "exact";
-      }
-    }
-
-    // ── Synonym-linked subcategories (no subcategory detected): fetch from linked subcategories ──
     if (!detectedSubcategory && synonymLinkedSubcategories.length > 0 && businesses.length === 0) {
       console.log(`No subcategory detected but synonym-linked subcategories found: [${synonymLinkedSubcategories.join(", ")}]`);
       const existingIds = new Set(businesses.map(b => b.id));
@@ -3294,6 +3262,7 @@ serve(async (req) => {
         console.warn("Destination enrichment failed:", e);
       }
     }
+    } // end if (!serviceShortcutActivated)
 
     const result: SearchResult = {
       businesses,
@@ -3301,8 +3270,8 @@ serve(async (req) => {
       message: getSearchLevelMessage(searchLevel, language),
       totalResults: businesses.length,
       detectedSubcategory: detectedSubcategory || null,
-      searchMode: subcategorySearchConfig?.search_mode || null,
-      bundleTimeSlots: bundleTimeSlots.length > 0 ? bundleTimeSlots : undefined,
+      searchMode: serviceShortcutActivated ? "service_shortcut" : (typeof subcategorySearchConfig !== 'undefined' && subcategorySearchConfig?.search_mode) || null,
+      bundleTimeSlots: (typeof bundleTimeSlots !== 'undefined' && bundleTimeSlots.length > 0) ? bundleTimeSlots : undefined,
     };
 
     // Async log to search_logs table (fire-and-forget, don't block response)
@@ -3313,7 +3282,7 @@ serve(async (req) => {
         detected_city: effectiveCity || null,
         detected_neighborhood: detectedNeighborhood || null,
         detected_subcategory: detectedSubcategory || null,
-        search_mode: subcategorySearchConfig?.search_mode || null,
+        search_mode: serviceShortcutActivated ? "service_shortcut" : (typeof subcategorySearchConfig !== 'undefined' ? subcategorySearchConfig?.search_mode : null) || null,
         search_level: searchLevel,
         total_results: businesses.length,
         rerank_applied: !!lastRerankMeta,
