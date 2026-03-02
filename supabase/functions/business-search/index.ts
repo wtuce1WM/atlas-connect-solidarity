@@ -1000,6 +1000,76 @@ serve(async (req) => {
         }
       }
     }
+    // ── Early bundle service detection: if a bundle keyword matches and has required_services,
+    //    feed them into synonymLinkedServices so the service shortcut handles them efficiently ──
+    {
+      const { data: bundleData } = await supabase
+        .from("search_bundles")
+        .select("keyword, required_service, time_slots")
+        .eq("is_active", true);
+      console.log(`Early bundle check: ${bundleData?.length ?? 0} active entries loaded`);
+      if (bundleData && bundleData.length > 0 && effectiveQuery) {
+        const textsToCheck = [effectiveQuery, query, spoken].filter(Boolean) as string[];
+        const allText = textsToCheck.map(t => stripAccentsGlobal(t.toLowerCase())).join(" ");
+        const allWords = new Set(allText.split(/\s+/));
+        // Build synonym-expanded word set
+        const expandedWords = new Set(allWords);
+        for (const [synKey, synValues] of Object.entries(synonyms)) {
+          const normalizedKey = stripAccentsGlobal(synKey.toLowerCase());
+          const normalizedValues = synValues.map(sv => stripAccentsGlobal(sv.toLowerCase()));
+          for (const sv of normalizedValues) {
+            const svWords = sv.split(/\s+/);
+            if (svWords.every(w => allWords.has(w))) {
+              for (const w of normalizedKey.split(/\s+/)) expandedWords.add(w);
+            }
+          }
+          if (normalizedKey.split(/\s+/).every(w => allWords.has(w))) {
+            for (const sv of normalizedValues) {
+              for (const w of sv.split(/\s+/)) expandedWords.add(w);
+            }
+          }
+        }
+        // Simple French plural stemmer
+        const stemFr = (w: string): string => {
+          if (w.length <= 3) return w;
+          if (w.endsWith("eaux")) return w.slice(0, -1);
+          if (w.endsWith("aux")) return w.slice(0, -2) + "l";
+          if (w.endsWith("s") || w.endsWith("x")) return w.slice(0, -1);
+          return w;
+        };
+        const stemSet = (words: Iterable<string>): Set<string> => {
+          const s = new Set<string>();
+          for (const w of words) { s.add(w); s.add(stemFr(w)); }
+          return s;
+        };
+        const stemmedExpandedWords = stemSet(expandedWords);
+        
+        const uniqueKeywords = [...new Set(bundleData.map((b: any) => stripAccentsGlobal(b.keyword.toLowerCase())))];
+        let matchedBundleKeyword = uniqueKeywords.find(kw => allWords.has(kw) || allText.includes(kw));
+        if (!matchedBundleKeyword) {
+          matchedBundleKeyword = uniqueKeywords.find(kw => {
+            const kwWords = kw.split(/\s+/).filter(w => w.length > 1);
+            return kwWords.length > 0 && kwWords.every(w => expandedWords.has(w));
+          });
+        }
+        if (!matchedBundleKeyword) {
+          matchedBundleKeyword = uniqueKeywords.find(kw => {
+            const kwWords = kw.split(/\s+/).filter(w => w.length > 1);
+            return kwWords.length > 0 && kwWords.every(w => stemmedExpandedWords.has(w) || stemmedExpandedWords.has(stemFr(w)));
+          });
+        }
+        if (matchedBundleKeyword) {
+          const entries = bundleData.filter((b: any) => stripAccentsGlobal(b.keyword.toLowerCase()) === matchedBundleKeyword);
+          const bundleServices = entries
+            .filter((e: any) => e.required_service)
+            .map((e: any) => e.required_service as string);
+          if (bundleServices.length > 0) {
+            synonymLinkedServices = [...new Set([...synonymLinkedServices, ...bundleServices])];
+            console.log(`⚡ Bundle "${matchedBundleKeyword}" services fed into shortcut: [${bundleServices.join(", ")}]`);
+          }
+        }
+      }
+    }
     // Auto-detect category from intent words when no explicit category is provided
     // Load intent word → category mappings from DB
     let INTENT_TO_CATEGORY: Record<string, string> = {};
