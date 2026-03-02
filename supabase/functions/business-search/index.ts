@@ -2138,19 +2138,7 @@ serve(async (req) => {
         }
       }
 
-      // ── Synonym-linked subcategories: merge results from subcategories associated via search_synonyms ──
-      if (synonymLinkedSubcategories.length > 0) {
-        const existingIds = new Set(businesses.map(b => b.id));
-        // Exclude the already-detected subcategory from synonym-linked ones (avoid duplicate fetch)
-        const extraSubcats = synonymLinkedSubcategories.filter(sc => sc.toLowerCase() !== detectedSubcategory!.toLowerCase());
-        for (const synSubcat of extraSubcats) {
-          const synResults = await fetchSubcategoryBusinesses(synSubcat);
-          const newResults = synResults.filter(b => !existingIds.has(b.id));
-          for (const b of newResults) existingIds.add(b.id);
-          businesses = [...businesses, ...newResults];
-          console.log(`Synonym-linked subcategory "${synSubcat}": +${newResults.length} results (total: ${businesses.length})`);
-        }
-      }
+      // ── Synonym-linked subcategories: moved AFTER strict mode refinement (see below) ──
 
       // ── Intent-subcategory conflict merge ──
       // When intent (e.g. "manger" → Restauration) conflicts with subcategory (e.g. Poissonnerie → Commerce),
@@ -2297,6 +2285,36 @@ serve(async (req) => {
         console.log(`Strict mode for "${detectedSubcategory}": skipping tsquery fallback (${businesses.length} results from direct query)`);
       }
     }
+
+    // ── Synonym-linked subcategories: merge AFTER strict mode so they don't get overwritten ──
+    if (detectedSubcategory && synonymLinkedSubcategories.length > 0) {
+      const existingIds = new Set(businesses.map(b => b.id));
+      const extraSubcats = synonymLinkedSubcategories.filter(sc => sc.toLowerCase() !== detectedSubcategory!.toLowerCase());
+      for (const synSubcat of extraSubcats) {
+        let synBuilder = supabase.from("businesses").select("*").eq("is_active", true)
+          .contains("categories", [synSubcat]);
+        if (effectiveCity) synBuilder = applyCityFilter(synBuilder);
+        synBuilder = synBuilder
+          .order("wtuce_status", { ascending: true })
+          .order("google_rating", { ascending: false, nullsFirst: false })
+          .order("priority_score", { ascending: false })
+          .limit(limit);
+        const { data: synData } = await synBuilder;
+        if (synData) {
+          const newResults = synData
+            .filter((b: any) => !existingIds.has(b.id))
+            .map((b: any) => ({
+              ...b,
+              distance_km: latitude && longitude && b.latitude && b.longitude
+                ? calculateDistance(latitude, longitude, b.latitude, b.longitude) : null,
+            }));
+          for (const b of newResults) existingIds.add(b.id);
+          businesses = [...businesses, ...newResults];
+          console.log(`Synonym-linked subcategory "${synSubcat}": +${newResults.length} results (total: ${businesses.length})`);
+        }
+      }
+    }
+
     // In broad mode with existing results, temporarily clear businesses so tsquery runs
     if (isBroadWithResults) {
       console.log(`Broad mode for "${detectedSubcategory}": running tsquery to merge with ${businesses.length} direct results`);
