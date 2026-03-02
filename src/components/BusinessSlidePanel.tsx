@@ -976,7 +976,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                   className={`text-sm text-foreground leading-relaxed [&>p]:mb-3 [&>p:last-child]:mb-0 [&>br]:content-[''] [&>br]:block [&>br]:mb-2 [&>h2]:text-xl [&>h2]:font-bold [&>h2]:mb-4 [&>h2]:mt-5 [&>h3]:text-lg [&>h3]:font-semibold [&>h3]:mb-3 [&>h3]:mt-4 overflow-hidden transition-all duration-300 ${isDescriptionExpanded ? "" : "max-h-[21em]"}`}
                   dangerouslySetInnerHTML={{ __html: business.description }}
                 />
-                {!isDescriptionExpanded && (
+                {!isDescriptionExpanded && (business.description?.length ?? 0) >= 1000 && (
                   <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-background to-transparent pointer-events-none" />
                 )}
               </div>
