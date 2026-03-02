@@ -51,7 +51,7 @@ serve(async (req) => {
     if (queryTerms.length > 0) {
       // Only fetch informational entries (not technical notes)
       const aiCategories = ["general", "tourisme", "culture", "gastronomie"];
-      const orFilters = queryTerms.map((t: string) => `title.ilike.%${t}%,content.ilike.%${t}%`).join(",");
+      const orFilters = queryTerms.map((t: string) => `title.ilike.%${t}%,content.ilike.%${t}%,tags.cs.{${t}}`).join(",");
       const { data: knowledgeRows } = await sb
         .from("knowledge_entries")
         .select("title, content, category, tags")
