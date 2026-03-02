@@ -2191,7 +2191,56 @@ serve(async (req) => {
     const isBroadWithResults = !isStrictMode && !bundleActivated && detectedSubcategory && businesses.length > 0;
     const broadExistingBusinesses = isBroadWithResults ? [...businesses] : [];
     if (isStrictMode && detectedSubcategory) {
-      console.log(`Strict mode for "${detectedSubcategory}": skipping tsquery fallback (${businesses.length} results from direct query)`);
+      // In strict mode, if there are remaining query terms (e.g. "Mamounia public" from "bars de la Mamounia ouverts au public"),
+      // do a supplementary tsquery search within the subcategory to find businesses matching those terms
+      const subcatTokens = new Set(
+        (detectedSubcategory || "").toLowerCase().split(/[\s/\-]+/).map(t => stripAccentsGlobal(t)).filter(t => t.length > 1)
+      );
+      const remainingTerms = queryForExpansion
+        ? queryForExpansion.split(/\s+/)
+            .map(w => w.trim().toLowerCase())
+            .map(w => stripAccentsGlobal(w))
+            .filter(w => w.length > 1 && !FRENCH_STOP_WORDS.has(w))
+            .filter(w => !subcatTokens.has(w))
+        : [];
+      
+      if (remainingTerms.length > 0) {
+        // Build a tsquery from remaining terms and search within the subcategory
+        const tsTerms = remainingTerms.map(t => sanitizeTerm(t)).filter(t => t.length > 1);
+        if (tsTerms.length > 0) {
+          const tsQuery = tsTerms.join(" & ");
+          const mergedSubcats = MERGED_SUBCATEGORIES[detectedSubcategory.toLowerCase()] || [detectedSubcategory];
+          const orClause = mergedSubcats.map(sc => `categories.cs.{"${sc}"}`).join(",");
+          
+          let strictTsBuilder = supabase.from("businesses").select("*").eq("is_active", true)
+            .or(orClause)
+            .textSearch("search_vector", tsQuery, { type: "plain", config: "simple" });
+          if (effectiveCity) strictTsBuilder = applyCityFilter(strictTsBuilder);
+          strictTsBuilder = strictTsBuilder
+            .order("wtuce_status", { ascending: true })
+            .order("google_rating", { ascending: false, nullsFirst: false })
+            .order("priority_score", { ascending: false })
+            .limit(limit);
+          
+          const { data: strictTsData, error: strictTsError } = await strictTsBuilder;
+          if (!strictTsError && strictTsData && strictTsData.length > 0) {
+            const strictTsBusinesses = strictTsData.map((b: any) => ({
+              ...b,
+              distance_km: latitude && longitude && b.latitude && b.longitude
+                ? calculateDistance(latitude, longitude, b.latitude, b.longitude) : null,
+            }));
+            // Replace results with the filtered set
+            businesses = strictTsBusinesses;
+            console.log(`Strict mode for "${detectedSubcategory}": tsquery "${tsQuery}" found ${businesses.length} results matching remaining terms [${remainingTerms.join(", ")}]`);
+          } else {
+            console.log(`Strict mode for "${detectedSubcategory}": tsquery "${tsQuery}" found 0 results, keeping original ${businesses.length} results`);
+          }
+        } else {
+          console.log(`Strict mode for "${detectedSubcategory}": skipping tsquery fallback (${businesses.length} results from direct query)`);
+        }
+      } else {
+        console.log(`Strict mode for "${detectedSubcategory}": skipping tsquery fallback (${businesses.length} results from direct query)`);
+      }
     }
     // In broad mode with existing results, temporarily clear businesses so tsquery runs
     if (isBroadWithResults) {
