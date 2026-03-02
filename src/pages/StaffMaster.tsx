@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, Users, UserCheck, Search, ArrowLeft, Star, BarChart3, FlaskConical, BookOpen, Egg, Sparkles, Brain } from "lucide-react";
+import { LogOut, Users, UserCheck, Search, ArrowLeft, Star, BarChart3, FlaskConical, BookOpen, Egg, Sparkles, Brain, LayoutDashboard } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import SearchConfigManagement from "@/components/staff/SearchConfigManagement";
 import AffiliateManagement from "@/components/staff/AffiliateManagement";
@@ -15,11 +15,12 @@ import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
 import KnowledgeBaseManagement from "@/components/staff/KnowledgeBaseManagement";
 import EasterEggManagement from "@/components/staff/EasterEggManagement";
 import AIConfigManagement from "@/components/staff/AIConfigManagement";
+import MasterDashboard from "@/components/staff/MasterDashboard";
 
 const StaffMaster = () => {
   const [user, setUser] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [activeTab, setActiveTab] = useState("search-config");
+  const [activeTab, setActiveTab] = useState("dashboard");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -94,6 +95,10 @@ const StaffMaster = () => {
       <main className="container mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-6 flex flex-wrap h-auto gap-1">
+            <TabsTrigger value="dashboard" className="gap-2">
+              <LayoutDashboard className="h-4 w-4" />
+              Dashboard
+            </TabsTrigger>
             <TabsTrigger value="search-config" className="gap-2">
               <Search className="h-4 w-4" />
               Recherche
@@ -137,6 +142,10 @@ const StaffMaster = () => {
               </TabsTrigger>
             )}
           </TabsList>
+
+          <TabsContent value="dashboard">
+            <MasterDashboard onNavigateTab={setActiveTab} />
+          </TabsContent>
 
           <TabsContent value="search-config">
             <SearchConfigManagement />
