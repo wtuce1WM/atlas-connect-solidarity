@@ -604,6 +604,18 @@ serve(async (req) => {
       ).filter(w => w.length > 0).join(" ");
     }
 
+    // Strip country-level noise words: "maroc", "marocain(e)(s)", "morocco", "moroccan"
+    // The entire directory is Morocco-specific, so these words are redundant and cause false positives
+    // (e.g. "maroc" matching "maroquinerie" via keywords)
+    if (effectiveQuery) {
+      const COUNTRY_NOISE = /^(maroc|marocain|marocaine|marocains|marocaines|morocco|moroccan)$/i;
+      const stripped = effectiveQuery.split(/\s+/).filter(w => !COUNTRY_NOISE.test(stripAccentsGlobal(w))).join(" ").trim();
+      if (stripped && stripped !== effectiveQuery) {
+        console.log(`Stripped country noise from query: "${stripped}" (was: "${effectiveQuery}")`);
+        effectiveQuery = stripped;
+      }
+    }
+
     // Detect superlative intent (meilleur, top, best…) → sort by rating
     const isSuperlatif = effectiveQuery ? detectSuperlative(effectiveQuery) : false;
 
