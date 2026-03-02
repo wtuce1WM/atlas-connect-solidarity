@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Plus, Trash2, Loader2, Save, HelpCircle, Pencil, X, Check } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
+import { Plus, Trash2, Loader2, Save, HelpCircle, Pencil, X, Check, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -48,6 +48,7 @@ const SynonymsManagement = () => {
   const [editingServiceName, setEditingServiceName] = useState<{ entryId: string; oldName: string; newName: string } | null>(null);
   const [filterCategory, setFilterCategory] = useState("");
   const [filterSubcategory, setFilterSubcategory] = useState("");
+  const [expandedServices, setExpandedServices] = useState<Record<string, boolean>>({});
 
   const load = async () => {
     setIsLoading(true);
@@ -483,7 +484,7 @@ const SynonymsManagement = () => {
             <div className="border-t pt-2 mt-2">
               <span className="text-xs font-medium text-muted-foreground">Services associés :</span>
               <div className="flex flex-wrap gap-1.5 mt-1">
-                {entry.service_names.map(svc => (
+                {(expandedServices[entry.id] ? entry.service_names : entry.service_names.slice(0, 6)).map(svc => (
                   editingServiceName?.entryId === entry.id && editingServiceName?.oldName === svc ? (
                     <div key={svc} className="flex items-center gap-1">
                       <Input
@@ -532,6 +533,20 @@ const SynonymsManagement = () => {
                   )
                 ))}
                 {entry.service_names.length === 0 && <span className="text-xs text-muted-foreground italic">Aucun</span>}
+                {entry.service_names.length > 6 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 text-xs text-muted-foreground px-2"
+                    onClick={() => setExpandedServices(prev => ({ ...prev, [entry.id]: !prev[entry.id] }))}
+                  >
+                    {expandedServices[entry.id] ? (
+                      <><ChevronUp className="h-3 w-3 mr-1" />Voir moins</>
+                    ) : (
+                      <><ChevronDown className="h-3 w-3 mr-1" />+{entry.service_names.length - 6} autres</>
+                    )}
+                  </Button>
+                )}
               </div>
               <div className="flex gap-2 mt-1 flex-wrap">
                 <select
