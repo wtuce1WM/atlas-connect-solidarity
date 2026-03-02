@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo, ReactNode } from "react";
 import { Sparkles, Loader2, MapPin, Star, X, Maximize2, Minimize2, AArrowUp, AArrowDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -46,10 +46,8 @@ const normalize = (s: string) =>
 
 const findBusiness = (name: string, businesses: BusinessData[]): BusinessData | null => {
   const n = normalize(name);
-  // Try exact match first
   const exact = businesses.find(b => normalize(b.name) === n);
   if (exact) return exact;
-  // Check if the bold text includes a city hint (e.g. "Name à City" or "Name - City")
   const cityPattern = /(.+?)(?:\s+[àa]\s+|\s*[-–—]\s*)(.+)$/i;
   const cityMatch = n.match(cityPattern);
   if (cityMatch) {
@@ -57,14 +55,12 @@ const findBusiness = (name: string, businesses: BusinessData[]): BusinessData | 
     const cityPart = cityMatch[2].trim();
     const withCity = businesses.find(b => normalize(b.name) === namePart && normalize(b.city) === cityPart);
     if (withCity) return withCity;
-    // Partial city match
     const withCityPartial = businesses.find(b =>
       (normalize(b.name) === namePart || normalize(b.name).includes(namePart)) &&
       normalize(b.city).includes(cityPart)
     );
     if (withCityPartial) return withCityPartial;
   }
-  // Fallback: partial name match
   return businesses.find(b => n.includes(normalize(b.name)) || normalize(b.name).includes(n))
     || null;
 };
@@ -119,69 +115,134 @@ const BusinessHoverCard = ({ name, business, onClickBusiness }: { name: string; 
   );
 };
 
-// Split a flat AI text into visual paragraphs by breaking before each bold business name
-const splitIntoParagraphs = (text: string): string[] => {
-  // Normalize bold markers that span across newlines
+/** Parse inline markdown (**bold** with clickable businesses, *italic*) */
+const parseInline = (
+  text: string,
+  businesses: BusinessData[],
+  onClickBusiness: (b: BusinessData) => void,
+  keyPrefix: string
+): ReactNode[] => {
+  // Split by **bold** first
+  const boldParts = text.split(/\*\*(.+?)\*\*/g);
+  const nodes: ReactNode[] = [];
+
+  boldParts.forEach((part, j) => {
+    if (j % 2 === 1) {
+      // Bold segment — check if it's a clickable business
+      const match = findBusiness(part, businesses);
+      if (match) {
+        nodes.push(<BusinessHoverCard key={`${keyPrefix}-${j}`} name={part} business={match} onClickBusiness={onClickBusiness} />);
+      } else {
+        nodes.push(<strong key={`${keyPrefix}-${j}`} className="font-semibold text-foreground">{part}</strong>);
+      }
+    } else {
+      // Parse italic within plain text
+      const italicParts = part.split(/\*(.+?)\*/g);
+      italicParts.forEach((ip, k) => {
+        if (k % 2 === 1) {
+          nodes.push(<em key={`${keyPrefix}-${j}-i${k}`}>{ip}</em>);
+        } else if (ip) {
+          nodes.push(<span key={`${keyPrefix}-${j}-${k}`}>{ip}</span>);
+        }
+      });
+    }
+  });
+
+  return nodes;
+};
+
+/** Convert markdown text to React elements with paragraphs, lists, and inline formatting */
+const formatAnswer = (
+  text: string,
+  businesses: BusinessData[],
+  onClickBusiness: (b: BusinessData) => void
+): ReactNode[] => {
+  // Normalize bold markers spanning newlines
   const normalized = text.replace(/\*\*([^*]*?)\*\*/gs, (_, inner) =>
     `**${inner.replace(/\n/g, " ")}**`
   );
 
-  // If text already has newlines, use those
-  if (/\n/.test(normalized)) {
-    return normalized.split(/\n+/).filter(s => s.trim());
-  }
+  // Split into blocks by double newlines (or single newlines for list transitions)
+  const lines = normalized.split(/\n/);
+  const elements: ReactNode[] = [];
+  let currentList: { type: "ul" | "ol"; items: string[] } | null = null;
+  let currentParagraph: string[] = [];
+  let blockIdx = 0;
 
-  // Split on sentence boundaries
-  const sentences = normalized.split(/(?<=[.!?])\s+(?=[A-ZÀ-ÖØ-öø-ÿ])/);
-  
-  if (sentences.length <= 1) return [normalized];
-
-  // Always break after the first sentence
-  const segments: string[] = [sentences[0].trim()];
-  
-  let currentPara = "";
-  for (let i = 1; i < sentences.length; i++) {
-    const sentence = sentences[i];
-    const isLast = i === sentences.length - 1;
-    // Break before the last sentence OR before each sentence that contains a bold marker
-    if (isLast && currentPara.length > 0) {
-      segments.push(currentPara.trim());
-      currentPara = sentence;
-    } else if (/\*\*/.test(sentence) && currentPara.length > 0 && /\*\*/.test(currentPara)) {
-      segments.push(currentPara.trim());
-      currentPara = sentence;
-    } else {
-      currentPara += (currentPara ? " " : "") + sentence;
-    }
-  }
-  if (currentPara.trim()) segments.push(currentPara.trim());
-
-  return segments;
-};
-
-// Format AI answer with paragraph spacing
-const formatAnswer = (text: string, businesses: BusinessData[], onClickBusiness: (b: BusinessData) => void) => {
-  const paragraphs = splitIntoParagraphs(text);
-
-  const parseLine = (line: string, lineIdx: number) => {
-    const parts = line.split(/\*\*(.+?)\*\*/g);
-    return parts.map((part, j) => {
-      if (j % 2 === 1) {
-        const match = findBusiness(part, businesses);
-        if (match) {
-          return <BusinessHoverCard key={`${lineIdx}-${j}`} name={part} business={match} onClickBusiness={onClickBusiness} />;
-        }
-        return <strong key={`${lineIdx}-${j}`} className="font-semibold text-foreground">{part}</strong>;
+  const flushParagraph = () => {
+    if (currentParagraph.length > 0) {
+      const text = currentParagraph.join(" ").trim();
+      if (text) {
+        elements.push(
+          <p key={`p-${blockIdx}`} className="mb-3 last:mb-0 leading-[1.8]">
+            {parseInline(text, businesses, onClickBusiness, `p-${blockIdx}`)}
+          </p>
+        );
+        blockIdx++;
       }
-      return <span key={`${lineIdx}-${j}`}>{part}</span>;
-    });
+      currentParagraph = [];
+    }
   };
 
-  return paragraphs.map((para, i) => (
-    <p key={i} className="mb-3 last:mb-0 leading-[1.8]">
-      {parseLine(para, i)}
-    </p>
-  ));
+  const flushList = () => {
+    if (currentList) {
+      const Tag = currentList.type === "ul" ? "ul" : "ol";
+      const listClass = currentList.type === "ul"
+        ? "list-disc pl-6 mb-3 space-y-1"
+        : "list-decimal pl-6 mb-3 space-y-1";
+      elements.push(
+        <Tag key={`list-${blockIdx}`} className={listClass}>
+          {currentList.items.map((item, i) => (
+            <li key={i} className="leading-[1.8]">
+              {parseInline(item, businesses, onClickBusiness, `li-${blockIdx}-${i}`)}
+            </li>
+          ))}
+        </Tag>
+      );
+      blockIdx++;
+      currentList = null;
+    }
+  };
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+
+    // Empty line = paragraph break
+    if (!trimmed) {
+      flushList();
+      flushParagraph();
+      continue;
+    }
+
+    // Unordered list item: - or •
+    const ulMatch = trimmed.match(/^[-•]\s+(.+)$/);
+    if (ulMatch) {
+      flushParagraph();
+      if (currentList && currentList.type !== "ul") flushList();
+      if (!currentList) currentList = { type: "ul", items: [] };
+      currentList.items.push(ulMatch[1]);
+      continue;
+    }
+
+    // Ordered list item: 1. or 1)
+    const olMatch = trimmed.match(/^\d+[.)]\s+(.+)$/);
+    if (olMatch) {
+      flushParagraph();
+      if (currentList && currentList.type !== "ol") flushList();
+      if (!currentList) currentList = { type: "ol", items: [] };
+      currentList.items.push(olMatch[1]);
+      continue;
+    }
+
+    // Regular text line
+    if (currentList) flushList();
+    currentParagraph.push(trimmed);
+  }
+
+  flushList();
+  flushParagraph();
+
+  return elements;
 };
 
 const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnswerReady }: AISearchAnswerProps) => {
@@ -191,7 +252,7 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
   const [isDismissed, setIsDismissed] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedBusiness, setSelectedBusiness] = useState<BusinessData | null>(null);
-  const [fontSize, setFontSize] = useState(0); // -1 = small, 0 = normal, 1 = large
+  const [fontSize, setFontSize] = useState(0);
   const fetchIdRef = useRef(0);
   const lastFetchKeyRef = useRef("");
   const aiPanelRef = useRef<HTMLDivElement>(null);
@@ -221,12 +282,10 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
 
     const fetchAnswer = async () => {
       try {
-        // Prioritize businesses from the most relevant city
         const top10 = businesses.slice(0, 10);
         const cityCounts: Record<string, number> = {};
         top10.forEach(b => { if (b.city) cityCounts[b.city] = (cityCounts[b.city] || 0) + 1; });
         const topCity = Object.entries(cityCounts).sort((a, b) => b[1] - a[1])[0]?.[0];
-        // Sort: businesses from the dominant city first, then others
         const sortedForAI = [...top10].sort((a, b) => {
           const aMatch = a.city === topCity ? 0 : 1;
           const bMatch = b.city === topCity ? 0 : 1;
@@ -278,11 +337,9 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
   const isPanelOpen = !!selectedBusiness;
   const [isPanelExpanded, setIsPanelExpanded] = useState(false);
 
-  // Disable background scroll when panel is open & scroll AI panel to top
   useEffect(() => {
     if (isPanelOpen) {
       document.body.style.overflow = "hidden";
-      // Scroll the AI panel container to top so the first business link is visible
       requestAnimationFrame(() => {
         aiPanelRef.current?.scrollTo({ top: 0 });
       });
@@ -296,12 +353,10 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
 
   return (
     <>
-      {/* Backdrop when panel is open */}
       {isPanelOpen && (
         <div className="fixed inset-0 z-[90] bg-black/30 backdrop-blur-sm" onClick={() => setSelectedBusiness(null)} />
       )}
 
-      {/* AI Suggestion — slides to left half when panel opens, hidden when expanded */}
       <div
         ref={aiPanelRef}
         className={`mb-6 transition-all duration-500 ease-out ${
@@ -314,7 +369,6 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
         style={isPanelOpen ? { animationName: undefined } : undefined}
       >
         <div className={`relative isolate rounded-2xl border border-gold/30 bg-gradient-to-br from-gold/5 to-background backdrop-blur-sm ${isPanelOpen ? "w-full max-w-2xl" : ""}`}>
-          {/* Header */}
           <div className="flex items-center px-4 py-2.5 border-b border-gold/15">
             <div className="flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-muted-foreground" />
@@ -347,7 +401,6 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
             </div>
           </div>
 
-          {/* Content */}
           <div className="px-5 py-4">
             {isLoading ? (
               <div className="flex items-center gap-3 text-gold/90">
@@ -367,10 +420,8 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
         </div>
       </div>
 
-      {/* Slide-in panel — right half or full width */}
       {isPanelOpen && (
         <div className={`fixed top-[62px] right-0 z-[100] bg-background shadow-2xl border-l border-border overflow-hidden transition-all duration-500 ease-out animate-slide-in-right flex flex-col ${isPanelExpanded ? "w-[80%]" : "w-1/2"}`} style={{ height: "calc(100vh - 62px)" }}>
-          {/* Fixed button bar above image */}
           <div className="shrink-0 flex items-center px-4 py-2 bg-background border-b border-border z-40">
             <div className="flex items-center gap-3 shrink-0">
               <button
@@ -392,9 +443,7 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
                 </button>
               )}
             </div>
-            {/* Contact icons - centered */}
             <div id="slide-panel-toolbar-center" className="flex-1 flex items-center justify-center gap-4" />
-            {/* Action icons - right */}
             <div id="slide-panel-toolbar" className="flex items-center gap-3 shrink-0" />
           </div>
 
