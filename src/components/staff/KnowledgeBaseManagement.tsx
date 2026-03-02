@@ -29,6 +29,10 @@ const CATEGORIES = [
   "architecture",
   "business-rules",
   "bug-fix",
+  "tech",
+  "tourisme",
+  "culture",
+  "gastronomie",
 ];
 
 const KnowledgeBaseManagement = () => {
