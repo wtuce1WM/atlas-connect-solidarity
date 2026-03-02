@@ -705,7 +705,7 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
         </div>
         <div className="flex items-center gap-3 mt-2">
           <p className="text-sm text-muted-foreground">{filteredBusinesses.length} résultat(s)</p>
-          {(searchQuery || cityFilter !== "all" || statusFilter !== "all" || categoryFilter !== "all" || subcategoryFilter !== "all" || badgeFilter || engagementFilter || destinationFilter || certificationFilter) && (
+          {(searchQuery || cityFilter !== "all" || statusFilter !== "all" || categoryFilter !== "all" || subcategoryFilter !== "all" || badgeFilter || engagementFilter || destinationFilter || certificationFilter || dateSortBy !== "updated_at" || sortColumn) && (
             <Button
               variant="ghost"
               size="sm"
@@ -720,6 +720,8 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
                 setEngagementFilter(null);
                 setDestinationFilter(null);
                 setCertificationFilter(null);
+                setDateSortBy("updated_at");
+                setSortColumn(null);
               }}
             >
               Effacer les filtres
