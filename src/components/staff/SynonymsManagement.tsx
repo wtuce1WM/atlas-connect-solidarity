@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { fetchAllRows } from "@/lib/fetchAllRows";
 
 interface SynonymEntry {
   id: string;
@@ -53,11 +54,11 @@ const SynonymsManagement = () => {
 
   const load = async () => {
     setIsLoading(true);
-    const [{ data }, { data: subcats }, { data: cats }, { data: svcData }] = await Promise.all([
+    const [{ data }, { data: subcats }, { data: cats }, svcData] = await Promise.all([
       supabase.from("search_synonyms").select("*").order("key_word"),
       supabase.from("subcategories").select("id, name_fr, category_id").order("name_fr"),
       supabase.from("categories").select("id, name_fr").order("name_fr"),
-      supabase.from("services").select("name_fr, subcategory_id").order("name_fr"),
+      fetchAllRows<{ name_fr: string; subcategory_id: string }>("services", "name_fr, subcategory_id", "name_fr"),
     ]);
     if (data) setEntries(data.map((d: any) => ({ ...d, subcategory_names: d.subcategory_names || [], service_names: d.service_names || [] })) as SynonymEntry[]);
     if (subcats) setAllSubcategories(subcats.map((s: any) => ({ id: s.id, name: s.name_fr, category_id: s.category_id })));
