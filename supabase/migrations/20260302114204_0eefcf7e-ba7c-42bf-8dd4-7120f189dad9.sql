@@ -1,0 +1,1 @@
+ALTER TABLE public.search_synonyms ADD COLUMN service_names text[] NOT NULL DEFAULT '{}'::text[];
