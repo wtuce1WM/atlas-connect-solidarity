@@ -570,7 +570,8 @@ serve(async (req) => {
       language = "fr",
       mode,
       spoken,
-    }: SearchParams & { language?: string; mode?: string; spoken?: string } = await req.json();
+    skipRerank,
+    }: SearchParams & { language?: string; mode?: string; spoken?: string; skipRerank?: boolean } = await req.json();
 
     const isAutocomplete = mode === "autocomplete";
 
@@ -3045,9 +3046,9 @@ serve(async (req) => {
     }
     // LLM Re-ranking: apply on exact/fuzzy results with a real query (skip autocomplete & superlative)
     // When name matches exist, rerank only the non-pinned portion to preserve exact match priority
-    const rerankConditions = { isAutocomplete, isSuperlatif, effectiveQuery, count: businesses.length, searchLevel, nameMatches: nameMatchedBusinessIds.length };
+    const rerankConditions = { isAutocomplete, isSuperlatif, effectiveQuery, count: businesses.length, searchLevel, nameMatches: nameMatchedBusinessIds.length, skipRerank: !!skipRerank };
     console.log(`Rerank check: ${JSON.stringify(rerankConditions)}`);
-    if (!isAutocomplete && !isSuperlatif && effectiveQuery && businesses.length >= 10 && (searchLevel === "exact" || searchLevel === "fuzzy")) {
+    if (!skipRerank && !isAutocomplete && !isSuperlatif && effectiveQuery && businesses.length >= 10 && (searchLevel === "exact" || searchLevel === "fuzzy")) {
       console.log(`✅ Rerank conditions met — triggering LLM rerank for "${effectiveQuery}"`);
       if (nameMatchedBusinessIds.length > 0) {
         // Rerank only the non-pinned businesses
