@@ -1106,11 +1106,10 @@ serve(async (req) => {
           .select("name_fr, keywords, subcategories!inner(name_fr)")
           .or(nameConditions);
 
-        // Also search in keywords array using cs (contains) for each word
+        // Load all services (not only those with keywords) so accent-insensitive name matching works reliably
         const { data: matchingByKeywords } = await supabase
           .from("services")
-          .select("name_fr, keywords, subcategories!inner(name_fr)")
-          .not("keywords", "eq", "{}");
+          .select("name_fr, keywords, subcategories!inner(name_fr)");
 
         // Merge: services matched by name + services whose keywords contain a query word
         const stripPlural = (w: string): string => {
@@ -1149,10 +1148,24 @@ serve(async (req) => {
             );
           });
         });
+        // Accent-insensitive fallback on service names to catch inputs like "francaise" vs "française"
+        const nameMatchesAccentInsensitive = (matchingByKeywords || []).filter((svc) => {
+          const nameTokens = stripAccentsKw(svc.name_fr.toLowerCase())
+            .split(/[\s/\-]+/)
+            .map((t: string) => normalizeWordKw(t))
+            .filter((t: string) => t.length > 1);
+
+          return serviceMatchWords.some((w) => {
+            const wNorm = normalizeWordKw(w);
+            if (wNorm.length <= 1) return false;
+            return nameTokens.some((t) => t === wNorm || t.includes(wNorm) || wNorm.includes(t));
+          });
+        });
+
         const allMatched = new Map<string, any>();
         // Normalize key: replace hyphens with spaces for merging variants like "Sur-mesure" / "Sur mesure"
         const normalizeServiceKey = (name: string) => name.toLowerCase().replace(/-/g, " ").replace(/\s+/g, " ").trim();
-        for (const s of [...(matchingByName || []), ...keywordMatches]) {
+        for (const s of [...(matchingByName || []), ...keywordMatches, ...nameMatchesAccentInsensitive]) {
           const normKey = normalizeServiceKey(s.name_fr);
           // Extract subcategory name from joined data
           const sSubcat = s.subcategories?.name_fr || null;
@@ -1213,7 +1226,7 @@ serve(async (req) => {
               return candidates.some(cand =>
                 serviceMatchWords.some(qw => {
                   if (usedQueryWords.has(qw)) return false;
-                  return qw === cand || stripPlural(qw) === stripPlural(cand);
+                  return normalizeWordKw(qw) === normalizeWordKw(cand);
                 })
               );
             });
@@ -1226,7 +1239,7 @@ serve(async (req) => {
                   ? [sw, ...sw.split("-").filter(p => p.length > 1 && !FRENCH_STOP_WORDS.has(p))]
                   : [sw];
                 for (const cand of candidates) {
-                  const matchedQw = serviceMatchWords.find(qw => !usedQueryWords.has(qw) && (qw === cand || stripPlural(qw) === stripPlural(cand)));
+                  const matchedQw = serviceMatchWords.find(qw => !usedQueryWords.has(qw) && normalizeWordKw(qw) === normalizeWordKw(cand));
                   if (matchedQw) usedQueryWords.add(matchedQw);
                 }
               }
@@ -1238,7 +1251,7 @@ serve(async (req) => {
                 const matched = svcKws.some((k: string) => {
                   // Skip multi-word keywords — single query word shouldn't match "pousse pieds" etc.
                   if (k.includes(" ")) return false;
-                  return k === qw || stripPlural(k) === stripPlural(qw) || wordBoundaryMatch(k, qw);
+                  return normalizeWordKw(k) === normalizeWordKw(qw) || wordBoundaryMatch(k, qw);
                 });
                 if (matched) {
                   usedQueryWords.add(qw);
@@ -1354,7 +1367,7 @@ serve(async (req) => {
               const minMatchRequired = hasContraction ? 1 : 2;
               if (svcWordCount >= 2 && matchCount < minMatchRequired && kwMatchCount === 0) continue;
               
-              const exactNameMatch = serviceMatchWords.some(w => stripPlural(w) === svcNorm || w === svcLower);
+              const exactNameMatch = serviceMatchWords.some(w => normalizeWordKw(w) === normalizeWordKw(svcLower));
               const exactNameBonus = exactNameMatch ? 200 : 0;
               const unmatchedPenalty = Math.max(0, svcWordCount - matchCount) * 15;
               const score = exactNameBonus + matchCount * 5 + (matchCount > 1 && svcWordCount > 1 ? 20 : 0) + kwMatchCount * 30 - unmatchedPenalty;
