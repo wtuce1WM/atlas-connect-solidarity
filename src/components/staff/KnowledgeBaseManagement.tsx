@@ -20,6 +20,7 @@ interface KnowledgeEntry {
   tags: string[];
   source: string | null;
   notes: string | null;
+  is_active: boolean;
 }
 
 interface KnowledgeBaseManagementProps {
@@ -223,7 +224,7 @@ const KnowledgeBaseManagement = ({
       ) : (
         <div className="space-y-3">
           {filtered.map(entry => (
-            <Card key={entry.id} className={editingId === entry.id ? "border-primary" : ""}>
+            <Card key={entry.id} className={`${editingId === entry.id ? "border-primary" : ""} ${!entry.is_active ? "opacity-50" : ""}`}>
               <CardContent className="p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
@@ -231,6 +232,7 @@ const KnowledgeBaseManagement = ({
                       <h3 className="font-semibold text-sm">{entry.title}</h3>
                       <Badge variant="outline" className="text-xs">{entry.category}</Badge>
                       {entry.source && <Badge variant="secondary" className="text-xs">{entry.source}</Badge>}
+                      {!entry.is_active && <Badge variant="destructive" className="text-xs">Désactivé</Badge>}
                     </div>
                     <p className="text-sm text-muted-foreground whitespace-pre-wrap line-clamp-3">{entry.content}</p>
                     {entry.notes && (
@@ -243,7 +245,19 @@ const KnowledgeBaseManagement = ({
                       <span className="text-xs text-muted-foreground ml-auto">{formatDate(entry.updated_at)}</span>
                     </div>
                   </div>
-                  <div className="flex gap-1 flex-shrink-0">
+                  <div className="flex gap-1 flex-shrink-0 items-center">
+                    <button
+                      onClick={async () => {
+                        const newVal = !entry.is_active;
+                        const { error } = await supabase.from("knowledge_entries").update({ is_active: newVal }).eq("id", entry.id);
+                        if (error) { toast({ variant: "destructive", title: "Erreur" }); return; }
+                        setEntries(prev => prev.map(e => e.id === entry.id ? { ...e, is_active: newVal } : e));
+                        toast({ title: newVal ? "Activé" : "Désactivé" });
+                      }}
+                      className={`text-xs px-2 py-1 rounded transition-colors ${entry.is_active ? "text-green-700 bg-green-100 hover:bg-green-200" : "text-red-700 bg-red-100 hover:bg-red-200"}`}
+                    >
+                      {entry.is_active ? "Actif" : "Inactif"}
+                    </button>
                     <Button variant="ghost" size="icon" onClick={() => startEdit(entry)}>
                       <Edit className="h-4 w-4" />
                     </Button>
