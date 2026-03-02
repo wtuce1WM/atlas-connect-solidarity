@@ -24,6 +24,7 @@ interface SynonymEntry {
   id: string;
   key_word: string;
   synonyms: string[];
+  subcategory_names: string[];
   is_active: boolean;
 }
 
@@ -33,14 +34,17 @@ const SynonymsManagement = () => {
   const [newKey, setNewKey] = useState("");
   const [newSynonyms, setNewSynonyms] = useState("");
   const [editingSynonym, setEditingSynonym] = useState<Record<string, string>>({});
+  const [allSubcategories, setAllSubcategories] = useState<string[]>([]);
+  const [editingSubcat, setEditingSubcat] = useState<Record<string, string>>({});
 
   const load = async () => {
     setIsLoading(true);
-    const { data } = await supabase
-      .from("search_synonyms")
-      .select("*")
-      .order("key_word");
-    if (data) setEntries(data as SynonymEntry[]);
+    const [{ data }, { data: subcats }] = await Promise.all([
+      supabase.from("search_synonyms").select("*").order("key_word"),
+      supabase.from("subcategories").select("name_fr").order("name_fr"),
+    ]);
+    if (data) setEntries(data.map((d: any) => ({ ...d, subcategory_names: d.subcategory_names || [] })) as SynonymEntry[]);
+    if (subcats) setAllSubcategories(subcats.map((s: any) => s.name_fr));
     setIsLoading(false);
   };
 
@@ -87,6 +91,25 @@ const SynonymsManagement = () => {
     const updated = entry.synonyms.filter(s => s !== syn);
     await supabase.from("search_synonyms").update({ synonyms: updated }).eq("id", id);
     setEntries(prev => prev.map(e => e.id === id ? { ...e, synonyms: updated } : e));
+  };
+
+  const addSubcategoryToEntry = async (id: string) => {
+    const name = (editingSubcat[id] || "").trim();
+    if (!name) return;
+    const entry = entries.find(e => e.id === id);
+    if (!entry || entry.subcategory_names.includes(name)) return;
+    const updated = [...entry.subcategory_names, name];
+    await supabase.from("search_synonyms").update({ subcategory_names: updated }).eq("id", id);
+    setEntries(prev => prev.map(e => e.id === id ? { ...e, subcategory_names: updated } : e));
+    setEditingSubcat(prev => ({ ...prev, [id]: "" }));
+  };
+
+  const removeSubcategoryFromEntry = async (id: string, name: string) => {
+    const entry = entries.find(e => e.id === id);
+    if (!entry) return;
+    const updated = entry.subcategory_names.filter(s => s !== name);
+    await supabase.from("search_synonyms").update({ subcategory_names: updated }).eq("id", id);
+    setEntries(prev => prev.map(e => e.id === id ? { ...e, subcategory_names: updated } : e));
   };
 
   if (isLoading) return <div className="flex justify-center p-8"><Loader2 className="h-6 w-6 animate-spin" /></div>;
@@ -264,6 +287,37 @@ const SynonymsManagement = () => {
               <Button size="sm" variant="outline" onClick={() => addSynonymToEntry(entry.id)} className="border-amber-600 text-amber-700 hover:bg-amber-50">
                 <Plus className="h-3 w-3" />
               </Button>
+            </div>
+            {/* Sous-catégories associées */}
+            <div className="border-t pt-2 mt-2">
+              <span className="text-xs font-medium text-muted-foreground">Sous-catégories associées :</span>
+              <div className="flex flex-wrap gap-1.5 mt-1">
+                {entry.subcategory_names.map(sc => (
+                  <Badge key={sc} variant="secondary" className="gap-1 group">
+                    {sc}
+                    <button className="opacity-0 group-hover:opacity-100" onClick={() => removeSubcategoryFromEntry(entry.id, sc)}>
+                      <Trash2 className="h-3 w-3 text-destructive" />
+                    </button>
+                  </Badge>
+                ))}
+                {entry.subcategory_names.length === 0 && <span className="text-xs text-muted-foreground italic">Aucune</span>}
+              </div>
+              <div className="flex gap-2 mt-1">
+                <select
+                  value={editingSubcat[entry.id] || ""}
+                  onChange={e => setEditingSubcat(prev => ({ ...prev, [entry.id]: e.target.value }))}
+                  className="max-w-xs text-sm border rounded px-2 py-1 bg-background"
+                >
+                  <option value="">Sélectionner une sous-catégorie...</option>
+                  {allSubcategories
+                    .filter(sc => !entry.subcategory_names.includes(sc))
+                    .map(sc => <option key={sc} value={sc}>{sc}</option>)
+                  }
+                </select>
+                <Button size="sm" variant="outline" onClick={() => addSubcategoryToEntry(entry.id)} className="border-amber-600 text-amber-700 hover:bg-amber-50">
+                  <Plus className="h-3 w-3" />
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>

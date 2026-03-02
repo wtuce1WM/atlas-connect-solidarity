@@ -1893,6 +1893,7 @@ export type Database = {
           id: string
           is_active: boolean
           key_word: string
+          subcategory_names: string[]
           synonyms: string[]
           updated_at: string | null
         }
@@ -1901,6 +1902,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           key_word: string
+          subcategory_names?: string[]
           synonyms?: string[]
           updated_at?: string | null
         }
@@ -1909,6 +1911,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           key_word?: string
+          subcategory_names?: string[]
           synonyms?: string[]
           updated_at?: string | null
         }
