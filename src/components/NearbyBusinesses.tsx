@@ -93,9 +93,7 @@ const NearbyBusinesses = ({ currentBusinessId, businessName, latitude, longitude
         .limit(200);
 
       if (!error && data) {
-        const currentPrimarySubcategory = (
-          currentSubcategory?.trim() || currentCategories?.[0]?.trim() || ""
-        ).toLowerCase();
+        const currentPrimarySubcategory = (currentSubcategory?.trim() || "").toLowerCase();
 
         const withDistance = (data as NearbyBusiness[])
           .map((b) => ({
@@ -103,10 +101,10 @@ const NearbyBusinesses = ({ currentBusinessId, businessName, latitude, longitude
             distance: b.latitude && b.longitude ? haversine(latitude, longitude, b.latitude, b.longitude) : Infinity,
           }))
           .filter((b) => b.distance <= RADIUS_KM)
-          // Exclude businesses with same primary default subcategory as the current business
+          // Exclude businesses with same primary subcategory (based on categories[0])
           .filter((b) => {
             if (!currentPrimarySubcategory) return true;
-            const candidatePrimarySubcategory = (b.default_service?.trim() || b.categories?.[0]?.trim() || "").toLowerCase();
+            const candidatePrimarySubcategory = (b.categories?.[0]?.trim() || "").toLowerCase();
             if (!candidatePrimarySubcategory) return true;
             return candidatePrimarySubcategory !== currentPrimarySubcategory;
           })
