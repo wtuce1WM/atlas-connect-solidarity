@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash2, Edit, Save, X, Search, BookOpen } from "lucide-react";
+import { Plus, Trash2, Edit, Save, X, Search, BookOpen, ChevronDown, ChevronUp } from "lucide-react";
 import RichTextEditor from "./RichTextEditor";
 
 interface KnowledgeEntry {
@@ -43,7 +43,15 @@ const KnowledgeBaseManagement = ({
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showNew, setShowNew] = useState(false);
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 
+  const toggleExpand = useCallback((id: string) => {
+    setExpandedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }, []);
   // Form state
   const [formTitle, setFormTitle] = useState("");
   const [formContent, setFormContent] = useState("");
@@ -234,9 +242,9 @@ const KnowledgeBaseManagement = ({
                       {entry.source && <Badge variant="secondary" className="text-xs">{entry.source}</Badge>}
                       {!entry.is_active && <Badge variant="destructive" className="text-xs">Désactivé</Badge>}
                     </div>
-                    <p className="text-sm text-muted-foreground whitespace-pre-wrap line-clamp-3">{entry.content}</p>
+                    <p className={`text-sm text-muted-foreground whitespace-pre-wrap ${expandedIds.has(entry.id) ? '' : 'line-clamp-3'}`}>{entry.content}</p>
                     {entry.notes && (
-                      <div className="text-xs text-muted-foreground/70 italic mt-1 line-clamp-2 prose prose-xs max-w-none" dangerouslySetInnerHTML={{ __html: `📝 ${entry.notes}` }} />
+                      <div className={`text-xs text-muted-foreground/70 italic mt-1 prose prose-xs max-w-none ${expandedIds.has(entry.id) ? '' : 'line-clamp-2'}`} dangerouslySetInnerHTML={{ __html: `📝 ${entry.notes}` }} />
                     )}
                     <div className="flex items-center gap-2 mt-2 flex-wrap">
                       {entry.tags.map(tag => (
@@ -246,6 +254,9 @@ const KnowledgeBaseManagement = ({
                     </div>
                   </div>
                   <div className="flex gap-1 flex-shrink-0 items-center">
+                    <Button variant="ghost" size="icon" onClick={() => toggleExpand(entry.id)} title={expandedIds.has(entry.id) ? "Réduire" : "Déplier"}>
+                      {expandedIds.has(entry.id) ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                    </Button>
                     <button
                       onClick={async () => {
                         const newVal = !entry.is_active;
