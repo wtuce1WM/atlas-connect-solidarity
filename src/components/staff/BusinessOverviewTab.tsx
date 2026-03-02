@@ -51,6 +51,7 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
   const [currentPage, setCurrentPage] = useState(1);
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [dateSortBy, setDateSortBy] = useState<"updated_at" | "created_at">("updated_at");
   const PAGE_SIZE = 50;
 
   // Extra data
@@ -429,8 +430,8 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
       const matchesDestination = !destinationFilter || businessDestinations.some(bd => bd.business_id === b.id && bd.destination_id === destinationFilter);
       const matchesCertification = !certificationFilter || b.engagements?.includes(`Certification:${certificationFilter}`);
       return matchesSearch && matchesCity && matchesStatus && matchesCategory && matchesSubcategory && matchesBadge && matchesEngagement && matchesDestination && matchesCertification;
-    }).sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
-  }, [businesses, searchQuery, cityFilter, statusFilter, categoryFilter, subcategoryFilter, badgeFilter, businessBadges, engagementFilter, destinationFilter, businessDestinations, certificationFilter]);
+    }).sort((a, b) => new Date(b[dateSortBy]).getTime() - new Date(a[dateSortBy]).getTime());
+  }, [businesses, searchQuery, cityFilter, statusFilter, categoryFilter, subcategoryFilter, badgeFilter, businessBadges, engagementFilter, destinationFilter, businessDestinations, certificationFilter, dateSortBy]);
 
   const toggleSort = (col: string) => {
     if (sortColumn === col) {
@@ -686,6 +687,22 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
             </CollapsibleContent>
           </Collapsible>
         )}
+        <div className="flex items-center gap-2 mt-3">
+          <Button
+            variant={dateSortBy === "updated_at" ? "default" : "outline"}
+            size="sm"
+            onClick={() => { setDateSortBy("updated_at"); setSortColumn(null); }}
+          >
+            Derniers modifiés
+          </Button>
+          <Button
+            variant={dateSortBy === "created_at" ? "default" : "outline"}
+            size="sm"
+            onClick={() => { setDateSortBy("created_at"); setSortColumn(null); }}
+          >
+            Derniers créés
+          </Button>
+        </div>
         <div className="flex items-center gap-3 mt-2">
           <p className="text-sm text-muted-foreground">{filteredBusinesses.length} résultat(s)</p>
           {(searchQuery || cityFilter !== "all" || statusFilter !== "all" || categoryFilter !== "all" || subcategoryFilter !== "all" || badgeFilter || engagementFilter || destinationFilter || certificationFilter) && (
