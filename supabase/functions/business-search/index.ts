@@ -492,8 +492,16 @@ function expandQuery(query: string): string {
       }
     }
 
+    // For each alternative, also add accent-stripped variant so "française" matches "francaise" in search_vector
+    const withAccentVariants = new Set<string>();
+    for (const a of alternatives) {
+      withAccentVariants.add(a);
+      const stripped = stripAccentsGlobal(a);
+      if (stripped !== a) withAccentVariants.add(stripped);
+    }
+
     // For alternatives containing "/", keep slash as-is for tsquery matching
-    const sanitized = [...new Set(alternatives)].map(a => {
+    const sanitized = [...withAccentVariants].map(a => {
       if (a.includes("/")) return a.replace(/['']/g, "").replace(/[^a-zA-Z0-9àâäéèêëïîôùûüÿçœæÀÂÄÉÈÊËÏÎÔÙÛÜŸÇŒÆ/]/g, "");
       return sanitizeTerm(a);
     }).filter(t => t.length > 1);
