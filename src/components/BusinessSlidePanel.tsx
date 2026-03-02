@@ -209,7 +209,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
     );
     observer.observe(sentinel);
     return () => observer.disconnect();
-  }, [isLoading, business]);
+  }, [isLoading, business, isExpanded]);
 
   // Sticky tabs: show when inline tabs scroll out of view
   useEffect(() => {
@@ -224,7 +224,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
     );
     observer.observe(sentinel);
     return () => observer.disconnect();
-  }, [isLoading, business]);
+  }, [isLoading, business, isExpanded]);
 
   // Auto-update active tab based on scroll position (IntersectionObserver)
   useEffect(() => {
