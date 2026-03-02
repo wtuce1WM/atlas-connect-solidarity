@@ -1229,6 +1229,7 @@ export type Database = {
           content: string
           created_at: string
           id: string
+          is_active: boolean
           notes: string | null
           source: string | null
           tags: string[]
@@ -1240,6 +1241,7 @@ export type Database = {
           content: string
           created_at?: string
           id?: string
+          is_active?: boolean
           notes?: string | null
           source?: string | null
           tags?: string[]
@@ -1251,6 +1253,7 @@ export type Database = {
           content?: string
           created_at?: string
           id?: string
+          is_active?: boolean
           notes?: string | null
           source?: string | null
           tags?: string[]

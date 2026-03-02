@@ -56,6 +56,7 @@ serve(async (req) => {
         .from("knowledge_entries")
         .select("title, content, category, tags")
         .in("category", aiCategories)
+        .eq("is_active", true)
         .or(orFilters)
         .limit(5);
       
