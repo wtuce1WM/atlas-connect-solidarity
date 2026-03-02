@@ -1950,14 +1950,23 @@ serve(async (req) => {
       }
       let serviceFilter = (detectedServices.length > 0 && !serviceIsRedundantWithSubcategory) ? detectedServices : undefined;
       
-      // When a bundle is active, skip the broader subcategory merge entirely.
-      // The bundle already queried the precise subcategory+service combination.
-      // Adding unfiltered subcategory results would flood with irrelevant entries.
-      if (!bundleIsActive) {
-        const subcatResults = await fetchSubcategoryBusinesses(detectedSubcategory, serviceFilter);
-        businesses = subcatResults;
+      // When a bundle is active, also run the subcategory query and merge results.
+      // This ensures businesses that match the subcategory (e.g. "Massage") but weren't
+      // captured by the bundle's specific service/badge filters are still included.
+      const subcatResults = await fetchSubcategoryBusinesses(detectedSubcategory, serviceFilter);
+      if (bundleIsActive) {
+        // Merge: add subcategory results that aren't already in bundle results
+        let addedFromSubcat = 0;
+        for (const b of subcatResults) {
+          if (!bundleResultIds.has(b.id)) {
+            businesses.push(b);
+            bundleResultIds.add(b.id);
+            addedFromSubcat++;
+          }
+        }
+        console.log(`Bundle active — merged ${addedFromSubcat} additional subcategory results for "${detectedSubcategory}" (total: ${businesses.length})`);
       } else {
-        console.log(`Bundle is active — skipping broader subcategory merge for "${detectedSubcategory}"`);
+        businesses = subcatResults;
       }
       searchLevel = "exact";
       console.log(`Subcategory direct query "${detectedSubcategory}" + city "${effectiveCity}" + neighborhood "${detectedNeighborhood}" + services filter [${(serviceFilter || []).join(", ")}]: ${businesses.length} results (bundleActive=${bundleIsActive})`);
