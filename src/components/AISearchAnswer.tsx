@@ -375,21 +375,16 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
               >
                 <X className="h-4 w-4" />
               </button>
-              {(() => {
-                const singleImage = selectedBusiness && selectedBusiness.images && selectedBusiness.images.length === 1;
-                const disableExpand = !isPanelExpanded && singleImage;
-                return (
-                  <button
-                    onClick={() => !disableExpand && setIsPanelExpanded(prev => !prev)}
-                    className={`h-9 w-9 flex items-center justify-center rounded-full bg-black text-white border-2 border-white/20 shadow-2xl transition-opacity ${disableExpand ? "opacity-30 cursor-not-allowed" : "hover:opacity-90"}`}
-                    title={isPanelExpanded ? "Réduire" : "Agrandir"}
-                    aria-label={isPanelExpanded ? "Réduire le panneau" : "Agrandir le panneau"}
-                    disabled={!!disableExpand}
-                  >
-                    {isPanelExpanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-                  </button>
-                );
-              })()}
+              {(isPanelExpanded || !(selectedBusiness?.images?.length === 1)) && (
+                <button
+                  onClick={() => setIsPanelExpanded(prev => !prev)}
+                  className="h-9 w-9 flex items-center justify-center rounded-full bg-black text-white border-2 border-white/20 shadow-2xl hover:opacity-90 transition-opacity"
+                  title={isPanelExpanded ? "Réduire" : "Agrandir"}
+                  aria-label={isPanelExpanded ? "Réduire le panneau" : "Agrandir le panneau"}
+                >
+                  {isPanelExpanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+                </button>
+              )}
             </div>
             {/* Contact icons - centered */}
             <div id="slide-panel-toolbar-center" className="flex-1 flex items-center justify-center gap-4" />
