@@ -25,6 +25,7 @@ interface SynonymEntry {
   key_word: string;
   synonyms: string[];
   subcategory_names: string[];
+  service_names: string[];
   is_active: boolean;
 }
 
@@ -34,22 +35,27 @@ const SynonymsManagement = () => {
   const [newKey, setNewKey] = useState("");
   const [newSynonyms, setNewSynonyms] = useState("");
   const [editingSynonym, setEditingSynonym] = useState<Record<string, string>>({});
-  const [allSubcategories, setAllSubcategories] = useState<{name: string; category_id: string}[]>([]);
+  const [allSubcategories, setAllSubcategories] = useState<{id: string; name: string; category_id: string}[]>([]);
   const [allCategories, setAllCategories] = useState<{id: string; name_fr: string}[]>([]);
+  const [allServices, setAllServices] = useState<{name: string; subcategory_id: string}[]>([]);
   const [editingSubcat, setEditingSubcat] = useState<Record<string, string>>({});
   const [selectedCategory, setSelectedCategory] = useState<Record<string, string>>({});
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [editingService, setEditingService] = useState<Record<string, string>>({});
+  const [serviceSubcatFilter, setServiceSubcatFilter] = useState<Record<string, string>>({});
 
   const load = async () => {
     setIsLoading(true);
-    const [{ data }, { data: subcats }, { data: cats }] = await Promise.all([
+    const [{ data }, { data: subcats }, { data: cats }, { data: svcData }] = await Promise.all([
       supabase.from("search_synonyms").select("*").order("key_word"),
-      supabase.from("subcategories").select("name_fr, category_id").order("name_fr"),
+      supabase.from("subcategories").select("id, name_fr, category_id").order("name_fr"),
       supabase.from("categories").select("id, name_fr").order("name_fr"),
+      supabase.from("services").select("name_fr, subcategory_id").order("name_fr"),
     ]);
-    if (data) setEntries(data.map((d: any) => ({ ...d, subcategory_names: d.subcategory_names || [] })) as SynonymEntry[]);
-    if (subcats) setAllSubcategories(subcats.map((s: any) => ({ name: s.name_fr, category_id: s.category_id })));
+    if (data) setEntries(data.map((d: any) => ({ ...d, subcategory_names: d.subcategory_names || [], service_names: d.service_names || [] })) as SynonymEntry[]);
+    if (subcats) setAllSubcategories(subcats.map((s: any) => ({ id: s.id, name: s.name_fr, category_id: s.category_id })));
     if (cats) setAllCategories(cats as any);
+    if (svcData) setAllServices(svcData.map((s: any) => ({ name: s.name_fr, subcategory_id: s.subcategory_id })));
     setIsLoading(false);
   };
 
@@ -115,6 +121,25 @@ const SynonymsManagement = () => {
     const updated = entry.subcategory_names.filter(s => s !== name);
     await supabase.from("search_synonyms").update({ subcategory_names: updated }).eq("id", id);
     setEntries(prev => prev.map(e => e.id === id ? { ...e, subcategory_names: updated } : e));
+  };
+
+  const addServiceToEntry = async (id: string) => {
+    const name = (editingService[id] || "").trim();
+    if (!name) return;
+    const entry = entries.find(e => e.id === id);
+    if (!entry || entry.service_names.includes(name)) return;
+    const updated = [...entry.service_names, name];
+    await supabase.from("search_synonyms").update({ service_names: updated } as any).eq("id", id);
+    setEntries(prev => prev.map(e => e.id === id ? { ...e, service_names: updated } : e));
+    setEditingService(prev => ({ ...prev, [id]: "" }));
+  };
+
+  const removeServiceFromEntry = async (id: string, name: string) => {
+    const entry = entries.find(e => e.id === id);
+    if (!entry) return;
+    const updated = entry.service_names.filter(s => s !== name);
+    await supabase.from("search_synonyms").update({ service_names: updated } as any).eq("id", id);
+    setEntries(prev => prev.map(e => e.id === id ? { ...e, service_names: updated } : e));
   };
 
   if (isLoading) return <div className="flex justify-center p-8"><Loader2 className="h-6 w-6 animate-spin" /></div>;
@@ -343,6 +368,54 @@ const SynonymsManagement = () => {
                   }
                 </select>
                 <Button size="sm" variant="outline" onClick={() => addSubcategoryToEntry(entry.id)} className="border-amber-600 text-amber-700 hover:bg-amber-50">
+                  <Plus className="h-3 w-3" />
+                </Button>
+              </div>
+            </div>
+            {/* Services associés */}
+            <div className="border-t pt-2 mt-2">
+              <span className="text-xs font-medium text-muted-foreground">Services associés :</span>
+              <div className="flex flex-wrap gap-1.5 mt-1">
+                {entry.service_names.map(svc => (
+                  <Badge key={svc} variant="secondary" className="gap-1 group bg-blue-50 text-blue-800 border-blue-200">
+                    {svc}
+                    <button className="opacity-0 group-hover:opacity-100" onClick={() => removeServiceFromEntry(entry.id, svc)}>
+                      <Trash2 className="h-3 w-3 text-destructive" />
+                    </button>
+                  </Badge>
+                ))}
+                {entry.service_names.length === 0 && <span className="text-xs text-muted-foreground italic">Aucun</span>}
+              </div>
+              <div className="flex gap-2 mt-1 flex-wrap">
+                <select
+                  value={serviceSubcatFilter[entry.id] || ""}
+                  onChange={e => {
+                    setServiceSubcatFilter(prev => ({ ...prev, [entry.id]: e.target.value }));
+                    setEditingService(prev => ({ ...prev, [entry.id]: "" }));
+                  }}
+                  className="max-w-[200px] text-sm border rounded px-2 py-1 bg-background"
+                >
+                  <option value="">Sous-catégorie...</option>
+                  <option value="*">* Toutes</option>
+                  {allSubcategories.map(sc => <option key={sc.id} value={sc.id}>{sc.name}</option>)}
+                </select>
+                <select
+                  value={editingService[entry.id] || ""}
+                  onChange={e => setEditingService(prev => ({ ...prev, [entry.id]: e.target.value }))}
+                  className="max-w-xs text-sm border rounded px-2 py-1 bg-background"
+                  disabled={!serviceSubcatFilter[entry.id]}
+                >
+                  <option value="">Service...</option>
+                  {allServices
+                    .filter(svc => {
+                      if (serviceSubcatFilter[entry.id] === "*") return true;
+                      return svc.subcategory_id === serviceSubcatFilter[entry.id];
+                    })
+                    .filter(svc => !entry.service_names.includes(svc.name))
+                    .map(svc => <option key={svc.name} value={svc.name}>{svc.name}</option>)
+                  }
+                </select>
+                <Button size="sm" variant="outline" onClick={() => addServiceToEntry(entry.id)} className="border-blue-600 text-blue-700 hover:bg-blue-50">
                   <Plus className="h-3 w-3" />
                 </Button>
               </div>
