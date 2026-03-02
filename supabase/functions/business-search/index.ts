@@ -181,17 +181,22 @@ interface SearchResult {
 
 // Synonyms and noise words are now loaded from DB (search_synonyms, search_noise_words)
 let synonyms: Record<string, string[]> = {};
+let synonymSubcategories: Record<string, string[]> = {}; // key_word → subcategory_names
 let NOISE_ADJECTIVES = new Set<string>();
 let searchConfigLoadedAt = 0;
 const SEARCH_CONFIG_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
 async function loadSearchConfig(supabase: any) {
   if (Date.now() - searchConfigLoadedAt < SEARCH_CONFIG_TTL_MS && Object.keys(synonyms).length > 0) return;
-  const { data: synData } = await supabase.from("search_synonyms").select("key_word, synonyms").eq("is_active", true);
+  const { data: synData } = await supabase.from("search_synonyms").select("key_word, synonyms, subcategory_names").eq("is_active", true);
   if (synData) {
     synonyms = {};
+    synonymSubcategories = {};
     for (const row of synData) {
       synonyms[row.key_word] = row.synonyms || [];
+      if (row.subcategory_names && row.subcategory_names.length > 0) {
+        synonymSubcategories[row.key_word] = row.subcategory_names;
+      }
     }
   }
   const { data: noiseData } = await supabase.from("search_noise_words").select("word").eq("is_active", true);
@@ -939,6 +944,30 @@ serve(async (req) => {
             console.log(`Auto-detected subcategory "${detectedSubcategory}" from config synonym match in query "${effectiveQuery}"`);
           }
           break;
+        }
+      }
+    }
+    // ── Synonym-linked subcategories: when a query word matches a synonym entry with subcategory_names ──
+    let synonymLinkedSubcategories: string[] = [];
+    if (effectiveQuery) {
+      const qLower = effectiveQuery.toLowerCase();
+      const qWords = qLower.split(/\s+/);
+      const qWordsStripped = qWords.map(w => stripAccentsGlobal(w));
+      for (const [key, subcatNames] of Object.entries(synonymSubcategories)) {
+        if (subcatNames.length === 0) continue;
+        const keyLower = key.toLowerCase();
+        const keyStripped = stripAccentsGlobal(keyLower);
+        const synValues = synonyms[key] || [];
+        const allTerms = [keyLower, ...synValues.map(v => v.toLowerCase())];
+        const matched = allTerms.some(term => {
+          const termStripped = stripAccentsGlobal(term);
+          return term.includes(" ")
+            ? (qLower.includes(term) || stripAccentsGlobal(qLower).includes(termStripped))
+            : (qWords.includes(term) || qWordsStripped.includes(termStripped));
+        });
+        if (matched) {
+          synonymLinkedSubcategories = [...new Set([...synonymLinkedSubcategories, ...subcatNames])];
+          console.log(`Synonym "${key}" matched → linked subcategories: [${subcatNames.join(", ")}]`);
         }
       }
     }
@@ -2109,6 +2138,20 @@ serve(async (req) => {
         }
       }
 
+      // ── Synonym-linked subcategories: merge results from subcategories associated via search_synonyms ──
+      if (synonymLinkedSubcategories.length > 0) {
+        const existingIds = new Set(businesses.map(b => b.id));
+        // Exclude the already-detected subcategory from synonym-linked ones (avoid duplicate fetch)
+        const extraSubcats = synonymLinkedSubcategories.filter(sc => sc.toLowerCase() !== detectedSubcategory!.toLowerCase());
+        for (const synSubcat of extraSubcats) {
+          const synResults = await fetchSubcategoryBusinesses(synSubcat);
+          const newResults = synResults.filter(b => !existingIds.has(b.id));
+          for (const b of newResults) existingIds.add(b.id);
+          businesses = [...businesses, ...newResults];
+          console.log(`Synonym-linked subcategory "${synSubcat}": +${newResults.length} results (total: ${businesses.length})`);
+        }
+      }
+
       // ── Intent-subcategory conflict merge ──
       // When intent (e.g. "manger" → Restauration) conflicts with subcategory (e.g. Poissonnerie → Commerce),
       // also fetch businesses from the intent category that offer the relevant service, and prepend them
@@ -2258,6 +2301,41 @@ serve(async (req) => {
     if (isBroadWithResults) {
       console.log(`Broad mode for "${detectedSubcategory}": running tsquery to merge with ${businesses.length} direct results`);
       businesses = [];
+    }
+
+    // ── Synonym-linked subcategories (no subcategory detected): fetch from linked subcategories ──
+    if (!detectedSubcategory && synonymLinkedSubcategories.length > 0 && businesses.length === 0) {
+      console.log(`No subcategory detected but synonym-linked subcategories found: [${synonymLinkedSubcategories.join(", ")}]`);
+      const existingIds = new Set(businesses.map(b => b.id));
+      for (const synSubcat of synonymLinkedSubcategories) {
+        let synBuilder = supabase.from("businesses").select("*").eq("is_active", true)
+          .contains("categories", [synSubcat]);
+        if (effectiveCity) synBuilder = applyCityFilter(synBuilder);
+        if (detectedNeighborhood) {
+          synBuilder = synBuilder.or(buildNeighborhoodOrClause(detectedNeighborhood, loadedNeighborhoods));
+        }
+        synBuilder = synBuilder
+          .order("wtuce_status", { ascending: true })
+          .order("google_rating", { ascending: false, nullsFirst: false })
+          .order("priority_score", { ascending: false })
+          .limit(limit);
+        const { data: synData, error: synError } = await synBuilder;
+        if (!synError && synData && synData.length > 0) {
+          const newResults = synData
+            .filter((b: any) => !existingIds.has(b.id))
+            .map((b: any) => ({
+              ...b,
+              distance_km: latitude && longitude && b.latitude && b.longitude
+                ? calculateDistance(latitude, longitude, b.latitude, b.longitude) : null,
+            }));
+          for (const b of newResults) existingIds.add(b.id);
+          businesses = [...businesses, ...newResults];
+          console.log(`Synonym-linked subcategory "${synSubcat}": +${newResults.length} results (total: ${businesses.length})`);
+        }
+      }
+      if (businesses.length > 0) {
+        searchLevel = "exact";
+      }
     }
 
     // Level 1: Exact full-text search with ts_rank (services/name weight A > description weight B)

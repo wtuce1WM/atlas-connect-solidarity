@@ -1,0 +1,1 @@
+ALTER TABLE public.search_synonyms ADD COLUMN subcategory_names text[] NOT NULL DEFAULT '{}'::text[];
