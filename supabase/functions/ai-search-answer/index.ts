@@ -44,7 +44,6 @@ serve(async (req) => {
     const extraInstructions = cfg.extra_instructions || "";
     const noResultsCfg = cfg.no_results_instructions || "";
     const boostVerified = cfg.boost_verified !== "false";
-    const webEnrichment = cfg.web_enrichment === "true";
 
     // Fetch relevant knowledge entries to enrich AI context
     const queryTerms = query.toLowerCase().split(/\s+/).filter((w: string) => w.length > 2);
@@ -65,54 +64,6 @@ serve(async (req) => {
           .map((k: any) => `[${k.category}] ${k.title}: ${k.content}`)
           .join("\n");
         console.log(`Found ${knowledgeRows.length} knowledge entries for query "${query}"`);
-      }
-    }
-
-    // Web enrichment via Firecrawl search (if enabled)
-    let webContext = "";
-    if (webEnrichment) {
-      const FIRECRAWL_API_KEY = Deno.env.get("FIRECRAWL_API_KEY");
-      if (FIRECRAWL_API_KEY) {
-        try {
-          const webQuery = `${query} Maroc`;
-          console.log(`Web enrichment: searching "${webQuery}"`);
-          const webResponse = await fetch("https://api.firecrawl.dev/v1/search", {
-            method: "POST",
-            headers: {
-              "Authorization": `Bearer ${FIRECRAWL_API_KEY}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              query: webQuery,
-              limit: 3,
-              lang: language === "ar" ? "ar" : language === "en" ? "en" : "fr",
-              scrapeOptions: { formats: ["markdown"], onlyMainContent: true },
-            }),
-          });
-
-          if (webResponse.ok) {
-            const webData = await webResponse.json();
-            const results = webData.data || webData.results || [];
-            if (results.length > 0) {
-              webContext = results
-                .map((r: any) => {
-                  const title = r.title || r.metadata?.title || "";
-                  const url = r.url || r.metadata?.sourceURL || "";
-                  // Limit content to ~500 chars per result to avoid context overflow
-                  const content = (r.markdown || r.description || "").substring(0, 500);
-                  return `[WEB] ${title} (${url}):\n${content}`;
-                })
-                .join("\n\n");
-              console.log(`Web enrichment: found ${results.length} results`);
-            }
-          } else {
-            console.error(`Firecrawl search error [${webResponse.status}]:`, await webResponse.text());
-          }
-        } catch (webErr) {
-          console.error("Web enrichment error:", webErr);
-        }
-      } else {
-        console.warn("Web enrichment enabled but FIRECRAWL_API_KEY not configured");
       }
     }
 
@@ -165,10 +116,7 @@ RÈGLES :
 ${businessContext}${knowledgeContext ? `
 
 CONNAISSANCES COMPLÉMENTAIRES (utilise ces informations pour enrichir ta réponse si elles sont pertinentes par rapport à la recherche) :
-${knowledgeContext}` : ''}${webContext ? `
-
-SOURCES WEB EXTERNES (informations complémentaires du web — utilise-les pour enrichir ta réponse avec du contexte culturel, historique ou pratique pertinent, mais ne cite JAMAIS les URLs) :
-${webContext}` : ''}`;
+${knowledgeContext}` : ''}`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",

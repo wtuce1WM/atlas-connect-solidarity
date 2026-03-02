@@ -1229,6 +1229,7 @@ export type Database = {
           content: string
           created_at: string
           id: string
+          notes: string | null
           source: string | null
           tags: string[]
           title: string
@@ -1239,6 +1240,7 @@ export type Database = {
           content: string
           created_at?: string
           id?: string
+          notes?: string | null
           source?: string | null
           tags?: string[]
           title: string
@@ -1249,6 +1251,7 @@ export type Database = {
           content?: string
           created_at?: string
           id?: string
+          notes?: string | null
           source?: string | null
           tags?: string[]
           title?: string

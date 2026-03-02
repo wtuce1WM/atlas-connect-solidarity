@@ -1,0 +1,1 @@
+ALTER TABLE public.knowledge_entries ADD COLUMN notes text;
