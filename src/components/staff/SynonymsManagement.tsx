@@ -44,14 +44,41 @@ const SynonymsManagement = () => {
   const [selectedCategory, setSelectedCategory] = useState<Record<string, string>>({});
   const [sortOrder, setSortOrder] = useState<"asc" | "desc" | "oldest" | "newest">("newest");
   const [editingService, setEditingService] = useState<Record<string, string>>({});
-  const [serviceSubcatFilter, setServiceSubcatFilter] = useState<Record<string, string>>({});
-  const [serviceCatFilter, setServiceCatFilter] = useState<Record<string, string>>({});
+  const [serviceFilterRows, setServiceFilterRows] = useState<Record<string, { catId: string; subcatId: string }[]>>({});
   const [editingSubcatName, setEditingSubcatName] = useState<{ entryId: string; oldName: string; newName: string } | null>(null);
   const [editingServiceName, setEditingServiceName] = useState<{ entryId: string; oldName: string; newName: string } | null>(null);
   const [filterCategory, setFilterCategory] = useState("");
   const [filterSubcategory, setFilterSubcategory] = useState("");
   const [expandedServices, setExpandedServices] = useState<Record<string, boolean>>({});
   const [serviceSearchFilter, setServiceSearchFilter] = useState<Record<string, string>>({});
+
+  const getServiceFilterRows = (entryId: string) => serviceFilterRows[entryId] || [{ catId: "", subcatId: "" }];
+
+  const updateServiceFilterRow = (entryId: string, rowIndex: number, field: "catId" | "subcatId", value: string) => {
+    setServiceFilterRows(prev => {
+      const rows = [...(prev[entryId] || [{ catId: "", subcatId: "" }])];
+      rows[rowIndex] = { ...rows[rowIndex], [field]: value };
+      if (field === "catId") rows[rowIndex].subcatId = "";
+      return { ...prev, [entryId]: rows };
+    });
+  };
+
+  const addServiceFilterRow = (entryId: string) => {
+    setServiceFilterRows(prev => {
+      const rows = [...(prev[entryId] || [{ catId: "", subcatId: "" }])];
+      rows.push({ catId: "", subcatId: "" });
+      return { ...prev, [entryId]: rows };
+    });
+  };
+
+  const removeServiceFilterRow = (entryId: string, rowIndex: number) => {
+    setServiceFilterRows(prev => {
+      const rows = [...(prev[entryId] || [{ catId: "", subcatId: "" }])];
+      rows.splice(rowIndex, 1);
+      if (rows.length === 0) rows.push({ catId: "", subcatId: "" });
+      return { ...prev, [entryId]: rows };
+    });
+  };
 
   const load = async () => {
     setIsLoading(true);
@@ -558,74 +585,82 @@ const SynonymsManagement = () => {
                   </Button>
                 )}
               </div>
-              <div className="flex gap-2 mt-1 flex-wrap">
-                <select
-                  value={serviceCatFilter[entry.id] || ""}
-                  onChange={e => {
-                    setServiceCatFilter(prev => ({ ...prev, [entry.id]: e.target.value }));
-                    setServiceSubcatFilter(prev => ({ ...prev, [entry.id]: "" }));
-                    setEditingService(prev => ({ ...prev, [entry.id]: "" }));
-                  }}
-                  className="max-w-[200px] text-sm border rounded px-2 py-1 bg-background"
-                >
-                  <option value="">Catégorie...</option>
-                  {allCategories.map(cat => <option key={cat.id} value={cat.id}>{cat.name_fr}</option>)}
-                </select>
-                <select
-                  value={serviceSubcatFilter[entry.id] || ""}
-                  onChange={e => {
-                    setServiceSubcatFilter(prev => ({ ...prev, [entry.id]: e.target.value }));
-                    setEditingService(prev => ({ ...prev, [entry.id]: "" }));
-                  }}
-                  className="max-w-[200px] text-sm border rounded px-2 py-1 bg-background"
-                  disabled={!serviceCatFilter[entry.id]}
-                >
-                  <option value="">Sous-catégorie...</option>
-                  <option value="*">* Toutes</option>
-                  {allSubcategories
-                    .filter(sc => sc.category_id === serviceCatFilter[entry.id])
-                    .map(sc => <option key={sc.id} value={sc.id}>{sc.name}</option>)}
-                </select>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline" size="sm" className="max-w-xs text-sm justify-start font-normal" disabled={!serviceSubcatFilter[entry.id]}>
-                      <Plus className="h-3 w-3 mr-1" /> Ajouter des services
+              {getServiceFilterRows(entry.id).map((row, rowIndex) => (
+                <div key={rowIndex} className="flex gap-2 mt-1 flex-wrap items-center">
+                  <select
+                    value={row.catId}
+                    onChange={e => updateServiceFilterRow(entry.id, rowIndex, "catId", e.target.value)}
+                    className="max-w-[200px] text-sm border rounded px-2 py-1 bg-background"
+                  >
+                    <option value="">Catégorie...</option>
+                    {allCategories.map(cat => <option key={cat.id} value={cat.id}>{cat.name_fr}</option>)}
+                  </select>
+                  <select
+                    value={row.subcatId}
+                    onChange={e => updateServiceFilterRow(entry.id, rowIndex, "subcatId", e.target.value)}
+                    className="max-w-[200px] text-sm border rounded px-2 py-1 bg-background"
+                    disabled={!row.catId}
+                  >
+                    <option value="">Sous-catégorie...</option>
+                    <option value="*">* Toutes</option>
+                    {allSubcategories
+                      .filter(sc => sc.category_id === row.catId)
+                      .map(sc => <option key={sc.id} value={sc.id}>{sc.name}</option>)}
+                  </select>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" size="sm" className="max-w-xs text-sm justify-start font-normal" disabled={!row.subcatId}>
+                        <Plus className="h-3 w-3 mr-1" /> Ajouter des services
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-72 p-2" align="start">
+                      <Input
+                        placeholder="Filtrer les services..."
+                        value={serviceSearchFilter[`${entry.id}-${rowIndex}`] || ""}
+                        onChange={e => setServiceSearchFilter(prev => ({ ...prev, [`${entry.id}-${rowIndex}`]: e.target.value }))}
+                        className="h-8 text-sm mb-2"
+                        autoFocus
+                      />
+                      <div className="max-h-48 overflow-y-auto space-y-0.5">
+                        {allServices
+                          .filter(svc => {
+                            if (row.subcatId === "*") {
+                              const subcatIds = allSubcategories.filter(sc => sc.category_id === row.catId).map(sc => sc.id);
+                              return subcatIds.includes(svc.subcategory_id);
+                            }
+                            return svc.subcategory_id === row.subcatId;
+                          })
+                          .filter(svc => !entry.service_names.includes(svc.name))
+                          .filter(svc => !serviceSearchFilter[`${entry.id}-${rowIndex}`] || svc.name.toLowerCase().includes((serviceSearchFilter[`${entry.id}-${rowIndex}`] || "").toLowerCase()))
+                          .map(svc => (
+                            <button
+                              key={svc.name}
+                              className="w-full text-left px-2 py-1 text-sm rounded hover:bg-accent hover:text-accent-foreground truncate"
+                              onClick={() => addServiceToEntry(entry.id, svc.name)}
+                            >
+                              <Plus className="h-3 w-3 inline mr-1 text-muted-foreground" />
+                              {svc.name}
+                            </button>
+                          ))
+                        }
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                  {getServiceFilterRows(entry.id).length > 1 && (
+                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => removeServiceFilterRow(entry.id, rowIndex)} title="Supprimer cette ligne">
+                      <X className="h-3 w-3 text-muted-foreground" />
                     </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-72 p-2" align="start">
-                    <Input
-                      placeholder="Filtrer les services..."
-                      value={serviceSearchFilter[entry.id] || ""}
-                      onChange={e => setServiceSearchFilter(prev => ({ ...prev, [entry.id]: e.target.value }))}
-                      className="h-8 text-sm mb-2"
-                      autoFocus
-                    />
-                    <div className="max-h-48 overflow-y-auto space-y-0.5">
-                      {allServices
-                        .filter(svc => {
-                          if (serviceSubcatFilter[entry.id] === "*") {
-                            const subcatIds = allSubcategories.filter(sc => sc.category_id === serviceCatFilter[entry.id]).map(sc => sc.id);
-                            return subcatIds.includes(svc.subcategory_id);
-                          }
-                          return svc.subcategory_id === serviceSubcatFilter[entry.id];
-                        })
-                        .filter(svc => !entry.service_names.includes(svc.name))
-                        .filter(svc => !serviceSearchFilter[entry.id] || svc.name.toLowerCase().includes((serviceSearchFilter[entry.id] || "").toLowerCase()))
-                        .map(svc => (
-                          <button
-                            key={svc.name}
-                            className="w-full text-left px-2 py-1 text-sm rounded hover:bg-accent hover:text-accent-foreground truncate"
-                            onClick={() => addServiceToEntry(entry.id, svc.name)}
-                          >
-                            <Plus className="h-3 w-3 inline mr-1 text-muted-foreground" />
-                            {svc.name}
-                          </button>
-                        ))
-                      }
-                    </div>
-                  </PopoverContent>
-                </Popover>
-              </div>
+                  )}
+                </div>
+              ))}
+              <Button
+                variant="ghost"
+                size="sm"
+                className="mt-1 text-xs text-muted-foreground hover:text-foreground"
+                onClick={() => addServiceFilterRow(entry.id)}
+              >
+                <Plus className="h-3 w-3 mr-1" /> Autre sous-catégorie
+              </Button>
             </div>
           </CardContent>
         </Card>
