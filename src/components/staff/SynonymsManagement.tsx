@@ -43,6 +43,7 @@ const SynonymsManagement = () => {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [editingService, setEditingService] = useState<Record<string, string>>({});
   const [serviceSubcatFilter, setServiceSubcatFilter] = useState<Record<string, string>>({});
+  const [serviceCatFilter, setServiceCatFilter] = useState<Record<string, string>>({});
 
   const load = async () => {
     setIsLoading(true);
@@ -388,16 +389,31 @@ const SynonymsManagement = () => {
               </div>
               <div className="flex gap-2 mt-1 flex-wrap">
                 <select
+                  value={serviceCatFilter[entry.id] || ""}
+                  onChange={e => {
+                    setServiceCatFilter(prev => ({ ...prev, [entry.id]: e.target.value }));
+                    setServiceSubcatFilter(prev => ({ ...prev, [entry.id]: "" }));
+                    setEditingService(prev => ({ ...prev, [entry.id]: "" }));
+                  }}
+                  className="max-w-[200px] text-sm border rounded px-2 py-1 bg-background"
+                >
+                  <option value="">Catégorie...</option>
+                  {allCategories.map(cat => <option key={cat.id} value={cat.id}>{cat.name_fr}</option>)}
+                </select>
+                <select
                   value={serviceSubcatFilter[entry.id] || ""}
                   onChange={e => {
                     setServiceSubcatFilter(prev => ({ ...prev, [entry.id]: e.target.value }));
                     setEditingService(prev => ({ ...prev, [entry.id]: "" }));
                   }}
                   className="max-w-[200px] text-sm border rounded px-2 py-1 bg-background"
+                  disabled={!serviceCatFilter[entry.id]}
                 >
                   <option value="">Sous-catégorie...</option>
                   <option value="*">* Toutes</option>
-                  {allSubcategories.map(sc => <option key={sc.id} value={sc.id}>{sc.name}</option>)}
+                  {allSubcategories
+                    .filter(sc => sc.category_id === serviceCatFilter[entry.id])
+                    .map(sc => <option key={sc.id} value={sc.id}>{sc.name}</option>)}
                 </select>
                 <select
                   value={editingService[entry.id] || ""}
@@ -408,7 +424,10 @@ const SynonymsManagement = () => {
                   <option value="">Service...</option>
                   {allServices
                     .filter(svc => {
-                      if (serviceSubcatFilter[entry.id] === "*") return true;
+                      if (serviceSubcatFilter[entry.id] === "*") {
+                        const subcatIds = allSubcategories.filter(sc => sc.category_id === serviceCatFilter[entry.id]).map(sc => sc.id);
+                        return subcatIds.includes(svc.subcategory_id);
+                      }
                       return svc.subcategory_id === serviceSubcatFilter[entry.id];
                     })
                     .filter(svc => !entry.service_names.includes(svc.name))
