@@ -954,23 +954,28 @@ serve(async (req) => {
       }
     }
     // ── Synonym-linked subcategories: when a query word matches a synonym entry with subcategory_names ──
+    // Check ALL query variants (effectiveQuery, original query, spoken) to catch natural language synonyms
     let synonymLinkedSubcategories: string[] = [];
-    if (effectiveQuery) {
-      const qLower = effectiveQuery.toLowerCase();
-      const qWords = qLower.split(/\s+/);
-      const qWordsStripped = qWords.map(w => stripAccentsGlobal(w));
+    {
+      const textsToCheck = [effectiveQuery, query, spoken].filter(Boolean) as string[];
       for (const [key, subcatNames] of Object.entries(synonymSubcategories)) {
         if (subcatNames.length === 0) continue;
         const keyLower = key.toLowerCase();
-        const keyStripped = stripAccentsGlobal(keyLower);
         const synValues = synonyms[key] || [];
         const allTerms = [keyLower, ...synValues.map(v => v.toLowerCase())];
-        const matched = allTerms.some(term => {
-          const termStripped = stripAccentsGlobal(term);
-          return term.includes(" ")
-            ? (qLower.includes(term) || stripAccentsGlobal(qLower).includes(termStripped))
-            : (qWords.includes(term) || qWordsStripped.includes(termStripped));
-        });
+        let matched = false;
+        for (const text of textsToCheck) {
+          const qLower = text.toLowerCase();
+          const qWords = qLower.split(/\s+/);
+          const qWordsStripped = qWords.map(w => stripAccentsGlobal(w));
+          matched = allTerms.some(term => {
+            const termStripped = stripAccentsGlobal(term);
+            return term.includes(" ")
+              ? (qLower.includes(term) || stripAccentsGlobal(qLower).includes(termStripped))
+              : (qWords.includes(term) || qWordsStripped.includes(termStripped));
+          });
+          if (matched) break;
+        }
         if (matched) {
           synonymLinkedSubcategories = [...new Set([...synonymLinkedSubcategories, ...subcatNames])];
           console.log(`Synonym "${key}" matched → linked subcategories: [${subcatNames.join(", ")}]`);
@@ -978,22 +983,28 @@ serve(async (req) => {
       }
     }
     // ── Synonym-linked services: when a query word matches a synonym entry with service_names ──
+    // Check ALL query variants (effectiveQuery, original query, spoken) to catch natural language synonyms
     let synonymLinkedServices: string[] = [];
-    if (effectiveQuery) {
-      const qLower = effectiveQuery.toLowerCase();
-      const qWords = qLower.split(/\s+/);
-      const qWordsStripped = qWords.map(w => stripAccentsGlobal(w));
+    {
+      const textsToCheck = [effectiveQuery, query, spoken].filter(Boolean) as string[];
       for (const [key, svcNames] of Object.entries(synonymServices)) {
         if (svcNames.length === 0) continue;
         const keyLower = key.toLowerCase();
         const synValues = synonyms[key] || [];
         const allTerms = [keyLower, ...synValues.map(v => v.toLowerCase())];
-        const matched = allTerms.some(term => {
-          const termStripped = stripAccentsGlobal(term);
-          return term.includes(" ")
-            ? (qLower.includes(term) || stripAccentsGlobal(qLower).includes(termStripped))
-            : (qWords.includes(term) || qWordsStripped.includes(termStripped));
-        });
+        let matched = false;
+        for (const text of textsToCheck) {
+          const qLower = text.toLowerCase();
+          const qWords = qLower.split(/\s+/);
+          const qWordsStripped = qWords.map(w => stripAccentsGlobal(w));
+          matched = allTerms.some(term => {
+            const termStripped = stripAccentsGlobal(term);
+            return term.includes(" ")
+              ? (qLower.includes(term) || stripAccentsGlobal(qLower).includes(termStripped))
+              : (qWords.includes(term) || qWordsStripped.includes(termStripped));
+          });
+          if (matched) break;
+        }
         if (matched) {
           synonymLinkedServices = [...new Set([...synonymLinkedServices, ...svcNames])];
           console.log(`Synonym "${key}" matched → linked services: [${svcNames.join(", ")}]`);
