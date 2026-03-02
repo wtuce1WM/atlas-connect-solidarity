@@ -38,6 +38,7 @@ const SynonymsManagement = () => {
   const [allCategories, setAllCategories] = useState<{id: string; name_fr: string}[]>([]);
   const [editingSubcat, setEditingSubcat] = useState<Record<string, string>>({});
   const [selectedCategory, setSelectedCategory] = useState<Record<string, string>>({});
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
   const load = async () => {
     setIsLoading(true);
@@ -222,10 +223,21 @@ const SynonymsManagement = () => {
             <Input value={newSynonyms} onChange={e => setNewSynonyms(e.target.value)} placeholder="Synonymes (séparés par virgule)" className="flex-1" />
             <Button size="sm" onClick={addEntry} className="bg-amber-600 hover:bg-amber-700 text-white"><Plus className="h-4 w-4 mr-1" />Ajouter</Button>
           </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">Tri :</span>
+            <select
+              value={sortOrder}
+              onChange={e => setSortOrder(e.target.value as "asc" | "desc")}
+              className="text-sm border rounded px-2 py-1 bg-background"
+            >
+              <option value="asc">A → Z</option>
+              <option value="desc">Z → A</option>
+            </select>
+          </div>
         </CardContent>
       </Card>
 
-      {entries.map(entry => (
+      {[...entries].sort((a, b) => sortOrder === "asc" ? a.key_word.localeCompare(b.key_word) : b.key_word.localeCompare(a.key_word)).map(entry => (
         <Card key={entry.id} className={entry.is_active ? "" : "opacity-50"}>
           <CardContent className="pt-4 space-y-2">
             <div className="flex items-center justify-between">
