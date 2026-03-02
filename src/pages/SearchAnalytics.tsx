@@ -23,6 +23,7 @@ interface SearchLog {
   total_results: number;
   rerank_applied: boolean;
   rerank_latency_ms: number | null;
+  total_latency_ms: number | null;
   results_before: string[] | null;
   results_after: string[] | null;
   movements: { name: string; diff: number }[] | null;
@@ -44,7 +45,7 @@ const SearchAnalytics = ({ embedded = false }: { embedded?: boolean }) => {
   const [testQuery, setTestQuery] = useState("");
   const [liveResult, setLiveResult] = useState<LiveResult | null>(null);
   const [isSearching, setIsSearching] = useState(false);
-  const [stats, setStats] = useState({ total: 0, reranked: 0, avgLatency: 0 });
+  const [stats, setStats] = useState({ total: 0, reranked: 0, avgLatency: 0, avgTotalLatency: 0 });
 
   const fetchLogs = async () => {
     setIsLoading(true);
@@ -59,7 +60,11 @@ const SearchAnalytics = ({ embedded = false }: { embedded?: boolean }) => {
       const avgLat = reranked.length > 0
         ? Math.round(reranked.reduce((sum: number, l: any) => sum + (l.rerank_latency_ms || 0), 0) / reranked.length)
         : 0;
-      setStats({ total: data.length, reranked: reranked.length, avgLatency: avgLat });
+      const withLatency = data.filter((l: any) => l.total_latency_ms != null);
+      const avgTotal = withLatency.length > 0
+        ? Math.round(withLatency.reduce((sum: number, l: any) => sum + (l.total_latency_ms || 0), 0) / withLatency.length)
+        : 0;
+      setStats({ total: data.length, reranked: reranked.length, avgLatency: avgLat, avgTotalLatency: avgTotal });
     }
     setIsLoading(false);
   };
@@ -115,7 +120,7 @@ const SearchAnalytics = ({ embedded = false }: { embedded?: boolean }) => {
       </Card>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="pt-6">
             <div className="text-2xl font-bold">{stats.total}</div>
@@ -132,6 +137,12 @@ const SearchAnalytics = ({ embedded = false }: { embedded?: boolean }) => {
           <CardContent className="pt-6">
             <div className="text-2xl font-bold text-amber-600">{stats.avgLatency}ms</div>
             <p className="text-sm text-muted-foreground">Latence moyenne re-rank</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-2xl font-bold text-blue-600">{stats.avgTotalLatency}ms</div>
+            <p className="text-sm text-muted-foreground">Latence moyenne totale</p>
           </CardContent>
         </Card>
       </div>
@@ -219,6 +230,11 @@ const SearchAnalytics = ({ embedded = false }: { embedded?: boolean }) => {
                   {log.detected_city && <Badge variant="secondary" className="text-xs shrink-0">{log.detected_city}</Badge>}
                   {log.detected_subcategory && <Badge variant="outline" className="text-xs shrink-0">{log.detected_subcategory}</Badge>}
                   <span className="text-muted-foreground text-xs shrink-0">{log.total_results} rés.</span>
+                  {log.total_latency_ms != null && (
+                    <Badge variant="outline" className="text-xs shrink-0 text-blue-600 border-blue-300">
+                      {log.total_latency_ms}ms
+                    </Badge>
+                  )}
                   {log.rerank_applied ? (
                     <Badge className="bg-emerald-100 text-emerald-800 text-xs shrink-0">
                       <ArrowUpDown className="h-3 w-3 mr-1" />{log.rerank_latency_ms}ms
