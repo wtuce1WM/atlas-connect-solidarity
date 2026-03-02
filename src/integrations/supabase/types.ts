@@ -1907,6 +1907,7 @@ export type Database = {
       search_synonyms: {
         Row: {
           created_at: string | null
+          filters: Json
           id: string
           is_active: boolean
           key_word: string
@@ -1917,6 +1918,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          filters?: Json
           id?: string
           is_active?: boolean
           key_word: string
@@ -1927,6 +1929,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          filters?: Json
           id?: string
           is_active?: boolean
           key_word?: string
