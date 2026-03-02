@@ -1149,6 +1149,30 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
 
           {/* Booking platforms */}
           {(() => {
+            const normalizeUrl = (value?: string | null) => {
+              if (!value) return "";
+              const trimmed = value.trim();
+              if (!trimmed) return "";
+              try {
+                const withProtocol = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+                const parsed = new URL(withProtocol);
+                const normalizedPath = parsed.pathname.replace(/\/$/, "");
+                return `${parsed.hostname.toLowerCase()}${normalizedPath}`;
+              } catch {
+                return trimmed.replace(/^https?:\/\//i, "").replace(/\/$/, "").toLowerCase();
+              }
+            };
+
+            const reserveNowNormalized = normalizeUrl(business.reserve_now_url);
+            const isReserveNowDuplicate = (url?: string | null) => {
+              const candidate = normalizeUrl(url);
+              return !!candidate && !!reserveNowNormalized && (
+                candidate === reserveNowNormalized ||
+                candidate.startsWith(`${reserveNowNormalized}/`) ||
+                reserveNowNormalized.startsWith(`${candidate}/`)
+              );
+            };
+
             const platforms = [
               { url: business.booking_url, label: "Booking.com", icon: <svg className="h-5 w-5" viewBox="0 0 24 24" fill="#003580"><path d="M2.732 0A2.732 2.732 0 000 2.732v18.536A2.732 2.732 0 002.732 24h18.536A2.732 2.732 0 0024 21.268V2.732A2.732 2.732 0 0021.268 0zm7.477 5.63h3.428c2.57 0 4.152 1.214 4.152 3.263 0 1.253-.678 2.274-1.904 2.763v.063c1.58.32 2.457 1.467 2.457 2.92 0 2.322-1.741 3.732-4.593 3.732H10.21zm2.488 2.088v2.763h.878c1.106 0 1.71-.488 1.71-1.382 0-.893-.604-1.381-1.71-1.381zm0 4.788v3.012h1.066c1.169 0 1.804-.552 1.804-1.506s-.635-1.506-1.804-1.506z"/></svg> },
               { url: business.airbnb_url, label: "Airbnb", icon: <svg className="h-5 w-5" viewBox="0 0 24 24" fill="#FF5A5F"><path d="M12.001 18.275c-1.353-1.697-2.148-3.398-2.488-4.736-.404-1.618-.18-2.835.564-3.54.477-.452 1.102-.66 1.753-.66h.34c.652 0 1.277.208 1.754.66.744.705.968 1.922.564 3.54-.34 1.338-1.135 3.04-2.487 4.736zm9.394-1.142c-.273 1.787-1.658 3.252-3.472 3.716-.603.155-1.224.224-1.841.224-1.17 0-2.305-.31-3.33-.82a14.37 14.37 0 01-.752-.423c-.23.293-.477.578-.735.853a8.04 8.04 0 01-2.73 2.034c-1.03.51-2.164.82-3.334.82-.617 0-1.238-.069-1.841-.224-1.814-.464-3.199-1.929-3.472-3.716-.211-1.395.07-2.844.815-4.293.512-1.003 1.232-2.01 2.134-2.994a26.478 26.478 0 011.676-1.69c.086-.08.17-.158.256-.234-.02-.07-.036-.14-.053-.211-.3-1.28-.292-2.47.078-3.514C5.685 3.24 6.605 2.496 7.79 2.15c.39-.114.808-.174 1.245-.174 1.352 0 2.834.67 4.407 2.004l.559.485.56-.485C16.153 2.646 17.635 1.976 18.987 1.976c.437 0 .854.06 1.245.174 1.184.346 2.104 1.09 2.594 2.097.37 1.043.378 2.234.077 3.514-.016.071-.033.141-.052.211.085.076.17.155.255.234a26.478 26.478 0 011.677 1.69c.902.985 1.622 1.991 2.134 2.994.745 1.449 1.026 2.898.815 4.293z"/></svg> },
@@ -1157,8 +1181,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
               { url: business.glovo_url, label: "Glovo", icon: <svg className="h-5 w-5" viewBox="0 0 24 24" fill="#FFC244"><circle cx="12" cy="12" r="12" fill="#FFC244"/><text x="12" y="16" textAnchor="middle" fill="#1A1A1A" fontSize="10" fontWeight="bold">G</text></svg> },
               { url: business.getyourguide_url, label: "GetYourGuide", icon: <svg className="h-5 w-5" viewBox="0 0 24 24" fill="#FF4E00"><rect width="24" height="24" rx="4" fill="#FF4E00"/><text x="12" y="16" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">G</text></svg> },
               { url: business.viator_url, label: "Viator", icon: <svg className="h-5 w-5" viewBox="0 0 24 24" fill="#3B7D23"><rect width="24" height="24" rx="4" fill="#3B7D23"/><text x="12" y="16" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">V</text></svg> },
-              
-              { url: business.other_booking_url && business.reserve_now_url && (business.other_booking_url === business.reserve_now_url || business.reserve_now_url.startsWith(business.other_booking_url) || business.other_booking_url.startsWith(business.reserve_now_url)) ? undefined : business.other_booking_url, label: business.other_booking_name || "Autre", icon: <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg> },
+              { url: isReserveNowDuplicate(business.other_booking_url) ? undefined : business.other_booking_url, label: business.other_booking_name || "Autre", icon: <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg> },
             ].filter(p => p.url);
 
             if (platforms.length === 0) return null;
