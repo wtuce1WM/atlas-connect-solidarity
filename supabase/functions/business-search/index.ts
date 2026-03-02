@@ -1194,13 +1194,20 @@ serve(async (req) => {
     }
 
     // ── SERVICE SHORTCUT: when synonym has service_names, skip entire FTS chain ──
+    // If subcategories are also linked, scope service results to those subcategories only
+    // e.g. "bar à vin" → Bars with "Cave à vin" (scoped) + all Œnothèques (merge)
     let serviceShortcutActivated = false;
     if (synonymLinkedServices.length > 0) {
-      console.log(`⚡ Service shortcut PRIORITY: fetching businesses with services [${synonymLinkedServices.join(", ")}] — skipping FTS`);
+      const hasSubcatScope = synonymLinkedSubcategories.length > 0;
+      console.log(`⚡ Service shortcut PRIORITY: fetching businesses with services [${synonymLinkedServices.join(", ")}]${hasSubcatScope ? ` scoped to subcategories [${synonymLinkedSubcategories.join(", ")}]` : ""} — skipping FTS`);
       const existingIds = new Set<string>();
       for (const svcName of synonymLinkedServices) {
         let svcBuilder = supabase.from("businesses").select("*").eq("is_active", true)
           .filter("services", "cs", `{"${svcName}"}`);
+        // When subcategories are linked, scope service results to those subcategories
+        if (hasSubcatScope) {
+          svcBuilder = svcBuilder.overlaps("categories", synonymLinkedSubcategories);
+        }
         if (effectiveCity) svcBuilder = applyCityFilter(svcBuilder);
         if (detectedNeighborhood) {
           svcBuilder = svcBuilder.or(buildNeighborhoodOrClause(detectedNeighborhood, loadedNeighborhoods));
@@ -1230,10 +1237,10 @@ serve(async (req) => {
         console.log(`⚡ Service shortcut complete: ${businesses.length} results — skipping FTS chain`);
       }
 
-      // ── Also merge synonym-linked subcategories even when service shortcut fired ──
-      // e.g. "bar à vin" → service "Cave à vin" (shortcut) + subcategory "Œnothèque" (merge)
+      // ── Also merge remaining businesses from linked subcategories (without service requirement) ──
+      // e.g. already got Bars with "Cave à vin", now also get ALL Œnothèques (even without Cave à vin)
       if (synonymLinkedSubcategories.length > 0) {
-        const existingIds = new Set(businesses.map(b => b.id));
+        const existingIds2 = new Set(businesses.map(b => b.id));
         for (const synSubcat of synonymLinkedSubcategories) {
           let synBuilder = supabase.from("businesses").select("*").eq("is_active", true)
             .contains("categories", [synSubcat]);
@@ -1249,15 +1256,15 @@ serve(async (req) => {
           const { data: synData, error: synError } = await synBuilder;
           if (!synError && synData && synData.length > 0) {
             const newResults = synData
-              .filter((b: any) => !existingIds.has(b.id))
+              .filter((b: any) => !existingIds2.has(b.id))
               .map((b: any) => ({
                 ...b,
                 distance_km: latitude && longitude && b.latitude && b.longitude
                   ? calculateDistance(latitude, longitude, b.latitude, b.longitude) : null,
               }));
-            for (const b of newResults) existingIds.add(b.id);
+            for (const b of newResults) existingIds2.add(b.id);
             businesses = [...businesses, ...newResults];
-            console.log(`⚡ Service shortcut + synonym subcategory "${synSubcat}": +${newResults.length} results (total: ${businesses.length})`);
+            console.log(`⚡ Synonym subcategory merge "${synSubcat}": +${newResults.length} results (total: ${businesses.length})`);
           }
         }
         if (businesses.length > 0) {
