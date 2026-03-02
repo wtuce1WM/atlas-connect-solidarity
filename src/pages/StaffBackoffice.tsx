@@ -554,6 +554,29 @@ const StaffBackoffice = () => {
                 </div>
               )}
 
+              {/* Reset all filters */}
+              {(searchQuery || cityFilter !== "all" || statusFilter !== "all" || categoryFilter !== "all" || subcategoryFilter !== "all" || affiliateFilter || sortBy !== "updated_at") && (
+                <div className="flex items-center gap-3">
+                  <p className="text-sm text-muted-foreground">{filteredBusinesses.length} résultat(s)</p>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-xs h-7 text-destructive hover:text-destructive"
+                    onClick={() => {
+                      setSearchQuery("");
+                      setCityFilter("all");
+                      setStatusFilter("all");
+                      setCategoryFilter("all");
+                      setSubcategoryFilter("all");
+                      setAffiliateFilter(null);
+                      setSortBy("updated_at");
+                    }}
+                  >
+                    Effacer les filtres
+                  </Button>
+                </div>
+              )}
+
               {/* Table */}
               <BusinessTable
                 businesses={paginatedBusinesses}
