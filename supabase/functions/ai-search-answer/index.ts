@@ -48,24 +48,49 @@ serve(async (req) => {
     // Fetch relevant knowledge entries to enrich AI context
     const queryTerms = query.toLowerCase().split(/\s+/).filter((w: string) => w.length > 2);
     let knowledgeContext = "";
+    
+    // Collect business IDs from results for direct linking
+    const businessIds = topBusinesses.map((b: any) => b.id).filter(Boolean);
+    
+    // Fetch knowledge entries matching by text OR linked by business_id
+    const knowledgeEntries: any[] = [];
+    
+    // 1. Fetch by business_id link
+    if (businessIds.length > 0) {
+      const { data: linkedRows } = await sb
+        .from("knowledge_entries")
+        .select("title, content, category, tags, business_id")
+        .in("business_id", businessIds)
+        .eq("is_active", true)
+        .limit(10);
+      if (linkedRows) knowledgeEntries.push(...linkedRows);
+    }
+    
+    // 2. Fetch by text matching (existing logic)
     if (queryTerms.length > 0) {
-      // Only fetch informational entries (not technical notes)
       const aiCategories = ["general", "tourisme", "culture", "gastronomie"];
       const orFilters = queryTerms.map((t: string) => `title.ilike.%${t}%,content.ilike.%${t}%,tags.cs.{${t}}`).join(",");
       const { data: knowledgeRows } = await sb
         .from("knowledge_entries")
-        .select("title, content, category, tags")
+        .select("title, content, category, tags, business_id")
         .in("category", aiCategories)
         .eq("is_active", true)
         .or(orFilters)
         .limit(5);
-      
-      if (knowledgeRows && knowledgeRows.length > 0) {
-        knowledgeContext = knowledgeRows
-          .map((k: any) => `[${k.category}] ${k.title}: ${k.content}`)
-          .join("\n");
-        console.log(`Found ${knowledgeRows.length} knowledge entries for query "${query}"`);
+      if (knowledgeRows) {
+        // Deduplicate by title
+        const existingTitles = new Set(knowledgeEntries.map((k: any) => k.title));
+        for (const row of knowledgeRows) {
+          if (!existingTitles.has((row as any).title)) knowledgeEntries.push(row);
+        }
       }
+    }
+    
+    if (knowledgeEntries.length > 0) {
+      knowledgeContext = knowledgeEntries
+        .map((k: any) => `[${k.category}] ${k.title}: ${k.content}`)
+        .join("\n");
+      console.log(`Found ${knowledgeEntries.length} knowledge entries for query "${query}" (${businessIds.length} by business link)`);
     }
 
     // Build context from top search results (max 10)

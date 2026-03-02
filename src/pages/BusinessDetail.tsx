@@ -191,6 +191,7 @@ const BusinessDetail = () => {
   const [servicesTabTitle, setServicesTabTitle] = useState<string>('Services');
   const [groupedServices, setGroupedServices] = useState<{ subcategoryName: string; description: string | null; icon: string | null; services: string[] }[]>([]);
   const [openGroups, setOpenGroups] = useState<Set<string>>(new Set());
+  const [knowledgeContent, setKnowledgeContent] = useState<string | null>(null);
   const { t, language } = useLanguage();
   const navigate = useNavigate();
   const { speak: ttsSpeak, stop: ttsStop, status: ttsStatus } = useTextToSpeech();
@@ -380,6 +381,21 @@ const BusinessDetail = () => {
       } else {
         setBusiness(null);
       }
+      // Fetch linked knowledge entries
+      if (data) {
+        const { data: knowledgeData } = await supabase
+          .from("knowledge_entries")
+          .select("content")
+          .eq("business_id", id)
+          .eq("is_active", true)
+          .limit(3);
+        if (knowledgeData && knowledgeData.length > 0) {
+          setKnowledgeContent((knowledgeData as any[]).map(k => k.content).join("\n\n"));
+        } else {
+          setKnowledgeContent(null);
+        }
+      }
+
       setIsLoading(false);
     };
     fetchBusiness();
@@ -781,7 +797,15 @@ const BusinessDetail = () => {
                 </div>
               )}
 
-              {/* PDF Documents */}
+              {/* Knowledge enrichment */}
+              {knowledgeContent && (
+                <Card>
+                  <CardContent className="p-4">
+                    <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{knowledgeContent}</p>
+                  </CardContent>
+                </Card>
+              )}
+
               {((business.pdf_url && !isValidatingPdf && isPdfValid) || (business.pdf_2_url && !isValidatingPdf2 && isPdf2Valid) || (business.pdf_3_url && !isValidatingPdf3 && isPdf3Valid)) && (
                 <Card>
                   <CardContent className="p-4">
