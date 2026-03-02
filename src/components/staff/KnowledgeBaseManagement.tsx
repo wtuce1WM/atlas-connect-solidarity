@@ -20,22 +20,20 @@ interface KnowledgeEntry {
   source: string | null;
 }
 
-const CATEGORIES = [
-  "general",
-  "search-engine",
-  "voice-search",
-  "opening-hours",
-  "UI",
-  "architecture",
-  "business-rules",
-  "bug-fix",
-  "tech",
-  "tourisme",
-  "culture",
-  "gastronomie",
-];
+interface KnowledgeBaseManagementProps {
+  /** Which categories to show / allow creating */
+  categories: string[];
+  /** Label for new entry button */
+  newEntryLabel?: string;
+  /** Empty state label */
+  emptyLabel?: string;
+}
 
-const KnowledgeBaseManagement = () => {
+const KnowledgeBaseManagement = ({
+  categories,
+  newEntryLabel = "Nouvelle entrée",
+  emptyLabel = "Aucune entrée trouvée",
+}: KnowledgeBaseManagementProps) => {
   const [entries, setEntries] = useState<KnowledgeEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -46,7 +44,7 @@ const KnowledgeBaseManagement = () => {
   // Form state
   const [formTitle, setFormTitle] = useState("");
   const [formContent, setFormContent] = useState("");
-  const [formCategory, setFormCategory] = useState("general");
+  const [formCategory, setFormCategory] = useState(categories[0] || "general");
   const [formTags, setFormTags] = useState("");
   const [formSource, setFormSource] = useState("manual");
 
@@ -55,6 +53,7 @@ const KnowledgeBaseManagement = () => {
     const { data, error } = await supabase
       .from("knowledge_entries")
       .select("*")
+      .in("category", categories)
       .order("updated_at", { ascending: false });
     if (error) {
       toast({ variant: "destructive", title: "Erreur", description: "Impossible de charger les entrées." });
@@ -69,7 +68,7 @@ const KnowledgeBaseManagement = () => {
   const resetForm = () => {
     setFormTitle("");
     setFormContent("");
-    setFormCategory("general");
+    setFormCategory(categories[0] || "general");
     setFormTags("");
     setFormSource("manual");
     setEditingId(null);
@@ -155,7 +154,7 @@ const KnowledgeBaseManagement = () => {
       {isEditing && (
         <Card className="border-primary/30">
           <CardHeader className="pb-3">
-            <CardTitle className="text-lg">{editingId ? "Modifier l'entrée" : "Nouvelle entrée"}</CardTitle>
+            <CardTitle className="text-lg">{editingId ? "Modifier l'entrée" : newEntryLabel}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <Input placeholder="Titre" value={formTitle} onChange={e => setFormTitle(e.target.value)} />
@@ -163,7 +162,7 @@ const KnowledgeBaseManagement = () => {
               <Select value={formCategory} onValueChange={setFormCategory}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {CATEGORIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                  {categories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                 </SelectContent>
               </Select>
               <Input placeholder="Tags (séparés par des virgules)" value={formTags} onChange={e => setFormTags(e.target.value)} />
@@ -184,15 +183,17 @@ const KnowledgeBaseManagement = () => {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input placeholder="Rechercher…" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10" />
         </div>
-        <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-          <SelectTrigger className="w-[180px]"><SelectValue placeholder="Catégorie" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Toutes les catégories</SelectItem>
-            {uniqueCategories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-          </SelectContent>
-        </Select>
+        {categories.length > 1 && (
+          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+            <SelectTrigger className="w-[180px]"><SelectValue placeholder="Catégorie" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Toutes les catégories</SelectItem>
+              {uniqueCategories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        )}
         {!isEditing && (
-          <Button onClick={() => setShowNew(true)}><Plus className="h-4 w-4 mr-2" />Nouvelle entrée</Button>
+          <Button onClick={() => setShowNew(true)}><Plus className="h-4 w-4 mr-2" />{newEntryLabel}</Button>
         )}
       </div>
 
@@ -207,7 +208,7 @@ const KnowledgeBaseManagement = () => {
       ) : filtered.length === 0 ? (
         <div className="text-center py-12 text-muted-foreground">
           <BookOpen className="h-12 w-12 mx-auto mb-3 opacity-30" />
-          <p>Aucune entrée trouvée</p>
+          <p>{emptyLabel}</p>
         </div>
       ) : (
         <div className="space-y-3">
