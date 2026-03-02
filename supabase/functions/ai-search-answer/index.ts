@@ -116,7 +116,7 @@ RÈGLES :
 ÉTABLISSEMENTS TROUVÉS :
 ${businessContext}${knowledgeContext ? `
 
-CONNAISSANCES COMPLÉMENTAIRES (utilise ces informations pour enrichir ta réponse si elles sont pertinentes par rapport à la recherche) :
+CONNAISSANCES COMPLÉMENTAIRES (OBLIGATOIRE : intègre ces informations dans ta réponse de manière naturelle pour enrichir tes recommandations avec des détails culturels, pratiques ou historiques) :
 ${knowledgeContext}` : ''}`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
