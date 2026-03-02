@@ -18,6 +18,7 @@ interface KnowledgeEntry {
   content: string;
   tags: string[];
   source: string | null;
+  notes: string | null;
 }
 
 interface KnowledgeBaseManagementProps {
@@ -47,6 +48,7 @@ const KnowledgeBaseManagement = ({
   const [formCategory, setFormCategory] = useState(categories[0] || "general");
   const [formTags, setFormTags] = useState("");
   const [formSource, setFormSource] = useState("manual");
+  const [formNotes, setFormNotes] = useState("");
 
   const fetchEntries = async () => {
     setLoading(true);
@@ -71,6 +73,7 @@ const KnowledgeBaseManagement = ({
     setFormCategory(categories[0] || "general");
     setFormTags("");
     setFormSource("manual");
+    setFormNotes("");
     setEditingId(null);
     setShowNew(false);
   };
@@ -82,6 +85,7 @@ const KnowledgeBaseManagement = ({
     setFormCategory(entry.category);
     setFormTags(entry.tags.join(", "));
     setFormSource(entry.source || "manual");
+    setFormNotes(entry.notes || "");
     setShowNew(false);
   };
 
@@ -98,6 +102,7 @@ const KnowledgeBaseManagement = ({
       category: formCategory,
       tags,
       source: formSource,
+      notes: formNotes.trim() || null,
       updated_at: new Date().toISOString(),
     };
 
@@ -169,6 +174,7 @@ const KnowledgeBaseManagement = ({
               <Input placeholder="Source" value={formSource} onChange={e => setFormSource(e.target.value)} />
             </div>
             <Textarea placeholder="Contenu" value={formContent} onChange={e => setFormContent(e.target.value)} rows={6} />
+            <Textarea placeholder="Notes personnelles (liens sources, observations…)" value={formNotes} onChange={e => setFormNotes(e.target.value)} rows={3} className="bg-muted/50" />
             <div className="flex gap-2">
               <Button onClick={handleSave}><Save className="h-4 w-4 mr-2" />Enregistrer</Button>
               <Button variant="outline" onClick={resetForm}><X className="h-4 w-4 mr-2" />Annuler</Button>
@@ -223,6 +229,9 @@ const KnowledgeBaseManagement = ({
                       {entry.source && <Badge variant="secondary" className="text-xs">{entry.source}</Badge>}
                     </div>
                     <p className="text-sm text-muted-foreground whitespace-pre-wrap line-clamp-3">{entry.content}</p>
+                    {entry.notes && (
+                      <p className="text-xs text-muted-foreground/70 italic mt-1 line-clamp-2">📝 {entry.notes}</p>
+                    )}
                     <div className="flex items-center gap-2 mt-2 flex-wrap">
                       {entry.tags.map(tag => (
                         <Badge key={tag} variant="outline" className="text-xs bg-muted">{tag}</Badge>
