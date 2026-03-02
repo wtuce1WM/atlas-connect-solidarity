@@ -49,11 +49,13 @@ serve(async (req) => {
     const queryTerms = query.toLowerCase().split(/\s+/).filter((w: string) => w.length > 2);
     let knowledgeContext = "";
     if (queryTerms.length > 0) {
-      // Search knowledge_entries by matching tags or title/content via ilike
+      // Only fetch informational entries (not technical notes)
+      const aiCategories = ["general", "tourisme", "culture", "gastronomie"];
       const orFilters = queryTerms.map((t: string) => `title.ilike.%${t}%,content.ilike.%${t}%`).join(",");
       const { data: knowledgeRows } = await sb
         .from("knowledge_entries")
         .select("title, content, category, tags")
+        .in("category", aiCategories)
         .or(orFilters)
         .limit(5);
       

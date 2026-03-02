@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, Users, UserCheck, Search, ArrowLeft, Star, BarChart3, FlaskConical, BookOpen, Egg, Sparkles } from "lucide-react";
+import { LogOut, Users, UserCheck, Search, ArrowLeft, Star, BarChart3, FlaskConical, BookOpen, Egg, Sparkles, Brain } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import SearchConfigManagement from "@/components/staff/SearchConfigManagement";
 import AffiliateManagement from "@/components/staff/AffiliateManagement";
@@ -122,6 +122,10 @@ const StaffMaster = () => {
               <BookOpen className="h-4 w-4" />
               Connaissances
             </TabsTrigger>
+            <TabsTrigger value="ai-knowledge" className="gap-2">
+              <Brain className="h-4 w-4" />
+              Base IA
+            </TabsTrigger>
             <TabsTrigger value="easter-eggs" className="gap-2">
               <Egg className="h-4 w-4" />
               Easter Eggs
@@ -159,7 +163,19 @@ const StaffMaster = () => {
           </TabsContent>
 
           <TabsContent value="knowledge">
-            <KnowledgeBaseManagement />
+            <KnowledgeBaseManagement
+              categories={["search-engine", "voice-search", "opening-hours", "UI", "architecture", "business-rules", "bug-fix", "tech"]}
+              newEntryLabel="Nouvelle note technique"
+              emptyLabel="Aucune note technique"
+            />
+          </TabsContent>
+
+          <TabsContent value="ai-knowledge">
+            <KnowledgeBaseManagement
+              categories={["general", "tourisme", "culture", "gastronomie"]}
+              newEntryLabel="Nouvelle entrée IA"
+              emptyLabel="Aucune entrée pour l'IA Concierge"
+            />
           </TabsContent>
 
           <TabsContent value="easter-eggs">
