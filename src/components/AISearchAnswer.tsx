@@ -194,6 +194,7 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
   const [fontSize, setFontSize] = useState(0); // -1 = small, 0 = normal, 1 = large
   const fetchIdRef = useRef(0);
   const lastFetchKeyRef = useRef("");
+  const aiPanelRef = useRef<HTMLDivElement>(null);
 
   const fetchKey = useMemo(() => {
     if (!query || !businesses.length) return "";
@@ -277,10 +278,14 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
   const isPanelOpen = !!selectedBusiness;
   const [isPanelExpanded, setIsPanelExpanded] = useState(false);
 
-  // Disable background scroll when panel is open
+  // Disable background scroll when panel is open & scroll AI panel to top
   useEffect(() => {
     if (isPanelOpen) {
       document.body.style.overflow = "hidden";
+      // Scroll the AI panel container to top so the first business link is visible
+      requestAnimationFrame(() => {
+        aiPanelRef.current?.scrollTo({ top: 0 });
+      });
     } else {
       document.body.style.overflow = "";
     }
@@ -298,6 +303,7 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
 
       {/* AI Suggestion — slides to left half when panel opens, hidden when expanded */}
       <div
+        ref={aiPanelRef}
         className={`mb-6 transition-all duration-500 ease-out ${
           isPanelExpanded
             ? "fixed top-0 left-0 z-[100] w-0 h-full overflow-hidden opacity-0 pointer-events-none"
