@@ -56,6 +56,7 @@ const SearchConfigManagement = () => {
   const [businessCounts, setBusinessCounts] = useState<Record<string, number>>({});
   // Map subcategory ID → inheritance info (only for subcats without their own config)
   const [inheritanceMap, setInheritanceMap] = useState<Record<string, InheritanceInfo>>({});
+  const [showOnlyInherited, setShowOnlyInherited] = useState(false);
 
   // Load data
   useEffect(() => {
@@ -141,7 +142,8 @@ const SearchConfigManagement = () => {
   const filteredSubcategories = subcategories.filter((sub) => {
     const matchesCat = selectedCategory === "all" || sub.category_id === selectedCategory;
     const matchesSearch = !searchQuery || sub.name_fr.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCat && matchesSearch;
+    const matchesInheritance = !showOnlyInherited || (!!inheritanceMap[sub.id] && !configs[sub.id]);
+    return matchesCat && matchesSearch && matchesInheritance;
   });
 
   // Get or create default config for a subcategory
@@ -301,7 +303,15 @@ const SearchConfigManagement = () => {
           {configuredCount} personnalisée{configuredCount > 1 ? "s" : ""} sur {totalCount}
         </Badge>
         {Object.keys(inheritanceMap).length > 0 && (
-          <Badge variant="outline" className="text-sm px-3 py-1 border-orange-300 text-orange-700 cursor-pointer hover:bg-orange-50" onClick={() => setSearchQuery("")}>
+          <Badge
+            variant="outline"
+            className={`text-sm px-3 py-1 cursor-pointer transition-colors ${
+              showOnlyInherited
+                ? "border-orange-500 bg-orange-100 text-orange-800"
+                : "border-orange-300 text-orange-700 hover:bg-orange-50"
+            }`}
+            onClick={() => setShowOnlyInherited(prev => !prev)}
+          >
             <AlertTriangle className="h-3.5 w-3.5 mr-1.5" />
             {Object.keys(inheritanceMap).length} héritage{Object.keys(inheritanceMap).length > 1 ? "s" : ""} implicite{Object.keys(inheritanceMap).length > 1 ? "s" : ""}
           </Badge>
