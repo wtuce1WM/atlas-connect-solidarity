@@ -3044,27 +3044,10 @@ serve(async (req) => {
     } else if (nameMatchedBusinessIds.length > 0 && bundleActivated) {
       console.log(`⏭️ Name-match injection/pinning skipped (bundle activated, ${nameMatchedBusinessIds.length} name matches ignored)`);
     }
-    // LLM Re-ranking: apply on exact/fuzzy results with a real query (skip autocomplete & superlative)
-    // When name matches exist, rerank only the non-pinned portion to preserve exact match priority
-    const rerankConditions = { isAutocomplete, isSuperlatif, effectiveQuery, count: businesses.length, searchLevel, nameMatches: nameMatchedBusinessIds.length, skipRerank: !!skipRerank };
-    console.log(`Rerank check: ${JSON.stringify(rerankConditions)}`);
-    if (!skipRerank && !isAutocomplete && !isSuperlatif && effectiveQuery && businesses.length >= 10 && (searchLevel === "exact" || searchLevel === "fuzzy")) {
-      console.log(`✅ Rerank conditions met — triggering LLM rerank for "${effectiveQuery}"`);
-      if (nameMatchedBusinessIds.length > 0) {
-        // Rerank only the non-pinned businesses
-        const pinnedCount = nameMatchedBusinessIds.filter(id => businesses.some(b => b.id === id)).length;
-        const pinnedPart = businesses.slice(0, pinnedCount);
-        const restPart = businesses.slice(pinnedCount);
-        if (restPart.length > 3) {
-          const rerankedRest = await llmRerank(effectiveQuery, restPart);
-          businesses = [...pinnedPart, ...rerankedRest];
-        }
-      } else {
-        businesses = await llmRerank(effectiveQuery, businesses);
-      }
-    } else {
-      console.log(`⏭️ Rerank skipped`);
-    }
+    // LLM Re-ranking: DISABLED — SQL ordering (ts_rank + priority_score + wtuce_status) is sufficient
+    // The rerank added 1.5s–12s latency for marginal relevance gains
+    // Kept as dead code for future reference; can be re-enabled via skipRerank=false if needed
+    console.log(`⏭️ Rerank disabled globally`);
 
     // Autocomplete mode: sort by best rating DESC, then apply name-match boost, then return lightweight results
     if (isAutocomplete) {
