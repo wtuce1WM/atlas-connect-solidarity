@@ -1229,6 +1229,41 @@ serve(async (req) => {
         serviceShortcutActivated = true;
         console.log(`⚡ Service shortcut complete: ${businesses.length} results — skipping FTS chain`);
       }
+
+      // ── Also merge synonym-linked subcategories even when service shortcut fired ──
+      // e.g. "bar à vin" → service "Cave à vin" (shortcut) + subcategory "Œnothèque" (merge)
+      if (synonymLinkedSubcategories.length > 0) {
+        const existingIds = new Set(businesses.map(b => b.id));
+        for (const synSubcat of synonymLinkedSubcategories) {
+          let synBuilder = supabase.from("businesses").select("*").eq("is_active", true)
+            .contains("categories", [synSubcat]);
+          if (effectiveCity) synBuilder = applyCityFilter(synBuilder);
+          if (detectedNeighborhood) {
+            synBuilder = synBuilder.or(buildNeighborhoodOrClause(detectedNeighborhood, loadedNeighborhoods));
+          }
+          synBuilder = synBuilder
+            .order("wtuce_status", { ascending: true })
+            .order("google_rating", { ascending: false, nullsFirst: false })
+            .order("priority_score", { ascending: false })
+            .limit(limit);
+          const { data: synData, error: synError } = await synBuilder;
+          if (!synError && synData && synData.length > 0) {
+            const newResults = synData
+              .filter((b: any) => !existingIds.has(b.id))
+              .map((b: any) => ({
+                ...b,
+                distance_km: latitude && longitude && b.latitude && b.longitude
+                  ? calculateDistance(latitude, longitude, b.latitude, b.longitude) : null,
+              }));
+            for (const b of newResults) existingIds.add(b.id);
+            businesses = [...businesses, ...newResults];
+            console.log(`⚡ Service shortcut + synonym subcategory "${synSubcat}": +${newResults.length} results (total: ${businesses.length})`);
+          }
+        }
+        if (businesses.length > 0) {
+          serviceShortcutActivated = true;
+        }
+      }
     }
 
     if (!serviceShortcutActivated) {
