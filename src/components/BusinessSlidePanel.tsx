@@ -1186,8 +1186,8 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
 
             if (platforms.length === 0) return null;
 
-            return (
-              <div className="border-b border-border pb-5">
+             return (
+              <div className="border-t border-border pt-5 border-b pb-5">
                 <div className="space-y-2">
                   <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Plateformes de réservation</h3>
                   <div className="flex flex-wrap items-center gap-2">
