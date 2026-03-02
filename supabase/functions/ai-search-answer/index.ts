@@ -45,6 +45,10 @@ serve(async (req) => {
     const noResultsCfg = cfg.no_results_instructions || "";
     const boostVerified = cfg.boost_verified !== "false";
 
+    // Build context from top search results (max 10)
+    const topBusinesses = businesses.slice(0, 10);
+    const hasResults = topBusinesses.length > 0;
+
     // Fetch relevant knowledge entries to enrich AI context
     const queryTerms = query.toLowerCase().split(/\s+/).filter((w: string) => w.length > 2);
     let knowledgeContext = "";
@@ -92,10 +96,6 @@ serve(async (req) => {
         .join("\n");
       console.log(`Found ${knowledgeEntries.length} knowledge entries for query "${query}" (${businessIds.length} by business link)`);
     }
-
-    // Build context from top search results (max 10)
-    const topBusinesses = businesses.slice(0, 10);
-    const hasResults = topBusinesses.length > 0;
     
     const businessContext = hasResults
       ? topBusinesses.map((b: any, i: number) => {
