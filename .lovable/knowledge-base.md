@@ -78,12 +78,14 @@ Journal des décisions d'architecture, règles métier et apprentissages issus d
 - La table `search_intent_words` mappe des mots vers des catégories (ex: "acheter" → "Commerce").
 
 ### Normalisation des accents (diacritiques)
-- Le moteur génère automatiquement une **variante sans accent** pour chaque terme du tsquery, afin que `française` et `francaise` produisent les mêmes résultats.
-- Cela couvre les **diacritiques Unicode du bloc U+0300–U+036F** (Combining Diacritical Marks). Ce bloc contient ~112 caractères "combinants" qui s'ajoutent à une lettre de base pour former un caractère accentué :
+- Le `search_vector` utilise `unaccent()` (extension PostgreSQL) sur **tous** les champs indexés. Il ne stocke que des versions sans accent.
+- Le tsquery dans l'Edge Function applique aussi `stripAccentsGlobal()` sur tous les termes finaux, garantissant la correspondance.
+- Cela couvre les **diacritiques Unicode du bloc U+0300–U+036F** (Combining Diacritical Marks) :
   - **Accents** : ◌̀ grave (U+0300), ◌́ aigu (U+0301), ◌̂ circonflexe (U+0302), ◌̃ tilde (U+0303)
   - **Tréma / umlaut** : ◌̈ (U+0308)
   - **Cédille** : ◌̧ (U+0327) — transforme ç en c
   - **Macron, brève, point suscrit, rond en chef**, etc.
-- **Méthode** : `str.normalize("NFD")` décompose chaque caractère en base + combinant (ex: `é` → `e` + `◌́`), puis `.replace(/[\u0300-\u036f]/g, "")` supprime tous les combinants.
+- **Méthode JS** : `str.normalize("NFD")` + `.replace(/[\u0300-\u036f]/g, "")` (supprime les combinants).
+- **Méthode SQL** : `unaccent()` dans le trigger `update_business_search_vector`.
 - **Exemples** : médina→medina, crêperie→creperie, française→francaise, naïf→naif, façade→facade.
 - Les ligatures (œ, æ) sont aussi décomposées par NFD : œ→oe, æ→ae.

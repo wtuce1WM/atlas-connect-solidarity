@@ -501,9 +501,12 @@ function expandQuery(query: string): string {
     }
 
     // For alternatives containing "/", keep slash as-is for tsquery matching
+    // Always strip accents since search_vector now stores unaccented text (via unaccent() in trigger)
     const sanitized = [...withAccentVariants].map(a => {
-      if (a.includes("/")) return a.replace(/['']/g, "").replace(/[^a-zA-Z0-9àâäéèêëïîôùûüÿçœæÀÂÄÉÈÊËÏÎÔÙÛÜŸÇŒÆ/]/g, "");
-      return sanitizeTerm(a);
+      const base = a.includes("/")
+        ? a.replace(/['']/g, "").replace(/[^a-zA-Z0-9àâäéèêëïîôùûüÿçœæÀÂÄÉÈÊËÏÎÔÙÛÜŸÇŒÆ/]/g, "")
+        : sanitizeTerm(a);
+      return stripAccentsGlobal(base);
     }).filter(t => t.length > 1);
     if (sanitized.length === 0) return null; // Skip words that produce no valid terms (e.g. "à")
     return sanitized.length === 1 ? sanitized[0] : `(${sanitized.join(" | ")})`;
