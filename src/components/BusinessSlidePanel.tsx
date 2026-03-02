@@ -998,7 +998,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
 
           {/* Contact info */}
           {hasContact && (
-          <div ref={contactSectionRef} className="border-y border-border py-5 scroll-mt-28">
+          <div ref={contactSectionRef} className="border-t border-border py-5 scroll-mt-28">
             <div className="grid grid-cols-2 gap-6">
               {/* Address */}
               {business.address && (
