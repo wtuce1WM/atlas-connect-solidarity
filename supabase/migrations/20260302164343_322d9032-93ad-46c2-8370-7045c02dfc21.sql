@@ -1,0 +1,1 @@
+ALTER TABLE public.search_synonyms ADD COLUMN IF NOT EXISTS filters jsonb NOT NULL DEFAULT '[]'::jsonb;

@@ -1,11 +1,12 @@
 import { useState, useEffect, useMemo } from "react";
-import { Plus, Trash2, Loader2, Save, HelpCircle, Pencil, X, Check, ChevronDown, ChevronUp } from "lucide-react";
+import { Plus, Trash2, Loader2, Save, HelpCircle, Pencil, X, Check, ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,12 +22,18 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { fetchAllRows } from "@/lib/fetchAllRows";
 
+interface SynonymFilter {
+  subcategory_name: string | null;
+  required_service: string | null;
+}
+
 interface SynonymEntry {
   id: string;
   key_word: string;
   synonyms: string[];
   subcategory_names: string[];
   service_names: string[];
+  filters: SynonymFilter[];
   is_active: boolean;
   created_at: string;
 }
@@ -40,47 +47,14 @@ const SynonymsManagement = () => {
   const [allSubcategories, setAllSubcategories] = useState<{id: string; name: string; category_id: string}[]>([]);
   const [allCategories, setAllCategories] = useState<{id: string; name_fr: string}[]>([]);
   const [allServices, setAllServices] = useState<{name: string; subcategory_id: string}[]>([]);
-  const [editingSubcat, setEditingSubcat] = useState<Record<string, string>>({});
-  const [selectedCategory, setSelectedCategory] = useState<Record<string, string>>({});
   const [sortOrder, setSortOrder] = useState<"asc" | "desc" | "oldest" | "newest">("newest");
-  const [editingService, setEditingService] = useState<Record<string, string>>({});
-  const [serviceFilterRows, setServiceFilterRows] = useState<Record<string, { catId: string; subcatId: string }[]>>({});
-  const [editingSubcatName, setEditingSubcatName] = useState<{ entryId: string; oldName: string; newName: string } | null>(null);
-  const [editingServiceName, setEditingServiceName] = useState<{ entryId: string; oldName: string; newName: string } | null>(null);
   const [filterCategory, setFilterCategory] = useState("");
   const [filterSubcategory, setFilterSubcategory] = useState("");
-  const [expandedServices, setExpandedServices] = useState<Record<string, boolean>>({});
-  const [serviceSearchFilter, setServiceSearchFilter] = useState<Record<string, string>>({});
   const [dirtyEntries, setDirtyEntries] = useState<Set<string>>(new Set());
   const [savingEntries, setSavingEntries] = useState<Set<string>>(new Set());
-
-  const getServiceFilterRows = (entryId: string) => serviceFilterRows[entryId] || [{ catId: "", subcatId: "" }];
-
-  const updateServiceFilterRow = (entryId: string, rowIndex: number, field: "catId" | "subcatId", value: string) => {
-    setServiceFilterRows(prev => {
-      const rows = [...(prev[entryId] || [{ catId: "", subcatId: "" }])];
-      rows[rowIndex] = { ...rows[rowIndex], [field]: value };
-      if (field === "catId") rows[rowIndex].subcatId = "";
-      return { ...prev, [entryId]: rows };
-    });
-  };
-
-  const addServiceFilterRow = (entryId: string) => {
-    setServiceFilterRows(prev => {
-      const rows = [...(prev[entryId] || [{ catId: "", subcatId: "" }])];
-      rows.push({ catId: "", subcatId: "" });
-      return { ...prev, [entryId]: rows };
-    });
-  };
-
-  const removeServiceFilterRow = (entryId: string, rowIndex: number) => {
-    setServiceFilterRows(prev => {
-      const rows = [...(prev[entryId] || [{ catId: "", subcatId: "" }])];
-      rows.splice(rowIndex, 1);
-      if (rows.length === 0) rows.push({ catId: "", subcatId: "" });
-      return { ...prev, [entryId]: rows };
-    });
-  };
+  // Inline editing for filter rows
+  const [editingFilterRow, setEditingFilterRow] = useState<{ entryId: string; index: number } | null>(null);
+  const [editFilterValues, setEditFilterValues] = useState<{ subcategory_name: string; required_service: string }>({ subcategory_name: "", required_service: "" });
 
   const load = async () => {
     setIsLoading(true);
@@ -90,7 +64,12 @@ const SynonymsManagement = () => {
       supabase.from("categories").select("id, name_fr").order("name_fr"),
       fetchAllRows<{ name_fr: string; subcategory_id: string }>("services", "name_fr, subcategory_id", "name_fr"),
     ]);
-    if (data) setEntries(data.map((d: any) => ({ ...d, subcategory_names: d.subcategory_names || [], service_names: d.service_names || [] })) as SynonymEntry[]);
+    if (data) setEntries(data.map((d: any) => ({
+      ...d,
+      subcategory_names: d.subcategory_names || [],
+      service_names: d.service_names || [],
+      filters: d.filters || [],
+    })) as SynonymEntry[]);
     if (subcats) setAllSubcategories(subcats.map((s: any) => ({ id: s.id, name: s.name_fr, category_id: s.category_id })));
     if (cats) setAllCategories(cats as any);
     if (svcData) setAllServices(svcData.map((s: any) => ({ name: s.name_fr, subcategory_id: s.subcategory_id })));
@@ -142,58 +121,38 @@ const SynonymsManagement = () => {
     setEntries(prev => prev.map(e => e.id === id ? { ...e, synonyms: updated } : e));
   };
 
-  const addSubcategoryToEntry = (id: string) => {
-    const name = (editingSubcat[id] || "").trim();
-    if (!name) return;
+  // ── Filter row management (Bundle-like) ──
+  const addFilterRow = (id: string, subcategory_name: string, required_service: string) => {
     const entry = entries.find(e => e.id === id);
-    if (!entry || entry.subcategory_names.includes(name)) return;
-    setEntries(prev => prev.map(e => e.id === id ? { ...e, subcategory_names: [...e.subcategory_names, name] } : e));
-    setEditingSubcat(prev => ({ ...prev, [id]: "" }));
+    if (!entry) return;
+    const newFilter: SynonymFilter = {
+      subcategory_name: subcategory_name.trim() || null,
+      required_service: required_service.trim() || null,
+    };
+    if (!newFilter.subcategory_name && !newFilter.required_service) return;
+    const updatedFilters = [...entry.filters, newFilter];
+    setEntries(prev => prev.map(e => e.id === id ? { ...e, filters: updatedFilters } : e));
     setDirtyEntries(prev => new Set(prev).add(id));
   };
 
-  const removeSubcategoryFromEntry = (id: string, name: string) => {
-    setEntries(prev => prev.map(e => e.id === id ? { ...e, subcategory_names: e.subcategory_names.filter(s => s !== name) } : e));
-    setDirtyEntries(prev => new Set(prev).add(id));
-  };
-
-  const addServiceToEntry = (id: string, serviceName?: string) => {
-    const name = (serviceName || editingService[id] || "").trim();
-    if (!name) return;
+  const removeFilterRow = (id: string, index: number) => {
     const entry = entries.find(e => e.id === id);
-    if (!entry || entry.service_names.includes(name)) return;
-    // Auto-add parent subcategory when adding a service
-    const svc = allServices.find(s => s.name === name);
-    let updatedSubcats = entry.subcategory_names;
-    if (svc) {
-      const parentSubcat = allSubcategories.find(sc => sc.id === svc.subcategory_id);
-      if (parentSubcat && !entry.subcategory_names.includes(parentSubcat.name)) {
-        updatedSubcats = [...entry.subcategory_names, parentSubcat.name];
-      }
-    }
-    setEntries(prev => prev.map(e => e.id === id ? { ...e, service_names: [...e.service_names, name], subcategory_names: updatedSubcats } : e));
-    if (!serviceName) setEditingService(prev => ({ ...prev, [id]: "" }));
+    if (!entry) return;
+    const updatedFilters = entry.filters.filter((_, i) => i !== index);
+    setEntries(prev => prev.map(e => e.id === id ? { ...e, filters: updatedFilters } : e));
     setDirtyEntries(prev => new Set(prev).add(id));
   };
 
-  const removeServiceFromEntry = (id: string, name: string) => {
-    setEntries(prev => prev.map(e => e.id === id ? { ...e, service_names: e.service_names.filter(s => s !== name) } : e));
-    setDirtyEntries(prev => new Set(prev).add(id));
-  };
-
-  const renameSubcategoryInEntry = (id: string, oldName: string, newName: string) => {
-    const trimmed = newName.trim();
-    if (!trimmed || trimmed === oldName) { setEditingSubcatName(null); return; }
-    setEntries(prev => prev.map(e => e.id === id ? { ...e, subcategory_names: e.subcategory_names.map(s => s === oldName ? trimmed : s) } : e));
-    setEditingSubcatName(null);
-    setDirtyEntries(prev => new Set(prev).add(id));
-  };
-
-  const renameServiceInEntry = (id: string, oldName: string, newName: string) => {
-    const trimmed = newName.trim();
-    if (!trimmed || trimmed === oldName) { setEditingServiceName(null); return; }
-    setEntries(prev => prev.map(e => e.id === id ? { ...e, service_names: e.service_names.map(s => s === oldName ? trimmed : s) } : e));
-    setEditingServiceName(null);
+  const updateFilterRow = (id: string, index: number, values: { subcategory_name: string; required_service: string }) => {
+    const entry = entries.find(e => e.id === id);
+    if (!entry) return;
+    const updatedFilters = [...entry.filters];
+    updatedFilters[index] = {
+      subcategory_name: values.subcategory_name.trim() || null,
+      required_service: values.required_service.trim() || null,
+    };
+    setEntries(prev => prev.map(e => e.id === id ? { ...e, filters: updatedFilters } : e));
+    setEditingFilterRow(null);
     setDirtyEntries(prev => new Set(prev).add(id));
   };
 
@@ -201,9 +160,13 @@ const SynonymsManagement = () => {
     const entry = entries.find(e => e.id === id);
     if (!entry) return;
     setSavingEntries(prev => new Set(prev).add(id));
+    // Also sync legacy fields for backward compat
+    const subcatNames = [...new Set(entry.filters.map(f => f.subcategory_name).filter(Boolean) as string[])];
+    const svcNames = [...new Set(entry.filters.map(f => f.required_service).filter(Boolean) as string[])];
     const { error } = await supabase.from("search_synonyms").update({
-      subcategory_names: entry.subcategory_names,
-      service_names: entry.service_names,
+      filters: entry.filters,
+      subcategory_names: subcatNames,
+      service_names: svcNames,
     } as any).eq("id", id);
     setSavingEntries(prev => { const n = new Set(prev); n.delete(id); return n; });
     if (error) {
@@ -213,6 +176,9 @@ const SynonymsManagement = () => {
       toast({ title: "Sauvegardé ✓" });
     }
   };
+
+  // ── New filter row form state ──
+  const [newFilterForm, setNewFilterForm] = useState<Record<string, { subcategory_name: string; required_service: string }>>({});
 
   if (isLoading) return <div className="flex justify-center p-8"><Loader2 className="h-6 w-6 animate-spin" /></div>;
 
@@ -229,89 +195,21 @@ const SynonymsManagement = () => {
                 </button>
               </PopoverTrigger>
               <PopoverContent className="w-[420px] p-4 text-sm space-y-3" align="start">
-                <h4 className="font-semibold">Synonymes vs Mots-clés : quelle différence ?</h4>
-
+                <h4 className="font-semibold">Synonymes de recherche</h4>
                 <div className="space-y-2">
-                  <div>
-                    <span className="font-medium">🔍 Synonymes de recherche</span>
-                    <span className="text-muted-foreground"> (cette page)</span>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      Agissent côté <strong>requête</strong> (tsquery). Quand l'utilisateur tape un mot, ses synonymes sont ajoutés automatiquement à la recherche via OR.
-                      <br />Ex : <code className="bg-muted px-1 rounded">riad</code> → cherche aussi <code className="bg-muted px-1 rounded">maison d'hôtes</code>, <code className="bg-muted px-1 rounded">guesthouse</code>.
-                    </p>
-                  </div>
-
-                  <div>
-                    <span className="font-medium">📦 Mots-clés de sous-catégories</span>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      Indexés dans le <code className="bg-muted px-1 rounded">search_vector</code> de chaque établissement (Poids A — fort). Permettent à une sous-catégorie d'être trouvée par des termes alternatifs.
-                      <br />Ex : sous-catégorie « Riad » avec keywords <code className="bg-muted px-1 rounded">dar, maison d'hôtes</code>.
-                    </p>
-                  </div>
-
-                  <div>
-                    <span className="font-medium">🏷️ Mots-clés de services</span>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      Indexés dans le <code className="bg-muted px-1 rounded">search_vector</code> (Poids B — moyen). Permettent à un service d'être trouvé par des variantes.
-                      <br />Ex : service « Piscine » avec keywords <code className="bg-muted px-1 rounded">pool, bassin, baignade</code>.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="border-t pt-2">
-                  <table className="w-full text-xs">
-                    <thead>
-                      <tr className="border-b">
-                        <th className="text-left pb-1 pr-3 font-medium text-muted-foreground"></th>
-                        <th className="text-left pb-1 pr-3 font-medium text-muted-foreground">Où ça agit</th>
-                        <th className="text-left pb-1 pr-3 font-medium text-muted-foreground">Côté</th>
-                        <th className="text-left pb-1 font-medium text-muted-foreground">Poids</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr className="border-b border-border/50">
-                        <td className="py-1.5 pr-3 font-medium">Synonymes</td>
-                        <td className="py-1.5 pr-3 text-muted-foreground">Requête (tsquery)</td>
-                        <td className="py-1.5 pr-3">🔍 Recherche</td>
-                        <td className="py-1.5 text-muted-foreground">—</td>
-                      </tr>
-                      <tr className="border-b border-border/50">
-                        <td className="py-1.5 pr-3 font-medium">Keywords sous-cat</td>
-                        <td className="py-1.5 pr-3 text-muted-foreground">Index (search_vector)</td>
-                        <td className="py-1.5 pr-3">📦 Données</td>
-                        <td className="py-1.5 text-muted-foreground">A (fort)</td>
-                      </tr>
-                      <tr>
-                        <td className="py-1.5 pr-3 font-medium">Keywords services</td>
-                        <td className="py-1.5 pr-3 text-muted-foreground">Index (search_vector)</td>
-                        <td className="py-1.5 pr-3">📦 Données</td>
-                        <td className="py-1.5 text-muted-foreground">B (moyen)</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-
-                <p className="text-xs text-muted-foreground italic">
-                  Les synonymes élargissent <em>ce qu'on cherche</em>, les mots-clés élargissent <em>ce qu'on trouve</em>.
-                </p>
-
-                <div className="border-t pt-2 space-y-1">
-                  <h5 className="font-semibold text-xs">⚡ Impact sur les performances</h5>
                   <p className="text-xs text-muted-foreground">
-                    <strong>Synonymes</strong> : chargés par l'Edge Function à chaque recherche (cache TTL 5 min). Impact minime.
+                    Chaque synonyme étend la requête utilisateur (tsquery OR). Les <strong>filtres</strong> permettent de cibler précisément :
+                    chaque ligne combine une sous-catégorie + un service requis (comme les Bundles).
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    <strong>Mots-clés</strong> : pré-indexés dans le <code className="bg-muted px-1 rounded">search_vector</code> via un trigger PostgreSQL. Coût payé une seule fois à l'écriture, <strong>zéro impact à la lecture</strong>.
-                  </p>
-                  <p className="text-xs text-muted-foreground italic">
-                    → Les mots-clés sont la solution la plus performante car tout est pré-calculé dans l'index.
+                    <strong>Ex :</strong> « bar à vin » → Ligne 1 : Bar + Cave à vin | Ligne 2 : Œnothèque (sans service)
                   </p>
                 </div>
               </PopoverContent>
             </Popover>
           </div>
           <p className="text-sm text-muted-foreground">
-            Chaque mot-clé est étendu avec ses synonymes dans les requêtes tsquery.
+            Chaque mot-clé est étendu avec ses synonymes. Les <strong>filtres</strong> définissent les combinaisons sous-catégorie + service.
           </p>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -320,7 +218,7 @@ const SynonymsManagement = () => {
             <Input value={newSynonyms} onChange={e => setNewSynonyms(e.target.value)} placeholder="Synonymes (séparés par virgule)" className="flex-1" />
             <Button size="sm" onClick={addEntry} className="bg-amber-600 hover:bg-amber-700 text-white"><Plus className="h-4 w-4 mr-1" />Ajouter</Button>
           </div>
-           <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2">
             <span className="text-xs text-muted-foreground">Tri :</span>
             <select
               value={sortOrder}
@@ -367,10 +265,10 @@ const SynonymsManagement = () => {
       {[...entries]
         .filter(entry => {
           if (!filterCategory && !filterSubcategory) return true;
-          if (filterSubcategory) return entry.subcategory_names.includes(filterSubcategory);
-          // Filter by category: show entries that have at least one subcategory belonging to this category
+          const entrySubcats = entry.filters.map(f => f.subcategory_name).filter(Boolean) as string[];
+          if (filterSubcategory) return entrySubcats.includes(filterSubcategory);
           const subcatNamesInCat = allSubcategories.filter(sc => sc.category_id === filterCategory).map(sc => sc.name);
-          return entry.subcategory_names.some(sn => subcatNamesInCat.includes(sn));
+          return entrySubcats.some(sn => subcatNamesInCat.includes(sn));
         })
         .sort((a, b) => {
           if (sortOrder === "asc") return a.key_word.localeCompare(b.key_word);
@@ -386,17 +284,45 @@ const SynonymsManagement = () => {
                 <code className="font-mono text-sm font-bold bg-muted px-2 py-0.5 rounded">{entry.key_word}</code>
                 <span className="text-xs text-muted-foreground">→ {entry.synonyms.length} synonyme(s)</span>
               </div>
-              <Button
-                size="sm"
-                onClick={() => saveEntryChanges(entry.id)}
-                disabled={!dirtyEntries.has(entry.id) || savingEntries.has(entry.id)}
-                className={dirtyEntries.has(entry.id) ? "bg-amber-600 hover:bg-amber-700 text-white" : ""}
-                variant={dirtyEntries.has(entry.id) ? "default" : "outline"}
-              >
-                {savingEntries.has(entry.id) ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Save className="h-4 w-4 mr-1" />}
-                Sauvegarder
-              </Button>
+              <div className="flex items-center gap-2">
+                <a
+                  href={`/search?q=${encodeURIComponent(entry.key_word)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="Tester"
+                  className="inline-flex items-center justify-center h-7 w-7 rounded-md hover:bg-accent transition-colors"
+                >
+                  <ExternalLink className="h-3.5 w-3.5 text-muted-foreground" />
+                </a>
+                <Button
+                  size="sm"
+                  onClick={() => saveEntryChanges(entry.id)}
+                  disabled={!dirtyEntries.has(entry.id) || savingEntries.has(entry.id)}
+                  className={dirtyEntries.has(entry.id) ? "bg-amber-600 hover:bg-amber-700 text-white" : ""}
+                  variant={dirtyEntries.has(entry.id) ? "default" : "outline"}
+                >
+                  {savingEntries.has(entry.id) ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Save className="h-4 w-4 mr-1" />}
+                  Sauvegarder
+                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Supprimer « {entry.key_word} » ?</AlertDialogTitle>
+                      <AlertDialogDescription>Cette action est irréversible.</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Non</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => deleteEntry(entry.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Oui</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
             </div>
+
+            {/* Synonymes */}
             <div className="flex flex-wrap gap-1.5">
               {entry.synonyms.map(syn => (
                 <Badge key={syn} variant="outline" className="gap-1 group">
@@ -410,9 +336,7 @@ const SynonymsManagement = () => {
                     <AlertDialogContent>
                       <AlertDialogHeader>
                         <AlertDialogTitle>Supprimer ?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Retirer le synonyme « {syn} » de « {entry.key_word} » ?
-                        </AlertDialogDescription>
+                        <AlertDialogDescription>Retirer le synonyme « {syn} » ?</AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>Non</AlertDialogCancel>
@@ -435,233 +359,150 @@ const SynonymsManagement = () => {
                 <Plus className="h-3 w-3" />
               </Button>
             </div>
-            {/* Sous-catégories associées */}
+
+            {/* ── Filtres (Bundle-like table) ── */}
             <div className="border-t pt-2 mt-2">
-              <span className="text-xs font-medium text-muted-foreground">Sous-catégories associées :</span>
-              <div className="flex flex-wrap gap-1.5 mt-1">
-                {entry.subcategory_names.map(sc => (
-                  editingSubcatName?.entryId === entry.id && editingSubcatName?.oldName === sc ? (
-                    <div key={sc} className="flex items-center gap-1">
-                      <Input
-                        value={editingSubcatName.newName}
-                        onChange={e => setEditingSubcatName(prev => prev ? { ...prev, newName: e.target.value } : null)}
-                        className="h-7 w-40 text-sm"
-                        autoFocus
-                        onKeyDown={e => {
-                          if (e.key === "Enter") renameSubcategoryInEntry(entry.id, sc, editingSubcatName.newName);
-                          if (e.key === "Escape") setEditingSubcatName(null);
-                        }}
-                      />
-                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => renameSubcategoryInEntry(entry.id, sc, editingSubcatName.newName)}>
-                        <Check className="h-3 w-3 text-primary" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setEditingSubcatName(null)}>
-                        <X className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  ) : (
-                    <Badge key={sc} variant="secondary" className="gap-1 group">
-                      {sc}
-                      <button className="opacity-0 group-hover:opacity-100" onClick={() => setEditingSubcatName({ entryId: entry.id, oldName: sc, newName: sc })} title="Modifier">
-                        <Pencil className="h-3 w-3 text-muted-foreground" />
-                      </button>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <button className="opacity-0 group-hover:opacity-100" title="Supprimer">
-                            <Trash2 className="h-3 w-3 text-destructive" />
-                          </button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Supprimer ?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Retirer la sous-catégorie « {sc} » de « {entry.key_word} » ?
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Non</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => removeSubcategoryFromEntry(entry.id, sc)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Oui</AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </Badge>
-                  )
-                ))}
-                {entry.subcategory_names.length === 0 && <span className="text-xs text-muted-foreground italic">Aucune</span>}
-              </div>
-              <div className="flex gap-2 mt-1 flex-wrap">
-                <select
-                  value={selectedCategory[entry.id] || ""}
-                  onChange={e => {
-                    setSelectedCategory(prev => ({ ...prev, [entry.id]: e.target.value }));
-                    setEditingSubcat(prev => ({ ...prev, [entry.id]: "" }));
+              <span className="text-xs font-medium text-muted-foreground">Filtres (sous-catégorie + service requis) :</span>
+              {entry.filters.length > 0 ? (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="text-xs">Sous-catégorie</TableHead>
+                      <TableHead className="text-xs">Service requis</TableHead>
+                      <TableHead className="w-16 text-xs"></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {entry.filters.map((filter, idx) => (
+                      <TableRow key={idx} onDoubleClick={() => {
+                        setEditingFilterRow({ entryId: entry.id, index: idx });
+                        setEditFilterValues({
+                          subcategory_name: filter.subcategory_name || "",
+                          required_service: filter.required_service || "",
+                        });
+                      }}>
+                        <TableCell className="font-medium text-sm">
+                          {editingFilterRow?.entryId === entry.id && editingFilterRow?.index === idx ? (
+                            <Input
+                              value={editFilterValues.subcategory_name}
+                              onChange={e => setEditFilterValues(prev => ({ ...prev, subcategory_name: e.target.value }))}
+                              placeholder="* (wildcard)"
+                              className="h-8"
+                              autoFocus
+                            />
+                          ) : (
+                            filter.subcategory_name || <span className="text-muted-foreground italic">* (wildcard)</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-sm">
+                          {editingFilterRow?.entryId === entry.id && editingFilterRow?.index === idx ? (
+                            <Input
+                              value={editFilterValues.required_service}
+                              onChange={e => setEditFilterValues(prev => ({ ...prev, required_service: e.target.value }))}
+                              placeholder="Aucun"
+                              className="h-8"
+                              onKeyDown={e => {
+                                if (e.key === "Enter") updateFilterRow(entry.id, idx, editFilterValues);
+                                if (e.key === "Escape") setEditingFilterRow(null);
+                              }}
+                            />
+                          ) : (
+                            filter.required_service || <span className="text-muted-foreground italic">— (aucun)</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-1">
+                            {editingFilterRow?.entryId === entry.id && editingFilterRow?.index === idx ? (
+                              <>
+                                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => updateFilterRow(entry.id, idx, editFilterValues)}>
+                                  <Check className="h-3.5 w-3.5 text-primary" />
+                                </Button>
+                                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setEditingFilterRow(null)}>
+                                  <X className="h-3.5 w-3.5" />
+                                </Button>
+                              </>
+                            ) : (
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button variant="ghost" size="icon" className="h-7 w-7">
+                                    <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Supprimer ce filtre ?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      {filter.subcategory_name || "*"} + {filter.required_service || "aucun service"}
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Non</AlertDialogCancel>
+                                    <AlertDialogAction onClick={() => removeFilterRow(entry.id, idx)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Oui</AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              ) : (
+                <p className="text-xs text-muted-foreground italic mt-1">Aucun filtre — le synonyme agit uniquement sur le tsquery.</p>
+              )}
+
+              {/* Add new filter row */}
+              <div className="flex gap-2 mt-2 items-end">
+                <div className="flex-1 space-y-1">
+                  <label className="text-xs text-muted-foreground">Sous-catégorie</label>
+                  <Input
+                    placeholder="vide = wildcard"
+                    value={newFilterForm[entry.id]?.subcategory_name || ""}
+                    onChange={e => setNewFilterForm(prev => ({
+                      ...prev,
+                      [entry.id]: { ...prev[entry.id] || { subcategory_name: "", required_service: "" }, subcategory_name: e.target.value }
+                    }))}
+                    className="h-8 text-sm"
+                  />
+                </div>
+                <div className="flex-1 space-y-1">
+                  <label className="text-xs text-muted-foreground">Service requis</label>
+                  <Input
+                    placeholder="vide = aucun"
+                    value={newFilterForm[entry.id]?.required_service || ""}
+                    onChange={e => setNewFilterForm(prev => ({
+                      ...prev,
+                      [entry.id]: { ...prev[entry.id] || { subcategory_name: "", required_service: "" }, required_service: e.target.value }
+                    }))}
+                    className="h-8 text-sm"
+                    onKeyDown={e => {
+                      if (e.key === "Enter") {
+                        const form = newFilterForm[entry.id];
+                        if (form) {
+                          addFilterRow(entry.id, form.subcategory_name, form.required_service);
+                          setNewFilterForm(prev => ({ ...prev, [entry.id]: { subcategory_name: "", required_service: "" } }));
+                        }
+                      }
+                    }}
+                  />
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="border-amber-600 text-amber-700 hover:bg-amber-50 shrink-0"
+                  onClick={() => {
+                    const form = newFilterForm[entry.id] || { subcategory_name: "", required_service: "" };
+                    addFilterRow(entry.id, form.subcategory_name, form.required_service);
+                    setNewFilterForm(prev => ({ ...prev, [entry.id]: { subcategory_name: "", required_service: "" } }));
                   }}
-                  className="max-w-[200px] text-sm border rounded px-2 py-1 bg-background"
                 >
-                  <option value="">Catégorie...</option>
-                  {allCategories.map(cat => <option key={cat.id} value={cat.id}>{cat.name_fr}</option>)}
-                </select>
-                <select
-                  value={editingSubcat[entry.id] || ""}
-                  onChange={e => setEditingSubcat(prev => ({ ...prev, [entry.id]: e.target.value }))}
-                  className="max-w-xs text-sm border rounded px-2 py-1 bg-background"
-                  disabled={!selectedCategory[entry.id]}
-                >
-                  <option value="">Sous-catégorie...</option>
-                  {allSubcategories
-                    .filter(sc => sc.category_id === selectedCategory[entry.id] && !entry.subcategory_names.includes(sc.name))
-                    .map(sc => <option key={sc.name} value={sc.name}>{sc.name}</option>)
-                  }
-                </select>
-                <Button size="sm" variant="outline" onClick={() => addSubcategoryToEntry(entry.id)} className="border-amber-600 text-amber-700 hover:bg-amber-50">
-                  <Plus className="h-3 w-3" />
+                  <Plus className="h-3 w-3 mr-1" /> Ajouter
                 </Button>
               </div>
-            </div>
-            {/* Services associés */}
-            <div className="border-t pt-2 mt-2">
-              <span className="text-xs font-medium text-muted-foreground">Services associés :</span>
-              <div className="flex flex-wrap gap-1.5 mt-1">
-                {(expandedServices[entry.id] ? entry.service_names : entry.service_names.slice(0, 6)).map(svc => (
-                  editingServiceName?.entryId === entry.id && editingServiceName?.oldName === svc ? (
-                    <div key={svc} className="flex items-center gap-1">
-                      <Input
-                        value={editingServiceName.newName}
-                        onChange={e => setEditingServiceName(prev => prev ? { ...prev, newName: e.target.value } : null)}
-                        className="h-7 w-40 text-sm"
-                        autoFocus
-                        onKeyDown={e => {
-                          if (e.key === "Enter") renameServiceInEntry(entry.id, svc, editingServiceName.newName);
-                          if (e.key === "Escape") setEditingServiceName(null);
-                        }}
-                      />
-                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => renameServiceInEntry(entry.id, svc, editingServiceName.newName)}>
-                        <Check className="h-3 w-3 text-primary" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setEditingServiceName(null)}>
-                        <X className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  ) : (
-                    <Badge key={svc} variant="secondary" className="gap-1 group bg-blue-50 text-blue-800 border-blue-200">
-                      {svc}
-                      <button className="opacity-0 group-hover:opacity-100" onClick={() => setEditingServiceName({ entryId: entry.id, oldName: svc, newName: svc })} title="Modifier">
-                        <Pencil className="h-3 w-3 text-muted-foreground" />
-                      </button>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <button className="opacity-0 group-hover:opacity-100" title="Supprimer">
-                            <Trash2 className="h-3 w-3 text-destructive" />
-                          </button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Supprimer ?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Retirer le service « {svc} » de « {entry.key_word} » ?
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Non</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => removeServiceFromEntry(entry.id, svc)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Oui</AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </Badge>
-                  )
-                ))}
-                {entry.service_names.length === 0 && <span className="text-xs text-muted-foreground italic">Aucun</span>}
-                {entry.service_names.length > 6 && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-6 text-xs text-muted-foreground px-2"
-                    onClick={() => setExpandedServices(prev => ({ ...prev, [entry.id]: !prev[entry.id] }))}
-                  >
-                    {expandedServices[entry.id] ? (
-                      <><ChevronUp className="h-3 w-3 mr-1" />Voir moins</>
-                    ) : (
-                      <><ChevronDown className="h-3 w-3 mr-1" />+{entry.service_names.length - 6} autres</>
-                    )}
-                  </Button>
-                )}
-              </div>
-              {getServiceFilterRows(entry.id).map((row, rowIndex) => (
-                <div key={rowIndex} className="flex gap-2 mt-1 flex-wrap items-center">
-                  <select
-                    value={row.catId}
-                    onChange={e => updateServiceFilterRow(entry.id, rowIndex, "catId", e.target.value)}
-                    className="max-w-[200px] text-sm border rounded px-2 py-1 bg-background"
-                  >
-                    <option value="">Catégorie...</option>
-                    {allCategories.map(cat => <option key={cat.id} value={cat.id}>{cat.name_fr}</option>)}
-                  </select>
-                  <select
-                    value={row.subcatId}
-                    onChange={e => updateServiceFilterRow(entry.id, rowIndex, "subcatId", e.target.value)}
-                    className="max-w-[200px] text-sm border rounded px-2 py-1 bg-background"
-                    disabled={!row.catId}
-                  >
-                    <option value="">Sous-catégorie...</option>
-                    <option value="*">* Toutes</option>
-                    {allSubcategories
-                      .filter(sc => sc.category_id === row.catId)
-                      .map(sc => <option key={sc.id} value={sc.id}>{sc.name}</option>)}
-                  </select>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" size="sm" className="max-w-xs text-sm justify-start font-normal" disabled={!row.subcatId}>
-                        <Plus className="h-3 w-3 mr-1" /> Ajouter des services
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-72 p-2" align="start">
-                      <Input
-                        placeholder="Filtrer les services..."
-                        value={serviceSearchFilter[`${entry.id}-${rowIndex}`] || ""}
-                        onChange={e => setServiceSearchFilter(prev => ({ ...prev, [`${entry.id}-${rowIndex}`]: e.target.value }))}
-                        className="h-8 text-sm mb-2"
-                        autoFocus
-                      />
-                      <div className="max-h-48 overflow-y-auto space-y-0.5">
-                        {allServices
-                          .filter(svc => {
-                            if (row.subcatId === "*") {
-                              const subcatIds = allSubcategories.filter(sc => sc.category_id === row.catId).map(sc => sc.id);
-                              return subcatIds.includes(svc.subcategory_id);
-                            }
-                            return svc.subcategory_id === row.subcatId;
-                          })
-                          .filter(svc => !entry.service_names.includes(svc.name))
-                          .filter(svc => !serviceSearchFilter[`${entry.id}-${rowIndex}`] || svc.name.toLowerCase().includes((serviceSearchFilter[`${entry.id}-${rowIndex}`] || "").toLowerCase()))
-                          .map(svc => (
-                            <button
-                              key={svc.name}
-                              className="w-full text-left px-2 py-1 text-sm rounded hover:bg-accent hover:text-accent-foreground truncate"
-                              onClick={() => addServiceToEntry(entry.id, svc.name)}
-                            >
-                              <Plus className="h-3 w-3 inline mr-1 text-muted-foreground" />
-                              {svc.name}
-                            </button>
-                          ))
-                        }
-                      </div>
-                    </PopoverContent>
-                  </Popover>
-                  {getServiceFilterRows(entry.id).length > 1 && (
-                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => removeServiceFilterRow(entry.id, rowIndex)} title="Supprimer cette ligne">
-                      <X className="h-3 w-3 text-muted-foreground" />
-                    </Button>
-                  )}
-                </div>
-              ))}
-              <Button
-                variant="ghost"
-                size="sm"
-                className="mt-1 text-xs text-muted-foreground hover:text-foreground"
-                onClick={() => addServiceFilterRow(entry.id)}
-              >
-                <Plus className="h-3 w-3 mr-1" /> Autre sous-catégorie
-              </Button>
+              <p className="text-xs text-muted-foreground mt-1">
+                ⚠️ Sensible à la casse — les noms doivent correspondre exactement.
+              </p>
             </div>
           </CardContent>
         </Card>

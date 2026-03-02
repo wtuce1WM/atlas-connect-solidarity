@@ -181,19 +181,21 @@ interface SearchResult {
 
 // Synonyms and noise words are now loaded from DB (search_synonyms, search_noise_words)
 let synonyms: Record<string, string[]> = {};
-let synonymSubcategories: Record<string, string[]> = {}; // key_word → subcategory_names
-let synonymServices: Record<string, string[]> = {}; // key_word → service_names
+let synonymSubcategories: Record<string, string[]> = {}; // key_word → subcategory_names (legacy)
+let synonymServices: Record<string, string[]> = {}; // key_word → service_names (legacy)
+let synonymFilters: Record<string, { subcategory_name: string | null; required_service: string | null }[]> = {}; // key_word → paired filters
 let NOISE_ADJECTIVES = new Set<string>();
 let searchConfigLoadedAt = 0;
 const SEARCH_CONFIG_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
 async function loadSearchConfig(supabase: any) {
   if (Date.now() - searchConfigLoadedAt < SEARCH_CONFIG_TTL_MS && Object.keys(synonyms).length > 0) return;
-  const { data: synData } = await supabase.from("search_synonyms").select("key_word, synonyms, subcategory_names, service_names").eq("is_active", true);
+  const { data: synData } = await supabase.from("search_synonyms").select("key_word, synonyms, subcategory_names, service_names, filters").eq("is_active", true);
   if (synData) {
     synonyms = {};
     synonymSubcategories = {};
     synonymServices = {};
+    synonymFilters = {};
     for (const row of synData) {
       synonyms[row.key_word] = row.synonyms || [];
       if (row.subcategory_names && row.subcategory_names.length > 0) {
@@ -201,6 +203,9 @@ async function loadSearchConfig(supabase: any) {
       }
       if (row.service_names && row.service_names.length > 0) {
         synonymServices[row.key_word] = row.service_names;
+      }
+      if (row.filters && Array.isArray(row.filters) && row.filters.length > 0) {
+        synonymFilters[row.key_word] = row.filters;
       }
     }
   }
@@ -1011,7 +1016,34 @@ serve(async (req) => {
         }
       }
     }
-    // ── Early bundle service detection: if a bundle keyword matches and has required_services,
+    // ── Synonym paired filters: when a query word matches a synonym entry with filters[] ──
+    let matchedSynonymFilters: { subcategory_name: string | null; required_service: string | null }[] = [];
+    {
+      const textsToCheck = [effectiveQuery, query, spoken].filter(Boolean) as string[];
+      for (const [key, filters] of Object.entries(synonymFilters)) {
+        if (filters.length === 0) continue;
+        const keyLower = key.toLowerCase();
+        const synValues = synonyms[key] || [];
+        const allTerms = [keyLower, ...synValues.map(v => v.toLowerCase())];
+        let matched = false;
+        for (const text of textsToCheck) {
+          const qLower = text.toLowerCase();
+          const qWords = qLower.split(/\s+/);
+          const qWordsStripped = qWords.map(w => stripAccentsGlobal(w));
+          matched = allTerms.some(term => {
+            const termStripped = stripAccentsGlobal(term);
+            return term.includes(" ")
+              ? (qLower.includes(term) || stripAccentsGlobal(qLower).includes(termStripped))
+              : (qWords.includes(term) || qWordsStripped.includes(termStripped));
+          });
+          if (matched) break;
+        }
+        if (matched) {
+          matchedSynonymFilters = [...matchedSynonymFilters, ...filters];
+          console.log(`Synonym "${key}" matched → paired filters: ${JSON.stringify(filters)}`);
+        }
+      }
+    }
     //    feed them into synonymLinkedServices so the service shortcut handles them efficiently ──
     {
       const { data: bundleData } = await supabase
@@ -1193,18 +1225,60 @@ serve(async (req) => {
       }
     }
 
-    // ── SERVICE SHORTCUT: when synonym has service_names, skip entire FTS chain ──
-    // If subcategories are also linked, scope service results to those subcategories only
-    // e.g. "bar à vin" → Bars with "Cave à vin" (scoped) + all Œnothèques (merge)
+    // ── SERVICE SHORTCUT: when synonym has paired filters OR legacy service_names, skip FTS chain ──
+    // Paired filters (new): each row = subcategory + optional service (like bundles)
+    // Legacy: flat service_names[] + subcategory_names[] arrays
     let serviceShortcutActivated = false;
-    if (synonymLinkedServices.length > 0) {
+    if (matchedSynonymFilters.length > 0) {
+      // ── NEW: Paired filters mode ──
+      console.log(`⚡ Synonym paired filters PRIORITY: ${matchedSynonymFilters.length} filter(s) — skipping FTS`);
+      const existingIds = new Set<string>();
+      for (const filter of matchedSynonymFilters) {
+        let builder = supabase.from("businesses").select("*").eq("is_active", true);
+        // Apply subcategory filter
+        if (filter.subcategory_name) {
+          builder = builder.contains("categories", [filter.subcategory_name]);
+        }
+        // Apply service filter
+        if (filter.required_service) {
+          builder = builder.filter("services", "cs", `{"${filter.required_service}"}`);
+        }
+        if (effectiveCity) builder = applyCityFilter(builder);
+        if (detectedNeighborhood) {
+          builder = builder.or(buildNeighborhoodOrClause(detectedNeighborhood, loadedNeighborhoods));
+        }
+        builder = builder
+          .order("wtuce_status", { ascending: true })
+          .order("google_rating", { ascending: false, nullsFirst: false })
+          .order("priority_score", { ascending: false })
+          .limit(limit);
+        const { data, error } = await builder;
+        if (!error && data && data.length > 0) {
+          const newResults = data
+            .filter((b: any) => !existingIds.has(b.id))
+            .map((b: any) => ({
+              ...b,
+              distance_km: latitude && longitude && b.latitude && b.longitude
+                ? calculateDistance(latitude, longitude, b.latitude, b.longitude) : null,
+            }));
+          for (const b of newResults) existingIds.add(b.id);
+          businesses = [...businesses, ...newResults];
+          console.log(`⚡ Filter [${filter.subcategory_name || "*"} + ${filter.required_service || "—"}]: +${newResults.length} (total: ${businesses.length})`);
+        }
+      }
+      if (businesses.length > 0) {
+        searchLevel = "exact";
+        serviceShortcutActivated = true;
+        console.log(`⚡ Synonym filters complete: ${businesses.length} results — skipping FTS chain`);
+      }
+    } else if (synonymLinkedServices.length > 0) {
+      // ── LEGACY: flat arrays mode (backward compat for entries without filters) ──
       const hasSubcatScope = synonymLinkedSubcategories.length > 0;
-      console.log(`⚡ Service shortcut PRIORITY: fetching businesses with services [${synonymLinkedServices.join(", ")}]${hasSubcatScope ? ` scoped to subcategories [${synonymLinkedSubcategories.join(", ")}]` : ""} — skipping FTS`);
+      console.log(`⚡ Service shortcut PRIORITY (legacy): fetching businesses with services [${synonymLinkedServices.join(", ")}]${hasSubcatScope ? ` scoped to subcategories [${synonymLinkedSubcategories.join(", ")}]` : ""} — skipping FTS`);
       const existingIds = new Set<string>();
       for (const svcName of synonymLinkedServices) {
         let svcBuilder = supabase.from("businesses").select("*").eq("is_active", true)
           .filter("services", "cs", `{"${svcName}"}`);
-        // When subcategories are linked, scope service results to those subcategories
         if (hasSubcatScope) {
           svcBuilder = svcBuilder.overlaps("categories", synonymLinkedSubcategories);
         }
@@ -1236,9 +1310,7 @@ serve(async (req) => {
         serviceShortcutActivated = true;
         console.log(`⚡ Service shortcut complete: ${businesses.length} results — skipping FTS chain`);
       }
-
-      // ── Also merge remaining businesses from linked subcategories (without service requirement) ──
-      // e.g. already got Bars with "Cave à vin", now also get ALL Œnothèques (even without Cave à vin)
+      // Legacy: merge subcategories
       if (synonymLinkedSubcategories.length > 0) {
         const existingIds2 = new Set(businesses.map(b => b.id));
         for (const synSubcat of synonymLinkedSubcategories) {
