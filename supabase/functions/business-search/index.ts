@@ -564,6 +564,7 @@ serve(async (req) => {
   }
 
   try {
+    const _searchStartMs = Date.now();
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
@@ -3470,6 +3471,7 @@ serve(async (req) => {
     };
 
     // Async log to search_logs table (fire-and-forget, don't block response)
+    const _totalLatencyMs = Date.now() - _searchStartMs;
     if (!isAutocomplete && effectiveQuery) {
       supabase.from("search_logs").insert({
         query: query || "",
@@ -3482,6 +3484,7 @@ serve(async (req) => {
         total_results: businesses.length,
         rerank_applied: !!lastRerankMeta,
         rerank_latency_ms: lastRerankMeta?.latencyMs || null,
+        total_latency_ms: _totalLatencyMs,
         results_before: lastRerankMeta?.before || null,
         results_after: lastRerankMeta?.after || businesses.slice(0, 20).map(b => b.name),
         movements: lastRerankMeta?.movements || null,

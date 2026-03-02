@@ -1800,6 +1800,7 @@ export type Database = {
           results_before: Json | null
           search_level: string | null
           search_mode: string | null
+          total_latency_ms: number | null
           total_results: number | null
         }
         Insert: {
@@ -1819,6 +1820,7 @@ export type Database = {
           results_before?: Json | null
           search_level?: string | null
           search_mode?: string | null
+          total_latency_ms?: number | null
           total_results?: number | null
         }
         Update: {
@@ -1838,6 +1840,7 @@ export type Database = {
           results_before?: Json | null
           search_level?: string | null
           search_mode?: string | null
+          total_latency_ms?: number | null
           total_results?: number | null
         }
         Relationships: []
