@@ -44,6 +44,8 @@ const SynonymsManagement = () => {
   const [editingService, setEditingService] = useState<Record<string, string>>({});
   const [serviceSubcatFilter, setServiceSubcatFilter] = useState<Record<string, string>>({});
   const [serviceCatFilter, setServiceCatFilter] = useState<Record<string, string>>({});
+  const [filterCategory, setFilterCategory] = useState("");
+  const [filterSubcategory, setFilterSubcategory] = useState("");
 
   const load = async () => {
     setIsLoading(true);
@@ -249,7 +251,7 @@ const SynonymsManagement = () => {
             <Input value={newSynonyms} onChange={e => setNewSynonyms(e.target.value)} placeholder="Synonymes (séparés par virgule)" className="flex-1" />
             <Button size="sm" onClick={addEntry} className="bg-amber-600 hover:bg-amber-700 text-white"><Plus className="h-4 w-4 mr-1" />Ajouter</Button>
           </div>
-          <div className="flex items-center gap-2">
+           <div className="flex items-center gap-2">
             <span className="text-xs text-muted-foreground">Tri :</span>
             <select
               value={sortOrder}
@@ -260,10 +262,46 @@ const SynonymsManagement = () => {
               <option value="desc">Z → A</option>
             </select>
           </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs text-muted-foreground">Filtrer :</span>
+            <select
+              value={filterCategory}
+              onChange={e => { setFilterCategory(e.target.value); setFilterSubcategory(""); }}
+              className="text-sm border rounded px-2 py-1 bg-background max-w-[200px]"
+            >
+              <option value="">Toutes catégories</option>
+              {allCategories.map(cat => <option key={cat.id} value={cat.id}>{cat.name_fr}</option>)}
+            </select>
+            <select
+              value={filterSubcategory}
+              onChange={e => setFilterSubcategory(e.target.value)}
+              className="text-sm border rounded px-2 py-1 bg-background max-w-[200px]"
+              disabled={!filterCategory}
+            >
+              <option value="">Toutes sous-catégories</option>
+              {allSubcategories.filter(sc => sc.category_id === filterCategory).map(sc => <option key={sc.id} value={sc.name}>{sc.name}</option>)}
+            </select>
+            {(filterCategory || filterSubcategory) && (
+              <button
+                onClick={() => { setFilterCategory(""); setFilterSubcategory(""); }}
+                className="text-xs text-primary hover:underline"
+              >
+                Effacer les filtres
+              </button>
+            )}
+          </div>
         </CardContent>
       </Card>
 
-      {[...entries].sort((a, b) => sortOrder === "asc" ? a.key_word.localeCompare(b.key_word) : b.key_word.localeCompare(a.key_word)).map(entry => (
+      {[...entries]
+        .filter(entry => {
+          if (!filterCategory && !filterSubcategory) return true;
+          if (filterSubcategory) return entry.subcategory_names.includes(filterSubcategory);
+          // Filter by category: show entries that have at least one subcategory belonging to this category
+          const subcatNamesInCat = allSubcategories.filter(sc => sc.category_id === filterCategory).map(sc => sc.name);
+          return entry.subcategory_names.some(sn => subcatNamesInCat.includes(sn));
+        })
+        .sort((a, b) => sortOrder === "asc" ? a.key_word.localeCompare(b.key_word) : b.key_word.localeCompare(a.key_word)).map(entry => (
         <Card key={entry.id} className={entry.is_active ? "" : "opacity-50"}>
           <CardContent className="pt-4 space-y-2">
             <div className="flex items-center justify-between">
