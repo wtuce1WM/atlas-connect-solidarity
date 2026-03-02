@@ -162,7 +162,16 @@ const SynonymsManagement = () => {
     if (!name) return;
     const entry = entries.find(e => e.id === id);
     if (!entry || entry.service_names.includes(name)) return;
-    setEntries(prev => prev.map(e => e.id === id ? { ...e, service_names: [...e.service_names, name] } : e));
+    // Auto-add parent subcategory when adding a service
+    const svc = allServices.find(s => s.name === name);
+    let updatedSubcats = entry.subcategory_names;
+    if (svc) {
+      const parentSubcat = allSubcategories.find(sc => sc.id === svc.subcategory_id);
+      if (parentSubcat && !entry.subcategory_names.includes(parentSubcat.name)) {
+        updatedSubcats = [...entry.subcategory_names, parentSubcat.name];
+      }
+    }
+    setEntries(prev => prev.map(e => e.id === id ? { ...e, service_names: [...e.service_names, name], subcategory_names: updatedSubcats } : e));
     if (!serviceName) setEditingService(prev => ({ ...prev, [id]: "" }));
     setDirtyEntries(prev => new Set(prev).add(id));
   };
