@@ -102,7 +102,8 @@ const NearbyBusinesses = ({ currentBusinessId, businessName, latitude, longitude
             if (!currentSubcategory) return true;
             const current = currentSubcategory.trim().toLowerCase();
             const candidate = b.default_service?.trim().toLowerCase();
-            return !!candidate && candidate !== current;
+            // Keep businesses with no default_service or a DIFFERENT one
+            return !candidate || candidate !== current;
           })
           .sort((a, b) => a.distance - b.distance);
 
