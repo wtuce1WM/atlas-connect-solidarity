@@ -428,7 +428,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   const totalReviewCount = reviews.reduce((s, r) => s + r.count, 0);
 
   const hook = language === "en" ? business.hook_en : language === "ar" ? business.hook_ar : business.hook_fr;
-  const hasContact = !!(business.address || business.phone || business.email || business.whatsapp || business.skype || business.menu_url || (business.show_opening_hours !== false && (business.is_open_24h || business.opening_hours)));
+  const hasContact = !!(business.address || business.phone || business.email || business.whatsapp || business.skype || business.menu_url || business.reserve_now_url || (business.show_opening_hours !== false && (business.is_open_24h || business.opening_hours)));
 
   // Build TTS synthesis text (~30 seconds)
   const buildTtsSynthesis = () => {
@@ -1124,21 +1124,22 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                         ) : null}
                       </div>
                     </div>
-                    {/* Reserve now CTA — under hours */}
-                    {business.reserve_now_url && (
-                      <div className="flex justify-center mt-4">
-                        <a
-                          href={business.reserve_now_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center justify-center gap-2 w-[60%] py-3 rounded-xl bg-gold text-gold-foreground font-semibold text-sm hover:bg-gold/90 transition-colors"
-                        >
-                          Réserver maintenant
-                          <ExternalLink className="h-3.5 w-3.5" />
-                        </a>
-                      </div>
-                    )}
                   </div>
+                </div>
+              )}
+
+              {/* Reserve now CTA — independent of opening hours */}
+              {business.reserve_now_url && (
+                <div className="col-span-2 flex justify-center mt-2">
+                  <a
+                    href={business.reserve_now_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 w-[60%] py-3 rounded-xl bg-gold text-gold-foreground font-semibold text-sm hover:bg-gold/90 transition-colors"
+                  >
+                    {language === "en" ? "Book now" : language === "ar" ? "احجز الآن" : "Réserver maintenant"}
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </a>
                 </div>
               )}
 
