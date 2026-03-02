@@ -49,6 +49,7 @@ const SynonymsManagement = () => {
   const [filterCategory, setFilterCategory] = useState("");
   const [filterSubcategory, setFilterSubcategory] = useState("");
   const [expandedServices, setExpandedServices] = useState<Record<string, boolean>>({});
+  const [serviceSearchFilter, setServiceSearchFilter] = useState<Record<string, string>>({});
 
   const load = async () => {
     setIsLoading(true);
@@ -576,25 +577,47 @@ const SynonymsManagement = () => {
                     .filter(sc => sc.category_id === serviceCatFilter[entry.id])
                     .map(sc => <option key={sc.id} value={sc.id}>{sc.name}</option>)}
                 </select>
-                <select
-                  value={editingService[entry.id] || ""}
-                  onChange={e => setEditingService(prev => ({ ...prev, [entry.id]: e.target.value }))}
-                  className="max-w-xs text-sm border rounded px-2 py-1 bg-background"
-                  disabled={!serviceSubcatFilter[entry.id]}
-                >
-                  <option value="">Service...</option>
-                  {allServices
-                    .filter(svc => {
-                      if (serviceSubcatFilter[entry.id] === "*") {
-                        const subcatIds = allSubcategories.filter(sc => sc.category_id === serviceCatFilter[entry.id]).map(sc => sc.id);
-                        return subcatIds.includes(svc.subcategory_id);
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" size="sm" className="max-w-xs text-sm justify-start font-normal" disabled={!serviceSubcatFilter[entry.id]}>
+                      {editingService[entry.id] || "Service..."}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-72 p-2" align="start">
+                    <Input
+                      placeholder="Filtrer les services..."
+                      value={serviceSearchFilter[entry.id] || ""}
+                      onChange={e => setServiceSearchFilter(prev => ({ ...prev, [entry.id]: e.target.value }))}
+                      className="h-8 text-sm mb-2"
+                      autoFocus
+                    />
+                    <div className="max-h-48 overflow-y-auto space-y-0.5">
+                      {allServices
+                        .filter(svc => {
+                          if (serviceSubcatFilter[entry.id] === "*") {
+                            const subcatIds = allSubcategories.filter(sc => sc.category_id === serviceCatFilter[entry.id]).map(sc => sc.id);
+                            return subcatIds.includes(svc.subcategory_id);
+                          }
+                          return svc.subcategory_id === serviceSubcatFilter[entry.id];
+                        })
+                        .filter(svc => !entry.service_names.includes(svc.name))
+                        .filter(svc => !serviceSearchFilter[entry.id] || svc.name.toLowerCase().includes((serviceSearchFilter[entry.id] || "").toLowerCase()))
+                        .map(svc => (
+                          <button
+                            key={svc.name}
+                            className="w-full text-left px-2 py-1 text-sm rounded hover:bg-accent hover:text-accent-foreground truncate"
+                            onClick={() => {
+                              setEditingService(prev => ({ ...prev, [entry.id]: svc.name }));
+                              setServiceSearchFilter(prev => ({ ...prev, [entry.id]: "" }));
+                            }}
+                          >
+                            {svc.name}
+                          </button>
+                        ))
                       }
-                      return svc.subcategory_id === serviceSubcatFilter[entry.id];
-                    })
-                    .filter(svc => !entry.service_names.includes(svc.name))
-                    .map(svc => <option key={svc.name} value={svc.name}>{svc.name}</option>)
-                  }
-                </select>
+                    </div>
+                  </PopoverContent>
+                </Popover>
                 <Button size="sm" variant="outline" onClick={() => addServiceToEntry(entry.id)} className="border-blue-600 text-blue-700 hover:bg-blue-50">
                   <Plus className="h-3 w-3" />
                 </Button>
