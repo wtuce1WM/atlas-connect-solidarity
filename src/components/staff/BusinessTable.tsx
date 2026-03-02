@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { collectRatingSources, computeWeightedRatingOn20, getTotalReviewCount } from "@/lib/ratingUtils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -26,9 +26,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Edit, Trash2, ExternalLink, Copy, AlertTriangle, Link2, Star } from "lucide-react";
+import { Edit, Trash2, ExternalLink, Copy, AlertTriangle, Link2, Star, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 import { useBusinessBrokenFiles } from "@/hooks/useBusinessBrokenFiles";
+
+type SortKey = "name" | "city" | "main_category" | "gamme" | "rating" | "status" | "active" | "contact";
+type SortDir = "asc" | "desc";
 
 type Business = Tables<"businesses">;
 type Gamme = { id: string; name_fr: string; color_hex: string | null; text_color_hex: string | null };
@@ -47,7 +50,71 @@ const BusinessTable = ({ businesses, gammes, loading, onEdit, onDelete, onDuplic
   const [businessToDuplicate, setBusinessToDuplicate] = useState<Business | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [businessToDelete, setBusinessToDelete] = useState<Business | null>(null);
+  const [sortKey, setSortKey] = useState<SortKey | null>(null);
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
   const { brokenFilesMap } = useBusinessBrokenFiles(businesses);
+
+  const getBusinessRating = (b: Business): number | null => {
+    if (b.rating != null) return Number(b.rating);
+    return computeWeightedRatingOn20(collectRatingSources(b));
+  };
+
+  const sortedBusinesses = useMemo(() => {
+    if (!sortKey) return businesses;
+    const sorted = [...businesses].sort((a, b) => {
+      let cmp = 0;
+      switch (sortKey) {
+        case "name":
+          cmp = (a.name || "").localeCompare(b.name || "", "fr");
+          break;
+        case "city":
+          cmp = (a.city || "").localeCompare(b.city || "", "fr");
+          break;
+        case "main_category":
+          cmp = (a.main_category || "").localeCompare(b.main_category || "", "fr");
+          break;
+        case "gamme": {
+          const gA = a.gamme_id ? gammes.find(g => g.id === a.gamme_id)?.name_fr || "" : "";
+          const gB = b.gamme_id ? gammes.find(g => g.id === b.gamme_id)?.name_fr || "" : "";
+          cmp = gA.localeCompare(gB, "fr");
+          break;
+        }
+        case "rating": {
+          const rA = getBusinessRating(a) ?? -1;
+          const rB = getBusinessRating(b) ?? -1;
+          cmp = rA - rB;
+          break;
+        }
+        case "status":
+          cmp = (a.wtuce_status || "").localeCompare(b.wtuce_status || "");
+          break;
+        case "active":
+          cmp = (a.is_active === b.is_active) ? 0 : a.is_active ? -1 : 1;
+          break;
+        case "contact":
+          cmp = (a.phone || a.email || "").localeCompare(b.phone || b.email || "", "fr");
+          break;
+      }
+      return sortDir === "asc" ? cmp : -cmp;
+    });
+    return sorted;
+  }, [businesses, sortKey, sortDir, gammes]);
+
+  const toggleSort = (key: SortKey) => {
+    if (sortKey === key) {
+      setSortDir(d => d === "asc" ? "desc" : "asc");
+    } else {
+      setSortKey(key);
+      setSortDir("asc");
+    }
+  };
+
+  const SortIcon = ({ column }: { column: SortKey }) => {
+    if (sortKey !== column) return <ArrowUpDown className="h-3 w-3 ml-1 opacity-40" />;
+    return sortDir === "asc"
+      ? <ArrowUp className="h-3 w-3 ml-1" />
+      : <ArrowDown className="h-3 w-3 ml-1" />;
+  };
 
   const handleDuplicateClick = (business: Business) => {
     setBusinessToDuplicate(business);
@@ -87,19 +154,35 @@ const BusinessTable = ({ businesses, gammes, loading, onEdit, onDelete, onDuplic
             <TableRow>
               <TableHead className="w-10"></TableHead>
               <TableHead></TableHead>
-              <TableHead>Nom</TableHead>
-              <TableHead>Ville</TableHead>
-              <TableHead>Catégorie principale</TableHead>
-              <TableHead>Gamme</TableHead>
-              <TableHead>Note & Avis</TableHead>
-              <TableHead>Statut</TableHead>
-              <TableHead>Actif</TableHead>
-              <TableHead>Contact</TableHead>
+              <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("name")}>
+                <span className="inline-flex items-center">Nom<SortIcon column="name" /></span>
+              </TableHead>
+              <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("city")}>
+                <span className="inline-flex items-center">Ville<SortIcon column="city" /></span>
+              </TableHead>
+              <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("main_category")}>
+                <span className="inline-flex items-center">Catégorie principale<SortIcon column="main_category" /></span>
+              </TableHead>
+              <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("gamme")}>
+                <span className="inline-flex items-center">Gamme<SortIcon column="gamme" /></span>
+              </TableHead>
+              <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("rating")}>
+                <span className="inline-flex items-center">Note & Avis<SortIcon column="rating" /></span>
+              </TableHead>
+              <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("status")}>
+                <span className="inline-flex items-center">Statut<SortIcon column="status" /></span>
+              </TableHead>
+              <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("active")}>
+                <span className="inline-flex items-center">Actif<SortIcon column="active" /></span>
+              </TableHead>
+              <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("contact")}>
+                <span className="inline-flex items-center">Contact<SortIcon column="contact" /></span>
+              </TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {businesses.map((business) => {
+            {sortedBusinesses.map((business) => {
               const brokenInfo = brokenFilesMap[business.id];
               return (
               <TableRow key={business.id}>
