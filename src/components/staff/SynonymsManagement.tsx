@@ -34,17 +34,21 @@ const SynonymsManagement = () => {
   const [newKey, setNewKey] = useState("");
   const [newSynonyms, setNewSynonyms] = useState("");
   const [editingSynonym, setEditingSynonym] = useState<Record<string, string>>({});
-  const [allSubcategories, setAllSubcategories] = useState<string[]>([]);
+  const [allSubcategories, setAllSubcategories] = useState<{name: string; category_id: string}[]>([]);
+  const [allCategories, setAllCategories] = useState<{id: string; name_fr: string}[]>([]);
   const [editingSubcat, setEditingSubcat] = useState<Record<string, string>>({});
+  const [selectedCategory, setSelectedCategory] = useState<Record<string, string>>({});
 
   const load = async () => {
     setIsLoading(true);
-    const [{ data }, { data: subcats }] = await Promise.all([
+    const [{ data }, { data: subcats }, { data: cats }] = await Promise.all([
       supabase.from("search_synonyms").select("*").order("key_word"),
-      supabase.from("subcategories").select("name_fr").order("name_fr"),
+      supabase.from("subcategories").select("name_fr, category_id").order("name_fr"),
+      supabase.from("categories").select("id, name_fr").order("name_fr"),
     ]);
     if (data) setEntries(data.map((d: any) => ({ ...d, subcategory_names: d.subcategory_names || [] })) as SynonymEntry[]);
-    if (subcats) setAllSubcategories(subcats.map((s: any) => s.name_fr));
+    if (subcats) setAllSubcategories(subcats.map((s: any) => ({ name: s.name_fr, category_id: s.category_id })));
+    if (cats) setAllCategories(cats as any);
     setIsLoading(false);
   };
 
@@ -302,16 +306,28 @@ const SynonymsManagement = () => {
                 ))}
                 {entry.subcategory_names.length === 0 && <span className="text-xs text-muted-foreground italic">Aucune</span>}
               </div>
-              <div className="flex gap-2 mt-1">
+              <div className="flex gap-2 mt-1 flex-wrap">
+                <select
+                  value={selectedCategory[entry.id] || ""}
+                  onChange={e => {
+                    setSelectedCategory(prev => ({ ...prev, [entry.id]: e.target.value }));
+                    setEditingSubcat(prev => ({ ...prev, [entry.id]: "" }));
+                  }}
+                  className="max-w-[200px] text-sm border rounded px-2 py-1 bg-background"
+                >
+                  <option value="">Catégorie...</option>
+                  {allCategories.map(cat => <option key={cat.id} value={cat.id}>{cat.name_fr}</option>)}
+                </select>
                 <select
                   value={editingSubcat[entry.id] || ""}
                   onChange={e => setEditingSubcat(prev => ({ ...prev, [entry.id]: e.target.value }))}
                   className="max-w-xs text-sm border rounded px-2 py-1 bg-background"
+                  disabled={!selectedCategory[entry.id]}
                 >
-                  <option value="">Sélectionner une sous-catégorie...</option>
+                  <option value="">Sous-catégorie...</option>
                   {allSubcategories
-                    .filter(sc => !entry.subcategory_names.includes(sc))
-                    .map(sc => <option key={sc} value={sc}>{sc}</option>)
+                    .filter(sc => sc.category_id === selectedCategory[entry.id] && !entry.subcategory_names.includes(sc.name))
+                    .map(sc => <option key={sc.name} value={sc.name}>{sc.name}</option>)
                   }
                 </select>
                 <Button size="sm" variant="outline" onClick={() => addSubcategoryToEntry(entry.id)} className="border-amber-600 text-amber-700 hover:bg-amber-50">
