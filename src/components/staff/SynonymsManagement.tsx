@@ -132,15 +132,15 @@ const SynonymsManagement = () => {
     setEntries(prev => prev.map(e => e.id === id ? { ...e, subcategory_names: updated } : e));
   };
 
-  const addServiceToEntry = async (id: string) => {
-    const name = (editingService[id] || "").trim();
+  const addServiceToEntry = async (id: string, serviceName?: string) => {
+    const name = (serviceName || editingService[id] || "").trim();
     if (!name) return;
     const entry = entries.find(e => e.id === id);
     if (!entry || entry.service_names.includes(name)) return;
     const updated = [...entry.service_names, name];
     await supabase.from("search_synonyms").update({ service_names: updated } as any).eq("id", id);
     setEntries(prev => prev.map(e => e.id === id ? { ...e, service_names: updated } : e));
-    setEditingService(prev => ({ ...prev, [id]: "" }));
+    if (!serviceName) setEditingService(prev => ({ ...prev, [id]: "" }));
   };
 
   const removeServiceFromEntry = async (id: string, name: string) => {
@@ -589,7 +589,7 @@ const SynonymsManagement = () => {
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button variant="outline" size="sm" className="max-w-xs text-sm justify-start font-normal" disabled={!serviceSubcatFilter[entry.id]}>
-                      {editingService[entry.id] || "Service..."}
+                      <Plus className="h-3 w-3 mr-1" /> Ajouter des services
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-72 p-2" align="start">
@@ -615,11 +615,9 @@ const SynonymsManagement = () => {
                           <button
                             key={svc.name}
                             className="w-full text-left px-2 py-1 text-sm rounded hover:bg-accent hover:text-accent-foreground truncate"
-                            onClick={() => {
-                              setEditingService(prev => ({ ...prev, [entry.id]: svc.name }));
-                              setServiceSearchFilter(prev => ({ ...prev, [entry.id]: "" }));
-                            }}
+                            onClick={() => addServiceToEntry(entry.id, svc.name)}
                           >
+                            <Plus className="h-3 w-3 inline mr-1 text-muted-foreground" />
                             {svc.name}
                           </button>
                         ))
@@ -627,9 +625,6 @@ const SynonymsManagement = () => {
                     </div>
                   </PopoverContent>
                 </Popover>
-                <Button size="sm" variant="outline" onClick={() => addServiceToEntry(entry.id)} className="border-blue-600 text-blue-700 hover:bg-blue-50">
-                  <Plus className="h-3 w-3" />
-                </Button>
               </div>
             </div>
           </CardContent>
