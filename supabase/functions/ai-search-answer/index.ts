@@ -45,6 +45,26 @@ serve(async (req) => {
     const noResultsCfg = cfg.no_results_instructions || "";
     const boostVerified = cfg.boost_verified !== "false";
 
+    // Fetch relevant knowledge entries to enrich AI context
+    const queryTerms = query.toLowerCase().split(/\s+/).filter((w: string) => w.length > 2);
+    let knowledgeContext = "";
+    if (queryTerms.length > 0) {
+      // Search knowledge_entries by matching tags or title/content via ilike
+      const orFilters = queryTerms.map((t: string) => `title.ilike.%${t}%,content.ilike.%${t}%`).join(",");
+      const { data: knowledgeRows } = await sb
+        .from("knowledge_entries")
+        .select("title, content, category, tags")
+        .or(orFilters)
+        .limit(5);
+      
+      if (knowledgeRows && knowledgeRows.length > 0) {
+        knowledgeContext = knowledgeRows
+          .map((k: any) => `[${k.category}] ${k.title}: ${k.content}`)
+          .join("\n");
+        console.log(`Found ${knowledgeRows.length} knowledge entries for query "${query}"`);
+      }
+    }
+
     // Build context from top search results (max 10)
     const topBusinesses = businesses.slice(0, 10);
     const hasResults = topBusinesses.length > 0;
@@ -91,7 +111,10 @@ RÈGLES :
 - Commence par une accroche engageante liée à la recherche de l'utilisateur.${extraInstructions ? `\n- ${extraInstructions}` : ''}${spokenText ? `\n- CONTEXTE IMPORTANT : L'utilisateur a dit textuellement : "${spokenText}". Utilise ce contexte pour mieux comprendre son intention réelle et ne recommande QUE les établissements qui correspondent à cette intention. Si certains établissements de la liste ne correspondent pas au contexte (mauvaise ville, mauvais type), ignore-les.` : ''}
 
 ÉTABLISSEMENTS TROUVÉS :
-${businessContext}`;
+${businessContext}${knowledgeContext ? `
+
+CONNAISSANCES COMPLÉMENTAIRES (utilise ces informations pour enrichir ta réponse si elles sont pertinentes par rapport à la recherche) :
+${knowledgeContext}` : ''}`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
