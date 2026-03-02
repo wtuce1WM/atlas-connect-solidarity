@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Trash2, Edit, Save, X, Search, BookOpen } from "lucide-react";
+import RichTextEditor from "./RichTextEditor";
 
 interface KnowledgeEntry {
   id: string;
@@ -174,7 +175,10 @@ const KnowledgeBaseManagement = ({
               <Input placeholder="Source" value={formSource} onChange={e => setFormSource(e.target.value)} />
             </div>
             <Textarea placeholder="Contenu" value={formContent} onChange={e => setFormContent(e.target.value)} rows={6} />
-            <Textarea placeholder="Notes personnelles (liens sources, observations…)" value={formNotes} onChange={e => setFormNotes(e.target.value)} rows={3} className="bg-muted/50" />
+            <div>
+              <label className="text-sm font-medium text-muted-foreground mb-1 block">📝 Notes personnelles</label>
+              <RichTextEditor content={formNotes} onChange={setFormNotes} placeholder="Liens sources, observations…" maxHeight="300px" />
+            </div>
             <div className="flex gap-2">
               <Button onClick={handleSave}><Save className="h-4 w-4 mr-2" />Enregistrer</Button>
               <Button variant="outline" onClick={resetForm}><X className="h-4 w-4 mr-2" />Annuler</Button>
@@ -230,7 +234,7 @@ const KnowledgeBaseManagement = ({
                     </div>
                     <p className="text-sm text-muted-foreground whitespace-pre-wrap line-clamp-3">{entry.content}</p>
                     {entry.notes && (
-                      <p className="text-xs text-muted-foreground/70 italic mt-1 line-clamp-2">📝 {entry.notes}</p>
+                      <div className="text-xs text-muted-foreground/70 italic mt-1 line-clamp-2 prose prose-xs max-w-none" dangerouslySetInnerHTML={{ __html: `📝 ${entry.notes}` }} />
                     )}
                     <div className="flex items-center gap-2 mt-2 flex-wrap">
                       {entry.tags.map(tag => (
