@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Trash2, Loader2, Save, HelpCircle } from "lucide-react";
+import { Plus, Trash2, Loader2, Save, HelpCircle, Pencil, X, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -44,6 +44,8 @@ const SynonymsManagement = () => {
   const [editingService, setEditingService] = useState<Record<string, string>>({});
   const [serviceSubcatFilter, setServiceSubcatFilter] = useState<Record<string, string>>({});
   const [serviceCatFilter, setServiceCatFilter] = useState<Record<string, string>>({});
+  const [editingSubcatName, setEditingSubcatName] = useState<{ entryId: string; oldName: string; newName: string } | null>(null);
+  const [editingServiceName, setEditingServiceName] = useState<{ entryId: string; oldName: string; newName: string } | null>(null);
   const [filterCategory, setFilterCategory] = useState("");
   const [filterSubcategory, setFilterSubcategory] = useState("");
 
@@ -143,6 +145,32 @@ const SynonymsManagement = () => {
     const updated = entry.service_names.filter(s => s !== name);
     await supabase.from("search_synonyms").update({ service_names: updated } as any).eq("id", id);
     setEntries(prev => prev.map(e => e.id === id ? { ...e, service_names: updated } : e));
+  };
+
+  const renameSubcategoryInEntry = async (id: string, oldName: string, newName: string) => {
+    const trimmed = newName.trim();
+    if (!trimmed || trimmed === oldName) { setEditingSubcatName(null); return; }
+    const entry = entries.find(e => e.id === id);
+    if (!entry) return;
+    const updated = entry.subcategory_names.map(s => s === oldName ? trimmed : s);
+    const { error } = await supabase.from("search_synonyms").update({ subcategory_names: updated }).eq("id", id);
+    if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
+    setEntries(prev => prev.map(e => e.id === id ? { ...e, subcategory_names: updated } : e));
+    setEditingSubcatName(null);
+    toast({ title: "Sous-catégorie renommée" });
+  };
+
+  const renameServiceInEntry = async (id: string, oldName: string, newName: string) => {
+    const trimmed = newName.trim();
+    if (!trimmed || trimmed === oldName) { setEditingServiceName(null); return; }
+    const entry = entries.find(e => e.id === id);
+    if (!entry) return;
+    const updated = entry.service_names.map(s => s === oldName ? trimmed : s);
+    const { error } = await supabase.from("search_synonyms").update({ service_names: updated } as any).eq("id", id);
+    if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
+    setEntries(prev => prev.map(e => e.id === id ? { ...e, service_names: updated } : e));
+    setEditingServiceName(null);
+    toast({ title: "Service renommé" });
   };
 
   if (isLoading) return <div className="flex justify-center p-8"><Loader2 className="h-6 w-6 animate-spin" /></div>;
@@ -373,12 +401,52 @@ const SynonymsManagement = () => {
               <span className="text-xs font-medium text-muted-foreground">Sous-catégories associées :</span>
               <div className="flex flex-wrap gap-1.5 mt-1">
                 {entry.subcategory_names.map(sc => (
-                  <Badge key={sc} variant="secondary" className="gap-1 group">
-                    {sc}
-                    <button className="opacity-0 group-hover:opacity-100" onClick={() => removeSubcategoryFromEntry(entry.id, sc)}>
-                      <Trash2 className="h-3 w-3 text-destructive" />
-                    </button>
-                  </Badge>
+                  editingSubcatName?.entryId === entry.id && editingSubcatName?.oldName === sc ? (
+                    <div key={sc} className="flex items-center gap-1">
+                      <Input
+                        value={editingSubcatName.newName}
+                        onChange={e => setEditingSubcatName(prev => prev ? { ...prev, newName: e.target.value } : null)}
+                        className="h-7 w-40 text-sm"
+                        autoFocus
+                        onKeyDown={e => {
+                          if (e.key === "Enter") renameSubcategoryInEntry(entry.id, sc, editingSubcatName.newName);
+                          if (e.key === "Escape") setEditingSubcatName(null);
+                        }}
+                      />
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => renameSubcategoryInEntry(entry.id, sc, editingSubcatName.newName)}>
+                        <Check className="h-3 w-3 text-primary" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setEditingSubcatName(null)}>
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <Badge key={sc} variant="secondary" className="gap-1 group">
+                      {sc}
+                      <button className="opacity-0 group-hover:opacity-100" onClick={() => setEditingSubcatName({ entryId: entry.id, oldName: sc, newName: sc })} title="Modifier">
+                        <Pencil className="h-3 w-3 text-muted-foreground" />
+                      </button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <button className="opacity-0 group-hover:opacity-100" title="Supprimer">
+                            <Trash2 className="h-3 w-3 text-destructive" />
+                          </button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Supprimer ?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Retirer la sous-catégorie « {sc} » de « {entry.key_word} » ?
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Non</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => removeSubcategoryFromEntry(entry.id, sc)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Oui</AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </Badge>
+                  )
                 ))}
                 {entry.subcategory_names.length === 0 && <span className="text-xs text-muted-foreground italic">Aucune</span>}
               </div>
@@ -416,12 +484,52 @@ const SynonymsManagement = () => {
               <span className="text-xs font-medium text-muted-foreground">Services associés :</span>
               <div className="flex flex-wrap gap-1.5 mt-1">
                 {entry.service_names.map(svc => (
-                  <Badge key={svc} variant="secondary" className="gap-1 group bg-blue-50 text-blue-800 border-blue-200">
-                    {svc}
-                    <button className="opacity-0 group-hover:opacity-100" onClick={() => removeServiceFromEntry(entry.id, svc)}>
-                      <Trash2 className="h-3 w-3 text-destructive" />
-                    </button>
-                  </Badge>
+                  editingServiceName?.entryId === entry.id && editingServiceName?.oldName === svc ? (
+                    <div key={svc} className="flex items-center gap-1">
+                      <Input
+                        value={editingServiceName.newName}
+                        onChange={e => setEditingServiceName(prev => prev ? { ...prev, newName: e.target.value } : null)}
+                        className="h-7 w-40 text-sm"
+                        autoFocus
+                        onKeyDown={e => {
+                          if (e.key === "Enter") renameServiceInEntry(entry.id, svc, editingServiceName.newName);
+                          if (e.key === "Escape") setEditingServiceName(null);
+                        }}
+                      />
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => renameServiceInEntry(entry.id, svc, editingServiceName.newName)}>
+                        <Check className="h-3 w-3 text-primary" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setEditingServiceName(null)}>
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <Badge key={svc} variant="secondary" className="gap-1 group bg-blue-50 text-blue-800 border-blue-200">
+                      {svc}
+                      <button className="opacity-0 group-hover:opacity-100" onClick={() => setEditingServiceName({ entryId: entry.id, oldName: svc, newName: svc })} title="Modifier">
+                        <Pencil className="h-3 w-3 text-muted-foreground" />
+                      </button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <button className="opacity-0 group-hover:opacity-100" title="Supprimer">
+                            <Trash2 className="h-3 w-3 text-destructive" />
+                          </button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Supprimer ?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Retirer le service « {svc} » de « {entry.key_word} » ?
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Non</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => removeServiceFromEntry(entry.id, svc)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Oui</AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </Badge>
+                  )
                 ))}
                 {entry.service_names.length === 0 && <span className="text-xs text-muted-foreground italic">Aucun</span>}
               </div>
