@@ -1422,6 +1422,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
             latitude={business.latitude}
             longitude={business.longitude}
             currentSubcategory={business.default_service}
+            currentCategories={business.categories}
             onNavigate={(id) => { setInternalBusinessId(id); scrollContainerRef.current?.scrollTo({ top: 0 }); if (isExpanded) onToggleExpand?.(); }}
             onLoginRequired={() => setShowClubCard(true)}
             scrollRef={nearbySectionRef}
