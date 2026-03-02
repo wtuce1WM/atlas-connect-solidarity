@@ -315,7 +315,7 @@ const KnowledgeBaseManagement = ({
                       {entry.business_name && <Badge className="text-xs bg-amber-100 text-amber-800 border-amber-300 hover:bg-amber-200"><Link2 className="h-3 w-3 mr-1 inline" />{entry.business_name}</Badge>}
                       {!entry.is_active && <Badge variant="destructive" className="text-xs">Désactivé</Badge>}
                     </div>
-                    <p className={`text-sm text-muted-foreground whitespace-pre-wrap ${expandedIds.has(entry.id) ? '' : 'line-clamp-3'}`}>{entry.content}</p>
+                    <div className={`text-sm text-muted-foreground prose prose-sm max-w-none ${expandedIds.has(entry.id) ? '' : 'line-clamp-3'}`} dangerouslySetInnerHTML={{ __html: entry.content }} />
                     {entry.notes && (
                       <div className={`text-xs text-muted-foreground/70 italic mt-1 prose prose-xs max-w-none ${expandedIds.has(entry.id) ? '' : 'line-clamp-2'}`} dangerouslySetInnerHTML={{ __html: `📝 ${entry.notes}` }} />
                     )}
