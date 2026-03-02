@@ -1158,7 +1158,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
               { url: business.getyourguide_url, label: "GetYourGuide", icon: <svg className="h-5 w-5" viewBox="0 0 24 24" fill="#FF4E00"><rect width="24" height="24" rx="4" fill="#FF4E00"/><text x="12" y="16" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">G</text></svg> },
               { url: business.viator_url, label: "Viator", icon: <svg className="h-5 w-5" viewBox="0 0 24 24" fill="#3B7D23"><rect width="24" height="24" rx="4" fill="#3B7D23"/><text x="12" y="16" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">V</text></svg> },
               
-              { url: business.other_booking_url, label: business.other_booking_name || "Autre", icon: <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg> },
+              { url: business.other_booking_url && business.other_booking_url !== business.reserve_now_url ? business.other_booking_url : undefined, label: business.other_booking_name || "Autre", icon: <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg> },
             ].filter(p => p.url);
 
             if (platforms.length === 0) return null;
