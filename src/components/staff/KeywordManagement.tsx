@@ -184,7 +184,7 @@ const KeywordManagement = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Search className="h-5 w-5" />
-            Mots-clés par Sous-catégories ({totalKeywords})
+            Mots-clés par Services ({totalKeywords})
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
