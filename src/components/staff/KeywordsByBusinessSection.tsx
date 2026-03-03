@@ -3,12 +3,14 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchAllRows } from "@/lib/fetchAllRows";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Search, Eye, ExternalLink, Loader2, Building2 } from "lucide-react";
+import { Search, Eye, ExternalLink, Loader2, Building2, X, Plus } from "lucide-react";
+import { toast } from "sonner";
 
 interface Category { id: string; name_fr: string; }
 interface Subcategory { id: string; category_id: string; name_fr: string; }
@@ -38,6 +40,12 @@ const KeywordsByBusinessSection = ({ categories, subcategories }: Props) => {
   const [servicesBySubcategory, setServicesBySubcategory] = useState<Record<string, string[]>>({});
   const [cities, setCities] = useState<string[]>([]);
 
+  // Editing state
+  const [editingBusinessId, setEditingBusinessId] = useState<string | null>(null);
+  const [newKeyword, setNewKeyword] = useState("");
+  const [bulkKeywords, setBulkKeywords] = useState("");
+  const [saving, setSaving] = useState(false);
+
   const filteredSubcategories = useMemo(() => {
     if (categoryFilter === "all") return subcategories;
     return subcategories.filter(s => s.category_id === categoryFilter);
@@ -45,11 +53,8 @@ const KeywordsByBusinessSection = ({ categories, subcategories }: Props) => {
 
   useEffect(() => { setSubcategoryFilter("all"); }, [categoryFilter]);
 
-  // Load service names per subcategory for filtering
   useEffect(() => {
     const map: Record<string, string[]> = {};
-    // We don't have services prop here, fetch lightly or accept it
-    // Actually let's fetch services once
     const fetch = async () => {
       const { data } = await supabase
         .from("services")
@@ -65,7 +70,6 @@ const KeywordsByBusinessSection = ({ categories, subcategories }: Props) => {
     fetch();
   }, []);
 
-  // Fetch distinct cities
   useEffect(() => {
     const fetchCities = async () => {
       const { data } = await supabase
@@ -81,50 +85,44 @@ const KeywordsByBusinessSection = ({ categories, subcategories }: Props) => {
     fetchCities();
   }, []);
 
-  // Fetch businesses when subcategory is selected
-  useEffect(() => {
+  const fetchBusinesses = async () => {
     if (subcategoryFilter === "all") {
       setBusinesses([]);
       return;
     }
-
     const serviceNames = servicesBySubcategory[subcategoryFilter] || [];
     if (serviceNames.length === 0) {
       setBusinesses([]);
       return;
     }
+    setLoading(true);
+    const data = await fetchAllRows("businesses", "id, name, city, is_active, services, keywords", "name");
+    if (data) {
+      const matched = (data as any[]).filter(b => {
+        const bizServices = (b.services as string[]) || [];
+        return bizServices.some(s => serviceNames.includes(s));
+      }).map(b => ({
+        id: b.id,
+        name: b.name,
+        city: b.city,
+        is_active: b.is_active,
+        services: (b.services as string[]) || [],
+        keywords: (b.keywords as string[]) || [],
+      }));
+      setBusinesses(matched);
+    }
+    setLoading(false);
+  };
 
-    const fetchBusinesses = async () => {
-      setLoading(true);
-      // Fetch all active businesses and filter client-side by service names
-      const data = await fetchAllRows("businesses", "id, name, city, is_active, services, keywords", "name");
-      if (data) {
-        const matched = (data as any[]).filter(b => {
-          const bizServices = (b.services as string[]) || [];
-          return bizServices.some(s => serviceNames.includes(s));
-        }).map(b => ({
-          id: b.id,
-          name: b.name,
-          city: b.city,
-          is_active: b.is_active,
-          services: (b.services as string[]) || [],
-          keywords: (b.keywords as string[]) || [],
-        }));
-        setBusinesses(matched);
-      }
-      setLoading(false);
-    };
+  useEffect(() => {
     fetchBusinesses();
   }, [subcategoryFilter, servicesBySubcategory]);
 
-  // Filter by city and search
   const filteredBusinesses = useMemo(() => {
     let result = businesses;
-
     if (cityFilter !== "all") {
       result = result.filter(b => b.city === cityFilter);
     }
-
     if (searchQuery.trim()) {
       const q = searchQuery.trim().toLowerCase();
       result = result.filter(b =>
@@ -132,13 +130,65 @@ const KeywordsByBusinessSection = ({ categories, subcategories }: Props) => {
         b.services.some(s => s.toLowerCase().includes(q))
       );
     }
-
     return result;
   }, [businesses, cityFilter, searchQuery]);
 
   const totalKeywords = useMemo(() => filteredBusinesses.reduce((sum, b) => sum + b.keywords.length, 0), [filteredBusinesses]);
 
   const selectedSubName = subcategories.find(s => s.id === subcategoryFilter)?.name_fr;
+
+  // --- Keyword mutation helpers ---
+
+  const updateBusinessKeywords = async (businessId: string, newKeywords: string[]) => {
+    setSaving(true);
+    const sorted = [...new Set(newKeywords.map(k => k.trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b, "fr"));
+    const { error } = await supabase
+      .from("businesses")
+      .update({ keywords: sorted, updated_at: new Date().toISOString() })
+      .eq("id", businessId);
+    setSaving(false);
+    if (error) {
+      toast.error("Erreur lors de la mise à jour des mots-clés");
+      console.error(error);
+      return false;
+    }
+    // Update local state
+    setBusinesses(prev => prev.map(b => b.id === businessId ? { ...b, keywords: sorted } : b));
+    toast.success("Mots-clés mis à jour (search vector recalculé)");
+    return true;
+  };
+
+  const handleDeleteKeyword = async (businessId: string, keyword: string) => {
+    const biz = businesses.find(b => b.id === businessId);
+    if (!biz) return;
+    await updateBusinessKeywords(businessId, biz.keywords.filter(k => k !== keyword));
+  };
+
+  const handleAddKeyword = async (businessId: string) => {
+    const kw = newKeyword.trim();
+    if (!kw) return;
+    const biz = businesses.find(b => b.id === businessId);
+    if (!biz) return;
+    const success = await updateBusinessKeywords(businessId, [...biz.keywords, kw]);
+    if (success) setNewKeyword("");
+  };
+
+  const handleBulkInject = async (businessId: string) => {
+    const raw = bulkKeywords.trim();
+    if (!raw) return;
+    const newKws = raw.split(",").map(k => k.trim()).filter(Boolean);
+    if (newKws.length === 0) return;
+    const biz = businesses.find(b => b.id === businessId);
+    if (!biz) return;
+    const success = await updateBusinessKeywords(businessId, [...biz.keywords, ...newKws]);
+    if (success) setBulkKeywords("");
+  };
+
+  const startEditing = (businessId: string) => {
+    setEditingBusinessId(businessId);
+    setNewKeyword("");
+    setBulkKeywords("");
+  };
 
   return (
     <Card>
@@ -229,40 +279,116 @@ const KeywordsByBusinessSection = ({ categories, subcategories }: Props) => {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    filteredBusinesses.map(b => (
-                      <TableRow key={b.id}>
-                        <TableCell className="font-medium">{b.name}</TableCell>
-                        <TableCell className="text-sm text-muted-foreground">{b.city || "—"}</TableCell>
-                        <TableCell>
-                          <div className="flex flex-wrap gap-1.5">
-                            {b.keywords.length === 0 ? (
-                              <span className="text-muted-foreground text-xs italic">Aucun</span>
-                            ) : (
-                              b.keywords.sort((a, c) => a.localeCompare(c, "fr")).map(kw => (
-                                <Badge key={kw} variant="secondary" className="text-xs">{kw}</Badge>
-                              ))
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant={b.is_active ? "default" : "secondary"} className={b.is_active ? "bg-green-200 text-black hover:bg-green-300" : ""}>
-                            {b.is_active ? "Actif" : "Inactif"}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="flex gap-1">
-                          <Link to={`/business/${b.id}`} target="_blank">
-                            <Button variant="ghost" size="icon" className="h-7 w-7" title="Voir la fiche">
-                              <Eye className="h-3.5 w-3.5" />
-                            </Button>
-                          </Link>
-                          <Link to={`/staff/catalogue?edit=${b.id}`}>
-                            <Button variant="ghost" size="icon" className="h-7 w-7" title="Éditer">
-                              <ExternalLink className="h-3.5 w-3.5" />
-                            </Button>
-                          </Link>
-                        </TableCell>
-                      </TableRow>
-                    ))
+                    filteredBusinesses.map(b => {
+                      const isEditing = editingBusinessId === b.id;
+                      return (
+                        <TableRow key={b.id} className="align-top">
+                          <TableCell className="font-medium">{b.name}</TableCell>
+                          <TableCell className="text-sm text-muted-foreground">{b.city || "—"}</TableCell>
+                          <TableCell>
+                            <div className="space-y-2">
+                              {/* Keywords badges */}
+                              <div className="flex flex-wrap gap-1.5">
+                                {b.keywords.length === 0 ? (
+                                  <span className="text-muted-foreground text-xs italic">Aucun</span>
+                                ) : (
+                                  b.keywords.sort((a, c) => a.localeCompare(c, "fr")).map(kw => (
+                                    <Badge key={kw} variant="secondary" className="text-xs group gap-1">
+                                      {kw}
+                                      {isEditing && (
+                                        <button
+                                          onClick={() => handleDeleteKeyword(b.id, kw)}
+                                          disabled={saving}
+                                          className="ml-0.5 hover:text-destructive transition-colors"
+                                          title={`Supprimer « ${kw} »`}
+                                        >
+                                          <X className="h-3 w-3" />
+                                        </button>
+                                      )}
+                                    </Badge>
+                                  ))
+                                )}
+                              </div>
+
+                              {/* Editing controls */}
+                              {isEditing && (
+                                <div className="space-y-2 pt-1 border-t border-border/50">
+                                  {/* Add single keyword */}
+                                  <div className="flex gap-1.5 items-center">
+                                    <Input
+                                      placeholder="Ajouter un mot-clé…"
+                                      value={newKeyword}
+                                      onChange={e => setNewKeyword(e.target.value)}
+                                      onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); handleAddKeyword(b.id); } }}
+                                      className="h-7 text-xs flex-1"
+                                      disabled={saving}
+                                    />
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      className="h-7 px-2 text-xs"
+                                      onClick={() => handleAddKeyword(b.id)}
+                                      disabled={saving || !newKeyword.trim()}
+                                    >
+                                      <Plus className="h-3 w-3 mr-1" /> Ajouter
+                                    </Button>
+                                  </div>
+
+                                  {/* Bulk inject */}
+                                  <div className="space-y-1">
+                                    <Textarea
+                                      placeholder="Coller une liste séparée par des virgules…"
+                                      value={bulkKeywords}
+                                      onChange={e => setBulkKeywords(e.target.value)}
+                                      className="text-xs min-h-[50px]"
+                                      disabled={saving}
+                                    />
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      className="h-7 px-2 text-xs"
+                                      onClick={() => handleBulkInject(b.id)}
+                                      disabled={saving || !bulkKeywords.trim()}
+                                    >
+                                      Injecter la liste
+                                    </Button>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={b.is_active ? "default" : "secondary"} className={b.is_active ? "bg-green-200 text-black hover:bg-green-300" : ""}>
+                              {b.is_active ? "Actif" : "Inactif"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex flex-col gap-1">
+                              <div className="flex gap-1">
+                                <Link to={`/business/${b.id}`} target="_blank">
+                                  <Button variant="ghost" size="icon" className="h-7 w-7" title="Voir la fiche">
+                                    <Eye className="h-3.5 w-3.5" />
+                                  </Button>
+                                </Link>
+                                <Link to={`/staff/catalogue?edit=${b.id}`}>
+                                  <Button variant="ghost" size="icon" className="h-7 w-7" title="Éditer">
+                                    <ExternalLink className="h-3.5 w-3.5" />
+                                  </Button>
+                                </Link>
+                              </div>
+                              <Button
+                                size="sm"
+                                variant={isEditing ? "default" : "outline"}
+                                className="h-7 px-2 text-xs"
+                                onClick={() => startEditing(isEditing ? null as any : b.id)}
+                              >
+                                {isEditing ? "Fermer" : "Éditer"}
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })
                   )}
                 </TableBody>
               </Table>
