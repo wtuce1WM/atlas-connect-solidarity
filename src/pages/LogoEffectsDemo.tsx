@@ -445,8 +445,8 @@ const LogoCoin = ({ mode, triggerKey }: { mode: string; triggerKey: number }) =>
           map={texture}
           transparent
           side={THREE.DoubleSide}
-          metalness={0.4}
-          roughness={0.3}
+          metalness={0.2}
+          roughness={0.5}
         />
       </mesh>
     </Float>
@@ -465,10 +465,11 @@ const Logo3DCard = ({ mode, name, description }: { mode: string; name: string; d
       >
         <WeightBadge weight="~250 KB" />
         <Canvas camera={{ position: [0, 0, 3.5], fov: 50 }} gl={{ antialias: true, alpha: false }}>
-          <color attach="background" args={["#faf8f5"]} />
-          <ambientLight intensity={1.2} />
-          <directionalLight position={[5, 5, 5]} intensity={1.0} />
-          <pointLight position={[-3, -3, -3]} intensity={0.3} color="#d4a84b" />
+          <color attach="background" args={["#ffffff"]} />
+          <ambientLight intensity={1.8} />
+          <directionalLight position={[5, 5, 5]} intensity={0.8} color="#ffffff" />
+          <directionalLight position={[-3, 2, 4]} intensity={0.4} color="#d4a84b" />
+          <pointLight position={[0, -2, 3]} intensity={0.3} color="#f5e6c8" />
           <Suspense fallback={null}>
             <LogoCoin mode={mode} triggerKey={triggerKey} />
           </Suspense>
@@ -516,7 +517,7 @@ const LightBeam = ({ mode }: { mode: string }) => {
 
   return (
     <>
-      <ambientLight intensity={0.8} />
+      <ambientLight intensity={1.5} />
       {mode === "beam" && (
         <spotLight
           ref={lightRef}
@@ -579,8 +580,8 @@ const LogoLightCoin = ({ mode }: { mode: string }) => {
         map={texture}
         transparent
         side={THREE.DoubleSide}
-        metalness={0.5}
-        roughness={0.2}
+        metalness={0.2}
+        roughness={0.4}
       />
     </mesh>
   );
@@ -598,7 +599,7 @@ const Logo3DLightCard = ({ mode, name, description }: { mode: string; name: stri
       >
         <WeightBadge weight="~250 KB" />
         <Canvas camera={{ position: [0, 0, 3.5], fov: 50 }} gl={{ antialias: true, alpha: false }} shadows>
-          <color attach="background" args={["#faf8f5"]} />
+          <color attach="background" args={["#ffffff"]} />
           <Suspense fallback={null}>
             <LightBeam mode={mode} key={triggerKey} />
             <LogoLightCoin mode={mode} />
