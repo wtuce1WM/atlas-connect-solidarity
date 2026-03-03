@@ -81,7 +81,7 @@ const SynonymsManagement = () => {
       supabase.from("subcategories").select("id, name_fr, category_id").order("name_fr"),
       supabase.from("categories").select("id, name_fr").order("name_fr"),
       fetchAllRows<{ name_fr: string; subcategory_id: string }>("services", "name_fr, subcategory_id", "name_fr"),
-      supabase.from("badges").select("id, name_fr, color_hex, text_color_hex").order("sort_order"),
+      supabase.from("badges").select("id, name_fr, color_hex, text_color_hex").order("name_fr"),
     ]);
     if (data) setEntries(data.map((d: any) => ({
       ...d,
@@ -320,6 +320,14 @@ const SynonymsManagement = () => {
             <div className="space-y-1 min-w-0">
               <h3 className="font-bold text-sm leading-tight truncate pr-8">{entry.key_word}</h3>
               <p className="text-xs opacity-80">{entry.synonyms.length} synonyme{entry.synonyms.length !== 1 ? "s" : ""}</p>
+              {(() => {
+                const bdg = badges.find(b => b.id === entry.badge_id);
+                return bdg ? (
+                  <span className="inline-flex items-center text-[10px] px-1.5 py-0.5 rounded bg-white/90 font-medium mt-0.5" style={{ color: bdg.color_hex || '#000' }}>
+                    {bdg.name_fr}
+                  </span>
+                ) : null;
+              })()}
             </div>
 
             {/* Filter summary */}
