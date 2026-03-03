@@ -298,7 +298,15 @@ const LogoEffectsDemo = () => {
       <Header />
       <div className="container mx-auto px-4 pt-24 pb-32">
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-foreground mb-2" style={{ fontStyle: "normal" }}>Effets Logo — Démo</h1>
+          <h1 className="text-2xl font-bold text-foreground mb-3" style={{ fontStyle: "normal" }}>Effets Logo — Démo</h1>
+          <p className="text-sm text-muted-foreground max-w-2xl mx-auto mb-4 text-left space-y-1">
+            Toutes les cartes sont sur fond blanc (<code className="text-xs bg-muted px-1 py-0.5 rounded">bg-card</code>) avec bordures et ombres légères. Les effets ont été retravaillés&nbsp;:
+            <br />• <strong>Éclairs storm</strong>&nbsp;: halos dorés au lieu de blancs pour rester visibles sur fond clair
+            <br />• <strong>Beam sweep</strong>&nbsp;: dégradé doré semi-transparent au lieu d'opaque blanc
+            <br />• <strong>3D Canvas</strong>&nbsp;: fond <code className="text-xs bg-muted px-1 py-0.5 rounded">#faf8f5</code> (proche du background clair) avec éclairage ambiant renforcé
+            <br />• <strong>Drop-shadows</strong>&nbsp;: intensités réduites pour ne pas saturer sur fond blanc
+            <br />• <strong>Textes</strong>&nbsp;: <code className="text-xs bg-muted px-1 py-0.5 rounded">text-foreground</code> partout pour lisibilité
+          </p>
           <button
             onClick={() => setReplay(r => r + 1)}
             className="px-6 py-2 rounded-full bg-gold text-black font-semibold text-sm hover:bg-gold/80 transition-colors"
