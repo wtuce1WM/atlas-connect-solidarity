@@ -267,17 +267,17 @@ const SearchRegressionPanel = () => {
     setIsRunning(true);
     setResults({});
     setSynonymResults({});
+    // Run synonym tests first
+    for (const syn of synonyms) {
+      setRunningId(`syn-${syn.id}`);
+      const result = await runSynonymTest(syn);
+      setSynonymResults((prev) => ({ ...prev, [syn.id]: result }));
+    }
     // Run static tests
     for (const tc of SEARCH_TEST_CASES) {
       setRunningId(tc.id);
       const result = await runSingleTest(tc);
       setResults((prev) => ({ ...prev, [tc.id]: result }));
-    }
-    // Run synonym tests
-    for (const syn of synonyms) {
-      setRunningId(`syn-${syn.id}`);
-      const result = await runSynonymTest(syn);
-      setSynonymResults((prev) => ({ ...prev, [syn.id]: result }));
     }
     setRunningId(null);
     setIsRunning(false);
@@ -346,26 +346,6 @@ const SearchRegressionPanel = () => {
         </CardContent>
       </Card>
 
-      {/* Static test cases */}
-      <div className="space-y-2">
-        <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Tests statiques</h4>
-        {SEARCH_TEST_CASES.map((tc) => {
-          const result = results[tc.id];
-          const isCurrentlyRunning = runningId === tc.id;
-          return (
-            <TestCaseRow
-              key={tc.id}
-              query={tc.query}
-              description={tc.description}
-              result={result}
-              isRunning={isCurrentlyRunning}
-              disabled={isRunning}
-              onRun={() => runOneTest(tc)}
-            />
-          );
-        })}
-      </div>
-
       {/* Synonym filter tests */}
       {activeSynonymsWithFilters.length > 0 && (
         <div className="space-y-2">
@@ -396,6 +376,26 @@ const SearchRegressionPanel = () => {
           })}
         </div>
       )}
+
+      {/* Static test cases */}
+      <div className="space-y-2">
+        <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Tests statiques</h4>
+        {SEARCH_TEST_CASES.map((tc) => {
+          const result = results[tc.id];
+          const isCurrentlyRunning = runningId === tc.id;
+          return (
+            <TestCaseRow
+              key={tc.id}
+              query={tc.query}
+              description={tc.description}
+              result={result}
+              isRunning={isCurrentlyRunning}
+              disabled={isRunning}
+              onRun={() => runOneTest(tc)}
+            />
+          );
+        })}
+      </div>
     </div>
   );
 };
