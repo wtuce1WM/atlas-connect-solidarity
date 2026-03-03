@@ -21,8 +21,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Edit, Trash2, GripVertical, ChevronDown, ChevronRight, ExternalLink } from "lucide-react";
+import { Plus, Edit, Trash2, GripVertical, ChevronDown, ChevronRight, ExternalLink, Layers } from "lucide-react";
 
 interface GammeBusiness {
   id: string;
@@ -291,25 +292,24 @@ const GammeManagement = ({ onEditBusiness }: GammeManagementProps) => {
   };
 
   return (
-    <div className="space-y-4">
-      <Button variant="outline" className="w-full justify-between" onClick={() => setSectionOpen(!sectionOpen)}>
-        <span className="font-semibold">Gestion des Gammes ({gammes.length}) — Luxe, Premium, Standard, etc.</span>
-        {sectionOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-      </Button>
+    <Card>
+      <CardHeader className="cursor-pointer select-none" onClick={() => setSectionOpen(!sectionOpen)}>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2">
+            <Layers className="h-5 w-5" />
+            Gammes ({gammes.length})
+            <ChevronDown className={`h-4 w-4 transition-transform ${sectionOpen ? 'rotate-180' : ''}`} />
+          </CardTitle>
+          <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); handleOpenDialog(); }}>
+            <Plus className="h-4 w-4 mr-2" />
+            Nouvelle gamme
+          </Button>
+        </div>
+      </CardHeader>
 
-      {sectionOpen && (
+      {sectionOpen && <CardContent>
         <div className="space-y-4">
-          <div className="flex items-center justify-end">
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogTrigger asChild>
-                <Button
-                  onClick={() => handleOpenDialog()}
-                  className="bg-green-600 hover:bg-green-700 text-white"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Nouvelle gamme
-                </Button>
-              </DialogTrigger>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>
@@ -467,7 +467,6 @@ const GammeManagement = ({ onEditBusiness }: GammeManagementProps) => {
                 </form>
               </DialogContent>
             </Dialog>
-          </div>
 
           <div className="border rounded-lg">
             <Table>
@@ -621,8 +620,8 @@ const GammeManagement = ({ onEditBusiness }: GammeManagementProps) => {
             </Table>
           </div>
         </div>
-      )}
-    </div>
+      </CardContent>}
+    </Card>
   );
 };
 
