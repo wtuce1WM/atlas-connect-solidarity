@@ -21,7 +21,7 @@ serve(async (req) => {
   }
 
   try {
-    const { text, voiceId, lang } = await req.json();
+    const { text, voiceId, lang, withTimestamps } = await req.json();
 
     if (!text || typeof text !== "string" || text.trim().length === 0) {
       return new Response(JSON.stringify({ error: "text is required" }), {
@@ -36,8 +36,9 @@ serve(async (req) => {
     // Default voice: Sarah (feminine, warm, multilingual)
     const selectedVoice = voiceId || "MmafIMKg28Wr0yMh8CEB";
 
+    const endpoint = withTimestamps ? "/with-timestamps" : "";
     const response = await fetch(
-      `https://api.elevenlabs.io/v1/text-to-speech/${selectedVoice}?output_format=mp3_44100_128`,
+      `https://api.elevenlabs.io/v1/text-to-speech/${selectedVoice}${endpoint}?output_format=mp3_44100_128`,
       {
         method: "POST",
         headers: {
@@ -63,6 +64,14 @@ serve(async (req) => {
       console.error("ElevenLabs TTS error:", response.status, errorText);
       return new Response(JSON.stringify({ error: `ElevenLabs API error: ${response.status}` }), {
         status: 502,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (withTimestamps) {
+      // /with-timestamps returns JSON with audio_base64 + alignment
+      const data = await response.json();
+      return new Response(JSON.stringify(data), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }

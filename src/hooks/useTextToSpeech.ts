@@ -20,14 +20,81 @@ const normalizeTTSText = (text: string): string =>
     .replace(/n°\s*/gi, "numéro ")
     .replace(/\betc\b\.?/gi, "et cætera");
 
+export interface TTSAlignment {
+  characters: string[];
+  character_start_times_seconds: number[];
+  character_end_times_seconds: number[];
+}
+
+/** Compute word-level timings from character-level alignment */
+const computeWordTimings = (alignment: TTSAlignment): { start: number; end: number }[] => {
+  const words: { start: number; end: number }[] = [];
+  let inWord = false;
+  let wordStart = 0;
+  let wordEnd = 0;
+
+  for (let i = 0; i < alignment.characters.length; i++) {
+    const isSpace = /\s/.test(alignment.characters[i]);
+    if (!isSpace && !inWord) {
+      inWord = true;
+      wordStart = alignment.character_start_times_seconds[i];
+    }
+    if (!isSpace) {
+      wordEnd = alignment.character_end_times_seconds[i];
+    }
+    if ((isSpace || i === alignment.characters.length - 1) && inWord) {
+      words.push({ start: wordStart, end: wordEnd });
+      inWord = false;
+    }
+  }
+
+  return words;
+};
+
 export function useTextToSpeech(options?: { onEnd?: () => void }) {
   const [status, setStatus] = useState<TTSStatus>("idle");
+  const [spokenWordIndex, setSpokenWordIndex] = useState(-1);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const objectUrlRef = useRef<string | null>(null);
+  const wordTimingsRef = useRef<{ start: number; end: number }[] | null>(null);
+  const rafRef = useRef<number>(0);
   const onEndRef = useRef(options?.onEnd);
   onEndRef.current = options?.onEnd;
 
+  const stopTracking = useCallback(() => {
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = 0;
+    }
+    setSpokenWordIndex(-1);
+    wordTimingsRef.current = null;
+  }, []);
+
+  const trackPlayback = useCallback(() => {
+    const audio = audioRef.current;
+    const timings = wordTimingsRef.current;
+    if (!audio || !timings || audio.paused) return;
+
+    const t = audio.currentTime;
+    // Binary search for current word
+    let idx = -1;
+    let lo = 0;
+    let hi = timings.length - 1;
+    while (lo <= hi) {
+      const mid = (lo + hi) >>> 1;
+      if (timings[mid].start <= t) {
+        idx = mid;
+        lo = mid + 1;
+      } else {
+        hi = mid - 1;
+      }
+    }
+    setSpokenWordIndex(idx);
+    rafRef.current = requestAnimationFrame(trackPlayback);
+  }, []);
+
   const stop = useCallback(() => {
+    stopTracking();
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
@@ -38,73 +105,97 @@ export function useTextToSpeech(options?: { onEnd?: () => void }) {
       objectUrlRef.current = null;
     }
     setStatus("idle");
-  }, []);
+  }, [stopTracking]);
 
-  const speak = useCallback(async (text: string, voiceId?: string) => {
-    // If already playing, stop
-    if (status === "playing" || status === "loading") {
-      stop();
-      return;
-    }
-
-    if (!text.trim()) return;
-
-    const normalizedText = normalizeTTSText(text);
-
-    setStatus("loading");
-
-    try {
-      const response = await fetch(
-        `${SUPABASE_URL}/functions/v1/elevenlabs-tts`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            apikey: SUPABASE_KEY,
-            Authorization: `Bearer ${SUPABASE_KEY}`,
-          },
-          body: JSON.stringify({ text: normalizedText, voiceId }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`TTS request failed: ${response.status}`);
+  const speak = useCallback(
+    async (text: string, voiceId?: string, withTimestamps = false) => {
+      // If already playing, stop
+      if (status === "playing" || status === "loading") {
+        stop();
+        return;
       }
 
-      const audioBlob = await response.blob();
-      const audioUrl = URL.createObjectURL(audioBlob);
-      objectUrlRef.current = audioUrl;
+      if (!text.trim()) return;
 
-      const audio = new Audio(audioUrl);
-      audioRef.current = audio;
+      // Skip normalization when timestamps are requested for precise alignment
+      const finalText = withTimestamps ? text : normalizeTTSText(text);
 
-      audio.onended = () => {
-        setStatus("idle");
-        if (objectUrlRef.current) {
-          URL.revokeObjectURL(objectUrlRef.current);
-          objectUrlRef.current = null;
+      setStatus("loading");
+      setSpokenWordIndex(-1);
+      wordTimingsRef.current = null;
+
+      try {
+        const response = await fetch(
+          `${SUPABASE_URL}/functions/v1/elevenlabs-tts`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              apikey: SUPABASE_KEY,
+              Authorization: `Bearer ${SUPABASE_KEY}`,
+            },
+            body: JSON.stringify({ text: finalText, voiceId, withTimestamps }),
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`TTS request failed: ${response.status}`);
         }
-        audioRef.current = null;
-        onEndRef.current?.();
-      };
 
-      audio.onerror = () => {
+        let audioUrl: string;
+
+        if (withTimestamps) {
+          const data = await response.json();
+          if (data.alignment) {
+            wordTimingsRef.current = computeWordTimings(data.alignment);
+          }
+          audioUrl = `data:audio/mpeg;base64,${data.audio_base64}`;
+        } else {
+          const audioBlob = await response.blob();
+          audioUrl = URL.createObjectURL(audioBlob);
+          objectUrlRef.current = audioUrl;
+        }
+
+        const audio = new Audio(audioUrl);
+        audioRef.current = audio;
+
+        audio.onplay = () => {
+          if (wordTimingsRef.current) {
+            rafRef.current = requestAnimationFrame(trackPlayback);
+          }
+        };
+
+        audio.onended = () => {
+          stopTracking();
+          setStatus("idle");
+          if (objectUrlRef.current) {
+            URL.revokeObjectURL(objectUrlRef.current);
+            objectUrlRef.current = null;
+          }
+          audioRef.current = null;
+          onEndRef.current?.();
+        };
+
+        audio.onerror = () => {
+          stopTracking();
+          setStatus("error");
+          if (objectUrlRef.current) {
+            URL.revokeObjectURL(objectUrlRef.current);
+            objectUrlRef.current = null;
+          }
+          audioRef.current = null;
+        };
+
+        await audio.play();
+        setStatus("playing");
+      } catch (error) {
+        console.error("TTS error:", error);
         setStatus("error");
-        if (objectUrlRef.current) {
-          URL.revokeObjectURL(objectUrlRef.current);
-          objectUrlRef.current = null;
-        }
-        audioRef.current = null;
-      };
+        setTimeout(() => setStatus("idle"), 3000);
+      }
+    },
+    [status, stop, trackPlayback, stopTracking]
+  );
 
-      await audio.play();
-      setStatus("playing");
-    } catch (error) {
-      console.error("TTS error:", error);
-      setStatus("error");
-      setTimeout(() => setStatus("idle"), 3000);
-    }
-  }, [status, stop]);
-
-  return { speak, stop, status };
+  return { speak, stop, status, spokenWordIndex };
 }
