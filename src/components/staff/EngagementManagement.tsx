@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ChevronDown, ChevronRight, Plus, Trash2, Loader2, Eye, ExternalLink } from "lucide-react";
+import { ChevronDown, ChevronRight, Plus, Loader2, Eye, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 
 interface Props {
@@ -127,32 +127,6 @@ const EngagementManagement = ({ onEditBusiness }: Props) => {
     toast.success(`« ${val} » ajouté`);
   };
 
-  const handleDelete = (type: SectionType, item: string) => {
-    const config = SECTION_CONFIG[type];
-    const rawKey = config.prefix + item;
-    const count = usageCounts[rawKey] || 0;
-
-    if (count > 0) {
-      toast(`« ${item} » est utilisé par ${count} établissement${count > 1 ? "s" : ""}. Supprimer quand même ?`, {
-        action: {
-          label: "Oui, supprimer",
-          onClick: async () => {
-            const next = { ...globalOptions, [type]: globalOptions[type].filter((i) => i !== item) };
-            await persistOptions(next);
-            toast.success(`« ${item} » supprimé du référentiel`);
-          },
-        },
-        cancel: { label: "Annuler", onClick: () => {} },
-        duration: 10000,
-      });
-    } else {
-      (async () => {
-        const next = { ...globalOptions, [type]: globalOptions[type].filter((i) => i !== item) };
-        await persistOptions(next);
-        toast.success(`« ${item} » supprimé`);
-      })();
-    }
-  };
 
   const openBusinessesPopup = (item: string, rawKey: string) => {
     setPopupCityFilter("all");
@@ -220,13 +194,13 @@ const EngagementManagement = ({ onEditBusiness }: Props) => {
                   <TableRow>
                     <TableHead>Nom</TableHead>
                     <TableHead className="text-center w-[100px]">Utilisations</TableHead>
-                    <TableHead className="w-[60px]"></TableHead>
+                    
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {items.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={3} className="text-center text-muted-foreground py-6 text-sm">
+                      <TableCell colSpan={2} className="text-center text-muted-foreground py-6 text-sm">
                         Aucun élément
                       </TableCell>
                     </TableRow>
@@ -250,17 +224,6 @@ const EngagementManagement = ({ onEditBusiness }: Props) => {
                               onClick={() => openBusinessesPopup(item, rawKey)}
                             >
                               <Eye className="h-3.5 w-3.5" /> {count}
-                            </Button>
-                          </TableCell>
-                          <TableCell>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7 text-destructive hover:text-destructive"
-                              onClick={() => handleDelete(type, item)}
-                              disabled={saving}
-                            >
-                              <Trash2 className="h-3.5 w-3.5" />
                             </Button>
                           </TableCell>
                         </TableRow>
