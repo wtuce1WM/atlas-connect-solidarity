@@ -1,10 +1,13 @@
 import { useState, useEffect, useMemo } from "react";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ChevronDown, ChevronRight, Plus, Trash2, Loader2, Search } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ChevronDown, ChevronRight, Plus, Trash2, Loader2, Eye, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 
 interface Props {
@@ -15,6 +18,13 @@ interface GlobalOptions {
   certifications: string[];
   engagements: string[];
   commodites: string[];
+}
+
+interface BusinessMini {
+  id: string;
+  name: string;
+  city: string | null;
+  is_active: boolean;
 }
 
 type SectionType = "engagements" | "certifications" | "commodites";
@@ -33,19 +43,22 @@ const EngagementManagement = ({ onEditBusiness }: Props) => {
   const [mainOpen, setMainOpen] = useState(false);
   const [openSections, setOpenSections] = useState<Set<SectionType>>(new Set());
   const [newItems, setNewItems] = useState<Record<SectionType, string>>({ engagements: "", certifications: "", commodites: "" });
-  const [searchQueries, setSearchQueries] = useState<Record<SectionType, string>>({ engagements: "", certifications: "", commodites: "" });
-  // Business usage counts
   const [usageCounts, setUsageCounts] = useState<Record<string, number>>({});
+  // All businesses with engagements for popup
+  const [allBusinesses, setAllBusinesses] = useState<{ id: string; name: string; city: string | null; is_active: boolean; engagements: string[] }[]>([]);
+
+  // Popup state
+  const [popup, setPopup] = useState<{ title: string; businesses: BusinessMini[]; loading: boolean } | null>(null);
+  const [popupCityFilter, setPopupCityFilter] = useState<string>("all");
 
   const fetchData = async () => {
     setLoading(true);
 
     const [optionsRes, bizRes] = await Promise.all([
       supabase.from("staff_notes").select("content").eq("key", "engagement_custom_options_v1").maybeSingle(),
-      supabase.from("businesses").select("engagements").not("engagements", "eq", "{}"),
+      supabase.from("businesses").select("id, name, city, is_active, engagements").not("engagements", "eq", "{}").order("name"),
     ]);
 
-    // Parse global options
     let opts: GlobalOptions = { certifications: [], engagements: [], commodites: [] };
     if (optionsRes.data?.content) {
       try {
@@ -58,13 +71,13 @@ const EngagementManagement = ({ onEditBusiness }: Props) => {
       } catch { /* ignore */ }
     }
 
-    // Also collect unique values from actual businesses to ensure completeness
     const counts: Record<string, number> = {};
     const bizCerts = new Set<string>();
     const bizEngs = new Set<string>();
     const bizComms = new Set<string>();
+    const bizData = bizRes.data || [];
 
-    for (const b of bizRes.data || []) {
+    for (const b of bizData) {
       for (const e of b.engagements || []) {
         counts[e] = (counts[e] || 0) + 1;
         if (e.startsWith("Certification:")) bizCerts.add(e.replace("Certification:", ""));
@@ -73,13 +86,13 @@ const EngagementManagement = ({ onEditBusiness }: Props) => {
       }
     }
 
-    // Merge: global options + values found in businesses
     opts.certifications = [...new Set([...opts.certifications, ...bizCerts])].sort((a, b) => a.localeCompare(b, "fr"));
     opts.engagements = [...new Set([...opts.engagements, ...bizEngs])].sort((a, b) => a.localeCompare(b, "fr"));
     opts.commodites = [...new Set([...opts.commodites, ...bizComms])].sort((a, b) => a.localeCompare(b, "fr"));
 
     setGlobalOptions(opts);
     setUsageCounts(counts);
+    setAllBusinesses(bizData.map((b) => ({ id: b.id, name: b.name, city: b.city, is_active: b.is_active, engagements: b.engagements || [] })));
     setLoading(false);
     setLoaded(true);
   };
@@ -91,12 +104,7 @@ const EngagementManagement = ({ onEditBusiness }: Props) => {
   const persistOptions = async (next: GlobalOptions) => {
     setSaving(true);
     const content = JSON.stringify(next);
-    const { data: existing } = await supabase
-      .from("staff_notes")
-      .select("id")
-      .eq("key", "engagement_custom_options_v1")
-      .maybeSingle();
-
+    const { data: existing } = await supabase.from("staff_notes").select("id").eq("key", "engagement_custom_options_v1").maybeSingle();
     if (existing) {
       await supabase.from("staff_notes").update({ content, updated_at: new Date().toISOString() }).eq("key", "engagement_custom_options_v1");
     } else {
@@ -146,6 +154,22 @@ const EngagementManagement = ({ onEditBusiness }: Props) => {
     }
   };
 
+  const openBusinessesPopup = (item: string, rawKey: string) => {
+    setPopupCityFilter("all");
+    const matched = allBusinesses.filter((b) => b.engagements.includes(rawKey));
+    setPopup({ title: item, businesses: matched.map((b) => ({ id: b.id, name: b.name, city: b.city, is_active: b.is_active })), loading: false });
+  };
+
+  const popupFilteredBusinesses = useMemo(() => {
+    if (!popup) return [];
+    return popupCityFilter === "all" ? popup.businesses : popup.businesses.filter((b) => b.city === popupCityFilter);
+  }, [popup, popupCityFilter]);
+
+  const popupCities = useMemo(() => {
+    if (!popup) return [];
+    return [...new Set(popup.businesses.map((b) => b.city).filter(Boolean) as string[])].sort((a, b) => a.localeCompare(b, "fr"));
+  }, [popup]);
+
   const toggleSection = (type: SectionType) => {
     setOpenSections((prev) => {
       const next = new Set(prev);
@@ -161,8 +185,6 @@ const EngagementManagement = ({ onEditBusiness }: Props) => {
     const config = SECTION_CONFIG[type];
     const items = globalOptions[type];
     const isOpen = openSections.has(type);
-    const q = searchQueries[type].toLowerCase();
-    const filtered = q ? items.filter((i) => i.toLowerCase().includes(q)) : items;
 
     return (
       <div key={type} className="space-y-3">
@@ -173,18 +195,6 @@ const EngagementManagement = ({ onEditBusiness }: Props) => {
 
         {isOpen && (
           <div className="space-y-3 pl-2">
-            <div className="flex gap-2">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Rechercher…"
-                  value={searchQueries[type]}
-                  onChange={(e) => setSearchQueries((prev) => ({ ...prev, [type]: e.target.value }))}
-                  className="pl-9 h-8 text-sm"
-                />
-              </div>
-            </div>
-
             <div className="flex gap-2 items-center">
               <Input
                 placeholder={`Nouveau ${config.label.toLowerCase().slice(0, -1)}…`}
@@ -214,14 +224,14 @@ const EngagementManagement = ({ onEditBusiness }: Props) => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filtered.length === 0 ? (
+                  {items.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={3} className="text-center text-muted-foreground py-6 text-sm">
-                        {q ? "Aucun résultat" : "Aucun élément"}
+                        Aucun élément
                       </TableCell>
                     </TableRow>
                   ) : (
-                    filtered.map((item) => {
+                    items.map((item) => {
                       const rawKey = config.prefix + item;
                       const count = usageCounts[rawKey] || 0;
                       return (
@@ -232,7 +242,15 @@ const EngagementManagement = ({ onEditBusiness }: Props) => {
                             </Badge>
                           </TableCell>
                           <TableCell className="text-center">
-                            <span className={`text-sm ${count > 0 ? "font-medium" : "text-muted-foreground"}`}>{count}</span>
+                            <Button
+                              variant={count > 0 ? "outline" : "ghost"}
+                              size="sm"
+                              className="gap-1.5"
+                              disabled={count === 0}
+                              onClick={() => openBusinessesPopup(item, rawKey)}
+                            >
+                              <Eye className="h-3.5 w-3.5" /> {count}
+                            </Button>
                           </TableCell>
                           <TableCell>
                             <Button
@@ -259,28 +277,92 @@ const EngagementManagement = ({ onEditBusiness }: Props) => {
   };
 
   return (
-    <div className="space-y-4 mt-10 pt-10 border-t">
-      <Button variant="outline" className="w-full justify-between" onClick={() => setMainOpen(!mainOpen)}>
-        <span className="font-semibold">Certifications, Engagements & Commodités ({loaded ? totalCount : "…"})</span>
-        {mainOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-      </Button>
+    <>
+      <div className="space-y-4 mt-10 pt-10 border-t">
+        <Button variant="outline" className="w-full justify-between" onClick={() => setMainOpen(!mainOpen)}>
+          <span className="font-semibold">Certifications, Engagements & Commodités ({loaded ? totalCount : "…"})</span>
+          {mainOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+        </Button>
 
-      {mainOpen && (
-        <div className="space-y-4">
-          {loading ? (
-            <div className="flex justify-center py-8">
-              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-            </div>
+        {mainOpen && (
+          <div className="space-y-4">
+            {loading ? (
+              <div className="flex justify-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              </div>
+            ) : (
+              <>
+                {renderSection("certifications")}
+                {renderSection("engagements")}
+                {renderSection("commodites")}
+              </>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Businesses popup */}
+      <Dialog open={!!popup} onOpenChange={(open) => { if (!open) setPopup(null); }}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Établissements — {popup?.title}</DialogTitle>
+          </DialogHeader>
+          {popup?.loading ? (
+            <div className="flex items-center justify-center py-8"><Loader2 className="h-6 w-6 animate-spin" /></div>
           ) : (
-            <>
-              {renderSection("certifications")}
-              {renderSection("engagements")}
-              {renderSection("commodites")}
-            </>
+            <div className="space-y-4">
+              {popupCities.length > 1 && (
+                <Select value={popupCityFilter} onValueChange={setPopupCityFilter}>
+                  <SelectTrigger className="w-[220px]"><SelectValue placeholder="Toutes les villes" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Toutes les villes ({popup?.businesses.length})</SelectItem>
+                    {popupCities.map((city) => (
+                      <SelectItem key={city} value={city}>{city} ({popup?.businesses.filter((b) => b.city === city).length})</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+              <p className="text-sm text-muted-foreground">{popupFilteredBusinesses.length} établissement{popupFilteredBusinesses.length !== 1 ? "s" : ""}</p>
+              <div className="border rounded-lg">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Nom</TableHead>
+                      <TableHead>Ville</TableHead>
+                      <TableHead>Statut</TableHead>
+                      <TableHead></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {popupFilteredBusinesses.map((b) => (
+                      <TableRow key={b.id}>
+                        <TableCell className="font-medium">{b.name}</TableCell>
+                        <TableCell className="text-sm text-muted-foreground">{b.city || "—"}</TableCell>
+                        <TableCell>
+                          <Badge variant={b.is_active ? "default" : "secondary"} className={b.is_active ? "bg-green-200 text-black hover:bg-green-300" : ""}>
+                            {b.is_active ? "Actif" : "Inactif"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="flex gap-1">
+                          <Link to={`/business/${b.id}`} target="_blank">
+                            <Button variant="ghost" size="icon" className="h-7 w-7" title="Voir"><Eye className="h-3.5 w-3.5" /></Button>
+                          </Link>
+                          {onEditBusiness && (
+                            <Button variant="ghost" size="icon" className="h-7 w-7" title="Éditer" onClick={() => { setPopup(null); onEditBusiness(b.id); }}>
+                              <ExternalLink className="h-3.5 w-3.5" />
+                            </Button>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
           )}
-        </div>
-      )}
-    </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 
