@@ -211,6 +211,7 @@ const LocationManagement = () => {
     latitude: "", longitude: "", wikipedia_fr: "", wikipedia_en: "", wikipedia_ar: "",
     official_site_fr: "", official_site_en: "", official_site_ar: "",
     hook: "", description: "", sort_order: 0, image_url: "", keywords: [] as string[],
+    images: [] as string[], internal_notes: "",
   });
   const [poiKeywordInput, setPoiKeywordInput] = useState("");
 
@@ -852,6 +853,7 @@ const LocationManagement = () => {
       latitude: "", longitude: "", wikipedia_fr: "", wikipedia_en: "", wikipedia_ar: "",
       official_site_fr: "", official_site_en: "", official_site_ar: "",
       hook: "", description: "", sort_order: 0, image_url: "", keywords: [] as string[],
+      images: [] as string[], internal_notes: "",
     });
     setPoiKeywordInput("");
   };
@@ -865,6 +867,7 @@ const LocationManagement = () => {
       official_site_fr: (p as any).official_site_fr || "", official_site_en: (p as any).official_site_en || "", official_site_ar: (p as any).official_site_ar || "",
       hook: p.hook || "", description: p.description || "", sort_order: p.sort_order || 0,
       image_url: p.image_url || "", keywords: p.keywords || [],
+      images: (p as any).images || [], internal_notes: (p as any).internal_notes || "",
     });
     setPoiKeywordInput("");
     setShowPoiForm(true);
@@ -911,6 +914,8 @@ const LocationManagement = () => {
       sort_order: poiForm.sort_order,
       image_url: poiForm.image_url.trim() || null,
       keywords: mergedKeywords,
+      images: poiForm.images.length > 0 ? poiForm.images : [],
+      internal_notes: poiForm.internal_notes.trim().slice(0, 5000) || null,
     };
     let error;
     if (editingPoi) {
@@ -1850,13 +1855,14 @@ const LocationManagement = () => {
                 </CardContent>
               </Card>
 
-              {/* Image */}
+              {/* Images */}
               <Card>
-                <CardHeader><CardTitle className="text-lg flex items-center gap-2"><ImageIcon className="h-5 w-5" /> Image</CardTitle></CardHeader>
+                <CardHeader><CardTitle className="text-lg flex items-center gap-2"><ImageIcon className="h-5 w-5" /> Images</CardTitle></CardHeader>
                 <CardContent>
-                  <LogoUploader
-                    logoUrl={poiForm.image_url}
-                    onChange={(url) => setPoiForm({ ...poiForm, image_url: url })}
+                  <ImageUploader
+                    images={poiForm.images}
+                    onChange={(imgs) => setPoiForm(prev => ({ ...prev, images: imgs }))}
+                    maxImages={12}
                     businessId={editingPoi?.id || "poi"}
                   />
                 </CardContent>
@@ -1926,6 +1932,22 @@ const LocationManagement = () => {
                     <Label>Site officiel AR</Label>
                     <Input value={poiForm.official_site_ar} onChange={(e) => setPoiForm({ ...poiForm, official_site_ar: e.target.value })} placeholder="https://..." dir="rtl" />
                   </div>
+                </CardContent>
+              </Card>
+
+              {/* Note interne */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Note interne — {(poiForm.internal_notes || "").length} / 5 000 caractères</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <textarea
+                    className="flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    value={poiForm.internal_notes}
+                    onChange={(e) => setPoiForm(prev => ({ ...prev, internal_notes: e.target.value.slice(0, 5000) }))}
+                    placeholder="Notes internes (non visibles publiquement)..."
+                    maxLength={5000}
+                  />
                 </CardContent>
               </Card>
             </div>
