@@ -1208,19 +1208,6 @@ const SearchPage = () => {
                   {language === "en" ? "Listen to results" : language === "ar" ? "استمع للنتائج" : "Écouter les résultats"}
                 </button>
               )}
-              {searchMessage && (
-                <p className="text-sm text-muted-foreground mt-2 italic">{searchMessage}</p>
-              )}
-              {detectedSubcategory && searchMode && (
-                <span className={`mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border ${
-                  searchMode === "strict"
-                    ? "bg-amber-500/10 text-amber-400 border-amber-500/30"
-                    : "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
-                }`}>
-                  <Search className="h-3 w-3" />
-                  {detectedSubcategory} — {searchMode === "strict" ? "Strict" : "Broad"}
-                </span>
-              )}
             </div>
           )}
 
