@@ -50,7 +50,7 @@ const ServiceManagement = () => {
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [subcategoryFilter, setSubcategoryFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortOrder, setSortOrder] = useState<"az" | "za">("az");
+  const [sortOrder, setSortOrder] = useState<"az" | "za" | "count-asc" | "count-desc">("az");
 
   // Business counts per service name
   const [businessCountBySvc, setBusinessCountBySvc] = useState<Record<string, number>>({});
@@ -133,12 +133,16 @@ const ServiceManagement = () => {
     }
 
     result = [...result].sort((a, b) => {
+      if (sortOrder === "count-asc" || sortOrder === "count-desc") {
+        const diff = (businessCountBySvc[a.id] || 0) - (businessCountBySvc[b.id] || 0);
+        return sortOrder === "count-asc" ? diff : -diff;
+      }
       const cmp = a.name_fr.localeCompare(b.name_fr, "fr");
       return sortOrder === "az" ? cmp : -cmp;
     });
 
     return result;
-  }, [services, categoryFilter, subcategoryFilter, filteredSubcategories, searchQuery, sortOrder]);
+  }, [services, categoryFilter, subcategoryFilter, filteredSubcategories, searchQuery, sortOrder, businessCountBySvc]);
 
   // Helper: get subcategory & category name for a service
   const getHierarchy = (svc: Service) => {
@@ -242,13 +246,17 @@ const ServiceManagement = () => {
                 <TableRow>
                   <TableHead>
                     <Button variant="ghost" size="sm" className="gap-1 -ml-2" onClick={() => setSortOrder(s => s === "az" ? "za" : "az")}>
-                      Service {sortOrder === "az" ? <ArrowUpAZ className="h-4 w-4" /> : <ArrowDownZA className="h-4 w-4" />}
+                      Service {(sortOrder === "az" || sortOrder === "za") ? (sortOrder === "az" ? <ArrowUpAZ className="h-4 w-4" /> : <ArrowDownZA className="h-4 w-4" />) : null}
                     </Button>
                   </TableHead>
                   <TableHead>Catégorie</TableHead>
                   <TableHead>Sous-catégorie</TableHead>
                   <TableHead className="text-center">Actif</TableHead>
-                  <TableHead className="text-center">Établissements</TableHead>
+                  <TableHead className="text-center">
+                    <Button variant="ghost" size="sm" className="gap-1" onClick={() => setSortOrder(s => s === "count-desc" ? "count-asc" : "count-desc")}>
+                      Établissements {sortOrder === "count-desc" ? "↓" : sortOrder === "count-asc" ? "↑" : ""}
+                    </Button>
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
