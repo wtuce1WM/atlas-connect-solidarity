@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import KeywordsBySubcategorySection from "./KeywordsBySubcategorySection";
+import KeywordsByBusinessSection from "./KeywordsByBusinessSection";
 import { fetchAllRows } from "@/lib/fetchAllRows";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -298,6 +299,11 @@ const KeywordManagement = () => {
         subcategories={subcategories}
         services={services}
         businessCountByService={businessCountByKw}
+      />
+
+      <KeywordsByBusinessSection
+        categories={categories}
+        subcategories={subcategories}
       />
 
       {/* Businesses popup */}
