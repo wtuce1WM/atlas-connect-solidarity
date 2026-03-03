@@ -35,7 +35,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Edit, Trash2, Globe, MapPin, Building, ExternalLink, ArrowLeft, Save, FileText, Home, ChevronDown, Compass, LocateFixed, Loader2, ImageIcon, X, Search } from "lucide-react";
+import { Plus, Edit, Trash2, Globe, MapPin, Building, ExternalLink, ArrowLeft, Save, FileText, Home, ChevronDown, Compass, LocateFixed, Loader2, ImageIcon, X, Search, Map } from "lucide-react";
 import RichTextEditor from "./RichTextEditor";
 import LogoUploader from "./LogoUploader";
 import ImageUploader from "./ImageUploader";
@@ -185,6 +185,13 @@ const LocationManagement = () => {
   const [expandedCityNeighborhoods, setExpandedCityNeighborhoods] = useState<string | null>(null);
   const [inlineKeywordInput, setInlineKeywordInput] = useState("");
   const [citiesSectionOpen, setCitiesSectionOpen] = useState(false);
+  // Regions
+  const [regionsFromTable, setRegionsFromTable] = useState<{id: string; name: string; sort_order: number | null}[]>([]);
+  const [regionsSectionOpen, setRegionsSectionOpen] = useState(false);
+  const [editingRegion, setEditingRegion] = useState<{id: string; name: string; sort_order: number | null} | null>(null);
+  const [regionForm, setRegionForm] = useState({ name: "", sort_order: 0 });
+  const [isRegionDialogOpen, setIsRegionDialogOpen] = useState(false);
+  const regionsSectionRef = useRef<HTMLDivElement>(null);
   const [destinationsSectionOpen, setDestinationsSectionOpen] = useState(false);
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [showDestinationForm, setShowDestinationForm] = useState(false);
@@ -277,7 +284,7 @@ const LocationManagement = () => {
   const fetchData = async () => {
     setLoading(true);
     
-    const [countriesRes, citiesRes, businessesRes, neighborhoodsRes, destinationsRes, poisRes, businessDestRes] = await Promise.all([
+    const [countriesRes, citiesRes, businessesRes, neighborhoodsRes, destinationsRes, poisRes, businessDestRes, regionsRes] = await Promise.all([
       supabase.from("countries").select("*").order("sort_order"),
       supabase.from("cities").select("*").order("sort_order"),
       supabase.from("businesses").select("city, neighborhood").eq("is_active", true),
@@ -285,6 +292,7 @@ const LocationManagement = () => {
       supabase.from("destinations" as any).select("*").order("name_fr"),
       supabase.from("points_of_interest" as any).select("*").order("sort_order"),
       supabase.from("business_destinations" as any).select("destination_id"),
+      supabase.from("regions" as any).select("*").order("name"),
     ]);
 
     if (countriesRes.error) {
@@ -336,6 +344,10 @@ const LocationManagement = () => {
 
     if (!poisRes.error && poisRes.data) {
       setPois((poisRes.data as any[]) || []);
+    }
+
+    if (!regionsRes.error && regionsRes.data) {
+      setRegionsFromTable((regionsRes.data as any[]) || []);
     }
 
     setLoading(false);
@@ -414,13 +426,69 @@ const LocationManagement = () => {
     setCountryForm({ name_fr: "", name_en: "", name_ar: "", code: "", sort_order: 0 });
   };
 
-  // City handlers
+  // Region CRUD handlers
   const availableRegions = React.useMemo(() => {
-    const regionsFromCities = cities.map(c => c.region).filter(Boolean) as string[];
-    const regionsFromDestinations = destinations.flatMap(d => d.region || []).filter(Boolean);
-    const all = [...new Set([...regionsFromCities, ...regionsFromDestinations])];
-    return all.sort((a, b) => a.localeCompare(b, 'fr'));
-  }, [cities, destinations]);
+    return regionsFromTable.map(r => r.name).sort((a, b) => a.localeCompare(b, 'fr'));
+  }, [regionsFromTable]);
+
+  const openAddRegion = () => {
+    setEditingRegion(null);
+    setRegionForm({ name: "", sort_order: 0 });
+    setIsRegionDialogOpen(true);
+  };
+
+  const openEditRegion = (r: {id: string; name: string; sort_order: number | null}) => {
+    setEditingRegion(r);
+    setRegionForm({ name: r.name, sort_order: r.sort_order || 0 });
+    setIsRegionDialogOpen(true);
+  };
+
+  const handleSaveRegion = async () => {
+    if (!regionForm.name.trim()) {
+      toast({ variant: "destructive", title: "Erreur", description: "Le nom est requis." });
+      return;
+    }
+    const payload = { name: regionForm.name.trim(), sort_order: regionForm.sort_order };
+    let error;
+    if (editingRegion) {
+      const oldName = editingRegion.name;
+      const res = await supabase.from("regions" as any).update(payload).eq("id", editingRegion.id);
+      error = res.error;
+      // Propagate rename to cities and destinations
+      if (!error && oldName !== payload.name) {
+        await supabase.from("cities").update({ region: payload.name } as any).eq("region", oldName);
+        // For destinations with text[] region, we'd need a manual update — skip for now as it's complex
+      }
+    } else {
+      const res = await supabase.from("regions" as any).insert(payload);
+      error = res.error;
+    }
+    if (error) {
+      toast({ variant: "destructive", title: "Erreur", description: error.message });
+    } else {
+      toast({ title: "Succès", description: editingRegion ? "Région mise à jour." : "Région créée." });
+      setIsRegionDialogOpen(false);
+      fetchData();
+    }
+  };
+
+  const handleDeleteRegion = async (r: {id: string; name: string}) => {
+    const citiesInRegion = cities.filter(c => c.region === r.name).length;
+    if (citiesInRegion > 0) {
+      toast({ variant: "destructive", title: "Impossible", description: `${citiesInRegion} ville(s) utilisent cette région.` });
+      return;
+    }
+    if (!confirm(`Supprimer la région « ${r.name} » ?`)) return;
+    const { error } = await supabase.from("regions" as any).delete().eq("id", r.id);
+    if (error) {
+      toast({ variant: "destructive", title: "Erreur", description: error.message });
+    } else {
+      toast({ title: "Succès", description: "Région supprimée." });
+      fetchData();
+    }
+  };
+
+  // City handlers
 
   const handleSaveCity = async () => {
     if (!cityForm.name_fr.trim() || !cityForm.country_id) {
@@ -1204,6 +1272,110 @@ const LocationManagement = () => {
           })()}
         </CardContent>}
       </Card>
+
+      {/* ===== RÉGIONS ===== */}
+      <Card ref={regionsSectionRef} style={{ scrollMarginTop: '80px' }}>
+        <CardHeader className="cursor-pointer select-none" onClick={() => {
+          const opening = !regionsSectionOpen;
+          setRegionsSectionOpen(opening);
+          if (opening) setTimeout(() => regionsSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
+        }}>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <Map className="h-5 w-5" />
+              Régions
+              <span className="text-sm font-normal text-muted-foreground">({regionsFromTable.length})</span>
+              <ChevronDown className={`h-4 w-4 transition-transform ${regionsSectionOpen ? 'rotate-180' : ''}`} />
+            </CardTitle>
+            <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); openAddRegion(); }}>
+              <Plus className="h-4 w-4 mr-2" />
+              Ajouter
+            </Button>
+          </div>
+        </CardHeader>
+        {regionsSectionOpen && (
+          <CardContent>
+            {regionsFromTable.length === 0 ? (
+              <p className="text-muted-foreground text-sm text-center py-4">Aucune région</p>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Région</TableHead>
+                    <TableHead>Villes</TableHead>
+                    <TableHead>Destinations</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {regionsFromTable
+                    .sort((a, b) => a.name.localeCompare(b.name, 'fr'))
+                    .map((r) => {
+                      const citiesCount = cities.filter(c => c.region === r.name).length;
+                      const destsCount = destinations.filter(d => (d.region || []).includes(r.name)).length;
+                      return (
+                        <TableRow key={r.id}>
+                          <TableCell className="font-medium">{r.name}</TableCell>
+                          <TableCell>
+                            <span className="inline-flex items-center justify-center min-w-[2rem] px-2 py-0.5 bg-primary/10 text-primary rounded text-sm font-medium">
+                              {citiesCount}
+                            </span>
+                          </TableCell>
+                          <TableCell>
+                            <span className="inline-flex items-center justify-center min-w-[2rem] px-2 py-0.5 bg-muted text-muted-foreground rounded text-sm font-medium">
+                              {destsCount}
+                            </span>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button size="sm" variant="ghost" onClick={() => openEditRegion(r)}>
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button size="sm" variant="ghost" onClick={() => handleDeleteRegion(r)} className="text-destructive hover:text-destructive">
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                </TableBody>
+              </Table>
+            )}
+          </CardContent>
+        )}
+      </Card>
+
+      {/* Region Dialog */}
+      <Dialog open={isRegionDialogOpen} onOpenChange={setIsRegionDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>{editingRegion ? "Modifier la région" : "Nouvelle région"}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Nom</Label>
+              <Input
+                value={regionForm.name}
+                onChange={(e) => setRegionForm({ ...regionForm, name: e.target.value })}
+                placeholder="Ex : Guelmim-Oued Noun"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Ordre d'affichage</Label>
+              <Input
+                type="number"
+                value={regionForm.sort_order}
+                onChange={(e) => setRegionForm({ ...regionForm, sort_order: parseInt(e.target.value) || 0 })}
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setIsRegionDialogOpen(false)}>Annuler</Button>
+              <Button onClick={handleSaveRegion} className="bg-gold hover:bg-gold/90">
+                {editingRegion ? "Mettre à jour" : "Créer"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* ===== QUARTIERS ===== */}
       <Card ref={neighborhoodsSectionRef} style={{ scrollMarginTop: '80px' }}>
