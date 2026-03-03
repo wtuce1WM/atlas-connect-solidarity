@@ -1059,6 +1059,7 @@ export type Database = {
           hook: string | null
           id: string
           image_url: string | null
+          images: string[] | null
           is_searchable: boolean
           keywords: string[] | null
           latitude: number | null
@@ -1079,6 +1080,7 @@ export type Database = {
           hook?: string | null
           id?: string
           image_url?: string | null
+          images?: string[] | null
           is_searchable?: boolean
           keywords?: string[] | null
           latitude?: number | null
@@ -1099,6 +1101,7 @@ export type Database = {
           hook?: string | null
           id?: string
           image_url?: string | null
+          images?: string[] | null
           is_searchable?: boolean
           keywords?: string[] | null
           latitude?: number | null
