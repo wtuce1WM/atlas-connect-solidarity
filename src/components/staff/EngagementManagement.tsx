@@ -4,10 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ChevronDown, ChevronRight, Plus, Loader2, Eye, ExternalLink } from "lucide-react";
+import { ChevronDown, ChevronRight, Plus, Loader2, Eye, ExternalLink, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
 interface Props {
@@ -241,13 +242,18 @@ const EngagementManagement = ({ onEditBusiness }: Props) => {
 
   return (
     <>
-      <div className="space-y-4 mt-10 pt-10 border-t">
-        <Button variant="outline" className="w-full justify-between" onClick={() => setMainOpen(!mainOpen)}>
-          <span className="font-semibold">Certifications, Engagements & Commodités ({loaded ? totalCount : "…"})</span>
-          {mainOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-        </Button>
+      <Card className="mt-6">
+        <CardHeader className="cursor-pointer select-none" onClick={() => setMainOpen(!mainOpen)}>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <ShieldCheck className="h-5 w-5" />
+              Certifications, Engagements & Commodités ({loaded ? totalCount : "…"})
+              <ChevronDown className={`h-4 w-4 transition-transform ${mainOpen ? 'rotate-180' : ''}`} />
+            </CardTitle>
+          </div>
+        </CardHeader>
 
-        {mainOpen && (
+        {mainOpen && <CardContent>
           <div className="space-y-4">
             {loading ? (
               <div className="flex justify-center py-8">
@@ -261,8 +267,8 @@ const EngagementManagement = ({ onEditBusiness }: Props) => {
               </>
             )}
           </div>
-        )}
-      </div>
+        </CardContent>}
+      </Card>
 
       {/* Businesses popup */}
       <Dialog open={!!popup} onOpenChange={(open) => { if (!open) setPopup(null); }}>
