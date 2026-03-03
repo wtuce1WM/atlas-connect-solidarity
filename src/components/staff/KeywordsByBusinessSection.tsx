@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Search, Eye, ExternalLink, Loader2, Building2, X, Plus } from "lucide-react";
+import { Search, Eye, ExternalLink, Loader2, Building2, X, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 interface Category { id: string; name_fr: string; }
@@ -40,7 +40,6 @@ const KeywordsByBusinessSection = ({ categories, subcategories }: Props) => {
   const [servicesBySubcategory, setServicesBySubcategory] = useState<Record<string, string[]>>({});
   const [cities, setCities] = useState<string[]>([]);
 
-  // Editing state
   const [editingBusinessId, setEditingBusinessId] = useState<string | null>(null);
   const [newKeyword, setNewKeyword] = useState("");
   const [bulkKeywords, setBulkKeywords] = useState("");
@@ -134,7 +133,6 @@ const KeywordsByBusinessSection = ({ categories, subcategories }: Props) => {
   }, [businesses, cityFilter, searchQuery]);
 
   const totalKeywords = useMemo(() => filteredBusinesses.reduce((sum, b) => sum + b.keywords.length, 0), [filteredBusinesses]);
-
   const selectedSubName = subcategories.find(s => s.id === subcategoryFilter)?.name_fr;
 
   // --- Keyword mutation helpers ---
@@ -152,16 +150,32 @@ const KeywordsByBusinessSection = ({ categories, subcategories }: Props) => {
       console.error(error);
       return false;
     }
-    // Update local state
     setBusinesses(prev => prev.map(b => b.id === businessId ? { ...b, keywords: sorted } : b));
-    toast.success("Mots-clés mis à jour (search vector recalculé)");
     return true;
   };
 
   const handleDeleteKeyword = async (businessId: string, keyword: string) => {
     const biz = businesses.find(b => b.id === businessId);
     if (!biz) return;
-    await updateBusinessKeywords(businessId, biz.keywords.filter(k => k !== keyword));
+    const success = await updateBusinessKeywords(businessId, biz.keywords.filter(k => k !== keyword));
+    if (success) toast.success(`« ${keyword} » supprimé`);
+  };
+
+  const handleDeleteAll = (businessId: string, businessName: string, count: number) => {
+    toast(`Supprimer les ${count} mots-clés de « ${businessName} » ?`, {
+      action: {
+        label: "Oui, tout supprimer",
+        onClick: async () => {
+          const success = await updateBusinessKeywords(businessId, []);
+          if (success) toast.success("Tous les mots-clés supprimés");
+        },
+      },
+      cancel: {
+        label: "Annuler",
+        onClick: () => {},
+      },
+      duration: 10000,
+    });
   };
 
   const handleAddKeyword = async (businessId: string) => {
@@ -170,7 +184,10 @@ const KeywordsByBusinessSection = ({ categories, subcategories }: Props) => {
     const biz = businesses.find(b => b.id === businessId);
     if (!biz) return;
     const success = await updateBusinessKeywords(businessId, [...biz.keywords, kw]);
-    if (success) setNewKeyword("");
+    if (success) {
+      setNewKeyword("");
+      toast.success(`« ${kw} » ajouté`);
+    }
   };
 
   const handleBulkInject = async (businessId: string) => {
@@ -181,10 +198,13 @@ const KeywordsByBusinessSection = ({ categories, subcategories }: Props) => {
     const biz = businesses.find(b => b.id === businessId);
     if (!biz) return;
     const success = await updateBusinessKeywords(businessId, [...biz.keywords, ...newKws]);
-    if (success) setBulkKeywords("");
+    if (success) {
+      setBulkKeywords("");
+      toast.success(`${newKws.length} mot(s)-clé(s) ajouté(s)`);
+    }
   };
 
-  const startEditing = (businessId: string) => {
+  const startEditing = (businessId: string | null) => {
     setEditingBusinessId(businessId);
     setNewKeyword("");
     setBulkKeywords("");
@@ -287,33 +307,39 @@ const KeywordsByBusinessSection = ({ categories, subcategories }: Props) => {
                           <TableCell className="text-sm text-muted-foreground">{b.city || "—"}</TableCell>
                           <TableCell>
                             <div className="space-y-2">
-                              {/* Keywords badges */}
                               <div className="flex flex-wrap gap-1.5">
                                 {b.keywords.length === 0 ? (
                                   <span className="text-muted-foreground text-xs italic">Aucun</span>
                                 ) : (
                                   b.keywords.sort((a, c) => a.localeCompare(c, "fr")).map(kw => (
-                                    <Badge key={kw} variant="secondary" className="text-xs group gap-1">
+                                    <Badge
+                                      key={kw}
+                                      variant="secondary"
+                                      className={`text-xs gap-1 ${isEditing ? "cursor-pointer hover:bg-destructive/20 hover:line-through transition-all" : ""}`}
+                                      onClick={isEditing ? () => handleDeleteKeyword(b.id, kw) : undefined}
+                                      title={isEditing ? `Cliquer pour supprimer « ${kw} »` : undefined}
+                                    >
                                       {kw}
-                                      {isEditing && (
-                                        <button
-                                          onClick={() => handleDeleteKeyword(b.id, kw)}
-                                          disabled={saving}
-                                          className="ml-0.5 hover:text-destructive transition-colors"
-                                          title={`Supprimer « ${kw} »`}
-                                        >
-                                          <X className="h-3 w-3" />
-                                        </button>
-                                      )}
+                                      {isEditing && <X className="h-3 w-3 text-muted-foreground" />}
                                     </Badge>
                                   ))
                                 )}
                               </div>
 
-                              {/* Editing controls */}
                               {isEditing && (
                                 <div className="space-y-2 pt-1 border-t border-border/50">
-                                  {/* Add single keyword */}
+                                  {b.keywords.length > 0 && (
+                                    <Button
+                                      size="sm"
+                                      variant="destructive"
+                                      className="h-7 px-2 text-xs"
+                                      onClick={() => handleDeleteAll(b.id, b.name, b.keywords.length)}
+                                      disabled={saving}
+                                    >
+                                      <Trash2 className="h-3 w-3 mr-1" /> Tout supprimer ({b.keywords.length})
+                                    </Button>
+                                  )}
+
                                   <div className="flex gap-1.5 items-center">
                                     <Input
                                       placeholder="Ajouter un mot-clé…"
@@ -334,7 +360,6 @@ const KeywordsByBusinessSection = ({ categories, subcategories }: Props) => {
                                     </Button>
                                   </div>
 
-                                  {/* Bulk inject */}
                                   <div className="space-y-1">
                                     <Textarea
                                       placeholder="Coller une liste séparée par des virgules…"
@@ -380,7 +405,7 @@ const KeywordsByBusinessSection = ({ categories, subcategories }: Props) => {
                                 size="sm"
                                 variant={isEditing ? "default" : "outline"}
                                 className="h-7 px-2 text-xs"
-                                onClick={() => startEditing(isEditing ? null as any : b.id)}
+                                onClick={() => startEditing(isEditing ? null : b.id)}
                               >
                                 {isEditing ? "Fermer" : "Éditer"}
                               </Button>
