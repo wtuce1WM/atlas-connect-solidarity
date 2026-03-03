@@ -1060,6 +1060,7 @@ export type Database = {
           id: string
           image_url: string | null
           images: string[] | null
+          internal_notes: string | null
           is_searchable: boolean
           keywords: string[] | null
           latitude: number | null
@@ -1067,7 +1068,7 @@ export type Database = {
           name_ar: string | null
           name_en: string | null
           name_fr: string
-          region: string | null
+          region: string[] | null
           sort_order: number | null
           updated_at: string | null
           wikipedia_ar: string | null
@@ -1081,6 +1082,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           images?: string[] | null
+          internal_notes?: string | null
           is_searchable?: boolean
           keywords?: string[] | null
           latitude?: number | null
@@ -1088,7 +1090,7 @@ export type Database = {
           name_ar?: string | null
           name_en?: string | null
           name_fr: string
-          region?: string | null
+          region?: string[] | null
           sort_order?: number | null
           updated_at?: string | null
           wikipedia_ar?: string | null
@@ -1102,6 +1104,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           images?: string[] | null
+          internal_notes?: string | null
           is_searchable?: boolean
           keywords?: string[] | null
           latitude?: number | null
@@ -1109,7 +1112,7 @@ export type Database = {
           name_ar?: string | null
           name_en?: string | null
           name_fr?: string
-          region?: string | null
+          region?: string[] | null
           sort_order?: number | null
           updated_at?: string | null
           wikipedia_ar?: string | null

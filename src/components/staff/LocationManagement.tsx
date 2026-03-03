@@ -99,7 +99,7 @@ interface Destination {
   name_fr: string;
   name_en: string | null;
   name_ar: string | null;
-  region: string | null;
+  region: string[] | null;
   latitude: number | null;
   longitude: number | null;
   wikipedia_fr: string | null;
@@ -111,6 +111,7 @@ interface Destination {
   image_url: string | null;
   keywords: string[] | null;
   is_searchable: boolean;
+  internal_notes: string | null;
 }
 
 interface PointOfInterest {
@@ -189,10 +190,10 @@ const LocationManagement = () => {
   const [showDestinationForm, setShowDestinationForm] = useState(false);
   const [editingDestination, setEditingDestination] = useState<Destination | null>(null);
   const [destinationForm, setDestinationForm] = useState({
-    name_fr: "", name_en: "", name_ar: "", region: "",
+    name_fr: "", name_en: "", name_ar: "", regions: [] as string[],
     latitude: "", longitude: "", wikipedia_fr: "", wikipedia_en: "", wikipedia_ar: "",
     hook: "", description: "", sort_order: 0, image_url: "", keywords: [] as string[],
-    is_searchable: false, images: [] as string[],
+    is_searchable: false, images: [] as string[], internal_notes: "",
   });
   const [poiSectionOpen, setPoiSectionOpen] = useState(false);
   const [pois, setPois] = useState<PointOfInterest[]>([]);
@@ -416,7 +417,7 @@ const LocationManagement = () => {
   // City handlers
   const availableRegions = React.useMemo(() => {
     const regionsFromCities = cities.map(c => c.region).filter(Boolean) as string[];
-    const regionsFromDestinations = destinations.map(d => d.region).filter(Boolean) as string[];
+    const regionsFromDestinations = destinations.flatMap(d => d.region || []).filter(Boolean);
     const all = [...new Set([...regionsFromCities, ...regionsFromDestinations])];
     return all.sort((a, b) => a.localeCompare(b, 'fr'));
   }, [cities, destinations]);
@@ -691,10 +692,10 @@ const LocationManagement = () => {
   const resetDestinationForm = () => {
     setEditingDestination(null);
     setDestinationForm({
-      name_fr: "", name_en: "", name_ar: "", region: "",
+      name_fr: "", name_en: "", name_ar: "", regions: [],
       latitude: "", longitude: "", wikipedia_fr: "", wikipedia_en: "", wikipedia_ar: "",
       hook: "", description: "", sort_order: 0, image_url: "", keywords: [] as string[],
-      is_searchable: false, images: [] as string[],
+      is_searchable: false, images: [] as string[], internal_notes: "",
     });
   };
 
@@ -702,13 +703,14 @@ const LocationManagement = () => {
     setEditingDestination(d);
     setDestinationForm({
       name_fr: d.name_fr, name_en: d.name_en || "", name_ar: d.name_ar || "",
-      region: d.region || "",
+      regions: d.region || [],
       latitude: d.latitude?.toString() || "", longitude: d.longitude?.toString() || "",
       wikipedia_fr: d.wikipedia_fr || "", wikipedia_en: d.wikipedia_en || "", wikipedia_ar: d.wikipedia_ar || "",
       hook: d.hook || "", description: d.description || "", sort_order: d.sort_order || 0,
       image_url: d.image_url || "", keywords: d.keywords || [],
       is_searchable: (d as any).is_searchable ?? false,
       images: (d as any).images || [],
+      internal_notes: d.internal_notes || "",
     });
     setShowDestinationForm(true);
     setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 0);
@@ -719,15 +721,15 @@ const LocationManagement = () => {
       toast({ variant: "destructive", title: "Erreur", description: "Le nom français est requis." });
       return;
     }
-    if (!destinationForm.region.trim()) {
-      toast({ variant: "destructive", title: "Erreur", description: "La région est requise." });
+    if (destinationForm.regions.length === 0) {
+      toast({ variant: "destructive", title: "Erreur", description: "Au moins une région est requise." });
       return;
     }
     const data = {
       name_fr: destinationForm.name_fr.trim(),
       name_en: destinationForm.name_en.trim() || null,
       name_ar: destinationForm.name_ar.trim() || null,
-      region: destinationForm.region.trim() || null,
+      region: destinationForm.regions,
       latitude: destinationForm.latitude ? parseFloat(destinationForm.latitude) : null,
       longitude: destinationForm.longitude ? parseFloat(destinationForm.longitude) : null,
       wikipedia_fr: destinationForm.wikipedia_fr.trim() || null,
@@ -740,6 +742,7 @@ const LocationManagement = () => {
       keywords: destinationForm.keywords.length > 0 ? destinationForm.keywords : [],
       is_searchable: destinationForm.is_searchable,
       images: destinationForm.images.length > 0 ? destinationForm.images : [],
+      internal_notes: destinationForm.internal_notes.trim().slice(0, 5000) || null,
     };
     let error;
     if (editingDestination) {
@@ -1348,7 +1351,7 @@ const LocationManagement = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Toutes les régions</SelectItem>
-                  {[...new Set(destinations.map(d => d.region).filter(Boolean) as string[])]
+                  {[...new Set(destinations.flatMap(d => d.region || []).filter(Boolean))]
                     .sort((a, b) => a.localeCompare(b, 'fr'))
                     .map(r => (
                       <SelectItem key={r} value={r}>{r}</SelectItem>
@@ -1356,7 +1359,7 @@ const LocationManagement = () => {
                 </SelectContent>
               </Select>
             </div>
-            {destinations.filter(d => destinationRegionFilter === "all" || d.region === destinationRegionFilter).length === 0 ? (
+            {destinations.filter(d => destinationRegionFilter === "all" || (d.region || []).includes(destinationRegionFilter)).length === 0 ? (
               <p className="text-muted-foreground text-sm text-center py-4">Aucune destination</p>
             ) : (
               <Table>
@@ -1373,7 +1376,7 @@ const LocationManagement = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {destinations.filter(d => destinationRegionFilter === "all" || d.region === destinationRegionFilter).map((d) => (
+                  {destinations.filter(d => destinationRegionFilter === "all" || (d.region || []).includes(destinationRegionFilter)).map((d) => (
                     <TableRow key={d.id}>
                       <TableCell>
                         {(d as any).image_url ? (
@@ -1383,7 +1386,7 @@ const LocationManagement = () => {
                         )}
                       </TableCell>
                       <TableCell className="font-medium">{d.name_fr}</TableCell>
-                      <TableCell className="text-muted-foreground">{d.region || "—"}</TableCell>
+                      <TableCell className="text-muted-foreground">{(d.region || []).join(", ") || "—"}</TableCell>
                       <TableCell>
                         <div className={`w-3 h-3 rounded-full ${d.is_searchable ? 'bg-green-500' : 'bg-red-500'}`} title={d.is_searchable ? 'Oui' : 'Non'} />
                       </TableCell>
@@ -1839,23 +1842,35 @@ const LocationManagement = () => {
                     <Label>Nom (FR) *</Label>
                     <Input value={destinationForm.name_fr} onChange={(e) => setDestinationForm({ ...destinationForm, name_fr: e.target.value })} />
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Région <span className="text-destructive">*</span></Label>
-                      <Select
-                        value={destinationForm.region}
-                        onValueChange={(value) => setDestinationForm({ ...destinationForm, region: value })}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Sélectionner une région" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {availableRegions.map((r) => (
-                            <SelectItem key={r} value={r}>{r}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                  <div className="space-y-2">
+                    <Label>Régions <span className="text-destructive">*</span></Label>
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      {destinationForm.regions.map((r, i) => (
+                        <span key={i} className="inline-flex items-center gap-1 bg-muted px-2 py-1 rounded text-sm">
+                          {r}
+                          <button type="button" onClick={() => setDestinationForm(prev => ({ ...prev, regions: prev.regions.filter((_, j) => j !== i) }))} className="text-muted-foreground hover:text-destructive">
+                            <X className="h-3 w-3" />
+                          </button>
+                        </span>
+                      ))}
                     </div>
+                    <Select
+                      value=""
+                      onValueChange={(value) => {
+                        if (!destinationForm.regions.includes(value)) {
+                          setDestinationForm(prev => ({ ...prev, regions: [...prev.regions, value] }));
+                        }
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Ajouter une région..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availableRegions.filter(r => !destinationForm.regions.includes(r)).map((r) => (
+                          <SelectItem key={r} value={r}>{r}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div className="pt-4 border-t">
                     <div className="flex items-center justify-between mb-3">
@@ -1927,7 +1942,7 @@ const LocationManagement = () => {
               {/* Description Rich Text */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Description — {(destinationForm.description || "").replace(/<[^>]*>/g, '').length} caractères</CardTitle>
+                  <CardTitle className="text-lg">Description — {(destinationForm.description || "").replace(/<[^>]*>/g, '').length} / 5 000 caractères</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <RichTextEditor
@@ -1953,6 +1968,22 @@ const LocationManagement = () => {
                     <Label>Wikipedia AR</Label>
                     <Input value={destinationForm.wikipedia_ar} onChange={(e) => setDestinationForm({ ...destinationForm, wikipedia_ar: e.target.value })} placeholder="https://ar.wikipedia.org/wiki/..." />
                   </div>
+                </CardContent>
+              </Card>
+
+              {/* Note interne */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Note interne — {(destinationForm.internal_notes || "").length} / 5 000 caractères</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <textarea
+                    className="flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    value={destinationForm.internal_notes}
+                    onChange={(e) => setDestinationForm(prev => ({ ...prev, internal_notes: e.target.value.slice(0, 5000) }))}
+                    placeholder="Notes internes (non visibles publiquement)..."
+                    maxLength={5000}
+                  />
                 </CardContent>
               </Card>
 

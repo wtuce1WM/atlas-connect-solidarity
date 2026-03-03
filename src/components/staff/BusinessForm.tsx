@@ -310,7 +310,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
   const [badgeSubcategories, setBadgeSubcategories] = useState<Array<{ badge_id: string; subcategory_id: string }>>([]);
   const [dbNeighborhoods, setDbNeighborhoods] = useState<Array<{ id: string; name: string; city_id: string }>>([]);
   const [dbAffiliates, setDbAffiliates] = useState<Array<{ id: string; name: string }>>([]);
-  const [dbDestinations, setDbDestinations] = useState<Array<{ id: string; name_fr: string; region: string | null }>>([]);
+  const [dbDestinations, setDbDestinations] = useState<Array<{ id: string; name_fr: string; region: string[] | null }>>([]);
   const [dbPOIs, setDbPOIs] = useState<Array<{ id: string; name_fr: string; city_id: string }>>([]);
   const [selectedDestinationIds, setSelectedDestinationIds] = useState<string[]>([]);
   const [selectedPOIIds, setSelectedPOIIds] = useState<string[]>([]);
@@ -2110,7 +2110,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
                             }`}
                           >
                             {dest.name_fr}
-                            {dest.region && <span className="ml-1 opacity-60 text-xs">({dest.region})</span>}
+                            {dest.region && dest.region.length > 0 && <span className="ml-1 opacity-60 text-xs">({dest.region.join(", ")})</span>}
                           </button>
                         );
                       })}
