@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash2, Edit, Save, X, Search, BookOpen, ChevronDown, ChevronUp, Link2, MapPin } from "lucide-react";
+import { Plus, Trash2, Edit, Save, X, Search, BookOpen, ChevronDown, ChevronUp, Link2, MapPin, Upload, Loader2, ImageIcon } from "lucide-react";
 import RichTextEditor from "./RichTextEditor";
 
 interface KnowledgeEntry {
@@ -410,7 +410,42 @@ const KnowledgeBaseManagement = ({
                 </CardHeader>
                 <CardContent className="space-y-2">
                   {formExternalUrls.map((eu, idx) => (
-                    <div key={idx} className="grid grid-cols-[1fr_1fr_1fr_auto] gap-2 items-center">
+                    <div key={idx} className="flex items-center gap-2 p-2 border rounded-md">
+                      <div className="flex-shrink-0">
+                        {eu.logo_url ? (
+                          <div className="relative w-10 h-10">
+                            <img src={eu.logo_url} alt="" className="w-10 h-10 object-contain rounded border" />
+                            <button
+                              type="button"
+                              className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full w-4 h-4 flex items-center justify-center text-[10px]"
+                              onClick={() => {
+                                const updated = [...formExternalUrls];
+                                updated[idx] = { ...updated[idx], logo_url: "" };
+                                setFormExternalUrls(updated);
+                              }}
+                            >×</button>
+                          </div>
+                        ) : (
+                          <label className="w-10 h-10 border-2 border-dashed rounded flex items-center justify-center cursor-pointer hover:border-primary/50 transition-colors">
+                            <ImageIcon className="h-4 w-4 text-muted-foreground" />
+                            <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
+                              if (file.size > 2 * 1024 * 1024) { toast({ variant: "destructive", title: "Max 2MB" }); return; }
+                              const ext = file.name.split(".").pop();
+                              const path = `knowledge/external-logos/${Date.now()}-${idx}.${ext}`;
+                              const { error } = await supabase.storage.from("business-images").upload(path, file);
+                              if (error) { toast({ variant: "destructive", title: "Erreur upload" }); return; }
+                              const { data: urlData } = supabase.storage.from("business-images").getPublicUrl(path);
+                              if (urlData?.publicUrl) {
+                                const updated = [...formExternalUrls];
+                                updated[idx] = { ...updated[idx], logo_url: urlData.publicUrl };
+                                setFormExternalUrls(updated);
+                              }
+                            }} />
+                          </label>
+                        )}
+                      </div>
                       <Input
                         placeholder="Nom"
                         value={eu.name}
@@ -419,17 +454,7 @@ const KnowledgeBaseManagement = ({
                           updated[idx] = { ...updated[idx], name: e.target.value };
                           setFormExternalUrls(updated);
                         }}
-                        className="h-8 text-sm"
-                      />
-                      <Input
-                        placeholder="URL du logo"
-                        value={eu.logo_url}
-                        onChange={e => {
-                          const updated = [...formExternalUrls];
-                          updated[idx] = { ...updated[idx], logo_url: e.target.value };
-                          setFormExternalUrls(updated);
-                        }}
-                        className="h-8 text-sm"
+                        className="h-8 text-sm flex-1"
                       />
                       <Input
                         placeholder="URL"
@@ -439,9 +464,9 @@ const KnowledgeBaseManagement = ({
                           updated[idx] = { ...updated[idx], url: e.target.value };
                           setFormExternalUrls(updated);
                         }}
-                        className="h-8 text-sm"
+                        className="h-8 text-sm flex-1"
                       />
-                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => {
+                      <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0" onClick={() => {
                         setFormExternalUrls(prev => prev.filter((_, i) => i !== idx));
                       }}>
                         <Trash2 className="h-3 w-3 text-destructive" />
