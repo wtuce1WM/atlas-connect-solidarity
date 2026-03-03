@@ -1,0 +1,1 @@
+ALTER TABLE public.destinations ADD COLUMN images text[] DEFAULT '{}'::text[];

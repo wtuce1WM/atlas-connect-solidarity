@@ -38,6 +38,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Plus, Edit, Trash2, Globe, MapPin, Building, ExternalLink, ArrowLeft, Save, FileText, Home, ChevronDown, Compass, LocateFixed, Loader2, ImageIcon, X, Search } from "lucide-react";
 import RichTextEditor from "./RichTextEditor";
 import LogoUploader from "./LogoUploader";
+import ImageUploader from "./ImageUploader";
 
 interface Country {
   id: string;
@@ -191,7 +192,7 @@ const LocationManagement = () => {
     name_fr: "", name_en: "", name_ar: "", region: "",
     latitude: "", longitude: "", wikipedia_fr: "", wikipedia_en: "", wikipedia_ar: "",
     hook: "", description: "", sort_order: 0, image_url: "", keywords: [] as string[],
-    is_searchable: false,
+    is_searchable: false, images: [] as string[],
   });
   const [poiSectionOpen, setPoiSectionOpen] = useState(false);
   const [pois, setPois] = useState<PointOfInterest[]>([]);
@@ -693,7 +694,7 @@ const LocationManagement = () => {
       name_fr: "", name_en: "", name_ar: "", region: "",
       latitude: "", longitude: "", wikipedia_fr: "", wikipedia_en: "", wikipedia_ar: "",
       hook: "", description: "", sort_order: 0, image_url: "", keywords: [] as string[],
-      is_searchable: false,
+      is_searchable: false, images: [] as string[],
     });
   };
 
@@ -707,6 +708,7 @@ const LocationManagement = () => {
       hook: d.hook || "", description: d.description || "", sort_order: d.sort_order || 0,
       image_url: d.image_url || "", keywords: d.keywords || [],
       is_searchable: (d as any).is_searchable ?? false,
+      images: (d as any).images || [],
     });
     setShowDestinationForm(true);
     setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 0);
@@ -737,6 +739,7 @@ const LocationManagement = () => {
       image_url: destinationForm.image_url.trim() || null,
       keywords: destinationForm.keywords.length > 0 ? destinationForm.keywords : [],
       is_searchable: destinationForm.is_searchable,
+      images: destinationForm.images.length > 0 ? destinationForm.images : [],
     };
     let error;
     if (editingDestination) {
@@ -1828,23 +1831,13 @@ const LocationManagement = () => {
                  </CardContent>
                </Card>
 
-              {/* Names */}
+              {/* Informations */}
               <Card>
                 <CardHeader><CardTitle className="text-lg">Informations</CardTitle></CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="space-y-2">
-                      <Label>Nom (FR) *</Label>
-                      <Input value={destinationForm.name_fr} onChange={(e) => setDestinationForm({ ...destinationForm, name_fr: e.target.value })} />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Nom (EN)</Label>
-                      <Input value={destinationForm.name_en} onChange={(e) => setDestinationForm({ ...destinationForm, name_en: e.target.value })} />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Nom (AR)</Label>
-                      <Input value={destinationForm.name_ar} onChange={(e) => setDestinationForm({ ...destinationForm, name_ar: e.target.value })} dir="rtl" />
-                    </div>
+                  <div className="space-y-2">
+                    <Label>Nom (FR) *</Label>
+                    <Input value={destinationForm.name_fr} onChange={(e) => setDestinationForm({ ...destinationForm, name_fr: e.target.value })} />
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
@@ -1863,80 +1856,53 @@ const LocationManagement = () => {
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="space-y-2">
-                      <Label>Ordre d'affichage</Label>
-                      <Input type="number" value={destinationForm.sort_order} onChange={(e) => setDestinationForm({ ...destinationForm, sort_order: parseInt(e.target.value) || 0 })} />
+                  </div>
+                  <div className="pt-4 border-t">
+                    <div className="flex items-center justify-between mb-3">
+                      <Label className="text-sm font-medium">Coordonnées GPS</Label>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={!destinationForm.name_fr.trim() || geocodingField === 'destination'}
+                        onClick={async () => {
+                          setGeocodingField('destination');
+                          const coords = await handleGeocode(destinationForm.name_fr);
+                          if (coords) {
+                            setDestinationForm(prev => ({ ...prev, latitude: coords.lat, longitude: coords.lng }));
+                            toast({ title: "GPS trouvé", description: `${coords.lat}, ${coords.lng}` });
+                          } else {
+                            toast({ variant: "destructive", title: "Non trouvé", description: "Impossible de géolocaliser cette destination." });
+                          }
+                          setGeocodingField(null);
+                        }}
+                      >
+                        {geocodingField === 'destination' ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <LocateFixed className="h-4 w-4 mr-1" />}
+                        Géolocaliser
+                      </Button>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Latitude</Label>
+                        <Input value={destinationForm.latitude} onChange={(e) => setDestinationForm({ ...destinationForm, latitude: e.target.value })} placeholder="31.6295" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Longitude</Label>
+                        <Input value={destinationForm.longitude} onChange={(e) => setDestinationForm({ ...destinationForm, longitude: e.target.value })} placeholder="-7.9811" />
+                      </div>
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
+              {/* Images */}
               <Card>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg">Coordonnées GPS</CardTitle>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      disabled={!destinationForm.name_fr.trim() || geocodingField === 'destination'}
-                      onClick={async () => {
-                        setGeocodingField('destination');
-                        const coords = await handleGeocode(destinationForm.name_fr);
-                        if (coords) {
-                          setDestinationForm(prev => ({ ...prev, latitude: coords.lat, longitude: coords.lng }));
-                          toast({ title: "GPS trouvé", description: `${coords.lat}, ${coords.lng}` });
-                        } else {
-                          toast({ variant: "destructive", title: "Non trouvé", description: "Impossible de géolocaliser cette destination." });
-                        }
-                        setGeocodingField(null);
-                      }}
-                    >
-                      {geocodingField === 'destination' ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <LocateFixed className="h-4 w-4 mr-1" />}
-                      Géolocaliser
-                    </Button>
-                  </div>
-                </CardHeader>
+                <CardHeader><CardTitle className="text-lg flex items-center gap-2"><ImageIcon className="h-5 w-5" /> Images</CardTitle></CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Latitude</Label>
-                      <Input value={destinationForm.latitude} onChange={(e) => setDestinationForm({ ...destinationForm, latitude: e.target.value })} placeholder="31.6295" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Longitude</Label>
-                      <Input value={destinationForm.longitude} onChange={(e) => setDestinationForm({ ...destinationForm, longitude: e.target.value })} placeholder="-7.9811" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Wikipedia */}
-              <Card>
-                <CardHeader><CardTitle className="text-lg">Wikipedia</CardTitle></CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>Wikipedia FR</Label>
-                    <Input value={destinationForm.wikipedia_fr} onChange={(e) => setDestinationForm({ ...destinationForm, wikipedia_fr: e.target.value })} placeholder="https://fr.wikipedia.org/wiki/..." />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Wikipedia EN</Label>
-                    <Input value={destinationForm.wikipedia_en} onChange={(e) => setDestinationForm({ ...destinationForm, wikipedia_en: e.target.value })} placeholder="https://en.wikipedia.org/wiki/..." />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Wikipedia AR</Label>
-                    <Input value={destinationForm.wikipedia_ar} onChange={(e) => setDestinationForm({ ...destinationForm, wikipedia_ar: e.target.value })} placeholder="https://ar.wikipedia.org/wiki/..." />
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Image */}
-              <Card>
-                <CardHeader><CardTitle className="text-lg flex items-center gap-2"><ImageIcon className="h-5 w-5" /> Image</CardTitle></CardHeader>
-                <CardContent>
-                  <LogoUploader
-                    logoUrl={destinationForm.image_url}
-                    onChange={(url) => setDestinationForm({ ...destinationForm, image_url: url })}
+                  <ImageUploader
+                    images={destinationForm.images}
+                    onChange={(imgs) => setDestinationForm(prev => ({ ...prev, images: imgs }))}
+                    maxImages={12}
                     businessId={editingDestination?.id || "destination"}
                   />
                 </CardContent>
@@ -1961,7 +1927,7 @@ const LocationManagement = () => {
               {/* Description Rich Text */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Description</CardTitle>
+                  <CardTitle className="text-lg">Description — {(destinationForm.description || "").replace(/<[^>]*>/g, '').length} caractères</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <RichTextEditor
@@ -1969,7 +1935,26 @@ const LocationManagement = () => {
                     onChange={(val) => setDestinationForm(prev => ({ ...prev, description: val }))}
                   />
                 </CardContent>
-               </Card>
+              </Card>
+
+              {/* Wikipedia — en bas */}
+              <Card>
+                <CardHeader><CardTitle className="text-lg">Wikipedia</CardTitle></CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Wikipedia FR</Label>
+                    <Input value={destinationForm.wikipedia_fr} onChange={(e) => setDestinationForm({ ...destinationForm, wikipedia_fr: e.target.value })} placeholder="https://fr.wikipedia.org/wiki/..." />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Wikipedia EN</Label>
+                    <Input value={destinationForm.wikipedia_en} onChange={(e) => setDestinationForm({ ...destinationForm, wikipedia_en: e.target.value })} placeholder="https://en.wikipedia.org/wiki/..." />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Wikipedia AR</Label>
+                    <Input value={destinationForm.wikipedia_ar} onChange={(e) => setDestinationForm({ ...destinationForm, wikipedia_ar: e.target.value })} placeholder="https://ar.wikipedia.org/wiki/..." />
+                  </div>
+                </CardContent>
+              </Card>
 
             </div>
           </div>

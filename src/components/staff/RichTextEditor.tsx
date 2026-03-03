@@ -2,10 +2,12 @@ import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
 import TextAlign from "@tiptap/extension-text-align";
+import Underline from "@tiptap/extension-underline";
 import { Button } from "@/components/ui/button";
 import {
   Bold,
   Italic,
+  Underline as UnderlineIcon,
   List,
   ListOrdered,
   Link as LinkIcon,
@@ -34,6 +36,7 @@ const RichTextEditor = ({ content, onChange, placeholder, maxHeight }: RichTextE
         levels: [2, 3],
       },
     }),
+    Underline,
     Link.configure({
       openOnClick: false,
       HTMLAttributes: {
@@ -107,6 +110,15 @@ const RichTextEditor = ({ content, onChange, placeholder, maxHeight }: RichTextE
           className="h-8 w-8 p-0"
         >
           <Italic className="h-4 w-4" />
+        </Button>
+        <Button
+          type="button"
+          variant={editor.isActive("underline") ? "secondary" : "ghost"}
+          size="sm"
+          onClick={() => editor.chain().focus().toggleUnderline().run()}
+          className="h-8 w-8 p-0"
+        >
+          <UnderlineIcon className="h-4 w-4" />
         </Button>
         <Button
           type="button"
