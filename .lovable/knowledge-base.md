@@ -89,3 +89,26 @@ Journal des décisions d'architecture, règles métier et apprentissages issus d
 - **Méthode SQL** : `unaccent()` dans le trigger `update_business_search_vector`.
 - **Exemples** : médina→medina, crêperie→creperie, française→francaise, naïf→naif, façade→facade.
 - Les ligatures (œ, æ) sont aussi décomposées par NFD : œ→oe, æ→ae.
+
+---
+
+## 🔊 Lecture d'articles (concept — pas encore implémenté)
+
+### Flux proposé : "Lire un article de presse"
+
+Quand une entrée de la Base IA possède des URLs externes avec langue associée, l'agent vocal ElevenLabs peut proposer :
+> *« Voulez-vous que je vous lise un article ? »*
+
+### Architecture technique
+
+1. **Détection** : L'agent vocal détecte les URLs externes disponibles sur l'entrée Knowledge Base.
+2. **Choix de la langue** : Il liste les URLs avec leur langue (ex: « J'ai un article en FR et un en EN »), l'utilisateur répond vocalement.
+3. **Scraping** : Une Edge Function scrape le contenu de l'URL choisie (via Firecrawl ou un simple fetch + extraction du texte principal).
+4. **Lecture TTS** : Le contenu scrappé est envoyé à ElevenLabs TTS (`eleven_multilingual_v2`) qui le lit à voix haute.
+
+### Points à considérer
+
+- **Longueur** : Les articles longs coûtent cher en TTS. Proposer un résumé IA avant la lecture complète.
+- **Qualité du scraping** : Certains sites bloquent le scraping. Firecrawl gère mieux les sites complexes.
+- **Voix multilingue** : Utiliser le modèle `eleven_multilingual_v2` pour supporter toutes les langues.
+- **Résumé optionnel** : Passer par Lovable AI (Gemini/GPT) pour résumer ou nettoyer le texte avant lecture.
