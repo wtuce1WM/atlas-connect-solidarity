@@ -112,3 +112,14 @@ Quand une entrée de la Base IA possède des URLs externes avec langue associée
 - **Qualité du scraping** : Certains sites bloquent le scraping. Firecrawl gère mieux les sites complexes.
 - **Voix multilingue** : Utiliser le modèle `eleven_multilingual_v2` pour supporter toutes les langues.
 - **Résumé optionnel** : Passer par Lovable AI (Gemini/GPT) pour résumer ou nettoyer le texte avant lecture.
+
+---
+
+## 📂 Fichier .lovable/knowledge-base.md
+
+- Ce fichier est le journal interne des décisions d'architecture, règles métier et apprentissages du projet.
+- Il n'est **PAS accessible via une URL publique**.
+- Pour le consulter :
+  - **Code Editor Lovable** : icône code en haut du preview → naviguer vers `.lovable/knowledge-base.md`
+  - **GitHub** : si le projet est connecté à GitHub, le fichier est visible dans le repo.
+- Ce fichier est différent de la table `knowledge_entries` (Base IA du backoffice) qui stocke les connaissances consultables par l'IA conversationnelle.
