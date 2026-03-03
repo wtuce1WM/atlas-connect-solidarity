@@ -519,13 +519,10 @@ const KnowledgeBaseManagement = ({
       )}
 
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex items-center gap-3">
         <div className="relative flex-1 min-w-[200px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input placeholder="Rechercher…" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10" />
-          <p className="text-xs text-muted-foreground mt-1">
-            Ces entrées enrichissent les réponses du concierge IA. Les entrées liées à un établissement sont utilisées par l'IA pour contextualiser ses réponses, mais ne s'affichent pas sur la fiche de l'établissement.
-          </p>
         </div>
         {categories.length > 1 && (
           <Select value={categoryFilter} onValueChange={setCategoryFilter}>
@@ -537,9 +534,12 @@ const KnowledgeBaseManagement = ({
           </Select>
         )}
         {!isEditing && (
-          <Button onClick={() => setShowNew(true)}><Plus className="h-4 w-4 mr-2" />{newEntryLabel}</Button>
+          <Button className="shrink-0" onClick={() => setShowNew(true)}><Plus className="h-4 w-4 mr-2" />{newEntryLabel}</Button>
         )}
       </div>
+      <p className="text-xs text-muted-foreground -mt-4">
+        Ces entrées enrichissent les réponses du concierge IA. Les entrées liées à un établissement sont utilisées par l'IA pour contextualiser ses réponses, mais ne s'affichent pas sur la fiche de l'établissement.
+      </p>
 
       {/* Stats */}
       <p className="text-sm text-muted-foreground">{filtered.length} entrée{filtered.length !== 1 ? "s" : ""}</p>
