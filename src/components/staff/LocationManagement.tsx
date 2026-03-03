@@ -1744,22 +1744,47 @@ const LocationManagement = () => {
             </div>
 
             <div className="space-y-6">
+              {/* Keywords / Search aliases - top */}
+              <Card>
+                <CardHeader><CardTitle className="text-lg">Mots-clés / Alias de recherche</CardTitle></CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-xs text-muted-foreground">Variantes d'écriture pour la recherche</p>
+                  <div className="flex flex-wrap gap-2 mb-2 max-h-[300px] overflow-y-auto p-2 border rounded-md min-h-[60px]">
+                    {poiForm.keywords.map((kw, i) => (
+                      <span key={i} className="inline-flex items-center gap-1 bg-muted px-2 py-1 rounded text-sm">
+                        {kw}
+                        <button type="button" onClick={() => setPoiForm(prev => ({ ...prev, keywords: prev.keywords.filter((_, j) => j !== i) }))} className="text-muted-foreground hover:text-destructive">
+                          <X className="h-3 w-3" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                  <div className="flex gap-2">
+                    <Input
+                      value={poiKeywordInput}
+                      onChange={(e) => setPoiKeywordInput(e.target.value)}
+                      placeholder="Ajouter un alias…"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          addPoiKeyword();
+                        }
+                      }}
+                    />
+                    <Button type="button" variant="outline" onClick={addPoiKeyword}>
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Informations */}
               <Card>
                 <CardHeader><CardTitle className="text-lg">Informations</CardTitle></CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="space-y-2">
-                      <Label>Nom (FR) *</Label>
-                      <Input value={poiForm.name_fr} onChange={(e) => setPoiForm({ ...poiForm, name_fr: e.target.value })} />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Nom (EN)</Label>
-                      <Input value={poiForm.name_en} onChange={(e) => setPoiForm({ ...poiForm, name_en: e.target.value })} />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Nom (AR)</Label>
-                      <Input value={poiForm.name_ar} onChange={(e) => setPoiForm({ ...poiForm, name_ar: e.target.value })} dir="rtl" />
-                    </div>
+                  <div className="space-y-2">
+                    <Label>Nom (FR) *</Label>
+                    <Input value={poiForm.name_fr} onChange={(e) => setPoiForm({ ...poiForm, name_fr: e.target.value })} />
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
@@ -1786,50 +1811,87 @@ const LocationManagement = () => {
                       <Input type="number" value={poiForm.sort_order} onChange={(e) => setPoiForm({ ...poiForm, sort_order: parseInt(e.target.value) || 0 })} />
                     </div>
                   </div>
+                  <div className="pt-4 border-t">
+                    <div className="flex items-center justify-between mb-3">
+                      <Label className="text-sm font-medium">Coordonnées GPS</Label>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={!poiForm.name_fr.trim() || geocodingField === 'poi'}
+                        onClick={async () => {
+                          setGeocodingField('poi');
+                          const cityName = cities.find(c => c.id === poiForm.city_id)?.name_fr;
+                          const coords = await handleGeocode(poiForm.name_fr, cityName);
+                          if (coords) {
+                            setPoiForm(prev => ({ ...prev, latitude: coords.lat, longitude: coords.lng }));
+                            toast({ title: "GPS trouvé", description: `${coords.lat}, ${coords.lng}` });
+                          } else {
+                            toast({ variant: "destructive", title: "Non trouvé", description: "Impossible de géolocaliser ce point d'intérêt." });
+                          }
+                          setGeocodingField(null);
+                        }}
+                      >
+                        {geocodingField === 'poi' ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <LocateFixed className="h-4 w-4 mr-1" />}
+                        Géolocaliser
+                      </Button>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Latitude</Label>
+                        <Input value={poiForm.latitude} onChange={(e) => setPoiForm({ ...poiForm, latitude: e.target.value })} placeholder="31.6295" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Longitude</Label>
+                        <Input value={poiForm.longitude} onChange={(e) => setPoiForm({ ...poiForm, longitude: e.target.value })} placeholder="-7.9811" />
+                      </div>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
 
+              {/* Image */}
+              <Card>
+                <CardHeader><CardTitle className="text-lg flex items-center gap-2"><ImageIcon className="h-5 w-5" /> Image</CardTitle></CardHeader>
+                <CardContent>
+                  <LogoUploader
+                    logoUrl={poiForm.image_url}
+                    onChange={(url) => setPoiForm({ ...poiForm, image_url: url })}
+                    businessId={editingPoi?.id || "poi"}
+                  />
+                </CardContent>
+              </Card>
+
+              {/* Hook */}
+              <Card>
+                <CardHeader><CardTitle className="text-lg">Hook (H2)</CardTitle></CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <Input
+                      value={poiForm.hook}
+                      onChange={(e) => setPoiForm({ ...poiForm, hook: e.target.value.slice(0, 120) })}
+                      placeholder="Accroche courte pour ce point d'intérêt..."
+                      maxLength={120}
+                    />
+                    <p className="text-xs text-muted-foreground text-right">{poiForm.hook.length}/120</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Description */}
               <Card>
                 <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg">Coordonnées GPS</CardTitle>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      disabled={!poiForm.name_fr.trim() || geocodingField === 'poi'}
-                      onClick={async () => {
-                        setGeocodingField('poi');
-                        const cityName = cities.find(c => c.id === poiForm.city_id)?.name_fr;
-                        const coords = await handleGeocode(poiForm.name_fr, cityName);
-                        if (coords) {
-                          setPoiForm(prev => ({ ...prev, latitude: coords.lat, longitude: coords.lng }));
-                          toast({ title: "GPS trouvé", description: `${coords.lat}, ${coords.lng}` });
-                        } else {
-                          toast({ variant: "destructive", title: "Non trouvé", description: "Impossible de géolocaliser ce point d'intérêt." });
-                        }
-                        setGeocodingField(null);
-                      }}
-                    >
-                      {geocodingField === 'poi' ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <LocateFixed className="h-4 w-4 mr-1" />}
-                      Géolocaliser
-                    </Button>
-                  </div>
+                  <CardTitle className="text-lg">Description — {(poiForm.description || "").replace(/<[^>]*>/g, '').length} / 5 000 caractères</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Latitude</Label>
-                      <Input value={poiForm.latitude} onChange={(e) => setPoiForm({ ...poiForm, latitude: e.target.value })} placeholder="31.6295" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Longitude</Label>
-                      <Input value={poiForm.longitude} onChange={(e) => setPoiForm({ ...poiForm, longitude: e.target.value })} placeholder="-7.9811" />
-                    </div>
-                  </div>
+                  <RichTextEditor
+                    content={poiForm.description}
+                    onChange={(val) => setPoiForm(prev => ({ ...prev, description: val }))}
+                  />
                 </CardContent>
               </Card>
 
+              {/* Wikipedia — bottom */}
               <Card>
                 <CardHeader><CardTitle className="text-lg">Wikipedia</CardTitle></CardHeader>
                 <CardContent className="space-y-4">
@@ -1848,6 +1910,7 @@ const LocationManagement = () => {
                 </CardContent>
               </Card>
 
+              {/* Sites officiels — bottom */}
               <Card>
                 <CardHeader><CardTitle className="text-lg flex items-center gap-2"><ExternalLink className="h-5 w-5" /> Sites officiels</CardTitle></CardHeader>
                 <CardContent className="space-y-4">
@@ -1865,74 +1928,6 @@ const LocationManagement = () => {
                   </div>
                 </CardContent>
               </Card>
-
-              {/* Image */}
-              <Card>
-                <CardHeader><CardTitle className="text-lg flex items-center gap-2"><ImageIcon className="h-5 w-5" /> Image</CardTitle></CardHeader>
-                <CardContent>
-                  <LogoUploader
-                    logoUrl={poiForm.image_url}
-                    onChange={(url) => setPoiForm({ ...poiForm, image_url: url })}
-                    businessId={editingPoi?.id || "poi"}
-                  />
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader><CardTitle className="text-lg">Hook (H2) — {poiForm.hook.length}/120</CardTitle></CardHeader>
-                <CardContent>
-                  <Input
-                    value={poiForm.hook}
-                    onChange={(e) => setPoiForm({ ...poiForm, hook: e.target.value.slice(0, 120) })}
-                    placeholder="Accroche courte pour ce point d'intérêt..."
-                    maxLength={120}
-                  />
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader><CardTitle className="text-lg">Description</CardTitle></CardHeader>
-                <CardContent>
-                  <RichTextEditor
-                    content={poiForm.description}
-                    onChange={(val) => setPoiForm(prev => ({ ...prev, description: val }))}
-                  />
-                </CardContent>
-               </Card>
-
-               {/* Keywords */}
-               <Card>
-                 <CardHeader><CardTitle className="text-lg">Mots-clés / Alias de recherche</CardTitle></CardHeader>
-                 <CardContent className="space-y-2">
-                   <p className="text-xs text-muted-foreground">Variantes d'écriture pour la recherche</p>
-                   <div className="flex flex-wrap gap-2 mb-2">
-                     {poiForm.keywords.map((kw, i) => (
-                       <span key={i} className="inline-flex items-center gap-1 bg-muted px-2 py-1 rounded text-sm">
-                         {kw}
-                         <button type="button" onClick={() => setPoiForm(prev => ({ ...prev, keywords: prev.keywords.filter((_, j) => j !== i) }))} className="text-muted-foreground hover:text-destructive">
-                           <X className="h-3 w-3" />
-                         </button>
-                       </span>
-                     ))}
-                   </div>
-                    <div className="flex gap-2">
-                      <Input
-                        value={poiKeywordInput}
-                        onChange={(e) => setPoiKeywordInput(e.target.value)}
-                        placeholder="Ajouter un alias…"
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault();
-                            addPoiKeyword();
-                          }
-                        }}
-                      />
-                      <Button type="button" variant="outline" onClick={addPoiKeyword}>
-                        <Plus className="h-4 w-4" />
-                      </Button>
-                    </div>
-                 </CardContent>
-               </Card>
             </div>
           </div>
         </div>
