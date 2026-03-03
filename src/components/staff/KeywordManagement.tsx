@@ -5,46 +5,17 @@ import { fetchAllRows } from "@/lib/fetchAllRows";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Search, Loader2, ExternalLink, Eye, ArrowUpAZ, ArrowDownZA, ChevronDown, ChevronRight } from "lucide-react";
 
-interface Category {
-  id: string;
-  name_fr: string;
-}
-
-interface Subcategory {
-  id: string;
-  category_id: string;
-  name_fr: string;
-}
-
-interface Service {
-  id: string;
-  subcategory_id: string;
-  name_fr: string;
-  name_en: string | null;
-  name_ar: string | null;
-  keywords: string[] | null;
-}
-
-interface KeywordRow {
-  keyword: string;
-  serviceId: string;
-  serviceName: string;
-  subcategoryId: string;
-}
-
-interface BusinessMini {
-  id: string;
-  name: string;
-  city: string | null;
-  is_active: boolean;
-}
+interface Category { id: string; name_fr: string; }
+interface Subcategory { id: string; category_id: string; name_fr: string; }
+interface Service { id: string; subcategory_id: string; name_fr: string; name_en: string | null; name_ar: string | null; keywords: string[] | null; }
+interface ServiceRow { serviceId: string; serviceName: string; subcategoryId: string; keywords: string[]; }
+interface BusinessMini { id: string; name: string; city: string | null; is_active: boolean; }
 
 const KeywordManagement = () => {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -58,16 +29,11 @@ const KeywordManagement = () => {
   const [sortOrder, setSortOrder] = useState<"az" | "za" | "count-asc" | "count-desc">("az");
   const [resultsOpen, setResultsOpen] = useState(false);
 
-  // Business counts per keyword (by service)
   const [businessCountByKw, setBusinessCountByKw] = useState<Record<string, number>>({});
-
-  // Popup state
   const [popup, setPopup] = useState<{ title: string; businesses: BusinessMini[]; loading: boolean } | null>(null);
   const [popupCityFilter, setPopupCityFilter] = useState<string>("all");
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  useEffect(() => { fetchData(); }, []);
 
   const fetchData = async () => {
     setLoading(true);
@@ -82,8 +48,6 @@ const KeywordManagement = () => {
     if (subRes.data) setSubcategories(subRes.data);
     if (svcRes) setServices(svcRes as unknown as Service[]);
 
-    // Count businesses per keyword: a keyword appears via service association
-    // We count how many businesses have the service that owns the keyword
     if (bizRes.data && svcRes) {
       const svcNameToId: Record<string, string> = {};
       for (const s of svcRes as unknown as Service[]) {
@@ -108,38 +72,32 @@ const KeywordManagement = () => {
     setLoading(false);
   };
 
-  // Filtered subcategories based on selected category
   const filteredSubcategories = useMemo(() => {
     if (categoryFilter === "all") return subcategories;
     return subcategories.filter(s => s.category_id === categoryFilter);
   }, [subcategories, categoryFilter]);
 
-  // Reset subcategory filter when category changes
-  useEffect(() => {
-    setSubcategoryFilter("all");
-  }, [categoryFilter]);
+  useEffect(() => { setSubcategoryFilter("all"); }, [categoryFilter]);
 
-  // Build keyword rows from services
-  const allKeywordRows = useMemo(() => {
-    const rows: KeywordRow[] = [];
+  // Build service rows grouped by service
+  const allServiceRows = useMemo(() => {
+    const rows: ServiceRow[] = [];
     for (const svc of services) {
       if (svc.keywords && svc.keywords.length > 0) {
-        for (const kw of svc.keywords) {
-          rows.push({
-            keyword: kw,
-            serviceId: svc.id,
-            serviceName: svc.name_fr,
-            subcategoryId: svc.subcategory_id,
-          });
-        }
+        rows.push({
+          serviceId: svc.id,
+          serviceName: svc.name_fr,
+          subcategoryId: svc.subcategory_id,
+          keywords: svc.keywords,
+        });
       }
     }
     return rows;
   }, [services]);
 
-  // Filtered keyword rows
-  const filteredKeywords = useMemo(() => {
-    let result = allKeywordRows;
+  // Filtered service rows
+  const filteredServiceRows = useMemo(() => {
+    let result = allServiceRows;
 
     if (subcategoryFilter !== "all") {
       result = result.filter(r => r.subcategoryId === subcategoryFilter);
@@ -150,7 +108,12 @@ const KeywordManagement = () => {
 
     if (searchQuery.trim()) {
       const q = searchQuery.trim().toLowerCase();
-      result = result.filter(r => r.keyword.toLowerCase().includes(q));
+      result = result
+        .map(r => {
+          const matchingKws = r.keywords.filter(kw => kw.toLowerCase().includes(q));
+          return matchingKws.length > 0 ? { ...r, keywords: matchingKws } : null;
+        })
+        .filter(Boolean) as ServiceRow[];
     }
 
     result = [...result].sort((a, b) => {
@@ -158,33 +121,32 @@ const KeywordManagement = () => {
         const diff = (businessCountByKw[a.serviceId] || 0) - (businessCountByKw[b.serviceId] || 0);
         return sortOrder === "count-asc" ? diff : -diff;
       }
-      const cmp = a.keyword.localeCompare(b.keyword, "fr");
+      const cmp = a.serviceName.localeCompare(b.serviceName, "fr");
       return sortOrder === "az" ? cmp : -cmp;
     });
 
     return result;
-  }, [allKeywordRows, categoryFilter, subcategoryFilter, filteredSubcategories, searchQuery, sortOrder, businessCountByKw]);
+  }, [allServiceRows, categoryFilter, subcategoryFilter, filteredSubcategories, searchQuery, sortOrder, businessCountByKw]);
 
-  // Helper: get subcategory & category name
+  const totalKeywords = useMemo(() => filteredServiceRows.reduce((sum, r) => sum + r.keywords.length, 0), [filteredServiceRows]);
+
   const getHierarchy = (subcategoryId: string) => {
     const sub = subcategories.find(s => s.id === subcategoryId);
     const cat = sub ? categories.find(c => c.id === sub.category_id) : null;
     return { subName: sub?.name_fr || "—", catName: cat?.name_fr || "—" };
   };
 
-  // Open businesses popup for a service name
-  const openBusinessesPopup = async (serviceName: string, keyword: string) => {
-    setPopup({ title: keyword, businesses: [], loading: true });
+  const openBusinessesPopup = async (serviceName: string) => {
+    setPopup({ title: serviceName, businesses: [], loading: true });
     setPopupCityFilter("all");
     const { data } = await supabase
       .from("businesses")
       .select("id, name, city, is_active")
       .filter("services", "cs", `{"${serviceName}"}`)
       .order("name");
-    setPopup({ title: keyword, businesses: data || [], loading: false });
+    setPopup({ title: serviceName, businesses: data || [], loading: false });
   };
 
-  // Popup filtered businesses
   const popupFilteredBusinesses = useMemo(() => {
     if (!popup) return [];
     if (popupCityFilter === "all") return popup.businesses;
@@ -210,11 +172,10 @@ const KeywordManagement = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Search className="h-5 w-5" />
-            Mots-clés par Sous-catégories ({filteredKeywords.length})
+            Mots-clés par Sous-catégories ({totalKeywords})
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Filters */}
           <div className="flex flex-wrap gap-3">
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
               <SelectTrigger className="w-[220px]">
@@ -251,9 +212,8 @@ const KeywordManagement = () => {
             </div>
           </div>
 
-          {/* Results table */}
           <Button variant="outline" className="w-full justify-between" onClick={() => setResultsOpen(!resultsOpen)}>
-            <span>Résultats ({filteredKeywords.length})</span>
+            <span>Résultats ({filteredServiceRows.length} services — {totalKeywords} mots-clés)</span>
             {resultsOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
           </Button>
           {resultsOpen && <div className="border rounded-lg">
@@ -262,13 +222,12 @@ const KeywordManagement = () => {
                 <TableRow>
                   <TableHead>Catégorie</TableHead>
                   <TableHead>Sous-catégorie</TableHead>
-                  <TableHead>Service</TableHead>
                   <TableHead>
                     <Button variant="ghost" size="sm" className="gap-1 -ml-2" onClick={() => setSortOrder(s => s === "az" ? "za" : "az")}>
-                      Mot-clé {(sortOrder === "az" || sortOrder === "za") ? (sortOrder === "az" ? <ArrowUpAZ className="h-4 w-4" /> : <ArrowDownZA className="h-4 w-4" />) : null}
+                      Service {(sortOrder === "az" || sortOrder === "za") ? (sortOrder === "az" ? <ArrowUpAZ className="h-4 w-4" /> : <ArrowDownZA className="h-4 w-4" />) : null}
                     </Button>
                   </TableHead>
-                  <TableHead className="text-center">Actif</TableHead>
+                  <TableHead>Mots-clés</TableHead>
                   <TableHead className="text-center">
                     <Button variant="ghost" size="sm" className="gap-1" onClick={() => setSortOrder(s => s === "count-desc" ? "count-asc" : "count-desc")}>
                       Établissements {sortOrder === "count-desc" ? "↓" : sortOrder === "count-asc" ? "↑" : ""}
@@ -277,24 +236,27 @@ const KeywordManagement = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredKeywords.length === 0 ? (
+                {filteredServiceRows.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                    <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
                       Aucun mot-clé trouvé
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredKeywords.map((row, idx) => {
+                  filteredServiceRows.map((row) => {
                     const { catName, subName } = getHierarchy(row.subcategoryId);
                     const count = businessCountByKw[row.serviceId] || 0;
                     return (
-                      <TableRow key={`${row.serviceId}-${row.keyword}-${idx}`}>
+                      <TableRow key={row.serviceId}>
                         <TableCell className="text-muted-foreground text-sm">{catName}</TableCell>
                         <TableCell className="text-muted-foreground text-sm">{subName}</TableCell>
-                        <TableCell className="text-muted-foreground text-sm">{row.serviceName}</TableCell>
-                        <TableCell className="font-medium">{row.keyword}</TableCell>
-                        <TableCell className="text-center">
-                          <Switch defaultChecked={true} />
+                        <TableCell className="text-sm font-medium">{row.serviceName}</TableCell>
+                        <TableCell>
+                          <div className="flex flex-wrap gap-1.5">
+                            {row.keywords.map(kw => (
+                              <Badge key={kw} variant="secondary" className="text-xs">{kw}</Badge>
+                            ))}
+                          </div>
                         </TableCell>
                         <TableCell className="text-center">
                           <Button
@@ -302,7 +264,7 @@ const KeywordManagement = () => {
                             size="sm"
                             className="gap-1.5"
                             disabled={count === 0}
-                            onClick={() => openBusinessesPopup(row.serviceName, row.keyword)}
+                            onClick={() => openBusinessesPopup(row.serviceName)}
                           >
                             <Eye className="h-3.5 w-3.5" />
                             {count}
