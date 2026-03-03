@@ -1793,7 +1793,7 @@ const LocationManagement = () => {
                  <CardHeader><CardTitle className="text-lg">Mots-clés / Alias de recherche</CardTitle></CardHeader>
                  <CardContent className="space-y-4">
                    <p className="text-xs text-muted-foreground">Variantes d'écriture pour la recherche</p>
-                   <div className="flex flex-wrap gap-2 mb-2">
+                    <div className="flex flex-wrap gap-2 mb-2 max-h-[300px] overflow-y-auto p-2 border rounded-md min-h-[60px]">
                      {destinationForm.keywords.map((kw, i) => (
                        <span key={i} className="inline-flex items-center gap-1 bg-muted px-2 py-1 rounded text-sm">
                          {kw}
