@@ -64,6 +64,7 @@ const SynonymsManagement = () => {
   const [allCategories, setAllCategories] = useState<{id: string; name_fr: string}[]>([]);
   const [allServices, setAllServices] = useState<{name: string; subcategory_id: string}[]>([]);
   const [badges, setBadges] = useState<BadgeEntry[]>([]);
+  const [businessData, setBusinessData] = useState<{categories: string[]; services: string[]}[]>([]);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc" | "oldest" | "newest">("asc");
   const [filterCategory, setFilterCategory] = useState("");
   const [filterSubcategory, setFilterSubcategory] = useState("");
@@ -76,12 +77,13 @@ const SynonymsManagement = () => {
 
   const load = async () => {
     setIsLoading(true);
-    const [{ data }, { data: subcats }, { data: cats }, svcData, { data: bdgData }] = await Promise.all([
+    const [{ data }, { data: subcats }, { data: cats }, svcData, { data: bdgData }, bizData] = await Promise.all([
       supabase.from("search_synonyms").select("*").order("key_word"),
       supabase.from("subcategories").select("id, name_fr, category_id").order("name_fr"),
       supabase.from("categories").select("id, name_fr").order("name_fr"),
       fetchAllRows<{ name_fr: string; subcategory_id: string }>("services", "name_fr, subcategory_id", "name_fr"),
       supabase.from("badges").select("id, name_fr, color_hex, text_color_hex").order("name_fr"),
+      fetchAllRows<{ categories: string[]; services: string[] }>("businesses", "categories, services", "name"),
     ]);
     if (data) setEntries(data.map((d: any) => ({
       ...d,
@@ -93,6 +95,7 @@ const SynonymsManagement = () => {
     if (cats) setAllCategories(cats as any);
     if (svcData) setAllServices(svcData.map((s: any) => ({ name: s.name_fr, subcategory_id: s.subcategory_id })));
     if (bdgData) setBadges(bdgData as BadgeEntry[]);
+    if (bizData) setBusinessData(bizData.map((b: any) => ({ categories: b.categories || [], services: b.services || [] })));
     setIsLoading(false);
   };
 
@@ -224,6 +227,24 @@ const SynonymsManagement = () => {
 
   const selectedEntry = selectedEntryId ? entries.find(e => e.id === selectedEntryId) : null;
 
+  const getBusinessCount = useMemo(() => {
+    const cache = new Map<string, number>();
+    for (const entry of entries) {
+      if (entry.filters.length === 0) { cache.set(entry.id, 0); continue; }
+      let count = 0;
+      for (const biz of businessData) {
+        const matches = entry.filters.some(f => {
+          const subcatMatch = !f.subcategory_name || biz.categories.includes(f.subcategory_name);
+          const svcMatch = !f.required_service || biz.services.includes(f.required_service);
+          return subcatMatch && svcMatch;
+        });
+        if (matches) count++;
+      }
+      cache.set(entry.id, count);
+    }
+    return cache;
+  }, [entries, businessData]);
+
   const getFilterSummary = (entry: SynonymEntry) => {
     if (entry.filters.length === 0) return "Aucun filtre";
     const subcats = [...new Set(entry.filters.map(f => f.subcategory_name).filter(Boolean))];
@@ -330,11 +351,12 @@ const SynonymsManagement = () => {
               })()}
             </div>
 
-            {/* Filter summary */}
+            {/* Filter summary + count + link */}
             <div className="mt-auto pt-2 space-y-1">
               {(() => {
                 const subcats = [...new Set(entry.filters.map(f => f.subcategory_name).filter(Boolean))];
                 const services = [...new Set(entry.filters.map(f => f.required_service).filter(Boolean))];
+                const count = getBusinessCount.get(entry.id) || 0;
                 if (subcats.length === 0 && services.length === 0) {
                   return <p className="text-xs opacity-75 italic">Aucun filtre</p>;
                 }
@@ -346,6 +368,19 @@ const SynonymsManagement = () => {
                     {services.length > 0 && (
                       <p className="text-xs opacity-80 leading-snug line-clamp-2">{services.join(", ")}</p>
                     )}
+                    <div className="flex items-center justify-between pt-0.5">
+                      <span className="text-[11px] font-semibold opacity-90">{count} établissement{count !== 1 ? "s" : ""}</span>
+                      <a
+                        href={`/search?q=${encodeURIComponent(entry.key_word)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={e => e.stopPropagation()}
+                        className="text-white/80 hover:text-white transition-colors"
+                        title="Voir les résultats"
+                      >
+                        <ExternalLink className="h-3.5 w-3.5" />
+                      </a>
+                    </div>
                   </>
                 );
               })()}
