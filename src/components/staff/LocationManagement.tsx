@@ -190,7 +190,7 @@ const LocationManagement = () => {
   const [regionsSectionOpen, setRegionsSectionOpen] = useState(false);
   const [editingRegion, setEditingRegion] = useState<{id: string; name: string; sort_order: number | null} | null>(null);
   const [regionForm, setRegionForm] = useState({ name: "", sort_order: 0 });
-  const [isRegionDialogOpen, setIsRegionDialogOpen] = useState(false);
+  const [showRegionForm, setShowRegionForm] = useState(false);
   const regionsSectionRef = useRef<HTMLDivElement>(null);
   const [destinationsSectionOpen, setDestinationsSectionOpen] = useState(false);
   const [destinations, setDestinations] = useState<Destination[]>([]);
@@ -434,13 +434,15 @@ const LocationManagement = () => {
   const openAddRegion = () => {
     setEditingRegion(null);
     setRegionForm({ name: "", sort_order: 0 });
-    setIsRegionDialogOpen(true);
+    setShowRegionForm(true);
+    setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 0);
   };
 
   const openEditRegion = (r: {id: string; name: string; sort_order: number | null}) => {
     setEditingRegion(r);
     setRegionForm({ name: r.name, sort_order: r.sort_order || 0 });
-    setIsRegionDialogOpen(true);
+    setShowRegionForm(true);
+    setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 0);
   };
 
   const handleSaveRegion = async () => {
@@ -467,7 +469,7 @@ const LocationManagement = () => {
       toast({ variant: "destructive", title: "Erreur", description: error.message });
     } else {
       toast({ title: "Succès", description: editingRegion ? "Région mise à jour." : "Région créée." });
-      setIsRegionDialogOpen(false);
+      setShowRegionForm(false);
       fetchData();
     }
   };
@@ -1330,9 +1332,6 @@ const LocationManagement = () => {
                             <Button size="sm" variant="ghost" onClick={() => openEditRegion(r)}>
                               <Edit className="h-4 w-4" />
                             </Button>
-                            <Button size="sm" variant="ghost" onClick={() => handleDeleteRegion(r)} className="text-destructive hover:text-destructive">
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
                           </TableCell>
                         </TableRow>
                       );
@@ -1343,39 +1342,6 @@ const LocationManagement = () => {
           </CardContent>
         )}
       </Card>
-
-      {/* Region Dialog */}
-      <Dialog open={isRegionDialogOpen} onOpenChange={setIsRegionDialogOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>{editingRegion ? "Modifier la région" : "Nouvelle région"}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label>Nom</Label>
-              <Input
-                value={regionForm.name}
-                onChange={(e) => setRegionForm({ ...regionForm, name: e.target.value })}
-                placeholder="Ex : Guelmim-Oued Noun"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Ordre d'affichage</Label>
-              <Input
-                type="number"
-                value={regionForm.sort_order}
-                onChange={(e) => setRegionForm({ ...regionForm, sort_order: parseInt(e.target.value) || 0 })}
-              />
-            </div>
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setIsRegionDialogOpen(false)}>Annuler</Button>
-              <Button onClick={handleSaveRegion} className="bg-gold hover:bg-gold/90">
-                {editingRegion ? "Mettre à jour" : "Créer"}
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
 
       {/* ===== QUARTIERS ===== */}
       <Card ref={neighborhoodsSectionRef} style={{ scrollMarginTop: '80px' }}>
@@ -2686,6 +2652,97 @@ const LocationManagement = () => {
             </div>
           </div>
           
+        </div>
+      )}
+      {/* Region Full Form Page */}
+      {showRegionForm && (
+        <div className="absolute inset-0 z-50 bg-background overflow-y-auto" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, minHeight: '100vh' }}>
+          <div className="container max-w-6xl mx-auto py-6 px-4 pb-24">
+            <div className="flex items-center justify-between mb-6 sticky top-0 bg-background py-4 border-b z-10">
+              <div className="flex items-center gap-4">
+                <Button variant="ghost" onClick={() => { setEditingRegion(null); setShowRegionForm(false); }}>
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Retour
+                </Button>
+                <h2 className="text-xl font-bold">
+                  {editingRegion ? `Modifier: ${editingRegion.name}` : "Nouvelle région"}
+                </h2>
+              </div>
+              <Button onClick={handleSaveRegion} className="bg-gold hover:bg-gold/90">
+                <Save className="h-4 w-4 mr-2" />
+                Enregistrer
+              </Button>
+            </div>
+
+            <div className="space-y-6">
+              <Card>
+                <CardHeader><CardTitle className="text-lg">Informations</CardTitle></CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Nom de la région <span className="text-destructive">*</span></Label>
+                    <Input
+                      value={regionForm.name}
+                      onChange={(e) => setRegionForm({ ...regionForm, name: e.target.value })}
+                      placeholder="Ex : Guelmim-Oued Noun"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Ordre d'affichage</Label>
+                    <Input
+                      type="number"
+                      value={regionForm.sort_order}
+                      onChange={(e) => setRegionForm({ ...regionForm, sort_order: parseInt(e.target.value) || 0 })}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Usage summary */}
+              {editingRegion && (
+                <Card>
+                  <CardHeader><CardTitle className="text-lg">Utilisation</CardTitle></CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm text-muted-foreground">Villes associées :</span>
+                      <span className="inline-flex items-center justify-center min-w-[2rem] px-2 py-0.5 bg-primary/10 text-primary rounded text-sm font-medium">
+                        {cities.filter(c => c.region === editingRegion.name).length}
+                      </span>
+                    </div>
+                    {cities.filter(c => c.region === editingRegion.name).length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {cities.filter(c => c.region === editingRegion.name).map(c => (
+                          <span key={c.id} className="inline-flex items-center gap-1 bg-muted px-2 py-1 rounded text-sm">{c.name_fr}</span>
+                        ))}
+                      </div>
+                    )}
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm text-muted-foreground">Destinations associées :</span>
+                      <span className="inline-flex items-center justify-center min-w-[2rem] px-2 py-0.5 bg-muted text-muted-foreground rounded text-sm font-medium">
+                        {destinations.filter(d => (d.region || []).includes(editingRegion.name)).length}
+                      </span>
+                    </div>
+                    {destinations.filter(d => (d.region || []).includes(editingRegion.name)).length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {destinations.filter(d => (d.region || []).includes(editingRegion.name)).map(d => (
+                          <span key={d.id} className="inline-flex items-center gap-1 bg-muted px-2 py-1 rounded text-sm">{d.name_fr}</span>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+
+            <div className="flex justify-end gap-4 mt-6 sticky bottom-0 bg-background py-4 border-t">
+              <Button variant="outline" onClick={() => { setEditingRegion(null); setShowRegionForm(false); }}>
+                Annuler
+              </Button>
+              <Button onClick={handleSaveRegion} className="bg-gold hover:bg-gold/90">
+                <Save className="h-4 w-4 mr-2" />
+                Enregistrer
+              </Button>
+            </div>
+          </div>
         </div>
       )}
     </div>
