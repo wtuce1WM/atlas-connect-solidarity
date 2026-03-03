@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Plus, Trash2, Loader2, Save, HelpCircle, Pencil, X, Check, ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
+import { Plus, Trash2, Loader2, Save, HelpCircle, Pencil, X, Check, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -7,6 +7,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -47,14 +54,15 @@ const SynonymsManagement = () => {
   const [allSubcategories, setAllSubcategories] = useState<{id: string; name: string; category_id: string}[]>([]);
   const [allCategories, setAllCategories] = useState<{id: string; name_fr: string}[]>([]);
   const [allServices, setAllServices] = useState<{name: string; subcategory_id: string}[]>([]);
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc" | "oldest" | "newest">("newest");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc" | "oldest" | "newest">("asc");
   const [filterCategory, setFilterCategory] = useState("");
   const [filterSubcategory, setFilterSubcategory] = useState("");
   const [dirtyEntries, setDirtyEntries] = useState<Set<string>>(new Set());
   const [savingEntries, setSavingEntries] = useState<Set<string>>(new Set());
-  // Inline editing for filter rows
   const [editingFilterRow, setEditingFilterRow] = useState<{ entryId: string; index: number } | null>(null);
   const [editFilterValues, setEditFilterValues] = useState<{ subcategory_name: string; required_service: string }>({ subcategory_name: "", required_service: "" });
+  const [selectedEntryId, setSelectedEntryId] = useState<string | null>(null);
+  const [searchText, setSearchText] = useState("");
 
   const load = async () => {
     setIsLoading(true);
@@ -100,6 +108,7 @@ const SynonymsManagement = () => {
   const deleteEntry = async (id: string) => {
     await supabase.from("search_synonyms").delete().eq("id", id);
     setEntries(prev => prev.filter(e => e.id !== id));
+    if (selectedEntryId === id) setSelectedEntryId(null);
   };
 
   const addSynonymToEntry = async (id: string) => {
@@ -121,7 +130,6 @@ const SynonymsManagement = () => {
     setEntries(prev => prev.map(e => e.id === id ? { ...e, synonyms: updated } : e));
   };
 
-  // ── Filter row management (Bundle-like) ──
   const addFilterRow = (id: string, subcategory_name: string, required_service: string) => {
     const entry = entries.find(e => e.id === id);
     if (!entry) return;
@@ -160,7 +168,6 @@ const SynonymsManagement = () => {
     const entry = entries.find(e => e.id === id);
     if (!entry) return;
     setSavingEntries(prev => new Set(prev).add(id));
-    // Also sync legacy fields for backward compat
     const subcatNames = [...new Set(entry.filters.map(f => f.subcategory_name).filter(Boolean) as string[])];
     const svcNames = [...new Set(entry.filters.map(f => f.required_service).filter(Boolean) as string[])];
     const { error } = await supabase.from("search_synonyms").update({
@@ -177,13 +184,48 @@ const SynonymsManagement = () => {
     }
   };
 
-  // ── New filter row form state ──
   const [newFilterForm, setNewFilterForm] = useState<Record<string, { subcategory_name: string; required_service: string }>>({});
+
+  const filteredSorted = useMemo(() => {
+    return [...entries]
+      .filter(entry => {
+        // Text search
+        if (searchText) {
+          const q = searchText.toLowerCase();
+          if (!entry.key_word.includes(q) && !entry.synonyms.some(s => s.toLowerCase().includes(q))) return false;
+        }
+        // Category/subcategory filter
+        if (!filterCategory && !filterSubcategory) return true;
+        const entrySubcats = entry.filters.map(f => f.subcategory_name).filter(Boolean) as string[];
+        if (filterSubcategory) return entrySubcats.includes(filterSubcategory);
+        const subcatNamesInCat = allSubcategories.filter(sc => sc.category_id === filterCategory).map(sc => sc.name);
+        return entrySubcats.some(sn => subcatNamesInCat.includes(sn));
+      })
+      .sort((a, b) => {
+        if (sortOrder === "asc") return a.key_word.localeCompare(b.key_word);
+        if (sortOrder === "desc") return b.key_word.localeCompare(a.key_word);
+        if (sortOrder === "oldest") return (a.created_at || "").localeCompare(b.created_at || "");
+        return (b.created_at || "").localeCompare(a.created_at || "");
+      });
+  }, [entries, searchText, filterCategory, filterSubcategory, sortOrder, allSubcategories]);
+
+  const selectedEntry = selectedEntryId ? entries.find(e => e.id === selectedEntryId) : null;
+
+  const getFilterSummary = (entry: SynonymEntry) => {
+    if (entry.filters.length === 0) return "Aucun filtre";
+    const subcats = [...new Set(entry.filters.map(f => f.subcategory_name).filter(Boolean))];
+    const services = [...new Set(entry.filters.map(f => f.required_service).filter(Boolean))];
+    const parts: string[] = [];
+    if (subcats.length > 0) parts.push(subcats.length <= 2 ? subcats.join(", ") : `${subcats.length} sous-cat.`);
+    if (services.length > 0) parts.push(services.length <= 2 ? services.join(", ") : `${services.length} services`);
+    return parts.join(" · ") || "Aucun filtre";
+  };
 
   if (isLoading) return <div className="flex justify-center p-8"><Loader2 className="h-6 w-6 animate-spin" /></div>;
 
   return (
     <div className="space-y-4">
+      {/* Header */}
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
@@ -196,174 +238,161 @@ const SynonymsManagement = () => {
               </PopoverTrigger>
               <PopoverContent className="w-[420px] p-4 text-sm space-y-3" align="start">
                 <h4 className="font-semibold">Synonymes de recherche</h4>
-                <div className="space-y-2">
-                  <p className="text-xs text-muted-foreground">
-                    Chaque synonyme étend la requête utilisateur (tsquery OR). Les <strong>filtres</strong> permettent de cibler précisément :
-                    chaque ligne combine une sous-catégorie + un service requis (comme les Bundles).
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    <strong>Ex :</strong> « bar à vin » → Ligne 1 : Bar + Cave à vin | Ligne 2 : Œnothèque (sans service)
-                  </p>
-                </div>
+                <p className="text-xs text-muted-foreground">
+                  Chaque synonyme étend la requête utilisateur (tsquery OR). Les <strong>filtres</strong> permettent de cibler précisément :
+                  chaque ligne combine une sous-catégorie + un service requis (comme les Bundles).
+                </p>
               </PopoverContent>
             </Popover>
           </div>
-          <p className="text-sm text-muted-foreground">
-            Chaque mot-clé est étendu avec ses synonymes. Les <strong>filtres</strong> définissent les combinaisons sous-catégorie + service.
-          </p>
         </CardHeader>
         <CardContent className="space-y-3">
+          {/* Add new */}
           <div className="flex gap-2 flex-wrap">
             <Input value={newKey} onChange={e => setNewKey(e.target.value)} placeholder="Mot-clé" className="max-w-[150px]" />
-            <Input value={newSynonyms} onChange={e => setNewSynonyms(e.target.value)} placeholder="Synonymes (séparés par virgule)" className="flex-1" />
+            <Input value={newSynonyms} onChange={e => setNewSynonyms(e.target.value)} placeholder="Synonymes (séparés par virgule)" className="flex-1" onKeyDown={e => e.key === "Enter" && addEntry()} />
             <Button size="sm" onClick={addEntry} className="bg-amber-600 hover:bg-amber-700 text-white"><Plus className="h-4 w-4 mr-1" />Ajouter</Button>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground">Tri :</span>
-            <select
-              value={sortOrder}
-              onChange={e => setSortOrder(e.target.value as "asc" | "desc" | "oldest" | "newest")}
-              className="text-sm border rounded px-2 py-1 bg-background"
-            >
+          {/* Search + Sort + Filters */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <Input value={searchText} onChange={e => setSearchText(e.target.value)} placeholder="Rechercher…" className="max-w-[200px] h-8 text-sm" />
+            <select value={sortOrder} onChange={e => setSortOrder(e.target.value as any)} className="text-sm border rounded px-2 py-1 bg-background h-8">
               <option value="asc">A → Z</option>
               <option value="desc">Z → A</option>
               <option value="oldest">Plus ancien</option>
               <option value="newest">Plus récent</option>
             </select>
-          </div>
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-xs text-muted-foreground">Filtrer :</span>
-            <select
-              value={filterCategory}
-              onChange={e => { setFilterCategory(e.target.value); setFilterSubcategory(""); }}
-              className="text-sm border rounded px-2 py-1 bg-background max-w-[200px]"
-            >
+            <select value={filterCategory} onChange={e => { setFilterCategory(e.target.value); setFilterSubcategory(""); }} className="text-sm border rounded px-2 py-1 bg-background max-w-[200px] h-8">
               <option value="">Toutes catégories</option>
               {allCategories.map(cat => <option key={cat.id} value={cat.id}>{cat.name_fr}</option>)}
             </select>
-            <select
-              value={filterSubcategory}
-              onChange={e => setFilterSubcategory(e.target.value)}
-              className="text-sm border rounded px-2 py-1 bg-background max-w-[200px]"
-              disabled={!filterCategory}
-            >
-              <option value="">Toutes sous-catégories</option>
-              {allSubcategories.filter(sc => sc.category_id === filterCategory).map(sc => <option key={sc.id} value={sc.name}>{sc.name}</option>)}
-            </select>
-            {(filterCategory || filterSubcategory) && (
-              <button
-                onClick={() => { setFilterCategory(""); setFilterSubcategory(""); }}
-                className="text-xs text-primary hover:underline"
-              >
+            {filterCategory && (
+              <select value={filterSubcategory} onChange={e => setFilterSubcategory(e.target.value)} className="text-sm border rounded px-2 py-1 bg-background max-w-[200px] h-8">
+                <option value="">Toutes sous-catégories</option>
+                {allSubcategories.filter(sc => sc.category_id === filterCategory).map(sc => <option key={sc.id} value={sc.name}>{sc.name}</option>)}
+              </select>
+            )}
+            {(filterCategory || filterSubcategory || searchText) && (
+              <button onClick={() => { setFilterCategory(""); setFilterSubcategory(""); setSearchText(""); }} className="text-xs text-destructive hover:underline font-medium">
                 Effacer les filtres
               </button>
             )}
           </div>
+          <p className="text-xs text-muted-foreground">{filteredSorted.length} résultat(s) · {entries.filter(e => e.is_active).length} actifs sur {entries.length}</p>
         </CardContent>
       </Card>
 
-      {[...entries]
-        .filter(entry => {
-          if (!filterCategory && !filterSubcategory) return true;
-          const entrySubcats = entry.filters.map(f => f.subcategory_name).filter(Boolean) as string[];
-          if (filterSubcategory) return entrySubcats.includes(filterSubcategory);
-          const subcatNamesInCat = allSubcategories.filter(sc => sc.category_id === filterCategory).map(sc => sc.name);
-          return entrySubcats.some(sn => subcatNamesInCat.includes(sn));
-        })
-        .sort((a, b) => {
-          if (sortOrder === "asc") return a.key_word.localeCompare(b.key_word);
-          if (sortOrder === "desc") return b.key_word.localeCompare(a.key_word);
-          if (sortOrder === "oldest") return (a.created_at || "").localeCompare(b.created_at || "");
-          return (b.created_at || "").localeCompare(a.created_at || "");
-        }).map(entry => (
-        <Card key={entry.id} className={entry.is_active ? "" : "opacity-50"}>
-          <CardContent className="pt-4 space-y-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Switch checked={entry.is_active} onCheckedChange={v => toggleActive(entry.id, v)} />
-                <code className="font-mono text-sm font-bold bg-muted px-2 py-0.5 rounded">{entry.key_word}</code>
-                <span className="text-xs text-muted-foreground">→ {entry.synonyms.length} synonyme(s)</span>
-              </div>
-              <div className="flex items-center gap-2">
+      {/* Card grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+        {filteredSorted.map(entry => (
+          <div
+            key={entry.id}
+            className={`relative rounded-lg p-3 cursor-pointer transition-all hover:scale-[1.03] hover:shadow-lg flex flex-col justify-between aspect-square ${
+              entry.is_active
+                ? "bg-amber-500 text-white shadow-md"
+                : "bg-amber-200 text-amber-800 opacity-60"
+            }`}
+            onClick={() => setSelectedEntryId(entry.id)}
+          >
+            {/* Toggle top-right */}
+            <div className="absolute top-2 right-2" onClick={e => e.stopPropagation()}>
+              <Switch
+                checked={entry.is_active}
+                onCheckedChange={v => toggleActive(entry.id, v)}
+                className="data-[state=checked]:bg-white/30 data-[state=unchecked]:bg-black/20 scale-75"
+              />
+            </div>
+
+            {/* Content */}
+            <div className="space-y-1 min-w-0">
+              <h3 className="font-bold text-sm leading-tight truncate pr-8">{entry.key_word}</h3>
+              <p className="text-xs opacity-80">{entry.synonyms.length} synonyme{entry.synonyms.length !== 1 ? "s" : ""}</p>
+            </div>
+
+            {/* Filter summary */}
+            <div className="mt-auto pt-2">
+              <p className="text-[10px] leading-tight opacity-75 line-clamp-2">
+                {getFilterSummary(entry)}
+              </p>
+              {entry.filters.length > 0 && (
+                <p className="text-[10px] opacity-60 mt-0.5">{entry.filters.length} filtre{entry.filters.length !== 1 ? "s" : ""}</p>
+              )}
+            </div>
+
+            {/* Dirty indicator */}
+            {dirtyEntries.has(entry.id) && (
+              <div className="absolute top-2 left-2 w-2 h-2 rounded-full bg-white animate-pulse" title="Modifications non sauvegardées" />
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Edit dialog */}
+      <Dialog open={!!selectedEntry} onOpenChange={open => { if (!open) setSelectedEntryId(null); }}>
+        {selectedEntry && (
+          <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <code className="font-mono text-lg bg-amber-100 text-amber-800 px-2 py-0.5 rounded">{selectedEntry.key_word}</code>
+                <Switch checked={selectedEntry.is_active} onCheckedChange={v => toggleActive(selectedEntry.id, v)} />
+                <span className="text-xs text-muted-foreground font-normal">{selectedEntry.is_active ? "Actif" : "Inactif"}</span>
+              </DialogTitle>
+              <DialogDescription className="flex items-center gap-2">
                 <a
-                  href={`/search?q=${encodeURIComponent(entry.key_word)}`}
+                  href={`/search?q=${encodeURIComponent(selectedEntry.key_word)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  title="Tester"
-                  className="inline-flex items-center justify-center h-7 w-7 rounded-md hover:bg-accent transition-colors"
+                  className="text-xs text-amber-700 hover:underline inline-flex items-center gap-1"
                 >
-                  <ExternalLink className="h-3.5 w-3.5 text-muted-foreground" />
+                  <ExternalLink className="h-3 w-3" />
+                  Tester la recherche
                 </a>
-                <Button
-                  size="sm"
-                  onClick={() => saveEntryChanges(entry.id)}
-                  disabled={!dirtyEntries.has(entry.id) || savingEntries.has(entry.id)}
-                  className={dirtyEntries.has(entry.id) ? "bg-amber-600 hover:bg-amber-700 text-white" : ""}
-                  variant={dirtyEntries.has(entry.id) ? "default" : "outline"}
-                >
-                  {savingEntries.has(entry.id) ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Save className="h-4 w-4 mr-1" />}
-                  Sauvegarder
+              </DialogDescription>
+            </DialogHeader>
+
+            {/* Synonymes */}
+            <div className="space-y-2">
+              <h4 className="text-sm font-semibold">Synonymes</h4>
+              <div className="flex flex-wrap gap-1.5">
+                {selectedEntry.synonyms.map(syn => (
+                  <Badge key={syn} variant="outline" className="gap-1 group">
+                    {syn}
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <button className="opacity-0 group-hover:opacity-100"><Trash2 className="h-3 w-3 text-destructive" /></button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Supprimer ?</AlertDialogTitle>
+                          <AlertDialogDescription>Retirer le synonyme « {syn} » ?</AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Non</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => removeSynonymFromEntry(selectedEntry.id, syn)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Oui</AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </Badge>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                <Input
+                  value={editingSynonym[selectedEntry.id] || ""}
+                  onChange={e => setEditingSynonym(prev => ({ ...prev, [selectedEntry.id]: e.target.value }))}
+                  placeholder="Ajouter un synonyme..."
+                  className="max-w-xs text-sm"
+                  onKeyDown={e => e.key === "Enter" && addSynonymToEntry(selectedEntry.id)}
+                />
+                <Button size="sm" variant="outline" onClick={() => addSynonymToEntry(selectedEntry.id)} className="border-amber-600 text-amber-700 hover:bg-amber-50">
+                  <Plus className="h-3 w-3" />
                 </Button>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Supprimer « {entry.key_word} » ?</AlertDialogTitle>
-                      <AlertDialogDescription>Cette action est irréversible.</AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Non</AlertDialogCancel>
-                      <AlertDialogAction onClick={() => deleteEntry(entry.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Oui</AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
               </div>
             </div>
 
-            {/* Synonymes */}
-            <div className="flex flex-wrap gap-1.5">
-              {entry.synonyms.map(syn => (
-                <Badge key={syn} variant="outline" className="gap-1 group">
-                  {syn}
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <button className="opacity-0 group-hover:opacity-100">
-                        <Trash2 className="h-3 w-3 text-destructive" />
-                      </button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Supprimer ?</AlertDialogTitle>
-                        <AlertDialogDescription>Retirer le synonyme « {syn} » ?</AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Non</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => removeSynonymFromEntry(entry.id, syn)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Oui</AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </Badge>
-              ))}
-            </div>
-            <div className="flex gap-2">
-              <Input
-                value={editingSynonym[entry.id] || ""}
-                onChange={e => setEditingSynonym(prev => ({ ...prev, [entry.id]: e.target.value }))}
-                placeholder="Ajouter un synonyme..."
-                className="max-w-xs text-sm"
-                onKeyDown={e => e.key === "Enter" && addSynonymToEntry(entry.id)}
-              />
-              <Button size="sm" variant="outline" onClick={() => addSynonymToEntry(entry.id)} className="border-amber-600 text-amber-700 hover:bg-amber-50">
-                <Plus className="h-3 w-3" />
-              </Button>
-            </div>
-
-            {/* ── Filtres (Bundle-like table) ── */}
-            <div className="border-t pt-2 mt-2">
-              <span className="text-xs font-medium text-muted-foreground">Filtres (sous-catégorie + service requis) :</span>
-              {entry.filters.length > 0 ? (
+            {/* Filtres */}
+            <div className="space-y-2 border-t pt-3">
+              <h4 className="text-sm font-semibold">Filtres (sous-catégorie + service requis)</h4>
+              {selectedEntry.filters.length > 0 ? (
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -373,71 +402,46 @@ const SynonymsManagement = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {entry.filters.map((filter, idx) => (
+                    {selectedEntry.filters.map((filter, idx) => (
                       <TableRow key={idx} onDoubleClick={() => {
-                        setEditingFilterRow({ entryId: entry.id, index: idx });
-                        setEditFilterValues({
-                          subcategory_name: filter.subcategory_name || "",
-                          required_service: filter.required_service || "",
-                        });
+                        setEditingFilterRow({ entryId: selectedEntry.id, index: idx });
+                        setEditFilterValues({ subcategory_name: filter.subcategory_name || "", required_service: filter.required_service || "" });
                       }}>
                         <TableCell className="font-medium text-sm">
-                          {editingFilterRow?.entryId === entry.id && editingFilterRow?.index === idx ? (
-                            <Input
-                              value={editFilterValues.subcategory_name}
-                              onChange={e => setEditFilterValues(prev => ({ ...prev, subcategory_name: e.target.value }))}
-                              placeholder="* (wildcard)"
-                              className="h-8"
-                              autoFocus
-                            />
+                          {editingFilterRow?.entryId === selectedEntry.id && editingFilterRow?.index === idx ? (
+                            <Input value={editFilterValues.subcategory_name} onChange={e => setEditFilterValues(prev => ({ ...prev, subcategory_name: e.target.value }))} placeholder="* (wildcard)" className="h-8" autoFocus />
                           ) : (
                             filter.subcategory_name || <span className="text-muted-foreground italic">* (wildcard)</span>
                           )}
                         </TableCell>
                         <TableCell className="text-sm">
-                          {editingFilterRow?.entryId === entry.id && editingFilterRow?.index === idx ? (
-                            <Input
-                              value={editFilterValues.required_service}
-                              onChange={e => setEditFilterValues(prev => ({ ...prev, required_service: e.target.value }))}
-                              placeholder="Aucun"
-                              className="h-8"
-                              onKeyDown={e => {
-                                if (e.key === "Enter") updateFilterRow(entry.id, idx, editFilterValues);
-                                if (e.key === "Escape") setEditingFilterRow(null);
-                              }}
-                            />
+                          {editingFilterRow?.entryId === selectedEntry.id && editingFilterRow?.index === idx ? (
+                            <Input value={editFilterValues.required_service} onChange={e => setEditFilterValues(prev => ({ ...prev, required_service: e.target.value }))} placeholder="Aucun" className="h-8"
+                              onKeyDown={e => { if (e.key === "Enter") updateFilterRow(selectedEntry.id, idx, editFilterValues); if (e.key === "Escape") setEditingFilterRow(null); }} />
                           ) : (
                             filter.required_service || <span className="text-muted-foreground italic">— (aucun)</span>
                           )}
                         </TableCell>
                         <TableCell>
                           <div className="flex gap-1">
-                            {editingFilterRow?.entryId === entry.id && editingFilterRow?.index === idx ? (
+                            {editingFilterRow?.entryId === selectedEntry.id && editingFilterRow?.index === idx ? (
                               <>
-                                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => updateFilterRow(entry.id, idx, editFilterValues)}>
-                                  <Check className="h-3.5 w-3.5 text-primary" />
-                                </Button>
-                                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setEditingFilterRow(null)}>
-                                  <X className="h-3.5 w-3.5" />
-                                </Button>
+                                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => updateFilterRow(selectedEntry.id, idx, editFilterValues)}><Check className="h-3.5 w-3.5 text-primary" /></Button>
+                                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setEditingFilterRow(null)}><X className="h-3.5 w-3.5" /></Button>
                               </>
                             ) : (
                               <AlertDialog>
                                 <AlertDialogTrigger asChild>
-                                  <Button variant="ghost" size="icon" className="h-7 w-7">
-                                    <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                                  </Button>
+                                  <Button variant="ghost" size="icon" className="h-7 w-7"><Trash2 className="h-3.5 w-3.5 text-destructive" /></Button>
                                 </AlertDialogTrigger>
                                 <AlertDialogContent>
                                   <AlertDialogHeader>
                                     <AlertDialogTitle>Supprimer ce filtre ?</AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                      {filter.subcategory_name || "*"} + {filter.required_service || "aucun service"}
-                                    </AlertDialogDescription>
+                                    <AlertDialogDescription>{filter.subcategory_name || "*"} + {filter.required_service || "aucun service"}</AlertDialogDescription>
                                   </AlertDialogHeader>
                                   <AlertDialogFooter>
                                     <AlertDialogCancel>Non</AlertDialogCancel>
-                                    <AlertDialogAction onClick={() => removeFilterRow(entry.id, idx)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Oui</AlertDialogAction>
+                                    <AlertDialogAction onClick={() => removeFilterRow(selectedEntry.id, idx)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Oui</AlertDialogAction>
                                   </AlertDialogFooter>
                                 </AlertDialogContent>
                               </AlertDialog>
@@ -449,20 +453,17 @@ const SynonymsManagement = () => {
                   </TableBody>
                 </Table>
               ) : (
-                <p className="text-xs text-muted-foreground italic mt-1">Aucun filtre — le synonyme agit uniquement sur le tsquery.</p>
+                <p className="text-xs text-muted-foreground italic">Aucun filtre — le synonyme agit uniquement sur le tsquery.</p>
               )}
 
-              {/* Add new filter row */}
-              <div className="flex gap-2 mt-2 items-end">
+              {/* Add filter row */}
+              <div className="flex gap-2 items-end">
                 <div className="flex-1 space-y-1">
                   <label className="text-xs text-muted-foreground">Sous-catégorie</label>
                   <Input
                     placeholder="vide = wildcard"
-                    value={newFilterForm[entry.id]?.subcategory_name || ""}
-                    onChange={e => setNewFilterForm(prev => ({
-                      ...prev,
-                      [entry.id]: { ...prev[entry.id] || { subcategory_name: "", required_service: "" }, subcategory_name: e.target.value }
-                    }))}
+                    value={newFilterForm[selectedEntry.id]?.subcategory_name || ""}
+                    onChange={e => setNewFilterForm(prev => ({ ...prev, [selectedEntry.id]: { ...prev[selectedEntry.id] || { subcategory_name: "", required_service: "" }, subcategory_name: e.target.value } }))}
                     className="h-8 text-sm"
                   />
                 </div>
@@ -470,44 +471,69 @@ const SynonymsManagement = () => {
                   <label className="text-xs text-muted-foreground">Service requis</label>
                   <Input
                     placeholder="vide = aucun"
-                    value={newFilterForm[entry.id]?.required_service || ""}
-                    onChange={e => setNewFilterForm(prev => ({
-                      ...prev,
-                      [entry.id]: { ...prev[entry.id] || { subcategory_name: "", required_service: "" }, required_service: e.target.value }
-                    }))}
+                    value={newFilterForm[selectedEntry.id]?.required_service || ""}
+                    onChange={e => setNewFilterForm(prev => ({ ...prev, [selectedEntry.id]: { ...prev[selectedEntry.id] || { subcategory_name: "", required_service: "" }, required_service: e.target.value } }))}
                     className="h-8 text-sm"
                     onKeyDown={e => {
                       if (e.key === "Enter") {
-                        const form = newFilterForm[entry.id];
+                        const form = newFilterForm[selectedEntry.id];
                         if (form) {
-                          addFilterRow(entry.id, form.subcategory_name, form.required_service);
-                          setNewFilterForm(prev => ({ ...prev, [entry.id]: { subcategory_name: "", required_service: "" } }));
+                          addFilterRow(selectedEntry.id, form.subcategory_name, form.required_service);
+                          setNewFilterForm(prev => ({ ...prev, [selectedEntry.id]: { subcategory_name: "", required_service: "" } }));
                         }
                       }
                     }}
                   />
                 </div>
                 <Button
-                  size="sm"
-                  variant="outline"
+                  size="sm" variant="outline"
                   className="border-amber-600 text-amber-700 hover:bg-amber-50 shrink-0"
                   onClick={() => {
-                    const form = newFilterForm[entry.id] || { subcategory_name: "", required_service: "" };
-                    addFilterRow(entry.id, form.subcategory_name, form.required_service);
-                    setNewFilterForm(prev => ({ ...prev, [entry.id]: { subcategory_name: "", required_service: "" } }));
+                    const form = newFilterForm[selectedEntry.id] || { subcategory_name: "", required_service: "" };
+                    addFilterRow(selectedEntry.id, form.subcategory_name, form.required_service);
+                    setNewFilterForm(prev => ({ ...prev, [selectedEntry.id]: { subcategory_name: "", required_service: "" } }));
                   }}
                 >
                   <Plus className="h-3 w-3 mr-1" /> Ajouter
                 </Button>
               </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                ⚠️ Sensible à la casse — les noms doivent correspondre exactement.
-              </p>
+              <p className="text-xs text-muted-foreground">⚠️ Sensible à la casse — les noms doivent correspondre exactement.</p>
             </div>
-          </CardContent>
-        </Card>
-      ))}
-      <p className="text-xs text-muted-foreground">{entries.filter(e => e.is_active).length} groupes actifs sur {entries.length}</p>
+
+            {/* Actions */}
+            <div className="flex items-center justify-between border-t pt-3">
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">
+                    <Trash2 className="h-4 w-4 mr-1" /> Supprimer
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Supprimer « {selectedEntry.key_word} » ?</AlertDialogTitle>
+                    <AlertDialogDescription>Cette action est irréversible.</AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Non</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => deleteEntry(selectedEntry.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Oui</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+
+              <Button
+                size="sm"
+                onClick={() => saveEntryChanges(selectedEntry.id)}
+                disabled={!dirtyEntries.has(selectedEntry.id) || savingEntries.has(selectedEntry.id)}
+                className={dirtyEntries.has(selectedEntry.id) ? "bg-amber-600 hover:bg-amber-700 text-white" : ""}
+                variant={dirtyEntries.has(selectedEntry.id) ? "default" : "outline"}
+              >
+                {savingEntries.has(selectedEntry.id) ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Save className="h-4 w-4 mr-1" />}
+                Sauvegarder
+              </Button>
+            </div>
+          </DialogContent>
+        )}
+      </Dialog>
     </div>
   );
 };
