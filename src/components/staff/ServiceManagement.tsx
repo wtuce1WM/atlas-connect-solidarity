@@ -244,13 +244,13 @@ const ServiceManagement = () => {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>Catégorie</TableHead>
+                  <TableHead>Sous-catégorie</TableHead>
                   <TableHead>
                     <Button variant="ghost" size="sm" className="gap-1 -ml-2" onClick={() => setSortOrder(s => s === "az" ? "za" : "az")}>
                       Service {(sortOrder === "az" || sortOrder === "za") ? (sortOrder === "az" ? <ArrowUpAZ className="h-4 w-4" /> : <ArrowDownZA className="h-4 w-4" />) : null}
                     </Button>
                   </TableHead>
-                  <TableHead>Catégorie</TableHead>
-                  <TableHead>Sous-catégorie</TableHead>
                   <TableHead className="text-center">Actif</TableHead>
                   <TableHead className="text-center">
                     <Button variant="ghost" size="sm" className="gap-1" onClick={() => setSortOrder(s => s === "count-desc" ? "count-asc" : "count-desc")}>
@@ -272,9 +272,9 @@ const ServiceManagement = () => {
                     const count = businessCountBySvc[svc.id] || 0;
                     return (
                       <TableRow key={svc.id}>
-                        <TableCell className="font-medium">{svc.name_fr}</TableCell>
                         <TableCell className="text-muted-foreground text-sm">{catName}</TableCell>
                         <TableCell className="text-muted-foreground text-sm">{subName}</TableCell>
+                        <TableCell className="font-medium">{svc.name_fr}</TableCell>
                         <TableCell className="text-center">
                           <Switch defaultChecked={true} />
                         </TableCell>
