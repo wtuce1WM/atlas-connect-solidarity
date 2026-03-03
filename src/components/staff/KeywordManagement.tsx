@@ -278,6 +278,22 @@ const KeywordManagement = () => {
 
   return (
     <div className="space-y-6">
+      {/* Info block */}
+      <Card className="border-amber-200 bg-amber-50/50 dark:bg-amber-950/20 dark:border-amber-800">
+        <CardContent className="pt-4 pb-3 space-y-2 text-sm text-muted-foreground">
+          <p>
+            <AlertTriangle className="inline h-4 w-4 text-amber-500 mr-1 -mt-0.5" />
+            <strong className="text-foreground">Détection de conflits synonymes :</strong> les mots-clés référencés dans <code className="text-xs bg-muted px-1 py-0.5 rounded">search_synonyms</code> (comme <em>key_word</em> ou dans <em>synonyms</em>) sont signalés avec un liseré ambre + icône ⚠️. Lors de la suppression ou de l'ajout, un avertissement détaille les synonymes impactés.
+          </p>
+          <p>
+            <strong className="text-foreground">Triggers :</strong> les modifications sur <code className="text-xs bg-muted px-1 py-0.5 rounded">services.keywords</code> et <code className="text-xs bg-muted px-1 py-0.5 rounded">subcategories.keywords</code> déclenchent automatiquement les fonctions de propagation qui régénèrent le <code className="text-xs bg-muted px-1 py-0.5 rounded">search_vector</code> des établissements liés.
+          </p>
+          <p>
+            <strong className="text-foreground">Note :</strong> la section « Sous-catégories » affiche les mots-clés propres à la sous-catégorie (colonne <code className="text-xs bg-muted px-1 py-0.5 rounded">subcategories.keywords</code>) et non l'agrégation des mots-clés de services.
+          </p>
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
