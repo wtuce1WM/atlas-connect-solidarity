@@ -253,8 +253,8 @@ const KnowledgeBaseManagement = ({
   };
 
   const handleSave = async () => {
-    if (!formTitle.trim() || !formContent.trim()) {
-      toast({ variant: "destructive", title: "Erreur", description: "Titre et contenu requis." });
+    if (!formTitle.trim()) {
+      toast({ variant: "destructive", title: "Erreur", description: "Le titre est requis." });
       return;
     }
     const tags = formTags.split(",").map(t => t.trim()).filter(Boolean);
