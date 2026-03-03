@@ -350,7 +350,7 @@ const ServiceManagement = () => {
                         <TableCell className="font-medium">{b.name}</TableCell>
                         <TableCell className="text-sm text-muted-foreground">{b.city || "—"}</TableCell>
                         <TableCell>
-                          <Badge variant={b.is_active ? "default" : "secondary"}>
+                          <Badge variant={b.is_active ? "default" : "secondary"} className={b.is_active ? "bg-green-200 text-black hover:bg-green-300" : ""}>
                             {b.is_active ? "Actif" : "Inactif"}
                           </Badge>
                         </TableCell>
