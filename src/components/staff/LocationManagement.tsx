@@ -1893,7 +1893,7 @@ const LocationManagement = () => {
                      {poiForm.keywords.map((kw, i) => (
                        <span key={i} className="inline-flex items-center gap-1 bg-muted px-2 py-1 rounded text-sm">
                          {kw}
-                         <button type="button" onClick={() => setPoiForm({ ...poiForm, keywords: poiForm.keywords.filter((_, j) => j !== i) })} className="text-muted-foreground hover:text-destructive">
+                         <button type="button" onClick={() => setPoiForm(prev => ({ ...prev, keywords: prev.keywords.filter((_, j) => j !== i) }))} className="text-muted-foreground hover:text-destructive">
                            <X className="h-3 w-3" />
                          </button>
                        </span>
@@ -1904,10 +1904,13 @@ const LocationManagement = () => {
                      onKeyDown={(e) => {
                        if (e.key === 'Enter') {
                          e.preventDefault();
-                         const val = (e.target as HTMLInputElement).value.trim();
-                         if (val && !poiForm.keywords.includes(val)) {
-                           setPoiForm({ ...poiForm, keywords: [...poiForm.keywords, val] });
-                           (e.target as HTMLInputElement).value = '';
+                          const val = (e.target as HTMLInputElement).value.trim();
+                          if (val) {
+                            setPoiForm(prev => {
+                              if (prev.keywords.includes(val)) return prev;
+                              return { ...prev, keywords: [...prev.keywords, val] };
+                            });
+                            (e.target as HTMLInputElement).value = '';
                          }
                        }
                      }}
