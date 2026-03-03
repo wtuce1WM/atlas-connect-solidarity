@@ -273,6 +273,9 @@ const KnowledgeBaseManagement = ({
         <div className="relative flex-1 min-w-[200px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input placeholder="Rechercher…" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10" />
+          <p className="text-xs text-muted-foreground mt-1">
+            Ces entrées enrichissent les réponses du concierge IA. Les entrées liées à un établissement apparaissent automatiquement sur sa fiche et dans les résultats de recherche.
+          </p>
         </div>
         {categories.length > 1 && (
           <Select value={categoryFilter} onValueChange={setCategoryFilter}>
