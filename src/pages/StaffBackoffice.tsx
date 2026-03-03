@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchAllRows } from "@/lib/fetchAllRows";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -131,19 +132,16 @@ const StaffBackoffice = () => {
 
   const fetchBusinesses = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("businesses")
-      .select("*")
-      .order("updated_at", { ascending: false });
-
-    if (error) {
+    try {
+      const data = await fetchAllRows<Business>("businesses", "*", "updated_at");
+      // fetchAllRows orders ascending; reverse for newest first
+      setBusinesses(data.reverse());
+    } catch (error) {
       toast({
         variant: "destructive",
         title: "Erreur",
         description: "Impossible de charger les entreprises.",
       });
-    } else {
-      setBusinesses(data || []);
     }
     setLoading(false);
   };
