@@ -488,6 +488,7 @@ export type Database = {
           email: string | null
           engagements: string[]
           facebook_url: string | null
+          flipbook_url: string | null
           gamme_id: string | null
           getyourguide_rating: number | null
           getyourguide_review_count: number | null
@@ -596,6 +597,7 @@ export type Database = {
           email?: string | null
           engagements?: string[]
           facebook_url?: string | null
+          flipbook_url?: string | null
           gamme_id?: string | null
           getyourguide_rating?: number | null
           getyourguide_review_count?: number | null
@@ -704,6 +706,7 @@ export type Database = {
           email?: string | null
           engagements?: string[]
           facebook_url?: string | null
+          flipbook_url?: string | null
           gamme_id?: string | null
           getyourguide_rating?: number | null
           getyourguide_review_count?: number | null
@@ -2392,6 +2395,7 @@ export type Database = {
               email: string | null
               engagements: string[]
               facebook_url: string | null
+              flipbook_url: string | null
               gamme_id: string | null
               getyourguide_rating: number | null
               getyourguide_review_count: number | null
@@ -2516,6 +2520,7 @@ export type Database = {
               email: string | null
               engagements: string[]
               facebook_url: string | null
+              flipbook_url: string | null
               gamme_id: string | null
               getyourguide_rating: number | null
               getyourguide_review_count: number | null

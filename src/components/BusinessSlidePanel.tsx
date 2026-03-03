@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
-import { X, MapPin, Phone, Mail, Globe, Star, BadgeCheck, ChevronLeft, ChevronRight, Clock, Loader2, ExternalLink, CookingPot, Volume2, VolumeX, Maximize, Play, Pause, Headphones, Mic, Maximize2, Minimize2, Navigation, Box } from "lucide-react";
+import { X, MapPin, Phone, Mail, Globe, Star, BadgeCheck, ChevronLeft, ChevronRight, Clock, Loader2, ExternalLink, CookingPot, Volume2, VolumeX, Maximize, Play, Pause, Headphones, Mic, Maximize2, Minimize2, Navigation, Box, BookOpen } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Link, useNavigate } from "react-router-dom";
@@ -93,6 +93,21 @@ interface FullBusiness {
   default_service: string | null;
   ai_review_summary: any;
   matterport_url: string | null;
+  flipbook_url: string | null;
+}
+
+/** Convert Issuu/Calaméo URLs to embeddable format, or return as-is */
+function getFlipbookEmbedUrl(url: string): string {
+  // Issuu: https://issuu.com/username/docs/docname → https://e.issuu.com/embed.html?d=docname&u=username
+  const issuuMatch = url.match(/issuu\.com\/([^/]+)\/docs\/([^/?#]+)/);
+  if (issuuMatch) {
+    return `https://e.issuu.com/embed.html?d=${issuuMatch[2]}&u=${issuuMatch[1]}`;
+  }
+  // Calaméo: https://www.calameo.com/read/00123456789 → https://www.calameo.com/read/00123456789 (already embeddable)
+  if (url.includes("calameo.com")) {
+    return url;
+  }
+  return url;
 }
 
 interface Gamme {
@@ -416,9 +431,11 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
    const images = business.images || [];
    const hasVideo = !!business.video_1_url && !videoError;
    const hasMatterport = !!business.matterport_url;
-   const mediaCount = (hasVideo ? 1 : 0) + images.length + (hasMatterport ? 1 : 0);
+   const hasFlipbook = !!business.flipbook_url;
+   const mediaCount = (hasVideo ? 1 : 0) + images.length + (hasMatterport ? 1 : 0) + (hasFlipbook ? 1 : 0);
    const videoOffset = hasVideo ? 1 : 0;
-   const matterportIndex = hasMatterport ? mediaCount - 1 : -1;
+   const matterportIndex = hasMatterport ? (hasVideo ? 1 : 0) + images.length : -1;
+   const flipbookIndex = hasFlipbook ? mediaCount - 1 : -1;
   const ratingSourcesForCalc = collectRatingSources(business);
   const computedOn20 = computeWeightedRatingOn20(ratingSourcesForCalc);
   const avgOn20 = business.rating ?? computedOn20;
@@ -657,6 +674,17 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                   <span className="text-sm font-semibold text-primary">Visite 3D</span>
                 </div>
               )}
+              {/* Flipbook tile */}
+              {hasFlipbook && (
+                <div
+                  className="cursor-pointer overflow-hidden rounded-lg flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-muted to-muted/60 hover:from-primary/10 hover:to-primary/5 transition-colors mb-1.5 break-inside-avoid"
+                  style={{ aspectRatio: "16/10" }}
+                  onClick={() => { setCurrentImageIndex(flipbookIndex); setIsLightboxOpen(true); }}
+                >
+                  <BookOpen className="h-10 w-10 text-primary" />
+                  <span className="text-sm font-semibold text-primary">Flipbook</span>
+                </div>
+              )}
           </div>
         ) : (
         <>
@@ -715,6 +743,12 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                     <Box className="h-12 w-12 text-primary" />
                     <span className="text-sm font-semibold text-primary">Visite 3D</span>
                     <span className="text-xs text-muted-foreground">Cliquez pour lancer</span>
+                  </div>
+                ) : hasFlipbook && currentImageIndex === flipbookIndex ? (
+                  <div className="w-full h-full bg-gradient-to-br from-muted to-muted/60 flex flex-col items-center justify-center gap-3">
+                    <BookOpen className="h-12 w-12 text-primary" />
+                    <span className="text-sm font-semibold text-primary">Flipbook</span>
+                    <span className="text-xs text-muted-foreground">Cliquez pour consulter</span>
                   </div>
                 ) : (
                   <img
@@ -1449,16 +1483,26 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
             <X className="h-5 w-5" />
             <span>Fermer</span>
           </button>
-           {hasMatterport && currentImageIndex === matterportIndex ? (
+           {hasFlipbook && currentImageIndex === flipbookIndex ? (
              <iframe
-               src={business.matterport_url!}
+               src={getFlipbookEmbedUrl(business.flipbook_url!)}
                className="w-[95%] h-[90vh]"
-               allow="fullscreen; vr; xr"
+               allow="clipboard-write; fullscreen"
                allowFullScreen
                frameBorder="0"
-               title={`Visite 3D - ${business.name}`}
+               title={`Flipbook - ${business.name}`}
                onClick={(e: any) => e.stopPropagation()}
              />
+           ) : hasMatterport && currentImageIndex === matterportIndex ? (
+              <iframe
+                src={business.matterport_url!}
+                className="w-[95%] h-[90vh]"
+                allow="fullscreen; vr; xr"
+                allowFullScreen
+                frameBorder="0"
+                title={`Visite 3D - ${business.name}`}
+                onClick={(e: any) => e.stopPropagation()}
+              />
            ) : hasVideo && currentImageIndex === 0 ? (
              (() => {
                const url = business.video_1_url!;

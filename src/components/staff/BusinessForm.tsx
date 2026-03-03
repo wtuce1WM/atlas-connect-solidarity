@@ -419,6 +419,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
     internal_notes: (business as any)?.internal_notes || "",
     video_1_url: (business as any)?.video_1_url || "",
     matterport_url: (business as any)?.matterport_url || "",
+    flipbook_url: (business as any)?.flipbook_url || "",
     google_maps_url: (business as any)?.google_maps_url || "",
     airbnb_url: (business as any)?.airbnb_url || "",
     pinterest_url: (business as any)?.pinterest_url || "",
@@ -863,6 +864,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
       internal_notes: formData.internal_notes ? formData.internal_notes.slice(0, 5000) : null,
       video_1_url: formData.video_1_url || null,
       matterport_url: formData.matterport_url || null,
+      flipbook_url: (formData as any).flipbook_url || null,
       google_maps_url: formData.google_maps_url || null,
       airbnb_url: formData.airbnb_url || null,
       pinterest_url: formData.pinterest_url || null,
@@ -2263,6 +2265,17 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
             value={formData.matterport_url}
             onChange={(e) => handleChange("matterport_url", e.target.value)}
           />
+        </div>
+
+        {/* Flipbook / Issuu */}
+        <div className="space-y-2">
+          <Label className="text-base font-semibold">📖 Flipbook (Issuu, Calaméo…)</Label>
+          <Input
+            placeholder="https://issuu.com/username/docs/document-name"
+            value={(formData as any).flipbook_url}
+            onChange={(e) => handleChange("flipbook_url", e.target.value)}
+          />
+          <p className="text-xs text-muted-foreground">Collez l'URL de la publication Issuu ou Calaméo. Elle sera intégrée dans le panneau de l'établissement.</p>
         </div>
 
         {/* Images */}
