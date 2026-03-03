@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import KeywordsBySubcategorySection from "./KeywordsBySubcategorySection";
 import { fetchAllRows } from "@/lib/fetchAllRows";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -291,6 +292,13 @@ const KeywordManagement = () => {
           </div>}
         </CardContent>
       </Card>
+
+      <KeywordsBySubcategorySection
+        categories={categories}
+        subcategories={subcategories}
+        services={services}
+        businessCountByService={businessCountByKw}
+      />
 
       {/* Businesses popup */}
       <Dialog open={!!popup} onOpenChange={open => { if (!open) setPopup(null); }}>
