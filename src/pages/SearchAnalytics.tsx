@@ -45,7 +45,7 @@ const SearchAnalytics = ({ embedded = false }: { embedded?: boolean }) => {
   const [testQuery, setTestQuery] = useState("");
   const [liveResult, setLiveResult] = useState<LiveResult | null>(null);
   const [isSearching, setIsSearching] = useState(false);
-  const [stats, setStats] = useState({ total: 0, reranked: 0, avgLatency: 0, avgTotalLatency: 0 });
+  const [stats, setStats] = useState({ total: 0, reranked: 0, avgLatency: 0, avgTotalLatency: 0, oldestDate: null as string | null });
 
   const fetchLogs = async () => {
     setIsLoading(true);
@@ -64,7 +64,8 @@ const SearchAnalytics = ({ embedded = false }: { embedded?: boolean }) => {
       const avgTotal = withLatency.length > 0
         ? Math.round(withLatency.reduce((sum: number, l: any) => sum + (l.total_latency_ms || 0), 0) / withLatency.length)
         : 0;
-      setStats({ total: data.length, reranked: reranked.length, avgLatency: avgLat, avgTotalLatency: avgTotal });
+      const oldestDate = data.length > 0 ? data[data.length - 1].created_at : null;
+      setStats({ total: data.length, reranked: reranked.length, avgLatency: avgLat, avgTotalLatency: avgTotal, oldestDate });
     }
     setIsLoading(false);
   };
@@ -125,6 +126,11 @@ const SearchAnalytics = ({ embedded = false }: { embedded?: boolean }) => {
           <CardContent className="pt-6">
             <div className="text-2xl font-bold">{stats.total}</div>
             <p className="text-sm text-muted-foreground">Recherches loguées</p>
+            {stats.oldestDate && (
+              <p className="text-xs text-muted-foreground mt-1">
+                depuis le {new Date(stats.oldestDate).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+              </p>
+            )}
           </CardContent>
         </Card>
         <Card>
