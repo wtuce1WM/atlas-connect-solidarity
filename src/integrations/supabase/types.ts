@@ -1909,6 +1909,7 @@ export type Database = {
       }
       search_synonyms: {
         Row: {
+          badge_id: string | null
           created_at: string | null
           filters: Json
           id: string
@@ -1920,6 +1921,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          badge_id?: string | null
           created_at?: string | null
           filters?: Json
           id?: string
@@ -1931,6 +1933,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          badge_id?: string | null
           created_at?: string | null
           filters?: Json
           id?: string
@@ -1941,7 +1944,15 @@ export type Database = {
           synonyms?: string[]
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "search_synonyms_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "badges"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       services: {
         Row: {

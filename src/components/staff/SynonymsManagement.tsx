@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
   Dialog,
@@ -42,7 +43,15 @@ interface SynonymEntry {
   service_names: string[];
   filters: SynonymFilter[];
   is_active: boolean;
+  badge_id: string | null;
   created_at: string;
+}
+
+interface BadgeEntry {
+  id: string;
+  name_fr: string;
+  color_hex: string | null;
+  text_color_hex: string | null;
 }
 
 const SynonymsManagement = () => {
@@ -54,6 +63,7 @@ const SynonymsManagement = () => {
   const [allSubcategories, setAllSubcategories] = useState<{id: string; name: string; category_id: string}[]>([]);
   const [allCategories, setAllCategories] = useState<{id: string; name_fr: string}[]>([]);
   const [allServices, setAllServices] = useState<{name: string; subcategory_id: string}[]>([]);
+  const [badges, setBadges] = useState<BadgeEntry[]>([]);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc" | "oldest" | "newest">("asc");
   const [filterCategory, setFilterCategory] = useState("");
   const [filterSubcategory, setFilterSubcategory] = useState("");
@@ -66,11 +76,12 @@ const SynonymsManagement = () => {
 
   const load = async () => {
     setIsLoading(true);
-    const [{ data }, { data: subcats }, { data: cats }, svcData] = await Promise.all([
+    const [{ data }, { data: subcats }, { data: cats }, svcData, { data: bdgData }] = await Promise.all([
       supabase.from("search_synonyms").select("*").order("key_word"),
       supabase.from("subcategories").select("id, name_fr, category_id").order("name_fr"),
       supabase.from("categories").select("id, name_fr").order("name_fr"),
       fetchAllRows<{ name_fr: string; subcategory_id: string }>("services", "name_fr, subcategory_id", "name_fr"),
+      supabase.from("badges").select("id, name_fr, color_hex, text_color_hex").order("sort_order"),
     ]);
     if (data) setEntries(data.map((d: any) => ({
       ...d,
@@ -81,6 +92,7 @@ const SynonymsManagement = () => {
     if (subcats) setAllSubcategories(subcats.map((s: any) => ({ id: s.id, name: s.name_fr, category_id: s.category_id })));
     if (cats) setAllCategories(cats as any);
     if (svcData) setAllServices(svcData.map((s: any) => ({ name: s.name_fr, subcategory_id: s.subcategory_id })));
+    if (bdgData) setBadges(bdgData as BadgeEntry[]);
     setIsLoading(false);
   };
 
@@ -174,6 +186,7 @@ const SynonymsManagement = () => {
       filters: entry.filters,
       subcategory_names: subcatNames,
       service_names: svcNames,
+      badge_id: entry.badge_id,
     } as any).eq("id", id);
     setSavingEntries(prev => { const n = new Set(prev); n.delete(id); return n; });
     if (error) {
@@ -360,6 +373,42 @@ const SynonymsManagement = () => {
                 </a>
               </DialogDescription>
             </DialogHeader>
+
+            {/* Badge */}
+            <div className="space-y-2">
+              <h4 className="text-sm font-semibold">Badge</h4>
+              <Select
+                value={selectedEntry.badge_id || "none"}
+                onValueChange={val => {
+                  const newBadgeId = val === "none" ? null : val;
+                  setEntries(prev => prev.map(e => e.id === selectedEntry.id ? { ...e, badge_id: newBadgeId } : e));
+                  setDirtyEntries(prev => new Set(prev).add(selectedEntry.id));
+                }}
+              >
+                <SelectTrigger className="w-48 h-9">
+                  <SelectValue placeholder="Aucun badge" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Aucun badge</SelectItem>
+                  {badges.map(b => (
+                    <SelectItem key={b.id} value={b.id}>
+                      <span className="inline-flex items-center gap-1.5">
+                        <span className="w-3 h-3 rounded-full inline-block" style={{ backgroundColor: b.color_hex || '#ccc' }} />
+                        {b.name_fr}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {(() => {
+                const bdg = badges.find(b => b.id === selectedEntry.badge_id);
+                return bdg ? (
+                  <span className="inline-flex items-center text-xs px-2 py-0.5 rounded" style={{ backgroundColor: bdg.color_hex || '#ccc', color: bdg.text_color_hex || '#fff' }}>
+                    {bdg.name_fr}
+                  </span>
+                ) : null;
+              })()}
+            </div>
 
             {/* Synonymes */}
             <div className="space-y-2">
