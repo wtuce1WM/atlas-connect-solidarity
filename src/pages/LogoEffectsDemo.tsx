@@ -294,11 +294,11 @@ const LogoEffectsDemo = () => {
   const [replay, setReplay] = useState(0);
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-background">
       <Header />
       <div className="container mx-auto px-4 pt-24 pb-32">
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gold mb-2" style={{ fontStyle: "normal" }}>Effets Logo — Démo</h1>
+          <h1 className="text-2xl font-bold text-foreground mb-2" style={{ fontStyle: "normal" }}>Effets Logo — Démo</h1>
           <button
             onClick={() => setReplay(r => r + 1)}
             className="px-6 py-2 rounded-full bg-gold text-black font-semibold text-sm hover:bg-gold/80 transition-colors"
@@ -314,19 +314,19 @@ const LogoEffectsDemo = () => {
 
         {/* CSS 3D Spinner (production) */}
         <div className="mt-12">
-          <h2 className="text-xl font-bold text-gold text-center mb-6" style={{ fontStyle: "normal" }}>CSS 3D — Pièce dorée (production)</h2>
+          <h2 className="text-xl font-bold text-foreground text-center mb-6" style={{ fontStyle: "normal" }}>CSS 3D — Pièce dorée (production)</h2>
           <p className="text-center text-muted-foreground text-sm mb-4">Utilisé en production (Hero + Loading). 0 KB de dépendances supplémentaires.</p>
           <div className="flex justify-center">
             <div className="bg-black rounded-xl p-8 w-72 flex flex-col items-center gap-4">
               <LogoCSSSpinner className="w-48 h-48" key={`css-spin-${replay}`} />
-              <span className="text-gold text-sm font-semibold">CSS Rotation unique + flottement</span>
+              <span className="text-foreground text-sm font-semibold">CSS Rotation unique + flottement</span>
             </div>
           </div>
         </div>
 
         {/* Three.js 3D Section */}
         <div className="mt-12">
-          <h2 className="text-xl font-bold text-gold text-center mb-6" style={{ fontStyle: "normal" }}>Effet 3D — Pièce dorée (Three.js)</h2>
+          <h2 className="text-xl font-bold text-foreground text-center mb-6" style={{ fontStyle: "normal" }}>Effet 3D — Pièce dorée (Three.js)</h2>
           <p className="text-center text-muted-foreground text-sm mb-4">Démo uniquement. ~250 KB de dépendances (three.js).</p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Logo3DCard mode="spin" name="Rotation continue" description="La pièce tourne en boucle sur l'axe Y" />
@@ -338,7 +338,7 @@ const LogoEffectsDemo = () => {
 
         {/* 3D Lighting Effects */}
         <div className="mt-12">
-          <h2 className="text-xl font-bold text-gold text-center mb-6" style={{ fontStyle: "normal" }}>Effet 3D — Lumière</h2>
+          <h2 className="text-xl font-bold text-foreground text-center mb-6" style={{ fontStyle: "normal" }}>Effet 3D — Lumière</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Logo3DLightCard mode="beam" name="Rayon vertical" description="Faisceau lumineux vertical balayant le logo" />
             <Logo3DLightCard mode="spotlight" name="Spotlight dramatique" description="Projecteur tournant avec ombres dynamiques" />
