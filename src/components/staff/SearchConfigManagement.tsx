@@ -269,12 +269,12 @@ const SearchConfigManagement = () => {
   }
 
   return (
-    <Tabs defaultValue="subcategories" className="space-y-6">
+    <Tabs defaultValue="synonyms" className="space-y-6">
       <TabsList className="flex-wrap h-auto">
+        <TabsTrigger value="synonyms">Synonymes</TabsTrigger>
         <TabsTrigger value="subcategories">Sous-catégories</TabsTrigger>
         <TabsTrigger value="intents">Intentions</TabsTrigger>
         <TabsTrigger value="service-filters">Filtres de services</TabsTrigger>
-        <TabsTrigger value="synonyms">Synonymes</TabsTrigger>
         <TabsTrigger value="noise-words">Mots bruyants</TabsTrigger>
         <TabsTrigger value="merges">Fusions</TabsTrigger>
         <TabsTrigger value="bundles">Regroupements</TabsTrigger>
