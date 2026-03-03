@@ -5,7 +5,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import logoGoldOverlay from "@/assets/logoGOLDsimple.webp";
-import LogoCSSSpinner from "@/components/LogoCSSSpinner";
+import Logo3DSpinner from "@/components/Logo3DSpinner";
 import heroBackground from "@/assets/hero-marrakech.jpg";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
@@ -116,9 +116,9 @@ const HeroSection = () => {
       {/* Overlay with gradient to black at bottom */}
       <div className="absolute inset-0 bg-gradient-to-b from-white/20 via-white/40 to-white" />
 
-      {/* Logo CSS — single spin + float */}
+      {/* Logo 3D — single spin */}
       <div className="absolute inset-0 z-[5] flex items-start justify-center pt-24 pointer-events-none">
-        <LogoCSSSpinner className="w-96 h-96 md:w-96 md:h-96" />
+        <Logo3DSpinner className="w-96 h-96 md:w-96 md:h-96" />
       </div>
 
       {/* Content — text layer above logo */}
