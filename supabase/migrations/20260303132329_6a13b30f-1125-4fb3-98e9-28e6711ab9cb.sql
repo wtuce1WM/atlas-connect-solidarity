@@ -1,0 +1,1 @@
+ALTER TABLE public.search_synonyms ADD COLUMN badge_id uuid REFERENCES public.badges(id) ON DELETE SET NULL DEFAULT NULL;
