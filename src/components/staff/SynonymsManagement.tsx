@@ -310,13 +310,24 @@ const SynonymsManagement = () => {
             </div>
 
             {/* Filter summary */}
-            <div className="mt-auto pt-2">
-              <p className="text-[10px] leading-tight opacity-75 line-clamp-2">
-                {getFilterSummary(entry)}
-              </p>
-              {entry.filters.length > 0 && (
-                <p className="text-[10px] opacity-60 mt-0.5">{entry.filters.length} filtre{entry.filters.length !== 1 ? "s" : ""}</p>
-              )}
+            <div className="mt-auto pt-2 space-y-1">
+              {(() => {
+                const subcats = [...new Set(entry.filters.map(f => f.subcategory_name).filter(Boolean))];
+                const services = [...new Set(entry.filters.map(f => f.required_service).filter(Boolean))];
+                if (subcats.length === 0 && services.length === 0) {
+                  return <p className="text-xs opacity-75 italic">Aucun filtre</p>;
+                }
+                return (
+                  <>
+                    {subcats.length > 0 && (
+                      <p className="text-xs font-bold leading-snug line-clamp-2">{subcats.join(", ")}</p>
+                    )}
+                    {services.length > 0 && (
+                      <p className="text-xs opacity-80 leading-snug line-clamp-2">{services.join(", ")}</p>
+                    )}
+                  </>
+                );
+              })()}
             </div>
 
             {/* Dirty indicator */}
