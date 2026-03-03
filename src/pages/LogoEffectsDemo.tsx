@@ -10,11 +10,13 @@ const effects = [
   {
     name: "Zoom Out (actuel)",
     description: "Part très grand et réduit vers le centre",
+    weight: "~0.2 KB",
     animation: "animate-[logoZoomOut_0.8s_cubic-bezier(0.16,1,0.3,1)_forwards]",
   },
   {
     name: "Zoom In",
     description: "Part petit et grandit avec éclat doré",
+    weight: "~0.3 KB",
     css: `
       @keyframes demoZoomIn {
         0% { opacity: 0; transform: scale(0.3); filter: brightness(0.5); }
@@ -27,6 +29,7 @@ const effects = [
   {
     name: "Spin & Fade",
     description: "Rotation avec apparition progressive",
+    weight: "~0.2 KB",
     css: `
       @keyframes demoSpinFade {
         0% { opacity: 0; transform: rotate(-180deg) scale(0.5); }
@@ -38,6 +41,7 @@ const effects = [
   {
     name: "Pulse Glow",
     description: "Apparition avec pulsation dorée lumineuse",
+    weight: "~0.4 KB",
     css: `
       @keyframes demoPulseGlow {
         0% { opacity: 0; transform: scale(0.8); filter: brightness(0.5); }
@@ -51,6 +55,7 @@ const effects = [
   {
     name: "Flip 3D",
     description: "Retournement 3D sur l'axe Y",
+    weight: "~0.3 KB",
     css: `
       @keyframes demoFlip {
         0% { opacity: 0; transform: perspective(800px) rotateY(90deg) scale(0.8); }
@@ -63,6 +68,7 @@ const effects = [
   {
     name: "Slide Up + Fade",
     description: "Glisse du bas vers le centre avec fondu",
+    weight: "~0.2 KB",
     css: `
       @keyframes demoSlideUp {
         0% { opacity: 0; transform: translateY(60px) scale(0.9); }
@@ -74,6 +80,7 @@ const effects = [
   {
     name: "Elastic Pop",
     description: "Effet élastique rebondissant",
+    weight: "~0.3 KB",
     css: `
       @keyframes demoElastic {
         0% { opacity: 0; transform: scale(0); }
@@ -88,6 +95,7 @@ const effects = [
   {
     name: "Blur Reveal",
     description: "Apparition depuis un flou intense",
+    weight: "~0.3 KB",
     css: `
       @keyframes demoBlurReveal {
         0% { opacity: 0; filter: blur(30px) brightness(1.5); transform: scale(1.3); }
@@ -100,6 +108,7 @@ const effects = [
   {
     name: "Global Beam Sweep",
     description: "Rayon doré balayant horizontalement toute la carte",
+    weight: "~0.3 KB",
     css: `
       @keyframes demoGlobalBeam {
         0% { opacity: 0; background-position: -100% 0; }
@@ -115,6 +124,7 @@ const effects = [
   {
     name: "Circular Beam Glow",
     description: "Halo doré circulaire orbitant, synchronisé avec le logo",
+    weight: "~0.5 KB",
     css: `
       @property --demo-beam-x {
         syntax: '<percentage>';
@@ -143,6 +153,7 @@ const effects = [
   {
     name: "Stormy Lightning",
     description: "Ambiance orageuse avec éclairs multiples",
+    weight: "~0.7 KB",
     css: `
       @keyframes stormFlash1 {
         0%, 100% { opacity: 0; }
@@ -180,9 +191,15 @@ const effects = [
   },
 ];
 
+const WeightBadge = ({ weight }: { weight: string }) => (
+  <span className="absolute top-2 right-2 z-20 bg-muted/80 backdrop-blur-sm text-muted-foreground text-[10px] font-mono px-1.5 py-0.5 rounded">
+    {weight}
+  </span>
+);
+
 const EffectCard = ({ effect }: { effect: (typeof effects)[number] }) => {
   const [key, setKey] = useState(0);
-
+  const weight = ('weight' in effect) ? (effect as any).weight : "0 KB";
   if ('isStorm' in effect && effect.isStorm) {
     return (
       <div className="flex flex-col items-center gap-3">
@@ -191,6 +208,7 @@ const EffectCard = ({ effect }: { effect: (typeof effects)[number] }) => {
           onClick={() => setKey(k => k + 1)}
           title="Cliquez pour rejouer"
         >
+          <WeightBadge weight={weight} />
           {effect.css && <style>{effect.css}</style>}
           {/* Storm ambient overlay */}
           <div key={`amb-${key}`} className="absolute inset-0" style={{
@@ -231,6 +249,7 @@ const EffectCard = ({ effect }: { effect: (typeof effects)[number] }) => {
           onClick={() => setKey(k => k + 1)}
           title="Cliquez pour rejouer"
         >
+          <WeightBadge weight={weight} />
           {effect.css && <style>{effect.css}</style>}
           <div
             key={key}
@@ -264,6 +283,7 @@ const EffectCard = ({ effect }: { effect: (typeof effects)[number] }) => {
         onClick={() => setKey(k => k + 1)}
         title="Cliquez pour rejouer"
       >
+        <WeightBadge weight={weight} />
         {effect.css && <style>{effect.css}</style>}
         <img
           key={key}
@@ -325,7 +345,8 @@ const LogoEffectsDemo = () => {
           <h2 className="text-xl font-bold text-foreground text-center mb-6" style={{ fontStyle: "normal" }}>CSS 3D — Pièce dorée (production)</h2>
           <p className="text-center text-muted-foreground text-sm mb-4">Utilisé en production (Hero + Loading). 0 KB de dépendances supplémentaires.</p>
           <div className="flex justify-center">
-            <div className="bg-card rounded-xl border border-border shadow-sm p-8 w-72 flex flex-col items-center gap-4">
+            <div className="relative bg-card rounded-xl border border-border shadow-sm p-8 w-72 flex flex-col items-center gap-4">
+              <WeightBadge weight="~0.3 KB" />
               <LogoCSSSpinner className="w-48 h-48" key={`css-spin-${replay}`} />
               <span className="text-foreground text-sm font-semibold">CSS Rotation unique + flottement</span>
             </div>
@@ -442,6 +463,7 @@ const Logo3DCard = ({ mode, name, description }: { mode: string; name: string; d
         onClick={() => setTriggerKey(k => k + 1)}
         title="Cliquez pour déclencher"
       >
+        <WeightBadge weight="~250 KB" />
         <Canvas camera={{ position: [0, 0, 3.5], fov: 50 }} gl={{ antialias: true, alpha: false }}>
           <color attach="background" args={["#faf8f5"]} />
           <ambientLight intensity={1.2} />
@@ -574,6 +596,7 @@ const Logo3DLightCard = ({ mode, name, description }: { mode: string; name: stri
         onClick={() => setTriggerKey(k => k + 1)}
         title="Cliquez pour déclencher"
       >
+        <WeightBadge weight="~250 KB" />
         <Canvas camera={{ position: [0, 0, 3.5], fov: 50 }} gl={{ antialias: true, alpha: false }} shadows>
           <color attach="background" args={["#faf8f5"]} />
           <Suspense fallback={null}>
