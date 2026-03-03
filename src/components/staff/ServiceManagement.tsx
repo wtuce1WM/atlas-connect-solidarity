@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Search, Loader2, ExternalLink, Eye, EyeOff } from "lucide-react";
+import { Search, Loader2, ExternalLink, Eye, EyeOff, ArrowUpAZ, ArrowDownZA } from "lucide-react";
 import { toast } from "sonner";
 
 interface Category {
@@ -50,6 +50,7 @@ const ServiceManagement = () => {
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [subcategoryFilter, setSubcategoryFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [sortOrder, setSortOrder] = useState<"az" | "za">("az");
 
   // Business counts per service name
   const [businessCountBySvc, setBusinessCountBySvc] = useState<Record<string, number>>({});
@@ -131,8 +132,13 @@ const ServiceManagement = () => {
       );
     }
 
+    result = [...result].sort((a, b) => {
+      const cmp = a.name_fr.localeCompare(b.name_fr, "fr");
+      return sortOrder === "az" ? cmp : -cmp;
+    });
+
     return result;
-  }, [services, categoryFilter, subcategoryFilter, filteredSubcategories, searchQuery]);
+  }, [services, categoryFilter, subcategoryFilter, filteredSubcategories, searchQuery, sortOrder]);
 
   // Helper: get subcategory & category name for a service
   const getHierarchy = (svc: Service) => {
@@ -234,7 +240,11 @@ const ServiceManagement = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Service</TableHead>
+                  <TableHead>
+                    <Button variant="ghost" size="sm" className="gap-1 -ml-2" onClick={() => setSortOrder(s => s === "az" ? "za" : "az")}>
+                      Service {sortOrder === "az" ? <ArrowUpAZ className="h-4 w-4" /> : <ArrowDownZA className="h-4 w-4" />}
+                    </Button>
+                  </TableHead>
                   <TableHead>Catégorie</TableHead>
                   <TableHead>Sous-catégorie</TableHead>
                   <TableHead className="text-center">Actif</TableHead>
