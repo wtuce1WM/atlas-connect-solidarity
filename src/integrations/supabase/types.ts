@@ -1227,11 +1227,15 @@ export type Database = {
         Row: {
           business_id: string | null
           category: string
+          city_id: string | null
           content: string
           created_at: string
+          destination_id: string | null
           id: string
           is_active: boolean
+          neighborhood_id: string | null
           notes: string | null
+          point_of_interest_id: string | null
           source: string | null
           tags: string[]
           title: string
@@ -1240,11 +1244,15 @@ export type Database = {
         Insert: {
           business_id?: string | null
           category?: string
+          city_id?: string | null
           content: string
           created_at?: string
+          destination_id?: string | null
           id?: string
           is_active?: boolean
+          neighborhood_id?: string | null
           notes?: string | null
+          point_of_interest_id?: string | null
           source?: string | null
           tags?: string[]
           title: string
@@ -1253,11 +1261,15 @@ export type Database = {
         Update: {
           business_id?: string | null
           category?: string
+          city_id?: string | null
           content?: string
           created_at?: string
+          destination_id?: string | null
           id?: string
           is_active?: boolean
+          neighborhood_id?: string | null
           notes?: string | null
+          point_of_interest_id?: string | null
           source?: string | null
           tags?: string[]
           title?: string
@@ -1269,6 +1281,34 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "knowledge_entries_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "knowledge_entries_destination_id_fkey"
+            columns: ["destination_id"]
+            isOneToOne: false
+            referencedRelation: "destinations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "knowledge_entries_neighborhood_id_fkey"
+            columns: ["neighborhood_id"]
+            isOneToOne: false
+            referencedRelation: "neighborhoods"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "knowledge_entries_point_of_interest_id_fkey"
+            columns: ["point_of_interest_id"]
+            isOneToOne: false
+            referencedRelation: "points_of_interest"
             referencedColumns: ["id"]
           },
         ]
