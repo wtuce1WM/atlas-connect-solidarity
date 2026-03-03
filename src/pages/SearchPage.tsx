@@ -358,6 +358,7 @@ const SearchPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const cityFromUrl = searchParams.get("city") || "";
   const [selectedCity, setSelectedCity] = useState<string>(cityFromUrl || "all");
+  const [isGeoCityAutoSelected, setIsGeoCityAutoSelected] = useState(false);
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
   const [inputValue, setInputValue] = useState(searchParams.get("q") || "");
   const searchFormRef = useRef<HTMLFormElement>(null);
@@ -420,19 +421,30 @@ const SearchPage = () => {
   const toggleRecordingRef = useRef<(() => void) | null>(null);
   const geo = useGeolocation();
 
-  // Auto-select city when geolocation detects one only if the query doesn't already target a city
+  // Auto-select city from geolocation only when there is no active search query
   useEffect(() => {
-    if (!queryHasExplicitCity && geo.isEnabled && geo.detectedCity && selectedCity === "all") {
+    const hasActiveQuery = !!searchQuery.trim() || !!categoryFromUrl;
+    if (!hasActiveQuery && !queryHasExplicitCity && geo.isEnabled && geo.detectedCity && selectedCity === "all") {
       setSelectedCity(geo.detectedCity);
+      setIsGeoCityAutoSelected(true);
     }
-  }, [queryHasExplicitCity, geo.isEnabled, geo.detectedCity, selectedCity]);
+  }, [searchQuery, categoryFromUrl, queryHasExplicitCity, geo.isEnabled, geo.detectedCity, selectedCity]);
 
-  // If query explicitly targets a city (ex: Marrakech), don't keep a stale geo city filter (ex: Rabat)
+  // If query explicitly targets a city, don't keep a stale geo city filter
   useEffect(() => {
     if (queryHasExplicitCity && selectedCity !== "all") {
       setSelectedCity("all");
+      setIsGeoCityAutoSelected(false);
     }
   }, [queryHasExplicitCity, selectedCity]);
+
+  // Clear auto geo city filter as soon as user starts a free-text search without explicit city
+  useEffect(() => {
+    if (isGeoCityAutoSelected && !!searchQuery.trim() && !queryHasExplicitCity && selectedCity !== "all") {
+      setSelectedCity("all");
+      setIsGeoCityAutoSelected(false);
+    }
+  }, [isGeoCityAutoSelected, searchQuery, queryHasExplicitCity, selectedCity]);
 
   // Close suggestions on click outside
 
@@ -893,6 +905,7 @@ const SearchPage = () => {
 
   const handleCityChange = (city: string) => {
     setSelectedCity(city);
+    setIsGeoCityAutoSelected(false);
   };
 
   const handleCategoryChange = (category: string) => {
