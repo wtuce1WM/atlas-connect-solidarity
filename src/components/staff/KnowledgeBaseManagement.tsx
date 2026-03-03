@@ -476,9 +476,18 @@ const KnowledgeBaseManagement = ({
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
+                          <SelectItem value="ar">AR</SelectItem>
+                          <SelectItem value="ar-std">AR std</SelectItem>
                           <SelectItem value="fr">FR</SelectItem>
                           <SelectItem value="en">EN</SelectItem>
-                          <SelectItem value="ar">AR</SelectItem>
+                          <SelectItem value="es">ES</SelectItem>
+                          <SelectItem value="de">DE</SelectItem>
+                          <SelectItem value="it">IT</SelectItem>
+                          <SelectItem value="pt">PT</SelectItem>
+                          <SelectItem value="nl">NL</SelectItem>
+                          <SelectItem value="zh">ZH</SelectItem>
+                          <SelectItem value="ja">JA</SelectItem>
+                          <SelectItem value="ru">RU</SelectItem>
                         </SelectContent>
                       </Select>
                       <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0" onClick={() => {
