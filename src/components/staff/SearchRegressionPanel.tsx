@@ -95,6 +95,13 @@ const SEARCH_TEST_CASES: SearchTestCase[] = [
     minResults: 1,
   },
   {
+    id: "salade-pissenlit",
+    query: "salade de pissenlit",
+    description: "\"salade de pissenlit\" ne doit retourner que Le Comptoir Paysan",
+    mustInclude: ["Le Comptoir Paysan"],
+    maxResults: 3,
+  },
+  {
     id: "alcool-gueliz-no-restaurants",
     query: "je veux acheter de l'alcool à Guéliz",
     description: "\"acheter alcool Guéliz\" ne doit pas retourner de restaurants ni La Maison de Bacchus",

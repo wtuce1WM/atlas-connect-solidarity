@@ -2056,10 +2056,12 @@ serve(async (req) => {
       // Also strip hyphenated compounds that contain a service keyword (e.g. "canapé-lit" when service is "Canapé")
       // serviceMatchWords contains ALL query words that participated in service detection
       // (including keyword-matched words like "méridienne" that matched via keyword of "Canapé")
+      // Only strip words that ACTUALLY matched a service (serviceMatchWordsForInjection),
+      // not all content words (serviceMatchWordsOuter) — otherwise extra qualifiers like "pissenlit"
+      // in "salade de pissenlit" get wrongly removed, causing overly broad results.
       const allServiceRelatedWords = new Set([
         ...serviceMatchWordsForInjection,
         ...svcWords,
-        ...serviceMatchWordsOuter,
       ]);
       const cleanRemainder = effectiveQuery.split(/\s+/).filter(w => {
         const wLower = w.toLowerCase();
