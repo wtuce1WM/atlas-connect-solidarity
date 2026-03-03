@@ -184,6 +184,7 @@ const StaffMaster = () => {
               categories={["general", "tourisme", "culture", "gastronomie"]}
               newEntryLabel="Nouvelle entrée IA"
               emptyLabel="Aucune entrée pour l'IA Concierge"
+              showExternalUrls
             />
           </TabsContent>
 
