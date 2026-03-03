@@ -159,6 +159,7 @@ const KnowledgeBaseManagement = ({
   const [formPoiId, setFormPoiId] = useState<string | null>(null);
   const [formPoiLabel, setFormPoiLabel] = useState("");
   const [formExternalUrlsTitle, setFormExternalUrlsTitle] = useState("");
+  const [formExternalUrlsSectionTitle, setFormExternalUrlsSectionTitle] = useState("");
   const [formExternalUrls, setFormExternalUrls] = useState<ExternalUrl[]>([]);
 
   // Search businesses for linking
@@ -231,7 +232,7 @@ const KnowledgeBaseManagement = ({
     setFormNeighborhoodId(null); setFormNeighborhoodLabel("");
     setFormDestinationId(null); setFormDestinationLabel("");
     setFormPoiId(null); setFormPoiLabel("");
-    setFormExternalUrlsTitle(""); setFormExternalUrls([]);
+    setFormExternalUrlsTitle(""); setFormExternalUrlsSectionTitle(""); setFormExternalUrls([]);
     setEditingId(null); setShowNew(false);
   };
 
@@ -245,7 +246,8 @@ const KnowledgeBaseManagement = ({
     setFormNeighborhoodId(entry.neighborhood_id); setFormNeighborhoodLabel(entry.neighborhood_name || "");
     setFormDestinationId(entry.destination_id); setFormDestinationLabel(entry.destination_name || "");
     setFormPoiId(entry.point_of_interest_id); setFormPoiLabel(entry.poi_name || "");
-    setFormExternalUrlsTitle(entry.external_urls_title || "");
+    setFormExternalUrlsTitle((entry as any).external_urls_title || "");
+    setFormExternalUrlsSectionTitle((entry as any).external_urls_section_title || "");
     setFormExternalUrls(entry.external_urls || []);
     setShowNew(false);
   };
@@ -264,6 +266,7 @@ const KnowledgeBaseManagement = ({
       neighborhood_id: formNeighborhoodId || null,
       destination_id: formDestinationId || null,
       point_of_interest_id: formPoiId || null,
+      external_urls_section_title: formExternalUrlsSectionTitle.trim() || null,
       external_urls_title: formExternalUrlsTitle.trim() || null,
       external_urls: formExternalUrls.filter(u => u.name.trim() || u.url.trim()),
       updated_at: new Date().toISOString(),
@@ -388,14 +391,21 @@ const KnowledgeBaseManagement = ({
                   <CardTitle className="text-sm flex items-center gap-2">
                     🔗 URLs externes
                   </CardTitle>
-                  <div>
+                  <div className="space-y-2">
                     <Input
                       placeholder="Titre de la section URLs (ex: Sources officielles)"
+                      value={formExternalUrlsSectionTitle}
+                      onChange={e => setFormExternalUrlsSectionTitle(e.target.value.slice(0, 120))}
+                      maxLength={120}
+                    />
+                    <p className="text-xs text-muted-foreground">{formExternalUrlsSectionTitle.length} / 120 caractères</p>
+                    <Input
+                      placeholder="Hook de la section URLs (ex: Découvrez nos partenaires)"
                       value={formExternalUrlsTitle}
                       onChange={e => setFormExternalUrlsTitle(e.target.value.slice(0, 120))}
                       maxLength={120}
                     />
-                    <p className="text-xs text-muted-foreground mt-1">{formExternalUrlsTitle.length} / 120 caractères</p>
+                    <p className="text-xs text-muted-foreground">{formExternalUrlsTitle.length} / 120 caractères</p>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-2">

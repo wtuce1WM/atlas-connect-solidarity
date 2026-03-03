@@ -1,0 +1,1 @@
+ALTER TABLE public.knowledge_entries ADD COLUMN IF NOT EXISTS external_urls_section_title text;
