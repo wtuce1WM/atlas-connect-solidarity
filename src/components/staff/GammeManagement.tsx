@@ -77,6 +77,7 @@ const GammeManagement = ({ onEditBusiness }: GammeManagementProps) => {
     text_color_hex: "#000000",
   });
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [sectionOpen, setSectionOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -106,7 +107,6 @@ const GammeManagement = ({ onEditBusiness }: GammeManagementProps) => {
     setCategories(categoriesRes.data || []);
     setGammeCategories(gammeCategoriesRes.data || []);
     
-    // Group businesses per gamme
     const counts: Record<string, number> = {};
     const grouped: Record<string, GammeBusiness[]> = {};
     (businessesRes.data || []).forEach((b: any) => {
@@ -216,7 +216,6 @@ const GammeManagement = ({ onEditBusiness }: GammeManagementProps) => {
       }
       gammeId = editingGamme.id;
 
-      // Delete existing category associations
       await supabase
         .from("gamme_categories")
         .delete()
@@ -239,7 +238,6 @@ const GammeManagement = ({ onEditBusiness }: GammeManagementProps) => {
       gammeId = data.id;
     }
 
-    // Insert category associations
     if (selectedCategories.length > 0) {
       const associations = selectedCategories.map((categoryId) => ({
         gamme_id: gammeId,
@@ -293,346 +291,337 @@ const GammeManagement = ({ onEditBusiness }: GammeManagementProps) => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">Gestion des Gammes</h2>
-          <p className="text-muted-foreground">
-            Gérez les gammes (Luxe, Premium, Standard, etc.) et leurs catégories associées.
-          </p>
-        </div>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button
-              onClick={() => handleOpenDialog()}
-              className="bg-green-600 hover:bg-green-700 text-white"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Nouvelle gamme
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>
-                {editingGamme ? "Modifier la gamme" : "Nouvelle gamme"}
-              </DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name_fr">Nom (Français) *</Label>
-                <Input
-                  id="name_fr"
-                  value={formData.name_fr}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name_fr: e.target.value })
-                  }
-                  placeholder="Ex: Premium"
-                  required
-                />
-              </div>
+    <div className="space-y-4">
+      <Button variant="outline" className="w-full justify-between" onClick={() => setSectionOpen(!sectionOpen)}>
+        <span className="font-semibold">Gestion des Gammes ({gammes.length}) — Luxe, Premium, Standard, etc.</span>
+        {sectionOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+      </Button>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name_en">Nom (Anglais)</Label>
-                  <Input
-                    id="name_en"
-                    value={formData.name_en}
-                    onChange={(e) =>
-                      setFormData({ ...formData, name_en: e.target.value })
-                    }
-                    placeholder="Ex: Premium"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="name_ar">Nom (Arabe)</Label>
-                  <Input
-                    id="name_ar"
-                    value={formData.name_ar}
-                    onChange={(e) =>
-                      setFormData({ ...formData, name_ar: e.target.value })
-                    }
-                    placeholder="الفاخرة"
-                    dir="rtl"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
-                  }
-                  placeholder="Description de la gamme..."
-                  rows={2}
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="sort_order">Ordre d'affichage</Label>
-                  <Input
-                    id="sort_order"
-                    type="number"
-                    value={formData.sort_order}
-                    onChange={(e) =>
-                      setFormData({ ...formData, sort_order: parseInt(e.target.value) || 0 })
-                    }
-                    min="0"
-                    className="w-24"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="color_hex">Couleur fond</Label>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      id="color_hex"
-                      type="color"
-                      value={formData.color_hex}
-                      onChange={(e) =>
-                        setFormData({ ...formData, color_hex: e.target.value })
-                      }
-                      className="w-12 h-10 p-1 cursor-pointer"
-                    />
-                    <Input
-                      type="text"
-                      value={formData.color_hex}
-                      onChange={(e) =>
-                        setFormData({ ...formData, color_hex: e.target.value })
-                      }
-                      placeholder="#000000"
-                      className="w-28 font-mono text-sm"
-                      maxLength={7}
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="text_color_hex">Couleur police</Label>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      id="text_color_hex"
-                      type="color"
-                      value={formData.text_color_hex}
-                      onChange={(e) =>
-                        setFormData({ ...formData, text_color_hex: e.target.value })
-                      }
-                      className="w-12 h-10 p-1 cursor-pointer"
-                    />
-                    <Input
-                      type="text"
-                      value={formData.text_color_hex}
-                      onChange={(e) =>
-                        setFormData({ ...formData, text_color_hex: e.target.value })
-                      }
-                      placeholder="#000000"
-                      className="w-28 font-mono text-sm"
-                      maxLength={7}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Badge preview */}
-              <div className="space-y-2">
-                <Label>Aperçu badge</Label>
-                <div className="flex items-center gap-2">
-                  <Badge
-                    className="text-xs border border-black whitespace-nowrap"
-                    style={{ backgroundColor: formData.color_hex || '#000000', color: formData.text_color_hex || '#000000' }}
-                  >
-                    {formData.name_fr || "Aperçu"}
-                  </Badge>
-                </div>
-              </div>
-
-              {/* Categories selection */}
-              <div className="space-y-3">
-                <Label>Catégories associées</Label>
-                <div className="border rounded-lg p-3 max-h-48 overflow-y-auto space-y-2">
-                  {categories.length === 0 ? (
-                    <p className="text-muted-foreground text-sm">Aucune catégorie disponible</p>
-                  ) : (
-                    categories.map((category) => (
-                      <div key={category.id} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`cat-${category.id}`}
-                          checked={selectedCategories.includes(category.id)}
-                          onCheckedChange={() => handleCategoryToggle(category.id)}
-                        />
-                        <label
-                          htmlFor={`cat-${category.id}`}
-                          className="text-sm cursor-pointer"
-                        >
-                          {category.name_fr}
-                        </label>
-                      </div>
-                    ))
-                  )}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {selectedCategories.length} catégorie(s) sélectionnée(s)
-                </p>
-              </div>
-
-              <div className="flex justify-end gap-2 pt-4">
+      {sectionOpen && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-end">
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
                 <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setIsDialogOpen(false)}
+                  onClick={() => handleOpenDialog()}
+                  className="bg-green-600 hover:bg-green-700 text-white"
                 >
-                  Annuler
+                  <Plus className="h-4 w-4 mr-2" />
+                  Nouvelle gamme
                 </Button>
-                <Button type="submit" className="bg-gold hover:bg-gold/90">
-                  {editingGamme ? "Enregistrer" : "Créer"}
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      {/* Stats */}
-      <div className="bg-background rounded-lg p-4 border inline-block">
-        <p className="text-2xl font-bold">{gammes.length}</p>
-        <p className="text-muted-foreground text-sm">Gammes définies</p>
-      </div>
-
-      {/* Table */}
-      <div className="bg-background rounded-lg border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-12">Ordre</TableHead>
-              <TableHead>Couleur</TableHead>
-              <TableHead>Police</TableHead>
-              <TableHead>Nom (FR)</TableHead>
-              <TableHead>Nom (EN)</TableHead>
-              <TableHead>Catégories associées</TableHead>
-              <TableHead className="text-center">Établissements</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {loading ? (
-              <TableRow>
-                <TableCell colSpan={8} className="text-center py-8">
-                   Chargement...
-                 </TableCell>
-              </TableRow>
-            ) : gammes.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={8} className="text-center py-8">
-                   Aucune gamme définie.
-                 </TableCell>
-              </TableRow>
-            ) : (
-              gammes.map((gamme) => {
-                const isExpanded = expandedGammes.has(gamme.id);
-                const count = gammeCounts[gamme.id] || 0;
-                const businesses = gammeBusinesses[gamme.id] || [];
-                return (
-                  <React.Fragment key={gamme.id}>
-                    <TableRow
-                      ref={(el) => { gammeRefs.current[gamme.id] = el; }}
-                      style={{ scrollMarginTop: '80px' }}
-                      className="cursor-pointer hover:bg-muted/50"
-                      onClick={() => {
-                        const wasExpanded = expandedGammes.has(gamme.id);
-                        setExpandedGammes(prev => {
-                          const next = new Set(prev);
-                          if (next.has(gamme.id)) next.delete(gamme.id); else next.add(gamme.id);
-                          return next;
-                        });
-                        if (!wasExpanded) {
-                          setTimeout(() => gammeRefs.current[gamme.id]?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
+              </DialogTrigger>
+              <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>
+                    {editingGamme ? "Modifier la gamme" : "Nouvelle gamme"}
+                  </DialogTitle>
+                </DialogHeader>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="name_fr">Nom (FR) *</Label>
+                    <Input
+                      id="name_fr"
+                      value={formData.name_fr}
+                      onChange={(e) =>
+                        setFormData({ ...formData, name_fr: e.target.value })
+                      }
+                      required
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="name_en">Nom (EN)</Label>
+                      <Input
+                        id="name_en"
+                        value={formData.name_en}
+                        onChange={(e) =>
+                          setFormData({ ...formData, name_en: e.target.value })
                         }
-                      }}>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          {count > 0 ? (
-                            isExpanded ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                          ) : (
-                            <GripVertical className="h-4 w-4 text-muted-foreground" />
-                          )}
-                          {gamme.sort_order}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div 
-                          className="w-6 h-6 rounded border border-border"
-                          style={{ backgroundColor: gamme.color_hex || '#000000' }}
-                          title={gamme.color_hex || '#000000'}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="name_ar">Nom (AR)</Label>
+                      <Input
+                        id="name_ar"
+                        value={formData.name_ar}
+                        onChange={(e) =>
+                          setFormData({ ...formData, name_ar: e.target.value })
+                        }
+                        dir="rtl"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea
+                      id="description"
+                      value={formData.description}
+                      onChange={(e) =>
+                        setFormData({ ...formData, description: e.target.value })
+                      }
+                    />
+                  </div>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="sort_order">Ordre</Label>
+                      <Input
+                        id="sort_order"
+                        type="number"
+                        value={formData.sort_order}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            sort_order: parseInt(e.target.value) || 0,
+                          })
+                        }
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="color_hex">Couleur fond</Label>
+                      <div className="flex gap-2">
+                        <Input
+                          id="color_hex"
+                          type="color"
+                          value={formData.color_hex}
+                          onChange={(e) =>
+                            setFormData({ ...formData, color_hex: e.target.value })
+                          }
+                          className="w-12 h-10 p-1"
                         />
-                      </TableCell>
-                      <TableCell>
-                        <div 
-                          className="w-6 h-6 rounded border border-border flex items-center justify-center text-xs font-bold"
-                          style={{ backgroundColor: gamme.text_color_hex || '#000000' }}
-                          title={gamme.text_color_hex || '#000000'}
+                        <Input
+                          value={formData.color_hex}
+                          onChange={(e) =>
+                            setFormData({ ...formData, color_hex: e.target.value })
+                          }
+                          className="flex-1"
                         />
-                      </TableCell>
-                      <TableCell className="font-medium">{gamme.name_fr}</TableCell>
-                      <TableCell>{gamme.name_en || "-"}</TableCell>
-                      <TableCell>
-                        <div className="flex flex-wrap gap-1">
-                          {getCategoryNames(gamme.id).length > 0 ? (
-                            getCategoryNames(gamme.id).map((name) => (
-                              <Badge key={name} variant="secondary" className="text-xs">
-                                {name}
-                              </Badge>
-                            ))
-                          ) : (
-                            <span className="text-muted-foreground text-sm">Aucune</span>
-                          )}
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="text_color_hex">Couleur texte</Label>
+                      <div className="flex gap-2">
+                        <Input
+                          id="text_color_hex"
+                          type="color"
+                          value={formData.text_color_hex}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              text_color_hex: e.target.value,
+                            })
+                          }
+                          className="w-12 h-10 p-1"
+                        />
+                        <Input
+                          value={formData.text_color_hex}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              text_color_hex: e.target.value,
+                            })
+                          }
+                          className="flex-1"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Catégories associées</Label>
+                    <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto border rounded-md p-2">
+                      {categories.map((category) => (
+                        <div
+                          key={category.id}
+                          className="flex items-center space-x-2"
+                        >
+                          <Checkbox
+                            id={`cat-${category.id}`}
+                            checked={selectedCategories.includes(category.id)}
+                            onCheckedChange={() =>
+                              handleCategoryToggle(category.id)
+                            }
+                          />
+                          <Label
+                            htmlFor={`cat-${category.id}`}
+                            className="text-sm"
+                          >
+                            {category.name_fr}
+                          </Label>
                         </div>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Badge variant="outline">{count}</Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
-                          <Button variant="ghost" size="sm" onClick={() => handleOpenDialog(gamme)}>
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="sm" onClick={() => handleDelete(gamme.id)} className="text-destructive hover:text-destructive">
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                    {isExpanded && businesses.length > 0 && (
-                      <TableRow>
-                        <TableCell colSpan={8} className="bg-muted/30 p-0">
-                          <div className="px-8 py-3 space-y-1">
-                            {businesses.map((b) => (
-                              <div key={b.id} className="flex items-center justify-between py-1.5 px-3 rounded hover:bg-background transition-colors">
-                                <span className="text-sm">
-                                  {b.name} <span className="text-muted-foreground">— {b.city}</span>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Label>Aperçu :</Label>
+                    <Badge
+                      style={{
+                        backgroundColor: formData.color_hex,
+                        color: formData.text_color_hex,
+                      }}
+                    >
+                      {formData.name_fr || "Gamme"}
+                    </Badge>
+                  </div>
+                  <Button type="submit" className="w-full">
+                    {editingGamme ? "Modifier" : "Créer"}
+                  </Button>
+                </form>
+              </DialogContent>
+            </Dialog>
+          </div>
+
+          <div className="border rounded-lg">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-12">#</TableHead>
+                  <TableHead>Nom</TableHead>
+                  <TableHead>Aperçu</TableHead>
+                  <TableHead>Catégories</TableHead>
+                  <TableHead className="text-center">Établ.</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {gammes.length === 0 ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={6}
+                      className="text-center text-muted-foreground py-8"
+                    >
+                      Aucune gamme créée
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  gammes.map((gamme) => {
+                    const catNames = getCategoryNames(gamme.id);
+                    const count = gammeCounts[gamme.id] || 0;
+                    const isExpanded = expandedGammes.has(gamme.id);
+                    const businesses = gammeBusinesses[gamme.id] || [];
+                    return (
+                      <React.Fragment key={gamme.id}>
+                        <TableRow ref={(el) => { gammeRefs.current[gamme.id] = el; }}>
+                          <TableCell className="text-muted-foreground">
+                            {gamme.sort_order}
+                          </TableCell>
+                          <TableCell>
+                            <div>
+                              <p className="font-medium">{gamme.name_fr}</p>
+                              {gamme.name_en && (
+                                <p className="text-xs text-muted-foreground">
+                                  EN: {gamme.name_en}
+                                </p>
+                              )}
+                              {gamme.name_ar && (
+                                <p className="text-xs text-muted-foreground" dir="rtl">
+                                  AR: {gamme.name_ar}
+                                </p>
+                              )}
+                              {gamme.description && (
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  {gamme.description}
+                                </p>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge
+                              style={{
+                                backgroundColor: gamme.color_hex || "#000",
+                                color: gamme.text_color_hex || "#fff",
+                              }}
+                            >
+                              {gamme.name_fr}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex flex-wrap gap-1">
+                              {catNames.length === 0 ? (
+                                <span className="text-xs text-muted-foreground italic">
+                                  Aucune
                                 </span>
-                                {onEditBusiness && (
-                                  <Button variant="ghost" size="sm" onClick={() => onEditBusiness(b.id)} className="h-7 text-xs gap-1">
-                                    <Edit className="h-3 w-3" />
-                                    Modifier
-                                  </Button>
-                                )}
+                              ) : (
+                                catNames.map((name) => (
+                                  <Badge key={name} variant="outline" className="text-xs">
+                                    {name}
+                                  </Badge>
+                                ))
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <Button
+                              variant={count > 0 ? "outline" : "ghost"}
+                              size="sm"
+                              className="gap-1"
+                              disabled={count === 0}
+                              onClick={() => {
+                                setExpandedGammes(prev => {
+                                  const next = new Set(prev);
+                                  if (next.has(gamme.id)) next.delete(gamme.id);
+                                  else next.add(gamme.id);
+                                  return next;
+                                });
+                              }}
+                            >
+                              {isExpanded ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+                              {count}
+                            </Button>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex justify-end gap-2">
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                onClick={() => handleOpenDialog(gamme)}
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                onClick={() => handleDelete(gamme.id)}
+                                className="text-destructive hover:text-destructive"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                        {isExpanded && businesses.length > 0 && (
+                          <TableRow>
+                            <TableCell colSpan={6} className="bg-muted/30 px-8 py-3">
+                              <div className="space-y-1">
+                                <p className="text-xs font-medium text-muted-foreground mb-2">
+                                  {businesses.length} établissement{businesses.length > 1 ? "s" : ""} :
+                                </p>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1">
+                                  {businesses
+                                    .sort((a, b) => a.name.localeCompare(b.name, "fr"))
+                                    .map(biz => (
+                                      <div key={biz.id} className="flex items-center gap-2 text-sm">
+                                        <span className="truncate">{biz.name}</span>
+                                        {biz.city && <span className="text-xs text-muted-foreground">({biz.city})</span>}
+                                        {onEditBusiness && (
+                                          <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0" onClick={() => onEditBusiness(biz.id)}>
+                                            <ExternalLink className="h-3 w-3" />
+                                          </Button>
+                                        )}
+                                      </div>
+                                    ))}
+                                </div>
                               </div>
-                            ))}
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </React.Fragment>
-                );
-              })
-            )}
-          </TableBody>
-        </Table>
-      </div>
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </React.Fragment>
+                    );
+                  })
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
