@@ -1306,6 +1306,7 @@ const LocationManagement = () => {
                     <TableHead>Région</TableHead>
                     <TableHead>Villes</TableHead>
                     <TableHead>Destinations</TableHead>
+                    <TableHead>Établissements</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -1313,8 +1314,10 @@ const LocationManagement = () => {
                   {regionsFromTable
                     .sort((a, b) => a.name.localeCompare(b.name, 'fr'))
                     .map((r) => {
-                      const citiesCount = cities.filter(c => c.region === r.name).length;
+                      const regionCities = cities.filter(c => c.region === r.name);
+                      const citiesCount = regionCities.length;
                       const destsCount = destinations.filter(d => (d.region || []).includes(r.name)).length;
+                      const bizCount = regionCities.reduce((sum, c) => sum + (businessCounts[c.name_fr] || 0), 0);
                       return (
                         <TableRow key={r.id}>
                           <TableCell className="font-medium">{r.name}</TableCell>
@@ -1326,6 +1329,11 @@ const LocationManagement = () => {
                           <TableCell>
                             <span className="inline-flex items-center justify-center min-w-[2rem] px-2 py-0.5 bg-muted text-muted-foreground rounded text-sm font-medium">
                               {destsCount}
+                            </span>
+                          </TableCell>
+                          <TableCell>
+                            <span className="inline-flex items-center justify-center min-w-[2rem] px-2 py-0.5 bg-primary/10 text-primary rounded text-sm font-medium">
+                              {bizCount}
                             </span>
                           </TableCell>
                           <TableCell className="text-right">
