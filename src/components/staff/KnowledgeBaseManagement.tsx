@@ -39,6 +39,7 @@ interface ExternalUrl {
   name: string;
   logo_url: string;
   url: string;
+  language: string;
 }
 
 interface KnowledgeBaseManagementProps {
@@ -148,7 +149,7 @@ const KnowledgeBaseManagement = ({
   // Linking
   const [formBusinessId, setFormBusinessId] = useState<string | null>(null);
   const [businessSearch, setBusinessSearch] = useState("");
-  const [businessOptions, setBusinessOptions] = useState<{ id: string; name: string; city: string | null }[]>([]);
+  const [businessOptions, setBusinessOptions] = useState<{ id: string; name: string; city: string | null; is_active: boolean }[]>([]);
   const [showBusinessDropdown, setShowBusinessDropdown] = useState(false);
   const [formCityId, setFormCityId] = useState<string | null>(null);
   const [formCityLabel, setFormCityLabel] = useState("");
@@ -168,9 +169,8 @@ const KnowledgeBaseManagement = ({
     const timeout = setTimeout(async () => {
       const { data } = await supabase
         .from("businesses")
-        .select("id, name, city")
+        .select("id, name, city, is_active")
         .ilike("name", `%${businessSearch}%`)
-        .eq("is_active", true)
         .limit(8);
       setBusinessOptions(data || []);
       setShowBusinessDropdown(true);
@@ -348,6 +348,7 @@ const KnowledgeBaseManagement = ({
                         <button key={b.id} className="w-full text-left px-3 py-2 hover:bg-muted text-sm"
                           onMouseDown={(e) => { e.preventDefault(); setFormBusinessId(b.id); setBusinessSearch(b.name); setShowBusinessDropdown(false); }}>
                           {b.name} {b.city && <span className="text-muted-foreground">— {b.city}</span>}
+                          {!b.is_active && <span className="text-destructive ml-1 text-xs">(inactif)</span>}
                         </button>
                       ))}
                     </div>
@@ -466,6 +467,20 @@ const KnowledgeBaseManagement = ({
                         }}
                         className="h-8 text-sm flex-1"
                       />
+                      <Select value={eu.language || "fr"} onValueChange={val => {
+                        const updated = [...formExternalUrls];
+                        updated[idx] = { ...updated[idx], language: val };
+                        setFormExternalUrls(updated);
+                      }}>
+                        <SelectTrigger className="h-8 w-[70px] text-xs flex-shrink-0">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="fr">FR</SelectItem>
+                          <SelectItem value="en">EN</SelectItem>
+                          <SelectItem value="ar">AR</SelectItem>
+                        </SelectContent>
+                      </Select>
                       <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0" onClick={() => {
                         setFormExternalUrls(prev => prev.filter((_, i) => i !== idx));
                       }}>
@@ -474,7 +489,7 @@ const KnowledgeBaseManagement = ({
                     </div>
                   ))}
                   {formExternalUrls.length < 20 && (
-                    <Button variant="outline" size="sm" onClick={() => setFormExternalUrls(prev => [...prev, { name: "", logo_url: "", url: "" }])}>
+                    <Button variant="outline" size="sm" onClick={() => setFormExternalUrls(prev => [...prev, { name: "", logo_url: "", url: "", language: "fr" }])}>
                       <Plus className="h-3 w-3 mr-1" />
                       Ajouter une URL ({formExternalUrls.length}/20)
                     </Button>
