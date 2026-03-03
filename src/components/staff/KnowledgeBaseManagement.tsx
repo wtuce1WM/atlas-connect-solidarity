@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash2, Edit, Save, X, Search, BookOpen, ChevronDown, ChevronUp, Link2 } from "lucide-react";
+import { Plus, Trash2, Edit, Save, X, Search, BookOpen, ChevronDown, ChevronUp, Link2, MapPin } from "lucide-react";
 import RichTextEditor from "./RichTextEditor";
 
 interface KnowledgeEntry {
@@ -23,15 +23,88 @@ interface KnowledgeEntry {
   is_active: boolean;
   business_id: string | null;
   business_name?: string | null;
+  city_id: string | null;
+  city_name?: string | null;
+  neighborhood_id: string | null;
+  neighborhood_name?: string | null;
+  destination_id: string | null;
+  destination_name?: string | null;
+  point_of_interest_id: string | null;
+  poi_name?: string | null;
 }
 
 interface KnowledgeBaseManagementProps {
-  /** Which categories to show / allow creating */
   categories: string[];
-  /** Label for new entry button */
   newEntryLabel?: string;
-  /** Empty state label */
   emptyLabel?: string;
+}
+
+/* ── Reusable autocomplete hook ── */
+function useEntitySearch(table: string, nameCol: string) {
+  const [query, setQuery] = useState("");
+  const [options, setOptions] = useState<{ id: string; label: string }[]>([]);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (query.length < 2) { setOptions([]); return; }
+    const t = setTimeout(async () => {
+      const { data } = await (supabase
+        .from(table as any)
+        .select(`id, ${nameCol}`) as any)
+        .ilike(nameCol, `%${query}%`)
+        .limit(8);
+      setOptions((data || []).map((r: any) => ({ id: r.id, label: r[nameCol] })));
+      setOpen(true);
+    }, 300);
+    return () => clearTimeout(t);
+  }, [query, table, nameCol]);
+
+  return { query, setQuery, options, open, setOpen };
+}
+
+/* ── Inline autocomplete component ── */
+function EntityPicker({ label, emoji, selectedId, selectedLabel, onSelect, onClear, table, nameCol }: {
+  label: string; emoji: string; selectedId: string | null; selectedLabel: string;
+  onSelect: (id: string, label: string) => void; onClear: () => void;
+  table: string; nameCol: string;
+}) {
+  const { query, setQuery, options, open, setOpen } = useEntitySearch(table, nameCol);
+
+  useEffect(() => { if (selectedLabel) setQuery(selectedLabel); }, [selectedLabel]);
+
+  return (
+    <div className="relative flex-1 min-w-[180px]">
+      <label className="text-xs font-medium text-muted-foreground mb-1 block">{emoji} {label}</label>
+      <div className="flex gap-1 items-center">
+        <div className="relative flex-1">
+          <Input
+            placeholder={`Rechercher…`}
+            value={query}
+            onChange={e => { setQuery(e.target.value); onClear(); }}
+            onFocus={() => options.length > 0 && setOpen(true)}
+            onBlur={() => setTimeout(() => setOpen(false), 200)}
+            className="h-8 text-sm"
+          />
+          {open && options.length > 0 && (
+            <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-popover border rounded-md shadow-lg max-h-40 overflow-y-auto">
+              {options.map(o => (
+                <button key={o.id} className="w-full text-left px-3 py-1.5 hover:bg-muted text-sm"
+                  onMouseDown={e => { e.preventDefault(); onSelect(o.id, o.label); setQuery(o.label); setOpen(false); }}>
+                  {o.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+        {selectedId && (
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { onClear(); setQuery(""); }}>
+            <X className="h-3 w-3" />
+          </Button>
+        )}
+      </div>
+      {selectedId && <p className="text-xs text-green-600 mt-0.5">✓ {query}</p>}
+    </div>
+  );
 }
 
 const KnowledgeBaseManagement = ({
@@ -54,6 +127,7 @@ const KnowledgeBaseManagement = ({
       return next;
     });
   }, []);
+
   // Form state
   const [formTitle, setFormTitle] = useState("");
   const [formContent, setFormContent] = useState("");
@@ -61,10 +135,19 @@ const KnowledgeBaseManagement = ({
   const [formTags, setFormTags] = useState("");
   const [formSource, setFormSource] = useState("manual");
   const [formNotes, setFormNotes] = useState("");
+  // Linking
   const [formBusinessId, setFormBusinessId] = useState<string | null>(null);
   const [businessSearch, setBusinessSearch] = useState("");
   const [businessOptions, setBusinessOptions] = useState<{ id: string; name: string; city: string | null }[]>([]);
   const [showBusinessDropdown, setShowBusinessDropdown] = useState(false);
+  const [formCityId, setFormCityId] = useState<string | null>(null);
+  const [formCityLabel, setFormCityLabel] = useState("");
+  const [formNeighborhoodId, setFormNeighborhoodId] = useState<string | null>(null);
+  const [formNeighborhoodLabel, setFormNeighborhoodLabel] = useState("");
+  const [formDestinationId, setFormDestinationId] = useState<string | null>(null);
+  const [formDestinationLabel, setFormDestinationLabel] = useState("");
+  const [formPoiId, setFormPoiId] = useState<string | null>(null);
+  const [formPoiLabel, setFormPoiLabel] = useState("");
 
   // Search businesses for linking
   useEffect(() => {
@@ -92,18 +175,36 @@ const KnowledgeBaseManagement = ({
     if (error) {
       toast({ variant: "destructive", title: "Erreur", description: "Impossible de charger les entrées." });
     } else {
-      const entries = (data as any[]) || [];
-      // Fetch linked business names
-      const bizIds = entries.map(e => e.business_id).filter(Boolean);
-      if (bizIds.length > 0) {
-        const { data: bizData } = await supabase
-          .from("businesses")
-          .select("id, name")
-          .in("id", bizIds);
-        const bizMap = new Map((bizData || []).map((b: any) => [b.id, b.name]));
-        entries.forEach(e => { e.business_name = e.business_id ? bizMap.get(e.business_id) || null : null; });
-      }
-      setEntries(entries as KnowledgeEntry[]);
+      const rows = (data as any[]) || [];
+      // Resolve linked entity names in parallel
+      const bizIds = rows.map(e => e.business_id).filter(Boolean);
+      const cityIds = rows.map(e => e.city_id).filter(Boolean);
+      const nhIds = rows.map(e => e.neighborhood_id).filter(Boolean);
+      const destIds = rows.map(e => e.destination_id).filter(Boolean);
+      const poiIds = rows.map(e => e.point_of_interest_id).filter(Boolean);
+
+      const [bizRes, cityRes, nhRes, destRes, poiRes] = await Promise.all([
+        bizIds.length ? supabase.from("businesses").select("id, name").in("id", bizIds) : { data: [] },
+        cityIds.length ? supabase.from("cities").select("id, name_fr").in("id", cityIds) : { data: [] },
+        nhIds.length ? supabase.from("neighborhoods").select("id, name").in("id", nhIds) : { data: [] },
+        destIds.length ? supabase.from("destinations").select("id, name_fr").in("id", destIds) : { data: [] },
+        poiIds.length ? supabase.from("points_of_interest").select("id, name_fr").in("id", poiIds) : { data: [] },
+      ]);
+
+      const bizMap = new Map((bizRes.data || []).map((b: any) => [b.id, b.name]));
+      const cityMap = new Map((cityRes.data || []).map((c: any) => [c.id, c.name_fr]));
+      const nhMap = new Map((nhRes.data || []).map((n: any) => [n.id, n.name]));
+      const destMap = new Map((destRes.data || []).map((d: any) => [d.id, d.name_fr]));
+      const poiMap = new Map((poiRes.data || []).map((p: any) => [p.id, p.name_fr]));
+
+      rows.forEach(e => {
+        e.business_name = e.business_id ? bizMap.get(e.business_id) || null : null;
+        e.city_name = e.city_id ? cityMap.get(e.city_id) || null : null;
+        e.neighborhood_name = e.neighborhood_id ? nhMap.get(e.neighborhood_id) || null : null;
+        e.destination_name = e.destination_id ? destMap.get(e.destination_id) || null : null;
+        e.poi_name = e.point_of_interest_id ? poiMap.get(e.point_of_interest_id) || null : null;
+      });
+      setEntries(rows as KnowledgeEntry[]);
     }
     setLoading(false);
   };
@@ -111,28 +212,26 @@ const KnowledgeBaseManagement = ({
   useEffect(() => { fetchEntries(); }, []);
 
   const resetForm = () => {
-    setFormTitle("");
-    setFormContent("");
-    setFormCategory(categories[0] || "general");
-    setFormTags("");
-    setFormSource("manual");
-    setFormNotes("");
-    setFormBusinessId(null);
-    setBusinessSearch("");
-    setEditingId(null);
-    setShowNew(false);
+    setFormTitle(""); setFormContent(""); setFormCategory(categories[0] || "general");
+    setFormTags(""); setFormSource("manual"); setFormNotes("");
+    setFormBusinessId(null); setBusinessSearch("");
+    setFormCityId(null); setFormCityLabel("");
+    setFormNeighborhoodId(null); setFormNeighborhoodLabel("");
+    setFormDestinationId(null); setFormDestinationLabel("");
+    setFormPoiId(null); setFormPoiLabel("");
+    setEditingId(null); setShowNew(false);
   };
 
   const startEdit = (entry: KnowledgeEntry) => {
     setEditingId(entry.id);
-    setFormTitle(entry.title);
-    setFormContent(entry.content);
-    setFormCategory(entry.category);
-    setFormTags(entry.tags.join(", "));
-    setFormSource(entry.source || "manual");
-    setFormNotes(entry.notes || "");
-    setFormBusinessId(entry.business_id);
-    setBusinessSearch(entry.business_name || "");
+    setFormTitle(entry.title); setFormContent(entry.content);
+    setFormCategory(entry.category); setFormTags(entry.tags.join(", "));
+    setFormSource(entry.source || "manual"); setFormNotes(entry.notes || "");
+    setFormBusinessId(entry.business_id); setBusinessSearch(entry.business_name || "");
+    setFormCityId(entry.city_id); setFormCityLabel(entry.city_name || "");
+    setFormNeighborhoodId(entry.neighborhood_id); setFormNeighborhoodLabel(entry.neighborhood_name || "");
+    setFormDestinationId(entry.destination_id); setFormDestinationLabel(entry.destination_name || "");
+    setFormPoiId(entry.point_of_interest_id); setFormPoiLabel(entry.poi_name || "");
     setShowNew(false);
   };
 
@@ -141,48 +240,35 @@ const KnowledgeBaseManagement = ({
       toast({ variant: "destructive", title: "Erreur", description: "Titre et contenu requis." });
       return;
     }
-
     const tags = formTags.split(",").map(t => t.trim()).filter(Boolean);
     const payload = {
-      title: formTitle.trim(),
-      content: formContent.trim(),
-      category: formCategory,
-      tags,
-      source: formSource,
-      notes: formNotes.trim() || null,
+      title: formTitle.trim(), content: formContent.trim(), category: formCategory,
+      tags, source: formSource, notes: formNotes.trim() || null,
       business_id: formBusinessId || null,
+      city_id: formCityId || null,
+      neighborhood_id: formNeighborhoodId || null,
+      destination_id: formDestinationId || null,
+      point_of_interest_id: formPoiId || null,
       updated_at: new Date().toISOString(),
     };
 
     if (editingId) {
-      const { error } = await supabase.from("knowledge_entries").update(payload).eq("id", editingId);
-      if (error) {
-        toast({ variant: "destructive", title: "Erreur", description: "Impossible de mettre à jour." });
-        return;
-      }
+      const { error } = await supabase.from("knowledge_entries").update(payload as any).eq("id", editingId);
+      if (error) { toast({ variant: "destructive", title: "Erreur", description: "Impossible de mettre à jour." }); return; }
       toast({ title: "Mis à jour", description: "Entrée modifiée avec succès." });
     } else {
-      const { error } = await supabase.from("knowledge_entries").insert(payload);
-      if (error) {
-        toast({ variant: "destructive", title: "Erreur", description: "Impossible de créer l'entrée." });
-        return;
-      }
+      const { error } = await supabase.from("knowledge_entries").insert(payload as any);
+      if (error) { toast({ variant: "destructive", title: "Erreur", description: "Impossible de créer l'entrée." }); return; }
       toast({ title: "Créé", description: "Nouvelle entrée ajoutée." });
     }
-
-    resetForm();
-    fetchEntries();
+    resetForm(); fetchEntries();
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm("Supprimer cette entrée ?")) return;
     const { error } = await supabase.from("knowledge_entries").delete().eq("id", id);
-    if (error) {
-      toast({ variant: "destructive", title: "Erreur", description: "Impossible de supprimer." });
-    } else {
-      toast({ title: "Supprimé" });
-      fetchEntries();
-    }
+    if (error) { toast({ variant: "destructive", title: "Erreur", description: "Impossible de supprimer." }); }
+    else { toast({ title: "Supprimé" }); fetchEntries(); }
   };
 
   const filtered = entries.filter(e => {
@@ -195,11 +281,13 @@ const KnowledgeBaseManagement = ({
   });
 
   const uniqueCategories = [...new Set(entries.map(e => e.category))].sort();
-
   const formatDate = (d: string) =>
     new Date(d).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
-
   const isEditing = editingId || showNew;
+
+  // Helper to render geo link badges
+  const geoLinkBadge = (name: string | null | undefined, emoji: string) =>
+    name ? <Badge className="text-xs bg-blue-100 text-blue-800 border-blue-300 hover:bg-blue-200"><MapPin className="h-3 w-3 mr-1 inline" />{emoji} {name}</Badge> : null;
 
   return (
     <div className="space-y-6">
@@ -221,6 +309,7 @@ const KnowledgeBaseManagement = ({
               <Input placeholder="Tags (séparés par des virgules)" value={formTags} onChange={e => setFormTags(e.target.value)} />
               <Input placeholder="Source" value={formSource} onChange={e => setFormSource(e.target.value)} />
             </div>
+
             {/* Business link */}
             <div className="relative">
               <label className="text-sm font-medium text-muted-foreground mb-1 block">🔗 Établissement lié (optionnel)</label>
@@ -236,11 +325,8 @@ const KnowledgeBaseManagement = ({
                   {showBusinessDropdown && businessOptions.length > 0 && (
                     <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-popover border rounded-md shadow-lg max-h-48 overflow-y-auto">
                       {businessOptions.map(b => (
-                        <button
-                          key={b.id}
-                          className="w-full text-left px-3 py-2 hover:bg-muted text-sm"
-                          onMouseDown={(e) => { e.preventDefault(); setFormBusinessId(b.id); setBusinessSearch(b.name); setShowBusinessDropdown(false); }}
-                        >
+                        <button key={b.id} className="w-full text-left px-3 py-2 hover:bg-muted text-sm"
+                          onMouseDown={(e) => { e.preventDefault(); setFormBusinessId(b.id); setBusinessSearch(b.name); setShowBusinessDropdown(false); }}>
                           {b.name} {b.city && <span className="text-muted-foreground">— {b.city}</span>}
                         </button>
                       ))}
@@ -255,6 +341,27 @@ const KnowledgeBaseManagement = ({
               </div>
               {formBusinessId && <p className="text-xs text-green-600 mt-1">✓ Lié à : {businessSearch}</p>}
             </div>
+
+            {/* Geo links */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              <EntityPicker label="Ville" emoji="🏙️" table="cities" nameCol="name_fr"
+                selectedId={formCityId} selectedLabel={formCityLabel}
+                onSelect={(id, label) => { setFormCityId(id); setFormCityLabel(label); }}
+                onClear={() => { setFormCityId(null); setFormCityLabel(""); }} />
+              <EntityPicker label="Quartier" emoji="📍" table="neighborhoods" nameCol="name"
+                selectedId={formNeighborhoodId} selectedLabel={formNeighborhoodLabel}
+                onSelect={(id, label) => { setFormNeighborhoodId(id); setFormNeighborhoodLabel(label); }}
+                onClear={() => { setFormNeighborhoodId(null); setFormNeighborhoodLabel(""); }} />
+              <EntityPicker label="Destination" emoji="🗺️" table="destinations" nameCol="name_fr"
+                selectedId={formDestinationId} selectedLabel={formDestinationLabel}
+                onSelect={(id, label) => { setFormDestinationId(id); setFormDestinationLabel(label); }}
+                onClear={() => { setFormDestinationId(null); setFormDestinationLabel(""); }} />
+              <EntityPicker label="Point d'intérêt" emoji="🏛️" table="points_of_interest" nameCol="name_fr"
+                selectedId={formPoiId} selectedLabel={formPoiLabel}
+                onSelect={(id, label) => { setFormPoiId(id); setFormPoiLabel(label); }}
+                onClear={() => { setFormPoiId(null); setFormPoiLabel(""); }} />
+            </div>
+
             <Textarea placeholder="Contenu" value={formContent} onChange={e => setFormContent(e.target.value)} rows={6} />
             <div>
               <label className="text-sm font-medium text-muted-foreground mb-1 block">📝 Notes personnelles</label>
@@ -316,6 +423,10 @@ const KnowledgeBaseManagement = ({
                       <Badge variant="outline" className="text-xs">{entry.category}</Badge>
                       {entry.source && <Badge variant="secondary" className="text-xs">{entry.source}</Badge>}
                       {entry.business_name && <Badge className="text-xs bg-amber-100 text-amber-800 border-amber-300 hover:bg-amber-200"><Link2 className="h-3 w-3 mr-1 inline" />{entry.business_name}</Badge>}
+                      {geoLinkBadge(entry.city_name, "🏙️")}
+                      {geoLinkBadge(entry.neighborhood_name, "📍")}
+                      {geoLinkBadge(entry.destination_name, "🗺️")}
+                      {geoLinkBadge(entry.poi_name, "🏛️")}
                       {!entry.is_active && <Badge variant="destructive" className="text-xs">Désactivé</Badge>}
                     </div>
                     <div className={`text-sm text-muted-foreground prose prose-sm max-w-none ${expandedIds.has(entry.id) ? '' : 'line-clamp-3'}`} dangerouslySetInnerHTML={{ __html: entry.content }} />
