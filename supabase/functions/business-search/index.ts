@@ -184,18 +184,20 @@ let synonyms: Record<string, string[]> = {};
 let synonymSubcategories: Record<string, string[]> = {}; // key_word → subcategory_names (legacy)
 let synonymServices: Record<string, string[]> = {}; // key_word → service_names (legacy)
 let synonymFilters: Record<string, { subcategory_name: string | null; required_service: string | null }[]> = {}; // key_word → paired filters
+let synonymBadges: Record<string, string> = {}; // key_word → badge_id (for badge-only synonyms)
 let NOISE_ADJECTIVES = new Set<string>();
 let searchConfigLoadedAt = 0;
 const SEARCH_CONFIG_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
 async function loadSearchConfig(supabase: any) {
   if (Date.now() - searchConfigLoadedAt < SEARCH_CONFIG_TTL_MS && Object.keys(synonyms).length > 0) return;
-  const { data: synData } = await supabase.from("search_synonyms").select("key_word, synonyms, subcategory_names, service_names, filters").eq("is_active", true);
+  const { data: synData } = await supabase.from("search_synonyms").select("key_word, synonyms, subcategory_names, service_names, filters, badge_id").eq("is_active", true);
   if (synData) {
     synonyms = {};
     synonymSubcategories = {};
     synonymServices = {};
     synonymFilters = {};
+    synonymBadges = {};
     for (const row of synData) {
       synonyms[row.key_word] = row.synonyms || [];
       if (row.subcategory_names && row.subcategory_names.length > 0) {
@@ -206,6 +208,9 @@ async function loadSearchConfig(supabase: any) {
       }
       if (row.filters && Array.isArray(row.filters) && row.filters.length > 0) {
         synonymFilters[row.key_word] = row.filters;
+      }
+      if (row.badge_id) {
+        synonymBadges[row.key_word] = row.badge_id;
       }
     }
   }
@@ -1045,6 +1050,38 @@ serve(async (req) => {
         }
       }
     }
+    // ── Synonym badge-only: when a synonym has badge_id but no filters[], route via business_badges ──
+    let matchedSynonymBadgeId: string | null = null;
+    let matchedSynonymBadgeKey: string | null = null;
+    {
+      const textsToCheck = [effectiveQuery, query, spoken].filter(Boolean) as string[];
+      for (const [key, badgeId] of Object.entries(synonymBadges)) {
+        // Skip if this synonym already has paired filters (handled above)
+        if (synonymFilters[key] && synonymFilters[key].length > 0) continue;
+        const keyLower = key.toLowerCase();
+        const synValues = synonyms[key] || [];
+        const allTerms = [keyLower, ...synValues.map(v => v.toLowerCase())];
+        let matched = false;
+        for (const text of textsToCheck) {
+          const qLower = text.toLowerCase();
+          const qWords = qLower.split(/\s+/);
+          const qWordsStripped = qWords.map(w => stripAccentsGlobal(w));
+          matched = allTerms.some(term => {
+            const termStripped = stripAccentsGlobal(term);
+            return term.includes(" ")
+              ? (qLower.includes(term) || stripAccentsGlobal(qLower).includes(termStripped))
+              : (qWords.includes(term) || qWordsStripped.includes(termStripped));
+          });
+          if (matched) break;
+        }
+        if (matched) {
+          matchedSynonymBadgeId = badgeId;
+          matchedSynonymBadgeKey = key;
+          console.log(`Synonym "${key}" matched → badge_id: ${badgeId}`);
+          break;
+        }
+      }
+    }
     //    feed them into synonymLinkedServices so the service shortcut handles them efficiently ──
     {
       const { data: bundleData } = await supabase
@@ -1230,7 +1267,40 @@ serve(async (req) => {
     // Paired filters (new): each row = subcategory + optional service (like bundles)
     // Legacy: flat service_names[] + subcategory_names[] arrays
     let serviceShortcutActivated = false;
-    if (matchedSynonymFilters.length > 0) {
+    if (matchedSynonymBadgeId && matchedSynonymFilters.length === 0) {
+      // ── BADGE-ONLY synonym: fetch businesses via business_badges join ──
+      console.log(`⚡ Synonym badge-only PRIORITY: badge_id=${matchedSynonymBadgeId} — skipping FTS`);
+      const { data: bbData } = await supabase
+        .from("business_badges")
+        .select("business_id")
+        .eq("badge_id", matchedSynonymBadgeId);
+      if (bbData && bbData.length > 0) {
+        const badgeBizIds = bbData.map((bb: any) => bb.business_id);
+        let builder = supabase.from("businesses").select("*")
+          .eq("is_active", true)
+          .in("id", badgeBizIds);
+        if (effectiveCity) builder = applyCityFilter(builder);
+        if (detectedNeighborhood) {
+          builder = builder.or(buildNeighborhoodOrClause(detectedNeighborhood, loadedNeighborhoods));
+        }
+        builder = builder
+          .order("wtuce_status", { ascending: true })
+          .order("google_rating", { ascending: false, nullsFirst: false })
+          .order("priority_score", { ascending: false })
+          .limit(limit);
+        const { data, error } = await builder;
+        if (!error && data && data.length > 0) {
+          businesses = data.map((b: any) => ({
+            ...b,
+            distance_km: latitude && longitude && b.latitude && b.longitude
+              ? calculateDistance(latitude, longitude, b.latitude, b.longitude) : null,
+          }));
+          searchLevel = "exact";
+          serviceShortcutActivated = true;
+          console.log(`⚡ Synonym badge-only complete: ${businesses.length} results — skipping FTS chain`);
+        }
+      }
+    } else if (matchedSynonymFilters.length > 0) {
       // ── NEW: Paired filters mode ──
       console.log(`⚡ Synonym paired filters PRIORITY: ${matchedSynonymFilters.length} filter(s) — skipping FTS`);
       const existingIds = new Set<string>();
