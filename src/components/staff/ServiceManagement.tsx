@@ -237,7 +237,7 @@ const ServiceManagement = () => {
                   <TableHead>Service</TableHead>
                   <TableHead>Catégorie</TableHead>
                   <TableHead>Sous-catégorie</TableHead>
-                  <TableHead>Mots-clés</TableHead>
+                  <TableHead className="text-center">Actif</TableHead>
                   <TableHead className="text-center">Établissements</TableHead>
                 </TableRow>
               </TableHeader>
@@ -257,12 +257,8 @@ const ServiceManagement = () => {
                         <TableCell className="font-medium">{svc.name_fr}</TableCell>
                         <TableCell className="text-muted-foreground text-sm">{catName}</TableCell>
                         <TableCell className="text-muted-foreground text-sm">{subName}</TableCell>
-                        <TableCell>
-                          <div className="flex flex-wrap gap-1">
-                            {(svc.keywords || []).map((kw, i) => (
-                              <Badge key={i} variant="secondary" className="text-xs">{kw}</Badge>
-                            ))}
-                          </div>
+                        <TableCell className="text-center">
+                          <Switch defaultChecked={true} />
                         </TableCell>
                         <TableCell className="text-center">
                           <Button
