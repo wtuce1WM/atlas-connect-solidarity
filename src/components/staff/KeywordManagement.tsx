@@ -88,7 +88,7 @@ const KeywordManagement = () => {
           serviceId: svc.id,
           serviceName: svc.name_fr,
           subcategoryId: svc.subcategory_id,
-          keywords: svc.keywords,
+          keywords: [...svc.keywords].sort((a, b) => a.localeCompare(b, "fr")),
         });
       }
     }
