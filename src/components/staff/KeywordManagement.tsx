@@ -81,8 +81,15 @@ const KeywordManagement = () => {
 
   // Build service rows grouped by service
   const totalServicesWithKeywords = useMemo(() => {
-    return services.filter(s => s.keywords && s.keywords.length > 0).length;
-  }, [services]);
+    let pool = services.filter(s => s.keywords && s.keywords.length > 0);
+    if (subcategoryFilter !== "all") {
+      pool = pool.filter(s => s.subcategory_id === subcategoryFilter);
+    } else if (categoryFilter !== "all") {
+      const subIds = new Set(filteredSubcategories.map(sc => sc.id));
+      pool = pool.filter(s => subIds.has(s.subcategory_id));
+    }
+    return pool.length;
+  }, [services, categoryFilter, subcategoryFilter, filteredSubcategories]);
 
   const allServiceRows = useMemo(() => {
     const rows: ServiceRow[] = [];
