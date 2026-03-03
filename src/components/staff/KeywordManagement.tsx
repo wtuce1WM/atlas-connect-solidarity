@@ -80,6 +80,10 @@ const KeywordManagement = () => {
   useEffect(() => { setSubcategoryFilter("all"); }, [categoryFilter]);
 
   // Build service rows grouped by service
+  const totalServicesWithKeywords = useMemo(() => {
+    return services.filter(s => s.keywords && s.keywords.length > 0).length;
+  }, [services]);
+
   const allServiceRows = useMemo(() => {
     const rows: ServiceRow[] = [];
     for (const svc of services) {
@@ -213,7 +217,7 @@ const KeywordManagement = () => {
           </div>
 
           <Button variant="outline" className="w-full justify-between" onClick={() => setResultsOpen(!resultsOpen)}>
-            <span>Résultats ({filteredServiceRows.length} services — {totalKeywords} mots-clés)</span>
+            <span>Résultats ({filteredServiceRows.length} services sur {totalServicesWithKeywords} utilisés — {totalKeywords} mots-clés)</span>
             {resultsOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
           </Button>
           {resultsOpen && <div className="border rounded-lg">
