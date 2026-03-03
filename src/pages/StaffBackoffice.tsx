@@ -20,6 +20,7 @@ import AffiliateManagement from "@/components/staff/AffiliateManagement";
 import LabelManagement from "@/components/staff/LabelManagement";
 import GammeManagement from "@/components/staff/GammeManagement";
 import BadgeManagement from "@/components/staff/BadgeManagement";
+import EngagementManagement from "@/components/staff/EngagementManagement";
 import KPGroupManagement from "@/components/staff/KPGroupManagement";
 import { useBusinessBrokenFiles } from "@/hooks/useBusinessBrokenFiles";
 import SearchConfigManagement from "@/components/staff/SearchConfigManagement";
@@ -655,6 +656,15 @@ const StaffBackoffice = () => {
                 }
               }} />
               <BadgeManagement onEditBusiness={async (id: string) => {
+                const found = businesses.find(b => b.id === id);
+                if (found) {
+                  handleEdit(found);
+                } else {
+                  const { data } = await supabase.from("businesses").select("*").eq("id", id).single();
+                  if (data) handleEdit(data as Business);
+                }
+              }} />
+              <EngagementManagement onEditBusiness={async (id: string) => {
                 const found = businesses.find(b => b.id === id);
                 if (found) {
                   handleEdit(found);
