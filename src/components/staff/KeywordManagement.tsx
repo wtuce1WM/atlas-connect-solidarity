@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Search, Loader2, ExternalLink, Eye, ArrowUpAZ, ArrowDownZA } from "lucide-react";
+import { Search, Loader2, ExternalLink, Eye, ArrowUpAZ, ArrowDownZA, ChevronDown, ChevronRight } from "lucide-react";
 
 interface Category {
   id: string;
@@ -56,6 +56,7 @@ const KeywordManagement = () => {
   const [subcategoryFilter, setSubcategoryFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOrder, setSortOrder] = useState<"az" | "za" | "count-asc" | "count-desc">("az");
+  const [resultsOpen, setResultsOpen] = useState(false);
 
   // Business counts per keyword (by service)
   const [businessCountByKw, setBusinessCountByKw] = useState<Record<string, number>>({});
@@ -209,7 +210,7 @@ const KeywordManagement = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Search className="h-5 w-5" />
-            Mots-clés ({filteredKeywords.length})
+            Mots-clés par Sous-catégories ({filteredKeywords.length})
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -251,7 +252,11 @@ const KeywordManagement = () => {
           </div>
 
           {/* Results table */}
-          <div className="border rounded-lg">
+          <Button variant="outline" className="w-full justify-between" onClick={() => setResultsOpen(!resultsOpen)}>
+            <span>Résultats ({filteredKeywords.length})</span>
+            {resultsOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+          </Button>
+          {resultsOpen && <div className="border rounded-lg">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -309,7 +314,7 @@ const KeywordManagement = () => {
                 )}
               </TableBody>
             </Table>
-          </div>
+          </div>}
         </CardContent>
       </Card>
 
