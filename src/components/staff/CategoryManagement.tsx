@@ -591,10 +591,11 @@ const CategoryManagement = () => {
       {showKeywords && (
         <div>
           <label className="text-xs font-medium text-muted-foreground">Mots-clés / Synonymes (séparés par des virgules)</label>
-          <Input
+          <Textarea
             value={editForm.keywords}
             onChange={(e) => setEditForm(prev => ({ ...prev, keywords: e.target.value }))}
             placeholder=""
+            className="min-h-[100px] max-h-[250px]"
           />
           <p className="text-[10px] text-muted-foreground mt-0.5">Ces mots permettront de trouver ce {editMode?.type === "subcategory" ? "type d'établissement" : "service"} lors d'une recherche</p>
         </div>
