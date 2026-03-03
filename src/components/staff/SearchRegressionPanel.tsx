@@ -1,23 +1,18 @@
-import { useState, useCallback } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useCallback, useEffect } from "react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, XCircle, Loader2, Search, Play, AlertTriangle } from "lucide-react";
+import { CheckCircle, XCircle, Loader2, Search, Play, AlertTriangle, Filter } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface SearchTestCase {
   id: string;
   query: string;
   description: string;
-  /** Business names that MUST appear in results */
   mustInclude?: string[];
-  /** Business names that must NOT appear in results */
   mustExclude?: string[];
-  /** Expected minimum result count */
   minResults?: number;
-  /** Expected maximum result count */
   maxResults?: number;
-  /** Category filter to apply */
   category?: string;
 }
 
@@ -27,6 +22,14 @@ interface TestResult {
   details: string;
   businessNames: string[];
   duration: number;
+}
+
+interface SynonymEntry {
+  id: string;
+  key_word: string;
+  synonyms: string[];
+  is_active: boolean;
+  filters: { subcategory_name?: string; required_service?: string }[];
 }
 
 const SEARCH_TEST_CASES: SearchTestCase[] = [
@@ -114,18 +117,33 @@ const SearchRegressionPanel = () => {
   const [results, setResults] = useState<Record<string, TestResult>>({});
   const [isRunning, setIsRunning] = useState(false);
   const [runningId, setRunningId] = useState<string | null>(null);
+  const [synonyms, setSynonyms] = useState<SynonymEntry[]>([]);
+  const [synonymResults, setSynonymResults] = useState<Record<string, TestResult>>({});
+
+  useEffect(() => {
+    const load = async () => {
+      const { data } = await supabase
+        .from("search_synonyms")
+        .select("id, key_word, synonyms, is_active, filters")
+        .eq("is_active", true)
+        .order("key_word");
+      if (data) {
+        setSynonyms(data.map((d: any) => ({
+          ...d,
+          synonyms: d.synonyms || [],
+          filters: Array.isArray(d.filters) ? d.filters : [],
+        })));
+      }
+    };
+    load();
+  }, []);
 
   const runSingleTest = useCallback(async (testCase: SearchTestCase): Promise<TestResult> => {
     const start = performance.now();
     try {
       const { data, error } = await supabase.functions.invoke("business-search", {
-        body: {
-          query: testCase.query,
-          category: testCase.category,
-          language: "fr",
-        },
+        body: { query: testCase.query, category: testCase.category, language: "fr" },
       });
-
       if (error) throw error;
 
       const businesses: { name: string }[] = data?.businesses || [];
@@ -133,7 +151,6 @@ const SearchRegressionPanel = () => {
       const duration = Math.round(performance.now() - start);
       const failures: string[] = [];
 
-      // Check mustInclude
       if (testCase.mustInclude) {
         for (const name of testCase.mustInclude) {
           if (!businessNames.some((bn) => bn.includes(name))) {
@@ -141,8 +158,6 @@ const SearchRegressionPanel = () => {
           }
         }
       }
-
-      // Check mustExclude
       if (testCase.mustExclude) {
         for (const name of testCase.mustExclude) {
           if (businessNames.some((bn) => bn.includes(name))) {
@@ -150,13 +165,9 @@ const SearchRegressionPanel = () => {
           }
         }
       }
-
-      // Check minResults
       if (testCase.minResults !== undefined && businessNames.length < testCase.minResults) {
         failures.push(`${businessNames.length} résultats < minimum ${testCase.minResults}`);
       }
-
-      // Check maxResults
       if (testCase.maxResults !== undefined && businessNames.length > testCase.maxResults) {
         failures.push(`${businessNames.length} résultats > maximum ${testCase.maxResults}`);
       }
@@ -181,17 +192,96 @@ const SearchRegressionPanel = () => {
     }
   }, []);
 
+  const runSynonymTest = useCallback(async (syn: SynonymEntry): Promise<TestResult> => {
+    const start = performance.now();
+    try {
+      // Test the key_word
+      const { data, error } = await supabase.functions.invoke("business-search", {
+        body: { query: syn.key_word, language: "fr" },
+      });
+      if (error) throw error;
+
+      const businesses: { name: string; categories?: string[]; services?: string[] }[] = data?.businesses || [];
+      const duration = Math.round(performance.now() - start);
+      const failures: string[] = [];
+
+      if (syn.filters.length > 0 && businesses.length === 0) {
+        failures.push("Aucun résultat retourné");
+      }
+
+      // Check that results match at least one filter pair
+      if (syn.filters.length > 0 && businesses.length > 0) {
+        const subcats = [...new Set(syn.filters.map(f => f.subcategory_name).filter(Boolean))];
+        const services = [...new Set(syn.filters.map(f => f.required_service).filter(Boolean))];
+        
+        // Verify at least some results have matching categories/services
+        const matchingCount = businesses.filter(biz => {
+          const bizCats = biz.categories || [];
+          const bizSvcs = biz.services || [];
+          return syn.filters.some(f => {
+            const subcatOk = !f.subcategory_name || bizCats.includes(f.subcategory_name);
+            const svcOk = !f.required_service || bizSvcs.includes(f.required_service);
+            return subcatOk && svcOk;
+          });
+        }).length;
+
+        if (matchingCount === 0) {
+          failures.push(`Aucun des ${businesses.length} résultats ne correspond aux filtres (${subcats.join(", ")}${services.length ? " + " + services.join(", ") : ""})`);
+        }
+      }
+
+      // Also test first synonym if any
+      if (syn.synonyms.length > 0) {
+        const firstSyn = syn.synonyms[0];
+        const { data: synData } = await supabase.functions.invoke("business-search", {
+          body: { query: firstSyn, language: "fr" },
+        });
+        const synBusinesses: { name: string }[] = synData?.businesses || [];
+        if (syn.filters.length > 0 && synBusinesses.length === 0) {
+          failures.push(`Synonyme "${firstSyn}" → 0 résultat`);
+        }
+      }
+
+      const businessNames = businesses.map(b => b.name);
+      return {
+        id: syn.id,
+        passed: failures.length === 0,
+        details: failures.length === 0
+          ? `✅ ${businesses.length} résultat(s) — OK`
+          : failures.join(" · "),
+        businessNames,
+        duration,
+      };
+    } catch (err: any) {
+      return {
+        id: syn.id,
+        passed: false,
+        details: `Erreur: ${err.message}`,
+        businessNames: [],
+        duration: Math.round(performance.now() - start),
+      };
+    }
+  }, []);
+
   const runAllTests = useCallback(async () => {
     setIsRunning(true);
     setResults({});
+    setSynonymResults({});
+    // Run static tests
     for (const tc of SEARCH_TEST_CASES) {
       setRunningId(tc.id);
       const result = await runSingleTest(tc);
       setResults((prev) => ({ ...prev, [tc.id]: result }));
     }
+    // Run synonym tests
+    for (const syn of synonyms) {
+      setRunningId(`syn-${syn.id}`);
+      const result = await runSynonymTest(syn);
+      setSynonymResults((prev) => ({ ...prev, [syn.id]: result }));
+    }
     setRunningId(null);
     setIsRunning(false);
-  }, [runSingleTest]);
+  }, [runSingleTest, runSynonymTest, synonyms]);
 
   const runOneTest = useCallback(async (tc: SearchTestCase) => {
     setRunningId(tc.id);
@@ -200,9 +290,18 @@ const SearchRegressionPanel = () => {
     setRunningId(null);
   }, [runSingleTest]);
 
-  const passedCount = Object.values(results).filter((r) => r.passed).length;
-  const failedCount = Object.values(results).filter((r) => !r.passed).length;
-  const totalRun = Object.keys(results).length;
+  const runOneSynonymTest = useCallback(async (syn: SynonymEntry) => {
+    setRunningId(`syn-${syn.id}`);
+    const result = await runSynonymTest(syn);
+    setSynonymResults((prev) => ({ ...prev, [syn.id]: result }));
+    setRunningId(null);
+  }, [runSynonymTest]);
+
+  const passedCount = Object.values(results).filter((r) => r.passed).length + Object.values(synonymResults).filter(r => r.passed).length;
+  const failedCount = Object.values(results).filter((r) => !r.passed).length + Object.values(synonymResults).filter(r => !r.passed).length;
+  const totalRun = Object.keys(results).length + Object.keys(synonymResults).length;
+
+  const activeSynonymsWithFilters = synonyms.filter(s => s.filters.length > 0);
 
   return (
     <div className="space-y-6">
@@ -212,7 +311,7 @@ const SearchRegressionPanel = () => {
             <Search className="h-5 w-5" /> Tests de Régression — Recherche
           </h3>
           <p className="text-sm text-muted-foreground mt-1">
-            {SEARCH_TEST_CASES.length} cas de test vérifiant le moteur de recherche en conditions réelles
+            {SEARCH_TEST_CASES.length} tests statiques + {activeSynonymsWithFilters.length} filtres synonymes actifs
           </p>
         </div>
         <Button onClick={runAllTests} disabled={isRunning} className="gap-2">
@@ -247,76 +346,135 @@ const SearchRegressionPanel = () => {
         </CardContent>
       </Card>
 
+      {/* Static test cases */}
       <div className="space-y-2">
+        <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Tests statiques</h4>
         {SEARCH_TEST_CASES.map((tc) => {
           const result = results[tc.id];
           const isCurrentlyRunning = runningId === tc.id;
-
           return (
-            <Card
+            <TestCaseRow
               key={tc.id}
-              className={`overflow-hidden transition-colors ${
-                result
-                  ? result.passed
-                    ? "border-emerald-200"
-                    : "border-red-200 bg-red-50/30"
-                  : ""
-              }`}
-            >
-              <CardContent className="py-3 px-4">
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
-                    {isCurrentlyRunning ? (
-                      <Loader2 className="h-4 w-4 animate-spin text-primary shrink-0" />
-                    ) : result ? (
-                      result.passed ? (
-                        <CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" />
-                      ) : (
-                        <XCircle className="h-4 w-4 text-red-500 shrink-0" />
-                      )
-                    ) : (
-                      <div className="h-4 w-4 rounded-full border-2 border-muted shrink-0" />
-                    )}
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <code className="text-xs bg-muted px-1.5 py-0.5 rounded font-mono">
-                          {tc.query}
-                        </code>
-                        <span className="text-sm text-muted-foreground truncate">
-                          {tc.description}
-                        </span>
-                      </div>
-                      {result && (
-                        <p className={`text-xs mt-1 ${result.passed ? "text-emerald-600" : "text-red-600"}`}>
-                          {result.details}
-                          <span className="text-muted-foreground ml-2">({result.duration}ms)</span>
-                        </p>
-                      )}
-                      {result && !result.passed && result.businessNames.length > 0 && (
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Résultats: {result.businessNames.slice(0, 8).join(", ")}
-                          {result.businessNames.length > 8 && ` +${result.businessNames.length - 8}`}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => runOneTest(tc)}
-                    disabled={isRunning}
-                    className="shrink-0"
-                  >
-                    <Play className="h-3 w-3" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+              query={tc.query}
+              description={tc.description}
+              result={result}
+              isRunning={isCurrentlyRunning}
+              disabled={isRunning}
+              onRun={() => runOneTest(tc)}
+            />
           );
         })}
       </div>
+
+      {/* Synonym filter tests */}
+      {activeSynonymsWithFilters.length > 0 && (
+        <div className="space-y-2">
+          <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-2">
+            <Filter className="h-4 w-4" /> Filtres Synonymes ({activeSynonymsWithFilters.length})
+          </h4>
+          {activeSynonymsWithFilters.map((syn) => {
+            const result = synonymResults[syn.id];
+            const isCurrentlyRunning = runningId === `syn-${syn.id}`;
+            const subcats = [...new Set(syn.filters.map(f => f.subcategory_name).filter(Boolean))];
+            const services = [...new Set(syn.filters.map(f => f.required_service).filter(Boolean))];
+            const filterDesc = [
+              subcats.length > 0 ? subcats.join(", ") : null,
+              services.length > 0 ? services.join(", ") : null,
+            ].filter(Boolean).join(" → ");
+
+            return (
+              <TestCaseRow
+                key={syn.id}
+                query={syn.key_word}
+                description={`Filtre: ${filterDesc}${syn.synonyms.length > 0 ? ` · ${syn.synonyms.length} syn.` : ""}`}
+                result={result}
+                isRunning={isCurrentlyRunning}
+                disabled={isRunning}
+                onRun={() => runOneSynonymTest(syn)}
+              />
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };
+
+function TestCaseRow({
+  query,
+  description,
+  result,
+  isRunning,
+  disabled,
+  onRun,
+}: {
+  query: string;
+  description: string;
+  result?: TestResult;
+  isRunning: boolean;
+  disabled: boolean;
+  onRun: () => void;
+}) {
+  return (
+    <Card
+      className={`overflow-hidden transition-colors ${
+        result
+          ? result.passed
+            ? "border-emerald-200"
+            : "border-red-200 bg-red-50/30"
+          : ""
+      }`}
+    >
+      <CardContent className="py-3 px-4">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            {isRunning ? (
+              <Loader2 className="h-4 w-4 animate-spin text-primary shrink-0" />
+            ) : result ? (
+              result.passed ? (
+                <CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" />
+              ) : (
+                <XCircle className="h-4 w-4 text-red-500 shrink-0" />
+              )
+            ) : (
+              <div className="h-4 w-4 rounded-full border-2 border-muted shrink-0" />
+            )}
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <code className="text-xs bg-muted px-1.5 py-0.5 rounded font-mono">
+                  {query}
+                </code>
+                <span className="text-sm text-muted-foreground truncate">
+                  {description}
+                </span>
+              </div>
+              {result && (
+                <p className={`text-xs mt-1 ${result.passed ? "text-emerald-600" : "text-red-600"}`}>
+                  {result.details}
+                  <span className="text-muted-foreground ml-2">({result.duration}ms)</span>
+                </p>
+              )}
+              {result && !result.passed && result.businessNames.length > 0 && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  Résultats: {result.businessNames.slice(0, 8).join(", ")}
+                  {result.businessNames.length > 8 && ` +${result.businessNames.length - 8}`}
+                </p>
+              )}
+            </div>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onRun}
+            disabled={disabled}
+            className="shrink-0"
+          >
+            <Play className="h-3 w-3" />
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
 export default SearchRegressionPanel;
