@@ -36,8 +36,8 @@ const LogoCoin = () => {
         map={texture}
         transparent
         side={THREE.DoubleSide}
-        metalness={0.5}
-        roughness={0.2}
+        metalness={0.2}
+        roughness={0.5}
       />
     </mesh>
   );
@@ -51,9 +51,9 @@ const Logo3DSpinner = ({ className = "w-64 h-64" }: Logo3DSpinnerProps) => {
   return (
     <div className={className}>
       <Canvas camera={{ position: [0, 0, 3.5], fov: 50 }} gl={{ antialias: true, alpha: true }}>
-        <ambientLight intensity={0.8} />
-        <directionalLight position={[5, 5, 5]} intensity={1.2} />
-        <pointLight position={[-3, -3, -3]} intensity={0.4} color="#d4a84b" />
+        <ambientLight intensity={1.8} />
+        <directionalLight position={[5, 5, 5]} intensity={0.8} color="#ffffff" />
+        <directionalLight position={[-3, 2, 4]} intensity={0.4} color="#d4a84b" />
         <Suspense fallback={null}>
           <LogoCoin />
         </Suspense>
