@@ -79,9 +79,9 @@ const KeywordManagement = () => {
 
   useEffect(() => { setSubcategoryFilter("all"); }, [categoryFilter]);
 
-  // Build service rows grouped by service
-  const totalServicesWithKeywords = useMemo(() => {
-    let pool = services.filter(s => s.keywords && s.keywords.length > 0);
+  // Total services in filtered scope (all, not just those with keywords)
+  const totalServicesInScope = useMemo(() => {
+    let pool = services;
     if (subcategoryFilter !== "all") {
       pool = pool.filter(s => s.subcategory_id === subcategoryFilter);
     } else if (categoryFilter !== "all") {
@@ -91,17 +91,18 @@ const KeywordManagement = () => {
     return pool.length;
   }, [services, categoryFilter, subcategoryFilter, filteredSubcategories]);
 
+  // Build ALL service rows (including those without keywords)
   const allServiceRows = useMemo(() => {
     const rows: ServiceRow[] = [];
     for (const svc of services) {
-      if (svc.keywords && svc.keywords.length > 0) {
-        rows.push({
-          serviceId: svc.id,
-          serviceName: svc.name_fr,
-          subcategoryId: svc.subcategory_id,
-          keywords: [...svc.keywords].sort((a, b) => a.localeCompare(b, "fr")),
-        });
-      }
+      rows.push({
+        serviceId: svc.id,
+        serviceName: svc.name_fr,
+        subcategoryId: svc.subcategory_id,
+        keywords: svc.keywords && svc.keywords.length > 0
+          ? [...svc.keywords].sort((a, b) => a.localeCompare(b, "fr"))
+          : [],
+      });
     }
     return rows;
   }, [services]);
@@ -224,7 +225,7 @@ const KeywordManagement = () => {
           </div>
 
           <Button variant="outline" className="w-full justify-between" onClick={() => setResultsOpen(!resultsOpen)}>
-            <span>Résultats ({filteredServiceRows.length} services sur {totalServicesWithKeywords} utilisés — {totalKeywords} mots-clés)</span>
+            <span>Résultats ({filteredServiceRows.length} services sur {totalServicesInScope} — {totalKeywords} mots-clés)</span>
             {resultsOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
           </Button>
           {resultsOpen && <div className="border rounded-lg">
