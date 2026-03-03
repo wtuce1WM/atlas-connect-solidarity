@@ -16,7 +16,7 @@ const LogoCSSSpinner = ({ className = "w-64 h-64", replayKey }: LogoCSSSpinnerPr
         key={key}
         src={logoGold}
         alt=""
-        className="w-full h-full object-contain drop-shadow-[0_0_30px_hsla(43,75%,55%,0.4)] animate-[coinSpin_1.2s_cubic-bezier(0.16,1,0.3,1)_forwards]"
+        className="w-full h-full object-contain animate-[coinSpin_1.2s_cubic-bezier(0.16,1,0.3,1)_forwards]"
       />
       {replayKey === undefined && (
         <button
