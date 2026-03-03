@@ -357,11 +357,25 @@ const SynonymsManagement = () => {
                 const subcats = [...new Set(entry.filters.map(f => f.subcategory_name).filter(Boolean))];
                 const services = [...new Set(entry.filters.map(f => f.required_service).filter(Boolean))];
                 const count = getBusinessCount.get(entry.id) || 0;
+                // Resolve categories from subcategory names
+                const categoryNames = [...new Set(subcats.flatMap(sn => {
+                  const sc = allSubcategories.find(s => s.name === sn);
+                  if (!sc) return [];
+                  const cat = allCategories.find(c => c.id === sc.category_id);
+                  return cat ? [cat.name_fr] : [];
+                }))];
                 if (subcats.length === 0 && services.length === 0) {
                   return <p className="text-xs opacity-75 italic">Aucun filtre</p>;
                 }
                 return (
                   <>
+                    {categoryNames.length > 0 && (
+                      <div className="flex flex-wrap gap-1">
+                        {categoryNames.map(cn => (
+                          <span key={cn} className="inline-flex items-center text-[10px] px-1.5 py-0.5 rounded bg-black/80 text-white font-medium">{cn}</span>
+                        ))}
+                      </div>
+                    )}
                     {subcats.length > 0 && (
                       <p className="text-xs font-bold leading-snug line-clamp-2">{subcats.join(", ")}</p>
                     )}
