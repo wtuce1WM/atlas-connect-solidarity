@@ -212,6 +212,7 @@ const LocationManagement = () => {
     official_site_fr: "", official_site_en: "", official_site_ar: "",
     hook: "", description: "", sort_order: 0, image_url: "", keywords: [] as string[],
   });
+  const [poiKeywordInput, setPoiKeywordInput] = useState("");
 
   // Neighborhoods full section (like POI)
   const [neighborhoodsSectionOpen, setNeighborhoodsSectionOpen] = useState(false);
@@ -852,6 +853,7 @@ const LocationManagement = () => {
       official_site_fr: "", official_site_en: "", official_site_ar: "",
       hook: "", description: "", sort_order: 0, image_url: "", keywords: [] as string[],
     });
+    setPoiKeywordInput("");
   };
 
   const openEditPoi = (p: PointOfInterest) => {
@@ -864,8 +866,19 @@ const LocationManagement = () => {
       hook: p.hook || "", description: p.description || "", sort_order: p.sort_order || 0,
       image_url: p.image_url || "", keywords: p.keywords || [],
     });
+    setPoiKeywordInput("");
     setShowPoiForm(true);
     setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 0);
+  };
+
+  const addPoiKeyword = () => {
+    const val = poiKeywordInput.trim();
+    if (!val) return;
+    setPoiForm(prev => {
+      if (prev.keywords.includes(val)) return prev;
+      return { ...prev, keywords: [...prev.keywords, val] };
+    });
+    setPoiKeywordInput("");
   };
 
   const handleSavePoi = async () => {
@@ -877,6 +890,9 @@ const LocationManagement = () => {
       toast({ variant: "destructive", title: "Erreur", description: "La ville est requise." });
       return;
     }
+
+    const mergedKeywords = Array.from(new Set([...poiForm.keywords, poiKeywordInput.trim()].filter(Boolean))); 
+
     const data = {
       city_id: poiForm.city_id,
       name_fr: poiForm.name_fr.trim(),
@@ -894,7 +910,7 @@ const LocationManagement = () => {
       description: poiForm.description || null,
       sort_order: poiForm.sort_order,
       image_url: poiForm.image_url.trim() || null,
-      keywords: poiForm.keywords.length > 0 ? poiForm.keywords : [],
+      keywords: mergedKeywords,
     };
     let error;
     if (editingPoi) {
@@ -1899,22 +1915,22 @@ const LocationManagement = () => {
                        </span>
                      ))}
                    </div>
-                   <Input
-                     placeholder="Ajouter un alias…"
-                     onKeyDown={(e) => {
-                       if (e.key === 'Enter') {
-                         e.preventDefault();
-                          const val = (e.target as HTMLInputElement).value.trim();
-                          if (val) {
-                            setPoiForm(prev => {
-                              if (prev.keywords.includes(val)) return prev;
-                              return { ...prev, keywords: [...prev.keywords, val] };
-                            });
-                            (e.target as HTMLInputElement).value = '';
-                         }
-                       }
-                     }}
-                   />
+                    <div className="flex gap-2">
+                      <Input
+                        value={poiKeywordInput}
+                        onChange={(e) => setPoiKeywordInput(e.target.value)}
+                        placeholder="Ajouter un alias…"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            addPoiKeyword();
+                          }
+                        }}
+                      />
+                      <Button type="button" variant="outline" onClick={addPoiKeyword}>
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
                  </CardContent>
                </Card>
             </div>
