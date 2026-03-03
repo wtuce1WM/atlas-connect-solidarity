@@ -409,7 +409,8 @@ const SearchPage = () => {
   const latestFetchIdRef = useRef(0);
 
   const voiceLoopRef = useRef(false);
-  const { speak: ttsSpeak, stop: ttsStop, status: ttsStatus } = useTextToSpeech({
+  const ttsIntroWordCountRef = useRef(0);
+  const { speak: ttsSpeak, stop: ttsStop, status: ttsStatus, spokenWordIndex: ttsSpokenWordIndex } = useTextToSpeech({
     onEnd: () => {
       if (voiceLoopRef.current) {
         voiceLoopRef.current = false;
@@ -980,10 +981,11 @@ const SearchPage = () => {
               <button
                 onClick={() => {
                    if (aiAnswerText) {
-                     const cleanText = aiAnswerText.replace(/\*\*/g, "");
+                     const cleanText = aiAnswerText.replace(/\*{1,2}/g, "").replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "");
                      const intro = ttsIntroPhrase ? `${ttsIntroPhrase}. ` : "";
+                     ttsIntroWordCountRef.current = intro.trim().split(/\s+/).filter(Boolean).length;
                      voiceLoopRef.current = true;
-                     ttsSpeak(intro + cleanText + " … Vous pouvez me poser une autre question.");
+                     ttsSpeak(intro + cleanText + " … Vous pouvez me poser une autre question.", undefined, true);
                   } else {
                     const count = filteredBusinesses.length;
                     const cityText = selectedCity !== "all" ? ` à ${selectedCity}` : "";
@@ -1175,11 +1177,12 @@ const SearchPage = () => {
               ) : !isLoading && filteredBusinesses.length > 0 && (
                 <button
                   onClick={() => {
-                      if (aiAnswerText) {
-                       const cleanText = aiAnswerText.replace(/\*\*/g, "");
+                       if (aiAnswerText) {
+                       const cleanText = aiAnswerText.replace(/\*{1,2}/g, "").replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "");
                        const intro = ttsIntroPhrase ? `${ttsIntroPhrase}. ` : "";
+                       ttsIntroWordCountRef.current = intro.trim().split(/\s+/).filter(Boolean).length;
                        voiceLoopRef.current = true;
-                       ttsSpeak(intro + cleanText + " … Vous pouvez me poser une autre question.");
+                       ttsSpeak(intro + cleanText + " … Vous pouvez me poser une autre question.", undefined, true);
                     } else {
                       const count = filteredBusinesses.length;
                       const cityText = selectedCity !== "all" ? ` à ${selectedCity}` : "";
@@ -1229,6 +1232,7 @@ const SearchPage = () => {
               businesses={filteredBusinesses}
               isSearchLoading={isLoading}
               onAnswerReady={setAiAnswerText}
+              highlightWordIndex={ttsStatus === "playing" && ttsSpokenWordIndex >= 0 ? ttsSpokenWordIndex - ttsIntroWordCountRef.current : undefined}
             />
           )}
 

@@ -39,10 +39,17 @@ interface AISearchAnswerProps {
   businesses: BusinessData[];
   isSearchLoading: boolean;
   onAnswerReady?: (answer: string) => void;
+  highlightWordIndex?: number;
+}
+
+interface BusinessHoverCardProps {
+  name: string;
+  business: BusinessData;
+  onClickBusiness: (b: BusinessData) => void;
 }
 
 const normalize = (s: string) =>
-  s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[''`]/g, "'").trim();
+  s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/['`]/g, "'").trim();
 
 const findBusiness = (name: string, businesses: BusinessData[]): BusinessData | null => {
   const n = normalize(name);
@@ -115,34 +122,66 @@ const BusinessHoverCard = ({ name, business, onClickBusiness }: { name: string; 
   );
 };
 
-/** Parse inline markdown (**bold** with clickable businesses, *italic*) */
+interface HighlightState {
+  wordIndex: number;
+  target: number;
+}
+
+/** Parse inline markdown with optional word-level highlighting */
 const parseInline = (
   text: string,
   businesses: BusinessData[],
   onClickBusiness: (b: BusinessData) => void,
-  keyPrefix: string
+  keyPrefix: string,
+  hl?: HighlightState
 ): ReactNode[] => {
-  // Split by **bold** first
   const boldParts = text.split(/\*\*(.+?)\*\*/g);
   const nodes: ReactNode[] = [];
 
   boldParts.forEach((part, j) => {
     if (j % 2 === 1) {
-      // Bold segment — check if it's a clickable business
+      // Bold segment — business name or plain bold
+      const wordCount = part.split(/\s+/).filter(Boolean).length;
+      const startWordIdx = hl ? hl.wordIndex : 0;
+      if (hl) hl.wordIndex += wordCount;
+      const highlighted = hl ? startWordIdx <= hl.target : false;
+
       const match = findBusiness(part, businesses);
       if (match) {
-        nodes.push(<BusinessHoverCard key={`${keyPrefix}-${j}`} name={part} business={match} onClickBusiness={onClickBusiness} />);
+        const card = <BusinessHoverCard key={`${keyPrefix}-${j}`} name={part} business={match} onClickBusiness={onClickBusiness} />;
+        if (hl) {
+          nodes.push(
+            <span key={`${keyPrefix}-hl-${j}`} className={`transition-colors duration-100 rounded-sm ${highlighted ? "bg-gold/20" : ""}`}>
+              {card}
+            </span>
+          );
+        } else {
+          nodes.push(card);
+        }
       } else {
-        nodes.push(<strong key={`${keyPrefix}-${j}`} className="font-semibold text-foreground">{part}</strong>);
+        nodes.push(
+          <strong key={`${keyPrefix}-${j}`} className={`font-semibold text-foreground${hl ? ` transition-colors duration-100 rounded-sm${highlighted ? " bg-gold/20" : ""}` : ""}`}>
+            {part}
+          </strong>
+        );
       }
     } else {
-      // Parse italic within plain text
+      // Non-bold: parse italic, then split into words
       const italicParts = part.split(/\*(.+?)\*/g);
       italicParts.forEach((ip, k) => {
         if (k % 2 === 1) {
-          nodes.push(<em key={`${keyPrefix}-${j}-i${k}`}>{ip}</em>);
+          // Italic
+          if (hl) {
+            renderWordTokens(ip, nodes, hl, `${keyPrefix}-${j}-i${k}`, true);
+          } else {
+            nodes.push(<em key={`${keyPrefix}-${j}-i${k}`}>{ip}</em>);
+          }
         } else if (ip) {
-          nodes.push(<span key={`${keyPrefix}-${j}-${k}`}>{ip}</span>);
+          if (hl) {
+            renderWordTokens(ip, nodes, hl, `${keyPrefix}-${j}-${k}`, false);
+          } else {
+            nodes.push(<span key={`${keyPrefix}-${j}-${k}`}>{ip}</span>);
+          }
         }
       });
     }
@@ -151,18 +190,49 @@ const parseInline = (
   return nodes;
 };
 
+/** Render text split into word-level spans with highlighting */
+const renderWordTokens = (
+  text: string,
+  nodes: ReactNode[],
+  hl: HighlightState,
+  keyPrefix: string,
+  italic: boolean
+) => {
+  const tokens = text.split(/(\s+)/);
+  tokens.forEach((token, t) => {
+    if (!token) return;
+    if (!token.trim()) {
+      nodes.push(<span key={`${keyPrefix}-ws-${t}`}>{token}</span>);
+      return;
+    }
+    const wordIdx = hl.wordIndex++;
+    const highlighted = wordIdx <= hl.target;
+    const hlClass = `transition-colors duration-100 rounded-sm${highlighted ? " bg-gold/20" : ""}`;
+    if (italic) {
+      nodes.push(<em key={`${keyPrefix}-w-${t}`} className={hlClass}>{token}</em>);
+    } else {
+      nodes.push(<span key={`${keyPrefix}-w-${t}`} className={hlClass}>{token}</span>);
+    }
+  });
+};
+
 /** Convert markdown text to React elements with paragraphs, lists, and inline formatting */
 const formatAnswer = (
   text: string,
   businesses: BusinessData[],
-  onClickBusiness: (b: BusinessData) => void
+  onClickBusiness: (b: BusinessData) => void,
+  highlightWordIndex?: number
 ): ReactNode[] => {
+  const hl: HighlightState | undefined =
+    highlightWordIndex !== undefined && highlightWordIndex >= 0
+      ? { wordIndex: 0, target: highlightWordIndex }
+      : undefined;
+
   // Normalize bold markers spanning newlines
   const normalized = text.replace(/\*\*([^*]*?)\*\*/gs, (_, inner) =>
     `**${inner.replace(/\n/g, " ")}**`
   );
 
-  // Split into blocks by double newlines (or single newlines for list transitions)
   const lines = normalized.split(/\n/);
   const elements: ReactNode[] = [];
   let currentList: { type: "ul" | "ol"; items: string[] } | null = null;
@@ -175,7 +245,7 @@ const formatAnswer = (
       if (text) {
         elements.push(
           <p key={`p-${blockIdx}`} className="mb-3 last:mb-0 leading-[1.8]">
-            {parseInline(text, businesses, onClickBusiness, `p-${blockIdx}`)}
+            {parseInline(text, businesses, onClickBusiness, `p-${blockIdx}`, hl)}
           </p>
         );
         blockIdx++;
@@ -194,7 +264,7 @@ const formatAnswer = (
         <Tag key={`list-${blockIdx}`} className={listClass}>
           {currentList.items.map((item, i) => (
             <li key={i} className="leading-[1.8]">
-              {parseInline(item, businesses, onClickBusiness, `li-${blockIdx}-${i}`)}
+              {parseInline(item, businesses, onClickBusiness, `li-${blockIdx}-${i}`, hl)}
             </li>
           ))}
         </Tag>
@@ -207,14 +277,12 @@ const formatAnswer = (
   for (const line of lines) {
     const trimmed = line.trim();
 
-    // Empty line = paragraph break
     if (!trimmed) {
       flushList();
       flushParagraph();
       continue;
     }
 
-    // Unordered list item: - or •
     const ulMatch = trimmed.match(/^[-•]\s+(.+)$/);
     if (ulMatch) {
       flushParagraph();
@@ -224,7 +292,6 @@ const formatAnswer = (
       continue;
     }
 
-    // Ordered list item: 1. or 1)
     const olMatch = trimmed.match(/^\d+[.)]\s+(.+)$/);
     if (olMatch) {
       flushParagraph();
@@ -234,7 +301,6 @@ const formatAnswer = (
       continue;
     }
 
-    // Regular text line
     if (currentList) flushList();
     currentParagraph.push(trimmed);
   }
@@ -245,7 +311,7 @@ const formatAnswer = (
   return elements;
 };
 
-const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnswerReady }: AISearchAnswerProps) => {
+const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnswerReady, highlightWordIndex }: AISearchAnswerProps) => {
   const { language } = useLanguage();
   const [answer, setAnswer] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -413,7 +479,7 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
               <div className={`leading-relaxed text-foreground transition-all duration-200 ${
                 fontSize === -1 ? "text-xs" : fontSize === 1 ? "text-base" : "text-sm"
               }`}>
-                {formatAnswer(answer, businesses, setSelectedBusiness)}
+                {formatAnswer(answer, businesses, setSelectedBusiness, highlightWordIndex)}
               </div>
             )}
           </div>
