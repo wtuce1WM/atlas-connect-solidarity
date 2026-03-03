@@ -3571,7 +3571,16 @@ serve(async (req) => {
                     distance_km: latitude && longitude && b.latitude && b.longitude
                       ? calculateDistance(latitude, longitude, b.latitude, b.longitude) : null,
                   }));
-                  businesses = [...businesses, ...mapped];
+                  // If current results are just "recommended" fallback, replace them entirely with destination results
+                  if (searchLevel === "recommended") {
+                    businesses = mapped;
+                  } else {
+                    businesses = [...businesses, ...mapped];
+                  }
+                  // Upgrade searchLevel to reflect that we found destination-based results
+                  if (searchLevel === "recommended" || searchLevel === "region") {
+                    searchLevel = "destination";
+                  }
                   console.log(`🗺️ Destination enrichment: +${mapped.length} businesses from ${matchedDestinations.length} destination(s) (total: ${businesses.length})`);
                 }
               }
