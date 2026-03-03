@@ -240,22 +240,25 @@ const BadgeManagement = ({ onEditBusiness }: BadgeManagementProps) => {
     return acc;
   }, {});
 
+  const [sectionOpen, setSectionOpen] = useState(false);
+
   return (
-    <div className="space-y-6 mt-10 pt-10 border-t">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">Gestion des Badges associés aux Sous-catégories</h2>
-          <p className="text-muted-foreground">
-            Gérez les badges (service par défaut affiché sur les cartes) et leurs sous-catégories associées.
-          </p>
-        </div>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={() => handleOpenDialog()} className="bg-green-600 hover:bg-green-700 text-white">
-              <Plus className="h-4 w-4 mr-2" />
-              Nouveau badge
-            </Button>
-          </DialogTrigger>
+    <div className="space-y-4 mt-10 pt-10 border-t">
+      <Button variant="outline" className="w-full justify-between" onClick={() => setSectionOpen(!sectionOpen)}>
+        <span className="font-semibold">Gestion des Badges associés aux Sous-catégories ({badges.length})</span>
+        {sectionOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+      </Button>
+
+      {sectionOpen && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-end">
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button onClick={() => handleOpenDialog()} className="bg-green-600 hover:bg-green-700 text-white">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Nouveau badge
+                </Button>
+              </DialogTrigger>
           <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>{editingBadge ? "Modifier le badge" : "Nouveau badge"}</DialogTitle>
@@ -454,7 +457,9 @@ const BadgeManagement = ({ onEditBusiness }: BadgeManagementProps) => {
             )}
           </TableBody>
         </Table>
-      </div>
+        </div>
+        </div>
+      )}
     </div>
   );
 };
