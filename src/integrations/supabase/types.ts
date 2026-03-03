@@ -1635,6 +1635,8 @@ export type Database = {
           hook: string | null
           id: string
           image_url: string | null
+          images: string[] | null
+          internal_notes: string | null
           keywords: string[] | null
           latitude: number | null
           longitude: number | null
@@ -1657,6 +1659,8 @@ export type Database = {
           hook?: string | null
           id?: string
           image_url?: string | null
+          images?: string[] | null
+          internal_notes?: string | null
           keywords?: string[] | null
           latitude?: number | null
           longitude?: number | null
@@ -1679,6 +1683,8 @@ export type Database = {
           hook?: string | null
           id?: string
           image_url?: string | null
+          images?: string[] | null
+          internal_notes?: string | null
           keywords?: string[] | null
           latitude?: number | null
           longitude?: number | null
