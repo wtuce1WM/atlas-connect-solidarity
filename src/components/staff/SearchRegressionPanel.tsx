@@ -30,6 +30,7 @@ interface SynonymEntry {
   synonyms: string[];
   is_active: boolean;
   filters: { subcategory_name?: string; required_service?: string }[];
+  badge_id: string | null;
 }
 
 const SEARCH_TEST_CASES: SearchTestCase[] = [
@@ -124,7 +125,7 @@ const SearchRegressionPanel = () => {
     const load = async () => {
       const { data } = await supabase
         .from("search_synonyms")
-        .select("id, key_word, synonyms, is_active, filters")
+        .select("id, key_word, synonyms, is_active, filters, badge_id")
         .eq("is_active", true)
         .order("key_word");
       if (data) {
@@ -132,6 +133,7 @@ const SearchRegressionPanel = () => {
           ...d,
           synonyms: d.synonyms || [],
           filters: Array.isArray(d.filters) ? d.filters : [],
+          badge_id: d.badge_id || null,
         })));
       }
     };
@@ -205,7 +207,8 @@ const SearchRegressionPanel = () => {
       const duration = Math.round(performance.now() - start);
       const failures: string[] = [];
 
-      if (syn.filters.length > 0 && businesses.length === 0) {
+      const hasFunctionalConfig = syn.filters.length > 0 || !!syn.badge_id;
+      if (hasFunctionalConfig && businesses.length === 0) {
         failures.push("Aucun résultat retourné");
       }
 
@@ -301,7 +304,7 @@ const SearchRegressionPanel = () => {
   const failedCount = Object.values(results).filter((r) => !r.passed).length + Object.values(synonymResults).filter(r => !r.passed).length;
   const totalRun = Object.keys(results).length + Object.keys(synonymResults).length;
 
-  const activeSynonymsWithFilters = synonyms.filter(s => s.filters.length > 0);
+  const activeSynonymsWithFilters = synonyms.filter(s => s.filters.length > 0 || !!s.badge_id);
 
   return (
     <div className="space-y-6">
@@ -357,10 +360,13 @@ const SearchRegressionPanel = () => {
             const isCurrentlyRunning = runningId === `syn-${syn.id}`;
             const subcats = [...new Set(syn.filters.map(f => f.subcategory_name).filter(Boolean))];
             const services = [...new Set(syn.filters.map(f => f.required_service).filter(Boolean))];
-            const filterDesc = [
-              subcats.length > 0 ? subcats.join(", ") : null,
-              services.length > 0 ? services.join(", ") : null,
-            ].filter(Boolean).join(" → ");
+            const isBadgeOnly = syn.badge_id && syn.filters.length === 0;
+            const filterDesc = isBadgeOnly
+              ? "🏷️ Badge"
+              : [
+                  subcats.length > 0 ? subcats.join(", ") : null,
+                  services.length > 0 ? services.join(", ") : null,
+                ].filter(Boolean).join(" → ");
 
             return (
               <TestCaseRow
