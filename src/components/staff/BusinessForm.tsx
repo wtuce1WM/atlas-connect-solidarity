@@ -1009,20 +1009,20 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
         (url: string) => !formData.images.includes(url) && url.includes("/business-images/")
       );
       if (removedImages.length > 0) {
-        // Check which removed URLs are still used by other businesses
-        const { data: otherBusinesses } = await supabase
-          .from("businesses")
-          .select("id, images, logo_url, logo_2_url")
-          .neq("id", businessId!);
-        
-        const allOtherUrls = new Set<string>();
-        (otherBusinesses || []).forEach((b: any) => {
-          if (b.images) b.images.forEach((u: string) => allOtherUrls.add(u));
-          if (b.logo_url) allOtherUrls.add(b.logo_url);
-          if (b.logo_2_url) allOtherUrls.add(b.logo_2_url);
-        });
-
-        const safeToDelete = removedImages.filter((url: string) => !allOtherUrls.has(url));
+        // Check each removed image individually to avoid loading all businesses
+        const safeToDelete: string[] = [];
+        for (const url of removedImages) {
+          // Check if any other business references this URL in images, logo_url, or logo_2_url
+          const { data: refs } = await supabase
+            .from("businesses")
+            .select("id")
+            .neq("id", businessId!)
+            .or(`logo_url.eq.${url},logo_2_url.eq.${url},images.cs.{"${url}"}`)
+            .limit(1);
+          if (!refs || refs.length === 0) {
+            safeToDelete.push(url);
+          }
+        }
         if (safeToDelete.length > 0) {
           const filePaths = safeToDelete
             .map((url: string) => {
