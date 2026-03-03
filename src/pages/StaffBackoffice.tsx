@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Plus, Search, Edit, Trash2, Eye, EyeOff, Building2, Users, Folder, MapPin, Copy, Star, UserCheck, Award, Gem, AlertTriangle, LayoutDashboard, Crown, CheckCircle, Settings2, ArrowLeft, ClipboardList, Wrench } from "lucide-react";
+import { LogOut, Plus, Search, Edit, Trash2, Eye, EyeOff, Building2, Users, Folder, MapPin, Copy, Star, UserCheck, Award, Gem, AlertTriangle, LayoutDashboard, Crown, CheckCircle, Settings2, ArrowLeft, ClipboardList, Wrench, Key } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import BusinessForm from "@/components/staff/BusinessForm";
 import BusinessTable from "@/components/staff/BusinessTable";
@@ -28,6 +28,7 @@ import StaffDashboard from "@/components/staff/StaffDashboard";
 import BusinessOverviewTab from "@/components/staff/BusinessOverviewTab";
 import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
 import ServiceManagement from "@/components/staff/ServiceManagement";
+import KeywordManagement from "@/components/staff/KeywordManagement";
 
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -355,6 +356,10 @@ const StaffBackoffice = () => {
               <TabsTrigger value="services-list" className="gap-2">
                 <Wrench className="h-4 w-4" />
                 Services
+              </TabsTrigger>
+              <TabsTrigger value="keywords-list" className="gap-2">
+                <Key className="h-4 w-4" />
+                Mots-clés
               </TabsTrigger>
               <TabsTrigger value="kp-groups" className="gap-2">
                 <Crown className="h-4 w-4" />
@@ -690,6 +695,10 @@ const StaffBackoffice = () => {
 
             <TabsContent value="services-list">
               <ServiceManagement />
+            </TabsContent>
+
+            <TabsContent value="keywords-list">
+              <KeywordManagement />
             </TabsContent>
 
 
