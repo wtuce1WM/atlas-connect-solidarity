@@ -31,12 +31,21 @@ interface KnowledgeEntry {
   destination_name?: string | null;
   point_of_interest_id: string | null;
   poi_name?: string | null;
+  external_urls_title?: string | null;
+  external_urls?: ExternalUrl[];
+}
+
+interface ExternalUrl {
+  name: string;
+  logo_url: string;
+  url: string;
 }
 
 interface KnowledgeBaseManagementProps {
   categories: string[];
   newEntryLabel?: string;
   emptyLabel?: string;
+  showExternalUrls?: boolean;
 }
 
 /* ── Reusable autocomplete hook ── */
@@ -111,6 +120,7 @@ const KnowledgeBaseManagement = ({
   categories,
   newEntryLabel = "Nouvelle entrée",
   emptyLabel = "Aucune entrée trouvée",
+  showExternalUrls = false,
 }: KnowledgeBaseManagementProps) => {
   const [entries, setEntries] = useState<KnowledgeEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -148,6 +158,8 @@ const KnowledgeBaseManagement = ({
   const [formDestinationLabel, setFormDestinationLabel] = useState("");
   const [formPoiId, setFormPoiId] = useState<string | null>(null);
   const [formPoiLabel, setFormPoiLabel] = useState("");
+  const [formExternalUrlsTitle, setFormExternalUrlsTitle] = useState("");
+  const [formExternalUrls, setFormExternalUrls] = useState<ExternalUrl[]>([]);
 
   // Search businesses for linking
   useEffect(() => {
@@ -219,6 +231,7 @@ const KnowledgeBaseManagement = ({
     setFormNeighborhoodId(null); setFormNeighborhoodLabel("");
     setFormDestinationId(null); setFormDestinationLabel("");
     setFormPoiId(null); setFormPoiLabel("");
+    setFormExternalUrlsTitle(""); setFormExternalUrls([]);
     setEditingId(null); setShowNew(false);
   };
 
@@ -232,6 +245,8 @@ const KnowledgeBaseManagement = ({
     setFormNeighborhoodId(entry.neighborhood_id); setFormNeighborhoodLabel(entry.neighborhood_name || "");
     setFormDestinationId(entry.destination_id); setFormDestinationLabel(entry.destination_name || "");
     setFormPoiId(entry.point_of_interest_id); setFormPoiLabel(entry.poi_name || "");
+    setFormExternalUrlsTitle(entry.external_urls_title || "");
+    setFormExternalUrls(entry.external_urls || []);
     setShowNew(false);
   };
 
@@ -249,6 +264,8 @@ const KnowledgeBaseManagement = ({
       neighborhood_id: formNeighborhoodId || null,
       destination_id: formDestinationId || null,
       point_of_interest_id: formPoiId || null,
+      external_urls_title: formExternalUrlsTitle.trim() || null,
+      external_urls: formExternalUrls.filter(u => u.name.trim() || u.url.trim()),
       updated_at: new Date().toISOString(),
     };
 
@@ -363,6 +380,73 @@ const KnowledgeBaseManagement = ({
             </div>
 
             <Textarea placeholder="Contenu" value={formContent} onChange={e => setFormContent(e.target.value)} rows={6} />
+
+            {/* External URLs section */}
+            {showExternalUrls && (
+              <Card className="border-dashed">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    🔗 URLs externes
+                  </CardTitle>
+                  <div>
+                    <Input
+                      placeholder="Titre de la section URLs (ex: Sources officielles)"
+                      value={formExternalUrlsTitle}
+                      onChange={e => setFormExternalUrlsTitle(e.target.value.slice(0, 120))}
+                      maxLength={120}
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">{formExternalUrlsTitle.length} / 120 caractères</p>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  {formExternalUrls.map((eu, idx) => (
+                    <div key={idx} className="grid grid-cols-[1fr_1fr_1fr_auto] gap-2 items-center">
+                      <Input
+                        placeholder="Nom"
+                        value={eu.name}
+                        onChange={e => {
+                          const updated = [...formExternalUrls];
+                          updated[idx] = { ...updated[idx], name: e.target.value };
+                          setFormExternalUrls(updated);
+                        }}
+                        className="h-8 text-sm"
+                      />
+                      <Input
+                        placeholder="URL du logo"
+                        value={eu.logo_url}
+                        onChange={e => {
+                          const updated = [...formExternalUrls];
+                          updated[idx] = { ...updated[idx], logo_url: e.target.value };
+                          setFormExternalUrls(updated);
+                        }}
+                        className="h-8 text-sm"
+                      />
+                      <Input
+                        placeholder="URL"
+                        value={eu.url}
+                        onChange={e => {
+                          const updated = [...formExternalUrls];
+                          updated[idx] = { ...updated[idx], url: e.target.value };
+                          setFormExternalUrls(updated);
+                        }}
+                        className="h-8 text-sm"
+                      />
+                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => {
+                        setFormExternalUrls(prev => prev.filter((_, i) => i !== idx));
+                      }}>
+                        <Trash2 className="h-3 w-3 text-destructive" />
+                      </Button>
+                    </div>
+                  ))}
+                  {formExternalUrls.length < 20 && (
+                    <Button variant="outline" size="sm" onClick={() => setFormExternalUrls(prev => [...prev, { name: "", logo_url: "", url: "" }])}>
+                      <Plus className="h-3 w-3 mr-1" />
+                      Ajouter une URL ({formExternalUrls.length}/20)
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            )}
             <div>
               <label className="text-sm font-medium text-muted-foreground mb-1 block">📝 Notes personnelles</label>
               <RichTextEditor content={formNotes} onChange={setFormNotes} placeholder="Liens sources, observations…" maxHeight="300px" />
@@ -428,6 +512,9 @@ const KnowledgeBaseManagement = ({
                       {geoLinkBadge(entry.destination_name, "🗺️")}
                       {geoLinkBadge(entry.poi_name, "🏛️")}
                       {!entry.is_active && <Badge variant="destructive" className="text-xs">Désactivé</Badge>}
+                      {entry.external_urls && entry.external_urls.length > 0 && (
+                        <Badge variant="outline" className="text-xs">🔗 {entry.external_urls.length} URL{entry.external_urls.length > 1 ? 's' : ''}</Badge>
+                      )}
                     </div>
                     <div className={`text-sm text-muted-foreground prose prose-sm max-w-none ${expandedIds.has(entry.id) ? '' : 'line-clamp-3'}`} dangerouslySetInnerHTML={{ __html: entry.content }} />
                     {entry.notes && (

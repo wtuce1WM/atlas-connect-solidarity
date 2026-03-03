@@ -1240,6 +1240,8 @@ export type Database = {
           content: string
           created_at: string
           destination_id: string | null
+          external_urls: Json | null
+          external_urls_title: string | null
           id: string
           is_active: boolean
           neighborhood_id: string | null
@@ -1257,6 +1259,8 @@ export type Database = {
           content: string
           created_at?: string
           destination_id?: string | null
+          external_urls?: Json | null
+          external_urls_title?: string | null
           id?: string
           is_active?: boolean
           neighborhood_id?: string | null
@@ -1274,6 +1278,8 @@ export type Database = {
           content?: string
           created_at?: string
           destination_id?: string | null
+          external_urls?: Json | null
+          external_urls_title?: string | null
           id?: string
           is_active?: boolean
           neighborhood_id?: string | null
