@@ -2001,9 +2001,9 @@ const LocationManagement = () => {
                       ))}
                     </div>
                     <Select
-                      value=""
+                      value={undefined}
                       onValueChange={(value) => {
-                        if (!destinationForm.regions.includes(value)) {
+                        if (value && !destinationForm.regions.includes(value)) {
                           setDestinationForm(prev => ({ ...prev, regions: [...prev.regions, value] }));
                         }
                       }}
