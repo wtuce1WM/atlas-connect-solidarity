@@ -1271,6 +1271,48 @@ serve(async (req) => {
         searchLevel = "exact";
         serviceShortcutActivated = true;
         console.log(`⚡ Synonym filters complete: ${businesses.length} results — skipping FTS chain`);
+        
+        // ── POST-FILTER: intersect additional services detected in remaining query words ──
+        if (businesses.length > 1 && effectiveQuery) {
+          const pairedConsumedWords = new Set<string>();
+          for (const f of matchedSynonymFilters) {
+            if (f.subcategory_name) for (const w of f.subcategory_name.toLowerCase().split(/[\s-]+/)) pairedConsumedWords.add(w);
+            if (f.required_service) for (const w of f.required_service.toLowerCase().split(/[\s-]+/)) pairedConsumedWords.add(w);
+          }
+          // Also consume synonym key words
+          for (const [key, filters] of Object.entries(synonymFilters)) {
+            if (filters === matchedSynonymFilters || JSON.stringify(filters) === JSON.stringify(matchedSynonymFilters)) {
+              for (const w of key.toLowerCase().split(/\s+/)) pairedConsumedWords.add(w);
+            }
+          }
+          const pairedRemainingWords = effectiveQuery.toLowerCase().split(/\s+/)
+            .filter(w => w.length > 1 && !FRENCH_STOP_WORDS.has(w) && !NOISE_ADJECTIVES.has(w) && !pairedConsumedWords.has(w));
+          if (pairedRemainingWords.length > 0) {
+            console.log(`🔍 Paired post-filter: remaining words [${pairedRemainingWords.join(", ")}]`);
+            const stripPlR = (w: string): string => { if (w.endsWith("aux")) return w.slice(0, -3) + "al"; if (w.endsWith("s")) return w.slice(0, -1); return w; };
+            const normR = (w: string): string => stripAccentsGlobal(stripPlR(w));
+            const { data: allSvcs } = await supabase.from("services").select("name_fr");
+            if (allSvcs) {
+              const extraServices: string[] = [];
+              for (const svc of allSvcs) {
+                const svcNorm = stripAccentsGlobal(svc.name_fr.toLowerCase().replace(/-/g, " "));
+                const svcCW = svcNorm.split(/\s+/).filter((w: string) => w.length > 1 && !FRENCH_STOP_WORDS.has(w));
+                if (svcCW.length > 0 && svcCW.every((sw: string) => pairedRemainingWords.some(rw => normR(rw) === sw || normR(rw) === stripPlR(sw)))) {
+                  extraServices.push(svc.name_fr);
+                }
+              }
+              const uniqueExtra = [...new Map(extraServices.map(n => [stripAccentsGlobal(n.toLowerCase().replace(/-/g, " ")), n])).values()];
+              if (uniqueExtra.length > 0) {
+                const bc = businesses.length;
+                businesses = businesses.filter((b: any) => {
+                  const bSvcs = ((b.services || []) as string[]).map((s: string) => stripAccentsGlobal(s.toLowerCase().replace(/-/g, " ")));
+                  return uniqueExtra.every(req => bSvcs.some(bs => bs === stripAccentsGlobal(req.toLowerCase().replace(/-/g, " "))));
+                });
+                console.log(`🔍 Paired post-filter: required [${uniqueExtra.join(", ")}] → ${bc} → ${businesses.length}`);
+              }
+            }
+          }
+        }
       }
     } else if (synonymLinkedServices.length > 0) {
       // ── LEGACY: flat arrays mode (backward compat for entries without filters) ──
@@ -1311,6 +1353,78 @@ serve(async (req) => {
         serviceShortcutActivated = true;
         console.log(`⚡ Service shortcut complete: ${businesses.length} results — skipping FTS chain`);
       }
+
+      // ── POST-FILTER: intersect additional services detected in query ──
+      // e.g. "tapis sur mesure" → synonym matched "tapis" (service "Tapis"),
+      // but "sur mesure" also matches service "Sur-mesure" / "Sur mesure" → require BOTH
+      if (serviceShortcutActivated && businesses.length > 1 && effectiveQuery) {
+        // Find query words NOT consumed by the synonym match
+        const synKeyLower = Object.keys(synonyms).find(k => {
+          const kLower = k.toLowerCase();
+          const synVals = synonyms[k] || [];
+          const allTerms = [kLower, ...synVals.map(v => v.toLowerCase())];
+          const qLower = effectiveQuery.toLowerCase();
+          const qWords = qLower.split(/\s+/);
+          return allTerms.some(t => t.includes(" ") ? qLower.includes(t) : qWords.includes(t));
+        });
+        const consumedWords = new Set<string>();
+        if (synKeyLower) {
+          for (const w of synKeyLower.toLowerCase().split(/\s+/)) consumedWords.add(w);
+          for (const sv of (synonyms[synKeyLower] || [])) {
+            for (const w of sv.toLowerCase().split(/\s+/)) consumedWords.add(w);
+          }
+        }
+        // Also consume the service names themselves
+        for (const sn of synonymLinkedServices) {
+          for (const w of sn.toLowerCase().split(/[\s-]+/)) consumedWords.add(w);
+        }
+        const remainingWords = effectiveQuery.toLowerCase().split(/\s+/)
+          .filter(w => w.length > 1 && !FRENCH_STOP_WORDS.has(w) && !NOISE_ADJECTIVES.has(w) && !consumedWords.has(w));
+        
+        if (remainingWords.length > 0) {
+          console.log(`🔍 Post-filter: remaining query words after shortcut: [${remainingWords.join(", ")}]`);
+          // Check if remaining words match any service name in the DB
+          const stripPlRemainder = (w: string): string => {
+            if (w.endsWith("aux")) return w.slice(0, -3) + "al";
+            if (w.endsWith("s")) return w.slice(0, -1);
+            return w;
+          };
+          const normRemaining = (w: string): string => stripAccentsGlobal(stripPlRemainder(w));
+          
+          // Fetch all services to check against remaining words
+          const { data: allServices } = await supabase.from("services").select("name_fr");
+          if (allServices) {
+            const additionalServices: string[] = [];
+            for (const svc of allServices) {
+              const svcNameLower = svc.name_fr.toLowerCase();
+              const svcNameNorm = stripAccentsGlobal(svcNameLower.replace(/-/g, " "));
+              const svcContentWords = svcNameNorm.split(/\s+/).filter((w: string) => w.length > 1 && !FRENCH_STOP_WORDS.has(w));
+              if (svcContentWords.length === 0) continue;
+              // Check if ALL content words of this service name appear in remainingWords
+              const allMatched = svcContentWords.every((sw: string) =>
+                remainingWords.some(rw => normRemaining(rw) === sw || normRemaining(rw) === stripPlRemainder(sw))
+              );
+              if (allMatched) {
+                additionalServices.push(svc.name_fr);
+              }
+            }
+            // Deduplicate by normalized name (e.g. "Sur-mesure" and "Sur mesure")
+            const uniqueAdditional = [...new Map(additionalServices.map(n => [stripAccentsGlobal(n.toLowerCase().replace(/-/g, " ")), n])).values()];
+            if (uniqueAdditional.length > 0) {
+              const beforeCount = businesses.length;
+              businesses = businesses.filter((b: any) => {
+                const bServices = ((b.services || []) as string[]).map((s: string) => stripAccentsGlobal(s.toLowerCase().replace(/-/g, " ")));
+                return uniqueAdditional.every(req => {
+                  const reqNorm = stripAccentsGlobal(req.toLowerCase().replace(/-/g, " "));
+                  return bServices.some(bs => bs === reqNorm);
+                });
+              });
+              console.log(`🔍 Post-filter: required additional services [${uniqueAdditional.join(", ")}] → ${beforeCount} → ${businesses.length} results`);
+            }
+          }
+        }
+      }
+
       // Legacy: merge subcategories
       if (synonymLinkedSubcategories.length > 0) {
         const existingIds2 = new Set(businesses.map(b => b.id));
