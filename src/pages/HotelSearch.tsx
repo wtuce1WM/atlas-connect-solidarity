@@ -10,42 +10,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Search, Hotel, Star, MapPin, Calendar, Users, BedDouble } from "lucide-react";
 import { toast } from "sonner";
+import HotelDetailDialog, { type HotelResult } from "@/components/HotelDetailDialog";
 
-interface HotelOffer {
-  hotel: {
-    hotelId: string;
-    name: string;
-    cityCode: string;
-    latitude?: number;
-    longitude?: number;
-    rating?: string;
-  };
-  available: boolean;
-  offers?: {
-    id: string;
-    checkInDate: string;
-    checkOutDate: string;
-    room: {
-      type: string;
-      typeEstimated?: {
-        category?: string;
-        beds?: number;
-        bedType?: string;
-      };
-      description?: { text?: string };
-    };
-    guests?: { adults: number };
-    price: {
-      currency: string;
-      base?: string;
-      total: string;
-    };
-    policies?: {
-      cancellations?: { description?: { text?: string }; deadline?: string }[];
-      paymentType?: string;
-    };
-  }[];
-}
+// HotelOffer type is now in HotelDetailDialog
 
 const MOROCCAN_CITIES = [
   { code: "RAK", name: "Marrakech" },
@@ -70,8 +37,9 @@ const HotelSearch = () => {
   const [stars, setStars] = useState("");
   const [currency, setCurrency] = useState("EUR");
   const [loading, setLoading] = useState(false);
-  const [results, setResults] = useState<HotelOffer[]>([]);
+  const [results, setResults] = useState<HotelResult[]>([]);
   const [searchDone, setSearchDone] = useState(false);
+  const [selectedHotel, setSelectedHotel] = useState<HotelResult | null>(null);
 
   // Default dates: tomorrow + day after
   const getDefaultDates = () => {
@@ -114,7 +82,7 @@ const HotelSearch = () => {
       if (error) throw new Error(error.message);
       if (data?.error) throw new Error(data.error);
 
-      const hotels: HotelOffer[] = (data?.data || []).map((h: any) => ({
+      const hotels: HotelResult[] = (data?.data || []).map((h: any) => ({
         hotel: {
           hotelId: h.hotelId,
           name: h.name,
@@ -122,6 +90,10 @@ const HotelSearch = () => {
           latitude: h.latitude,
           longitude: h.longitude,
           rating: h.rating,
+          address: h.address,
+          city: h.city,
+          mainImage: h.mainImage,
+          amenities: h.amenities,
         },
         available: h.available,
         offers: h.offers,
@@ -362,7 +334,10 @@ const HotelSearch = () => {
                 if (!bestOffer) return null;
 
                 return (
-                  <Card key={hotel.hotel.hotelId} className="hover:shadow-lg transition-shadow">
+                  <Card key={hotel.hotel.hotelId} className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setSelectedHotel(hotel)}>
+                    {hotel.hotel.mainImage && (
+                      <img src={hotel.hotel.mainImage} alt={hotel.hotel.name} className="w-full h-36 object-cover rounded-t-lg" />
+                    )}
                     <CardHeader className="pb-3">
                       <div className="flex items-start justify-between">
                         <CardTitle className="text-lg leading-tight">
@@ -441,6 +416,13 @@ const HotelSearch = () => {
             </div>
           </div>
         )}
+
+        <HotelDetailDialog
+          hotel={selectedHotel}
+          open={!!selectedHotel}
+          onOpenChange={(open) => !open && setSelectedHotel(null)}
+          formatPrice={formatPrice}
+        />
       </main>
 
       <Footer />
