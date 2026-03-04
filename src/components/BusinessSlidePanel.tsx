@@ -552,10 +552,10 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
    const hasVideo = !!business.video_1_url && !videoError;
    const hasMatterport = !!business.matterport_url;
    const hasFlipbook = !!business.flipbook_url;
-   const mediaCount = (hasVideo ? 1 : 0) + images.length + (hasMatterport ? 1 : 0) + (hasFlipbook ? 1 : 0);
+   const mediaCount = (hasVideo ? 1 : 0) + images.length + (hasMatterport ? 1 : 0);
    const videoOffset = hasVideo ? 1 : 0;
    const matterportIndex = hasMatterport ? (hasVideo ? 1 : 0) + images.length : -1;
-   const flipbookIndex = hasFlipbook ? mediaCount - 1 : -1;
+   const flipbookIndex = -1; // flipbook now opened via doc overlay, not in carousel
   const ratingSourcesForCalc = collectRatingSources(business);
   const computedOn20 = computeWeightedRatingOn20(ratingSourcesForCalc);
   const avgOn20 = business.rating ?? computedOn20;
@@ -876,17 +876,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                   <span className="text-sm font-semibold text-primary">Visite 3D</span>
                 </div>
               )}
-              {/* Flipbook tile */}
-              {hasFlipbook && (
-                <div
-                  className="cursor-pointer overflow-hidden rounded-lg flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-muted to-muted/60 hover:from-primary/10 hover:to-primary/5 transition-colors mb-1.5 break-inside-avoid"
-                  style={{ aspectRatio: "16/10" }}
-                  onClick={() => { setCurrentImageIndex(flipbookIndex); setIsLightboxOpen(true); }}
-                >
-                  <BookOpen className="h-10 w-10 text-primary" />
-                  <span className="text-sm font-semibold text-primary">Flipbook</span>
-                </div>
-              )}
+              {/* Flipbook tile removed — now accessible via document icons */}
           </div>
         ) : (
         <>
@@ -945,12 +935,6 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                     <Box className="h-12 w-12 text-primary" />
                     <span className="text-sm font-semibold text-primary">Visite 3D</span>
                     <span className="text-xs text-muted-foreground">Cliquez pour lancer</span>
-                  </div>
-                ) : hasFlipbook && currentImageIndex === flipbookIndex ? (
-                  <div className="w-full h-full bg-gradient-to-br from-muted to-muted/60 flex flex-col items-center justify-center gap-3">
-                    <BookOpen className="h-12 w-12 text-primary" />
-                    <span className="text-sm font-semibold text-primary">Flipbook</span>
-                    <span className="text-xs text-muted-foreground">Cliquez pour consulter</span>
                   </div>
                 ) : (
                   <img
@@ -1881,17 +1865,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
             <X className="h-5 w-5" />
             <span>Fermer</span>
           </button>
-           {hasFlipbook && currentImageIndex === flipbookIndex ? (
-             <iframe
-               src={getFlipbookEmbedUrl(business.flipbook_url!)}
-               className="w-[95%] h-[90vh]"
-               allow="clipboard-write; fullscreen"
-               allowFullScreen
-               frameBorder="0"
-               title={`Flipbook - ${business.name}`}
-               onClick={(e: any) => e.stopPropagation()}
-             />
-           ) : hasMatterport && currentImageIndex === matterportIndex ? (
+           {hasMatterport && currentImageIndex === matterportIndex ? (
               <iframe
                 src={business.matterport_url!}
                 className="w-[95%] h-[90vh]"
