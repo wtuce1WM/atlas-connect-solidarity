@@ -188,6 +188,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   const [articlePreview, setArticlePreview] = useState<{ title: string; summary: string; screenshot: string; url: string; name: string; publishedDate?: string } | null>(null);
   const [isLoadingArticle, setIsLoadingArticle] = useState(false);
   
+  const [businessDocs, setBusinessDocs] = useState<{ id: string; type: string; url: string; name: string | null; icon: string | null; sort_order: number }[]>([]);
   const [reviewTexts, setReviewTexts] = useState<{ source: string; author_name: string | null; rating: number | null; text: string | null; relative_time: string | null }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -513,6 +514,15 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
         .eq("business_id", businessId)
         .maybeSingle();
       setLiteApiHotelId(mapping?.liteapi_hotel_id || null);
+
+      // Fetch business documents (menus, flipbooks)
+      const { data: docs } = await supabase
+        .from("business_documents")
+        .select("id, type, url, name, icon, sort_order")
+        .eq("business_id", businessId)
+        .order("sort_order", { ascending: true })
+        .limit(4);
+      setBusinessDocs(docs || []);
 
       setIsLoading(false);
     };
@@ -1317,6 +1327,40 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                       </div>
                     </div>
                   </div>
+                </div>
+              )}
+
+              {/* Document icons (menus, flipbooks) — max 4 */}
+              {businessDocs.length > 0 && (
+                <div className="col-span-2 flex justify-center gap-4 mt-1">
+                  {businessDocs.slice(0, 4).map((doc) => {
+                    const iconSrc = doc.icon
+                      ? `/images/doc-icons/${doc.icon}.avif`
+                      : doc.type === "flipbook"
+                        ? `/images/doc-icons/icon_menu.png`
+                        : `/images/doc-icons/icon_menu.png`;
+                    const fallbackSrc = `/images/doc-icons/icon_menu.png`;
+                    return (
+                      <a
+                        key={doc.id}
+                        href={doc.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex flex-col items-center gap-1 group"
+                        title={doc.name || (doc.type === "flipbook" ? "Flipbook" : "Menu")}
+                      >
+                        <img
+                          src={iconSrc}
+                          alt={doc.name || doc.type}
+                          className="h-10 w-10 object-contain rounded-md group-hover:scale-110 transition-transform"
+                          onError={(e) => { (e.target as HTMLImageElement).src = fallbackSrc; }}
+                        />
+                        <span className="text-[10px] text-muted-foreground text-center leading-tight max-w-[60px] truncate">
+                          {doc.name || (doc.type === "flipbook" ? "Flipbook" : "Menu")}
+                        </span>
+                      </a>
+                    );
+                  })}
                 </div>
               )}
 
