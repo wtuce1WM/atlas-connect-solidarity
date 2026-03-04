@@ -3005,6 +3005,30 @@ serve(async (req) => {
                 return false;
               }
             }
+            // Also check: if all services were triggered by the same query word(s),
+            // they are variants, not distinct concepts.
+            // e.g. "tapis" triggers both "Tapis" (name match) and "Artisanat marocain" (keyword match)
+            if (serviceMatchWordsForInjection.length > 0) {
+              const triggerWordsNorm = serviceMatchWordsForInjection.map(w => normalizeWordKw(w.toLowerCase()));
+              // Check if every service name or its keywords relate to the same trigger words
+              const allFromSameTrigger = detectedServices.every(ds => {
+                const dsNorm = normalizeWordKw(ds.toLowerCase());
+                // Service name matches a trigger word
+                if (triggerWordsNorm.some(tw => dsNorm.includes(tw) || tw.includes(dsNorm))) return true;
+                // Service was matched via keyword from the same trigger
+                const svcData = matchingServices.find((s: any) => s.name_fr === ds);
+                if (svcData?.keywords?.length > 0) {
+                  return svcData.keywords.some((k: string) => 
+                    triggerWordsNorm.some(tw => normalizeWordKw(k.toLowerCase()) === tw || normalizeWordKw(k.toLowerCase()).includes(tw))
+                  );
+                }
+                return false;
+              });
+              if (allFromSameTrigger) {
+                console.log(`Services all triggered by same words [${serviceMatchWordsForInjection.join(", ")}] → treating as variants (OR)`);
+                return false;
+              }
+            }
             return true;
           })();
 
