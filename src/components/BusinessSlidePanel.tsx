@@ -718,7 +718,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
       )}
       {/* PDF Overlay */}
       {pdfOverlay && (
-        <div className="absolute inset-x-0 top-0 bottom-16 z-[60] bg-background flex flex-col animate-fade-in overflow-hidden">
+        <div className="absolute inset-0 z-[60] bg-background flex flex-col animate-fade-in overflow-hidden">
           <div className="flex items-center justify-between px-3 py-2 border-b bg-background">
             <span className="text-sm font-semibold truncate">{pdfOverlay.name}</span>
             <div className="flex items-center gap-2">
@@ -741,11 +741,13 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
               </button>
             </div>
           </div>
-          <iframe
-            src={`https://docs.google.com/gview?url=${encodeURIComponent(pdfOverlay.url)}&embedded=true`}
-            className="flex-1 w-full border-0"
-            title={pdfOverlay.name}
-          />
+          <div className="flex-1 pb-16 bg-background">
+            <iframe
+              src={`https://docs.google.com/gview?url=${encodeURIComponent(pdfOverlay.url)}&embedded=true`}
+              className="h-full w-full border-0"
+              title={pdfOverlay.name}
+            />
+          </div>
         </div>
       )}
       {/* Portal contact icons into center of fixed bar */}
