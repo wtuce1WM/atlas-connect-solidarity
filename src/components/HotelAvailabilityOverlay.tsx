@@ -264,45 +264,40 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, backgroundImag
         )}
 
         {results && results.length > 0 && (
-          <div className="space-y-2">
+          <div>
             <p className="text-xs font-semibold text-white/70 mb-3">
               {results.length} {language === "en" ? "room(s) available" : "chambre(s) disponible(s)"}
             </p>
+            <div className="grid grid-cols-2 gap-2">
             {results.map((offer, idx) => {
               const roomName = titleCase(
                 offer.room?.typeEstimated?.category?.replace(/_/g, " ") || offer.room?.type || "Standard"
               );
               return (
-                <div key={offer.id || idx} className="bg-white/15 backdrop-blur-md rounded-xl p-3 space-y-1 border border-white/10">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-white flex items-center gap-1.5">
-                        <BedDouble className="h-3.5 w-3.5 shrink-0 text-white/60" />
-                        {roomName}
-                      </p>
-                      {offer.room?.description?.text && offer.room.description.text !== offer.room?.typeEstimated?.category && (
-                        <p className="text-xs text-white/60 mt-0.5 line-clamp-2">
-                          {offer.room.description.text}
-                        </p>
-                      )}
-                    </div>
-                    <div className="text-right shrink-0 ml-2">
-                      <p className="text-lg font-bold text-white">
-                        {formatPrice(offer.price.total, offer.price.currency)}
-                      </p>
-                      <p className="text-[10px] text-white/50">
-                        {language === "en" ? "total stay" : "séjour total"}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex gap-1.5 flex-wrap mt-1">
+                <div key={offer.id || idx} className="bg-white/15 backdrop-blur-md rounded-xl p-2.5 space-y-1 border border-white/10">
+                  <p className="text-xs font-semibold text-white flex items-center gap-1">
+                    <BedDouble className="h-3 w-3 shrink-0 text-white/60" />
+                    <span className="truncate">{roomName}</span>
+                  </p>
+                  {offer.room?.description?.text && offer.room.description.text !== offer.room?.typeEstimated?.category && (
+                    <p className="text-[10px] text-white/60 line-clamp-2">
+                      {offer.room.description.text}
+                    </p>
+                  )}
+                  <p className="text-base font-bold text-white">
+                    {formatPrice(offer.price.total, offer.price.currency)}
+                  </p>
+                  <p className="text-[10px] text-white/50">
+                    {language === "en" ? "total stay" : "séjour total"}
+                  </p>
+                  <div className="flex gap-1 flex-wrap">
                     {offer.policies?.boardName && (
-                      <Badge variant="outline" className="text-[10px] border-white/30 text-white/70">
+                      <Badge variant="outline" className="text-[10px] border-white/30 text-white/70 px-1.5 py-0">
                         {offer.policies.boardName}
                       </Badge>
                     )}
                     {offer.policies?.paymentType && (
-                      <Badge variant="outline" className="text-[10px] border-white/30 text-white/70">
+                      <Badge variant="outline" className="text-[10px] border-white/30 text-white/70 px-1.5 py-0">
                         {offer.policies.paymentType === "deposit"
                           ? (language === "en" ? "Deposit" : "Acompte")
                           : offer.policies.paymentType}
@@ -312,6 +307,7 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, backgroundImag
                 </div>
               );
             })}
+            </div>
           </div>
         )}
       </div>
