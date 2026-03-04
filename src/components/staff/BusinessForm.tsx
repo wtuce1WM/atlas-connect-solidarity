@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, ArrowDown, Save, Award, Trash2, MapPinned, AlertCircle, Copy, ExternalLink, Globe, Star, Plus, Merge, ArrowRight, Loader2 } from "lucide-react";
+import { ArrowLeft, ArrowDown, Save, Award, Trash2, MapPinned, AlertCircle, Copy, ExternalLink, Globe, Star, Plus, Merge, ArrowRight, Loader2, FileText, X, Upload } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import type { Tables } from "@/integrations/supabase/types";
 import RichTextEditor from "./RichTextEditor";
@@ -2397,17 +2397,62 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 </select>
               </div>
               <div className="flex-1 flex items-center gap-1">
-                <Input
-                  value={doc.url}
-                  onChange={(e) => setMenuDocs(prev => prev.map((d, i) => i === idx ? { ...d, url: e.target.value } : d))}
-                  placeholder="https://..."
-                  className="flex-1"
-                />
-                {doc.url && (
-                  <a href={doc.url} target="_blank" rel="noopener noreferrer" className="shrink-0 text-muted-foreground hover:text-primary" title="Ouvrir le lien">
-                    <ExternalLink className="h-4 w-4" />
-                  </a>
+                {doc.url && doc.url.includes('/business-images/') ? (
+                  <div className="flex-1 flex items-center gap-1 h-10 px-3 rounded-md border border-input bg-muted text-sm truncate">
+                    <FileText className="h-4 w-4 shrink-0 text-primary" />
+                    <span className="truncate">{doc.url.split('/').pop()}</span>
+                    <a href={doc.url} target="_blank" rel="noopener noreferrer" className="shrink-0 text-muted-foreground hover:text-primary" title="Ouvrir le PDF">
+                      <ExternalLink className="h-3.5 w-3.5" />
+                    </a>
+                    <Button type="button" variant="ghost" size="sm" className="shrink-0 px-1 h-6 text-destructive hover:text-destructive" title="Supprimer le PDF" onClick={async () => {
+                      try {
+                        const parts = doc.url.split('/business-images/');
+                        if (parts.length > 1) await supabase.storage.from('business-images').remove([parts[1]]);
+                      } catch {}
+                      setMenuDocs(prev => prev.map((d, i) => i === idx ? { ...d, url: '' } : d));
+                    }}>
+                      <X className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                ) : (
+                  <>
+                    <Input
+                      value={doc.url}
+                      onChange={(e) => setMenuDocs(prev => prev.map((d, i) => i === idx ? { ...d, url: e.target.value } : d))}
+                      placeholder="https://... ou uploadez un PDF"
+                      className="flex-1"
+                    />
+                    {doc.url && (
+                      <a href={doc.url} target="_blank" rel="noopener noreferrer" className="shrink-0 text-muted-foreground hover:text-primary" title="Ouvrir le lien">
+                        <ExternalLink className="h-4 w-4" />
+                      </a>
+                    )}
+                  </>
                 )}
+                <label className="shrink-0 cursor-pointer" title="Uploader un PDF">
+                  <input
+                    type="file"
+                    accept="application/pdf"
+                    className="hidden"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      if (file.type !== 'application/pdf') { toast({ variant: 'destructive', title: 'Seuls les PDF sont acceptés' }); return; }
+                      if (file.size > 10 * 1024 * 1024) { toast({ variant: 'destructive', title: 'Max 10MB' }); return; }
+                      const fileName = `${business?.id || 'new'}-menu-${Date.now()}-${Math.random().toString(36).substring(7)}.pdf`;
+                      const filePath = `businesses/pdfs/${fileName}`;
+                      const { error } = await supabase.storage.from('business-images').upload(filePath, file);
+                      if (error) { toast({ variant: 'destructive', title: "Erreur d'upload" }); return; }
+                      const { data } = supabase.storage.from('business-images').getPublicUrl(filePath);
+                      if (data?.publicUrl) {
+                        setMenuDocs(prev => prev.map((d, i) => i === idx ? { ...d, url: data.publicUrl } : d));
+                        toast({ title: 'PDF uploadé' });
+                      }
+                      e.target.value = '';
+                    }}
+                  />
+                  <Upload className="h-4 w-4 text-muted-foreground hover:text-primary transition-colors" />
+                </label>
               </div>
               <Input
                 value={doc.name}
