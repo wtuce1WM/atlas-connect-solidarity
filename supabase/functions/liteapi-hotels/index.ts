@@ -20,7 +20,8 @@ const CITY_NAMES: Record<string, string> = {
 };
 
 interface SearchParams {
-  cityCode: string;
+  cityCode?: string;
+  hotelIds?: string[];
   checkIn: string;
   checkOut: string;
   adults: number;
@@ -39,12 +40,9 @@ Deno.serve(async (req) => {
     if (!apiKey) throw new Error("LITEAPI_API_KEY not configured");
 
     const params: SearchParams = await req.json();
-    if (!params.cityCode) throw new Error("cityCode is required");
+    if (!params.hotelIds && !params.cityCode) throw new Error("cityCode or hotelIds is required");
     if (!params.checkIn) throw new Error("checkIn is required");
     if (!params.checkOut) throw new Error("checkOut is required");
-
-    const cityName = CITY_NAMES[params.cityCode];
-    if (!cityName) throw new Error(`Unknown city code: ${params.cityCode}`);
 
     const currency = params.currency || "EUR";
     const adultsPerRoom = params.adults || 2;
@@ -61,10 +59,18 @@ Deno.serve(async (req) => {
       currency,
       guestNationality: "MA",
       occupancies,
-      cityName,
-      countryCode: "MA",
       limit: 50,
     };
+
+    // Search by hotelIds if provided, otherwise by city
+    if (params.hotelIds && params.hotelIds.length > 0) {
+      ratesBody.hotelIds = params.hotelIds;
+    } else {
+      const cityName = CITY_NAMES[params.cityCode!];
+      if (!cityName) throw new Error(`Unknown city code: ${params.cityCode}`);
+      ratesBody.cityName = cityName;
+      ratesBody.countryCode = "MA";
+    }
 
     if (params.ratings) {
       const ratingList = params.ratings.split(",").map((r) => parseInt(r.trim()));
