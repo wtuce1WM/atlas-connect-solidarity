@@ -2396,12 +2396,19 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   ))}
                 </select>
               </div>
-              <Input
-                value={doc.url}
-                onChange={(e) => setMenuDocs(prev => prev.map((d, i) => i === idx ? { ...d, url: e.target.value } : d))}
-                placeholder="https://..."
-                className="flex-1"
-              />
+              <div className="flex-1 flex items-center gap-1">
+                <Input
+                  value={doc.url}
+                  onChange={(e) => setMenuDocs(prev => prev.map((d, i) => i === idx ? { ...d, url: e.target.value } : d))}
+                  placeholder="https://..."
+                  className="flex-1"
+                />
+                {doc.url && (
+                  <a href={doc.url} target="_blank" rel="noopener noreferrer" className="shrink-0 text-muted-foreground hover:text-primary" title="Ouvrir le lien">
+                    <ExternalLink className="h-4 w-4" />
+                  </a>
+                )}
+              </div>
               <Input
                 value={doc.name}
                 onChange={(e) => setMenuDocs(prev => prev.map((d, i) => i === idx ? { ...d, name: e.target.value } : d))}
@@ -2448,12 +2455,19 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   ))}
                 </select>
               </div>
-              <Input
-                value={doc.url}
-                onChange={(e) => setFlipbookDocs(prev => prev.map((d, i) => i === idx ? { ...d, url: e.target.value } : d))}
-                placeholder="https://issuu.com/username/docs/document-name"
-                className="flex-1"
-              />
+              <div className="flex-1 flex items-center gap-1">
+                <Input
+                  value={doc.url}
+                  onChange={(e) => setFlipbookDocs(prev => prev.map((d, i) => i === idx ? { ...d, url: e.target.value } : d))}
+                  placeholder="https://issuu.com/username/docs/document-name"
+                  className="flex-1"
+                />
+                {doc.url && (
+                  <a href={doc.url} target="_blank" rel="noopener noreferrer" className="shrink-0 text-muted-foreground hover:text-primary" title="Ouvrir le lien">
+                    <ExternalLink className="h-4 w-4" />
+                  </a>
+                )}
+              </div>
               <Input
                 value={doc.name}
                 onChange={(e) => setFlipbookDocs(prev => prev.map((d, i) => i === idx ? { ...d, name: e.target.value } : d))}
