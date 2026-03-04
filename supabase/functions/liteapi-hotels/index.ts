@@ -65,7 +65,7 @@ Deno.serve(async (req) => {
       occupancies,
       latitude: coords.lat,
       longitude: coords.lng,
-      radius: 30,
+      radius: 30000,
       limit: 50,
     };
 
