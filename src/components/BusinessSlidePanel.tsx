@@ -19,6 +19,7 @@ import SimilarBusinesses from "@/components/SimilarBusinesses";
 import NearbyBusinesses from "@/components/NearbyBusinesses";
 import { Separator } from "@/components/ui/separator";
 import { FacebookIcon, InstagramIcon, LinkedInIcon, YouTubeIcon, TikTokIcon, TwitterIcon, PinterestIcon, VimeoIcon } from "@/components/staff/SocialMediaIcons";
+import BookingOverlay from "@/components/BookingOverlay";
 
 const LANG_FLAGS: Record<string, string> = {
   FR: "🇫🇷", EN: "🇬🇧", ES: "🇪🇸", AR: "🇲🇦", DE: "🇩🇪", IT: "🇮🇹",
@@ -670,39 +671,10 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
       )}
       {/* Booking iframe overlay — fills entire panel below the fixed toolbar */}
       {bookingUrl && isBookingOpen && (
-        <div className="absolute inset-0 z-[60] bg-background flex flex-col animate-fade-in">
-          <div className="flex items-center justify-between px-3 py-2 border-b bg-background">
-            <span className="text-sm font-semibold">Réservation</span>
-            <div className="flex items-center gap-2">
-              <a
-                href={bookingUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs text-primary hover:underline"
-                title="Ouvrir dans un nouvel onglet"
-              >
-                ↗ Nouvel onglet
-              </a>
-              <button
-                onClick={() => setIsBookingOpen(false)}
-                className="p-1 rounded-full hover:bg-muted transition-colors"
-                title="Fermer"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-          </div>
-          <iframe
-            src={bookingUrl}
-            className="flex-1 w-full border-0"
-            allow="payment"
-            title="Réservation"
-            onError={() => {
-              setIsBookingOpen(false);
-              window.open(bookingUrl, '_blank', 'noopener,noreferrer');
-            }}
-          />
-        </div>
+        <BookingOverlay
+          bookingUrl={bookingUrl}
+          onClose={() => setIsBookingOpen(false)}
+        />
       )}
       {/* Portal contact icons into center of fixed bar */}
       {toolbarCenterPortal && createPortal(
