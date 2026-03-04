@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Plus, Search, Edit, Trash2, Eye, EyeOff, Building2, Users, Folder, MapPin, Copy, Star, UserCheck, Award, Gem, AlertTriangle, LayoutDashboard, Crown, CheckCircle, Settings2, ArrowLeft, ClipboardList, Wrench, Key } from "lucide-react";
+import { LogOut, Plus, Search, Edit, Trash2, Eye, EyeOff, Building2, Users, Folder, MapPin, Copy, Star, UserCheck, Award, Gem, AlertTriangle, LayoutDashboard, Crown, CheckCircle, Settings2, ArrowLeft, ClipboardList, Wrench, Key, Hotel } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import BusinessForm from "@/components/staff/BusinessForm";
 import BusinessTable from "@/components/staff/BusinessTable";
@@ -31,6 +31,7 @@ import BusinessOverviewTab from "@/components/staff/BusinessOverviewTab";
 import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
 import ServiceManagement from "@/components/staff/ServiceManagement";
 import KeywordManagement from "@/components/staff/KeywordManagement";
+import HotelMappingManagement from "@/components/staff/HotelMappingManagement";
 
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -376,6 +377,10 @@ const StaffBackoffice = () => {
                 <MapPin className="h-4 w-4" />
                 Pays & Villes
               </TabsTrigger>
+              <TabsTrigger value="hotel-mapping" className="gap-2">
+                <Hotel className="h-4 w-4" />
+                Mapping Hôtels
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="dashboard">
@@ -709,7 +714,9 @@ const StaffBackoffice = () => {
               <KeywordManagement />
             </TabsContent>
 
-
+            <TabsContent value="hotel-mapping">
+              <HotelMappingManagement />
+            </TabsContent>
 
           </Tabs>
         )}

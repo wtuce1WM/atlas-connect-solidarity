@@ -356,7 +356,91 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
     fetchTaxonomy();
   }, []);
 
-  
+/** Inline sub-component to manage LiteAPI hotel mapping for a single business */
+const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
+  const [hotelId, setHotelId] = useState("");
+  const [currentMapping, setCurrentMapping] = useState<string | null>(null);
+  const [loadingMapping, setLoadingMapping] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    const fetch = async () => {
+      setLoadingMapping(true);
+      const { data } = await supabase
+        .from("hotel_api_mappings")
+        .select("liteapi_hotel_id")
+        .eq("business_id", businessId)
+        .maybeSingle();
+      if (data) {
+        setCurrentMapping(data.liteapi_hotel_id);
+        setHotelId(data.liteapi_hotel_id);
+      }
+      setLoadingMapping(false);
+    };
+    fetch();
+  }, [businessId]);
+
+  const handleSave = async () => {
+    setSaving(true);
+    if (!hotelId.trim()) {
+      // Remove mapping
+      if (currentMapping) {
+        await supabase.from("hotel_api_mappings").delete().eq("business_id", businessId);
+        setCurrentMapping(null);
+      }
+      setSaving(false);
+      return;
+    }
+    const { error } = await supabase.from("hotel_api_mappings").upsert(
+      { liteapi_hotel_id: hotelId.trim(), business_id: businessId },
+      { onConflict: "liteapi_hotel_id" }
+    );
+    if (error) {
+      alert(error.message);
+    } else {
+      setCurrentMapping(hotelId.trim());
+    }
+    setSaving(false);
+  };
+
+  if (loadingMapping) return <p className="text-xs text-muted-foreground">Chargement...</p>;
+
+  return (
+    <div className="flex items-center gap-2">
+      <Input
+        placeholder="ID hôtel LiteAPI (ex: lp3e599)"
+        value={hotelId}
+        onChange={(e) => setHotelId(e.target.value)}
+        className="flex-1 text-sm font-mono"
+      />
+      <Button
+        type="button"
+        size="sm"
+        variant={hotelId !== (currentMapping || "") ? "default" : "outline"}
+        onClick={handleSave}
+        disabled={saving || hotelId === (currentMapping || "")}
+      >
+        {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : currentMapping ? "Modifier" : "Associer"}
+      </Button>
+      {currentMapping && (
+        <Button
+          type="button"
+          size="sm"
+          variant="ghost"
+          className="text-destructive hover:text-destructive px-2"
+          onClick={async () => {
+            await supabase.from("hotel_api_mappings").delete().eq("business_id", businessId);
+            setCurrentMapping(null);
+            setHotelId("");
+          }}
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      )}
+    </div>
+  );
+};
+
 
   const updateIntentWord = async (id: string, updates: Partial<{ word: string; category_name: string; merge_on_conflict: boolean; is_active: boolean }>) => {
     const { error } = await supabase.from("search_intent_words").update(updates).eq("id", id);
@@ -2570,6 +2654,16 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
             {isBrokenUrl((formData as any).glovo_url) && <BrokenUrlBadge url={(formData as any).glovo_url} />}
           </div>
           <Button type="button" variant="outline" size="sm" className="text-xs text-muted-foreground hover:text-destructive" onClick={() => setShowClearBooking(true)}>🗑️ Effacer toutes les plateformes</Button>
+          
+          {/* LiteAPI Hotel Mapping */}
+          {business?.id && (
+            <div className="space-y-2 p-3 border border-blue-200 rounded-lg bg-blue-50">
+              <Label className="flex items-center gap-2 font-medium text-sm">
+                🏨 Association LiteAPI
+              </Label>
+              <LiteApiMappingField businessId={business.id} />
+            </div>
+          )}
         </div>
 
         {/* Avis clients */}
