@@ -3112,31 +3112,20 @@ serve(async (req) => {
             }
             console.log(`Service OR post-filter [${extendedCandidates.join(", ")}]: ${beforeCount} → ${businesses.length}`);
             
-            // When service filter gives 0 results, fallback to unfiltered tsquery results
-            // This handles cases like "oursins à Essaouira" where the specific service doesn't exist
-            // in that city but related establishments (seafood restaurants) should still appear
-            if (businesses.length === 0) {
-              console.log(`Service OR filter returned 0 results — falling back to tsquery without service filter`);
-              // Re-run the tsquery search without service filtering
-              const tsQueryFallback = expandQuery(queryForExpansion);
-              if (tsQueryFallback) {
-                let fallbackBuilder = supabase.from("businesses").select("*").eq("is_active", true)
-                  .textSearch("search_vector", tsQueryFallback, { type: "plain", config: "simple" });
-                if (effectiveCity) fallbackBuilder = applyCityFilter(fallbackBuilder);
-                if (effectiveCategory) fallbackBuilder = fallbackBuilder.or(`main_category.eq.${effectiveCategory},categories.cs.{"${effectiveCategory}"}`);
-                fallbackBuilder = fallbackBuilder
-                  .order("priority_score", { ascending: false })
-                  .limit(limit);
-                const { data: fallbackData } = await fallbackBuilder;
-                if (fallbackData && fallbackData.length > 0) {
-                  businesses = fallbackData.map((b: any) => ({
-                    ...b,
-                    distance_km: latitude && longitude && b.latitude && b.longitude
-                      ? calculateDistance(latitude, longitude, b.latitude, b.longitude) : null,
-                  }));
-                  console.log(`Service fallback tsquery "${tsQueryFallback}": ${businesses.length} results`);
-                }
-              }
+            // When service filter gives 0 results, fallback to the original FTS results
+            // (before post-filter). The service detection was a false positive — the FTS
+            // already found the right businesses via subcategory/business keywords.
+            if (businesses.length === 0 && data && data.length > 0) {
+              console.log(`Service OR filter returned 0 results — reusing original ${data.length} FTS results (service detection was false positive)`);
+              businesses = data.map((b: any) => ({
+                ...b,
+                distance_km: latitude && longitude && b.latitude && b.longitude
+                  ? calculateDistance(latitude, longitude, b.latitude, b.longitude) : null,
+              }));
+              // Clear the false-positive service detection so it doesn't affect downstream logic
+              detectedService = null;
+              detectedServices = [];
+              allCandidateServiceNames = [];
             }
 
             // Final fallback: when search_vector misses relevant businesses (e.g. keyword-only entries),
