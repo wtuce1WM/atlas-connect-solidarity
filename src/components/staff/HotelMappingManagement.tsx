@@ -118,7 +118,7 @@ const HotelMappingManagement = () => {
 
       const enriched = data.map((m) => {
         const biz = bizMap.get(m.business_id);
-        const bizImage = biz?.logo_url || (biz?.images && biz.images.length > 0 ? biz.images[0] : null);
+        const bizImage = (biz?.images && biz.images.length > 0 ? biz.images[0] : null) || biz?.logo_url;
         const liteInfo = liteApiMap[m.liteapi_hotel_id];
         return {
           ...m,
