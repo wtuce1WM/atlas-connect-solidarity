@@ -565,7 +565,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
   });
 
   // --- Business documents (menus & flipbooks) ---
-  type DocEntry = { id?: string; url: string; name: string; language: string };
+  type DocEntry = { id?: string; url: string; name: string; language: string; icon: string };
   const [menuDocs, setMenuDocs] = useState<DocEntry[]>([]);
   const [flipbookDocs, setFlipbookDocs] = useState<DocEntry[]>([]);
 
@@ -578,12 +578,23 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         .eq("business_id", business.id)
         .order("sort_order");
       if (data) {
-        setMenuDocs((data as any[]).filter((d: any) => d.type === "menu").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "", language: d.language || "" })));
-        setFlipbookDocs((data as any[]).filter((d: any) => d.type === "flipbook").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "", language: d.language || "" })));
+        setMenuDocs((data as any[]).filter((d: any) => d.type === "menu").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "", language: d.language || "", icon: d.icon || "" })));
+        setFlipbookDocs((data as any[]).filter((d: any) => d.type === "flipbook").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "", language: d.language || "", icon: d.icon || "" })));
       }
     };
     fetchDocs();
   }, [business?.id]);
+
+  const DOC_ICON_OPTIONS = [
+    { key: "icon_menu", label: "🍽️ Menu", file: "icon_menu.png" },
+    { key: "icon_wine", label: "🍷 Vins", file: "icon_wine.png" },
+    { key: "icon_cocktails", label: "🍸 Cocktails", file: "icon_cocktails.avif" },
+    { key: "icon_cocktails2", label: "🍹 Cocktails 2", file: "icon_cocktails2.png" },
+  ];
+  const getDocIconSrc = (icon: string) => {
+    const found = DOC_ICON_OPTIONS.find(o => o.key === icon);
+    return `/images/doc-icons/${found?.file || "icon_menu.png"}`;
+  };
 
   const LANGUAGE_OPTIONS = [
     { code: "ar", label: "🇲🇦 AR" },
@@ -1101,8 +1112,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       if (businessId) {
         await supabase.from("business_documents" as any).delete().eq("business_id", businessId);
         const allDocs = [
-          ...menuDocs.filter(d => d.url.trim()).map((d, i) => ({ business_id: businessId, type: "menu" as const, url: d.url.trim(), name: d.name || null, language: d.language || null, sort_order: i })),
-          ...flipbookDocs.filter(d => d.url.trim()).map((d, i) => ({ business_id: businessId, type: "flipbook" as const, url: d.url.trim(), name: d.name || null, language: d.language || null, sort_order: i })),
+          ...menuDocs.filter(d => d.url.trim()).map((d, i) => ({ business_id: businessId, type: "menu" as const, url: d.url.trim(), name: d.name || null, language: d.language || null, icon: d.icon || null, sort_order: i })),
+          ...flipbookDocs.filter(d => d.url.trim()).map((d, i) => ({ business_id: businessId, type: "flipbook" as const, url: d.url.trim(), name: d.name || null, language: d.language || null, icon: d.icon || null, sort_order: i })),
         ];
         if (allDocs.length > 0) {
           await supabase.from("business_documents" as any).insert(allDocs);
@@ -2367,12 +2378,24 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         <div id="section-menu" className="space-y-2" style={{ scrollMarginTop: '160px' }}>
           <div className="flex items-center justify-between">
             <Label className="text-base font-semibold">Menu (URL)</Label>
-            <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setMenuDocs(prev => [...prev, { url: "", name: "", language: "" }])}>
+            <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setMenuDocs(prev => [...prev, { url: "", name: "", language: "", icon: "icon_menu" }])}>
               <Plus className="h-3 w-3" /> Ajouter
             </Button>
           </div>
           {menuDocs.map((doc, idx) => (
             <div key={idx} className="flex items-center gap-2">
+              <div className="relative shrink-0 group">
+                <img src={getDocIconSrc(doc.icon || "icon_menu")} alt="" className="h-9 w-9 object-contain rounded border border-input p-0.5 cursor-pointer" />
+                <select
+                  value={doc.icon || "icon_menu"}
+                  onChange={(e) => setMenuDocs(prev => prev.map((d, i) => i === idx ? { ...d, icon: e.target.value } : d))}
+                  className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                >
+                  {DOC_ICON_OPTIONS.map(({ key, label }) => (
+                    <option key={key} value={key}>{label}</option>
+                  ))}
+                </select>
+              </div>
               <Input
                 value={doc.url}
                 onChange={(e) => setMenuDocs(prev => prev.map((d, i) => i === idx ? { ...d, url: e.target.value } : d))}
@@ -2407,12 +2430,24 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <Label className="text-base font-semibold">📖 Flipbook (Issuu, Calaméo…)</Label>
-            <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setFlipbookDocs(prev => [...prev, { url: "", name: "", language: "" }])}>
+            <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setFlipbookDocs(prev => [...prev, { url: "", name: "", language: "", icon: "icon_menu" }])}>
               <Plus className="h-3 w-3" /> Ajouter
             </Button>
           </div>
           {flipbookDocs.map((doc, idx) => (
             <div key={idx} className="flex items-center gap-2">
+              <div className="relative shrink-0 group">
+                <img src={getDocIconSrc(doc.icon || "icon_menu")} alt="" className="h-9 w-9 object-contain rounded border border-input p-0.5 cursor-pointer" />
+                <select
+                  value={doc.icon || "icon_menu"}
+                  onChange={(e) => setFlipbookDocs(prev => prev.map((d, i) => i === idx ? { ...d, icon: e.target.value } : d))}
+                  className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                >
+                  {DOC_ICON_OPTIONS.map(({ key, label }) => (
+                    <option key={key} value={key}>{label}</option>
+                  ))}
+                </select>
+              </div>
               <Input
                 value={doc.url}
                 onChange={(e) => setFlipbookDocs(prev => prev.map((d, i) => i === idx ? { ...d, url: e.target.value } : d))}
