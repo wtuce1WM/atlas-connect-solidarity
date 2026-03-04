@@ -189,6 +189,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   const [isLoadingArticle, setIsLoadingArticle] = useState(false);
   
   const [businessDocs, setBusinessDocs] = useState<{ id: string; type: string; url: string; name: string | null; icon: string | null; sort_order: number }[]>([]);
+  const [pdfOverlay, setPdfOverlay] = useState<{ url: string; name: string } | null>(null);
   const [reviewTexts, setReviewTexts] = useState<{ source: string; author_name: string | null; rating: number | null; text: string | null; relative_time: string | null }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -714,6 +715,38 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
           bookingUrl={bookingUrl}
           onClose={() => setIsBookingOpen(false)}
         />
+      )}
+      {/* PDF Overlay */}
+      {pdfOverlay && (
+        <div className="absolute inset-0 z-[60] bg-background flex flex-col animate-fade-in">
+          <div className="flex items-center justify-between px-3 py-2 border-b bg-background">
+            <span className="text-sm font-semibold truncate">{pdfOverlay.name}</span>
+            <div className="flex items-center gap-2">
+              <a
+                href={pdfOverlay.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-primary hover:underline flex items-center gap-1"
+                title="Télécharger"
+              >
+                <ExternalLink className="h-3 w-3" />
+                Télécharger
+              </a>
+              <button
+                onClick={() => setPdfOverlay(null)}
+                className="p-1 rounded-full hover:bg-muted transition-colors"
+                title="Fermer"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
+          <iframe
+            src={pdfOverlay.url}
+            className="flex-1 w-full border-0"
+            title={pdfOverlay.name}
+          />
+        </div>
       )}
       {/* Portal contact icons into center of fixed bar */}
       {toolbarCenterPortal && createPortal(
@@ -1331,13 +1364,21 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                       };
                       const ext = knownExtensions[iconFile] || '.png';
                       const iconSrc = `/images/doc-icons/${iconFile}${ext}`;
+                      const isPdf = doc.url?.toLowerCase().endsWith('.pdf') || doc.url?.includes('/pdfs/');
+                      const handleClick = (e: React.MouseEvent) => {
+                        if (isPdf) {
+                          e.preventDefault();
+                          setPdfOverlay({ url: doc.url, name: doc.name || (doc.type === "flipbook" ? "Flipbook" : "Menu") });
+                        }
+                      };
                       return (
                         <a
                           key={doc.id}
                           href={doc.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex flex-col items-center gap-1 group"
+                          target={isPdf ? undefined : "_blank"}
+                          rel={isPdf ? undefined : "noopener noreferrer"}
+                          onClick={handleClick}
+                          className="flex flex-col items-center gap-1 group cursor-pointer"
                           title={doc.name || (doc.type === "flipbook" ? "Flipbook" : "Menu")}
                         >
                           <img
