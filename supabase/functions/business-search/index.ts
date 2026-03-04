@@ -1270,6 +1270,7 @@ serve(async (req) => {
     // Paired filters (new): each row = subcategory + optional service (like bundles)
     // Legacy: flat service_names[] + subcategory_names[] arrays
     let serviceShortcutActivated = false;
+    let synonymsScopedOut = false;
     if (matchedSynonymBadgeId && matchedSynonymFilters.length === 0) {
       // ── BADGE-ONLY synonym: fetch businesses via business_badges join ──
       console.log(`⚡ Synonym badge-only PRIORITY: badge_id=${matchedSynonymBadgeId} — skipping FTS`);
@@ -1319,6 +1320,7 @@ serve(async (req) => {
           return scoped;
         }
         console.log(`🧭 Synonym scoped fallback disabled for "${detectedSubcategory}": no matching paired filters, continuing with normal search chain`);
+        synonymsScopedOut = true;
         return [];
       })();
       for (const filter of scopedSynonymFilters) {
@@ -2764,7 +2766,8 @@ serve(async (req) => {
     }
 
     // ── Synonym-linked subcategories: merge AFTER strict mode so they don't get overwritten ──
-    if (detectedSubcategory && synonymLinkedSubcategories.length > 0) {
+    // Skip if synonyms were scoped out (detected subcategory had no matching synonym filters)
+    if (detectedSubcategory && synonymLinkedSubcategories.length > 0 && !synonymsScopedOut) {
       const existingIds = new Set(businesses.map(b => b.id));
       const extraSubcats = synonymLinkedSubcategories.filter(sc => sc.toLowerCase() !== detectedSubcategory!.toLowerCase());
       for (const synSubcat of extraSubcats) {
