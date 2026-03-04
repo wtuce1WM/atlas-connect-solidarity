@@ -20,6 +20,12 @@ import NearbyBusinesses from "@/components/NearbyBusinesses";
 import { Separator } from "@/components/ui/separator";
 import { FacebookIcon, InstagramIcon, LinkedInIcon, YouTubeIcon, TikTokIcon, TwitterIcon, PinterestIcon, VimeoIcon } from "@/components/staff/SocialMediaIcons";
 
+const LANG_FLAGS: Record<string, string> = {
+  FR: "🇫🇷", EN: "🇬🇧", ES: "🇪🇸", AR: "🇲🇦", DE: "🇩🇪", IT: "🇮🇹",
+  PT: "🇵🇹", NL: "🇳🇱", RU: "🇷🇺", ZH: "🇨🇳", JA: "🇯🇵", KO: "🇰🇷",
+};
+const langToFlag = (lang: string) => LANG_FLAGS[lang?.toUpperCase()] || "";
+
 
 interface BusinessSlidePanelProps {
   businessId: string;
@@ -1526,16 +1532,17 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                 <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Presse</h3>
                 <div className="flex flex-wrap items-center justify-center gap-4">
                   {pressEntries.map((entry, idx) => {
+                    const flag = langToFlag(entry.language);
                     const logoEl = (
-                      <div key={idx} className="flex flex-col items-center gap-1">
-                        <img
-                          src={entry.logo_url}
-                          alt={entry.name}
-                          className="h-10 w-auto object-contain"
-                        />
-                        {entry.language && (
-                          <span className="text-[10px] text-muted-foreground uppercase">{entry.language}</span>
-                        )}
+                      <div key={idx} className="flex flex-col items-center gap-1.5">
+                        <div className="h-12 w-24 flex items-center justify-center">
+                          <img
+                            src={entry.logo_url}
+                            alt={entry.name}
+                            className="max-h-12 max-w-24 object-contain"
+                          />
+                        </div>
+                        {flag && <span className="text-base leading-none">{flag}</span>}
                       </div>
                     );
                     return entry.url ? (
