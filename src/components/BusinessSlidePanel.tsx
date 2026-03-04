@@ -189,7 +189,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   const [isLoadingArticle, setIsLoadingArticle] = useState(false);
   
   const [businessDocs, setBusinessDocs] = useState<{ id: string; type: string; url: string; name: string | null; icon: string | null; sort_order: number }[]>([]);
-  const [docOverlay, setDocOverlay] = useState<{ url: string; name: string; type: 'pdf' | 'flipbook' } | null>(null);
+  const [docOverlay, setDocOverlay] = useState<{ url: string; name: string; type: 'pdf' | 'flipbook' | 'website' } | null>(null);
   const [reviewTexts, setReviewTexts] = useState<{ source: string; author_name: string | null; rating: number | null; text: string | null; relative_time: string | null }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -743,9 +743,10 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
           </div>
           <div className="flex-1 flex items-center justify-center pb-16 bg-background">
             <iframe
-              src={docOverlay.type === 'flipbook' ? getFlipbookEmbedUrl(docOverlay.url) : `https://docs.google.com/gview?url=${encodeURIComponent(docOverlay.url)}&embedded=true`}
+              src={docOverlay.type === 'flipbook' ? getFlipbookEmbedUrl(docOverlay.url) : docOverlay.type === 'website' ? docOverlay.url : `https://docs.google.com/gview?url=${encodeURIComponent(docOverlay.url)}&embedded=true`}
               className="h-full w-full border-0"
               allow={docOverlay.type === 'flipbook' ? "clipboard-write; fullscreen" : undefined}
+              sandbox={docOverlay.type === 'website' ? "allow-scripts allow-same-origin allow-popups" : undefined}
               title={docOverlay.name}
             />
           </div>
@@ -1353,11 +1354,13 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                       const iconSrc = `/images/doc-icons/${iconFile}${ext}`;
                       const isPdf = doc.url?.toLowerCase().endsWith('.pdf') || doc.url?.includes('/pdfs/');
                       const isFlipbook = /issuu\.com|calameo\.com/i.test(doc.url || '');
-                      const isInlineDoc = isPdf || isFlipbook;
+                      const isWebsite = !isPdf && !isFlipbook && /^https?:\/\//i.test(doc.url || '');
+                      const isInlineDoc = isPdf || isFlipbook || isWebsite;
                       const handleClick = (e: React.MouseEvent) => {
                         if (isInlineDoc) {
                           e.preventDefault();
-                          setDocOverlay({ url: doc.url, name: doc.name || (doc.type === "flipbook" ? "Flipbook" : "Menu"), type: isFlipbook ? 'flipbook' : 'pdf' });
+                          const docType = isFlipbook ? 'flipbook' : isPdf ? 'pdf' : 'website';
+                          setDocOverlay({ url: doc.url, name: doc.name || (doc.type === "flipbook" ? "Flipbook" : "Menu"), type: docType as 'pdf' | 'flipbook' | 'website' });
                         }
                       };
                       return (
