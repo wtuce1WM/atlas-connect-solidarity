@@ -681,10 +681,12 @@ serve(async (req) => {
       if (!effectiveCity) return builder;
       const conditions: string[] = [`city.ilike.${effectiveCity}`];
       if (effectiveCityId) {
-        conditions.push(`zone_city_ids.cs.{"${effectiveCityId}"}`);
+        // Zone nationale: ville dans zone_city_ids ET is_visible_locale = true
+        conditions.push(`and(zone_city_ids.cs.{"${effectiveCityId}"},is_visible_locale.eq.true)`);
       }
       if (webOnlyServiceName) {
-        conditions.push(`services.cs.{"${webOnlyServiceName}"}`);
+        // Web only: service présent ET boutique en ligne renseignée
+        conditions.push(`and(services.cs.{"${webOnlyServiceName}"},online_shop_url.not.is.null)`);
       }
       // Include businesses with zone_chalandise = "internationale"
       conditions.push(`zone_chalandise.eq.internationale`);
