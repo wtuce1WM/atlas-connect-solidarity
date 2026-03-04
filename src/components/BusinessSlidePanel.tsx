@@ -645,26 +645,17 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
       {bookingUrl && !isBookingOpen && (
         <button
           onClick={() => setIsBookingOpen(true)}
-          className="absolute right-0 top-1/2 -translate-y-1/2 z-50 flex items-center justify-center bg-black/90 hover:bg-black text-white transition-all duration-300 rounded-l-md shadow-lg cursor-pointer"
-          style={{ writingMode: "vertical-rl", textOrientation: "mixed", padding: "14px 6px", letterSpacing: "0.15em" }}
+          className="absolute right-0 top-1/2 -translate-y-1/2 z-50 flex items-center justify-center bg-black/90 hover:bg-black transition-all duration-300 rounded-l-md shadow-lg cursor-pointer"
+          style={{ writingMode: "vertical-rl", textOrientation: "mixed", padding: "14px 6px" }}
           title="Réserver"
         >
-          {"Réserver".split("").map((letter, i) => (
-            <span
-              key={i}
-              className="inline-block opacity-0 animate-[fade-in_0.4s_ease-out_forwards]"
-              style={{ animationDelay: `${i * 120}ms`, fontSize: "0.75rem", fontWeight: 600 }}
-            >
-              {letter}
-            </span>
-          ))}
+          <span className="text-white text-xs font-semibold tracking-[0.15em]">Réserver</span>
           <svg
             width="12"
             viewBox="0 0 20 10"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
-            className="mt-2 opacity-0 animate-[fade-in_0.4s_ease-out_forwards]"
-            style={{ animationDelay: "960ms" }}
+            className="mt-2"
           >
             <path d="M20 4.92163L12.5 0.591505L12.5 9.25176L20 4.92163ZM0 5.67163L13.25 5.67163L13.25 4.17163L0 4.17163L0 5.67163Z" fill="white" />
           </svg>
