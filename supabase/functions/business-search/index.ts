@@ -684,10 +684,7 @@ serve(async (req) => {
         // Zone nationale: ville dans zone_city_ids ET is_visible_locale = true
         conditions.push(`and(zone_city_ids.cs.{"${effectiveCityId}"},is_visible_locale.eq.true)`);
       }
-      if (webOnlyServiceName) {
-        // Web only: service présent ET boutique en ligne renseignée ET visible
-        conditions.push(`and(services.cs.{"${webOnlyServiceName}"},online_shop_url.not.is.null,is_visible_locale.eq.true)`);
-      }
+      // "Web only" condition removed — these businesses are covered by zone_city_ids or zone_chalandise
       // Include businesses with zone_chalandise = "internationale" ET visible
       conditions.push(`and(zone_chalandise.eq.internationale,is_visible_locale.eq.true)`);
       return builder.or(conditions.join(","));
