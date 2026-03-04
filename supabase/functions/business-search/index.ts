@@ -2207,12 +2207,19 @@ serve(async (req) => {
         ...serviceMatchWordsForInjection,
         ...svcWords,
       ]);
+      // Build city word set to strip from remainder (city filtering is handled separately)
+      const cityWordsForStrip = new Set(
+        (effectiveCity || "").toLowerCase().split(/\s+/).filter(Boolean).map(w => stripAccentsGlobal(w))
+      );
       const cleanRemainder = effectiveQuery.split(/\s+/).filter(w => {
         const wLower = w.toLowerCase();
+        const wStripped = stripAccentsGlobal(wLower);
         if (allServiceRelatedWords.has(wLower)) return false;
         if (FRENCH_STOP_WORDS.has(wLower)) return false;
         if (INTENT_NOISE.has(wLower)) return false;
         if (NOISE_ADJECTIVES.has(wLower)) return false;
+        // Strip city name words — city filtering is done via applyCityFilter, not tsquery
+        if (cityWordsForStrip.has(wStripped)) return false;
         // Strip hyphenated words whose parts are already covered by the service
         if (wLower.includes("-")) {
           const parts = wLower.split("-").filter(p => p.length > 0);
@@ -2891,11 +2898,16 @@ serve(async (req) => {
         const remainderWords = queryForExpansion.toLowerCase().split(/\s+/).filter(w => !svcWords.includes(w) && w.length > 0);
         
         // Build OR group from ALL candidate service names (not just the primary one)
+        // Also include original matched keywords (e.g. "tapis") so businesses with that exact service name also match
         // Filter out French stop words (en, de, à, la, le, etc.) to avoid matching everything
         const allSvcTerms = allCandidateServiceNames.flatMap(name => 
           name.toLowerCase().split(/[\s/\-]+/).map(w => stripAccentsGlobal(sanitizeTerm(w))).filter(t => t.length > 1 && !FRENCH_STOP_WORDS.has(t))
         );
-        const uniqueSvcTerms = [...new Set(allSvcTerms)];
+        // Add original keyword terms that triggered service detection (e.g. "tapis" → service "Artisanat marocain")
+        const originalKeywordTerms = serviceMatchWordsForInjection
+          .map(w => stripAccentsGlobal(sanitizeTerm(w.toLowerCase())))
+          .filter(t => t.length > 1 && !FRENCH_STOP_WORDS.has(t));
+        const uniqueSvcTerms = [...new Set([...allSvcTerms, ...originalKeywordTerms])];
         const svcPart = uniqueSvcTerms.length > 1
           ? `(${uniqueSvcTerms.join(" | ")})`
           : uniqueSvcTerms[0] || "";
@@ -3027,6 +3039,14 @@ serve(async (req) => {
             // OR logic: business must have at least ONE of the candidate services
             // Also used when multiple detected services are variants of the same concept (e.g. Vin, Cave à vin)
             // BUT always keep businesses whose name closely matches the ORIGINAL query
+            // Also include original matched keywords as valid service names (e.g. "tapis" keyword → also accept "Tapis" service)
+            const extendedCandidates = [...allCandidateServiceNames];
+            for (const kw of serviceMatchWordsForInjection) {
+              const kwLower = kw.toLowerCase();
+              if (!extendedCandidates.some(c => c.toLowerCase() === kwLower)) {
+                extendedCandidates.push(kw);
+              }
+            }
             const originalQueryLower = (query || "").toLowerCase().trim();
             const beforeCount = businesses.length;
             businesses = businesses.filter((b: any) => {
@@ -3047,9 +3067,18 @@ serve(async (req) => {
                 }
               }
               const allBusinessTags = collectBusinessTags(b);
-              return allCandidateServiceNames.some(cs => tagsMatchCandidate(cs, allBusinessTags));
+              return extendedCandidates.some(cs => tagsMatchCandidate(cs, allBusinessTags));
             });
-            console.log(`Service OR post-filter [${allCandidateServiceNames.join(", ")}]: ${beforeCount} → ${businesses.length}`);
+            if (beforeCount > 0 && businesses.length === 0) {
+              // Debug: log what businesses were filtered out and why
+              const debugSample = data.slice(0, 5).map((b: any) => ({
+                name: b.name,
+                services: (b.services || []).slice(0, 5),
+                categories: (b.categories || []).slice(0, 3),
+              }));
+              console.log(`Service OR debug - filtered businesses: ${JSON.stringify(debugSample)}`);
+            }
+            console.log(`Service OR post-filter [${extendedCandidates.join(", ")}]: ${beforeCount} → ${businesses.length}`);
             
             // When service filter gives 0 results, fallback to unfiltered tsquery results
             // This handles cases like "oursins à Essaouira" where the specific service doesn't exist
