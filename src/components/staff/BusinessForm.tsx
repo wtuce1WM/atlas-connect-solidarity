@@ -504,6 +504,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     video_1_url: (business as any)?.video_1_url || "",
     matterport_url: (business as any)?.matterport_url || "",
     flipbook_url: (business as any)?.flipbook_url || "",
+    flipbook_name: (business as any)?.flipbook_name || "",
+    flipbook_language: (business as any)?.flipbook_language || "",
     google_maps_url: (business as any)?.google_maps_url || "",
     airbnb_url: (business as any)?.airbnb_url || "",
     pinterest_url: (business as any)?.pinterest_url || "",
@@ -551,6 +553,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     hook_en: (business as any)?.hook_en || "",
     hook_ar: (business as any)?.hook_ar || "",
     menu_url: (business as any)?.menu_url || "",
+    menu_name: (business as any)?.menu_name || "",
+    menu_language: (business as any)?.menu_language || "",
     logo_bg: (business as any)?.logo_bg || "transparent",
     zone_city_ids: (business as any)?.zone_city_ids || [] as string[],
     poissonnerie_details: (business as any)?.poissonnerie_details || null,
@@ -949,6 +953,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       video_1_url: formData.video_1_url || null,
       matterport_url: formData.matterport_url || null,
       flipbook_url: (formData as any).flipbook_url || null,
+      flipbook_name: (formData as any).flipbook_name || null,
+      flipbook_language: (formData as any).flipbook_language || null,
       google_maps_url: formData.google_maps_url || null,
       airbnb_url: formData.airbnb_url || null,
       pinterest_url: formData.pinterest_url || null,
@@ -995,6 +1001,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       hook_en: formData.hook_en || null,
       hook_ar: formData.hook_ar || null,
       menu_url: formData.menu_url || null,
+      menu_name: (formData as any).menu_name || null,
+      menu_language: (formData as any).menu_language || null,
       logo_bg: (formData as any).logo_bg || "transparent",
       poissonnerie_details: formData.poissonnerie_details || null,
       destination_hook: (formData as any).destination_hook?.trim().slice(0, 120) || null,
@@ -2322,23 +2330,58 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               placeholder="https://..."
               className="flex-1"
             />
+            <Input
+              value={(formData as any).menu_name || ""}
+              onChange={(e) => handleChange("menu_name", e.target.value)}
+              placeholder="Nom"
+              className="w-32"
+            />
+            <select
+              value={(formData as any).menu_language || ""}
+              onChange={(e) => handleChange("menu_language", e.target.value)}
+              className="h-9 rounded-md border border-input bg-background px-3 text-sm w-28"
+            >
+              <option value="">Langue</option>
+              {(formData.languages && formData.languages.length > 0 ? formData.languages : ["Français", "English", "العربية"]).map((lang: string) => (
+                <option key={lang} value={lang}>{lang}</option>
+              ))}
+            </select>
             {formData.menu_url && (
-              <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => handleChange("menu_url", "")}>
+              <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => { handleChange("menu_url", ""); handleChange("menu_name", ""); handleChange("menu_language", ""); }}>
                 <Trash2 className="h-4 w-4" />
               </Button>
             )}
           </div>
-            <BrokenUrlBadge url={formData.menu_url} />
-          </div>
+          <BrokenUrlBadge url={formData.menu_url} />
+        </div>
 
         {/* Flipbook / Issuu */}
         <div className="space-y-2">
           <Label className="text-base font-semibold">📖 Flipbook (Issuu, Calaméo…)</Label>
-          <Input
-            placeholder="https://issuu.com/username/docs/document-name"
-            value={(formData as any).flipbook_url}
-            onChange={(e) => handleChange("flipbook_url", e.target.value)}
-          />
+          <div className="flex items-center gap-2">
+            <Input
+              placeholder="https://issuu.com/username/docs/document-name"
+              value={(formData as any).flipbook_url}
+              onChange={(e) => handleChange("flipbook_url", e.target.value)}
+              className="flex-1"
+            />
+            <Input
+              value={(formData as any).flipbook_name || ""}
+              onChange={(e) => handleChange("flipbook_name", e.target.value)}
+              placeholder="Nom"
+              className="w-32"
+            />
+            <select
+              value={(formData as any).flipbook_language || ""}
+              onChange={(e) => handleChange("flipbook_language", e.target.value)}
+              className="h-9 rounded-md border border-input bg-background px-3 text-sm w-28"
+            >
+              <option value="">Langue</option>
+              {(formData.languages && formData.languages.length > 0 ? formData.languages : ["Français", "English", "العربية"]).map((lang: string) => (
+                <option key={lang} value={lang}>{lang}</option>
+              ))}
+            </select>
+          </div>
           <p className="text-xs text-muted-foreground">Collez l'URL de la publication Issuu ou Calaméo. Elle sera intégrée dans le panneau de l'établissement.</p>
         </div>
 
