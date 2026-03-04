@@ -1280,84 +1280,82 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                 </div>
               )}
 
-              {/* Opening Hours */}
+              {/* Opening Hours + Document icons */}
               {canShowOpenBadge && (
                 <div className="col-span-2">
-                  <div>
-                    <div className="flex items-start gap-3">
-                      <Clock className="h-5 w-5 shrink-0 mt-0.5 text-foreground" />
-                      <div className="flex-1">
-                        <p className="font-semibold text-sm text-foreground mb-1.5">
-                          Horaires
-                          {openBadgeText && (
-                            <span className={`ml-2 text-xs font-medium px-2 py-0.5 rounded-full ${openBadgeIsOpen ? 'bg-green-500/15 text-green-600' : 'bg-muted text-muted-foreground'}`}>
-                              {openBadgeText}
-                            </span>
-                          )}
-                        </p>
-                        {business.is_open_24h ? (
-                          <p className="text-sm text-muted-foreground">Ouvert 24h/24</p>
-                        ) : business.opening_hours ? (
-                          <div className="space-y-0.5">
-                            {(() => {
-                              const dayOrder = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
-                              const dayNames: Record<string, string> = { monday: "Lun", tuesday: "Mar", wednesday: "Mer", thursday: "Jeu", friday: "Ven", saturday: "Sam", sunday: "Dim" };
-                              const displayOrder = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
-                              const hours = business.opening_hours as Record<string, any>;
-                              const now = new Date();
-                              const todayKey = dayOrder[now.getDay()];
-                              return displayOrder.map(day => {
-                                const dh = hours[day];
-                                if (!dh) return null;
-                                const isToday = day === todayKey;
-                                return (
-                                  <div key={day} className={`flex gap-3 text-sm ${isToday ? 'font-bold' : ''}`}>
-                                    <span className={`font-medium ${isToday ? 'text-foreground' : ''}`}>
-                                      {dayNames[day]}{isToday ? ' ●' : ''}
-                                    </span>
-                                    <span className="text-muted-foreground">
-                                      {formatDayHoursDisplay(dh, { language })}
-                                    </span>
-                                  </div>
-                                );
-                              });
-                            })()}
-                          </div>
-                        ) : null}
-                      </div>
-                      {/* Document icons inline — max 4 */}
-                      {businessDocs.length > 0 && (
-                        <div className="flex flex-col items-center gap-2 shrink-0">
-                          <div className="grid grid-cols-2 gap-2">
-                            {businessDocs.slice(0, 4).map((doc) => {
-                              const iconSrc = doc.icon
-                                ? `/images/doc-icons/${doc.icon}.avif`
-                                : `/images/doc-icons/icon_menu.png`;
+                  <div className="flex items-start gap-3">
+                    <Clock className="h-5 w-5 shrink-0 mt-0.5 text-foreground" />
+                    <div className="flex-1">
+                      <p className="font-semibold text-sm text-foreground mb-1.5">
+                        Horaires
+                        {openBadgeText && (
+                          <span className={`ml-2 text-xs font-medium px-2 py-0.5 rounded-full ${openBadgeIsOpen ? 'bg-green-500/15 text-green-600' : 'bg-muted text-muted-foreground'}`}>
+                            {openBadgeText}
+                          </span>
+                        )}
+                      </p>
+                      {business.is_open_24h ? (
+                        <p className="text-sm text-muted-foreground">Ouvert 24h/24</p>
+                      ) : business.opening_hours ? (
+                        <div className="space-y-0.5">
+                          {(() => {
+                            const dayOrder = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+                            const dayNames: Record<string, string> = { monday: "Lun", tuesday: "Mar", wednesday: "Mer", thursday: "Jeu", friday: "Ven", saturday: "Sam", sunday: "Dim" };
+                            const displayOrder = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+                            const hours = business.opening_hours as Record<string, any>;
+                            const now = new Date();
+                            const todayKey = dayOrder[now.getDay()];
+                            return displayOrder.map(day => {
+                              const dh = hours[day];
+                              if (!dh) return null;
+                              const isToday = day === todayKey;
                               return (
-                                <a
-                                  key={doc.id}
-                                  href={doc.url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="flex flex-col items-center gap-0.5 group"
-                                  title={doc.name || (doc.type === "flipbook" ? "Flipbook" : "Menu")}
-                                >
-                                  <img
-                                    src={iconSrc}
-                                    alt={doc.name || doc.type}
-                                    className="h-14 w-14 object-contain rounded-md group-hover:scale-110 transition-transform"
-                                    onError={(e) => { (e.target as HTMLImageElement).src = `/images/doc-icons/icon_menu.png`; }}
-                                  />
-                                  <span className="text-[9px] text-muted-foreground text-center leading-tight max-w-[56px] truncate">
-                                    {doc.name || (doc.type === "flipbook" ? "Flipbook" : "Menu")}
+                                <div key={day} className={`flex gap-3 text-sm ${isToday ? 'font-bold' : ''}`}>
+                                  <span className={`font-medium ${isToday ? 'text-foreground' : ''}`}>
+                                    {dayNames[day]}{isToday ? ' ●' : ''}
                                   </span>
-                                </a>
+                                  <span className="text-muted-foreground">
+                                    {formatDayHoursDisplay(dh, { language })}
+                                  </span>
+                                </div>
                               );
-                            })}
-                          </div>
+                            });
+                          })()}
                         </div>
-                      )}
+                      ) : null}
                     </div>
+                    {/* Document icons — max 4, aligned right */}
+                    {businessDocs.length > 0 && (
+                      <div className="shrink-0 ml-auto self-center">
+                        <div className="grid grid-cols-2 gap-3">
+                          {businessDocs.slice(0, 4).map((doc) => {
+                            const iconSrc = doc.icon
+                              ? `/images/doc-icons/${doc.icon}.avif`
+                              : `/images/doc-icons/icon_menu.png`;
+                            return (
+                              <a
+                                key={doc.id}
+                                href={doc.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex flex-col items-center gap-1 group"
+                                title={doc.name || (doc.type === "flipbook" ? "Flipbook" : "Menu")}
+                              >
+                                <img
+                                  src={iconSrc}
+                                  alt={doc.name || doc.type}
+                                  className="h-[72px] w-[72px] object-contain group-hover:scale-110 transition-transform"
+                                  onError={(e) => { (e.target as HTMLImageElement).src = `/images/doc-icons/icon_menu.png`; }}
+                                />
+                                <span className="text-[10px] text-muted-foreground text-center leading-tight max-w-[72px] truncate">
+                                  {doc.name || (doc.type === "flipbook" ? "Flipbook" : "Menu")}
+                                </span>
+                              </a>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
