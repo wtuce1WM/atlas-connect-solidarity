@@ -81,16 +81,6 @@ const BookingOverlay = ({ bookingUrl, onClose }: BookingOverlayProps) => {
       <div className="flex items-center justify-between px-3 py-2 border-b bg-background">
         <span className="text-sm font-semibold">Réservation</span>
         <div className="flex items-center gap-2">
-          <a
-            href={bookingUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xs text-primary hover:underline flex items-center gap-1"
-            title="Ouvrir dans un nouvel onglet"
-          >
-            <ExternalLink className="h-3 w-3" />
-            Nouvel onglet
-          </a>
           <button
             onClick={onClose}
             className="p-1 rounded-full hover:bg-muted transition-colors"
