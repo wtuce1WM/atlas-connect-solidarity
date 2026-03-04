@@ -109,7 +109,7 @@ const HotelSearch = () => {
       };
       if (stars && stars !== "all") body.ratings = stars;
 
-      const { data, error } = await supabase.functions.invoke("sabre-hotels", { body });
+      const { data, error } = await supabase.functions.invoke("liteapi-hotels", { body });
 
       if (error) throw new Error(error.message);
       if (data?.error) throw new Error(data.error);
