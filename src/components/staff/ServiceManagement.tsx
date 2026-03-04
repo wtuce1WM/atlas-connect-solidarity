@@ -32,6 +32,7 @@ interface Service {
   name_ar: string | null;
   icon: string | null;
   keywords: string[] | null;
+  is_active: boolean;
 }
 
 interface BusinessMini {
@@ -68,7 +69,7 @@ const ServiceManagement = () => {
     const [catRes, subRes, svcRes, bizRes] = await Promise.all([
       supabase.from("categories").select("id, name_fr").order("name_fr"),
       supabase.from("subcategories").select("id, category_id, name_fr").order("name_fr"),
-      fetchAllRows("services", "id, subcategory_id, name_fr, name_en, name_ar, icon, keywords", "name_fr"),
+      fetchAllRows("services", "id, subcategory_id, name_fr, name_en, name_ar, icon, keywords, is_active", "name_fr"),
       supabase.from("businesses").select("services").eq("is_active", true),
     ]);
 
@@ -276,7 +277,18 @@ const ServiceManagement = () => {
                         <TableCell className="text-muted-foreground text-sm">{subName}</TableCell>
                         <TableCell className="font-medium">{svc.name_fr}</TableCell>
                         <TableCell className="text-center">
-                          <Switch defaultChecked={true} />
+                          <Switch
+                            checked={svc.is_active}
+                            onCheckedChange={async (checked) => {
+                              const { error } = await supabase
+                                .from("services")
+                                .update({ is_active: checked } as any)
+                                .eq("id", svc.id);
+                              if (!error) {
+                                setServices(prev => prev.map(s => s.id === svc.id ? { ...s, is_active: checked } : s));
+                              }
+                            }}
+                          />
                         </TableCell>
                         <TableCell className="text-center">
                           <Button
