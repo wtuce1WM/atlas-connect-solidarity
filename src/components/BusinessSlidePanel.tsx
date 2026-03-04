@@ -1316,9 +1316,9 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                 </div>
               )}
 
-              {/* Document icons — max 4, aligned in right column */}
+              {/* Document icons — max 4, aligned left under Téléphone */}
               {businessDocs.length > 0 && (
-                <div className={`flex items-center justify-center ${!canShowOpenBadge ? 'col-span-2' : ''}`}>
+                <div className={`flex items-start justify-start ${!canShowOpenBadge ? 'col-span-2' : ''}`}>
                   <div className="grid grid-cols-2 gap-3">
                     {businessDocs.slice(0, 4).map((doc) => {
                       const iconSrc = doc.icon
