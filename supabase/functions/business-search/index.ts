@@ -3009,20 +3009,26 @@ serve(async (req) => {
             // they are variants, not distinct concepts.
             // e.g. "tapis" triggers both "Tapis" (name match) and "Artisanat marocain" (keyword match)
             if (serviceMatchWordsForInjection.length > 0) {
-              const triggerWordsNorm = serviceMatchWordsForInjection.map(w => normalizeWordKw(w.toLowerCase()));
-              // Check if every service name or its keywords relate to the same trigger words
-              const allFromSameTrigger = detectedServices.every(ds => {
-                const dsNorm = normalizeWordKw(ds.toLowerCase());
-                // Service name matches a trigger word
-                if (triggerWordsNorm.some(tw => dsNorm.includes(tw) || tw.includes(dsNorm))) return true;
-                // Service was matched via keyword from the same trigger
-                const svcData = matchingServices.find((s: any) => s.name_fr === ds);
-                if (svcData?.keywords?.length > 0) {
-                  return svcData.keywords.some((k: string) => 
-                    triggerWordsNorm.some(tw => normalizeWordKw(k.toLowerCase()) === tw || normalizeWordKw(k.toLowerCase()).includes(tw))
-                  );
-                }
+              const normalizeServiceToken = (w: string): string => {
+                const lower = (w || "").toLowerCase();
+                const singular = lower.endsWith("aux")
+                  ? `${lower.slice(0, -3)}al`
+                  : lower.endsWith("eaux")
+                    ? `${lower.slice(0, -4)}eau`
+                    : lower.endsWith("s")
+                      ? lower.slice(0, -1)
+                      : lower;
+                return singular.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+              };
+              const triggerWordsNorm = [...new Set(serviceMatchWordsForInjection.map((w) => normalizeServiceToken(w)))];
+              if (triggerWordsNorm.length === 1) {
+                console.log(`Services triggered by a single query word [${serviceMatchWordsForInjection.join(", ")}] → treating as variants (OR)`);
                 return false;
+              }
+              // Check if every detected service name relates to the same trigger words
+              const allFromSameTrigger = detectedServices.every(ds => {
+                const dsNorm = normalizeServiceToken(ds);
+                return triggerWordsNorm.some(tw => dsNorm.includes(tw) || tw.includes(dsNorm));
               });
               if (allFromSameTrigger) {
                 console.log(`Services all triggered by same words [${serviceMatchWordsForInjection.join(", ")}] → treating as variants (OR)`);
