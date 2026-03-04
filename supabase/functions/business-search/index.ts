@@ -1307,7 +1307,20 @@ serve(async (req) => {
       // ── NEW: Paired filters mode ──
       console.log(`⚡ Synonym paired filters PRIORITY: ${matchedSynonymFilters.length} filter(s) — skipping FTS`);
       const existingIds = new Set<string>();
-      for (const filter of matchedSynonymFilters) {
+      // If a subcategory was explicitly detected in the query, prioritize matching paired filters
+      // scoped to that subcategory to avoid broad cross-domain leakage (e.g. "location voiture" matching villas).
+      const normalizeSubcat = (v: string) => stripAccentsGlobal(v.toLowerCase().replace(/-/g, " ").replace(/\s+/g, " ").trim());
+      const scopedSynonymFilters = (() => {
+        if (!detectedSubcategory) return matchedSynonymFilters;
+        const target = normalizeSubcat(detectedSubcategory);
+        const scoped = matchedSynonymFilters.filter((f) => f.subcategory_name && normalizeSubcat(f.subcategory_name) === target);
+        if (scoped.length > 0) {
+          console.log(`🔒 Synonym scope by detected subcategory "${detectedSubcategory}": ${matchedSynonymFilters.length} → ${scoped.length} filter(s)`);
+          return scoped;
+        }
+        return matchedSynonymFilters;
+      })();
+      for (const filter of scopedSynonymFilters) {
         let builder = supabase.from("businesses").select("*").eq("is_active", true);
         // Apply subcategory filter
         if (filter.subcategory_name) {
