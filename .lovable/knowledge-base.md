@@ -131,3 +131,11 @@ Quand une entrée de la Base IA possède des URLs externes avec langue associée
   - **Code Editor Lovable** : icône code en haut du preview → naviguer vers `.lovable/knowledge-base.md`
   - **GitHub** : si le projet est connecté à GitHub, le fichier est visible dans le repo.
 - Ce fichier est différent de la table `knowledge_entries` (Base IA du backoffice) qui stocke les connaissances consultables par l'IA conversationnelle.
+
+---
+
+## 📌 Conventions de communication
+
+### Terme "Connaissances" / "KB"
+- Quand l'utilisateur parle de **"connaissances"** ou **"KB"**, cela signifie **toujours** la table `knowledge_entries` du backoffice (Base IA), et **jamais** le fichier `.lovable/knowledge-base.md`.
+- L'insertion doit se faire via un `INSERT` dans la table `knowledge_entries` avec les champs appropriés (title, content, category, tags…).
