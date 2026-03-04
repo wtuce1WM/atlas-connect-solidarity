@@ -34,8 +34,8 @@ Deno.serve(async (req) => {
     console.log('Scraping article summary:', formattedUrl);
 
     const jsonPrompt = businessName
-      ? `Extract a concise summary (max 3 sentences, in the same language as the article) specifically about "${businessName}" from this article. Also extract the article title.`
-      : `Extract a concise summary (max 3 sentences, in the same language as the article) of this article. Also extract the article title.`;
+      ? `Extract a concise summary (max 3 sentences, in the same language as the article) specifically about "${businessName}" from this article. Also extract the article title and the publication date (format YYYY-MM-DD if possible).`
+      : `Extract a concise summary (max 3 sentences, in the same language as the article) of this article. Also extract the article title and the publication date (format YYYY-MM-DD if possible).`;
 
     const response = await fetch('https://api.firecrawl.dev/v1/scrape', {
       method: 'POST',
@@ -53,6 +53,7 @@ Deno.serve(async (req) => {
             properties: {
               title: { type: 'string' },
               summary: { type: 'string' },
+              publishedDate: { type: 'string', description: 'Publication date in YYYY-MM-DD format or as found' },
             },
             required: ['title', 'summary'],
           },
@@ -74,6 +75,7 @@ Deno.serve(async (req) => {
     const extract = data.data?.extract || data.extract || {};
     const title = extract.title || data.data?.metadata?.title || data.metadata?.title || '';
     const summary = extract.summary || '';
+    const publishedDate = extract.publishedDate || data.data?.metadata?.publishedDate || '';
     const screenshot = data.data?.screenshot || data.screenshot || '';
 
     return new Response(
@@ -81,6 +83,7 @@ Deno.serve(async (req) => {
         success: true,
         title,
         summary,
+        publishedDate,
         screenshot,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

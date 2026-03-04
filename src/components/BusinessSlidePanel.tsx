@@ -171,7 +171,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   const [gamme, setGamme] = useState<Gamme | null>(null);
   const [activeServiceNames, setActiveServiceNames] = useState<Set<string> | null>(null);
   const [pressEntries, setPressEntries] = useState<{ name: string; logo_url: string; url: string; language: string }[]>([]);
-  const [articlePreview, setArticlePreview] = useState<{ title: string; summary: string; screenshot: string; url: string; name: string } | null>(null);
+  const [articlePreview, setArticlePreview] = useState<{ title: string; summary: string; screenshot: string; url: string; name: string; publishedDate?: string } | null>(null);
   const [isLoadingArticle, setIsLoadingArticle] = useState(false);
   
   const [reviewTexts, setReviewTexts] = useState<{ source: string; author_name: string | null; rating: number | null; text: string | null; relative_time: string | null }[]>([]);
@@ -1556,6 +1556,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                                 screenshot: data.screenshot || '',
                                 url: entry.url,
                                 name: entry.name,
+                                publishedDate: data.publishedDate || '',
                               });
                             }
                           } catch {
@@ -1603,6 +1604,17 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                   >
                     Lire l'article complet <ExternalLink className="h-3.5 w-3.5" />
                   </a>
+                  {articlePreview.publishedDate && (
+                    <p className="text-xs text-muted-foreground">
+                      Publié le {(() => {
+                        try {
+                          const d = new Date(articlePreview.publishedDate);
+                          if (!isNaN(d.getTime())) return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+                        } catch {}
+                        return articlePreview.publishedDate;
+                      })()}
+                    </p>
+                  )}
                 </div>
               )}
 
