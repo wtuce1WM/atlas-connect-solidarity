@@ -1071,7 +1071,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                   <span>{business.city}{business.neighborhood ? `, ${business.neighborhood}` : ""}</span>
                 </div>
               </div>
-              <div className="flex items-center gap-2 shrink-0">
+              <div className={`flex items-center gap-2 shrink-0 ${bookingUrl ? 'mr-8' : ''}`}>
                 {business.default_service && (
                   <Badge className="text-xs bg-gold text-black hover:bg-gold/90 border-gold">{business.default_service}</Badge>
                 )}
