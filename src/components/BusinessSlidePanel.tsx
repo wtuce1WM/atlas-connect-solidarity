@@ -742,7 +742,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
             </div>
           </div>
           <iframe
-            src={pdfOverlay.url}
+            src={`https://docs.google.com/gview?url=${encodeURIComponent(pdfOverlay.url)}&embedded=true`}
             className="flex-1 w-full border-0"
             title={pdfOverlay.name}
           />
