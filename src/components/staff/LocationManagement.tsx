@@ -711,6 +711,8 @@ const LocationManagement = () => {
     setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 0);
   };
 
+  const neighborhoodKeywordInputRef = useRef<HTMLInputElement>(null);
+
   const handleSaveNeighborhoodFull = async () => {
     if (!neighborhoodFullForm.name.trim()) {
       toast({ variant: "destructive", title: "Erreur", description: "Le nom est requis." });
@@ -719,6 +721,13 @@ const LocationManagement = () => {
     if (!neighborhoodFullForm.city_id) {
       toast({ variant: "destructive", title: "Erreur", description: "La ville est requise." });
       return;
+    }
+    // Auto-fuse pending keyword input
+    let finalKeywords = [...neighborhoodFullForm.keywords];
+    const pending = neighborhoodKeywordInputRef.current?.value?.trim();
+    if (pending && !finalKeywords.includes(pending)) {
+      finalKeywords.push(pending);
+      neighborhoodKeywordInputRef.current!.value = '';
     }
     const data = {
       city_id: neighborhoodFullForm.city_id,
@@ -729,7 +738,7 @@ const LocationManagement = () => {
       image_url: neighborhoodFullForm.image_url.trim() || null,
       hook: neighborhoodFullForm.hook.trim().slice(0, 120) || null,
       description: neighborhoodFullForm.description || null,
-      keywords: neighborhoodFullForm.keywords.length > 0 ? neighborhoodFullForm.keywords : [],
+      keywords: finalKeywords.length > 0 ? finalKeywords : [],
     };
     let error;
     if (editingNeighborhoodFull) {
@@ -2577,18 +2586,31 @@ const LocationManagement = () => {
                   </div>
                   <div className="flex gap-2">
                     <Input
-                      placeholder="Ajouter un alias…"
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          const val = (e.target as HTMLInputElement).value.trim();
-                          if (val && !neighborhoodFullForm.keywords.includes(val)) {
-                            setNeighborhoodFullForm({ ...neighborhoodFullForm, keywords: [...neighborhoodFullForm.keywords, val] });
-                            (e.target as HTMLInputElement).value = '';
-                          }
-                        }
-                      }}
-                    />
+                     ref={neighborhoodKeywordInputRef}
+                     placeholder="Ajouter un alias…"
+                     onKeyDown={(e) => {
+                       if (e.key === 'Enter') {
+                         e.preventDefault();
+                         const val = (e.target as HTMLInputElement).value.trim();
+                         if (val && !neighborhoodFullForm.keywords.includes(val)) {
+                           setNeighborhoodFullForm({ ...neighborhoodFullForm, keywords: [...neighborhoodFullForm.keywords, val] });
+                           (e.target as HTMLInputElement).value = '';
+                         }
+                       }
+                     }}
+                   />
+                   <Button
+                     type="button"
+                     size="sm"
+                     variant="outline"
+                     onClick={() => {
+                       const val = neighborhoodKeywordInputRef.current?.value?.trim();
+                       if (val && !neighborhoodFullForm.keywords.includes(val)) {
+                         setNeighborhoodFullForm({ ...neighborhoodFullForm, keywords: [...neighborhoodFullForm.keywords, val] });
+                         neighborhoodKeywordInputRef.current!.value = '';
+                       }
+                     }}
+                   >+</Button>
                   </div>
                 </div>
               </CardContent>
