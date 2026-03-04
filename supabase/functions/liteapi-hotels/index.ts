@@ -67,6 +67,7 @@ Deno.serve(async (req) => {
       longitude: coords.lng,
       radius: 30000,
       limit: 50,
+      includeHotelData: true,
     };
 
     // Star rating filter
@@ -131,13 +132,14 @@ Deno.serve(async (req) => {
         };
       });
 
+      const hotelData = hotel.hotelData as Record<string, unknown> | undefined;
       return {
         hotelId: (hotel.hotelId as string) || "",
-        name: (hotel.name as string) || "Unknown Hotel",
+        name: (hotelData?.name as string) || (hotel.name as string) || "Unknown Hotel",
         cityCode: params.cityCode,
-        rating: hotel.stars ? String(hotel.stars) : undefined,
-        latitude: hotel.latitude ? Number(hotel.latitude) : undefined,
-        longitude: hotel.longitude ? Number(hotel.longitude) : undefined,
+        rating: (hotelData?.starRating as number) ? String(hotelData.starRating) : hotel.stars ? String(hotel.stars) : undefined,
+        latitude: (hotelData?.latitude as number) || (hotel.latitude ? Number(hotel.latitude) : undefined),
+        longitude: (hotelData?.longitude as number) || (hotel.longitude ? Number(hotel.longitude) : undefined),
         available: offers.length > 0,
         offers,
       };
