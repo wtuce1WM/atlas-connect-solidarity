@@ -2342,8 +2342,21 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               className="h-9 rounded-md border border-input bg-background px-3 text-sm w-28"
             >
               <option value="">Langue</option>
-              {(formData.languages && formData.languages.length > 0 ? formData.languages : ["Français", "English", "العربية"]).map((lang: string) => (
-                <option key={lang} value={lang}>{lang}</option>
+              {[
+                { code: "ar", label: "🇲🇦 AR" },
+                { code: "ar-std", label: "ض AR" },
+                { code: "fr", label: "🇫🇷 FR" },
+                { code: "en", label: "🇬🇧 EN" },
+                { code: "es", label: "🇪🇸 ES" },
+                { code: "de", label: "🇩🇪 DE" },
+                { code: "it", label: "🇮🇹 IT" },
+                { code: "pt", label: "🇵🇹 PT" },
+                { code: "nl", label: "🇳🇱 NL" },
+                { code: "zh", label: "🇨🇳 ZH" },
+                { code: "ja", label: "🇯🇵 JA" },
+                { code: "ru", label: "🇷🇺 RU" },
+              ].map(({ code, label }) => (
+                <option key={code} value={code}>{label}</option>
               ))}
             </select>
             {formData.menu_url && (
@@ -2377,10 +2390,28 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               className="h-9 rounded-md border border-input bg-background px-3 text-sm w-28"
             >
               <option value="">Langue</option>
-              {(formData.languages && formData.languages.length > 0 ? formData.languages : ["Français", "English", "العربية"]).map((lang: string) => (
-                <option key={lang} value={lang}>{lang}</option>
+              {[
+                { code: "ar", label: "🇲🇦 AR" },
+                { code: "ar-std", label: "ض AR" },
+                { code: "fr", label: "🇫🇷 FR" },
+                { code: "en", label: "🇬🇧 EN" },
+                { code: "es", label: "🇪🇸 ES" },
+                { code: "de", label: "🇩🇪 DE" },
+                { code: "it", label: "🇮🇹 IT" },
+                { code: "pt", label: "🇵🇹 PT" },
+                { code: "nl", label: "🇳🇱 NL" },
+                { code: "zh", label: "🇨🇳 ZH" },
+                { code: "ja", label: "🇯🇵 JA" },
+                { code: "ru", label: "🇷🇺 RU" },
+              ].map(({ code, label }) => (
+                <option key={code} value={code}>{label}</option>
               ))}
             </select>
+            {(formData as any).flipbook_url && (
+              <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => { handleChange("flipbook_url", ""); handleChange("flipbook_name", ""); handleChange("flipbook_language", ""); }}>
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            )}
           </div>
           <p className="text-xs text-muted-foreground">Collez l'URL de la publication Issuu ou Calaméo. Elle sera intégrée dans le panneau de l'établissement.</p>
         </div>
