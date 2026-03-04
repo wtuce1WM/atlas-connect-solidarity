@@ -6,6 +6,7 @@ import { Check, ArrowRight, Zap, Shield, Headphones } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -44,6 +45,13 @@ const BecomeAffiliate = () => {
       labelPhone: "Téléphone *",
       labelEmail: "Email",
       labelCity: "Ville *",
+      labelProjectName: "Nom de votre projet",
+      labelWebsite: "Site Web",
+      labelPaymentMethod: "Méthode de paiement",
+      paymentOnline: "En ligne",
+      paymentCheck: "Chèque",
+      paymentTransfer: "Virement",
+      paymentCash: "Espèces",
       labelMessage: "Un message ? (optionnel)",
       submitBtn: "Envoyer ma demande",
       successMsg: "Merci ! Nous vous recontacterons rapidement.",
@@ -77,6 +85,13 @@ const BecomeAffiliate = () => {
       labelPhone: "Phone *",
       labelEmail: "Email",
       labelCity: "City *",
+      labelProjectName: "Project name",
+      labelWebsite: "Website",
+      labelPaymentMethod: "Payment method",
+      paymentOnline: "Online",
+      paymentCheck: "Check",
+      paymentTransfer: "Bank transfer",
+      paymentCash: "Cash",
       labelMessage: "Any message? (optional)",
       submitBtn: "Send my request",
       successMsg: "Thank you! We'll get back to you shortly.",
@@ -110,6 +125,13 @@ const BecomeAffiliate = () => {
       labelPhone: "الهاتف *",
       labelEmail: "البريد الإلكتروني",
       labelCity: "المدينة *",
+      labelProjectName: "اسم مشروعك",
+      labelWebsite: "الموقع الإلكتروني",
+      labelPaymentMethod: "طريقة الدفع",
+      paymentOnline: "عبر الإنترنت",
+      paymentCheck: "شيك",
+      paymentTransfer: "تحويل بنكي",
+      paymentCash: "نقداً",
       labelMessage: "رسالة؟ (اختياري)",
       submitBtn: "إرسال طلبي",
       successMsg: "شكراً! سنتواصل معك قريباً.",
@@ -124,6 +146,9 @@ const BecomeAffiliate = () => {
     phone: "",
     email: "",
     city: "",
+    projectName: "",
+    website: "",
+    paymentMethod: "",
     message: "",
   });
 
@@ -138,7 +163,7 @@ const BecomeAffiliate = () => {
     setTimeout(() => {
       setFormLoading(false);
       toast({ title: "✅", description: t.successMsg });
-      setForm({ businessName: "", contactName: "", phone: "", email: "", city: "", message: "" });
+      setForm({ businessName: "", contactName: "", phone: "", email: "", city: "", projectName: "", website: "", paymentMethod: "", message: "" });
     }, 800);
   };
 
@@ -282,6 +307,39 @@ const BecomeAffiliate = () => {
                 onChange={(e) => setForm({ ...form, city: e.target.value })}
                 className="bg-white/[0.06] border-white/10 text-white placeholder:text-white/30 h-11"
               />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-white/60 text-sm mb-1.5">{t.labelProjectName}</label>
+                <Input
+                  value={form.projectName}
+                  onChange={(e) => setForm({ ...form, projectName: e.target.value })}
+                  className="bg-white/[0.06] border-white/10 text-white placeholder:text-white/30 h-11"
+                />
+              </div>
+              <div>
+                <label className="block text-white/60 text-sm mb-1.5">{t.labelWebsite}</label>
+                <Input
+                  value={form.website}
+                  onChange={(e) => setForm({ ...form, website: e.target.value })}
+                  className="bg-white/[0.06] border-white/10 text-white placeholder:text-white/30 h-11"
+                  type="url"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-white/60 text-sm mb-1.5">{t.labelPaymentMethod}</label>
+              <Select value={form.paymentMethod} onValueChange={(val) => setForm({ ...form, paymentMethod: val })}>
+                <SelectTrigger className="bg-white/[0.06] border-white/10 text-white h-11">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="online">{t.paymentOnline}</SelectItem>
+                  <SelectItem value="check">{t.paymentCheck}</SelectItem>
+                  <SelectItem value="transfer">{t.paymentTransfer}</SelectItem>
+                  <SelectItem value="cash">{t.paymentCash}</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <label className="block text-white/60 text-sm mb-1.5">{t.labelMessage}</label>
