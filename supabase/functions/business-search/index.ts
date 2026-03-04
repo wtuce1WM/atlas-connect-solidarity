@@ -3087,8 +3087,22 @@ serve(async (req) => {
             // BUT always keep businesses whose name closely matches the ORIGINAL query
             // Also include original matched keywords as valid service names (e.g. "tapis" keyword → also accept "Tapis" service)
             const extendedCandidates = [...allCandidateServiceNames];
+            // Only inject individual query words that are NOT already part of a detected multi-word service name.
+            // e.g. if "Cave à cigare" is detected, don't inject "cave" and "cigare" as standalone candidates
+            // because they would match unrelated businesses (e.g. "cave à vin" via "cave").
+            const multiWordServiceTokens = new Set<string>();
+            for (const sn of allCandidateServiceNames) {
+              if (sn.includes(" ") || sn.includes("-")) {
+                for (const w of sn.toLowerCase().split(/[\s\-]+/)) {
+                  if (w.length > 1 && !FRENCH_STOP_WORDS.has(w)) multiWordServiceTokens.add(w);
+                  multiWordServiceTokens.add(stripAccentsGlobal(w));
+                }
+              }
+            }
             for (const kw of serviceMatchWordsForInjection) {
               const kwLower = kw.toLowerCase();
+              // Skip if this word is a component of a multi-word service already in candidates
+              if (multiWordServiceTokens.has(kwLower) || multiWordServiceTokens.has(stripAccentsGlobal(kwLower))) continue;
               if (!extendedCandidates.some(c => c.toLowerCase() === kwLower)) {
                 extendedCandidates.push(kw);
               }
