@@ -488,6 +488,8 @@ export type Database = {
           email: string | null
           engagements: string[]
           facebook_url: string | null
+          flipbook_language: string | null
+          flipbook_name: string | null
           flipbook_url: string | null
           gamme_id: string | null
           getyourguide_rating: number | null
@@ -526,6 +528,8 @@ export type Database = {
           longitude: number | null
           main_category: string | null
           matterport_url: string | null
+          menu_language: string | null
+          menu_name: string | null
           menu_url: string | null
           name: string
           neighborhood: string | null
@@ -597,6 +601,8 @@ export type Database = {
           email?: string | null
           engagements?: string[]
           facebook_url?: string | null
+          flipbook_language?: string | null
+          flipbook_name?: string | null
           flipbook_url?: string | null
           gamme_id?: string | null
           getyourguide_rating?: number | null
@@ -635,6 +641,8 @@ export type Database = {
           longitude?: number | null
           main_category?: string | null
           matterport_url?: string | null
+          menu_language?: string | null
+          menu_name?: string | null
           menu_url?: string | null
           name: string
           neighborhood?: string | null
@@ -706,6 +714,8 @@ export type Database = {
           email?: string | null
           engagements?: string[]
           facebook_url?: string | null
+          flipbook_language?: string | null
+          flipbook_name?: string | null
           flipbook_url?: string | null
           gamme_id?: string | null
           getyourguide_rating?: number | null
@@ -744,6 +754,8 @@ export type Database = {
           longitude?: number | null
           main_category?: string | null
           matterport_url?: string | null
+          menu_language?: string | null
+          menu_name?: string | null
           menu_url?: string | null
           name?: string
           neighborhood?: string | null
@@ -2475,6 +2487,8 @@ export type Database = {
               email: string | null
               engagements: string[]
               facebook_url: string | null
+              flipbook_language: string | null
+              flipbook_name: string | null
               flipbook_url: string | null
               gamme_id: string | null
               getyourguide_rating: number | null
@@ -2513,6 +2527,8 @@ export type Database = {
               longitude: number | null
               main_category: string | null
               matterport_url: string | null
+              menu_language: string | null
+              menu_name: string | null
               menu_url: string | null
               name: string
               neighborhood: string | null
@@ -2600,6 +2616,8 @@ export type Database = {
               email: string | null
               engagements: string[]
               facebook_url: string | null
+              flipbook_language: string | null
+              flipbook_name: string | null
               flipbook_url: string | null
               gamme_id: string | null
               getyourguide_rating: number | null
@@ -2638,6 +2656,8 @@ export type Database = {
               longitude: number | null
               main_category: string | null
               matterport_url: string | null
+              menu_language: string | null
+              menu_name: string | null
               menu_url: string | null
               name: string
               neighborhood: string | null
