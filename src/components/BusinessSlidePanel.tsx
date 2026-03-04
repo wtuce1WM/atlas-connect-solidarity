@@ -164,6 +164,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   const [business, setBusiness] = useState<FullBusiness | null>(null);
   const [gamme, setGamme] = useState<Gamme | null>(null);
   const [activeServiceNames, setActiveServiceNames] = useState<Set<string> | null>(null);
+  const [pressEntries, setPressEntries] = useState<{ name: string; logo_url: string; url: string; language: string }[]>([]);
   
   const [reviewTexts, setReviewTexts] = useState<{ source: string; author_name: string | null; rating: number | null; text: string | null; relative_time: string | null }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -460,6 +461,27 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
       } else {
         setGamme(null);
       }
+
+      // Fetch press entries from knowledge base linked to this business
+      const { data: knowledgeData } = await supabase
+        .from("knowledge_entries")
+        .select("external_urls")
+        .eq("business_id", businessId)
+        .eq("is_active", true);
+      const allPress: { name: string; logo_url: string; url: string; language: string }[] = [];
+      if (knowledgeData) {
+        for (const entry of knowledgeData) {
+          const urls = entry.external_urls as any[];
+          if (urls && Array.isArray(urls)) {
+            for (const u of urls) {
+              if (u.logo_url && u.name) {
+                allPress.push({ name: u.name, logo_url: u.logo_url, url: u.url || "", language: u.language || "" });
+              }
+            }
+          }
+        }
+      }
+      setPressEntries(allPress);
 
 
       setIsLoading(false);
@@ -1496,6 +1518,37 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
               </>
             ) : null;
           })()}
+
+          {/* Presse – logos from knowledge base */}
+          {pressEntries.length > 0 && (
+            <>
+              <div className="space-y-3">
+                <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Presse</h3>
+                <div className="flex flex-wrap items-center justify-center gap-4">
+                  {pressEntries.map((entry, idx) => {
+                    const logoEl = (
+                      <div key={idx} className="flex flex-col items-center gap-1">
+                        <img
+                          src={entry.logo_url}
+                          alt={entry.name}
+                          className="h-10 w-auto object-contain"
+                        />
+                        {entry.language && (
+                          <span className="text-[10px] text-muted-foreground uppercase">{entry.language}</span>
+                        )}
+                      </div>
+                    );
+                    return entry.url ? (
+                      <a key={idx} href={entry.url} target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity">
+                        {logoEl}
+                      </a>
+                    ) : logoEl;
+                  })}
+                </div>
+              </div>
+              <Separator />
+            </>
+          )}
 
           {/* Similar businesses */}
           <div ref={similarSectionRef} className="scroll-mt-28" />
