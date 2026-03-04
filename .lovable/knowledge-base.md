@@ -71,6 +71,14 @@ Journal des décisions d'architecture, règles métier et apprentissages issus d
 - La correspondance de mot-clé est **tolérante aux pluriels** : « activités » matche « activité » grâce à un stemmer français simplifié.
 
 
+### Fonctionnement d'une recherche textuelle simple (ex: « Majorelle »)
+1. **Normalisation** : le mot est nettoyé (accents, casse) → `majorelle`
+2. **tsquery** : le moteur génère une requête full-text `majorelle:*` contre le champ `search_vector` de chaque business.
+3. **Matching** : tous les établissements dont le `search_vector` contient le token `majorelle` sont retenus (nom, adresse, mots-clés…).
+4. **Filtrage géo** : la clause `is_visible_locale` + zone s'applique, mais si aucune ville n'est spécifiée dans la requête, seul le filtre `is_active = true` compte.
+5. **Classement** : les résultats sont triés par `ts_rank` (pertinence textuelle), `priority_score` (score éditorial) et `wtuce_status` (vérifié > pending).
+6. **Pas de synonyme/bundle** : si le mot ne correspond à aucun service/sous-catégorie configuré (ex: nom propre), c'est une recherche purement textuelle directe.
+
 ## 📝 Notes diverses
 
 - Le mot "boutique" ne doit JAMAIS être ajouté comme mot-clé de recherche (trop générique, matche des hôtels).
