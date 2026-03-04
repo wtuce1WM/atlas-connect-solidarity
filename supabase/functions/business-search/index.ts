@@ -688,8 +688,8 @@ serve(async (req) => {
         // Web only: service présent ET boutique en ligne renseignée ET visible
         conditions.push(`and(services.cs.{"${webOnlyServiceName}"},online_shop_url.not.is.null,is_visible_locale.eq.true)`);
       }
-      // Include businesses with zone_chalandise = "internationale"
-      conditions.push(`zone_chalandise.eq.internationale`);
+      // Include businesses with zone_chalandise = "internationale" ET visible
+      conditions.push(`and(zone_chalandise.eq.internationale,is_visible_locale.eq.true)`);
       return builder.or(conditions.join(","));
     };
 
