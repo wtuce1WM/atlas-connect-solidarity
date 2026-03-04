@@ -676,7 +676,7 @@ serve(async (req) => {
       }
     }
 
-    // Helper: build city OR clause including zone_city_ids coverage + "Web only" businesses
+    // Helper: build city OR clause including zone_city_ids coverage + "Web only" + "internationale" businesses
     const applyCityFilter = (builder: any) => {
       if (!effectiveCity) return builder;
       const conditions: string[] = [`city.ilike.${effectiveCity}`];
@@ -686,6 +686,8 @@ serve(async (req) => {
       if (webOnlyServiceName) {
         conditions.push(`services.cs.{"${webOnlyServiceName}"}`);
       }
+      // Include businesses with zone_chalandise = "internationale"
+      conditions.push(`zone_chalandise.eq.internationale`);
       return builder.or(conditions.join(","));
     };
 
