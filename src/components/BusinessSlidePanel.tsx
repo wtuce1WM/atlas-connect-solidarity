@@ -370,15 +370,58 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
 
       setBusiness(data as any);
 
-      // Fetch active service names to filter displayed services
+      // Fetch active service names scoped to business subcategories
       if (data.services && data.services.length > 0) {
-        const { data: activeServices } = await supabase
-          .from("services")
-          .select("name_fr")
-          .eq("is_active", true);
-        if (activeServices) {
-          setActiveServiceNames(new Set(activeServices.map((s: any) => s.name_fr)));
+        const bizCategories: string[] = data.categories || [];
+        // Get subcategory IDs matching this business's categories
+        const { data: subRows } = await supabase
+          .from("subcategories")
+          .select("id, name_fr")
+          .in("name_fr", bizCategories.length > 0 ? bizCategories : ["__none__"]);
+        const subIds = (subRows || []).map((s: any) => s.id);
+
+        // Fetch services that are active AND belong to relevant subcategories (or any if no subcategory match)
+        let activeNames: Set<string>;
+        if (subIds.length > 0) {
+          const { data: activeServices } = await supabase
+            .from("services")
+            .select("name_fr, subcategory_id, is_active");
+          if (activeServices) {
+            // A service is visible if it's active in at least one of the business's subcategories,
+            // OR if it doesn't exist in any of the business's subcategories (fallback to global active check)
+            const svcInBizSubs = new Map<string, boolean>();
+            for (const svc of activeServices as any[]) {
+              const inBizSub = subIds.includes(svc.subcategory_id);
+              if (inBizSub) {
+                // If active in at least one matching subcategory, mark as visible
+                if (svc.is_active) {
+                  svcInBizSubs.set(svc.name_fr, true);
+                } else if (!svcInBizSubs.has(svc.name_fr)) {
+                  svcInBizSubs.set(svc.name_fr, false);
+                }
+              }
+            }
+            // For services not found in business subcategories, check global active status
+            activeNames = new Set<string>();
+            for (const svc of activeServices as any[]) {
+              if (svcInBizSubs.has(svc.name_fr)) {
+                if (svcInBizSubs.get(svc.name_fr)) activeNames.add(svc.name_fr);
+              } else if (svc.is_active) {
+                activeNames.add(svc.name_fr);
+              }
+            }
+          } else {
+            activeNames = new Set(data.services);
+          }
+        } else {
+          // No subcategory match — fallback to simple is_active filter
+          const { data: activeServices } = await supabase
+            .from("services")
+            .select("name_fr")
+            .eq("is_active", true);
+          activeNames = new Set((activeServices || []).map((s: any) => s.name_fr));
         }
+        setActiveServiceNames(activeNames);
       } else {
         setActiveServiceNames(null);
       }
