@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Search, Trash2, Link2, Hotel, Building2, MapPin, Star, Image as ImageIcon } from "lucide-react";
+import { Loader2, Search, Trash2, Link2, Hotel, Building2, MapPin, Star, Image as ImageIcon, X } from "lucide-react";
 import { toast } from "sonner";
 
 interface Mapping {
@@ -51,11 +51,27 @@ const HotelMappingManagement = () => {
   const [hotelFilter, setHotelFilter] = useState("");
   const [selectedHotel, setSelectedHotel] = useState<LiteApiHotel | null>(null);
 
-  // Business search for association
+  // Business search for association (auto-complete like KnowledgeBase)
   const [businessSearch, setBusinessSearch] = useState("");
-  const [businessResults, setBusinessResults] = useState<{ id: string; name: string; city: string | null }[]>([]);
-  const [searchingBusiness, setSearchingBusiness] = useState(false);
+  const [businessOptions, setBusinessOptions] = useState<{ id: string; name: string; city: string | null; is_active: boolean }[]>([]);
+  const [showBusinessDropdown, setShowBusinessDropdown] = useState(false);
+  const [selectedBusinessId, setSelectedBusinessId] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
+
+  // Auto-complete business search (debounced)
+  useEffect(() => {
+    if (businessSearch.length < 2) { setBusinessOptions([]); return; }
+    const timeout = setTimeout(async () => {
+      const { data } = await supabase
+        .from("businesses")
+        .select("id, name, city, is_active")
+        .ilike("name", `%${businessSearch}%`)
+        .limit(8);
+      setBusinessOptions(data || []);
+      setShowBusinessDropdown(true);
+    }, 300);
+    return () => clearTimeout(timeout);
+  }, [businessSearch]);
 
   const fetchMappings = async () => {
     setLoading(true);
@@ -117,36 +133,25 @@ const HotelMappingManagement = () => {
     }
   };
 
-  const handleSearchBusiness = async () => {
-    if (!businessSearch.trim()) return;
-    setSearchingBusiness(true);
-    const { data } = await supabase
-      .from("businesses")
-      .select("id, name, city")
-      .ilike("name", `%${businessSearch.trim()}%`)
-      .eq("is_active", true)
-      .limit(10);
-    setBusinessResults(data || []);
-    setSearchingBusiness(false);
-  };
 
-  const handleAdd = async (businessId: string) => {
-    if (!selectedHotel) {
-      toast.error("Veuillez sélectionner un hôtel LiteAPI");
+  const handleAdd = async () => {
+    if (!selectedHotel || !selectedBusinessId) {
+      toast.error("Veuillez sélectionner un hôtel et un établissement");
       return;
     }
     setAdding(true);
     const { error } = await supabase.from("hotel_api_mappings").upsert(
-      { liteapi_hotel_id: selectedHotel.hotelId, business_id: businessId },
+      { liteapi_hotel_id: selectedHotel.hotelId, business_id: selectedBusinessId },
       { onConflict: "liteapi_hotel_id" }
     );
     if (error) {
       toast.error(error.message);
     } else {
-      toast.success(`Association créée: ${selectedHotel.name} → résultat`);
+      toast.success(`Association créée: ${selectedHotel.name} → ${businessSearch}`);
       setSelectedHotel(null);
       setBusinessSearch("");
-      setBusinessResults([]);
+      setSelectedBusinessId(null);
+      setBusinessOptions([]);
       fetchMappings();
     }
     setAdding(false);
@@ -317,34 +322,50 @@ const HotelMappingManagement = () => {
                 <p className="text-[10px] font-mono text-muted-foreground">ID: {selectedHotel.hotelId}</p>
               </div>
             </div>
-            <div className="flex gap-2">
-              <Input
-                placeholder="Rechercher un établissement interne..."
-                value={businessSearch}
-                onChange={(e) => setBusinessSearch(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleSearchBusiness()}
-              />
-              <Button size="sm" onClick={handleSearchBusiness} disabled={searchingBusiness}>
-                {searchingBusiness ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
-              </Button>
-            </div>
-            {businessResults.length > 0 && (
-              <div className="border rounded-lg max-h-48 overflow-y-auto divide-y">
-                {businessResults.map((biz) => (
-                  <button
-                    key={biz.id}
-                    onClick={() => handleAdd(biz.id)}
-                    disabled={adding}
-                    className="w-full text-left p-2.5 hover:bg-accent text-sm flex justify-between items-center disabled:opacity-50"
-                  >
-                    <span className="font-medium">{biz.name}</span>
-                    <div className="flex items-center gap-2">
-                      {biz.city && <span className="text-xs text-muted-foreground">{biz.city}</span>}
-                      <Badge variant="outline" className="text-[10px]">Associer</Badge>
+            <div className="relative">
+              <label className="text-sm font-medium text-muted-foreground mb-1 block">Établissement interne</label>
+              <div className="flex gap-2 items-center">
+                <div className="relative flex-1">
+                  <Input
+                    placeholder="Rechercher un établissement…"
+                    value={businessSearch}
+                    onChange={(e) => { setBusinessSearch(e.target.value); setSelectedBusinessId(null); }}
+                    onFocus={() => businessOptions.length > 0 && setShowBusinessDropdown(true)}
+                    onBlur={() => setTimeout(() => setShowBusinessDropdown(false), 200)}
+                  />
+                  {showBusinessDropdown && businessOptions.length > 0 && (
+                    <div className="absolute z-50 bg-popover border rounded-md shadow-md w-full mt-1 max-h-48 overflow-y-auto">
+                      {businessOptions.map((b) => (
+                        <button
+                          key={b.id}
+                          className="w-full text-left px-3 py-2 hover:bg-muted text-sm"
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            setSelectedBusinessId(b.id);
+                            setBusinessSearch(b.name);
+                            setShowBusinessDropdown(false);
+                          }}
+                        >
+                          {b.name} {b.city && <span className="text-muted-foreground">— {b.city}</span>}
+                          {!b.is_active && <span className="text-destructive ml-1 text-xs">(inactif)</span>}
+                        </button>
+                      ))}
                     </div>
-                  </button>
-                ))}
+                  )}
+                </div>
+                {selectedBusinessId && (
+                  <Button variant="ghost" size="icon" onClick={() => { setSelectedBusinessId(null); setBusinessSearch(""); }}>
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
               </div>
+              {selectedBusinessId && <p className="text-xs text-green-600 mt-1">✓ Lié à : {businessSearch}</p>}
+            </div>
+            {selectedBusinessId && (
+              <Button onClick={handleAdd} disabled={adding}>
+                {adding ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Link2 className="h-4 w-4 mr-2" />}
+                Créer l'association
+              </Button>
             )}
           </CardContent>
         </Card>
