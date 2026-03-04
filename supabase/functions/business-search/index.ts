@@ -1333,10 +1333,18 @@ serve(async (req) => {
       const scopedSynonymFilters = (() => {
         if (!detectedSubcategory) return matchedSynonymFilters;
         const target = normalizeSubcat(detectedSubcategory);
+        // Service-only filters (subcategory_name is null) should always be kept —
+        // they are designed to work regardless of detected subcategory
+        const serviceOnlyFilters = matchedSynonymFilters.filter((f) => !f.subcategory_name && f.required_service);
         const scoped = matchedSynonymFilters.filter((f) => f.subcategory_name && normalizeSubcat(f.subcategory_name) === target);
-        if (scoped.length > 0) {
-          console.log(`🔒 Synonym scope by detected subcategory "${detectedSubcategory}": ${matchedSynonymFilters.length} → ${scoped.length} filter(s)`);
-          return scoped;
+        const combined = [...scoped, ...serviceOnlyFilters];
+        if (combined.length > 0) {
+          if (serviceOnlyFilters.length > 0) {
+            console.log(`🔒 Synonym scope: ${scoped.length} subcategory-matched + ${serviceOnlyFilters.length} service-only filter(s) kept (detected subcategory "${detectedSubcategory}")`);
+          } else {
+            console.log(`🔒 Synonym scope by detected subcategory "${detectedSubcategory}": ${matchedSynonymFilters.length} → ${scoped.length} filter(s)`);
+          }
+          return combined;
         }
         console.log(`🧭 Synonym scoped fallback disabled for "${detectedSubcategory}": no matching paired filters, continuing with normal search chain`);
         synonymsScopedOut = true;
