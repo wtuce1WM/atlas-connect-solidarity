@@ -171,6 +171,8 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   const [gamme, setGamme] = useState<Gamme | null>(null);
   const [activeServiceNames, setActiveServiceNames] = useState<Set<string> | null>(null);
   const [pressEntries, setPressEntries] = useState<{ name: string; logo_url: string; url: string; language: string }[]>([]);
+  const [articlePreview, setArticlePreview] = useState<{ title: string; summary: string; screenshot: string; url: string; name: string } | null>(null);
+  const [isLoadingArticle, setIsLoadingArticle] = useState(false);
   
   const [reviewTexts, setReviewTexts] = useState<{ source: string; author_name: string | null; rating: number | null; text: string | null; relative_time: string | null }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -1533,26 +1535,77 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                 <div className="flex flex-wrap items-center justify-center gap-4">
                   {pressEntries.map((entry, idx) => {
                     const flag = langToFlag(entry.language);
-                    const logoEl = (
-                      <div key={idx} className="flex flex-col items-center gap-1.5">
+                    return (
+                      <button
+                        key={idx}
+                        onClick={async () => {
+                          if (!entry.url) return;
+                          setIsLoadingArticle(true);
+                          setArticlePreview(null);
+                          try {
+                            const { data, error } = await supabase.functions.invoke('scrape-article-summary', {
+                              body: { url: entry.url },
+                            });
+                            if (error || !data?.success) {
+                              // Fallback: just open the link
+                              window.open(entry.url, '_blank');
+                            } else {
+                              setArticlePreview({
+                                title: data.title || entry.name,
+                                summary: data.summary || '',
+                                screenshot: data.screenshot || '',
+                                url: entry.url,
+                                name: entry.name,
+                              });
+                            }
+                          } catch {
+                            window.open(entry.url, '_blank');
+                          } finally {
+                            setIsLoadingArticle(false);
+                          }
+                        }}
+                        className="hover:opacity-70 transition-opacity flex flex-col items-center gap-1.5 cursor-pointer"
+                        disabled={isLoadingArticle}
+                      >
                         <div className="h-12 w-24 flex items-center justify-center">
-                          <img
-                            src={entry.logo_url}
-                            alt={entry.name}
-                            className="max-h-12 max-w-24 object-contain"
-                          />
+                          <img src={entry.logo_url} alt={entry.name} className="max-h-12 max-w-24 object-contain" />
                         </div>
                         {flag && <span className="text-base leading-none">{flag}</span>}
-                      </div>
+                      </button>
                     );
-                    return entry.url ? (
-                      <a key={idx} href={entry.url} target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity">
-                        {logoEl}
-                      </a>
-                    ) : logoEl;
                   })}
                 </div>
+                {isLoadingArticle && (
+                  <div className="flex justify-center py-2">
+                    <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                  </div>
+                )}
               </div>
+
+              {/* Article preview modal */}
+              {articlePreview && (
+                <div className="rounded-lg border bg-card p-4 space-y-3 animate-in fade-in">
+                  <div className="flex items-start justify-between gap-2">
+                    <h4 className="font-semibold text-sm text-foreground leading-tight">{articlePreview.title}</h4>
+                    <button onClick={() => setArticlePreview(null)} className="text-muted-foreground hover:text-foreground flex-shrink-0">
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                  {articlePreview.screenshot && (
+                    <img src={articlePreview.screenshot} alt="" className="w-full rounded-md border" />
+                  )}
+                  <p className="text-sm text-muted-foreground leading-relaxed">{articlePreview.summary}</p>
+                  <a
+                    href={articlePreview.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+                  >
+                    Lire l'article complet <ExternalLink className="h-3.5 w-3.5" />
+                  </a>
+                </div>
+              )}
+
               <Separator />
             </>
           )}
