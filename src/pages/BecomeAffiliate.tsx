@@ -52,6 +52,13 @@ const BecomeAffiliate = () => {
       paymentCheck: "Chèque",
       paymentTransfer: "Virement",
       paymentCash: "Espèces",
+      labelMultipleListings: "Avez-vous besoin d'une seule fiche ou de publier plusieurs offres ?",
+      labelContentReady: "Votre texte et photos sont prêts pour commencer ?",
+      optionYes: "Oui",
+      optionNo: "Non",
+      labelPaymentPlan: "Plan de paiement",
+      paymentPlanFull: "Paiement complet",
+      paymentPlanSplit: "Paiement en 2 fois",
       labelMessage: "Un message ? (optionnel)",
       submitBtn: "Envoyer ma demande",
       successMsg: "Merci ! Nous vous recontacterons rapidement.",
@@ -92,6 +99,13 @@ const BecomeAffiliate = () => {
       paymentCheck: "Check",
       paymentTransfer: "Bank transfer",
       paymentCash: "Cash",
+      labelMultipleListings: "Do you need a single listing or do you want to publish multiple offers?",
+      labelContentReady: "Are your text and photos ready to start?",
+      optionYes: "Yes",
+      optionNo: "No",
+      labelPaymentPlan: "Payment plan",
+      paymentPlanFull: "Full payment",
+      paymentPlanSplit: "Payment in 2 installments",
       labelMessage: "Any message? (optional)",
       submitBtn: "Send my request",
       successMsg: "Thank you! We'll get back to you shortly.",
@@ -132,6 +146,13 @@ const BecomeAffiliate = () => {
       paymentCheck: "شيك",
       paymentTransfer: "تحويل بنكي",
       paymentCash: "نقداً",
+      labelMultipleListings: "هل تحتاج إلى بطاقة واحدة أم تريد نشر عروض متعددة؟",
+      labelContentReady: "هل النصوص والصور جاهزة للبدء؟",
+      optionYes: "نعم",
+      optionNo: "لا",
+      labelPaymentPlan: "خطة الدفع",
+      paymentPlanFull: "دفع كامل",
+      paymentPlanSplit: "دفع على مرتين",
       labelMessage: "رسالة؟ (اختياري)",
       submitBtn: "إرسال طلبي",
       successMsg: "شكراً! سنتواصل معك قريباً.",
@@ -149,6 +170,9 @@ const BecomeAffiliate = () => {
     projectName: "",
     website: "",
     paymentMethod: "",
+    multipleListings: "",
+    contentReady: "",
+    paymentPlan: "",
     message: "",
   });
 
@@ -163,7 +187,7 @@ const BecomeAffiliate = () => {
     setTimeout(() => {
       setFormLoading(false);
       toast({ title: "✅", description: t.successMsg });
-      setForm({ businessName: "", contactName: "", phone: "", email: "", city: "", projectName: "", website: "", paymentMethod: "", message: "" });
+      setForm({ businessName: "", contactName: "", phone: "", email: "", city: "", projectName: "", website: "", paymentMethod: "", multipleListings: "", contentReady: "", paymentPlan: "", message: "" });
     }, 800);
   };
 
@@ -338,6 +362,44 @@ const BecomeAffiliate = () => {
                   <SelectItem value="check">{t.paymentCheck}</SelectItem>
                   <SelectItem value="transfer">{t.paymentTransfer}</SelectItem>
                   <SelectItem value="cash">{t.paymentCash}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-white/60 text-sm mb-1.5">{t.labelMultipleListings}</label>
+                <Select value={form.multipleListings} onValueChange={(val) => setForm({ ...form, multipleListings: val })}>
+                  <SelectTrigger className="bg-white/[0.06] border-white/10 text-white h-11">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="yes">{t.optionYes}</SelectItem>
+                    <SelectItem value="no">{t.optionNo}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="block text-white/60 text-sm mb-1.5">{t.labelContentReady}</label>
+                <Select value={form.contentReady} onValueChange={(val) => setForm({ ...form, contentReady: val })}>
+                  <SelectTrigger className="bg-white/[0.06] border-white/10 text-white h-11">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="yes">{t.optionYes}</SelectItem>
+                    <SelectItem value="no">{t.optionNo}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div>
+              <label className="block text-white/60 text-sm mb-1.5">{t.labelPaymentPlan}</label>
+              <Select value={form.paymentPlan} onValueChange={(val) => setForm({ ...form, paymentPlan: val })}>
+                <SelectTrigger className="bg-white/[0.06] border-white/10 text-white h-11">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="full">{t.paymentPlanFull}</SelectItem>
+                  <SelectItem value="split">{t.paymentPlanSplit}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
