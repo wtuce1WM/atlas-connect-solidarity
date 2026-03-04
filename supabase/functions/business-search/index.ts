@@ -2063,10 +2063,21 @@ serve(async (req) => {
     // Keeping it in the tsquery causes accent mismatches (e.g. "médina" vs "medina" in search_vector).
     let isNeighborhoodOnlyQuery = false;
     if (detectedNeighborhood && queryForExpansion) {
-      const nhWords = detectedNeighborhood.toLowerCase().split(/\s+/);
+      // Build a set of ALL words that refer to this neighborhood (canonical name + keywords/aliases)
+      const nhVariantWords = new Set<string>();
+      const nhAllVariants = getNeighborhoodVariants(detectedNeighborhood, loadedNeighborhoods);
+      for (const v of nhAllVariants) {
+        for (const w of v.toLowerCase().split(/\s+/)) {
+          nhVariantWords.add(w);
+          nhVariantWords.add(stripAccentsGlobal(w));
+          nhVariantWords.add(w.replace(/[éèêë]/g, "e").replace(/[àâä]/g, "a"));
+        }
+      }
       const stripped = queryForExpansion.split(/\s+/).filter(w => {
         const wLower = w.toLowerCase();
-        return !nhWords.some(nw => wLower === nw || wLower === nw.replace(/[éèêë]/g, "e").replace(/[àâä]/g, "a") || nw === wLower.replace(/[éèêë]/g, "e").replace(/[àâä]/g, "a"));
+        const wStripped = stripAccentsGlobal(wLower);
+        const wSimple = wLower.replace(/[éèêë]/g, "e").replace(/[àâä]/g, "a");
+        return !nhVariantWords.has(wLower) && !nhVariantWords.has(wStripped) && !nhVariantWords.has(wSimple);
       }).join(" ").trim();
       if (stripped) {
         queryForExpansion = stripped;
