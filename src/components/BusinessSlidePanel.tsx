@@ -695,6 +695,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
         <HotelAvailabilityOverlay
           liteApiHotelId={liteApiHotelId!}
           businessName={business.name}
+          backgroundImage={business.images?.[0] || undefined}
           onClose={() => setIsBookingOpen(false)}
         />
       )}
