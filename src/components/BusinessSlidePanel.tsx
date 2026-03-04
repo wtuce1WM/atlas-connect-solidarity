@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
-import { X, MapPin, Phone, Mail, Globe, Star, BadgeCheck, ChevronLeft, ChevronRight, Clock, Loader2, ExternalLink, CookingPot, Volume2, VolumeX, Maximize, Play, Pause, Headphones, Mic, Maximize2, Minimize2, Navigation, Box, BookOpen } from "lucide-react";
+import { X, MapPin, Phone, Mail, Globe, Star, BadgeCheck, ChevronLeft, ChevronRight, Clock, Loader2, ExternalLink, CookingPot, Volume2, VolumeX, Maximize, Play, Pause, Headphones, Mic, Maximize2, Minimize2, Navigation, Box, BookOpen, BedDouble } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Link, useNavigate } from "react-router-dom";
@@ -28,11 +28,21 @@ const LANG_FLAGS: Record<string, string> = {
 const langToFlag = (lang: string) => LANG_FLAGS[lang?.toUpperCase()] || "";
 
 
+export interface LiteApiData {
+  offers: { roomName: string; price: string; currency: string; paymentType?: string }[];
+  rating?: number;
+  reviewCount?: number;
+  checkIn: string;
+  checkOut: string;
+  hotelName: string;
+}
+
 interface BusinessSlidePanelProps {
   businessId: string;
   onClose: () => void;
   isExpanded?: boolean;
   onToggleExpand?: () => void;
+  liteApiData?: LiteApiData;
 }
 
 interface FullBusiness {
@@ -136,7 +146,7 @@ const SkypeIcon = ({ className = "h-5 w-5" }: { className?: string }) => (
   </svg>
 );
 
-const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpanded, onToggleExpand }: BusinessSlidePanelProps) => {
+const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpanded, onToggleExpand, liteApiData }: BusinessSlidePanelProps) => {
   const [internalBusinessId, setInternalBusinessId] = useState(externalBusinessId);
   const businessId = internalBusinessId;
 
@@ -1658,6 +1668,58 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                 </div>
               )}
 
+              <Separator />
+            </>
+          )}
+
+          {/* LiteAPI Availability Section */}
+          {liteApiData && liteApiData.offers.length > 0 && (
+            <>
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <BedDouble className="h-5 w-5 text-primary" />
+                  <h3 className="font-semibold text-base">
+                    {language === "en" ? "Live Availability" : "Disponibilités en temps réel"}
+                  </h3>
+                </div>
+                <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1">
+                    <Clock className="h-3 w-3" />
+                    {new Date(liteApiData.checkIn).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}
+                    {" → "}
+                    {new Date(liteApiData.checkOut).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}
+                  </span>
+                  {liteApiData.rating != null && (
+                    <span className="flex items-center gap-1">
+                      <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                      {liteApiData.rating}/10
+                      {liteApiData.reviewCount != null && (
+                        <span className="text-muted-foreground">({liteApiData.reviewCount})</span>
+                      )}
+                    </span>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  {liteApiData.offers.slice(0, 5).map((offer, idx) => (
+                    <div key={idx} className="flex items-center justify-between p-3 rounded-lg border bg-card">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">{offer.roomName}</p>
+                        {offer.paymentType && (
+                          <Badge variant="outline" className="text-[10px] mt-1">{offer.paymentType}</Badge>
+                        )}
+                      </div>
+                      <p className="text-lg font-bold text-primary ml-3 shrink-0">
+                        {new Intl.NumberFormat("fr-FR", { style: "currency", currency: offer.currency, minimumFractionDigits: 0 }).format(parseFloat(offer.price))}
+                      </p>
+                    </div>
+                  ))}
+                  {liteApiData.offers.length > 5 && (
+                    <p className="text-xs text-muted-foreground text-center">
+                      +{liteApiData.offers.length - 5} {language === "en" ? "more offers" : "autres offres"}
+                    </p>
+                  )}
+                </div>
+              </div>
               <Separator />
             </>
           )}
