@@ -1544,7 +1544,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                           setArticlePreview(null);
                           try {
                             const { data, error } = await supabase.functions.invoke('scrape-article-summary', {
-                              body: { url: entry.url },
+                              body: { url: entry.url, businessName: business?.name },
                             });
                             if (error || !data?.success) {
                               // Fallback: just open the link
