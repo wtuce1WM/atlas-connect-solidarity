@@ -15,42 +15,54 @@ Deno.serve(async (req) => {
     const apiKey = Deno.env.get("LITEAPI_API_KEY");
     if (!apiKey) throw new Error("LITEAPI_API_KEY not configured");
 
-    const { cityName, countryCode } = await req.json();
-    if (!cityName) throw new Error("cityName is required");
+    const body = await req.json();
+    const { cityName, countryCode, hotelIds } = body;
 
-    const params = new URLSearchParams({
-      cityName,
-      countryCode: countryCode || "MA",
-    });
+    let url: string;
 
-    console.log(`LiteAPI hotel lookup: ${cityName}, ${countryCode || "MA"}`);
+    if (hotelIds && Array.isArray(hotelIds) && hotelIds.length > 0) {
+      // Lookup by specific hotel IDs
+      const idsParam = hotelIds.join(",");
+      url = `${LITEAPI_BASE}/data/hotels?hotelIds=${encodeURIComponent(idsParam)}`;
+      console.log(`LiteAPI hotel lookup by IDs: ${hotelIds.length} hotels`);
+    } else if (cityName) {
+      // Lookup by city
+      const params = new URLSearchParams({
+        cityName,
+        countryCode: countryCode || "MA",
+      });
+      url = `${LITEAPI_BASE}/data/hotels?${params}`;
+      console.log(`LiteAPI hotel lookup: ${cityName}, ${countryCode || "MA"}`);
+    } else {
+      throw new Error("cityName or hotelIds is required");
+    }
 
-    const res = await fetch(`${LITEAPI_BASE}/data/hotels?${params}`, {
+    const res = await fetch(url, {
       headers: {
         "X-API-Key": apiKey,
         Accept: "application/json",
       },
     });
 
-    const body = await res.json();
+    const resBody = await res.json();
 
-    if (!res.ok || body.error) {
-      console.error("LiteAPI lookup error:", JSON.stringify(body).slice(0, 1000));
-      throw new Error(body.error?.message || body.message || `LiteAPI error [${res.status}]`);
+    if (!res.ok || resBody.error) {
+      console.error("LiteAPI lookup error:", JSON.stringify(resBody).slice(0, 1000));
+      throw new Error(resBody.error?.message || resBody.message || `LiteAPI error [${res.status}]`);
     }
 
-    const hotels = (body.data || []).map((h: Record<string, unknown>) => ({
+    const hotels = (resBody.data || []).map((h: Record<string, unknown>) => ({
       hotelId: h.id || h.hotelId || "",
       name: (h.name as string) || "Unknown",
       address: (h.address as string) || "",
-      city: (h.city as string) || cityName,
+      city: (h.city as string) || cityName || "",
       starRating: h.starRating ? Number(h.starRating) : null,
       mainPhoto: (h.main_photo as string) || null,
       latitude: h.latitude ? Number(h.latitude) : null,
       longitude: h.longitude ? Number(h.longitude) : null,
     }));
 
-    console.log(`LiteAPI lookup: ${hotels.length} hotels found for ${cityName}`);
+    console.log(`LiteAPI lookup: ${hotels.length} hotels found`);
 
     return new Response(
       JSON.stringify({ data: hotels, count: hotels.length }),
