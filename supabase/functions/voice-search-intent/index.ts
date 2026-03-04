@@ -25,9 +25,29 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
+    const today = new Date().toISOString().split("T")[0];
     const systemPrompt = `Tu es un assistant qui traduit des phrases en langage naturel en mots-clés de recherche pour un annuaire d'entreprises au Maroc.
 
 Ta tâche : identifier l'INTENTION sémantique et la traduire en mots-clés concrets (type d'établissement, service, produit, ville, quartier, personnage historique, nom propre).
+
+INTENTION SPÉCIALE — DISPONIBILITÉ HÔTELIÈRE :
+Si l'utilisateur demande la DISPONIBILITÉ d'un hôtel/riad/maison d'hôtes spécifique (par son nom), tu dois répondre avec un JSON spécial :
+{"intent": "hotelAvailability", "hotelName": "Nom de l'hôtel", "checkIn": "YYYY-MM-DD", "checkOut": "YYYY-MM-DD", "adults": 2, "rooms": 1}
+- Extraire le nom de l'établissement tel que dicté
+- Extraire les dates si mentionnées. La date actuelle est ${today}. Résoudre les dates relatives (demain, semaine prochaine, du 10 au 15 mars, etc.)
+- Si checkIn est donné mais pas checkOut, mettre checkOut = checkIn + 1 jour
+- Extraire le nombre d'adultes si mentionné (sinon omettre)
+- Extraire le nombre de chambres si mentionné (sinon omettre)
+- Déclencheurs : "disponible", "disponibilité", "dispo", "est-ce que X est disponible", "réserver au X", "chambres au X", "il y a de la place au X", "vérifier la dispo", "available", "book", "availability", "check availability"
+- IMPORTANT : cette intention ne s'applique QUE quand un NOM D'ÉTABLISSEMENT SPÉCIFIQUE est mentionné. "Je cherche un hôtel disponible" → recherche classique, PAS hotelAvailability.
+
+Exemples hotelAvailability :
+"Est-ce que le Villa Makassar est disponible du 10 au 15 mars ?" → {"intent": "hotelAvailability", "hotelName": "Villa Makassar", "checkIn": "2026-03-10", "checkOut": "2026-03-15"}
+"Réserver au Royal Mansour pour 3 adultes" → {"intent": "hotelAvailability", "hotelName": "Royal Mansour", "adults": 3}
+"Dispo au Riad Kniza du 20 au 25 avril 2 chambres" → {"intent": "hotelAvailability", "hotelName": "Riad Kniza", "checkIn": "2026-04-20", "checkOut": "2026-04-25", "rooms": 2}
+"Is the Mamounia available?" → {"intent": "hotelAvailability", "hotelName": "La Mamounia"}
+
+Pour TOUTES les autres requêtes, continue avec le format habituel ci-dessous.
 
 RÈGLE ABSOLUE — FIDÉLITÉ AU TRANSCRIPT :
 - Tu ne dois JAMAIS inventer, ajouter ou inférer des mots qui ne sont PAS dans le transcript original.
@@ -168,8 +188,7 @@ Exemples :
           { role: "system", content: systemPrompt },
           { role: "user", content: transcript },
         ],
-        max_tokens: 50,
-        temperature: 0.1,
+        max_tokens: 120,
       }),
     });
 
@@ -189,20 +208,34 @@ Exemples :
     let query = transcript;
     let category = "";
     let timeKeyword = "";
+    let intent = "";
+    let hotelAvailability: Record<string, unknown> | null = null;
     try {
-      // Try to parse as JSON first
       const parsed = JSON.parse(rawContent.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim());
-      query = parsed.keywords || rawContent;
-      category = parsed.category || "";
-      timeKeyword = parsed.timeKeyword || "";
+      
+      if (parsed.intent === "hotelAvailability") {
+        intent = "hotelAvailability";
+        hotelAvailability = {
+          hotelName: parsed.hotelName || "",
+          checkIn: parsed.checkIn || undefined,
+          checkOut: parsed.checkOut || undefined,
+          adults: parsed.adults || undefined,
+          rooms: parsed.rooms || undefined,
+        };
+        query = parsed.hotelName || transcript;
+        console.log(`Voice intent: hotelAvailability for "${parsed.hotelName}"`);
+      } else {
+        query = parsed.keywords || rawContent;
+        category = parsed.category || "";
+        timeKeyword = parsed.timeKeyword || "";
+      }
     } catch {
-      // Fallback: treat as plain text keywords (backward compat)
       query = rawContent || transcript;
     }
 
-    console.log(`Voice intent: "${transcript}" → keywords="${query}", category="${category}", timeKeyword="${timeKeyword}"`);
+    console.log(`Voice intent: "${transcript}" → intent="${intent}", keywords="${query}", category="${category}", timeKeyword="${timeKeyword}"`);
 
-    return new Response(JSON.stringify({ query, category, timeKeyword }), {
+    return new Response(JSON.stringify({ query, category, timeKeyword, intent, hotelAvailability }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {

@@ -449,6 +449,111 @@ const SearchPage = () => {
 
   // Close suggestions on click outside
 
+  const formatDateFr = (dateStr: string) => {
+    const [y, m, d] = dateStr.split("-");
+    return `${d}/${m}/${y}`;
+  };
+
+  const handleHotelAvailability = useCallback(async (
+    intent: { hotelName: string; checkIn?: string; checkOut?: string; adults?: number; rooms?: number },
+    spokenText: string,
+  ) => {
+    const { hotelName, checkIn, checkOut, adults, rooms } = intent;
+    const lang = language === "en" ? "en" : "fr";
+
+    // Show the spoken text in the search bar
+    setInputValue(hotelName);
+
+    try {
+      // 1. Find business by name
+      const { data: businesses } = await supabase
+        .from("businesses")
+        .select("id, name")
+        .ilike("name", `%${hotelName}%`)
+        .limit(1);
+
+      const biz = businesses?.[0];
+      if (!biz) {
+        const msg = lang === "en"
+          ? `I couldn't find ${hotelName} in our directory.`
+          : `Je n'ai pas trouvé ${hotelName} dans notre annuaire.`;
+        ttsSpeak(msg);
+        return;
+      }
+
+      // 2. Get LiteAPI mapping
+      const { data: mappings } = await supabase
+        .from("hotel_api_mappings")
+        .select("liteapi_hotel_id")
+        .eq("business_id", biz.id)
+        .limit(1);
+
+      const liteApiId = mappings?.[0]?.liteapi_hotel_id;
+      if (!liteApiId) {
+        const msg = lang === "en"
+          ? `${biz.name} doesn't have real-time availability enabled yet.`
+          : `${biz.name} n'a pas encore la disponibilité en temps réel activée.`;
+        ttsSpeak(msg);
+        return;
+      }
+
+      // 3. Build dates (defaults: tomorrow + day after)
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const dayAfter = new Date(tomorrow);
+      dayAfter.setDate(dayAfter.getDate() + 1);
+      const finalCheckIn = checkIn || tomorrow.toISOString().split("T")[0];
+      const finalCheckOut = checkOut || dayAfter.toISOString().split("T")[0];
+
+      // 4. Call liteapi-hotels
+      const { data, error } = await supabase.functions.invoke("liteapi-hotels", {
+        body: {
+          hotelIds: [liteApiId],
+          checkIn: finalCheckIn,
+          checkOut: finalCheckOut,
+          adults: adults || 2,
+          rooms: rooms || 1,
+          currency: "EUR",
+        },
+      });
+
+      if (error) throw new Error(error.message);
+
+      const hotels = data?.data || [];
+      const allOffers: { room: { type?: string }; price: { total: string; currency: string } }[] = [];
+      for (const h of hotels) {
+        if (h.available && h.offers) allOffers.push(...h.offers);
+      }
+
+      // 5. Build TTS response
+      let ttsMsg: string;
+      if (allOffers.length === 0) {
+        ttsMsg = lang === "en"
+          ? `Sorry, ${biz.name} has no availability from ${finalCheckIn} to ${finalCheckOut}.`
+          : `Désolé, ${biz.name} n'a aucune disponibilité du ${formatDateFr(finalCheckIn)} au ${formatDateFr(finalCheckOut)}.`;
+      } else {
+        const cheapest = allOffers.reduce((min, o) =>
+          parseFloat(o.price.total) < parseFloat(min.price.total) ? o : min
+        );
+        const priceStr = `${Math.round(parseFloat(cheapest.price.total))} ${cheapest.price.currency}`;
+
+        ttsMsg = lang === "en"
+          ? `${biz.name} has ${allOffers.length} room${allOffers.length > 1 ? "s" : ""} available from ${finalCheckIn} to ${finalCheckOut}, starting at ${priceStr}.`
+          : `${biz.name} a ${allOffers.length} chambre${allOffers.length > 1 ? "s" : ""} disponible${allOffers.length > 1 ? "s" : ""} du ${formatDateFr(finalCheckIn)} au ${formatDateFr(finalCheckOut)}, à partir de ${priceStr}.`;
+      }
+
+      voiceLoopRef.current = true;
+      ttsSpeak(ttsMsg);
+
+    } catch (err) {
+      console.error("Hotel availability voice error:", err);
+      const msg = lang === "en"
+        ? "Sorry, I couldn't check the availability. Please try again."
+        : "Désolé, je n'ai pas pu vérifier la disponibilité. Réessayez.";
+      ttsSpeak(msg);
+    }
+  }, [language, ttsSpeak]);
+
   const { status: voiceStatus, toggleRecording, liveTranscript } = useVoiceSearch({
     onTranscript: (keywords, spoken, category, timeKeyword) => {
       isVoiceSearchRef.current = true;
@@ -469,6 +574,7 @@ const SearchPage = () => {
       setSearchParams(params);
       if (isMobile) window.scrollTo({ top: 0, behavior: 'smooth' });
     },
+    onHotelAvailability: handleHotelAvailability,
     onError: (message) => {
       toast({ variant: "destructive", title: "Erreur microphone", description: message });
     },
