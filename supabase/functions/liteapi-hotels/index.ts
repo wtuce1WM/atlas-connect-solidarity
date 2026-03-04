@@ -92,8 +92,18 @@ Deno.serve(async (req) => {
     const ratesBody2 = await ratesRes.json();
 
     if (!ratesRes.ok || ratesBody2.error) {
+      const errMsg = ratesBody2.error?.message || ratesBody2.message || `LiteAPI error [${ratesRes.status}]`;
+      // "no availability" is not a real error — just means no rooms for these dates
+      const noAvail = /no availability|not found|no results/i.test(errMsg);
+      if (noAvail) {
+        console.log("LiteAPI: no availability for request");
+        return new Response(
+          JSON.stringify({ data: [], count: 0 }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
       console.error("LiteAPI rates error:", JSON.stringify(ratesBody2).slice(0, 1000));
-      throw new Error(ratesBody2.error?.message || ratesBody2.message || `LiteAPI error [${ratesRes.status}]`);
+      throw new Error(errMsg);
     }
 
     const rawHotels = ratesBody2.data || [];
