@@ -641,11 +641,11 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   return (
     <div className="flex flex-col h-full relative">
       {/* Floating vertical "Réserver" button à la Brummell */}
-      {/* Floating vertical "Réserver" button à la Brummell */}
+      {/* Floating vertical "Réserver" button à la Brummell (décalé hors panneau pour éviter le chevauchement) */}
       {bookingUrl && !isBookingOpen && (
         <button
           onClick={() => setIsBookingOpen(true)}
-          className="absolute right-0 top-1/2 -translate-y-1/2 z-50 flex flex-col items-center justify-center bg-black/90 hover:bg-black transition-all duration-300 rounded-l-2xl shadow-lg cursor-pointer gap-[6px] py-5 px-2"
+          className="absolute -right-3 top-1/2 -translate-y-1/2 z-50 flex flex-col items-center justify-center bg-black/90 hover:bg-black transition-all duration-300 rounded-l-2xl shadow-lg cursor-pointer gap-[6px] py-5 px-2"
           title="Réserver"
         >
           {"RÉSERVER".split("").map((letter, i) => (
@@ -1018,7 +1018,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
             </div>
             {/* Sticky tabs bar */}
             {showStickyTabs && (
-              <div className={`flex gap-1 overflow-x-auto no-scrollbar border-t border-border px-5 ${bookingUrl ? 'pr-10' : ''}`}>
+              <div className={`flex gap-1 overflow-x-auto no-scrollbar border-t border-border px-5 ${bookingUrl ? 'pr-16' : ''}`}>
                 {[
                   { id: "apercu", label: "Aperçu", show: !!business.description },
                   { id: "contact", label: "Contact", show: !!(business.address || business.phone || business.email || business.whatsapp) },
@@ -1071,7 +1071,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                   <span>{business.city}{business.neighborhood ? `, ${business.neighborhood}` : ""}</span>
                 </div>
               </div>
-              <div className={`flex items-center gap-2 shrink-0 ${bookingUrl ? 'mr-8' : ''}`}>
+              <div className={`flex items-center gap-2 shrink-0 ${bookingUrl ? 'mr-14' : ''}`}>
                 {business.default_service && (
                   <Badge className="text-xs bg-gold text-black hover:bg-gold/90 border-gold">{business.default_service}</Badge>
                 )}
@@ -1116,7 +1116,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
           )}
 
           {/* Tabs navigation */}
-          <div ref={descriptionRef} className={`flex gap-1 overflow-x-auto no-scrollbar border-b border-border -mx-5 px-5 scroll-mt-28 ${bookingUrl ? 'pr-10' : ''}`}>
+          <div ref={descriptionRef} className={`flex gap-1 overflow-x-auto no-scrollbar border-b border-border -mx-5 px-5 scroll-mt-28 ${bookingUrl ? 'pr-16' : ''}`}>
             {[
               { id: "apercu", label: "Aperçu", show: !!business.description },
               { id: "contact", label: "Contact", show: hasContact },
