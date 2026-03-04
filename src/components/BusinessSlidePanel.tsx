@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
-import { X, MapPin, Phone, Mail, Globe, Star, BadgeCheck, ChevronLeft, ChevronRight, Clock, Loader2, ExternalLink, CookingPot, Volume2, VolumeX, Maximize, Play, Pause, Headphones, Mic, Maximize2, Minimize2, Navigation, Box, BookOpen, BedDouble } from "lucide-react";
+import { X, MapPin, Phone, Mail, Globe, Star, BadgeCheck, ChevronLeft, ChevronRight, Clock, Loader2, ExternalLink, CookingPot, Volume2, VolumeX, Maximize, Play, Pause, Headphones, Mic, Maximize2, Minimize2, Navigation, Box, BookOpen, BedDouble, Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Link, useNavigate } from "react-router-dom";
@@ -20,6 +20,7 @@ import NearbyBusinesses from "@/components/NearbyBusinesses";
 import { Separator } from "@/components/ui/separator";
 import { FacebookIcon, InstagramIcon, LinkedInIcon, YouTubeIcon, TikTokIcon, TwitterIcon, PinterestIcon, VimeoIcon } from "@/components/staff/SocialMediaIcons";
 import BookingOverlay from "@/components/BookingOverlay";
+import HotelAvailabilityOverlay from "@/components/HotelAvailabilityOverlay";
 
 const LANG_FLAGS: Record<string, string> = {
   FR: "🇫🇷", EN: "🇬🇧", ES: "🇪🇸", AR: "🇲🇦", DE: "🇩🇪", IT: "🇮🇹",
@@ -182,6 +183,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   const [gamme, setGamme] = useState<Gamme | null>(null);
   const [activeServiceNames, setActiveServiceNames] = useState<Set<string> | null>(null);
   const [isBookingOpen, setIsBookingOpen] = useState(false);
+  const [liteApiHotelId, setLiteApiHotelId] = useState<string | null>(null);
   const [pressEntries, setPressEntries] = useState<{ name: string; logo_url: string; url: string; language: string }[]>([]);
   const [articlePreview, setArticlePreview] = useState<{ title: string; summary: string; screenshot: string; url: string; name: string; publishedDate?: string } | null>(null);
   const [isLoadingArticle, setIsLoadingArticle] = useState(false);
@@ -504,6 +506,13 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
       }
       setPressEntries(allPress);
 
+      // Check LiteAPI hotel mapping
+      const { data: mapping } = await supabase
+        .from("hotel_api_mappings")
+        .select("liteapi_hotel_id")
+        .eq("business_id", businessId)
+        .maybeSingle();
+      setLiteApiHotelId(mapping?.liteapi_hotel_id || null);
 
       setIsLoading(false);
     };
@@ -648,24 +657,26 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   const toolbarCenterPortal = document.getElementById("slide-panel-toolbar-center");
 
   const bookingUrl = business.reserve_now_url || business.booking_url || business.other_booking_url || null;
+  const hasLiteApiMapping = !!liteApiHotelId;
+  const showFloatingButton = (bookingUrl || hasLiteApiMapping) && !isBookingOpen;
+  const floatingLabel = hasLiteApiMapping ? "DISPO ?" : "RÉSERVER";
 
   return (
     <div className="flex flex-col h-full relative">
-      {/* Floating vertical "Réserver" button à la Brummell */}
-      {/* Floating vertical "Réserver" button à la Brummell (décalé hors panneau pour éviter le chevauchement) */}
-      {bookingUrl && !isBookingOpen && (
+      {/* Floating vertical button */}
+      {showFloatingButton && (
         <button
           onClick={() => setIsBookingOpen(true)}
           className="absolute right-0 top-[65%] -translate-y-1/2 z-50 flex flex-col items-center justify-center bg-black/90 hover:bg-black transition-all duration-300 rounded-l-2xl shadow-lg cursor-pointer gap-[6px] py-5 px-2 group"
-          title="Réserver"
+          title={hasLiteApiMapping ? "Vérifier la disponibilité" : "Réserver"}
         >
-          {"RÉSERVER".split("").map((letter, i) => (
+          {floatingLabel.split("").map((letter, i) => (
             <span
               key={i}
               className="text-white text-sm font-bold leading-none opacity-0 animate-[fadeInLetter_0.4s_ease-out_forwards]"
               style={{ animationDelay: `${i * 150}ms` }}
             >
-              {letter}
+              {letter === " " ? "\u00A0" : letter}
             </span>
           ))}
           <svg
@@ -679,8 +690,15 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
           </svg>
         </button>
       )}
-      {/* Booking iframe overlay — fills entire panel below the fixed toolbar */}
-      {bookingUrl && isBookingOpen && (
+      {/* Booking / Availability overlay */}
+      {isBookingOpen && hasLiteApiMapping && (
+        <HotelAvailabilityOverlay
+          liteApiHotelId={liteApiHotelId!}
+          businessName={business.name}
+          onClose={() => setIsBookingOpen(false)}
+        />
+      )}
+      {isBookingOpen && !hasLiteApiMapping && bookingUrl && (
         <BookingOverlay
           bookingUrl={bookingUrl}
           onClose={() => setIsBookingOpen(false)}
@@ -1301,18 +1319,28 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                 </div>
               )}
 
-              {/* Reserve now CTA — independent of opening hours */}
-              {business.reserve_now_url && (
+              {/* Reserve now CTA — or availability check if LiteAPI mapped */}
+              {(business.reserve_now_url || hasLiteApiMapping) && (
                 <div className="col-span-2 flex justify-center mt-2">
-                  <a
-                    href={business.reserve_now_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 w-[60%] py-3 rounded-xl bg-gold text-gold-foreground font-semibold text-sm hover:bg-gold/90 transition-colors"
-                  >
-                    {language === "en" ? "Book now" : language === "ar" ? "احجز الآن" : "Réserver maintenant"}
-                    <ExternalLink className="h-3.5 w-3.5" />
-                  </a>
+                  {hasLiteApiMapping ? (
+                    <button
+                      onClick={() => setIsBookingOpen(true)}
+                      className="flex items-center justify-center gap-2 w-[60%] py-3 rounded-xl bg-gold text-gold-foreground font-semibold text-sm hover:bg-gold/90 transition-colors"
+                    >
+                      {language === "en" ? "Check availability" : language === "ar" ? "تحقق من التوفر" : "Vérifier la disponibilité"}
+                      <Search className="h-3.5 w-3.5" />
+                    </button>
+                  ) : (
+                    <a
+                      href={business.reserve_now_url!}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2 w-[60%] py-3 rounded-xl bg-gold text-gold-foreground font-semibold text-sm hover:bg-gold/90 transition-colors"
+                    >
+                      {language === "en" ? "Book now" : language === "ar" ? "احجز الآن" : "Réserver maintenant"}
+                      <ExternalLink className="h-3.5 w-3.5" />
+                    </a>
+                  )}
                 </div>
               )}
 
