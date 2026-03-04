@@ -92,7 +92,10 @@ serve(async (req) => {
     
     if (knowledgeEntries.length > 0) {
       knowledgeContext = knowledgeEntries
-        .map((k: any) => `[${k.category}] ${k.title}: ${k.content}`)
+        .map((k: any) => {
+          const truncated = k.content.length > 300 ? k.content.substring(0, 300) + "…" : k.content;
+          return `[${k.category}] ${k.title}: ${truncated}`;
+        })
         .join("\n");
       console.log(`Found ${knowledgeEntries.length} knowledge entries for query "${query}" (${businessIds.length} by business link)`);
     }
@@ -141,7 +144,7 @@ RÈGLES :
 ÉTABLISSEMENTS TROUVÉS :
 ${businessContext}${knowledgeContext ? `
 
-CONNAISSANCES COMPLÉMENTAIRES (OBLIGATOIRE : intègre ces informations dans ta réponse de manière naturelle pour enrichir tes recommandations avec des détails culturels, pratiques ou historiques) :
+CONNAISSANCES COMPLÉMENTAIRES (si pertinent, intègre ces informations de manière naturelle pour enrichir tes recommandations — ne mets pas en avant un établissement uniquement parce qu'il a une entrée ici) :
 ${knowledgeContext}` : ''}`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
