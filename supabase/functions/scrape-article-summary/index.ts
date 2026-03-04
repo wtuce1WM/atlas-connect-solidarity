@@ -72,9 +72,10 @@ Deno.serve(async (req) => {
       );
     }
 
+    const strip = (s: string) => s.replace(/[_*`#~\[\]]/g, '').replace(/\s{2,}/g, ' ').trim();
     const extract = data.data?.extract || data.extract || {};
-    const title = extract.title || data.data?.metadata?.title || data.metadata?.title || '';
-    const summary = extract.summary || '';
+    const title = strip(extract.title || data.data?.metadata?.title || data.metadata?.title || '');
+    const summary = strip(extract.summary || '');
     const publishedDate = extract.publishedDate || data.data?.metadata?.publishedDate || '';
     const screenshot = data.data?.screenshot || data.screenshot || '';
 
