@@ -45,10 +45,18 @@ Deno.serve(async (req) => {
       },
       body: JSON.stringify({
         url: formattedUrl,
-        formats: [
-          { type: 'json', prompt: jsonPrompt, schema: { type: 'object', properties: { title: { type: 'string' }, summary: { type: 'string' } }, required: ['title', 'summary'] } },
-          'screenshot',
-        ],
+        formats: ['extract', 'screenshot'],
+        extract: {
+          prompt: jsonPrompt,
+          schema: {
+            type: 'object',
+            properties: {
+              title: { type: 'string' },
+              summary: { type: 'string' },
+            },
+            required: ['title', 'summary'],
+          },
+        },
         onlyMainContent: true,
       }),
     });
@@ -63,9 +71,9 @@ Deno.serve(async (req) => {
       );
     }
 
-    const json = data.data?.json || data.json || {};
-    const title = json.title || data.data?.metadata?.title || data.metadata?.title || '';
-    const summary = json.summary || '';
+    const extract = data.data?.extract || data.extract || {};
+    const title = extract.title || data.data?.metadata?.title || data.metadata?.title || '';
+    const summary = extract.summary || '';
     const screenshot = data.data?.screenshot || data.screenshot || '';
 
     return new Response(
