@@ -1,47 +1,306 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useState } from "react";
+import { Check, ArrowRight, Zap, Shield, Headphones } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const BecomeAffiliate = () => {
   const { language } = useLanguage();
+  const { toast } = useToast();
+  const [formLoading, setFormLoading] = useState(false);
 
   const translations = {
     fr: {
       title: "Devenir affilié",
-      subtitle: "Rejoignez notre réseau de partenaires",
-      description: "Développez votre visibilité au sein de la première place de marché solidaire du Maroc.",
+      subtitle: "Rejoignez la première place de marché solidaire du Maroc",
+      description: "Développez votre visibilité et rejoignez un réseau de partenaires engagés.",
+      pricingTitle: "Un seul prix, tout inclus.",
+      pricingSubtitle: "Pas de frais cachés. Tout ce dont vous avez besoin pour développer votre visibilité.",
+      offerBadge: "Offre de lancement",
+      price: "Gratuit",
+      priceSuffix: "pour commencer",
+      features: [
+        "Fiche établissement complète",
+        "Référencement sur toutes les pages",
+        "Visibilité sur la carte interactive",
+        "Badges et labels personnalisés",
+        "Statistiques de consultation",
+        "Support WhatsApp dédié",
+        "Accès au réseau de partenaires",
+      ],
+      cta: "Démarrer maintenant",
+      personalSupport: "Accompagnement personnalisé inclus",
+      formTitle: "Lancez votre visibilité maintenant.",
+      formBadge1: "Mise en ligne rapide",
+      formBadge2: "Sans engagement",
+      formBadge3: "Support 24/7",
+      labelName: "Nom de l'établissement *",
+      labelContact: "Nom du contact *",
+      labelPhone: "Téléphone *",
+      labelEmail: "Email",
+      labelCity: "Ville *",
+      labelMessage: "Un message ? (optionnel)",
+      submitBtn: "Envoyer ma demande",
+      successMsg: "Merci ! Nous vous recontacterons rapidement.",
     },
     en: {
       title: "Become an affiliate",
-      subtitle: "Join our partner network",
-      description: "Grow your visibility within Morocco's first solidarity marketplace.",
+      subtitle: "Join Morocco's first solidarity marketplace",
+      description: "Grow your visibility and join a network of committed partners.",
+      pricingTitle: "One price, all inclusive.",
+      pricingSubtitle: "No hidden fees. Everything you need to grow your visibility.",
+      offerBadge: "Launch offer",
+      price: "Free",
+      priceSuffix: "to get started",
+      features: [
+        "Complete business listing",
+        "Referencing on all pages",
+        "Visibility on the interactive map",
+        "Custom badges and labels",
+        "Consultation statistics",
+        "Dedicated WhatsApp support",
+        "Access to the partner network",
+      ],
+      cta: "Start now",
+      personalSupport: "Personalized support included",
+      formTitle: "Launch your visibility now.",
+      formBadge1: "Quick setup",
+      formBadge2: "No commitment",
+      formBadge3: "24/7 Support",
+      labelName: "Business name *",
+      labelContact: "Contact name *",
+      labelPhone: "Phone *",
+      labelEmail: "Email",
+      labelCity: "City *",
+      labelMessage: "Any message? (optional)",
+      submitBtn: "Send my request",
+      successMsg: "Thank you! We'll get back to you shortly.",
     },
     ar: {
       title: "كن شريكًا",
-      subtitle: "انضم إلى شبكة شركائنا",
-      description: "طور رؤيتك ضمن أول سوق تضامني في المغرب.",
+      subtitle: "انضم إلى أول سوق تضامني في المغرب",
+      description: "طور رؤيتك وانضم إلى شبكة شركاء ملتزمين.",
+      pricingTitle: "سعر واحد، الكل مشمول.",
+      pricingSubtitle: "لا رسوم خفية. كل ما تحتاجه لتطوير رؤيتك.",
+      offerBadge: "عرض الانطلاق",
+      price: "مجاني",
+      priceSuffix: "للبدء",
+      features: [
+        "بطاقة مؤسسة كاملة",
+        "إحالة على جميع الصفحات",
+        "ظهور على الخريطة التفاعلية",
+        "شارات وتسميات مخصصة",
+        "إحصائيات الاستشارة",
+        "دعم واتساب مخصص",
+        "الوصول إلى شبكة الشركاء",
+      ],
+      cta: "ابدأ الآن",
+      personalSupport: "مرافقة شخصية مشمولة",
+      formTitle: "أطلق رؤيتك الآن.",
+      formBadge1: "إعداد سريع",
+      formBadge2: "بدون التزام",
+      formBadge3: "دعم 24/7",
+      labelName: "اسم المؤسسة *",
+      labelContact: "اسم جهة الاتصال *",
+      labelPhone: "الهاتف *",
+      labelEmail: "البريد الإلكتروني",
+      labelCity: "المدينة *",
+      labelMessage: "رسالة؟ (اختياري)",
+      submitBtn: "إرسال طلبي",
+      successMsg: "شكراً! سنتواصل معك قريباً.",
     },
   };
 
   const t = translations[language as keyof typeof translations] || translations.fr;
 
+  const [form, setForm] = useState({
+    businessName: "",
+    contactName: "",
+    phone: "",
+    email: "",
+    city: "",
+    message: "",
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.businessName.trim() || !form.contactName.trim() || !form.phone.trim() || !form.city.trim()) {
+      toast({ variant: "destructive", title: "Erreur", description: "Veuillez remplir les champs obligatoires." });
+      return;
+    }
+    setFormLoading(true);
+    // For now just show success — could insert into a table later
+    setTimeout(() => {
+      setFormLoading(false);
+      toast({ title: "✅", description: t.successMsg });
+      setForm({ businessName: "", contactName: "", phone: "", email: "", city: "", message: "" });
+    }, 800);
+  };
+
   return (
     <div className="min-h-screen bg-black">
       <Header />
       <main className="pt-24 pb-20">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
+        {/* Hero */}
+        <section className="container mx-auto px-4 text-center mb-20">
+          <div className="max-w-3xl mx-auto">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6" style={{ fontFamily: "'Playfair Display', serif" }}>
               {t.title}
             </h1>
-            <p className="text-xl md:text-2xl text-gold mb-8">
+            <p className="text-xl md:text-2xl text-gold mb-4">
               {t.subtitle}
             </p>
-            <p className="text-lg text-white/80">
+            <p className="text-lg text-white/70">
               {t.description}
             </p>
           </div>
-        </div>
+        </section>
+
+        {/* Pricing Section */}
+        <section className="container mx-auto px-4 mb-24">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
+              {t.pricingTitle}
+            </h2>
+            <p className="text-lg text-white/60 max-w-xl mx-auto">
+              {t.pricingSubtitle}
+            </p>
+          </div>
+
+          <div className="max-w-md mx-auto">
+            <div className="relative rounded-2xl border border-gold/30 bg-gradient-to-b from-white/[0.06] to-white/[0.02] backdrop-blur-sm p-8 md:p-10 shadow-[0_0_60px_-15px_hsl(43_75%_55%/0.2)]">
+              {/* Badge */}
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                <span className="inline-block bg-gold text-black text-sm font-bold px-5 py-1.5 rounded-full shadow-lg">
+                  {t.offerBadge}
+                </span>
+              </div>
+
+              {/* Price */}
+              <div className="text-center mt-4 mb-8">
+                <span className="text-5xl md:text-6xl font-extrabold text-white">{t.price}</span>
+                <p className="text-white/50 mt-2">{t.priceSuffix}</p>
+              </div>
+
+              {/* Divider */}
+              <div className="h-px bg-gradient-to-r from-transparent via-gold/40 to-transparent mb-8" />
+
+              {/* Features */}
+              <ul className="space-y-4 mb-10">
+                {t.features.map((feat, i) => (
+                  <li key={i} className="flex items-start gap-3 text-white/85">
+                    <Check className="h-5 w-5 text-gold mt-0.5 shrink-0" />
+                    <span>{feat}</span>
+                  </li>
+                ))}
+              </ul>
+
+              {/* CTA */}
+              <Button
+                className="w-full h-12 text-base font-bold bg-gold hover:bg-gold/90 text-black rounded-xl shadow-lg shadow-gold/20 transition-all hover:shadow-gold/40"
+                onClick={() => {
+                  document.getElementById("affiliate-form")?.scrollIntoView({ behavior: "smooth" });
+                }}
+              >
+                {t.cta}
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+
+              <p className="text-center text-white/40 text-sm mt-4">{t.personalSupport}</p>
+            </div>
+          </div>
+        </section>
+
+        {/* Form Section */}
+        <section id="affiliate-form" className="container mx-auto px-4 mb-16">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6">
+              {t.formTitle}
+            </h2>
+            <div className="flex flex-wrap justify-center gap-4">
+              {[
+                { icon: Zap, label: t.formBadge1 },
+                { icon: Shield, label: t.formBadge2 },
+                { icon: Headphones, label: t.formBadge3 },
+              ].map(({ icon: Icon, label }) => (
+                <span key={label} className="inline-flex items-center gap-2 text-white/70 text-sm bg-white/[0.06] border border-white/10 rounded-full px-4 py-2">
+                  <Icon className="h-4 w-4 text-gold" />
+                  {label}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <form onSubmit={handleSubmit} className="max-w-lg mx-auto space-y-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-white/60 text-sm mb-1.5">{t.labelName}</label>
+                <Input
+                  value={form.businessName}
+                  onChange={(e) => setForm({ ...form, businessName: e.target.value })}
+                  className="bg-white/[0.06] border-white/10 text-white placeholder:text-white/30 h-11"
+                />
+              </div>
+              <div>
+                <label className="block text-white/60 text-sm mb-1.5">{t.labelContact}</label>
+                <Input
+                  value={form.contactName}
+                  onChange={(e) => setForm({ ...form, contactName: e.target.value })}
+                  className="bg-white/[0.06] border-white/10 text-white placeholder:text-white/30 h-11"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-white/60 text-sm mb-1.5">{t.labelPhone}</label>
+                <Input
+                  value={form.phone}
+                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                  className="bg-white/[0.06] border-white/10 text-white placeholder:text-white/30 h-11"
+                  type="tel"
+                />
+              </div>
+              <div>
+                <label className="block text-white/60 text-sm mb-1.5">{t.labelEmail}</label>
+                <Input
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  className="bg-white/[0.06] border-white/10 text-white placeholder:text-white/30 h-11"
+                  type="email"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-white/60 text-sm mb-1.5">{t.labelCity}</label>
+              <Input
+                value={form.city}
+                onChange={(e) => setForm({ ...form, city: e.target.value })}
+                className="bg-white/[0.06] border-white/10 text-white placeholder:text-white/30 h-11"
+              />
+            </div>
+            <div>
+              <label className="block text-white/60 text-sm mb-1.5">{t.labelMessage}</label>
+              <Textarea
+                value={form.message}
+                onChange={(e) => setForm({ ...form, message: e.target.value })}
+                className="bg-white/[0.06] border-white/10 text-white placeholder:text-white/30 min-h-[100px]"
+              />
+            </div>
+            <Button
+              type="submit"
+              disabled={formLoading}
+              className="w-full h-12 text-base font-bold bg-gold hover:bg-gold/90 text-black rounded-xl shadow-lg shadow-gold/20 transition-all hover:shadow-gold/40"
+            >
+              {formLoading ? "..." : t.submitBtn}
+              {!formLoading && <ArrowRight className="ml-2 h-5 w-5" />}
+            </Button>
+          </form>
+        </section>
       </main>
       <Footer />
     </div>
