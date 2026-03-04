@@ -645,13 +645,14 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
       {bookingUrl && !isBookingOpen && (
         <button
           onClick={() => setIsBookingOpen(true)}
-          className="absolute right-0 top-1/2 -translate-y-1/2 z-50 flex items-center justify-center bg-black/90 hover:bg-black transition-all duration-300 rounded-l-md shadow-lg cursor-pointer"
-          style={{ writingMode: "vertical-rl", textOrientation: "mixed", padding: "14px 6px" }}
+          className="absolute right-0 top-1/2 -translate-y-1/2 z-50 flex flex-col items-center justify-center bg-black/90 hover:bg-black transition-all duration-300 rounded-l-2xl shadow-lg cursor-pointer gap-[6px] py-5 px-2"
           title="Réserver"
         >
-          <span className="text-white text-xs font-semibold tracking-[0.15em]">Réserver</span>
+          {"RÉSERVER".split("").map((letter, i) => (
+            <span key={i} className="text-white text-sm font-bold leading-none">{letter}</span>
+          ))}
           <svg
-            width="12"
+            width="14"
             viewBox="0 0 20 10"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
