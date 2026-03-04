@@ -168,6 +168,9 @@ Deno.serve(async (req) => {
       const hid = hotel.hotelId as string;
       const details = hotelDetailsMap[hid];
 
+      const checkinCheckoutTimes = details?.checkinCheckoutTimes as Record<string, string> | undefined;
+      const hotelImages = (details?.hotelImages as { url?: string; thumbnailUrl?: string }[]) || [];
+
       return {
         hotelId: hid || "",
         name: (details?.name as string) || "Unknown Hotel",
@@ -178,6 +181,10 @@ Deno.serve(async (req) => {
         address: (details?.address as string) || undefined,
         city: (details?.city as string) || undefined,
         mainImage: (details?.main_photo as string) || undefined,
+        description: (details?.hotelDescription as string) || undefined,
+        checkinTime: checkinCheckoutTimes?.checkin || undefined,
+        checkoutTime: checkinCheckoutTimes?.checkout || undefined,
+        images: hotelImages.slice(0, 10).map((img) => img.url || img.thumbnailUrl).filter(Boolean),
         amenities: (details?.hotelFacilities as string[]) || [],
         available: offers.length > 0,
         offers,

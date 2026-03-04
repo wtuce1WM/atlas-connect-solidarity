@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Star, BedDouble, ExternalLink, Building2 } from "lucide-react";
+import { MapPin, Star, BedDouble, ExternalLink, Building2, Clock, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface HotelOffer {
   id: string;
@@ -37,6 +37,10 @@ export interface HotelResult {
     city?: string;
     mainImage?: string;
     amenities?: string[];
+    description?: string;
+    checkinTime?: string;
+    checkoutTime?: string;
+    images?: string[];
   };
   available: boolean;
   offers?: HotelOffer[];
@@ -53,9 +57,10 @@ export default function HotelDetailDialog({ hotel, open, onOpenChange, formatPri
   const { language } = useLanguage();
   const [dbBusiness, setDbBusiness] = useState<{ id: string; name: string; slug?: string } | null>(null);
   const [loadingDb, setLoadingDb] = useState(false);
+  const [currentImageIdx, setCurrentImageIdx] = useState(0);
 
   useEffect(() => {
-    if (!hotel || !open) { setDbBusiness(null); return; }
+    if (!hotel || !open) { setDbBusiness(null); setCurrentImageIdx(0); return; }
     const search = async () => {
       setLoadingDb(true);
       try {
@@ -77,6 +82,7 @@ export default function HotelDetailDialog({ hotel, open, onOpenChange, formatPri
 
   const h = hotel.hotel;
   const offers = hotel.offers || [];
+  const allImages = h.images && h.images.length > 0 ? h.images : h.mainImage ? [h.mainImage] : [];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -96,13 +102,59 @@ export default function HotelDetailDialog({ hotel, open, onOpenChange, formatPri
           </DialogDescription>
         </DialogHeader>
 
-        {/* Image */}
-        {h.mainImage && (
-          <img
-            src={h.mainImage}
-            alt={h.name}
-            className="w-full h-48 object-cover rounded-lg"
-          />
+        {/* Image Gallery */}
+        {allImages.length > 0 && (
+          <div className="relative">
+            <img
+              src={allImages[currentImageIdx]}
+              alt={`${h.name} - ${currentImageIdx + 1}`}
+              className="w-full h-52 object-cover rounded-lg"
+            />
+            {allImages.length > 1 && (
+              <>
+                <button
+                  onClick={() => setCurrentImageIdx((i) => (i - 1 + allImages.length) % allImages.length)}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 bg-background/80 rounded-full p-1 hover:bg-background"
+                >
+                  <ChevronLeft className="h-5 w-5" />
+                </button>
+                <button
+                  onClick={() => setCurrentImageIdx((i) => (i + 1) % allImages.length)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-background/80 rounded-full p-1 hover:bg-background"
+                >
+                  <ChevronRight className="h-5 w-5" />
+                </button>
+                <div className="absolute bottom-2 right-2 bg-background/80 text-xs px-2 py-0.5 rounded">
+                  {currentImageIdx + 1}/{allImages.length}
+                </div>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* Check-in/out times */}
+        {(h.checkinTime || h.checkoutTime) && (
+          <div className="flex gap-4 text-sm">
+            {h.checkinTime && (
+              <div className="flex items-center gap-1.5 text-muted-foreground">
+                <Clock className="h-3.5 w-3.5" />
+                <span>Check-in: <strong className="text-foreground">{h.checkinTime}</strong></span>
+              </div>
+            )}
+            {h.checkoutTime && (
+              <div className="flex items-center gap-1.5 text-muted-foreground">
+                <Clock className="h-3.5 w-3.5" />
+                <span>Check-out: <strong className="text-foreground">{h.checkoutTime}</strong></span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Description */}
+        {h.description && (
+          <p className="text-sm text-muted-foreground leading-relaxed line-clamp-4">
+            {h.description}
+          </p>
         )}
 
         {/* DB cross-reference */}

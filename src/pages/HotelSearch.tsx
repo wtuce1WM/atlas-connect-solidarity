@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
@@ -53,6 +53,15 @@ const HotelSearch = () => {
     };
   };
 
+  // Auto-search on page load
+  const autoSearchRef = useRef(false);
+  useEffect(() => {
+    if (!autoSearchRef.current) {
+      autoSearchRef.current = true;
+      handleSearch();
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   const handleSearch = async () => {
     const ci = checkIn || getDefaultDates().checkIn;
     const co = checkOut || getDefaultDates().checkOut;
@@ -94,6 +103,10 @@ const HotelSearch = () => {
           city: h.city,
           mainImage: h.mainImage,
           amenities: h.amenities,
+          description: h.description,
+          checkinTime: h.checkinTime,
+          checkoutTime: h.checkoutTime,
+          images: h.images,
         },
         available: h.available,
         offers: h.offers,
