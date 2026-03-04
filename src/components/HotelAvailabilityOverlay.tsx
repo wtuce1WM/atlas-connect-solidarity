@@ -241,7 +241,7 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, backgroundImag
       </div>
 
       {/* Results */}
-      <div className="relative flex-1 overflow-y-auto px-4 py-3">
+      <div className="relative flex-1 overflow-y-auto px-4 py-3 pb-24">
         {loading && (
           <div className="text-center py-8">
             <Loader2 className="h-8 w-8 animate-spin mx-auto text-white" />
