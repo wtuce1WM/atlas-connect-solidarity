@@ -2334,7 +2334,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               value={(formData as any).menu_name || ""}
               onChange={(e) => handleChange("menu_name", e.target.value)}
               placeholder="Nom"
-              className="w-32"
+              className="w-48"
             />
             <select
               value={(formData as any).menu_language || ""}
@@ -2382,7 +2382,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               value={(formData as any).flipbook_name || ""}
               onChange={(e) => handleChange("flipbook_name", e.target.value)}
               placeholder="Nom"
-              className="w-32"
+              className="w-48"
             />
             <select
               value={(formData as any).flipbook_language || ""}
