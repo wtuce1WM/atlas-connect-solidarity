@@ -2820,6 +2820,12 @@ serve(async (req) => {
             }));
             // Replace results with the filtered set
             businesses = strictTsBusinesses;
+            // Re-apply neighborhood filter since strict mode bypasses Level 1 neighborhood filtering
+            if (detectedNeighborhood && businesses.length > 0) {
+              const beforeNh = businesses.length;
+              businesses = filterByNeighborhood(businesses, detectedNeighborhood, isNeighborhoodOnlyQuery, loadedNeighborhoods);
+              console.log(`Strict mode neighborhood re-filter "${detectedNeighborhood}": ${beforeNh} → ${businesses.length}`);
+            }
             console.log(`Strict mode for "${detectedSubcategory}": tsquery "${tsQuery}" found ${businesses.length} results matching remaining terms [${remainingTerms.join(", ")}]`);
           } else {
             console.log(`Strict mode for "${detectedSubcategory}": tsquery "${tsQuery}" found 0 results, keeping original ${businesses.length} results`);
