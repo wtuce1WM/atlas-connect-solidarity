@@ -391,7 +391,6 @@ function filterByNeighborhood(businesses: any[], neighborhood: string, keepNameM
     const bNeighborhood = (b.neighborhood || "").toLowerCase();
     if (allVariants.some(v => bNeighborhood === v || bNeighborhood.includes(v))) return true;
     if (bNeighborhood.includes("toute la ville")) return true;
-    if (b.is_visible_locale === true) return true;
     if (keepNameMatches) {
       const bName = (b.name || "").toLowerCase();
       const bNameStripped = bName.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
