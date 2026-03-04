@@ -1018,7 +1018,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
             </div>
             {/* Sticky tabs bar */}
             {showStickyTabs && (
-              <div className="flex gap-1 overflow-x-auto no-scrollbar border-t border-border px-5">
+              <div className={`flex gap-1 overflow-x-auto no-scrollbar border-t border-border px-5 ${bookingUrl ? 'pr-10' : ''}`}>
                 {[
                   { id: "apercu", label: "Aperçu", show: !!business.description },
                   { id: "contact", label: "Contact", show: !!(business.address || business.phone || business.email || business.whatsapp) },
@@ -1116,7 +1116,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
           )}
 
           {/* Tabs navigation */}
-          <div ref={descriptionRef} className="flex gap-1 overflow-x-auto no-scrollbar border-b border-border -mx-5 px-5 scroll-mt-28">
+          <div ref={descriptionRef} className={`flex gap-1 overflow-x-auto no-scrollbar border-b border-border -mx-5 px-5 scroll-mt-28 ${bookingUrl ? 'pr-10' : ''}`}>
             {[
               { id: "apercu", label: "Aperçu", show: !!business.description },
               { id: "contact", label: "Contact", show: hasContact },
