@@ -443,7 +443,11 @@ const HotelSearch = () => {
             const ci = checkIn || getDefaultDates().checkIn;
             const co = checkOut || getDefaultDates().checkOut;
             const offers = (hotelResult.offers || []).map(o => ({
-              roomName: o.room?.typeEstimated?.category?.replace(/_/g, " ") || o.room?.type || "Standard",
+              roomName: (() => {
+                const raw = o.room?.typeEstimated?.category?.replace(/_/g, " ") || o.room?.type || "Standard";
+                // Title-case all-caps names like "STANDARD" → "Standard"
+                return raw === raw.toUpperCase() ? raw.charAt(0) + raw.slice(1).toLowerCase() : raw;
+              })(),
               price: o.price.total,
               currency: o.price.currency,
               paymentType: o.policies?.paymentType,

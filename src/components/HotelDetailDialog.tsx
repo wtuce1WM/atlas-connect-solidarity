@@ -378,7 +378,10 @@ export default function HotelDetailDialog({ hotel, open, onOpenChange, formatPri
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium truncate flex items-center gap-1.5">
                     <BedDouble className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                    {offer.room?.typeEstimated?.category?.replace(/_/g, " ") || offer.room?.type || "Standard"}
+                    {(() => {
+                      const raw = offer.room?.typeEstimated?.category?.replace(/_/g, " ") || offer.room?.type || "Standard";
+                      return raw === raw.toUpperCase() ? raw.charAt(0) + raw.slice(1).toLowerCase() : raw;
+                    })()}
                   </p>
                   {offer.room?.description?.text && offer.room.description.text !== offer.room?.typeEstimated?.category && (
                     <p className="text-xs text-muted-foreground mt-0.5 truncate">
