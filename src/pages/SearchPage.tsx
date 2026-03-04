@@ -21,7 +21,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Building2, ChevronLeft, ChevronRight, Search, Mic, MicOff, Loader, MapPin, MapPinOff, X, Volume2, VolumeX, Clock } from "lucide-react";
+import { Loader2, Building2, ChevronLeft, ChevronRight, Search, Mic, MicOff, Loader, MapPin, MapPinOff, X, Volume2, VolumeX, Clock, Map, Sparkles } from "lucide-react";
+import { lazy, Suspense } from "react";
+const BusinessMap = lazy(() => import("@/components/BusinessMap"));
 import BusinessCard, { type BusinessCardData, type Gamme, type Badge, type SubcategoryRef, type BadgeSubcategoryRef } from "@/components/BusinessCard";
 import AISearchAnswer from "@/components/AISearchAnswer";
 import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
@@ -366,6 +368,7 @@ const SearchPage = () => {
   const [celebrityBusinesses, setCelebrityBusinesses] = useState<Business[]>([]);
   const [ttsIntroPhrase, setTtsIntroPhrase] = useState<string>("");
   const [aiAnswerText, setAiAnswerText] = useState<string>("");
+  const [activeTab, setActiveTab] = useState<"suggestions" | "map">("suggestions");
 
   const normalizeText = (value: string) =>
     value
@@ -1332,7 +1335,67 @@ const SearchPage = () => {
         </div>
       </section>
 
-      {/* Filters & Results */}
+      {/* Tab Bar */}
+      <section className="bg-background border-b border-border sticky top-[64px] z-30">
+        <div className="mx-auto px-4 max-w-[80%]">
+          <div className="flex gap-0">
+            <button
+              onClick={() => setActiveTab("suggestions")}
+              className={`flex items-center gap-2 px-5 py-3 text-sm font-medium transition-colors border-b-2 ${
+                activeTab === "suggestions"
+                  ? "border-gold text-gold"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Sparkles className="h-4 w-4" />
+              {language === "en" ? "AI Suggestions" : language === "ar" ? "اقتراحات الذكاء" : "Suggestion IA"}
+            </button>
+            <button
+              onClick={() => setActiveTab("map")}
+              className={`flex items-center gap-2 px-5 py-3 text-sm font-medium transition-colors border-b-2 ${
+                activeTab === "map"
+                  ? "border-gold text-gold"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Map className="h-4 w-4" />
+              {language === "en" ? "Map" : language === "ar" ? "خريطة" : "Carte"}
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Map Tab */}
+      {activeTab === "map" && (
+        <section className="py-6 lg:py-12 bg-background">
+          <div className="mx-auto px-4 max-w-[80%]">
+            <Suspense fallback={<div className="flex justify-center py-16"><Loader2 className="h-8 w-8 animate-spin text-gold" /></div>}>
+              <BusinessMap
+                businesses={filteredBusinesses.length > 0 ? filteredBusinesses.map(b => ({
+                  id: b.id,
+                  name: b.name,
+                  city: b.city,
+                  address: b.address,
+                  phone: b.phone,
+                  whatsapp: b.whatsapp,
+                  main_category: b.main_category,
+                  categories: b.categories,
+                  latitude: b.latitude,
+                  longitude: b.longitude,
+                  wtuce_status: b.wtuce_status,
+                  logo_url: b.logo_url,
+                  neighborhood: (b as any).neighborhood,
+                })) : undefined}
+                height="calc(100vh - 250px)"
+                isLoading={isLoading}
+              />
+            </Suspense>
+          </div>
+        </section>
+      )}
+
+      {/* Filters & Results — Suggestion IA tab */}
+      {activeTab === "suggestions" && (
       <section ref={resultsRef} className="py-6 lg:py-12 bg-background">
         <div className="mx-auto px-4 max-w-[80%]">
           {/* Filters: City + Geo toggle — on mobile shown before hero via order */}
@@ -1657,6 +1720,7 @@ const SearchPage = () => {
           ) : null}
         </div>
       </section>
+      )}
 
       {/* Floating Search Bar */}
       <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-gold/20 py-3 px-4">
