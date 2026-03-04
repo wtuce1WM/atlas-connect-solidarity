@@ -1352,10 +1352,15 @@ serve(async (req) => {
             if (f.subcategory_name) for (const w of f.subcategory_name.toLowerCase().split(/[\s-]+/)) pairedConsumedWords.add(w);
             if (f.required_service) for (const w of f.required_service.toLowerCase().split(/[\s-]+/)) pairedConsumedWords.add(w);
           }
-          // Also consume synonym key words
+          // Also consume synonym key words AND synonym value words that triggered the match
           for (const [key, filters] of Object.entries(synonymFilters)) {
             if (filters === matchedSynonymFilters || JSON.stringify(filters) === JSON.stringify(matchedSynonymFilters)) {
-              for (const w of key.toLowerCase().split(/\s+/)) pairedConsumedWords.add(w);
+              for (const w of key.toLowerCase().split(/[\s-]+/)) pairedConsumedWords.add(w);
+              // Consume synonym values too (e.g. "restaurant-spectacle" → "restaurant", "spectacle")
+              const synVals = synonyms[key] || [];
+              for (const sv of synVals) {
+                for (const w of sv.toLowerCase().split(/[\s-]+/)) pairedConsumedWords.add(w);
+              }
             }
           }
           const pairedRemainingWords = effectiveQuery.toLowerCase().split(/\s+/)
