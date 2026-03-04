@@ -1877,6 +1877,11 @@ serve(async (req) => {
                 if (strongKeywordServices.includes(svcName)) return true;
                 // Keep if this service had a keyword match
                 if (servicesWithKeywordMatch.has(svcName)) return true;
+                // Keep if the service name itself directly matches a query word
+                // e.g. service "Tapis" should be kept when user searched "tapis"
+                const svcNameNorm = normalizeWordKw(svcName.toLowerCase());
+                const nameMatchesQuery = serviceMatchWords.some(w => normalizeWordKw(w) === svcNameNorm || wordBoundaryMatch(svcNameNorm, normalizeWordKw(w)));
+                if (nameMatchesQuery) return true;
                 // Keep if this service has non-empty keywords (even if they didn't match this specific query)
                 const svcData = matchingServices.find((s: any) => s.name_fr === svcName);
                 const hasKeywords = svcData && svcData.keywords && svcData.keywords.length > 0;
