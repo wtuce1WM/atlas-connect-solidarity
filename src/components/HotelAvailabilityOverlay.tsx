@@ -123,9 +123,12 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, backgroundImag
 
       {/* Header */}
       <div className="relative flex items-center justify-between px-4 py-3 shrink-0">
-        <span className="text-base font-bold text-white">
-          {language === "en" ? "Check availability" : "Vérifier la disponibilité"}
-        </span>
+        <div className="flex flex-col">
+          <span className="text-base font-bold text-white">
+            {language === "en" ? "Check availability" : "Vérifier la disponibilité"}
+          </span>
+          <span className="text-sm text-white/80 truncate max-w-[250px]">{businessName}</span>
+        </div>
         <button onClick={onClose} className="p-1.5 rounded-full bg-white/20 hover:bg-white/30 transition-colors" title="Fermer">
           <X className="h-5 w-5 text-white" />
         </button>
