@@ -662,10 +662,12 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
             viewBox="0 0 20 10"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
-            className="mt-2 opacity-0 animate-[fadeInLetter_0.4s_ease-out_forwards]"
-            style={{ animationDelay: `${8 * 150}ms` }}
+            className="mt-2 opacity-0 animate-[fadeInLetter_0.4s_ease-out_forwards] [animation-delay:1.2s]"
+            style={{ }}
           >
-            <path d="M20 4.92163L12.5 0.591505L12.5 9.25176L20 4.92163ZM0 5.67163L13.25 5.67163L13.25 4.17163L0 4.17163L0 5.67163Z" fill="white" />
+            <g className="animate-[arrowBounceX_1.2s_ease-in-out_infinite_1.6s]">
+              <path d="M20 4.92163L12.5 0.591505L12.5 9.25176L20 4.92163ZM0 5.67163L13.25 5.67163L13.25 4.17163L0 4.17163L0 5.67163Z" fill="white" />
+            </g>
           </svg>
         </button>
       )}
