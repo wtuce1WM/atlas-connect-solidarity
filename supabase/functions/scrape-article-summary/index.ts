@@ -60,10 +60,24 @@ Deno.serve(async (req) => {
     const title = data.data?.metadata?.title || data.metadata?.title || '';
     const screenshot = data.data?.screenshot || data.screenshot || '';
 
-    // Generate a summary: take first ~500 chars of markdown as excerpt
-    const summary = markdown.length > 600
-      ? markdown.substring(0, 600).replace(/\n+/g, ' ').trim() + '…'
-      : markdown.replace(/\n+/g, ' ').trim();
+    // Strip markdown syntax to get plain text
+    const plainText = markdown
+      .replace(/!\[.*?\]\(.*?\)/g, '')        // remove images
+      .replace(/\[([^\]]*)\]\(.*?\)/g, '$1')  // links → text only
+      .replace(/#{1,6}\s*/g, '')              // headings
+      .replace(/(\*{1,3}|_{1,3})(.*?)\1/g, '$2') // bold/italic
+      .replace(/`{1,3}[^`]*`{1,3}/g, '')     // code
+      .replace(/>\s?/g, '')                   // blockquotes
+      .replace(/[-*+]\s/g, '')               // list markers
+      .replace(/\|.*?\|/g, '')               // tables
+      .replace(/\n{2,}/g, '\n')              // collapse newlines
+      .replace(/\n/g, ' ')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
+
+    const summary = plainText.length > 500
+      ? plainText.substring(0, 500).trim() + '…'
+      : plainText;
 
     return new Response(
       JSON.stringify({
