@@ -660,13 +660,33 @@ serve(async (req) => {
       }
     }
 
-    // Helper: build city OR clause including zone_city_ids coverage
+    // Resolve "Web only" service name from its fixed ID (rename-safe)
+    const WEB_ONLY_SERVICE_ID = "9ad4f9a3-f409-498f-8a1e-6b949407365b";
+    let webOnlyServiceName: string | null = null;
+    {
+      const { data: svcRow } = await supabase
+        .from("services")
+        .select("name_fr")
+        .eq("id", WEB_ONLY_SERVICE_ID)
+        .limit(1)
+        .single();
+      if (svcRow) {
+        webOnlyServiceName = svcRow.name_fr;
+        console.log(`Resolved Web Only service ID → "${webOnlyServiceName}"`);
+      }
+    }
+
+    // Helper: build city OR clause including zone_city_ids coverage + "Web only" businesses
     const applyCityFilter = (builder: any) => {
       if (!effectiveCity) return builder;
+      const conditions: string[] = [`city.ilike.${effectiveCity}`];
       if (effectiveCityId) {
-        return builder.or(`city.ilike.${effectiveCity},zone_city_ids.cs.{"${effectiveCityId}"}`);
+        conditions.push(`zone_city_ids.cs.{"${effectiveCityId}"}`);
       }
-      return builder.ilike("city", effectiveCity);
+      if (webOnlyServiceName) {
+        conditions.push(`services.cs.{"${webOnlyServiceName}"}`);
+      }
+      return builder.or(conditions.join(","));
     };
 
     // Auto-détection de quartier dans la query
