@@ -1241,18 +1241,6 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                 </div>
               )}
 
-              {/* Menu */}
-              {business.menu_url && (
-                <div className="flex items-start gap-3">
-                  <CookingPot className="h-5 w-5 shrink-0 mt-0.5 text-foreground" />
-                  <div>
-                    <p className="font-semibold text-sm text-foreground">Menu</p>
-                    <a href={business.menu_url} target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground transition-colors mt-0.5 block">
-                      Voir le menu <ExternalLink className="inline h-3 w-3 ml-0.5" />
-                    </a>
-                  </div>
-                </div>
-              )}
 
               {/* WhatsApp */}
               {business.whatsapp && (
