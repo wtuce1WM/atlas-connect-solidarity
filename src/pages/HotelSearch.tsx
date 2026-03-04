@@ -99,67 +99,41 @@ const HotelSearch = () => {
     setSearchDone(false);
 
     try {
-      // Step 1: Get hotel IDs for the city
-      const listParams: Record<string, unknown> = { action: "hotel-list", cityCode, radius: "30", radiusUnit: "KM" };
-      if (stars && stars !== "all") listParams.ratings = stars;
+      const body: Record<string, unknown> = {
+        cityCode,
+        checkIn: ci,
+        checkOut: co,
+        adults: parseInt(adults),
+        rooms: parseInt(rooms),
+        currency,
+      };
+      if (stars && stars !== "all") body.ratings = stars;
 
-      const { data: listData, error: listError } = await supabase.functions.invoke("amadeus-hotels", {
-        body: listParams,
-      });
+      const { data, error } = await supabase.functions.invoke("sabre-hotels", { body });
 
-      if (listError) throw new Error(listError.message);
-      if (listData?.error) throw new Error(listData.error);
+      if (error) throw new Error(error.message);
+      if (data?.error) throw new Error(data.error);
 
-      const hotels = listData?.data || [];
-      if (hotels.length === 0) {
-        toast.info("Aucun hôtel trouvé pour cette ville");
-        setSearchDone(true);
-        setLoading(false);
-        return;
-      }
+      const hotels: HotelOffer[] = (data?.data || []).map((h: any) => ({
+        hotel: {
+          hotelId: h.hotelId,
+          name: h.name,
+          cityCode: h.cityCode,
+          latitude: h.latitude,
+          longitude: h.longitude,
+          rating: h.rating,
+        },
+        available: h.available,
+        offers: h.offers,
+      }));
 
-      // Batch hotel IDs in groups of 20 (API limit) - process up to 100 hotels
-      const allHotelIds = hotels.slice(0, 100).map((h: { hotelId: string }) => h.hotelId);
-      const batches: string[][] = [];
-      for (let i = 0; i < allHotelIds.length; i += 20) {
-        batches.push(allHotelIds.slice(i, i + 20));
-      }
-
-      const allResults: HotelOffer[] = [];
-
-      for (const batch of batches) {
-        const { data: offersData, error: offersError } = await supabase.functions.invoke("amadeus-hotels", {
-          body: {
-            action: "hotel-offers",
-            hotelIds: batch.join(","),
-            checkInDate: ci,
-            checkOutDate: co,
-            adults: parseInt(adults),
-            roomQuantity: parseInt(rooms),
-            currency,
-          },
-        });
-
-        if (offersError) {
-          console.warn("Batch error:", offersError.message);
-          continue;
-        }
-        if (offersData?.error) {
-          console.warn("Batch API error:", offersData.error);
-          continue;
-        }
-
-        const offers: HotelOffer[] = offersData?.data || [];
-        allResults.push(...offers.filter((o) => o.available && o.offers && o.offers.length > 0));
-      }
-
-      setResults(allResults);
+      setResults(hotels.filter((o) => o.available && o.offers && o.offers.length > 0));
       setSearchDone(true);
 
-      if (allResults.length === 0) {
+      if (hotels.length === 0) {
         toast.info("Aucune disponibilité trouvée pour ces dates");
       } else {
-        toast.success(`${allResults.length} hôtels disponibles trouvés`);
+        toast.success(`${hotels.length} hôtels disponibles trouvés`);
       }
     } catch (err) {
       console.error("Hotel search error:", err);
