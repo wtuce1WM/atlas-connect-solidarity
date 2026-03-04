@@ -1321,9 +1321,16 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                 <div className={`flex items-start justify-start ${!canShowOpenBadge ? 'col-span-2' : ''}`}>
                   <div className="grid grid-cols-2 gap-3">
                     {businessDocs.slice(0, 4).map((doc) => {
-                      const iconSrc = doc.icon
-                        ? `/images/doc-icons/${doc.icon}.avif`
-                        : `/images/doc-icons/icon_menu.png`;
+                      const iconFile = doc.icon || 'icon_menu';
+                      // Try exact match with known extensions
+                      const knownExtensions: Record<string, string> = {
+                        'icon_cocktails': '.avif',
+                        'icon_cocktails2': '.png',
+                        'icon_menu': '.png',
+                        'icon_wine': '.png',
+                      };
+                      const ext = knownExtensions[iconFile] || '.png';
+                      const iconSrc = `/images/doc-icons/${iconFile}${ext}`;
                       return (
                         <a
                           key={doc.id}
