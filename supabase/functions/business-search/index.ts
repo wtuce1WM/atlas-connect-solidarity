@@ -1330,26 +1330,12 @@ serve(async (req) => {
       // If a subcategory was explicitly detected in the query, prioritize matching paired filters
       // scoped to that subcategory to avoid broad cross-domain leakage (e.g. "location voiture" matching villas).
       const normalizeSubcat = (v: string) => stripAccentsGlobal(v.toLowerCase().replace(/-/g, " ").replace(/\s+/g, " ").trim());
-      const scopedSynonymFilters = (() => {
-        if (!detectedSubcategory) return matchedSynonymFilters;
-        const target = normalizeSubcat(detectedSubcategory);
-        // Service-only filters (subcategory_name is null) should always be kept —
-        // they are designed to work regardless of detected subcategory
-        const serviceOnlyFilters = matchedSynonymFilters.filter((f) => !f.subcategory_name && f.required_service);
-        const scoped = matchedSynonymFilters.filter((f) => f.subcategory_name && normalizeSubcat(f.subcategory_name) === target);
-        const combined = [...scoped, ...serviceOnlyFilters];
-        if (combined.length > 0) {
-          if (serviceOnlyFilters.length > 0) {
-            console.log(`🔒 Synonym scope: ${scoped.length} subcategory-matched + ${serviceOnlyFilters.length} service-only filter(s) kept (detected subcategory "${detectedSubcategory}")`);
-          } else {
-            console.log(`🔒 Synonym scope by detected subcategory "${detectedSubcategory}": ${matchedSynonymFilters.length} → ${scoped.length} filter(s)`);
-          }
-          return combined;
-        }
-        console.log(`🧭 Synonym scoped fallback disabled for "${detectedSubcategory}": no matching paired filters, continuing with normal search chain`);
-        synonymsScopedOut = true;
-        return [];
-      })();
+      // When synonym filters are matched, skip subcategory scoping entirely —
+      // the synonym's own filters define the intent more precisely than auto-detected subcategories.
+      const scopedSynonymFilters = matchedSynonymFilters;
+      if (detectedSubcategory) {
+        console.log(`🔓 Synonym filters present (${matchedSynonymFilters.length}) — skipping subcategory scoping for "${detectedSubcategory}"`);
+      }
       for (const filter of scopedSynonymFilters) {
         let builder = supabase.from("businesses").select("*").eq("is_active", true);
         // Apply subcategory filter
