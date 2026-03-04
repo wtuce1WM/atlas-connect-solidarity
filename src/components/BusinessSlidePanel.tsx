@@ -1280,9 +1280,9 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                 </div>
               )}
 
-              {/* Opening Hours + Document icons */}
+              {/* Opening Hours */}
               {canShowOpenBadge && (
-                <div className="col-span-2">
+                <div className={businessDocs.length > 0 ? "" : "col-span-2"}>
                   <div className="flex items-start gap-3">
                     <Clock className="h-5 w-5 shrink-0 mt-0.5 text-foreground" />
                     <div className="flex-1">
@@ -1324,38 +1324,39 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                         </div>
                       ) : null}
                     </div>
-                    {/* Document icons — max 4, aligned right */}
-                    {businessDocs.length > 0 && (
-                      <div className="shrink-0 ml-auto self-center">
-                        <div className="grid grid-cols-2 gap-3">
-                          {businessDocs.slice(0, 4).map((doc) => {
-                            const iconSrc = doc.icon
-                              ? `/images/doc-icons/${doc.icon}.avif`
-                              : `/images/doc-icons/icon_menu.png`;
-                            return (
-                              <a
-                                key={doc.id}
-                                href={doc.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex flex-col items-center gap-1 group"
-                                title={doc.name || (doc.type === "flipbook" ? "Flipbook" : "Menu")}
-                              >
-                                <img
-                                  src={iconSrc}
-                                  alt={doc.name || doc.type}
-                                  className="h-[72px] w-[72px] object-contain group-hover:scale-110 transition-transform"
-                                  onError={(e) => { (e.target as HTMLImageElement).src = `/images/doc-icons/icon_menu.png`; }}
-                                />
-                                <span className="text-[10px] text-muted-foreground text-center leading-tight max-w-[72px] truncate">
-                                  {doc.name || (doc.type === "flipbook" ? "Flipbook" : "Menu")}
-                                </span>
-                              </a>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Document icons — max 4, aligned in right column */}
+              {businessDocs.length > 0 && (
+                <div className={`flex items-center justify-center ${!canShowOpenBadge ? 'col-span-2' : ''}`}>
+                  <div className="grid grid-cols-2 gap-3">
+                    {businessDocs.slice(0, 4).map((doc) => {
+                      const iconSrc = doc.icon
+                        ? `/images/doc-icons/${doc.icon}.avif`
+                        : `/images/doc-icons/icon_menu.png`;
+                      return (
+                        <a
+                          key={doc.id}
+                          href={doc.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex flex-col items-center gap-1 group"
+                          title={doc.name || (doc.type === "flipbook" ? "Flipbook" : "Menu")}
+                        >
+                          <img
+                            src={iconSrc}
+                            alt={doc.name || doc.type}
+                            className="h-[72px] w-[72px] object-contain group-hover:scale-110 transition-transform"
+                            onError={(e) => { (e.target as HTMLImageElement).src = `/images/doc-icons/icon_menu.png`; }}
+                          />
+                          <span className="text-[10px] text-muted-foreground text-center leading-tight max-w-[72px] truncate">
+                            {doc.name || (doc.type === "flipbook" ? "Flipbook" : "Menu")}
+                          </span>
+                        </a>
+                      );
+                    })}
                   </div>
                 </div>
               )}
