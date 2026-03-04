@@ -744,7 +744,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
           <div className="flex-1 flex items-center justify-center pb-16 bg-background">
             <iframe
               src={docOverlay.type === 'flipbook' ? getFlipbookEmbedUrl(docOverlay.url) : `https://docs.google.com/gview?url=${encodeURIComponent(docOverlay.url)}&embedded=true`}
-              className={docOverlay.type === 'flipbook' ? "w-[80%] h-full border-0" : "h-full w-full border-0"}
+              className="h-full w-full border-0"
               allow={docOverlay.type === 'flipbook' ? "clipboard-write; fullscreen" : undefined}
               title={docOverlay.name}
             />
