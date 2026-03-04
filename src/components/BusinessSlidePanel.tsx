@@ -170,6 +170,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   const [business, setBusiness] = useState<FullBusiness | null>(null);
   const [gamme, setGamme] = useState<Gamme | null>(null);
   const [activeServiceNames, setActiveServiceNames] = useState<Set<string> | null>(null);
+  const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [pressEntries, setPressEntries] = useState<{ name: string; logo_url: string; url: string; language: string }[]>([]);
   const [articlePreview, setArticlePreview] = useState<{ title: string; summary: string; screenshot: string; url: string; name: string; publishedDate?: string } | null>(null);
   const [isLoadingArticle, setIsLoadingArticle] = useState(false);
@@ -357,6 +358,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   useEffect(() => {
     const fetch = async () => {
       setIsLoading(true);
+      setIsBookingOpen(false);
       setCurrentImageIndex(0);
       setVideoError(false);
       setActiveTab("apercu");
@@ -639,12 +641,11 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   return (
     <div className="flex flex-col h-full relative">
       {/* Floating vertical "Réserver" button à la Brummell */}
-      {bookingUrl && (
-        <a
-          href={bookingUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="absolute right-0 top-1/2 -translate-y-1/2 z-50 flex items-center justify-center bg-black/90 hover:bg-black text-white transition-all duration-300 rounded-l-md shadow-lg cursor-pointer group"
+      {/* Floating vertical "Réserver" button à la Brummell */}
+      {bookingUrl && !isBookingOpen && (
+        <button
+          onClick={() => setIsBookingOpen(true)}
+          className="absolute right-0 top-1/2 -translate-y-1/2 z-50 flex items-center justify-center bg-black/90 hover:bg-black text-white transition-all duration-300 rounded-l-md shadow-lg cursor-pointer"
           style={{ writingMode: "vertical-rl", textOrientation: "mixed", padding: "14px 6px", letterSpacing: "0.15em" }}
           title="Réserver"
         >
@@ -667,7 +668,28 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
           >
             <path d="M20 4.92163L12.5 0.591505L12.5 9.25176L20 4.92163ZM0 5.67163L13.25 5.67163L13.25 4.17163L0 4.17163L0 5.67163Z" fill="white" />
           </svg>
-        </a>
+        </button>
+      )}
+      {/* Booking iframe overlay — fills entire panel below the fixed toolbar */}
+      {bookingUrl && isBookingOpen && (
+        <div className="absolute inset-0 z-[60] bg-background flex flex-col animate-fade-in">
+          <div className="flex items-center justify-between px-3 py-2 border-b bg-background">
+            <span className="text-sm font-semibold">Réservation</span>
+            <button
+              onClick={() => setIsBookingOpen(false)}
+              className="p-1 rounded-full hover:bg-muted transition-colors"
+              title="Fermer"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+          <iframe
+            src={bookingUrl}
+            className="flex-1 w-full border-0"
+            allow="payment"
+            title="Réservation"
+          />
+        </div>
       )}
       {/* Portal contact icons into center of fixed bar */}
       {toolbarCenterPortal && createPortal(
