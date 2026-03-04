@@ -374,7 +374,8 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
       if (data.services && data.services.length > 0) {
         const { data: activeServices } = await supabase
           .from("services")
-          .select("name_fr");
+          .select("name_fr")
+          .eq("is_active", true);
         if (activeServices) {
           setActiveServiceNames(new Set(activeServices.map((s: any) => s.name_fr)));
         }

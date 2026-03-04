@@ -2047,6 +2047,7 @@ export type Database = {
           created_at: string | null
           icon: string | null
           id: string
+          is_active: boolean
           keywords: string[] | null
           name_ar: string | null
           name_en: string | null
@@ -2059,6 +2060,7 @@ export type Database = {
           created_at?: string | null
           icon?: string | null
           id?: string
+          is_active?: boolean
           keywords?: string[] | null
           name_ar?: string | null
           name_en?: string | null
@@ -2071,6 +2073,7 @@ export type Database = {
           created_at?: string | null
           icon?: string | null
           id?: string
+          is_active?: boolean
           keywords?: string[] | null
           name_ar?: string | null
           name_en?: string | null
