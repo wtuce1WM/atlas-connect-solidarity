@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Search, Trash2, Link2, Hotel, Building2, MapPin, Star, Image as ImageIcon, X } from "lucide-react";
+import { Loader2, Search, Trash2, Link2, Hotel, Building2, MapPin, Star, Image as ImageIcon, X, ZoomIn } from "lucide-react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { toast } from "sonner";
 
 interface Mapping {
@@ -15,6 +16,9 @@ interface Mapping {
   created_at: string;
   business_name?: string;
   business_city?: string;
+  business_image?: string | null;
+  liteapi_name?: string;
+  liteapi_photo?: string | null;
 }
 
 interface LiteApiHotel {
@@ -43,6 +47,7 @@ const HotelMappingManagement = () => {
   const [mappings, setMappings] = useState<Mapping[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
 
   // LiteAPI browser
   const [selectedCity, setSelectedCity] = useState("");
@@ -90,15 +95,40 @@ const HotelMappingManagement = () => {
       const bizIds = [...new Set(data.map((m) => m.business_id))];
       const { data: businesses } = await supabase
         .from("businesses")
-        .select("id, name, city")
+        .select("id, name, city, logo_url, images")
         .in("id", bizIds);
 
       const bizMap = new Map(businesses?.map((b) => [b.id, b]) || []);
-      const enriched = data.map((m) => ({
-        ...m,
-        business_name: bizMap.get(m.business_id)?.name || "Inconnu",
-        business_city: bizMap.get(m.business_id)?.city || undefined,
-      }));
+
+      // Fetch LiteAPI hotel details for all mapped hotel IDs
+      const hotelIds = [...new Set(data.map((m) => m.liteapi_hotel_id))];
+      let liteApiMap: Record<string, { name: string; mainPhoto: string | null }> = {};
+      try {
+        const { data: liteData } = await supabase.functions.invoke("liteapi-hotel-lookup", {
+          body: { hotelIds },
+        });
+        if (liteData?.data) {
+          for (const h of liteData.data) {
+            liteApiMap[h.hotelId] = { name: h.name, mainPhoto: h.mainPhoto };
+          }
+        }
+      } catch {
+        // Silently fail - we'll show IDs without names
+      }
+
+      const enriched = data.map((m) => {
+        const biz = bizMap.get(m.business_id);
+        const bizImage = biz?.logo_url || (biz?.images && biz.images.length > 0 ? biz.images[0] : null);
+        const liteInfo = liteApiMap[m.liteapi_hotel_id];
+        return {
+          ...m,
+          business_name: biz?.name || "Inconnu",
+          business_city: biz?.city || undefined,
+          business_image: bizImage || null,
+          liteapi_name: liteInfo?.name || undefined,
+          liteapi_photo: liteInfo?.mainPhoto || null,
+        };
+      });
       setMappings(enriched);
     } else {
       setMappings([]);
@@ -404,12 +434,57 @@ const HotelMappingManagement = () => {
                   className="flex items-center justify-between p-3 border rounded-lg bg-card hover:shadow-sm transition-shadow"
                 >
                   <div className="flex items-center gap-3 min-w-0 flex-1">
-                    <Badge variant="outline" className="font-mono text-xs shrink-0">
-                      {m.liteapi_hotel_id}
-                    </Badge>
-                    <span className="text-muted-foreground">→</span>
+                    {/* LiteAPI hotel thumbnail */}
+                    <div className="shrink-0">
+                      <button
+                        onClick={() => m.liteapi_photo && setLightboxImage(m.liteapi_photo)}
+                        className="relative group h-12 w-16 rounded overflow-hidden bg-muted border cursor-pointer"
+                        disabled={!m.liteapi_photo}
+                      >
+                        {m.liteapi_photo ? (
+                          <>
+                            <img src={m.liteapi_photo} alt={m.liteapi_name || m.liteapi_hotel_id} className="h-full w-full object-cover" />
+                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+                              <ZoomIn className="h-4 w-4 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                            </div>
+                          </>
+                        ) : (
+                          <div className="h-full w-full flex items-center justify-center">
+                            <Hotel className="h-4 w-4 text-muted-foreground/40" />
+                          </div>
+                        )}
+                      </button>
+                    </div>
+                    <div className="min-w-0 shrink-0">
+                      <p className="font-medium text-sm truncate max-w-[140px]">{m.liteapi_name || m.liteapi_hotel_id}</p>
+                      <p className="text-[10px] font-mono text-muted-foreground">{m.liteapi_hotel_id}</p>
+                    </div>
+
+                    <span className="text-muted-foreground shrink-0">→</span>
+
+                    {/* Business thumbnail */}
+                    <div className="shrink-0">
+                      <button
+                        onClick={() => m.business_image && setLightboxImage(m.business_image)}
+                        className="relative group h-12 w-16 rounded overflow-hidden bg-muted border cursor-pointer"
+                        disabled={!m.business_image}
+                      >
+                        {m.business_image ? (
+                          <>
+                            <img src={m.business_image} alt={m.business_name} className="h-full w-full object-cover" />
+                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+                              <ZoomIn className="h-4 w-4 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                            </div>
+                          </>
+                        ) : (
+                          <div className="h-full w-full flex items-center justify-center">
+                            <Building2 className="h-4 w-4 text-muted-foreground/40" />
+                          </div>
+                        )}
+                      </button>
+                    </div>
                     <div className="min-w-0">
-                      <p className="font-medium truncate">{m.business_name}</p>
+                      <p className="font-medium text-sm truncate">{m.business_name}</p>
                       {m.business_city && (
                         <p className="text-xs text-muted-foreground">{m.business_city}</p>
                       )}
@@ -434,6 +509,15 @@ const HotelMappingManagement = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Lightbox */}
+      <Dialog open={!!lightboxImage} onOpenChange={() => setLightboxImage(null)}>
+        <DialogContent className="max-w-2xl p-2">
+          {lightboxImage && (
+            <img src={lightboxImage} alt="Vue agrandie" className="w-full h-auto rounded-lg" />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
