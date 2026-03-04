@@ -9,7 +9,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { url } = await req.json();
+    const { url, businessName } = await req.json();
 
     if (!url) {
       return new Response(
@@ -33,6 +33,10 @@ Deno.serve(async (req) => {
 
     console.log('Scraping article summary:', formattedUrl);
 
+    const jsonPrompt = businessName
+      ? `Extract a concise summary (max 3 sentences, in the same language as the article) specifically about "${businessName}" from this article. Also extract the article title.`
+      : `Extract a concise summary (max 3 sentences, in the same language as the article) of this article. Also extract the article title.`;
+
     const response = await fetch('https://api.firecrawl.dev/v1/scrape', {
       method: 'POST',
       headers: {
@@ -41,7 +45,10 @@ Deno.serve(async (req) => {
       },
       body: JSON.stringify({
         url: formattedUrl,
-        formats: ['summary', 'screenshot'],
+        formats: [
+          { type: 'json', prompt: jsonPrompt, schema: { type: 'object', properties: { title: { type: 'string' }, summary: { type: 'string' } }, required: ['title', 'summary'] } },
+          'screenshot',
+        ],
         onlyMainContent: true,
       }),
     });
@@ -56,8 +63,9 @@ Deno.serve(async (req) => {
       );
     }
 
-    const summary = data.data?.summary || data.summary || '';
-    const title = data.data?.metadata?.title || data.metadata?.title || '';
+    const json = data.data?.json || data.json || {};
+    const title = json.title || data.data?.metadata?.title || data.metadata?.title || '';
+    const summary = json.summary || '';
     const screenshot = data.data?.screenshot || data.screenshot || '';
 
     return new Response(
