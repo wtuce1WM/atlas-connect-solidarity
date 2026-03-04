@@ -21,7 +21,7 @@ interface RoomOffer {
     description?: { text?: string };
   };
   price: { currency: string; total: string };
-  policies?: { paymentType?: string };
+  policies?: { paymentType?: string; boardName?: string };
 }
 
 const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, backgroundImage, onClose }: HotelAvailabilityOverlayProps) => {
@@ -292,13 +292,20 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, backgroundImag
                       </p>
                     </div>
                   </div>
-                  {offer.policies?.paymentType && (
-                    <Badge variant="outline" className="text-[10px] mt-1 border-white/30 text-white/70">
-                      {offer.policies.paymentType === "deposit"
-                        ? (language === "en" ? "Deposit" : "Acompte")
-                        : offer.policies.paymentType}
-                    </Badge>
-                  )}
+                  <div className="flex gap-1.5 flex-wrap mt-1">
+                    {offer.policies?.boardName && (
+                      <Badge variant="outline" className="text-[10px] border-white/30 text-white/70">
+                        {offer.policies.boardName}
+                      </Badge>
+                    )}
+                    {offer.policies?.paymentType && (
+                      <Badge variant="outline" className="text-[10px] border-white/30 text-white/70">
+                        {offer.policies.paymentType === "deposit"
+                          ? (language === "en" ? "Deposit" : "Acompte")
+                          : offer.policies.paymentType}
+                      </Badge>
+                    )}
+                  </div>
                 </div>
               );
             })}

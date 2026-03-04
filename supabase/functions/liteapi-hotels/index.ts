@@ -107,7 +107,6 @@ Deno.serve(async (req) => {
     }
 
     const rawHotels = ratesBody2.data || [];
-
     // Step 2: Fetch hotel details for all hotel IDs
     const hotelIds = rawHotels.map((h: Record<string, unknown>) => h.hotelId as string).filter(Boolean);
     let hotelDetailsMap: Record<string, Record<string, unknown>> = {};
@@ -147,36 +146,59 @@ Deno.serve(async (req) => {
 
     // Step 3: Map results
     const results = rawHotels.map((hotel: Record<string, unknown>) => {
-      const roomTypes = (hotel.roomTypes as Record<string, unknown>[]) || [];
-      const offers = roomTypes.map((room: Record<string, unknown>, idx: number) => {
+      // roomTypes can be an array OR an object keyed by roomTypeId
+      const rawRt = hotel.roomTypes;
+      let roomList: Record<string, unknown>[] = [];
+      if (Array.isArray(rawRt)) {
+        roomList = rawRt;
+      } else if (rawRt && typeof rawRt === "object") {
+        roomList = Object.values(rawRt) as Record<string, unknown>[];
+      }
+
+      const offers = roomList.map((room: Record<string, unknown>, idx: number) => {
         const rates = (room.rates as Record<string, unknown>[]) || [];
         const bestRate = rates[0] || {};
         const retailRate = bestRate.retailRate as Record<string, unknown> | undefined;
         const totalArr = (retailRate?.total as { amount: number; currency: string }[]) || [];
         const totalPrice = totalArr[0];
 
+        // Name is inside rates[0].name, NOT at roomType level
+        const roomName = (bestRate.name as string)
+          || (room.name as string)
+          || (room.roomName as string)
+          || "Standard";
+
+        // Also check offerRetailRate as alternative price source
+        const offerRetailRate = room.offerRetailRate as { amount?: number; currency?: string } | undefined;
+        const finalPrice = totalPrice
+          ? { amount: totalPrice.amount, currency: totalPrice.currency }
+          : offerRetailRate
+            ? { amount: offerRetailRate.amount || 0, currency: offerRetailRate.currency || currency }
+            : { amount: 0, currency };
+
         return {
           id: (room.offerId as string) || `${hotel.hotelId}-${idx}`,
           checkInDate: params.checkIn,
           checkOutDate: params.checkOut,
           room: {
-            type: (room.name as string) || "STANDARD",
+            type: roomName,
             typeEstimated: {
-              category: (room.name as string) || undefined,
-              beds: room.maxOccupancy ? Number(room.maxOccupancy) : undefined,
+              category: roomName,
+              beds: (bestRate.maxOccupancy as number) || (room.maxOccupancy ? Number(room.maxOccupancy) : undefined),
               bedType: undefined,
             },
             description: {
-              text: (room.name as string) || undefined,
+              text: roomName,
             },
           },
           price: {
-            currency: totalPrice?.currency || currency,
-            total: totalPrice ? String(totalPrice.amount) : "0",
+            currency: finalPrice.currency,
+            total: String(finalPrice.amount),
             base: undefined,
           },
           policies: {
             paymentType: (bestRate.paymentType as string) || undefined,
+            boardName: (bestRate.boardName as string) || undefined,
           },
         };
       });
