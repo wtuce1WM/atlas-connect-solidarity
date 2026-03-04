@@ -1336,7 +1336,7 @@ const SearchPage = () => {
       </section>
 
       {/* Tab Bar */}
-      <section className="bg-background border-b border-border sticky top-[64px] z-30">
+      <section className="bg-background border-b border-border">
         <div className="mx-auto px-4 max-w-[80%]">
           <div className="flex gap-0">
             <button
