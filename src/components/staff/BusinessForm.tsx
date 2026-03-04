@@ -564,6 +564,42 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     poi_description: (business as any)?.poi_description || "",
   });
 
+  // --- Business documents (menus & flipbooks) ---
+  type DocEntry = { id?: string; url: string; name: string; language: string };
+  const [menuDocs, setMenuDocs] = useState<DocEntry[]>([]);
+  const [flipbookDocs, setFlipbookDocs] = useState<DocEntry[]>([]);
+
+  useEffect(() => {
+    if (!business?.id) return;
+    const fetchDocs = async () => {
+      const { data } = await supabase
+        .from("business_documents" as any)
+        .select("*")
+        .eq("business_id", business.id)
+        .order("sort_order");
+      if (data) {
+        setMenuDocs((data as any[]).filter((d: any) => d.type === "menu").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "", language: d.language || "" })));
+        setFlipbookDocs((data as any[]).filter((d: any) => d.type === "flipbook").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "", language: d.language || "" })));
+      }
+    };
+    fetchDocs();
+  }, [business?.id]);
+
+  const LANGUAGE_OPTIONS = [
+    { code: "ar", label: "🇲🇦 AR" },
+    { code: "ar-std", label: "ض AR" },
+    { code: "fr", label: "🇫🇷 FR" },
+    { code: "en", label: "🇬🇧 EN" },
+    { code: "es", label: "🇪🇸 ES" },
+    { code: "de", label: "🇩🇪 DE" },
+    { code: "it", label: "🇮🇹 IT" },
+    { code: "pt", label: "🇵🇹 PT" },
+    { code: "nl", label: "🇳🇱 NL" },
+    { code: "zh", label: "🇨🇳 ZH" },
+    { code: "ja", label: "🇯🇵 JA" },
+    { code: "ru", label: "🇷🇺 RU" },
+  ];
+
   // Fetch intent words filtered by business main_category
   useEffect(() => {
     const fetchIntents = async () => {
@@ -1058,6 +1094,18 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           if (labelsError) {
             console.error("Error saving labels:", labelsError);
           }
+        }
+      }
+
+      // Save business documents (menus & flipbooks)
+      if (businessId) {
+        await supabase.from("business_documents" as any).delete().eq("business_id", businessId);
+        const allDocs = [
+          ...menuDocs.filter(d => d.url.trim()).map((d, i) => ({ business_id: businessId, type: "menu" as const, url: d.url.trim(), name: d.name || null, language: d.language || null, sort_order: i })),
+          ...flipbookDocs.filter(d => d.url.trim()).map((d, i) => ({ business_id: businessId, type: "flipbook" as const, url: d.url.trim(), name: d.name || null, language: d.language || null, sort_order: i })),
+        ];
+        if (allDocs.length > 0) {
+          await supabase.from("business_documents" as any).insert(allDocs);
         }
       }
 
@@ -2317,102 +2365,82 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         )}
 
         <div id="section-menu" className="space-y-2" style={{ scrollMarginTop: '160px' }}>
-          {formData.menu_url ? (
-            <Label htmlFor="menu_url"><a href={formData.menu_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">Menu (URL) ↗</a></Label>
-          ) : (
-            <Label htmlFor="menu_url">Menu (URL)</Label>
-          )}
-          <div className="flex items-center gap-2">
-            <Input
-              id="menu_url"
-              value={formData.menu_url}
-              onChange={(e) => handleChange("menu_url", e.target.value)}
-              placeholder="https://..."
-              className="flex-1"
-            />
-            <Input
-              value={(formData as any).menu_name || ""}
-              onChange={(e) => handleChange("menu_name", e.target.value)}
-              placeholder="Nom"
-              className="w-48"
-            />
-            <select
-              value={(formData as any).menu_language || ""}
-              onChange={(e) => handleChange("menu_language", e.target.value)}
-              className="h-9 rounded-md border border-input bg-background px-3 text-sm w-28"
-            >
-              <option value="">Langue</option>
-              {[
-                { code: "ar", label: "🇲🇦 AR" },
-                { code: "ar-std", label: "ض AR" },
-                { code: "fr", label: "🇫🇷 FR" },
-                { code: "en", label: "🇬🇧 EN" },
-                { code: "es", label: "🇪🇸 ES" },
-                { code: "de", label: "🇩🇪 DE" },
-                { code: "it", label: "🇮🇹 IT" },
-                { code: "pt", label: "🇵🇹 PT" },
-                { code: "nl", label: "🇳🇱 NL" },
-                { code: "zh", label: "🇨🇳 ZH" },
-                { code: "ja", label: "🇯🇵 JA" },
-                { code: "ru", label: "🇷🇺 RU" },
-              ].map(({ code, label }) => (
-                <option key={code} value={code}>{label}</option>
-              ))}
-            </select>
-            {formData.menu_url && (
-              <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => { handleChange("menu_url", ""); handleChange("menu_name", ""); handleChange("menu_language", ""); }}>
+          <div className="flex items-center justify-between">
+            <Label className="text-base font-semibold">Menu (URL)</Label>
+            <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setMenuDocs(prev => [...prev, { url: "", name: "", language: "" }])}>
+              <Plus className="h-3 w-3" /> Ajouter
+            </Button>
+          </div>
+          {menuDocs.map((doc, idx) => (
+            <div key={idx} className="flex items-center gap-2">
+              <Input
+                value={doc.url}
+                onChange={(e) => setMenuDocs(prev => prev.map((d, i) => i === idx ? { ...d, url: e.target.value } : d))}
+                placeholder="https://..."
+                className="flex-1"
+              />
+              <Input
+                value={doc.name}
+                onChange={(e) => setMenuDocs(prev => prev.map((d, i) => i === idx ? { ...d, name: e.target.value } : d))}
+                placeholder="Nom"
+                className="w-48"
+              />
+              <select
+                value={doc.language}
+                onChange={(e) => setMenuDocs(prev => prev.map((d, i) => i === idx ? { ...d, language: e.target.value } : d))}
+                className="h-9 rounded-md border border-input bg-background px-3 text-sm w-28"
+              >
+                <option value="">Langue</option>
+                {LANGUAGE_OPTIONS.map(({ code, label }) => (
+                  <option key={code} value={code}>{label}</option>
+                ))}
+              </select>
+              <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => setMenuDocs(prev => prev.filter((_, i) => i !== idx))}>
                 <Trash2 className="h-4 w-4" />
               </Button>
-            )}
-          </div>
-          <BrokenUrlBadge url={formData.menu_url} />
+            </div>
+          ))}
+          {menuDocs.length === 0 && <p className="text-xs text-muted-foreground">Aucun menu ajouté.</p>}
         </div>
 
         {/* Flipbook / Issuu */}
         <div className="space-y-2">
-          <Label className="text-base font-semibold">📖 Flipbook (Issuu, Calaméo…)</Label>
-          <div className="flex items-center gap-2">
-            <Input
-              placeholder="https://issuu.com/username/docs/document-name"
-              value={(formData as any).flipbook_url}
-              onChange={(e) => handleChange("flipbook_url", e.target.value)}
-              className="flex-1"
-            />
-            <Input
-              value={(formData as any).flipbook_name || ""}
-              onChange={(e) => handleChange("flipbook_name", e.target.value)}
-              placeholder="Nom"
-              className="w-48"
-            />
-            <select
-              value={(formData as any).flipbook_language || ""}
-              onChange={(e) => handleChange("flipbook_language", e.target.value)}
-              className="h-9 rounded-md border border-input bg-background px-3 text-sm w-28"
-            >
-              <option value="">Langue</option>
-              {[
-                { code: "ar", label: "🇲🇦 AR" },
-                { code: "ar-std", label: "ض AR" },
-                { code: "fr", label: "🇫🇷 FR" },
-                { code: "en", label: "🇬🇧 EN" },
-                { code: "es", label: "🇪🇸 ES" },
-                { code: "de", label: "🇩🇪 DE" },
-                { code: "it", label: "🇮🇹 IT" },
-                { code: "pt", label: "🇵🇹 PT" },
-                { code: "nl", label: "🇳🇱 NL" },
-                { code: "zh", label: "🇨🇳 ZH" },
-                { code: "ja", label: "🇯🇵 JA" },
-                { code: "ru", label: "🇷🇺 RU" },
-              ].map(({ code, label }) => (
-                <option key={code} value={code}>{label}</option>
-              ))}
-            </select>
-            {(formData as any).flipbook_url && (
-              <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => { handleChange("flipbook_url", ""); handleChange("flipbook_name", ""); handleChange("flipbook_language", ""); }}>
+          <div className="flex items-center justify-between">
+            <Label className="text-base font-semibold">📖 Flipbook (Issuu, Calaméo…)</Label>
+            <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setFlipbookDocs(prev => [...prev, { url: "", name: "", language: "" }])}>
+              <Plus className="h-3 w-3" /> Ajouter
+            </Button>
+          </div>
+          {flipbookDocs.map((doc, idx) => (
+            <div key={idx} className="flex items-center gap-2">
+              <Input
+                value={doc.url}
+                onChange={(e) => setFlipbookDocs(prev => prev.map((d, i) => i === idx ? { ...d, url: e.target.value } : d))}
+                placeholder="https://issuu.com/username/docs/document-name"
+                className="flex-1"
+              />
+              <Input
+                value={doc.name}
+                onChange={(e) => setFlipbookDocs(prev => prev.map((d, i) => i === idx ? { ...d, name: e.target.value } : d))}
+                placeholder="Nom"
+                className="w-48"
+              />
+              <select
+                value={doc.language}
+                onChange={(e) => setFlipbookDocs(prev => prev.map((d, i) => i === idx ? { ...d, language: e.target.value } : d))}
+                className="h-9 rounded-md border border-input bg-background px-3 text-sm w-28"
+              >
+                <option value="">Langue</option>
+                {LANGUAGE_OPTIONS.map(({ code, label }) => (
+                  <option key={code} value={code}>{label}</option>
+                ))}
+              </select>
+              <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => setFlipbookDocs(prev => prev.filter((_, i) => i !== idx))}>
                 <Trash2 className="h-4 w-4" />
               </Button>
-            )}
-          </div>
+            </div>
+          ))}
+          {flipbookDocs.length === 0 && <p className="text-xs text-muted-foreground">Aucun flipbook ajouté.</p>}
           <p className="text-xs text-muted-foreground">Collez l'URL de la publication Issuu ou Calaméo. Elle sera intégrée dans le panneau de l'établissement.</p>
         </div>
 
