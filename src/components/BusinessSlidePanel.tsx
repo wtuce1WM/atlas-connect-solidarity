@@ -189,7 +189,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   const [isLoadingArticle, setIsLoadingArticle] = useState(false);
   
   const [businessDocs, setBusinessDocs] = useState<{ id: string; type: string; url: string; name: string | null; icon: string | null; sort_order: number }[]>([]);
-  const [pdfOverlay, setPdfOverlay] = useState<{ url: string; name: string } | null>(null);
+  const [docOverlay, setDocOverlay] = useState<{ url: string; name: string; type: 'pdf' | 'flipbook' } | null>(null);
   const [reviewTexts, setReviewTexts] = useState<{ source: string; author_name: string | null; rating: number | null; text: string | null; relative_time: string | null }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -716,24 +716,24 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
           onClose={() => setIsBookingOpen(false)}
         />
       )}
-      {/* PDF Overlay */}
-      {pdfOverlay && (
+      {/* Document Overlay (PDF or Flipbook) */}
+      {docOverlay && (
         <div className="absolute inset-0 z-[60] bg-background flex flex-col animate-fade-in overflow-hidden">
           <div className="flex items-center justify-between px-3 py-2 border-b bg-background">
-            <span className="text-sm font-semibold truncate">{pdfOverlay.name}</span>
+            <span className="text-sm font-semibold truncate">{docOverlay.name}</span>
             <div className="flex items-center gap-2">
               <a
-                href={pdfOverlay.url}
+                href={docOverlay.url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-xs text-primary hover:underline flex items-center gap-1"
-                title="Télécharger"
+                title="Ouvrir"
               >
                 <ExternalLink className="h-3 w-3" />
-                Télécharger
+                Ouvrir
               </a>
               <button
-                onClick={() => setPdfOverlay(null)}
+                onClick={() => setDocOverlay(null)}
                 className="p-1 rounded-full hover:bg-muted transition-colors"
                 title="Fermer"
               >
@@ -741,11 +741,12 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
               </button>
             </div>
           </div>
-          <div className="flex-1 pb-16 bg-background">
+          <div className="flex-1 flex items-center justify-center pb-16 bg-background">
             <iframe
-              src={`https://docs.google.com/gview?url=${encodeURIComponent(pdfOverlay.url)}&embedded=true`}
-              className="h-full w-full border-0"
-              title={pdfOverlay.name}
+              src={docOverlay.type === 'flipbook' ? getFlipbookEmbedUrl(docOverlay.url) : `https://docs.google.com/gview?url=${encodeURIComponent(docOverlay.url)}&embedded=true`}
+              className={docOverlay.type === 'flipbook' ? "w-[80%] h-full border-0" : "h-full w-full border-0"}
+              allow={docOverlay.type === 'flipbook' ? "clipboard-write; fullscreen" : undefined}
+              title={docOverlay.name}
             />
           </div>
         </div>
@@ -1367,18 +1368,20 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                       const ext = knownExtensions[iconFile] || '.png';
                       const iconSrc = `/images/doc-icons/${iconFile}${ext}`;
                       const isPdf = doc.url?.toLowerCase().endsWith('.pdf') || doc.url?.includes('/pdfs/');
+                      const isFlipbook = /issuu\.com|calameo\.com/i.test(doc.url || '');
+                      const isInlineDoc = isPdf || isFlipbook;
                       const handleClick = (e: React.MouseEvent) => {
-                        if (isPdf) {
+                        if (isInlineDoc) {
                           e.preventDefault();
-                          setPdfOverlay({ url: doc.url, name: doc.name || (doc.type === "flipbook" ? "Flipbook" : "Menu") });
+                          setDocOverlay({ url: doc.url, name: doc.name || (doc.type === "flipbook" ? "Flipbook" : "Menu"), type: isFlipbook ? 'flipbook' : 'pdf' });
                         }
                       };
                       return (
                         <a
                           key={doc.id}
                           href={doc.url}
-                          target={isPdf ? undefined : "_blank"}
-                          rel={isPdf ? undefined : "noopener noreferrer"}
+                          target={isInlineDoc ? undefined : "_blank"}
+                          rel={isInlineDoc ? undefined : "noopener noreferrer"}
                           onClick={handleClick}
                           className="flex flex-col items-center gap-1 group cursor-pointer"
                           title={doc.name || (doc.type === "flipbook" ? "Flipbook" : "Menu")}
