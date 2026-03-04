@@ -1045,6 +1045,7 @@ serve(async (req) => {
     }
     // ── Synonym paired filters: when a query word matches a synonym entry with filters[] ──
     let matchedSynonymFilters: { subcategory_name: string | null; required_service: string | null }[] = [];
+    const matchedSynonymFilterKeys: string[] = [];
     {
       const textsToCheck = [effectiveQuery, query, spoken].filter(Boolean) as string[];
       for (const [key, filters] of Object.entries(synonymFilters)) {
@@ -1069,6 +1070,7 @@ serve(async (req) => {
         }
         if (matched) {
           matchedSynonymFilters = [...matchedSynonymFilters, ...filters];
+          matchedSynonymFilterKeys.push(key);
           console.log(`Synonym "${key}" matched → paired filters: ${JSON.stringify(filters)}`);
         }
       }
@@ -1405,23 +1407,25 @@ serve(async (req) => {
         // ── POST-FILTER: intersect additional services detected in remaining query words ──
         if (businesses.length > 1 && effectiveQuery) {
           const pairedConsumedWords = new Set<string>();
+          const addConsumed = (text: string) => {
+            for (const w of text.toLowerCase().split(/[\s-]+/)) {
+              pairedConsumedWords.add(w);
+              pairedConsumedWords.add(stripAccentsGlobal(w));
+            }
+          };
           for (const f of matchedSynonymFilters) {
-            if (f.subcategory_name) for (const w of f.subcategory_name.toLowerCase().split(/[\s-]+/)) pairedConsumedWords.add(w);
-            if (f.required_service) for (const w of f.required_service.toLowerCase().split(/[\s-]+/)) pairedConsumedWords.add(w);
+            if (f.subcategory_name) addConsumed(f.subcategory_name);
+            if (f.required_service) addConsumed(f.required_service);
           }
           // Also consume synonym key words AND synonym value words that triggered the match
-          for (const [key, filters] of Object.entries(synonymFilters)) {
-            if (filters === matchedSynonymFilters || JSON.stringify(filters) === JSON.stringify(matchedSynonymFilters)) {
-              for (const w of key.toLowerCase().split(/[\s-]+/)) pairedConsumedWords.add(w);
-              // Consume synonym values too (e.g. "restaurant-spectacle" → "restaurant", "spectacle")
-              const synVals = synonyms[key] || [];
-              for (const sv of synVals) {
-                for (const w of sv.toLowerCase().split(/[\s-]+/)) pairedConsumedWords.add(w);
-              }
-            }
+          for (const key of matchedSynonymFilterKeys) {
+            addConsumed(key);
+            const synVals = synonyms[key] || [];
+            for (const sv of synVals) addConsumed(sv);
           }
+          console.log(`🔑 Paired consumed words: [${[...pairedConsumedWords].join(", ")}] (keys: [${matchedSynonymFilterKeys.join(", ")}])`);
           const pairedRemainingWords = effectiveQuery.toLowerCase().split(/\s+/)
-            .filter(w => w.length > 1 && !FRENCH_STOP_WORDS.has(w) && !NOISE_ADJECTIVES.has(w) && !pairedConsumedWords.has(w));
+            .filter(w => w.length > 1 && !FRENCH_STOP_WORDS.has(w) && !NOISE_ADJECTIVES.has(w) && !pairedConsumedWords.has(w) && !pairedConsumedWords.has(stripAccentsGlobal(w)));
           if (pairedRemainingWords.length > 0) {
             console.log(`🔍 Paired post-filter: remaining words [${pairedRemainingWords.join(", ")}]`);
             const stripPlR = (w: string): string => { if (w.endsWith("aux")) return w.slice(0, -3) + "al"; if (w.endsWith("s")) return w.slice(0, -1); return w; };
@@ -1504,9 +1508,9 @@ serve(async (req) => {
         });
         const consumedWords = new Set<string>();
         if (synKeyLower) {
-          for (const w of synKeyLower.toLowerCase().split(/\s+/)) consumedWords.add(w);
+          for (const w of synKeyLower.toLowerCase().split(/[\s-]+/)) consumedWords.add(w);
           for (const sv of (synonyms[synKeyLower] || [])) {
-            for (const w of sv.toLowerCase().split(/\s+/)) consumedWords.add(w);
+            for (const w of sv.toLowerCase().split(/[\s-]+/)) consumedWords.add(w);
           }
         }
         // Also consume the service names themselves
