@@ -236,3 +236,14 @@ textarea::placeholder {
   0%, 100% { transform: translateY(0) rotateX(0deg); }
   50% { transform: translateY(-6px) rotateX(3deg); }
 }
+
+@keyframes fadeInLetter {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -645,18 +645,25 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
       {bookingUrl && !isBookingOpen && (
         <button
           onClick={() => setIsBookingOpen(true)}
-          className="absolute right-0 top-[65%] -translate-y-1/2 z-50 flex flex-col items-center justify-center bg-black/90 hover:bg-black transition-all duration-300 rounded-l-2xl shadow-lg cursor-pointer gap-[6px] py-5 px-2"
+          className="absolute right-0 top-[65%] -translate-y-1/2 z-50 flex flex-col items-center justify-center bg-black/90 hover:bg-black transition-all duration-300 rounded-l-2xl shadow-lg cursor-pointer gap-[6px] py-5 px-2 group"
           title="Réserver"
         >
           {"RÉSERVER".split("").map((letter, i) => (
-            <span key={i} className="text-white text-sm font-bold leading-none">{letter}</span>
+            <span
+              key={i}
+              className="text-white text-sm font-bold leading-none opacity-0 animate-[fadeInLetter_0.4s_ease-out_forwards]"
+              style={{ animationDelay: `${i * 150}ms` }}
+            >
+              {letter}
+            </span>
           ))}
           <svg
             width="14"
             viewBox="0 0 20 10"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
-            className="mt-2"
+            className="mt-2 opacity-0 animate-[fadeInLetter_0.4s_ease-out_forwards]"
+            style={{ animationDelay: `${8 * 150}ms` }}
           >
             <path d="M20 4.92163L12.5 0.591505L12.5 9.25176L20 4.92163ZM0 5.67163L13.25 5.67163L13.25 4.17163L0 4.17163L0 5.67163Z" fill="white" />
           </svg>
