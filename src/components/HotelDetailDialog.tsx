@@ -10,7 +10,9 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Star, BedDouble, ExternalLink, Building2, Clock, ChevronLeft, ChevronRight } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { MapPin, Star, BedDouble, ExternalLink, Building2, Clock, ChevronLeft, ChevronRight, Link2, Unlink, Search, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface HotelOffer {
   id: string;
@@ -58,28 +60,130 @@ interface Props {
 
 export default function HotelDetailDialog({ hotel, open, onOpenChange, formatPrice, onViewBusiness }: Props) {
   const { language } = useLanguage();
-  const [dbBusiness, setDbBusiness] = useState<{ id: string; name: string; slug?: string } | null>(null);
+  const [dbBusiness, setDbBusiness] = useState<{ id: string; name: string } | null>(null);
   const [loadingDb, setLoadingDb] = useState(false);
   const [currentImageIdx, setCurrentImageIdx] = useState(0);
+  const [isStaff, setIsStaff] = useState(false);
+  const [linkMode, setLinkMode] = useState(false);
+  const [linkSearch, setLinkSearch] = useState("");
+  const [linkResults, setLinkResults] = useState<{ id: string; name: string; city: string | null }[]>([]);
+  const [linkSearching, setLinkSearching] = useState(false);
+  const [linking, setLinking] = useState(false);
 
+  // Check staff status
   useEffect(() => {
-    if (!hotel || !open) { setDbBusiness(null); setCurrentImageIdx(0); return; }
-    const search = async () => {
+    const check = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { setIsStaff(false); return; }
+      const { data: roles } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", session.user.id);
+      setIsStaff(!!roles && roles.some((r: any) => r.role === "admin" || r.role === "staff"));
+    };
+    check();
+  }, []);
+
+  // Look up mapping when dialog opens
+  useEffect(() => {
+    if (!hotel || !open) { setDbBusiness(null); setCurrentImageIdx(0); setLinkMode(false); return; }
+    const lookup = async () => {
       setLoadingDb(true);
       try {
-        const name = hotel.hotel.name;
-        const { data } = await supabase
-          .from("businesses")
-          .select("id, name")
-          .ilike("name", `%${name.split(" ").slice(0, 3).join(" ")}%`)
-          .eq("is_active", true)
-          .limit(1);
-        setDbBusiness(data?.[0] || null);
+        // 1. Check manual mapping first
+        const { data: mapping } = await supabase
+          .from("hotel_api_mappings")
+          .select("business_id")
+          .eq("liteapi_hotel_id", hotel.hotel.hotelId)
+          .maybeSingle();
+
+        if (mapping?.business_id) {
+          const { data: biz } = await supabase
+            .from("businesses")
+            .select("id, name")
+            .eq("id", mapping.business_id)
+            .single();
+          setDbBusiness(biz || null);
+        } else {
+          // 2. Fallback: auto-match by name (first 3 words)
+          const name = hotel.hotel.name;
+          const { data } = await supabase
+            .from("businesses")
+            .select("id, name")
+            .ilike("name", `%${name.split(" ").slice(0, 3).join(" ")}%`)
+            .eq("is_active", true)
+            .limit(1);
+          setDbBusiness(data?.[0] || null);
+        }
       } catch { setDbBusiness(null); }
       setLoadingDb(false);
     };
-    search();
+    lookup();
   }, [hotel, open]);
+
+  const handleSearchBusiness = async () => {
+    if (!linkSearch.trim()) return;
+    setLinkSearching(true);
+    try {
+      const { data } = await supabase
+        .from("businesses")
+        .select("id, name, city")
+        .ilike("name", `%${linkSearch.trim()}%`)
+        .eq("is_active", true)
+        .limit(10);
+      setLinkResults(data || []);
+    } catch { setLinkResults([]); }
+    setLinkSearching(false);
+  };
+
+  const handleLink = async (businessId: string) => {
+    if (!hotel) return;
+    setLinking(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      // Upsert mapping
+      const { error } = await supabase
+        .from("hotel_api_mappings")
+        .upsert({
+          liteapi_hotel_id: hotel.hotel.hotelId,
+          business_id: businessId,
+          created_by: session?.user?.id || null,
+        }, { onConflict: "liteapi_hotel_id" });
+      if (error) throw error;
+
+      // Refresh
+      const { data: biz } = await supabase
+        .from("businesses")
+        .select("id, name")
+        .eq("id", businessId)
+        .single();
+      setDbBusiness(biz || null);
+      setLinkMode(false);
+      setLinkSearch("");
+      setLinkResults([]);
+      toast.success("Association enregistrée");
+    } catch (e: any) {
+      toast.error(e.message || "Erreur lors de l'association");
+    }
+    setLinking(false);
+  };
+
+  const handleUnlink = async () => {
+    if (!hotel) return;
+    setLinking(true);
+    try {
+      const { error } = await supabase
+        .from("hotel_api_mappings")
+        .delete()
+        .eq("liteapi_hotel_id", hotel.hotel.hotelId);
+      if (error) throw error;
+      setDbBusiness(null);
+      toast.success("Association supprimée");
+    } catch (e: any) {
+      toast.error(e.message || "Erreur");
+    }
+    setLinking(false);
+  };
 
   if (!hotel) return null;
 
@@ -160,8 +264,8 @@ export default function HotelDetailDialog({ hotel, open, onOpenChange, formatPri
           </p>
         )}
 
-        {/* DB cross-reference */}
-        {dbBusiness && (
+        {/* DB cross-reference & Staff link management */}
+        {dbBusiness ? (
           <div className="flex items-center gap-2 p-3 bg-primary/10 rounded-lg border border-primary/20">
             <Building2 className="h-5 w-5 text-primary shrink-0" />
             <div className="flex-1">
@@ -170,16 +274,73 @@ export default function HotelDetailDialog({ hotel, open, onOpenChange, formatPri
               </p>
               <p className="text-xs text-muted-foreground">{dbBusiness.name}</p>
             </div>
-            <Button size="sm" variant="outline" onClick={() => {
-              if (onViewBusiness && hotel) {
-                onViewBusiness(dbBusiness.id, hotel);
-                onOpenChange(false);
-              }
-            }}>
-              {language === "en" ? "View" : "Voir"}
-              <ExternalLink className="h-3 w-3 ml-1" />
-            </Button>
+            <div className="flex items-center gap-1">
+              <Button size="sm" variant="outline" onClick={() => {
+                if (onViewBusiness && hotel) {
+                  onViewBusiness(dbBusiness.id, hotel);
+                  onOpenChange(false);
+                }
+              }}>
+                {language === "en" ? "View" : "Voir"}
+                <ExternalLink className="h-3 w-3 ml-1" />
+              </Button>
+              {isStaff && (
+                <Button size="sm" variant="ghost" onClick={handleUnlink} disabled={linking} title="Dissocier">
+                  <Unlink className="h-3.5 w-3.5 text-destructive" />
+                </Button>
+              )}
+            </div>
           </div>
+        ) : (
+          isStaff && !loadingDb && (
+            <div className="p-3 border border-dashed border-muted-foreground/30 rounded-lg space-y-2">
+              {!linkMode ? (
+                <Button size="sm" variant="outline" className="w-full gap-2" onClick={() => setLinkMode(true)}>
+                  <Link2 className="h-4 w-4" />
+                  Associer à un établissement
+                </Button>
+              ) : (
+                <>
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Rechercher un établissement..."
+                      value={linkSearch}
+                      onChange={(e) => setLinkSearch(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && handleSearchBusiness()}
+                      className="text-sm"
+                    />
+                    <Button size="sm" onClick={handleSearchBusiness} disabled={linkSearching}>
+                      {linkSearching ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+                    </Button>
+                  </div>
+                  {linkResults.length > 0 && (
+                    <div className="max-h-48 overflow-y-auto space-y-1">
+                      {linkResults.map((biz) => (
+                        <button
+                          key={biz.id}
+                          onClick={() => handleLink(biz.id)}
+                          disabled={linking}
+                          className="w-full text-left p-2 rounded hover:bg-accent text-sm flex justify-between items-center"
+                        >
+                          <span className="font-medium truncate">{biz.name}</span>
+                          {biz.city && <span className="text-xs text-muted-foreground ml-2 shrink-0">{biz.city}</span>}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {linkResults.length === 0 && linkSearch && !linkSearching && (
+                    <p className="text-xs text-muted-foreground text-center py-1">Aucun résultat</p>
+                  )}
+                  <Button size="sm" variant="ghost" className="w-full text-xs" onClick={() => { setLinkMode(false); setLinkResults([]); setLinkSearch(""); }}>
+                    Annuler
+                  </Button>
+                </>
+              )}
+              <p className="text-[10px] text-muted-foreground text-center">
+                ID LiteAPI: <code className="bg-muted px-1 rounded">{h.hotelId}</code>
+              </p>
+            </div>
+          )
         )}
 
         {/* Amenities */}
