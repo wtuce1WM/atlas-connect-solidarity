@@ -645,7 +645,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
       {bookingUrl && !isBookingOpen && (
         <button
           onClick={() => setIsBookingOpen(true)}
-          className="absolute right-0 top-1/2 -translate-y-1/2 z-50 flex flex-col items-center justify-center bg-black/90 hover:bg-black transition-all duration-300 rounded-l-2xl shadow-lg cursor-pointer gap-[6px] py-5 px-2"
+          className="absolute right-0 top-[65%] -translate-y-1/2 z-50 flex flex-col items-center justify-center bg-black/90 hover:bg-black transition-all duration-300 rounded-l-2xl shadow-lg cursor-pointer gap-[6px] py-5 px-2"
           title="Réserver"
         >
           {"RÉSERVER".split("").map((letter, i) => (
