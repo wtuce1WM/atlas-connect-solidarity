@@ -8,12 +8,38 @@ interface BookingOverlayProps {
 
 const IFRAME_LOAD_TIMEOUT_MS = 5000;
 
+// 30 blocked domains detected via check-iframe-blocked edge function (scan 04/03/2026)
 const KNOWN_BLOCKED_DOMAINS = [
-  'permalink.fairmont.com', 'www.lunajets.com', 'www.essaouirakitesurfschool.com',
-  'www.cenizaro.com', 'www.relaischateaux.com', 'linktr.ee', 'xaluca.com',
-  'www.mandarinoriental.com', 'app.thebookingbutton.com', 'www.onomohotels.com',
-  'resnexus.com', 'www.riadelhara.com', 'nomadmarrakech.com', 'lblassa.com',
+  // X-Frame-Options: DENY
+  'www.mandarinoriental.com',
+  'www.riadelhara.com',
+  // X-Frame-Options: SAMEORIGIN
+  'permalink.fairmont.com',
+  'www.lunajets.com',
+  'www.essaouirakitesurfschool.com',
+  'www.cenizaro.com',
+  'linktr.ee',
+  'xaluca.com',
+  'app.thebookingbutton.com',
+  'resnexus.com',
+  'nomadmarrakech.com',
+  'lblassa.com',
   'direct-book.com',
+  'www.lebarometre.net',
+  'www.essaouira-lodge.com',
+  'www.palaborepmarrakech.com',
+  'www.pestana.com',
+  'www.beachcomber.com',
+  'www.belmond.com',
+  'www.fourseasons.com',
+  'www.ritzcarlton.com',
+  'www.sofitel-marrakech.com',
+  'www.saintjamesmarrakech.com',
+  'www.kensington-marrakech.com',
+  'www.lamamouniamarrakech.com',
+  // CSP frame-ancestors: 'self'
+  'www.relaischateaux.com',
+  'www.onomohotels.com',
 ];
 
 function isDomainBlocked(url: string): boolean {
