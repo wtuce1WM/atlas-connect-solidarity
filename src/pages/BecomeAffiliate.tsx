@@ -332,24 +332,22 @@ const BecomeAffiliate = () => {
                 className="bg-white/[0.06] border-white/10 text-white placeholder:text-white/30 h-11"
               />
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-white/60 text-sm mb-1.5">{t.labelProjectName}</label>
-                <Input
-                  value={form.projectName}
-                  onChange={(e) => setForm({ ...form, projectName: e.target.value })}
-                  className="bg-white/[0.06] border-white/10 text-white placeholder:text-white/30 h-11"
-                />
-              </div>
-              <div>
-                <label className="block text-white/60 text-sm mb-1.5">{t.labelWebsite}</label>
-                <Input
-                  value={form.website}
-                  onChange={(e) => setForm({ ...form, website: e.target.value })}
-                  className="bg-white/[0.06] border-white/10 text-white placeholder:text-white/30 h-11"
-                  type="url"
-                />
-              </div>
+            <div>
+              <label className="block text-white/60 text-sm mb-1.5">{t.labelProjectName}</label>
+              <Input
+                value={form.projectName}
+                onChange={(e) => setForm({ ...form, projectName: e.target.value })}
+                className="bg-white/[0.06] border-white/10 text-white placeholder:text-white/30 h-11"
+              />
+            </div>
+            <div>
+              <label className="block text-white/60 text-sm mb-1.5">{t.labelWebsite}</label>
+              <Input
+                value={form.website}
+                onChange={(e) => setForm({ ...form, website: e.target.value })}
+                className="bg-white/[0.06] border-white/10 text-white placeholder:text-white/30 h-11"
+                type="url"
+              />
             </div>
             <div>
               <label className="block text-white/60 text-sm mb-1.5">{t.labelPaymentMethod}</label>
