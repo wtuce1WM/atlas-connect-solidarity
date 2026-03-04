@@ -8,32 +8,45 @@ interface BookingOverlayProps {
 
 const IFRAME_LOAD_TIMEOUT_MS = 5000;
 
+const KNOWN_BLOCKED_DOMAINS = [
+  'permalink.fairmont.com', 'www.lunajets.com', 'www.essaouirakitesurfschool.com',
+  'www.cenizaro.com', 'www.relaischateaux.com', 'linktr.ee', 'xaluca.com',
+  'www.mandarinoriental.com', 'app.thebookingbutton.com', 'www.onomohotels.com',
+  'resnexus.com', 'www.riadelhara.com', 'nomadmarrakech.com', 'lblassa.com',
+  'direct-book.com',
+];
+
+function isDomainBlocked(url: string): boolean {
+  try {
+    const hostname = new URL(url).hostname;
+    return KNOWN_BLOCKED_DOMAINS.some(d => hostname === d || hostname.endsWith('.' + d));
+  } catch {
+    return false;
+  }
+}
+
 const BookingOverlay = ({ bookingUrl, onClose }: BookingOverlayProps) => {
-  const [iframeBlocked, setIframeBlocked] = useState(false);
+  const knownBlocked = isDomainBlocked(bookingUrl);
+  const [iframeBlocked, setIframeBlocked] = useState(knownBlocked);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const loadedRef = useRef(false);
 
   useEffect(() => {
+    if (knownBlocked) return; // No need for timeout, already blocked
+
+    loadedRef.current = false;
     const timer = setTimeout(() => {
-      // After timeout, try to detect if the iframe loaded content
-      try {
-        const iframe = iframeRef.current;
-        if (iframe) {
-          // Accessing cross-origin contentWindow will throw — that's expected.
-          // But if the iframe is truly blank (blocked), we show the fallback.
-          // We can't reliably detect this, so we just show the fallback message.
-          setIframeBlocked(true);
-        }
-      } catch {
+      // Only show fallback if onLoad never fired
+      if (!loadedRef.current) {
         setIframeBlocked(true);
       }
     }, IFRAME_LOAD_TIMEOUT_MS);
 
     return () => clearTimeout(timer);
-  }, [bookingUrl]);
+  }, [bookingUrl, knownBlocked]);
 
   const handleIframeLoad = () => {
-    // If the iframe fires onLoad, the page loaded (even if it's an error page from the remote server).
-    // Cancel the blocked state.
+    loadedRef.current = true;
     setIframeBlocked(false);
   };
 
