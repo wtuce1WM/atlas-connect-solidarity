@@ -35,3 +35,6 @@ verify_jwt = false
 
 [functions.ai-search-answer]
 verify_jwt = false
+
+[functions.sabre-hotels]
+verify_jwt = false
