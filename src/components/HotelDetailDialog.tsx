@@ -33,6 +33,8 @@ export interface HotelResult {
     latitude?: number;
     longitude?: number;
     rating?: string;
+    guestRating?: number;
+    reviewCount?: number;
     address?: string;
     city?: string;
     mainImage?: string;
@@ -51,9 +53,10 @@ interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   formatPrice: (price: string, currency: string) => string;
+  onViewBusiness?: (businessId: string, hotelResult: HotelResult) => void;
 }
 
-export default function HotelDetailDialog({ hotel, open, onOpenChange, formatPrice }: Props) {
+export default function HotelDetailDialog({ hotel, open, onOpenChange, formatPrice, onViewBusiness }: Props) {
   const { language } = useLanguage();
   const [dbBusiness, setDbBusiness] = useState<{ id: string; name: string; slug?: string } | null>(null);
   const [loadingDb, setLoadingDb] = useState(false);
@@ -167,11 +170,14 @@ export default function HotelDetailDialog({ hotel, open, onOpenChange, formatPri
               </p>
               <p className="text-xs text-muted-foreground">{dbBusiness.name}</p>
             </div>
-            <Button size="sm" variant="outline" asChild>
-              <a href={`/business/${dbBusiness.id}`}>
-                {language === "en" ? "View" : "Voir"}
-                <ExternalLink className="h-3 w-3 ml-1" />
-              </a>
+            <Button size="sm" variant="outline" onClick={() => {
+              if (onViewBusiness && hotel) {
+                onViewBusiness(dbBusiness.id, hotel);
+                onOpenChange(false);
+              }
+            }}>
+              {language === "en" ? "View" : "Voir"}
+              <ExternalLink className="h-3 w-3 ml-1" />
             </Button>
           </div>
         )}

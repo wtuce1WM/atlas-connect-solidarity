@@ -176,6 +176,8 @@ Deno.serve(async (req) => {
         name: (details?.name as string) || "Unknown Hotel",
         cityCode: params.cityCode,
         rating: details?.starRating ? String(details.starRating) : undefined,
+        guestRating: details?.rating ? Number(details.rating) : undefined,
+        reviewCount: details?.reviewCount ? Number(details.reviewCount) : undefined,
         latitude: details?.latitude ? Number(details.latitude) : undefined,
         longitude: details?.longitude ? Number(details.longitude) : undefined,
         address: (details?.address as string) || undefined,
