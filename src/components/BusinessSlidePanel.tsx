@@ -163,6 +163,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   });
   const [business, setBusiness] = useState<FullBusiness | null>(null);
   const [gamme, setGamme] = useState<Gamme | null>(null);
+  const [activeServiceNames, setActiveServiceNames] = useState<Set<string> | null>(null);
   
   const [reviewTexts, setReviewTexts] = useState<{ source: string; author_name: string | null; rating: number | null; text: string | null; relative_time: string | null }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -368,6 +369,18 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
       }
 
       setBusiness(data as any);
+
+      // Fetch active service names to filter displayed services
+      if (data.services && data.services.length > 0) {
+        const { data: activeServices } = await supabase
+          .from("services")
+          .select("name_fr");
+        if (activeServices) {
+          setActiveServiceNames(new Set(activeServices.map((s: any) => s.name_fr)));
+        }
+      } else {
+        setActiveServiceNames(null);
+      }
 
       // Fetch review texts – prefer reviews in the current UI language
       const langCode = language === "en" ? "en" : language === "ar" ? "ar" : "fr";
@@ -890,7 +903,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                   { id: "contact", label: "Contact", show: !!(business.address || business.phone || business.email || business.whatsapp) },
                   { id: "avis", label: "Avis clients", show: !!(reviews.length > 0 || avgOn20) },
                   { id: "localiser", label: "Localiser", show: !!business.google_maps_url },
-                  { id: "services", label: "Services", show: !!(business.services && business.services.length > 0) },
+                  { id: "services", label: "Services", show: !!(business.services && activeServiceNames && business.services.some(s => activeServiceNames.has(s))) },
                   { id: "similaires", label: "Similaires", show: true },
                   { id: "acote", label: "À côté", show: !!(business.latitude && business.longitude) },
                 ].filter(t => t.show).map(tab => (
@@ -988,7 +1001,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
               { id: "contact", label: "Contact", show: hasContact },
               { id: "avis", label: "Avis clients", show: !!(reviews.length > 0 || avgOn20) },
               { id: "localiser", label: "Localiser", show: !!business.google_maps_url },
-              { id: "services", label: "Services", show: !!(business.services && business.services.length > 0) },
+              { id: "services", label: "Services", show: !!(business.services && activeServiceNames && business.services.some(s => activeServiceNames.has(s))) },
               { id: "similaires", label: "Similaires", show: similarCount === null || similarCount > 0 },
               { id: "acote", label: "À côté", show: nearbyCount === null || nearbyCount > 0 },
             ].filter(t => t.show).map(tab => (
@@ -1416,26 +1429,31 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
             );
           })()}
 
-          {/* Services */}
-          {business.services && business.services.length > 0 && (
-            <>
-              <Separator />
-              <div ref={servicesSectionRef} className="space-y-1.5 scroll-mt-28">
-                <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Services</h3>
-                <div className="flex flex-wrap gap-1.5">
-                  {business.services.slice(0, 12).map(s => (
-                    <span key={s} className="px-2 py-0.5 rounded-full text-xs bg-gold/10 text-gold border border-gold/20">
-                      {s}
-                    </span>
-                  ))}
-                  {business.services.length > 12 && (
-                    <span className="px-2 py-0.5 text-xs text-muted-foreground">+{business.services.length - 12}</span>
-                  )}
+          {/* Services – only show services that exist in the services table */}
+          {(() => {
+            const filteredServices = business.services && activeServiceNames
+              ? business.services.filter(s => activeServiceNames.has(s))
+              : business.services || [];
+            return filteredServices.length > 0 ? (
+              <>
+                <Separator />
+                <div ref={servicesSectionRef} className="space-y-1.5 scroll-mt-28">
+                  <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Services</h3>
+                  <div className="flex flex-wrap gap-1.5">
+                    {filteredServices.slice(0, 12).map(s => (
+                      <span key={s} className="px-2 py-0.5 rounded-full text-xs bg-gold/10 text-gold border border-gold/20">
+                        {s}
+                      </span>
+                    ))}
+                    {filteredServices.length > 12 && (
+                      <span className="px-2 py-0.5 text-xs text-muted-foreground">+{filteredServices.length - 12}</span>
+                    )}
+                  </div>
                 </div>
-              </div>
-              <Separator />
-            </>
-          )}
+                <Separator />
+              </>
+            ) : null;
+          })()}
 
           {/* Similar businesses */}
           <div ref={similarSectionRef} className="scroll-mt-28" />
