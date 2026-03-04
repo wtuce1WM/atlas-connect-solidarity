@@ -1478,20 +1478,18 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
             const filteredServices = business.services && activeServiceNames
               ? business.services.filter(s => activeServiceNames.has(s))
               : business.services || [];
-            return filteredServices.length > 0 ? (
+            const sorted = [...filteredServices].sort((a, b) => a.localeCompare(b, 'fr'));
+            return sorted.length > 0 ? (
               <>
                 <Separator />
-                <div ref={servicesSectionRef} className="space-y-1.5 scroll-mt-28">
+                <div ref={servicesSectionRef} className="space-y-3 scroll-mt-28">
                   <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Services</h3>
-                  <div className="flex flex-wrap gap-1.5">
-                    {filteredServices.slice(0, 12).map(s => (
-                      <span key={s} className="px-2 py-0.5 rounded-full text-xs bg-gold/10 text-gold border border-gold/20">
-                        {s}
+                  <div className="flex flex-col items-center gap-1">
+                    {sorted.map(s => (
+                      <span key={s} className="text-base text-foreground">
+                        {s.charAt(0).toUpperCase() + s.slice(1)}
                       </span>
                     ))}
-                    {filteredServices.length > 12 && (
-                      <span className="px-2 py-0.5 text-xs text-muted-foreground">+{filteredServices.length - 12}</span>
-                    )}
                   </div>
                 </div>
                 <Separator />
