@@ -1033,14 +1033,16 @@ serve(async (req) => {
         const allTerms = [keyLower, ...synValues.map(v => v.toLowerCase())];
         let matched = false;
         for (const text of textsToCheck) {
-          const qLower = text.toLowerCase();
+          const qLower = text.toLowerCase().replace(/-/g, " ").replace(/\s+/g, " ").trim();
           const qWords = qLower.split(/\s+/);
           const qWordsStripped = qWords.map(w => stripAccentsGlobal(w));
           matched = allTerms.some(term => {
-            const termStripped = stripAccentsGlobal(term);
-            return term.includes(" ")
-              ? (qLower.includes(term) || stripAccentsGlobal(qLower).includes(termStripped))
-              : (qWords.includes(term) || qWordsStripped.includes(termStripped));
+            // Normalize hyphens in synonym terms too so "restaurant-spectacle" matches "restaurant spectacle"
+            const termNorm = term.replace(/-/g, " ").replace(/\s+/g, " ").trim();
+            const termStripped = stripAccentsGlobal(termNorm);
+            return termNorm.includes(" ")
+              ? (qLower.includes(termNorm) || stripAccentsGlobal(qLower).includes(termStripped))
+              : (qWords.includes(termNorm) || qWordsStripped.includes(termStripped));
           });
           if (matched) break;
         }
@@ -1063,14 +1065,15 @@ serve(async (req) => {
         const allTerms = [keyLower, ...synValues.map(v => v.toLowerCase())];
         let matched = false;
         for (const text of textsToCheck) {
-          const qLower = text.toLowerCase();
+          const qLower = text.toLowerCase().replace(/-/g, " ").replace(/\s+/g, " ").trim();
           const qWords = qLower.split(/\s+/);
           const qWordsStripped = qWords.map(w => stripAccentsGlobal(w));
           matched = allTerms.some(term => {
-            const termStripped = stripAccentsGlobal(term);
-            return term.includes(" ")
-              ? (qLower.includes(term) || stripAccentsGlobal(qLower).includes(termStripped))
-              : (qWords.includes(term) || qWordsStripped.includes(termStripped));
+            const termNorm = term.replace(/-/g, " ").replace(/\s+/g, " ").trim();
+            const termStripped = stripAccentsGlobal(termNorm);
+            return termNorm.includes(" ")
+              ? (qLower.includes(termNorm) || stripAccentsGlobal(qLower).includes(termStripped))
+              : (qWords.includes(termNorm) || qWordsStripped.includes(termStripped));
           });
           if (matched) break;
         }
