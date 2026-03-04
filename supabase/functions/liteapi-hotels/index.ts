@@ -118,7 +118,8 @@ Deno.serve(async (req) => {
           const sampleKey = Object.keys(hotelDetailsMap)[0];
           if (sampleKey) {
             const s = hotelDetailsMap[sampleKey];
-            console.log("Hotel detail sample:", JSON.stringify({ name: s.name, starRating: s.starRating, latitude: s.latitude, longitude: s.longitude }).slice(0, 500));
+            console.log("Hotel detail sample keys:", Object.keys(s).join(", "));
+            console.log("Hotel detail sample:", JSON.stringify(s).slice(0, 1500));
           }
         } else {
           console.error("Hotel details error:", JSON.stringify(detailsBody).slice(0, 500));
@@ -174,6 +175,10 @@ Deno.serve(async (req) => {
         rating: details?.starRating ? String(details.starRating) : undefined,
         latitude: details?.latitude ? Number(details.latitude) : undefined,
         longitude: details?.longitude ? Number(details.longitude) : undefined,
+        address: (details?.address as string) || undefined,
+        city: (details?.city as string) || undefined,
+        mainImage: (details?.main_photo as string) || undefined,
+        amenities: (details?.hotelFacilities as string[]) || [],
         available: offers.length > 0,
         offers,
       };
