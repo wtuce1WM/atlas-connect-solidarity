@@ -2331,6 +2331,17 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             <BrokenUrlBadge url={formData.menu_url} />
           </div>
 
+        {/* Flipbook / Issuu */}
+        <div className="space-y-2">
+          <Label className="text-base font-semibold">📖 Flipbook (Issuu, Calaméo…)</Label>
+          <Input
+            placeholder="https://issuu.com/username/docs/document-name"
+            value={(formData as any).flipbook_url}
+            onChange={(e) => handleChange("flipbook_url", e.target.value)}
+          />
+          <p className="text-xs text-muted-foreground">Collez l'URL de la publication Issuu ou Calaméo. Elle sera intégrée dans le panneau de l'établissement.</p>
+        </div>
+
         {/* Video */}
         <div id="section-images" className="space-y-4 p-4 bg-orange-50 border border-orange-200 rounded-lg" style={{ scrollMarginTop: '160px' }}>
           <Label className="text-base font-semibold">Vidéo</Label>
@@ -2351,16 +2362,6 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           />
         </div>
 
-        {/* Flipbook / Issuu */}
-        <div className="space-y-2">
-          <Label className="text-base font-semibold">📖 Flipbook (Issuu, Calaméo…)</Label>
-          <Input
-            placeholder="https://issuu.com/username/docs/document-name"
-            value={(formData as any).flipbook_url}
-            onChange={(e) => handleChange("flipbook_url", e.target.value)}
-          />
-          <p className="text-xs text-muted-foreground">Collez l'URL de la publication Issuu ou Calaméo. Elle sera intégrée dans le panneau de l'établissement.</p>
-        </div>
 
         {/* Images */}
         <div className="space-y-2">
