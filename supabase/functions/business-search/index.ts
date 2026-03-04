@@ -1318,7 +1318,8 @@ serve(async (req) => {
           console.log(`🔒 Synonym scope by detected subcategory "${detectedSubcategory}": ${matchedSynonymFilters.length} → ${scoped.length} filter(s)`);
           return scoped;
         }
-        return matchedSynonymFilters;
+        console.log(`🧭 Synonym scoped fallback disabled for "${detectedSubcategory}": no matching paired filters, continuing with normal search chain`);
+        return [];
       })();
       for (const filter of scopedSynonymFilters) {
         let builder = supabase.from("businesses").select("*").eq("is_active", true);
