@@ -52,7 +52,7 @@ const SimilarBusinesses = ({ currentBusinessId, categories, city, onNavigate, on
 
   useEffect(() => {
     const fetchSimilar = async () => {
-      if (!categories || categories.length === 0 || !city) {
+      if (!categories || categories.length === 0) {
         setIsLoading(false);
         onResultCount?.(0);
         return;
@@ -60,15 +60,21 @@ const SimilarBusinesses = ({ currentBusinessId, categories, city, onNavigate, on
 
       const subcategory = categories[0];
 
-      const { data, count, error } = await supabase
+      let query = supabase
         .from("businesses")
         .select("id, name, city, neighborhood, images, rating, wtuce_status, categories, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, getyourguide_rating, getyourguide_review_count, viator_rating, viator_review_count", { count: "exact" })
         .eq("is_active", true)
-        .eq("city", city)
         .contains("categories", [subcategory])
         .neq("id", currentBusinessId)
         .order("priority_score", { ascending: false })
         .limit(200);
+
+      // If city exists, filter by city; otherwise show all (web-only businesses)
+      if (city) {
+        query = query.eq("city", city);
+      }
+
+      const { data, count, error } = await query;
 
       if (!error && data) {
         const sorted = (data as SimilarBusiness[]).sort((a, b) => {
