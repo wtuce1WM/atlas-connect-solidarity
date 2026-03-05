@@ -1430,17 +1430,29 @@ const SearchPage = () => {
           onSelectCategory={(cat) => {
             setSelectedCategoryFilter(cat);
             setSelectedSubcategoryFilter(null);
-            // Scroll so the sticky category bar sits flush at the top (below header+tabs = 104px)
-            const el = document.querySelector('[data-category-filter]');
-            if (el) {
-              const top = el.getBoundingClientRect().top + window.scrollY - 104;
-              window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
-            } else {
-              window.scrollTo({ top: 0, behavior: "smooth" });
-            }
+            // Scroll so compact AI zone is visible below sticky bars
+            requestAnimationFrame(() => {
+              const compactAi = document.querySelector('[data-compact-ai]');
+              if (compactAi) {
+                const stickyOffset = cat ? 210 : 150; // account for header+tabs+categories+(subcategories)
+                const top = compactAi.getBoundingClientRect().top + window.scrollY - stickyOffset;
+                window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+              }
+            });
           }}
           selectedSubcategory={selectedSubcategoryFilter}
-          onSelectSubcategory={setSelectedSubcategoryFilter}
+          onSelectSubcategory={(sub) => {
+            setSelectedSubcategoryFilter(sub);
+            // Scroll so compact AI zone is visible below sticky bars
+            requestAnimationFrame(() => {
+              const compactAi = document.querySelector('[data-compact-ai]');
+              if (compactAi) {
+                const stickyOffset = 210; // header+tabs+categories+subcategories
+                const top = compactAi.getBoundingClientRect().top + window.scrollY - stickyOffset;
+                window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+              }
+            });
+          }}
         />
       )}
 
@@ -1519,7 +1531,7 @@ const SearchPage = () => {
 
           {/* Compact AI zone — shown above results when category/subcategory filter is active */}
           {isCategoryFilterActive && aiAnswerText && (
-            <div className="mb-6 mt-0 flex flex-wrap items-center gap-3 px-1">
+            <div data-compact-ai className="mb-6 mt-0 flex flex-wrap items-center gap-3 px-1">
               <div className="flex-1 min-w-0">
                 <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
                   <Sparkles className="h-3.5 w-3.5 inline-block mr-1.5 text-gold align-text-bottom" />
