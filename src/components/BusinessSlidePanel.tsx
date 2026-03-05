@@ -391,7 +391,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
       if (!fallbackPanelData) {
         setIsLoading(true);
       }
-      setAvailabilityOverlayCtx(null);
+      setTimeout(() => setAvailabilityOverlayCtx(null), 300);
       setIsBookingOpen(false);
       setForceBookingOverlay(false);
       setDocOverlay(null);
