@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import DynamicIcon from "@/components/DynamicIcon";
@@ -21,6 +21,15 @@ interface SubcategoryCount {
   icon: string | null;
   sort_order: number;
   count: number;
+  id: string;
+}
+
+interface ServiceItem {
+  name_fr: string;
+  name_en: string | null;
+  name_ar: string | null;
+  icon: string | null;
+  count: number;
 }
 
 interface CityCategoryFilterProps {
@@ -29,6 +38,8 @@ interface CityCategoryFilterProps {
   onSelectCategory: (category: string | null) => void;
   selectedSubcategory?: string | null;
   onSelectSubcategory?: (subcategory: string | null) => void;
+  selectedService?: string | null;
+  onSelectService?: (service: string | null) => void;
 }
 
 const CityCategoryFilter = ({
@@ -37,11 +48,15 @@ const CityCategoryFilter = ({
   onSelectCategory,
   selectedSubcategory,
   onSelectSubcategory,
+  selectedService,
+  onSelectService,
 }: CityCategoryFilterProps) => {
   const [categories, setCategories] = useState<CategoryCount[]>([]);
   const [subcategories, setSubcategories] = useState<SubcategoryCount[]>([]);
+  const [services, setServices] = useState<ServiceItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingSubs, setIsLoadingSubs] = useState(false);
+  const [isLoadingServices, setIsLoadingServices] = useState(false);
   const { language } = useLanguage();
 
   // Fetch categories
@@ -111,7 +126,7 @@ const CityCategoryFilter = ({
 
       const { data: allSubs } = await supabase
         .from("subcategories")
-        .select("name_fr, name_en, name_ar, icon, sort_order")
+        .select("id, name_fr, name_en, name_ar, icon, sort_order")
         .eq("category_id", cat.id)
         .order("sort_order", { ascending: true });
 
@@ -156,6 +171,106 @@ const CityCategoryFilter = ({
 
     fetchSubcategoryCounts();
   }, [selectedCategory, cityName, categories]);
+
+  // Fetch services when a subcategory is selected
+  useEffect(() => {
+    if (!selectedSubcategory || !cityName) {
+      setServices([]);
+      return;
+    }
+
+    setIsLoadingServices(true);
+
+    const fetchServices = async () => {
+      // Find subcategory id
+      const sub = subcategories.find(s => s.name_fr === selectedSubcategory);
+      if (!sub) {
+        setIsLoadingServices(false);
+        return;
+      }
+
+      // Fetch active services for this subcategory
+      const { data: allServices } = await supabase
+        .from("services")
+        .select("id, name_fr, name_en, name_ar, icon")
+        .eq("subcategory_id", sub.id)
+        .eq("is_active", true)
+        .order("name_fr", { ascending: true });
+
+      if (!allServices || allServices.length === 0) {
+        setServices([]);
+        setIsLoadingServices(false);
+        return;
+      }
+
+      // Check city filter via service_city_filters
+      const { data: cityFilters } = await supabase
+        .from("service_city_filters")
+        .select("service_id, city_id");
+
+      // Get cities to find city_id
+      const { data: cities } = await supabase
+        .from("cities")
+        .select("id, name_fr")
+        .ilike("name_fr", cityName)
+        .limit(1);
+
+      const cityId = cities?.[0]?.id;
+
+      // Build set of services restricted to specific cities
+      const serviceCityMap: Record<string, Set<string>> = {};
+      if (cityFilters) {
+        for (const cf of cityFilters) {
+          if (!serviceCityMap[cf.service_id]) {
+            serviceCityMap[cf.service_id] = new Set();
+          }
+          serviceCityMap[cf.service_id].add(cf.city_id);
+        }
+      }
+
+      // Filter: keep services that either have NO city filter or include this city
+      const filteredServices = allServices.filter(svc => {
+        const citySet = serviceCityMap[svc.id];
+        if (!citySet) return true; // no city restriction
+        return cityId ? citySet.has(cityId) : true;
+      });
+
+      // Count businesses that have each service in this city+subcategory
+      const { data: businesses } = await supabase
+        .from("businesses")
+        .select("services")
+        .eq("is_active", true)
+        .ilike("city", cityName)
+        .contains("categories", [selectedSubcategory]);
+
+      const countMap: Record<string, number> = {};
+      if (businesses) {
+        for (const b of businesses) {
+          if (b.services) {
+            for (const s of b.services) {
+              countMap[s] = (countMap[s] || 0) + 1;
+            }
+          }
+        }
+      }
+
+      const result: ServiceItem[] = filteredServices
+        .filter(svc => (countMap[svc.name_fr] || 0) > 0)
+        .map(svc => ({
+          name_fr: svc.name_fr,
+          name_en: svc.name_en,
+          name_ar: svc.name_ar,
+          icon: svc.icon,
+          count: countMap[svc.name_fr] || 0,
+        }))
+        .sort((a, b) => a.name_fr.localeCompare(b.name_fr, "fr"));
+
+      setServices(result);
+      setIsLoadingServices(false);
+    };
+
+    fetchServices();
+  }, [selectedSubcategory, cityName, subcategories]);
 
   if (isLoading || categories.length === 0) return null;
 
@@ -230,6 +345,42 @@ const CityCategoryFilter = ({
                     <span>{getLabel(sub)}</span>
                     <span className={`text-[10px] ${isSelected ? "text-secondary" : "text-muted-foreground/60"}`}>
                       {sub.count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Sticky services zone */}
+      {selectedSubcategory && !isLoadingServices && services.length > 0 && (
+        <div className="sticky top-[218px] z-[0] bg-background/85 backdrop-blur-sm border-b border-border/30 py-2">
+          <div className="mx-auto px-4 max-w-[80%]">
+            <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+              {services.map((svc) => {
+                const isSelected = selectedService === svc.name_fr;
+                return (
+                  <button
+                    key={svc.name_fr}
+                    onClick={() => onSelectService?.(isSelected ? null : svc.name_fr)}
+                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[11px] font-medium whitespace-nowrap transition-all shrink-0 ${
+                      isSelected
+                        ? "bg-accent/20 border-accent text-accent-foreground shadow-sm"
+                        : "bg-card border-border text-muted-foreground hover:border-accent/40 hover:text-foreground"
+                    }`}
+                  >
+                    {svc.icon ? (
+                      <DynamicIcon
+                        name={svc.icon}
+                        size={12}
+                        className={isSelected ? "text-accent-foreground" : "text-muted-foreground"}
+                      />
+                    ) : null}
+                    <span>{getLabel(svc)}</span>
+                    <span className={`text-[9px] ${isSelected ? "text-accent-foreground/70" : "text-muted-foreground/60"}`}>
+                      {svc.count}
                     </span>
                   </button>
                 );

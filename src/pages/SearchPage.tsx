@@ -47,6 +47,7 @@ interface Business {
   images: string[] | null;
   main_category: string | null;
   categories: string[] | null;
+  services: string[] | null;
   wtuce_status: string | null;
   is_regulated_activity: boolean | null;
   distance_km: number | null;
@@ -374,9 +375,10 @@ const SearchPage = () => {
   const [detectedCity, setDetectedCity] = useState<string | null>(null);
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string | null>(null);
   const [selectedSubcategoryFilter, setSelectedSubcategoryFilter] = useState<string | null>(null);
+  const [selectedServiceFilter, setSelectedServiceFilter] = useState<string | null>(null);
 
   // Track whether a category/subcategory filter is active (compact AI mode)
-  const isCategoryFilterActive = !!(selectedCategoryFilter || selectedSubcategoryFilter);
+  const isCategoryFilterActive = !!(selectedCategoryFilter || selectedSubcategoryFilter || selectedServiceFilter);
 
   const normalizeText = (value: string) =>
     value
@@ -639,6 +641,10 @@ const SearchPage = () => {
     if (selectedSubcategoryFilter) {
       filtered = filtered.filter(b => b.categories && b.categories.includes(selectedSubcategoryFilter));
     }
+    // Apply service filter
+    if (selectedServiceFilter) {
+      filtered = filtered.filter(b => b.services && b.services.includes(selectedServiceFilter));
+    }
     const hasActiveSearch = !!searchQuery.trim() || !!categoryFromUrl;
 
     if (activeTimeSlot) {
@@ -658,7 +664,7 @@ const SearchPage = () => {
 
     // Always sort by WTUCE status first, then by rating (highest first)
     return [...filtered].sort(sortWtuceAndRating);
-  }, [allBusinesses, selectedCity, selectedCategoryFilter, selectedSubcategoryFilter, activeTimeSlot, searchQuery, categoryFromUrl]);
+  }, [allBusinesses, selectedCity, selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, activeTimeSlot, searchQuery, categoryFromUrl]);
 
   // Group businesses by primary subcategory when a subcategory was detected
   const groupedBusinesses = useMemo(() => {
@@ -695,7 +701,7 @@ const SearchPage = () => {
   // Reset page when filter changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedCity, searchQuery, selectedCategoryFilter, selectedSubcategoryFilter]);
+  }, [selectedCity, searchQuery, selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter]);
 
   // Fetch gammes, badges, subcategories, badge_subcategories + TTS intro phrase on mount
   useEffect(() => {
@@ -787,6 +793,7 @@ const SearchPage = () => {
           // Reset category filter when search changes
           setSelectedCategoryFilter(null);
           setSelectedSubcategoryFilter(null);
+          setSelectedServiceFilter(null);
 
           // When user searched for something specific but got "recommended" fallback → show 0 results
           const isVoiceSearch = !!searchParams.get("spoken");
@@ -953,6 +960,7 @@ const SearchPage = () => {
     if (inputValue.trim()) {
       setSelectedCategoryFilter(null);
       setSelectedSubcategoryFilter(null);
+      setSelectedServiceFilter(null);
       setSearchQuery(inputValue.trim());
       const params: Record<string, string> = { q: inputValue.trim() };
       // Detect time keywords in typed query
@@ -1430,6 +1438,7 @@ const SearchPage = () => {
           onSelectCategory={(cat) => {
             setSelectedCategoryFilter(cat);
             setSelectedSubcategoryFilter(null);
+            setSelectedServiceFilter(null);
             // Scroll so compact AI zone is visible below sticky bars
             requestAnimationFrame(() => {
               const compactAi = document.querySelector('[data-compact-ai]');
@@ -1445,6 +1454,11 @@ const SearchPage = () => {
           selectedSubcategory={selectedSubcategoryFilter}
           onSelectSubcategory={(sub) => {
             setSelectedSubcategoryFilter(sub);
+            setSelectedServiceFilter(null);
+          }}
+          selectedService={selectedServiceFilter}
+          onSelectService={(svc) => {
+            setSelectedServiceFilter(svc);
           }}
         />
       )}
