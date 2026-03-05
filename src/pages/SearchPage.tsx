@@ -1574,7 +1574,25 @@ const SearchPage = () => {
                 </button>
               </div>
               <div className="flex items-center gap-2 shrink-0">
-                {/* TTS button */}
+              </div>
+            </div>
+          )}
+
+          {/* Écouter + Geo + Plus de filtres — below AI summary */}
+          {aiAnswerText && (
+            <div className="relative flex items-center justify-center mb-4">
+              {/* Plus de filtres centered */}
+              {isCategoryFilterActive && (
+                <button
+                  onClick={() => {/* TODO: open filters popup */}}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-dashed border-border text-sm font-medium text-muted-foreground hover:border-foreground/40 hover:text-foreground transition-all"
+                >
+                  <SlidersHorizontal size={16} />
+                  <span>Plus de filtres</span>
+                </button>
+              )}
+              {/* Écouter + Geo on the right */}
+              <div className="absolute right-0 flex items-center gap-2">
                 {(ttsStatus === "playing" || ttsStatus === "loading") ? (
                   <button
                     onClick={ttsStop}
@@ -1598,7 +1616,6 @@ const SearchPage = () => {
                     {language === "en" ? "Listen" : language === "ar" ? "استمع" : "Écouter"}
                   </button>
                 )}
-                {/* Geo badge */}
                 {!isMobile && (
                   <button
                     onClick={geo.toggle}
@@ -1623,16 +1640,6 @@ const SearchPage = () => {
                       ? (language === "en" ? "No city" : "Aucune ville")
                       : (language === "en" ? "Location" : "Position")
                     }
-                  </button>
-                )}
-                {/* Plus de filtres — inline with listen & geo */}
-                {isCategoryFilterActive && (
-                  <button
-                    onClick={() => {/* TODO: open filters popup */}}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-dashed border-border text-xs font-medium text-muted-foreground hover:border-foreground/40 hover:text-foreground transition-all"
-                  >
-                    <SlidersHorizontal size={14} />
-                    <span>Plus de filtres</span>
                   </button>
                 )}
               </div>
