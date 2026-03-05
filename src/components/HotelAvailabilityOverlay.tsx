@@ -65,6 +65,7 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
   const [fallbackHotels, setFallbackHotels] = useState<FallbackHotel[]>([]);
   const [showFallbackPanel, setShowFallbackPanel] = useState(false);
   const [selectedHotelId, setSelectedHotelId] = useState<string | null>(null);
+  const [citySearchLoading, setCitySearchLoading] = useState(false);
 
   const formatPrice = (price: string, cur: string) => {
     try {
@@ -178,6 +179,67 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
       toast.error(err instanceof Error ? err.message : "Erreur");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleCitySearch = async () => {
+    if (citySearchLoading) return;
+    setCitySearchLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("liteapi-hotels", {
+        body: {
+          hotelIds: [],
+          checkIn,
+          checkOut,
+          adults,
+          rooms,
+          currency,
+          fallbackCityName: businessCity || undefined,
+        },
+      });
+      if (error) throw new Error(error.message);
+      if (data?.error) throw new Error(data.error);
+
+      const hotels = data?.data || [];
+      const fbHotels: FallbackHotel[] = [];
+      for (const h of hotels) {
+        if (h.available && h.offers) {
+          fbHotels.push({
+            hotelId: h.hotelId,
+            name: h.name || "Hotel",
+            rating: h.rating,
+            address: h.address,
+            mainImage: h.mainImage,
+            offers: h.offers,
+          });
+        }
+      }
+
+      // Filter to mapped hotels only
+      if (fbHotels.length > 0) {
+        const fbIds = fbHotels.map(h => h.hotelId);
+        const { data: mappings } = await supabase
+          .from("hotel_api_mappings")
+          .select("liteapi_hotel_id, business_id")
+          .in("liteapi_hotel_id", fbIds);
+        const mappingMap = new Map((mappings || []).map(m => [m.liteapi_hotel_id, m.business_id]));
+        const linked = fbHotels
+          .filter(h => mappingMap.has(h.hotelId) && h.hotelId !== liteApiHotelId)
+          .map(h => ({ ...h, businessId: mappingMap.get(h.hotelId) || undefined }));
+        setFallbackHotels(linked);
+        if (linked.length > 0) {
+          setShowFallbackPanel(true);
+        } else {
+          toast.info(language === "en" ? "No linked hotels available" : "Aucun hôtel référencé disponible");
+        }
+      } else {
+        toast.info(language === "en" ? "No availability found" : "Aucune disponibilité trouvée");
+      }
+    } catch (err) {
+      console.error("City search error:", err);
+      toast.error(err instanceof Error ? err.message : "Erreur");
+    } finally {
+      setCitySearchLoading(false);
     }
   };
 
@@ -382,20 +444,14 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
 
             {/* CTA: Similar establishments with same criteria */}
             <div
-              onClick={() => {
-                const params = new URLSearchParams({
-                  city: businessCity || "",
-                  checkIn,
-                  checkOut,
-                  adults: String(adults),
-                  rooms: String(rooms),
-                  currency,
-                });
-                navigate(`/hotels?${params.toString()}`);
-              }}
+              onClick={handleCitySearch}
               className="bg-[image:var(--gradient-gold)] text-gold-foreground rounded-xl p-2.5 space-y-1 border border-gold/30 cursor-pointer hover:opacity-90 transition-colors flex flex-col items-center justify-center text-center"
             >
-              <Search className="h-5 w-5 text-black/70 mb-1" />
+              {citySearchLoading ? (
+                <Loader2 className="h-5 w-5 animate-spin text-black/70 mb-1" />
+              ) : (
+                <Search className="h-5 w-5 text-black/70 mb-1" />
+              )}
               <p className="text-xs font-semibold text-black">
                 {language === "en"
                   ? "Similar hotels with the same criteria"
