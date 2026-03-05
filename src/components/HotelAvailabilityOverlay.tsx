@@ -8,16 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 
-interface HotelAvailabilityOverlayProps {
-  liteApiHotelId: string;
-  businessName: string;
-  businessCity?: string;
-  backgroundImage?: string;
-  onClose: () => void;
-  onSelectBusiness?: (businessId: string) => void;
-}
-
-interface RoomOffer {
+export interface RoomOffer {
   id: string;
   room: {
     type?: string;
@@ -28,7 +19,7 @@ interface RoomOffer {
   policies?: { paymentType?: string; boardName?: string };
 }
 
-interface FallbackHotel {
+export interface FallbackHotel {
   hotelId: string;
   businessId?: string;
   name: string;
@@ -38,7 +29,25 @@ interface FallbackHotel {
   offers: RoomOffer[];
 }
 
-const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, backgroundImage, onClose, onSelectBusiness }: HotelAvailabilityOverlayProps) => {
+export interface FallbackPanelData {
+  hotels: FallbackHotel[];
+  city: string;
+  checkIn: string;
+  checkOut: string;
+  adults: number;
+}
+
+interface HotelAvailabilityOverlayProps {
+  liteApiHotelId: string;
+  businessName: string;
+  businessCity?: string;
+  backgroundImage?: string;
+  onClose: () => void;
+  onSelectBusiness?: (businessId: string) => void;
+  onOpenFallbackPanel?: (data: FallbackPanelData) => void;
+}
+
+const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, backgroundImage, onClose, onSelectBusiness, onOpenFallbackPanel }: HotelAvailabilityOverlayProps) => {
   const navigate = useNavigate();
   const { language } = useLanguage();
 
@@ -228,7 +237,12 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
           .map(h => ({ ...h, businessId: mappingMap.get(h.hotelId) || undefined }));
         setFallbackHotels(linked);
         if (linked.length > 0) {
-          setShowFallbackPanel(true);
+          if (onOpenFallbackPanel) {
+            onOpenFallbackPanel({ hotels: linked, city: businessCity || "", checkIn, checkOut, adults });
+            onClose();
+          } else {
+            setShowFallbackPanel(true);
+          }
         } else {
           toast.info(language === "en" ? "No linked hotels available" : "Aucun hôtel référencé disponible");
         }
@@ -482,7 +496,14 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
                   : `${fallbackHotels.length} hôtel(s) disponible(s) à proximité.`}
               </p>
               <button
-                onClick={() => setShowFallbackPanel(true)}
+                onClick={() => {
+                  if (onOpenFallbackPanel) {
+                    onOpenFallbackPanel({ hotels: fallbackHotels, city: businessCity || "", checkIn, checkOut, adults });
+                    onClose();
+                  } else {
+                    setShowFallbackPanel(true);
+                  }
+                }}
                 className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-white text-black font-semibold text-sm hover:bg-white/90 transition-colors mt-2"
               >
                 {language === "en" ? `Available hotels in ${businessCity}` : `Hôtels disponibles à ${businessCity}`}
