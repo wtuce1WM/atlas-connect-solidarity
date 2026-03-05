@@ -1302,8 +1302,8 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                       </a>
                     )}
                     {business.email && (
-                      <a href={`mailto:${business.email}`} className="text-sm text-muted-foreground hover:text-foreground transition-colors truncate">
-                        {business.email}
+                      <a href={`mailto:${business.email}`} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                        Email
                       </a>
                     )}
                     {business.reserve_now_url && (
