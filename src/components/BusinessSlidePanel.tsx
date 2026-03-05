@@ -391,11 +391,9 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
       if (!fallbackPanelData) {
         setIsLoading(true);
       }
-      // Only close booking if not in fallback browse mode
-      if (!availabilityOverlayCtx) {
-        setIsBookingOpen(false);
-        setForceBookingOverlay(false);
-      }
+      setAvailabilityOverlayCtx(null);
+      setIsBookingOpen(false);
+      setForceBookingOverlay(false);
       setDocOverlay(null);
       setCurrentImageIndex(0);
       setVideoError(false);
