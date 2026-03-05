@@ -155,6 +155,8 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   // Sync when parent changes the business
   useEffect(() => {
     setInternalBusinessId(externalBusinessId);
+    setAvailabilityOverlayCtx(null);
+    setIsBookingOpen(false);
   }, [externalBusinessId]);
 
   const { language } = useLanguage();
@@ -1890,7 +1892,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
             currentBusinessId={business.id}
             categories={business.categories}
             city={business.city}
-            onNavigate={(id) => { setInternalBusinessId(id); scrollContainerRef.current?.scrollTo({ top: 0 }); if (isExpanded) onToggleExpand?.(); }}
+            onNavigate={(id) => { setAvailabilityOverlayCtx(null); setIsBookingOpen(false); setInternalBusinessId(id); scrollContainerRef.current?.scrollTo({ top: 0 }); if (isExpanded) onToggleExpand?.(); }}
             onLoginRequired={() => setShowClubCard(true)}
             scrollRef={similarSectionRef}
             onResultCount={setSimilarCount}
@@ -1906,7 +1908,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
             longitude={business.longitude}
             currentSubcategory={business.categories?.[0] ?? null}
             currentCategories={business.categories}
-            onNavigate={(id) => { setInternalBusinessId(id); scrollContainerRef.current?.scrollTo({ top: 0 }); if (isExpanded) onToggleExpand?.(); }}
+            onNavigate={(id) => { setAvailabilityOverlayCtx(null); setIsBookingOpen(false); setInternalBusinessId(id); scrollContainerRef.current?.scrollTo({ top: 0 }); if (isExpanded) onToggleExpand?.(); }}
             onLoginRequired={() => setShowClubCard(true)}
             scrollRef={nearbySectionRef}
             onResultCount={setNearbyCount}
