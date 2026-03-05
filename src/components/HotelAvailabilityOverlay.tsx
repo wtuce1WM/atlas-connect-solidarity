@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { X, Loader2, Calendar, Users, BedDouble, Search, ArrowRight, Star, MapPin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -382,10 +383,10 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
       </div>
 
       {/* Fallback hotels left panel overlay */}
-      {showFallbackPanel && (
-        <div className="absolute inset-0 z-[70] flex animate-fade-in">
-          {/* Left panel – 50% */}
-          <div className="w-1/2 h-full bg-black/90 backdrop-blur-md border-r border-white/10 flex flex-col animate-slide-in-left overflow-hidden">
+      {showFallbackPanel && createPortal(
+        <div className="fixed inset-0 z-[200] flex animate-fade-in" style={{ top: "62px" }}>
+          {/* Left panel overlay – covers left half */}
+          <div className="w-1/2 h-full bg-black/90 backdrop-blur-md flex flex-col overflow-hidden animate-slide-in-left">
             {/* Panel header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 shrink-0">
               <div>
@@ -465,10 +466,11 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
 
           {/* Right clickable area to close */}
           <div
-            className="w-1/2 h-full bg-black/40 cursor-pointer"
+            className="flex-1 h-full bg-black/40 cursor-pointer"
             onClick={() => setShowFallbackPanel(false)}
           />
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
