@@ -27,6 +27,7 @@ export interface FallbackHotel {
   guestRating?: string;
   reviewCount?: number;
   wtuce_status?: string;
+  accessibilityAttributes?: { attributes?: string[]; [key: string]: unknown } | null;
   address?: string;
   mainImage?: string;
   offers: RoomOffer[];
@@ -145,6 +146,7 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
               rating: h.rating,
               guestRating: h.guestRating,
               reviewCount: h.reviewCount,
+              accessibilityAttributes: h.accessibilityAttributes || null,
               address: h.address,
               mainImage: h.mainImage,
               offers: h.offers,
@@ -238,6 +240,7 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
             rating: h.rating,
             guestRating: h.guestRating,
             reviewCount: h.reviewCount,
+            accessibilityAttributes: h.accessibilityAttributes || null,
             address: h.address,
             mainImage: h.mainImage,
             offers: h.offers,

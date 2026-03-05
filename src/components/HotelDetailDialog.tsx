@@ -45,6 +45,10 @@ export interface HotelResult {
     checkinTime?: string;
     checkoutTime?: string;
     images?: string[];
+    accessibilityAttributes?: {
+      attributes?: string[];
+      [key: string]: unknown;
+    } | null;
   };
   available: boolean;
   offers?: HotelOffer[];
@@ -262,6 +266,28 @@ export default function HotelDetailDialog({ hotel, open, onOpenChange, formatPri
           <p className="text-sm text-muted-foreground leading-relaxed line-clamp-4">
             {h.description}
           </p>
+        )}
+
+        {/* Accessibility */}
+        {h.accessibilityAttributes?.attributes && h.accessibilityAttributes.attributes.length > 0 && (
+          <div className="space-y-1.5">
+            <p className="text-sm font-medium flex items-center gap-1.5">
+              <span>♿</span>
+              {language === "en" ? "Accessibility" : language === "ar" ? "إمكانية الوصول" : "Accessibilité"}
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {h.accessibilityAttributes.attributes.slice(0, 8).map((attr) => (
+                <Badge key={attr} variant="outline" className="text-[10px] font-normal">
+                  {attr.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase()).trim()}
+                </Badge>
+              ))}
+              {h.accessibilityAttributes.attributes.length > 8 && (
+                <Badge variant="outline" className="text-[10px] font-normal">
+                  +{h.accessibilityAttributes.attributes.length - 8}
+                </Badge>
+              )}
+            </div>
+          </div>
         )}
 
         {/* DB cross-reference & Staff link management */}
