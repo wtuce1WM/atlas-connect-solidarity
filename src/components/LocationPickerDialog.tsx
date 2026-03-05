@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import {
   Dialog,
   DialogContent,
@@ -77,99 +77,101 @@ const LocationPickerDialog = ({
   onConfirm,
 }: LocationPickerDialogProps) => {
   const { language } = useLanguage();
-  const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<any>(null);
   const markerRef = useRef<any>(null);
   const autocompleteRef = useRef<any>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const mapContainerRef = useRef<HTMLDivElement>(null);
 
   const [addressQuery, setAddressQuery] = useState("");
   const [selectedCoords, setSelectedCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [selectedAddress, setSelectedAddress] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [mapsLoaded, setMapsLoaded] = useState(false);
-  const [mapReady, setMapReady] = useState(false);
+  // Counter that increments each time dialog opens, to force map re-init
+  const [openCount, setOpenCount] = useState(0);
 
   const activeCoords = selectedCoords || (isEnabled && coords ? coords : null);
 
+  // Track open transitions and load Google Maps SDK
   useEffect(() => {
-    if (!open) return;
-    loadGoogleMaps()
-      .then(() => setMapsLoaded(true))
-      .catch((err: any) => console.error("Google Maps load error:", err));
+    if (open) {
+      setOpenCount((c) => c + 1);
+      loadGoogleMaps()
+        .then(() => setMapsLoaded(true))
+        .catch((err: any) => console.error("Google Maps load error:", err));
+    }
   }, [open]);
 
-  // Init map every time dialog opens and maps SDK is loaded
+  // Init map every time dialog opens (openCount changes) and maps SDK is loaded
+  // Use a small timeout to ensure the DOM container is rendered by Radix
   useEffect(() => {
-    if (!open || !mapsLoaded || !mapContainerRef.current) return;
-    // Always create a fresh map when dialog opens
-    const center = activeCoords || DEFAULT_CENTER;
-    const map = new window.google.maps.Map(mapContainerRef.current, {
-      center,
-      zoom: 14,
-      disableDefaultUI: false,
-      zoomControl: true,
-      streetViewControl: false,
-      mapTypeControl: false,
-      fullscreenControl: false,
-    });
+    if (!open || !mapsLoaded) return;
 
-    mapRef.current = map;
-    markerRef.current = null; // reset marker for fresh map
+    const timer = setTimeout(() => {
+      if (!mapContainerRef.current) return;
 
-    if (activeCoords) {
-      placeMarker(activeCoords);
-    }
+      const center = activeCoords || DEFAULT_CENTER;
+      const map = new window.google.maps.Map(mapContainerRef.current, {
+        center,
+        zoom: 14,
+        disableDefaultUI: false,
+        zoomControl: true,
+        streetViewControl: false,
+        mapTypeControl: false,
+        fullscreenControl: false,
+      });
 
-    map.addListener("click", (e: any) => {
-      if (!e.latLng) return;
-      const pos = { lat: e.latLng.lat(), lng: e.latLng.lng() };
-      setSelectedCoords(pos);
-      placeMarker(pos);
-      reverseGeocode(pos);
-    });
+      mapRef.current = map;
+      markerRef.current = null;
 
-    setMapReady(true);
+      if (activeCoords) {
+        placeMarker(activeCoords);
+      }
+
+      map.addListener("click", (e: any) => {
+        if (!e.latLng) return;
+        const pos = { lat: e.latLng.lat(), lng: e.latLng.lng() };
+        setSelectedCoords(pos);
+        placeMarker(pos);
+        reverseGeocode(pos);
+      });
+
+      // Init autocomplete
+      if (inputRef.current) {
+        const autocomplete = new window.google.maps.places.Autocomplete(inputRef.current, {
+          componentRestrictions: { country: "ma" },
+          fields: ["geometry", "formatted_address", "name"],
+        });
+
+        autocomplete.addListener("place_changed", () => {
+          const place = autocomplete.getPlace();
+          if (place.geometry?.location) {
+            const pos = {
+              lat: place.geometry.location.lat(),
+              lng: place.geometry.location.lng(),
+            };
+            const addr = place.formatted_address || place.name || "";
+            setSelectedCoords(pos);
+            setSelectedAddress(addr);
+            setAddressQuery(addr);
+            placeMarker(pos);
+            mapRef.current?.setCenter(pos);
+            mapRef.current?.setZoom(16);
+          }
+        });
+
+        autocompleteRef.current = autocomplete;
+      }
+    }, 100);
 
     return () => {
+      clearTimeout(timer);
       mapRef.current = null;
       markerRef.current = null;
-      setMapReady(false);
-    };
-  }, [open, mapsLoaded]);
-
-  // Init autocomplete each time map is ready
-  useEffect(() => {
-    if (!mapReady || !inputRef.current) return;
-
-    const autocomplete = new window.google.maps.places.Autocomplete(inputRef.current, {
-      componentRestrictions: { country: "ma" },
-      fields: ["geometry", "formatted_address", "name"],
-    });
-
-    autocomplete.addListener("place_changed", () => {
-      const place = autocomplete.getPlace();
-      if (place.geometry?.location) {
-        const pos = {
-          lat: place.geometry.location.lat(),
-          lng: place.geometry.location.lng(),
-        };
-        const addr = place.formatted_address || place.name || "";
-        setSelectedCoords(pos);
-        setSelectedAddress(addr);
-        setAddressQuery(addr);
-        placeMarker(pos);
-        mapRef.current?.setCenter(pos);
-        mapRef.current?.setZoom(16);
-      }
-    });
-
-    autocompleteRef.current = autocomplete;
-
-    return () => {
       autocompleteRef.current = null;
     };
-  }, [mapReady]);
+  }, [openCount, mapsLoaded]);
 
   useEffect(() => {
     if (!mapRef.current || !activeCoords) return;
