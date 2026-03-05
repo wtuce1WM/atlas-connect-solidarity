@@ -12,6 +12,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import CategoriesCarouselSection from "@/components/CategoriesCarouselSection";
+import CityCategoryFilter from "@/components/CityCategoryFilter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -75,6 +76,7 @@ interface SearchResult {
   message: string;
   totalResults: number;
   detectedSubcategory?: string | null;
+  detectedCity?: string | null;
   searchMode?: string | null;
   bundleTimeSlots?: string[];
 }
@@ -369,6 +371,8 @@ const SearchPage = () => {
   const [ttsIntroPhrase, setTtsIntroPhrase] = useState<string>("");
   const [aiAnswerText, setAiAnswerText] = useState<string>("");
   const [activeTab, setActiveTab] = useState<"suggestions" | "map">("suggestions");
+  const [detectedCity, setDetectedCity] = useState<string | null>(null);
+  const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string | null>(null);
 
   const normalizeText = (value: string) =>
     value
@@ -622,7 +626,11 @@ const SearchPage = () => {
 
   // Filter businesses by city. Preserve backend ranking for active searches.
   const filteredBusinesses = useMemo(() => {
-    const filtered = selectedCity === "all" ? allBusinesses : allBusinesses.filter(b => b.city === selectedCity);
+    let filtered = selectedCity === "all" ? allBusinesses : allBusinesses.filter(b => b.city === selectedCity);
+    // Apply category filter from CityCategoryFilter
+    if (selectedCategoryFilter) {
+      filtered = filtered.filter(b => b.main_category === selectedCategoryFilter);
+    }
     const hasActiveSearch = !!searchQuery.trim() || !!categoryFromUrl;
 
     if (activeTimeSlot) {
@@ -642,7 +650,7 @@ const SearchPage = () => {
 
     // Always sort by WTUCE status first, then by rating (highest first)
     return [...filtered].sort(sortWtuceAndRating);
-  }, [allBusinesses, selectedCity, activeTimeSlot, searchQuery, categoryFromUrl]);
+  }, [allBusinesses, selectedCity, selectedCategoryFilter, activeTimeSlot, searchQuery, categoryFromUrl]);
 
   // Group businesses by primary subcategory when a subcategory was detected
   const groupedBusinesses = useMemo(() => {
@@ -679,7 +687,7 @@ const SearchPage = () => {
   // Reset page when filter changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedCity, searchQuery]);
+  }, [selectedCity, searchQuery, selectedCategoryFilter]);
 
   // Fetch gammes, badges, subcategories, badge_subcategories + TTS intro phrase on mount
   useEffect(() => {
@@ -767,6 +775,9 @@ const SearchPage = () => {
             safeDetectedSubcategory || fallbackSubcategory || null
           );
           setSearchMode(normalizedSearchMode);
+          setDetectedCity(data.detectedCity || null);
+          // Reset category filter when search changes
+          setSelectedCategoryFilter(null);
 
           // When user searched for something specific but got "recommended" fallback → show 0 results
           const isVoiceSearch = !!searchParams.get("spoken");
@@ -1605,6 +1616,15 @@ const SearchPage = () => {
                 <p className="text-white/30 text-xs italic">En cas d'incendie, évacuez immédiatement et composez le 15. N'essayez pas d'éteindre un feu important seul.</p>
               </div>
             </div>
+          )}
+
+          {/* City Category Filter */}
+          {detectedCity && allBusinesses.length > 0 && !isLoading && (
+            <CityCategoryFilter
+              cityName={detectedCity}
+              selectedCategory={selectedCategoryFilter}
+              onSelectCategory={setSelectedCategoryFilter}
+            />
           )}
 
           {isLoading ? (
