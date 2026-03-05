@@ -742,6 +742,7 @@ const SearchPage = () => {
       }
       
       setIsLoading(true);
+      setAiAnswerText("");
       setDetectedSubcategory(null);
       setSearchMode(null);
       try {
