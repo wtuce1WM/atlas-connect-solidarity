@@ -2102,11 +2102,18 @@ serve(async (req) => {
     if (intentCategory && queryForExpansion && INTENT_TO_CATEGORY) {
       const before = queryForExpansion;
       const intentWords = new Set(Object.keys(INTENT_TO_CATEGORY));
-      queryForExpansion = queryForExpansion.split(/\s+/).filter(w => {
+      const stripped = queryForExpansion.split(/\s+/).filter(w => {
         const wLower = w.toLowerCase();
         const wStripped = stripAccentsGlobal(wLower);
         return !intentWords.has(wLower) && !intentWords.has(wStripped);
-      }).join(" ").trim() || queryForExpansion;
+      }).join(" ").trim();
+      if (stripped) {
+        queryForExpansion = stripped;
+      } else {
+        // Intent word was the ONLY remaining term — switch to category-only search
+        queryForExpansion = null;
+        console.log(`Query reduced to empty after stripping intent word → will use category-only query`);
+      }
       if (queryForExpansion !== before) {
         console.log(`Stripped intent word from tsquery: "${queryForExpansion}" (was: "${before}")`);
       }
