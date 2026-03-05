@@ -2056,8 +2056,8 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
 
       {/* Fallback hotels left panel – lives outside the overlay */}
       {fallbackPanelData && createPortal(
-        <div className="fixed inset-0 z-[200] flex animate-fade-in" style={{ top: "62px" }}>
-          <div className="w-1/2 h-full bg-black/90 backdrop-blur-md flex flex-col overflow-hidden animate-slide-in-left">
+        <div className="fixed left-0 z-[200] flex" style={{ top: "62px", bottom: 0, width: "50%" }}>
+          <div className="w-full h-full bg-black/90 backdrop-blur-md flex flex-col overflow-hidden animate-slide-in-left">
             <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 shrink-0">
               <div>
                 <p className="text-sm font-bold text-white">
@@ -2090,6 +2090,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                         if (hotel.businessId) {
                           setSelectedFallbackHotelId(hotel.hotelId);
                           setInternalBusinessId(hotel.businessId);
+                          scrollContainerRef.current?.scrollTo({ top: 0 });
                         }
                       }}
                     >
@@ -2128,7 +2129,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
               </div>
             </div>
           </div>
-          <div className="flex-1 h-full bg-black/40 cursor-pointer" onClick={() => setFallbackPanelData(null)} />
+          
         </div>,
         document.body
       )}
