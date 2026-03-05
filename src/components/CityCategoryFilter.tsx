@@ -148,7 +148,7 @@ const CityCategoryFilter = ({
           sort_order: sub.sort_order ?? 999,
           count: countMap[sub.name_fr] || 0,
         }))
-        .sort((a, b) => a.sort_order - b.sort_order);
+        .sort((a, b) => b.sort_order - a.sort_order);
 
       setSubcategories(result);
       setIsLoadingSubs(false);
