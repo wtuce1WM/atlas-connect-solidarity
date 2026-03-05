@@ -305,7 +305,7 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
           <Button
             onClick={handleSearch}
             disabled={loading}
-            className="flex-1 h-11 rounded-xl text-sm font-bold bg-primary hover:bg-primary/90"
+            className="flex-1 h-11 rounded-xl text-sm font-bold bg-[image:var(--gradient-gold)] text-gold-foreground hover:opacity-90"
           >
             {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Search className="h-4 w-4 mr-2" />}
             {loading
@@ -393,7 +393,7 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
                 });
                 navigate(`/hotel-search?${params.toString()}`);
               }}
-              className="bg-white/15 backdrop-blur-md rounded-xl p-2.5 space-y-1 border border-white/10 cursor-pointer hover:bg-white/25 transition-colors flex flex-col items-center justify-center text-center"
+              className="bg-[image:var(--gradient-gold)] text-gold-foreground rounded-xl p-2.5 space-y-1 border border-gold/30 cursor-pointer hover:opacity-90 transition-colors flex flex-col items-center justify-center text-center"
             >
               <Search className="h-5 w-5 text-white/70 mb-1" />
               <p className="text-xs font-semibold text-white">
