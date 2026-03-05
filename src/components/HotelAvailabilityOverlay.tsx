@@ -477,10 +477,10 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
                           if (onSelectBusiness) {
                             onSelectBusiness(hotel.businessId);
                           } else {
-                            setShowFallbackPanel(false);
-                            onClose();
                             navigate(`/business/${hotel.businessId}`);
                           }
+                          setShowFallbackPanel(false);
+                          onClose();
                         }
                       }}
                     >
