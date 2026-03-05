@@ -1707,7 +1707,9 @@ const LocationManagement = () => {
                     return (
                       <TableRow key={p.id}>
                         <TableCell>
-                          {(p as any).image_url ? (
+                          {(p as any).images?.[0] ? (
+                            <img src={(p as any).images[0]} alt="" className="w-10 h-10 rounded object-cover" />
+                          ) : (p as any).image_url ? (
                             <img src={(p as any).image_url} alt="" className="w-10 h-10 rounded object-cover" />
                           ) : (
                             <div className="w-10 h-10 rounded bg-muted flex items-center justify-center"><ImageIcon className="h-4 w-4 text-muted-foreground" /></div>
