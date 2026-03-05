@@ -1807,6 +1807,33 @@ export type Database = {
           },
         ]
       }
+      popular_searches: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          query: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          query: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          query?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       regions: {
         Row: {
           created_at: string | null

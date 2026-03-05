@@ -3,8 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { useSearchSuggestions } from "@/hooks/useSearchSuggestions";
+import { usePopularSearches } from "@/hooks/usePopularSearches";
 import { useToast } from "@/hooks/use-toast";
 import SearchSuggestionsDropdown from "@/components/SearchSuggestionsDropdown";
+import TextSuggestionsDropdown from "@/components/TextSuggestionsDropdown";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, Mic, MicOff, Loader } from "lucide-react";
@@ -31,6 +33,8 @@ interface SearchInputProps {
   onVoiceTranscript?: (keywords: string, spoken: string, detectedCategory?: string, timeKeyword?: string) => void;
   /** Show autocomplete suggestions */
   showSuggestions?: boolean;
+  /** "business" = show business cards (default), "text" = show text-only popular searches */
+  suggestionMode?: "business" | "text";
   /** Suggestions position */
   suggestionsPosition?: "top" | "bottom";
   /** Voice status and toggle from parent (to share with VoiceSearchOverlay) */
@@ -52,6 +56,7 @@ const SearchInput = ({
   voiceLang,
   onVoiceTranscript,
   showSuggestions = true,
+  suggestionMode = "business",
   suggestionsPosition = "bottom",
   voiceControl,
 }: SearchInputProps) => {
@@ -85,8 +90,16 @@ const SearchInput = ({
   const voiceStatus = voiceControl?.status ?? internalVoice.status;
   const toggleRecording = voiceControl?.toggleRecording ?? internalVoice.toggleRecording;
 
-  // Autocomplete suggestions
-  const { suggestions } = useSearchSuggestions(inputValue, showSuggestions && isFocused);
+  // Autocomplete suggestions — business mode
+  const { suggestions: businessSuggestions } = useSearchSuggestions(
+    inputValue,
+    showSuggestions && isFocused && suggestionMode === "business"
+  );
+  // Autocomplete suggestions — text mode (popular searches)
+  const { suggestions: popularSuggestions } = usePopularSearches(
+    inputValue,
+    showSuggestions && isFocused && suggestionMode === "text"
+  );
 
   const shouldClear = clearOnSubmit ?? !isControlled;
 
@@ -174,11 +187,20 @@ const SearchInput = ({
           >
             {buttonLabel}
           </Button>
-          <SearchSuggestionsDropdown
-            suggestions={suggestions}
-            visible={isFocused && suggestions.length > 0}
-            position={suggestionsPosition}
-          />
+          {suggestionMode === "text" ? (
+            <TextSuggestionsDropdown
+              suggestions={popularSuggestions.map(s => s.query)}
+              visible={isFocused && popularSuggestions.length > 0}
+              onSelect={(text) => setInputValue(text)}
+              position={suggestionsPosition}
+            />
+          ) : (
+            <SearchSuggestionsDropdown
+              suggestions={businessSuggestions}
+              visible={isFocused && businessSuggestions.length > 0}
+              position={suggestionsPosition}
+            />
+          )}
         </div>
         {micButton(desktopMicSize, desktopIconSize)}
       </div>
@@ -198,11 +220,20 @@ const SearchInput = ({
             onBlur={() => setIsFocused(false)}
             className={`w-full ${mobileInputClass} bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-full shadow-lg`}
           />
-          <SearchSuggestionsDropdown
-            suggestions={suggestions}
-            visible={isFocused && suggestions.length > 0}
-            position={suggestionsPosition}
-          />
+          {suggestionMode === "text" ? (
+            <TextSuggestionsDropdown
+              suggestions={popularSuggestions.map(s => s.query)}
+              visible={isFocused && popularSuggestions.length > 0}
+              onSelect={(text) => setInputValue(text)}
+              position={suggestionsPosition}
+            />
+          ) : (
+            <SearchSuggestionsDropdown
+              suggestions={businessSuggestions}
+              visible={isFocused && businessSuggestions.length > 0}
+              position={suggestionsPosition}
+            />
+          )}
         </div>
         <div className="flex items-center justify-center gap-2">
           <button
