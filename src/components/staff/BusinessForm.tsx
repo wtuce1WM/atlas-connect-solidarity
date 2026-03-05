@@ -931,12 +931,12 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     const cleanDefaultService = formData.default_service && !formData.services.includes(formData.default_service)
       ? "" : formData.default_service;
 
-    // Hard limit: max 12 images
-    if (formData.images && formData.images.length > 12) {
+    // Hard limit: max 30 images
+    if (formData.images && formData.images.length > 30) {
       toast({
         variant: "destructive",
         title: "Trop d'images",
-        description: `Maximum 12 images autorisées. Vous en avez ${formData.images.length}. Veuillez en supprimer avant de sauvegarder.`,
+        description: `Maximum 30 images autorisées. Vous en avez ${formData.images.length}. Veuillez en supprimer avant de sauvegarder.`,
       });
       return;
     }
@@ -2561,11 +2561,11 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
 
         {/* Images */}
         <div className="space-y-2">
-          <Label className="text-base font-semibold">Images (max 12)</Label>
+          <Label className="text-base font-semibold">Images (max 30)</Label>
           <ImageUploader
             images={formData.images}
             onChange={(images) => handleChange("images", images)}
-            maxImages={12}
+            maxImages={30}
             businessId={business?.id}
           />
         </div>
