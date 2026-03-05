@@ -1409,7 +1409,7 @@ const SearchPage = () => {
       </section>
 
       {/* Tab Bar — sticky below header */}
-      <section className="sticky top-[60px] z-[3] bg-background/95 backdrop-blur-sm border-b border-border">
+      <section data-tab-bar className="sticky top-[60px] z-[3] bg-background/95 backdrop-blur-sm border-b border-border">
         <div className="mx-auto px-4 max-w-[80%]">
           <div className="flex gap-0">
             <button
@@ -1448,7 +1448,11 @@ const SearchPage = () => {
             setSelectedSubcategoryFilter(null);
             setSelectedServiceFilter(null);
             requestAnimationFrame(() => {
-              window.scrollTo({ top: 0, behavior: "smooth" });
+              const tabBar = document.querySelector('[data-tab-bar]');
+              if (tabBar) {
+                const y = tabBar.getBoundingClientRect().top + window.scrollY - 60;
+                window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
+              }
             });
           }}
           selectedSubcategory={selectedSubcategoryFilter}
@@ -1456,7 +1460,11 @@ const SearchPage = () => {
             setSelectedSubcategoryFilter(sub);
             setSelectedServiceFilter(null);
             requestAnimationFrame(() => {
-              window.scrollTo({ top: 0, behavior: "smooth" });
+              const tabBar = document.querySelector('[data-tab-bar]');
+              if (tabBar) {
+                const y = tabBar.getBoundingClientRect().top + window.scrollY - 60;
+                window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
+              }
             });
           }}
           selectedService={selectedServiceFilter}
