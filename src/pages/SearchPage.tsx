@@ -26,7 +26,8 @@ import { Loader2, Building2, ChevronLeft, ChevronRight, Search, Mic, MicOff, Loa
 import { lazy, Suspense } from "react";
 const BusinessMap = lazy(() => import("@/components/BusinessMap"));
 import BusinessCard, { type BusinessCardData, type Gamme, type Badge, type SubcategoryRef, type BadgeSubcategoryRef } from "@/components/BusinessCard";
-import AISearchAnswer from "@/components/AISearchAnswer";
+import AISearchAnswer, { parseInline, type BusinessData as AIBusinessData } from "@/components/AISearchAnswer";
+import BusinessSlidePanel from "@/components/BusinessSlidePanel";
 import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
@@ -380,6 +381,8 @@ const SearchPage = () => {
   // Track whether a category/subcategory filter is active (compact AI mode)
   const isCategoryFilterActive = !!(selectedCategoryFilter || selectedSubcategoryFilter || selectedServiceFilter);
   const [isAiSummaryExpanded, setIsAiSummaryExpanded] = useState(false);
+  const [compactPanelBusiness, setCompactPanelBusiness] = useState<AIBusinessData | null>(null);
+  const [isCompactPanelExpanded, setIsCompactPanelExpanded] = useState(false);
 
   const normalizeText = (value: string) =>
     value
@@ -1541,10 +1544,15 @@ const SearchPage = () => {
           {isCategoryFilterActive && aiAnswerText && (
             <div data-compact-ai className="mb-2 mt-4 flex flex-wrap items-start gap-3 px-1">
               <div className="flex-1 min-w-0">
-                <p className={`text-sm text-muted-foreground leading-relaxed ${isAiSummaryExpanded ? '' : 'line-clamp-2'}`}>
+                <div className={`text-sm text-muted-foreground leading-relaxed ${isAiSummaryExpanded ? '' : 'line-clamp-2'}`}>
                   <Sparkles className="h-3.5 w-3.5 inline-block mr-1.5 text-gold align-text-bottom" />
-                  {aiAnswerText.replace(/\*{1,2}/g, "").replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "").replace(/\n+/g, " ")}
-                </p>
+                  {parseInline(
+                    aiAnswerText.replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "").replace(/\n+/g, " "),
+                    allBusinesses as unknown as AIBusinessData[],
+                    (b) => setCompactPanelBusiness(b),
+                    "compact-ai"
+                  )}
+                </div>
                 <button
                   onClick={() => setIsAiSummaryExpanded(!isAiSummaryExpanded)}
                   className="inline-flex items-center gap-1 mt-1.5 text-xs font-medium text-gold hover:text-gold/80 transition-colors"
@@ -1991,6 +1999,40 @@ const SearchPage = () => {
         liveTranscript={liveTranscript}
         onClose={() => toggleRecording()}
       />
+
+      {/* Slide panel triggered from compact AI summary links */}
+      {compactPanelBusiness && (
+        <div className={`fixed top-[62px] right-0 z-[100] bg-background shadow-2xl border-l border-border overflow-hidden transition-all duration-500 ease-out animate-slide-in-right flex flex-col ${isCompactPanelExpanded ? "w-[80%]" : "w-1/2"}`} style={{ height: "calc(100vh - 62px)" }}>
+          <div className="shrink-0 flex items-center px-4 py-2 bg-background border-b border-border z-40">
+            <div className="flex items-center gap-3 shrink-0">
+              <button
+                onClick={() => { setCompactPanelBusiness(null); setIsCompactPanelExpanded(false); }}
+                className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background border-2 border-background/20 shadow-2xl hover:opacity-90 transition-opacity"
+                title="Fermer"
+                aria-label="Fermer le panneau"
+              >
+                <X className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => setIsCompactPanelExpanded(prev => !prev)}
+                className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background border-2 border-background/20 shadow-2xl hover:opacity-90 transition-opacity"
+                title={isCompactPanelExpanded ? "Réduire" : "Agrandir"}
+              >
+                {isCompactPanelExpanded ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+              </button>
+            </div>
+            <div className="flex-1" />
+          </div>
+          <div className="flex-1 min-h-0">
+            <BusinessSlidePanel
+              businessId={compactPanelBusiness.id}
+              onClose={() => { setCompactPanelBusiness(null); setIsCompactPanelExpanded(false); }}
+              isExpanded={isCompactPanelExpanded}
+              onToggleExpand={() => setIsCompactPanelExpanded(prev => !prev)}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

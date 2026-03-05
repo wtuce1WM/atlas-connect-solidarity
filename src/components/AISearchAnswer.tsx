@@ -528,3 +528,5 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
 };
 
 export default AISearchAnswer;
+export { parseInline, findBusiness, BusinessHoverCard };
+export type { BusinessData };
