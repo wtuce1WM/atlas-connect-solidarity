@@ -167,7 +167,7 @@ const CityCategoryFilter = ({
   return (
     <>
       {/* Sticky categories zone */}
-      <div className="sticky top-[104px] z-[38] bg-background/95 backdrop-blur-sm border-b border-border py-3">
+      <div className="sticky top-[104px] z-[20] bg-background/95 backdrop-blur-sm border-b border-border py-3">
         <div className="mx-auto px-4 max-w-[80%]">
           <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
             {categories.map((cat) => {
@@ -204,7 +204,7 @@ const CityCategoryFilter = ({
 
       {/* Sticky subcategories zone */}
       {selectedCategory && !isLoadingSubs && subcategories.length > 0 && (
-        <div className="sticky top-[160px] z-[37] bg-background/90 backdrop-blur-sm border-b border-border/50 py-2">
+        <div className="sticky top-[160px] z-[19] bg-background/90 backdrop-blur-sm border-b border-border/50 py-2">
           <div className="mx-auto px-4 max-w-[80%]">
             <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
               {subcategories.map((sub) => {
