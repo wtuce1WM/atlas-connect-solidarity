@@ -1293,10 +1293,8 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
 
               {/* Web section */}
               {(business.website || business.email || business.reserve_now_url || business.online_shop_url) && (
-                <div className="flex items-start gap-3">
-                  <Globe className="h-5 w-5 shrink-0 mt-0.5 text-foreground" />
+                <div>
                   <div className="space-y-1">
-                    <p className="font-semibold text-sm text-foreground">Web</p>
                     {business.website && (
                       <a href={business.website} target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1">
                         <span className="font-medium text-foreground/70">Site web</span>
@@ -1304,9 +1302,8 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                       </a>
                     )}
                     {business.email && (
-                      <a href={`mailto:${business.email}`} className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1">
-                        <span className="font-medium text-foreground/70">Email</span>
-                        <span className="truncate">{business.email}</span>
+                      <a href={`mailto:${business.email}`} className="text-sm text-muted-foreground hover:text-foreground transition-colors truncate">
+                        {business.email}
                       </a>
                     )}
                     {business.reserve_now_url && (
