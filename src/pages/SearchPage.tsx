@@ -22,7 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Building2, ChevronLeft, ChevronRight, Search, Mic, MicOff, Loader, MapPin, MapPinOff, X, Volume2, VolumeX, Clock, Map, Sparkles } from "lucide-react";
+import { Loader2, Building2, ChevronLeft, ChevronRight, Search, Mic, MicOff, Loader, MapPin, MapPinOff, X, Volume2, VolumeX, Clock, Map, Sparkles, SlidersHorizontal } from "lucide-react";
 import { lazy, Suspense } from "react";
 const BusinessMap = lazy(() => import("@/components/BusinessMap"));
 import BusinessCard, { type BusinessCardData, type Gamme, type Badge, type SubcategoryRef, type BadgeSubcategoryRef } from "@/components/BusinessCard";
@@ -1599,6 +1599,19 @@ const SearchPage = () => {
                   </button>
                 )}
               </div>
+            </div>
+          )}
+
+          {/* Plus de filtres — centered below compact AI summary */}
+          {isCategoryFilterActive && (
+            <div className="flex justify-center mb-6">
+              <button
+                onClick={() => {/* TODO: open filters popup */}}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-dashed border-border text-sm font-medium text-muted-foreground hover:border-foreground/40 hover:text-foreground transition-all"
+              >
+                <SlidersHorizontal size={16} />
+                <span>Plus de filtres</span>
+              </button>
             </div>
           )}
 
