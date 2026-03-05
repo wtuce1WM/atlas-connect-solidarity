@@ -158,6 +158,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
     setAvailabilityOverlayCtx(null);
     setIsBookingOpen(false);
     setForceBookingOverlay(false);
+    setDocOverlay(null);
   }, [externalBusinessId]);
 
   const { language } = useLanguage();
@@ -395,6 +396,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
         setIsBookingOpen(false);
         setForceBookingOverlay(false);
       }
+      setDocOverlay(null);
       setCurrentImageIndex(0);
       setVideoError(false);
       setActiveTab("apercu");
