@@ -1443,11 +1443,32 @@ const SearchPage = () => {
             setSelectedCategoryFilter(cat);
             setSelectedSubcategoryFilter(null);
             setSelectedServiceFilter(null);
+            requestAnimationFrame(() => {
+              const ai = document.querySelector('[data-compact-ai]');
+              if (ai) {
+                // 270px = header(62) + cat bar(~56) + subcat bar(~46) + services bar(~42) + padding
+                const targetOffset = 280;
+                const rect = ai.getBoundingClientRect();
+                if (rect.top < targetOffset) {
+                  window.scrollBy({ top: rect.top - targetOffset, behavior: "smooth" });
+                }
+              }
+            });
           }}
           selectedSubcategory={selectedSubcategoryFilter}
           onSelectSubcategory={(sub) => {
             setSelectedSubcategoryFilter(sub);
             setSelectedServiceFilter(null);
+            requestAnimationFrame(() => {
+              const ai = document.querySelector('[data-compact-ai]');
+              if (ai) {
+                const targetOffset = 280;
+                const rect = ai.getBoundingClientRect();
+                if (rect.top < targetOffset) {
+                  window.scrollBy({ top: rect.top - targetOffset, behavior: "smooth" });
+                }
+              }
+            });
           }}
           selectedService={selectedServiceFilter}
           onSelectService={(svc) => {
