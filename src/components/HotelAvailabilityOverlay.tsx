@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X, Loader2, Calendar, Users, BedDouble, Search, ArrowRight } from "lucide-react";
+import { X, Loader2, Calendar, Users, BedDouble, Search, ArrowRight, Star, MapPin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,15 @@ interface RoomOffer {
   policies?: { paymentType?: string; boardName?: string };
 }
 
+interface FallbackHotel {
+  hotelId: string;
+  name: string;
+  rating?: string;
+  address?: string;
+  mainImage?: string;
+  offers: RoomOffer[];
+}
+
 const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, backgroundImage, onClose }: HotelAvailabilityOverlayProps) => {
   const { language } = useLanguage();
 
@@ -48,6 +57,8 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<RoomOffer[] | null>(null);
   const [isFallback, setIsFallback] = useState(false);
+  const [fallbackHotels, setFallbackHotels] = useState<FallbackHotel[]>([]);
+  const [showFallbackPanel, setShowFallbackPanel] = useState(false);
 
   const formatPrice = (price: string, cur: string) => {
     try {
@@ -61,6 +72,15 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
     }
   };
 
+  const getLowestPrice = (offers: RoomOffer[]) => {
+    if (!offers.length) return null;
+    let lowest = offers[0];
+    for (const o of offers) {
+      if (parseFloat(o.price.total) < parseFloat(lowest.price.total)) lowest = o;
+    }
+    return lowest;
+  };
+
   const handleSearch = async () => {
     if (new Date(checkIn) >= new Date(checkOut)) {
       toast.error(language === "en" ? "Check-out must be after check-in" : "La date de départ doit être après la date d'arrivée");
@@ -70,6 +90,8 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
     setLoading(true);
     setResults(null);
     setIsFallback(false);
+    setFallbackHotels([]);
+    setShowFallbackPanel(false);
 
     try {
       const { data, error } = await supabase.functions.invoke("liteapi-hotels", {
@@ -90,20 +112,35 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
       const hotels = data?.data || [];
       const wasFallback = !!data?.fallback;
       setIsFallback(wasFallback);
+
       const allOffers: RoomOffer[] = [];
+      const fbHotels: FallbackHotel[] = [];
+
       for (const h of hotels) {
         if (h.available && h.offers) {
           allOffers.push(...h.offers);
+          if (wasFallback) {
+            fbHotels.push({
+              hotelId: h.hotelId,
+              name: h.name || "Hotel",
+              rating: h.rating,
+              address: h.address,
+              mainImage: h.mainImage,
+              offers: h.offers,
+            });
+          }
         }
       }
 
       setResults(allOffers);
+      setFallbackHotels(fbHotels);
+
       if (allOffers.length === 0) {
         toast.info(language === "en" ? "No availability for these dates" : "Aucune disponibilité pour ces dates");
       } else if (wasFallback) {
-        toast.success(language === "en" 
-          ? `${allOffers.length} room(s) available nearby` 
-          : `${allOffers.length} chambre(s) disponible(s) à proximité`);
+        toast.success(language === "en"
+          ? `${fbHotels.length} hotel(s) available nearby`
+          : `${fbHotels.length} hôtel(s) disponible(s) à proximité`);
       } else {
         toast.success(`${allOffers.length} ${language === "en" ? "room(s) available" : "chambre(s) disponible(s)"}`);
       }
@@ -146,7 +183,6 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
 
       {/* Search form */}
       <div className="relative px-4 py-4 space-y-4 shrink-0">
-        {/* Dates */}
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-white/80 flex items-center gap-1.5">
@@ -176,7 +212,6 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
           </div>
         </div>
 
-        {/* Adults selector */}
         <div className="space-y-1.5">
           <label className="text-xs font-semibold text-white/80 flex items-center gap-1.5">
             <Users className="h-3.5 w-3.5" />
@@ -199,7 +234,6 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
           </div>
         </div>
 
-        {/* Rooms selector */}
         <div className="space-y-1.5">
           <label className="text-xs font-semibold text-white/80 flex items-center gap-1.5">
             <BedDouble className="h-3.5 w-3.5" />
@@ -222,7 +256,6 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
           </div>
         </div>
 
-        {/* Currency + Search */}
         <div className="flex gap-2">
           <div className="flex rounded-xl overflow-hidden border border-white/20">
             {currencies.map((c) => (
@@ -321,7 +354,7 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
           </div>
         )}
 
-        {/* Fallback: redirect to hotel search page */}
+        {/* Fallback: show CTA to open nearby hotels panel */}
         {results && results.length > 0 && isFallback && (
           <div className="text-center py-6 space-y-4">
             <div className="bg-white/10 border border-white/20 rounded-xl px-4 py-4 space-y-3">
@@ -333,20 +366,110 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
               </p>
               <p className="text-xs text-white/60">
                 {language === "en"
-                  ? `${results.length} rooms available in other hotels nearby.`
-                  : `${results.length} chambres disponibles dans d'autres hôtels à proximité.`}
+                  ? `${fallbackHotels.length} hotel(s) available nearby.`
+                  : `${fallbackHotels.length} hôtel(s) disponible(s) à proximité.`}
               </p>
-              <a
-                href={`/hotels?city=${encodeURIComponent(businessCity || '')}&checkIn=${checkIn}&checkOut=${checkOut}&adults=${adults}&rooms=${rooms}&currency=${currency}`}
+              <button
+                onClick={() => setShowFallbackPanel(true)}
                 className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-white text-black font-semibold text-sm hover:bg-white/90 transition-colors mt-2"
               >
                 {language === "en" ? `Available hotels in ${businessCity}` : `Hôtels disponibles à ${businessCity}`}
                 <ArrowRight className="h-4 w-4" />
-              </a>
+              </button>
             </div>
           </div>
         )}
       </div>
+
+      {/* Fallback hotels left panel overlay */}
+      {showFallbackPanel && (
+        <div className="absolute inset-0 z-[70] flex animate-fade-in">
+          {/* Left panel – 50% */}
+          <div className="w-1/2 h-full bg-black/90 backdrop-blur-md border-r border-white/10 flex flex-col animate-slide-in-left overflow-hidden">
+            {/* Panel header */}
+            <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 shrink-0">
+              <div>
+                <p className="text-sm font-bold text-white">
+                  {language === "en" ? `Hotels in ${businessCity}` : `Hôtels à ${businessCity}`}
+                </p>
+                <p className="text-xs text-white/60">
+                  {checkIn} → {checkOut} · {adults} {language === "en" ? "adult(s)" : "adulte(s)"}
+                </p>
+              </div>
+              <button
+                onClick={() => setShowFallbackPanel(false)}
+                className="p-1.5 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
+              >
+                <X className="h-4 w-4 text-white" />
+              </button>
+            </div>
+
+            {/* Hotel list */}
+            <div className="flex-1 overflow-y-auto p-3 space-y-3">
+              {fallbackHotels.map((hotel) => {
+                const cheapest = getLowestPrice(hotel.offers);
+                const starCount = hotel.rating ? parseInt(hotel.rating) : 0;
+                return (
+                  <div key={hotel.hotelId} className="bg-white/10 border border-white/15 rounded-xl overflow-hidden hover:bg-white/15 transition-colors">
+                    {hotel.mainImage && (
+                      <div className="h-28 w-full overflow-hidden">
+                        <img
+                          src={hotel.mainImage}
+                          alt={hotel.name}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                      </div>
+                    )}
+                    <div className="p-3 space-y-1.5">
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="text-sm font-semibold text-white leading-tight">{hotel.name}</p>
+                        {starCount > 0 && (
+                          <div className="flex shrink-0">
+                            {Array.from({ length: starCount }).map((_, i) => (
+                              <Star key={i} className="h-3 w-3 text-yellow-400 fill-yellow-400" />
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      {hotel.address && (
+                        <p className="text-[11px] text-white/50 flex items-center gap-1">
+                          <MapPin className="h-3 w-3 shrink-0" />
+                          <span className="truncate">{hotel.address}</span>
+                        </p>
+                      )}
+                      <div className="flex items-end justify-between pt-1">
+                        <div>
+                          <p className="text-xs text-white/50">
+                            {language === "en" ? "from" : "à partir de"}
+                          </p>
+                          {cheapest && (
+                            <p className="text-lg font-bold text-white">
+                              {formatPrice(cheapest.price.total, cheapest.price.currency)}
+                            </p>
+                          )}
+                          <p className="text-[10px] text-white/40">
+                            {language === "en" ? "total stay" : "séjour total"}
+                          </p>
+                        </div>
+                        <Badge variant="outline" className="text-[10px] border-white/30 text-white/60 px-1.5 py-0.5">
+                          {hotel.offers.length} {language === "en" ? "room(s)" : "chambre(s)"}
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Right clickable area to close */}
+          <div
+            className="w-1/2 h-full bg-black/40 cursor-pointer"
+            onClick={() => setShowFallbackPanel(false)}
+          />
+        </div>
+      )}
     </div>
   );
 };
