@@ -1398,7 +1398,7 @@ const SearchPage = () => {
               }`}
             >
               <Sparkles className="h-4 w-4" />
-              {language === "en" ? "AI Suggestions" : language === "ar" ? "اقتراحات الذكاء" : "Suggestion IA"}
+              {language === "en" ? "Results" : language === "ar" ? "النتائج" : "Résultats"}
             </button>
             <button
               onClick={() => setActiveTab("map")}
