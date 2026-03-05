@@ -52,6 +52,7 @@ const ServiceManagement = () => {
   const [subcategoryFilter, setSubcategoryFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOrder, setSortOrder] = useState<"az" | "za" | "count-asc" | "count-desc">("az");
+  const [activeFilter, setActiveFilter] = useState<"all" | "on" | "off">("all");
 
   // Business counts per service name
   const [businessCountBySvc, setBusinessCountBySvc] = useState<Record<string, number>>({});
@@ -117,6 +118,10 @@ const ServiceManagement = () => {
   const filteredServices = useMemo(() => {
     let result = services;
 
+    // Active filter
+    if (activeFilter === "on") result = result.filter(s => s.is_active);
+    if (activeFilter === "off") result = result.filter(s => !s.is_active);
+
     if (subcategoryFilter !== "all") {
       result = result.filter(s => s.subcategory_id === subcategoryFilter);
     } else if (categoryFilter !== "all") {
@@ -143,7 +148,7 @@ const ServiceManagement = () => {
     });
 
     return result;
-  }, [services, categoryFilter, subcategoryFilter, filteredSubcategories, searchQuery, sortOrder, businessCountBySvc]);
+  }, [services, categoryFilter, subcategoryFilter, filteredSubcategories, searchQuery, sortOrder, businessCountBySvc, activeFilter]);
 
   // Helper: get subcategory & category name for a service
   const getHierarchy = (svc: Service) => {
@@ -237,6 +242,27 @@ const ServiceManagement = () => {
                 onChange={e => setSearchQuery(e.target.value)}
                 className="pl-9"
               />
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Switch
+                checked={activeFilter !== "all"}
+                onCheckedChange={(checked) => setActiveFilter(checked ? "on" : "all")}
+                className="data-[state=checked]:bg-green-500"
+              />
+              <span className="text-sm text-muted-foreground whitespace-nowrap">
+                {activeFilter === "all" ? "Tous" : activeFilter === "on" ? "Actifs" : "Inactifs"}
+              </span>
+              {activeFilter !== "all" && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 px-2 text-xs"
+                  onClick={() => setActiveFilter(prev => prev === "on" ? "off" : "on")}
+                >
+                  {activeFilter === "on" ? "Voir inactifs" : "Voir actifs"}
+                </Button>
+              )}
             </div>
           </div>
 
