@@ -624,9 +624,9 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
                     >
                       {/* Square image with verified badge */}
                       <div className="aspect-square w-full overflow-hidden relative">
-                        {(hotel.dbImage || hotel.mainImage) ? (
+                        {hotel.mainImage ? (
                           <img
-                            src={hotel.dbImage || hotel.mainImage}
+                            src={hotel.mainImage}
                             alt={hotel.name}
                             className="w-full h-full object-cover"
                             loading="lazy"
