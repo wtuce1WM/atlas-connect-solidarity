@@ -395,13 +395,13 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
               }}
               className="bg-[image:var(--gradient-gold)] text-gold-foreground rounded-xl p-2.5 space-y-1 border border-gold/30 cursor-pointer hover:opacity-90 transition-colors flex flex-col items-center justify-center text-center"
             >
-              <Search className="h-5 w-5 text-white/70 mb-1" />
-              <p className="text-xs font-semibold text-white">
+              <Search className="h-5 w-5 text-black/70 mb-1" />
+              <p className="text-xs font-semibold text-black">
                 {language === "en"
                   ? "Similar hotels with the same criteria"
                   : "Établissements similaires avec les mêmes critères"}
               </p>
-              <p className="text-[10px] text-white/50 flex items-center gap-1">
+              <p className="text-[10px] text-black/60 flex items-center gap-1">
                 {checkIn} → {checkOut} · {adults} {language === "en" ? "adult(s)" : "adulte(s)"}
                 <ArrowRight className="h-3 w-3" />
               </p>
