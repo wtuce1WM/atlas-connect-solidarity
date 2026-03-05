@@ -1444,15 +1444,8 @@ const SearchPage = () => {
             setSelectedSubcategoryFilter(null);
             setSelectedServiceFilter(null);
             requestAnimationFrame(() => {
-              const ai = document.querySelector('[data-compact-ai]');
-              if (ai) {
-                // 270px = header(62) + cat bar(~56) + subcat bar(~46) + services bar(~42) + padding
-                const targetOffset = 280;
-                const rect = ai.getBoundingClientRect();
-                if (rect.top < targetOffset) {
-                  window.scrollBy({ top: rect.top - targetOffset, behavior: "smooth" });
-                }
-              }
+              const el = document.querySelector('[data-category-filter]');
+              if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
             });
           }}
           selectedSubcategory={selectedSubcategoryFilter}
@@ -1460,14 +1453,8 @@ const SearchPage = () => {
             setSelectedSubcategoryFilter(sub);
             setSelectedServiceFilter(null);
             requestAnimationFrame(() => {
-              const ai = document.querySelector('[data-compact-ai]');
-              if (ai) {
-                const targetOffset = 280;
-                const rect = ai.getBoundingClientRect();
-                if (rect.top < targetOffset) {
-                  window.scrollBy({ top: rect.top - targetOffset, behavior: "smooth" });
-                }
-              }
+              const el = document.querySelector('[data-category-filter]');
+              if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
             });
           }}
           selectedService={selectedServiceFilter}
