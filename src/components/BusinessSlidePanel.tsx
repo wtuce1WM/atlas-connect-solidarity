@@ -2107,12 +2107,29 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                         )}
                       </div>
                       <div className="p-2.5 space-y-1">
-                        <p className="text-xs font-semibold text-white leading-tight line-clamp-2">{hotel.name}</p>
+                        <div className="flex items-start gap-1">
+                          <p className="text-xs font-semibold text-white leading-tight line-clamp-2 flex-1">{hotel.name}</p>
+                          {hotel.wtuce_status === "verified" && (
+                            <img src={logoGold} alt="WTUCE" className="w-5 h-5 object-contain shrink-0 opacity-90" />
+                          )}
+                        </div>
                         {starCount > 0 && (
                           <div className="flex">
                             {Array.from({ length: starCount }).map((_, i) => (
                               <Star key={i} className="h-2.5 w-2.5 text-yellow-400 fill-yellow-400" />
                             ))}
+                          </div>
+                        )}
+                        {hotel.guestRating && (
+                          <div className="flex items-center gap-1">
+                            <span className="text-[10px] font-bold text-white bg-white/20 rounded px-1 py-0.5">
+                              {parseFloat(hotel.guestRating).toFixed(1)}
+                            </span>
+                            {hotel.reviewCount != null && hotel.reviewCount > 0 && (
+                              <span className="text-[10px] text-white/50">
+                                ({hotel.reviewCount})
+                              </span>
+                            )}
                           </div>
                         )}
                         {cheapest && (

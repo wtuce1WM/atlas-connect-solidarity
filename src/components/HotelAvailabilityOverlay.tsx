@@ -24,6 +24,9 @@ export interface FallbackHotel {
   businessId?: string;
   name: string;
   rating?: string;
+  guestRating?: string;
+  reviewCount?: number;
+  wtuce_status?: string;
   address?: string;
   mainImage?: string;
   offers: RoomOffer[];
@@ -140,6 +143,8 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
               hotelId: h.hotelId,
               name: h.name || "Hotel",
               rating: h.rating,
+              guestRating: h.guestRating,
+              reviewCount: h.reviewCount,
               address: h.address,
               mainImage: h.mainImage,
               offers: h.offers,
@@ -161,9 +166,23 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
         console.log("[HotelAvailability] Mappings found:", mappings, "Error:", mappingError);
         const mappingMap = new Map((mappings || []).map(m => [m.liteapi_hotel_id, m.business_id]));
         console.log("[HotelAvailability] Linked IDs set:", [...mappingMap.keys()]);
+        // Enrich with wtuce_status from businesses table
+        const businessIds = [...mappingMap.values()].filter(Boolean) as string[];
+        let wtuceMap = new Map<string, string>();
+        if (businessIds.length > 0) {
+          const { data: bizData } = await supabase
+            .from("businesses")
+            .select("id, wtuce_status")
+            .in("id", businessIds);
+          wtuceMap = new Map((bizData || []).map(b => [b.id, b.wtuce_status || ""]));
+        }
         linkedFbHotels = fbHotels
           .filter(h => mappingMap.has(h.hotelId))
-          .map(h => ({ ...h, businessId: mappingMap.get(h.hotelId) || undefined }));
+          .map(h => ({
+            ...h,
+            businessId: mappingMap.get(h.hotelId) || undefined,
+            wtuce_status: wtuceMap.get(mappingMap.get(h.hotelId) || "") || undefined,
+          }));
         console.log("[HotelAvailability] Filtered hotels:", linkedFbHotels.map(h => h.name));
       }
 
@@ -217,6 +236,8 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
             hotelId: h.hotelId,
             name: h.name || "Hotel",
             rating: h.rating,
+            guestRating: h.guestRating,
+            reviewCount: h.reviewCount,
             address: h.address,
             mainImage: h.mainImage,
             offers: h.offers,
@@ -232,9 +253,23 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
           .select("liteapi_hotel_id, business_id")
           .in("liteapi_hotel_id", fbIds);
         const mappingMap = new Map((mappings || []).map(m => [m.liteapi_hotel_id, m.business_id]));
+        // Enrich with wtuce_status
+        const businessIds2 = [...mappingMap.values()].filter(Boolean) as string[];
+        let wtuceMap2 = new Map<string, string>();
+        if (businessIds2.length > 0) {
+          const { data: bizData2 } = await supabase
+            .from("businesses")
+            .select("id, wtuce_status")
+            .in("id", businessIds2);
+          wtuceMap2 = new Map((bizData2 || []).map(b => [b.id, b.wtuce_status || ""]));
+        }
         const linked = fbHotels
           .filter(h => mappingMap.has(h.hotelId) && h.hotelId !== liteApiHotelId)
-          .map(h => ({ ...h, businessId: mappingMap.get(h.hotelId) || undefined }));
+          .map(h => ({
+            ...h,
+            businessId: mappingMap.get(h.hotelId) || undefined,
+            wtuce_status: wtuceMap2.get(mappingMap.get(h.hotelId) || "") || undefined,
+          }));
         setFallbackHotels(linked);
         if (linked.length > 0) {
           if (onOpenFallbackPanel) {
