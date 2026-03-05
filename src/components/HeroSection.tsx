@@ -207,6 +207,7 @@ const HeroSection = () => {
 
           <SearchInput
             variant="hero"
+            suggestionMode="text"
             onSubmit={(query) => {
               const params = new URLSearchParams();
               const timeResult = extractTimeSlot(query);
