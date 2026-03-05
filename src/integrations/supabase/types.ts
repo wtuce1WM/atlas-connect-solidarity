@@ -2130,6 +2130,42 @@ export type Database = {
           },
         ]
       }
+      service_city_filters: {
+        Row: {
+          city_id: string
+          created_at: string | null
+          id: string
+          service_id: string
+        }
+        Insert: {
+          city_id: string
+          created_at?: string | null
+          id?: string
+          service_id: string
+        }
+        Update: {
+          city_id?: string
+          created_at?: string | null
+          id?: string
+          service_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_city_filters_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_city_filters_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       services: {
         Row: {
           created_at: string | null
