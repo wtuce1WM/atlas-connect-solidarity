@@ -1451,7 +1451,7 @@ const SearchPage = () => {
             )}
 
             {/* City filter dropdown */}
-            {availableCities.length > 1 && (
+            {availableCities.length > 1 && !queryHasExplicitCity && (
               <>
                 <label className="text-sm text-muted-foreground">{t.filterByCity}:</label>
                 <Select value={selectedCity} onValueChange={handleCityChange}>
