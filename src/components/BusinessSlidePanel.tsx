@@ -807,7 +807,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
             ) : (
               <iframe
                 key={docOverlay.url}
-                src={`https://docs.google.com/gview?url=${encodeURIComponent(docOverlay.url)}&embedded=true`}
+                src={`https://drive.google.com/viewerng/viewer?embedded=true&url=${encodeURIComponent(docOverlay.url)}`}
                 className="h-full w-full border-0"
                 title={docOverlay.name}
               />
