@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { createPortal } from "react-dom";
+import { useNavigate } from "react-router-dom";
 import { X, Loader2, Calendar, Users, BedDouble, Search, ArrowRight, Star, MapPin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -28,6 +29,7 @@ interface RoomOffer {
 
 interface FallbackHotel {
   hotelId: string;
+  businessId?: string;
   name: string;
   rating?: string;
   address?: string;
@@ -36,6 +38,7 @@ interface FallbackHotel {
 }
 
 const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, backgroundImage, onClose }: HotelAvailabilityOverlayProps) => {
+  const navigate = useNavigate();
   const { language } = useLanguage();
 
   const getDefaultDates = () => {
@@ -144,9 +147,11 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
           .select("liteapi_hotel_id, business_id")
           .in("liteapi_hotel_id", fbIds);
         console.log("[HotelAvailability] Mappings found:", mappings, "Error:", mappingError);
-        const linkedIds = new Set((mappings || []).map(m => m.liteapi_hotel_id));
-        console.log("[HotelAvailability] Linked IDs set:", [...linkedIds]);
-        linkedFbHotels = fbHotels.filter(h => linkedIds.has(h.hotelId));
+        const mappingMap = new Map((mappings || []).map(m => [m.liteapi_hotel_id, m.business_id]));
+        console.log("[HotelAvailability] Linked IDs set:", [...mappingMap.keys()]);
+        linkedFbHotels = fbHotels
+          .filter(h => mappingMap.has(h.hotelId))
+          .map(h => ({ ...h, businessId: mappingMap.get(h.hotelId) || undefined }));
         console.log("[HotelAvailability] Filtered hotels:", linkedFbHotels.map(h => h.name));
       }
 
@@ -433,7 +438,17 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
                   const cheapest = getLowestPrice(hotel.offers);
                   const starCount = hotel.rating ? parseInt(hotel.rating) : 0;
                   return (
-                    <div key={hotel.hotelId} className="bg-white/10 border border-white/15 rounded-xl overflow-hidden hover:bg-white/15 transition-colors">
+                    <div
+                      key={hotel.hotelId}
+                      className="bg-white/10 border border-white/15 rounded-xl overflow-hidden hover:bg-white/15 transition-colors cursor-pointer"
+                      onClick={() => {
+                        if (hotel.businessId) {
+                          setShowFallbackPanel(false);
+                          onClose();
+                          navigate(`/business/${hotel.businessId}`);
+                        }
+                      }}
+                    >
                       {/* Square image */}
                       <div className="aspect-square w-full overflow-hidden">
                         {hotel.mainImage ? (
