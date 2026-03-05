@@ -88,6 +88,7 @@ const LocationPickerDialog = ({
   const [selectedAddress, setSelectedAddress] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [mapsLoaded, setMapsLoaded] = useState(false);
+  const [mapReady, setMapReady] = useState(false);
 
   const activeCoords = selectedCoords || (isEnabled && coords ? coords : null);
 
@@ -98,9 +99,10 @@ const LocationPickerDialog = ({
       .catch((err: any) => console.error("Google Maps load error:", err));
   }, [open]);
 
+  // Init map every time dialog opens and maps SDK is loaded
   useEffect(() => {
-    if (!open || !mapsLoaded || !mapContainerRef.current || mapRef.current) return;
-
+    if (!open || !mapsLoaded || !mapContainerRef.current) return;
+    // Always create a fresh map when dialog opens
     const center = activeCoords || DEFAULT_CENTER;
     const map = new window.google.maps.Map(mapContainerRef.current, {
       center,
@@ -113,6 +115,7 @@ const LocationPickerDialog = ({
     });
 
     mapRef.current = map;
+    markerRef.current = null; // reset marker for fresh map
 
     if (activeCoords) {
       placeMarker(activeCoords);
@@ -125,10 +128,19 @@ const LocationPickerDialog = ({
       placeMarker(pos);
       reverseGeocode(pos);
     });
+
+    setMapReady(true);
+
+    return () => {
+      mapRef.current = null;
+      markerRef.current = null;
+      setMapReady(false);
+    };
   }, [open, mapsLoaded]);
 
+  // Init autocomplete each time map is ready
   useEffect(() => {
-    if (!mapsLoaded || !inputRef.current || autocompleteRef.current) return;
+    if (!mapReady || !inputRef.current) return;
 
     const autocomplete = new window.google.maps.places.Autocomplete(inputRef.current, {
       componentRestrictions: { country: "ma" },
@@ -153,7 +165,11 @@ const LocationPickerDialog = ({
     });
 
     autocompleteRef.current = autocomplete;
-  }, [mapsLoaded]);
+
+    return () => {
+      autocompleteRef.current = null;
+    };
+  }, [mapReady]);
 
   useEffect(() => {
     if (!mapRef.current || !activeCoords) return;
@@ -162,11 +178,12 @@ const LocationPickerDialog = ({
     placeMarker(activeCoords);
   }, [activeCoords?.lat, activeCoords?.lng]);
 
+  // Reset selected state when dialog closes
   useEffect(() => {
     if (!open) {
-      mapRef.current = null;
-      markerRef.current = null;
-      autocompleteRef.current = null;
+      setSelectedCoords(null);
+      setSelectedAddress("");
+      setAddressQuery("");
     }
   }, [open]);
 
