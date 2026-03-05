@@ -29,6 +29,7 @@ interface SearchParams {
   ratings?: string;
   currency?: string;
   guestNationality?: string;
+  fallbackCityName?: string;
 }
 
 Deno.serve(async (req) => {
@@ -91,6 +92,8 @@ Deno.serve(async (req) => {
     });
 
     const ratesBody2 = await ratesRes.json();
+    let rawHotels: Record<string, unknown>[] | null = null;
+    let isFallback = false;
 
     if (!ratesRes.ok || ratesBody2.error) {
       const errMsg = ratesBody2.error?.message || ratesBody2.message || `LiteAPI error [${ratesRes.status}]`;
@@ -98,16 +101,76 @@ Deno.serve(async (req) => {
       const noAvail = /no availability|not found|no results/i.test(errMsg);
       if (noAvail) {
         console.log("LiteAPI: no availability for request");
-        return new Response(
-          JSON.stringify({ data: [], count: 0 }),
-          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+        // If searching by hotelIds and fallbackCityName is provided, retry with city search
+        if (params.hotelIds && params.fallbackCityName) {
+          console.log(`Fallback: retrying with cityName=${params.fallbackCityName}`);
+          const fallbackBody = {
+            ...ratesBody,
+            cityName: params.fallbackCityName,
+            countryCode: "MA",
+          };
+          delete (fallbackBody as any).hotelIds;
+          const fallbackRes = await fetch(`${LITEAPI_BASE}/hotels/rates`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-API-Key": apiKey,
+              Accept: "application/json",
+            },
+            body: JSON.stringify(fallbackBody),
+          });
+          const fallbackData = await fallbackRes.json();
+          if (fallbackRes.ok && fallbackData.data && fallbackData.data.length > 0) {
+            // Process fallback results through the same pipeline below
+            rawHotels = fallbackData.data;
+            isFallback = true;
+            console.log(`Fallback: found ${rawHotels.length} hotels in ${params.fallbackCityName}`);
+          } else {
+            return new Response(
+              JSON.stringify({ data: [], count: 0, fallback: true }),
+              { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            );
+          }
+        } else {
+          return new Response(
+            JSON.stringify({ data: [], count: 0 }),
+            { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+      } else {
+        console.error("LiteAPI rates error:", JSON.stringify(ratesBody2).slice(0, 1000));
+        throw new Error(errMsg);
       }
-      console.error("LiteAPI rates error:", JSON.stringify(ratesBody2).slice(0, 1000));
-      throw new Error(errMsg);
     }
 
-    const rawHotels = ratesBody2.data || [];
+    if (!rawHotels) {
+      rawHotels = ratesBody2.data || [];
+      // If hotelIds search returned 0 results and fallback is available, retry with city
+      if (rawHotels.length === 0 && params.hotelIds && params.fallbackCityName) {
+        console.log(`Fallback (empty results): retrying with cityName=${params.fallbackCityName}`);
+        const fallbackBody2 = {
+          ...ratesBody,
+          cityName: params.fallbackCityName,
+          countryCode: "MA",
+        };
+        delete (fallbackBody2 as any).hotelIds;
+        const fb2Res = await fetch(`${LITEAPI_BASE}/hotels/rates`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-API-Key": apiKey,
+            Accept: "application/json",
+          },
+          body: JSON.stringify(fallbackBody2),
+        });
+        const fb2Data = await fb2Res.json();
+        if (fb2Res.ok && fb2Data.data && fb2Data.data.length > 0) {
+          rawHotels = fb2Data.data;
+          isFallback = true;
+          console.log(`Fallback: found ${rawHotels.length} hotels in ${params.fallbackCityName}`);
+        }
+      }
+    }
     // Step 2: Fetch hotel details for all hotel IDs
     const hotelIds = rawHotels.map((h: Record<string, unknown>) => h.hotelId as string).filter(Boolean);
     let hotelDetailsMap: Record<string, Record<string, unknown>> = {};
@@ -236,7 +299,7 @@ Deno.serve(async (req) => {
     console.log(`LiteAPI: ${available.length} hotels found for ${params.cityCode}`);
 
     return new Response(
-      JSON.stringify({ data: available, count: available.length }),
+      JSON.stringify({ data: available, count: available.length, fallback: isFallback }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
