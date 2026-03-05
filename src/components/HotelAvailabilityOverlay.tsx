@@ -7,6 +7,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import logoWatermark from "@/assets/logoGOLDsimple.webp";
 
 export interface RoomOffer {
   id: string;
@@ -31,6 +32,12 @@ export interface FallbackHotel {
   address?: string;
   mainImage?: string;
   offers: RoomOffer[];
+  // Our DB data
+  dbImage?: string;
+  dbGoogleRating?: number | null;
+  dbGoogleReviewCount?: number | null;
+  dbTripadvisorRating?: number | null;
+  dbTripadvisorReviewCount?: number | null;
 }
 
 export interface FallbackPanelData {
@@ -170,21 +177,30 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
         console.log("[HotelAvailability] Linked IDs set:", [...mappingMap.keys()]);
         // Enrich with wtuce_status from businesses table
         const businessIds = [...mappingMap.values()].filter(Boolean) as string[];
-        let wtuceMap = new Map<string, string>();
+        let bizDataMap = new Map<string, any>();
         if (businessIds.length > 0) {
           const { data: bizData } = await supabase
             .from("businesses")
-            .select("id, wtuce_status")
+            .select("id, wtuce_status, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, images, name")
             .in("id", businessIds);
-          wtuceMap = new Map((bizData || []).map(b => [b.id, b.wtuce_status || ""]));
+          bizDataMap = new Map((bizData || []).map(b => [b.id, b]));
         }
         linkedFbHotels = fbHotels
           .filter(h => mappingMap.has(h.hotelId))
-          .map(h => ({
-            ...h,
-            businessId: mappingMap.get(h.hotelId) || undefined,
-            wtuce_status: wtuceMap.get(mappingMap.get(h.hotelId) || "") || undefined,
-          }));
+          .map(h => {
+            const biz = bizDataMap.get(mappingMap.get(h.hotelId) || "");
+            return {
+              ...h,
+              businessId: mappingMap.get(h.hotelId) || undefined,
+              wtuce_status: biz?.wtuce_status || undefined,
+              name: biz?.name || h.name,
+              dbImage: biz?.images?.[0] || undefined,
+              dbGoogleRating: biz?.google_rating,
+              dbGoogleReviewCount: biz?.google_review_count,
+              dbTripadvisorRating: biz?.tripadvisor_rating,
+              dbTripadvisorReviewCount: biz?.tripadvisor_review_count,
+            };
+          });
         console.log("[HotelAvailability] Filtered hotels:", linkedFbHotels.map(h => h.name));
       }
 
@@ -256,23 +272,32 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
           .select("liteapi_hotel_id, business_id")
           .in("liteapi_hotel_id", fbIds);
         const mappingMap = new Map((mappings || []).map(m => [m.liteapi_hotel_id, m.business_id]));
-        // Enrich with wtuce_status
+        // Enrich with our DB data
         const businessIds2 = [...mappingMap.values()].filter(Boolean) as string[];
-        let wtuceMap2 = new Map<string, string>();
+        let bizDataMap2 = new Map<string, any>();
         if (businessIds2.length > 0) {
           const { data: bizData2 } = await supabase
             .from("businesses")
-            .select("id, wtuce_status")
+            .select("id, wtuce_status, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, images, name")
             .in("id", businessIds2);
-          wtuceMap2 = new Map((bizData2 || []).map(b => [b.id, b.wtuce_status || ""]));
+          bizDataMap2 = new Map((bizData2 || []).map(b => [b.id, b]));
         }
         const linked = fbHotels
           .filter(h => mappingMap.has(h.hotelId) && h.hotelId !== liteApiHotelId)
-          .map(h => ({
-            ...h,
-            businessId: mappingMap.get(h.hotelId) || undefined,
-            wtuce_status: wtuceMap2.get(mappingMap.get(h.hotelId) || "") || undefined,
-          }));
+          .map(h => {
+            const biz = bizDataMap2.get(mappingMap.get(h.hotelId) || "");
+            return {
+              ...h,
+              businessId: mappingMap.get(h.hotelId) || undefined,
+              wtuce_status: biz?.wtuce_status || undefined,
+              name: biz?.name || h.name,
+              dbImage: biz?.images?.[0] || undefined,
+              dbGoogleRating: biz?.google_rating,
+              dbGoogleReviewCount: biz?.google_review_count,
+              dbTripadvisorRating: biz?.tripadvisor_rating,
+              dbTripadvisorReviewCount: biz?.tripadvisor_review_count,
+            };
+          });
         setFallbackHotels(linked);
         if (linked.length > 0) {
           if (onOpenFallbackPanel) {
@@ -597,11 +622,11 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
                         }
                       }}
                     >
-                      {/* Square image */}
-                      <div className="aspect-square w-full overflow-hidden">
-                        {hotel.mainImage ? (
+                      {/* Square image with verified badge */}
+                      <div className="aspect-square w-full overflow-hidden relative">
+                        {(hotel.dbImage || hotel.mainImage) ? (
                           <img
-                            src={hotel.mainImage}
+                            src={hotel.dbImage || hotel.mainImage}
                             alt={hotel.name}
                             className="w-full h-full object-cover"
                             loading="lazy"
@@ -611,6 +636,13 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
                             <BedDouble className="h-8 w-8 text-white/20" />
                           </div>
                         )}
+                        {hotel.wtuce_status === "verified" && (
+                          <img
+                            src={logoWatermark}
+                            alt="Vérifié"
+                            className="absolute top-2 right-2 h-10 w-10 drop-shadow-lg"
+                          />
+                        )}
                       </div>
                       <div className="p-2.5 space-y-1">
                         <p className="text-xs font-semibold text-white leading-tight line-clamp-2">{hotel.name}</p>
@@ -619,6 +651,24 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
                             {Array.from({ length: starCount }).map((_, i) => (
                               <Star key={i} className="h-2.5 w-2.5 text-yellow-400 fill-yellow-400" />
                             ))}
+                          </div>
+                        )}
+                        {/* Our DB ratings */}
+                        {(hotel.dbGoogleRating || hotel.dbTripadvisorRating) && (
+                          <div className="flex items-center gap-2 flex-wrap">
+                            {hotel.dbGoogleRating && (
+                              <span className="text-[10px] text-white/70 flex items-center gap-0.5">
+                                <Star className="h-2.5 w-2.5 text-yellow-400 fill-yellow-400" />
+                                {hotel.dbGoogleRating}/5
+                                {hotel.dbGoogleReviewCount ? <span className="text-white/40"> ({hotel.dbGoogleReviewCount})</span> : null}
+                              </span>
+                            )}
+                            {hotel.dbTripadvisorRating && (
+                              <span className="text-[10px] text-white/70 flex items-center gap-0.5">
+                                TA {hotel.dbTripadvisorRating}/5
+                                {hotel.dbTripadvisorReviewCount ? <span className="text-white/40"> ({hotel.dbTripadvisorReviewCount})</span> : null}
+                              </span>
+                            )}
                           </div>
                         )}
                         {cheapest && (
