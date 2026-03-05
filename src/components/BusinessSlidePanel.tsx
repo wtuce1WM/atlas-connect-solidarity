@@ -186,6 +186,13 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [forceBookingOverlay, setForceBookingOverlay] = useState(false);
   const [liteApiHotelId, setLiteApiHotelId] = useState<string | null>(null);
+  // Preserve the availability overlay context when switching business via fallback
+  const [availabilityOverlayCtx, setAvailabilityOverlayCtx] = useState<{
+    liteApiHotelId: string;
+    businessName: string;
+    businessCity?: string;
+    backgroundImage?: string;
+  } | null>(null);
   const [pressEntries, setPressEntries] = useState<{ name: string; logo_url: string; url: string; language: string }[]>([]);
   const [articlePreview, setArticlePreview] = useState<{ title: string; summary: string; screenshot: string; url: string; name: string; publishedDate?: string } | null>(null);
   const [isLoadingArticle, setIsLoadingArticle] = useState(false);
@@ -375,7 +382,10 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   useEffect(() => {
     const fetch = async () => {
       setIsLoading(true);
-      setIsBookingOpen(false);
+      // Only close booking if not in fallback browse mode
+      if (!availabilityOverlayCtx) {
+        setIsBookingOpen(false);
+      }
       setCurrentImageIndex(0);
       setVideoError(false);
       setActiveTab("apercu");
@@ -679,7 +689,17 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
       {/* Floating vertical button */}
       {showFloatingButton && (
         <button
-          onClick={() => setIsBookingOpen(true)}
+          onClick={() => {
+            if (hasLiteApiMapping) {
+              setAvailabilityOverlayCtx({
+                liteApiHotelId: liteApiHotelId!,
+                businessName: business.name,
+                businessCity: business.city || undefined,
+                backgroundImage: business.images?.[0] || undefined,
+              });
+            }
+            setIsBookingOpen(true);
+          }}
           className="absolute right-0 top-[65%] -translate-y-1/2 z-50 flex flex-col items-center justify-center bg-black/90 hover:bg-black transition-all duration-300 rounded-l-2xl shadow-lg cursor-pointer gap-[6px] py-5 px-2 group"
           title={hasLiteApiMapping ? "Vérifier la disponibilité" : "Réserver"}
         >
@@ -704,17 +724,17 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
         </button>
       )}
       {/* Booking / Availability overlay */}
-      {isBookingOpen && hasLiteApiMapping && (
+      {availabilityOverlayCtx && (
         <HotelAvailabilityOverlay
-          liteApiHotelId={liteApiHotelId!}
-          businessName={business.name}
-          businessCity={business.city || undefined}
-          backgroundImage={business.images?.[0] || undefined}
-          onClose={() => setIsBookingOpen(false)}
+          liteApiHotelId={availabilityOverlayCtx.liteApiHotelId}
+          businessName={availabilityOverlayCtx.businessName}
+          businessCity={availabilityOverlayCtx.businessCity}
+          backgroundImage={availabilityOverlayCtx.backgroundImage}
+          onClose={() => { setAvailabilityOverlayCtx(null); setIsBookingOpen(false); }}
           onSelectBusiness={(id) => { setInternalBusinessId(id); }}
         />
       )}
-      {isBookingOpen && !hasLiteApiMapping && bookingUrl && (
+      {isBookingOpen && !hasLiteApiMapping && !availabilityOverlayCtx && bookingUrl && (
         <BookingOverlay
           bookingUrl={bookingUrl}
           onClose={() => setIsBookingOpen(false)}
@@ -1426,7 +1446,17 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                 <div className="col-span-2 flex justify-center mt-2">
                   {hasLiteApiMapping ? (
                     <button
-                      onClick={() => setIsBookingOpen(true)}
+                    onClick={() => {
+                        if (hasLiteApiMapping) {
+                          setAvailabilityOverlayCtx({
+                            liteApiHotelId: liteApiHotelId!,
+                            businessName: business.name,
+                            businessCity: business.city || undefined,
+                            backgroundImage: business.images?.[0] || undefined,
+                          });
+                        }
+                        setIsBookingOpen(true);
+                      }}
                       className="flex items-center justify-center gap-2 w-[60%] py-3 rounded-xl bg-gold text-gold-foreground font-semibold text-sm hover:bg-gold/90 transition-colors"
                     >
                       {language === "en" ? "Check availability" : language === "ar" ? "تحقق من التوفر" : "Vérifier la disponibilité"}
