@@ -112,6 +112,7 @@ interface FullBusiness {
   ai_review_summary: any;
   matterport_url: string | null;
   flipbook_url: string | null;
+  online_shop_url: string | null;
 }
 
 /** Convert Issuu/Calaméo URLs to embeddable format, or return as-is */
@@ -567,7 +568,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   const totalReviewCount = reviews.reduce((s, r) => s + r.count, 0);
 
   const hook = language === "en" ? business.hook_en : language === "ar" ? business.hook_ar : business.hook_fr;
-  const hasContact = !!(business.address || business.phone || business.email || business.whatsapp || business.skype || business.menu_url || business.reserve_now_url || (business.show_opening_hours !== false && (business.is_open_24h || business.opening_hours)));
+  const hasContact = !!(business.address || business.phone || business.email || business.website || business.whatsapp || business.skype || business.menu_url || business.reserve_now_url || business.online_shop_url || (business.show_opening_hours !== false && (business.is_open_24h || business.opening_hours)));
 
   // Build TTS synthesis text (~30 seconds)
   const buildTtsSynthesis = () => {
@@ -1249,15 +1250,36 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                 </div>
               )}
 
-              {/* Email */}
-              {business.email && (
+              {/* Web section */}
+              {(business.website || business.email || business.reserve_now_url || business.online_shop_url) && (
                 <div className="flex items-start gap-3">
-                  <Mail className="h-5 w-5 shrink-0 mt-0.5 text-foreground" />
-                  <div>
-                    <p className="font-semibold text-sm text-foreground">Email</p>
-                    <a href={`mailto:${business.email}`} className="text-sm text-muted-foreground hover:text-foreground transition-colors mt-0.5 block">
-                      {business.email}
-                    </a>
+                  <Globe className="h-5 w-5 shrink-0 mt-0.5 text-foreground" />
+                  <div className="space-y-1">
+                    <p className="font-semibold text-sm text-foreground">Web</p>
+                    {business.website && (
+                      <a href={business.website} target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1">
+                        <span className="font-medium text-foreground/70">Site web</span>
+                        <ExternalLink className="h-3 w-3 shrink-0" />
+                      </a>
+                    )}
+                    {business.email && (
+                      <a href={`mailto:${business.email}`} className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1">
+                        <span className="font-medium text-foreground/70">Email</span>
+                        <span className="truncate">{business.email}</span>
+                      </a>
+                    )}
+                    {business.reserve_now_url && (
+                      <a href={business.reserve_now_url} target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1">
+                        <span className="font-medium text-foreground/70">Réservation</span>
+                        <ExternalLink className="h-3 w-3 shrink-0" />
+                      </a>
+                    )}
+                    {business.online_shop_url && (
+                      <a href={business.online_shop_url} target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1">
+                        <span className="font-medium text-foreground/70">Boutique en ligne</span>
+                        <ExternalLink className="h-3 w-3 shrink-0" />
+                      </a>
+                    )}
                   </div>
                 </div>
               )}
