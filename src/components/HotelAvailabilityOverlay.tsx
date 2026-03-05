@@ -64,6 +64,7 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
   const [isFallback, setIsFallback] = useState(false);
   const [fallbackHotels, setFallbackHotels] = useState<FallbackHotel[]>([]);
   const [showFallbackPanel, setShowFallbackPanel] = useState(false);
+  const [selectedHotelId, setSelectedHotelId] = useState<string | null>(null);
 
   const formatPrice = (price: string, cur: string) => {
     try {
@@ -435,7 +436,7 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
             {/* Hotel grid – 2 per row, square thumbnails */}
             <div className="flex-1 overflow-y-auto p-3">
               <div className="grid grid-cols-2 gap-3">
-                {fallbackHotels.map((hotel) => {
+                {fallbackHotels.filter(h => h.hotelId !== selectedHotelId).map((hotel) => {
                   const cheapest = getLowestPrice(hotel.offers);
                   const starCount = hotel.rating ? parseInt(hotel.rating) : 0;
                   return (
@@ -444,11 +445,12 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
                       className="bg-white/10 border border-white/15 rounded-xl overflow-hidden hover:bg-white/15 transition-colors cursor-pointer"
                       onClick={() => {
                         if (hotel.businessId) {
-                          setShowFallbackPanel(false);
-                          onClose();
+                          setSelectedHotelId(hotel.hotelId);
                           if (onSelectBusiness) {
                             onSelectBusiness(hotel.businessId);
                           } else {
+                            setShowFallbackPanel(false);
+                            onClose();
                             navigate(`/business/${hotel.businessId}`);
                           }
                         }
