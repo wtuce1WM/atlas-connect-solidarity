@@ -1483,15 +1483,16 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                       <Search className="h-3.5 w-3.5" />
                     </button>
                   ) : (
-                    <a
-                      href={business.reserve_now_url!}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      onClick={() => {
+                        setIsBookingOpen(true);
+                        setForceBookingOverlay(true);
+                      }}
                       className="flex items-center justify-center gap-2 w-[60%] py-3 rounded-xl bg-gold text-gold-foreground font-semibold text-sm hover:bg-gold/90 transition-colors"
                     >
                       {language === "en" ? "Book now" : language === "ar" ? "احجز الآن" : "Réserver maintenant"}
                       <ExternalLink className="h-3.5 w-3.5" />
-                    </a>
+                    </button>
                   )}
                 </div>
               )}
