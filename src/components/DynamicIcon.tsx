@@ -12,6 +12,8 @@ function isEmoji(str: string): boolean {
 // Convert PascalCase icon name (stored in DB) to kebab-case (used by dynamicIconImports)
 function toKebabCase(name: string): string {
   return name
+    .replace(/([a-z])(\d)/g, "$1-$2")   // letter followed by digit: e.g. Gamepad2 → Gamepad-2
+    .replace(/(\d)([A-Z])/g, "$1-$2")   // digit followed by upper: e.g. 2Down → 2-Down
     .replace(/([a-z0-9])([A-Z])/g, "$1-$2")
     .replace(/([A-Z])([A-Z][a-z])/g, "$1-$2")
     .toLowerCase();
