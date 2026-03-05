@@ -133,15 +133,31 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
         }
       }
 
+      // Filter fallback hotels to only those linked via hotel_api_mappings
+      let linkedFbHotels = fbHotels;
+      if (wasFallback && fbHotels.length > 0) {
+        const fbIds = fbHotels.map(h => h.hotelId);
+        const { data: mappings } = await supabase
+          .from("hotel_api_mappings")
+          .select("liteapi_hotel_id")
+          .in("liteapi_hotel_id", fbIds);
+        const linkedIds = new Set((mappings || []).map(m => m.liteapi_hotel_id));
+        linkedFbHotels = fbHotels.filter(h => linkedIds.has(h.hotelId));
+      }
+
       setResults(allOffers);
-      setFallbackHotels(fbHotels);
+      setFallbackHotels(linkedFbHotels);
 
       if (allOffers.length === 0) {
         toast.info(language === "en" ? "No availability for these dates" : "Aucune disponibilité pour ces dates");
       } else if (wasFallback) {
-        toast.success(language === "en"
-          ? `${fbHotels.length} hotel(s) available nearby`
-          : `${fbHotels.length} hôtel(s) disponible(s) à proximité`);
+        if (linkedFbHotels.length > 0) {
+          toast.success(language === "en"
+            ? `${linkedFbHotels.length} hotel(s) available nearby`
+            : `${linkedFbHotels.length} hôtel(s) disponible(s) à proximité`);
+        } else {
+          toast.info(language === "en" ? "No linked hotels available" : "Aucun hôtel référencé disponible");
+        }
       } else {
         toast.success(`${allOffers.length} ${language === "en" ? "room(s) available" : "chambre(s) disponible(s)"}`);
       }
@@ -356,7 +372,7 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
         )}
 
         {/* Fallback: show CTA to open nearby hotels panel */}
-        {results && results.length > 0 && isFallback && (
+        {results && results.length > 0 && isFallback && fallbackHotels.length > 0 && (
           <div className="text-center py-6 space-y-4">
             <div className="bg-white/10 border border-white/20 rounded-xl px-4 py-4 space-y-3">
               <BedDouble className="h-10 w-10 mx-auto text-white/50" />
@@ -405,62 +421,51 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
               </button>
             </div>
 
-            {/* Hotel list */}
-            <div className="flex-1 overflow-y-auto p-3 space-y-3">
-              {fallbackHotels.map((hotel) => {
-                const cheapest = getLowestPrice(hotel.offers);
-                const starCount = hotel.rating ? parseInt(hotel.rating) : 0;
-                return (
-                  <div key={hotel.hotelId} className="bg-white/10 border border-white/15 rounded-xl overflow-hidden hover:bg-white/15 transition-colors">
-                    {hotel.mainImage && (
-                      <div className="h-28 w-full overflow-hidden">
-                        <img
-                          src={hotel.mainImage}
-                          alt={hotel.name}
-                          className="w-full h-full object-cover"
-                          loading="lazy"
-                        />
-                      </div>
-                    )}
-                    <div className="p-3 space-y-1.5">
-                      <div className="flex items-start justify-between gap-2">
-                        <p className="text-sm font-semibold text-white leading-tight">{hotel.name}</p>
-                        {starCount > 0 && (
-                          <div className="flex shrink-0">
-                            {Array.from({ length: starCount }).map((_, i) => (
-                              <Star key={i} className="h-3 w-3 text-yellow-400 fill-yellow-400" />
-                            ))}
+            {/* Hotel grid – 2 per row, square thumbnails */}
+            <div className="flex-1 overflow-y-auto p-3">
+              <div className="grid grid-cols-2 gap-3">
+                {fallbackHotels.map((hotel) => {
+                  const cheapest = getLowestPrice(hotel.offers);
+                  const starCount = hotel.rating ? parseInt(hotel.rating) : 0;
+                  return (
+                    <div key={hotel.hotelId} className="bg-white/10 border border-white/15 rounded-xl overflow-hidden hover:bg-white/15 transition-colors">
+                      {/* Square image */}
+                      <div className="aspect-square w-full overflow-hidden">
+                        {hotel.mainImage ? (
+                          <img
+                            src={hotel.mainImage}
+                            alt={hotel.name}
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-white/5 flex items-center justify-center">
+                            <BedDouble className="h-8 w-8 text-white/20" />
                           </div>
                         )}
                       </div>
-                      {hotel.address && (
-                        <p className="text-[11px] text-white/50 flex items-center gap-1">
-                          <MapPin className="h-3 w-3 shrink-0" />
-                          <span className="truncate">{hotel.address}</span>
-                        </p>
-                      )}
-                      <div className="flex items-end justify-between pt-1">
-                        <div>
-                          <p className="text-xs text-white/50">
-                            {language === "en" ? "from" : "à partir de"}
+                      <div className="p-2.5 space-y-1">
+                        <p className="text-xs font-semibold text-white leading-tight line-clamp-2">{hotel.name}</p>
+                        {starCount > 0 && (
+                          <div className="flex">
+                            {Array.from({ length: starCount }).map((_, i) => (
+                              <Star key={i} className="h-2.5 w-2.5 text-yellow-400 fill-yellow-400" />
+                            ))}
+                          </div>
+                        )}
+                        {cheapest && (
+                          <p className="text-sm font-bold text-white">
+                            {formatPrice(cheapest.price.total, cheapest.price.currency)}
                           </p>
-                          {cheapest && (
-                            <p className="text-lg font-bold text-white">
-                              {formatPrice(cheapest.price.total, cheapest.price.currency)}
-                            </p>
-                          )}
-                          <p className="text-[10px] text-white/40">
-                            {language === "en" ? "total stay" : "séjour total"}
-                          </p>
-                        </div>
-                        <Badge variant="outline" className="text-[10px] border-white/30 text-white/60 px-1.5 py-0.5">
+                        )}
+                        <p className="text-[10px] text-white/40">
                           {hotel.offers.length} {language === "en" ? "room(s)" : "chambre(s)"}
-                        </Badge>
+                        </p>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
           </div>
 
