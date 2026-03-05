@@ -1474,10 +1474,10 @@ const SearchPage = () => {
 
       {/* Filters & Results — Suggestion IA tab */}
       {activeTab === "suggestions" && (
-      <section ref={resultsRef} className="py-6 lg:py-12 bg-background">
+      <section ref={resultsRef} className={`bg-background ${isCategoryFilterActive ? 'py-2 lg:py-4' : 'py-6 lg:py-12'}`}>
         <div className="mx-auto px-4 max-w-[80%]">
           {/* Filters: City + Geo toggle — on mobile shown before hero via order */}
-          <div className={`mb-8 flex flex-wrap items-center gap-3 ${isMobile ? 'hidden' : ''}`}>
+          <div className={`${isCategoryFilterActive ? 'mb-3' : 'mb-8'} flex flex-wrap items-center gap-3 ${isMobile ? 'hidden' : ''}`}>
             {/* Time slot indicator */}
             {activeTimeSlot && (
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gold/20 border border-gold/40 text-gold text-xs font-medium">
