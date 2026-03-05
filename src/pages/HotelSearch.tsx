@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
@@ -30,13 +31,25 @@ const MOROCCAN_CITIES = [
 
 const HotelSearch = () => {
   const { language } = useLanguage();
-  const [cityCode, setCityCode] = useState("RAK");
-  const [checkIn, setCheckIn] = useState("");
-  const [checkOut, setCheckOut] = useState("");
-  const [adults, setAdults] = useState("2");
-  const [rooms, setRooms] = useState("1");
+  const [searchParams] = useSearchParams();
+
+  // Resolve initial city from URL param (city name → code)
+  const initialCityCode = useMemo(() => {
+    const cityParam = searchParams.get("city");
+    if (!cityParam) return "RAK";
+    const match = MOROCCAN_CITIES.find(
+      (c) => c.name.toLowerCase() === cityParam.toLowerCase() || c.code === cityParam
+    );
+    return match?.code || "RAK";
+  }, [searchParams]);
+
+  const [cityCode, setCityCode] = useState(initialCityCode);
+  const [checkIn, setCheckIn] = useState(searchParams.get("checkIn") || "");
+  const [checkOut, setCheckOut] = useState(searchParams.get("checkOut") || "");
+  const [adults, setAdults] = useState(searchParams.get("adults") || "2");
+  const [rooms, setRooms] = useState(searchParams.get("rooms") || "1");
   const [stars, setStars] = useState("");
-  const [currency, setCurrency] = useState("EUR");
+  const [currency, setCurrency] = useState(searchParams.get("currency") || "EUR");
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<HotelResult[]>([]);
   const [searchDone, setSearchDone] = useState(false);
