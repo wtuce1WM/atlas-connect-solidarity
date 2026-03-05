@@ -711,7 +711,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
           businessCity={business.city || undefined}
           backgroundImage={business.images?.[0] || undefined}
           onClose={() => setIsBookingOpen(false)}
-          onSelectBusiness={(id) => { setIsBookingOpen(false); setInternalBusinessId(id); }}
+          onSelectBusiness={(id) => { setInternalBusinessId(id); }}
         />
       )}
       {isBookingOpen && !hasLiteApiMapping && bookingUrl && (
