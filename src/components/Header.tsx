@@ -28,7 +28,7 @@ const Header = ({ variant = "default" }: HeaderProps) => {
     ? "bg-gradient-to-b from-morocco-red to-morocco-red/80 backdrop-blur-sm"
     : variant === "city"
       ? "bg-transparent"
-      : "bg-background";
+      : "bg-sky-200";
 
   const textColor = "text-black";
   const logoSecondary = "text-black";
