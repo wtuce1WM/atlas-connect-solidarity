@@ -137,12 +137,17 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
       let linkedFbHotels = fbHotels;
       if (wasFallback && fbHotels.length > 0) {
         const fbIds = fbHotels.map(h => h.hotelId);
-        const { data: mappings } = await supabase
+        console.log("[HotelAvailability] Fallback hotel IDs from API:", fbIds);
+        console.log("[HotelAvailability] Fallback hotel names:", fbHotels.map(h => `${h.name} (${h.hotelId})`));
+        const { data: mappings, error: mappingError } = await supabase
           .from("hotel_api_mappings")
-          .select("liteapi_hotel_id")
+          .select("liteapi_hotel_id, business_id")
           .in("liteapi_hotel_id", fbIds);
+        console.log("[HotelAvailability] Mappings found:", mappings, "Error:", mappingError);
         const linkedIds = new Set((mappings || []).map(m => m.liteapi_hotel_id));
+        console.log("[HotelAvailability] Linked IDs set:", [...linkedIds]);
         linkedFbHotels = fbHotels.filter(h => linkedIds.has(h.hotelId));
+        console.log("[HotelAvailability] Filtered hotels:", linkedFbHotels.map(h => h.name));
       }
 
       setResults(allOffers);
