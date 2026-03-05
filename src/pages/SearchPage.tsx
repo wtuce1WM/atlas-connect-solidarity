@@ -1625,20 +1625,17 @@ const SearchPage = () => {
                     }
                   </button>
                 )}
+                {/* Plus de filtres — inline with listen & geo */}
+                {isCategoryFilterActive && (
+                  <button
+                    onClick={() => {/* TODO: open filters popup */}}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-dashed border-border text-xs font-medium text-muted-foreground hover:border-foreground/40 hover:text-foreground transition-all"
+                  >
+                    <SlidersHorizontal size={14} />
+                    <span>Plus de filtres</span>
+                  </button>
+                )}
               </div>
-            </div>
-          )}
-
-          {/* Plus de filtres — centered below compact AI summary */}
-          {isCategoryFilterActive && (
-            <div className="flex justify-center mb-6">
-              <button
-                onClick={() => {/* TODO: open filters popup */}}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-dashed border-border text-sm font-medium text-muted-foreground hover:border-foreground/40 hover:text-foreground transition-all"
-              >
-                <SlidersHorizontal size={16} />
-                <span>Plus de filtres</span>
-              </button>
             </div>
           )}
 
