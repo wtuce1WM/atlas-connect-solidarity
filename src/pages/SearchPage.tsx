@@ -1434,9 +1434,11 @@ const SearchPage = () => {
             requestAnimationFrame(() => {
               const compactAi = document.querySelector('[data-compact-ai]');
               if (compactAi) {
-                const stickyOffset = cat ? 210 : 150; // account for header+tabs+categories+(subcategories)
-                const top = compactAi.getBoundingClientRect().top + window.scrollY - stickyOffset;
-                window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+                const stickyOffset = cat ? 210 : 150; // header+tabs+filters stack
+                const currentTop = compactAi.getBoundingClientRect().top;
+                const delta = currentTop - stickyOffset;
+                if (Math.abs(delta) <= 10) return; // avoid micro-jump
+                window.scrollBy({ top: delta, behavior: "smooth" });
               }
             });
           }}
@@ -1447,9 +1449,11 @@ const SearchPage = () => {
             requestAnimationFrame(() => {
               const compactAi = document.querySelector('[data-compact-ai]');
               if (compactAi) {
-                const stickyOffset = 210; // header+tabs+categories+subcategories
-                const top = compactAi.getBoundingClientRect().top + window.scrollY - stickyOffset;
-                window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+                const stickyOffset = 210; // header+tabs+filters stack
+                const currentTop = compactAi.getBoundingClientRect().top;
+                const delta = currentTop - stickyOffset;
+                if (Math.abs(delta) <= 10) return; // avoid micro-jump
+                window.scrollBy({ top: delta, behavior: "smooth" });
               }
             });
           }}
