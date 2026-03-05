@@ -42,7 +42,7 @@ Deno.serve(async (req) => {
     if (!apiKey) throw new Error("LITEAPI_API_KEY not configured");
 
     const params: SearchParams = await req.json();
-    if (!params.hotelIds && !params.cityCode) throw new Error("cityCode or hotelIds is required");
+    if (!params.hotelIds?.length && !params.cityCode && !params.fallbackCityName) throw new Error("cityCode, hotelIds, or fallbackCityName is required");
     if (!params.checkIn) throw new Error("checkIn is required");
     if (!params.checkOut) throw new Error("checkOut is required");
 
@@ -67,6 +67,9 @@ Deno.serve(async (req) => {
     // Search by hotelIds if provided, otherwise by city
     if (params.hotelIds && params.hotelIds.length > 0) {
       ratesBody.hotelIds = params.hotelIds;
+    } else if (params.fallbackCityName) {
+      ratesBody.cityName = params.fallbackCityName;
+      ratesBody.countryCode = "MA";
     } else {
       const cityName = CITY_NAMES[params.cityCode!];
       if (!cityName) throw new Error(`Unknown city code: ${params.cityCode}`);
