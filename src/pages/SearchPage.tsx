@@ -1443,22 +1443,19 @@ const SearchPage = () => {
             setSelectedCategoryFilter(cat);
             setSelectedSubcategoryFilter(null);
             setSelectedServiceFilter(null);
-            // Scroll so compact AI zone is visible below sticky bars
             requestAnimationFrame(() => {
-              const compactAi = document.querySelector('[data-compact-ai]');
-              if (compactAi) {
-                const stickyOffset = cat ? 210 : 150; // header+tabs+filters stack
-                const currentTop = compactAi.getBoundingClientRect().top;
-                const delta = currentTop - stickyOffset;
-                if (Math.abs(delta) <= 10) return; // avoid micro-jump
-                window.scrollBy({ top: delta, behavior: "smooth" });
-              }
+              const el = document.querySelector('[data-category-filter]');
+              if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
             });
           }}
           selectedSubcategory={selectedSubcategoryFilter}
           onSelectSubcategory={(sub) => {
             setSelectedSubcategoryFilter(sub);
             setSelectedServiceFilter(null);
+            requestAnimationFrame(() => {
+              const el = document.querySelector('[data-category-filter]');
+              if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+            });
           }}
           selectedService={selectedServiceFilter}
           onSelectService={(svc) => {
