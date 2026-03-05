@@ -317,15 +317,21 @@ async function loadNeighborhoods(supabase: any): Promise<NeighborhoodEntry[]> {
   return loadedNeighborhoods;
 }
 
-// Get the city associated with a neighborhood
+// Get the city associated with a neighborhood (returns null if ambiguous = exists in multiple cities)
 function getNeighborhoodCity(neighborhood: string, neighborhoods: NeighborhoodEntry[]): string | null {
   const lower = neighborhood.toLowerCase();
   const stripped = stripAccentsGlobal(lower);
+  const matchingCities = new Set<string>();
   for (const n of neighborhoods) {
-    if (n.name.toLowerCase() === lower || stripAccentsGlobal(n.name.toLowerCase()) === stripped) return n.city_name;
-    for (const kw of n.keywords) {
-      if (kw.toLowerCase() === lower || stripAccentsGlobal(kw.toLowerCase()) === stripped) return n.city_name;
+    const matches = n.name.toLowerCase() === lower || stripAccentsGlobal(n.name.toLowerCase()) === stripped ||
+      n.keywords.some(kw => kw.toLowerCase() === lower || stripAccentsGlobal(kw.toLowerCase()) === stripped);
+    if (matches && n.city_name) {
+      matchingCities.add(n.city_name);
     }
+  }
+  if (matchingCities.size === 1) return [...matchingCities][0];
+  if (matchingCities.size > 1) {
+    console.log(`Neighborhood "${neighborhood}" is ambiguous — found in ${matchingCities.size} cities: ${[...matchingCities].join(", ")}. Not deriving a single city.`);
   }
   return null;
 }
@@ -2946,20 +2952,28 @@ serve(async (req) => {
 
       if (!expandedQuery && effectiveCategory && !detectedSubcategory) {
         // No tsquery terms left (e.g. "dormir à essaouira" → intent=Hôtellerie, city=Essaouira)
-        // Do a direct category + city query instead
+        // Do a direct category + city/neighborhood query instead
         let catBuilder = supabase.from("businesses").select("*").eq("is_active", true)
           .or(`main_category.eq.${effectiveCategory},categories.cs.{"${effectiveCategory}"}`);
         if (effectiveCity) catBuilder = applyCityFilter(catBuilder);
+        if (detectedNeighborhood) {
+          catBuilder = catBuilder.or(buildNeighborhoodOrClause(detectedNeighborhood, loadedNeighborhoods));
+        }
         catBuilder = catBuilder.order("priority_score", { ascending: false, nullsFirst: false }).limit(limit);
         const { data: catData, error: catError } = await catBuilder;
         if (!catError && catData && catData.length > 0) {
-          businesses = catData.map((b: any) => ({
+          let catResults = catData;
+          // Post-filter by neighborhood if detected (the .or() above is additive, need strict filter)
+          if (detectedNeighborhood) {
+            catResults = filterByNeighborhood(catResults, detectedNeighborhood, true, loadedNeighborhoods);
+          }
+          businesses = catResults.map((b: any) => ({
             ...b,
             distance_km: latitude && longitude && b.latitude && b.longitude
               ? calculateDistance(latitude, longitude, b.latitude, b.longitude) : null,
           }));
           searchLevel = "exact";
-          console.log(`Category+city direct query "${effectiveCategory}" + "${effectiveCity}": ${businesses.length} results`);
+          console.log(`Category+neighborhood direct query "${effectiveCategory}" + "${detectedNeighborhood || effectiveCity}": ${businesses.length} results`);
         }
       }
       if (expandedQuery) {
