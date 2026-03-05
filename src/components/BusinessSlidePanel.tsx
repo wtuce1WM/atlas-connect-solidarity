@@ -1178,19 +1178,6 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                     <span>Je vous écoute…</span>
                   </div>
                 )}
-                {business.logo_url && (
-                  <div
-                    className="w-16 h-16 p-1.5 rounded-lg border border-border flex items-center justify-center"
-                    style={{
-                      backgroundColor:
-                        business.logo_bg === 'blanc' || business.logo_bg === 'white' ? '#ffffff'
-                        : business.logo_bg === 'noir' || business.logo_bg === 'black' ? '#000000'
-                        : 'transparent',
-                    }}
-                  >
-                    <img src={business.logo_url} alt="" className="max-w-full max-h-full object-contain" />
-                  </div>
-                )}
               </div>
             </div>
           </div>
