@@ -443,7 +443,8 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
                     <div
                       key={hotel.hotelId}
                       className="bg-white/10 border border-white/15 rounded-xl overflow-hidden hover:bg-white/15 transition-colors cursor-pointer"
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.stopPropagation();
                         if (hotel.businessId) {
                           setSelectedHotelId(hotel.hotelId);
                           if (onSelectBusiness) {
