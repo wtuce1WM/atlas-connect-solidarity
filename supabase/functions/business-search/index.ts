@@ -272,7 +272,7 @@ async function extractSearchIntent(transcript: string): Promise<string> {
 // City detection is now dynamic from DB (loaded at search time)
 // detectCityInQuery is replaced by detectCityInQueryDynamic below
 
-async function detectCityInQueryDynamic(query: string, supabase: any): Promise<string | null> {
+async function detectCityInQueryDynamic(query: string, supabase: any): Promise<{ cityName: string; matchedTerm: string } | null> {
   const lower = query.toLowerCase();
   const lowerStripped = stripAccentsGlobal(lower);
   const { data: cities } = await supabase
@@ -289,13 +289,13 @@ async function detectCityInQueryDynamic(query: string, supabase: any): Promise<s
     // Check main names (with accent normalization)
     for (const name of [city.name_fr, city.name_en, city.name_ar].filter(Boolean)) {
       const nameLower = name.toLowerCase();
-      if (lower.includes(nameLower) || lowerStripped.includes(stripAccentsGlobal(nameLower))) return city.name_fr;
+      if (lower.includes(nameLower) || lowerStripped.includes(stripAccentsGlobal(nameLower))) return { cityName: city.name_fr, matchedTerm: name };
     }
     // Check keywords (typos, aliases) with accent normalization
     if (city.keywords && Array.isArray(city.keywords)) {
       for (const kw of city.keywords) {
         const kwLower = kw.toLowerCase();
-        if (lower.includes(kwLower) || lowerStripped.includes(stripAccentsGlobal(kwLower))) return city.name_fr;
+        if (lower.includes(kwLower) || lowerStripped.includes(stripAccentsGlobal(kwLower))) return { cityName: city.name_fr, matchedTerm: kw };
       }
     }
   }
@@ -647,7 +647,9 @@ serve(async (req) => {
     const isSuperlatif = effectiveQuery ? detectSuperlative(effectiveQuery) : false;
 
 // Auto-détection de ville dans la query si aucune ville n'est passée explicitement
-    const detectedCity = (!city && effectiveQuery) ? await detectCityInQueryDynamic(effectiveQuery, supabase) : null;
+    const cityDetection = (!city && effectiveQuery) ? await detectCityInQueryDynamic(effectiveQuery, supabase) : null;
+    const detectedCity = cityDetection?.cityName || null;
+    const detectedCityMatchedTerm = cityDetection?.matchedTerm || null;
     let effectiveCity = city || detectedCity || undefined;
 
     // Resolve city name → UUID for zone_city_ids filtering
@@ -2130,6 +2132,12 @@ serve(async (req) => {
     if (!detectedSubcategory && effectiveCity && queryForExpansion) {
       const before = queryForExpansion;
       const cityWords = effectiveCity.toLowerCase().split(/\s+/);
+      // Also include the matched keyword variant (e.g. "marrakesh" when city is "Marrakech")
+      if (detectedCityMatchedTerm) {
+        for (const w of detectedCityMatchedTerm.toLowerCase().split(/\s+/)) {
+          if (!cityWords.includes(w)) cityWords.push(w);
+        }
+      }
       const stripped = queryForExpansion.split(/\s+/).filter(w => {
         const wLower = w.toLowerCase();
         const wStripped = stripAccentsGlobal(wLower);
@@ -2234,6 +2242,12 @@ serve(async (req) => {
       const cityWordsForStrip = new Set(
         (effectiveCity || "").toLowerCase().split(/\s+/).filter(Boolean).map(w => stripAccentsGlobal(w))
       );
+      // Also include the matched keyword variant (e.g. "marrakesh")
+      if (detectedCityMatchedTerm) {
+        for (const w of detectedCityMatchedTerm.toLowerCase().split(/\s+/).filter(Boolean)) {
+          cityWordsForStrip.add(stripAccentsGlobal(w));
+        }
+      }
       const cleanRemainder = effectiveQuery.split(/\s+/).filter(w => {
         const wLower = w.toLowerCase();
         const wStripped = stripAccentsGlobal(wLower);
