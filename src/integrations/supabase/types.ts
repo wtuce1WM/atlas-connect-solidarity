@@ -2136,6 +2136,7 @@ export type Database = {
           icon: string | null
           id: string
           is_active: boolean
+          is_filtered: boolean
           keywords: string[] | null
           name_ar: string | null
           name_en: string | null
@@ -2149,6 +2150,7 @@ export type Database = {
           icon?: string | null
           id?: string
           is_active?: boolean
+          is_filtered?: boolean
           keywords?: string[] | null
           name_ar?: string | null
           name_en?: string | null
@@ -2162,6 +2164,7 @@ export type Database = {
           icon?: string | null
           id?: string
           is_active?: boolean
+          is_filtered?: boolean
           keywords?: string[] | null
           name_ar?: string | null
           name_en?: string | null
