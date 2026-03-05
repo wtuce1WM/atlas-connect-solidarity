@@ -627,6 +627,10 @@ const SearchPage = () => {
   // Filter businesses by city. Preserve backend ranking for active searches.
   const filteredBusinesses = useMemo(() => {
     let filtered = selectedCity === "all" ? allBusinesses : allBusinesses.filter(b => b.city === selectedCity);
+    // Apply category filter from CityCategoryFilter
+    if (selectedCategoryFilter) {
+      filtered = filtered.filter(b => b.main_category === selectedCategoryFilter);
+    }
     const hasActiveSearch = !!searchQuery.trim() || !!categoryFromUrl;
 
     if (activeTimeSlot) {
@@ -742,8 +746,7 @@ const SearchPage = () => {
             category: categoryFromUrl || undefined,
             spoken: spokenText || undefined,
             language: language,
-            limit: 100,
-            mainCategory: selectedCategoryFilter || undefined,
+            limit: 500,
           }
         });
 
@@ -773,6 +776,8 @@ const SearchPage = () => {
           );
           setSearchMode(normalizedSearchMode);
           setDetectedCity(data.detectedCity || null);
+          // Reset category filter when search changes
+          setSelectedCategoryFilter(null);
 
           // When user searched for something specific but got "recommended" fallback → show 0 results
           const isVoiceSearch = !!searchParams.get("spoken");
@@ -840,7 +845,7 @@ const SearchPage = () => {
     };
 
     fetchData();
-  }, [searchQuery, categoryFromUrl, language, selectedCategoryFilter]);
+  }, [searchQuery, categoryFromUrl, language]);
 
   // Fetch celebrity businesses on mount (used when celebrity query detected)
   useEffect(() => {
