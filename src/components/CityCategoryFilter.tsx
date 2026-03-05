@@ -167,7 +167,7 @@ const CityCategoryFilter = ({
   return (
     <>
       {/* Sticky categories zone */}
-      <div className="sticky top-[104px] z-[2] bg-background/95 backdrop-blur-sm border-b border-border py-3">
+      <div data-category-filter className="sticky top-[104px] z-[2] bg-background/95 backdrop-blur-sm border-b border-border py-3">
         <div className="mx-auto px-4 max-w-[80%]">
           <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
             {categories.map((cat) => {
