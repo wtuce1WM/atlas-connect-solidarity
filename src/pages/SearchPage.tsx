@@ -1177,7 +1177,7 @@ const SearchPage = () => {
               «&nbsp;{spokenText || searchQuery}&nbsp;»
             </p>
             <p className="text-foreground font-semibold text-lg mb-5">
-              {filteredBusinesses.length}{totalCount && totalCount > filteredBusinesses.length ? ` / ${totalCount}` : ""} {language === "en" ? "establishments found" : language === "ar" ? "مؤسسة وجدت" : "établissements trouvés"}
+              {totalCount && totalCount > filteredBusinesses.length ? totalCount : filteredBusinesses.length} {language === "en" ? "establishments found" : language === "ar" ? "مؤسسة وجدت" : "établissements trouvés"}
             </p>
 
             {/* TTS button */}
