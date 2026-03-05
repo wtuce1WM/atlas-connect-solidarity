@@ -344,6 +344,7 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
     lastFetchKeyRef.current = fetchKey;
     setIsLoading(true);
     setAnswer("");
+    onAnswerReady?.("");
     setError(null);
 
     const fetchAnswer = async () => {
