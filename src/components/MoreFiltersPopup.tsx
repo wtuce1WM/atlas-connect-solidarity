@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { Clock, Leaf, Package, X } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
@@ -58,34 +58,49 @@ const MoreFiltersPopup = ({
     const fetchData = async () => {
       setLoading(true);
 
-      // Build query: city + active, optionally filter by subcategory or category
-      let query = supabase
-        .from("businesses")
-        .select("engagements")
-        .eq("city", cityName)
-        .eq("is_active", true);
+      // Paginate to bypass the 1000-row limit
+      const allBusinesses: any[] = [];
+      let offset = 0;
+      const batchSize = 1000;
+      let hasMore = true;
 
-      if (subcategoryName) {
-        query = query.contains("categories", [subcategoryName]);
-      } else if (categoryName) {
-        query = query.eq("main_category", categoryName);
+      while (hasMore && !cancelled) {
+        let query = supabase
+          .from("businesses")
+          .select("engagements")
+          .eq("city", cityName)
+          .eq("is_active", true);
+
+        if (subcategoryName) {
+          query = query.contains("categories", [subcategoryName]);
+        } else if (categoryName) {
+          query = query.eq("main_category", categoryName);
+        }
+
+        const { data } = await query.range(offset, offset + batchSize - 1);
+        if (data && data.length > 0) {
+          allBusinesses.push(...data);
+          offset += batchSize;
+          hasMore = data.length === batchSize;
+        } else {
+          hasMore = false;
+        }
       }
-
-      const { data: businesses } = await query;
 
       if (cancelled) { setLoading(false); return; }
 
       const engSet = new Set<string>();
       const comSet = new Set<string>();
 
-      (businesses || []).forEach((b: any) => {
+      allBusinesses.forEach((b: any) => {
         (b.engagements || []).forEach((e: string) => {
-          if (!e || e.length === 0) return;
-          if (e.startsWith("Certification:")) return;
-          if (e.startsWith("Logistique:")) {
-            comSet.add(e);
+          const trimmed = (e || "").trim();
+          if (!trimmed) return;
+          if (trimmed.startsWith("Certification:")) return;
+          if (trimmed.startsWith("Logistique:")) {
+            comSet.add(trimmed);
           } else {
-            engSet.add(e);
+            engSet.add(trimmed);
           }
         });
       });
@@ -128,7 +143,7 @@ const MoreFiltersPopup = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-base">
             Plus de filtres
