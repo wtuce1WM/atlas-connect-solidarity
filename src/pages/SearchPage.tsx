@@ -375,6 +375,9 @@ const SearchPage = () => {
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string | null>(null);
   const [selectedSubcategoryFilter, setSelectedSubcategoryFilter] = useState<string | null>(null);
 
+  // Track whether a category/subcategory filter is active (compact AI mode)
+  const isCategoryFilterActive = !!(selectedCategoryFilter || selectedSubcategoryFilter);
+
   const normalizeText = (value: string) =>
     value
       .toLowerCase()
@@ -1289,70 +1292,74 @@ const SearchPage = () => {
                   <><span className="text-gold font-semibold">{filteredBusinesses.length}</span> {t.establishments} {t.found}</>
                 )}
               </p>
-              {/* TTS controls */}
-              {(ttsStatus === "playing" || ttsStatus === "loading") ? (
-                <button
-                  onClick={ttsStop}
-                  className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold/20 text-gold text-sm font-medium hover:bg-gold/30 transition-colors"
-                >
-                  {ttsStatus === "loading" ? (
-                    <Loader className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <><span className="relative flex h-2 w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-gold opacity-75"></span><span className="relative inline-flex rounded-full h-2 w-2 bg-gold"></span></span><Volume2 className="h-4 w-4" /></>
+              {/* TTS controls — hidden when category filter active */}
+              {!isCategoryFilterActive && (
+                <>
+                  {(ttsStatus === "playing" || ttsStatus === "loading") ? (
+                    <button
+                      onClick={ttsStop}
+                      className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold/20 text-gold text-sm font-medium hover:bg-gold/30 transition-colors"
+                    >
+                      {ttsStatus === "loading" ? (
+                        <Loader className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <><span className="relative flex h-2 w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-gold opacity-75"></span><span className="relative inline-flex rounded-full h-2 w-2 bg-gold"></span></span><Volume2 className="h-4 w-4" /></>
+                      )}
+                      {ttsStatus === "loading" ? "Chargement audio…" : "Lecture en cours — cliquez pour arrêter"}
+                    </button>
+                  ) : !isLoading && filteredBusinesses.length > 0 && (
+                    <button
+                      onClick={() => {
+                           if (aiAnswerText) {
+                           const cleanText = aiAnswerText.replace(/\*{1,2}/g, "").replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "");
+                           const intro = ttsIntroPhrase ? `${ttsIntroPhrase}. ` : "";
+                           ttsIntroWordCountRef.current = intro.trim().split(/\s+/).filter(Boolean).length;
+                           voiceLoopRef.current = true;
+                           ttsSpeak(intro + cleanText + " … Vous pouvez me poser une autre question.", undefined, true);
+                        } else {
+                          const count = filteredBusinesses.length;
+                          const cityText = selectedCity !== "all" ? ` à ${selectedCity}` : "";
+                          const intro = ttsIntroPhrase ? `${ttsIntroPhrase} ` : "";
+                          let speech = `${intro}J'ai trouvé ${count} résultat${count > 1 ? 's' : ''}${cityText}. `;
+                          const top = filteredBusinesses.slice(0, 3);
+                          if (top.length === 1) {
+                            speech += `Le meilleur résultat est ${buildBusinessTTSLine(top[0], 0)}.`;
+                          } else {
+                            speech += "Voici les meilleurs résultats. ";
+                            top.forEach((b, i) => {
+                              speech += `${i === 0 ? 'Premier' : i === 1 ? 'Deuxième' : 'Troisième'}, ${buildBusinessTTSLine(b, i)}. `;
+                            });
+                          }
+                          speech += " Vous pouvez me poser une autre question.";
+                          voiceLoopRef.current = true;
+                          ttsSpeak(speech);
+                        }
+                      }}
+                      className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card border border-gold/30 text-gold text-sm font-medium hover:bg-gold/20 transition-colors"
+                    >
+                      <Volume2 className="h-4 w-4" />
+                      {language === "en" ? "Listen to results" : language === "ar" ? "استمع للنتائج" : "Écouter les résultats"}
+                    </button>
                   )}
-                  {ttsStatus === "loading" ? "Chargement audio…" : "Lecture en cours — cliquez pour arrêter"}
-                </button>
-              ) : !isLoading && filteredBusinesses.length > 0 && (
-                <button
-                  onClick={() => {
-                       if (aiAnswerText) {
-                       const cleanText = aiAnswerText.replace(/\*{1,2}/g, "").replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "");
-                       const intro = ttsIntroPhrase ? `${ttsIntroPhrase}. ` : "";
-                       ttsIntroWordCountRef.current = intro.trim().split(/\s+/).filter(Boolean).length;
-                       voiceLoopRef.current = true;
-                       ttsSpeak(intro + cleanText + " … Vous pouvez me poser une autre question.", undefined, true);
-                    } else {
-                      const count = filteredBusinesses.length;
-                      const cityText = selectedCity !== "all" ? ` à ${selectedCity}` : "";
-                      const intro = ttsIntroPhrase ? `${ttsIntroPhrase} ` : "";
-                      let speech = `${intro}J'ai trouvé ${count} résultat${count > 1 ? 's' : ''}${cityText}. `;
-                      const top = filteredBusinesses.slice(0, 3);
-                      if (top.length === 1) {
-                        speech += `Le meilleur résultat est ${buildBusinessTTSLine(top[0], 0)}.`;
-                      } else {
-                        speech += "Voici les meilleurs résultats. ";
-                        top.forEach((b, i) => {
-                          speech += `${i === 0 ? 'Premier' : i === 1 ? 'Deuxième' : 'Troisième'}, ${buildBusinessTTSLine(b, i)}. `;
-                        });
-                      }
-                      speech += " Vous pouvez me poser une autre question.";
-                      voiceLoopRef.current = true;
-                      ttsSpeak(speech);
-                    }
-                  }}
-                  className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card border border-gold/30 text-gold text-sm font-medium hover:bg-gold/20 transition-colors"
-                >
-                  <Volume2 className="h-4 w-4" />
-                  {language === "en" ? "Listen to results" : language === "ar" ? "استمع للنتائج" : "Écouter les résultats"}
-                </button>
+                </>
               )}
             </div>
           )}
 
-           {/* AI Search Answer */}
-          {searchQuery && !isLoading && filteredBusinesses.length > 0 && (
+           {/* AI Search Answer — full hero mode (hidden when category filter active) */}
+          {searchQuery && !isLoading && !isCategoryFilterActive && allBusinesses.length > 0 && (
             <AISearchAnswer
               query={spokenText || searchQuery}
               spokenText={spokenText || undefined}
-              businesses={filteredBusinesses}
+              businesses={allBusinesses}
               isSearchLoading={isLoading}
               onAnswerReady={setAiAnswerText}
               highlightWordIndex={ttsStatus === "playing" && ttsSpokenWordIndex >= 0 ? ttsSpokenWordIndex - ttsIntroWordCountRef.current : undefined}
             />
           )}
 
-          {/* Geo badge — centered under AI suggestion */}
-          {!isMobile && (
+          {/* Geo badge — centered under AI suggestion (hidden when category filter active) */}
+          {!isMobile && !isCategoryFilterActive && (
             <div className="flex justify-center mt-4">
               <button
                 onClick={geo.toggle}
@@ -1501,6 +1508,72 @@ const SearchPage = () => {
             <p className="mb-4 text-sm text-muted-foreground">
               <span className="text-gold font-semibold">{filteredBusinesses.length}</span> {t.establishments} {t.found}
             </p>
+          )}
+
+          {/* Compact AI zone — shown above results when category/subcategory filter is active */}
+          {isCategoryFilterActive && aiAnswerText && (
+            <div className="mb-6 flex flex-wrap items-center gap-3 px-1">
+              <div className="flex-1 min-w-0">
+                <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+                  <Sparkles className="h-3.5 w-3.5 inline-block mr-1.5 text-gold align-text-bottom" />
+                  {aiAnswerText.replace(/\*{1,2}/g, "").replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "").replace(/\n+/g, " ").slice(0, 200)}
+                  {aiAnswerText.length > 200 ? "…" : ""}
+                </p>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                {/* TTS button */}
+                {(ttsStatus === "playing" || ttsStatus === "loading") ? (
+                  <button
+                    onClick={ttsStop}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gold/20 text-gold text-xs font-medium hover:bg-gold/30 transition-colors"
+                  >
+                    {ttsStatus === "loading" ? <Loader className="h-3.5 w-3.5 animate-spin" /> : <Volume2 className="h-3.5 w-3.5" />}
+                    {ttsStatus === "loading" ? "…" : "Stop"}
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => {
+                      const cleanText = aiAnswerText.replace(/\*{1,2}/g, "").replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "");
+                      const intro = ttsIntroPhrase ? `${ttsIntroPhrase}. ` : "";
+                      ttsIntroWordCountRef.current = intro.trim().split(/\s+/).filter(Boolean).length;
+                      voiceLoopRef.current = true;
+                      ttsSpeak(intro + cleanText + " … Vous pouvez me poser une autre question.", undefined, true);
+                    }}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card border border-gold/30 text-gold text-xs font-medium hover:bg-gold/20 transition-colors"
+                  >
+                    <Volume2 className="h-3.5 w-3.5" />
+                    {language === "en" ? "Listen" : language === "ar" ? "استمع" : "Écouter"}
+                  </button>
+                )}
+                {/* Geo badge */}
+                {!isMobile && (
+                  <button
+                    onClick={geo.toggle}
+                    className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                      geo.isEnabled
+                        ? "bg-gold/20 text-gold border border-gold/40"
+                        : "bg-card text-muted-foreground border border-border hover:border-gold/30"
+                    }`}
+                  >
+                    {geo.isDetecting ? (
+                      <Loader className="h-3 w-3 animate-spin" />
+                    ) : geo.isEnabled ? (
+                      <MapPin className="h-3 w-3" />
+                    ) : (
+                      <MapPinOff className="h-3 w-3" />
+                    )}
+                    {geo.isDetecting
+                      ? "…"
+                      : geo.isEnabled && geo.detectedCity
+                      ? `📍 ${geo.detectedCity}`
+                      : geo.isEnabled
+                      ? (language === "en" ? "No city" : "Aucune ville")
+                      : (language === "en" ? "Location" : "Position")
+                    }
+                  </button>
+                )}
+              </div>
+            </div>
           )}
 
           {/* Easter egg: Zitoun Mask/Musk - fullscreen overlay */}
