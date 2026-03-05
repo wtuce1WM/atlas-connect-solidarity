@@ -627,10 +627,6 @@ const SearchPage = () => {
   // Filter businesses by city. Preserve backend ranking for active searches.
   const filteredBusinesses = useMemo(() => {
     let filtered = selectedCity === "all" ? allBusinesses : allBusinesses.filter(b => b.city === selectedCity);
-    // Apply category filter from CityCategoryFilter
-    if (selectedCategoryFilter) {
-      filtered = filtered.filter(b => b.main_category === selectedCategoryFilter);
-    }
     const hasActiveSearch = !!searchQuery.trim() || !!categoryFromUrl;
 
     if (activeTimeSlot) {
@@ -746,7 +742,8 @@ const SearchPage = () => {
             category: categoryFromUrl || undefined,
             spoken: spokenText || undefined,
             language: language,
-            limit: 100
+            limit: 100,
+            mainCategory: selectedCategoryFilter || undefined,
           }
         });
 
@@ -776,8 +773,6 @@ const SearchPage = () => {
           );
           setSearchMode(normalizedSearchMode);
           setDetectedCity(data.detectedCity || null);
-          // Reset category filter when search changes
-          setSelectedCategoryFilter(null);
 
           // When user searched for something specific but got "recommended" fallback → show 0 results
           const isVoiceSearch = !!searchParams.get("spoken");
@@ -845,7 +840,7 @@ const SearchPage = () => {
     };
 
     fetchData();
-  }, [searchQuery, categoryFromUrl, language]);
+  }, [searchQuery, categoryFromUrl, language, selectedCategoryFilter]);
 
   // Fetch celebrity businesses on mount (used when celebrity query detected)
   useEffect(() => {
@@ -942,6 +937,7 @@ const SearchPage = () => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (inputValue.trim()) {
+      setSelectedCategoryFilter(null);
       setSearchQuery(inputValue.trim());
       const params: Record<string, string> = { q: inputValue.trim() };
       // Detect time keywords in typed query
