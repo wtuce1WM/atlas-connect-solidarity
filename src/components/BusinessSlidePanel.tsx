@@ -1269,10 +1269,13 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                       </a>
                     )}
                     {business.reserve_now_url && (
-                      <a href={business.reserve_now_url} target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1">
+                      <button
+                        onClick={() => { setIsBookingOpen(true); }}
+                        className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1 text-left"
+                      >
                         <span className="font-medium text-foreground/70">Réservation</span>
                         <ExternalLink className="h-3 w-3 shrink-0" />
-                      </a>
+                      </button>
                     )}
                     {business.online_shop_url && (
                       <a href={business.online_shop_url} target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1">
