@@ -787,12 +787,27 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
             </div>
           </div>
           <div className="flex-1 flex items-center justify-center pb-16 bg-background">
-            <iframe
-              src={docOverlay.type === 'flipbook' ? getFlipbookEmbedUrl(docOverlay.url) : `https://docs.google.com/gview?url=${encodeURIComponent(docOverlay.url)}&embedded=true`}
-              className="h-full w-full border-0"
-              allow={docOverlay.type === 'flipbook' ? "clipboard-write; fullscreen" : undefined}
-              title={docOverlay.name}
-            />
+            {docOverlay.type === 'flipbook' ? (
+              <iframe
+                src={getFlipbookEmbedUrl(docOverlay.url)}
+                className="h-full w-full border-0"
+                allow="clipboard-write; fullscreen"
+                title={docOverlay.name}
+              />
+            ) : (
+              <object
+                data={`${docOverlay.url}#toolbar=1&navpanes=1&scrollbar=1`}
+                type="application/pdf"
+                className="h-full w-full"
+                title={docOverlay.name}
+              >
+                <iframe
+                  src={`https://docs.google.com/gview?url=${encodeURIComponent(docOverlay.url)}&embedded=true`}
+                  className="h-full w-full border-0"
+                  title={docOverlay.name}
+                />
+              </object>
+            )}
           </div>
         </div>
       )}
