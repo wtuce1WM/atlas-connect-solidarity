@@ -2146,11 +2146,11 @@ serve(async (req) => {
       if (stripped && stripped !== queryForExpansion) {
         queryForExpansion = stripped;
         console.log(`Stripped city from tsquery: "${queryForExpansion}" (was: "${before}")`);
-      } else if (!stripped && intentCategory) {
-        // Query is only city + intent word (already stripped) → no meaningful tsquery terms
-        // Let the category filter handle it alone
+      } else if (!stripped) {
+        // Query is only city (+ maybe intent word already stripped) → no meaningful tsquery terms
+        // Let the city filter handle it alone
         queryForExpansion = null;
-        console.log(`Query reduced to empty after stripping city+intent → will use category-only query`);
+        console.log(`Query reduced to empty after stripping city → will use city-only query`);
       }
     }
     // In broad subcategory mode, remove intent/city/subcategory noise from tsquery input.
@@ -2931,7 +2931,7 @@ serve(async (req) => {
     }
 
     // Level 1: Exact full-text search with ts_rank (services/name weight A > description weight B)
-    if ((queryForExpansion || city || effectiveCategory) && businesses.length === 0 && !isStrictMode) {
+    if ((queryForExpansion || city || effectiveCity || effectiveCategory) && businesses.length === 0 && !isStrictMode) {
       // When a service was detected and injected, don't expand service name words with synonyms
       // to avoid polluting the tsquery with unrelated terms (e.g. "vin" expanding to "bar")
       // BUT include ALL candidate service names as OR alternatives so synonyms match (e.g. Glacier | Glaces)
@@ -2988,6 +2988,22 @@ serve(async (req) => {
           }));
           searchLevel = "exact";
           console.log(`Category+neighborhood direct query "${effectiveCategory}" + "${detectedNeighborhood || effectiveCity}": ${businesses.length} results`);
+        }
+      }
+      // City-only query: no text, no category, just a city detected from the query (e.g. "marrakesh")
+      if (!expandedQuery && !effectiveCategory && effectiveCity && businesses.length === 0) {
+        let cityBuilder = supabase.from("businesses").select("*").eq("is_active", true);
+        cityBuilder = applyCityFilter(cityBuilder);
+        cityBuilder = cityBuilder.order("priority_score", { ascending: false, nullsFirst: false }).limit(limit);
+        const { data: cityData, error: cityError } = await cityBuilder;
+        if (!cityError && cityData && cityData.length > 0) {
+          businesses = cityData.map((b: any) => ({
+            ...b,
+            distance_km: latitude && longitude && b.latitude && b.longitude
+              ? calculateDistance(latitude, longitude, b.latitude, b.longitude) : null,
+          }));
+          searchLevel = "exact";
+          console.log(`City-only query "${effectiveCity}": ${businesses.length} results`);
         }
       }
       if (expandedQuery) {
