@@ -96,7 +96,13 @@ Règles de traduction sémantique OBLIGATOIRES :
 - "romantique", "amoureux", "couple" → garder le type d'établissement + "romantique"
 - "boules", "jouer aux boules" → "pétanque"
 - "glace", "glaces", "sorbet", "gelato", "crème glacée" → "glacier"
-- "steak", "steaks", "entrecôte", "faux-filet", "bifteck", "côte de bœuf", "viande rouge", "viande grillée" → "viande"
+- "steak", "steaks" → "steak" (garder tel quel)
+- "entrecôte" → "entrecôte" (garder tel quel)
+- "faux-filet" → "faux-filet" (garder tel quel)
+- "bifteck" → "bifteck" (garder tel quel)
+- "côte de bœuf" → "côte bœuf" (garder tel quel, juste supprimer "de")
+- "osso bucco" → "osso bucco" (garder tel quel)
+- "viande rouge", "viande grillée", "viande" (terme générique seul) → "viande"
 - "feu de bois", "au feu de bois", "braise", "grillé au feu de bois", "cuit au feu de bois" → "feu bois" (garder les mots pour matcher le service "Au feu de bois", ne PAS ajouter "viande" sauf si l'utilisateur mentionne explicitement de la viande)
 - "croissant", "croissants", "pain au chocolat", "viennoiserie", "viennoiseries", "chausson aux pommes" → garder le mot produit tel quel (ex: "croissants") car il correspond à un mot-clé de service dans l'annuaire. Catégorie "Restauration" si contexte "manger", "Commerce" si contexte "acheter".
 - "pain français", "baguette", "pain de campagne", "pain" → garder le terme produit tel quel. "pain français" = garder "pain français". Catégorie "Restauration" (les boulangeries sont en Restauration).
