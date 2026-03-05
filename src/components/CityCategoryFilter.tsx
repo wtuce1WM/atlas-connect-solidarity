@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import DynamicIcon from "@/components/DynamicIcon";
-import { LayoutGrid } from "lucide-react";
+import { LayoutGrid, SlidersHorizontal } from "lucide-react";
 
 interface CategoryCount {
   name_fr: string;
@@ -382,6 +382,14 @@ const CityCategoryFilter = ({
                   </button>
                 );
               })}
+              {/* Plus de filtres button */}
+              <button
+                onClick={() => {/* TODO: open filters popup */}}
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-dashed border-border text-[11px] font-medium whitespace-nowrap transition-all shrink-0 text-muted-foreground hover:border-foreground/40 hover:text-foreground"
+              >
+                <SlidersHorizontal size={12} />
+                <span>Plus de filtres</span>
+              </button>
             </div>
           </div>
         </div>
