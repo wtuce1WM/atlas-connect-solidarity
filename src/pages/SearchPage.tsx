@@ -80,6 +80,7 @@ interface SearchResult {
   searchLevel: string;
   message: string;
   totalResults: number;
+  totalCount?: number;
   detectedSubcategory?: string | null;
   detectedCity?: string | null;
   searchMode?: string | null;
@@ -354,6 +355,7 @@ const SearchPage = () => {
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const [allBusinesses, setAllBusinesses] = useState<Business[]>([]);
+  const [totalCount, setTotalCount] = useState<number | null>(null);
   const [detectedSubcategory, setDetectedSubcategory] = useState<string | null>(null);
   const [searchMode, setSearchMode] = useState<string | null>(null);
   const [searchLevel, setSearchLevel] = useState<string>("");
@@ -790,6 +792,7 @@ const SearchPage = () => {
       if (!searchQuery.trim() && !categoryFromUrl) {
         if (fetchId !== latestFetchIdRef.current) return;
         setAllBusinesses([]);
+        setTotalCount(null);
         setSearchMessage("");
         setDetectedSubcategory(null);
         setSearchMode(null);
@@ -868,9 +871,11 @@ const SearchPage = () => {
           const hasActiveQuery = !!searchQuery.trim();
           if ((isVoiceSearch || hasActiveQuery) && data.searchLevel === "recommended") {
             setAllBusinesses([]);
+            setTotalCount(null);
             setSearchMessage("");
           } else {
             setAllBusinesses(data.businesses || []);
+            setTotalCount(data.totalCount || null);
             setSearchMessage(data.message || "");
             
             // Auto-activate time slot when bundle has time_slots and current time matches
@@ -1172,7 +1177,7 @@ const SearchPage = () => {
               «&nbsp;{spokenText || searchQuery}&nbsp;»
             </p>
             <p className="text-foreground font-semibold text-lg mb-5">
-              {filteredBusinesses.length} {language === "en" ? "establishments found" : language === "ar" ? "مؤسسة وجدت" : "établissements trouvés"}
+              {filteredBusinesses.length}{totalCount && totalCount > filteredBusinesses.length ? ` / ${totalCount}` : ""} {language === "en" ? "establishments found" : language === "ar" ? "مؤسسة وجدت" : "établissements trouvés"}
             </p>
 
             {/* TTS button */}
