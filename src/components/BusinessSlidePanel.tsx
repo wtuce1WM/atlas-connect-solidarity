@@ -157,6 +157,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
     setInternalBusinessId(externalBusinessId);
     setAvailabilityOverlayCtx(null);
     setIsBookingOpen(false);
+    setForceBookingOverlay(false);
   }, [externalBusinessId]);
 
   const { language } = useLanguage();
@@ -392,6 +393,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
       // Only close booking if not in fallback browse mode
       if (!availabilityOverlayCtx) {
         setIsBookingOpen(false);
+        setForceBookingOverlay(false);
       }
       setCurrentImageIndex(0);
       setVideoError(false);
