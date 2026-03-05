@@ -379,7 +379,6 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
                 </div>
               );
             })}
-            </div>
 
             {/* CTA: Similar establishments with same criteria */}
             <div
@@ -394,7 +393,7 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
                 });
                 navigate(`/hotel-search?${params.toString()}`);
               }}
-              className="bg-white/15 backdrop-blur-md rounded-xl p-2.5 space-y-1 border border-white/10 cursor-pointer hover:bg-white/25 transition-colors flex flex-col items-center justify-center text-center col-span-2"
+              className="bg-white/15 backdrop-blur-md rounded-xl p-2.5 space-y-1 border border-white/10 cursor-pointer hover:bg-white/25 transition-colors flex flex-col items-center justify-center text-center"
             >
               <Search className="h-5 w-5 text-white/70 mb-1" />
               <p className="text-xs font-semibold text-white">
@@ -406,6 +405,7 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
                 {checkIn} → {checkOut} · {adults} {language === "en" ? "adult(s)" : "adulte(s)"}
                 <ArrowRight className="h-3 w-3" />
               </p>
+            </div>
             </div>
           </div>
         )}
