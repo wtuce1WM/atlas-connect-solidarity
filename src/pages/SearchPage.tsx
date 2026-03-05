@@ -22,7 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Building2, ChevronLeft, ChevronRight, Search, Mic, MicOff, Loader, MapPin, MapPinOff, X, Volume2, VolumeX, Clock, Map, Sparkles, SlidersHorizontal } from "lucide-react";
+import { Loader2, Building2, ChevronLeft, ChevronRight, Search, Mic, MicOff, Loader, MapPin, MapPinOff, X, Volume2, VolumeX, Clock, Map, Sparkles, SlidersHorizontal, ChevronDown, ChevronUp } from "lucide-react";
 import { lazy, Suspense } from "react";
 const BusinessMap = lazy(() => import("@/components/BusinessMap"));
 import BusinessCard, { type BusinessCardData, type Gamme, type Badge, type SubcategoryRef, type BadgeSubcategoryRef } from "@/components/BusinessCard";
@@ -379,6 +379,7 @@ const SearchPage = () => {
 
   // Track whether a category/subcategory filter is active (compact AI mode)
   const isCategoryFilterActive = !!(selectedCategoryFilter || selectedSubcategoryFilter || selectedServiceFilter);
+  const [isAiSummaryExpanded, setIsAiSummaryExpanded] = useState(false);
 
   const normalizeText = (value: string) =>
     value
@@ -1538,13 +1539,28 @@ const SearchPage = () => {
 
           {/* Compact AI zone — shown above results when category/subcategory filter is active */}
           {isCategoryFilterActive && aiAnswerText && (
-            <div data-compact-ai className="mb-6 mt-4 flex flex-wrap items-center gap-3 px-1">
+            <div data-compact-ai className="mb-2 mt-4 flex flex-wrap items-start gap-3 px-1">
               <div className="flex-1 min-w-0">
-                <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+                <p className={`text-sm text-muted-foreground leading-relaxed ${isAiSummaryExpanded ? '' : 'line-clamp-2'}`}>
                   <Sparkles className="h-3.5 w-3.5 inline-block mr-1.5 text-gold align-text-bottom" />
-                  {aiAnswerText.replace(/\*{1,2}/g, "").replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "").replace(/\n+/g, " ").slice(0, 200)}
-                  {aiAnswerText.length > 200 ? "…" : ""}
+                  {aiAnswerText.replace(/\*{1,2}/g, "").replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "").replace(/\n+/g, " ")}
                 </p>
+                <button
+                  onClick={() => setIsAiSummaryExpanded(!isAiSummaryExpanded)}
+                  className="inline-flex items-center gap-1 mt-1.5 text-xs font-medium text-gold hover:text-gold/80 transition-colors"
+                >
+                  {isAiSummaryExpanded ? (
+                    <>
+                      <ChevronUp className="h-3 w-3" />
+                      {language === "en" ? "Show less" : "Réduire"}
+                    </>
+                  ) : (
+                    <>
+                      <ChevronDown className="h-3 w-3" />
+                      {language === "en" ? "Read more" : "Lire la suite"}
+                    </>
+                  )}
+                </button>
               </div>
               <div className="flex items-center gap-2 shrink-0">
                 {/* TTS button */}
