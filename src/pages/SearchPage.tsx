@@ -1138,6 +1138,7 @@ const SearchPage = () => {
 
   const startResult = (currentPage - 1) * ITEMS_PER_PAGE + 1;
   const endResult = Math.min(currentPage * ITEMS_PER_PAGE, filteredBusinesses.length);
+  const displayedResultsCount = totalCount && totalCount > filteredBusinesses.length ? totalCount : filteredBusinesses.length;
 
   const showZitounEasterEgg = !isLoading && isZitounMask(spokenText || searchQuery);
   const showCelebrityGuide = !isLoading && isCelebrityQuery(spokenText || searchQuery);
@@ -1177,7 +1178,7 @@ const SearchPage = () => {
               «&nbsp;{spokenText || searchQuery}&nbsp;»
             </p>
             <p className="text-foreground font-semibold text-lg mb-5">
-              {totalCount && totalCount > filteredBusinesses.length ? totalCount : filteredBusinesses.length} {language === "en" ? "establishments found" : language === "ar" ? "مؤسسة وجدت" : "établissements trouvés"}
+              {displayedResultsCount} {language === "en" ? "establishments found" : language === "ar" ? "مؤسسة وجدت" : "établissements trouvés"}
             </p>
 
             {/* TTS button */}
@@ -1370,7 +1371,7 @@ const SearchPage = () => {
                 {isLoading ? (
                   <span className="text-muted-foreground italic">Recherche en cours…</span>
                 ) : (
-                  <><span className="text-gold font-semibold">{filteredBusinesses.length}</span> {t.establishments} {t.found}</>
+                  <><span className="text-gold font-semibold">{displayedResultsCount}</span> {t.establishments} {t.found}</>
                 )}
               </p>
               {/* TTS controls — hidden when category filter active */}
@@ -1608,7 +1609,7 @@ const SearchPage = () => {
 
           {isMobile && filteredBusinesses.length > 0 && (
             <p className="mb-4 text-sm text-muted-foreground">
-              <span className="text-gold font-semibold">{filteredBusinesses.length}</span> {t.establishments} {t.found}
+              <span className="text-gold font-semibold">{displayedResultsCount}</span> {t.establishments} {t.found}
             </p>
           )}
 
