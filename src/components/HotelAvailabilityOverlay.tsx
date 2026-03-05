@@ -82,6 +82,14 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
   const [currency, setCurrency] = useState("EUR");
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<RoomOffer[] | null>(null);
+  const [directHotelInfo, setDirectHotelInfo] = useState<{
+    guestRating?: number | string;
+    reviewCount?: number;
+    amenities?: string[];
+    address?: string;
+    accessibilityAttributes?: { attributes?: string[]; [key: string]: unknown } | null;
+    rating?: string;
+  } | null>(null);
   const [isFallback, setIsFallback] = useState(false);
   const [fallbackHotels, setFallbackHotels] = useState<FallbackHotel[]>([]);
   const [showFallbackPanel, setShowFallbackPanel] = useState(false);
@@ -115,10 +123,11 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
       return;
     }
 
-    setLoading(true);
-    setResults(null);
-    setIsFallback(false);
-    setFallbackHotels([]);
+      setLoading(true);
+      setResults(null);
+      setDirectHotelInfo(null);
+      setIsFallback(false);
+      setFallbackHotels([]);
     setShowFallbackPanel(false);
 
     try {
@@ -147,6 +156,16 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
       for (const h of hotels) {
         if (h.available && h.offers) {
           allOffers.push(...h.offers);
+          if (!wasFallback && h.hotelId === liteApiHotelId) {
+            setDirectHotelInfo({
+              guestRating: h.guestRating,
+              reviewCount: h.reviewCount,
+              amenities: h.amenities || [],
+              address: h.address,
+              accessibilityAttributes: h.accessibilityAttributes || null,
+              rating: h.rating,
+            });
+          }
           if (wasFallback) {
             fbHotels.push({
               hotelId: h.hotelId,
@@ -479,6 +498,77 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
 
         {results && results.length > 0 && !isFallback && (
           <div>
+            {/* Hotel-level info from LiteAPI */}
+            {directHotelInfo && (() => {
+              const gr = directHotelInfo.guestRating ? Number(directHotelInfo.guestRating) : null;
+              const grLabel = gr
+                ? gr >= 9 ? (language === "en" ? "Wonderful" : "Merveilleux")
+                  : gr >= 8 ? (language === "en" ? "Very good" : "Très bien")
+                  : gr >= 7 ? (language === "en" ? "Good" : "Bon")
+                  : (language === "en" ? "Pleasant" : "Agréable")
+                : null;
+              const starCount = directHotelInfo.rating ? parseInt(directHotelInfo.rating) : 0;
+              const keyAmenities = (directHotelInfo.amenities || [])
+                .filter(a => /wi-?fi|pool|piscine|parking|spa|restaurant|breakfast|gym|fitness|air.condition/i.test(a))
+                .slice(0, 4);
+              const hasAccessibility = directHotelInfo.accessibilityAttributes?.attributes &&
+                (directHotelInfo.accessibilityAttributes.attributes as string[]).length > 0;
+              const allPrices = results.map(o => parseFloat(o.price.total)).filter(p => !isNaN(p));
+              const highestPrice = allPrices.length > 1 ? Math.max(...allPrices) : null;
+              const lowestPrice = allPrices.length > 0 ? Math.min(...allPrices) : null;
+              const hasDiscount = highestPrice && lowestPrice && highestPrice > lowestPrice;
+              const discountPct = hasDiscount ? Math.round(((highestPrice - lowestPrice) / highestPrice) * 100) : 0;
+
+              return (
+                <div className="bg-white/10 backdrop-blur-md rounded-xl p-3 mb-3 border border-white/10 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      {starCount > 0 && (
+                        <div className="flex">
+                          {Array.from({ length: starCount }).map((_, i) => (
+                            <Star key={i} className="h-3 w-3 text-yellow-400 fill-yellow-400" />
+                          ))}
+                        </div>
+                      )}
+                      {gr && gr > 0 && (
+                        <span className="bg-orange-500 text-white text-xs font-bold rounded-md px-1.5 py-0.5 shadow">
+                          {gr.toFixed(1)}
+                        </span>
+                      )}
+                      {grLabel && (
+                        <span className="text-xs text-white/70 font-medium">{grLabel}</span>
+                      )}
+                      {directHotelInfo.reviewCount != null && directHotelInfo.reviewCount > 0 && (
+                        <span className="text-[10px] text-white/50">
+                          ({directHotelInfo.reviewCount} {language === "en" ? "reviews" : "avis"})
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      {hasDiscount && discountPct >= 5 && (
+                        <span className="bg-green-600 text-white text-[10px] font-bold rounded-md px-1.5 py-0.5 flex items-center gap-0.5">
+                          <Tag className="h-2.5 w-2.5" />
+                          -{discountPct}%
+                        </span>
+                      )}
+                      {hasAccessibility && (
+                        <Accessibility className="h-3.5 w-3.5 text-blue-400" />
+                      )}
+                    </div>
+                  </div>
+                  {keyAmenities.length > 0 && (
+                    <div className="flex items-center gap-1 flex-wrap">
+                      {keyAmenities.map((a, i) => (
+                        <span key={i} className="text-[9px] text-white/60 bg-white/10 rounded px-1.5 py-0.5">
+                          {a}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
+
             <p className="text-xs font-semibold text-white/70 mb-3">
               {results.length} {language === "en" ? "room(s) available" : "chambre(s) disponible(s)"}
             </p>
