@@ -42,16 +42,26 @@ function loadGoogleMaps(): Promise<void> {
         Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
       },
     })
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
       .then(({ key }) => {
+        if (!key) throw new Error("No key returned");
         const script = document.createElement("script");
         script.src = `https://maps.googleapis.com/maps/api/js?key=${key}&libraries=places`;
         script.async = true;
         script.onload = () => resolve();
-        script.onerror = () => reject(new Error("Failed to load Google Maps"));
+        script.onerror = () => {
+          gmapsPromise = null;
+          reject(new Error("Failed to load Google Maps script"));
+        };
         document.head.appendChild(script);
       })
-      .catch(reject);
+      .catch((err) => {
+        gmapsPromise = null; // allow retry
+        reject(err);
+      });
   });
   return gmapsPromise;
 }
