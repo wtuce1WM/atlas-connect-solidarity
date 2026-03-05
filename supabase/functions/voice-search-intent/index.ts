@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -183,6 +184,26 @@ Exemples :
 "un bon brunch demain" → {"keywords": "brunch", "category": "Restauration", "timeKeyword": "brunch"}
 "petit déjeuner à Essaouira" → {"keywords": "petit-déjeuner Essaouira", "category": "Restauration", "timeKeyword": "petit-déjeuner"}`;
 
+    // Fetch override rules from DB and append to prompt
+    let finalPrompt = systemPrompt;
+    try {
+      const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
+      const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+      if (supabaseUrl && supabaseKey) {
+        const sb = createClient(supabaseUrl, supabaseKey);
+        const { data: overrides } = await sb
+          .from("voice_intent_rules")
+          .select("rule_text")
+          .eq("is_active", true)
+          .order("sort_order");
+        if (overrides && overrides.length > 0) {
+          const overrideBlock = overrides.map((r: { rule_text: string }) => `- ${r.rule_text}`).join("\n");
+          finalPrompt += `\n\nRÈGLES ADDITIONNELLES (overrides prioritaires) :\n${overrideBlock}`;
+        }
+      }
+    } catch (e) {
+      console.error("Failed to fetch voice_intent_rules overrides:", e);
+    }
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -193,7 +214,7 @@ Exemples :
       body: JSON.stringify({
         model: "google/gemini-3-flash-preview",
         messages: [
-          { role: "system", content: systemPrompt },
+          { role: "system", content: finalPrompt },
           { role: "user", content: transcript },
         ],
         max_tokens: 120,
