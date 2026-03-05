@@ -1254,7 +1254,7 @@ const SearchPage = () => {
       )}
 
       {/* Hero Section - hidden on mobile when results found via voice search */}
-      <section className={`bg-background pt-6 lg:pt-28 pb-8 lg:pb-16 relative overflow-hidden ${isMobile && spokenText && filteredBusinesses.length > 0 ? 'hidden' : ''}`}>
+      <section className={`bg-background pt-6 lg:pt-28 pb-8 lg:pb-16 relative ${isMobile && spokenText && filteredBusinesses.length > 0 ? 'hidden' : ''}`}>
         <div className="mx-auto px-4 relative z-10 max-w-[80%]">
           {(searchQuery || categoryFromUrl) && (
             <div className="text-center mb-8">
