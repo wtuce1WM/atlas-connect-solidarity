@@ -20,7 +20,7 @@ import NearbyBusinesses from "@/components/NearbyBusinesses";
 import { Separator } from "@/components/ui/separator";
 import { FacebookIcon, InstagramIcon, LinkedInIcon, YouTubeIcon, TikTokIcon, TwitterIcon, PinterestIcon, VimeoIcon } from "@/components/staff/SocialMediaIcons";
 import BookingOverlay from "@/components/BookingOverlay";
-import HotelAvailabilityOverlay from "@/components/HotelAvailabilityOverlay";
+import HotelAvailabilityOverlay, { type FallbackPanelData, type FallbackHotel } from "@/components/HotelAvailabilityOverlay";
 
 const LANG_FLAGS: Record<string, string> = {
   FR: "🇫🇷", EN: "🇬🇧", ES: "🇪🇸", AR: "🇲🇦", DE: "🇩🇪", IT: "🇮🇹",
@@ -195,6 +195,8 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
     businessCity?: string;
     backgroundImage?: string;
   } | null>(null);
+  const [fallbackPanelData, setFallbackPanelData] = useState<FallbackPanelData | null>(null);
+  const [selectedFallbackHotelId, setSelectedFallbackHotelId] = useState<string | null>(null);
   const [pressEntries, setPressEntries] = useState<{ name: string; logo_url: string; url: string; language: string }[]>([]);
   const [articlePreview, setArticlePreview] = useState<{ title: string; summary: string; screenshot: string; url: string; name: string; publishedDate?: string } | null>(null);
   const [isLoadingArticle, setIsLoadingArticle] = useState(false);
@@ -734,6 +736,12 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
           backgroundImage={availabilityOverlayCtx.backgroundImage}
           onClose={() => { setAvailabilityOverlayCtx(null); setIsBookingOpen(false); }}
           onSelectBusiness={(id) => { setInternalBusinessId(id); }}
+          onOpenFallbackPanel={(data) => {
+            setFallbackPanelData(data);
+            setSelectedFallbackHotelId(null);
+            setAvailabilityOverlayCtx(null);
+            setIsBookingOpen(false);
+          }}
         />
       )}
       {isBookingOpen && !hasLiteApiMapping && !availabilityOverlayCtx && bookingUrl && (
@@ -2044,6 +2052,85 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
             </div>
           </div>
         </div>
+      )}
+
+      {/* Fallback hotels left panel – lives outside the overlay */}
+      {fallbackPanelData && createPortal(
+        <div className="fixed inset-0 z-[200] flex animate-fade-in" style={{ top: "62px" }}>
+          <div className="w-1/2 h-full bg-black/90 backdrop-blur-md flex flex-col overflow-hidden animate-slide-in-left">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 shrink-0">
+              <div>
+                <p className="text-sm font-bold text-white">
+                  {language === "en" ? `Hotels in ${fallbackPanelData.city}` : `Hôtels à ${fallbackPanelData.city}`}
+                </p>
+                <p className="text-xs text-white/60">
+                  {fallbackPanelData.checkIn} → {fallbackPanelData.checkOut} · {fallbackPanelData.adults} {language === "en" ? "adult(s)" : "adulte(s)"}
+                </p>
+              </div>
+              <button
+                onClick={() => setFallbackPanelData(null)}
+                className="p-1.5 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
+              >
+                <X className="h-4 w-4 text-white" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-3">
+              <div className="grid grid-cols-2 gap-3">
+                {fallbackPanelData.hotels.filter(h => h.hotelId !== selectedFallbackHotelId).map((hotel) => {
+                  const cheapest = hotel.offers.length > 0
+                    ? hotel.offers.reduce((a, b) => parseFloat(a.price.total) < parseFloat(b.price.total) ? a : b)
+                    : null;
+                  const starCount = hotel.rating ? parseInt(hotel.rating) : 0;
+                  return (
+                    <div
+                      key={hotel.hotelId}
+                      className="bg-white/10 border border-white/15 rounded-xl overflow-hidden hover:bg-white/15 transition-colors cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (hotel.businessId) {
+                          setSelectedFallbackHotelId(hotel.hotelId);
+                          setInternalBusinessId(hotel.businessId);
+                        }
+                      }}
+                    >
+                      <div className="aspect-square w-full overflow-hidden">
+                        {hotel.mainImage ? (
+                          <img src={hotel.mainImage} alt={hotel.name} className="w-full h-full object-cover" loading="lazy" />
+                        ) : (
+                          <div className="w-full h-full bg-white/5 flex items-center justify-center">
+                            <BedDouble className="h-8 w-8 text-white/20" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="p-2.5 space-y-1">
+                        <p className="text-xs font-semibold text-white leading-tight line-clamp-2">{hotel.name}</p>
+                        {starCount > 0 && (
+                          <div className="flex">
+                            {Array.from({ length: starCount }).map((_, i) => (
+                              <Star key={i} className="h-2.5 w-2.5 text-yellow-400 fill-yellow-400" />
+                            ))}
+                          </div>
+                        )}
+                        {cheapest && (
+                          <p className="text-sm font-bold text-white">
+                            {new Intl.NumberFormat(language === "ar" ? "ar-MA" : language === "en" ? "en-US" : "fr-FR", {
+                              style: "currency", currency: cheapest.price.currency, minimumFractionDigits: 0,
+                            }).format(parseFloat(cheapest.price.total))}
+                          </p>
+                        )}
+                        <p className="text-[10px] text-white/40">
+                          {hotel.offers.length} {language === "en" ? "room(s)" : "chambre(s)"}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+          <div className="flex-1 h-full bg-black/40 cursor-pointer" onClick={() => setFallbackPanelData(null)} />
+        </div>,
+        document.body
       )}
     </div>
   );
