@@ -2000,38 +2000,68 @@ const SearchPage = () => {
         onClose={() => toggleRecording()}
       />
 
-      {/* Slide panel triggered from compact AI summary links */}
+      {/* Split view: Left AI text panel + Right business panel */}
       {compactPanelBusiness && (
-        <div className={`fixed top-[62px] right-0 z-[100] bg-background shadow-2xl border-l border-border overflow-hidden transition-all duration-500 ease-out animate-slide-in-right flex flex-col ${isCompactPanelExpanded ? "w-[80%]" : "w-1/2"}`} style={{ height: "calc(100vh - 62px)" }}>
-          <div className="shrink-0 flex items-center px-4 py-2 bg-background border-b border-border z-40">
-            <div className="flex items-center gap-3 shrink-0">
+        <>
+          {/* Left panel — full AI text (slide from top) */}
+          <div
+            className="fixed top-[62px] left-0 w-1/2 z-[100] bg-background border-r border-border shadow-xl flex flex-col animate-fade-in"
+            style={{ height: "calc(100vh - 62px)" }}
+          >
+            <div className="shrink-0 flex items-center justify-between px-5 py-3 border-b border-border">
+              <div className="flex items-center gap-2 text-gold">
+                <Sparkles className="h-4 w-4" />
+                <span className="text-sm font-semibold">{language === "en" ? "AI Summary" : "Résumé IA"}</span>
+              </div>
               <button
                 onClick={() => { setCompactPanelBusiness(null); setIsCompactPanelExpanded(false); }}
-                className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background border-2 border-background/20 shadow-2xl hover:opacity-90 transition-opacity"
+                className="h-8 w-8 flex items-center justify-center rounded-full hover:bg-muted transition-colors"
                 title="Fermer"
-                aria-label="Fermer le panneau"
               >
                 <X className="h-4 w-4" />
               </button>
-              <button
-                onClick={() => setIsCompactPanelExpanded(prev => !prev)}
-                className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background border-2 border-background/20 shadow-2xl hover:opacity-90 transition-opacity"
-                title={isCompactPanelExpanded ? "Réduire" : "Agrandir"}
-              >
-                {isCompactPanelExpanded ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-              </button>
             </div>
-            <div className="flex-1" />
+            <div className="flex-1 min-h-0 overflow-y-auto px-6 py-5">
+              <div className="text-sm text-muted-foreground leading-relaxed space-y-1">
+                {parseInline(
+                  aiAnswerText.replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "").replace(/\n+/g, " "),
+                  allBusinesses as unknown as AIBusinessData[],
+                  (b) => setCompactPanelBusiness(b),
+                  "left-panel-ai"
+                )}
+              </div>
+            </div>
           </div>
-          <div className="flex-1 min-h-0">
-            <BusinessSlidePanel
-              businessId={compactPanelBusiness.id}
-              onClose={() => { setCompactPanelBusiness(null); setIsCompactPanelExpanded(false); }}
-              isExpanded={isCompactPanelExpanded}
-              onToggleExpand={() => setIsCompactPanelExpanded(prev => !prev)}
-            />
+
+          {/* Right panel — business detail */}
+          <div
+            className="fixed top-[62px] right-0 w-1/2 z-[100] bg-background shadow-2xl border-l border-border overflow-hidden transition-all duration-500 ease-out animate-slide-in-right flex flex-col"
+            style={{ height: "calc(100vh - 62px)" }}
+          >
+            <div className="shrink-0 flex items-center px-4 py-2 bg-background border-b border-border z-40">
+              <div className="flex items-center gap-3 shrink-0">
+                <button
+                  onClick={() => { setCompactPanelBusiness(null); setIsCompactPanelExpanded(false); }}
+                  className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background border-2 border-background/20 shadow-2xl hover:opacity-90 transition-opacity"
+                  title="Fermer"
+                  aria-label="Fermer le panneau"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <div id="slide-panel-toolbar-center" className="flex-1 flex items-center justify-center gap-4" />
+              <div id="slide-panel-toolbar" className="flex items-center gap-3 shrink-0" />
+            </div>
+            <div className="flex-1 min-h-0">
+              <BusinessSlidePanel
+                businessId={compactPanelBusiness.id}
+                onClose={() => { setCompactPanelBusiness(null); setIsCompactPanelExpanded(false); }}
+                isExpanded={false}
+                onToggleExpand={() => {}}
+              />
+            </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );
