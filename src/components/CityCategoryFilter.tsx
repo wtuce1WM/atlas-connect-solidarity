@@ -204,7 +204,7 @@ const CityCategoryFilter = ({
 
       {/* Sticky subcategories zone */}
       {selectedCategory && !isLoadingSubs && subcategories.length > 0 && (
-        <div className="sticky top-[160px] z-[1] bg-background/90 backdrop-blur-sm border-b border-border/50 py-2">
+        <div className="sticky top-[148px] z-[1] bg-background/90 backdrop-blur-sm border-b border-border/50 pt-1 pb-2">
           <div className="mx-auto px-4 max-w-[80%]">
             <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
               {subcategories.map((sub) => {
