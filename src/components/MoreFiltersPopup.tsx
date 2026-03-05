@@ -17,6 +17,7 @@ interface MoreFiltersPopupProps {
   onOpenChange: (open: boolean) => void;
   cityName: string | null;
   subcategoryName: string | null;
+  categoryName: string | null;
   /** Currently selected time slots */
   selectedTimeSlots: string[];
   onTimeSlotsChange: (slots: string[]) => void;
@@ -33,6 +34,7 @@ const MoreFiltersPopup = ({
   onOpenChange,
   cityName,
   subcategoryName,
+  categoryName,
   selectedTimeSlots,
   onTimeSlotsChange,
   selectedEngagements,
@@ -44,9 +46,9 @@ const MoreFiltersPopup = ({
   const [commodites, setCommodites] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // Fetch engagements/commodités used by businesses matching city + subcategory
+  // Fetch engagements/commodités used by businesses matching city + subcategory/category
   useEffect(() => {
-    if (!open || !cityName || !subcategoryName) {
+    if (!open || !cityName) {
       setEngagements([]);
       setCommodites([]);
       return;
@@ -56,34 +58,20 @@ const MoreFiltersPopup = ({
     const fetchData = async () => {
       setLoading(true);
 
-      // Find the subcategory ID first
-      const { data: subData } = await supabase
-        .from("subcategories" as any)
-        .select("id, category_id")
-        .eq("name_fr", subcategoryName)
-        .limit(1);
-
-      const subId = (subData as any)?.[0]?.id;
-      if (!subId || cancelled) { setLoading(false); return; }
-
-      // Get businesses in this city with this subcategory's category
-      // We need to get the category name first
-      const { data: catData } = await supabase
-        .from("categories")
-        .select("name_fr")
-        .eq("id", (subData as any)[0].category_id)
-        .limit(1);
-
-      const catName = catData?.[0]?.name_fr;
-      if (!catName || cancelled) { setLoading(false); return; }
-
-      // Query businesses matching city + category (which includes the subcategory businesses)
-      const { data: businesses } = await supabase
+      // Build query: city + active, optionally filter by subcategory or category
+      let query = supabase
         .from("businesses")
         .select("engagements")
         .eq("city", cityName)
-        .eq("is_active", true)
-        .contains("categories", [subcategoryName]);
+        .eq("is_active", true);
+
+      if (subcategoryName) {
+        query = query.contains("categories", [subcategoryName]);
+      } else if (categoryName) {
+        query = query.eq("main_category", categoryName);
+      }
+
+      const { data: businesses } = await query;
 
       if (cancelled) { setLoading(false); return; }
 
@@ -93,7 +81,7 @@ const MoreFiltersPopup = ({
       (businesses || []).forEach((b: any) => {
         (b.engagements || []).forEach((e: string) => {
           if (!e || e.length === 0) return;
-          if (e.startsWith("Certification:")) return; // skip certifications
+          if (e.startsWith("Certification:")) return;
           if (e.startsWith("Logistique:")) {
             comSet.add(e);
           } else {
@@ -111,7 +99,7 @@ const MoreFiltersPopup = ({
 
     fetchData();
     return () => { cancelled = true; };
-  }, [open, cityName, subcategoryName]);
+  }, [open, cityName, subcategoryName, categoryName]);
 
   const toggleTimeSlot = (slot: string) => {
     const newSlots = selectedTimeSlots.includes(slot)
@@ -140,7 +128,7 @@ const MoreFiltersPopup = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-base">
             Plus de filtres

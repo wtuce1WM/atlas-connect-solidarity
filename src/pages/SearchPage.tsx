@@ -2166,6 +2166,7 @@ const SearchPage = () => {
         onOpenChange={setMoreFiltersOpen}
         cityName={detectedCity}
         subcategoryName={selectedSubcategoryFilter}
+        categoryName={selectedCategoryFilter}
         selectedTimeSlots={moreFilterTimeSlots}
         onTimeSlotsChange={setMoreFilterTimeSlots}
         selectedEngagements={moreFilterEngagements}
