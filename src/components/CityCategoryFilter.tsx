@@ -189,12 +189,13 @@ const CityCategoryFilter = ({
         return;
       }
 
-      // Fetch active services for this subcategory
+      // Fetch active + filtered services for this subcategory
       const { data: allServices } = await supabase
         .from("services")
-        .select("id, name_fr, name_en, name_ar, icon")
+        .select("id, name_fr, name_en, name_ar, icon, is_filtered")
         .eq("subcategory_id", sub.id)
         .eq("is_active", true)
+        .eq("is_filtered", true)
         .order("name_fr", { ascending: true });
 
       if (!allServices || allServices.length === 0) {
@@ -203,12 +204,7 @@ const CityCategoryFilter = ({
         return;
       }
 
-      // Check city filter via service_city_filters
-      const { data: cityFilters } = await supabase
-        .from("service_city_filters")
-        .select("service_id, city_id");
-
-      // Get cities to find city_id
+      // Get city id
       const { data: cities } = await supabase
         .from("cities")
         .select("id, name_fr")
@@ -217,23 +213,24 @@ const CityCategoryFilter = ({
 
       const cityId = cities?.[0]?.id;
 
-      // Build set of services restricted to specific cities
-      const serviceCityMap: Record<string, Set<string>> = {};
-      if (cityFilters) {
-        for (const cf of cityFilters) {
-          if (!serviceCityMap[cf.service_id]) {
-            serviceCityMap[cf.service_id] = new Set();
-          }
-          serviceCityMap[cf.service_id].add(cf.city_id);
-        }
+      if (!cityId) {
+        setServices([]);
+        setIsLoadingServices(false);
+        return;
       }
 
-      // Filter: keep services that either have NO city filter or include this city
-      const filteredServices = allServices.filter(svc => {
-        const citySet = serviceCityMap[svc.id];
-        if (!citySet) return true; // no city restriction
-        return cityId ? citySet.has(cityId) : true;
-      });
+      // Check which services are enabled for this city
+      const serviceIds = allServices.map(s => s.id);
+      const { data: cityFilters } = await supabase
+        .from("service_city_filters")
+        .select("service_id")
+        .eq("city_id", cityId)
+        .in("service_id", serviceIds);
+
+      const allowedServiceIds = new Set((cityFilters || []).map(cf => cf.service_id));
+
+      // Only keep services that have this city in their filter
+      const filteredServices = allServices.filter(svc => allowedServiceIds.has(svc.id));
 
       // Count businesses that have each service in this city+subcategory
       const { data: businesses } = await supabase
