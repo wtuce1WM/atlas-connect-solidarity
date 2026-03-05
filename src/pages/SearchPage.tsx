@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/select";
 
 import { Loader2, Building2, ChevronLeft, ChevronRight, Search, Mic, MicOff, Loader, MapPin, MapPinOff, X, Volume2, VolumeX, Clock, Map, Sparkles, SlidersHorizontal, ChevronDown, ChevronUp } from "lucide-react";
+import MoreFiltersPopup from "@/components/MoreFiltersPopup";
 import { lazy, Suspense } from "react";
 const BusinessMap = lazy(() => import("@/components/BusinessMap"));
 import BusinessCard, { type BusinessCardData, type Gamme, type Badge, type SubcategoryRef, type BadgeSubcategoryRef } from "@/components/BusinessCard";
@@ -379,6 +380,11 @@ const SearchPage = () => {
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string | null>(null);
   const [selectedSubcategoryFilter, setSelectedSubcategoryFilter] = useState<string | null>(null);
   const [selectedServiceFilter, setSelectedServiceFilter] = useState<string | null>(null);
+  const [moreFiltersOpen, setMoreFiltersOpen] = useState(false);
+  const [moreFilterTimeSlots, setMoreFilterTimeSlots] = useState<string[]>([]);
+  const [moreFilterEngagements, setMoreFilterEngagements] = useState<string[]>([]);
+  const [moreFilterCommodites, setMoreFilterCommodites] = useState<string[]>([]);
+  const [moreFilterMatchingIds, setMoreFilterMatchingIds] = useState<Set<string> | null>(null);
 
   // Track whether a category/subcategory filter is active (compact AI mode)
   const isCategoryFilterActive = !!(selectedCategoryFilter || selectedSubcategoryFilter || selectedServiceFilter);
@@ -466,6 +472,32 @@ const SearchPage = () => {
       setIsGeoCityAutoSelected(false);
     }
   }, [isGeoCityAutoSelected, searchQuery, queryHasExplicitCity, selectedCity]);
+
+  // Fetch matching business IDs when engagement/commodité filters change
+  useEffect(() => {
+    const allSelected = [...moreFilterEngagements, ...moreFilterCommodites];
+    if (allSelected.length === 0) {
+      setMoreFilterMatchingIds(null);
+      return;
+    }
+    let cancelled = false;
+    const fetchIds = async () => {
+      const { data } = await supabase
+        .from("businesses")
+        .select("id, engagements")
+        .eq("is_active", true);
+      if (cancelled) return;
+      const matchingIds = new Set<string>();
+      (data || []).forEach((b: any) => {
+        const engs: string[] = b.engagements || [];
+        const hasAll = allSelected.every(s => engs.includes(s));
+        if (hasAll) matchingIds.add(b.id);
+      });
+      setMoreFilterMatchingIds(matchingIds);
+    };
+    fetchIds();
+    return () => { cancelled = true; };
+  }, [moreFilterEngagements, moreFilterCommodites]);
 
   // Close suggestions on click outside
 
@@ -652,6 +684,30 @@ const SearchPage = () => {
     if (selectedServiceFilter) {
       filtered = filtered.filter(b => b.services && b.services.includes(selectedServiceFilter));
     }
+    // Apply "More filters" engagement/commodité filter
+    if (moreFilterMatchingIds) {
+      filtered = filtered.filter(b => moreFilterMatchingIds.has(b.id));
+    }
+    // Apply "More filters" time slot filter
+    if (moreFilterTimeSlots.length > 0) {
+      const slotRanges: Record<string, { startHour: number; endHour: number }> = {
+        matinee: { startHour: 7, endHour: 11 },
+        dejeuner: { startHour: 12, endHour: 14 },
+        "apres-midi": { startHour: 14, endHour: 18 },
+        diner: { startHour: 19, endHour: 23 },
+        soiree: { startHour: 19, endHour: 23 },
+        nuit: { startHour: 22, endHour: 6 },
+      };
+      filtered = filtered.filter(b => {
+        return moreFilterTimeSlots.some(slot => {
+          const range = slotRanges[slot];
+          if (!range) return false;
+          const ts: TimeSlot = { ...range, dayOffset: 0, dayOfWeek: null, matchedKeyword: slot };
+          const vacDates = Array.isArray(b.vacation_dates) ? b.vacation_dates as Array<{ start_date: string; end_date: string }> : null;
+          return isOpenDuringSlot(b.opening_hours || null, !!b.is_open_24h, ts, vacDates);
+        });
+      });
+    }
     const hasActiveSearch = !!searchQuery.trim() || !!categoryFromUrl;
 
     if (activeTimeSlot) {
@@ -671,7 +727,7 @@ const SearchPage = () => {
 
     // Always sort by WTUCE status first, then by rating (highest first)
     return [...filtered].sort(sortWtuceAndRating);
-  }, [allBusinesses, selectedCity, selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, activeTimeSlot, searchQuery, categoryFromUrl]);
+  }, [allBusinesses, selectedCity, selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, activeTimeSlot, searchQuery, categoryFromUrl, moreFilterMatchingIds, moreFilterTimeSlots]);
 
   // Group businesses by primary subcategory when a subcategory was detected
   const groupedBusinesses = useMemo(() => {
@@ -802,6 +858,10 @@ const SearchPage = () => {
           setSelectedCategoryFilter(null);
           setSelectedSubcategoryFilter(null);
           setSelectedServiceFilter(null);
+          setMoreFilterTimeSlots([]);
+          setMoreFilterEngagements([]);
+          setMoreFilterCommodites([]);
+          setMoreFilterMatchingIds(null);
 
           // When user searched for something specific but got "recommended" fallback → show 0 results
           const isVoiceSearch = !!searchParams.get("spoken");
@@ -1588,11 +1648,20 @@ const SearchPage = () => {
               {/* Plus de filtres centered */}
               {isCategoryFilterActive && (
                 <button
-                  onClick={() => {/* TODO: open filters popup */}}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-dashed border-border text-sm font-medium text-muted-foreground hover:border-foreground/40 hover:text-foreground transition-all"
+                  onClick={() => setMoreFiltersOpen(true)}
+                  className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-medium transition-all ${
+                    (moreFilterTimeSlots.length + moreFilterEngagements.length + moreFilterCommodites.length) > 0
+                      ? "border-primary bg-primary/10 text-primary hover:bg-primary/20"
+                      : "border-dashed border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground"
+                  }`}
                 >
                   <SlidersHorizontal size={16} />
                   <span>Plus de filtres</span>
+                  {(moreFilterTimeSlots.length + moreFilterEngagements.length + moreFilterCommodites.length) > 0 && (
+                    <span className="bg-primary text-primary-foreground text-xs rounded-full px-1.5 py-0.5 min-w-[18px] text-center">
+                      {moreFilterTimeSlots.length + moreFilterEngagements.length + moreFilterCommodites.length}
+                    </span>
+                  )}
                 </button>
               )}
               {/* Écouter + Geo on the right */}
@@ -2092,6 +2161,18 @@ const SearchPage = () => {
           </div>
         </>
       )}
+      <MoreFiltersPopup
+        open={moreFiltersOpen}
+        onOpenChange={setMoreFiltersOpen}
+        cityName={detectedCity}
+        subcategoryName={selectedSubcategoryFilter}
+        selectedTimeSlots={moreFilterTimeSlots}
+        onTimeSlotsChange={setMoreFilterTimeSlots}
+        selectedEngagements={moreFilterEngagements}
+        onEngagementsChange={setMoreFilterEngagements}
+        selectedCommodites={moreFilterCommodites}
+        onCommoditesChange={setMoreFilterCommodites}
+      />
     </div>
   );
 };
