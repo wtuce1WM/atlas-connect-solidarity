@@ -184,6 +184,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   const [gamme, setGamme] = useState<Gamme | null>(null);
   const [activeServiceNames, setActiveServiceNames] = useState<Set<string> | null>(null);
   const [isBookingOpen, setIsBookingOpen] = useState(false);
+  const [forceBookingOverlay, setForceBookingOverlay] = useState(false);
   const [liteApiHotelId, setLiteApiHotelId] = useState<string | null>(null);
   const [pressEntries, setPressEntries] = useState<{ name: string; logo_url: string; url: string; language: string }[]>([]);
   const [articlePreview, setArticlePreview] = useState<{ title: string; summary: string; screenshot: string; url: string; name: string; publishedDate?: string } | null>(null);
@@ -716,6 +717,12 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
         <BookingOverlay
           bookingUrl={bookingUrl}
           onClose={() => setIsBookingOpen(false)}
+        />
+      )}
+      {forceBookingOverlay && business.reserve_now_url && (
+        <BookingOverlay
+          bookingUrl={business.reserve_now_url}
+          onClose={() => setForceBookingOverlay(false)}
         />
       )}
       {/* Document Overlay (PDF or Flipbook) */}
@@ -1270,7 +1277,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                     )}
                     {business.reserve_now_url && (
                       <button
-                        onClick={() => { setIsBookingOpen(true); }}
+                        onClick={() => { setForceBookingOverlay(true); }}
                         className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1 text-left"
                       >
                         <span className="font-medium text-foreground/70">Réservation</span>
