@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
@@ -15,48 +15,53 @@ interface SearchInputProps {
   variant?: SearchInputVariant;
   /** Pre-fill input value */
   defaultValue?: string;
-  /** Extra search params to append (e.g. category, city) */
-  extraParams?: Record<string, string>;
-  /** Override navigation (e.g. for animated transitions) */
+  /** Called on submit with the trimmed query. If omitted, navigates to /search?q=... */
+  onSubmit?: (query: string) => void;
+  /** Override navigation for voice results */
   onNavigate?: (url: string) => void;
   /** Voice search lang override */
   voiceLang?: string;
-  /** Callback when voice transcript is ready (for extra params like timeSlot) */
+  /** Callback when voice transcript is ready */
   onVoiceTranscript?: (keywords: string, spoken: string, detectedCategory?: string, timeKeyword?: string) => void;
   /** Show autocomplete suggestions */
   showSuggestions?: boolean;
   /** Suggestions position */
   suggestionsPosition?: "top" | "bottom";
+  /** Voice status and toggle from parent (to share with VoiceSearchOverlay) */
+  voiceControl?: {
+    status: "idle" | "recording" | "processing" | "error";
+    toggleRecording: () => void;
+    liveTranscript: string;
+  };
 }
 
 const SearchInput = ({
   variant = "floating",
   defaultValue = "",
-  extraParams,
+  onSubmit,
   onNavigate,
   voiceLang,
   onVoiceTranscript,
   showSuggestions = true,
   suggestionsPosition = "bottom",
+  voiceControl,
 }: SearchInputProps) => {
   const [inputValue, setInputValue] = useState(defaultValue);
   const [isFocused, setIsFocused] = useState(false);
   const { language } = useLanguage();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const formRef = useRef<HTMLFormElement>(null);
 
-  const go = (url: string) => (onNavigate ? onNavigate(url) : navigate(url));
+  const go = useCallback((url: string) => (onNavigate ? onNavigate(url) : navigate(url)), [onNavigate, navigate]);
 
-  // Voice search
-  const { status: voiceStatus, toggleRecording } = useVoiceSearch({
+  // Internal voice search (used only when parent doesn't provide voiceControl)
+  const internalVoice = useVoiceSearch({
     lang: voiceLang,
     onTranscript: (keywords, spoken, detectedCategory, timeKeyword) => {
       if (onVoiceTranscript) {
         onVoiceTranscript(keywords, spoken, detectedCategory, timeKeyword);
       } else {
         const params = new URLSearchParams({ q: keywords, spoken });
-        if (extraParams) Object.entries(extraParams).forEach(([k, v]) => v && params.set(k, v));
         go(`/search?${params.toString()}`);
       }
     },
@@ -65,16 +70,26 @@ const SearchInput = ({
     },
   });
 
+  const voiceStatus = voiceControl?.status ?? internalVoice.status;
+  const toggleRecording = voiceControl?.toggleRecording ?? internalVoice.toggleRecording;
+
   // Autocomplete suggestions
   const { suggestions } = useSearchSuggestions(inputValue, showSuggestions && isFocused);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (inputValue.trim()) {
-      const params = new URLSearchParams({ q: inputValue.trim() });
-      if (extraParams) Object.entries(extraParams).forEach(([k, v]) => v && params.set(k, v));
-      go(`/search?${params.toString()}`);
-      setInputValue("");
+  const handleSubmit = () => {
+    if (!inputValue.trim()) return;
+    if (onSubmit) {
+      onSubmit(inputValue.trim());
+    } else {
+      go(`/search?q=${encodeURIComponent(inputValue.trim())}`);
+    }
+    setInputValue("");
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleSubmit();
     }
   };
 
@@ -87,14 +102,9 @@ const SearchInput = ({
 
   const buttonLabel = language === "fr" ? "Recherche" : language === "ar" ? "بحث" : "Search";
 
-  // Sizing tokens per variant
   const isHero = variant === "hero";
-  const desktopInputClass = isHero
-    ? "pl-14 pr-36 py-7 text-lg"
-    : "pl-14 pr-36 py-6 text-base";
-  const mobileInputClass = isHero
-    ? "pl-14 pr-4 py-7 text-lg"
-    : "pl-11 pr-4 py-5 text-sm";
+  const desktopInputClass = isHero ? "pl-14 pr-36 py-7 text-lg" : "pl-14 pr-36 py-6 text-base";
+  const mobileInputClass = isHero ? "pl-14 pr-4 py-7 text-lg" : "pl-11 pr-4 py-5 text-sm";
   const desktopMicSize = isHero ? "w-14 h-14" : "w-12 h-12";
   const mobileMicSize = "w-11 h-11";
   const desktopIconSize = isHero ? "h-6 w-6" : "h-5 w-5";
@@ -125,7 +135,7 @@ const SearchInput = ({
   );
 
   return (
-    <form onSubmit={handleSearch} className="w-full" ref={formRef}>
+    <div className="w-full">
       {/* Desktop */}
       <div className="hidden md:flex items-center gap-2">
         <div className="relative flex-1">
@@ -136,13 +146,15 @@ const SearchInput = ({
             value={inputValue}
             autoComplete="off"
             onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={handleKeyDown}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
             className={`w-full ${desktopInputClass} bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-full shadow-lg`}
           />
           <Button
-            type="submit"
+            type="button"
             size="lg"
+            onClick={handleSubmit}
             className="absolute right-2 top-1/2 -translate-y-1/2 text-white font-semibold rounded-full px-6 py-4 shadow-md border border-black/10"
             style={{ backgroundColor: "#25D366" }}
           >
@@ -167,6 +179,7 @@ const SearchInput = ({
             value={inputValue}
             autoComplete="off"
             onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={handleKeyDown}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
             className={`w-full ${mobileInputClass} bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-full shadow-lg`}
@@ -179,7 +192,8 @@ const SearchInput = ({
         </div>
         <div className="flex items-center justify-center gap-2">
           <button
-            type="submit"
+            type="button"
+            onClick={handleSubmit}
             className="flex items-center justify-center gap-2 rounded-full px-4 py-3 text-white font-semibold text-sm shadow-lg h-[48px]"
             style={{ backgroundColor: "#25D366" }}
           >
@@ -188,7 +202,7 @@ const SearchInput = ({
           {micButton(mobileMicSize, mobileIconSize)}
         </div>
       </div>
-    </form>
+    </div>
   );
 };
 

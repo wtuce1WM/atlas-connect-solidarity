@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { LayoutGrid, BedDouble, UtensilsCrossed, Mountain, Sparkles, ShoppingBag, Search, Mic, Loader2, MapPin, X } from "lucide-react";
+import { LayoutGrid, BedDouble, UtensilsCrossed, Mountain, Sparkles, ShoppingBag, MapPin, X } from "lucide-react";
+import SearchInput from "@/components/SearchInput";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+
 import logoGoldOverlay from "@/assets/logoGOLDsimple.webp";
 import LogoCSSSpinner from "@/components/LogoCSSSpinner";
 import heroBackground from "@/assets/hero-marrakech.jpg";
@@ -16,9 +17,9 @@ import { getTimeGreeting, extractTimeSlot } from "@/lib/timeSlots";
 const HeroSection = () => {
   const { t, language } = useLanguage();
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState("");
+  
   const [searchCategory, setSearchCategory] = useState("all");
-  const searchContainerRef = useRef<HTMLFormElement>(null);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLElement>(null);
   const tabsRef = useRef<HTMLDivElement>(null);
   const [scrollY, setScrollY] = useState(0);
@@ -68,32 +69,6 @@ const HeroSection = () => {
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    const params = new URLSearchParams();
-    
-    // Extract temporal keywords from query
-    const timeResult = extractTimeSlot(searchQuery.trim());
-    const effectiveQuery = timeResult ? timeResult.cleanedQuery : searchQuery.trim();
-    
-    if (effectiveQuery) params.set("q", effectiveQuery);
-    if (searchCategory !== "all") params.set("category", searchCategory);
-    else if (timeResult?.timeSlot.suggestedCategory) params.set("category", timeResult.timeSlot.suggestedCategory);
-    if (geo.isEnabled && geo.detectedCity) params.set("city", geo.detectedCity);
-    
-    // Pass time slot info
-    if (timeResult) {
-      params.set("timeStart", String(timeResult.timeSlot.startHour));
-      params.set("timeEnd", String(timeResult.timeSlot.endHour));
-      params.set("timeDayOffset", String(timeResult.timeSlot.dayOffset));
-      if (timeResult.timeSlot.dayOfWeek !== null) params.set("timeDayOfWeek", String(timeResult.timeSlot.dayOfWeek));
-    }
-    
-    if (params.toString()) {
-      navigateWithSlide(`/search?${params.toString()}`);
-    }
-  };
 
   return (
     <section
@@ -187,7 +162,7 @@ const HeroSection = () => {
         </h1>
 
         {/* Search Bar + Tabs */}
-        <form onSubmit={handleSearch} className="w-full max-w-2xl" ref={searchContainerRef}>
+        <div className="w-full max-w-2xl" ref={searchContainerRef}>
           {/* Category Tabs — une seule ligne, scroll si besoin */}
            <div
             ref={tabsRef}
@@ -230,89 +205,28 @@ const HeroSection = () => {
             })}
           </div>
 
-          {/* Desktop: input with inline button + voice */}
-          <div className="hidden md:flex items-center gap-2">
-            <div className="relative flex-1">
-              <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-              <Input
-                type="text"
-                placeholder={language === "fr" ? "Que cherchez-vous ?" : language === "ar" ? "ماذا تبحث عنه؟" : "What are you looking for?"}
-                value={searchQuery}
-                autoComplete="off"
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-14 pr-36 py-7 text-lg bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-full shadow-lg"
-              />
-              <Button
-                type="submit"
-                size="lg"
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-white font-semibold rounded-full px-6 py-5 shadow-md border border-black/10"
-                style={{ backgroundColor: "#25D366" }}
-              >
-                {language === "fr" ? "Recherche" : language === "ar" ? "بحث" : "Search"}
-              </Button>
-            </div>
-            <button
-              type="button"
-              onClick={toggleRecording}
-              className={`flex-shrink-0 flex items-center justify-center w-14 h-14 rounded-2xl shadow-lg transition-all ${
-                voiceStatus === "recording"
-                  ? "bg-red-100 animate-pulse"
-                  : voiceStatus === "processing"
-                    ? "bg-white/70"
-                    : "bg-white/90 hover:bg-white"
-              }`}
-              title={language === "fr" ? "Recherche vocale" : language === "ar" ? "بحث صوتي" : "Voice search"}
-            >
-              {voiceStatus === "processing" ? (
-                <Loader2 className="h-6 w-6 text-black animate-spin" />
-              ) : (
-                <Mic className={`h-6 w-6 ${voiceStatus === "recording" ? "text-red-600" : "text-black"}`} />
-              )}
-            </button>
-          </div>
-
-          {/* Mobile: input on top, buttons below */}
-          <div className="flex flex-col gap-3 md:hidden">
-            <div className="relative">
-              <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-              <Input
-                type="text"
-                placeholder={language === "fr" ? "Que cherchez-vous ?" : language === "ar" ? "ماذا تبحث عنه؟" : "What are you looking for?"}
-                value={searchQuery}
-                autoComplete="off"
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-14 pr-4 py-7 text-lg bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-full shadow-lg"
-              />
-            </div>
-            <div className="flex items-center justify-center gap-2">
-              <button
-                type="submit"
-                className="flex items-center justify-center gap-2 rounded-full px-4 py-2.5 text-white font-semibold text-sm shadow-lg"
-                style={{ backgroundColor: "#25D366" }}
-              >
-                {language === "fr" ? "Recherche" : language === "ar" ? "بحث" : "Search"}
-              </button>
-              <button
-                type="button"
-                onClick={toggleRecording}
-                className={`flex-shrink-0 flex items-center justify-center w-11 h-11 rounded-xl shadow-lg transition-all ${
-                  voiceStatus === "recording"
-                    ? "bg-red-100 animate-pulse"
-                    : voiceStatus === "processing"
-                      ? "bg-white/70"
-                      : "bg-white/90 hover:bg-white"
-                }`}
-                title={language === "fr" ? "Recherche vocale" : language === "ar" ? "بحث صوتي" : "Voice search"}
-              >
-                {voiceStatus === "processing" ? (
-                  <Loader2 className="h-5 w-5 text-black animate-spin" />
-                ) : (
-                  <Mic className={`h-5 w-5 ${voiceStatus === "recording" ? "text-red-600" : "text-black"}`} />
-                )}
-              </button>
-            </div>
-          </div>
-        </form>
+          <SearchInput
+            variant="hero"
+            onSubmit={(query) => {
+              const params = new URLSearchParams();
+              const timeResult = extractTimeSlot(query);
+              const effectiveQuery = timeResult ? timeResult.cleanedQuery : query;
+              if (effectiveQuery) params.set("q", effectiveQuery);
+              if (searchCategory !== "all") params.set("category", searchCategory);
+              else if (timeResult?.timeSlot.suggestedCategory) params.set("category", timeResult.timeSlot.suggestedCategory);
+              if (geo.isEnabled && geo.detectedCity) params.set("city", geo.detectedCity);
+              if (timeResult) {
+                params.set("timeStart", String(timeResult.timeSlot.startHour));
+                params.set("timeEnd", String(timeResult.timeSlot.endHour));
+                params.set("timeDayOffset", String(timeResult.timeSlot.dayOffset));
+                if (timeResult.timeSlot.dayOfWeek !== null) params.set("timeDayOfWeek", String(timeResult.timeSlot.dayOfWeek));
+              }
+              if (params.toString()) navigateWithSlide(`/search?${params.toString()}`);
+            }}
+            onNavigate={navigateWithSlide}
+            voiceControl={{ status: voiceStatus, toggleRecording, liveTranscript }}
+          />
+        </div>
 
         {/* Geo toggle badge */}
         <button
