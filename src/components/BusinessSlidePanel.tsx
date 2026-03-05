@@ -769,16 +769,6 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
           <div className="flex items-center justify-between px-3 py-2 border-b bg-background">
             <span className="text-sm font-semibold truncate">{docOverlay.name}</span>
             <div className="flex items-center gap-2">
-              <a
-                href={docOverlay.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs text-primary hover:underline flex items-center gap-1"
-                title="Ouvrir"
-              >
-                <ExternalLink className="h-3 w-3" />
-                Ouvrir
-              </a>
               <button
                 onClick={() => setDocOverlay(null)}
                 className="p-1 rounded-full hover:bg-muted transition-colors"
