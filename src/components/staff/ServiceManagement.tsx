@@ -33,6 +33,7 @@ interface Service {
   icon: string | null;
   keywords: string[] | null;
   is_active: boolean;
+  is_filtered: boolean;
 }
 
 interface BusinessMini {
@@ -69,7 +70,7 @@ const ServiceManagement = () => {
     const [catRes, subRes, svcRes, bizRes] = await Promise.all([
       supabase.from("categories").select("id, name_fr").order("name_fr"),
       supabase.from("subcategories").select("id, category_id, name_fr").order("name_fr"),
-      fetchAllRows("services", "id, subcategory_id, name_fr, name_en, name_ar, icon, keywords, is_active", "name_fr"),
+      fetchAllRows("services", "id, subcategory_id, name_fr, name_en, name_ar, icon, keywords, is_active, is_filtered", "name_fr"),
       supabase.from("businesses").select("services").eq("is_active", true),
     ]);
 
@@ -252,6 +253,7 @@ const ServiceManagement = () => {
                       Service {(sortOrder === "az" || sortOrder === "za") ? (sortOrder === "az" ? <ArrowUpAZ className="h-4 w-4" /> : <ArrowDownZA className="h-4 w-4" />) : null}
                     </Button>
                   </TableHead>
+                  <TableHead className="text-center">Filtre</TableHead>
                   <TableHead className="text-center">Actif</TableHead>
                   <TableHead className="text-center">
                     <Button variant="ghost" size="sm" className="gap-1" onClick={() => setSortOrder(s => s === "count-desc" ? "count-asc" : "count-desc")}>
@@ -263,7 +265,7 @@ const ServiceManagement = () => {
               <TableBody>
                 {filteredServices.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+                    <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
                       Aucun service trouvé
                     </TableCell>
                   </TableRow>
@@ -278,8 +280,23 @@ const ServiceManagement = () => {
                         <TableCell className="font-medium">{svc.name_fr}</TableCell>
                         <TableCell className="text-center">
                           <Switch
+                            checked={svc.is_filtered}
+                            className="data-[state=checked]:bg-red-500"
+                            onCheckedChange={async (checked) => {
+                              const { error } = await supabase
+                                .from("services")
+                                .update({ is_filtered: checked } as any)
+                                .eq("id", svc.id);
+                              if (!error) {
+                                setServices(prev => prev.map(s => s.id === svc.id ? { ...s, is_filtered: checked } : s));
+                              }
+                            }}
+                          />
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <Switch
                             checked={svc.is_active}
-                            className="data-[state=checked]:bg-green-500"
+                            
                             onCheckedChange={async (checked) => {
                               const { error } = await supabase
                                 .from("services")
