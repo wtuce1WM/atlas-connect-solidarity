@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X, Loader2, Calendar, Users, BedDouble, Search } from "lucide-react";
+import { X, Loader2, Calendar, Users, BedDouble, Search, ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
@@ -273,20 +273,10 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
           </div>
         )}
 
-        {results && results.length > 0 && (
+        {results && results.length > 0 && !isFallback && (
           <div>
-            {isFallback && (
-              <div className="bg-amber-500/20 border border-amber-400/30 rounded-xl px-3 py-2 mb-3">
-                <p className="text-xs text-amber-200 font-medium">
-                  {language === "en" 
-                    ? `No availability at ${businessName}. Here are nearby alternatives:` 
-                    : `Pas de disponibilité pour ${businessName}. Voici les alternatives à proximité :`}
-                </p>
-              </div>
-            )}
             <p className="text-xs font-semibold text-white/70 mb-3">
               {results.length} {language === "en" ? "room(s) available" : "chambre(s) disponible(s)"}
-              {isFallback && (language === "en" ? " nearby" : " à proximité")}
             </p>
             <div className="grid grid-cols-2 gap-2">
             {results.map((offer, idx) => {
@@ -327,6 +317,32 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
                 </div>
               );
             })}
+            </div>
+          </div>
+        )}
+
+        {/* Fallback: redirect to hotel search page */}
+        {results && results.length > 0 && isFallback && (
+          <div className="text-center py-6 space-y-4">
+            <div className="bg-white/10 border border-white/20 rounded-xl px-4 py-4 space-y-3">
+              <BedDouble className="h-10 w-10 mx-auto text-white/50" />
+              <p className="text-sm text-white/80">
+                {language === "en"
+                  ? `No availability at ${businessName} for these dates.`
+                  : `Pas de disponibilité pour ${businessName} à ces dates.`}
+              </p>
+              <p className="text-xs text-white/60">
+                {language === "en"
+                  ? `${results.length} rooms available in other hotels nearby.`
+                  : `${results.length} chambres disponibles dans d'autres hôtels à proximité.`}
+              </p>
+              <a
+                href="/hotels"
+                className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-white text-black font-semibold text-sm hover:bg-white/90 transition-colors mt-2"
+              >
+                {language === "en" ? "Search hotels" : "Rechercher des hôtels"}
+                <ArrowRight className="h-4 w-4" />
+              </a>
             </div>
           </div>
         )}
