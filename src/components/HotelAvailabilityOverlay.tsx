@@ -337,10 +337,10 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
                   : `${results.length} chambres disponibles dans d'autres hôtels à proximité.`}
               </p>
               <a
-                href="/hotels"
+                href={`/search?q=hotel+${encodeURIComponent(businessCity || '')}`}
                 className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-white text-black font-semibold text-sm hover:bg-white/90 transition-colors mt-2"
               >
-                {language === "en" ? "Search hotels" : "Rechercher des hôtels"}
+                {language === "en" ? `Hotels in ${businessCity}` : `Hôtels à ${businessCity}`}
                 <ArrowRight className="h-4 w-4" />
               </a>
             </div>
