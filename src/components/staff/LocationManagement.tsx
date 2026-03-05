@@ -214,6 +214,7 @@ const LocationManagement = () => {
     images: [] as string[], internal_notes: "",
   });
   const [poiKeywordInput, setPoiKeywordInput] = useState("");
+  const destinationKeywordInputRef = useRef<HTMLInputElement>(null);
 
   // Neighborhoods full section (like POI)
   const [neighborhoodsSectionOpen, setNeighborhoodsSectionOpen] = useState(false);
@@ -806,6 +807,13 @@ const LocationManagement = () => {
       toast({ variant: "destructive", title: "Erreur", description: "Au moins une région est requise." });
       return;
     }
+    // Auto-fuse pending keyword input
+    let finalKeywords = [...destinationForm.keywords];
+    const pending = destinationKeywordInputRef.current?.value?.trim();
+    if (pending && !finalKeywords.includes(pending)) {
+      finalKeywords.push(pending);
+      destinationKeywordInputRef.current!.value = '';
+    }
     const data = {
       name_fr: destinationForm.name_fr.trim(),
       name_en: destinationForm.name_en.trim() || null,
@@ -820,7 +828,7 @@ const LocationManagement = () => {
       description: destinationForm.description || null,
       sort_order: destinationForm.sort_order,
       image_url: destinationForm.image_url.trim() || null,
-      keywords: destinationForm.keywords.length > 0 ? destinationForm.keywords : [],
+      keywords: finalKeywords.length > 0 ? finalKeywords : [],
       is_searchable: destinationForm.is_searchable,
       images: destinationForm.images.length > 0 ? destinationForm.images : [],
       internal_notes: destinationForm.internal_notes.trim().slice(0, 5000) || null,
@@ -1555,7 +1563,9 @@ const LocationManagement = () => {
                   {destinations.filter(d => destinationRegionFilter === "all" || (d.region || []).includes(destinationRegionFilter)).map((d) => (
                     <TableRow key={d.id}>
                       <TableCell>
-                        {(d as any).image_url ? (
+                        {(d as any).images?.[0] ? (
+                          <img src={(d as any).images[0]} alt="" className="w-10 h-10 rounded object-cover" />
+                        ) : (d as any).image_url ? (
                           <img src={(d as any).image_url} alt="" className="w-10 h-10 rounded object-cover" />
                         ) : (
                           <div className="w-10 h-10 rounded bg-muted flex items-center justify-center"><ImageIcon className="h-4 w-4 text-muted-foreground" /></div>
@@ -2000,19 +2010,31 @@ const LocationManagement = () => {
                        </span>
                      ))}
                    </div>
-                   <Input
-                     placeholder="Ajouter un alias…"
-                     onKeyDown={(e) => {
-                       if (e.key === 'Enter') {
-                         e.preventDefault();
-                         const val = (e.target as HTMLInputElement).value.trim();
-                         if (val && !destinationForm.keywords.includes(val)) {
-                           setDestinationForm({ ...destinationForm, keywords: [...destinationForm.keywords, val] });
-                           (e.target as HTMLInputElement).value = '';
-                         }
-                       }
-                     }}
-                   />
+                    <div className="flex gap-2">
+                      <Input
+                        ref={destinationKeywordInputRef}
+                        placeholder="Ajouter un alias…"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            const val = (e.target as HTMLInputElement).value.trim();
+                            if (val && !destinationForm.keywords.includes(val)) {
+                              setDestinationForm({ ...destinationForm, keywords: [...destinationForm.keywords, val] });
+                              (e.target as HTMLInputElement).value = '';
+                            }
+                          }
+                        }}
+                      />
+                      <Button type="button" size="sm" variant="outline" onClick={() => {
+                        const val = destinationKeywordInputRef.current?.value?.trim();
+                        if (val && !destinationForm.keywords.includes(val)) {
+                          setDestinationForm({ ...destinationForm, keywords: [...destinationForm.keywords, val] });
+                          destinationKeywordInputRef.current!.value = '';
+                        }
+                      }}>
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
                    <div className="flex items-center gap-3 pt-2 border-t">
                      <Switch
                        checked={destinationForm.is_searchable}
