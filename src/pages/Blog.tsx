@@ -243,6 +243,29 @@ const Blog = () => {
                 </CardContent>
               </Card>
             </Link>
+
+            {/* Carte Mode Strict */}
+            <Link to="/blog/mode-strict">
+              <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-red-50 to-rose-50 dark:from-red-950/30 dark:to-rose-950/30">
+                <div className="aspect-video overflow-hidden bg-gradient-to-br from-red-500/20 to-rose-500/5 flex items-center justify-center">
+                  <Search className="h-16 w-16 text-red-500" />
+                </div>
+                <CardContent className="p-6">
+                  <h2 className="text-xl font-semibold mb-3 font-['Playfair_Display'] italic">
+                    Mode Strict
+                  </h2>
+                  <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
+                    Visualisez toutes les sous-catégories configurées en mode strict et testez leurs résultats de recherche.
+                  </p>
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1 text-red-500 font-medium">
+                      <Search className="h-3 w-3" /> Recherche
+                    </span>
+                    <ArrowRight className="h-4 w-4 text-red-500" />
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
           </div>
         )}
       </div>

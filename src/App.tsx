@@ -45,6 +45,7 @@ import StaffMaster from "./pages/StaffMaster";
 import DestinationPage from "./pages/DestinationPage";
 import SearchLayoutDemo from "./pages/SearchLayoutDemo";
 import SearchPageCopy from "./pages/SearchPageCopy";
+import StrictModePage from "./pages/StrictModePage";
 
 const queryClient = new QueryClient();
 
@@ -110,6 +111,7 @@ const AppContent = () => {
               <Route path="/conditions-generales" element={<CGF />} />
               <Route path="/blog/search-layouts" element={<SearchLayoutDemo />} />
               <Route path="/blog/search-copy" element={<SearchPageCopy />} />
+              <Route path="/blog/mode-strict" element={<StrictModePage />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
