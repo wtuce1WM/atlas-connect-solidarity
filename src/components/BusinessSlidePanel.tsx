@@ -385,7 +385,10 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
 
   useEffect(() => {
     const fetch = async () => {
-      setIsLoading(true);
+      // Don't show loading skeleton when browsing via fallback panel (avoids flash)
+      if (!fallbackPanelData) {
+        setIsLoading(true);
+      }
       // Only close booking if not in fallback browse mode
       if (!availabilityOverlayCtx) {
         setIsBookingOpen(false);
