@@ -1638,6 +1638,8 @@ const SearchPage = () => {
                       )}
                       {geo.isDetecting
                         ? "…"
+                        : geo.isEnabled && geo.confirmedAddress
+                        ? `📍 ${geo.confirmedAddress}`
                         : geo.isEnabled && geo.detectedCity
                         ? `📍 ${geo.detectedCity}`
                         : geo.isEnabled
@@ -1649,15 +1651,14 @@ const SearchPage = () => {
                       open={locationDialogOpen}
                       onOpenChange={setLocationDialogOpen}
                       coords={geo.coords}
-                      detectedCity={geo.detectedCity}
+                      detectedCity={geo.confirmedAddress || geo.detectedCity}
                       isEnabled={geo.isEnabled}
                       isDetecting={geo.isDetecting}
                       onUseCurrentPosition={() => {
-                        if (!geo.isEnabled) geo.toggle();
+                        if (!geo.isEnabled) geo.accept();
                       }}
                       onConfirm={(confirmedCoords, address) => {
-                        if (!geo.isEnabled) geo.toggle();
-                        console.log("Location confirmed:", confirmedCoords, address);
+                        geo.setManualLocation(confirmedCoords, address);
                       }}
                     />
                   </>

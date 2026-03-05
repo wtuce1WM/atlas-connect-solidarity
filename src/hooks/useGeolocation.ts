@@ -18,6 +18,8 @@ interface GeolocationState {
   isDetecting: boolean;
   /** User's raw coords */
   coords: { lat: number; lng: number } | null;
+  /** The confirmed address label (from manual pick or auto-detect) */
+  confirmedAddress: string | null;
   /** Accept geolocation */
   accept: () => void;
   /** Decline geolocation */
@@ -26,9 +28,13 @@ interface GeolocationState {
   toggle: () => void;
   /** Dismiss the banner without choosing (same as decline) */
   dismiss: () => void;
+  /** Manually set coords + address (from location picker) */
+  setManualLocation: (coords: { lat: number; lng: number }, address: string) => void;
 }
 
 const STORAGE_KEY = "geo_preference";
+const MANUAL_COORDS_KEY = "geo_manual_coords";
+const MANUAL_ADDRESS_KEY = "geo_manual_address";
 
 function haversineDistance(
   lat1: number, lon1: number,
@@ -51,7 +57,9 @@ export function useGeolocation(): GeolocationState {
   const [showBanner, setShowBanner] = useState(false);
   const [isDetecting, setIsDetecting] = useState(false);
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [confirmedAddress, setConfirmedAddress] = useState<string | null>(null);
   const [cities, setCities] = useState<GeoCity[]>([]);
+  const [isManual, setIsManual] = useState(false);
 
   // Load cities with coordinates on mount
   useEffect(() => {
@@ -66,28 +74,44 @@ export function useGeolocation(): GeolocationState {
       });
   }, []);
 
-  // Check stored preference on mount
+  // Restore manual location from localStorage on mount
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
+    const manualCoordsStr = localStorage.getItem(MANUAL_COORDS_KEY);
+    const manualAddr = localStorage.getItem(MANUAL_ADDRESS_KEY);
+
     if (stored === null) {
-      // First visit — show banner
       setShowBanner(true);
     } else if (stored === "enabled") {
       setIsEnabled(true);
       setShowBanner(false);
     } else {
-      // "disabled"
       setIsEnabled(false);
       setShowBanner(false);
     }
+
+    // Restore manual location if present
+    if (manualCoordsStr && manualAddr) {
+      try {
+        const parsed = JSON.parse(manualCoordsStr);
+        setCoords(parsed);
+        setConfirmedAddress(manualAddr);
+        setIsManual(true);
+        setIsEnabled(true);
+        setShowBanner(false);
+      } catch {
+        // ignore parse errors
+      }
+    }
   }, []);
 
-  // Detect position when enabled
+  // Detect position when enabled (only if not manual)
   useEffect(() => {
-    if (!isEnabled || cities.length === 0) {
-      if (!isEnabled) {
+    if (!isEnabled || cities.length === 0 || isManual) {
+      if (!isEnabled && !isManual) {
         setDetectedCity(null);
         setCoords(null);
+        setConfirmedAddress(null);
       }
       return;
     }
@@ -123,10 +147,15 @@ export function useGeolocation(): GeolocationState {
       },
       { enableHighAccuracy: false, timeout: 10000 }
     );
-  }, [isEnabled, cities]);
+  }, [isEnabled, cities, isManual]);
 
   const accept = useCallback(() => {
     localStorage.setItem(STORAGE_KEY, "enabled");
+    // Clear manual location when accepting browser geolocation
+    localStorage.removeItem(MANUAL_COORDS_KEY);
+    localStorage.removeItem(MANUAL_ADDRESS_KEY);
+    setIsManual(false);
+    setConfirmedAddress(null);
     setIsEnabled(true);
     setShowBanner(false);
   }, []);
@@ -143,6 +172,11 @@ export function useGeolocation(): GeolocationState {
       setIsEnabled(false);
     } else {
       localStorage.setItem(STORAGE_KEY, "enabled");
+      // Clear manual when toggling to browser geolocation
+      localStorage.removeItem(MANUAL_COORDS_KEY);
+      localStorage.removeItem(MANUAL_ADDRESS_KEY);
+      setIsManual(false);
+      setConfirmedAddress(null);
       setIsEnabled(true);
     }
   }, [isEnabled]);
@@ -151,15 +185,43 @@ export function useGeolocation(): GeolocationState {
     decline();
   }, [decline]);
 
+  const setManualLocation = useCallback((newCoords: { lat: number; lng: number }, address: string) => {
+    localStorage.setItem(STORAGE_KEY, "enabled");
+    localStorage.setItem(MANUAL_COORDS_KEY, JSON.stringify(newCoords));
+    localStorage.setItem(MANUAL_ADDRESS_KEY, address);
+    setCoords(newCoords);
+    setConfirmedAddress(address);
+    setIsManual(true);
+    setIsEnabled(true);
+    setShowBanner(false);
+
+    // Find nearest city for the manual coords
+    if (cities.length > 0) {
+      let nearest: string | null = null;
+      let minDist = Infinity;
+      for (const city of cities) {
+        if (city.latitude == null || city.longitude == null) continue;
+        const dist = haversineDistance(newCoords.lat, newCoords.lng, city.latitude, city.longitude);
+        if (dist < minDist) {
+          minDist = dist;
+          nearest = city.name_fr;
+        }
+      }
+      setDetectedCity(minDist <= 100 ? nearest : null);
+    }
+  }, [cities]);
+
   return {
     detectedCity,
     isEnabled,
     showBanner,
     isDetecting,
     coords,
+    confirmedAddress,
     accept,
     decline,
     toggle,
     dismiss,
+    setManualLocation,
   };
 }
