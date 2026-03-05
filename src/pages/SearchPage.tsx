@@ -22,7 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+
 import { Loader2, Building2, ChevronLeft, ChevronRight, Search, Mic, MicOff, Loader, MapPin, MapPinOff, X, Volume2, VolumeX, Clock, Map, Sparkles, SlidersHorizontal, ChevronDown, ChevronUp } from "lucide-react";
 import { lazy, Suspense } from "react";
 const BusinessMap = lazy(() => import("@/components/BusinessMap"));
@@ -33,6 +33,7 @@ import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { useToast } from "@/hooks/use-toast";
+import LocationPickerDialog from "@/components/LocationPickerDialog";
 
 interface Business {
   id: string;
@@ -384,6 +385,7 @@ const SearchPage = () => {
   const [isAiSummaryExpanded, setIsAiSummaryExpanded] = useState(false);
   const [compactPanelBusiness, setCompactPanelBusiness] = useState<AIBusinessData | null>(null);
   const [isCompactPanelExpanded, setIsCompactPanelExpanded] = useState(false);
+  const [locationDialogOpen, setLocationDialogOpen] = useState(false);
 
   const normalizeText = (value: string) =>
     value
@@ -1618,95 +1620,47 @@ const SearchPage = () => {
                   </button>
                 )}
                 {!isMobile && (
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <button
-                        className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                          geo.isEnabled
-                            ? "bg-gold/20 text-gold border border-gold/40"
-                            : "bg-card text-muted-foreground border border-border hover:border-gold/30"
-                        }`}
-                      >
-                        {geo.isDetecting ? (
-                          <Loader className="h-3 w-3 animate-spin" />
-                        ) : geo.isEnabled ? (
-                          <MapPin className="h-3 w-3" />
-                        ) : (
-                          <MapPinOff className="h-3 w-3" />
-                        )}
-                        {geo.isDetecting
-                          ? "…"
-                          : geo.isEnabled && geo.detectedCity
-                          ? `📍 ${geo.detectedCity}`
-                          : geo.isEnabled
-                          ? (language === "en" ? "No city" : "Aucune ville")
-                          : (language === "en" ? "Location" : "Position")
-                        }
-                      </button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-80 p-0 rounded-2xl shadow-xl border border-border" align="end" sideOffset={8}>
-                      <div className="p-5 space-y-4">
-                        <div className="flex items-center gap-3">
-                          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gold/10">
-                            <MapPin className="h-5 w-5 text-gold" />
-                          </div>
-                          <div>
-                            <h4 className="text-sm font-semibold text-foreground">
-                              {language === "en" ? "Your location" : language === "ar" ? "موقعك" : "Votre position"}
-                            </h4>
-                            <p className="text-xs text-muted-foreground">
-                              {language === "en"
-                                ? "Share your location to find nearby results"
-                                : language === "ar"
-                                ? "شارك موقعك للعثور على نتائج قريبة"
-                                : "Partagez votre position pour trouver des résultats proches"}
-                            </p>
-                          </div>
-                        </div>
-
-                        {geo.isEnabled && geo.detectedCity && (
-                          <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-gold/10 border border-gold/20">
-                            <MapPin className="h-4 w-4 text-gold shrink-0" />
-                            <span className="text-sm font-medium text-gold">{geo.detectedCity}</span>
-                          </div>
-                        )}
-
-                        {geo.isEnabled && !geo.detectedCity && !geo.isDetecting && (
-                          <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-muted border border-border">
-                            <MapPinOff className="h-4 w-4 text-muted-foreground shrink-0" />
-                            <span className="text-sm text-muted-foreground">
-                              {language === "en" ? "No city detected nearby" : "Aucune ville détectée à proximité"}
-                            </span>
-                          </div>
-                        )}
-
-                        <button
-                          onClick={geo.toggle}
-                          className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                            geo.isEnabled
-                              ? "bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive/20"
-                              : "bg-gold text-white hover:bg-gold/90"
-                          }`}
-                        >
-                          {geo.isDetecting ? (
-                            <Loader className="h-4 w-4 animate-spin" />
-                          ) : geo.isEnabled ? (
-                            <MapPinOff className="h-4 w-4" />
-                          ) : (
-                            <MapPin className="h-4 w-4" />
-                          )}
-                          {geo.isEnabled
-                            ? (language === "en" ? "Disable location" : language === "ar" ? "تعطيل الموقع" : "Désactiver la position")
-                            : (language === "en" ? "Enable location" : language === "ar" ? "تفعيل الموقع" : "Activer la position")
-                          }
-                        </button>
-
-                        <p className="flex items-center gap-1.5 text-[10px] text-muted-foreground/60 justify-center">
-                          🔒 {language === "en" ? "Your location data is secure and private" : language === "ar" ? "بيانات موقعك آمنة وخاصة" : "Vos données de localisation sont sécurisées"}
-                        </p>
-                      </div>
-                    </PopoverContent>
-                  </Popover>
+                  <>
+                    <button
+                      onClick={() => setLocationDialogOpen(true)}
+                      className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                        geo.isEnabled
+                          ? "bg-gold/20 text-gold border border-gold/40"
+                          : "bg-card text-muted-foreground border border-border hover:border-gold/30"
+                      }`}
+                    >
+                      {geo.isDetecting ? (
+                        <Loader className="h-3 w-3 animate-spin" />
+                      ) : geo.isEnabled ? (
+                        <MapPin className="h-3 w-3" />
+                      ) : (
+                        <MapPinOff className="h-3 w-3" />
+                      )}
+                      {geo.isDetecting
+                        ? "…"
+                        : geo.isEnabled && geo.detectedCity
+                        ? `📍 ${geo.detectedCity}`
+                        : geo.isEnabled
+                        ? (language === "en" ? "No city" : "Aucune ville")
+                        : (language === "en" ? "Location" : "Position")
+                      }
+                    </button>
+                    <LocationPickerDialog
+                      open={locationDialogOpen}
+                      onOpenChange={setLocationDialogOpen}
+                      coords={geo.coords}
+                      detectedCity={geo.detectedCity}
+                      isEnabled={geo.isEnabled}
+                      isDetecting={geo.isDetecting}
+                      onUseCurrentPosition={() => {
+                        if (!geo.isEnabled) geo.toggle();
+                      }}
+                      onConfirm={(confirmedCoords, address) => {
+                        if (!geo.isEnabled) geo.toggle();
+                        console.log("Location confirmed:", confirmedCoords, address);
+                      }}
+                    />
+                  </>
                 )}
               </div>
             </div>
