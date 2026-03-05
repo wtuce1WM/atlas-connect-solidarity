@@ -2109,7 +2109,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                         {hotel.guestRating && (
                           <div className="flex items-center gap-1">
                             <span className="text-[10px] font-bold text-white bg-white/20 rounded px-1 py-0.5">
-                              {parseFloat(hotel.guestRating).toFixed(1)}
+                              {parseFloat(String(hotel.guestRating)).toFixed(1)}
                             </span>
                             {hotel.reviewCount != null && hotel.reviewCount > 0 && (
                               <span className="text-[10px] text-white/50">
