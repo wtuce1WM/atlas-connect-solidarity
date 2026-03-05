@@ -1729,7 +1729,7 @@ serve(async (req) => {
             return nameTokens.some((t) => {
               if (t === wNorm) return true;
               // For short words (≤4 chars), require exact match to avoid "ana" matching "ananas"
-              if (wNorm.length <= 4) return false;
+              if (wNorm.length <= 4 || t.length <= 4) return false;
               return t.includes(wNorm) || wNorm.includes(t);
             });
           });
