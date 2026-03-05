@@ -1385,8 +1385,8 @@ const SearchPage = () => {
         </div>
       </section>
 
-      {/* Tab Bar */}
-      <section className="bg-background border-b border-border">
+      {/* Tab Bar — sticky below header */}
+      <section className="sticky top-[60px] z-40 bg-background/95 backdrop-blur-sm border-b border-border">
         <div className="mx-auto px-4 max-w-[80%]">
           <div className="flex gap-0">
             <button
@@ -1638,6 +1638,7 @@ const SearchPage = () => {
               onSelectCategory={(cat) => {
                 setSelectedCategoryFilter(cat);
                 setSelectedSubcategoryFilter(null);
+                window.scrollTo({ top: 0, behavior: "smooth" });
               }}
               selectedSubcategory={selectedSubcategoryFilter}
               onSelectSubcategory={setSelectedSubcategoryFilter}
