@@ -1448,11 +1448,7 @@ const SearchPage = () => {
             setSelectedSubcategoryFilter(null);
             setSelectedServiceFilter(null);
             requestAnimationFrame(() => {
-              const el = document.querySelector('[data-compact-ai]') || document.querySelector('[data-category-filter]');
-              if (el) {
-                const y = el.getBoundingClientRect().top + window.scrollY - 260;
-                window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
-              }
+              window.scrollTo({ top: 0, behavior: "smooth" });
             });
           }}
           selectedSubcategory={selectedSubcategoryFilter}
@@ -1460,11 +1456,7 @@ const SearchPage = () => {
             setSelectedSubcategoryFilter(sub);
             setSelectedServiceFilter(null);
             requestAnimationFrame(() => {
-              const el = document.querySelector('[data-compact-ai]') || document.querySelector('[data-category-filter]');
-              if (el) {
-                const y = el.getBoundingClientRect().top + window.scrollY - 260;
-                window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
-              }
+              window.scrollTo({ top: 0, behavior: "smooth" });
             });
           }}
           selectedService={selectedServiceFilter}
