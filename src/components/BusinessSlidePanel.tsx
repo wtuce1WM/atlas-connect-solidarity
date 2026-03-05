@@ -1271,96 +1271,83 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
 
 
           {hasContact && (
-          <div ref={contactSectionRef} className="border-t border-border py-5 scroll-mt-28">
-            <div className="grid grid-cols-2 gap-6">
-              {/* Address */}
-              {business.address && (
-                <div className="flex items-start gap-3">
-                  <MapPin className="h-5 w-5 shrink-0 mt-0.5 text-foreground" />
-                  <div>
-                    <p className="font-semibold text-sm text-foreground">Adresse</p>
-                    <p className="text-sm text-muted-foreground mt-0.5">{business.address}</p>
-                    
-                  </div>
-                </div>
-              )}
+          <div ref={contactSectionRef} className="border-t border-border py-5 scroll-mt-28 space-y-4">
 
-
-              {/* Phone */}
-              {business.phone && (
-                <div className="flex items-start gap-3">
-                  <Phone className="h-5 w-5 shrink-0 mt-0.5 text-foreground" />
-                  <div>
-                    <p className="font-semibold text-sm text-foreground">Téléphone</p>
-                    <a href={`tel:${business.phone}`} className="text-sm text-muted-foreground hover:text-foreground transition-colors mt-0.5 block">
-                      {business.phone}
-                    </a>
-                  </div>
-                </div>
-              )}
-
-              {/* Web section */}
-              {(business.website || business.email || business.reserve_now_url || business.online_shop_url) && (
+            {/* Address — full width */}
+            {business.address && (
+              <div className="flex items-start gap-3">
+                <MapPin className="h-5 w-5 shrink-0 mt-0.5 text-foreground" />
                 <div>
-                  <div className="space-y-1">
-                    {business.website && (
-                      <a href={business.website} target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1">
-                        <span className="font-medium text-foreground/70">Site web</span>
-                        <ExternalLink className="h-3 w-3 shrink-0" />
-                      </a>
-                    )}
-                    {business.email && (
-                      <a href={`mailto:${business.email}`} className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1">
-                        <span className="font-medium text-foreground/70">Email</span>
-                        <Mail className="h-3 w-3 shrink-0" />
-                      </a>
-                    )}
-                    {business.reserve_now_url && (
-                      <button
-                        onClick={() => { setForceBookingOverlay(true); }}
-                        className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1 text-left"
-                      >
-                        <span className="font-medium text-foreground/70">Réservation</span>
-                        <ExternalLink className="h-3 w-3 shrink-0" />
-                      </button>
-                    )}
-                    {business.online_shop_url && (
-                      <a href={business.online_shop_url} target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1">
-                        <span className="font-medium text-foreground/70">Boutique en ligne</span>
-                        <ExternalLink className="h-3 w-3 shrink-0" />
-                      </a>
-                    )}
-                  </div>
+                  <p className="font-semibold text-sm text-foreground">Adresse</p>
+                  <p className="text-sm text-muted-foreground mt-0.5">{business.address}</p>
                 </div>
-              )}
+              </div>
+            )}
 
-
-              {/* WhatsApp */}
-              {business.whatsapp && (
-                <div className="flex items-start gap-3">
-                  <WhatsAppIcon className="h-5 w-5 shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-semibold text-sm" style={{ color: "#25D366" }}>WhatsApp</p>
-                    <a href={`https://wa.me/${business.whatsapp.replace(/\D/g, "")}`} target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground transition-colors mt-0.5 block">
-                      {business.whatsapp}
+            {/* Nous joindre — Phone + WhatsApp + Skype grouped */}
+            {(business.phone || business.whatsapp || business.skype) && (
+              <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-2.5">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1.5">
+                  <Phone className="h-3.5 w-3.5" />
+                  Nous joindre
+                </p>
+                <div className="space-y-2">
+                  {business.phone && (
+                    <a href={`tel:${business.phone}`} className="flex items-center gap-2.5 text-sm hover:text-foreground transition-colors group">
+                      <Phone className="h-4 w-4 shrink-0 text-foreground" />
+                      <span className="text-muted-foreground group-hover:text-foreground">{business.phone}</span>
                     </a>
-                  </div>
-                </div>
-              )}
-
-              {/* Skype */}
-              {business.skype && (
-                <div className="flex items-start gap-3">
-                  <SkypeIcon className="h-5 w-5 shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-semibold text-sm" style={{ color: "#00AFF0" }}>Skype</p>
-                    <a href={`skype:${business.skype}?chat`} className="text-sm text-muted-foreground hover:text-foreground transition-colors mt-0.5 block">
-                      {business.skype}
+                  )}
+                  {business.whatsapp && (
+                    <a href={`https://wa.me/${business.whatsapp.replace(/\D/g, "")}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 text-sm hover:text-foreground transition-colors group">
+                      <WhatsAppIcon className="h-4 w-4 shrink-0 text-[#25D366]" />
+                      <span className="text-muted-foreground group-hover:text-foreground">{business.whatsapp}</span>
                     </a>
-                  </div>
+                  )}
+                  {business.skype && (
+                    <a href={`skype:${business.skype}?chat`} className="flex items-center gap-2.5 text-sm hover:text-foreground transition-colors group">
+                      <svg className="h-4 w-4 shrink-0 text-[#00AFF0]" viewBox="0 0 24 24" fill="currentColor"><path d="M12.069 18.874c-4.023 0-5.82-1.979-5.82-3.464 0-.765.561-1.296 1.333-1.296 1.723 0 1.273 2.477 4.487 2.477 1.641 0 2.55-.895 2.55-1.811 0-.551-.269-1.16-1.354-1.429l-3.576-.895c-2.88-.724-3.403-2.286-3.403-3.751 0-3.047 2.861-4.191 5.549-4.191 2.471 0 5.393 1.373 5.393 3.199 0 .784-.688 1.24-1.453 1.24-1.469 0-1.198-2.037-4.164-2.037-1.469 0-2.292.664-2.292 1.617s1.153 1.258 2.157 1.487l2.637.587c2.891.649 3.624 2.346 3.624 3.944 0 2.476-1.902 4.324-5.722 4.324M23.153 13.534c.227-.9.345-1.836.345-2.798 0-3.151-1.24-6.105-3.494-8.319C17.79.193 14.791-1.027 11.591-1.027c-.866 0-1.72.086-2.553.252C7.688-.186 6.126-.638 4.469-.638c-4.687 0-8.5 3.813-8.5 8.5 0 1.599.442 3.095 1.209 4.376-.27.939-.414 1.922-.414 2.931 0 3.151 1.24 6.105 3.494 8.319 2.214 2.175 5.213 3.395 8.413 3.395.866 0 1.72-.086 2.553-.252 1.351.911 2.913 1.363 4.57 1.363 4.687 0 8.5-3.813 8.5-8.5 0-1.599-.442-3.095-1.209-4.376"/></svg>
+                      <span className="text-muted-foreground group-hover:text-foreground">{business.skype}</span>
+                    </a>
+                  )}
                 </div>
-              )}
+              </div>
+            )}
 
+            {/* Liens — Web, Email, Réservation, Boutique */}
+            {(business.website || business.email || business.reserve_now_url || business.online_shop_url) && (
+              <div className="space-y-1.5">
+                {business.website && (
+                  <a href={business.website} target="_blank" rel="noopener noreferrer" className="text-sm hover:text-foreground transition-colors flex items-center gap-2">
+                    <ExternalLink className="h-4 w-4 shrink-0 text-foreground/60" />
+                    <span className="text-foreground/70 font-medium">Site web</span>
+                  </a>
+                )}
+                {business.email && (
+                  <a href={`mailto:${business.email}`} className="text-sm hover:text-foreground transition-colors flex items-center gap-2">
+                    <Mail className="h-4 w-4 shrink-0 text-foreground/60" />
+                    <span className="text-foreground/70 font-medium">Email</span>
+                  </a>
+                )}
+                {business.reserve_now_url && (
+                  <button
+                    onClick={() => { setForceBookingOverlay(true); }}
+                    className="text-sm hover:text-foreground transition-colors flex items-center gap-2 text-left"
+                  >
+                    <ExternalLink className="h-4 w-4 shrink-0 text-foreground/60" />
+                    <span className="text-foreground/70 font-medium">Réservation</span>
+                  </button>
+                )}
+                {business.online_shop_url && (
+                  <a href={business.online_shop_url} target="_blank" rel="noopener noreferrer" className="text-sm hover:text-foreground transition-colors flex items-center gap-2">
+                    <ExternalLink className="h-4 w-4 shrink-0 text-foreground/60" />
+                    <span className="text-foreground/70 font-medium">Boutique en ligne</span>
+                  </a>
+                )}
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-6">
               {/* Opening Hours */}
               {canShowOpenBadge && (
                 <div className={businessDocs.length > 0 ? "" : "col-span-2"}>
