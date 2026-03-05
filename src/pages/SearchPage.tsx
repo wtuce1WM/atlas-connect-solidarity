@@ -1386,7 +1386,7 @@ const SearchPage = () => {
       </section>
 
       {/* Tab Bar — sticky below header */}
-      <section className="sticky top-[60px] z-40 bg-background/95 backdrop-blur-sm border-b border-border">
+      <section className="sticky top-[60px] z-[18] bg-background/95 backdrop-blur-sm border-b border-border">
         <div className="mx-auto px-4 max-w-[80%]">
           <div className="flex gap-0">
             <button
