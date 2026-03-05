@@ -1519,7 +1519,7 @@ const SearchPage = () => {
 
           {/* Compact AI zone — shown above results when category/subcategory filter is active */}
           {isCategoryFilterActive && aiAnswerText && (
-            <div className="mb-6 mt-2 flex flex-wrap items-center gap-3 px-1">
+            <div className="mb-6 mt-0 flex flex-wrap items-center gap-3 px-1">
               <div className="flex-1 min-w-0">
                 <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
                   <Sparkles className="h-3.5 w-3.5 inline-block mr-1.5 text-gold align-text-bottom" />
