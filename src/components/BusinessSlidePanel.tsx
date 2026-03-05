@@ -1534,7 +1534,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
             );
           })()}
           {(reviews.length > 0 || avgOn20) && (
-            <div ref={reviewsSectionRef} className="space-y-4 scroll-mt-28">
+            <div ref={reviewsSectionRef} className="space-y-4 scroll-mt-28 border-t pt-6">
               <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wide">{language === "en" ? "Customer reviews" : language === "ar" ? "آراء العملاء" : "Avis clients"}</h3>
               {/* Global score */}
               {avgOn20 && (
