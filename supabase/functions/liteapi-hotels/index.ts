@@ -293,6 +293,7 @@ Deno.serve(async (req) => {
         checkoutTime: checkinCheckoutTimes?.checkout || undefined,
         images: hotelImages.slice(0, 10).map((img) => img.url || img.thumbnailUrl).filter(Boolean),
         amenities: (details?.hotelFacilities as string[]) || [],
+        accessibilityAttributes: details?.accessibilityAttributes || null,
         available: offers.length > 0,
         offers,
       };

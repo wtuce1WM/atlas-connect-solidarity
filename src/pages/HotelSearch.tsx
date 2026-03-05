@@ -124,6 +124,7 @@ const HotelSearch = () => {
           checkinTime: h.checkinTime,
           checkoutTime: h.checkoutTime,
           images: h.images,
+          accessibilityAttributes: h.accessibilityAttributes || null,
         },
         available: h.available,
         offers: h.offers,
@@ -379,11 +380,19 @@ const HotelSearch = () => {
                           </Badge>
                         )}
                       </div>
-                      <p className="text-sm text-muted-foreground flex items-center gap-1">
-                        <MapPin className="h-3 w-3" />
-                        {MOROCCAN_CITIES.find((c) => c.code === hotel.hotel.cityCode)?.name ||
-                          hotel.hotel.cityCode}
-                      </p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm text-muted-foreground flex items-center gap-1">
+                          <MapPin className="h-3 w-3" />
+                          {MOROCCAN_CITIES.find((c) => c.code === hotel.hotel.cityCode)?.name ||
+                            hotel.hotel.cityCode}
+                        </p>
+                        {hotel.hotel.accessibilityAttributes?.attributes && hotel.hotel.accessibilityAttributes.attributes.length > 0 && (
+                          <Badge variant="outline" className="text-[10px] px-1.5 py-0 gap-1">
+                            <span>♿</span>
+                            {language === "en" ? "Accessible" : "Accessible"}
+                          </Badge>
+                        )}
+                      </div>
                     </CardHeader>
                     <CardContent>
                       {/* Room info */}

@@ -2132,6 +2132,14 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                             )}
                           </div>
                         )}
+                        {hotel.accessibilityAttributes?.attributes && hotel.accessibilityAttributes.attributes.length > 0 && (
+                          <div className="flex items-center gap-1">
+                            <span className="text-[10px] text-blue-300">♿</span>
+                            <span className="text-[10px] text-white/50">
+                              {language === "en" ? "Accessible" : "Accessible"}
+                            </span>
+                          </div>
+                        )}
                         {cheapest && (
                           <p className="text-sm font-bold text-white">
                             {new Intl.NumberFormat(language === "ar" ? "ar-MA" : language === "en" ? "en-US" : "fr-FR", {
