@@ -203,7 +203,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   const [isLoadingArticle, setIsLoadingArticle] = useState(false);
   
   const [businessDocs, setBusinessDocs] = useState<{ id: string; type: string; url: string; name: string | null; icon: string | null; sort_order: number }[]>([]);
-  const [docOverlay, setDocOverlay] = useState<{ url: string; name: string; type: 'pdf' | 'flipbook' } | null>(null);
+  const [docOverlay, setDocOverlay] = useState<{ url: string; name: string; type: 'pdf' | 'flipbook' | 'webpage' } | null>(null);
   const [reviewTexts, setReviewTexts] = useState<{ source: string; author_name: string | null; rating: number | null; text: string | null; relative_time: string | null }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -793,6 +793,14 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                 className="h-full w-full border-0"
                 allow="clipboard-write; fullscreen"
                 title={docOverlay.name}
+              />
+            ) : docOverlay.type === 'webpage' ? (
+              <iframe
+                src={docOverlay.url}
+                className="h-full w-full border-0"
+                title={docOverlay.name}
+                sandbox="allow-scripts allow-same-origin allow-popups"
+                onError={() => window.open(docOverlay.url, '_blank')}
               />
             ) : (
               <object
@@ -1422,13 +1430,14 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                       const iconSrc = `/images/doc-icons/${iconFile}${ext}`;
                       const isPdf = doc.url?.toLowerCase().endsWith('.pdf') || doc.url?.includes('/pdfs/');
                       const isFlipbook = /issuu\.com|calameo\.com/i.test(doc.url || '');
-                      const isInlineDoc = isPdf || isFlipbook;
+                      const isWebpage = !isPdf && !isFlipbook && doc.url?.startsWith('http');
+                      const isInlineDoc = isPdf || isFlipbook || isWebpage;
                       const handleClick = (e: React.MouseEvent) => {
                         if (isInlineDoc) {
                           e.preventDefault();
-                          setDocOverlay({ url: doc.url, name: doc.name || (doc.type === "flipbook" ? "Flipbook" : "Menu"), type: isFlipbook ? 'flipbook' : 'pdf' });
+                          const docType = isFlipbook ? 'flipbook' : isPdf ? 'pdf' : 'webpage';
+                          setDocOverlay({ url: doc.url, name: doc.name || (doc.type === "flipbook" ? "Flipbook" : "Menu"), type: docType });
                         }
-                        // External URLs (not PDF/flipbook) open in new tab via default <a> behavior
                       };
                       return (
                         <a
