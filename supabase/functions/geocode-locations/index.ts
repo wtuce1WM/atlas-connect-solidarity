@@ -62,7 +62,50 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const results = { cities: 0, destinations: 0, points_of_interest: 0, errors: [] as string[] };
+    const results = { cities: 0, destinations: 0, points_of_interest: 0, businesses: 0, errors: [] as string[] };
+
+    // If a city filter is provided, only geocode businesses in that city
+    const cityFilter = body.city_filter as string | undefined;
+
+    // Businesses without GPS (or filtered by city)
+    if (mode === 'batch-businesses' || mode === 'batch') {
+      let bizQuery = supabase
+        .from('businesses')
+        .select('id, name, city, address')
+        .eq('is_active', true);
+
+      if (mode === 'batch-businesses') {
+        // Re-geocode ALL businesses in the specified city (even those with existing GPS)
+        if (cityFilter) {
+          bizQuery = bizQuery.ilike('city', cityFilter);
+        } else {
+          bizQuery = bizQuery.or('latitude.is.null,longitude.is.null');
+        }
+      } else {
+        bizQuery = bizQuery.or('latitude.is.null,longitude.is.null');
+      }
+
+      const { data: bizData } = await bizQuery;
+
+      for (const biz of bizData || []) {
+        const searchName = biz.address
+          ? `${biz.name}, ${biz.address}, ${biz.city || 'Maroc'}`
+          : `${biz.name}, ${biz.city || 'Maroc'}`;
+        const coords = await geocode(searchName, apiKey);
+        if (coords) {
+          await supabase.from('businesses').update({ latitude: coords.lat, longitude: coords.lng }).eq('id', biz.id);
+          results.businesses++;
+        } else {
+          results.errors.push(`Business: ${biz.name}`);
+        }
+      }
+
+      if (mode === 'batch-businesses') {
+        return new Response(JSON.stringify(results), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+    }
 
     // Cities without GPS
     const { data: citiesData } = await supabase
@@ -102,7 +145,6 @@ serve(async (req) => {
       .select('id, name_fr, city_id')
       .or('latitude.is.null,longitude.is.null');
 
-    // Get city names for context
     const cityIds = [...new Set((poisData || []).map(p => p.city_id))];
     const { data: cityNames } = cityIds.length > 0
       ? await supabase.from('cities').select('id, name_fr').in('id', cityIds)
