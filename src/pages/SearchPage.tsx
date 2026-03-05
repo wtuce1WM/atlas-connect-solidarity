@@ -1446,7 +1446,7 @@ const SearchPage = () => {
             requestAnimationFrame(() => {
               const el = document.querySelector('[data-compact-ai]') || document.querySelector('[data-category-filter]');
               if (el) {
-                const y = el.getBoundingClientRect().top + window.scrollY - 220;
+                const y = el.getBoundingClientRect().top + window.scrollY - 260;
                 window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
               }
             });
@@ -1458,7 +1458,7 @@ const SearchPage = () => {
             requestAnimationFrame(() => {
               const el = document.querySelector('[data-compact-ai]') || document.querySelector('[data-category-filter]');
               if (el) {
-                const y = el.getBoundingClientRect().top + window.scrollY - 220;
+                const y = el.getBoundingClientRect().top + window.scrollY - 260;
                 window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
               }
             });
