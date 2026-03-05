@@ -3880,16 +3880,13 @@ serve(async (req) => {
     let totalCount: number | undefined;
     if (businesses.length >= limit && effectiveCity) {
       try {
-        let countBuilder = supabase.from("businesses").select("id", { count: "exact", head: true }).eq("is_active", true);
-        // Apply same city filter
-        if (effectiveCity) {
-          countBuilder = countBuilder.or(`city.ilike.${effectiveCity},zone_city_ids.cs.{${effectiveCityId || ""}}`);
-        }
+        let countBuilder = supabase.from("businesses").select("id", { count: "exact", head: true }).eq("is_active", true).ilike("city", effectiveCity);
         if (effectiveCategory) {
           countBuilder = countBuilder.eq("main_category", effectiveCategory);
         }
-        const { count } = await countBuilder;
-        if (count !== null && count > businesses.length) {
+        const { count, error: countError } = await countBuilder;
+        console.log(`Count query for "${effectiveCity}": count=${count}, error=${countError?.message || 'none'}`);
+        if (!countError && count !== null && count > businesses.length) {
           totalCount = count;
         }
       } catch (e) {
