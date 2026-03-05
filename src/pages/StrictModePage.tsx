@@ -1,34 +1,162 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Search, MapPin, Star, ExternalLink } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import BusinessCard, { type BusinessCardData, type Gamme, type Badge, type SubcategoryRef, type BadgeSubcategoryRef } from "@/components/BusinessCard";
 
 interface StrictSubcategory {
   subcategory_id: string;
   subcategory_name: string;
-  max_results: number | null;
-  boost_weight: number;
 }
 
 interface Business {
   id: string;
   name: string;
-  city: string | null;
-  neighborhood: string | null;
+  description: string | null;
+  city: string;
+  region: string;
+  address?: string | null;
+  phone: string | null;
+  whatsapp: string | null;
+  skype: string | null;
+  website: string | null;
+  logo_url: string | null;
+  images: string[] | null;
   main_category: string | null;
   categories: string[] | null;
   services: string[] | null;
-  logo_url: string | null;
-  images: string[] | null;
+  wtuce_status: string | null;
+  is_regulated_activity: boolean | null;
+  latitude: number | null;
+  longitude: number | null;
+  google_maps_url: string | null;
   google_rating: number | null;
   google_review_count: number | null;
+  tripadvisor_rating: number | null;
+  tripadvisor_review_count: number | null;
+  restaurant_guru_rating: number | null;
+  restaurant_guru_review_count: number | null;
+  getyourguide_rating: number | null;
+  getyourguide_review_count: number | null;
+  viator_rating: number | null;
+  viator_review_count: number | null;
+  opening_hours: any;
+  is_open_24h: boolean;
+  vacation_dates: any;
   priority_score: number | null;
-  wtuce_status: string | null;
+  gamme_id: string | null;
+  badge_id: string | null;
+  hook_fr: string | null;
+  hook_en: string | null;
+  hook_ar: string | null;
+  is_featured: boolean | null;
+  is_master: boolean;
+  booking_url: string | null;
+  reserve_now_url: string | null;
+  instagram_url: string | null;
+  facebook_url: string | null;
+  tripadvisor_url: string | null;
+  default_service: string | null;
+  show_opening_hours: boolean | null;
+  neighborhood: string | null;
+  email: string | null;
+  [key: string]: any;
 }
+
+/* ── Grouped row (same as SearchPage) ── */
+const GroupedSubcategoryRow = ({
+  subcategory,
+  businesses,
+  gammes,
+  badges,
+  subcategories: subcategoriesRef,
+  badgeSubcategories,
+}: {
+  subcategory: string;
+  businesses: Business[];
+  gammes: Gamme[];
+  badges: Badge[];
+  subcategories: SubcategoryRef[];
+  badgeSubcategories: BadgeSubcategoryRef[];
+}) => {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const checkScroll = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 2);
+    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 2);
+  }, []);
+
+  useEffect(() => {
+    checkScroll();
+    const el = scrollRef.current;
+    if (!el) return;
+    el.addEventListener("scroll", checkScroll, { passive: true });
+    const ro = new ResizeObserver(checkScroll);
+    ro.observe(el);
+    return () => { el.removeEventListener("scroll", checkScroll); ro.disconnect(); };
+  }, [checkScroll, businesses.length]);
+
+  const scroll = (dir: "left" | "right") => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const amount = el.clientWidth * 0.8;
+    el.scrollBy({ left: dir === "left" ? -amount : amount, behavior: "smooth" });
+  };
+
+  return (
+    <div>
+      <div className="flex items-center gap-3 mb-4">
+        <h2 className="text-xl font-bold text-foreground">{subcategory}</h2>
+        <span className="text-sm text-muted-foreground">({businesses.length})</span>
+        <div className="flex-1 h-px bg-border" />
+        {(canScrollLeft || canScrollRight) && (
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => scroll("left")}
+              disabled={!canScrollLeft}
+              className="w-8 h-8 rounded-full border border-border bg-card flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-primary/40 disabled:opacity-30 disabled:cursor-default transition-colors"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <button
+              onClick={() => scroll("right")}
+              disabled={!canScrollRight}
+              className="w-8 h-8 rounded-full border border-border bg-card flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-primary/40 disabled:opacity-30 disabled:cursor-default transition-colors"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+        )}
+      </div>
+      <div
+        ref={scrollRef}
+        className="flex gap-5 overflow-x-auto pb-4 scroll-smooth snap-x snap-mandatory"
+        style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch" }}
+      >
+        {businesses.map((business) => (
+          <div key={business.id} className="snap-start shrink-0 w-[280px] sm:w-[300px]">
+            <BusinessCard
+              business={business as unknown as BusinessCardData}
+              gammes={gammes}
+              badges={badges}
+              subcategories={subcategoriesRef}
+              badgeSubcategories={badgeSubcategories}
+              verifiedLabel="Vérifié"
+              distanceKm={null}
+              activeTimeSlot={null}
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
 
 const StrictModePage = () => {
   const [strictSubs, setStrictSubs] = useState<StrictSubcategory[]>([]);
@@ -38,41 +166,51 @@ const StrictModePage = () => {
   const [searching, setSearching] = useState(false);
   const [searchMeta, setSearchMeta] = useState<any>(null);
 
-  // Fetch all subcategories with strict mode
+  // Reference data for BusinessCard
+  const [gammes, setGammes] = useState<Gamme[]>([]);
+  const [badges, setBadges] = useState<Badge[]>([]);
+  const [subcategoriesRef, setSubcategoriesRef] = useState<SubcategoryRef[]>([]);
+  const [badgeSubcategories, setBadgeSubcategories] = useState<BadgeSubcategoryRef[]>([]);
+
+  // Fetch strict subcategories + reference data
   useEffect(() => {
-    const fetch = async () => {
-      const { data: configs } = await supabase
-        .from("subcategory_search_config")
-        .select("subcategory_id, max_results, boost_weight, search_mode")
-        .eq("search_mode", "strict");
+    const fetchAll = async () => {
+      const [configsRes, gammesRes, badgesRes, subsRes, bsRes] = await Promise.all([
+        supabase
+          .from("subcategory_search_config")
+          .select("subcategory_id, search_mode")
+          .eq("search_mode", "strict"),
+        supabase.from("gammes").select("*"),
+        supabase.from("badges").select("*"),
+        supabase.from("subcategories" as any).select("id, name_fr, name_en, name_ar, category_id"),
+        supabase.from("badge_subcategories").select("badge_id, subcategory_id"),
+      ]);
 
-      if (!configs || configs.length === 0) {
-        setLoading(false);
-        return;
-      }
+      // Gammes, badges, subcategories ref
+      if (gammesRes.data) setGammes(gammesRes.data as Gamme[]);
+      if (badgesRes.data) setBadges(badgesRes.data as Badge[]);
+      if (subsRes.data) setSubcategoriesRef(subsRes.data as unknown as SubcategoryRef[]);
+      if (bsRes.data) setBadgeSubcategories(bsRes.data as BadgeSubcategoryRef[]);
 
-      // Get subcategory names
+      // Build strict list
+      const configs = configsRes.data || [];
       const subIds = configs.map(c => c.subcategory_id);
-      const { data: subs } = await supabase
-        .from("subcategories" as any)
-        .select("id, name_fr")
-        .in("id", subIds);
-
-      const subsMap = new Map((subs as any[] || []).map((s: any) => [s.id, s.name_fr]));
+      const subsMap = new Map(
+        ((subsRes.data as any[]) || []).map((s: any) => [s.id, s.name_fr])
+      );
 
       const result: StrictSubcategory[] = configs
         .map(c => ({
           subcategory_id: c.subcategory_id,
           subcategory_name: subsMap.get(c.subcategory_id) || "Inconnu",
-          max_results: c.max_results,
-          boost_weight: Number(c.boost_weight),
         }))
+        .filter(s => subIds.includes(s.subcategory_id))
         .sort((a, b) => a.subcategory_name.localeCompare(b.subcategory_name, "fr"));
 
       setStrictSubs(result);
       setLoading(false);
     };
-    fetch();
+    fetchAll();
   }, []);
 
   // Search when query selected
@@ -87,7 +225,7 @@ const StrictModePage = () => {
       setSearching(true);
       try {
         const { data, error } = await supabase.functions.invoke("business-search", {
-          body: { query: selectedQuery, limit: 60, language: "fr" },
+          body: { query: selectedQuery, limit: 200, language: "fr" },
         });
 
         if (error) {
@@ -111,6 +249,23 @@ const StrictModePage = () => {
     };
     doSearch();
   }, [selectedQuery]);
+
+  // Group businesses by primary subcategory
+  const groupedBusinesses = useMemo(() => {
+    if (businesses.length === 0) return null;
+
+    const groups: Record<string, Business[]> = {};
+    for (const b of businesses) {
+      const primary = b.categories?.[0] || "Autre";
+      if (!groups[primary]) groups[primary] = [];
+      groups[primary].push(b);
+    }
+
+    const keys = Object.keys(groups);
+    // Sort: most results first
+    const sortedKeys = keys.sort((a, b) => (groups[b]?.length || 0) - (groups[a]?.length || 0));
+    return sortedKeys.map(key => ({ subcategory: key, businesses: groups[key] }));
+  }, [businesses]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -183,74 +338,21 @@ const StrictModePage = () => {
               <div className="flex justify-center py-12">
                 <Loader2 className="h-6 w-6 animate-spin text-primary" />
               </div>
-            ) : businesses.length > 0 ? (
-              <div className="space-y-2">
-                {businesses.map((b, idx) => (
-                  <Card key={b.id} className="hover:shadow-md transition-shadow">
-                    <CardContent className="p-4 flex items-center gap-4">
-                      <span className="text-xs text-muted-foreground font-mono w-6 text-right shrink-0">
-                        {idx + 1}
-                      </span>
-
-                      {b.logo_url ? (
-                        <img
-                          src={b.logo_url}
-                          alt={b.name}
-                          className="h-10 w-10 rounded object-contain bg-muted shrink-0"
-                        />
-                      ) : (
-                        <div className="h-10 w-10 rounded bg-muted flex items-center justify-center shrink-0">
-                          <Search className="h-4 w-4 text-muted-foreground" />
-                        </div>
-                      )}
-
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <a
-                            href={`/business/${b.id}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="font-medium text-sm truncate hover:text-primary transition-colors"
-                          >
-                            {b.name}
-                          </a>
-                          {b.wtuce_status === "verified" && (
-                            <Badge variant="outline" className="text-[10px] px-1.5 py-0 shrink-0">
-                              ✓
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-3 text-xs text-muted-foreground mt-0.5">
-                          {b.city && (
-                            <span className="flex items-center gap-0.5">
-                              <MapPin className="h-3 w-3" /> {b.city}
-                              {b.neighborhood && ` · ${b.neighborhood}`}
-                            </span>
-                          )}
-                          {b.categories && b.categories.length > 0 && (
-                            <span className="truncate">{b.categories.join(", ")}</span>
-                          )}
-                        </div>
-                      </div>
-
-                      {b.google_rating && (
-                        <div className="flex items-center gap-1 text-xs shrink-0">
-                          <Star className="h-3 w-3 text-amber-500 fill-amber-500" />
-                          <span>{b.google_rating}</span>
-                          {b.google_review_count && (
-                            <span className="text-muted-foreground">({b.google_review_count})</span>
-                          )}
-                        </div>
-                      )}
-
-                      <span className="text-[10px] text-muted-foreground shrink-0">
-                        P:{b.priority_score ?? 0}
-                      </span>
-                    </CardContent>
-                  </Card>
+            ) : groupedBusinesses && groupedBusinesses.length > 0 ? (
+              <div className="space-y-10">
+                {groupedBusinesses.map((group) => (
+                  <GroupedSubcategoryRow
+                    key={group.subcategory}
+                    subcategory={group.subcategory}
+                    businesses={group.businesses}
+                    gammes={gammes}
+                    badges={badges}
+                    subcategories={subcategoriesRef}
+                    badgeSubcategories={badgeSubcategories}
+                  />
                 ))}
               </div>
-            ) : selectedQuery ? (
+            ) : selectedQuery && !searching ? (
               <p className="text-center py-12 text-muted-foreground">
                 Aucun résultat pour « {selectedQuery} »
               </p>
