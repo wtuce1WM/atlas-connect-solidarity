@@ -78,8 +78,10 @@ const SearchInput = ({
       if (onVoiceTranscript) {
         onVoiceTranscript(keywords, spoken, detectedCategory, timeKeyword);
       } else {
-        const params = new URLSearchParams({ q: keywords, spoken });
-        go(`/search?${params.toString()}`);
+      const params = new URLSearchParams({ q: keywords, spoken });
+      if (detectedCategory) params.set("category", detectedCategory);
+      if (timeKeyword) params.set("timeKeyword", timeKeyword);
+      go(`/search?${params.toString()}`);
       }
     },
     onError: (message) => {
