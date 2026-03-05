@@ -1403,12 +1403,13 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                       const iconSrc = `/images/doc-icons/${iconFile}${ext}`;
                       const isPdf = doc.url?.toLowerCase().endsWith('.pdf') || doc.url?.includes('/pdfs/');
                       const isFlipbook = /issuu\.com|calameo\.com/i.test(doc.url || '');
-                      const isWebpage = !isPdf && !isFlipbook && doc.url?.startsWith('http');
-                      const isInlineDoc = isPdf || isFlipbook || isWebpage;
+                      // Only show in overlay for internal PDFs (stored in our storage) and flipbooks
+                      const isInternalPdf = isPdf && doc.url?.includes('supabase');
+                      const isInlineDoc = isInternalPdf || isFlipbook;
                       const handleClick = (e: React.MouseEvent) => {
                         if (isInlineDoc) {
                           e.preventDefault();
-                          const docType = isFlipbook ? 'flipbook' : isPdf ? 'pdf' : 'webpage';
+                          const docType = isFlipbook ? 'flipbook' : 'pdf';
                           setDocOverlay({ url: doc.url, name: doc.name || (doc.type === "flipbook" ? "Flipbook" : "Menu"), type: docType });
                         }
                       };
