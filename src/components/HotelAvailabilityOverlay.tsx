@@ -9,6 +9,7 @@ import { toast } from "sonner";
 interface HotelAvailabilityOverlayProps {
   liteApiHotelId: string;
   businessName: string;
+  businessCity?: string;
   backgroundImage?: string;
   onClose: () => void;
 }
@@ -24,7 +25,7 @@ interface RoomOffer {
   policies?: { paymentType?: string; boardName?: string };
 }
 
-const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, backgroundImage, onClose }: HotelAvailabilityOverlayProps) => {
+const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, backgroundImage, onClose }: HotelAvailabilityOverlayProps) => {
   const { language } = useLanguage();
 
   const getDefaultDates = () => {
@@ -46,6 +47,7 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, backgroundImag
   const [currency, setCurrency] = useState("EUR");
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<RoomOffer[] | null>(null);
+  const [isFallback, setIsFallback] = useState(false);
 
   const formatPrice = (price: string, cur: string) => {
     try {
@@ -67,6 +69,7 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, backgroundImag
 
     setLoading(true);
     setResults(null);
+    setIsFallback(false);
 
     try {
       const { data, error } = await supabase.functions.invoke("liteapi-hotels", {
@@ -77,6 +80,7 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, backgroundImag
           adults,
           rooms,
           currency,
+          fallbackCityName: businessCity || undefined,
         },
       });
 
@@ -84,6 +88,8 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, backgroundImag
       if (data?.error) throw new Error(data.error);
 
       const hotels = data?.data || [];
+      const wasFallback = !!data?.fallback;
+      setIsFallback(wasFallback);
       const allOffers: RoomOffer[] = [];
       for (const h of hotels) {
         if (h.available && h.offers) {
@@ -94,6 +100,10 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, backgroundImag
       setResults(allOffers);
       if (allOffers.length === 0) {
         toast.info(language === "en" ? "No availability for these dates" : "Aucune disponibilité pour ces dates");
+      } else if (wasFallback) {
+        toast.success(language === "en" 
+          ? `${allOffers.length} room(s) available nearby` 
+          : `${allOffers.length} chambre(s) disponible(s) à proximité`);
       } else {
         toast.success(`${allOffers.length} ${language === "en" ? "room(s) available" : "chambre(s) disponible(s)"}`);
       }
@@ -265,8 +275,18 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, backgroundImag
 
         {results && results.length > 0 && (
           <div>
+            {isFallback && (
+              <div className="bg-amber-500/20 border border-amber-400/30 rounded-xl px-3 py-2 mb-3">
+                <p className="text-xs text-amber-200 font-medium">
+                  {language === "en" 
+                    ? `No availability at ${businessName}. Here are nearby alternatives:` 
+                    : `Pas de disponibilité pour ${businessName}. Voici les alternatives à proximité :`}
+                </p>
+              </div>
+            )}
             <p className="text-xs font-semibold text-white/70 mb-3">
               {results.length} {language === "en" ? "room(s) available" : "chambre(s) disponible(s)"}
+              {isFallback && (language === "en" ? " nearby" : " à proximité")}
             </p>
             <div className="grid grid-cols-2 gap-2">
             {results.map((offer, idx) => {
