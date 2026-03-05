@@ -1255,7 +1255,7 @@ const SearchPage = () => {
 
       {/* Hero Section - hidden on mobile when results found via voice search */}
       <section className={`bg-background pt-6 lg:pt-28 pb-8 lg:pb-16 relative ${isMobile && spokenText && filteredBusinesses.length > 0 ? 'hidden' : ''}`}>
-        <div className="mx-auto px-4 relative z-10 max-w-[80%]">
+        <div className="mx-auto px-4 relative max-w-[80%]">
           {(searchQuery || categoryFromUrl) && (
             <div className="text-center mb-8">
               <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-2">
@@ -1386,7 +1386,7 @@ const SearchPage = () => {
       </section>
 
       {/* Tab Bar — sticky below header */}
-      <section className="sticky top-[60px] z-[18] bg-background/95 backdrop-blur-sm border-b border-border">
+      <section className="sticky top-[60px] z-[3] bg-background/95 backdrop-blur-sm border-b border-border">
         <div className="mx-auto px-4 max-w-[80%]">
           <div className="flex gap-0">
             <button
