@@ -10,7 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Search, Loader2, ExternalLink, Eye, EyeOff, ArrowUpAZ, ArrowDownZA } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Search, Loader2, ExternalLink, Eye, EyeOff, ArrowUpAZ, ArrowDownZA, Filter, X } from "lucide-react";
 import { toast } from "sonner";
 
 interface Category {
@@ -36,6 +37,11 @@ interface Service {
   is_filtered: boolean;
 }
 
+interface City {
+  id: string;
+  name_fr: string;
+}
+
 interface BusinessMini {
   id: string;
   name: string;
@@ -47,6 +53,7 @@ const ServiceManagement = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
   const [services, setServices] = useState<Service[]>([]);
+  const [cities, setCities] = useState<City[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
@@ -57,7 +64,15 @@ const ServiceManagement = () => {
   // Business counts per service name
   const [businessCountBySvc, setBusinessCountBySvc] = useState<Record<string, number>>({});
 
-  // Popup state
+  // City filters per service: { serviceId: Set<cityId> }
+  const [serviceCityFilters, setServiceCityFilters] = useState<Record<string, Set<string>>>({});
+
+  // Filter popup state
+  const [filterPopup, setFilterPopup] = useState<{ serviceId: string; serviceName: string } | null>(null);
+  const [filterPopupSelection, setFilterPopupSelection] = useState<Set<string>>(new Set());
+  const [filterPopupSaving, setFilterPopupSaving] = useState(false);
+
+  // Business popup state
   const [popup, setPopup] = useState<{ title: string; businesses: BusinessMini[]; loading: boolean } | null>(null);
   const [popupCityFilter, setPopupCityFilter] = useState<string>("all");
 
@@ -67,16 +82,29 @@ const ServiceManagement = () => {
 
   const fetchData = async () => {
     setLoading(true);
-    const [catRes, subRes, svcRes, bizRes] = await Promise.all([
+    const [catRes, subRes, svcRes, bizRes, citiesRes, filtersRes] = await Promise.all([
       supabase.from("categories").select("id, name_fr").order("name_fr"),
       supabase.from("subcategories").select("id, category_id, name_fr").order("name_fr"),
       fetchAllRows("services", "id, subcategory_id, name_fr, name_en, name_ar, icon, keywords, is_active, is_filtered", "name_fr"),
       supabase.from("businesses").select("services").eq("is_active", true),
+      supabase.from("cities").select("id, name_fr").order("name_fr"),
+      supabase.from("service_city_filters" as any).select("service_id, city_id"),
     ]);
 
     if (catRes.data) setCategories(catRes.data);
     if (subRes.data) setSubcategories(subRes.data);
     if (svcRes) setServices(svcRes as unknown as Service[]);
+    if (citiesRes.data) setCities(citiesRes.data);
+
+    // Build city filter map
+    if (filtersRes.data) {
+      const map: Record<string, Set<string>> = {};
+      for (const row of filtersRes.data as any[]) {
+        if (!map[row.service_id]) map[row.service_id] = new Set();
+        map[row.service_id].add(row.city_id);
+      }
+      setServiceCityFilters(map);
+    }
 
     // Count businesses per service name
     if (bizRes.data && svcRes) {
@@ -153,6 +181,60 @@ const ServiceManagement = () => {
     return { subName: sub?.name_fr || "—", catName: cat?.name_fr || "—" };
   };
 
+  // Open filter city popup
+  const openFilterPopup = (svc: Service) => {
+    const currentCities = serviceCityFilters[svc.id] || new Set();
+    setFilterPopupSelection(new Set(currentCities));
+    setFilterPopup({ serviceId: svc.id, serviceName: svc.name_fr });
+  };
+
+  // Save filter city selections
+  const saveFilterCities = async () => {
+    if (!filterPopup) return;
+    setFilterPopupSaving(true);
+    const serviceId = filterPopup.serviceId;
+    const selectedCities = filterPopupSelection;
+
+    // Delete all existing entries for this service
+    await supabase.from("service_city_filters" as any).delete().eq("service_id", serviceId);
+
+    // Insert new entries
+    if (selectedCities.size > 0) {
+      const rows = [...selectedCities].map(cityId => ({ service_id: serviceId, city_id: cityId }));
+      await supabase.from("service_city_filters" as any).insert(rows);
+    }
+
+    // Update is_filtered on services table
+    const isFiltered = selectedCities.size > 0;
+    await supabase.from("services").update({ is_filtered: isFiltered } as any).eq("id", serviceId);
+
+    // Update local state
+    setServiceCityFilters(prev => {
+      const next = { ...prev };
+      if (selectedCities.size > 0) {
+        next[serviceId] = new Set(selectedCities);
+      } else {
+        delete next[serviceId];
+      }
+      return next;
+    });
+    setServices(prev => prev.map(s => s.id === serviceId ? { ...s, is_filtered: isFiltered } : s));
+
+    setFilterPopupSaving(false);
+    setFilterPopup(null);
+    toast.success(`Filtre mis à jour pour "${filterPopup.serviceName}"`);
+  };
+
+  // Toggle a city in filter popup
+  const toggleFilterCity = (cityId: string) => {
+    setFilterPopupSelection(prev => {
+      const next = new Set(prev);
+      if (next.has(cityId)) next.delete(cityId);
+      else next.add(cityId);
+      return next;
+    });
+  };
+
   // Open businesses popup for a service
   const openBusinessesPopup = async (svcName: string) => {
     setPopup({ title: svcName, businesses: [], loading: true });
@@ -176,15 +258,6 @@ const ServiceManagement = () => {
     if (!popup) return [];
     return [...new Set(popup.businesses.map(b => b.city).filter(Boolean) as string[])].sort((a, b) => a.localeCompare(b, "fr"));
   }, [popup]);
-
-  // Toggle service active (we don't have is_active on services, so this could be removing/adding from a business)
-  // Actually the user said "toggle on/off" — but services table has no is_active field.
-  // Let me re-read: "un bouton toggle on/off" — I think this means showing the keyword count and allowing to see businesses.
-  // Actually re-reading: "affiche le mot clé, le nombre d'établissement de la sous-catégorie sélectionnée qui l'utilisent et un bouton toggle on/off"
-  // This likely means toggling the service's visibility/active state. But services table has no is_active.
-  // I'll interpret it as: the count is clickable (opens popup), and the toggle is decorative showing whether businesses use it.
-  // Actually, let me just show the count as a clickable badge that opens the popup. The toggle doesn't make much sense without an is_active field.
-  // But the user explicitly asked for a toggle. Let me just show the service keyword with count and a button to view businesses.
 
   if (loading) {
     return (
@@ -273,30 +346,26 @@ const ServiceManagement = () => {
                   filteredServices.map(svc => {
                     const { catName, subName } = getHierarchy(svc);
                     const count = businessCountBySvc[svc.id] || 0;
+                    const filterCityCount = serviceCityFilters[svc.id]?.size || 0;
                     return (
                       <TableRow key={svc.id}>
                         <TableCell className="text-muted-foreground text-sm">{catName}</TableCell>
                         <TableCell className="text-muted-foreground text-sm">{subName}</TableCell>
                         <TableCell className="font-medium">{svc.name_fr}</TableCell>
                         <TableCell className="text-center">
-                          <Switch
-                            checked={svc.is_filtered}
-                            className="data-[state=checked]:bg-red-500"
-                            onCheckedChange={async (checked) => {
-                              const { error } = await supabase
-                                .from("services")
-                                .update({ is_filtered: checked } as any)
-                                .eq("id", svc.id);
-                              if (!error) {
-                                setServices(prev => prev.map(s => s.id === svc.id ? { ...s, is_filtered: checked } : s));
-                              }
-                            }}
-                          />
+                          <Button
+                            variant={filterCityCount > 0 ? "default" : "outline"}
+                            size="sm"
+                            className={`gap-1.5 ${filterCityCount > 0 ? "bg-red-500 hover:bg-red-600 text-white" : ""}`}
+                            onClick={() => openFilterPopup(svc)}
+                          >
+                            <Filter className="h-3.5 w-3.5" />
+                            {filterCityCount > 0 ? filterCityCount : "—"}
+                          </Button>
                         </TableCell>
                         <TableCell className="text-center">
                           <Switch
                             checked={svc.is_active}
-                            
                             onCheckedChange={async (checked) => {
                               const { error } = await supabase
                                 .from("services")
@@ -329,6 +398,60 @@ const ServiceManagement = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Filter cities popup */}
+      <Dialog open={!!filterPopup} onOpenChange={open => { if (!open) setFilterPopup(null); }}>
+        <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Filter className="h-5 w-5 text-red-500" />
+              Filtre — {filterPopup?.serviceName}
+            </DialogTitle>
+          </DialogHeader>
+
+          <p className="text-sm text-muted-foreground">
+            Sélectionnez les villes où ce service sera filtré (masqué sur le front).
+          </p>
+
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium">
+              {filterPopupSelection.size} ville{filterPopupSelection.size !== 1 ? "s" : ""} sélectionnée{filterPopupSelection.size !== 1 ? "s" : ""}
+            </span>
+            <div className="flex gap-2">
+              <Button variant="ghost" size="sm" className="text-xs" onClick={() => setFilterPopupSelection(new Set(cities.map(c => c.id)))}>
+                Tout
+              </Button>
+              <Button variant="ghost" size="sm" className="text-xs" onClick={() => setFilterPopupSelection(new Set())}>
+                Aucun
+              </Button>
+            </div>
+          </div>
+
+          <div className="border rounded-lg divide-y max-h-[300px] overflow-y-auto">
+            {cities.map(city => (
+              <label key={city.id} className="flex items-center gap-3 px-3 py-2 hover:bg-muted/50 cursor-pointer">
+                <Checkbox
+                  checked={filterPopupSelection.has(city.id)}
+                  onCheckedChange={() => toggleFilterCity(city.id)}
+                />
+                <span className="text-sm">{city.name_fr}</span>
+              </label>
+            ))}
+          </div>
+
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="outline" onClick={() => setFilterPopup(null)}>Annuler</Button>
+            <Button
+              onClick={saveFilterCities}
+              disabled={filterPopupSaving}
+              className="bg-red-500 hover:bg-red-600 text-white"
+            >
+              {filterPopupSaving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+              Enregistrer
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Businesses popup */}
       <Dialog open={!!popup} onOpenChange={open => { if (!open) setPopup(null); }}>
