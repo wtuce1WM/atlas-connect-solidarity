@@ -14,6 +14,7 @@ interface HotelAvailabilityOverlayProps {
   businessCity?: string;
   backgroundImage?: string;
   onClose: () => void;
+  onSelectBusiness?: (businessId: string) => void;
 }
 
 interface RoomOffer {
@@ -37,7 +38,7 @@ interface FallbackHotel {
   offers: RoomOffer[];
 }
 
-const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, backgroundImage, onClose }: HotelAvailabilityOverlayProps) => {
+const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, backgroundImage, onClose, onSelectBusiness }: HotelAvailabilityOverlayProps) => {
   const navigate = useNavigate();
   const { language } = useLanguage();
 
@@ -445,7 +446,11 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
                         if (hotel.businessId) {
                           setShowFallbackPanel(false);
                           onClose();
-                          navigate(`/business/${hotel.businessId}`);
+                          if (onSelectBusiness) {
+                            onSelectBusiness(hotel.businessId);
+                          } else {
+                            navigate(`/business/${hotel.businessId}`);
+                          }
                         }
                       }}
                     >
