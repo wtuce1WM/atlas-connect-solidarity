@@ -806,8 +806,10 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
               />
             ) : (
               <iframe
-                key={docOverlay.url}
-                src={`https://drive.google.com/viewerng/viewer?embedded=true&url=${encodeURIComponent(docOverlay.url)}`}
+                key={`${docOverlay.url}-${/\/storage\/v1\/object\/public\/business-images\/businesses\/pdfs\//i.test(docOverlay.url) ? 'native' : 'gview'}`}
+                src={/\/storage\/v1\/object\/public\/business-images\/businesses\/pdfs\//i.test(docOverlay.url)
+                  ? `${docOverlay.url}#toolbar=1&navpanes=1&scrollbar=1&page=1&view=FitH`
+                  : `https://docs.google.com/gview?url=${encodeURIComponent(docOverlay.url)}&embedded=true`}
                 className="h-full w-full border-0"
                 title={docOverlay.name}
               />
