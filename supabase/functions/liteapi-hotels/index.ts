@@ -28,6 +28,7 @@ interface SearchParams {
   rooms: number;
   ratings?: string;
   currency?: string;
+  guestNationality?: string;
 }
 
 Deno.serve(async (req) => {
@@ -57,7 +58,7 @@ Deno.serve(async (req) => {
       checkin: params.checkIn,
       checkout: params.checkOut,
       currency,
-      guestNationality: "MA",
+      guestNationality: params.guestNationality || "FR",
       occupancies,
       limit: 50,
     };
