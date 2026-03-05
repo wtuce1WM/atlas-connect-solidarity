@@ -1415,7 +1415,21 @@ const SearchPage = () => {
         </div>
       </section>
 
-      {/* Map Tab */}
+      {/* Sticky Category + Subcategory Filters */}
+      {detectedCity && allBusinesses.length > 0 && !isLoading && (
+        <CityCategoryFilter
+          cityName={detectedCity}
+          selectedCategory={selectedCategoryFilter}
+          onSelectCategory={(cat) => {
+            setSelectedCategoryFilter(cat);
+            setSelectedSubcategoryFilter(null);
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }}
+          selectedSubcategory={selectedSubcategoryFilter}
+          onSelectSubcategory={setSelectedSubcategoryFilter}
+        />
+      )}
+
       {activeTab === "map" && (
         <section className="py-6 lg:py-12 bg-background">
           <div className="mx-auto px-4 max-w-[80%]">
@@ -1630,20 +1644,7 @@ const SearchPage = () => {
             </div>
           )}
 
-          {/* City Category Filter */}
-          {detectedCity && allBusinesses.length > 0 && !isLoading && (
-            <CityCategoryFilter
-              cityName={detectedCity}
-              selectedCategory={selectedCategoryFilter}
-              onSelectCategory={(cat) => {
-                setSelectedCategoryFilter(cat);
-                setSelectedSubcategoryFilter(null);
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              }}
-              selectedSubcategory={selectedSubcategoryFilter}
-              onSelectSubcategory={setSelectedSubcategoryFilter}
-            />
-          )}
+          {/* Category filter moved to sticky zones above */}
 
           {isLoading ? (
             <div className="flex items-center justify-center py-16">

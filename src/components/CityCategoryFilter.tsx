@@ -103,14 +103,12 @@ const CityCategoryFilter = ({
     setIsLoadingSubs(true);
 
     const fetchSubcategoryCounts = async () => {
-      // Find the category id
       const cat = categories.find(c => c.name_fr === selectedCategory);
       if (!cat) {
         setIsLoadingSubs(false);
         return;
       }
 
-      // Fetch subcategories for this category
       const { data: allSubs } = await supabase
         .from("subcategories")
         .select("name_fr, name_en, name_ar, icon, sort_order")
@@ -122,7 +120,6 @@ const CityCategoryFilter = ({
         return;
       }
 
-      // Fetch businesses in this city+category to count subcategories
       const { data: businesses } = await supabase
         .from("businesses")
         .select("categories")
@@ -135,7 +132,6 @@ const CityCategoryFilter = ({
         return;
       }
 
-      // Count per subcategory name
       const countMap: Record<string, number> = {};
       for (const b of businesses) {
         if (b.categories) {
@@ -169,73 +165,79 @@ const CityCategoryFilter = ({
   };
 
   return (
-    <div className="mb-8">
-      {/* Categories */}
-      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-3">
-        {categories.map((cat) => {
-          const isSelected = selectedCategory === cat.name_fr;
-          return (
-            <button
-              key={cat.name_fr}
-              onClick={() => onSelectCategory(isSelected ? null : cat.name_fr)}
-              className={`flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl border transition-all text-center min-h-[90px] ${
-                isSelected
-                  ? "bg-gold/20 border-gold text-gold shadow-md"
-                  : "bg-card border-border text-muted-foreground hover:border-gold/40 hover:text-foreground"
-              }`}
-            >
-              {cat.icon ? (
-                <DynamicIcon
-                  name={cat.icon}
-                  size={22}
-                  className={isSelected ? "text-gold" : "text-muted-foreground"}
-                />
-              ) : (
-                <LayoutGrid size={22} className={isSelected ? "text-gold" : "text-muted-foreground"} />
-              )}
-              <span className="text-xs font-medium leading-tight line-clamp-2">{getLabel(cat)}</span>
-              <span className={`text-[10px] font-semibold ${isSelected ? "text-gold" : "text-muted-foreground/60"}`}>
-                {cat.count}
-              </span>
-            </button>
-          );
-        })}
+    <>
+      {/* Sticky categories zone */}
+      <div className="sticky top-[104px] z-[38] bg-background/95 backdrop-blur-sm border-b border-border py-3">
+        <div className="mx-auto px-4 max-w-[80%]">
+          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+            {categories.map((cat) => {
+              const isSelected = selectedCategory === cat.name_fr;
+              return (
+                <button
+                  key={cat.name_fr}
+                  onClick={() => onSelectCategory(isSelected ? null : cat.name_fr)}
+                  className={`flex items-center gap-1.5 px-3 py-2 rounded-full border text-xs font-medium whitespace-nowrap transition-all shrink-0 ${
+                    isSelected
+                      ? "bg-gold/20 border-gold text-gold shadow-sm"
+                      : "bg-card border-border text-muted-foreground hover:border-gold/40 hover:text-foreground"
+                  }`}
+                >
+                  {cat.icon ? (
+                    <DynamicIcon
+                      name={cat.icon}
+                      size={16}
+                      className={isSelected ? "text-gold" : "text-muted-foreground"}
+                    />
+                  ) : (
+                    <LayoutGrid size={16} className={isSelected ? "text-gold" : "text-muted-foreground"} />
+                  )}
+                  <span>{getLabel(cat)}</span>
+                  <span className={`text-[10px] ${isSelected ? "text-gold" : "text-muted-foreground/60"}`}>
+                    {cat.count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
-      {/* Subcategories — shown when a category is selected */}
+      {/* Sticky subcategories zone */}
       {selectedCategory && !isLoadingSubs && subcategories.length > 0 && (
-        <div className="mt-4 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-3">
-          {subcategories.map((sub) => {
-            const isSelected = selectedSubcategory === sub.name_fr;
-            return (
-              <button
-                key={sub.name_fr}
-                onClick={() => onSelectSubcategory?.(isSelected ? null : sub.name_fr)}
-                className={`flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl border transition-all text-center min-h-[90px] ${
-                  isSelected
-                    ? "bg-secondary/20 border-secondary text-secondary shadow-md"
-                    : "bg-card border-border text-muted-foreground hover:border-secondary/40 hover:text-foreground"
-                }`}
-              >
-                {sub.icon ? (
-                  <DynamicIcon
-                    name={sub.icon}
-                    size={20}
-                    className={isSelected ? "text-secondary" : "text-muted-foreground"}
-                  />
-                ) : (
-                  <LayoutGrid size={20} className={isSelected ? "text-secondary" : "text-muted-foreground"} />
-                )}
-                <span className="text-xs font-medium leading-tight line-clamp-2">{getLabel(sub)}</span>
-                <span className={`text-[10px] font-semibold ${isSelected ? "text-secondary" : "text-muted-foreground/60"}`}>
-                  {sub.count}
-                </span>
-              </button>
-            );
-          })}
+        <div className="sticky top-[152px] z-[37] bg-background/90 backdrop-blur-sm border-b border-border/50 py-2">
+          <div className="mx-auto px-4 max-w-[80%]">
+            <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+              {subcategories.map((sub) => {
+                const isSelected = selectedSubcategory === sub.name_fr;
+                return (
+                  <button
+                    key={sub.name_fr}
+                    onClick={() => onSelectSubcategory?.(isSelected ? null : sub.name_fr)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium whitespace-nowrap transition-all shrink-0 ${
+                      isSelected
+                        ? "bg-secondary/20 border-secondary text-secondary shadow-sm"
+                        : "bg-card border-border text-muted-foreground hover:border-secondary/40 hover:text-foreground"
+                    }`}
+                  >
+                    {sub.icon ? (
+                      <DynamicIcon
+                        name={sub.icon}
+                        size={14}
+                        className={isSelected ? "text-secondary" : "text-muted-foreground"}
+                      />
+                    ) : null}
+                    <span>{getLabel(sub)}</span>
+                    <span className={`text-[10px] ${isSelected ? "text-secondary" : "text-muted-foreground/60"}`}>
+                      {sub.count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         </div>
       )}
-    </div>
+    </>
   );
 };
 
