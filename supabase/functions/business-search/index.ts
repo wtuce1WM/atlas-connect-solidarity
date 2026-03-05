@@ -593,7 +593,8 @@ serve(async (req) => {
       mode,
       spoken,
     skipRerank,
-    }: SearchParams & { language?: string; mode?: string; spoken?: string; skipRerank?: boolean } = await req.json();
+    mainCategory,
+    }: SearchParams & { language?: string; mode?: string; spoken?: string; skipRerank?: boolean; mainCategory?: string } = await req.json();
 
     const isAutocomplete = mode === "autocomplete";
 
@@ -2995,6 +2996,10 @@ serve(async (req) => {
       if (!expandedQuery && !effectiveCategory && effectiveCity && businesses.length === 0) {
         let cityBuilder = supabase.from("businesses").select("*").eq("is_active", true);
         cityBuilder = applyCityFilter(cityBuilder);
+        if (mainCategory) {
+          cityBuilder = cityBuilder.eq("main_category", mainCategory);
+          console.log(`City-only query: filtering by mainCategory "${mainCategory}"`);
+        }
         cityBuilder = cityBuilder.order("priority_score", { ascending: false, nullsFirst: false }).limit(limit);
         const { data: cityData, error: cityError } = await cityBuilder;
         if (!cityError && cityData && cityData.length > 0) {
