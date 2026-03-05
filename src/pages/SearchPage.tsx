@@ -1430,7 +1430,14 @@ const SearchPage = () => {
           onSelectCategory={(cat) => {
             setSelectedCategoryFilter(cat);
             setSelectedSubcategoryFilter(null);
-            window.scrollTo({ top: 0, behavior: "smooth" });
+            // Scroll so the sticky category bar sits flush at the top (below header+tabs = 104px)
+            const el = document.querySelector('[data-category-filter]');
+            if (el) {
+              const top = el.getBoundingClientRect().top + window.scrollY - 104;
+              window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+            } else {
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }
           }}
           selectedSubcategory={selectedSubcategoryFilter}
           onSelectSubcategory={setSelectedSubcategoryFilter}
