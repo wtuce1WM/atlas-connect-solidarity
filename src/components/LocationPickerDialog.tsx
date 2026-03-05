@@ -268,7 +268,7 @@ const LocationPickerDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md p-0 gap-0 overflow-hidden rounded-2xl max-h-[90vh] flex flex-col">
+      <DialogContent className="sm:max-w-lg md:max-w-2xl p-0 gap-0 overflow-hidden rounded-2xl max-h-[90vh] flex flex-col">
         <DialogHeader className="p-5 pb-3 shrink-0">
           <DialogTitle className="text-lg font-bold text-foreground">
             {language === "en" ? "Choose your address" : language === "ar" ? "اختر عنوانك" : "Choisir votre adresse"}
@@ -317,13 +317,13 @@ const LocationPickerDialog = ({
           </div>
         </div>
 
-        <div className="mx-5 mt-3 rounded-xl overflow-hidden border border-border flex-1 min-h-[280px]">
+        <div className="mx-5 mt-3 rounded-xl overflow-hidden border border-border flex-1 min-h-[400px]">
           {!mapsLoaded ? (
-            <div className="w-full h-full min-h-[280px] flex items-center justify-center bg-muted">
+            <div className="w-full h-full min-h-[400px] flex items-center justify-center bg-muted">
               <Loader className="h-6 w-6 animate-spin text-muted-foreground" />
             </div>
           ) : (
-            <div ref={mapContainerRef} className="w-full h-full min-h-[280px]" />
+            <div ref={mapContainerRef} className="w-full h-full min-h-[400px]" />
           )}
         </div>
 
