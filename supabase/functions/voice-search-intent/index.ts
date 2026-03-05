@@ -130,6 +130,7 @@ Règles de traduction sémantique OBLIGATOIRES :
 - "vin", "vins", "alcool", "bière", "spiritueux", "whisky" SANS contexte d'achat clair → "vin cave à vin"
 - "fantasia", "tbourida", "spectacle équestre", "équestre", "cavaliers", "chevaux spectacle" → "fantasia" UNIQUEMENT (ne pas ajouter d'autres mots-clés, ignorer les autres règles pour ces termes)
 - "dîner spectacle", "soirée spectacle", "dinner show", "show dinner" → "live show" (uniquement pour ces expressions exactes, pas pour "spectacle équestre" ou "fantasia")
+- "spectacle", "show", "show live", "attraction", "concert", "live music", "musique live" → "live show" (catégorie "Tourisme"). Quand plusieurs de ces synonymes apparaissent ensemble, NE PAS les empiler — consolider en "live show" uniquement. Si un genre musical est mentionné (jazz, rock, gnawa...), ajouter UNIQUEMENT le genre : "live show jazz". Le mot "concert" est redondant avec le genre et doit être supprimé.
 - "j'ai besoin d'un docteur", "j'ai besoin d'un médecin", "médecin urgence", "urgence médicale", "appeler un médecin", "appeler un docteur", "je suis malade", "mal en point", "sos médecin", "sos docteur" → "SOS médecin"
 - "taxi", "taxi aéroport", "transfert aéroport", "navette aéroport", "je cherche un taxi", "taxi pour l'aéroport" → "taxi chauffeur privé" + ville si mentionnée (catégorie "Transport")
 - "piscine" → garder "piscine" tel quel
