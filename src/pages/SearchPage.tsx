@@ -1581,8 +1581,8 @@ const SearchPage = () => {
             </div>
           )}
 
-          {/* Écouter + Geo + Plus de filtres — below AI summary */}
-          {aiAnswerText && (
+          {/* Écouter + Geo + Plus de filtres — below AI summary (only when summary is visible) */}
+          {aiAnswerText && (isCategoryFilterActive || (searchQuery && !isLoading && allBusinesses.length > 0)) && (
             <div className="relative flex items-center justify-center mb-4">
               {/* Plus de filtres centered */}
               {isCategoryFilterActive && (
