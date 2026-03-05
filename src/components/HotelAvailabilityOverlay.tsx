@@ -391,7 +391,7 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
                   rooms: String(rooms),
                   currency,
                 });
-                navigate(`/hotel-search?${params.toString()}`);
+                navigate(`/hotels?${params.toString()}`);
               }}
               className="bg-[image:var(--gradient-gold)] text-gold-foreground rounded-xl p-2.5 space-y-1 border border-gold/30 cursor-pointer hover:opacity-90 transition-colors flex flex-col items-center justify-center text-center"
             >
