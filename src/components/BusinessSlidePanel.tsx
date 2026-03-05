@@ -805,18 +805,12 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                 onError={() => window.open(docOverlay.url, '_blank')}
               />
             ) : (
-              <object
-                data={`${docOverlay.url}#toolbar=1&navpanes=1&scrollbar=1`}
-                type="application/pdf"
-                className="h-full w-full"
+              <iframe
+                key={docOverlay.url}
+                src={`https://docs.google.com/gview?url=${encodeURIComponent(docOverlay.url)}&embedded=true`}
+                className="h-full w-full border-0"
                 title={docOverlay.name}
-              >
-                <iframe
-                  src={`https://docs.google.com/gview?url=${encodeURIComponent(docOverlay.url)}&embedded=true`}
-                  className="h-full w-full border-0"
-                  title={docOverlay.name}
-                />
-              </object>
+              />
             )}
           </div>
         </div>
