@@ -96,6 +96,7 @@ Règles de traduction sémantique OBLIGATOIRES :
 - "romantique", "amoureux", "couple" → garder le type d'établissement + "romantique"
 - "boules", "jouer aux boules" → "pétanque"
 - "glace", "glaces", "sorbet", "gelato", "crème glacée" → "glacier"
+- "salade de [ingrédient]" (ex: "salade de pissenlit", "salade de chèvre", "salade de fruits de mer") → garder UNIQUEMENT l'ingrédient spécifique (ex: "pissenlit", "chèvre", "fruits mer"). Le mot "salade" est trop générique et noie les résultats. Exception : "salade" seul sans ingrédient → garder "salade".
 - "steak", "steaks" → "steak" (garder tel quel)
 - "entrecôte" → "entrecôte" (garder tel quel)
 - "faux-filet" → "faux-filet" (garder tel quel)
