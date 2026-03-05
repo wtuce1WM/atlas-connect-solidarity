@@ -1443,19 +1443,11 @@ const SearchPage = () => {
             setSelectedCategoryFilter(cat);
             setSelectedSubcategoryFilter(null);
             setSelectedServiceFilter(null);
-            requestAnimationFrame(() => {
-              const el = document.querySelector('[data-category-filter]');
-              if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-            });
           }}
           selectedSubcategory={selectedSubcategoryFilter}
           onSelectSubcategory={(sub) => {
             setSelectedSubcategoryFilter(sub);
             setSelectedServiceFilter(null);
-            requestAnimationFrame(() => {
-              const el = document.querySelector('[data-category-filter]');
-              if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-            });
           }}
           selectedService={selectedServiceFilter}
           onSelectService={(svc) => {
