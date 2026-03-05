@@ -13,8 +13,14 @@ export type SearchInputVariant = "hero" | "floating";
 
 interface SearchInputProps {
   variant?: SearchInputVariant;
-  /** Pre-fill input value */
+  /** Pre-fill input value (uncontrolled) */
   defaultValue?: string;
+  /** Controlled value */
+  value?: string;
+  /** Controlled onChange */
+  onChange?: (value: string) => void;
+  /** Whether to clear input after submit (default: true for uncontrolled) */
+  clearOnSubmit?: boolean;
   /** Called on submit with the trimmed query. If omitted, navigates to /search?q=... */
   onSubmit?: (query: string) => void;
   /** Override navigation for voice results */
@@ -38,6 +44,9 @@ interface SearchInputProps {
 const SearchInput = ({
   variant = "floating",
   defaultValue = "",
+  value: controlledValue,
+  onChange: controlledOnChange,
+  clearOnSubmit,
   onSubmit,
   onNavigate,
   voiceLang,
@@ -46,7 +55,10 @@ const SearchInput = ({
   suggestionsPosition = "bottom",
   voiceControl,
 }: SearchInputProps) => {
-  const [inputValue, setInputValue] = useState(defaultValue);
+  const isControlled = controlledValue !== undefined;
+  const [internalValue, setInternalValue] = useState(defaultValue);
+  const inputValue = isControlled ? controlledValue : internalValue;
+  const setInputValue = isControlled ? (v: string) => controlledOnChange?.(v) : setInternalValue;
   const [isFocused, setIsFocused] = useState(false);
   const { language } = useLanguage();
   const navigate = useNavigate();
@@ -76,6 +88,8 @@ const SearchInput = ({
   // Autocomplete suggestions
   const { suggestions } = useSearchSuggestions(inputValue, showSuggestions && isFocused);
 
+  const shouldClear = clearOnSubmit ?? !isControlled;
+
   const handleSubmit = () => {
     if (!inputValue.trim()) return;
     if (onSubmit) {
@@ -83,7 +97,7 @@ const SearchInput = ({
     } else {
       go(`/search?q=${encodeURIComponent(inputValue.trim())}`);
     }
-    setInputValue("");
+    if (shouldClear) setInputValue("");
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

@@ -1,4 +1,5 @@
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
+import SearchInput from "@/components/SearchInput";
 import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useGeolocation } from "@/hooks/useGeolocation";
@@ -14,7 +15,7 @@ import Footer from "@/components/Footer";
 import CategoriesCarouselSection from "@/components/CategoriesCarouselSection";
 import CityCategoryFilter from "@/components/CityCategoryFilter";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+
 import {
   Select,
   SelectContent,
@@ -23,7 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { Loader2, Building2, ChevronLeft, ChevronRight, Search, Mic, MicOff, Loader, MapPin, MapPinOff, X, Volume2, VolumeX, Clock, Map, Sparkles, SlidersHorizontal, ChevronDown, ChevronUp } from "lucide-react";
+import { Loader2, Building2, ChevronLeft, ChevronRight, Search, Mic, Loader, MapPin, MapPinOff, X, Volume2, VolumeX, Clock, Map, Sparkles, SlidersHorizontal, ChevronDown, ChevronUp } from "lucide-react";
 import MoreFiltersPopup from "@/components/MoreFiltersPopup";
 import { lazy, Suspense } from "react";
 const BusinessMap = lazy(() => import("@/components/BusinessMap"));
@@ -372,7 +373,7 @@ const SearchPage = () => {
   const [isGeoCityAutoSelected, setIsGeoCityAutoSelected] = useState(false);
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
   const [inputValue, setInputValue] = useState(searchParams.get("q") || "");
-  const searchFormRef = useRef<HTMLFormElement>(null);
+  
   const categoryFromUrl = searchParams.get("category") || "";
   const [celebrityBusinesses, setCelebrityBusinesses] = useState<Business[]>([]);
   const [ttsIntroPhrase, setTtsIntroPhrase] = useState<string>("");
@@ -1028,26 +1029,6 @@ const SearchPage = () => {
     }
   }, [isLoading]);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (inputValue.trim()) {
-      setSelectedCategoryFilter(null);
-      setSelectedSubcategoryFilter(null);
-      setSelectedServiceFilter(null);
-      setSearchQuery(inputValue.trim());
-      const params: Record<string, string> = { q: inputValue.trim() };
-      // Detect time keywords in typed query
-      const timeResult = extractTimeSlot(inputValue.trim());
-      if (timeResult) {
-        params.timeStart = String(timeResult.timeSlot.startHour);
-        params.timeEnd = String(timeResult.timeSlot.endHour);
-        params.timeDayOffset = String(timeResult.timeSlot.dayOffset);
-        if (timeResult.timeSlot.dayOfWeek !== null) params.timeDayOfWeek = String(timeResult.timeSlot.dayOfWeek);
-      }
-      setSearchParams(params);
-      if (isMobile) window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
 
   const translations = {
     fr: {
@@ -2003,95 +1984,31 @@ const SearchPage = () => {
 
       {/* Floating Search Bar */}
       <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-gold/20 py-3 px-4">
-        <form onSubmit={handleSearch} className="max-w-2xl mx-auto" ref={searchFormRef}>
-          {/* Desktop */}
-          <div className="hidden md:flex items-center gap-2">
-            <div className="relative flex-1">
-              <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-              <Input
-                type="text"
-                placeholder={t.placeholder}
-                value={inputValue}
-                autoComplete="off"
-                onChange={(e) => setInputValue(e.target.value)}
-                className="w-full pl-14 pr-36 py-6 text-base bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-full shadow-lg"
-              />
-              <Button
-                type="submit"
-                size="lg"
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-white font-semibold rounded-full px-6 py-4 shadow-md border border-black/10"
-                style={{ backgroundColor: "#25D366" }}
-              >
-                {language === "fr" ? "Recherche" : language === "ar" ? "بحث" : "Search"}
-              </Button>
-            </div>
-            <button
-              type="button"
-              onClick={toggleRecording}
-              disabled={voiceStatus === "processing"}
-              className={`flex-shrink-0 flex items-center justify-center w-12 h-12 rounded-2xl shadow-lg transition-all ${
-                voiceStatus === "recording"
-                  ? "bg-red-100 animate-pulse"
-                  : voiceStatus === "processing"
-                    ? "bg-white/70"
-                    : "bg-white/90 hover:bg-white"
-              }`}
-              title={language === "fr" ? "Recherche vocale" : language === "ar" ? "بحث صوتي" : "Voice search"}
-            >
-              {voiceStatus === "processing" ? (
-                <Loader className="h-5 w-5 text-black animate-spin" />
-              ) : voiceStatus === "recording" ? (
-                <MicOff className="h-5 w-5 text-red-600" />
-              ) : (
-                <Mic className="h-5 w-5 text-black" />
-              )}
-            </button>
-          </div>
-
-          {/* Mobile */}
-          <div className="flex items-center gap-2 md:hidden">
-            <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="text"
-                placeholder={t.placeholder}
-                value={inputValue}
-                autoComplete="off"
-                onChange={(e) => setInputValue(e.target.value)}
-                className="w-full pl-11 pr-28 py-5 text-sm bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-full shadow-lg"
-              />
-              <Button
-                type="submit"
-                size="sm"
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-white font-semibold rounded-full px-4 py-2 shadow-md border border-black/10 text-xs"
-                style={{ backgroundColor: "#25D366" }}
-              >
-                {language === "fr" ? "Recherche" : language === "ar" ? "بحث" : "Search"}
-              </Button>
-            </div>
-            <button
-              type="button"
-              onClick={toggleRecording}
-              disabled={voiceStatus === "processing"}
-              className={`flex-shrink-0 flex items-center justify-center w-11 h-11 rounded-xl shadow-lg transition-all ${
-                voiceStatus === "recording"
-                  ? "bg-red-100 animate-pulse"
-                  : voiceStatus === "processing"
-                    ? "bg-white/70"
-                    : "bg-white/90 hover:bg-white"
-              }`}
-              title={language === "fr" ? "Recherche vocale" : language === "ar" ? "بحث صوتي" : "Voice search"}
-            >
-              {voiceStatus === "processing" ? (
-                <Loader className="h-4 w-4 text-black animate-spin" />
-              ) : voiceStatus === "recording" ? (
-                <MicOff className="h-4 w-4 text-red-600" />
-              ) : (
-                <Mic className="h-4 w-4 text-black" />
-              )}
-            </button>
-          </div>
-        </form>
+        <div className="max-w-2xl mx-auto">
+          <SearchInput
+            variant="floating"
+            value={inputValue}
+            onChange={setInputValue}
+            suggestionsPosition="top"
+            onSubmit={(query) => {
+              setSelectedCategoryFilter(null);
+              setSelectedSubcategoryFilter(null);
+              setSelectedServiceFilter(null);
+              setSearchQuery(query);
+              const params: Record<string, string> = { q: query };
+              const timeResult = extractTimeSlot(query);
+              if (timeResult) {
+                params.timeStart = String(timeResult.timeSlot.startHour);
+                params.timeEnd = String(timeResult.timeSlot.endHour);
+                params.timeDayOffset = String(timeResult.timeSlot.dayOffset);
+                if (timeResult.timeSlot.dayOfWeek !== null) params.timeDayOfWeek = String(timeResult.timeSlot.dayOfWeek);
+              }
+              setSearchParams(params);
+              if (isMobile) window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            voiceControl={{ status: voiceStatus, toggleRecording, liveTranscript }}
+          />
+        </div>
       </div>
 
       <div className="h-20" />
