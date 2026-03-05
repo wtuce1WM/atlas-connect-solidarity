@@ -373,6 +373,7 @@ const SearchPage = () => {
   const [activeTab, setActiveTab] = useState<"suggestions" | "map">("suggestions");
   const [detectedCity, setDetectedCity] = useState<string | null>(null);
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string | null>(null);
+  const [selectedSubcategoryFilter, setSelectedSubcategoryFilter] = useState<string | null>(null);
 
   const normalizeText = (value: string) =>
     value
@@ -631,6 +632,10 @@ const SearchPage = () => {
     if (selectedCategoryFilter) {
       filtered = filtered.filter(b => b.main_category === selectedCategoryFilter);
     }
+    // Apply subcategory filter
+    if (selectedSubcategoryFilter) {
+      filtered = filtered.filter(b => b.categories && b.categories.includes(selectedSubcategoryFilter));
+    }
     const hasActiveSearch = !!searchQuery.trim() || !!categoryFromUrl;
 
     if (activeTimeSlot) {
@@ -650,7 +655,7 @@ const SearchPage = () => {
 
     // Always sort by WTUCE status first, then by rating (highest first)
     return [...filtered].sort(sortWtuceAndRating);
-  }, [allBusinesses, selectedCity, selectedCategoryFilter, activeTimeSlot, searchQuery, categoryFromUrl]);
+  }, [allBusinesses, selectedCity, selectedCategoryFilter, selectedSubcategoryFilter, activeTimeSlot, searchQuery, categoryFromUrl]);
 
   // Group businesses by primary subcategory when a subcategory was detected
   const groupedBusinesses = useMemo(() => {
@@ -687,7 +692,7 @@ const SearchPage = () => {
   // Reset page when filter changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedCity, searchQuery, selectedCategoryFilter]);
+  }, [selectedCity, searchQuery, selectedCategoryFilter, selectedSubcategoryFilter]);
 
   // Fetch gammes, badges, subcategories, badge_subcategories + TTS intro phrase on mount
   useEffect(() => {
@@ -778,6 +783,7 @@ const SearchPage = () => {
           setDetectedCity(data.detectedCity || null);
           // Reset category filter when search changes
           setSelectedCategoryFilter(null);
+          setSelectedSubcategoryFilter(null);
 
           // When user searched for something specific but got "recommended" fallback → show 0 results
           const isVoiceSearch = !!searchParams.get("spoken");
@@ -943,6 +949,7 @@ const SearchPage = () => {
     e.preventDefault();
     if (inputValue.trim()) {
       setSelectedCategoryFilter(null);
+      setSelectedSubcategoryFilter(null);
       setSearchQuery(inputValue.trim());
       const params: Record<string, string> = { q: inputValue.trim() };
       // Detect time keywords in typed query
@@ -1332,7 +1339,7 @@ const SearchPage = () => {
             </div>
           )}
 
-          {/* AI Search Answer */}
+           {/* AI Search Answer */}
           {searchQuery && !isLoading && filteredBusinesses.length > 0 && (
             <AISearchAnswer
               query={spokenText || searchQuery}
@@ -1342,6 +1349,37 @@ const SearchPage = () => {
               onAnswerReady={setAiAnswerText}
               highlightWordIndex={ttsStatus === "playing" && ttsSpokenWordIndex >= 0 ? ttsSpokenWordIndex - ttsIntroWordCountRef.current : undefined}
             />
+          )}
+
+          {/* Geo badge — centered under AI suggestion */}
+          {!isMobile && (
+            <div className="flex justify-center mt-4">
+              <button
+                onClick={geo.toggle}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                  geo.isEnabled
+                    ? "bg-gold/20 text-gold border border-gold/40"
+                    : "bg-card text-muted-foreground border border-border hover:border-gold/30"
+                }`}
+                title={geo.isEnabled ? "Désactiver la géolocalisation" : "Activer la géolocalisation"}
+              >
+                {geo.isDetecting ? (
+                  <Loader className="h-3.5 w-3.5 animate-spin" />
+                ) : geo.isEnabled ? (
+                  <MapPin className="h-3.5 w-3.5" />
+                ) : (
+                  <MapPinOff className="h-3.5 w-3.5" />
+                )}
+                {geo.isDetecting
+                  ? (language === "en" ? "Detecting..." : "Détection...")
+                  : geo.isEnabled && geo.detectedCity
+                  ? `📍 ${geo.detectedCity}`
+                  : geo.isEnabled
+                  ? (language === "en" ? "No city nearby" : "Aucune ville proche")
+                  : (language === "en" ? "Enable location" : language === "ar" ? "تفعيل الموقع" : "Activer la position")
+                }
+              </button>
+            </div>
           )}
 
         </div>
@@ -1412,33 +1450,6 @@ const SearchPage = () => {
         <div className="mx-auto px-4 max-w-[80%]">
           {/* Filters: City + Geo toggle — on mobile shown before hero via order */}
           <div className={`mb-8 flex flex-wrap items-center gap-3 ${isMobile ? 'hidden' : ''}`}>
-            {/* Geo toggle */}
-            <button
-              onClick={geo.toggle}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                geo.isEnabled
-                  ? "bg-gold/20 text-gold border border-gold/40"
-                  : "bg-card text-muted-foreground border border-border hover:border-gold/30"
-              }`}
-              title={geo.isEnabled ? "Désactiver la géolocalisation" : "Activer la géolocalisation"}
-            >
-              {geo.isDetecting ? (
-                <Loader className="h-3.5 w-3.5 animate-spin" />
-              ) : geo.isEnabled ? (
-                <MapPin className="h-3.5 w-3.5" />
-              ) : (
-                <MapPinOff className="h-3.5 w-3.5" />
-              )}
-              {geo.isDetecting
-                ? (language === "en" ? "Detecting..." : "Détection...")
-                : geo.isEnabled && geo.detectedCity
-                ? `📍 ${geo.detectedCity}`
-                : geo.isEnabled
-                ? (language === "en" ? "No city nearby" : "Aucune ville proche")
-                : (language === "en" ? "Location off" : "Position désactivée")
-              }
-            </button>
-
             {/* Time slot indicator */}
             {activeTimeSlot && (
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gold/20 border border-gold/40 text-gold text-xs font-medium">
@@ -1624,7 +1635,12 @@ const SearchPage = () => {
             <CityCategoryFilter
               cityName={detectedCity}
               selectedCategory={selectedCategoryFilter}
-              onSelectCategory={setSelectedCategoryFilter}
+              onSelectCategory={(cat) => {
+                setSelectedCategoryFilter(cat);
+                setSelectedSubcategoryFilter(null);
+              }}
+              selectedSubcategory={selectedSubcategoryFilter}
+              onSelectSubcategory={setSelectedSubcategoryFilter}
             />
           )}
 
