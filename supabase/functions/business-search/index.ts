@@ -174,6 +174,7 @@ interface SearchResult {
   searchLevel: string;
   message: string;
   totalResults: number;
+  totalCount?: number;
   detectedSubcategory?: string | null;
   detectedCity?: string | null;
   searchMode?: string | null;
@@ -3875,11 +3876,33 @@ serve(async (req) => {
     }
     } // end if (!serviceShortcutActivated)
 
+    // If results hit the limit, do a count query to get the true total
+    let totalCount: number | undefined;
+    if (businesses.length >= limit && effectiveCity) {
+      try {
+        let countBuilder = supabase.from("businesses").select("id", { count: "exact", head: true }).eq("is_active", true);
+        // Apply same city filter
+        if (effectiveCity) {
+          countBuilder = countBuilder.or(`city.ilike.${effectiveCity},zone_city_ids.cs.{${effectiveCityId || ""}}`);
+        }
+        if (effectiveCategory) {
+          countBuilder = countBuilder.eq("main_category", effectiveCategory);
+        }
+        const { count } = await countBuilder;
+        if (count !== null && count > businesses.length) {
+          totalCount = count;
+        }
+      } catch (e) {
+        console.warn("Count query failed:", e);
+      }
+    }
+
     const result: SearchResult = {
       businesses,
       searchLevel,
       message: getSearchLevelMessage(searchLevel, language),
       totalResults: businesses.length,
+      totalCount,
       detectedSubcategory: detectedSubcategory || null,
       detectedCity: effectiveCity || null,
       searchMode: serviceShortcutActivated ? "service_shortcut" : (typeof subcategorySearchConfig !== 'undefined' && subcategorySearchConfig?.search_mode) || null,
