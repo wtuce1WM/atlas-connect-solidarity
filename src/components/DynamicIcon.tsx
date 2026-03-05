@@ -13,6 +13,7 @@ function isEmoji(str: string): boolean {
 const ICON_ALIASES: Record<string, string> = {
   "ice-cream": "ice-cream-cone",
   "ice-cream-2": "ice-cream-bowl",
+  "train": "train-front",
 };
 
 // Convert PascalCase icon name (stored in DB) to kebab-case (used by dynamicIconImports)
