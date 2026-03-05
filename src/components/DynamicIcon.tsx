@@ -9,14 +9,21 @@ function isEmoji(str: string): boolean {
   return emojiRegex.test(str);
 }
 
+// Map legacy/removed icon names to current Lucide equivalents
+const ICON_ALIASES: Record<string, string> = {
+  "ice-cream": "ice-cream-cone",
+  "ice-cream-2": "ice-cream-bowl",
+};
+
 // Convert PascalCase icon name (stored in DB) to kebab-case (used by dynamicIconImports)
 function toKebabCase(name: string): string {
-  return name
+  const kebab = name
     .replace(/([a-z])(\d)/g, "$1-$2")   // letter followed by digit: e.g. Gamepad2 → Gamepad-2
     .replace(/(\d)([A-Z])/g, "$1-$2")   // digit followed by upper: e.g. 2Down → 2-Down
     .replace(/([a-z0-9])([A-Z])/g, "$1-$2")
     .replace(/([A-Z])([A-Z][a-z])/g, "$1-$2")
     .toLowerCase();
+  return ICON_ALIASES[kebab] || kebab;
 }
 
 interface DynamicIconProps extends Omit<LucideProps, "ref"> {
