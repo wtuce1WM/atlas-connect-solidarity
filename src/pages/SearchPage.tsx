@@ -1445,17 +1445,6 @@ const SearchPage = () => {
           selectedSubcategory={selectedSubcategoryFilter}
           onSelectSubcategory={(sub) => {
             setSelectedSubcategoryFilter(sub);
-            // Scroll so compact AI zone is visible below sticky bars
-            requestAnimationFrame(() => {
-              const compactAi = document.querySelector('[data-compact-ai]');
-              if (compactAi) {
-                const stickyOffset = 210; // header+tabs+filters stack
-                const currentTop = compactAi.getBoundingClientRect().top;
-                const delta = currentTop - stickyOffset;
-                if (Math.abs(delta) <= 10) return; // avoid micro-jump
-                window.scrollBy({ top: delta, behavior: "smooth" });
-              }
-            });
           }}
         />
       )}
