@@ -15,6 +15,7 @@ import NoiseWordsManagement from "./NoiseWordsManagement";
 import SynonymsManagement from "./SynonymsManagement";
 import SubcategoryMergesManagement from "./SubcategoryMergesManagement";
 import SearchBundleManagement from "./SearchBundleManagement";
+import VoiceIntentRulesManagement from "./VoiceIntentRulesManagement";
 
 interface Subcategory {
   id: string;
@@ -278,7 +279,12 @@ const SearchConfigManagement = () => {
         <TabsTrigger value="noise-words">Mots bruyants</TabsTrigger>
         <TabsTrigger value="merges">Fusions</TabsTrigger>
         <TabsTrigger value="bundles">Regroupements</TabsTrigger>
+        <TabsTrigger value="voice-rules">Règles vocales</TabsTrigger>
       </TabsList>
+
+      <TabsContent value="voice-rules">
+        <VoiceIntentRulesManagement />
+      </TabsContent>
 
       <TabsContent value="intents">
         <IntentManagement />

@@ -2520,6 +2520,33 @@ export type Database = {
         }
         Relationships: []
       }
+      voice_intent_rules: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          rule_text: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          rule_text: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          rule_text?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
