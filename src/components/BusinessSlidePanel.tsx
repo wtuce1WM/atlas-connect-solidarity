@@ -44,6 +44,8 @@ interface BusinessSlidePanelProps {
   isExpanded?: boolean;
   onToggleExpand?: () => void;
   liteApiData?: LiteApiData;
+  /** When provided, availability overlay & fallback panel are portaled into this container (used in AI overlay split-screen) */
+  leftPanelPortalRef?: React.RefObject<HTMLDivElement | null>;
 }
 
 interface FullBusiness {
@@ -148,7 +150,7 @@ const SkypeIcon = ({ className = "h-5 w-5" }: { className?: string }) => (
   </svg>
 );
 
-const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpanded, onToggleExpand, liteApiData }: BusinessSlidePanelProps) => {
+const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpanded, onToggleExpand, liteApiData, leftPanelPortalRef }: BusinessSlidePanelProps) => {
   const [internalBusinessId, setInternalBusinessId] = useState(externalBusinessId);
   const businessId = internalBusinessId;
 
