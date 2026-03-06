@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -130,6 +130,7 @@ const KnowledgeBaseManagement = ({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showNew, setShowNew] = useState(false);
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+  const formRef = useRef<HTMLDivElement>(null);
 
   const toggleExpand = useCallback((id: string) => {
     setExpandedIds(prev => {
@@ -250,6 +251,7 @@ const KnowledgeBaseManagement = ({
     setFormExternalUrlsSectionTitle((entry as any).external_urls_section_title || "");
     setFormExternalUrls(entry.external_urls || []);
     setShowNew(false);
+    setTimeout(() => formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
   };
 
   const handleSave = async () => {
@@ -313,7 +315,7 @@ const KnowledgeBaseManagement = ({
     <div className="space-y-6">
       {/* Form */}
       {isEditing && (
-        <Card className="border-primary/30">
+        <Card ref={formRef} className="border-primary/30">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg">{editingId ? "Modifier l'entrée" : newEntryLabel}</CardTitle>
           </CardHeader>
