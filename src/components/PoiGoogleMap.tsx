@@ -139,10 +139,10 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center }: PoiGoogleMapP
         const img = poi.images?.[0];
         const loc = `${poi.city || ""}${poi.neighborhood ? ` · ${poi.neighborhood}` : ""}`;
         const ratingHtml = poi.avgOn20
-          ? `<div style="display:flex;align-items:center;gap:3px;font-size:10px;">
+          ? `<div style="display:flex;align-items:center;gap:4px;font-size:13px;">
               <span style="color:#D4AF37;">★</span>
               <span style="font-weight:600;">${poi.avgOn20}/20</span>
-              ${poi.totalReviews ? `<span style="color:#999;">· ${poi.totalReviews} avis</span>` : ""}
+              ${poi.totalReviews ? `<span style="color:rgba(255,255,255,0.7);">· ${poi.totalReviews} avis</span>` : ""}
             </div>`
           : "";
         const html = `<div style="width:260px;font-family:system-ui,sans-serif;overflow:hidden;border-radius:10px;position:relative;">
