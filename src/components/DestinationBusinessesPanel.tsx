@@ -43,7 +43,7 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [activeTab, setActiveTab] = useState<"info" | "providers">("info");
+  const scrollRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -302,6 +302,7 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
           )}
         </div>
       </div>
+    </div>
     )}
       {/* Fullscreen lightbox via portal — same as BusinessSlidePanel */}
       {isLightboxOpen && (() => {
