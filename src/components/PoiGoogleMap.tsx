@@ -145,12 +145,12 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center }: PoiGoogleMapP
               ${poi.totalReviews ? `<span style="color:#999;">· ${poi.totalReviews} avis</span>` : ""}
             </div>`
           : "";
-        const html = `<div style="width:130px;font-family:system-ui,sans-serif;overflow:hidden;border-radius:8px;position:relative;">
-          ${img ? `<img src="${img}" style="width:100%;height:90px;display:block;object-fit:cover;" />` : ""}
-          <div style="background:linear-gradient(to top,rgba(0,0,0,0.75),rgba(0,0,0,0.2));position:absolute;bottom:0;left:0;right:0;padding:6px;">
-            <div style="font-weight:700;font-size:10px;color:white;line-height:1.2;">${poi.name}</div>
-            <div style="font-size:9px;color:rgba(255,255,255,0.8);margin-top:2px;">${loc}</div>
-            ${ratingHtml ? `<div style="margin-top:2px;color:white;">${ratingHtml}</div>` : ""}
+        const html = `<div style="width:260px;font-family:system-ui,sans-serif;overflow:hidden;border-radius:10px;position:relative;">
+          ${img ? `<img src="${img}" style="width:100%;height:180px;display:block;object-fit:cover;" />` : ""}
+          <div style="background:linear-gradient(to top,rgba(0,0,0,0.75),rgba(0,0,0,0.2));position:absolute;bottom:0;left:0;right:0;padding:10px;">
+            <div style="font-weight:700;font-size:14px;color:white;line-height:1.3;">${poi.name}</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.8);margin-top:3px;">${loc}</div>
+            ${ratingHtml ? `<div style="margin-top:3px;color:white;">${ratingHtml}</div>` : ""}
           </div>
         </div>`;
         infoWindowRef.current?.setContent(html);
