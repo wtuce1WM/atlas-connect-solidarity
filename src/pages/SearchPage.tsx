@@ -393,6 +393,7 @@ const SearchPage = () => {
   const isCategoryFilterActive = !!(selectedCategoryFilter || selectedSubcategoryFilter || selectedServiceFilter);
   const [isAiSummaryExpanded, setIsAiSummaryExpanded] = useState(false);
   const [aiRegenerateKey, setAiRegenerateKey] = useState(0);
+  const [isAiRegenerating, setIsAiRegenerating] = useState(false);
   const [compactPanelBusiness, setCompactPanelBusiness] = useState<AIBusinessData | null>(null);
   const [isCompactPanelExpanded, setIsCompactPanelExpanded] = useState(false);
   const [locationDialogOpen, setLocationDialogOpen] = useState(false);
@@ -1625,11 +1626,47 @@ const SearchPage = () => {
                   </button>
                 </div>
                 <button
-                  onClick={() => { setAiAnswerText(""); setAiRegenerateKey(k => k + 1); }}
-                  className="shrink-0 w-10 h-10 rounded-full bg-foreground text-background flex items-center justify-center hover:bg-foreground/80 transition-colors shadow-lg mt-0.5"
+                  disabled={isAiRegenerating}
+                  onClick={async () => {
+                    if (isAiRegenerating) return;
+                    // If no filters active, use the standard regenerate flow
+                    if (!isCategoryFilterActive) {
+                      setAiAnswerText("");
+                      setAiRegenerateKey(k => k + 1);
+                      return;
+                    }
+                    // Regenerate with filtered businesses
+                    setIsAiRegenerating(true);
+                    setAiAnswerText("");
+                    try {
+                      const top10 = filteredBusinesses.slice(0, 10);
+                      const { data } = await supabase.functions.invoke("ai-search-answer", {
+                        body: {
+                          query: spokenText || searchQuery,
+                          spokenText: spokenText || undefined,
+                          businesses: top10.map(b => ({
+                            name: b.name,
+                            city: b.city,
+                            main_category: b.main_category,
+                            categories: b.categories,
+                            hook_fr: b.hook_fr,
+                            wtuce_status: b.wtuce_status,
+                          })),
+                          language,
+                          vary: Date.now() % 1000,
+                        },
+                      });
+                      if (data?.answer) setAiAnswerText(data.answer);
+                    } catch (e) {
+                      console.error("AI regenerate error:", e);
+                    } finally {
+                      setIsAiRegenerating(false);
+                    }
+                  }}
+                  className="shrink-0 w-10 h-10 rounded-full bg-foreground text-background flex items-center justify-center hover:bg-foreground/80 transition-colors shadow-lg mt-0.5 disabled:opacity-50"
                   title={language === "en" ? "Generate another suggestion" : "Régénérer la suggestion"}
                 >
-                  <RefreshCw className="h-5 w-5" />
+                  <RefreshCw className={`h-5 w-5 ${isAiRegenerating ? "animate-spin" : ""}`} />
                 </button>
               </div>
               {/* Action buttons row: Plus de filtres, Écouter, Géolocalisation */}
