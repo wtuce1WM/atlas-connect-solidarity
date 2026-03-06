@@ -771,6 +771,8 @@ const SearchPage = () => {
   }, [allBusinesses, selectedCity, selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, activeTimeSlot, searchQuery, categoryFromUrl, moreFilterMatchingIds, moreFilterTimeSlots]);
 
   // Extract services from search results for inline filter bar (only is_filtered=true, respecting service_city_filters)
+  // serviceCityLookup: service name -> list of allowed city names (empty array = allowed everywhere)
+  const [filteredServiceNames, setFilteredServiceNames] = useState<Set<string>>(new Set());
   const [serviceCityLookup, setServiceCityLookup] = useState<Record<string, string[]>>({});
 
   useEffect(() => {
@@ -790,31 +792,37 @@ const SearchPage = () => {
       const serviceIdToName: Record<string, string> = {};
       for (const s of services) serviceIdToName[s.id] = s.name_fr;
 
+      // Build lookup: service name -> city names where it's allowed
       const lookup: Record<string, string[]> = {};
+      // Init all filtered services (even those without city filters = allowed everywhere)
+      for (const s of services) lookup[s.name_fr] = [];
       for (const f of filters) {
         const svcName = serviceIdToName[f.service_id];
         const cityName = cityIdToName[f.city_id];
         if (svcName && cityName) {
-          if (!lookup[svcName]) lookup[svcName] = [];
           lookup[svcName].push(cityName);
         }
       }
+      setFilteredServiceNames(new Set(services.map(s => s.name_fr)));
       setServiceCityLookup(lookup);
     };
     fetchServiceCityData();
   }, []);
 
   const searchServiceFilters = useMemo(() => {
-    if (!searchQuery.trim() || allBusinesses.length === 0 || Object.keys(serviceCityLookup).length === 0) return [];
+    if (!searchQuery.trim() || allBusinesses.length === 0 || filteredServiceNames.size === 0) return [];
     if (selectedCategoryFilter || selectedSubcategoryFilter) return [];
     const source = selectedCity === "all" ? allBusinesses : allBusinesses.filter(b => b.city === selectedCity);
     const countMap: Record<string, number> = {};
     for (const b of source) {
       if (b.services) {
         for (const s of b.services) {
+          if (!filteredServiceNames.has(s)) continue;
           const allowedCities = serviceCityLookup[s];
-          if (!allowedCities) continue;
-          if (selectedCity !== "all" && !allowedCities.includes(selectedCity)) continue;
+          // If allowedCities is empty array, service is allowed in all cities
+          if (allowedCities && allowedCities.length > 0 && selectedCity !== "all") {
+            if (!allowedCities.some(c => c.toLowerCase() === selectedCity.toLowerCase())) continue;
+          }
           countMap[s] = (countMap[s] || 0) + 1;
         }
       }
@@ -823,7 +831,7 @@ const SearchPage = () => {
       .filter(([_, count]) => count >= 1)
       .sort((a, b) => a[0].localeCompare(b[0], "fr"))
       .map(([name, count]) => ({ name, count }));
-  }, [searchQuery, allBusinesses, selectedCity, selectedCategoryFilter, selectedSubcategoryFilter, serviceCityLookup]);
+  }, [searchQuery, allBusinesses, selectedCity, selectedCategoryFilter, selectedSubcategoryFilter, filteredServiceNames, serviceCityLookup]);
 
   // Group businesses by primary subcategory when a subcategory was detected
   const groupedBusinesses = useMemo(() => {
@@ -1622,7 +1630,7 @@ const SearchPage = () => {
       )}
 
       {/* Search-derived service filter bar — shown when text search yields services */}
-      {searchServiceFilters.length >= 2 && !isLoading && !selectedCategoryFilter && !selectedSubcategoryFilter && (
+      {searchServiceFilters.length >= 1 && !isLoading && !selectedCategoryFilter && !selectedSubcategoryFilter && (
         <div data-search-service-filter className="sticky z-[5] bg-background/95 backdrop-blur-sm border-b border-border/50 py-2" style={{ top: `${104 + (availableCities.length > 1 && !queryHasExplicitCity ? 44 : 0)}px` }}>
           <div className="mx-auto px-4 max-w-[80%]">
             <div className="flex gap-2 overflow-x-auto pb-0.5 scrollbar-hide">
