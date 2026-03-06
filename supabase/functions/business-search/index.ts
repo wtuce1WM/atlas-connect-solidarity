@@ -466,10 +466,18 @@ function tagsMatchCandidate(candidate: string, tags: string[]): boolean {
     if (candidateNorm.includes(" ") && tagNorm.includes(candidateNorm)) return true;
     if (tagNorm.includes(" ") && candidateNorm.includes(tagNorm)) return true;
 
-    // Token matching: only count CONTENT tokens (exclude stop words like "de", "du", "à")
-    const tagContentTokens = tokenizeForMatching(tag).filter(t => t.length > 1 && !FRENCH_STOP_WORDS.has(t));
-    const matchCount = tagContentTokens.filter((token) => candidateContentTokensSet.has(token)).length;
-    return matchCount >= minTokenMatches;
+    // Token matching: count how many DISTINCT original candidate content words
+    // have at least one expanded token matching in the tag.
+    // This prevents plural variants (e.g. "cours"/"cour") from inflating the match count.
+    const tagTokenSet = new Set(tokenizeForMatching(tag).filter(t => t.length > 1 && !FRENCH_STOP_WORDS.has(t)));
+    let distinctMatches = 0;
+    for (const origWord of candidateContentTokensList) {
+      const wordExpansions = tokenizeForMatching(origWord).filter(t => t.length > 1 && !FRENCH_STOP_WORDS.has(t));
+      if (wordExpansions.some(exp => tagTokenSet.has(exp))) {
+        distinctMatches++;
+      }
+    }
+    return distinctMatches >= minTokenMatches;
   });
 }
 
