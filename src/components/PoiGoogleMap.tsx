@@ -220,7 +220,12 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center }: PoiGoogleMapP
     );
   }
 
-  return <div ref={containerRef} className="w-full h-full" />;
+  return (
+    <>
+      <style>{`.gm-style .gm-style-iw-chr { display: none !important; } .gm-style .gm-style-iw { padding: 0 !important; } .gm-style .gm-style-iw-d { overflow: hidden !important; }`}</style>
+      <div ref={containerRef} className="w-full h-full" />
+    </>
+  );
 };
 
 export default PoiGoogleMap;
