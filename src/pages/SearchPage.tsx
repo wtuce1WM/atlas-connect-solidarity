@@ -1557,7 +1557,7 @@ const SearchPage = () => {
               {language === "en" ? "Search results for" : language === "ar" ? "نتائج البحث عن" : "Résultats de recherche pour"}
             </p>
             <p className="text-lg md:text-xl font-bold text-foreground mt-1">
-              «&nbsp;{(spokenText || searchQuery)}{selectedCity && selectedCity !== "all" ? ` + ${selectedCity}` : ""}&nbsp;»
+              «&nbsp;{(spokenText || searchQuery)}{selectedCity && selectedCity !== "all" ? ` ${selectedCity}` : ""}&nbsp;»
             </p>
             <p className="text-gold font-semibold mt-1">
               {displayedResultsCount} {language === "en" ? "establishments found" : language === "ar" ? "مؤسسة وجدت" : "établissements trouvés"}
@@ -1772,7 +1772,7 @@ const SearchPage = () => {
               {language === "en" ? "Search results for" : language === "ar" ? "نتائج البحث عن" : "Résultats de recherche pour"}
             </p>
             <p className="text-xl md:text-2xl font-bold text-foreground mb-3">
-              «&nbsp;{(spokenText || searchQuery)}{selectedCity && selectedCity !== "all" ? ` + ${selectedCity}` : ""}&nbsp;»
+              «&nbsp;{(spokenText || searchQuery)}{selectedCity && selectedCity !== "all" ? ` ${selectedCity}` : ""}&nbsp;»
             </p>
             <p className="text-foreground font-semibold text-lg mb-5">
               {displayedResultsCount} {language === "en" ? "establishments found" : language === "ar" ? "مؤسسة وجدت" : "établissements trouvés"}
