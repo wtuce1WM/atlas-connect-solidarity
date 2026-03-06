@@ -179,6 +179,8 @@ const BusinessMap = ({
       mapTypeControl: false,
       streetViewControl: false,
       fullscreenControl: true,
+      zoomControl: true,
+      zoomControlOptions: { position: google.maps.ControlPosition.RIGHT_CENTER },
       styles: [
         { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] },
       ],
