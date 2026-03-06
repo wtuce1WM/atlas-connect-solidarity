@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo, ReactNode } from "react";
-import { Sparkles, Loader2, MapPin, Star, X, Maximize2, Minimize2, AArrowUp, AArrowDown } from "lucide-react";
+import { Sparkles, Loader2, MapPin, Star, X, Maximize2, Minimize2, AArrowUp, AArrowDown, RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
@@ -319,6 +319,7 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
   const [error, setError] = useState<string | null>(null);
   const [selectedBusiness, setSelectedBusiness] = useState<BusinessData | null>(null);
   const [fontSize, setFontSize] = useState(0);
+  const [regenerateCount, setRegenerateCount] = useState(0);
   const fetchIdRef = useRef(0);
   const lastFetchKeyRef = useRef("");
   const aiPanelRef = useRef<HTMLDivElement>(null);
@@ -326,8 +327,8 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
   const fetchKey = useMemo(() => {
     if (!query || !businesses.length) return "";
     const names = businesses.slice(0, 10).map(b => b.name).join("|");
-    return `${query}::${names}`;
-  }, [query, businesses]);
+    return `${query}::${names}::${regenerateCount}`;
+  }, [query, businesses, regenerateCount]);
 
   useEffect(() => {
     setIsDismissed(false);
@@ -372,6 +373,7 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
               wtuce_status: b.wtuce_status,
             })),
             language,
+            vary: regenerateCount > 0 ? regenerateCount : undefined,
           },
         });
 
@@ -444,6 +446,14 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
               </span>
             </div>
             <div className="ml-auto flex items-center gap-1">
+              <button
+                onClick={() => setRegenerateCount(c => c + 1)}
+                disabled={isLoading}
+                className="p-1 rounded hover:bg-muted transition-colors disabled:opacity-30"
+                title={language === "en" ? "Generate another suggestion" : "Générer une autre suggestion"}
+              >
+                <RefreshCw className={`h-3.5 w-3.5 text-muted-foreground ${isLoading ? "animate-spin" : ""}`} />
+              </button>
               <button
                 onClick={() => setFontSize(prev => Math.max(prev - 1, -1))}
                 disabled={fontSize <= -1}

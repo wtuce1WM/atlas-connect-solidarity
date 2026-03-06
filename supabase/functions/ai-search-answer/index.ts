@@ -13,7 +13,7 @@ serve(async (req) => {
   }
 
   try {
-    const { query, spokenText, businesses = [], language = "fr" } = await req.json();
+    const { query, spokenText, businesses = [], language = "fr", vary } = await req.json();
 
     if (!query) {
       return new Response(JSON.stringify({ answer: "" }), {
@@ -139,13 +139,15 @@ RÈGLES :
 - FORMATAGE : Utilise du markdown riche pour structurer ta réponse. Gras (**texte**), italique (*texte*), listes à puces (- item), listes numérotées (1. item), et sauts de paragraphe. Pas de titres (#). Structure bien ta réponse avec des paragraphes et des listes quand c'est pertinent.
 - Commence par une phrase d'accroche engageante liée à la recherche, puis laisse DEUX lignes vides avant de continuer avec les recommandations.
 - ${tone}
-- Commence par une accroche engageante liée à la recherche de l'utilisateur.${extraInstructions ? `\n- ${extraInstructions}` : ''}${spokenText ? `\n- CONTEXTE IMPORTANT : L'utilisateur a dit textuellement : "${spokenText}". Utilise ce contexte pour mieux comprendre son intention réelle et ne recommande QUE les établissements qui correspondent à cette intention. Si certains établissements de la liste ne correspondent pas au contexte (mauvaise ville, mauvais type), ignore-les.` : ''}
+- Commence par une accroche engageante liée à la recherche de l'utilisateur.${extraInstructions ? `\n- ${extraInstructions}` : ''}${spokenText ? `\n- CONTEXTE IMPORTANT : L'utilisateur a dit textuellement : "${spokenText}". Utilise ce contexte pour mieux comprendre son intention réelle et ne recommande QUE les établissements qui correspondent à cette intention. Si certains établissements de la liste ne correspondent pas au contexte (mauvaise ville, mauvais type), ignore-les.` : ''}${vary ? `\n- IMPORTANT : L'utilisateur demande une suggestion DIFFÉRENTE (tentative #${vary}). Change l'angle d'approche, l'ordre de présentation, le style d'accroche et mets en avant des établissements différents ou des aspects différents. Sois créatif et surprenant.` : ''}
 
 ÉTABLISSEMENTS TROUVÉS :
 ${businessContext}${knowledgeContext ? `
 
 CONNAISSANCES COMPLÉMENTAIRES (si pertinent, intègre ces informations de manière naturelle pour enrichir tes recommandations — ne mets pas en avant un établissement uniquement parce qu'il a une entrée ici) :
 ${knowledgeContext}` : ''}`;
+
+    const effectiveTemperature = vary ? Math.min(temperature + 0.3, 1.5) : temperature;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -160,7 +162,7 @@ ${knowledgeContext}` : ''}`;
           { role: "user", content: query },
         ],
         max_tokens: maxTokens,
-        temperature,
+        temperature: effectiveTemperature,
       }),
     });
 
