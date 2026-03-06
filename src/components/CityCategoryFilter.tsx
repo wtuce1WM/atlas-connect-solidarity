@@ -33,7 +33,7 @@ interface ServiceItem {
 }
 
 interface CityCategoryFilterProps {
-  cityName: string;
+  cityName: string | null;
   selectedCategory: string | null;
   onSelectCategory: (category: string | null) => void;
   selectedSubcategory?: string | null;
@@ -65,7 +65,7 @@ const CityCategoryFilter = ({
 
   // Fetch categories
   useEffect(() => {
-    if (!cityName) return;
+    setIsLoading(true);
     setIsLoading(true);
 
     const fetchCategoryCounts = async () => {
@@ -79,11 +79,14 @@ const CityCategoryFilter = ({
         return;
       }
 
-      const { data: businesses } = await supabase
+      let businessQuery = supabase
         .from("businesses")
         .select("main_category")
-        .eq("is_active", true)
-        .ilike("city", cityName);
+        .eq("is_active", true);
+      if (cityName) {
+        businessQuery = businessQuery.ilike("city", cityName);
+      }
+      const { data: businesses } = await businessQuery;
 
       if (!businesses) {
         setIsLoading(false);
@@ -114,7 +117,7 @@ const CityCategoryFilter = ({
 
   // Fetch subcategories when a category is selected
   useEffect(() => {
-    if (!selectedCategory || !cityName) {
+    if (!selectedCategory) {
       setSubcategories([]);
       return;
     }
@@ -139,12 +142,15 @@ const CityCategoryFilter = ({
         return;
       }
 
-      const { data: businesses } = await supabase
+      let subBusinessQuery = supabase
         .from("businesses")
         .select("categories")
         .eq("is_active", true)
-        .ilike("city", cityName)
         .eq("main_category", selectedCategory);
+      if (cityName) {
+        subBusinessQuery = subBusinessQuery.ilike("city", cityName);
+      }
+      const { data: businesses } = await subBusinessQuery;
 
       if (!businesses) {
         setIsLoadingSubs(false);
@@ -178,7 +184,7 @@ const CityCategoryFilter = ({
 
   // Fetch services when a subcategory is selected
   useEffect(() => {
-    if (!selectedSubcategory || !cityName) {
+    if (!selectedSubcategory) {
       setServices([]);
       return;
     }
@@ -208,41 +214,42 @@ const CityCategoryFilter = ({
         return;
       }
 
-      // Get city id
-      const { data: cities } = await supabase
-        .from("cities")
-        .select("id, name_fr")
-        .ilike("name_fr", cityName)
-        .limit(1);
+      // Filter services by city if a city is specified
+      let filteredServices = allServices;
+      if (cityName) {
+        // Get city id
+        const { data: cities } = await supabase
+          .from("cities")
+          .select("id, name_fr")
+          .ilike("name_fr", cityName)
+          .limit(1);
 
-      const cityId = cities?.[0]?.id;
+        const cityId = cities?.[0]?.id;
 
-      if (!cityId) {
-        setServices([]);
-        setIsLoadingServices(false);
-        return;
+        if (cityId) {
+          // Check which services are enabled for this city
+          const serviceIds = allServices.map(s => s.id);
+          const { data: cityFilters } = await supabase
+            .from("service_city_filters")
+            .select("service_id")
+            .eq("city_id", cityId)
+            .in("service_id", serviceIds);
+
+          const allowedServiceIds = new Set((cityFilters || []).map(cf => cf.service_id));
+          filteredServices = allServices.filter(svc => allowedServiceIds.has(svc.id));
+        }
       }
 
-      // Check which services are enabled for this city
-      const serviceIds = allServices.map(s => s.id);
-      const { data: cityFilters } = await supabase
-        .from("service_city_filters")
-        .select("service_id")
-        .eq("city_id", cityId)
-        .in("service_id", serviceIds);
-
-      const allowedServiceIds = new Set((cityFilters || []).map(cf => cf.service_id));
-
-      // Only keep services that have this city in their filter
-      const filteredServices = allServices.filter(svc => allowedServiceIds.has(svc.id));
-
-      // Count businesses that have each service in this city+subcategory
-      const { data: businesses } = await supabase
+      // Count businesses that have each service in this subcategory (optionally filtered by city)
+      let svcBusinessQuery = supabase
         .from("businesses")
         .select("services")
         .eq("is_active", true)
-        .ilike("city", cityName)
         .contains("categories", [selectedSubcategory]);
+      if (cityName) {
+        svcBusinessQuery = svcBusinessQuery.ilike("city", cityName);
+      }
+      const { data: businesses } = await svcBusinessQuery;
 
       const countMap: Record<string, number> = {};
       if (businesses) {

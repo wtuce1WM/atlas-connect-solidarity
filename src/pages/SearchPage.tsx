@@ -1781,9 +1781,9 @@ const SearchPage = () => {
       )}
 
       {/* Sticky Category + Subcategory Filters — above services */}
-      {(detectedCity || (selectedCity && selectedCity !== "all")) && allBusinesses.length > 0 && !isLoading && (
+      {allBusinesses.length > 0 && !isLoading && (
         <CityCategoryFilter
-          cityName={detectedCity || selectedCity!}
+          cityName={detectedCity || (selectedCity && selectedCity !== "all" ? selectedCity : null) || ""}
           hasCityBar={availableCities.length > 1 && !queryHasExplicitCity}
           stickyBaseTop={stickyTops.serviceBar}
           selectedCategory={selectedCategoryFilter}
