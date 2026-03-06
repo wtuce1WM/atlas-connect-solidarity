@@ -255,3 +255,10 @@ textarea::placeholder {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+/* Full-width on mobile: remove max-w constraints below md breakpoint */
+@media (max-width: 767px) {
+  .max-w-\[80\%\] {
+    max-width: 100% !important;
+  }
+}
