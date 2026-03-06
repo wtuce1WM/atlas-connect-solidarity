@@ -1511,8 +1511,9 @@ const SearchPage = () => {
 
            {/* AI Search Answer — full hero mode (hidden when category filter active) */}
            {searchQuery && !isLoading && !isCategoryFilterActive && allBusinesses.length > 0 && (
-             <div ref={heroAiRef} className={hasScrolledPastHeroAi ? "h-0 overflow-hidden" : ""}>
-               <AISearchAnswer
+              <div ref={heroAiRef} className={`relative ${hasScrolledPastHeroAi ? "h-0 overflow-hidden" : ""}`}>
+                <span className="absolute top-1 left-1 z-50 bg-purple-600 text-white text-[10px] font-bold px-2 py-0.5 rounded">🟣 HERO AI ZONE</span>
+                <AISearchAnswer
                  query={spokenText || searchQuery}
                  spokenText={spokenText || undefined}
                  businesses={allBusinesses}
@@ -1561,7 +1562,8 @@ const SearchPage = () => {
       </section>
 
       {/* Tab Bar — stickybar 1 (above cities) */}
-      <section data-tab-bar className="sticky top-[60px] z-[7] bg-background/95 backdrop-blur-sm border-b border-border">
+      <section data-tab-bar className="sticky top-[60px] z-[7] bg-background/95 backdrop-blur-sm border-b border-border relative">
+        <span className="absolute top-0 left-1 z-50 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded">🔴 STICKY 1 — Tab Bar</span>
         <div className="mx-auto px-4 max-w-[80%]">
           <div className="flex gap-0">
             <button
@@ -1592,7 +1594,8 @@ const SearchPage = () => {
 
       {/* City Bar — stickybar 2 (below tabs) */}
       {availableCities.length > 1 && !queryHasExplicitCity && (
-        <div data-city-bar className="sticky top-[104px] z-[6] bg-background/95 backdrop-blur-sm border-b border-border py-2.5">
+        <div data-city-bar className="sticky top-[104px] z-[6] bg-background/95 backdrop-blur-sm border-b border-border py-2.5 relative">
+          <span className="absolute top-0 left-1 z-50 bg-orange-500 text-white text-[10px] font-bold px-2 py-0.5 rounded">🟠 STICKY 2 — City Bar</span>
           <div className="mx-auto px-4 max-w-[80%]">
             <div className="flex gap-2 overflow-x-auto pb-0.5 scrollbar-hide">
               <button
@@ -1630,7 +1633,8 @@ const SearchPage = () => {
 
       {/* Search-derived service filter bar — shown when text search yields services */}
       {searchServiceFilters.length >= 1 && !isLoading && !selectedCategoryFilter && !selectedSubcategoryFilter && (
-        <div data-search-service-filter className="sticky z-[5] bg-background/95 backdrop-blur-sm border-b border-border/50 py-2" style={{ top: `${104 + (availableCities.length > 1 && !queryHasExplicitCity ? 44 : 0)}px` }}>
+        <div data-search-service-filter className="sticky z-[5] bg-background/95 backdrop-blur-sm border-b border-border/50 py-2 relative" style={{ top: `${104 + (availableCities.length > 1 && !queryHasExplicitCity ? 44 : 0)}px` }}>
+          <span className="absolute top-0 left-1 z-50 bg-green-600 text-white text-[10px] font-bold px-2 py-0.5 rounded">🟢 STICKY 3 — Service Filters</span>
           <div className="mx-auto px-4 max-w-[80%]">
             <div className="flex gap-2 overflow-x-auto pb-0.5 scrollbar-hide">
               {searchServiceFilters.map((svc) => {
@@ -1760,7 +1764,8 @@ const SearchPage = () => {
           || (baseTop + 62);
 
         return (
-          <div className="sticky z-[1] bg-background backdrop-blur-sm border-b border-border py-2" style={{ top: `${aiTop}px` }}>
+          <div className="sticky z-[1] bg-background backdrop-blur-sm border-b border-border py-2 relative" style={{ top: `${aiTop}px` }}>
+            <span className="absolute top-0 left-1 z-50 bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded">🔵 STICKY 4 — AI Summary Bar</span>
             <div className="mx-auto px-4 max-w-[80%]">
               <div className="flex items-start gap-3">
                 <div className="flex-1 min-w-0">
