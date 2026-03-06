@@ -393,6 +393,11 @@ const SearchPage = () => {
   const isCategoryFilterActive = !!(selectedCategoryFilter || selectedSubcategoryFilter || selectedServiceFilter);
   const [isAiSummaryExpanded, setIsAiSummaryExpanded] = useState(false);
 
+  // Collapse AI summary when any filter changes
+  useEffect(() => {
+    setIsAiSummaryExpanded(false);
+  }, [selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, selectedCity]);
+
    // Track when user has scrolled down to the tab bar — lock scroll above it from that point
    const [hasReachedTabBar, setHasReachedTabBar] = useState(false);
 
