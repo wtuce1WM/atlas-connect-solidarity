@@ -2220,6 +2220,11 @@ const SearchPage = () => {
                   <PoiGoogleMap
                     pois={allPois}
                     selectedPoiId={poiMapBusiness.id}
+                    center={(() => {
+                      const city = citiesWithPriority.find(c => c.name === selectedCity);
+                      if (city?.latitude && city?.longitude) return { lat: city.latitude, lng: city.longitude };
+                      return undefined;
+                    })()}
                     onPoiClick={(poiId) => {
                       const poi = allPois.find(p => p.id === poiId);
                       if (poi) setPoiMapBusiness({ id: poi.id, name: poi.name, latitude: poi.latitude, longitude: poi.longitude, address: null, google_maps_url: null });
