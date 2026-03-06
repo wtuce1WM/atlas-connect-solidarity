@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import restaurantGuruLogo from "@/assets/restaurant-guru-logo.webp";
 import glovoLogo from "@/assets/glovo-logo.png";
@@ -562,6 +563,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     destination_description: (business as any)?.destination_description || "",
     poi_hook: (business as any)?.poi_hook || "",
     poi_description: (business as any)?.poi_description || "",
+    is_poi: (business as any)?.is_poi ?? false,
   });
 
   // --- Business documents (menus & flipbooks) ---
@@ -1056,6 +1058,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       destination_description: (formData as any).destination_description?.trim().slice(0, 500) || null,
       poi_hook: (formData as any).poi_hook?.trim().slice(0, 120) || null,
       poi_description: (formData as any).poi_description?.trim().slice(0, 500) || null,
+      is_poi: (formData as any).is_poi ?? false,
     };
 
     try {
@@ -1933,6 +1936,14 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   ))}
                 </SelectContent>
               </Select>
+              <div className="flex items-center gap-2 pt-1">
+                <Checkbox
+                  id="is_poi"
+                  checked={(formData as any).is_poi || false}
+                  onCheckedChange={(checked) => handleChange("is_poi", !!checked)}
+                />
+                <Label htmlFor="is_poi" className="text-xs cursor-pointer">Points d'intérêt</Label>
+              </div>
             </div>
           </div>
 

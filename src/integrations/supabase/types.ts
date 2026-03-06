@@ -557,6 +557,7 @@ export type Database = {
           is_featured: boolean | null
           is_master: boolean
           is_open_24h: boolean
+          is_poi: boolean
           is_regulated_activity: boolean | null
           is_visible_locale: boolean
           keywords: string[] | null
@@ -670,6 +671,7 @@ export type Database = {
           is_featured?: boolean | null
           is_master?: boolean
           is_open_24h?: boolean
+          is_poi?: boolean
           is_regulated_activity?: boolean | null
           is_visible_locale?: boolean
           keywords?: string[] | null
@@ -783,6 +785,7 @@ export type Database = {
           is_featured?: boolean | null
           is_master?: boolean
           is_open_24h?: boolean
+          is_poi?: boolean
           is_regulated_activity?: boolean | null
           is_visible_locale?: boolean
           keywords?: string[] | null
@@ -2649,6 +2652,7 @@ export type Database = {
               is_featured: boolean | null
               is_master: boolean
               is_open_24h: boolean
+              is_poi: boolean
               is_regulated_activity: boolean | null
               is_visible_locale: boolean
               keywords: string[] | null
@@ -2778,6 +2782,7 @@ export type Database = {
               is_featured: boolean | null
               is_master: boolean
               is_open_24h: boolean
+              is_poi: boolean
               is_regulated_activity: boolean | null
               is_visible_locale: boolean
               keywords: string[] | null

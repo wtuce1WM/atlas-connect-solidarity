@@ -1,0 +1,1 @@
+ALTER TABLE public.businesses ADD COLUMN is_poi boolean NOT NULL DEFAULT false;
