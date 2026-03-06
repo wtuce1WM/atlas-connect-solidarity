@@ -15,6 +15,7 @@ import Footer from "@/components/Footer";
 import CategoriesCarouselSection from "@/components/CategoriesCarouselSection";
 import CityCategoryFilter from "@/components/CityCategoryFilter";
 import { Button } from "@/components/ui/button";
+import GoogleMapEmbed from "@/components/GoogleMapEmbed";
 
 import {
   Select,
