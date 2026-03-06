@@ -243,7 +243,7 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
             {language === "en" ? `These providers will take you to ${getName()}` : language === "ar" ? `هؤلاء المزودون سيأخذونك إلى ${getName()}` : `Ces prestataires vous emmèneront à ${getName()}`}
             {!isLoading && <span className="ml-1.5 text-xs font-normal text-muted-foreground">({businesses.length})</span>}
           </h2>
-          </h3>
+          
           {isLoading ? (
             <div className="flex justify-center py-16">
               <Loader2 className="h-6 w-6 animate-spin text-gold" />
