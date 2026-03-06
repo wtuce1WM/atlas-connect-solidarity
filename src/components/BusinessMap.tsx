@@ -26,6 +26,7 @@ interface BusinessMapProps {
   zoom?: number;
   height?: string;
   isLoading?: boolean;
+  forceOverview?: boolean;
 }
 
 declare global {
@@ -123,6 +124,7 @@ const BusinessMap = ({
   zoom = 6,
   height = "500px",
   isLoading: externalLoading,
+  forceOverview = false,
 }: BusinessMapProps) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
@@ -270,7 +272,11 @@ const BusinessMap = ({
     clustererRef.current = clusterer;
 
     // Fit bounds
-    if (geoBusinesses.length > 0 && !center) {
+    if (forceOverview) {
+      // No city selected: show all of Morocco
+      map.setCenter({ lat: 31.63, lng: -7.98 });
+      map.setZoom(6);
+    } else if (geoBusinesses.length > 0 && !center) {
       const bounds = new google.maps.LatLngBounds();
       geoBusinesses.forEach((b) => bounds.extend({ lat: b.latitude!, lng: b.longitude! }));
       map.fitBounds(bounds, 40);
@@ -283,11 +289,10 @@ const BusinessMap = ({
       map.setCenter(center);
       map.setZoom(zoom);
     } else {
-      // No businesses with GPS and no explicit center: show Morocco
       map.setCenter({ lat: 31.63, lng: -7.98 });
       map.setZoom(6);
     }
-  }, [geoBusinesses, isLoading, gmapsReady, center, zoom]);
+  }, [geoBusinesses, isLoading, gmapsReady, center, zoom, forceOverview]);
 
   if (gmapsError) {
     return (
