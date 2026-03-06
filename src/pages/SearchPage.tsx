@@ -1613,7 +1613,7 @@ const SearchPage = () => {
 
            {/* AI Search Answer — full hero mode (hidden when category filter active) */}
            {searchQuery && !isLoading && !isCategoryFilterActive && allBusinesses.length > 0 && (
-              <div ref={heroAiRef} className={`relative ${hasScrolledPastHeroAi ? "h-0 overflow-hidden" : ""}`}>
+              <div ref={heroAiRef} className="relative">
                 <span className="absolute top-1 left-1 z-50 bg-purple-600 text-white text-[10px] font-bold px-2 py-0.5 rounded">🟣 HERO AI ZONE</span>
                 <AISearchAnswer
                  query={spokenText || searchQuery}
