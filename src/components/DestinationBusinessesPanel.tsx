@@ -110,6 +110,15 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
       </div>
 
       <div className="flex-1 overflow-y-auto p-4" ref={scrollRef}>
+        <div className="mb-4 space-y-1">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-bold text-foreground">{getName()}</h2>
+            <span className="text-xs text-muted-foreground">{!isLoading && `${businesses.length} ${language === "en" ? "results" : "résultats"}`}</span>
+          </div>
+          {destination.region && destination.region.length > 0 && (
+            <p className="text-sm text-muted-foreground">{destination.region.join(", ")}</p>
+          )}
+        </div>
         {destination.description && (() => {
           const raw = destination.description;
           const plainText = raw.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"');
