@@ -273,9 +273,9 @@ const BusinessMap = ({
 
     // Fit bounds
     if (forceOverview) {
-      // No city selected: show all of Morocco
-      map.setCenter({ lat: 31.63, lng: -7.98 });
-      map.setZoom(6);
+      // No city selected: show all of Morocco centered
+      map.setCenter({ lat: 29.5, lng: -7.5 });
+      map.setZoom(5);
     } else if (geoBusinesses.length > 0 && !center) {
       const bounds = new google.maps.LatLngBounds();
       geoBusinesses.forEach((b) => bounds.extend({ lat: b.latitude!, lng: b.longitude! }));
