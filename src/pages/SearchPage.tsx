@@ -1474,22 +1474,84 @@ const SearchPage = () => {
             <X className="h-6 w-6 text-muted-foreground" />
           </button>
 
-          {/* Top section: query + count */}
-          <div className="pt-16 pb-4 px-8 text-center">
+          {/* Top section: query + count + top "Voir les résultats" */}
+          <div className="pt-14 pb-3 px-6 text-center">
+            <button
+              onClick={() => setShowAiPopup(false)}
+              className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gold text-black text-sm font-semibold hover:bg-gold/90 transition-colors mb-4"
+            >
+              {language === "en" ? "See results" : language === "ar" ? "عرض النتائج" : "Voir les résultats"}
+              <ChevronRight className="h-4 w-4" />
+            </button>
             <p className="text-muted-foreground text-sm">
               {language === "en" ? "Search results for" : language === "ar" ? "نتائج البحث عن" : "Résultats de recherche pour"}
             </p>
-            <p className="text-xl md:text-2xl font-bold text-foreground mt-1">
+            <p className="text-lg md:text-xl font-bold text-foreground mt-1">
               «&nbsp;{spokenText || searchQuery}&nbsp;»
             </p>
-            <p className="text-gold font-semibold text-lg mt-2">
+            <p className="text-gold font-semibold mt-1">
               {displayedResultsCount} {language === "en" ? "establishments found" : language === "ar" ? "مؤسسة وجدت" : "établissements trouvés"}
             </p>
           </div>
 
-          {/* AI text — scrollable center */}
-          <div className="flex-1 overflow-y-auto px-8 pb-4">
-            <div className="max-w-2xl mx-auto">
+          {/* Disambiguation prompts */}
+          {disambiguationType === "needs_category" && (
+            <div className="px-6 pb-4">
+              <div className="max-w-3xl mx-auto text-center">
+                <p className="text-sm font-medium text-foreground mb-3">
+                  {language === "en" ? "What are you looking for?" : language === "ar" ? "ماذا تبحث عنه؟" : "Que cherchez-vous ?"}
+                </p>
+                <div className="flex flex-wrap justify-center gap-2">
+                  {(() => {
+                    // Extract unique main_categories from results as chips
+                    const cats = [...new Set(allBusinesses.map(b => b.main_category).filter(Boolean))] as string[];
+                    return cats.slice(0, 8).map(cat => (
+                      <button
+                        key={cat}
+                        onClick={() => {
+                          setSelectedCategoryFilter(cat);
+                          setShowAiPopup(false);
+                        }}
+                        className="px-4 py-2 rounded-full border border-border bg-card text-sm text-foreground hover:border-gold/50 hover:bg-gold/10 transition-colors"
+                      >
+                        {cat}
+                      </button>
+                    ));
+                  })()}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {disambiguationType === "needs_city" && (
+            <div className="px-6 pb-4">
+              <div className="max-w-3xl mx-auto text-center">
+                <p className="text-sm font-medium text-foreground mb-3">
+                  {language === "en" ? "Where are you looking?" : language === "ar" ? "أين تبحث؟" : "Où le cherchez-vous ?"}
+                </p>
+                <div className="flex flex-wrap justify-center gap-2">
+                  {citiesWithPriority.slice(0, 10).map(c => (
+                    <button
+                      key={c.name}
+                      onClick={() => {
+                        setSelectedCity(c.name);
+                        setIsGeoCityAutoSelected(false);
+                        setShowAiPopup(false);
+                      }}
+                      className="px-4 py-2 rounded-full border border-border bg-card text-sm text-foreground hover:border-gold/50 hover:bg-gold/10 transition-colors"
+                    >
+                      <MapPin className="h-3.5 w-3.5 inline mr-1.5 text-muted-foreground" />
+                      {c.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* AI text — scrollable center, wider */}
+          <div className="flex-1 overflow-y-auto px-4 sm:px-6 pb-4">
+            <div className="max-w-3xl mx-auto">
               <div className="flex items-center gap-2 mb-4">
                 <Sparkles className="h-4 w-4 text-gold" />
                 <span className="text-xs font-semibold text-gold uppercase tracking-wider">Suggestion IA</span>
@@ -1506,7 +1568,7 @@ const SearchPage = () => {
           </div>
 
           {/* Bottom actions */}
-          <div className="shrink-0 pb-12 pt-6 flex flex-col items-center gap-5">
+          <div className="shrink-0 pb-8 pt-4 flex flex-col items-center gap-4">
             {/* Action buttons row */}
             <div className="flex items-center gap-3">
               {/* Listen */}
@@ -1577,7 +1639,7 @@ const SearchPage = () => {
               </button>
             </div>
 
-            {/* See results */}
+            {/* Bottom See results */}
             <button
               onClick={() => setShowAiPopup(false)}
               className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-gold text-black text-sm font-semibold hover:bg-gold/90 transition-colors"
@@ -1585,13 +1647,6 @@ const SearchPage = () => {
               {language === "en" ? "See results" : language === "ar" ? "عرض النتائج" : "Voir les résultats"}
               <ChevronRight className="h-4 w-4" />
             </button>
-          </div>
-
-          {/* Hint */}
-          <div className="pb-6 text-center">
-            <p className="text-xs text-muted-foreground">
-              {language === "en" ? "Click the mic or dismiss to browse results" : "Cliquez sur le micro ou fermez pour parcourir les résultats"}
-            </p>
           </div>
         </div>
       )}
