@@ -383,10 +383,11 @@ const SearchPage = () => {
   const [ttsIntroPhrase, setTtsIntroPhrase] = useState<string>("");
   const [aiAnswerText, setAiAnswerText] = useState<string>("");
   const [activeTab, setActiveTab] = useState<"suggestions" | "map">("suggestions");
-  const [detectedCity, setDetectedCity] = useState<string | null>(null);
-  const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string | null>(null);
-  const [selectedSubcategoryFilter, setSelectedSubcategoryFilter] = useState<string | null>(null);
-  const [selectedServiceFilter, setSelectedServiceFilter] = useState<string | null>(null);
+   const [detectedCity, setDetectedCity] = useState<string | null>(null);
+   const [disambiguationType, setDisambiguationType] = useState<"needs_category" | "needs_city" | null>(null);
+   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string | null>(null);
+   const [selectedSubcategoryFilter, setSelectedSubcategoryFilter] = useState<string | null>(null);
+   const [selectedServiceFilter, setSelectedServiceFilter] = useState<string | null>(null);
   const [moreFiltersOpen, setMoreFiltersOpen] = useState(false);
   const [moreFilterTimeSlots, setMoreFilterTimeSlots] = useState<string[]>([]);
   const [moreFilterEngagements, setMoreFilterEngagements] = useState<string[]>([]);
