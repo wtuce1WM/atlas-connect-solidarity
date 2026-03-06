@@ -315,6 +315,8 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
   const [dbPOIs, setDbPOIs] = useState<Array<{ id: string; name_fr: string; city_id: string }>>([]);
   const [selectedDestinationIds, setSelectedDestinationIds] = useState<string[]>([]);
   const [selectedPOIIds, setSelectedPOIIds] = useState<string[]>([]);
+  const [selectedPoiBusinessIds, setSelectedPoiBusinessIds] = useState<string[]>([]);
+  const [poiBusinessesForCity, setPoiBusinessesForCity] = useState<Array<{ id: string; name: string }>>([]);
   const [selectedBadgeIds, setSelectedBadgeIds] = useState<string[]>([]);
   const [defaultBadgeId, setDefaultBadgeId] = useState<string | null>(null);
   const [intentWords, setIntentWords] = useState<Array<{ id: string; word: string; category_name: string; merge_on_conflict: boolean; is_active: boolean }>>([]);
@@ -765,13 +767,15 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
   useEffect(() => {
     if (!business?.id) return;
     const loadAssociations = async () => {
-      const [destRes, poiRes, badgeRes] = await Promise.all([
+      const [destRes, poiRes, badgeRes, poiBizRes] = await Promise.all([
         supabase.from("business_destinations" as any).select("destination_id").eq("business_id", business.id),
         supabase.from("business_points_of_interest" as any).select("point_of_interest_id").eq("business_id", business.id),
         supabase.from("business_badges" as any).select("badge_id, is_default").eq("business_id", business.id),
+        supabase.from("business_poi_businesses" as any).select("poi_business_id").eq("business_id", business.id),
       ]);
       if (destRes.data) setSelectedDestinationIds((destRes.data as any[]).map((d: any) => d.destination_id));
       if (poiRes.data) setSelectedPOIIds((poiRes.data as any[]).map((p: any) => p.point_of_interest_id));
+      if (poiBizRes.data) setSelectedPoiBusinessIds((poiBizRes.data as any[]).map((p: any) => p.poi_business_id));
       if (badgeRes.data) {
         setSelectedBadgeIds((badgeRes.data as any[]).map((b: any) => b.badge_id));
         const defaultB = (badgeRes.data as any[]).find((b: any) => b.is_default);
@@ -780,6 +784,22 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     };
     loadAssociations();
   }, [business?.id]);
+
+  // Fetch businesses with is_poi=true in the same city
+  useEffect(() => {
+    if (!formData.city) { setPoiBusinessesForCity([]); return; }
+    const fetchPoiBusinesses = async () => {
+      const { data } = await supabase
+        .from("businesses")
+        .select("id, name")
+        .eq("city", formData.city)
+        .eq("is_poi", true)
+        .eq("is_active", true)
+        .order("name");
+      setPoiBusinessesForCity((data || []).filter(b => b.id !== business?.id));
+    };
+    fetchPoiBusinesses();
+  }, [formData.city, business?.id]);
 
   const handleChange = (field: string, value: string | boolean | string[]) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -1144,6 +1164,18 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             point_of_interest_id: poiId,
           }));
           await supabase.from("business_points_of_interest" as any).insert(poisToInsert);
+        }
+      }
+
+      // Save business POI businesses
+      if (businessId) {
+        await supabase.from("business_poi_businesses" as any).delete().eq("business_id", businessId);
+        if (selectedPoiBusinessIds.length > 0) {
+          const poiBizToInsert = selectedPoiBusinessIds.map(poiBizId => ({
+            business_id: businessId,
+            poi_business_id: poiBizId,
+          }));
+          await supabase.from("business_poi_businesses" as any).insert(poiBizToInsert);
         }
       }
 
@@ -2384,6 +2416,39 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               </div>
             </AccordionItem>
           </Accordion>
+        )}
+
+        {/* Points d'intérêt (établissements POI de la même ville) */}
+        {poiBusinessesForCity.length > 0 && (
+          <div className="space-y-2">
+            <Label className="text-base font-semibold flex items-center gap-2">
+              <MapPinned className="h-5 w-5" />
+              Points d'intérêt (établissements)
+              <span className="text-sm font-normal text-muted-foreground">
+                ({formData.city})
+              </span>
+            </Label>
+            <div className="flex flex-wrap gap-2">
+              {poiBusinessesForCity.map((biz) => {
+                const isSelected = selectedPoiBusinessIds.includes(biz.id);
+                return (
+                  <Badge
+                    key={biz.id}
+                    variant={isSelected ? "default" : "outline"}
+                    className="cursor-pointer transition-colors"
+                    onClick={() => {
+                      setSelectedPoiBusinessIds(prev =>
+                        isSelected ? prev.filter(id => id !== biz.id) : [...prev, biz.id]
+                      );
+                      setIsDirty(true);
+                    }}
+                  >
+                    {biz.name}
+                  </Badge>
+                );
+              })}
+            </div>
+          </div>
         )}
 
         <div id="section-menu" className="space-y-2" style={{ scrollMarginTop: '160px' }}>

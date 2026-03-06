@@ -475,6 +475,42 @@ export type Database = {
           },
         ]
       }
+      business_poi_businesses: {
+        Row: {
+          business_id: string
+          created_at: string
+          id: string
+          poi_business_id: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          id?: string
+          poi_business_id: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          id?: string
+          poi_business_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_poi_businesses_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_poi_businesses_poi_business_id_fkey"
+            columns: ["poi_business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_points_of_interest: {
         Row: {
           business_id: string
