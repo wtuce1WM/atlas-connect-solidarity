@@ -47,34 +47,46 @@ const DestinationSection = ({ city, language, onDestinationClick, columns, onMap
         return;
       }
 
-      // Find destinations linked to businesses in this city
-      const { data: bizIds } = await supabase
-        .from("businesses")
-        .select("id")
-        .eq("is_active", true)
-        .eq("city", city);
-
-      if (!bizIds || bizIds.length === 0) {
-        setDestinations([]);
-        onDestinationsLoaded?.([]);
-        setIsLoading(false);
-        return;
-      }
-
-      const ids = bizIds.map(b => b.id);
-      const { data: links } = await (supabase
+      // Step 1: Get all business_destinations links
+      const { data: allLinks } = await (supabase
         .from("business_destinations" as any)
-        .select("destination_id")
-        .in("business_id", ids) as any);
+        .select("destination_id, business_id") as any);
 
-      if (!links || links.length === 0) {
+      if (!allLinks || allLinks.length === 0) {
         setDestinations([]);
         onDestinationsLoaded?.([]);
         setIsLoading(false);
         return;
       }
 
-      const destIds = [...new Set((links as any[]).map(l => l.destination_id))];
+      // Step 2: Get unique business IDs from links and check which are in this city
+      const bizIdsInLinks = [...new Set((allLinks as any[]).map((l: any) => l.business_id))];
+      
+      // Batch-check which of these businesses are in the target city
+      const cityBizIds = new Set<string>();
+      for (let i = 0; i < bizIdsInLinks.length; i += 500) {
+        const chunk = bizIdsInLinks.slice(i, i + 500);
+        const { data: cityBiz } = await supabase
+          .from("businesses")
+          .select("id")
+          .eq("is_active", true)
+          .eq("city", city)
+          .in("id", chunk);
+        if (cityBiz) cityBiz.forEach(b => cityBizIds.add(b.id));
+      }
+
+      if (cityBizIds.size === 0) {
+        setDestinations([]);
+        onDestinationsLoaded?.([]);
+        setIsLoading(false);
+        return;
+      }
+
+      const destIds = [...new Set(
+        (allLinks as any[])
+          .filter((l: any) => cityBizIds.has(l.business_id))
+          .map((l: any) => l.destination_id)
+      )];
 
       const { data: destsData } = await supabase
         .from("destinations")
