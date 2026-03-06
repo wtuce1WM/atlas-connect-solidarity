@@ -1660,25 +1660,17 @@ const SearchPage = () => {
                   {language === "en" ? "Regenerate" : "Régénérer"}
                 </button>
               </div>
-            </div>
-          </div>
-        );
-      })()}
-
-          {/* Écouter + Geo + Plus de filtres — below AI summary (only when compact summary is visible below stickybars) */}
-          {aiAnswerText && isCategoryFilterActive && (
-            <div className="relative flex items-center justify-center mb-4">
-              {/* Plus de filtres centered */}
-              {isCategoryFilterActive && (
+              {/* Action buttons row: Plus de filtres, Écouter, Géolocalisation */}
+              <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/50">
                 <button
                   onClick={() => setMoreFiltersOpen(true)}
-                  className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-medium transition-all ${
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium transition-all ${
                     (moreFilterTimeSlots.length + moreFilterEngagements.length + moreFilterCommodites.length) > 0
                       ? "border-primary bg-primary/10 text-primary hover:bg-primary/20"
                       : "border-dashed border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground"
                   }`}
                 >
-                  <SlidersHorizontal size={16} />
+                  <SlidersHorizontal size={14} />
                   <span>Plus de filtres</span>
                   {(moreFilterTimeSlots.length + moreFilterEngagements.length + moreFilterCommodites.length) > 0 && (
                     <span className="bg-primary text-primary-foreground text-xs rounded-full px-1.5 py-0.5 min-w-[18px] text-center">
@@ -1686,79 +1678,80 @@ const SearchPage = () => {
                     </span>
                   )}
                 </button>
-              )}
-              {/* Écouter + Geo on the right */}
-              <div className="absolute right-0 flex items-center gap-2">
-                {(ttsStatus === "playing" || ttsStatus === "loading") ? (
-                  <button
-                    onClick={ttsStop}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gold/20 text-gold text-xs font-medium hover:bg-gold/30 transition-colors"
-                  >
-                    {ttsStatus === "loading" ? <Loader className="h-3.5 w-3.5 animate-spin" /> : <Volume2 className="h-3.5 w-3.5" />}
-                    {ttsStatus === "loading" ? "…" : "Stop"}
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => {
-                      const cleanText = aiAnswerText.replace(/\*{1,2}/g, "").replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "");
-                      const intro = ttsIntroPhrase ? `${ttsIntroPhrase}. ` : "";
-                      ttsIntroWordCountRef.current = intro.trim().split(/\s+/).filter(Boolean).length;
-                      voiceLoopRef.current = true;
-                      ttsSpeak(intro + cleanText + " … Vous pouvez me poser une autre question.", undefined, true);
-                    }}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card border border-gold/30 text-gold text-xs font-medium hover:bg-gold/20 transition-colors"
-                  >
-                    <Volume2 className="h-3.5 w-3.5" />
-                    {language === "en" ? "Listen" : language === "ar" ? "استمع" : "Écouter"}
-                  </button>
-                )}
-                {!isMobile && (
-                  <>
+                <div className="flex items-center gap-2">
+                  {(ttsStatus === "playing" || ttsStatus === "loading") ? (
                     <button
-                      onClick={() => setLocationDialogOpen(true)}
-                      className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                        geo.isEnabled
-                          ? "bg-gold/20 text-gold border border-gold/40"
-                          : "bg-card text-muted-foreground border border-border hover:border-gold/30"
-                      }`}
+                      onClick={ttsStop}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gold/20 text-gold text-xs font-medium hover:bg-gold/30 transition-colors"
                     >
-                      {geo.isDetecting ? (
-                        <Loader className="h-3 w-3 animate-spin" />
-                      ) : geo.isEnabled ? (
-                        <MapPin className="h-3 w-3" />
-                      ) : (
-                        <MapPinOff className="h-3 w-3" />
-                      )}
-                      {geo.isDetecting
-                        ? "…"
-                        : geo.isEnabled && geo.confirmedAddress
-                        ? `📍 ${geo.confirmedAddress}`
-                        : geo.isEnabled && geo.detectedCity
-                        ? `📍 ${geo.detectedCity}`
-                        : geo.isEnabled
-                        ? (language === "en" ? "No city" : "Aucune ville")
-                        : (language === "en" ? "Location" : "Position")
-                      }
+                      {ttsStatus === "loading" ? <Loader className="h-3.5 w-3.5 animate-spin" /> : <Volume2 className="h-3.5 w-3.5" />}
+                      {ttsStatus === "loading" ? "…" : "Stop"}
                     </button>
-                    <LocationPickerDialog
-                      open={locationDialogOpen}
-                      onOpenChange={setLocationDialogOpen}
-                      coords={geo.coords}
-                      detectedCity={geo.confirmedAddress || geo.detectedCity}
-                      isEnabled={geo.isEnabled}
-                      isDetecting={geo.isDetecting}
-                      onUseCurrentPosition={() => {
-                        if (!geo.isEnabled) geo.accept();
+                  ) : (
+                    <button
+                      onClick={() => {
+                        const cleanText = aiAnswerText.replace(/\*{1,2}/g, "").replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "");
+                        const intro = ttsIntroPhrase ? `${ttsIntroPhrase}. ` : "";
+                        ttsIntroWordCountRef.current = intro.trim().split(/\s+/).filter(Boolean).length;
+                        voiceLoopRef.current = true;
+                        ttsSpeak(intro + cleanText + " … Vous pouvez me poser une autre question.", undefined, true);
                       }}
-                      onConfirm={(confirmedCoords, address) => {
-                        geo.setManualLocation(confirmedCoords, address);
-                      }}
-                    />
-                  </>
-                )}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card border border-gold/30 text-gold text-xs font-medium hover:bg-gold/20 transition-colors"
+                    >
+                      <Volume2 className="h-3.5 w-3.5" />
+                      {language === "en" ? "Listen" : language === "ar" ? "استمع" : "Écouter"}
+                    </button>
+                  )}
+                  {!isMobile && (
+                    <>
+                      <button
+                        onClick={() => setLocationDialogOpen(true)}
+                        className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                          geo.isEnabled
+                            ? "bg-gold/20 text-gold border border-gold/40"
+                            : "bg-card text-muted-foreground border border-border hover:border-gold/30"
+                        }`}
+                      >
+                        {geo.isDetecting ? (
+                          <Loader className="h-3 w-3 animate-spin" />
+                        ) : geo.isEnabled ? (
+                          <MapPin className="h-3 w-3" />
+                        ) : (
+                          <MapPinOff className="h-3 w-3" />
+                        )}
+                        {geo.isDetecting
+                          ? "…"
+                          : geo.isEnabled && geo.confirmedAddress
+                          ? `📍 ${geo.confirmedAddress}`
+                          : geo.isEnabled && geo.detectedCity
+                          ? `📍 ${geo.detectedCity}`
+                          : geo.isEnabled
+                          ? (language === "en" ? "No city" : "Aucune ville")
+                          : (language === "en" ? "Location" : "Position")
+                        }
+                      </button>
+                      <LocationPickerDialog
+                        open={locationDialogOpen}
+                        onOpenChange={setLocationDialogOpen}
+                        coords={geo.coords}
+                        detectedCity={geo.confirmedAddress || geo.detectedCity}
+                        isEnabled={geo.isEnabled}
+                        isDetecting={geo.isDetecting}
+                        onUseCurrentPosition={() => {
+                          if (!geo.isEnabled) geo.accept();
+                        }}
+                        onConfirm={(confirmedCoords, address) => {
+                          geo.setManualLocation(confirmedCoords, address);
+                        }}
+                      />
+                    </>
+                  )}
+                </div>
               </div>
             </div>
-          )}
+          </div>
+        );
+      })()}
 
           {/* Easter egg: Zitoun Mask/Musk - fullscreen overlay */}
           {showZitounEasterEgg && (
