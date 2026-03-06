@@ -2154,7 +2154,7 @@ const SearchPage = () => {
           <div className="mx-auto px-4 pt-4 max-w-[80%]">
             <Suspense fallback={<div className="flex justify-center py-16"><Loader2 className="h-8 w-8 animate-spin text-gold" /></div>}>
               <BusinessMap
-                businesses={filteredBusinesses.length > 0 ? filteredBusinesses.map(b => ({
+                businesses={filteredBusinesses.map((b) => ({
                   id: b.id,
                   name: b.name,
                   city: b.city,
@@ -2168,7 +2168,7 @@ const SearchPage = () => {
                   wtuce_status: b.wtuce_status,
                   logo_url: b.logo_url,
                   neighborhood: (b as any).neighborhood,
-                })) : undefined}
+                }))}
                 height="calc(100vh - 250px)"
                 isLoading={isLoading}
                 forceOverview={!selectedCity || selectedCity === "all"}
