@@ -95,6 +95,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center }: PoiGoogleMapP
       streetViewControl: false,
       fullscreenControl: true,
       zoomControl: true,
+      zoomControlOptions: { position: google.maps.ControlPosition.RIGHT_CENTER },
     });
     infoWindowRef.current = new google.maps.InfoWindow();
   }, [ready]);
