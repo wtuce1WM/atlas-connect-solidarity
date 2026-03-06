@@ -392,6 +392,21 @@ const SearchPage = () => {
   // Track whether a category/subcategory filter is active (compact AI mode)
   const isCategoryFilterActive = !!(selectedCategoryFilter || selectedSubcategoryFilter || selectedServiceFilter);
   const [isAiSummaryExpanded, setIsAiSummaryExpanded] = useState(false);
+
+  // Lock scroll above the tab bar when filters are active
+  useEffect(() => {
+    if (!isCategoryFilterActive) return;
+    const handleScroll = () => {
+      const tabBar = document.querySelector('[data-tab-bar]');
+      if (!tabBar) return;
+      const tabBarTop = tabBar.getBoundingClientRect().top + window.scrollY - 60;
+      if (window.scrollY < tabBarTop) {
+        window.scrollTo({ top: tabBarTop, behavior: "auto" });
+      }
+    };
+    window.addEventListener("scroll", handleScroll, { passive: false });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [isCategoryFilterActive]);
   const [aiRegenerateKey, setAiRegenerateKey] = useState(0);
   const [isAiRegenerating, setIsAiRegenerating] = useState(false);
   const [compactPanelBusiness, setCompactPanelBusiness] = useState<AIBusinessData | null>(null);
