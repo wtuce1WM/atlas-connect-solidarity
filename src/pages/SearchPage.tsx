@@ -1460,7 +1460,7 @@ const SearchPage = () => {
       </section>
 
       {/* Tab Bar — stickybar 1 (above cities) */}
-      <section data-tab-bar className="sticky top-[60px] z-[4] bg-background/95 backdrop-blur-sm border-b border-border">
+      <section data-tab-bar className="sticky top-[60px] z-[5] bg-background/95 backdrop-blur-sm border-b border-border">
         <div className="mx-auto px-4 max-w-[80%]">
           <div className="flex gap-0">
             <button
@@ -1491,7 +1491,7 @@ const SearchPage = () => {
 
       {/* City Bar — stickybar 2 (below tabs) */}
       {availableCities.length > 1 && !queryHasExplicitCity && (
-        <div data-city-bar className="sticky top-[104px] z-[3] bg-background/95 backdrop-blur-sm border-b border-border py-2.5">
+        <div data-city-bar className="sticky top-[104px] z-[4] bg-background/95 backdrop-blur-sm border-b border-border py-2.5">
           <div className="mx-auto px-4 max-w-[80%]">
             <div className="flex gap-2 overflow-x-auto pb-0.5 scrollbar-hide">
               <button
@@ -1527,11 +1527,51 @@ const SearchPage = () => {
         </div>
       )}
 
+      {/* AI Summary Bar — stickybar 3 (below cities, above categories) */}
+      {isCategoryFilterActive && aiAnswerText && (
+        <div className={`sticky ${availableCities.length > 1 && !queryHasExplicitCity ? 'top-[148px]' : 'top-[104px]'} z-[3] bg-background/95 backdrop-blur-sm border-b border-border py-2`}>
+          <div className="mx-auto px-4 max-w-[80%]">
+            <div className="flex items-start gap-3">
+              <div className="flex-1 min-w-0">
+                <div className={`text-sm text-muted-foreground leading-relaxed ${isAiSummaryExpanded ? '' : 'line-clamp-2'}`}>
+                  <Sparkles className="h-3.5 w-3.5 inline-block mr-1.5 text-gold align-text-bottom" />
+                  {parseInline(
+                    aiAnswerText.replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "").replace(/\n+/g, " "),
+                    allBusinesses as unknown as AIBusinessData[],
+                    (b) => setCompactPanelBusiness(b),
+                    "compact-ai"
+                  )}
+                </div>
+                <button
+                  onClick={() => setIsAiSummaryExpanded(!isAiSummaryExpanded)}
+                  className="inline-flex items-center gap-1 mt-1 text-xs font-medium text-gold hover:text-gold/80 transition-colors"
+                >
+                  {isAiSummaryExpanded ? (
+                    <><ChevronUp className="h-3 w-3" />{language === "en" ? "Show less" : "Réduire"}</>
+                  ) : (
+                    <><ChevronDown className="h-3 w-3" />{language === "en" ? "Read more" : "Lire la suite"}</>
+                  )}
+                </button>
+              </div>
+              <button
+                onClick={() => { setAiAnswerText(""); setAiRegenerateKey(k => k + 1); }}
+                className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-gold/30 bg-card text-gold text-xs font-medium hover:bg-gold/20 transition-colors mt-0.5"
+                title={language === "en" ? "Generate another suggestion" : "Régénérer la suggestion"}
+              >
+                <RefreshCw className="h-3.5 w-3.5" />
+                {language === "en" ? "Regenerate" : "Régénérer"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Sticky Category + Subcategory Filters */}
       {detectedCity && allBusinesses.length > 0 && !isLoading && (
         <CityCategoryFilter
           cityName={detectedCity}
           hasCityBar={availableCities.length > 1 && !queryHasExplicitCity}
+          hasAiBar={!!(isCategoryFilterActive && aiAnswerText)}
           selectedCategory={selectedCategoryFilter}
           onSelectCategory={(cat) => {
             setSelectedCategoryFilter(cat);
@@ -1620,49 +1660,6 @@ const SearchPage = () => {
             </p>
           )}
 
-          {/* Compact AI zone — shown above results when category/subcategory filter is active */}
-          {isCategoryFilterActive && aiAnswerText && (
-            <div data-compact-ai className="mb-2 mt-4 flex flex-wrap items-start gap-3 px-1">
-              <div className="flex-1 min-w-0">
-                <div className={`text-sm text-muted-foreground leading-relaxed ${isAiSummaryExpanded ? '' : 'line-clamp-2'}`}>
-                  <Sparkles className="h-3.5 w-3.5 inline-block mr-1.5 text-gold align-text-bottom" />
-                  {parseInline(
-                    aiAnswerText.replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "").replace(/\n+/g, " "),
-                    allBusinesses as unknown as AIBusinessData[],
-                    (b) => setCompactPanelBusiness(b),
-                    "compact-ai"
-                  )}
-                </div>
-                <button
-                  onClick={() => setIsAiSummaryExpanded(!isAiSummaryExpanded)}
-                  className="inline-flex items-center gap-1 mt-1.5 text-xs font-medium text-gold hover:text-gold/80 transition-colors"
-                >
-                  {isAiSummaryExpanded ? (
-                    <>
-                      <ChevronUp className="h-3 w-3" />
-                      {language === "en" ? "Show less" : "Réduire"}
-                    </>
-                  ) : (
-                    <>
-                      <ChevronDown className="h-3 w-3" />
-                      {language === "en" ? "Read more" : "Lire la suite"}
-                    </>
-                  )}
-                </button>
-              </div>
-              <button
-                onClick={() => {
-                  setAiAnswerText("");
-                  setAiRegenerateKey(k => k + 1);
-                }}
-                className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-gold/30 bg-card text-gold text-xs font-medium hover:bg-gold/20 transition-colors"
-                title={language === "en" ? "Generate another suggestion" : "Régénérer la suggestion"}
-              >
-                <RefreshCw className="h-3.5 w-3.5" />
-                {language === "en" ? "Regenerate" : "Régénérer"}
-              </button>
-            </div>
-          )}
 
           {/* Écouter + Geo + Plus de filtres — below AI summary (only when compact summary is visible below stickybars) */}
           {aiAnswerText && isCategoryFilterActive && (
