@@ -76,6 +76,7 @@ interface Business {
   vacation_dates?: unknown;
   zone_chalandise?: string | null;
   is_visible_locale?: boolean;
+  zone_city_ids?: string[] | null;
 }
 
 interface SearchResult {
@@ -363,7 +364,7 @@ const SearchPage = () => {
   const [searchMode, setSearchMode] = useState<string | null>(null);
   const [searchLevel, setSearchLevel] = useState<string>("");
   const [searchMessage, setSearchMessage] = useState<string>("");
-  const [citiesWithPriority, setCitiesWithPriority] = useState<{ name: string; priority: number }[]>([]);
+  const [citiesWithPriority, setCitiesWithPriority] = useState<{ name: string; priority: number; id?: string }[]>([]);
   const [gammes, setGammes] = useState<Gamme[]>([]);
   const [badges, setBadges] = useState<Badge[]>([]);
   const [subcategories, setSubcategories] = useState<SubcategoryRef[]>([]);
@@ -798,9 +799,23 @@ const SearchPage = () => {
     return (getEffectiveRating(b) ?? -1) - (getEffectiveRating(a) ?? -1);
   };
 
-  // Filter businesses by city. Preserve backend ranking for active searches.
+  // Filter businesses by city. Include businesses that cover the city via zone_city_ids.
+  const selectedCityId = useMemo(() => {
+    if (!selectedCity || selectedCity === "all") return null;
+    return citiesWithPriority.find(c => c.name === selectedCity)?.id || null;
+  }, [selectedCity, citiesWithPriority]);
+
   const filteredBusinesses = useMemo(() => {
-    let filtered = selectedCity === "all" ? allBusinesses : allBusinesses.filter(b => b.city === selectedCity);
+    let filtered = allBusinesses;
+    if (selectedCity && selectedCity !== "all") {
+      filtered = allBusinesses.filter(b => {
+        // Direct city match
+        if (b.city === selectedCity) return true;
+        // National/zone businesses that cover this city
+        if (selectedCityId && b.zone_city_ids?.includes(selectedCityId) && b.is_visible_locale) return true;
+        return false;
+      });
+    }
     // Apply category filter from CityCategoryFilter
     if (selectedCategoryFilter) {
       filtered = filtered.filter(b => b.main_category === selectedCategoryFilter);
@@ -856,7 +871,7 @@ const SearchPage = () => {
 
     // Always sort by WTUCE status first, then by rating (highest first)
     return [...filtered].sort(sortWtuceAndRating);
-  }, [allBusinesses, selectedCity, selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, activeTimeSlot, searchQuery, categoryFromUrl, moreFilterMatchingIds, moreFilterTimeSlots]);
+  }, [allBusinesses, selectedCity, selectedCityId, selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, activeTimeSlot, searchQuery, categoryFromUrl, moreFilterMatchingIds, moreFilterTimeSlots]);
 
   // Extract services from search results for inline filter bar (only is_filtered=true, respecting service_city_filters)
   // filteredServicesBySubcategory: subcategory name -> Set of service names where is_filtered=true
@@ -1023,7 +1038,7 @@ const SearchPage = () => {
         // Fetch cities with sort_order
         const { data: citiesData } = await supabase
           .from("cities")
-          .select("name_fr, sort_order")
+          .select("id, name_fr, sort_order")
           .eq("is_active", true)
           .order("sort_order", { ascending: true });
 
@@ -1031,7 +1046,7 @@ const SearchPage = () => {
 
         if (citiesData) {
           setCitiesWithPriority(
-            citiesData.map(c => ({ name: c.name_fr, priority: c.sort_order || 0 }))
+            citiesData.map(c => ({ name: c.name_fr, id: c.id, priority: c.sort_order || 0 }))
           );
         }
 
