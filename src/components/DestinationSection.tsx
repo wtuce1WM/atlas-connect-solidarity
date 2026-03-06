@@ -47,21 +47,36 @@ const DestinationSection = ({ city, language, onDestinationClick, columns, onMap
         return;
       }
 
-      // Find destinations linked to businesses in this city via join
-      const { data: links } = await (supabase
-        .from("business_destinations" as any)
-        .select("destination_id, businesses!inner(id)")
-        .eq("businesses.is_active", true)
-        .eq("businesses.city", city) as any);
+      // Find destination IDs linked to businesses in this city
+      // Use pagination to avoid the 1000-row PostgREST limit
+      let allLinks: any[] = [];
+      let offset = 0;
+      const batchSize = 1000;
+      let hasMore = true;
+      while (hasMore) {
+        const { data: batch } = await (supabase
+          .from("business_destinations" as any)
+          .select("destination_id, business:businesses!inner(id)")
+          .eq("business.is_active", true)
+          .eq("business.city", city)
+          .range(offset, offset + batchSize - 1) as any);
+        if (batch && batch.length > 0) {
+          allLinks.push(...batch);
+          offset += batchSize;
+          hasMore = batch.length === batchSize;
+        } else {
+          hasMore = false;
+        }
+      }
 
-      if (!links || links.length === 0) {
+      if (allLinks.length === 0) {
         setDestinations([]);
         onDestinationsLoaded?.([]);
         setIsLoading(false);
         return;
       }
 
-      const destIds = [...new Set((links as any[]).map((l: any) => l.destination_id))];
+      const destIds = [...new Set(allLinks.map((l: any) => l.destination_id))];
 
       const { data: destsData } = await supabase
         .from("destinations")
