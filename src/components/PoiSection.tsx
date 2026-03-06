@@ -31,7 +31,7 @@ interface PoiSectionProps {
   onBusinessClick?: (businessId: string) => void;
 }
 
-const PoiSection = ({ city, language }: PoiSectionProps) => {
+const PoiSection = ({ city, language, onBusinessClick }: PoiSectionProps) => {
   const [pois, setPois] = useState<PoiBusiness[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -101,6 +101,12 @@ const PoiSection = ({ city, language }: PoiSectionProps) => {
             <Link
               key={biz.id}
               to={`/business/${biz.id}`}
+              onClick={(e) => {
+                if (onBusinessClick) {
+                  e.preventDefault();
+                  onBusinessClick(biz.id);
+                }
+              }}
               className="group overflow-hidden rounded-xl border border-gold/20 shadow-sm hover:shadow-md transition-shadow aspect-square relative"
             >
               {img ? (
