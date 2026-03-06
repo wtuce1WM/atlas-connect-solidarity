@@ -1420,6 +1420,20 @@ const SearchPage = () => {
     }
   }, [isLoading]);
 
+      {activeTab === "destinations" && (() => {
+        const destCity = selectedCity && selectedCity !== "all" ? selectedCity : detectedCity;
+        return (
+          <section className="pt-16 pb-6 lg:pt-20 lg:pb-12 bg-background">
+            <div className="mx-auto px-4 max-w-[80%]">
+              <DestinationSection
+                city={destCity}
+                language={language}
+              />
+            </div>
+          </section>
+        );
+      })()}
+
 
   const translations = {
     fr: {
