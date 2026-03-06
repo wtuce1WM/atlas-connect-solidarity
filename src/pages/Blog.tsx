@@ -129,45 +129,114 @@ const Blog = () => {
               </Link>
             ))}
 
-            {/* Carte Essaouira Vue sur Mer */}
-            <Link to="/blog/essaouira-vue-mer">
-              <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30">
-                <div className="aspect-video overflow-hidden bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-                  <MapPin className="h-16 w-16 text-primary" />
+            {/* Carte Brummell Typographie */}
+            <Link to="/blog/brummell">
+              <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-stone-50 to-amber-50/50 dark:from-stone-950/30 dark:to-amber-950/20">
+                <div className="aspect-video overflow-hidden bg-[#1a1a1a] flex items-center justify-center">
+                  <p className="text-white/80 text-2xl font-light tracking-[0.25em] uppercase">Brummell</p>
                 </div>
                 <CardContent className="p-6">
                   <h2 className="text-xl font-semibold mb-3 font-['Playfair_Display'] italic">
-                    Établissements à Essaouira avec vue sur mer
+                    Brummell — Analyse Typographique
                   </h2>
                   <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
-                    Découvrez notre sélection des meilleurs établissements d'Essaouira offrant une vue imprenable sur l'océan Atlantique.
+                    Décryptage des polices Venus et Freight utilisées par Brummell Projects : hiérarchie, palette et équivalences Google Fonts.
                   </p>
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1 text-primary font-medium">
-                      <MapPin className="h-3 w-3" /> Essaouira
+                    <span className="flex items-center gap-1 text-stone-600 font-medium">
+                      <Hotel className="h-3 w-3" /> Typographie
                     </span>
-                    <ArrowRight className="h-4 w-4 text-primary" />
+                    <ArrowRight className="h-4 w-4 text-stone-600" />
                   </div>
                 </CardContent>
               </Card>
             </Link>
 
-            {/* Carte Établissements notés */}
-            <Link to="/etablissements-notes">
-              <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30">
-                <div className="aspect-video overflow-hidden bg-gradient-to-br from-gold/20 to-gold/5 flex items-center justify-center">
-                  <Star className="h-16 w-16 text-gold" />
+            {/* Carte Typographie */}
+            <Link to="/blog/typographie">
+              <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-slate-50 to-zinc-50 dark:from-slate-950/30 dark:to-zinc-950/30">
+                <div className="aspect-video overflow-hidden bg-gradient-to-br from-slate-500/20 to-zinc-500/5 flex items-center justify-center">
+                  <Type className="h-16 w-16 text-slate-600" />
                 </div>
                 <CardContent className="p-6">
                   <h2 className="text-xl font-semibold mb-3 font-['Playfair_Display'] italic">
-                    Établissements notés
+                    Guide Typographique
                   </h2>
                   <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
-                    Découvrez le classement des meilleurs établissements du Maroc selon les avis TripAdvisor, Google et Restaurant Guru.
+                    Référence complète des polices, balises HTML, classes utilitaires et combinaisons typographiques utilisées sur le site.
+                  </p>
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1 text-slate-600 font-medium">
+                      <Type className="h-3 w-3" /> Design System
+                    </span>
+                    <ArrowRight className="h-4 w-4 text-slate-600" />
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+
+            {/* Carte Mode Strict */}
+            <Link to="/blog/mode-strict">
+              <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-red-50 to-rose-50 dark:from-red-950/30 dark:to-rose-950/30">
+                <div className="aspect-video overflow-hidden bg-gradient-to-br from-red-500/20 to-rose-500/5 flex items-center justify-center">
+                  <Search className="h-16 w-16 text-red-500" />
+                </div>
+                <CardContent className="p-6">
+                  <h2 className="text-xl font-semibold mb-3 font-['Playfair_Display'] italic">
+                    Mode Strict
+                  </h2>
+                  <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
+                    Visualisez toutes les sous-catégories configurées en mode strict et testez leurs résultats de recherche.
+                  </p>
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1 text-red-500 font-medium">
+                      <Search className="h-3 w-3" /> Recherche
+                    </span>
+                    <ArrowRight className="h-4 w-4 text-red-500" />
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+
+            {/* Carte Affichage résultats Search */}
+            <Link to="/blog/search-layouts">
+              <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30">
+                <div className="aspect-video overflow-hidden bg-gradient-to-br from-emerald-500/20 to-teal-500/5 flex items-center justify-center">
+                  <BarChart3 className="h-16 w-16 text-emerald-500" />
+                </div>
+                <CardContent className="p-6">
+                  <h2 className="text-xl font-semibold mb-3 font-['Playfair_Display'] italic">
+                    Affichage résultats de Search
+                  </h2>
+                  <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
+                    Comparaison de 4 layouts pour afficher les résultats de recherche : carrousel, groupement, grille/liste, pagination.
+                  </p>
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1 text-emerald-500 font-medium">
+                      <BarChart3 className="h-3 w-3" /> Démo
+                    </span>
+                    <ArrowRight className="h-4 w-4 text-emerald-500" />
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+
+            {/* Carte Effets Logo */}
+            <Link to="/demo-effects">
+              <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-yellow-50 to-amber-50 dark:from-yellow-950/30 dark:to-amber-950/30">
+                <div className="aspect-video overflow-hidden bg-gradient-to-br from-gold/20 to-gold/5 flex items-center justify-center">
+                  <Sparkles className="h-16 w-16 text-gold" />
+                </div>
+                <CardContent className="p-6">
+                  <h2 className="text-xl font-semibold mb-3 font-['Playfair_Display'] italic">
+                    Effets Logo — Démo
+                  </h2>
+                  <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
+                    Prévisualisation de 8 effets d'animation pour le logo WTUCE : zoom, spin, flip 3D, blur reveal et plus.
                   </p>
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
                     <span className="flex items-center gap-1 text-gold font-medium">
-                      <Star className="h-3 w-3" /> Classement
+                      <Sparkles className="h-3 w-3" /> Démo
                     </span>
                     <ArrowRight className="h-4 w-4 text-gold" />
                   </div>
@@ -198,22 +267,22 @@ const Blog = () => {
               </Card>
             </Link>
 
-            {/* Carte Effets Logo */}
-            <Link to="/demo-effects">
-              <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-yellow-50 to-amber-50 dark:from-yellow-950/30 dark:to-amber-950/30">
+            {/* Carte Établissements notés */}
+            <Link to="/etablissements-notes">
+              <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30">
                 <div className="aspect-video overflow-hidden bg-gradient-to-br from-gold/20 to-gold/5 flex items-center justify-center">
-                  <Sparkles className="h-16 w-16 text-gold" />
+                  <Star className="h-16 w-16 text-gold" />
                 </div>
                 <CardContent className="p-6">
                   <h2 className="text-xl font-semibold mb-3 font-['Playfair_Display'] italic">
-                    Effets Logo — Démo
+                    Établissements notés
                   </h2>
                   <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
-                    Prévisualisation de 8 effets d'animation pour le logo WTUCE : zoom, spin, flip 3D, blur reveal et plus.
+                    Découvrez le classement des meilleurs établissements du Maroc selon les avis TripAdvisor, Google et Restaurant Guru.
                   </p>
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
                     <span className="flex items-center gap-1 text-gold font-medium">
-                      <Sparkles className="h-3 w-3" /> Démo
+                      <Star className="h-3 w-3" /> Classement
                     </span>
                     <ArrowRight className="h-4 w-4 text-gold" />
                   </div>
@@ -221,75 +290,28 @@ const Blog = () => {
               </Card>
             </Link>
 
-            {/* Carte Affichage résultats Search */}
-            <Link to="/blog/search-layouts">
-              <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30">
-                <div className="aspect-video overflow-hidden bg-gradient-to-br from-emerald-500/20 to-teal-500/5 flex items-center justify-center">
-                  <BarChart3 className="h-16 w-16 text-emerald-500" />
+            {/* Carte Essaouira Vue sur Mer */}
+            <Link to="/blog/essaouira-vue-mer">
+              <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30">
+                <div className="aspect-video overflow-hidden bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                  <MapPin className="h-16 w-16 text-primary" />
                 </div>
                 <CardContent className="p-6">
                   <h2 className="text-xl font-semibold mb-3 font-['Playfair_Display'] italic">
-                    Affichage résultats de Search
+                    Établissements à Essaouira avec vue sur mer
                   </h2>
                   <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
-                    Comparaison de 4 layouts pour afficher les résultats de recherche : carrousel, groupement, grille/liste, pagination.
+                    Découvrez notre sélection des meilleurs établissements d'Essaouira offrant une vue imprenable sur l'océan Atlantique.
                   </p>
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1 text-emerald-500 font-medium">
-                      <BarChart3 className="h-3 w-3" /> Démo
+                    <span className="flex items-center gap-1 text-primary font-medium">
+                      <MapPin className="h-3 w-3" /> Essaouira
                     </span>
-                    <ArrowRight className="h-4 w-4 text-emerald-500" />
+                    <ArrowRight className="h-4 w-4 text-primary" />
                   </div>
                 </CardContent>
               </Card>
             </Link>
-
-            {/* Carte Mode Strict */}
-            <Link to="/blog/mode-strict">
-              <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-red-50 to-rose-50 dark:from-red-950/30 dark:to-rose-950/30">
-                <div className="aspect-video overflow-hidden bg-gradient-to-br from-red-500/20 to-rose-500/5 flex items-center justify-center">
-                  <Search className="h-16 w-16 text-red-500" />
-                </div>
-                <CardContent className="p-6">
-                  <h2 className="text-xl font-semibold mb-3 font-['Playfair_Display'] italic">
-                    Mode Strict
-                  </h2>
-                  <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
-                    Visualisez toutes les sous-catégories configurées en mode strict et testez leurs résultats de recherche.
-                  </p>
-                  <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1 text-red-500 font-medium">
-                      <Search className="h-3 w-3" /> Recherche
-                    </span>
-                    <ArrowRight className="h-4 w-4 text-red-500" />
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-
-            {/* Carte Typographie */}
-            <Link to="/blog/typographie">
-              <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-slate-50 to-zinc-50 dark:from-slate-950/30 dark:to-zinc-950/30">
-                <div className="aspect-video overflow-hidden bg-gradient-to-br from-slate-500/20 to-zinc-500/5 flex items-center justify-center">
-                  <Type className="h-16 w-16 text-slate-600" />
-                </div>
-                <CardContent className="p-6">
-                  <h2 className="text-xl font-semibold mb-3 font-['Playfair_Display'] italic">
-                    Guide Typographique
-                  </h2>
-                  <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
-                    Référence complète des polices, balises HTML, classes utilitaires et combinaisons typographiques utilisées sur le site.
-                  </p>
-                  <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1 text-slate-600 font-medium">
-                      <Type className="h-3 w-3" /> Design System
-                    </span>
-                    <ArrowRight className="h-4 w-4 text-slate-600" />
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-
             {/* Carte Brummell Typographie */}
             <Link to="/blog/brummell">
               <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-stone-50 to-amber-50/50 dark:from-stone-950/30 dark:to-amber-950/20">
