@@ -340,6 +340,7 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
         )}
       </div>
     </div>
+    )}
       {/* Lightbox rendered outside panel for proper z-index */}
       <ImageLightbox
         images={(() => {
