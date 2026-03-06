@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { MapPin, Star, Loader2, Landmark } from "lucide-react";
+import { MapPin, Star, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
 
@@ -25,27 +25,6 @@ interface PoiBusiness {
   poi_hook: string | null;
 }
 
-interface PoiOnly {
-  id: string;
-  name_fr: string;
-  image_url: string | null;
-  images: string[] | null;
-  hook: string | null;
-  city_name: string;
-}
-
-/** Unified item for display */
-interface PoiItem {
-  id: string;
-  name: string;
-  city: string | null;
-  neighborhood: string | null;
-  image: string | null;
-  ratingOn20: number | null;
-  totalReviews: number;
-  isBusiness: boolean;
-}
-
 interface PoiSectionProps {
   city: string | null;
   language: string;
@@ -53,102 +32,35 @@ interface PoiSectionProps {
 }
 
 const PoiSection = ({ city, language, onBusinessClick }: PoiSectionProps) => {
-  const [items, setItems] = useState<PoiItem[]>([]);
+  const [pois, setPois] = useState<PoiBusiness[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchAll = async () => {
+    const fetchPois = async () => {
       setIsLoading(true);
-
-      // 1. Fetch business POIs
-      let bizQuery = supabase
+      let query = supabase
         .from("businesses")
         .select("id, name, city, neighborhood, images, rating, categories, poi_hook, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, getyourguide_rating, getyourguide_review_count, viator_rating, viator_review_count")
         .eq("is_active", true)
         .eq("is_poi", true)
         .order("priority_score", { ascending: false })
-        .limit(100);
+        .limit(50);
 
       if (city) {
-        bizQuery = bizQuery.eq("city", city);
+        query = query.eq("city", city);
       }
 
-      // 2. Resolve city_id for points_of_interest query
-      let cityId: string | null = null;
-      if (city) {
-        const { data: cityData } = await supabase
-          .from("cities")
-          .select("id")
-          .eq("name_fr", city)
-          .limit(1)
-          .single();
-        cityId = cityData?.id ?? null;
-      }
-
-      // 3. Fetch pure POIs (points_of_interest table)
-      let poiQuery = supabase
-        .from("points_of_interest" as any)
-        .select("id, name_fr, image_url, images, hook, city_id, cities!inner(name_fr)")
-        .order("sort_order", { ascending: true })
-        .limit(100);
-
-      if (cityId) {
-        poiQuery = poiQuery.eq("city_id", cityId);
-      }
-
-      const [bizRes, poiRes] = await Promise.all([bizQuery, poiQuery]);
-
-      // Build unified items from businesses
-      const bizItems: PoiItem[] = ((bizRes.data as PoiBusiness[]) || []).map((b) => {
-        const sources = collectRatingSources(b);
-        const avgOn20 = b.rating ?? computeWeightedRatingOn20(sources);
-        const totalReviews = sources.reduce((s, r) => s + r.count, 0);
-        return {
-          id: b.id,
-          name: b.name,
-          city: b.city,
-          neighborhood: b.neighborhood,
-          image: b.images?.[0] ?? null,
-          ratingOn20: avgOn20,
-          totalReviews,
-          isBusiness: true,
-        };
+      const { data } = await query;
+      const sorted = ((data as PoiBusiness[]) || []).sort((a, b) => {
+        const aRating = a.rating ?? computeWeightedRatingOn20(collectRatingSources(a)) ?? 0;
+        const bRating = b.rating ?? computeWeightedRatingOn20(collectRatingSources(b)) ?? 0;
+        return (bRating || 0) - (aRating || 0);
       });
-
-      // Business names (lowercase) for dedup
-      const bizNamesLower = new Set(bizItems.map((b) => b.name.toLowerCase()));
-
-      // Build unified items from pure POIs (exclude those already in businesses)
-      const poiItems: PoiItem[] = ((poiRes.data as any[]) || [])
-        .filter((p: any) => !bizNamesLower.has((p.name_fr || "").toLowerCase()))
-        .map((p: any) => {
-          const cityName = (p.cities as any)?.name_fr ?? city ?? "";
-          const img = p.image_url || (p.images && p.images.length > 0 ? p.images[0] : null);
-          return {
-            id: `poi-${p.id}`,
-            name: p.name_fr,
-            city: cityName,
-            neighborhood: null,
-            image: img,
-            ratingOn20: null,
-            totalReviews: 0,
-            isBusiness: false,
-          };
-        });
-
-      // Merge and sort: rated first (desc), then unrated alphabetically
-      const all = [...bizItems, ...poiItems].sort((a, b) => {
-        const aR = a.ratingOn20 ?? 0;
-        const bR = b.ratingOn20 ?? 0;
-        if (bR !== aR) return bR - aR;
-        return a.name.localeCompare(b.name, "fr");
-      });
-
-      setItems(all);
+      setPois(sorted);
       setIsLoading(false);
     };
 
-    fetchAll();
+    fetchPois();
   }, [city]);
 
   if (isLoading) {
@@ -159,7 +71,7 @@ const PoiSection = ({ city, language, onBusinessClick }: PoiSectionProps) => {
     );
   }
 
-  if (items.length === 0) {
+  if (pois.length === 0) {
     return (
       <div className="text-center py-16 text-muted-foreground">
         {language === "en" ? "No points of interest found" : language === "ar" ? "لم يتم العثور على أماكن مهمة" : "Aucun lieu d'intérêt trouvé"}
@@ -175,67 +87,54 @@ const PoiSection = ({ city, language, onBusinessClick }: PoiSectionProps) => {
           {language === "en" ? "Points of Interest" : language === "ar" ? "أماكن مهمة" : "Lieux d'intérêt"}
           {city && <span className="text-muted-foreground font-normal text-sm ml-2">— {city}</span>}
         </h2>
-        <span className="text-xs text-muted-foreground">{items.length} {language === "en" ? "results" : "résultats"}</span>
+        <span className="text-xs text-muted-foreground">{pois.length} {language === "en" ? "results" : "résultats"}</span>
       </div>
 
       <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
-        {items.map((item) => {
-          const inner = (
-            <>
-              {item.image ? (
-                <img src={item.image} alt={item.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+        {pois.map((biz) => {
+          const img = biz.images && biz.images.length > 0 ? biz.images[0] : null;
+          const sources = collectRatingSources(biz);
+          const avgOn20 = biz.rating ?? computeWeightedRatingOn20(sources);
+          const totalReviews = sources.reduce((s, r) => s + r.count, 0);
+
+          return (
+            <Link
+              key={biz.id}
+              to={`/business/${biz.id}`}
+              onClick={(e) => {
+                if (onBusinessClick) {
+                  e.preventDefault();
+                  onBusinessClick(biz.id);
+                }
+              }}
+              className="group overflow-hidden rounded-xl border border-gold/20 shadow-sm hover:shadow-md transition-shadow aspect-square relative"
+            >
+              {img ? (
+                <img src={img} alt={biz.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
               ) : (
                 <div className="absolute inset-0 bg-muted flex items-center justify-center">
-                  <Landmark className="h-8 w-8 text-muted-foreground/40" />
+                  <MapPin className="h-8 w-8 text-muted-foreground/40" />
                 </div>
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
               <div className="absolute bottom-0 left-0 right-0 p-2 space-y-0.5">
-                <p className="font-semibold text-[11px] text-white leading-tight line-clamp-2">{item.name}</p>
+                <p className="font-semibold text-[11px] text-white leading-tight line-clamp-2">{biz.name}</p>
                 <div className="flex items-center gap-1 text-[10px] text-white/80">
                   <MapPin className="h-2.5 w-2.5 shrink-0" />
-                  <span className="truncate">{item.city}{item.neighborhood ? ` · ${item.neighborhood}` : ""}</span>
+                  <span className="truncate">{biz.city}{biz.neighborhood ? ` · ${biz.neighborhood}` : ""}</span>
                 </div>
-                {item.ratingOn20 && (
+                {avgOn20 && (
                   <div className="flex items-center gap-1 text-[10px]">
                     <Star className="h-2.5 w-2.5 text-gold fill-gold" />
-                    <span className="font-medium text-white">{item.ratingOn20}/20</span>
-                    {item.totalReviews > 0 && (
-                      <span className="text-white/70">· {item.totalReviews} avis</span>
+                    <span className="font-medium text-white">{avgOn20}/20</span>
+                    {totalReviews > 0 && (
+                      <span className="text-white/70">· {totalReviews} avis</span>
                     )}
                   </div>
                 )}
               </div>
-            </>
-          );
-
-          if (item.isBusiness) {
-            return (
-              <Link
-                key={item.id}
-                to={`/business/${item.id}`}
-                onClick={(e) => {
-                  if (onBusinessClick) {
-                    e.preventDefault();
-                    onBusinessClick(item.id);
-                  }
-                }}
-                className="group overflow-hidden rounded-xl border border-gold/20 shadow-sm hover:shadow-md transition-shadow aspect-square relative"
-              >
-                {inner}
-              </Link>
-            );
-          }
-
-          // Pure POI — no business page, just display card
-          return (
-            <div
-              key={item.id}
-              className="group overflow-hidden rounded-xl border border-border shadow-sm aspect-square relative cursor-default"
-            >
-              {inner}
-            </div>
+            </Link>
           );
         })}
       </div>
