@@ -543,7 +543,8 @@ const SearchPage = () => {
      const [allPois, setAllPois] = useState<PoiMapItem[]>([]);
      const [destMapItem, setDestMapItem] = useState<{ id: string; name_fr: string; latitude: number | null; longitude: number | null } | null>(null);
      const [allDests, setAllDests] = useState<PoiMapItem[]>([]);
-     const [selectedDestination, setSelectedDestination] = useState<DestinationItem | null>(null);
+      const [selectedDestination, setSelectedDestination] = useState<DestinationItem | null>(null);
+      const [destSelectedBusinessId, setDestSelectedBusinessId] = useState<string | null>(null);
      const [allDestItems, setAllDestItems] = useState<DestinationItem[]>([]);
    const [locationDialogOpen, setLocationDialogOpen] = useState(false);
    const heroAiRef = useRef<HTMLDivElement>(null);
