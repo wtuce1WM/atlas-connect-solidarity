@@ -2170,7 +2170,12 @@ const SearchPage = () => {
                   onBusinessClick={(bizId) => { setPoiMapBusiness(null); setPoiSelectedBusinessId(bizId); }}
                   columns={(poiSelectedBusinessId || poiMapBusiness) ? 3 : undefined}
                   onMapClick={(biz) => { setPoiSelectedBusinessId(null); setPoiMapBusiness({ id: biz.id, name: biz.name, latitude: biz.latitude, longitude: biz.longitude, address: biz.address, google_maps_url: biz.google_maps_url }); }}
-                  onPoisLoaded={(loadedPois) => setAllPois(loadedPois.map(p => ({ id: p.id, name: p.name, latitude: p.latitude, longitude: p.longitude, images: p.images, city: p.city, neighborhood: p.neighborhood })))}
+                  onPoisLoaded={(loadedPois) => setAllPois(loadedPois.map(p => {
+                    const sources = collectRatingSources(p);
+                    const avgOn20 = p.rating ?? computeWeightedRatingOn20(sources);
+                    const totalReviews = sources.reduce((s, r) => s + r.count, 0);
+                    return { id: p.id, name: p.name, latitude: p.latitude, longitude: p.longitude, images: p.images, city: p.city, neighborhood: p.neighborhood, avgOn20, totalReviews };
+                  }))}
                 />
               </div>
             </section>
