@@ -413,14 +413,21 @@ const SearchPage = () => {
    const [isCompactPanelExpanded, setIsCompactPanelExpanded] = useState(false);
    const [locationDialogOpen, setLocationDialogOpen] = useState(false);
    const heroAiRef = useRef<HTMLDivElement>(null);
-   const [isHeroAiOutOfView, setIsHeroAiOutOfView] = useState(false);
+   const [hasScrolledPastHeroAi, setHasScrolledPastHeroAi] = useState(false);
 
-   // Track when the hero AI card scrolls out of view
+   // Reset when query changes
+   useEffect(() => {
+     setHasScrolledPastHeroAi(false);
+   }, [searchQuery]);
+
+   // Track when the hero AI card scrolls out of view — once past, stays hidden
    useEffect(() => {
      const el = heroAiRef.current;
-     if (!el) { setIsHeroAiOutOfView(false); return; }
+     if (!el) return;
      const observer = new IntersectionObserver(
-       ([entry]) => setIsHeroAiOutOfView(!entry.isIntersecting),
+       ([entry]) => {
+         if (!entry.isIntersecting) setHasScrolledPastHeroAi(true);
+       },
        { threshold: 0, rootMargin: "-80px 0px 0px 0px" }
      );
      observer.observe(el);
@@ -1442,7 +1449,7 @@ const SearchPage = () => {
 
            {/* AI Search Answer — full hero mode (hidden when category filter active) */}
            {searchQuery && !isLoading && !isCategoryFilterActive && allBusinesses.length > 0 && (
-             <div ref={heroAiRef}>
+             <div ref={heroAiRef} className={hasScrolledPastHeroAi ? "h-0 overflow-hidden" : ""}>
                <AISearchAnswer
                  query={spokenText || searchQuery}
                  spokenText={spokenText || undefined}
@@ -1626,7 +1633,7 @@ const SearchPage = () => {
       )}
 
       {/* AI Summary Bar — sticky below all filter bars (OUTSIDE section for proper sticky) */}
-      {(isCategoryFilterActive || isHeroAiOutOfView) && (aiAnswerText || isAiRegenerating) && (() => {
+      {(isCategoryFilterActive || hasScrolledPastHeroAi) && (aiAnswerText || isAiRegenerating) && (() => {
         const hasCB = availableCities.length > 1 && !queryHasExplicitCity;
         const baseTop = 104 + (hasCB ? 44 : 0);
         const categoryEl = typeof document !== "undefined"
