@@ -16,6 +16,8 @@ import CategoriesCarouselSection from "@/components/CategoriesCarouselSection";
 import CityCategoryFilter from "@/components/CityCategoryFilter";
 import { Button } from "@/components/ui/button";
 import GoogleMapEmbed from "@/components/GoogleMapEmbed";
+import PoiGoogleMap from "@/components/PoiGoogleMap";
+import type { PoiMapItem } from "@/components/PoiGoogleMap";
 
 import {
   Select,
@@ -535,7 +537,8 @@ const SearchPage = () => {
     const [compactPanelBusiness, setCompactPanelBusiness] = useState<AIBusinessData | null>(null);
     const [isCompactPanelExpanded, setIsCompactPanelExpanded] = useState(false);
      const [poiSelectedBusinessId, setPoiSelectedBusinessId] = useState<string | null>(null);
-     const [poiMapBusiness, setPoiMapBusiness] = useState<{ name: string; latitude: number | null; longitude: number | null; address: string | null; google_maps_url: string | null } | null>(null);
+     const [poiMapBusiness, setPoiMapBusiness] = useState<{ name: string; latitude: number | null; longitude: number | null; address: string | null; google_maps_url: string | null; id: string } | null>(null);
+     const [allPois, setAllPois] = useState<PoiMapItem[]>([]);
    const [locationDialogOpen, setLocationDialogOpen] = useState(false);
    const heroAiRef = useRef<HTMLDivElement>(null);
    const [hasScrolledPastHeroAi, setHasScrolledPastHeroAi] = useState(false);
@@ -2166,7 +2169,8 @@ const SearchPage = () => {
                   language={language}
                   onBusinessClick={(bizId) => { setPoiMapBusiness(null); setPoiSelectedBusinessId(bizId); }}
                   columns={(poiSelectedBusinessId || poiMapBusiness) ? 3 : undefined}
-                  onMapClick={(biz) => { setPoiSelectedBusinessId(null); setPoiMapBusiness({ name: biz.name, latitude: biz.latitude, longitude: biz.longitude, address: biz.address, google_maps_url: biz.google_maps_url }); }}
+                  onMapClick={(biz) => { setPoiSelectedBusinessId(null); setPoiMapBusiness({ id: biz.id, name: biz.name, latitude: biz.latitude, longitude: biz.longitude, address: biz.address, google_maps_url: biz.google_maps_url }); }}
+                  onPoisLoaded={(loadedPois) => setAllPois(loadedPois.map(p => ({ id: p.id, name: p.name, latitude: p.latitude, longitude: p.longitude, images: p.images, city: p.city, neighborhood: p.neighborhood })))}
                 />
               </div>
             </section>
@@ -2212,15 +2216,15 @@ const SearchPage = () => {
                   <span className="flex-1 text-center font-semibold text-sm truncate">{poiMapBusiness.name}</span>
                   <div className="w-9" />
                 </div>
-                <div className="flex-1 min-h-0 flex flex-col">
-                    <GoogleMapEmbed
-                      address={poiMapBusiness.address || ""}
-                      businessName={poiMapBusiness.name}
-                      latitude={poiMapBusiness.latitude}
-                      longitude={poiMapBusiness.longitude}
-                      googleMapsUrl={poiMapBusiness.google_maps_url}
-                      fillHeight
-                    />
+                <div className="flex-1 min-h-0">
+                  <PoiGoogleMap
+                    pois={allPois}
+                    selectedPoiId={poiMapBusiness.id}
+                    onPoiClick={(poiId) => {
+                      const poi = allPois.find(p => p.id === poiId);
+                      if (poi) setPoiMapBusiness({ id: poi.id, name: poi.name, latitude: poi.latitude, longitude: poi.longitude, address: null, google_maps_url: null });
+                    }}
+                  />
                 </div>
               </div>
             )}
