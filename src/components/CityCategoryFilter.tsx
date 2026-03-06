@@ -321,7 +321,7 @@ const CityCategoryFilter = ({
 
       {/* Sticky subcategories zone */}
       {selectedCategory && !isLoadingSubs && subcategories.length > 0 && (
-        <div className={`sticky z-[3] bg-background backdrop-blur-sm border-b border-border/50 py-2`} style={{ top: `${baseTop + 62}px` }}>
+        <div data-subcategory-filter className={`sticky z-[3] bg-background backdrop-blur-sm border-b border-border/50 py-2`} style={{ top: `${baseTop + 62}px` }}>
           <div className="mx-auto px-4 max-w-[80%]">
             <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
               {subcategories.map((sub) => {
@@ -357,7 +357,7 @@ const CityCategoryFilter = ({
 
       {/* Sticky services zone */}
       {selectedSubcategory && !isLoadingServices && services.length > 0 && (
-        <div className={`sticky z-[2] bg-background backdrop-blur-sm border-b border-border/30 py-2`} style={{ top: `${baseTop + 114}px` }}>
+        <div data-service-filter className={`sticky z-[2] bg-background backdrop-blur-sm border-b border-border/30 py-2`} style={{ top: `${baseTop + 114}px` }}>
           <div className="mx-auto px-4 max-w-[80%]">
             <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
               {services.map((svc) => {
