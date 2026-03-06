@@ -27,11 +27,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { Loader2, Building2, ChevronLeft, ChevronRight, Search, Mic, Loader, MapPin, MapPinOff, X, Volume2, VolumeX, Clock, Map, Sparkles, SlidersHorizontal, ChevronDown, ChevronUp, RefreshCw } from "lucide-react";
+import { Loader2, Building2, ChevronLeft, ChevronRight, Search, Mic, Loader, MapPin, MapPinOff, X, Volume2, VolumeX, Clock, Map, Sparkles, SlidersHorizontal, ChevronDown, ChevronUp, RefreshCw, Compass } from "lucide-react";
 import MoreFiltersPopup from "@/components/MoreFiltersPopup";
 import { lazy, Suspense } from "react";
 const BusinessMap = lazy(() => import("@/components/BusinessMap"));
 import PoiSection from "@/components/PoiSection";
+import DestinationSection from "@/components/DestinationSection";
 import BusinessCard, { type BusinessCardData, type Gamme, type Badge, type SubcategoryRef, type BadgeSubcategoryRef } from "@/components/BusinessCard";
 import AISearchAnswer, { parseInline, type BusinessData as AIBusinessData } from "@/components/AISearchAnswer";
 import BusinessSlidePanel from "@/components/BusinessSlidePanel";
