@@ -393,20 +393,30 @@ const SearchPage = () => {
   const isCategoryFilterActive = !!(selectedCategoryFilter || selectedSubcategoryFilter || selectedServiceFilter);
   const [isAiSummaryExpanded, setIsAiSummaryExpanded] = useState(false);
 
-  // Lock scroll above the tab bar when filters are active
-  useEffect(() => {
-    if (!isCategoryFilterActive) return;
-    const handleScroll = () => {
-      const tabBar = document.querySelector('[data-tab-bar]');
-      if (!tabBar) return;
-      const tabBarTop = tabBar.getBoundingClientRect().top + window.scrollY - 60;
-      if (window.scrollY < tabBarTop) {
-        window.scrollTo({ top: tabBarTop, behavior: "auto" });
-      }
-    };
-    window.addEventListener("scroll", handleScroll, { passive: false });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [isCategoryFilterActive]);
+   // Track when user has scrolled down to the tab bar — lock scroll above it from that point
+   const [hasReachedTabBar, setHasReachedTabBar] = useState(false);
+
+   useEffect(() => {
+     setHasReachedTabBar(false);
+   }, [searchQuery]);
+
+   useEffect(() => {
+     const handleScroll = () => {
+       const tabBar = document.querySelector('[data-tab-bar]');
+       if (!tabBar) return;
+       const tabBarTop = tabBar.getBoundingClientRect().top + window.scrollY - 60;
+       // Once the user scrolls to the tab bar, lock it
+       if (!hasReachedTabBar && window.scrollY >= tabBarTop && tabBarTop > 0) {
+         setHasReachedTabBar(true);
+       }
+       // When locked, prevent scrolling above the tab bar
+       if (hasReachedTabBar && window.scrollY < tabBarTop) {
+         window.scrollTo({ top: tabBarTop, behavior: "auto" });
+       }
+     };
+     window.addEventListener("scroll", handleScroll, { passive: false });
+     return () => window.removeEventListener("scroll", handleScroll);
+   }, [hasReachedTabBar, searchQuery]);
   const [aiRegenerateKey, setAiRegenerateKey] = useState(0);
    const [isAiRegenerating, setIsAiRegenerating] = useState(false);
    const [compactPanelBusiness, setCompactPanelBusiness] = useState<AIBusinessData | null>(null);
