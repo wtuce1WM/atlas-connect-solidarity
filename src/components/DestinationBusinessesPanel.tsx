@@ -91,7 +91,7 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
   };
 
   return (
-    <div className="w-1/2 fixed top-[62px] right-0 bottom-0 z-[100] border-l border-border bg-background flex flex-col shadow-2xl">
+    <div className="w-1/2 fixed top-[60px] right-0 bottom-0 z-[100] border-l border-border bg-background flex flex-col shadow-2xl">
       <div className="flex items-center px-3 py-2 border-b border-border gap-2">
         <button
           onClick={onClose}
