@@ -1612,9 +1612,10 @@ const SearchPage = () => {
       {/* AI Summary Bar — sticky below all filter bars (OUTSIDE section for proper sticky) */}
       {isCategoryFilterActive && (aiAnswerText || isAiRegenerating) && (() => {
         const hasCB = availableCities.length > 1 && !queryHasExplicitCity;
-        let aiTop = 104 + (hasCB ? 44 : 0) + 56;
-        if (selectedSubcategoryFilter) aiTop += 44;
-        if (selectedServiceFilter) aiTop += 40;
+        const baseTop = 104 + (hasCB ? 44 : 0);
+        let aiTop = baseTop + 62;
+        if (selectedSubcategoryFilter) aiTop += 52;
+        if (selectedServiceFilter) aiTop += 52;
         return (
           <div className="sticky z-[1] bg-background backdrop-blur-sm border-b border-border py-2" style={{ top: `${aiTop}px` }}>
             <div className="mx-auto px-4 max-w-[80%]">
