@@ -2199,7 +2199,7 @@ const SearchPage = () => {
               </div>
             </section>
             {poiSelectedBusinessId && (
-              <div className="w-1/2 fixed top-[62px] right-0 z-[100] bg-background shadow-2xl border-l border-border overflow-hidden flex flex-col animate-slide-in-right" style={{ height: "calc(100vh - 62px)" }}>
+              <div className="w-1/2 fixed top-[54px] right-0 z-[100] bg-background shadow-2xl border-l border-border overflow-hidden flex flex-col animate-slide-in-right" style={{ height: "calc(100vh - 54px)" }}>
                 <div className="shrink-0 flex items-center px-4 py-2 bg-background border-b border-border z-40">
                   <div className="flex items-center gap-3 shrink-0">
                     <button
