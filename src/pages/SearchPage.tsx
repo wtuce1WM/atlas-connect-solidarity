@@ -1239,6 +1239,11 @@ const SearchPage = () => {
                 setSelectedCity(resultCities[0]);
               }
             }
+          } else if (categoryFromUrl && businesses.length > 0) {
+              // Pre-select UI category filter from URL param (e.g. from voice search)
+              setSelectedCategoryFilter(categoryFromUrl);
+              setSelectedSubcategoryFilter(null);
+              setSelectedServiceFilter(null);
           } else {
             // Reset category filter when search changes
             setSelectedCategoryFilter(null);
