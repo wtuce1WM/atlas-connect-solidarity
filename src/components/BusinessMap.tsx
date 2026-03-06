@@ -331,14 +331,14 @@ const BusinessMap = ({
       </div>
 
       {/* Legend */}
-      <div className="absolute bottom-3 left-3 z-10 bg-background/90 backdrop-blur-sm rounded-lg px-3 py-2 text-[10px] text-muted-foreground shadow-md border border-border flex items-center gap-3">
-        <span className="flex items-center gap-1">
+      <div className="absolute bottom-3 left-3 z-10 bg-background/90 backdrop-blur-sm rounded-lg px-3 py-2 text-[10px] text-muted-foreground shadow-md border border-border flex items-center gap-4">
+        <span className="flex items-center gap-1.5">
           <span className="inline-block w-3 h-3 rounded-full" style={{ background: "#D4AF37" }} />
-          Vérifié WTUCE
+          Vérifié ({verifiedCount})
         </span>
-        <span className="flex items-center gap-1">
+        <span className="flex items-center gap-1.5">
           <span className="inline-block w-3 h-3 rounded-full" style={{ background: "#3b82f6" }} />
-          Standard
+          Standard ({geoBusinesses.length - verifiedCount})
         </span>
       </div>
 
