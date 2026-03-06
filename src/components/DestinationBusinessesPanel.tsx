@@ -101,7 +101,9 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
         >
           <X className="h-4 w-4" />
         </button>
-        <span className="flex-1 text-center font-semibold text-sm truncate">{getName()}</span>
+        <span className="flex-1 text-center font-semibold text-sm truncate">
+          {language === "en" ? `These providers will take you to ${getName()}` : language === "ar" ? `هؤلاء المزودون سيأخذونك إلى ${getName()}` : `Ces prestataires vous emmèneront à ${getName()}`}
+        </span>
         <span className="text-xs text-muted-foreground whitespace-nowrap">
           {!isLoading && `${businesses.length} résultat${businesses.length > 1 ? "s" : ""}`}
         </span>
