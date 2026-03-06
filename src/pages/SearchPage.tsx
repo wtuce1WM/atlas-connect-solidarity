@@ -540,6 +540,7 @@ const SearchPage = () => {
    // Reset when query changes
    useEffect(() => {
      setHasScrolledPastHeroAi(false);
+     aiPopupShownRef.current = false;
    }, [searchQuery]);
 
    // Track when the hero AI card scrolls out of view — once past, stays hidden
