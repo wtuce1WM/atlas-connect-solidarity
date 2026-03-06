@@ -42,6 +42,7 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
   const [isLoading, setIsLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const [activeTab, setActiveTab] = useState<"info" | "providers">("info");
   const scrollRef = useRef<HTMLDivElement>(null);
 
