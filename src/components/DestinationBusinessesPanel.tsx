@@ -158,9 +158,9 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
 
     {/* Normal panel (hidden when expanded) */}
     {!isExpanded && (
-    <div className="fixed top-[54px] right-0 bottom-0 z-[100] border-l border-border bg-background flex flex-col shadow-2xl transition-all duration-500 ease-out w-1/2">
+    <div className="fixed top-[54px] right-0 bottom-0 z-40 border-l border-border bg-background flex flex-col shadow-2xl transition-all duration-500 ease-out w-1/2">
       {/* Header */}
-      <div className="shrink-0 flex items-center px-3 py-2 border-b border-border gap-2">
+      <div className="shrink-0 flex items-center px-3 py-2 border-b border-border gap-2 bg-white dark:bg-background">
         <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={() => { onClose(); setIsExpanded(false); }}
