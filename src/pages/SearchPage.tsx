@@ -1179,8 +1179,7 @@ const SearchPage = () => {
         // Use edge function for full-text search
         const { data, error } = await supabase.functions.invoke<SearchResult>("business-search", {
           body: { 
-            query: searchQuery.trim() || undefined,
-            category: categoryFromUrl || undefined,
+            query: searchQuery.trim() || categoryFromUrl || undefined,
             spoken: spokenText || undefined,
             language: language,
             limit: 500,
