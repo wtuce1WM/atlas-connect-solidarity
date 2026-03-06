@@ -2157,14 +2157,15 @@ const SearchPage = () => {
         const poiCity = selectedCity && selectedCity !== "all" ? selectedCity : detectedCity;
 
         return (
-          <div className={`flex ${poiSelectedBusinessId ? "" : ""}`}>
-            <section className={`pt-16 pb-6 lg:pt-20 lg:pb-12 bg-background transition-all duration-300 ${poiSelectedBusinessId ? "w-1/2" : "w-full"}`}>
-              <div className={`mx-auto px-4 ${poiSelectedBusinessId ? "max-w-full" : "max-w-[80%]"}`}>
+          <div className={`flex ${(poiSelectedBusinessId || poiMapBusiness) ? "" : ""}`}>
+            <section className={`pt-16 pb-6 lg:pt-20 lg:pb-12 bg-background transition-all duration-300 ${(poiSelectedBusinessId || poiMapBusiness) ? "w-1/2" : "w-full"}`}>
+              <div className={`mx-auto px-4 ${(poiSelectedBusinessId || poiMapBusiness) ? "max-w-full" : "max-w-[80%]"}`}>
                 <PoiSection
                   city={poiCity}
                   language={language}
-                  onBusinessClick={(bizId) => setPoiSelectedBusinessId(bizId)}
-                  columns={poiSelectedBusinessId ? 3 : undefined}
+                  onBusinessClick={(bizId) => { setPoiMapBusiness(null); setPoiSelectedBusinessId(bizId); }}
+                  columns={(poiSelectedBusinessId || poiMapBusiness) ? 3 : undefined}
+                  onMapClick={(biz) => { setPoiSelectedBusinessId(null); setPoiMapBusiness({ name: biz.name, latitude: biz.latitude, longitude: biz.longitude, address: biz.address, google_maps_url: biz.google_maps_url }); }}
                 />
               </div>
             </section>
@@ -2190,6 +2191,33 @@ const SearchPage = () => {
                     onClose={() => setPoiSelectedBusinessId(null)}
                     isExpanded={false}
                     onToggleExpand={() => {}}
+                  />
+                </div>
+              </div>
+            )}
+            {poiMapBusiness && (
+              <div className="w-1/2 fixed top-[62px] right-0 z-[100] bg-background shadow-2xl border-l border-border overflow-hidden flex flex-col animate-slide-in-right" style={{ height: "calc(100vh - 62px)" }}>
+                <div className="shrink-0 flex items-center px-4 py-2 bg-background border-b border-border z-40">
+                  <div className="flex items-center gap-3 shrink-0">
+                    <button
+                      onClick={() => setPoiMapBusiness(null)}
+                      className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background border-2 border-background/20 shadow-2xl hover:opacity-90 transition-opacity"
+                      title="Fermer"
+                      aria-label="Fermer la carte"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <span className="flex-1 text-center font-semibold text-sm truncate">{poiMapBusiness.name}</span>
+                  <div className="w-9" />
+                </div>
+                <div className="flex-1 min-h-0">
+                  <GoogleMapEmbed
+                    address={poiMapBusiness.address || ""}
+                    businessName={poiMapBusiness.name}
+                    latitude={poiMapBusiness.latitude}
+                    longitude={poiMapBusiness.longitude}
+                    googleMapsUrl={poiMapBusiness.google_maps_url}
                   />
                 </div>
               </div>
