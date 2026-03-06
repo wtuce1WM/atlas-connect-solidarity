@@ -531,8 +531,9 @@ const SearchPage = () => {
 
    const [aiRegenerateKey, setAiRegenerateKey] = useState(0);
    const [isAiRegenerating, setIsAiRegenerating] = useState(false);
-   const [compactPanelBusiness, setCompactPanelBusiness] = useState<AIBusinessData | null>(null);
-   const [isCompactPanelExpanded, setIsCompactPanelExpanded] = useState(false);
+    const [compactPanelBusiness, setCompactPanelBusiness] = useState<AIBusinessData | null>(null);
+    const [isCompactPanelExpanded, setIsCompactPanelExpanded] = useState(false);
+    const [poiSelectedBusinessId, setPoiSelectedBusinessId] = useState<string | null>(null);
    const [locationDialogOpen, setLocationDialogOpen] = useState(false);
    const heroAiRef = useRef<HTMLDivElement>(null);
    const [hasScrolledPastHeroAi, setHasScrolledPastHeroAi] = useState(false);
@@ -2155,15 +2156,44 @@ const SearchPage = () => {
         const poiCity = selectedCity && selectedCity !== "all" ? selectedCity : detectedCity;
 
         return (
-          <section className="pt-16 pb-6 lg:pt-20 lg:pb-12 bg-background">
-            <div className="mx-auto px-4 max-w-[80%]">
-              <PoiSection
-                city={poiCity}
-                language={language}
-                onBusinessClick={(bizId) => setCompactPanelBusiness({ id: bizId, name: "" } as AIBusinessData)}
-              />
-            </div>
-          </section>
+          <div className={`flex ${poiSelectedBusinessId ? "" : ""}`}>
+            <section className={`pt-16 pb-6 lg:pt-20 lg:pb-12 bg-background transition-all duration-300 ${poiSelectedBusinessId ? "w-1/2" : "w-full"}`}>
+              <div className={`mx-auto px-4 ${poiSelectedBusinessId ? "max-w-full" : "max-w-[80%]"}`}>
+                <PoiSection
+                  city={poiCity}
+                  language={language}
+                  onBusinessClick={(bizId) => setPoiSelectedBusinessId(bizId)}
+                  columns={poiSelectedBusinessId ? 3 : undefined}
+                />
+              </div>
+            </section>
+            {poiSelectedBusinessId && (
+              <div className="w-1/2 fixed top-[62px] right-0 z-[100] bg-background shadow-2xl border-l border-border overflow-hidden flex flex-col animate-slide-in-right" style={{ height: "calc(100vh - 62px)" }}>
+                <div className="shrink-0 flex items-center px-4 py-2 bg-background border-b border-border z-40">
+                  <div className="flex items-center gap-3 shrink-0">
+                    <button
+                      onClick={() => setPoiSelectedBusinessId(null)}
+                      className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background border-2 border-background/20 shadow-2xl hover:opacity-90 transition-opacity"
+                      title="Fermer"
+                      aria-label="Fermer le panneau"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <div id="slide-panel-toolbar-center" className="flex-1 flex items-center justify-center gap-4" />
+                  <div id="slide-panel-toolbar" className="flex items-center gap-3 shrink-0" />
+                </div>
+                <div className="flex-1 min-h-0">
+                  <BusinessSlidePanel
+                    businessId={poiSelectedBusinessId}
+                    onClose={() => setPoiSelectedBusinessId(null)}
+                    isExpanded={false}
+                    onToggleExpand={() => {}}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
         );
       })()}
 
