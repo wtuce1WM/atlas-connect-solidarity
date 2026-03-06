@@ -1457,9 +1457,39 @@ const SearchPage = () => {
         </div>
       </section>
 
-      {/* Sticky City Bar — above tabs */}
+      {/* Tab Bar — stickybar 1 (above cities) */}
+      <section data-tab-bar className="sticky top-[60px] z-[4] bg-background/95 backdrop-blur-sm border-b border-border">
+        <div className="mx-auto px-4 max-w-[80%]">
+          <div className="flex gap-0">
+            <button
+              onClick={() => setActiveTab("suggestions")}
+              className={`flex items-center gap-2 px-5 py-3 text-sm font-medium transition-colors border-b-2 ${
+                activeTab === "suggestions"
+                  ? "border-gold text-gold"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Sparkles className="h-4 w-4" />
+              {language === "en" ? "Results" : language === "ar" ? "النتائج" : "Résultats"}
+            </button>
+            <button
+              onClick={() => setActiveTab("map")}
+              className={`flex items-center gap-2 px-5 py-3 text-sm font-medium transition-colors border-b-2 ${
+                activeTab === "map"
+                  ? "border-gold text-gold"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Map className="h-4 w-4" />
+              {language === "en" ? "Map" : language === "ar" ? "خريطة" : "Carte"}
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* City Bar — stickybar 2 (below tabs) */}
       {availableCities.length > 1 && !queryHasExplicitCity && (
-        <div data-city-bar className="sticky top-[60px] z-[4] bg-background/95 backdrop-blur-sm border-b border-border py-2.5">
+        <div data-city-bar className="sticky top-[104px] z-[3] bg-background/95 backdrop-blur-sm border-b border-border py-2.5">
           <div className="mx-auto px-4 max-w-[80%]">
             <div className="flex gap-2 overflow-x-auto pb-0.5 scrollbar-hide">
               <button
@@ -1494,36 +1524,6 @@ const SearchPage = () => {
           </div>
         </div>
       )}
-
-      {/* Tab Bar — sticky below city bar */}
-      <section data-tab-bar className={`sticky ${availableCities.length > 1 && !queryHasExplicitCity ? 'top-[104px]' : 'top-[60px]'} z-[3] bg-background/95 backdrop-blur-sm border-b border-border`}>
-        <div className="mx-auto px-4 max-w-[80%]">
-          <div className="flex gap-0">
-            <button
-              onClick={() => setActiveTab("suggestions")}
-              className={`flex items-center gap-2 px-5 py-3 text-sm font-medium transition-colors border-b-2 ${
-                activeTab === "suggestions"
-                  ? "border-gold text-gold"
-                  : "border-transparent text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <Sparkles className="h-4 w-4" />
-              {language === "en" ? "Results" : language === "ar" ? "النتائج" : "Résultats"}
-            </button>
-            <button
-              onClick={() => setActiveTab("map")}
-              className={`flex items-center gap-2 px-5 py-3 text-sm font-medium transition-colors border-b-2 ${
-                activeTab === "map"
-                  ? "border-gold text-gold"
-                  : "border-transparent text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <Map className="h-4 w-4" />
-              {language === "en" ? "Map" : language === "ar" ? "خريطة" : "Carte"}
-            </button>
-          </div>
-        </div>
-      </section>
 
       {/* Sticky Category + Subcategory Filters */}
       {detectedCity && allBusinesses.length > 0 && !isLoading && (
