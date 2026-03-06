@@ -147,11 +147,15 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center }: PoiGoogleMapP
     });
 
     if (hasPoints) {
-      map.fitBounds(bounds, 40);
-      const listener = google.maps.event.addListenerOnce(map, "idle", () => {
-        const z = map.getZoom();
-        if (z && z > 16) map.setZoom(16);
-      });
+      // Delay fitBounds to let the sliding panel finish its layout transition
+      setTimeout(() => {
+        google.maps.event.trigger(map, "resize");
+        map.fitBounds(bounds, 40);
+        google.maps.event.addListenerOnce(map, "idle", () => {
+          const z = map.getZoom();
+          if (z && z > 16) map.setZoom(16);
+        });
+      }, 350);
     }
   }, [pois, selectedPoiId, ready]);
 
