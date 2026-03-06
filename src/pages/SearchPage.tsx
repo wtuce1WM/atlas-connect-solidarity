@@ -386,7 +386,7 @@ const SearchPage = () => {
   const [celebrityBusinesses, setCelebrityBusinesses] = useState<Business[]>([]);
   const [ttsIntroPhrase, setTtsIntroPhrase] = useState<string>("");
   const [aiAnswerText, setAiAnswerText] = useState<string>("");
-   const [activeTab, setActiveTab] = useState<"suggestions" | "map" | "poi">("suggestions");
+   const [activeTab, setActiveTab] = useState<"suggestions" | "map" | "poi" | "destinations">("suggestions");
    const [detectedCity, setDetectedCity] = useState<string | null>(null);
    const [disambiguationType, setDisambiguationType] = useState<"needs_category" | "needs_city" | null>(null);
    const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string | null>(null);
@@ -2015,6 +2015,17 @@ const SearchPage = () => {
             >
               <MapPin className="h-4 w-4" />
               {language === "en" ? "Points of Interest" : language === "ar" ? "أماكن مهمة" : "Lieux d'intérêt"}
+            </button>
+            <button
+              onClick={() => setActiveTab("destinations")}
+              className={`flex items-center gap-2 px-5 py-3 text-sm font-medium transition-colors border-b-2 ${
+                activeTab === "destinations"
+                  ? "border-gold text-gold"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Compass className="h-4 w-4" />
+              {language === "en" ? "Destinations" : language === "ar" ? "وجهات" : "Destinations"}
             </button>
           </div>
         </div>
