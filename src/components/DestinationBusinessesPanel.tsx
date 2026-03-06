@@ -43,7 +43,9 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [activeTab, setActiveTab] = useState<"info" | "providers">("info");
   const scrollRef = useRef<HTMLDivElement>(null);
+  const providersRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -86,6 +88,19 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
     };
     fetchData();
   }, [destination.id]);
+
+  // Auto-highlight "Prestataires" tab when providers section is visible
+  useEffect(() => {
+    const el = providersRef.current;
+    const container = scrollRef.current;
+    if (!el || !container) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setActiveTab(entry.isIntersecting ? "providers" : "info"),
+      { root: container, threshold: 0.1 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [businesses]);
 
   const getName = () => {
     if (language === "en" && destination.name_en) return destination.name_en;
@@ -164,8 +179,20 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
             <Maximize2 className="h-4 w-4" />
           </button>
         </div>
-        <div className="flex-1 text-center text-sm font-semibold text-foreground truncate">
-          {getName()}
+        <div className="flex-1 flex items-center justify-center gap-0">
+          <button
+            onClick={() => { scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" }); }}
+            className={`px-4 py-1.5 text-sm font-semibold border-b-2 transition-colors ${activeTab === "info" ? "border-gold text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+          >
+            {getName()}
+          </button>
+          <button
+            onClick={() => { providersRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }); }}
+            className={`px-4 py-1.5 text-sm font-semibold border-b-2 transition-colors ${activeTab === "providers" ? "border-gold text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+          >
+            {language === "en" ? "Providers" : language === "ar" ? "مزودون" : "Prestataires"}
+            {!isLoading && <span className="ml-1.5 text-xs font-normal text-muted-foreground">{businesses.length}</span>}
+          </button>
         </div>
         <div className="w-[76px] shrink-0" />
       </div>
@@ -238,7 +265,7 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
         )}
 
         {/* Providers */}
-        <div className="border-t border-border pt-4">
+        <div ref={providersRef} className="border-t border-border pt-4">
           <h2 className="text-lg font-bold text-foreground mb-4">
             {language === "en" ? `These providers will take you to ${getName()}` : language === "ar" ? `هؤلاء المزودون سيأخذونك إلى ${getName()}` : `Ces prestataires vous emmèneront à ${getName()}`}
             {!isLoading && <span className="ml-1.5 text-xs font-normal text-muted-foreground">({businesses.length})</span>}
