@@ -1463,6 +1463,20 @@ const SearchPage = () => {
     <div className="min-h-screen bg-background">
       <Header />
 
+      {/* Hidden AISearchAnswer instance — always renders to ensure onAnswerReady fires even when hero is hidden */}
+      {searchQuery && !isLoading && isCategoryFilterActive && allBusinesses.length > 0 && !aiAnswerText && (
+        <div className="hidden">
+          <AISearchAnswer
+            query={spokenText || searchQuery}
+            spokenText={spokenText || undefined}
+            businesses={allBusinesses}
+            isSearchLoading={isLoading}
+            onAnswerReady={setAiAnswerText}
+            externalRegenerateKey={aiRegenerateKey}
+          />
+        </div>
+      )}
+
       {/* AI Suggestion Overlay — fullscreen takeover shown on arrival from homepage */}
       {showAiPopup && (
         <div className="fixed inset-0 z-[200] flex flex-col bg-background/95 backdrop-blur-sm animate-in fade-in duration-200">
