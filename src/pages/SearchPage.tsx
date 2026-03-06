@@ -2169,7 +2169,8 @@ const SearchPage = () => {
                   language={language}
                   onBusinessClick={(bizId) => { setPoiMapBusiness(null); setPoiSelectedBusinessId(bizId); }}
                   columns={(poiSelectedBusinessId || poiMapBusiness) ? 3 : undefined}
-                  onMapClick={(biz) => { setPoiSelectedBusinessId(null); setPoiMapBusiness({ name: biz.name, latitude: biz.latitude, longitude: biz.longitude, address: biz.address, google_maps_url: biz.google_maps_url }); }}
+                  onMapClick={(biz) => { setPoiSelectedBusinessId(null); setPoiMapBusiness({ id: biz.id, name: biz.name, latitude: biz.latitude, longitude: biz.longitude, address: biz.address, google_maps_url: biz.google_maps_url }); }}
+                  onPoisLoaded={(loadedPois) => setAllPois(loadedPois.map(p => ({ id: p.id, name: p.name, latitude: p.latitude, longitude: p.longitude, images: p.images, city: p.city, neighborhood: p.neighborhood })))}
                 />
               </div>
             </section>
@@ -2215,15 +2216,15 @@ const SearchPage = () => {
                   <span className="flex-1 text-center font-semibold text-sm truncate">{poiMapBusiness.name}</span>
                   <div className="w-9" />
                 </div>
-                <div className="flex-1 min-h-0 flex flex-col">
-                    <GoogleMapEmbed
-                      address={poiMapBusiness.address || ""}
-                      businessName={poiMapBusiness.name}
-                      latitude={poiMapBusiness.latitude}
-                      longitude={poiMapBusiness.longitude}
-                      googleMapsUrl={poiMapBusiness.google_maps_url}
-                      fillHeight
-                    />
+                <div className="flex-1 min-h-0">
+                  <PoiGoogleMap
+                    pois={allPois}
+                    selectedPoiId={poiMapBusiness.id}
+                    onPoiClick={(poiId) => {
+                      const poi = allPois.find(p => p.id === poiId);
+                      if (poi) setPoiMapBusiness({ id: poi.id, name: poi.name, latitude: poi.latitude, longitude: poi.longitude, address: null, google_maps_url: null });
+                    }}
+                  />
                 </div>
               </div>
             )}
