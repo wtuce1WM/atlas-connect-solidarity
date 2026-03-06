@@ -35,9 +35,10 @@ interface PoiSectionProps {
   onBusinessClick?: (businessId: string) => void;
   columns?: number;
   onMapClick?: (business: PoiBusiness) => void;
+  onPoisLoaded?: (pois: PoiBusiness[]) => void;
 }
 
-const PoiSection = ({ city, language, onBusinessClick, columns, onMapClick }: PoiSectionProps) => {
+const PoiSection = ({ city, language, onBusinessClick, columns, onMapClick, onPoisLoaded }: PoiSectionProps) => {
   const [pois, setPois] = useState<PoiBusiness[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -63,6 +64,7 @@ const PoiSection = ({ city, language, onBusinessClick, columns, onMapClick }: Po
         return (bRating || 0) - (aRating || 0);
       });
       setPois(sorted);
+      onPoisLoaded?.(sorted);
       setIsLoading(false);
     };
 
