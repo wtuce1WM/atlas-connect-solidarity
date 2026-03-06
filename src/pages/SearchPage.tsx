@@ -2960,7 +2960,7 @@ const SearchPage = () => {
         </div>
       </div>
 
-      <div className="h-20" />
+      <div className="h-28" />
       <Footer />
 
       {/* Google-style voice search overlay */}
