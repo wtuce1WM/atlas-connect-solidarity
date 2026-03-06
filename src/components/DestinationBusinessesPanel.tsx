@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
-import { MapPin, Star, Loader2, X } from "lucide-react";
+import { MapPin, Star, Loader2, X, ChevronLeft, ChevronRight } from "lucide-react";
+import ImageLightbox from "@/components/ImageLightbox";
 import { supabase } from "@/integrations/supabase/client";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
 import BookmarkButton from "@/components/BookmarkButton";
@@ -39,14 +40,15 @@ const SELECT_FIELDS = "id, name, city, neighborhood, images, rating, wtuce_statu
 const DestinationBusinessesPanel = ({ destination, language, onClose, onBusinessClick, onLoginRequired }: DestinationBusinessesPanelProps) => {
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"info" | "providers">("info");
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
-      
+      setCurrentImageIndex(0);
       const { data: links } = await (supabase
         .from("business_destinations" as any)
         .select("business_id")
@@ -125,7 +127,7 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
       <div className="flex-1 overflow-y-auto p-4" ref={scrollRef}>
         {activeTab === "info" && (
           <>
-            {/* Image gallery */}
+            {/* Image carousel like BusinessSlidePanel */}
             {(() => {
               const imgs = destination.images && destination.images.length > 0
                 ? destination.images
@@ -134,16 +136,50 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
                   : [];
               if (imgs.length === 0) return null;
               return (
-                <div className="mb-4 -mx-4 -mt-4">
-                  {imgs.length === 1 ? (
-                    <img src={imgs[0]} alt={getName()} className="w-full h-48 object-cover" />
-                  ) : (
-                    <div className="flex gap-0.5 overflow-x-auto scrollbar-hide">
-                      {imgs.map((img, i) => (
-                        <img key={i} src={img} alt={`${getName()} ${i + 1}`} className="h-48 w-auto object-cover flex-shrink-0 first:rounded-none" loading="lazy" />
-                      ))}
-                    </div>
-                  )}
+                <div className="mb-4 -mx-4 -mt-4 relative">
+                  <div
+                    className={`relative w-full aspect-[16/9] bg-muted ${imgs.length > 1 ? "cursor-pointer" : ""}`}
+                    onClick={() => { if (imgs.length > 1) setIsLightboxOpen(true); }}
+                  >
+                    <img
+                      src={imgs[currentImageIndex]}
+                      alt={`${getName()} - ${currentImageIndex + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                    {imgs.length > 1 && (
+                      <>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(i => i === 0 ? imgs.length - 1 : i - 1); }}
+                          className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-background/80 hover:bg-background transition-colors shadow"
+                        >
+                          <ChevronLeft className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(i => i === imgs.length - 1 ? 0 : i + 1); }}
+                          className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-background/80 hover:bg-background transition-colors shadow"
+                        >
+                          <ChevronRight className="h-4 w-4" />
+                        </button>
+                        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full bg-background/80 text-xs text-foreground">
+                          {currentImageIndex + 1} / {imgs.length}
+                        </div>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setIsLightboxOpen(true); }}
+                          className="absolute bottom-2 left-2 px-3 py-1.5 rounded-lg bg-background/90 backdrop-blur-sm text-xs font-semibold text-foreground shadow-md hover:bg-background transition-colors"
+                        >
+                          {language === "en" ? `View all ${imgs.length} photos` : language === "ar" ? `عرض ${imgs.length} صور` : `Voir les ${imgs.length} photos`}
+                        </button>
+                      </>
+                    )}
+                  </div>
+                  <ImageLightbox
+                    images={imgs}
+                    currentIndex={currentImageIndex}
+                    isOpen={isLightboxOpen}
+                    onClose={() => setIsLightboxOpen(false)}
+                    onPrevious={() => setCurrentImageIndex(i => i === 0 ? imgs.length - 1 : i - 1)}
+                    onNext={() => setCurrentImageIndex(i => i === imgs.length - 1 ? 0 : i + 1)}
+                  />
                 </div>
               );
             })()}
