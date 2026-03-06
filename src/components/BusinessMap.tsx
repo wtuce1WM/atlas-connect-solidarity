@@ -282,6 +282,10 @@ const BusinessMap = ({
     } else if (center) {
       map.setCenter(center);
       map.setZoom(zoom);
+    } else {
+      // No businesses with GPS and no explicit center: show Morocco
+      map.setCenter({ lat: 31.63, lng: -7.98 });
+      map.setZoom(6);
     }
   }, [geoBusinesses, isLoading, gmapsReady, center, zoom]);
 
