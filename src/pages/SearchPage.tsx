@@ -2284,7 +2284,7 @@ const SearchPage = () => {
                     setAllDests(prev => prev);
                   }}
                   onDestinationsLoaded={(dests) => {
-                    (window as any).__lastDestinations = dests;
+                    setAllDestItems(dests);
                     setAllDests(dests.map(d => ({
                       id: d.id,
                       name: d.name_fr,
