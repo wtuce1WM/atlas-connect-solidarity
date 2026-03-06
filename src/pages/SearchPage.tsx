@@ -431,21 +431,17 @@ const SearchPage = () => {
       return;
     }
     const fetchExtra = async () => {
+      // Use detectedCity from search engine as fallback when no city is manually selected
+      const effectiveCity = (selectedCity && selectedCity !== "all") ? selectedCity : detectedCity;
+      
       let query = supabase
         .from("businesses")
         .select("id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, services, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, rating, gamme_id, badge_id, hook_fr, hook_en, hook_ar, google_rating, tripadvisor_rating, restaurant_guru_rating, google_review_count, tripadvisor_review_count, restaurant_guru_review_count, opening_hours, is_open_24h, vacation_dates, zone_chalandise, is_visible_locale, zone_city_ids")
         .eq("is_active", true)
         .eq("main_category", selectedCategoryFilter);
 
-      if (selectedCity && selectedCity !== "all") {
-        query = query.or(`city.ilike.${selectedCity},zone_city_ids.cs.{}`);
-        // Simplified: just filter by city
-        query = supabase
-          .from("businesses")
-          .select("id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, services, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, rating, gamme_id, badge_id, hook_fr, hook_en, hook_ar, google_rating, tripadvisor_rating, restaurant_guru_rating, google_review_count, tripadvisor_review_count, restaurant_guru_review_count, opening_hours, is_open_24h, vacation_dates, zone_chalandise, is_visible_locale, zone_city_ids")
-          .eq("is_active", true)
-          .eq("main_category", selectedCategoryFilter)
-          .ilike("city", selectedCity);
+      if (effectiveCity) {
+        query = query.ilike("city", effectiveCity);
       }
 
       if (selectedSubcategoryFilter) {
