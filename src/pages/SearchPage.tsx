@@ -1055,15 +1055,32 @@ const SearchPage = () => {
             ? (businesses[0]?.categories?.[0] || null)
             : null;
           
-          setDetectedSubcategory(
-            safeDetectedSubcategory || fallbackSubcategory || null
-          );
+          const finalDetectedSubcategory = safeDetectedSubcategory || fallbackSubcategory || null;
+          setDetectedSubcategory(finalDetectedSubcategory);
           setSearchMode(normalizedSearchMode);
           setDetectedCity(data.detectedCity || null);
-          // Reset category filter when search changes
-          setSelectedCategoryFilter(null);
-          setSelectedSubcategoryFilter(null);
-          setSelectedServiceFilter(null);
+
+          // Auto-select category + subcategory when engine detected a subcategory
+          if (finalDetectedSubcategory && businesses.length > 0) {
+            // Derive parent category from the first business's main_category
+            const parentCategory = businesses[0]?.main_category || null;
+            setSelectedCategoryFilter(parentCategory);
+            setSelectedSubcategoryFilter(finalDetectedSubcategory);
+            setSelectedServiceFilter(null);
+
+            // Auto-select city if not detected and only one city in results
+            if (!data.detectedCity) {
+              const resultCities = [...new Set(businesses.map(b => b.city).filter(Boolean))];
+              if (resultCities.length === 1) {
+                setSelectedCity(resultCities[0]);
+              }
+            }
+          } else {
+            // Reset category filter when search changes
+            setSelectedCategoryFilter(null);
+            setSelectedSubcategoryFilter(null);
+            setSelectedServiceFilter(null);
+          }
           setMoreFilterTimeSlots([]);
           setMoreFilterEngagements([]);
           setMoreFilterCommodites([]);
