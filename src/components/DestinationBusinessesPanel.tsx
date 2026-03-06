@@ -40,6 +40,7 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [descExpanded, setDescExpanded] = useState(false);
+  const [activeTab, setActiveTab] = useState<"info" | "providers">("info");
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -92,114 +93,137 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
 
   return (
     <div className="w-1/2 fixed top-[54px] right-0 bottom-0 z-[100] border-l border-border bg-background flex flex-col shadow-2xl">
-      <div className="flex items-center px-3 py-2 border-b border-border gap-2">
+      {/* STICKY 1 — Tabs */}
+      <div className="shrink-0 flex items-center px-3 py-2 border-b border-border gap-2">
         <button
           onClick={onClose}
-          className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-destructive hover:text-white transition-colors"
+          className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-destructive hover:text-white transition-colors shrink-0"
           title="Fermer"
           aria-label="Fermer"
         >
           <X className="h-4 w-4" />
         </button>
-        <span className="flex-1 text-center font-semibold text-sm truncate">
-          {language === "en" ? `These providers will take you to ${getName()}` : language === "ar" ? `هؤلاء المزودون سيأخذونك إلى ${getName()}` : `Ces prestataires vous emmèneront à ${getName()}`}
-        </span>
-        <span className="text-xs text-muted-foreground whitespace-nowrap">
-          {!isLoading && `${businesses.length} résultat${businesses.length > 1 ? "s" : ""}`}
-        </span>
+        <div className="flex-1 flex items-center justify-center gap-0">
+          <button
+            onClick={() => setActiveTab("info")}
+            className={`px-4 py-1.5 text-sm font-semibold border-b-2 transition-colors ${activeTab === "info" ? "border-gold text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+          >
+            {getName()}
+          </button>
+          <button
+            onClick={() => setActiveTab("providers")}
+            className={`px-4 py-1.5 text-sm font-semibold border-b-2 transition-colors ${activeTab === "providers" ? "border-gold text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+          >
+            {language === "en" ? "Providers" : language === "ar" ? "مزودون" : "Prestataires"}
+            {!isLoading && <span className="ml-1.5 text-xs font-normal text-muted-foreground">{businesses.length}</span>}
+          </button>
+        </div>
+        <div className="w-9 shrink-0" />
       </div>
 
+      {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto p-4" ref={scrollRef}>
-        <div className="mb-4 space-y-1">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-bold text-foreground">{getName()}</h2>
-            <span className="text-xs text-muted-foreground">{!isLoading && `${businesses.length} ${language === "en" ? "results" : "résultats"}`}</span>
-          </div>
-          {destination.region && destination.region.length > 0 && (
-            <p className="text-sm text-muted-foreground">{destination.region.join(", ")}</p>
-          )}
-        </div>
-        {destination.description && (() => {
-          const raw = destination.description;
-          const plainText = raw.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"');
-          const isLong = plainText.length > 500;
-          return (
-            <div className="mb-4 text-sm text-muted-foreground leading-relaxed">
-              {!descExpanded && isLong ? (
-                <>
-                  {plainText.slice(0, 500)}…{" "}
-                  <button onClick={() => setDescExpanded(true)} className="text-gold hover:underline font-medium">
-                    {language === "en" ? "see more" : "voir plus"}
-                  </button>
-                </>
-              ) : (
-                <>
-                  <div dangerouslySetInnerHTML={{ __html: raw }} className="prose prose-sm max-w-none text-muted-foreground [&>p]:mb-2" />
-                  {isLong && (
-                    <button onClick={() => setDescExpanded(false)} className="text-gold hover:underline font-medium mt-1">
-                      {language === "en" ? "see less" : "voir moins"}
-                    </button>
-                  )}
-                </>
+        {activeTab === "info" && (
+          <>
+            <div className="mb-4 space-y-1">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-bold text-foreground">{getName()}</h2>
+              </div>
+              {destination.region && destination.region.length > 0 && (
+                <p className="text-sm text-muted-foreground">{destination.region.join(", ")}</p>
               )}
             </div>
-          );
-        })()}
-        {isLoading ? (
-          <div className="flex justify-center py-16">
-            <Loader2 className="h-6 w-6 animate-spin text-gold" />
-          </div>
-        ) : businesses.length === 0 ? (
-          <div className="text-center py-16 text-muted-foreground text-sm">
-            {language === "en" ? "No businesses found" : "Aucun établissement trouvé"}
-          </div>
-        ) : (
-          <div className="grid grid-cols-3 gap-2">
-            {businesses.map((biz) => {
-              const img = biz.images && biz.images.length > 0 ? biz.images[0] : null;
-              const sources = collectRatingSources(biz);
-              const avgOn20 = biz.rating ?? computeWeightedRatingOn20(sources);
-              const totalReviews = sources.reduce((s, r) => s + r.count, 0);
-
+            {destination.description && (() => {
+              const raw = destination.description;
+              const plainText = raw.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"');
+              const isLong = plainText.length > 500;
               return (
-                <Link
-                  key={biz.id}
-                  to={`/business/${biz.id}`}
-                  onClick={(e) => {
-                    if (onBusinessClick) {
-                      e.preventDefault();
-                      onBusinessClick(biz.id);
-                    }
-                  }}
-                  className="group overflow-hidden rounded-xl border border-gold/20 shadow-sm hover:shadow-md transition-shadow aspect-square relative"
-                >
-                  {img && (
-                    <img src={img} alt={biz.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+                <div className="mb-4 text-sm text-muted-foreground leading-relaxed">
+                  {!descExpanded && isLong ? (
+                    <>
+                      {plainText.slice(0, 500)}…{" "}
+                      <button onClick={() => setDescExpanded(true)} className="text-gold hover:underline font-medium">
+                        {language === "en" ? "see more" : "voir plus"}
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <div dangerouslySetInnerHTML={{ __html: raw }} className="prose prose-sm max-w-none text-muted-foreground [&>p]:mb-2" />
+                      {isLong && (
+                        <button onClick={() => setDescExpanded(false)} className="text-gold hover:underline font-medium mt-1">
+                          {language === "en" ? "see less" : "voir moins"}
+                        </button>
+                      )}
+                    </>
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                  <div className="absolute top-1.5 right-1.5 z-10" onClick={(e) => e.preventDefault()}>
-                    <BookmarkButton businessId={biz.id} onLoginRequired={onLoginRequired} />
-                  </div>
-                  <div className="absolute bottom-0 left-0 right-0 p-2 space-y-0.5">
-                    <p className="font-semibold text-[11px] text-white leading-tight line-clamp-2">{biz.name}</p>
-                    <div className="flex items-center gap-1 text-[10px] text-white/80">
-                      <MapPin className="h-2.5 w-2.5 shrink-0" />
-                      <span className="truncate">{biz.city}{biz.neighborhood ? ` · ${biz.neighborhood}` : ""}</span>
-                    </div>
-                    {avgOn20 && (
-                      <div className="flex items-center gap-1 text-[10px]">
-                        <Star className="h-2.5 w-2.5 text-gold fill-gold" />
-                        <span className="font-medium text-white">{avgOn20}/20</span>
-                        {totalReviews > 0 && (
-                          <span className="text-white/70">· {totalReviews} avis</span>
+                </div>
+              );
+            })()}
+          </>
+        )}
+
+        {activeTab === "providers" && (
+          <>
+            <h2 className="text-lg font-bold text-foreground mb-4">
+              {language === "en" ? `These providers will take you to ${getName()}` : language === "ar" ? `هؤلاء المزودون سيأخذونك إلى ${getName()}` : `Ces prestataires vous emmèneront à ${getName()}`}
+            </h2>
+            {isLoading ? (
+              <div className="flex justify-center py-16">
+                <Loader2 className="h-6 w-6 animate-spin text-gold" />
+              </div>
+            ) : businesses.length === 0 ? (
+              <div className="text-center py-16 text-muted-foreground text-sm">
+                {language === "en" ? "No businesses found" : "Aucun établissement trouvé"}
+              </div>
+            ) : (
+              <div className="grid grid-cols-3 gap-2">
+                {businesses.map((biz) => {
+                  const img = biz.images && biz.images.length > 0 ? biz.images[0] : null;
+                  const sources = collectRatingSources(biz);
+                  const avgOn20 = biz.rating ?? computeWeightedRatingOn20(sources);
+                  const totalReviews = sources.reduce((s, r) => s + r.count, 0);
+
+                  return (
+                    <Link
+                      key={biz.id}
+                      to={`/business/${biz.id}`}
+                      onClick={(e) => {
+                        if (onBusinessClick) {
+                          e.preventDefault();
+                          onBusinessClick(biz.id);
+                        }
+                      }}
+                      className="group overflow-hidden rounded-xl border border-gold/20 shadow-sm hover:shadow-md transition-shadow aspect-square relative"
+                    >
+                      {img && (
+                        <img src={img} alt={biz.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                      <div className="absolute top-1.5 right-1.5 z-10" onClick={(e) => e.preventDefault()}>
+                        <BookmarkButton businessId={biz.id} onLoginRequired={onLoginRequired} />
+                      </div>
+                      <div className="absolute bottom-0 left-0 right-0 p-2 space-y-0.5">
+                        <p className="font-semibold text-[11px] text-white leading-tight line-clamp-2">{biz.name}</p>
+                        <div className="flex items-center gap-1 text-[10px] text-white/80">
+                          <MapPin className="h-2.5 w-2.5 shrink-0" />
+                          <span className="truncate">{biz.city}{biz.neighborhood ? ` · ${biz.neighborhood}` : ""}</span>
+                        </div>
+                        {avgOn20 && (
+                          <div className="flex items-center gap-1 text-[10px]">
+                            <Star className="h-2.5 w-2.5 text-gold fill-gold" />
+                            <span className="font-medium text-white">{avgOn20}/20</span>
+                            {totalReviews > 0 && (
+                              <span className="text-white/70">· {totalReviews} avis</span>
+                            )}
+                          </div>
                         )}
                       </div>
-                    )}
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
