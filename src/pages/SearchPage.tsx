@@ -2577,7 +2577,7 @@ const SearchPage = () => {
         {aiAnswerText && (
           <button
             onClick={() => { aiPopupShownRef.current = false; setShowAiPopup(true); }}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-foreground text-background text-sm font-semibold hover:bg-foreground/80 transition-colors shadow-lg"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gold text-black text-sm font-semibold hover:bg-gold/90 transition-colors shadow-lg"
           >
             <Sparkles className="h-4 w-4" />
             {language === "en" ? "View AI suggestion" : language === "ar" ? "عرض اقتراح الذكاء" : "Voir la suggestion IA"}
