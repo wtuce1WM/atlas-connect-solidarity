@@ -369,7 +369,7 @@ const SearchPage = () => {
   const [searchMode, setSearchMode] = useState<string | null>(null);
   const [searchLevel, setSearchLevel] = useState<string>("");
   const [searchMessage, setSearchMessage] = useState<string>("");
-  const [citiesWithPriority, setCitiesWithPriority] = useState<{ name: string; priority: number; id?: string }[]>([]);
+  const [citiesWithPriority, setCitiesWithPriority] = useState<{ name: string; priority: number; id?: string; latitude?: number | null; longitude?: number | null }[]>([]);
   const [gammes, setGammes] = useState<Gamme[]>([]);
   const [badges, setBadges] = useState<Badge[]>([]);
   const [subcategories, setSubcategories] = useState<SubcategoryRef[]>([]);
@@ -1155,7 +1155,7 @@ const SearchPage = () => {
         // Fetch cities with sort_order
         const { data: citiesData } = await supabase
           .from("cities")
-          .select("id, name_fr, sort_order")
+          .select("id, name_fr, sort_order, latitude, longitude")
           .eq("is_active", true)
           .order("sort_order", { ascending: true });
 
@@ -1163,7 +1163,7 @@ const SearchPage = () => {
 
         if (citiesData) {
           setCitiesWithPriority(
-            citiesData.map(c => ({ name: c.name_fr, id: c.id, priority: c.sort_order || 0 }))
+            citiesData.map(c => ({ name: c.name_fr, id: c.id, priority: c.sort_order || 0, latitude: c.latitude, longitude: c.longitude }))
           );
         }
 
