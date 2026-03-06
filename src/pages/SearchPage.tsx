@@ -1595,7 +1595,7 @@ const SearchPage = () => {
       )}
 
       {/* AI Summary Bar — sticky below all filter bars (OUTSIDE section for proper sticky) */}
-      {isCategoryFilterActive && aiAnswerText && (() => {
+      {isCategoryFilterActive && (aiAnswerText || isAiRegenerating) && (() => {
         const hasCB = availableCities.length > 1 && !queryHasExplicitCity;
         let aiTop = 104 + (hasCB ? 44 : 0) + 56;
         if (selectedSubcategoryFilter) aiTop += 44;
@@ -1607,7 +1607,9 @@ const SearchPage = () => {
                 <div className="flex-1 min-w-0">
                   <div className={`text-sm text-muted-foreground leading-relaxed ${isAiSummaryExpanded ? '' : 'line-clamp-2'}`}>
                     <Sparkles className="h-3.5 w-3.5 inline-block mr-1.5 text-gold align-text-bottom" />
-                    {parseInline(
+                    {isAiRegenerating ? (
+                      <span className="italic text-muted-foreground/60">{language === "en" ? "Regenerating…" : "Régénération en cours…"}</span>
+                    ) : parseInline(
                       aiAnswerText.replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "").replace(/\n+/g, " "),
                       allBusinesses as unknown as AIBusinessData[],
                       (b) => setCompactPanelBusiness(b),
@@ -1637,7 +1639,7 @@ const SearchPage = () => {
                     }
                     // Regenerate with filtered businesses
                     setIsAiRegenerating(true);
-                    setAiAnswerText("");
+                    // Don't clear aiAnswerText to keep the sticky bar visible
                     try {
                       const top10 = filteredBusinesses.slice(0, 10);
                       const { data } = await supabase.functions.invoke("ai-search-answer", {
