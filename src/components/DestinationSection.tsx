@@ -47,25 +47,12 @@ const DestinationSection = ({ city, language, onDestinationClick, columns, onMap
         return;
       }
 
-      // Find destinations linked to businesses in this city
-      const { data: bizIds } = await supabase
-        .from("businesses")
-        .select("id")
-        .eq("is_active", true)
-        .eq("city", city);
-
-      if (!bizIds || bizIds.length === 0) {
-        setDestinations([]);
-        onDestinationsLoaded?.([]);
-        setIsLoading(false);
-        return;
-      }
-
-      const ids = bizIds.map(b => b.id);
+      // Find destinations linked to businesses in this city via join
       const { data: links } = await (supabase
         .from("business_destinations" as any)
-        .select("destination_id")
-        .in("business_id", ids) as any);
+        .select("destination_id, businesses!inner(id)")
+        .eq("businesses.is_active", true)
+        .eq("businesses.city", city) as any);
 
       if (!links || links.length === 0) {
         setDestinations([]);
@@ -74,7 +61,7 @@ const DestinationSection = ({ city, language, onDestinationClick, columns, onMap
         return;
       }
 
-      const destIds = [...new Set((links as any[]).map(l => l.destination_id))];
+      const destIds = [...new Set((links as any[]).map((l: any) => l.destination_id))];
 
       const { data: destsData } = await supabase
         .from("destinations")
