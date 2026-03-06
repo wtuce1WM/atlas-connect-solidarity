@@ -74,6 +74,8 @@ interface Business {
   opening_hours?: Record<string, { open?: string; close?: string; closed?: boolean; continuous?: boolean }> | null;
   is_open_24h?: boolean | null;
   vacation_dates?: unknown;
+  zone_chalandise?: string | null;
+  is_visible_locale?: boolean;
 }
 
 interface SearchResult {
@@ -751,7 +753,17 @@ const SearchPage = () => {
   toggleRecordingRef.current = toggleRecording;
 
   // Get cities available in results, sorted by priority score
+  // If any result has zone_chalandise = 'Nationale' + is_visible_locale, show ALL active cities
   const availableCities = useMemo(() => {
+    const hasNationalBusiness = allBusinesses.some(
+      b => b.zone_chalandise === "Nationale" && b.is_visible_locale
+    );
+    if (hasNationalBusiness) {
+      // Show all active cities since national businesses cover everywhere
+      return citiesWithPriority
+        .sort((a, b) => a.priority - b.priority)
+        .map(c => c.name);
+    }
     const businessCities = new Set(allBusinesses.map(b => b.city));
     return citiesWithPriority
       .filter(c => businessCities.has(c.name))
