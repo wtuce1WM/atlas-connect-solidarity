@@ -1480,10 +1480,12 @@ const SearchPage = () => {
 
       {/* AI Suggestion Overlay — fullscreen takeover shown on arrival from homepage */}
       {showAiPopup && (
-        <div className="fixed inset-0 z-[200] flex flex-col bg-background/95 backdrop-blur-sm animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-[200] flex bg-background/95 backdrop-blur-sm animate-in fade-in duration-200">
+          {/* Left panel: AI suggestion */}
+          <div className={`flex flex-col transition-all duration-500 ease-out ${overlaySelectedBusiness ? "w-1/2 border-r border-border" : "w-full"}`}>
           {/* Close button */}
           <button
-            onClick={() => setShowAiPopup(false)}
+            onClick={() => { setShowAiPopup(false); setOverlaySelectedBusiness(null); }}
             className="absolute top-6 right-6 p-2 rounded-full hover:bg-muted transition-colors z-10"
           >
             <X className="h-6 w-6 text-muted-foreground" />
@@ -1492,7 +1494,7 @@ const SearchPage = () => {
           {/* Top section: query + count + top "Voir les résultats" */}
           <div className="pt-14 pb-3 px-6 text-center">
             <button
-              onClick={() => setShowAiPopup(false)}
+              onClick={() => { setShowAiPopup(false); setOverlaySelectedBusiness(null); }}
               className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gold text-black text-sm font-semibold hover:bg-gold/90 transition-colors mb-4"
             >
               {language === "en" ? "See results" : language === "ar" ? "عرض النتائج" : "Voir les résultats"}
@@ -1518,7 +1520,6 @@ const SearchPage = () => {
                 </p>
                 <div className="flex flex-wrap justify-center gap-2">
                   {(() => {
-                    // Extract unique main_categories from results as chips
                     const cats = [...new Set(allBusinesses.map(b => b.main_category).filter(Boolean))] as string[];
                     return cats.slice(0, 8).map(cat => (
                       <button
@@ -1526,6 +1527,7 @@ const SearchPage = () => {
                         onClick={() => {
                           setSelectedCategoryFilter(cat);
                           setShowAiPopup(false);
+                          setOverlaySelectedBusiness(null);
                         }}
                         className="px-4 py-2 rounded-full border border-border bg-card text-sm text-foreground hover:border-gold/50 hover:bg-gold/10 transition-colors"
                       >
@@ -1552,6 +1554,7 @@ const SearchPage = () => {
                         setSelectedCity(c.name);
                         setIsGeoCityAutoSelected(false);
                         setShowAiPopup(false);
+                        setOverlaySelectedBusiness(null);
                       }}
                       className="px-4 py-2 rounded-full border border-border bg-card text-sm text-foreground hover:border-gold/50 hover:bg-gold/10 transition-colors"
                     >
@@ -1575,7 +1578,7 @@ const SearchPage = () => {
                 {parseInline(
                   aiAnswerText,
                   allBusinesses as unknown as AIBusinessData[],
-                  undefined,
+                  (b: AIBusinessData) => setOverlaySelectedBusiness(b),
                   "ai-popup"
                 )}
               </div>
@@ -1614,6 +1617,7 @@ const SearchPage = () => {
               <button
                 onClick={() => {
                   setShowAiPopup(false);
+                  setOverlaySelectedBusiness(null);
                   setTimeout(() => setLocationDialogOpen(true), 300);
                 }}
                 className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-all ${
@@ -1645,6 +1649,7 @@ const SearchPage = () => {
               <button
                 onClick={() => {
                   setShowAiPopup(false);
+                  setOverlaySelectedBusiness(null);
                   setTimeout(() => toggleRecording(), 300);
                 }}
                 className="relative w-16 h-16 rounded-full bg-card border-2 border-gold/30 flex items-center justify-center shadow-lg hover:border-gold/60 transition-all hover:scale-105"
@@ -1656,13 +1661,40 @@ const SearchPage = () => {
 
             {/* Bottom See results */}
             <button
-              onClick={() => setShowAiPopup(false)}
+              onClick={() => { setShowAiPopup(false); setOverlaySelectedBusiness(null); }}
               className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-gold text-black text-sm font-semibold hover:bg-gold/90 transition-colors"
             >
               {language === "en" ? "See results" : language === "ar" ? "عرض النتائج" : "Voir les résultats"}
               <ChevronRight className="h-4 w-4" />
             </button>
           </div>
+          </div>
+
+          {/* Right panel: Business detail */}
+          {overlaySelectedBusiness && (
+            <div className="w-1/2 h-full flex flex-col bg-background animate-in slide-in-from-right duration-300">
+              <div className="shrink-0 flex items-center px-4 py-2 border-b border-border">
+                <button
+                  onClick={() => setOverlaySelectedBusiness(null)}
+                  className="h-9 w-9 flex items-center justify-center rounded-full bg-black text-white border-2 border-white/20 shadow-2xl hover:opacity-90 transition-opacity"
+                  title="Fermer"
+                  aria-label="Fermer le panneau"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+                <div id="overlay-slide-panel-toolbar-center" className="flex-1 flex items-center justify-center gap-4" />
+                <div id="overlay-slide-panel-toolbar" className="flex items-center gap-3 shrink-0" />
+              </div>
+              <div className="flex-1 min-h-0">
+                <BusinessSlidePanel
+                  businessId={overlaySelectedBusiness.id}
+                  onClose={() => setOverlaySelectedBusiness(null)}
+                  isExpanded={false}
+                  onToggleExpand={() => {}}
+                />
+              </div>
+            </div>
+          )}
         </div>
       )}
       {showResultsOverlay && isMobile && (
