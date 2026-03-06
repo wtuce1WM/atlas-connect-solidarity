@@ -535,8 +535,9 @@ const SearchPage = () => {
    const [locationDialogOpen, setLocationDialogOpen] = useState(false);
    const heroAiRef = useRef<HTMLDivElement>(null);
    const [hasScrolledPastHeroAi, setHasScrolledPastHeroAi] = useState(false);
-   const [showAiPopup, setShowAiPopup] = useState(false);
-   const aiPopupShownRef = useRef(false);
+    const [showAiPopup, setShowAiPopup] = useState(false);
+    const aiPopupShownRef = useRef(false);
+    const [overlaySelectedBusiness, setOverlaySelectedBusiness] = useState<AIBusinessData | null>(null);
 
    // Reset when query changes
    useEffect(() => {
