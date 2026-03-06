@@ -1425,7 +1425,7 @@ const SearchPage = () => {
           {!isMobile && !isCategoryFilterActive && (
             <div className="flex justify-center mt-4">
               <button
-                onClick={geo.toggle}
+                onClick={() => setLocationDialogOpen(true)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                   geo.isEnabled
                     ? "bg-gold/20 text-gold border border-gold/40"
