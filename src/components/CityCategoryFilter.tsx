@@ -41,7 +41,6 @@ interface CityCategoryFilterProps {
   selectedService?: string | null;
   onSelectService?: (service: string | null) => void;
   hasCityBar?: boolean;
-  hasAiBar?: boolean;
 }
 
 const CityCategoryFilter = ({
@@ -53,7 +52,6 @@ const CityCategoryFilter = ({
   selectedService,
   onSelectService,
   hasCityBar = false,
-  hasAiBar = false,
 }: CityCategoryFilterProps) => {
   const [categories, setCategories] = useState<CategoryCount[]>([]);
   const [subcategories, setSubcategories] = useState<SubcategoryCount[]>([]);
@@ -281,7 +279,7 @@ const CityCategoryFilter = ({
     return item.name_fr;
   };
 
-  const baseTop = 104 + (hasCityBar ? 44 : 0) + (hasAiBar ? 76 : 0);
+  const baseTop = 104 + (hasCityBar ? 44 : 0);
 
   return (
     <>
