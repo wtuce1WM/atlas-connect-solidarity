@@ -1179,8 +1179,7 @@ const SearchPage = () => {
         // Use edge function for full-text search
         const { data, error } = await supabase.functions.invoke<SearchResult>("business-search", {
           body: { 
-            query: searchQuery.trim() || undefined,
-            category: categoryFromUrl || undefined,
+            query: searchQuery.trim() || categoryFromUrl || undefined,
             spoken: spokenText || undefined,
             language: language,
             limit: 500,
@@ -1240,6 +1239,11 @@ const SearchPage = () => {
                 setSelectedCity(resultCities[0]);
               }
             }
+          } else if (categoryFromUrl && businesses.length > 0) {
+              // Pre-select UI category filter from URL param (e.g. from voice search)
+              setSelectedCategoryFilter(categoryFromUrl);
+              setSelectedSubcategoryFilter(null);
+              setSelectedServiceFilter(null);
           } else {
             // Reset category filter when search changes
             setSelectedCategoryFilter(null);
