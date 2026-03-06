@@ -40,6 +40,7 @@ interface CityCategoryFilterProps {
   onSelectSubcategory?: (subcategory: string | null) => void;
   selectedService?: string | null;
   onSelectService?: (service: string | null) => void;
+  hasCityBar?: boolean;
 }
 
 const CityCategoryFilter = ({
@@ -50,6 +51,7 @@ const CityCategoryFilter = ({
   onSelectSubcategory,
   selectedService,
   onSelectService,
+  hasCityBar = false,
 }: CityCategoryFilterProps) => {
   const [categories, setCategories] = useState<CategoryCount[]>([]);
   const [subcategories, setSubcategories] = useState<SubcategoryCount[]>([]);
@@ -280,7 +282,7 @@ const CityCategoryFilter = ({
   return (
     <>
       {/* Sticky categories zone */}
-      <div data-category-filter className="sticky top-[104px] z-[2] bg-background/95 backdrop-blur-sm border-b border-border py-3">
+      <div data-category-filter className={`sticky ${hasCityBar ? 'top-[148px]' : 'top-[104px]'} z-[2] bg-background/95 backdrop-blur-sm border-b border-border py-3`}>
         <div className="mx-auto px-4 max-w-[80%]">
           <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
             {categories.map((cat) => {
@@ -317,7 +319,7 @@ const CityCategoryFilter = ({
 
       {/* Sticky subcategories zone */}
       {selectedCategory && !isLoadingSubs && subcategories.length > 0 && (
-        <div className="sticky top-[166px] z-[1] bg-background/90 backdrop-blur-sm border-b border-border/50 py-2">
+        <div className={`sticky ${hasCityBar ? 'top-[210px]' : 'top-[166px]'} z-[1] bg-background/90 backdrop-blur-sm border-b border-border/50 py-2`}>
           <div className="mx-auto px-4 max-w-[80%]">
             <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
               {subcategories.map((sub) => {
@@ -353,7 +355,7 @@ const CityCategoryFilter = ({
 
       {/* Sticky services zone */}
       {selectedSubcategory && !isLoadingServices && services.length > 0 && (
-        <div className="sticky top-[218px] z-[0] bg-background/85 backdrop-blur-sm border-b border-border/30 py-2">
+        <div className={`sticky ${hasCityBar ? 'top-[262px]' : 'top-[218px]'} z-[0] bg-background/85 backdrop-blur-sm border-b border-border/30 py-2`}>
           <div className="mx-auto px-4 max-w-[80%]">
             <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
               {services.map((svc) => {
