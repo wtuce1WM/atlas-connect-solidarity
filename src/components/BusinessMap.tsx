@@ -164,10 +164,14 @@ const BusinessMap = ({
     fetchAll();
   }, [externalBusinesses]);
 
-  const geoBusinesses = useMemo(
-    () => businesses.filter((b) => b.latitude != null && b.longitude != null),
-    [businesses]
-  );
+  const geoBusinesses = useMemo(() => {
+    const withCoordinates = businesses.filter((b) => b.latitude != null && b.longitude != null);
+    const uniqueById = new Map<string, MapBusiness>();
+    for (const business of withCoordinates) {
+      if (!uniqueById.has(business.id)) uniqueById.set(business.id, business);
+    }
+    return Array.from(uniqueById.values());
+  }, [businesses]);
 
   // Initialize map once gmaps is ready
   useEffect(() => {
