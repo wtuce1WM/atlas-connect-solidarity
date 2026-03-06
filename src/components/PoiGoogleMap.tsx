@@ -76,9 +76,10 @@ function markerSvgUrl(isSelected: boolean): string {
 const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center }: PoiGoogleMapProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
-  const markersRef = useRef<google.maps.Marker[]>([]);
+  const markersRef = useRef<Map<string, google.maps.Marker>>(new Map());
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
   const [ready, setReady] = useState(false);
+  const hasFittedRef = useRef(false);
 
   // Load Google Maps
   useEffect(() => {
@@ -100,14 +101,15 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center }: PoiGoogleMapP
     infoWindowRef.current = new google.maps.InfoWindow();
   }, [ready]);
 
-  // Update markers
+  // Create/update markers when pois change (NOT when selectedPoiId changes)
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
 
     // Clear old markers
     markersRef.current.forEach((m) => m.setMap(null));
-    markersRef.current = [];
+    markersRef.current.clear();
+    hasFittedRef.current = false;
 
     const bounds = new google.maps.LatLngBounds();
     let hasPoints = false;
@@ -115,7 +117,6 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center }: PoiGoogleMapP
     pois.forEach((poi) => {
       if (!poi.latitude || !poi.longitude) return;
       hasPoints = true;
-      const isSelected = poi.id === selectedPoiId;
       const position = { lat: poi.latitude, lng: poi.longitude };
       bounds.extend(position);
 
@@ -124,11 +125,11 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center }: PoiGoogleMapP
         map,
         title: poi.name,
         icon: {
-          url: markerSvgUrl(isSelected),
-          scaledSize: new google.maps.Size(isSelected ? 36 : 28, isSelected ? 50 : 40),
-          anchor: new google.maps.Point(isSelected ? 18 : 14, isSelected ? 50 : 40),
+          url: markerSvgUrl(false),
+          scaledSize: new google.maps.Size(28, 40),
+          anchor: new google.maps.Point(14, 40),
         },
-        zIndex: isSelected ? 1000 : 1,
+        zIndex: 1,
       });
 
       marker.addListener("mouseover", () => {
@@ -154,12 +155,10 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center }: PoiGoogleMapP
         onPoiClick?.(poi.id);
       });
 
-      markersRef.current.push(marker);
+      markersRef.current.set(poi.id, marker);
     });
 
-    if (center) {
-      bounds.extend(center);
-    }
+    if (center) bounds.extend(center);
 
     if (hasPoints || center) {
       google.maps.event.trigger(map, "resize");
@@ -168,9 +167,23 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center }: PoiGoogleMapP
         const z = map.getZoom();
         if (z && z > 16) map.setZoom(16);
         if (center) map.setCenter(center);
+        hasFittedRef.current = true;
       });
     }
-  }, [pois, selectedPoiId, ready, center]);
+  }, [pois, ready, center]);
+
+  // Update marker icons when selectedPoiId changes (no fitBounds!)
+  useEffect(() => {
+    markersRef.current.forEach((marker, id) => {
+      const isSelected = id === selectedPoiId;
+      marker.setIcon({
+        url: markerSvgUrl(isSelected),
+        scaledSize: new google.maps.Size(isSelected ? 36 : 28, isSelected ? 50 : 40),
+        anchor: new google.maps.Point(isSelected ? 18 : 14, isSelected ? 50 : 40),
+      });
+      marker.setZIndex(isSelected ? 1000 : 1);
+    });
+  }, [selectedPoiId]);
 
   // Keep city centered when a city center is provided
   useEffect(() => {
