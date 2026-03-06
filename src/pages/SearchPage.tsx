@@ -1074,8 +1074,11 @@ const SearchPage = () => {
 
           // Auto-select category + subcategory when engine detected a subcategory
           if (finalDetectedSubcategory && businesses.length > 0) {
-            // Derive parent category from the first business's main_category
-            const parentCategory = businesses[0]?.main_category || null;
+            // Derive parent category from a business that actually has the detected subcategory
+            const matchingBusiness = businesses.find(b => 
+              b.categories?.includes(finalDetectedSubcategory!)
+            ) || businesses[0];
+            const parentCategory = matchingBusiness?.main_category || null;
             setSelectedCategoryFilter(parentCategory);
             setSelectedSubcategoryFilter(finalDetectedSubcategory);
             setSelectedServiceFilter(null);
