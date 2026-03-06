@@ -538,6 +538,7 @@ const SearchPage = () => {
     const [showAiPopup, setShowAiPopup] = useState(false);
     const aiPopupShownRef = useRef(false);
     const [overlaySelectedBusiness, setOverlaySelectedBusiness] = useState<AIBusinessData | null>(null);
+    const overlayLeftPanelRef = useRef<HTMLDivElement>(null);
 
    // Reset when query changes
    useEffect(() => {
