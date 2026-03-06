@@ -1614,7 +1614,7 @@ const SearchPage = () => {
            {/* AI Search Answer — full hero mode (hidden when category filter active) */}
            {searchQuery && !isLoading && !isCategoryFilterActive && allBusinesses.length > 0 && (
               <div ref={heroAiRef} className="relative">
-                <span className="absolute top-1 left-1 z-50 bg-purple-600 text-white text-[10px] font-bold px-2 py-0.5 rounded">🟣 HERO AI ZONE</span>
+                <span className="absolute top-1 left-1 z-50 bg-purple-600 text-white text-[10px] font-bold px-2 py-0.5 rounded select-all cursor-text">🟣 HERO AI ZONE</span>
                 <AISearchAnswer
                  query={spokenText || searchQuery}
                  spokenText={spokenText || undefined}
@@ -1665,7 +1665,7 @@ const SearchPage = () => {
 
       {/* Tab Bar — stickybar 1 (above cities) */}
       <section data-tab-bar className="sticky top-[60px] z-[7] bg-background border-b border-border relative">
-        <span className="absolute top-0 left-1 z-[60] bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded pointer-events-none">🔴 STICKY 1</span>
+        <span className="absolute top-0 left-1 z-[60] bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded select-all cursor-text">🔴 STICKY 1</span>
         <div className="mx-auto px-4 max-w-[80%]">
           <div className="flex gap-0">
             <button
@@ -1697,7 +1697,7 @@ const SearchPage = () => {
       {/* City Bar — stickybar 2 (below tabs) */}
       {availableCities.length > 1 && !queryHasExplicitCity && (
         <div data-city-bar className="sticky z-[6] bg-background border-b border-border py-2 relative" style={{ top: `${stickyTops.cityBar}px` }}>
-          <span className="absolute top-0 left-1 z-[60] bg-orange-500 text-white text-[10px] font-bold px-2 py-0.5 rounded pointer-events-none">🟠 STICKY 2</span>
+          <span className="absolute top-0 left-1 z-[60] bg-orange-500 text-white text-[10px] font-bold px-2 py-0.5 rounded select-all cursor-text">🟠 STICKY 2</span>
           <div className="mx-auto px-4 max-w-[80%]">
             <div className="flex gap-2 overflow-x-auto pb-0.5 scrollbar-hide">
               <button
@@ -1733,37 +1733,7 @@ const SearchPage = () => {
         </div>
       )}
 
-      {/* Search-derived service filter bar — shown when text search yields services */}
-      {searchServiceFilters.length >= 1 && !isLoading && !selectedCategoryFilter && !selectedSubcategoryFilter && (
-        <div data-search-service-filter className="sticky z-[5] bg-background border-b border-border py-2 relative" style={{ top: `${stickyTops.serviceBar}px` }}>
-          <span className="absolute top-0 left-1 z-[60] bg-green-600 text-white text-[10px] font-bold px-2 py-0.5 rounded pointer-events-none">🟢 STICKY 3</span>
-          <div className="mx-auto px-4 max-w-[80%]">
-            <div className="flex gap-2 overflow-x-auto pb-0.5 scrollbar-hide">
-              {searchServiceFilters.map((svc) => {
-                const isSelected = selectedServiceFilter === svc.name;
-                return (
-                  <button
-                    key={svc.name}
-                    onClick={() => setSelectedServiceFilter(isSelected ? null : svc.name)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium whitespace-nowrap transition-all shrink-0 ${
-                      isSelected
-                        ? "bg-gold/20 border-gold text-gold shadow-sm"
-                        : "bg-card border-border text-muted-foreground hover:border-gold/40 hover:text-foreground"
-                    }`}
-                  >
-                    <span>{svc.name}</span>
-                    <span className={`text-[10px] ${isSelected ? "text-gold/70" : "text-muted-foreground/60"}`}>
-                      {svc.count}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Sticky Category + Subcategory Filters */}
+      {/* Sticky Category + Subcategory Filters — above services */}
       {detectedCity && allBusinesses.length > 0 && !isLoading && (
         <CityCategoryFilter
           cityName={detectedCity}
@@ -1799,6 +1769,36 @@ const SearchPage = () => {
             setSelectedServiceFilter(svc);
           }}
         />
+      )}
+
+      {/* Search-derived service filter bar — shown when text search yields services (below categories) */}
+      {searchServiceFilters.length >= 1 && !isLoading && !selectedCategoryFilter && !selectedSubcategoryFilter && (
+        <div data-search-service-filter className="sticky z-[2] bg-background border-b border-border py-2 relative" ref={(el) => { if (el) { const catEl = document.querySelector<HTMLElement>('[data-category-filter]'); if (catEl) { const catBottom = parseFloat(catEl.style.top || '0') + catEl.getBoundingClientRect().height; el.style.top = `${catBottom}px`; } else { el.style.top = `${stickyTops.serviceBar}px`; } } }}>
+          <span className="absolute top-0 left-1 z-[60] bg-green-600 text-white text-[10px] font-bold px-2 py-0.5 rounded select-all cursor-text">🟢 STICKY 3</span>
+          <div className="mx-auto px-4 max-w-[80%]">
+            <div className="flex gap-2 overflow-x-auto pb-0.5 scrollbar-hide">
+              {searchServiceFilters.map((svc) => {
+                const isSelected = selectedServiceFilter === svc.name;
+                return (
+                  <button
+                    key={svc.name}
+                    onClick={() => setSelectedServiceFilter(isSelected ? null : svc.name)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium whitespace-nowrap transition-all shrink-0 ${
+                      isSelected
+                        ? "bg-gold/20 border-gold text-gold shadow-sm"
+                        : "bg-card border-border text-muted-foreground hover:border-gold/40 hover:text-foreground"
+                    }`}
+                  >
+                    <span>{svc.name}</span>
+                    <span className={`text-[10px] ${isSelected ? "text-gold/70" : "text-muted-foreground/60"}`}>
+                      {svc.count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
       )}
 
       {activeTab === "map" && (
@@ -1868,7 +1868,7 @@ const SearchPage = () => {
 
         return (
           <div data-ai-bar className="sticky z-[1] bg-background backdrop-blur-sm border-b border-border py-2 relative" style={{ top: `${aiTop}px` }}>
-            <span className="absolute top-0 left-1 z-[60] bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded pointer-events-none">🔵 STICKY 4</span>
+            <span className="absolute top-0 left-1 z-[60] bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded select-all cursor-text">🔵 STICKY 4</span>
             <div className="mx-auto px-4 max-w-[80%]">
               <div className="flex items-start gap-3">
                 <div className="flex-1 min-w-0">
