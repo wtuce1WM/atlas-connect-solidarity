@@ -1771,7 +1771,7 @@ const SearchPage = () => {
         />
       )}
 
-      {/* Search-derived service filter bar — shown when text search yields services (below categories) */}
+      {/* Search-derived service filter bar — COMMENTED OUT
       {searchServiceFilters.length >= 1 && !isLoading && !selectedCategoryFilter && !selectedSubcategoryFilter && (
         <div data-search-service-filter className="sticky z-[2] bg-background border-b border-border py-2 relative" ref={(el) => { if (el) { const catEl = document.querySelector<HTMLElement>('[data-category-filter]'); if (catEl) { const catBottom = parseFloat(catEl.style.top || '0') + catEl.getBoundingClientRect().height; el.style.top = `${catBottom}px`; } else { el.style.top = `${stickyTops.serviceBar}px`; } } }}>
           <span className="absolute top-0 left-1 z-[60] bg-green-600 text-white text-[10px] font-bold px-2 py-0.5 rounded select-all cursor-text">🟢 STICKY 3</span>
@@ -1800,6 +1800,7 @@ const SearchPage = () => {
           </div>
         </div>
       )}
+      */}
 
       {activeTab === "map" && (
         <section className="py-6 lg:py-12 bg-background">
