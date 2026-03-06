@@ -770,6 +770,26 @@ const SearchPage = () => {
     return [...filtered].sort(sortWtuceAndRating);
   }, [allBusinesses, selectedCity, selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, activeTimeSlot, searchQuery, categoryFromUrl, moreFilterMatchingIds, moreFilterTimeSlots]);
 
+  // Extract services from search results for inline filter bar
+  const searchServiceFilters = useMemo(() => {
+    if (!searchQuery.trim() || allBusinesses.length === 0) return [];
+    // Don't show when CityCategoryFilter is handling service display
+    if (selectedCategoryFilter || selectedSubcategoryFilter) return [];
+    const countMap: Record<string, number> = {};
+    for (const b of allBusinesses) {
+      if (b.services) {
+        for (const s of b.services) {
+          countMap[s] = (countMap[s] || 0) + 1;
+        }
+      }
+    }
+    return Object.entries(countMap)
+      .filter(([_, count]) => count >= 2)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 15)
+      .map(([name, count]) => ({ name, count }));
+  }, [searchQuery, allBusinesses, selectedCategoryFilter, selectedSubcategoryFilter]);
+
   // Group businesses by primary subcategory when a subcategory was detected
   const groupedBusinesses = useMemo(() => {
     if (!detectedSubcategory || filteredBusinesses.length === 0) return null;
@@ -1566,6 +1586,35 @@ const SearchPage = () => {
         </div>
       )}
 
+      {/* Search-derived service filter bar — shown when text search yields services */}
+      {searchServiceFilters.length >= 2 && !isLoading && !selectedCategoryFilter && !selectedSubcategoryFilter && (
+        <div data-search-service-filter className="sticky z-[5] bg-background/95 backdrop-blur-sm border-b border-border/50 py-2" style={{ top: `${104 + (availableCities.length > 1 && !queryHasExplicitCity ? 44 : 0)}px` }}>
+          <div className="mx-auto px-4 max-w-[80%]">
+            <div className="flex gap-2 overflow-x-auto pb-0.5 scrollbar-hide">
+              {searchServiceFilters.map((svc) => {
+                const isSelected = selectedServiceFilter === svc.name;
+                return (
+                  <button
+                    key={svc.name}
+                    onClick={() => setSelectedServiceFilter(isSelected ? null : svc.name)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium whitespace-nowrap transition-all shrink-0 ${
+                      isSelected
+                        ? "bg-gold/20 border-gold text-gold shadow-sm"
+                        : "bg-card border-border text-muted-foreground hover:border-gold/40 hover:text-foreground"
+                    }`}
+                  >
+                    <span>{svc.name}</span>
+                    <span className={`text-[10px] ${isSelected ? "text-gold/70" : "text-muted-foreground/60"}`}>
+                      {svc.count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Sticky Category + Subcategory Filters */}
       {detectedCity && allBusinesses.length > 0 && !isLoading && (
         <CityCategoryFilter
@@ -1645,6 +1694,9 @@ const SearchPage = () => {
         const serviceEl = typeof document !== "undefined"
           ? document.querySelector<HTMLElement>("[data-service-filter]")
           : null;
+        const searchServiceEl = typeof document !== "undefined"
+          ? document.querySelector<HTMLElement>("[data-search-service-filter]")
+          : null;
 
         const getStickyBottom = (el: HTMLElement | null) => {
           if (!el || typeof window === "undefined") return 0;
@@ -1655,7 +1707,8 @@ const SearchPage = () => {
 
         const filterBottom = (serviceEl && getStickyBottom(serviceEl))
           || (subcategoryEl && getStickyBottom(subcategoryEl))
-          || (categoryEl && getStickyBottom(categoryEl));
+          || (categoryEl && getStickyBottom(categoryEl))
+          || (searchServiceEl && getStickyBottom(searchServiceEl));
         // When no filter bars exist (hero scroll mode), stick just below the tab bar or header
         const tabBarEl = typeof document !== "undefined"
           ? document.querySelector<HTMLElement>("[data-tab-bar]")
