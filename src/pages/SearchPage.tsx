@@ -16,6 +16,8 @@ import CategoriesCarouselSection from "@/components/CategoriesCarouselSection";
 import CityCategoryFilter from "@/components/CityCategoryFilter";
 import { Button } from "@/components/ui/button";
 import GoogleMapEmbed from "@/components/GoogleMapEmbed";
+import PoiGoogleMap from "@/components/PoiGoogleMap";
+import type { PoiMapItem } from "@/components/PoiGoogleMap";
 
 import {
   Select,
