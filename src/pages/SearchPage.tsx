@@ -539,12 +539,14 @@ const SearchPage = () => {
     const [compactPanelBusiness, setCompactPanelBusiness] = useState<AIBusinessData | null>(null);
     const [isCompactPanelExpanded, setIsCompactPanelExpanded] = useState(false);
      const [poiSelectedBusinessId, setPoiSelectedBusinessId] = useState<string | null>(null);
+     const [poiPanelExpanded, setPoiPanelExpanded] = useState(false);
      const [poiMapBusiness, setPoiMapBusiness] = useState<{ name: string; latitude: number | null; longitude: number | null; address: string | null; google_maps_url: string | null; id: string } | null>(null);
      const [allPois, setAllPois] = useState<PoiMapItem[]>([]);
      const [destMapItem, setDestMapItem] = useState<{ id: string; name_fr: string; latitude: number | null; longitude: number | null } | null>(null);
      const [allDests, setAllDests] = useState<PoiMapItem[]>([]);
       const [selectedDestination, setSelectedDestination] = useState<DestinationItem | null>(null);
       const [destSelectedBusinessId, setDestSelectedBusinessId] = useState<string | null>(null);
+      const [destPanelExpanded, setDestPanelExpanded] = useState(false);
      const [allDestItems, setAllDestItems] = useState<DestinationItem[]>([]);
    const [locationDialogOpen, setLocationDialogOpen] = useState(false);
    const heroAiRef = useRef<HTMLDivElement>(null);
