@@ -1428,6 +1428,49 @@ const SearchPage = () => {
     }
   }, [isLoading]);
 
+  // Auto-regenerate AI text when a filter changes (category/subcategory/service)
+  const prevFilterRef = useRef({ cat: "", sub: "", svc: "" });
+  useEffect(() => {
+    const prev = prevFilterRef.current;
+    const changed =
+      prev.cat !== (selectedCategoryFilter || "") ||
+      prev.sub !== (selectedSubcategoryFilter || "") ||
+      prev.svc !== (selectedServiceFilter || "");
+    prevFilterRef.current = {
+      cat: selectedCategoryFilter || "",
+      sub: selectedSubcategoryFilter || "",
+      svc: selectedServiceFilter || "",
+    };
+    if (!changed || !aiAnswerText || isAiRegenerating) return;
+    if (!selectedCategoryFilter && !selectedSubcategoryFilter && !selectedServiceFilter) return;
+
+    const regenerate = async () => {
+      setIsAiRegenerating(true);
+      try {
+        await new Promise(r => setTimeout(r, 150));
+        const top10 = filteredBusinesses.slice(0, 10);
+        if (top10.length === 0) { setIsAiRegenerating(false); return; }
+        const { data } = await supabase.functions.invoke("ai-search-answer", {
+          body: {
+            query: spokenText || searchQuery,
+            spokenText: spokenText || undefined,
+            businesses: top10.map(b => ({
+              name: b.name, city: b.city, main_category: b.main_category,
+              categories: b.categories, hook_fr: b.hook_fr, wtuce_status: b.wtuce_status,
+            })),
+            language,
+            vary: Date.now() % 1000,
+          },
+        });
+        if (data?.answer) setAiAnswerText(data.answer);
+      } catch (e) {
+        console.error("AI filter-regenerate error:", e);
+      } finally {
+        setIsAiRegenerating(false);
+      }
+    };
+    regenerate();
+  }, [selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter]);
 
 
   const translations = {
