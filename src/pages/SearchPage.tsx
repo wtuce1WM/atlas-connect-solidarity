@@ -2213,15 +2213,14 @@ const SearchPage = () => {
                   <div className="w-9" />
                 </div>
                 <div className="flex-1 min-h-0 flex flex-col">
-                  <div className="flex-1 min-h-0">
                     <GoogleMapEmbed
                       address={poiMapBusiness.address || ""}
                       businessName={poiMapBusiness.name}
                       latitude={poiMapBusiness.latitude}
                       longitude={poiMapBusiness.longitude}
                       googleMapsUrl={poiMapBusiness.google_maps_url}
+                      fillHeight
                     />
-                  </div>
                 </div>
               </div>
             )}
