@@ -123,16 +123,17 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center }: PoiGoogleMapP
       const position = { lat: poi.latitude, lng: poi.longitude };
       bounds.extend(position);
 
+      const isSelected = poi.id === selectedPoiId;
       const marker = new google.maps.Marker({
         position,
         map,
         title: poi.name,
         icon: {
-          url: markerSvgUrl(false),
-          scaledSize: new google.maps.Size(28, 40),
-          anchor: new google.maps.Point(14, 40),
+          url: markerSvgUrl(isSelected),
+          scaledSize: new google.maps.Size(isSelected ? 36 : 28, isSelected ? 50 : 40),
+          anchor: new google.maps.Point(isSelected ? 18 : 14, isSelected ? 50 : 40),
         },
-        zIndex: 1,
+        zIndex: isSelected ? 1000 : 1,
       });
 
       marker.addListener("mouseover", () => {
