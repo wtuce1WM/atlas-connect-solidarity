@@ -36,7 +36,6 @@ import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { useToast } from "@/hooks/use-toast";
 import LocationPickerDialog from "@/components/LocationPickerDialog";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
 interface Business {
   id: string;
