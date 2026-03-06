@@ -754,20 +754,23 @@ const SearchPage = () => {
   toggleRecordingRef.current = toggleRecording;
 
   // Get cities available in results, sorted by priority score
-  // If any result has zone_chalandise = 'Nationale' + is_visible_locale, show ALL active cities
+  // Show cities that are either the direct city of a result OR covered via zone_city_ids
   const availableCities = useMemo(() => {
-    const hasNationalBusiness = allBusinesses.some(
-      b => b.zone_chalandise === "Nationale" && b.is_visible_locale
-    );
-    if (hasNationalBusiness) {
-      // Show all active cities since national businesses cover everywhere
-      return citiesWithPriority
-        .sort((a, b) => a.priority - b.priority)
-        .map(c => c.name);
+    // Collect direct cities
+    const coveredCityNames = new Set<string>();
+    const coveredCityIds = new Set<string>();
+
+    for (const b of allBusinesses) {
+      if (b.city) coveredCityNames.add(b.city);
+      if (b.zone_city_ids && b.is_visible_locale) {
+        for (const cid of b.zone_city_ids) {
+          coveredCityIds.add(cid);
+        }
+      }
     }
-    const businessCities = new Set(allBusinesses.map(b => b.city));
+
     return citiesWithPriority
-      .filter(c => businessCities.has(c.name))
+      .filter(c => coveredCityNames.has(c.name) || (c.id && coveredCityIds.has(c.id)))
       .sort((a, b) => a.priority - b.priority)
       .map(c => c.name);
   }, [allBusinesses, citiesWithPriority]);
