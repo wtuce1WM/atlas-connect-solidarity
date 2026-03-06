@@ -28,6 +28,7 @@ import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import EssaouiraSeaView from "./pages/EssaouiraSeaView";
 import BlogAnimations from "./pages/BlogAnimations";
+import BlogTypography from "./pages/BlogTypography";
 import RatedBusinesses from "./pages/RatedBusinesses";
 import NeighborhoodPage from "./pages/NeighborhoodPage";
 import AllBusinessesMap from "./pages/AllBusinessesMap";
@@ -98,6 +99,7 @@ const AppContent = () => {
               <Route path="/blog/essaouira-vue-mer" element={<EssaouiraSeaView />} />
               <Route path="/blog/animations" element={<BlogAnimations />} />
               <Route path="/blog/ancien-accueil" element={<AncienAccueil />} />
+              <Route path="/blog/typographie" element={<BlogTypography />} />
               <Route path="/blog/:slug" element={<BlogPost />} />
               <Route path="/etablissements-notes" element={<RatedBusinesses />} />
               <Route path="/neighborhood/:neighborhood" element={<NeighborhoodPage />} />
