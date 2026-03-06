@@ -95,6 +95,7 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
   };
 
   return (
+    <>
     <div className={`fixed top-[54px] right-0 bottom-0 z-[100] border-l border-border bg-background flex flex-col shadow-2xl transition-all duration-500 ease-out ${isExpanded ? "w-[80%]" : "w-1/2"}`}>
       {/* STICKY 1 — Tabs */}
       <div className="shrink-0 flex items-center px-3 py-2 border-b border-border gap-2">
