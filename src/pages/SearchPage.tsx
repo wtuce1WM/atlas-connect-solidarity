@@ -384,8 +384,6 @@ const SearchPage = () => {
   const [ttsIntroPhrase, setTtsIntroPhrase] = useState<string>("");
   const [aiAnswerText, setAiAnswerText] = useState<string>("");
    const [activeTab, setActiveTab] = useState<"suggestions" | "map" | "poi">("suggestions");
-   const [poiBusinesses, setPoiBusinesses] = useState<{id:string;name:string;city:string|null;neighborhood:string|null;images:string[]|null;rating:number|null;google_rating:number|null;google_review_count:number|null;tripadvisor_rating:number|null;tripadvisor_review_count:number|null;restaurant_guru_rating:number|null;restaurant_guru_review_count:number|null;getyourguide_rating:number|null;getyourguide_review_count:number|null;viator_rating:number|null;viator_review_count:number|null;categories:string[]|null;poi_hook:string|null}[]>([]);
-   const [isPoiLoading, setIsPoiLoading] = useState(false);
    const [detectedCity, setDetectedCity] = useState<string | null>(null);
    const [disambiguationType, setDisambiguationType] = useState<"needs_category" | "needs_city" | null>(null);
    const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string | null>(null);
