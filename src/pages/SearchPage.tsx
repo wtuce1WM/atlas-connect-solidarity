@@ -2160,6 +2160,13 @@ const SearchPage = () => {
                 >
                   <RefreshCw className={`h-5 w-5 ${isAiRegenerating ? "animate-spin" : ""}`} />
                 </button>
+                <button
+                  onClick={() => { aiPopupShownRef.current = false; setShowAiPopup(true); }}
+                  className="shrink-0 w-10 h-10 rounded-full bg-gold text-black flex items-center justify-center hover:bg-gold/90 transition-colors shadow-lg mt-0.5"
+                  title={language === "en" ? "View AI suggestion" : "Voir la suggestion IA"}
+                >
+                  <Sparkles className="h-5 w-5" />
+                </button>
               </div>
               {/* Action buttons row: Plus de filtres, Écouter, Géolocalisation */}
               <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/50">
@@ -2573,17 +2580,7 @@ const SearchPage = () => {
         </div>
       </div>
 
-      <div className="h-20 flex items-center justify-center">
-        {aiAnswerText && (
-          <button
-            onClick={() => { aiPopupShownRef.current = false; setShowAiPopup(true); }}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gold text-black text-sm font-semibold hover:bg-gold/90 transition-colors shadow-lg"
-          >
-            <Sparkles className="h-4 w-4" />
-            {language === "en" ? "View AI suggestion" : language === "ar" ? "عرض اقتراح الذكاء" : "Voir la suggestion IA"}
-          </button>
-        )}
-      </div>
+      <div className="h-20" />
       <Footer />
 
       {/* Google-style voice search overlay */}
