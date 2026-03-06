@@ -36,7 +36,6 @@ import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { useToast } from "@/hooks/use-toast";
 import LocationPickerDialog from "@/components/LocationPickerDialog";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
 interface Business {
   id: string;
@@ -1461,47 +1460,59 @@ const SearchPage = () => {
     <div className="min-h-screen bg-background">
       <Header />
 
-      {/* AI Suggestion Popup — shown on arrival from homepage */}
-      <Dialog open={showAiPopup} onOpenChange={setShowAiPopup}>
-        <DialogContent className="max-w-lg sm:max-w-xl rounded-2xl p-0 overflow-hidden border-gold/30 gap-0">
-          <DialogTitle className="sr-only">Suggestion IA</DialogTitle>
-          {/* Header with query */}
-          <div className="bg-gradient-to-r from-gold/10 to-transparent px-6 py-4 border-b border-border">
+      {/* AI Suggestion Overlay — fullscreen takeover shown on arrival from homepage */}
+      {showAiPopup && (
+        <div className="fixed inset-0 z-[200] flex flex-col bg-background/95 backdrop-blur-sm animate-in fade-in duration-200">
+          {/* Close button */}
+          <button
+            onClick={() => setShowAiPopup(false)}
+            className="absolute top-6 right-6 p-2 rounded-full hover:bg-muted transition-colors z-10"
+          >
+            <X className="h-6 w-6 text-muted-foreground" />
+          </button>
+
+          {/* Top section: query + count */}
+          <div className="pt-16 pb-4 px-8 text-center">
             <p className="text-muted-foreground text-sm">
               {language === "en" ? "Search results for" : language === "ar" ? "نتائج البحث عن" : "Résultats de recherche pour"}
             </p>
-            <p className="text-lg font-bold text-foreground">
-              «&nbsp;{searchQuery}&nbsp;»
+            <p className="text-xl md:text-2xl font-bold text-foreground mt-1">
+              «&nbsp;{spokenText || searchQuery}&nbsp;»
             </p>
-            <p className="text-gold font-semibold mt-1">
+            <p className="text-gold font-semibold text-lg mt-2">
               {displayedResultsCount} {language === "en" ? "establishments found" : language === "ar" ? "مؤسسة وجدت" : "établissements trouvés"}
             </p>
           </div>
-          {/* AI text */}
-          <div className="px-6 py-4 max-h-[40vh] overflow-y-auto">
-            <div className="flex items-start gap-2 mb-3">
-              <Sparkles className="h-4 w-4 text-gold shrink-0 mt-0.5" />
-              <span className="text-xs font-semibold text-gold uppercase tracking-wider">Suggestion IA</span>
-            </div>
-            <div className="text-sm text-foreground/80 leading-relaxed whitespace-pre-line">
-              {parseInline(
-                aiAnswerText,
-                allBusinesses as unknown as AIBusinessData[],
-                undefined,
-                "ai-popup"
-              )}
+
+          {/* AI text — scrollable center */}
+          <div className="flex-1 overflow-y-auto px-8 pb-4">
+            <div className="max-w-2xl mx-auto">
+              <div className="flex items-center gap-2 mb-4">
+                <Sparkles className="h-4 w-4 text-gold" />
+                <span className="text-xs font-semibold text-gold uppercase tracking-wider">Suggestion IA</span>
+              </div>
+              <div className="text-base text-foreground/80 leading-relaxed whitespace-pre-line">
+                {parseInline(
+                  aiAnswerText,
+                  allBusinesses as unknown as AIBusinessData[],
+                  undefined,
+                  "ai-popup"
+                )}
+              </div>
             </div>
           </div>
-          {/* Actions */}
-          <div className="px-6 py-4 border-t border-border flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              {/* Listen button */}
+
+          {/* Bottom actions */}
+          <div className="shrink-0 pb-12 pt-6 flex flex-col items-center gap-5">
+            {/* Action buttons row */}
+            <div className="flex items-center gap-3">
+              {/* Listen */}
               {(ttsStatus === "playing" || ttsStatus === "loading") ? (
                 <button
                   onClick={ttsStop}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full bg-gold/20 text-gold text-xs font-medium hover:bg-gold/30 transition-colors"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-gold/20 text-gold text-sm font-medium hover:bg-gold/30 transition-colors"
                 >
-                  {ttsStatus === "loading" ? <Loader className="h-3.5 w-3.5 animate-spin" /> : <Volume2 className="h-3.5 w-3.5" />}
+                  {ttsStatus === "loading" ? <Loader className="h-4 w-4 animate-spin" /> : <Volume2 className="h-4 w-4" />}
                   {ttsStatus === "loading" ? "…" : "Stop"}
                 </button>
               ) : (
@@ -1513,30 +1524,30 @@ const SearchPage = () => {
                     voiceLoopRef.current = true;
                     ttsSpeak(intro + cleanText + " … Vous pouvez me poser une autre question.", undefined, true);
                   }}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full bg-card border border-gold/30 text-gold text-xs font-medium hover:bg-gold/20 transition-colors"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-card border border-gold/30 text-gold text-sm font-medium hover:bg-gold/20 transition-colors"
                 >
-                  <Volume2 className="h-3.5 w-3.5" />
+                  <Volume2 className="h-4 w-4" />
                   {language === "en" ? "Listen" : language === "ar" ? "استمع" : "Écouter"}
                 </button>
               )}
-              {/* Geo button */}
+              {/* Geo */}
               <button
                 onClick={() => {
                   setShowAiPopup(false);
                   setTimeout(() => setLocationDialogOpen(true), 300);
                 }}
-                className={`inline-flex items-center gap-1 px-3 py-2 rounded-full text-xs font-medium transition-all ${
+                className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-all ${
                   geo.isEnabled
                     ? "bg-gold/20 text-gold border border-gold/40"
                     : "bg-card text-muted-foreground border border-border hover:border-gold/30"
                 }`}
               >
                 {geo.isDetecting ? (
-                  <Loader className="h-3.5 w-3.5 animate-spin" />
+                  <Loader className="h-4 w-4 animate-spin" />
                 ) : geo.isEnabled ? (
-                  <MapPin className="h-3.5 w-3.5" />
+                  <MapPin className="h-4 w-4" />
                 ) : (
-                  <MapPinOff className="h-3.5 w-3.5" />
+                  <MapPinOff className="h-4 w-4" />
                 )}
                 {geo.isDetecting
                   ? (language === "en" ? "Detecting..." : "Détection...")
@@ -1548,17 +1559,39 @@ const SearchPage = () => {
                 }
               </button>
             </div>
+
+            {/* Mic button */}
+            <div className="relative">
+              <button
+                onClick={() => {
+                  setShowAiPopup(false);
+                  setTimeout(() => toggleRecording(), 300);
+                }}
+                className="relative w-16 h-16 rounded-full bg-card border-2 border-gold/30 flex items-center justify-center shadow-lg hover:border-gold/60 transition-all hover:scale-105"
+                title={language === "en" ? "Voice search" : language === "ar" ? "بحث صوتي" : "Recherche vocale"}
+              >
+                <Mic className="h-7 w-7 text-gold" />
+              </button>
+            </div>
+
             {/* See results */}
             <button
               onClick={() => setShowAiPopup(false)}
-              className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gold text-black text-sm font-semibold hover:bg-gold/90 transition-colors"
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-gold text-black text-sm font-semibold hover:bg-gold/90 transition-colors"
             >
               {language === "en" ? "See results" : language === "ar" ? "عرض النتائج" : "Voir les résultats"}
               <ChevronRight className="h-4 w-4" />
             </button>
           </div>
-        </DialogContent>
-      </Dialog>
+
+          {/* Hint */}
+          <div className="pb-6 text-center">
+            <p className="text-xs text-muted-foreground">
+              {language === "en" ? "Click the mic or dismiss to browse results" : "Cliquez sur le micro ou fermez pour parcourir les résultats"}
+            </p>
+          </div>
+        </div>
+      )}
       {showResultsOverlay && isMobile && (
         <div
           className={`fixed inset-0 z-[60] flex items-end transition-all duration-400 ${overlayDismissing ? 'pointer-events-none' : ''}`}
