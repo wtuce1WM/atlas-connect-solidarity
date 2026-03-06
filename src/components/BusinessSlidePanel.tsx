@@ -44,6 +44,8 @@ interface BusinessSlidePanelProps {
   isExpanded?: boolean;
   onToggleExpand?: () => void;
   liteApiData?: LiteApiData;
+  /** When provided, availability overlay & fallback panel are portaled into this container (used in AI overlay split-screen) */
+  leftPanelPortalRef?: React.RefObject<HTMLDivElement | null>;
 }
 
 interface FullBusiness {
@@ -148,7 +150,7 @@ const SkypeIcon = ({ className = "h-5 w-5" }: { className?: string }) => (
   </svg>
 );
 
-const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpanded, onToggleExpand, liteApiData }: BusinessSlidePanelProps) => {
+const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpanded, onToggleExpand, liteApiData, leftPanelPortalRef }: BusinessSlidePanelProps) => {
   const [internalBusinessId, setInternalBusinessId] = useState(externalBusinessId);
   const businessId = internalBusinessId;
 
@@ -733,22 +735,27 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
         </button>
       )}
       {/* Booking / Availability overlay */}
-      {availabilityOverlayCtx && (
-        <HotelAvailabilityOverlay
-          liteApiHotelId={availabilityOverlayCtx.liteApiHotelId}
-          businessName={availabilityOverlayCtx.businessName}
-          businessCity={availabilityOverlayCtx.businessCity}
-          backgroundImage={availabilityOverlayCtx.backgroundImage}
-          onClose={() => { setAvailabilityOverlayCtx(null); setIsBookingOpen(false); }}
-          onSelectBusiness={(id) => { setInternalBusinessId(id); }}
-          onOpenFallbackPanel={(data) => {
-            setFallbackPanelData(data);
-            setSelectedFallbackHotelId(null);
-            setAvailabilityOverlayCtx(null);
-            setIsBookingOpen(false);
-          }}
-        />
-      )}
+      {availabilityOverlayCtx && (() => {
+        const overlayEl = (
+          <HotelAvailabilityOverlay
+            liteApiHotelId={availabilityOverlayCtx.liteApiHotelId}
+            businessName={availabilityOverlayCtx.businessName}
+            businessCity={availabilityOverlayCtx.businessCity}
+            backgroundImage={availabilityOverlayCtx.backgroundImage}
+            onClose={() => { setAvailabilityOverlayCtx(null); setIsBookingOpen(false); }}
+            onSelectBusiness={(id) => { setInternalBusinessId(id); }}
+            onOpenFallbackPanel={(data) => {
+              setFallbackPanelData(data);
+              setSelectedFallbackHotelId(null);
+              setAvailabilityOverlayCtx(null);
+              setIsBookingOpen(false);
+            }}
+          />
+        );
+        return leftPanelPortalRef?.current
+          ? createPortal(<div className="absolute inset-0 z-10">{overlayEl}</div>, leftPanelPortalRef.current)
+          : overlayEl;
+      })()}
       {isBookingOpen && !hasLiteApiMapping && !availabilityOverlayCtx && bookingUrl && (
         <BookingOverlay
           bookingUrl={bookingUrl}
@@ -2043,7 +2050,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
 
       {/* Fallback hotels left panel – lives outside the overlay */}
       {fallbackPanelData && createPortal(
-        <div className="fixed left-0 z-[105] flex" style={{ top: "62px", bottom: 0, width: "50%" }}>
+        <div className={leftPanelPortalRef?.current ? "absolute inset-0 z-10 flex" : "fixed left-0 z-[105] flex"} style={leftPanelPortalRef?.current ? undefined : { top: "62px", bottom: 0, width: "50%" }}>
           <div className="w-full h-full bg-black/90 backdrop-blur-md flex flex-col overflow-hidden animate-slide-in-left">
             <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 shrink-0">
               <div>
@@ -2143,7 +2150,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
           </div>
           
         </div>,
-        document.body
+        leftPanelPortalRef?.current || document.body
       )}
     </div>
   );
