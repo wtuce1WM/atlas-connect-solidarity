@@ -1149,7 +1149,8 @@ const SearchPage = () => {
           const finalDetectedSubcategory = safeDetectedSubcategory || fallbackSubcategory || null;
           setDetectedSubcategory(finalDetectedSubcategory);
           setSearchMode(normalizedSearchMode);
-          setDetectedCity(data.detectedCity || null);
+           setDetectedCity(data.detectedCity || null);
+           setDisambiguationType(data.disambiguationType || null);
 
           // Auto-select category + subcategory when engine detected a subcategory
           if (finalDetectedSubcategory && businesses.length > 0) {
