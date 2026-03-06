@@ -89,6 +89,19 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
     fetchData();
   }, [destination.id]);
 
+  // Auto-highlight "Prestataires" tab when providers section is visible
+  useEffect(() => {
+    const el = providersRef.current;
+    const container = scrollRef.current;
+    if (!el || !container) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setActiveTab(entry.isIntersecting ? "providers" : "info"),
+      { root: container, threshold: 0.1 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [businesses]);
+
   const getName = () => {
     if (language === "en" && destination.name_en) return destination.name_en;
     if (language === "ar" && destination.name_ar) return destination.name_ar;
