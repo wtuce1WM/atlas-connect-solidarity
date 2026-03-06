@@ -1688,7 +1688,14 @@ const SearchPage = () => {
                 <span className="text-xs font-semibold text-gold uppercase tracking-wider">Suggestion IA</span>
               </div>
               <div className="text-base text-foreground/80 leading-relaxed whitespace-pre-line">
-                {parseInline(
+                {(!aiAnswerText || isAiRegenerating) ? (
+                  <div className="flex items-center gap-3 py-8 justify-center">
+                    <Loader2 className="h-6 w-6 animate-spin text-gold" />
+                    <span className="text-sm italic text-muted-foreground">
+                      {language === "en" ? "Generating suggestion…" : language === "ar" ? "جاري إنشاء الاقتراح…" : "Génération de la suggestion…"}
+                    </span>
+                  </div>
+                ) : parseInline(
                   aiAnswerText,
                   allBusinesses as unknown as AIBusinessData[],
                   (b: AIBusinessData) => setOverlaySelectedBusiness(b),
