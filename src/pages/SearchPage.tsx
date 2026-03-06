@@ -28,6 +28,7 @@ import { Loader2, Building2, ChevronLeft, ChevronRight, Search, Mic, Loader, Map
 import MoreFiltersPopup from "@/components/MoreFiltersPopup";
 import { lazy, Suspense } from "react";
 const BusinessMap = lazy(() => import("@/components/BusinessMap"));
+import PoiSection from "@/components/PoiSection";
 import BusinessCard, { type BusinessCardData, type Gamme, type Badge, type SubcategoryRef, type BadgeSubcategoryRef } from "@/components/BusinessCard";
 import AISearchAnswer, { parseInline, type BusinessData as AIBusinessData } from "@/components/AISearchAnswer";
 import BusinessSlidePanel from "@/components/BusinessSlidePanel";
@@ -382,7 +383,7 @@ const SearchPage = () => {
   const [celebrityBusinesses, setCelebrityBusinesses] = useState<Business[]>([]);
   const [ttsIntroPhrase, setTtsIntroPhrase] = useState<string>("");
   const [aiAnswerText, setAiAnswerText] = useState<string>("");
-  const [activeTab, setActiveTab] = useState<"suggestions" | "map">("suggestions");
+   const [activeTab, setActiveTab] = useState<"suggestions" | "map" | "poi">("suggestions");
    const [detectedCity, setDetectedCity] = useState<string | null>(null);
    const [disambiguationType, setDisambiguationType] = useState<"needs_category" | "needs_city" | null>(null);
    const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string | null>(null);
@@ -1998,6 +1999,17 @@ const SearchPage = () => {
               <Map className="h-4 w-4" />
               {language === "en" ? "Map" : language === "ar" ? "خريطة" : "Carte"}
             </button>
+            <button
+              onClick={() => setActiveTab("poi")}
+              className={`flex items-center gap-2 px-5 py-3 text-sm font-medium transition-colors border-b-2 ${
+                activeTab === "poi"
+                  ? "border-gold text-gold"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <MapPin className="h-4 w-4" />
+              {language === "en" ? "Points of Interest" : language === "ar" ? "أماكن مهمة" : "Lieux d'intérêt"}
+            </button>
           </div>
         </div>
       </section>
@@ -2138,6 +2150,19 @@ const SearchPage = () => {
           </div>
         </section>
       )}
+
+      {activeTab === "poi" && (() => {
+        // Fetch POI businesses for the active city
+        const poiCity = selectedCity && selectedCity !== "all" ? selectedCity : detectedCity;
+
+        return (
+          <section className="py-6 lg:py-12 bg-background">
+            <div className="mx-auto px-4 max-w-[80%]">
+              <PoiSection city={poiCity} language={language} />
+            </div>
+          </section>
+        );
+      })()}
 
       {/* AI Summary Bar — sticky below all filter bars (OUTSIDE section for proper sticky) */}
       {(isCategoryFilterActive || hasScrolledPastHeroAi) && (aiAnswerText || isAiRegenerating) && (() => {
