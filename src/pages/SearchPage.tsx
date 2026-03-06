@@ -770,40 +770,60 @@ const SearchPage = () => {
     return [...filtered].sort(sortWtuceAndRating);
   }, [allBusinesses, selectedCity, selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, activeTimeSlot, searchQuery, categoryFromUrl, moreFilterMatchingIds, moreFilterTimeSlots]);
 
-  // Extract services from search results for inline filter bar (only is_filtered=true, alpha sorted)
-  const [filteredServiceNames, setFilteredServiceNames] = useState<Set<string>>(new Set());
+  // Extract services from search results for inline filter bar (only is_filtered=true, respecting service_city_filters)
+  const [serviceCityLookup, setServiceCityLookup] = useState<Record<string, string[]>>({});
 
   useEffect(() => {
-    supabase
-      .from("services")
-      .select("name_fr")
-      .eq("is_active", true)
-      .eq("is_filtered", true)
-      .then(({ data }) => {
-        if (data) setFilteredServiceNames(new Set(data.map(s => s.name_fr)));
-      });
+    const fetchServiceCityData = async () => {
+      const [servicesRes, filtersRes, citiesRes] = await Promise.all([
+        supabase.from("services").select("id, name_fr").eq("is_active", true).eq("is_filtered", true),
+        supabase.from("service_city_filters").select("service_id, city_id"),
+        supabase.from("cities").select("id, name_fr").eq("is_active", true),
+      ]);
+
+      const services = servicesRes.data || [];
+      const filters = filtersRes.data || [];
+      const cities = citiesRes.data || [];
+
+      const cityIdToName: Record<string, string> = {};
+      for (const c of cities) cityIdToName[c.id] = c.name_fr;
+      const serviceIdToName: Record<string, string> = {};
+      for (const s of services) serviceIdToName[s.id] = s.name_fr;
+
+      const lookup: Record<string, string[]> = {};
+      for (const f of filters) {
+        const svcName = serviceIdToName[f.service_id];
+        const cityName = cityIdToName[f.city_id];
+        if (svcName && cityName) {
+          if (!lookup[svcName]) lookup[svcName] = [];
+          lookup[svcName].push(cityName);
+        }
+      }
+      setServiceCityLookup(lookup);
+    };
+    fetchServiceCityData();
   }, []);
 
   const searchServiceFilters = useMemo(() => {
-    if (!searchQuery.trim() || allBusinesses.length === 0 || filteredServiceNames.size === 0) return [];
+    if (!searchQuery.trim() || allBusinesses.length === 0 || Object.keys(serviceCityLookup).length === 0) return [];
     if (selectedCategoryFilter || selectedSubcategoryFilter) return [];
-    // Use city-filtered businesses so counts update when city changes
     const source = selectedCity === "all" ? allBusinesses : allBusinesses.filter(b => b.city === selectedCity);
     const countMap: Record<string, number> = {};
     for (const b of source) {
       if (b.services) {
         for (const s of b.services) {
-          if (filteredServiceNames.has(s)) {
-            countMap[s] = (countMap[s] || 0) + 1;
-          }
+          const allowedCities = serviceCityLookup[s];
+          if (!allowedCities) continue;
+          if (selectedCity !== "all" && !allowedCities.includes(selectedCity)) continue;
+          countMap[s] = (countMap[s] || 0) + 1;
         }
       }
     }
     return Object.entries(countMap)
-      .filter(([_, count]) => count >= 2)
+      .filter(([_, count]) => count >= 1)
       .sort((a, b) => a[0].localeCompare(b[0], "fr"))
       .map(([name, count]) => ({ name, count }));
-  }, [searchQuery, allBusinesses, selectedCity, selectedCategoryFilter, selectedSubcategoryFilter, filteredServiceNames]);
+  }, [searchQuery, allBusinesses, selectedCity, selectedCategoryFilter, selectedSubcategoryFilter, serviceCityLookup]);
 
   // Group businesses by primary subcategory when a subcategory was detected
   const groupedBusinesses = useMemo(() => {
