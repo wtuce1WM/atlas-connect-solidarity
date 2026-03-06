@@ -393,9 +393,31 @@ const SearchPage = () => {
   const isCategoryFilterActive = !!(selectedCategoryFilter || selectedSubcategoryFilter || selectedServiceFilter);
   const [isAiSummaryExpanded, setIsAiSummaryExpanded] = useState(false);
 
-  // Collapse AI summary when any filter changes
+  // Collapse AI summary and scroll results into view when any filter changes
   useEffect(() => {
     setIsAiSummaryExpanded(false);
+    // After a filter change, ensure the results section is visible below the sticky stack
+    requestAnimationFrame(() => {
+      const resultsEl = resultsRef.current;
+      if (!resultsEl) return;
+      const aiBar = document.querySelector<HTMLElement>('[data-ai-bar]');
+      const lastSticky = aiBar
+        || document.querySelector<HTMLElement>('[data-search-service-filter]')
+        || document.querySelector<HTMLElement>('[data-service-filter]')
+        || document.querySelector<HTMLElement>('[data-subcategory-filter]')
+        || document.querySelector<HTMLElement>('[data-category-filter]')
+        || document.querySelector<HTMLElement>('[data-city-bar]')
+        || document.querySelector<HTMLElement>('[data-tab-bar]');
+      if (!lastSticky) return;
+      const stickyComputedTop = Number.parseFloat(window.getComputedStyle(lastSticky).top || '0');
+      const stickyH = lastSticky.getBoundingClientRect().height;
+      const stickyBottom = (Number.isFinite(stickyComputedTop) ? stickyComputedTop : 0) + stickyH;
+      const resultsTop = resultsEl.getBoundingClientRect().top + window.scrollY;
+      const targetScroll = resultsTop - stickyBottom - 8;
+      if (window.scrollY > targetScroll) {
+        window.scrollTo({ top: Math.max(0, targetScroll), behavior: 'smooth' });
+      }
+    });
   }, [selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, selectedCity]);
 
    // Track when user has scrolled down to the tab bar — lock scroll above it from that point
@@ -441,8 +463,9 @@ const SearchPage = () => {
      // Measure after DOM settles
      const t1 = setTimeout(measure, 50);
      const t2 = setTimeout(measure, 300);
+     const t3 = setTimeout(measure, 800);
      window.addEventListener("resize", measure);
-     return () => { clearTimeout(t1); clearTimeout(t2); window.removeEventListener("resize", measure); };
+     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); window.removeEventListener("resize", measure); };
    });
 
    const [aiRegenerateKey, setAiRegenerateKey] = useState(0);
@@ -1803,7 +1826,7 @@ const SearchPage = () => {
           || (baseTop + 62);
 
         return (
-          <div className="sticky z-[1] bg-background backdrop-blur-sm border-b border-border py-2 relative" style={{ top: `${aiTop}px` }}>
+          <div data-ai-bar className="sticky z-[1] bg-background backdrop-blur-sm border-b border-border py-2 relative" style={{ top: `${aiTop}px` }}>
             <span className="absolute top-0 left-1 z-[60] bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded pointer-events-none">🔵 STICKY 4</span>
             <div className="mx-auto px-4 max-w-[80%]">
               <div className="flex items-start gap-3">
