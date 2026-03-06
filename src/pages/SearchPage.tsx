@@ -1315,12 +1315,27 @@ const SearchPage = () => {
     return parts.join(", ");
   }, [gammes, badges, geo.isEnabled, geo.coords, language]);
 
-  // Show overlay when arriving from voice search with results
-  useEffect(() => {
-    if (!isLoading && spokenText && allBusinesses.length > 0 && !showResultsOverlay && !overlayDismissing) {
-      setShowResultsOverlay(true);
-    }
-  }, [isLoading, spokenText, allBusinesses.length]);
+   // Show overlay when arriving from voice search with results
+   useEffect(() => {
+     if (!isLoading && spokenText && allBusinesses.length > 0 && !showResultsOverlay && !overlayDismissing) {
+       setShowResultsOverlay(true);
+     }
+   }, [isLoading, spokenText, allBusinesses.length]);
+
+   // Show AI popup when arriving from homepage (non-voice) once AI text is ready
+   useEffect(() => {
+     if (
+       !isLoading &&
+       searchQuery &&
+       !spokenText &&
+       aiAnswerText &&
+       allBusinesses.length > 0 &&
+       !aiPopupShownRef.current
+     ) {
+       aiPopupShownRef.current = true;
+       setShowAiPopup(true);
+     }
+   }, [isLoading, searchQuery, spokenText, aiAnswerText, allBusinesses.length]);
 
   const dismissOverlay = () => {
     setOverlayDismissing(true);
