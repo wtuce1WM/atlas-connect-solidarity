@@ -2377,6 +2377,8 @@ const SearchPage = () => {
             variant="floating"
             value={inputValue}
             onChange={setInputValue}
+            showSuggestions={true}
+            suggestionMode="text"
             suggestionsPosition="top"
             onSubmit={(query) => {
               setSelectedCategoryFilter(null);
