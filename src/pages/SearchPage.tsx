@@ -2255,6 +2255,20 @@ const SearchPage = () => {
         );
       })()}
 
+      {activeTab === "destinations" && (() => {
+        const destCity = selectedCity && selectedCity !== "all" ? selectedCity : detectedCity;
+        return (
+          <section className="pt-16 pb-6 lg:pt-20 lg:pb-12 bg-background">
+            <div className="mx-auto px-4 max-w-[80%]">
+              <DestinationSection
+                city={destCity}
+                language={language}
+              />
+            </div>
+          </section>
+        );
+      })()}
+
       {/* AI Summary Bar — sticky below all filter bars (OUTSIDE section for proper sticky) */}
       {(isCategoryFilterActive || hasScrolledPastHeroAi) && (aiAnswerText || isAiRegenerating) && (() => {
         const hasCB = availableCities.length > 1 && !queryHasExplicitCity;
