@@ -5,7 +5,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, Calendar, User, ArrowRight, Star, MapPin, Play, Sparkles, BarChart3, Search, Type, Hotel } from "lucide-react";
+import { Loader2, Calendar, User, ArrowRight, Star, MapPin, Play, Sparkles, BarChart3, Search, Type, Hotel, Database } from "lucide-react";
 import { format } from "date-fns";
 import { fr, enUS, ar } from "date-fns/locale";
 
@@ -88,7 +88,10 @@ const Blog = () => {
             {/* Articles de blog (les plus récents en premier) */}
             {posts.map((post) => (
               <Link key={post.id} to={`/blog/${post.slug}`}>
-                <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full">
+                <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full relative">
+                  <span className="absolute top-3 right-3 z-10 inline-flex items-center gap-1 bg-primary/90 text-primary-foreground text-[10px] tracking-wider uppercase px-2 py-0.5 rounded-full">
+                    <Database className="h-2.5 w-2.5" /> dynamique
+                  </span>
                   {post.cover_image_url && (
                     <div className="aspect-video overflow-hidden">
                       <img
