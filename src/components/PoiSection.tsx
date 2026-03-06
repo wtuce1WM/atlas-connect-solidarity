@@ -98,7 +98,7 @@ const PoiSection = ({ city, language, onBusinessClick, columns, onMapClick, onPo
         <span className="text-xs text-muted-foreground">{pois.length} {language === "en" ? "results" : "résultats"}</span>
       </div>
 
-      <div className={columns === 3 ? "grid grid-cols-3 gap-3" : "grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3"}>
+      <div className={columns === 3 ? "grid grid-cols-3 gap-3" : "grid grid-cols-3 gap-3 lg:grid-cols-6"}>
         {pois.map((biz) => {
           const img = biz.images && biz.images.length > 0 ? biz.images[0] : null;
           const sources = collectRatingSources(biz);
