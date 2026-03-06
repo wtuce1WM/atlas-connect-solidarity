@@ -1430,7 +1430,7 @@ const SearchPage = () => {
       )}
 
       {/* Hero Section - collapsed when category filter active to avoid flicker */}
-      <section className={`bg-background relative ${isCategoryFilterActive ? 'hidden' : 'pt-6 lg:pt-28 pb-8 lg:pb-16'} ${isMobile && spokenText && filteredBusinesses.length > 0 ? 'hidden' : ''}`}>
+      <section className={`bg-background relative ${(isCategoryFilterActive || hasReachedTabBar) ? 'hidden' : 'pt-6 lg:pt-28 pb-8 lg:pb-16'} ${isMobile && spokenText && filteredBusinesses.length > 0 ? 'hidden' : ''}`}>
         <div className="mx-auto px-4 relative max-w-[80%]">
           {(searchQuery || categoryFromUrl) && (
             <div className="text-center mb-8">
