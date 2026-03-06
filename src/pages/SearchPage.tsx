@@ -27,11 +27,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { Loader2, Building2, ChevronLeft, ChevronRight, Search, Mic, Loader, MapPin, MapPinOff, X, Volume2, VolumeX, Clock, Map, Sparkles, SlidersHorizontal, ChevronDown, ChevronUp, RefreshCw } from "lucide-react";
+import { Loader2, Building2, ChevronLeft, ChevronRight, Search, Mic, Loader, MapPin, MapPinOff, X, Volume2, VolumeX, Clock, Map, Sparkles, SlidersHorizontal, ChevronDown, ChevronUp, RefreshCw, Compass } from "lucide-react";
 import MoreFiltersPopup from "@/components/MoreFiltersPopup";
 import { lazy, Suspense } from "react";
 const BusinessMap = lazy(() => import("@/components/BusinessMap"));
 import PoiSection from "@/components/PoiSection";
+import DestinationSection from "@/components/DestinationSection";
 import BusinessCard, { type BusinessCardData, type Gamme, type Badge, type SubcategoryRef, type BadgeSubcategoryRef } from "@/components/BusinessCard";
 import AISearchAnswer, { parseInline, type BusinessData as AIBusinessData } from "@/components/AISearchAnswer";
 import BusinessSlidePanel from "@/components/BusinessSlidePanel";
@@ -386,7 +387,7 @@ const SearchPage = () => {
   const [celebrityBusinesses, setCelebrityBusinesses] = useState<Business[]>([]);
   const [ttsIntroPhrase, setTtsIntroPhrase] = useState<string>("");
   const [aiAnswerText, setAiAnswerText] = useState<string>("");
-   const [activeTab, setActiveTab] = useState<"suggestions" | "map" | "poi">("suggestions");
+   const [activeTab, setActiveTab] = useState<"suggestions" | "map" | "poi" | "destinations">("suggestions");
    const [detectedCity, setDetectedCity] = useState<string | null>(null);
    const [disambiguationType, setDisambiguationType] = useState<"needs_category" | "needs_city" | null>(null);
    const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string | null>(null);
@@ -1420,6 +1421,7 @@ const SearchPage = () => {
   }, [isLoading]);
 
 
+
   const translations = {
     fr: {
       searchResults: "Résultats de recherche",
@@ -2016,6 +2018,17 @@ const SearchPage = () => {
               <MapPin className="h-4 w-4" />
               {language === "en" ? "Points of Interest" : language === "ar" ? "أماكن مهمة" : "Lieux d'intérêt"}
             </button>
+            <button
+              onClick={() => setActiveTab("destinations")}
+              className={`flex items-center gap-2 px-5 py-3 text-sm font-medium transition-colors border-b-2 ${
+                activeTab === "destinations"
+                  ? "border-gold text-gold"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Compass className="h-4 w-4" />
+              {language === "en" ? "Destinations" : language === "ar" ? "وجهات" : "Destinations"}
+            </button>
           </div>
         </div>
       </section>
@@ -2239,6 +2252,20 @@ const SearchPage = () => {
               </div>
             )}
           </div>
+        );
+      })()}
+
+      {activeTab === "destinations" && (() => {
+        const destCity = selectedCity && selectedCity !== "all" ? selectedCity : detectedCity;
+        return (
+          <section className="pt-16 pb-6 lg:pt-20 lg:pb-12 bg-background">
+            <div className="mx-auto px-4 max-w-[80%]">
+              <DestinationSection
+                city={destCity}
+                language={language}
+              />
+            </div>
+          </section>
         );
       })()}
 
