@@ -540,6 +540,8 @@ const SearchPage = () => {
      const [poiSelectedBusinessId, setPoiSelectedBusinessId] = useState<string | null>(null);
      const [poiMapBusiness, setPoiMapBusiness] = useState<{ name: string; latitude: number | null; longitude: number | null; address: string | null; google_maps_url: string | null; id: string } | null>(null);
      const [allPois, setAllPois] = useState<PoiMapItem[]>([]);
+     const [destMapItem, setDestMapItem] = useState<{ id: string; name_fr: string; latitude: number | null; longitude: number | null } | null>(null);
+     const [allDests, setAllDests] = useState<PoiMapItem[]>([]);
    const [locationDialogOpen, setLocationDialogOpen] = useState(false);
    const heroAiRef = useRef<HTMLDivElement>(null);
    const [hasScrolledPastHeroAi, setHasScrolledPastHeroAi] = useState(false);
