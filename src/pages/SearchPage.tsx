@@ -1535,7 +1535,7 @@ const SearchPage = () => {
       <Header />
 
       {/* Hidden AISearchAnswer instance — always renders to ensure onAnswerReady fires even when hero is hidden */}
-      {searchQuery && !isLoading && isCategoryFilterActive && allBusinesses.length > 0 && !aiAnswerText && (
+      {searchQuery && !isLoading && allBusinesses.length > 0 && !aiAnswerText && (
         <div className="hidden">
           <AISearchAnswer
             query={spokenText || searchQuery}
