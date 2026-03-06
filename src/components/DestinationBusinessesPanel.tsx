@@ -184,7 +184,7 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
       </div>
 
       {/* Scrollable content */}
-      <div className="flex-1 overflow-y-auto p-4" ref={scrollRef}>
+      <div className="flex-1 overflow-y-auto p-4 pb-24" ref={scrollRef}>
         {activeTab === "info" && (
           <>
             {/* Image section */}
