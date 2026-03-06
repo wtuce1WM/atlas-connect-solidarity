@@ -1073,17 +1073,25 @@ const SearchPage = () => {
           // Only use searchMode when explicitly set from back-office config
           const normalizedSearchMode = normalizeSearchMode(data.searchMode);
 
-          // Enable grouped view when:
-          // 1. Backend explicitly signals a detected subcategory with a search mode, OR
-          // 2. Results naturally contain multiple subcategories (3+ distinct categories)
           const businesses = data.businesses || [];
-          const distinctCategories = new Set(businesses.map(b => b.categories?.[0]).filter(Boolean));
-          const hasMultipleSubcategories = distinctCategories.size >= 3;
-          
-          // Determine a fallback subcategory for grouping when backend doesn't provide one
-          const fallbackSubcategory = hasMultipleSubcategories
-            ? (businesses[0]?.categories?.[0] || null)
-            : null;
+
+          // Fallback: if engine didn't detect a subcategory, find the dominant one from results
+          let fallbackSubcategory: string | null = null;
+          if (!safeDetectedSubcategory && businesses.length > 0) {
+            const subCounts: Record<string, number> = {};
+            for (const b of businesses) {
+              const sub = b.categories?.[0];
+              if (sub) subCounts[sub] = (subCounts[sub] || 0) + 1;
+            }
+            const entries = Object.entries(subCounts).sort((a, b) => b[1] - a[1]);
+            if (entries.length > 0) {
+              const [topSub, topCount] = entries[0];
+              // Auto-select if the dominant subcategory covers at least 40% of results
+              if (topCount / businesses.length >= 0.4) {
+                fallbackSubcategory = topSub;
+              }
+            }
+          }
           
           const finalDetectedSubcategory = safeDetectedSubcategory || fallbackSubcategory || null;
           setDetectedSubcategory(finalDetectedSubcategory);
