@@ -5,7 +5,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, Calendar, User, ArrowRight, Star, MapPin, Play, Sparkles, BarChart3, Search, Type } from "lucide-react";
+import { Loader2, Calendar, User, ArrowRight, Star, MapPin, Play, Sparkles, BarChart3, Search, Type, Hotel } from "lucide-react";
 import { format } from "date-fns";
 import { fr, enUS, ar } from "date-fns/locale";
 
@@ -285,6 +285,29 @@ const Blog = () => {
                       <Type className="h-3 w-3" /> Design System
                     </span>
                     <ArrowRight className="h-4 w-4 text-slate-600" />
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+
+            {/* Carte Brummell Typographie */}
+            <Link to="/blog/brummell">
+              <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-stone-50 to-amber-50/50 dark:from-stone-950/30 dark:to-amber-950/20">
+                <div className="aspect-video overflow-hidden bg-[#1a1a1a] flex items-center justify-center">
+                  <p className="text-white/80 text-2xl font-light tracking-[0.25em] uppercase">Brummell</p>
+                </div>
+                <CardContent className="p-6">
+                  <h2 className="text-xl font-semibold mb-3 font-['Playfair_Display'] italic">
+                    Brummell — Analyse Typographique
+                  </h2>
+                  <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
+                    Décryptage des polices Venus et Freight utilisées par Brummell Projects : hiérarchie, palette et équivalences Google Fonts.
+                  </p>
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1 text-stone-600 font-medium">
+                      <Hotel className="h-3 w-3" /> Typographie
+                    </span>
+                    <ArrowRight className="h-4 w-4 text-stone-600" />
                   </div>
                 </CardContent>
               </Card>
