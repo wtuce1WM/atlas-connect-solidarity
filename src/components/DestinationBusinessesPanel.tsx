@@ -113,7 +113,7 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
     {/* Expanded: full-screen black overlay with only images */}
     {isExpanded && (
       <div className="fixed inset-0 z-[150] bg-black flex flex-col">
-        <div className="shrink-0 flex items-center px-4 py-3 gap-3 bg-background border-b border-border">
+        <div className="shrink-0 flex items-center px-4 py-3 gap-3 bg-white border-b border-border">
           <button
             onClick={() => { onClose(); setIsExpanded(false); }}
             className="h-9 w-9 flex items-center justify-center rounded-full bg-white/10 hover:bg-destructive hover:text-white transition-colors text-white"
@@ -160,7 +160,7 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
     {!isExpanded && (
     <div className="fixed top-[54px] right-0 bottom-0 z-40 border-l border-border bg-background flex flex-col shadow-2xl transition-all duration-500 ease-out w-1/2">
       {/* Header */}
-      <div className="shrink-0 flex items-center px-3 py-2 border-b border-border gap-2 bg-background">
+      <div className="shrink-0 flex items-center px-3 py-2 border-b border-border gap-2 bg-white">
         <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={() => { onClose(); setIsExpanded(false); }}
