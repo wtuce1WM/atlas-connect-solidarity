@@ -179,6 +179,7 @@ interface SearchResult {
   detectedCity?: string | null;
   searchMode?: string | null;
   bundleTimeSlots?: string[];
+  disambiguationType?: "needs_category" | "needs_city" | null;
 }
 
 // Synonyms and noise words are now loaded from DB (search_synonyms, search_noise_words)
@@ -3918,6 +3919,16 @@ serve(async (req) => {
       }
     }
 
+    // Determine disambiguation type
+    const hasCity = !!effectiveCity;
+    const hasSubcategory = !!detectedSubcategory;
+    let disambiguationType: "needs_category" | "needs_city" | null = null;
+    if (hasCity && !hasSubcategory && businesses.length > 10) {
+      disambiguationType = "needs_category";
+    } else if (hasSubcategory && !hasCity) {
+      disambiguationType = "needs_city";
+    }
+
     const result: SearchResult = {
       businesses,
       searchLevel,
@@ -3928,6 +3939,7 @@ serve(async (req) => {
       detectedCity: effectiveCity || null,
       searchMode: serviceShortcutActivated ? "service_shortcut" : (typeof subcategorySearchConfig !== 'undefined' && subcategorySearchConfig?.search_mode) || null,
       bundleTimeSlots: (typeof bundleTimeSlots !== 'undefined' && bundleTimeSlots.length > 0) ? bundleTimeSlots : undefined,
+      disambiguationType,
     };
 
     // Async log to search_logs table (fire-and-forget, don't block response)
