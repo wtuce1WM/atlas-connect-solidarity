@@ -1613,9 +1613,16 @@ const SearchPage = () => {
       {isCategoryFilterActive && (aiAnswerText || isAiRegenerating) && (() => {
         const hasCB = availableCities.length > 1 && !queryHasExplicitCity;
         const baseTop = 104 + (hasCB ? 44 : 0);
-        let aiTop = baseTop + 62;
-        if (selectedSubcategoryFilter) aiTop += 52;
-        if (selectedServiceFilter) aiTop += 52;
+        const categoryBarHeight = typeof document !== "undefined"
+          ? document.querySelector<HTMLElement>("[data-category-filter]")?.getBoundingClientRect().height ?? 62
+          : 62;
+        const subcategoryBarHeight = typeof document !== "undefined"
+          ? document.querySelector<HTMLElement>("[data-subcategory-filter]")?.getBoundingClientRect().height ?? 0
+          : 0;
+        const serviceBarHeight = typeof document !== "undefined"
+          ? document.querySelector<HTMLElement>("[data-service-filter]")?.getBoundingClientRect().height ?? 0
+          : 0;
+        const aiTop = baseTop + categoryBarHeight + subcategoryBarHeight + serviceBarHeight;
         return (
           <div className="sticky z-[1] bg-background backdrop-blur-sm border-b border-border py-2" style={{ top: `${aiTop}px` }}>
             <div className="mx-auto px-4 max-w-[80%]">
