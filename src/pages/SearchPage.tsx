@@ -1848,7 +1848,8 @@ const SearchPage = () => {
         </div>
       )}
 
-      {/* Hero Section - COMMENTED OUT
+      {/* Hero Section - DISABLED */}
+      {false && (
       <section className={`bg-background relative ${(isCategoryFilterActive || hasReachedTabBar) ? 'hidden' : 'pt-6 lg:pt-28 pb-8 lg:pb-16'} ${isMobile && spokenText && filteredBusinesses.length > 0 ? 'hidden' : ''}`}>
         <div className="mx-auto px-4 relative max-w-[80%]">
           {(searchQuery || categoryFromUrl) && (
@@ -1877,116 +1878,11 @@ const SearchPage = () => {
                   return <><span className="text-gold">{prefix} {catName}</span> {suffix}</>;
                 })()}
               </h1>
-              <p className="text-base lg:text-xl text-muted-foreground">
-                {isLoading ? (
-                  <span className="text-muted-foreground italic">Recherche en cours…</span>
-                ) : (
-                  <><span className="text-gold font-semibold">{displayedResultsCount}</span> {t.establishments} {t.found}</>
-                )}
-              </p>
-              {!isCategoryFilterActive && (
-                <>
-                  {(ttsStatus === "playing" || ttsStatus === "loading") ? (
-                    <button
-                      onClick={ttsStop}
-                      className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold/20 text-gold text-sm font-medium hover:bg-gold/30 transition-colors"
-                    >
-                      {ttsStatus === "loading" ? (
-                        <Loader className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <><span className="relative flex h-2 w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-gold opacity-75"></span><span className="relative inline-flex rounded-full h-2 w-2 bg-gold"></span></span><Volume2 className="h-4 w-4" /></>
-                      )}
-                      {ttsStatus === "loading" ? "Chargement audio…" : "Lecture en cours — cliquez pour arrêter"}
-                    </button>
-                  ) : !isLoading && filteredBusinesses.length > 0 && (
-                    <button
-                      onClick={() => {
-                            if (aiAnswerText) {
-                            const cleanText = aiAnswerText.replace(/\*{1,2}/g, "").replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "");
-                            const intro = ttsIntroPhrase ? `${ttsIntroPhrase}. ` : "";
-                            ttsIntroWordCountRef.current = intro.trim().split(/\s+/).filter(Boolean).length;
-                            voiceLoopRef.current = true;
-                            ttsSpeak(intro + cleanText + " … Vous pouvez me poser une autre question.", undefined, true);
-                         } else {
-                           const count = filteredBusinesses.length;
-                           const cityText = selectedCity !== "all" ? ` à ${selectedCity}` : "";
-                           const intro = ttsIntroPhrase ? `${ttsIntroPhrase} ` : "";
-                           let speech = `${intro}J'ai trouvé ${count} résultat${count > 1 ? 's' : ''}${cityText}. `;
-                           const top = filteredBusinesses.slice(0, 3);
-                           if (top.length === 1) {
-                             speech += `Le meilleur résultat est ${buildBusinessTTSLine(top[0], 0)}.`;
-                           } else {
-                             speech += "Voici les meilleurs résultats. ";
-                             top.forEach((b, i) => {
-                               speech += `${i === 0 ? 'Premier' : i === 1 ? 'Deuxième' : 'Troisième'}, ${buildBusinessTTSLine(b, i)}. `;
-                             });
-                           }
-                           speech += " Vous pouvez me poser une autre question.";
-                           voiceLoopRef.current = true;
-                           ttsSpeak(speech);
-                         }
-                       }}
-                      className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card border border-gold/30 text-gold text-sm font-medium hover:bg-gold/20 transition-colors"
-                    >
-                      <Volume2 className="h-4 w-4" />
-                      {language === "en" ? "Listen to results" : language === "ar" ? "استمع للنتائج" : "Écouter les résultats"}
-                    </button>
-                  )}
-                </>
-              )}
             </div>
           )}
-
-           {searchQuery && !isLoading && !isCategoryFilterActive && allBusinesses.length > 0 && (
-              <div ref={heroAiRef} className="relative">
-                <span className="absolute top-1 left-1 z-50 bg-purple-600 text-white text-[10px] font-bold px-2 py-0.5 rounded select-all cursor-text">🟣 HERO AI ZONE</span>
-                <AISearchAnswer
-                 query={spokenText || searchQuery}
-                 spokenText={spokenText || undefined}
-                 businesses={allBusinesses}
-                 isSearchLoading={isLoading}
-                 onAnswerReady={setAiAnswerText}
-                 externalRegenerateKey={aiRegenerateKey}
-                 highlightWordIndex={ttsStatus === "playing" && ttsSpokenWordIndex >= 0 ? ttsSpokenWordIndex - ttsIntroWordCountRef.current : undefined}
-                />
-             </div>
-           )}
-
-           {!isMobile && !isCategoryFilterActive && (
-            <div className="flex justify-center mt-4">
-              <button
-                onClick={() => setLocationDialogOpen(true)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                  geo.isEnabled
-                    ? "bg-gold/20 text-gold border border-gold/40"
-                    : "bg-card text-muted-foreground border border-border hover:border-gold/30"
-                }`}
-                title={geo.isEnabled ? "Désactiver la géolocalisation" : "Activer la géolocalisation"}
-              >
-                {geo.isDetecting ? (
-                  <Loader className="h-3.5 w-3.5 animate-spin" />
-                ) : geo.isEnabled ? (
-                  <MapPin className="h-3.5 w-3.5" />
-                ) : (
-                  <MapPinOff className="h-3.5 w-3.5" />
-                )}
-                {geo.isDetecting
-                  ? (language === "en" ? "Detecting..." : "Détection...")
-                  : geo.isEnabled && geo.confirmedAddress
-                  ? `📍 ${geo.confirmedAddress}`
-                  : geo.isEnabled && geo.detectedCity
-                  ? `📍 ${geo.detectedCity}`
-                  : geo.isEnabled
-                  ? (language === "en" ? "No city nearby" : "Aucune ville proche")
-                  : (language === "en" ? "Enable location" : language === "ar" ? "تفعيل الموقع" : "Activer la position")
-                }
-              </button>
-            </div>
-          )}
-
         </div>
       </section>
-      END Hero Section COMMENT */
+      )}
 
       {/* Tab Bar — stickybar 1 (above cities) */}
       <section data-tab-bar className="sticky top-[60px] z-[7] bg-background border-b border-border relative">
