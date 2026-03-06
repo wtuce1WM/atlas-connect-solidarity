@@ -2054,7 +2054,7 @@ const SearchPage = () => {
       )}
 
       {/* Sticky Category + Subcategory Filters — above services */}
-      {allBusinesses.length > 0 && !isLoading && (
+      {activeTab === "suggestions" && allBusinesses.length > 0 && !isLoading && (
         <CityCategoryFilter
           cityName={detectedCity || (selectedCity && selectedCity !== "all" ? selectedCity : null) || ""}
           hasCityBar={availableCities.length > 1 && !queryHasExplicitCity}
@@ -2152,13 +2152,16 @@ const SearchPage = () => {
       )}
 
       {activeTab === "poi" && (() => {
-        // Fetch POI businesses for the active city
         const poiCity = selectedCity && selectedCity !== "all" ? selectedCity : detectedCity;
 
         return (
           <section className="py-6 lg:py-12 bg-background">
             <div className="mx-auto px-4 max-w-[80%]">
-              <PoiSection city={poiCity} language={language} />
+              <PoiSection
+                city={poiCity}
+                language={language}
+                onBusinessClick={(bizId) => setCompactPanelBusiness({ id: bizId, name: "" } as AIBusinessData)}
+              />
             </div>
           </section>
         );

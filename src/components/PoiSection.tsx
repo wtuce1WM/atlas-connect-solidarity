@@ -28,6 +28,7 @@ interface PoiBusiness {
 interface PoiSectionProps {
   city: string | null;
   language: string;
+  onBusinessClick?: (businessId: string) => void;
 }
 
 const PoiSection = ({ city, language }: PoiSectionProps) => {
