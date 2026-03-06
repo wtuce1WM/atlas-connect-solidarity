@@ -1644,7 +1644,7 @@ const SearchPage = () => {
       {/* Search-derived service filter bar — shown when text search yields services */}
       {searchServiceFilters.length >= 1 && !isLoading && !selectedCategoryFilter && !selectedSubcategoryFilter && (
         <div data-search-service-filter className="sticky z-[5] bg-background/95 backdrop-blur-sm border-b border-border/50 py-2 relative" style={{ top: `${104 + (availableCities.length > 1 && !queryHasExplicitCity ? 44 : 0)}px` }}>
-          <span className="absolute -top-3 left-1 z-50 bg-green-600 text-white text-[10px] font-bold px-2 py-0.5 rounded pointer-events-none">🟢 STICKY 3 — Service Filters</span>
+          <span className="absolute bottom-0 right-1 z-50 bg-green-600 text-white text-[10px] font-bold px-2 py-0.5 rounded pointer-events-none">🟢 STICKY 3</span>
           <div className="mx-auto px-4 max-w-[80%]">
             <div className="flex gap-2 overflow-x-auto pb-0.5 scrollbar-hide">
               {searchServiceFilters.map((svc) => {
