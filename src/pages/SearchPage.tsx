@@ -36,6 +36,7 @@ import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { useToast } from "@/hooks/use-toast";
 import LocationPickerDialog from "@/components/LocationPickerDialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
 interface Business {
   id: string;
@@ -533,10 +534,13 @@ const SearchPage = () => {
    const [locationDialogOpen, setLocationDialogOpen] = useState(false);
    const heroAiRef = useRef<HTMLDivElement>(null);
    const [hasScrolledPastHeroAi, setHasScrolledPastHeroAi] = useState(false);
+   const [showAiPopup, setShowAiPopup] = useState(false);
+   const aiPopupShownRef = useRef(false);
 
    // Reset when query changes
    useEffect(() => {
      setHasScrolledPastHeroAi(false);
+     aiPopupShownRef.current = false;
    }, [searchQuery]);
 
    // Track when the hero AI card scrolls out of view — once past, stays hidden
@@ -1313,12 +1317,27 @@ const SearchPage = () => {
     return parts.join(", ");
   }, [gammes, badges, geo.isEnabled, geo.coords, language]);
 
-  // Show overlay when arriving from voice search with results
-  useEffect(() => {
-    if (!isLoading && spokenText && allBusinesses.length > 0 && !showResultsOverlay && !overlayDismissing) {
-      setShowResultsOverlay(true);
-    }
-  }, [isLoading, spokenText, allBusinesses.length]);
+   // Show overlay when arriving from voice search with results
+   useEffect(() => {
+     if (!isLoading && spokenText && allBusinesses.length > 0 && !showResultsOverlay && !overlayDismissing) {
+       setShowResultsOverlay(true);
+     }
+   }, [isLoading, spokenText, allBusinesses.length]);
+
+   // Show AI popup when arriving from homepage (non-voice) once AI text is ready
+   useEffect(() => {
+     if (
+       !isLoading &&
+       searchQuery &&
+       !spokenText &&
+       aiAnswerText &&
+       allBusinesses.length > 0 &&
+       !aiPopupShownRef.current
+     ) {
+       aiPopupShownRef.current = true;
+       setShowAiPopup(true);
+     }
+   }, [isLoading, searchQuery, spokenText, aiAnswerText, allBusinesses.length]);
 
   const dismissOverlay = () => {
     setOverlayDismissing(true);
@@ -1442,7 +1461,104 @@ const SearchPage = () => {
     <div className="min-h-screen bg-background">
       <Header />
 
-      {/* Voice search results overlay */}
+      {/* AI Suggestion Popup — shown on arrival from homepage */}
+      <Dialog open={showAiPopup} onOpenChange={setShowAiPopup}>
+        <DialogContent className="max-w-lg sm:max-w-xl rounded-2xl p-0 overflow-hidden border-gold/30 gap-0">
+          <DialogTitle className="sr-only">Suggestion IA</DialogTitle>
+          {/* Header with query */}
+          <div className="bg-gradient-to-r from-gold/10 to-transparent px-6 py-4 border-b border-border">
+            <p className="text-muted-foreground text-sm">
+              {language === "en" ? "Search results for" : language === "ar" ? "نتائج البحث عن" : "Résultats de recherche pour"}
+            </p>
+            <p className="text-lg font-bold text-foreground">
+              «&nbsp;{searchQuery}&nbsp;»
+            </p>
+            <p className="text-gold font-semibold mt-1">
+              {displayedResultsCount} {language === "en" ? "establishments found" : language === "ar" ? "مؤسسة وجدت" : "établissements trouvés"}
+            </p>
+          </div>
+          {/* AI text */}
+          <div className="px-6 py-4 max-h-[40vh] overflow-y-auto">
+            <div className="flex items-start gap-2 mb-3">
+              <Sparkles className="h-4 w-4 text-gold shrink-0 mt-0.5" />
+              <span className="text-xs font-semibold text-gold uppercase tracking-wider">Suggestion IA</span>
+            </div>
+            <div className="text-sm text-foreground/80 leading-relaxed whitespace-pre-line">
+              {parseInline(
+                aiAnswerText,
+                allBusinesses as unknown as AIBusinessData[],
+                undefined,
+                "ai-popup"
+              )}
+            </div>
+          </div>
+          {/* Actions */}
+          <div className="px-6 py-4 border-t border-border flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              {/* Listen button */}
+              {(ttsStatus === "playing" || ttsStatus === "loading") ? (
+                <button
+                  onClick={ttsStop}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full bg-gold/20 text-gold text-xs font-medium hover:bg-gold/30 transition-colors"
+                >
+                  {ttsStatus === "loading" ? <Loader className="h-3.5 w-3.5 animate-spin" /> : <Volume2 className="h-3.5 w-3.5" />}
+                  {ttsStatus === "loading" ? "…" : "Stop"}
+                </button>
+              ) : (
+                <button
+                  onClick={() => {
+                    const cleanText = aiAnswerText.replace(/\*{1,2}/g, "").replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "");
+                    const intro = ttsIntroPhrase ? `${ttsIntroPhrase}. ` : "";
+                    ttsIntroWordCountRef.current = intro.trim().split(/\s+/).filter(Boolean).length;
+                    voiceLoopRef.current = true;
+                    ttsSpeak(intro + cleanText + " … Vous pouvez me poser une autre question.", undefined, true);
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full bg-card border border-gold/30 text-gold text-xs font-medium hover:bg-gold/20 transition-colors"
+                >
+                  <Volume2 className="h-3.5 w-3.5" />
+                  {language === "en" ? "Listen" : language === "ar" ? "استمع" : "Écouter"}
+                </button>
+              )}
+              {/* Geo button */}
+              <button
+                onClick={() => {
+                  setShowAiPopup(false);
+                  setTimeout(() => setLocationDialogOpen(true), 300);
+                }}
+                className={`inline-flex items-center gap-1 px-3 py-2 rounded-full text-xs font-medium transition-all ${
+                  geo.isEnabled
+                    ? "bg-gold/20 text-gold border border-gold/40"
+                    : "bg-card text-muted-foreground border border-border hover:border-gold/30"
+                }`}
+              >
+                {geo.isDetecting ? (
+                  <Loader className="h-3.5 w-3.5 animate-spin" />
+                ) : geo.isEnabled ? (
+                  <MapPin className="h-3.5 w-3.5" />
+                ) : (
+                  <MapPinOff className="h-3.5 w-3.5" />
+                )}
+                {geo.isDetecting
+                  ? (language === "en" ? "Detecting..." : "Détection...")
+                  : geo.isEnabled && geo.confirmedAddress
+                  ? `📍 ${geo.confirmedAddress}`
+                  : geo.isEnabled && geo.detectedCity
+                  ? `📍 ${geo.detectedCity}`
+                  : (language === "en" ? "Location" : "Position")
+                }
+              </button>
+            </div>
+            {/* See results */}
+            <button
+              onClick={() => setShowAiPopup(false)}
+              className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gold text-black text-sm font-semibold hover:bg-gold/90 transition-colors"
+            >
+              {language === "en" ? "See results" : language === "ar" ? "عرض النتائج" : "Voir les résultats"}
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
       {showResultsOverlay && isMobile && (
         <div
           className={`fixed inset-0 z-[60] flex items-end transition-all duration-400 ${overlayDismissing ? 'pointer-events-none' : ''}`}
