@@ -787,8 +787,10 @@ const SearchPage = () => {
   const searchServiceFilters = useMemo(() => {
     if (!searchQuery.trim() || allBusinesses.length === 0 || filteredServiceNames.size === 0) return [];
     if (selectedCategoryFilter || selectedSubcategoryFilter) return [];
+    // Use city-filtered businesses so counts update when city changes
+    const source = selectedCity === "all" ? allBusinesses : allBusinesses.filter(b => b.city === selectedCity);
     const countMap: Record<string, number> = {};
-    for (const b of allBusinesses) {
+    for (const b of source) {
       if (b.services) {
         for (const s of b.services) {
           if (filteredServiceNames.has(s)) {
@@ -801,7 +803,7 @@ const SearchPage = () => {
       .filter(([_, count]) => count >= 2)
       .sort((a, b) => a[0].localeCompare(b[0], "fr"))
       .map(([name, count]) => ({ name, count }));
-  }, [searchQuery, allBusinesses, selectedCategoryFilter, selectedSubcategoryFilter, filteredServiceNames]);
+  }, [searchQuery, allBusinesses, selectedCity, selectedCategoryFilter, selectedSubcategoryFilter, filteredServiceNames]);
 
   // Group businesses by primary subcategory when a subcategory was detected
   const groupedBusinesses = useMemo(() => {
