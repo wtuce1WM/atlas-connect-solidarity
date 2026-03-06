@@ -40,7 +40,8 @@ const SELECT_FIELDS = "id, name, city, neighborhood, images, rating, wtuce_statu
 const DestinationBusinessesPanel = ({ destination, language, onClose, onBusinessClick, onLoginRequired }: DestinationBusinessesPanelProps) => {
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"info" | "providers">("info");
   const scrollRef = useRef<HTMLDivElement>(null);
 
