@@ -10,6 +10,9 @@ export interface PoiMapItem {
   images?: string[] | null;
   city?: string | null;
   neighborhood?: string | null;
+  rating?: number | null;
+  avgOn20?: number | null;
+  totalReviews?: number;
 }
 
 interface PoiGoogleMapProps {
@@ -134,11 +137,23 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center }: PoiGoogleMapP
 
       marker.addListener("mouseover", () => {
         const img = poi.images?.[0];
-        const html = `<div style="min-width:160px;max-width:220px;font-family:system-ui,sans-serif;">
-          ${img ? `<img src="${img}" style="width:100%;height:80px;object-fit:cover;border-radius:6px 6px 0 0;" />` : ""}
-          <div style="padding:8px;">
-            <div style="font-weight:700;font-size:13px;">${poi.name}</div>
-            <div style="font-size:11px;color:#666;margin-top:2px;">${poi.city || ""}${poi.neighborhood ? ` · ${poi.neighborhood}` : ""}</div>
+        const loc = `${poi.city || ""}${poi.neighborhood ? ` · ${poi.neighborhood}` : ""}`;
+        const ratingHtml = poi.avgOn20
+          ? `<div style="display:flex;align-items:center;gap:3px;font-size:10px;">
+              <span style="color:#D4AF37;">★</span>
+              <span style="font-weight:600;">${poi.avgOn20}/20</span>
+              ${poi.totalReviews ? `<span style="color:#999;">· ${poi.totalReviews} avis</span>` : ""}
+            </div>`
+          : "";
+        const html = `<div style="width:120px;font-family:system-ui,sans-serif;position:relative;overflow:hidden;border-radius:8px;">
+          <button onclick="document.querySelector('.gm-ui-hover-effect')?.click()" style="position:absolute;top:4px;right:4px;z-index:10;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,0.6);color:white;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;line-height:1;">✕</button>
+          ${img ? `<div style="width:100%;height:80px;overflow:hidden;"><img src="${img}" style="width:100%;height:100%;object-fit:cover;" /></div>` : ""}
+          <div style="background:linear-gradient(to top,rgba(0,0,0,0.7),rgba(0,0,0,0.3));${img ? "margin-top:-30px;position:relative;" : ""}padding:6px;">
+            <div style="font-weight:700;font-size:10px;color:white;line-height:1.2;">${poi.name}</div>
+            <div style="display:flex;align-items:center;gap:2px;font-size:9px;color:rgba(255,255,255,0.8);margin-top:2px;">
+              <span>${loc}</span>
+            </div>
+            ${ratingHtml ? `<div style="margin-top:2px;color:white;">${ratingHtml}</div>` : ""}
           </div>
         </div>`;
         infoWindowRef.current?.setContent(html);
