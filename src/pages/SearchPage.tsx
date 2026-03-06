@@ -860,10 +860,10 @@ const SearchPage = () => {
       }
     }
     return Object.entries(countMap)
-      .filter(([_, count]) => count >= 1)
+      .filter(([name, count]) => count >= 1 && filteredServiceNames.has(name))
       .sort((a, b) => a[0].localeCompare(b[0], "fr"))
       .map(([name, count]) => ({ name, count }));
-  }, [searchQuery, allBusinesses, selectedCity, selectedCategoryFilter, selectedSubcategoryFilter, serviceCityLookup]);
+  }, [searchQuery, allBusinesses, selectedCity, selectedCategoryFilter, selectedSubcategoryFilter, serviceCityLookup, filteredServiceNames]);
 
   // Group businesses by primary subcategory when a subcategory was detected
   const groupedBusinesses = useMemo(() => {
