@@ -1457,8 +1457,46 @@ const SearchPage = () => {
         </div>
       </section>
 
-      {/* Tab Bar — sticky below header */}
-      <section data-tab-bar className="sticky top-[60px] z-[3] bg-background/95 backdrop-blur-sm border-b border-border">
+      {/* Sticky City Bar — above tabs */}
+      {availableCities.length > 1 && !queryHasExplicitCity && (
+        <div data-city-bar className="sticky top-[60px] z-[4] bg-background/95 backdrop-blur-sm border-b border-border py-2.5">
+          <div className="mx-auto px-4 max-w-[80%]">
+            <div className="flex gap-2 overflow-x-auto pb-0.5 scrollbar-hide">
+              <button
+                onClick={() => handleCityChange("all")}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium whitespace-nowrap transition-all shrink-0 ${
+                  selectedCity === "all"
+                    ? "bg-gold/20 border-gold text-gold shadow-sm"
+                    : "bg-card border-border text-muted-foreground hover:border-gold/40 hover:text-foreground"
+                }`}
+              >
+                <MapPin size={14} className={selectedCity === "all" ? "text-gold" : "text-muted-foreground"} />
+                <span>{t.allCities}</span>
+              </button>
+              {availableCities.map((city) => {
+                const isSelected = selectedCity === city;
+                return (
+                  <button
+                    key={city}
+                    onClick={() => handleCityChange(isSelected ? "all" : city)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium whitespace-nowrap transition-all shrink-0 ${
+                      isSelected
+                        ? "bg-gold/20 border-gold text-gold shadow-sm"
+                        : "bg-card border-border text-muted-foreground hover:border-gold/40 hover:text-foreground"
+                    }`}
+                  >
+                    <MapPin size={14} className={isSelected ? "text-gold" : "text-muted-foreground"} />
+                    <span>{city}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Tab Bar — sticky below city bar */}
+      <section data-tab-bar className={`sticky ${availableCities.length > 1 && !queryHasExplicitCity ? 'top-[104px]' : 'top-[60px]'} z-[3] bg-background/95 backdrop-blur-sm border-b border-border`}>
         <div className="mx-auto px-4 max-w-[80%]">
           <div className="flex gap-0">
             <button
@@ -1491,6 +1529,7 @@ const SearchPage = () => {
       {detectedCity && allBusinesses.length > 0 && !isLoading && (
         <CityCategoryFilter
           cityName={detectedCity}
+          hasCityBar={availableCities.length > 1 && !queryHasExplicitCity}
           selectedCategory={selectedCategoryFilter}
           onSelectCategory={(cat) => {
             setSelectedCategoryFilter(cat);
@@ -1570,25 +1609,7 @@ const SearchPage = () => {
               </span>
             )}
 
-            {/* City filter dropdown */}
-            {availableCities.length > 1 && !queryHasExplicitCity && (
-              <>
-                <label className="text-sm text-muted-foreground">{t.filterByCity}:</label>
-                <Select value={selectedCity} onValueChange={handleCityChange}>
-                  <SelectTrigger className="w-[220px] bg-card border-border">
-                    <SelectValue placeholder={t.allCities} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">{t.allCities}</SelectItem>
-                    {availableCities.map((city) => (
-                      <SelectItem key={city} value={city}>
-                        {city}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </>
-            )}
+           {/* City filter moved to sticky bar above tabs */}
           </div>
 
           {isMobile && filteredBusinesses.length > 0 && (
