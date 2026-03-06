@@ -89,6 +89,7 @@ interface SearchResult {
   detectedCity?: string | null;
   searchMode?: string | null;
   bundleTimeSlots?: string[];
+  disambiguationType?: "needs_category" | "needs_city" | null;
 }
 
 const ITEMS_PER_PAGE = 20;
