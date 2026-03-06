@@ -45,6 +45,7 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
+      setDescExpanded(false);
       const { data: links } = await (supabase
         .from("business_destinations" as any)
         .select("business_id")
