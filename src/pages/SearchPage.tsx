@@ -1336,8 +1336,8 @@ const SearchPage = () => {
         </div>
       )}
 
-      {/* Hero Section - hidden on mobile when results found via voice search */}
-      <section className={`bg-background pt-6 lg:pt-28 pb-8 lg:pb-16 relative ${isMobile && spokenText && filteredBusinesses.length > 0 ? 'hidden' : ''}`}>
+      {/* Hero Section - hidden on mobile when results found via voice search, or when category filter active to prevent flicker */}
+      <section className={`bg-background pt-6 lg:pt-28 pb-8 lg:pb-16 relative ${isCategoryFilterActive ? 'invisible' : ''} ${isMobile && spokenText && filteredBusinesses.length > 0 ? 'hidden' : ''}`}>
         <div className="mx-auto px-4 relative max-w-[80%]">
           {(searchQuery || categoryFromUrl) && (
             <div className="text-center mb-8">
