@@ -146,27 +146,35 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center }: PoiGoogleMapP
       markersRef.current.push(marker);
     });
 
-    if (hasPoints) {
-      // Delay fitBounds to let the sliding panel finish its layout transition
-      setTimeout(() => {
-        google.maps.event.trigger(map, "resize");
-        map.fitBounds(bounds, 40);
-        google.maps.event.addListenerOnce(map, "idle", () => {
-          const z = map.getZoom();
-          if (z && z > 16) map.setZoom(16);
-        });
-      }, 350);
+    if (center) {
+      bounds.extend(center);
     }
-  }, [pois, selectedPoiId, ready]);
 
-  // Pan to selected
+    if (hasPoints || center) {
+      google.maps.event.trigger(map, "resize");
+      map.fitBounds(bounds, 40);
+      google.maps.event.addListenerOnce(map, "idle", () => {
+        const z = map.getZoom();
+        if (z && z > 16) map.setZoom(16);
+        if (center) map.setCenter(center);
+      });
+    }
+  }, [pois, selectedPoiId, ready, center]);
+
+  // Keep city centered when a city center is provided
   useEffect(() => {
-    if (!mapRef.current || !selectedPoiId) return;
+    if (!mapRef.current || !center) return;
+    mapRef.current.setCenter(center);
+  }, [center]);
+
+  // Pan to selected (only when no forced city center)
+  useEffect(() => {
+    if (!mapRef.current || !selectedPoiId || center) return;
     const poi = pois.find((p) => p.id === selectedPoiId);
     if (poi?.latitude && poi?.longitude) {
       mapRef.current.panTo({ lat: poi.latitude, lng: poi.longitude });
     }
-  }, [selectedPoiId]);
+  }, [selectedPoiId, pois, center]);
 
   if (!ready) {
     return (
