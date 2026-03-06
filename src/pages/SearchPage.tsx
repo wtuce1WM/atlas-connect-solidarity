@@ -1626,11 +1626,10 @@ const SearchPage = () => {
                 </div>
                 <button
                   onClick={() => { setAiAnswerText(""); setAiRegenerateKey(k => k + 1); }}
-                  className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-gold/30 bg-card text-gold text-xs font-medium hover:bg-gold/20 transition-colors mt-0.5"
+                  className="shrink-0 w-10 h-10 rounded-full bg-foreground text-background flex items-center justify-center hover:bg-foreground/80 transition-colors shadow-lg mt-0.5"
                   title={language === "en" ? "Generate another suggestion" : "Régénérer la suggestion"}
                 >
-                  <RefreshCw className="h-3.5 w-3.5" />
-                  {language === "en" ? "Regenerate" : "Régénérer"}
+                  <RefreshCw className="h-5 w-5" />
                 </button>
               </div>
               {/* Action buttons row: Plus de filtres, Écouter, Géolocalisation */}
