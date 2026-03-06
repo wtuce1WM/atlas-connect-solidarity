@@ -27,7 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { Loader2, Building2, ChevronLeft, ChevronRight, Search, Mic, Loader, MapPin, MapPinOff, X, Volume2, VolumeX, Clock, Map, Sparkles, SlidersHorizontal, ChevronDown, ChevronUp, RefreshCw, Compass } from "lucide-react";
+import { Loader2, Building2, ChevronLeft, ChevronRight, Search, Mic, Loader, MapPin, MapPinOff, X, Volume2, VolumeX, Clock, Map, Sparkles, SlidersHorizontal, ChevronDown, ChevronUp, RefreshCw, Compass, Maximize2, Minimize2 } from "lucide-react";
 import MoreFiltersPopup from "@/components/MoreFiltersPopup";
 import { lazy, Suspense } from "react";
 const BusinessMap = lazy(() => import("@/components/BusinessMap"));
@@ -539,12 +539,14 @@ const SearchPage = () => {
     const [compactPanelBusiness, setCompactPanelBusiness] = useState<AIBusinessData | null>(null);
     const [isCompactPanelExpanded, setIsCompactPanelExpanded] = useState(false);
      const [poiSelectedBusinessId, setPoiSelectedBusinessId] = useState<string | null>(null);
+     const [poiPanelExpanded, setPoiPanelExpanded] = useState(false);
      const [poiMapBusiness, setPoiMapBusiness] = useState<{ name: string; latitude: number | null; longitude: number | null; address: string | null; google_maps_url: string | null; id: string } | null>(null);
      const [allPois, setAllPois] = useState<PoiMapItem[]>([]);
      const [destMapItem, setDestMapItem] = useState<{ id: string; name_fr: string; latitude: number | null; longitude: number | null } | null>(null);
      const [allDests, setAllDests] = useState<PoiMapItem[]>([]);
       const [selectedDestination, setSelectedDestination] = useState<DestinationItem | null>(null);
       const [destSelectedBusinessId, setDestSelectedBusinessId] = useState<string | null>(null);
+      const [destPanelExpanded, setDestPanelExpanded] = useState(false);
      const [allDestItems, setAllDestItems] = useState<DestinationItem[]>([]);
    const [locationDialogOpen, setLocationDialogOpen] = useState(false);
    const heroAiRef = useRef<HTMLDivElement>(null);
@@ -2308,16 +2310,24 @@ const SearchPage = () => {
               />
             )}
             {destSelectedBusinessId && (
-              <div className="w-1/2 fixed top-[54px] right-0 z-[101] bg-background shadow-2xl border-l border-border overflow-hidden flex flex-col animate-slide-in-right" style={{ height: "calc(100vh - 54px)" }}>
+              <div className={`fixed top-[54px] right-0 z-[101] bg-background shadow-2xl border-l border-border overflow-hidden flex flex-col animate-slide-in-right transition-all duration-500 ease-out ${destPanelExpanded ? "w-[80%]" : "w-1/2"}`} style={{ height: "calc(100vh - 54px)" }}>
                 <div className="shrink-0 flex items-center px-4 py-2 bg-background border-b border-border z-40">
                   <div className="flex items-center gap-3 shrink-0">
                     <button
-                      onClick={() => setDestSelectedBusinessId(null)}
+                      onClick={() => { setDestSelectedBusinessId(null); setDestPanelExpanded(false); }}
                       className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background border-2 border-background/20 shadow-2xl hover:opacity-90 transition-opacity"
                       title="Retour"
                       aria-label="Retour à la destination"
                     >
                       <X className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => setDestPanelExpanded(prev => !prev)}
+                      className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background border-2 border-background/20 shadow-2xl hover:opacity-90 transition-opacity"
+                      title={destPanelExpanded ? "Réduire" : "Agrandir"}
+                      aria-label={destPanelExpanded ? "Réduire le panneau" : "Agrandir le panneau"}
+                    >
+                      {destPanelExpanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
                     </button>
                   </div>
                   <div id="slide-panel-toolbar-center" className="flex-1 flex items-center justify-center gap-4" />
@@ -2326,9 +2336,9 @@ const SearchPage = () => {
                 <div className="flex-1 min-h-0">
                   <BusinessSlidePanel
                     businessId={destSelectedBusinessId}
-                    onClose={() => setDestSelectedBusinessId(null)}
-                    isExpanded={false}
-                    onToggleExpand={() => {}}
+                    onClose={() => { setDestSelectedBusinessId(null); setDestPanelExpanded(false); }}
+                    isExpanded={destPanelExpanded}
+                    onToggleExpand={() => setDestPanelExpanded(prev => !prev)}
                   />
                 </div>
               </div>
