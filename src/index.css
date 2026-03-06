@@ -256,8 +256,8 @@ textarea::placeholder {
   display: none;
 }
 
-/* Full-width on mobile: remove max-w constraints below md breakpoint */
-@media (max-width: 767px) {
+/* Full-width on mobile & tablet: remove max-w constraints below lg breakpoint */
+@media (max-width: 1023px) {
   .max-w-\[80\%\] {
     max-width: 100% !important;
   }
