@@ -287,6 +287,33 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
         )}
       </div>
     </div>
+      {/* Lightbox rendered outside panel for proper z-index */}
+      <ImageLightbox
+        images={(() => {
+          const imgs = destination.images && destination.images.length > 0
+            ? destination.images
+            : destination.image_url
+              ? [destination.image_url]
+              : [];
+          return imgs;
+        })()}
+        currentIndex={currentImageIndex}
+        isOpen={isLightboxOpen}
+        onClose={() => setIsLightboxOpen(false)}
+        onPrevious={() => setCurrentImageIndex(i => {
+          const imgs = destination.images && destination.images.length > 0
+            ? destination.images
+            : destination.image_url ? [destination.image_url] : [];
+          return i === 0 ? imgs.length - 1 : i - 1;
+        })}
+        onNext={() => setCurrentImageIndex(i => {
+          const imgs = destination.images && destination.images.length > 0
+            ? destination.images
+            : destination.image_url ? [destination.image_url] : [];
+          return i === imgs.length - 1 ? 0 : i + 1;
+        })}
+      />
+    </>
   );
 };
 
