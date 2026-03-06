@@ -322,10 +322,11 @@ const BusinessMap = ({
     <div className="relative rounded-xl overflow-hidden border border-border shadow-sm">
       {/* Stats bar */}
       <div className="absolute top-3 left-3 z-10 bg-background/90 backdrop-blur-sm rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground shadow-md border border-border">
-        <span>Total carte: </span>
-        <span className="text-gold font-semibold">{geoBusinesses.length}</span>
+        <span className="font-semibold text-foreground">{geoBusinesses.length}</span> établissements sur la carte
         {verifiedCount > 0 && (
-          <span className="ml-2">· WTUCE vérifiés: <span className="text-gold">{verifiedCount}</span></span>
+          <span className="ml-2">
+            dont <span className="font-semibold" style={{ color: "#D4AF37" }}>{verifiedCount}</span> vérifiés
+          </span>
         )}
       </div>
 
