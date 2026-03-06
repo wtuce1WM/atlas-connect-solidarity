@@ -9,6 +9,7 @@ interface GoogleMapEmbedProps {
   latitude?: number | null;
   longitude?: number | null;
   googleMapsUrl?: string | null;
+  fillHeight?: boolean;
 }
 
 const extractPlaceNameFromMapsUrl = (url: string): string | null => {
@@ -29,7 +30,7 @@ const extractMarkerCoordsFromMapsUrl = (url: string): { lat: number; lng: number
   return null;
 };
 
-const GoogleMapEmbed = ({ address, businessName, latitude, longitude, googleMapsUrl }: GoogleMapEmbedProps) => {
+const GoogleMapEmbed = ({ address, businessName, latitude, longitude, googleMapsUrl, fillHeight }: GoogleMapEmbedProps) => {
   const [activeView, setActiveView] = useState<"map" | "streetview">("map");
 
   const markerCoords = googleMapsUrl ? extractMarkerCoordsFromMapsUrl(googleMapsUrl) : null;
@@ -64,8 +65,8 @@ const GoogleMapEmbed = ({ address, businessName, latitude, longitude, googleMaps
   };
 
   return (
-    <Card>
-      <CardContent className="p-0">
+    <Card className={fillHeight ? "h-full flex flex-col" : ""}>
+      <CardContent className={`p-0 ${fillHeight ? "flex-1 flex flex-col" : ""}`}>
         {/* View Toggle */}
         <div className="flex border-b border-border">
           <button
@@ -93,7 +94,7 @@ const GoogleMapEmbed = ({ address, businessName, latitude, longitude, googleMaps
         </div>
 
         {/* Map Container */}
-        <div className="relative h-[450px]">
+        <div className={`relative ${fillHeight ? "flex-1 min-h-0" : "h-[450px]"}`}>
           {activeView === "map" ? (
             <iframe
               src={mapEmbedUrl}
