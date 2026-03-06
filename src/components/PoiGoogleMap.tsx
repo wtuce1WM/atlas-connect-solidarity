@@ -16,6 +16,7 @@ interface PoiGoogleMapProps {
   pois: PoiMapItem[];
   selectedPoiId: string | null;
   onPoiClick?: (poiId: string) => void;
+  center?: { lat: number; lng: number };
 }
 
 /* ── Google Maps loader (reuses shared singleton) ── */
@@ -72,7 +73,7 @@ function markerSvgUrl(isSelected: boolean): string {
   return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
 }
 
-const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick }: PoiGoogleMapProps) => {
+const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center }: PoiGoogleMapProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
   const markersRef = useRef<google.maps.Marker[]>([]);
@@ -88,7 +89,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick }: PoiGoogleMapProps) =>
   useEffect(() => {
     if (!ready || !containerRef.current || mapRef.current) return;
     mapRef.current = new google.maps.Map(containerRef.current, {
-      center: { lat: 31.63, lng: -7.98 },
+      center: center || { lat: 31.63, lng: -7.98 },
       zoom: 13,
       mapTypeControl: false,
       streetViewControl: false,
