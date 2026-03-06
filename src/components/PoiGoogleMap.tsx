@@ -145,14 +145,11 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center }: PoiGoogleMapP
               ${poi.totalReviews ? `<span style="color:#999;">· ${poi.totalReviews} avis</span>` : ""}
             </div>`
           : "";
-        const html = `<div style="width:120px;font-family:system-ui,sans-serif;position:relative;overflow:hidden;border-radius:8px;">
-          <button onclick="document.querySelector('.gm-ui-hover-effect')?.click()" style="position:absolute;top:4px;right:4px;z-index:10;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,0.6);color:white;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;line-height:1;">✕</button>
-          ${img ? `<div style="width:100%;height:80px;overflow:hidden;"><img src="${img}" style="width:100%;height:100%;object-fit:cover;" /></div>` : ""}
-          <div style="background:linear-gradient(to top,rgba(0,0,0,0.7),rgba(0,0,0,0.3));${img ? "margin-top:-30px;position:relative;" : ""}padding:6px;">
+        const html = `<div style="width:130px;font-family:system-ui,sans-serif;overflow:hidden;border-radius:8px;position:relative;">
+          ${img ? `<img src="${img}" style="width:100%;height:90px;display:block;object-fit:cover;" />` : ""}
+          <div style="background:linear-gradient(to top,rgba(0,0,0,0.75),rgba(0,0,0,0.2));position:absolute;bottom:0;left:0;right:0;padding:6px;">
             <div style="font-weight:700;font-size:10px;color:white;line-height:1.2;">${poi.name}</div>
-            <div style="display:flex;align-items:center;gap:2px;font-size:9px;color:rgba(255,255,255,0.8);margin-top:2px;">
-              <span>${loc}</span>
-            </div>
+            <div style="font-size:9px;color:rgba(255,255,255,0.8);margin-top:2px;">${loc}</div>
             ${ratingHtml ? `<div style="margin-top:2px;color:white;">${ratingHtml}</div>` : ""}
           </div>
         </div>`;
@@ -223,7 +220,12 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center }: PoiGoogleMapP
     );
   }
 
-  return <div ref={containerRef} className="w-full h-full" />;
+  return (
+    <>
+      <style>{`.gm-style .gm-style-iw-chr { display: none !important; } .gm-style .gm-style-iw { padding: 0 !important; } .gm-style .gm-style-iw-d { overflow: hidden !important; }`}</style>
+      <div ref={containerRef} className="w-full h-full" />
+    </>
+  );
 };
 
 export default PoiGoogleMap;
