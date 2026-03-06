@@ -28,6 +28,7 @@ import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import EssaouiraSeaView from "./pages/EssaouiraSeaView";
 import BlogAnimations from "./pages/BlogAnimations";
+import BlogTypography from "./pages/BlogTypography";
 import RatedBusinesses from "./pages/RatedBusinesses";
 import NeighborhoodPage from "./pages/NeighborhoodPage";
 import AllBusinessesMap from "./pages/AllBusinessesMap";
