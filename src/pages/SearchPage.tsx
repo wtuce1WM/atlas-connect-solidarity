@@ -2303,8 +2303,7 @@ const SearchPage = () => {
                 language={language}
                 onClose={() => setSelectedDestination(null)}
                 onBusinessClick={(bizId) => {
-                  // Navigate to business detail
-                  window.location.href = `/business/${bizId}`;
+                  setDestSelectedBusinessId(bizId);
                 }}
               />
             )}
