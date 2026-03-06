@@ -2208,6 +2208,9 @@ serve(async (req) => {
     }
 
     if (detectedService && effectiveQuery) {
+      // When multiple distinct services are detected, include ALL of them in the tsquery
+      const allDetectedServiceNames = detectedServices.length > 1 ? detectedServices : [detectedService];
+      const allSvcWords = new Set(allDetectedServiceNames.flatMap(s => s.toLowerCase().split(/\s+/)));
       const svcWords = detectedService.toLowerCase().split(/\s+/);
       const queryLower = effectiveQuery.toLowerCase();
       const hasServiceNameInQuery = svcWords.some(w => queryLower.includes(w));
@@ -2230,22 +2233,14 @@ serve(async (req) => {
         "stp", "svp",
       ]);
       
-      // Filter out intent noise words, stop words AND noise adjectives from the remaining query
-      // Also strip hyphenated compounds that contain a service keyword (e.g. "canapé-lit" when service is "Canapé")
-      // serviceMatchWords contains ALL query words that participated in service detection
-      // (including keyword-matched words like "méridienne" that matched via keyword of "Canapé")
-      // Only strip words that ACTUALLY matched a service (serviceMatchWordsForInjection),
-      // not all content words (serviceMatchWordsOuter) — otherwise extra qualifiers like "pissenlit"
-      // in "salade de pissenlit" get wrongly removed, causing overly broad results.
       const allServiceRelatedWords = new Set([
         ...serviceMatchWordsForInjection,
-        ...svcWords,
+        ...allSvcWords,
       ]);
       // Build city word set to strip from remainder (city filtering is handled separately)
       const cityWordsForStrip = new Set(
         (effectiveCity || "").toLowerCase().split(/\s+/).filter(Boolean).map(w => stripAccentsGlobal(w))
       );
-      // Also include the matched keyword variant (e.g. "marrakesh")
       if (detectedCityMatchedTerm) {
         for (const w of detectedCityMatchedTerm.toLowerCase().split(/\s+/).filter(Boolean)) {
           cityWordsForStrip.add(stripAccentsGlobal(w));
@@ -2258,9 +2253,7 @@ serve(async (req) => {
         if (FRENCH_STOP_WORDS.has(wLower)) return false;
         if (INTENT_NOISE.has(wLower)) return false;
         if (NOISE_ADJECTIVES.has(wLower)) return false;
-        // Strip city name words — city filtering is done via applyCityFilter, not tsquery
         if (cityWordsForStrip.has(wStripped)) return false;
-        // Strip hyphenated words whose parts are already covered by the service
         if (wLower.includes("-")) {
           const parts = wLower.split("-").filter(p => p.length > 0);
           if (parts.some(p => allServiceRelatedWords.has(p))) return false;
@@ -2268,13 +2261,13 @@ serve(async (req) => {
         return true;
       }).join(" ").trim();
       
+      // Build queryForExpansion with ALL detected service names (for AND matching when distinct)
+      const serviceNamesForQuery = allDetectedServiceNames.join(" ");
       if (!hasServiceNameInQuery) {
-        // Replace the keyword synonym with the actual service name for tsquery
-        queryForExpansion = detectedService + (cleanRemainder ? " " + cleanRemainder : "");
-        console.log(`Injected service name into query: "${queryForExpansion}" (was: "${effectiveQuery}")`);
+        queryForExpansion = serviceNamesForQuery + (cleanRemainder ? " " + cleanRemainder : "");
+        console.log(`Injected service name(s) into query: "${queryForExpansion}" (was: "${effectiveQuery}")`);
       } else {
-        // Service name already in query — rebuild with service name + clean remainder
-        queryForExpansion = detectedService + (cleanRemainder ? " " + cleanRemainder : "");
+        queryForExpansion = serviceNamesForQuery + (cleanRemainder ? " " + cleanRemainder : "");
         if (queryForExpansion !== effectiveQuery) {
           console.log(`Cleaned query for tsquery: "${queryForExpansion}" (was: "${effectiveQuery}")`);
         }
@@ -3097,13 +3090,19 @@ serve(async (req) => {
                 console.log(`Services triggered by a single query word [${serviceMatchWordsForInjection.join(", ")}] → treating as variants (OR)`);
                 return false;
               }
-              // Check if every detected service name relates to the same trigger words
-              const allFromSameTrigger = detectedServices.every(ds => {
+              // Check if all detected services map to the SAME trigger word (variants of one concept)
+              // e.g. "tapis" → "Tapis" + "Artisanat marocain" → both from "tapis" → variants (OR)
+              // But "cours" → "Cours", "surf" → "Surf" → different triggers → distinct concepts (AND)
+              const serviceTriggerMap = detectedServices.map(ds => {
                 const dsNorm = normalizeServiceToken(ds);
-                return triggerWordsNorm.some(tw => dsNorm.includes(tw) || tw.includes(dsNorm));
+                return triggerWordsNorm.filter(tw => dsNorm.includes(tw) || tw.includes(dsNorm));
               });
-              if (allFromSameTrigger) {
-                console.log(`Services all triggered by same words [${serviceMatchWordsForInjection.join(", ")}] → treating as variants (OR)`);
+              // Find trigger words common to ALL services
+              const commonTriggers = serviceTriggerMap.length > 0
+                ? serviceTriggerMap.reduce((common, triggers) => common.filter(t => triggers.includes(t)), serviceTriggerMap[0])
+                : [];
+              if (commonTriggers.length > 0) {
+                console.log(`Services share common trigger word(s) [${commonTriggers.join(", ")}] → treating as variants (OR)`);
                 return false;
               }
             }
