@@ -50,7 +50,12 @@ const PoiSection = ({ city, language }: PoiSectionProps) => {
       }
 
       const { data } = await query;
-      setPois((data as PoiBusiness[]) || []);
+      const sorted = ((data as PoiBusiness[]) || []).sort((a, b) => {
+        const aRating = a.rating ?? computeWeightedRatingOn20(collectRatingSources(a)) ?? 0;
+        const bRating = b.rating ?? computeWeightedRatingOn20(collectRatingSources(b)) ?? 0;
+        return (bRating || 0) - (aRating || 0);
+      });
+      setPois(sorted);
       setIsLoading(false);
     };
 
