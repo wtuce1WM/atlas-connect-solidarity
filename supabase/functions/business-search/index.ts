@@ -2951,9 +2951,18 @@ serve(async (req) => {
           name.toLowerCase().split(/[\s/\-]+/).map(w => stripAccentsGlobal(sanitizeTerm(w))).filter(t => t.length > 1 && !FRENCH_STOP_WORDS.has(t))
         );
         // Add original keyword terms that triggered service detection (e.g. "tapis" → service "Artisanat marocain")
+        // BUT skip terms that are just singular/plural variants of terms already in allSvcTerms
+        // (e.g. "cour" when "cours" is already present from "Cours de piano")
+        const allSvcTermsSet = new Set(allSvcTerms);
+        // Also add singular/plural variants of svc terms for comparison
+        const svcTermVariants = new Set(allSvcTerms);
+        for (const t of allSvcTerms) {
+          if (t.length > 3 && t.endsWith("s")) svcTermVariants.add(t.slice(0, -1));
+          if (t.length > 2 && !t.endsWith("s")) svcTermVariants.add(t + "s");
+        }
         const originalKeywordTerms = serviceMatchWordsForInjection
           .map(w => stripAccentsGlobal(sanitizeTerm(w.toLowerCase())))
-          .filter(t => t.length > 1 && !FRENCH_STOP_WORDS.has(t));
+          .filter(t => t.length > 1 && !FRENCH_STOP_WORDS.has(t) && !svcTermVariants.has(t));
         const uniqueSvcTerms = [...new Set([...allSvcTerms, ...originalKeywordTerms])];
         const svcPart = uniqueSvcTerms.length > 1
           ? `(${uniqueSvcTerms.join(" | ")})`
@@ -3159,14 +3168,22 @@ serve(async (req) => {
             for (const sn of allCandidateServiceNames) {
               if (sn.includes(" ") || sn.includes("-")) {
                 for (const w of sn.toLowerCase().split(/[\s\-]+/)) {
-                  if (w.length > 1 && !FRENCH_STOP_WORDS.has(w)) multiWordServiceTokens.add(w);
-                  multiWordServiceTokens.add(stripAccentsGlobal(w));
+                  if (w.length > 1 && !FRENCH_STOP_WORDS.has(w)) {
+                    multiWordServiceTokens.add(w);
+                    multiWordServiceTokens.add(stripAccentsGlobal(w));
+                    // Also add singular/plural variants so "cour" is recognized as variant of "cours"
+                    if (w.length > 3 && w.endsWith("s")) multiWordServiceTokens.add(w.slice(0, -1));
+                    if (w.length > 2 && !w.endsWith("s")) multiWordServiceTokens.add(w + "s");
+                    const stripped = stripAccentsGlobal(w);
+                    if (stripped.length > 3 && stripped.endsWith("s")) multiWordServiceTokens.add(stripped.slice(0, -1));
+                    if (stripped.length > 2 && !stripped.endsWith("s")) multiWordServiceTokens.add(stripped + "s");
+                  }
                 }
               }
             }
             for (const kw of serviceMatchWordsForInjection) {
               const kwLower = kw.toLowerCase();
-              // Skip if this word is a component of a multi-word service already in candidates
+              // Skip if this word is a component (or plural/singular variant) of a multi-word service already in candidates
               if (multiWordServiceTokens.has(kwLower) || multiWordServiceTokens.has(stripAccentsGlobal(kwLower))) continue;
               if (!extendedCandidates.some(c => c.toLowerCase() === kwLower)) {
                 extendedCandidates.push(kw);
