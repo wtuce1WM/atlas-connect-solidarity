@@ -2277,7 +2277,7 @@ const SearchPage = () => {
                     name: d.name_fr,
                     latitude: d.latitude,
                     longitude: d.longitude,
-                    images: d.images || (d.image_url ? [d.image_url] : null),
+                    images: (d.images && d.images.length > 0) ? d.images : (d.image_url ? [d.image_url] : null),
                   })))}
                 />
               </div>
