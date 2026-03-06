@@ -40,6 +40,7 @@ interface AISearchAnswerProps {
   isSearchLoading: boolean;
   onAnswerReady?: (answer: string) => void;
   highlightWordIndex?: number;
+  externalRegenerateKey?: number;
 }
 
 interface BusinessHoverCardProps {
@@ -311,7 +312,7 @@ const formatAnswer = (
   return elements;
 };
 
-const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnswerReady, highlightWordIndex }: AISearchAnswerProps) => {
+const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnswerReady, highlightWordIndex, externalRegenerateKey }: AISearchAnswerProps) => {
   const { language } = useLanguage();
   const [answer, setAnswer] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -327,8 +328,8 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
   const fetchKey = useMemo(() => {
     if (!query || !businesses.length) return "";
     const names = businesses.slice(0, 10).map(b => b.name).join("|");
-    return `${query}::${names}::${regenerateCount}`;
-  }, [query, businesses, regenerateCount]);
+    return `${query}::${names}::${regenerateCount}::${externalRegenerateKey ?? 0}`;
+  }, [query, businesses, regenerateCount, externalRegenerateKey]);
 
   useEffect(() => {
     setIsDismissed(false);
@@ -373,7 +374,7 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
               wtuce_status: b.wtuce_status,
             })),
             language,
-            vary: regenerateCount > 0 ? regenerateCount : undefined,
+            vary: (regenerateCount + (externalRegenerateKey ?? 0)) > 0 ? regenerateCount + (externalRegenerateKey ?? 0) : undefined,
           },
         });
 

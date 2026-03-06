@@ -24,7 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { Loader2, Building2, ChevronLeft, ChevronRight, Search, Mic, Loader, MapPin, MapPinOff, X, Volume2, VolumeX, Clock, Map, Sparkles, SlidersHorizontal, ChevronDown, ChevronUp } from "lucide-react";
+import { Loader2, Building2, ChevronLeft, ChevronRight, Search, Mic, Loader, MapPin, MapPinOff, X, Volume2, VolumeX, Clock, Map, Sparkles, SlidersHorizontal, ChevronDown, ChevronUp, RefreshCw } from "lucide-react";
 import MoreFiltersPopup from "@/components/MoreFiltersPopup";
 import { lazy, Suspense } from "react";
 const BusinessMap = lazy(() => import("@/components/BusinessMap"));
@@ -392,6 +392,7 @@ const SearchPage = () => {
   // Track whether a category/subcategory filter is active (compact AI mode)
   const isCategoryFilterActive = !!(selectedCategoryFilter || selectedSubcategoryFilter || selectedServiceFilter);
   const [isAiSummaryExpanded, setIsAiSummaryExpanded] = useState(false);
+  const [aiRegenerateKey, setAiRegenerateKey] = useState(0);
   const [compactPanelBusiness, setCompactPanelBusiness] = useState<AIBusinessData | null>(null);
   const [isCompactPanelExpanded, setIsCompactPanelExpanded] = useState(false);
   const [locationDialogOpen, setLocationDialogOpen] = useState(false);
@@ -1417,6 +1418,7 @@ const SearchPage = () => {
               businesses={allBusinesses}
               isSearchLoading={isLoading}
               onAnswerReady={setAiAnswerText}
+              externalRegenerateKey={aiRegenerateKey}
               highlightWordIndex={ttsStatus === "playing" && ttsSpokenWordIndex >= 0 ? ttsSpokenWordIndex - ttsIntroWordCountRef.current : undefined}
             />
           )}
@@ -1648,8 +1650,17 @@ const SearchPage = () => {
                   )}
                 </button>
               </div>
-              <div className="flex items-center gap-2 shrink-0">
-              </div>
+              <button
+                onClick={() => {
+                  setAiAnswerText("");
+                  setAiRegenerateKey(k => k + 1);
+                }}
+                className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-gold/30 bg-card text-gold text-xs font-medium hover:bg-gold/20 transition-colors"
+                title={language === "en" ? "Generate another suggestion" : "Régénérer la suggestion"}
+              >
+                <RefreshCw className="h-3.5 w-3.5" />
+                {language === "en" ? "Regenerate" : "Régénérer"}
+              </button>
             </div>
           )}
 
