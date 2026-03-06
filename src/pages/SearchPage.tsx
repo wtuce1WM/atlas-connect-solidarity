@@ -391,6 +391,7 @@ const SearchPage = () => {
   const [moreFilterEngagements, setMoreFilterEngagements] = useState<string[]>([]);
   const [moreFilterCommodites, setMoreFilterCommodites] = useState<string[]>([]);
   const [moreFilterMatchingIds, setMoreFilterMatchingIds] = useState<Set<string> | null>(null);
+  const [extraFilterBusinesses, setExtraFilterBusinesses] = useState<Business[]>([]);
 
   // Track whether a category/subcategory filter is active (compact AI mode)
   const isCategoryFilterActive = !!(selectedCategoryFilter || selectedSubcategoryFilter || selectedServiceFilter);
@@ -421,6 +422,49 @@ const SearchPage = () => {
         window.scrollTo({ top: Math.max(0, targetScroll), behavior: 'smooth' });
       }
     });
+  }, [selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, selectedCity]);
+
+  // Fetch extra businesses from DB when entonnoir filters narrow beyond search results
+  useEffect(() => {
+    if (!selectedCategoryFilter) {
+      setExtraFilterBusinesses([]);
+      return;
+    }
+    const fetchExtra = async () => {
+      let query = supabase
+        .from("businesses")
+        .select("id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, services, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, rating, gamme_id, badge_id, hook_fr, hook_en, hook_ar, google_rating, tripadvisor_rating, restaurant_guru_rating, google_review_count, tripadvisor_review_count, restaurant_guru_review_count, opening_hours, is_open_24h, vacation_dates, zone_chalandise, is_visible_locale, zone_city_ids")
+        .eq("is_active", true)
+        .eq("main_category", selectedCategoryFilter);
+
+      if (selectedCity && selectedCity !== "all") {
+        query = query.or(`city.ilike.${selectedCity},zone_city_ids.cs.{}`);
+        // Simplified: just filter by city
+        query = supabase
+          .from("businesses")
+          .select("id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, services, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, rating, gamme_id, badge_id, hook_fr, hook_en, hook_ar, google_rating, tripadvisor_rating, restaurant_guru_rating, google_review_count, tripadvisor_review_count, restaurant_guru_review_count, opening_hours, is_open_24h, vacation_dates, zone_chalandise, is_visible_locale, zone_city_ids")
+          .eq("is_active", true)
+          .eq("main_category", selectedCategoryFilter)
+          .ilike("city", selectedCity);
+      }
+
+      if (selectedSubcategoryFilter) {
+        query = query.contains("categories", [selectedSubcategoryFilter]);
+      }
+      if (selectedServiceFilter) {
+        query = query.contains("services", [selectedServiceFilter]);
+      }
+
+      const { data } = await query.limit(200);
+      if (data) {
+        const mapped = data.map((b: any) => ({
+          ...b,
+          distance_km: null,
+        })) as Business[];
+        setExtraFilterBusinesses(mapped);
+      }
+    };
+    fetchExtra();
   }, [selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, selectedCity]);
 
    // Track when user has scrolled down to the tab bar — lock scroll above it from that point
@@ -809,9 +853,17 @@ const SearchPage = () => {
   }, [selectedCity, citiesWithPriority]);
 
   const filteredBusinesses = useMemo(() => {
-    let filtered = allBusinesses;
+    // Merge search results with extra businesses fetched for entonnoir filters (deduplicate by id)
+    const mergedBase = selectedCategoryFilter && extraFilterBusinesses.length > 0
+      ? (() => {
+          const ids = new Set(allBusinesses.map(b => b.id));
+          const extras = extraFilterBusinesses.filter(b => !ids.has(b.id));
+          return [...allBusinesses, ...extras];
+        })()
+      : allBusinesses;
+    let filtered = mergedBase;
     if (selectedCity && selectedCity !== "all") {
-      filtered = allBusinesses.filter(b => {
+      filtered = mergedBase.filter(b => {
         // Direct city match
         if (b.city === selectedCity) return true;
         // National/zone businesses that cover this city
@@ -874,7 +926,7 @@ const SearchPage = () => {
 
     // Always sort by WTUCE status first, then by rating (highest first)
     return [...filtered].sort(sortWtuceAndRating);
-  }, [allBusinesses, selectedCity, selectedCityId, selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, activeTimeSlot, searchQuery, categoryFromUrl, moreFilterMatchingIds, moreFilterTimeSlots]);
+  }, [allBusinesses, extraFilterBusinesses, selectedCity, selectedCityId, selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, activeTimeSlot, searchQuery, categoryFromUrl, moreFilterMatchingIds, moreFilterTimeSlots]);
 
   // Extract services from search results for inline filter bar (only is_filtered=true, respecting service_city_filters)
   // filteredServicesBySubcategory: subcategory name -> Set of service names where is_filtered=true
