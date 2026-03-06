@@ -2205,7 +2205,7 @@ const SearchPage = () => {
 
       {activeTab === "map" && (
         <section className="py-6 lg:py-12 bg-background">
-          <div className="mx-auto px-4 pt-4 max-w-[80%]">
+          <div className="mx-auto px-2 pt-4 md:px-4 md:max-w-[80%]">
             <Suspense fallback={<div className="flex justify-center py-16"><Loader2 className="h-8 w-8 animate-spin text-gold" /></div>}>
               <BusinessMap
                 businesses={filteredBusinesses.map((b) => ({
