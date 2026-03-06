@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
-import { MapPin, Star, Loader2, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { MapPin, Star, Loader2, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
 import BookmarkButton from "@/components/BookmarkButton";
@@ -35,20 +35,15 @@ interface DestinationBusinessesPanelProps {
 }
 
 const SELECT_FIELDS = "id, name, city, neighborhood, images, rating, wtuce_status, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, getyourguide_rating, getyourguide_review_count, viator_rating, viator_review_count";
-const PAGE_SIZE = 9;
 
 const DestinationBusinessesPanel = ({ destination, language, onClose, onBusinessClick, onLoginRequired }: DestinationBusinessesPanelProps) => {
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [page, setPage] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setPage(0);
-    const fetch = async () => {
+    const fetchData = async () => {
       setIsLoading(true);
-
-      // Get business IDs linked to this destination
       const { data: links } = await (supabase
         .from("business_destinations" as any)
         .select("business_id")
@@ -61,8 +56,6 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
       }
 
       const bizIds = (links as any[]).map((l: any) => l.business_id);
-
-      // Fetch businesses in batches of 500
       const all: Business[] = [];
       for (let i = 0; i < bizIds.length; i += 500) {
         const chunk = bizIds.slice(i, i + 500);
@@ -74,7 +67,6 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
         if (data) all.push(...(data as Business[]));
       }
 
-      // Sort: verified first, then by rating desc
       all.sort((a, b) => {
         const aV = a.wtuce_status === "verified" ? 1 : 0;
         const bV = b.wtuce_status === "verified" ? 1 : 0;
@@ -87,7 +79,7 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
       setBusinesses(all);
       setIsLoading(false);
     };
-    fetch();
+    fetchData();
   }, [destination.id]);
 
   const getName = () => {
@@ -96,12 +88,8 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
     return destination.name_fr;
   };
 
-  const totalPages = Math.ceil(businesses.length / PAGE_SIZE);
-  const paginated = businesses.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
-
   return (
     <div className="w-1/2 fixed top-[62px] right-0 bottom-0 z-[100] border-l border-border bg-background flex flex-col shadow-2xl">
-      {/* Header */}
       <div className="flex items-center px-3 py-2 border-b border-border gap-2">
         <button
           onClick={onClose}
@@ -117,7 +105,6 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
         </span>
       </div>
 
-      {/* Content */}
       <div className="flex-1 overflow-y-auto p-4" ref={scrollRef}>
         {isLoading ? (
           <div className="flex justify-center py-16">
@@ -128,85 +115,51 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
             {language === "en" ? "No businesses found" : "Aucun établissement trouvé"}
           </div>
         ) : (
-          <div className="space-y-3">
-            <div className="grid grid-cols-3 gap-2">
-              {paginated.map((biz) => {
-                const img = biz.images && biz.images.length > 0 ? biz.images[0] : null;
-                const sources = collectRatingSources(biz);
-                const avgOn20 = biz.rating ?? computeWeightedRatingOn20(sources);
-                const totalReviews = sources.reduce((s, r) => s + r.count, 0);
+          <div className="grid grid-cols-3 gap-2">
+            {businesses.map((biz) => {
+              const img = biz.images && biz.images.length > 0 ? biz.images[0] : null;
+              const sources = collectRatingSources(biz);
+              const avgOn20 = biz.rating ?? computeWeightedRatingOn20(sources);
+              const totalReviews = sources.reduce((s, r) => s + r.count, 0);
 
-                return (
-                  <Link
-                    key={biz.id}
-                    to={`/business/${biz.id}`}
-                    onClick={(e) => {
-                      if (onBusinessClick) {
-                        e.preventDefault();
-                        onBusinessClick(biz.id);
-                      }
-                    }}
-                    className="group overflow-hidden rounded-xl border border-gold/20 shadow-sm hover:shadow-md transition-shadow aspect-square relative"
-                  >
-                    {img && (
-                      <img src={img} alt={biz.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                    <div className="absolute top-1.5 right-1.5 z-10" onClick={(e) => e.preventDefault()}>
-                      <BookmarkButton businessId={biz.id} onLoginRequired={onLoginRequired} />
+              return (
+                <Link
+                  key={biz.id}
+                  to={`/business/${biz.id}`}
+                  onClick={(e) => {
+                    if (onBusinessClick) {
+                      e.preventDefault();
+                      onBusinessClick(biz.id);
+                    }
+                  }}
+                  className="group overflow-hidden rounded-xl border border-gold/20 shadow-sm hover:shadow-md transition-shadow aspect-square relative"
+                >
+                  {img && (
+                    <img src={img} alt={biz.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                  <div className="absolute top-1.5 right-1.5 z-10" onClick={(e) => e.preventDefault()}>
+                    <BookmarkButton businessId={biz.id} onLoginRequired={onLoginRequired} />
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 p-2 space-y-0.5">
+                    <p className="font-semibold text-[11px] text-white leading-tight line-clamp-2">{biz.name}</p>
+                    <div className="flex items-center gap-1 text-[10px] text-white/80">
+                      <MapPin className="h-2.5 w-2.5 shrink-0" />
+                      <span className="truncate">{biz.city}{biz.neighborhood ? ` · ${biz.neighborhood}` : ""}</span>
                     </div>
-                    <div className="absolute bottom-0 left-0 right-0 p-2 space-y-0.5">
-                      <p className="font-semibold text-[11px] text-white leading-tight line-clamp-2">{biz.name}</p>
-                      <div className="flex items-center gap-1 text-[10px] text-white/80">
-                        <MapPin className="h-2.5 w-2.5 shrink-0" />
-                        <span className="truncate">{biz.city}{biz.neighborhood ? ` · ${biz.neighborhood}` : ""}</span>
+                    {avgOn20 && (
+                      <div className="flex items-center gap-1 text-[10px]">
+                        <Star className="h-2.5 w-2.5 text-gold fill-gold" />
+                        <span className="font-medium text-white">{avgOn20}/20</span>
+                        {totalReviews > 0 && (
+                          <span className="text-white/70">· {totalReviews} avis</span>
+                        )}
                       </div>
-                      {avgOn20 && (
-                        <div className="flex items-center gap-1 text-[10px]">
-                          <Star className="h-2.5 w-2.5 text-gold fill-gold" />
-                          <span className="font-medium text-white">{avgOn20}/20</span>
-                          {totalReviews > 0 && (
-                            <span className="text-white/70">· {totalReviews} avis</span>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
-
-            {totalPages > 1 && (
-              <div className="flex items-center justify-center gap-1 pt-1">
-                <button
-                  onClick={() => { setPage(p => Math.max(0, p - 1)); scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" }); }}
-                  disabled={page === 0}
-                  className="p-1 rounded-md text-muted-foreground hover:bg-accent disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </button>
-                {Array.from({ length: totalPages }, (_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => { setPage(i); scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" }); }}
-                    className={`h-7 w-7 rounded-md text-xs font-medium transition-colors ${
-                      i === page
-                        ? "bg-primary text-primary-foreground"
-                        : "text-muted-foreground hover:bg-accent"
-                    }`}
-                  >
-                    {i + 1}
-                  </button>
-                ))}
-                <button
-                  onClick={() => { setPage(p => Math.min(totalPages - 1, p + 1)); scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" }); }}
-                  disabled={page === totalPages - 1}
-                  className="p-1 rounded-md text-muted-foreground hover:bg-accent disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-              </div>
-            )}
+                    )}
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         )}
       </div>
