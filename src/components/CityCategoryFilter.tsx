@@ -41,6 +41,7 @@ interface CityCategoryFilterProps {
   selectedService?: string | null;
   onSelectService?: (service: string | null) => void;
   hasCityBar?: boolean;
+  stickyBaseTop?: number;
 }
 
 const CityCategoryFilter = ({
@@ -52,6 +53,7 @@ const CityCategoryFilter = ({
   selectedService,
   onSelectService,
   hasCityBar = false,
+  stickyBaseTop,
 }: CityCategoryFilterProps) => {
   const [categories, setCategories] = useState<CategoryCount[]>([]);
   const [subcategories, setSubcategories] = useState<SubcategoryCount[]>([]);
@@ -279,7 +281,7 @@ const CityCategoryFilter = ({
     return item.name_fr;
   };
 
-  const baseTop = 104 + (hasCityBar ? 44 : 0);
+  const baseTop = stickyBaseTop ?? (104 + (hasCityBar ? 44 : 0));
 
   return (
     <>
@@ -322,7 +324,7 @@ const CityCategoryFilter = ({
 
       {/* Sticky subcategories zone */}
       {selectedCategory && !isLoadingSubs && subcategories.length > 0 && (
-        <div data-subcategory-filter className={`sticky z-[3] bg-background border-b border-border py-2 relative`} style={{ top: `${baseTop + 62}px` }}>
+        <div data-subcategory-filter className={`sticky z-[3] bg-background border-b border-border py-2 relative`} ref={(el) => { if (el) { const catEl = document.querySelector<HTMLElement>('[data-category-filter]'); if (catEl) { const catBottom = parseFloat(catEl.style.top || '0') + catEl.getBoundingClientRect().height; el.style.top = `${catBottom}px`; } else { el.style.top = `${baseTop + 62}px`; } } }}>
           <span className="absolute top-0 left-1 z-50 bg-pink-500 text-white text-[10px] font-bold px-2 py-0.5 rounded">🩷 STICKY 3c — Subcategory Filter</span>
           <div className="mx-auto px-4 max-w-[80%]">
             <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
@@ -359,7 +361,7 @@ const CityCategoryFilter = ({
 
       {/* Sticky services zone */}
       {selectedSubcategory && !isLoadingServices && services.length > 0 && (
-        <div data-service-filter className={`sticky z-[2] bg-background border-b border-border py-2 relative`} style={{ top: `${baseTop + 113}px` }}>
+        <div data-service-filter className={`sticky z-[2] bg-background border-b border-border py-2 relative`} ref={(el) => { if (el) { const subEl = document.querySelector<HTMLElement>('[data-subcategory-filter]'); if (subEl) { const subBottom = parseFloat(subEl.style.top || '0') + subEl.getBoundingClientRect().height; el.style.top = `${subBottom}px`; } else { el.style.top = `${baseTop + 113}px`; } } }}>
           <span className="absolute top-0 left-1 z-50 bg-cyan-500 text-white text-[10px] font-bold px-2 py-0.5 rounded">🩵 STICKY 3d — Service Filter</span>
           <div className="mx-auto px-4 max-w-[80%]">
             <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
