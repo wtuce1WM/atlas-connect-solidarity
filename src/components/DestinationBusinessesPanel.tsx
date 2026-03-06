@@ -107,6 +107,26 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
       </div>
 
       <div className="flex-1 overflow-y-auto p-4" ref={scrollRef}>
+        {destination.description && (
+          <div className="mb-4 text-sm text-muted-foreground leading-relaxed">
+            {destination.description.length > 500 && !descExpanded
+              ? <>
+                  {destination.description.slice(0, 500)}…{" "}
+                  <button onClick={() => setDescExpanded(true)} className="text-gold hover:underline font-medium">
+                    {language === "en" ? "see more" : "voir plus"}
+                  </button>
+                </>
+              : <>
+                  {destination.description}
+                  {destination.description.length > 500 && (
+                    <button onClick={() => setDescExpanded(false)} className="ml-1 text-gold hover:underline font-medium">
+                      {language === "en" ? "see less" : "voir moins"}
+                    </button>
+                  )}
+                </>
+            }
+          </div>
+        )}
         {isLoading ? (
           <div className="flex justify-center py-16">
             <Loader2 className="h-6 w-6 animate-spin text-gold" />
