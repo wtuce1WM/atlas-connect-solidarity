@@ -23,7 +23,7 @@ const ImageLightbox = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[95vw] max-h-[95vh] p-0 bg-black/95 border-none">
+      <DialogContent className="max-w-[95vw] max-h-[95vh] p-0 bg-black/95 border-none z-[200]">
         <button
           onClick={onClose}
           className="absolute right-4 top-4 z-50 rounded-full bg-black/50 p-2 text-white hover:bg-black/70 transition-colors"
