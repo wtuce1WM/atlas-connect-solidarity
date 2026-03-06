@@ -137,7 +137,7 @@ const DestinationSection = ({ city, language, onDestinationClick, columns, onMap
         <span className="text-xs text-muted-foreground">{destinations.length} {language === "en" ? "results" : "résultats"}</span>
       </div>
 
-      <div className={columns === 3 ? "grid grid-cols-3 gap-3" : "grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3"}>
+      <div className={columns === 3 ? "grid grid-cols-3 gap-3" : "grid grid-cols-3 gap-3 lg:grid-cols-6"}>
         {destinations.map((dest) => {
           const img = dest.image_url || (dest.images && dest.images.length > 0 ? dest.images[0] : null);
           const name = getName(dest);
