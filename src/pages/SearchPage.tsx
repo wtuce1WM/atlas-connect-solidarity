@@ -770,25 +770,38 @@ const SearchPage = () => {
     return [...filtered].sort(sortWtuceAndRating);
   }, [allBusinesses, selectedCity, selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, activeTimeSlot, searchQuery, categoryFromUrl, moreFilterMatchingIds, moreFilterTimeSlots]);
 
-  // Extract services from search results for inline filter bar
+  // Extract services from search results for inline filter bar (only is_filtered=true, alpha sorted)
+  const [filteredServiceNames, setFilteredServiceNames] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    supabase
+      .from("services")
+      .select("name_fr")
+      .eq("is_active", true)
+      .eq("is_filtered", true)
+      .then(({ data }) => {
+        if (data) setFilteredServiceNames(new Set(data.map(s => s.name_fr)));
+      });
+  }, []);
+
   const searchServiceFilters = useMemo(() => {
-    if (!searchQuery.trim() || allBusinesses.length === 0) return [];
-    // Don't show when CityCategoryFilter is handling service display
+    if (!searchQuery.trim() || allBusinesses.length === 0 || filteredServiceNames.size === 0) return [];
     if (selectedCategoryFilter || selectedSubcategoryFilter) return [];
     const countMap: Record<string, number> = {};
     for (const b of allBusinesses) {
       if (b.services) {
         for (const s of b.services) {
-          countMap[s] = (countMap[s] || 0) + 1;
+          if (filteredServiceNames.has(s)) {
+            countMap[s] = (countMap[s] || 0) + 1;
+          }
         }
       }
     }
     return Object.entries(countMap)
       .filter(([_, count]) => count >= 2)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 15)
+      .sort((a, b) => a[0].localeCompare(b[0], "fr"))
       .map(([name, count]) => ({ name, count }));
-  }, [searchQuery, allBusinesses, selectedCategoryFilter, selectedSubcategoryFilter]);
+  }, [searchQuery, allBusinesses, selectedCategoryFilter, selectedSubcategoryFilter, filteredServiceNames]);
 
   // Group businesses by primary subcategory when a subcategory was detected
   const groupedBusinesses = useMemo(() => {
