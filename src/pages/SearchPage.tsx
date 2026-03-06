@@ -32,7 +32,8 @@ import MoreFiltersPopup from "@/components/MoreFiltersPopup";
 import { lazy, Suspense } from "react";
 const BusinessMap = lazy(() => import("@/components/BusinessMap"));
 import PoiSection from "@/components/PoiSection";
-import DestinationSection from "@/components/DestinationSection";
+import DestinationSection, { type DestinationItem } from "@/components/DestinationSection";
+import DestinationBusinessesPanel from "@/components/DestinationBusinessesPanel";
 import BusinessCard, { type BusinessCardData, type Gamme, type Badge, type SubcategoryRef, type BadgeSubcategoryRef } from "@/components/BusinessCard";
 import AISearchAnswer, { parseInline, type BusinessData as AIBusinessData } from "@/components/AISearchAnswer";
 import BusinessSlidePanel from "@/components/BusinessSlidePanel";
@@ -542,6 +543,8 @@ const SearchPage = () => {
      const [allPois, setAllPois] = useState<PoiMapItem[]>([]);
      const [destMapItem, setDestMapItem] = useState<{ id: string; name_fr: string; latitude: number | null; longitude: number | null } | null>(null);
      const [allDests, setAllDests] = useState<PoiMapItem[]>([]);
+     const [selectedDestination, setSelectedDestination] = useState<DestinationItem | null>(null);
+     const [allDestItems, setAllDestItems] = useState<DestinationItem[]>([]);
    const [locationDialogOpen, setLocationDialogOpen] = useState(false);
    const heroAiRef = useRef<HTMLDivElement>(null);
    const [hasScrolledPastHeroAi, setHasScrolledPastHeroAi] = useState(false);
@@ -2259,30 +2262,52 @@ const SearchPage = () => {
 
       {activeTab === "destinations" && (() => {
         const destCity = selectedCity && selectedCity !== "all" ? selectedCity : detectedCity;
-        const hasDestPanel = !!destMapItem;
+        const hasRightPanel = !!destMapItem || !!selectedDestination;
         return (
           <div className="flex">
-            <section className={`pt-16 pb-6 lg:pt-20 lg:pb-12 bg-background transition-all duration-300 ${hasDestPanel ? "w-1/2" : "w-full"}`}>
-              <div className={`mx-auto px-4 ${hasDestPanel ? "max-w-full" : "max-w-[80%]"}`}>
+            <section className={`pt-16 pb-6 lg:pt-20 lg:pb-12 bg-background transition-all duration-300 ${hasRightPanel ? "w-1/2" : "w-full"}`}>
+              <div className={`mx-auto px-4 ${hasRightPanel ? "max-w-full" : "max-w-[80%]"}`}>
                 <DestinationSection
                   city={destCity}
                   language={language}
-                  columns={hasDestPanel ? 3 : undefined}
+                  columns={hasRightPanel ? 3 : undefined}
+                  onDestinationClick={(destId) => {
+                    const dest = allDestItems.find(d => d.id === destId);
+                    if (dest) {
+                      setSelectedDestination(dest);
+                      setDestMapItem(null);
+                    }
+                  }}
                   onMapClick={(dest) => {
                     setDestMapItem(dest);
+                    setSelectedDestination(null);
                     setAllDests(prev => prev);
                   }}
-                  onDestinationsLoaded={(dests) => setAllDests(dests.map(d => ({
-                    id: d.id,
-                    name: d.name_fr,
-                    latitude: d.latitude,
-                    longitude: d.longitude,
-                    images: (d.images && d.images.length > 0) ? d.images : (d.image_url ? [d.image_url] : null),
-                  })))}
+                  onDestinationsLoaded={(dests) => {
+                    setAllDestItems(dests);
+                    setAllDests(dests.map(d => ({
+                      id: d.id,
+                      name: d.name_fr,
+                      latitude: d.latitude,
+                      longitude: d.longitude,
+                      images: (d.images && d.images.length > 0) ? d.images : (d.image_url ? [d.image_url] : null),
+                    })));
+                  }}
                 />
               </div>
             </section>
-            {destMapItem && (
+            {selectedDestination && (
+              <DestinationBusinessesPanel
+                destination={selectedDestination}
+                language={language}
+                onClose={() => setSelectedDestination(null)}
+                onBusinessClick={(bizId) => {
+                  // Navigate to business detail
+                  window.location.href = `/business/${bizId}`;
+                }}
+              />
+            )}
+            {destMapItem && !selectedDestination && (
               <div className="w-1/2 fixed top-[62px] right-0 bottom-0 z-[100] border-l border-border bg-background flex flex-col shadow-2xl">
                 <div className="flex items-center px-3 py-2 border-b border-border gap-2">
                   <div>
@@ -2311,7 +2336,6 @@ const SearchPage = () => {
                     onPoiClick={(id) => {
                       const d = allDests.find(p => p.id === id);
                       if (d) {
-                        // Find the full dest item to update title
                         setDestMapItem(prev => prev ? { ...prev, id: d.id, name_fr: d.name, latitude: d.latitude, longitude: d.longitude } : prev);
                       }
                     }}
