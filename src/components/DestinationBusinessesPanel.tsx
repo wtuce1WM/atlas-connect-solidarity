@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
+import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import { MapPin, Star, Loader2, X, ChevronLeft, ChevronRight, Maximize2, Minimize2 } from "lucide-react";
-import ImageLightbox from "@/components/ImageLightbox";
 import { supabase } from "@/integrations/supabase/client";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
 import BookmarkButton from "@/components/BookmarkButton";
@@ -341,32 +341,50 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
       </div>
     </div>
     )}
-      {/* Lightbox rendered outside panel for proper z-index */}
-      <ImageLightbox
-        images={(() => {
-          const imgs = destination.images && destination.images.length > 0
-            ? destination.images
-            : destination.image_url
-              ? [destination.image_url]
-              : [];
-          return imgs;
-        })()}
-        currentIndex={currentImageIndex}
-        isOpen={isLightboxOpen}
-        onClose={() => setIsLightboxOpen(false)}
-        onPrevious={() => setCurrentImageIndex(i => {
-          const imgs = destination.images && destination.images.length > 0
-            ? destination.images
-            : destination.image_url ? [destination.image_url] : [];
-          return i === 0 ? imgs.length - 1 : i - 1;
-        })}
-        onNext={() => setCurrentImageIndex(i => {
-          const imgs = destination.images && destination.images.length > 0
-            ? destination.images
-            : destination.image_url ? [destination.image_url] : [];
-          return i === imgs.length - 1 ? 0 : i + 1;
-        })}
-      />
+      {/* Fullscreen lightbox via portal — same as BusinessSlidePanel */}
+      {isLightboxOpen && (() => {
+        const imgs = destination.images && destination.images.length > 0
+          ? destination.images
+          : destination.image_url ? [destination.image_url] : [];
+        if (imgs.length === 0) return null;
+        return createPortal(
+          <div className="fixed inset-0 z-[9999] bg-black flex items-center justify-center" onClick={() => setIsLightboxOpen(false)}>
+            <button
+              onClick={(e) => { e.stopPropagation(); setIsLightboxOpen(false); }}
+              className="absolute top-6 left-6 z-20 flex items-center gap-2 px-4 py-2.5 rounded-full bg-white text-black font-semibold text-sm shadow-2xl hover:bg-white/90 transition-colors"
+            >
+              <X className="h-5 w-5" />
+              <span>Fermer</span>
+            </button>
+            <img
+              src={imgs[currentImageIndex]}
+              alt={`${getName()} - ${currentImageIndex + 1}`}
+              className="max-w-[90%] max-h-[90vh] object-contain"
+              onClick={(e) => e.stopPropagation()}
+            />
+            {imgs.length > 1 && (
+              <>
+                <button
+                  onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(i => i === 0 ? imgs.length - 1 : i - 1); }}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+                >
+                  <ChevronLeft className="h-6 w-6 text-white" />
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(i => i === imgs.length - 1 ? 0 : i + 1); }}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+                >
+                  <ChevronRight className="h-6 w-6 text-white" />
+                </button>
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-white/10 text-sm text-white">
+                  {currentImageIndex + 1} / {imgs.length}
+                </div>
+              </>
+            )}
+          </div>,
+          document.body
+        );
+      })()}
     </>
   );
 };
