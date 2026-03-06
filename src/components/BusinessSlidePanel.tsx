@@ -735,27 +735,22 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
         </button>
       )}
       {/* Booking / Availability overlay */}
-      {availabilityOverlayCtx && (() => {
-        const overlayEl = (
-          <HotelAvailabilityOverlay
-            liteApiHotelId={availabilityOverlayCtx.liteApiHotelId}
-            businessName={availabilityOverlayCtx.businessName}
-            businessCity={availabilityOverlayCtx.businessCity}
-            backgroundImage={availabilityOverlayCtx.backgroundImage}
-            onClose={() => { setAvailabilityOverlayCtx(null); setIsBookingOpen(false); }}
-            onSelectBusiness={(id) => { setInternalBusinessId(id); }}
-            onOpenFallbackPanel={(data) => {
-              setFallbackPanelData(data);
-              setSelectedFallbackHotelId(null);
-              setAvailabilityOverlayCtx(null);
-              setIsBookingOpen(false);
-            }}
-          />
-        );
-        return leftPanelPortalRef?.current
-          ? createPortal(<div className="absolute inset-0 z-10">{overlayEl}</div>, leftPanelPortalRef.current)
-          : overlayEl;
-      })()}
+      {availabilityOverlayCtx && (
+        <HotelAvailabilityOverlay
+          liteApiHotelId={availabilityOverlayCtx.liteApiHotelId}
+          businessName={availabilityOverlayCtx.businessName}
+          businessCity={availabilityOverlayCtx.businessCity}
+          backgroundImage={availabilityOverlayCtx.backgroundImage}
+          onClose={() => { setAvailabilityOverlayCtx(null); setIsBookingOpen(false); }}
+          onSelectBusiness={(id) => { setInternalBusinessId(id); }}
+          onOpenFallbackPanel={(data) => {
+            setFallbackPanelData(data);
+            setSelectedFallbackHotelId(null);
+            setAvailabilityOverlayCtx(null);
+            setIsBookingOpen(false);
+          }}
+        />
+      )}
       {isBookingOpen && !hasLiteApiMapping && !availabilityOverlayCtx && bookingUrl && (
         <BookingOverlay
           bookingUrl={bookingUrl}
