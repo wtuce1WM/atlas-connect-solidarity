@@ -29,9 +29,10 @@ interface PoiSectionProps {
   city: string | null;
   language: string;
   onBusinessClick?: (businessId: string) => void;
+  columns?: number;
 }
 
-const PoiSection = ({ city, language, onBusinessClick }: PoiSectionProps) => {
+const PoiSection = ({ city, language, onBusinessClick, columns }: PoiSectionProps) => {
   const [pois, setPois] = useState<PoiBusiness[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -90,7 +91,7 @@ const PoiSection = ({ city, language, onBusinessClick }: PoiSectionProps) => {
         <span className="text-xs text-muted-foreground">{pois.length} {language === "en" ? "results" : "résultats"}</span>
       </div>
 
-      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
+      <div className={columns === 3 ? "grid grid-cols-3 gap-3" : "grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3"}>
         {pois.map((biz) => {
           const img = biz.images && biz.images.length > 0 ? biz.images[0] : null;
           const sources = collectRatingSources(biz);
