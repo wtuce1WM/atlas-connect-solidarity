@@ -196,17 +196,35 @@ const ServiceManagement = () => {
     const selectedCities = filterPopupSelection;
 
     // Delete all existing entries for this service
-    await supabase.from("service_city_filters" as any).delete().eq("service_id", serviceId);
+    const { error: delError } = await supabase.from("service_city_filters" as any).delete().eq("service_id", serviceId);
+    if (delError) {
+      console.error("Delete error:", delError);
+      toast.error(`Erreur suppression filtres: ${delError.message}`);
+      setFilterPopupSaving(false);
+      return;
+    }
 
     // Insert new entries
     if (selectedCities.size > 0) {
       const rows = [...selectedCities].map(cityId => ({ service_id: serviceId, city_id: cityId }));
-      await supabase.from("service_city_filters" as any).insert(rows);
+      const { error: insError } = await supabase.from("service_city_filters" as any).insert(rows);
+      if (insError) {
+        console.error("Insert error:", insError);
+        toast.error(`Erreur insertion filtres: ${insError.message}`);
+        setFilterPopupSaving(false);
+        return;
+      }
     }
 
     // Update is_filtered on services table
     const isFiltered = selectedCities.size > 0;
-    await supabase.from("services").update({ is_filtered: isFiltered } as any).eq("id", serviceId);
+    const { error: updError } = await supabase.from("services").update({ is_filtered: isFiltered } as any).eq("id", serviceId);
+    if (updError) {
+      console.error("Update error:", updError);
+      toast.error(`Erreur mise à jour service: ${updError.message}`);
+      setFilterPopupSaving(false);
+      return;
+    }
 
     // Update local state
     setServiceCityFilters(prev => {
