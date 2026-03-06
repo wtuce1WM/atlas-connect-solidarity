@@ -1442,6 +1442,8 @@ const SearchPage = () => {
                 )}
                 {geo.isDetecting
                   ? (language === "en" ? "Detecting..." : "Détection...")
+                  : geo.isEnabled && geo.confirmedAddress
+                  ? `📍 ${geo.confirmedAddress}`
                   : geo.isEnabled && geo.detectedCity
                   ? `📍 ${geo.detectedCity}`
                   : geo.isEnabled
