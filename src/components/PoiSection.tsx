@@ -23,6 +23,10 @@ interface PoiBusiness {
   viator_review_count: number | null;
   categories: string[] | null;
   poi_hook: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  address: string | null;
+  google_maps_url: string | null;
 }
 
 interface PoiSectionProps {
@@ -30,9 +34,10 @@ interface PoiSectionProps {
   language: string;
   onBusinessClick?: (businessId: string) => void;
   columns?: number;
+  onMapClick?: (business: PoiBusiness) => void;
 }
 
-const PoiSection = ({ city, language, onBusinessClick, columns }: PoiSectionProps) => {
+const PoiSection = ({ city, language, onBusinessClick, columns, onMapClick }: PoiSectionProps) => {
   const [pois, setPois] = useState<PoiBusiness[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -41,7 +46,7 @@ const PoiSection = ({ city, language, onBusinessClick, columns }: PoiSectionProp
       setIsLoading(true);
       let query = supabase
         .from("businesses")
-        .select("id, name, city, neighborhood, images, rating, categories, poi_hook, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, getyourguide_rating, getyourguide_review_count, viator_rating, viator_review_count")
+        .select("id, name, city, neighborhood, images, rating, categories, poi_hook, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, getyourguide_rating, getyourguide_review_count, viator_rating, viator_review_count, latitude, longitude, address, google_maps_url")
         .eq("is_active", true)
         .eq("is_poi", true)
         .order("priority_score", { ascending: false })
@@ -116,6 +121,20 @@ const PoiSection = ({ city, language, onBusinessClick, columns }: PoiSectionProp
                 <div className="absolute inset-0 bg-muted flex items-center justify-center">
                   <MapPin className="h-8 w-8 text-muted-foreground/40" />
                 </div>
+              )}
+              {onMapClick && (
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onMapClick(biz);
+                  }}
+                  className="absolute top-1.5 right-1.5 z-10 h-8 w-8 flex items-center justify-center rounded-full bg-black/60 text-white hover:bg-gold hover:text-black transition-colors shadow-lg"
+                  title={language === "en" ? "View on map" : "Voir sur la carte"}
+                  aria-label="Map"
+                >
+                  <MapPin className="h-4 w-4" />
+                </button>
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
