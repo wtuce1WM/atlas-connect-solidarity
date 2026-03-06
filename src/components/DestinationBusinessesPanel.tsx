@@ -208,17 +208,21 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
               );
             })()}
 
-            <div className="mb-4 space-y-1">
-              <h2 className="text-lg font-bold text-foreground">{getName()}</h2>
-              {destination.region && destination.region.length > 0 && (
-                <p className="text-sm text-muted-foreground">{destination.region.join(", ")}</p>
-              )}
-            </div>
+            {!isExpanded && (
+              <>
+                <div className="mb-4 space-y-1">
+                  <h2 className="text-lg font-bold text-foreground">{getName()}</h2>
+                  {destination.region && destination.region.length > 0 && (
+                    <p className="text-sm text-muted-foreground">{destination.region.join(", ")}</p>
+                  )}
+                </div>
 
-            {destination.description && (
-              <div className="text-sm text-muted-foreground leading-relaxed">
-                <div dangerouslySetInnerHTML={{ __html: destination.description }} className="prose prose-sm max-w-none text-muted-foreground [&>p]:mb-2" />
-              </div>
+                {destination.description && (
+                  <div className="text-sm text-muted-foreground leading-relaxed">
+                    <div dangerouslySetInnerHTML={{ __html: destination.description }} className="prose prose-sm max-w-none text-muted-foreground [&>p]:mb-2" />
+                  </div>
+                )}
+              </>
             )}
           </>
         )}
