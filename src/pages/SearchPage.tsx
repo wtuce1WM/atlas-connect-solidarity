@@ -640,6 +640,58 @@ const SearchPage = () => {
     }
   }, [isGeoCityAutoSelected, searchQuery, queryHasExplicitCity, selectedCity]);
 
+  // Regenerate AI answer when city filter changes (e.g. "hotel" + city selection)
+  const prevCityForAiRef = useRef<string>(selectedCity);
+  useEffect(() => {
+    const prev = prevCityForAiRef.current;
+    prevCityForAiRef.current = selectedCity;
+    // Only trigger when city actually changed, there's a search query, and we already have results
+    if (prev === selectedCity) return;
+    if (!searchQuery.trim() || isLoading) return;
+    if (allBusinesses.length === 0) return;
+
+    // Build the filtered list for the new city
+    const cityFiltered = (selectedCity && selectedCity !== "all")
+      ? allBusinesses.filter(b => {
+          if (b.city === selectedCity) return true;
+          const cId = citiesWithPriority.find(c => c.name === selectedCity)?.id;
+          if (cId && b.zone_city_ids?.includes(cId) && b.is_visible_locale) return true;
+          return false;
+        })
+      : allBusinesses;
+
+    if (cityFiltered.length === 0) return;
+
+    const top10 = cityFiltered.slice(0, 10);
+    const combinedQuery = (selectedCity && selectedCity !== "all")
+      ? `${searchQuery} ${selectedCity}`
+      : searchQuery;
+
+    setIsAiRegenerating(true);
+    setIsAiSummaryExpanded(false);
+    supabase.functions.invoke("ai-search-answer", {
+      body: {
+        query: combinedQuery,
+        spokenText: spokenText || undefined,
+        businesses: top10.map(b => ({
+          name: b.name,
+          city: b.city,
+          main_category: b.main_category,
+          categories: b.categories,
+          hook_fr: b.hook_fr,
+          wtuce_status: b.wtuce_status,
+        })),
+        language,
+      },
+    }).then(({ data }) => {
+      if (data?.answer) setAiAnswerText(data.answer);
+    }).catch(e => {
+      console.error("AI city-regenerate error:", e);
+    }).finally(() => {
+      setIsAiRegenerating(false);
+    });
+  }, [selectedCity]);
+
   // Fetch matching business IDs when engagement/commodité filters change
   useEffect(() => {
     const allSelected = [...moreFilterEngagements, ...moreFilterCommodites];
