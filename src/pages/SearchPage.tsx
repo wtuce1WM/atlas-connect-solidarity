@@ -447,6 +447,7 @@ const SearchPage = () => {
 
    // Measure sticky bar heights dynamically for perfect stacking
    const [stickyTops, setStickyTops] = useState({ cityBar: 104, serviceBar: 148 });
+   const [stickyStackPadding, setStickyStackPadding] = useState(0);
    useEffect(() => {
      const measure = () => {
        const tabBar = document.querySelector<HTMLElement>('[data-tab-bar]');
@@ -459,6 +460,20 @@ const SearchPage = () => {
          if (prev.cityBar === cityBarTop && prev.serviceBar === serviceBarTop) return prev;
          return { cityBar: cityBarTop, serviceBar: serviceBarTop };
        });
+
+       // Measure the bottom of the last sticky bar to compute content padding
+       const aiBar = document.querySelector<HTMLElement>('[data-ai-bar]');
+       const searchSvcBar = document.querySelector<HTMLElement>('[data-search-service-filter]');
+       const svcBar = document.querySelector<HTMLElement>('[data-service-filter]');
+       const subBar = document.querySelector<HTMLElement>('[data-subcategory-filter]');
+       const catBar = document.querySelector<HTMLElement>('[data-category-filter]');
+       const lastSticky = aiBar || searchSvcBar || svcBar || subBar || catBar || cityBar || tabBar;
+       if (lastSticky) {
+         const computedTop = Number.parseFloat(window.getComputedStyle(lastSticky).top || '0');
+         const h = lastSticky.getBoundingClientRect().height;
+         const bottom = (Number.isFinite(computedTop) ? computedTop : 0) + h;
+         setStickyStackPadding(prev => prev === bottom ? prev : bottom);
+       }
      };
      // Measure after DOM settles
      const t1 = setTimeout(measure, 50);
@@ -1992,7 +2007,16 @@ const SearchPage = () => {
 
       {/* Filters & Results — Suggestion IA tab */}
       {activeTab === "suggestions" && (
-      <section ref={resultsRef} className={`bg-background ${isCategoryFilterActive ? 'py-2 lg:py-4' : 'py-6 lg:py-12'}`}>
+      <section
+        ref={resultsRef}
+        className="bg-background pb-6 lg:pb-12 pt-4 overflow-y-auto"
+        style={stickyStackPadding > 0 ? {
+          position: 'sticky',
+          top: `${stickyStackPadding}px`,
+          maxHeight: `calc(100vh - ${stickyStackPadding}px)`,
+          zIndex: 0,
+        } : undefined}
+      >
         <div className="mx-auto px-4 max-w-[80%]">
           {/* Filters: City + Geo toggle — on mobile shown before hero via order */}
           <div className={`${isCategoryFilterActive ? 'mb-3' : 'mb-8'} flex flex-wrap items-center gap-3 ${isMobile ? 'hidden' : ''}`}>
