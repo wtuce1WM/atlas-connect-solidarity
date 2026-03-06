@@ -99,6 +99,7 @@ const AppContent = () => {
               <Route path="/blog/essaouira-vue-mer" element={<EssaouiraSeaView />} />
               <Route path="/blog/animations" element={<BlogAnimations />} />
               <Route path="/blog/ancien-accueil" element={<AncienAccueil />} />
+              <Route path="/blog/typographie" element={<BlogTypography />} />
               <Route path="/blog/:slug" element={<BlogPost />} />
               <Route path="/etablissements-notes" element={<RatedBusinesses />} />
               <Route path="/neighborhood/:neighborhood" element={<NeighborhoodPage />} />
