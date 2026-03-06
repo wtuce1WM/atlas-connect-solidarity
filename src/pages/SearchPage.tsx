@@ -1613,16 +1613,28 @@ const SearchPage = () => {
       {isCategoryFilterActive && (aiAnswerText || isAiRegenerating) && (() => {
         const hasCB = availableCities.length > 1 && !queryHasExplicitCity;
         const baseTop = 104 + (hasCB ? 44 : 0);
-        const categoryBarHeight = typeof document !== "undefined"
-          ? document.querySelector<HTMLElement>("[data-category-filter]")?.getBoundingClientRect().height ?? 62
-          : 62;
-        const subcategoryBarHeight = typeof document !== "undefined"
-          ? document.querySelector<HTMLElement>("[data-subcategory-filter]")?.getBoundingClientRect().height ?? 0
-          : 0;
-        const serviceBarHeight = typeof document !== "undefined"
-          ? document.querySelector<HTMLElement>("[data-service-filter]")?.getBoundingClientRect().height ?? 0
-          : 0;
-        const aiTop = baseTop + categoryBarHeight + subcategoryBarHeight + serviceBarHeight;
+        const categoryEl = typeof document !== "undefined"
+          ? document.querySelector<HTMLElement>("[data-category-filter]")
+          : null;
+        const subcategoryEl = typeof document !== "undefined"
+          ? document.querySelector<HTMLElement>("[data-subcategory-filter]")
+          : null;
+        const serviceEl = typeof document !== "undefined"
+          ? document.querySelector<HTMLElement>("[data-service-filter]")
+          : null;
+
+        const getStickyBottom = (el: HTMLElement | null) => {
+          if (!el || typeof window === "undefined") return 0;
+          const computedTop = Number.parseFloat(window.getComputedStyle(el).top || "0");
+          const safeTop = Number.isFinite(computedTop) ? computedTop : 0;
+          return safeTop + el.getBoundingClientRect().height;
+        };
+
+        const aiTop = (serviceEl && getStickyBottom(serviceEl))
+          || (subcategoryEl && getStickyBottom(subcategoryEl))
+          || (categoryEl && getStickyBottom(categoryEl))
+          || (baseTop + 62);
+
         return (
           <div className="sticky z-[1] bg-background backdrop-blur-sm border-b border-border py-2" style={{ top: `${aiTop}px` }}>
             <div className="mx-auto px-4 max-w-[80%]">
