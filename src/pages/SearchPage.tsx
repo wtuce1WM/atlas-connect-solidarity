@@ -1460,7 +1460,7 @@ const SearchPage = () => {
       </section>
 
       {/* Tab Bar — stickybar 1 (above cities) */}
-      <section data-tab-bar className="sticky top-[60px] z-[5] bg-background/95 backdrop-blur-sm border-b border-border">
+      <section data-tab-bar className="sticky top-[60px] z-[7] bg-background/95 backdrop-blur-sm border-b border-border">
         <div className="mx-auto px-4 max-w-[80%]">
           <div className="flex gap-0">
             <button
@@ -1491,7 +1491,7 @@ const SearchPage = () => {
 
       {/* City Bar — stickybar 2 (below tabs) */}
       {availableCities.length > 1 && !queryHasExplicitCity && (
-        <div data-city-bar className="sticky top-[104px] z-[4] bg-background/95 backdrop-blur-sm border-b border-border py-2.5">
+        <div data-city-bar className="sticky top-[104px] z-[6] bg-background/95 backdrop-blur-sm border-b border-border py-2.5">
           <div className="mx-auto px-4 max-w-[80%]">
             <div className="flex gap-2 overflow-x-auto pb-0.5 scrollbar-hide">
               <button
@@ -1627,7 +1627,7 @@ const SearchPage = () => {
         if (selectedSubcategoryFilter) aiTop += 52;
         if (selectedServiceFilter) aiTop += 52;
         return (
-          <div className="sticky z-[0] bg-background/95 backdrop-blur-sm border-b border-border py-2" style={{ top: `${aiTop}px` }}>
+          <div className="sticky z-[1] bg-background/95 backdrop-blur-sm border-b border-border py-2" style={{ top: `${aiTop}px` }}>
             <div className="mx-auto px-4 max-w-[80%]">
               <div className="flex items-start gap-3">
                 <div className="flex-1 min-w-0">
