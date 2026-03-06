@@ -138,7 +138,7 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
       <div className="flex-1 overflow-y-auto p-4" ref={scrollRef}>
         {activeTab === "info" && (
           <>
-            {/* Image carousel like BusinessSlidePanel */}
+            {/* Image section */}
             {(() => {
               const imgs = destination.images && destination.images.length > 0
                 ? destination.images
@@ -146,6 +146,26 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
                   ? [destination.image_url]
                   : [];
               if (imgs.length === 0) return null;
+
+              if (isExpanded) {
+                // Mosaic view
+                return (
+                  <div className="mb-4 -mx-4 -mt-4 p-2" style={{ columns: "250px 3", columnGap: 6 }}>
+                    {imgs.map((img, i) => (
+                      <img
+                        key={i}
+                        src={img}
+                        alt={`${getName()} - ${i + 1}`}
+                        className="w-full rounded-lg cursor-pointer hover:scale-[1.03] transition-transform duration-300 mb-1.5 break-inside-avoid"
+                        loading="lazy"
+                        onClick={() => { setCurrentImageIndex(i); setIsLightboxOpen(true); }}
+                      />
+                    ))}
+                  </div>
+                );
+              }
+
+              // Carousel view
               return (
                 <div className="mb-4 -mx-4 -mt-4 relative">
                   <div
@@ -183,14 +203,6 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
                       </>
                     )}
                   </div>
-                  <ImageLightbox
-                    images={imgs}
-                    currentIndex={currentImageIndex}
-                    isOpen={isLightboxOpen}
-                    onClose={() => setIsLightboxOpen(false)}
-                    onPrevious={() => setCurrentImageIndex(i => i === 0 ? imgs.length - 1 : i - 1)}
-                    onNext={() => setCurrentImageIndex(i => i === imgs.length - 1 ? 0 : i + 1)}
-                  />
                 </div>
               );
             })()}
