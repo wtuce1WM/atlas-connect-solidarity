@@ -2043,7 +2043,7 @@ const SearchPage = () => {
 
       {/* City Bar — stickybar 2 (below tabs) */}
       {availableCities.length > 1 && !queryHasExplicitCity && activeTab === "suggestions" && (
-        <div data-city-bar className="sticky z-[6] bg-background border-b border-border py-2 relative" style={{ top: `${stickyTops.cityBar}px` }}>
+        <div data-city-bar className="sticky z-[6] bg-white border-b border-border py-2 relative" style={{ top: `${stickyTops.cityBar}px` }}>
           <span className="absolute top-0 left-1 z-[60] bg-orange-500 text-white text-[10px] font-bold px-2 py-0.5 rounded select-all cursor-text">🟠 STICKY 2</span>
           <div className="mx-auto px-4 max-w-[80%]">
             <div className="flex gap-2 overflow-x-auto pb-0.5 scrollbar-hide">
@@ -2420,7 +2420,7 @@ const SearchPage = () => {
           || (baseTop + 62);
 
         return (
-          <div data-ai-bar className="sticky z-[1] bg-background backdrop-blur-sm border-b border-border py-2 relative" style={{ top: `${aiTop}px` }}>
+          <div data-ai-bar className="sticky z-[1] bg-white border-b border-border py-2 relative" style={{ top: `${aiTop}px` }}>
             <span className="absolute top-0 left-1 z-[60] bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded select-all cursor-text">🔵 STICKY 4</span>
             <div className="mx-auto px-4 max-w-[80%]">
               <div className="flex items-start gap-3">

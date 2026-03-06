@@ -299,7 +299,7 @@ const CityCategoryFilter = ({
   return (
     <>
       {/* Sticky categories zone */}
-      <div data-category-filter className={`sticky z-[5] bg-background border-b border-border py-2 relative`} style={{ top: `${baseTop}px` }}>
+      <div data-category-filter className={`sticky z-[5] bg-white border-b border-border py-2 relative`} style={{ top: `${baseTop}px` }}>
         <span className="absolute top-0 left-1 z-50 bg-yellow-500 text-black text-[10px] font-bold px-2 py-0.5 rounded select-all cursor-text">🟡 STICKY 3b — Category Filter</span>
         <div className="mx-auto px-4 max-w-[80%]">
           <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
@@ -337,7 +337,7 @@ const CityCategoryFilter = ({
 
       {/* Sticky subcategories zone */}
       {selectedCategory && !isLoadingSubs && subcategories.length > 0 && (
-        <div data-subcategory-filter className={`sticky z-[4] bg-background border-b border-border py-2 relative`} ref={(el) => { if (el) { const catEl = document.querySelector<HTMLElement>('[data-category-filter]'); if (catEl) { const catBottom = parseFloat(catEl.style.top || '0') + catEl.getBoundingClientRect().height; el.style.top = `${catBottom}px`; } else { el.style.top = `${baseTop + 62}px`; } } }}>
+        <div data-subcategory-filter className={`sticky z-[4] bg-white border-b border-border py-2 relative`} ref={(el) => { if (el) { const catEl = document.querySelector<HTMLElement>('[data-category-filter]'); if (catEl) { const catBottom = parseFloat(catEl.style.top || '0') + catEl.getBoundingClientRect().height; el.style.top = `${catBottom}px`; } else { el.style.top = `${baseTop + 62}px`; } } }}>
           <span className="absolute top-0 left-1 z-50 bg-pink-500 text-white text-[10px] font-bold px-2 py-0.5 rounded select-all cursor-text">🩷 STICKY 3c — Subcategory Filter</span>
           <div className="mx-auto px-4 max-w-[80%]">
             <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
@@ -374,7 +374,7 @@ const CityCategoryFilter = ({
 
       {/* Sticky services zone */}
       {selectedSubcategory && !isLoadingServices && services.length > 0 && (
-        <div data-service-filter className={`sticky z-[3] bg-background border-b border-border py-2 relative`} ref={(el) => { if (el) { const subEl = document.querySelector<HTMLElement>('[data-subcategory-filter]'); if (subEl) { const subBottom = parseFloat(subEl.style.top || '0') + subEl.getBoundingClientRect().height; el.style.top = `${subBottom}px`; } else { el.style.top = `${baseTop + 113}px`; } } }}>
+        <div data-service-filter className={`sticky z-[3] bg-white border-b border-border py-2 relative`} ref={(el) => { if (el) { const subEl = document.querySelector<HTMLElement>('[data-subcategory-filter]'); if (subEl) { const subBottom = parseFloat(subEl.style.top || '0') + subEl.getBoundingClientRect().height; el.style.top = `${subBottom}px`; } else { el.style.top = `${baseTop + 113}px`; } } }}>
           <span className="absolute top-0 left-1 z-50 bg-cyan-500 text-white text-[10px] font-bold px-2 py-0.5 rounded select-all cursor-text">🩵 STICKY 3d — Service Filter</span>
           <div className="mx-auto px-4 max-w-[80%]">
             <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
