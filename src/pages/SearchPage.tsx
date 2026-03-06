@@ -408,10 +408,24 @@ const SearchPage = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [isCategoryFilterActive]);
   const [aiRegenerateKey, setAiRegenerateKey] = useState(0);
-  const [isAiRegenerating, setIsAiRegenerating] = useState(false);
-  const [compactPanelBusiness, setCompactPanelBusiness] = useState<AIBusinessData | null>(null);
-  const [isCompactPanelExpanded, setIsCompactPanelExpanded] = useState(false);
-  const [locationDialogOpen, setLocationDialogOpen] = useState(false);
+   const [isAiRegenerating, setIsAiRegenerating] = useState(false);
+   const [compactPanelBusiness, setCompactPanelBusiness] = useState<AIBusinessData | null>(null);
+   const [isCompactPanelExpanded, setIsCompactPanelExpanded] = useState(false);
+   const [locationDialogOpen, setLocationDialogOpen] = useState(false);
+   const heroAiRef = useRef<HTMLDivElement>(null);
+   const [isHeroAiOutOfView, setIsHeroAiOutOfView] = useState(false);
+
+   // Track when the hero AI card scrolls out of view
+   useEffect(() => {
+     const el = heroAiRef.current;
+     if (!el) { setIsHeroAiOutOfView(false); return; }
+     const observer = new IntersectionObserver(
+       ([entry]) => setIsHeroAiOutOfView(!entry.isIntersecting),
+       { threshold: 0, rootMargin: "-80px 0px 0px 0px" }
+     );
+     observer.observe(el);
+     return () => observer.disconnect();
+   }, [searchQuery, allBusinesses.length]);
 
   const normalizeText = (value: string) =>
     value
@@ -1427,20 +1441,22 @@ const SearchPage = () => {
           )}
 
            {/* AI Search Answer — full hero mode (hidden when category filter active) */}
-          {searchQuery && !isLoading && !isCategoryFilterActive && allBusinesses.length > 0 && (
-            <AISearchAnswer
-              query={spokenText || searchQuery}
-              spokenText={spokenText || undefined}
-              businesses={allBusinesses}
-              isSearchLoading={isLoading}
-              onAnswerReady={setAiAnswerText}
-              externalRegenerateKey={aiRegenerateKey}
-              highlightWordIndex={ttsStatus === "playing" && ttsSpokenWordIndex >= 0 ? ttsSpokenWordIndex - ttsIntroWordCountRef.current : undefined}
-            />
-          )}
+           {searchQuery && !isLoading && !isCategoryFilterActive && allBusinesses.length > 0 && (
+             <div ref={heroAiRef}>
+               <AISearchAnswer
+                 query={spokenText || searchQuery}
+                 spokenText={spokenText || undefined}
+                 businesses={allBusinesses}
+                 isSearchLoading={isLoading}
+                 onAnswerReady={setAiAnswerText}
+                 externalRegenerateKey={aiRegenerateKey}
+                 highlightWordIndex={ttsStatus === "playing" && ttsSpokenWordIndex >= 0 ? ttsSpokenWordIndex - ttsIntroWordCountRef.current : undefined}
+               />
+             </div>
+           )}
 
-          {/* Geo badge — centered under AI suggestion (hidden when category filter active) */}
-          {!isMobile && !isCategoryFilterActive && (
+           {/* Geo badge — centered under AI suggestion (hidden when category filter active) */}
+           {!isMobile && !isCategoryFilterActive && (
             <div className="flex justify-center mt-4">
               <button
                 onClick={() => setLocationDialogOpen(true)}
@@ -1610,7 +1626,7 @@ const SearchPage = () => {
       )}
 
       {/* AI Summary Bar — sticky below all filter bars (OUTSIDE section for proper sticky) */}
-      {isCategoryFilterActive && (aiAnswerText || isAiRegenerating) && (() => {
+      {(isCategoryFilterActive || isHeroAiOutOfView) && (aiAnswerText || isAiRegenerating) && (() => {
         const hasCB = availableCities.length > 1 && !queryHasExplicitCity;
         const baseTop = 104 + (hasCB ? 44 : 0);
         const categoryEl = typeof document !== "undefined"
@@ -1630,9 +1646,15 @@ const SearchPage = () => {
           return safeTop + el.getBoundingClientRect().height;
         };
 
-        const aiTop = (serviceEl && getStickyBottom(serviceEl))
+        const filterBottom = (serviceEl && getStickyBottom(serviceEl))
           || (subcategoryEl && getStickyBottom(subcategoryEl))
-          || (categoryEl && getStickyBottom(categoryEl))
+          || (categoryEl && getStickyBottom(categoryEl));
+        // When no filter bars exist (hero scroll mode), stick just below the tab bar or header
+        const tabBarEl = typeof document !== "undefined"
+          ? document.querySelector<HTMLElement>("[data-tab-bar]")
+          : null;
+        const aiTop = filterBottom
+          || (tabBarEl ? getStickyBottom(tabBarEl) : null)
           || (baseTop + 62);
 
         return (
