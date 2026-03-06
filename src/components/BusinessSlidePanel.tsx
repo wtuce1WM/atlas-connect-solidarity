@@ -2045,7 +2045,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
 
       {/* Fallback hotels left panel – lives outside the overlay */}
       {fallbackPanelData && createPortal(
-        <div className={leftPanelPortalRef?.current ? "absolute inset-0 z-10 flex" : "fixed left-0 z-[105] flex"} style={leftPanelPortalRef?.current ? undefined : { top: "62px", bottom: 0, width: "50%" }}>
+        <div className={leftPanelPortalRef?.current ? "absolute inset-0 z-[201] flex" : "fixed left-0 z-[105] flex"} style={leftPanelPortalRef?.current ? undefined : { top: "62px", bottom: 0, width: "50%" }}>
           <div className="w-full h-full bg-black/90 backdrop-blur-md flex flex-col overflow-hidden animate-slide-in-left">
             <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 shrink-0">
               <div>
@@ -2063,7 +2063,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                 <X className="h-4 w-4 text-white" />
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto p-3">
+            <div className="flex-1 overflow-y-auto p-3 pb-24">
               <div className="grid grid-cols-2 gap-3">
                 {fallbackPanelData.hotels.filter(h => h.hotelId !== selectedFallbackHotelId).map((hotel) => {
                   const cheapest = hotel.offers.length > 0
