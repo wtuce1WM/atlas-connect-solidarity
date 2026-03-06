@@ -1578,7 +1578,7 @@ const SearchPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-20">
       <Header />
 
       {/* Hidden AISearchAnswer instance — always renders to ensure onAnswerReady fires even when hero is hidden */}
