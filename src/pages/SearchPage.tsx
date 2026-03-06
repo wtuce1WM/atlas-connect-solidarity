@@ -2257,15 +2257,67 @@ const SearchPage = () => {
 
       {activeTab === "destinations" && (() => {
         const destCity = selectedCity && selectedCity !== "all" ? selectedCity : detectedCity;
+        const hasDestPanel = !!destMapItem;
         return (
-          <section className="pt-16 pb-6 lg:pt-20 lg:pb-12 bg-background">
-            <div className="mx-auto px-4 max-w-[80%]">
-              <DestinationSection
-                city={destCity}
-                language={language}
-              />
-            </div>
-          </section>
+          <div className="flex">
+            <section className={`pt-16 pb-6 lg:pt-20 lg:pb-12 bg-background transition-all duration-300 ${hasDestPanel ? "w-1/2" : "w-full"}`}>
+              <div className={`mx-auto px-4 ${hasDestPanel ? "max-w-full" : "max-w-[80%]"}`}>
+                <DestinationSection
+                  city={destCity}
+                  language={language}
+                  columns={hasDestPanel ? 3 : undefined}
+                  onMapClick={(dest) => {
+                    setDestMapItem(dest);
+                    setAllDests(prev => prev);
+                  }}
+                  onDestinationsLoaded={(dests) => setAllDests(dests.map(d => ({
+                    id: d.id,
+                    name: d.name_fr,
+                    latitude: d.latitude,
+                    longitude: d.longitude,
+                    images: d.images || (d.image_url ? [d.image_url] : null),
+                  })))}
+                />
+              </div>
+            </section>
+            {destMapItem && (
+              <div className="w-1/2 fixed top-[62px] right-0 bottom-0 z-[100] border-l border-border bg-background flex flex-col shadow-2xl">
+                <div className="flex items-center px-3 py-2 border-b border-border gap-2">
+                  <div>
+                    <button
+                      onClick={() => setDestMapItem(null)}
+                      className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-destructive hover:text-white transition-colors"
+                      title="Fermer"
+                      aria-label="Fermer la carte"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <span className="flex-1 text-center font-semibold text-sm truncate">{destMapItem.name_fr}</span>
+                  <div className="w-9" />
+                </div>
+                <div className="flex-1 min-h-0">
+                  <PoiGoogleMap
+                    pois={allDests}
+                    selectedPoiId={destMapItem.id}
+                    center={(() => {
+                      if (destMapItem.latitude && destMapItem.longitude) return { lat: destMapItem.latitude, lng: destMapItem.longitude };
+                      const city = citiesWithPriority.find(c => c.name === selectedCity);
+                      if (city?.latitude && city?.longitude) return { lat: city.latitude, lng: city.longitude };
+                      return undefined;
+                    })()}
+                    onPoiClick={(id) => {
+                      const d = allDests.find(p => p.id === id);
+                      if (d) {
+                        // Find the full dest item to update title
+                        setDestMapItem(prev => prev ? { ...prev, id: d.id, name_fr: d.name, latitude: d.latitude, longitude: d.longitude } : prev);
+                      }
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
         );
       })()}
 

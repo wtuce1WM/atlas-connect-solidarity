@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { MapPin, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
-interface Destination {
+export interface DestinationItem {
   id: string;
   name_fr: string;
   name_en: string | null;
@@ -12,6 +12,8 @@ interface Destination {
   images: string[] | null;
   hook: string | null;
   description: string | null;
+  latitude: number | null;
+  longitude: number | null;
 }
 
 interface DestinationSectionProps {
@@ -19,23 +21,28 @@ interface DestinationSectionProps {
   language: string;
   onDestinationClick?: (destId: string) => void;
   columns?: number;
+  onMapClick?: (dest: DestinationItem) => void;
+  onDestinationsLoaded?: (dests: DestinationItem[]) => void;
 }
 
-const DestinationSection = ({ city, language, onDestinationClick, columns }: DestinationSectionProps) => {
-  const [destinations, setDestinations] = useState<Destination[]>([]);
+const DestinationSection = ({ city, language, onDestinationClick, columns, onMapClick, onDestinationsLoaded }: DestinationSectionProps) => {
+  const [destinations, setDestinations] = useState<DestinationItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchDestinations = async () => {
       setIsLoading(true);
 
+      const selectFields = "id, name_fr, name_en, name_ar, image_url, images, hook, description, latitude, longitude";
+
       if (!city) {
-        // No city → show all destinations
         const { data } = await supabase
           .from("destinations")
-          .select("id, name_fr, name_en, name_ar, image_url, images, hook, description")
+          .select(selectFields)
           .order("name_fr");
-        setDestinations((data as Destination[]) || []);
+        const result = (data as DestinationItem[]) || [];
+        setDestinations(result);
+        onDestinationsLoaded?.(result);
         setIsLoading(false);
         return;
       }
@@ -49,6 +56,7 @@ const DestinationSection = ({ city, language, onDestinationClick, columns }: Des
 
       if (!bizIds || bizIds.length === 0) {
         setDestinations([]);
+        onDestinationsLoaded?.([]);
         setIsLoading(false);
         return;
       }
@@ -61,6 +69,7 @@ const DestinationSection = ({ city, language, onDestinationClick, columns }: Des
 
       if (!links || links.length === 0) {
         setDestinations([]);
+        onDestinationsLoaded?.([]);
         setIsLoading(false);
         return;
       }
@@ -69,11 +78,13 @@ const DestinationSection = ({ city, language, onDestinationClick, columns }: Des
 
       const { data: destsData } = await supabase
         .from("destinations")
-        .select("id, name_fr, name_en, name_ar, image_url, images, hook, description")
+        .select(selectFields)
         .in("id", destIds)
         .order("name_fr");
 
-      setDestinations((destsData as Destination[]) || []);
+      const result = (destsData as DestinationItem[]) || [];
+      setDestinations(result);
+      onDestinationsLoaded?.(result);
       setIsLoading(false);
     };
 
@@ -97,7 +108,7 @@ const DestinationSection = ({ city, language, onDestinationClick, columns }: Des
     );
   }
 
-  const getName = (d: Destination) => {
+  const getName = (d: DestinationItem) => {
     if (language === "en" && d.name_en) return d.name_en;
     if (language === "ar" && d.name_ar) return d.name_ar;
     return d.name_fr;
@@ -136,6 +147,20 @@ const DestinationSection = ({ city, language, onDestinationClick, columns }: Des
                 <div className="absolute inset-0 bg-muted flex items-center justify-center">
                   <MapPin className="h-8 w-8 text-muted-foreground/40" />
                 </div>
+              )}
+              {onMapClick && (
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onMapClick(dest);
+                  }}
+                  className="absolute top-1.5 right-1.5 z-10 h-8 w-8 flex items-center justify-center rounded-full bg-black/60 text-white hover:bg-gold hover:text-black transition-colors shadow-lg"
+                  title={language === "en" ? "View on map" : "Voir sur la carte"}
+                  aria-label="Map"
+                >
+                  <MapPin className="h-4 w-4" />
+                </button>
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
