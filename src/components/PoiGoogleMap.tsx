@@ -129,7 +129,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center }: PoiGoogleMapP
         zIndex: isSelected ? 1000 : 1,
       });
 
-      marker.addListener("click", () => {
+      marker.addListener("mouseover", () => {
         const img = poi.images?.[0];
         const html = `<div style="min-width:160px;max-width:220px;font-family:system-ui,sans-serif;">
           ${img ? `<img src="${img}" style="width:100%;height:80px;object-fit:cover;border-radius:6px 6px 0 0;" />` : ""}
@@ -140,6 +140,15 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center }: PoiGoogleMapP
         </div>`;
         infoWindowRef.current?.setContent(html);
         infoWindowRef.current?.open(map, marker);
+      });
+
+      marker.addListener("mouseout", () => {
+        infoWindowRef.current?.close();
+      });
+
+      marker.addListener("click", () => {
+        map.setZoom(16);
+        map.panTo(position);
         onPoiClick?.(poi.id);
       });
 
