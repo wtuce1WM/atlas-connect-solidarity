@@ -2272,9 +2272,7 @@ const SearchPage = () => {
                   language={language}
                   columns={hasRightPanel ? 3 : undefined}
                   onDestinationClick={(destId) => {
-                    // Find the full destination from allDests loaded callback
-                    const allDestsData = (window as any).__lastDestinations as DestinationItem[] | undefined;
-                    const dest = allDestsData?.find(d => d.id === destId);
+                    const dest = allDestItems.find(d => d.id === destId);
                     if (dest) {
                       setSelectedDestination(dest);
                       setDestMapItem(null);
