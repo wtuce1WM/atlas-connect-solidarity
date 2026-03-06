@@ -44,7 +44,6 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchData = async () => {
