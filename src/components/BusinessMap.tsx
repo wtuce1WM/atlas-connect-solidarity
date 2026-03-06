@@ -164,10 +164,14 @@ const BusinessMap = ({
     fetchAll();
   }, [externalBusinesses]);
 
-  const geoBusinesses = useMemo(
-    () => businesses.filter((b) => b.latitude != null && b.longitude != null),
-    [businesses]
-  );
+  const geoBusinesses = useMemo(() => {
+    const withCoordinates = businesses.filter((b) => b.latitude != null && b.longitude != null);
+    const uniqueById = new Map<string, MapBusiness>();
+    for (const business of withCoordinates) {
+      if (!uniqueById.has(business.id)) uniqueById.set(business.id, business);
+    }
+    return Array.from(uniqueById.values());
+  }, [businesses]);
 
   // Initialize map once gmaps is ready
   useEffect(() => {
@@ -318,11 +322,10 @@ const BusinessMap = ({
     <div className="relative rounded-xl overflow-hidden border border-border shadow-sm">
       {/* Stats bar */}
       <div className="absolute top-3 left-3 z-10 bg-background/90 backdrop-blur-sm rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground shadow-md border border-border">
-        <span className="text-gold font-semibold">{geoBusinesses.length}</span> établissements sur la carte
+        <span>Total carte: </span>
+        <span className="text-gold font-semibold">{geoBusinesses.length}</span>
         {verifiedCount > 0 && (
-          <span className="ml-2">
-            · <span className="text-gold">★</span> {verifiedCount} vérifiés
-          </span>
+          <span className="ml-2">· WTUCE vérifiés: <span className="text-gold">{verifiedCount}</span></span>
         )}
       </div>
 
