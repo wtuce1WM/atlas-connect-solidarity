@@ -67,10 +67,14 @@ Deno.test("tagsMatchCandidate: 'Au feu de bois' should match exact", () => {
   assertEquals(tagsMatchCandidate("Au feu de bois", ["Au feu de bois"]), true);
 });
 
-Deno.test("tagsMatchCandidate: 'Au feu de bois' vs 'Bois de chauffage' — known limitation", () => {
-  // Currently matches because "bois" + stem "boi" count as 2 tokens.
-  // This is a known edge case from plural expansion. Acceptable tradeoff.
-  assertEquals(tagsMatchCandidate("Au feu de bois", ["Bois de chauffage"]), true);
+Deno.test("tagsMatchCandidate: 'Au feu de bois' vs 'Bois de chauffage' — correctly rejects", () => {
+  // Fixed: distinct word counting now correctly requires 2 content words to match.
+  // "Au feu de bois" has content words ["feu", "bois"], "Bois de chauffage" only shares "bois" → 1 match < 2 required.
+  assertEquals(tagsMatchCandidate("Au feu de bois", ["Bois de chauffage"]), false);
+});
+
+Deno.test("tagsMatchCandidate: 'cour' should match 'Cours de piano' (singular/plural variant)", () => {
+  assertEquals(tagsMatchCandidate("Cours de piano", ["Cours de piano"]), true);
 });
 
 // ═══════════════════════════════════════════════════
