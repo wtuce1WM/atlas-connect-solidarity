@@ -810,16 +810,15 @@ const SearchPage = () => {
   }, []);
 
   const searchServiceFilters = useMemo(() => {
-    if (!searchQuery.trim() || allBusinesses.length === 0 || filteredServiceNames.size === 0) return [];
+    if (!searchQuery.trim() || allBusinesses.length === 0) return [];
     if (selectedCategoryFilter || selectedSubcategoryFilter) return [];
     const source = selectedCity === "all" ? allBusinesses : allBusinesses.filter(b => b.city === selectedCity);
     const countMap: Record<string, number> = {};
     for (const b of source) {
       if (b.services) {
         for (const s of b.services) {
-          if (!filteredServiceNames.has(s)) continue;
+          // If this service has city restrictions (from service_city_filters), respect them
           const allowedCities = serviceCityLookup[s];
-          // If allowedCities is empty array, service is allowed in all cities
           if (allowedCities && allowedCities.length > 0 && selectedCity !== "all") {
             if (!allowedCities.some(c => c.toLowerCase() === selectedCity.toLowerCase())) continue;
           }
@@ -831,7 +830,7 @@ const SearchPage = () => {
       .filter(([_, count]) => count >= 1)
       .sort((a, b) => a[0].localeCompare(b[0], "fr"))
       .map(([name, count]) => ({ name, count }));
-  }, [searchQuery, allBusinesses, selectedCity, selectedCategoryFilter, selectedSubcategoryFilter, filteredServiceNames, serviceCityLookup]);
+  }, [searchQuery, allBusinesses, selectedCity, selectedCategoryFilter, selectedSubcategoryFilter, serviceCityLookup]);
 
   // Group businesses by primary subcategory when a subcategory was detected
   const groupedBusinesses = useMemo(() => {
