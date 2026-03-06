@@ -1848,7 +1848,7 @@ const SearchPage = () => {
         </div>
       )}
 
-      {/* Hero Section - collapsed when category filter active to avoid flicker */}
+      {/* Hero Section - COMMENTED OUT
       <section className={`bg-background relative ${(isCategoryFilterActive || hasReachedTabBar) ? 'hidden' : 'pt-6 lg:pt-28 pb-8 lg:pb-16'} ${isMobile && spokenText && filteredBusinesses.length > 0 ? 'hidden' : ''}`}>
         <div className="mx-auto px-4 relative max-w-[80%]">
           {(searchQuery || categoryFromUrl) && (
@@ -1884,7 +1884,6 @@ const SearchPage = () => {
                   <><span className="text-gold font-semibold">{displayedResultsCount}</span> {t.establishments} {t.found}</>
                 )}
               </p>
-              {/* TTS controls — hidden when category filter active */}
               {!isCategoryFilterActive && (
                 <>
                   {(ttsStatus === "playing" || ttsStatus === "loading") ? (
@@ -1902,31 +1901,31 @@ const SearchPage = () => {
                   ) : !isLoading && filteredBusinesses.length > 0 && (
                     <button
                       onClick={() => {
-                           if (aiAnswerText) {
-                           const cleanText = aiAnswerText.replace(/\*{1,2}/g, "").replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "");
-                           const intro = ttsIntroPhrase ? `${ttsIntroPhrase}. ` : "";
-                           ttsIntroWordCountRef.current = intro.trim().split(/\s+/).filter(Boolean).length;
+                            if (aiAnswerText) {
+                            const cleanText = aiAnswerText.replace(/\*{1,2}/g, "").replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "");
+                            const intro = ttsIntroPhrase ? `${ttsIntroPhrase}. ` : "";
+                            ttsIntroWordCountRef.current = intro.trim().split(/\s+/).filter(Boolean).length;
+                            voiceLoopRef.current = true;
+                            ttsSpeak(intro + cleanText + " … Vous pouvez me poser une autre question.", undefined, true);
+                         } else {
+                           const count = filteredBusinesses.length;
+                           const cityText = selectedCity !== "all" ? ` à ${selectedCity}` : "";
+                           const intro = ttsIntroPhrase ? `${ttsIntroPhrase} ` : "";
+                           let speech = `${intro}J'ai trouvé ${count} résultat${count > 1 ? 's' : ''}${cityText}. `;
+                           const top = filteredBusinesses.slice(0, 3);
+                           if (top.length === 1) {
+                             speech += `Le meilleur résultat est ${buildBusinessTTSLine(top[0], 0)}.`;
+                           } else {
+                             speech += "Voici les meilleurs résultats. ";
+                             top.forEach((b, i) => {
+                               speech += `${i === 0 ? 'Premier' : i === 1 ? 'Deuxième' : 'Troisième'}, ${buildBusinessTTSLine(b, i)}. `;
+                             });
+                           }
+                           speech += " Vous pouvez me poser une autre question.";
                            voiceLoopRef.current = true;
-                           ttsSpeak(intro + cleanText + " … Vous pouvez me poser une autre question.", undefined, true);
-                        } else {
-                          const count = filteredBusinesses.length;
-                          const cityText = selectedCity !== "all" ? ` à ${selectedCity}` : "";
-                          const intro = ttsIntroPhrase ? `${ttsIntroPhrase} ` : "";
-                          let speech = `${intro}J'ai trouvé ${count} résultat${count > 1 ? 's' : ''}${cityText}. `;
-                          const top = filteredBusinesses.slice(0, 3);
-                          if (top.length === 1) {
-                            speech += `Le meilleur résultat est ${buildBusinessTTSLine(top[0], 0)}.`;
-                          } else {
-                            speech += "Voici les meilleurs résultats. ";
-                            top.forEach((b, i) => {
-                              speech += `${i === 0 ? 'Premier' : i === 1 ? 'Deuxième' : 'Troisième'}, ${buildBusinessTTSLine(b, i)}. `;
-                            });
-                          }
-                          speech += " Vous pouvez me poser une autre question.";
-                          voiceLoopRef.current = true;
-                          ttsSpeak(speech);
-                        }
-                      }}
+                           ttsSpeak(speech);
+                         }
+                       }}
                       className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card border border-gold/30 text-gold text-sm font-medium hover:bg-gold/20 transition-colors"
                     >
                       <Volume2 className="h-4 w-4" />
@@ -1938,7 +1937,6 @@ const SearchPage = () => {
             </div>
           )}
 
-           {/* AI Search Answer — full hero mode (hidden when category filter active) */}
            {searchQuery && !isLoading && !isCategoryFilterActive && allBusinesses.length > 0 && (
               <div ref={heroAiRef} className="relative">
                 <span className="absolute top-1 left-1 z-50 bg-purple-600 text-white text-[10px] font-bold px-2 py-0.5 rounded select-all cursor-text">🟣 HERO AI ZONE</span>
@@ -1950,11 +1948,10 @@ const SearchPage = () => {
                  onAnswerReady={setAiAnswerText}
                  externalRegenerateKey={aiRegenerateKey}
                  highlightWordIndex={ttsStatus === "playing" && ttsSpokenWordIndex >= 0 ? ttsSpokenWordIndex - ttsIntroWordCountRef.current : undefined}
-               />
+                />
              </div>
            )}
 
-           {/* Geo badge — centered under AI suggestion (hidden when category filter active) */}
            {!isMobile && !isCategoryFilterActive && (
             <div className="flex justify-center mt-4">
               <button
@@ -1989,6 +1986,7 @@ const SearchPage = () => {
 
         </div>
       </section>
+      END Hero Section COMMENT */
 
       {/* Tab Bar — stickybar 1 (above cities) */}
       <section data-tab-bar className="sticky top-[60px] z-[7] bg-background border-b border-border relative">
