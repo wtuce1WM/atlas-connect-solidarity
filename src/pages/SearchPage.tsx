@@ -2039,7 +2039,7 @@ const SearchPage = () => {
       </section>
 
       {/* City Bar — stickybar 2 (below tabs) */}
-      {availableCities.length > 1 && !queryHasExplicitCity && (
+      {availableCities.length > 1 && !queryHasExplicitCity && activeTab === "suggestions" && (
         <div data-city-bar className="sticky z-[6] bg-background border-b border-border py-2 relative" style={{ top: `${stickyTops.cityBar}px` }}>
           <span className="absolute top-0 left-1 z-[60] bg-orange-500 text-white text-[10px] font-bold px-2 py-0.5 rounded select-all cursor-text">🟠 STICKY 2</span>
           <div className="mx-auto px-4 max-w-[80%]">
