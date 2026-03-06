@@ -2155,7 +2155,7 @@ const SearchPage = () => {
         const poiCity = selectedCity && selectedCity !== "all" ? selectedCity : detectedCity;
 
         return (
-          <section className="py-6 lg:py-12 bg-background">
+          <section className="pt-16 pb-6 lg:pt-20 lg:pb-12 bg-background">
             <div className="mx-auto px-4 max-w-[80%]">
               <PoiSection
                 city={poiCity}
