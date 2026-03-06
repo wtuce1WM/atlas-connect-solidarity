@@ -125,40 +125,41 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
       <div className="flex-1 overflow-y-auto p-4" ref={scrollRef}>
         {activeTab === "info" && (
           <>
-            <div className="mb-4 space-y-1">
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-bold text-foreground">{getName()}</h2>
-              </div>
-              {destination.region && destination.region.length > 0 && (
-                <p className="text-sm text-muted-foreground">{destination.region.join(", ")}</p>
-              )}
-            </div>
-            {destination.description && (() => {
-              const raw = destination.description;
-              const plainText = raw.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"');
-              const isLong = plainText.length > 500;
+            {/* Image gallery */}
+            {(() => {
+              const imgs = destination.images && destination.images.length > 0
+                ? destination.images
+                : destination.image_url
+                  ? [destination.image_url]
+                  : [];
+              if (imgs.length === 0) return null;
               return (
-                <div className="mb-4 text-sm text-muted-foreground leading-relaxed">
-                  {!descExpanded && isLong ? (
-                    <>
-                      {plainText.slice(0, 500)}…{" "}
-                      <button onClick={() => setDescExpanded(true)} className="text-gold hover:underline font-medium">
-                        {language === "en" ? "see more" : "voir plus"}
-                      </button>
-                    </>
+                <div className="mb-4 -mx-4 -mt-4">
+                  {imgs.length === 1 ? (
+                    <img src={imgs[0]} alt={getName()} className="w-full h-48 object-cover" />
                   ) : (
-                    <>
-                      <div dangerouslySetInnerHTML={{ __html: raw }} className="prose prose-sm max-w-none text-muted-foreground [&>p]:mb-2" />
-                      {isLong && (
-                        <button onClick={() => setDescExpanded(false)} className="text-gold hover:underline font-medium mt-1">
-                          {language === "en" ? "see less" : "voir moins"}
-                        </button>
-                      )}
-                    </>
+                    <div className="flex gap-0.5 overflow-x-auto scrollbar-hide">
+                      {imgs.map((img, i) => (
+                        <img key={i} src={img} alt={`${getName()} ${i + 1}`} className="h-48 w-auto object-cover flex-shrink-0 first:rounded-none" loading="lazy" />
+                      ))}
+                    </div>
                   )}
                 </div>
               );
             })()}
+
+            <div className="mb-4 space-y-1">
+              <h2 className="text-lg font-bold text-foreground">{getName()}</h2>
+              {destination.region && destination.region.length > 0 && (
+                <p className="text-sm text-muted-foreground">{destination.region.join(", ")}</p>
+              )}
+            </div>
+
+            {destination.description && (
+              <div className="text-sm text-muted-foreground leading-relaxed">
+                <div dangerouslySetInnerHTML={{ __html: destination.description }} className="prose prose-sm max-w-none text-muted-foreground [&>p]:mb-2" />
+              </div>
+            )}
           </>
         )}
 
