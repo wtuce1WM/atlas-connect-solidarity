@@ -1593,34 +1593,7 @@ const SearchPage = () => {
         </section>
       )}
 
-      {/* Filters & Results — Suggestion IA tab */}
-      {activeTab === "suggestions" && (
-      <section ref={resultsRef} className={`bg-background ${isCategoryFilterActive ? 'py-2 lg:py-4' : 'py-6 lg:py-12'}`}>
-        <div className="mx-auto px-4 max-w-[80%]">
-          {/* Filters: City + Geo toggle — on mobile shown before hero via order */}
-          <div className={`${isCategoryFilterActive ? 'mb-3' : 'mb-8'} flex flex-wrap items-center gap-3 ${isMobile ? 'hidden' : ''}`}>
-            {/* Time slot indicator */}
-            {activeTimeSlot && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gold/20 border border-gold/40 text-gold text-xs font-medium">
-                <Clock className="h-3.5 w-3.5" />
-                {language === "en"
-                  ? `Showing places open ${activeTimeSlot.startHour}h–${activeTimeSlot.endHour}h first`
-                  : language === "ar"
-                    ? `عرض الأماكن المفتوحة ${activeTimeSlot.startHour}h–${activeTimeSlot.endHour}h أولاً`
-                    : `Établissements ouverts ${activeTimeSlot.startHour}h–${activeTimeSlot.endHour}h en priorité`}
-              </span>
-            )}
-
-           {/* City filter moved to sticky bar above tabs */}
-          </div>
-
-          {isMobile && filteredBusinesses.length > 0 && (
-            <p className="mb-4 text-sm text-muted-foreground">
-              <span className="text-gold font-semibold">{displayedResultsCount}</span> {t.establishments} {t.found}
-            </p>
-      )}
-
-      {/* AI Summary Bar — sticky below all filter bars */}
+      {/* AI Summary Bar — sticky below all filter bars (OUTSIDE section for proper sticky) */}
       {isCategoryFilterActive && aiAnswerText && (() => {
         const hasCB = availableCities.length > 1 && !queryHasExplicitCity;
         let aiTop = 104 + (hasCB ? 44 : 0) + 62;
@@ -1752,6 +1725,27 @@ const SearchPage = () => {
           </div>
         );
       })()}
+
+      {/* Filters & Results — Suggestion IA tab */}
+      {activeTab === "suggestions" && (
+      <section ref={resultsRef} className={`bg-background ${isCategoryFilterActive ? 'py-2 lg:py-4' : 'py-6 lg:py-12'}`}>
+        <div className="mx-auto px-4 max-w-[80%]">
+          {/* Filters: City + Geo toggle — on mobile shown before hero via order */}
+          <div className={`${isCategoryFilterActive ? 'mb-3' : 'mb-8'} flex flex-wrap items-center gap-3 ${isMobile ? 'hidden' : ''}`}>
+            {/* Time slot indicator */}
+            {activeTimeSlot && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gold/20 border border-gold/40 text-gold text-xs font-medium">
+                <Clock className="h-3.5 w-3.5" />
+                {language === "en"
+                  ? `Showing places open ${activeTimeSlot.startHour}h–${activeTimeSlot.endHour}h first`
+                  : language === "ar"
+                    ? `عرض الأماكن المفتوحة ${activeTimeSlot.startHour}h–${activeTimeSlot.endHour}h أولاً`
+                    : `Établissements ouverts ${activeTimeSlot.startHour}h–${activeTimeSlot.endHour}h en priorité`}
+              </span>
+            )}
+
+           {/* City filter moved to sticky bar above tabs */}
+          </div>
 
           {/* Easter egg: Zitoun Mask/Musk - fullscreen overlay */}
           {showZitounEasterEgg && (
