@@ -1830,7 +1830,8 @@ serve(async (req) => {
         // Load all services (not only those with keywords) so accent-insensitive name matching works reliably
         const { data: matchingByKeywords } = await supabase
           .from("services")
-          .select("name_fr, keywords, subcategories!inner(name_fr)");
+          .select("name_fr, keywords, subcategories!inner(name_fr)")
+          .limit(5000);
 
         // Merge: services matched by name + services whose keywords contain a query word
         const stripPlural = (w: string): string => {
