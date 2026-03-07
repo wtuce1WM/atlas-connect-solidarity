@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
-import { MapPin, Star, Loader2, X, ChevronLeft, ChevronRight, Maximize2, Minimize2 } from "lucide-react";
+import { MapPin, Star, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import SlidePanelHeader from "@/components/SlidePanelHeader";
 import FullscreenLightbox from "@/components/FullscreenLightbox";
 import type { MediaItem } from "@/components/FullscreenLightbox";
 import { supabase } from "@/integrations/supabase/client";
@@ -121,25 +122,12 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
         onClick={() => setIsExpanded(false)}
       />
       <div className="fixed top-[53px] right-0 bottom-0 z-[40] bg-background flex flex-col border-l-2 border-border shadow-[-8px_0_30px_-5px_rgba(0,0,0,0.15)]" style={{ width: "80%", opacity: 0, animation: "panelSlideIn 0.3s ease-out 1s forwards" }}>
-        <div className="shrink-0 flex items-center px-4 py-3 gap-3 bg-white border-b border-border">
-          <button
-            onClick={() => { onClose(); setIsExpanded(false); }}
-            className="h-9 w-9 flex items-center justify-center rounded-full bg-destructive text-white hover:bg-destructive/90 transition-colors"
-            title="Fermer"
-            aria-label="Fermer"
-          >
-            <X className="h-4 w-4" />
-          </button>
-          <button
-            onClick={() => setIsExpanded(false)}
-            className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors"
-            title="Réduire"
-            aria-label="Réduire le panneau"
-          >
-            <Minimize2 className="h-4 w-4" />
-          </button>
-          <span className="text-muted-foreground text-sm font-medium ml-2">{getName()}</span>
-        </div>
+        <SlidePanelHeader
+          onClose={() => { onClose(); setIsExpanded(false); }}
+          isExpanded={true}
+          onToggleExpand={() => setIsExpanded(false)}
+          centerContent={getName()}
+        />
         <div className="flex-1 overflow-y-auto p-3">
           {(() => {
             const imgs = destination.images && destination.images.length > 0
@@ -168,49 +156,31 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
     {/* Normal panel (hidden when expanded) */}
     {!isExpanded && (
     <div className="fixed top-[53px] right-0 bottom-0 z-40 border-l border-border bg-background flex flex-col shadow-2xl transition-all duration-500 ease-out w-1/2">
-      {/* Header */}
-      <div className="shrink-0 flex items-center px-3 py-2 border-b border-border gap-2 bg-white">
-        <div className="flex items-center gap-2 shrink-0">
-          <button
-            onClick={() => { onClose(); setIsExpanded(false); }}
-            className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-destructive hover:text-white transition-colors"
-            title="Fermer"
-            aria-label="Fermer"
-          >
-            <X className="h-4 w-4" />
-          </button>
-          {(() => {
-            const imgs = destination.images && destination.images.length > 0 ? destination.images : destination.image_url ? [destination.image_url] : [];
-            if (imgs.length <= 1) return null;
-            return (
-              <button
-                onClick={() => setIsExpanded(true)}
-                className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors"
-                title="Agrandir"
-                aria-label="Agrandir le panneau"
-              >
-                <Maximize2 className="h-4 w-4" />
-              </button>
-            );
-          })()}
-        </div>
-        <div className="flex-1 flex items-center justify-center gap-0">
-          <button
-            onClick={() => { scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" }); }}
-            className={`px-4 py-1.5 text-sm font-semibold border-b-2 transition-colors ${activeTab === "info" ? "border-gold text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
-          >
-            {getName()}
-          </button>
-          <button
-            onClick={() => { providersRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }); }}
-            className={`px-4 py-1.5 text-sm font-semibold border-b-2 transition-colors ${activeTab === "providers" ? "border-gold text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
-          >
-            {language === "en" ? "Providers" : language === "ar" ? "مزودون" : "Prestataires"}
-            {!isLoading && <span className="ml-1.5 text-xs font-normal text-muted-foreground">{businesses.length}</span>}
-          </button>
-        </div>
-        <div className="w-[76px] shrink-0" />
-      </div>
+      <SlidePanelHeader
+        onClose={() => { onClose(); setIsExpanded(false); }}
+        isExpanded={false}
+        onToggleExpand={(() => {
+          const imgs = destination.images && destination.images.length > 0 ? destination.images : destination.image_url ? [destination.image_url] : [];
+          return imgs.length > 1 ? () => setIsExpanded(true) : undefined;
+        })()}
+        centerContent={
+          <div className="flex items-center justify-center gap-0">
+            <button
+              onClick={() => { scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" }); }}
+              className={`px-4 py-1.5 text-sm font-semibold border-b-2 transition-colors ${activeTab === "info" ? "border-gold text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+            >
+              {getName()}
+            </button>
+            <button
+              onClick={() => { providersRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }); }}
+              className={`px-4 py-1.5 text-sm font-semibold border-b-2 transition-colors ${activeTab === "providers" ? "border-gold text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+            >
+              {language === "en" ? "Providers" : language === "ar" ? "مزودون" : "Prestataires"}
+              {!isLoading && <span className="ml-1.5 text-xs font-normal text-muted-foreground">{businesses.length}</span>}
+            </button>
+          </div>
+        }
+      />
 
       {/* Scrollable content — single flow */}
       <div className="flex-1 overflow-y-auto p-4 pb-24" ref={scrollRef}>
