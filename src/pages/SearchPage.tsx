@@ -2406,7 +2406,7 @@ const SearchPage = () => {
               </div>
             )}
             {destMapItem && !selectedDestination && (
-              <div className={`fixed top-0 left-0 right-0 z-[100] bg-background shadow-2xl overflow-hidden flex flex-col animate-slide-in-left lg:w-1/2 lg:top-[62px] lg:left-auto lg:border-l lg:border-border`} style={{ height: isMobile ? "100vh" : "calc(100vh - 62px)" }}>
+              <div className={`fixed top-0 left-0 right-0 z-[100] bg-background shadow-2xl overflow-hidden flex flex-col animate-slide-up-from-bottom lg:w-1/2 lg:top-[54px] lg:left-auto lg:border-l lg:border-border`} style={{ height: isMobile ? "100vh" : "calc(100vh - 54px)" }}>
                 <div className="flex items-center px-3 py-2 border-b border-border gap-2">
                   <div>
                     <button
