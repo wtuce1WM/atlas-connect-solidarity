@@ -48,6 +48,8 @@ interface BusinessSlidePanelProps {
   liteApiData?: LiteApiData;
   /** When provided, availability overlay & fallback panel are portaled into this container (used in AI overlay split-screen) */
   leftPanelPortalRef?: React.RefObject<HTMLDivElement | null>;
+  /** Called when business images are loaded, reports the count */
+  onImageCount?: (count: number) => void;
 }
 
 interface FullBusiness {
