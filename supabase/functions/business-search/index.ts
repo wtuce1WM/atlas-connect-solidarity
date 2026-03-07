@@ -1828,9 +1828,16 @@ serve(async (req) => {
           .or(nameConditions);
 
         // Load all services (not only those with keywords) so accent-insensitive name matching works reliably
-        const { data: matchingByKeywords } = await supabase
+        // Fetch ALL services (paginated to bypass 1000-row cap)
+        const { data: matchingByKeywords1 } = await supabase
           .from("services")
-          .select("name_fr, keywords, subcategories!inner(name_fr)");
+          .select("name_fr, keywords, subcategories!inner(name_fr)")
+          .range(0, 999);
+        const { data: matchingByKeywords2 } = await supabase
+          .from("services")
+          .select("name_fr, keywords, subcategories!inner(name_fr)")
+          .range(1000, 1999);
+        const matchingByKeywords = [...(matchingByKeywords1 || []), ...(matchingByKeywords2 || [])];
 
         // Merge: services matched by name + services whose keywords contain a query word
         const stripPlural = (w: string): string => {
@@ -1996,6 +2003,7 @@ serve(async (req) => {
           // Also include services whose keyword exactly matches a fully-matched service name (alias match)
           const fullyMatchedNamesLower = fullyMatchedServices.map(n => normalizeWordKw(n.toLowerCase()));
           const strongKeywordServices: string[] = [];
+          
           for (const svc of matchingServices) {
             if (fullyMatchedServices.includes(svc.name_fr)) continue;
             const svcKws = (svc.keywords || []).map((k: string) => k.toLowerCase());
@@ -2025,7 +2033,7 @@ serve(async (req) => {
             }
           }
 
-          if (fullyMatchedServices.length > 0) {
+          if (fullyMatchedServices.length > 0 || strongKeywordServices.length > 0) {
             detectedServices = [...fullyMatchedServices, ...strongKeywordServices];
             detectedService = strongKeywordServices.length > 0 ? strongKeywordServices[0] : fullyMatchedServices[0];
             
