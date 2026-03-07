@@ -2211,10 +2211,10 @@ const SearchPage = () => {
       )}
       */}
 
-      {/* Search-derived service filter bar — COMMENTED OUT
-      {searchServiceFilters.length >= 1 && !isLoading && !selectedCategoryFilter && !selectedSubcategoryFilter && (
-        <div data-search-service-filter className="sticky z-[2] bg-background border-b border-border py-2 relative" ref={(el) => { if (el) { const catEl = document.querySelector<HTMLElement>('[data-category-filter]'); if (catEl) { const catBottom = parseFloat(catEl.style.top || '0') + catEl.getBoundingClientRect().height; el.style.top = `${catBottom}px`; } else { el.style.top = `${stickyTops.serviceBar}px`; } } }}>
-          <span className="absolute top-0 left-1 z-[60] bg-green-600 text-white text-[10px] font-bold px-2 py-0.5 rounded select-all cursor-text">🟢 STICKY 3</span>
+      {/* 🩵 STICKY 3d — Service Filter (shown when subcategory detected) */}
+      {detectedSubcategory && searchServiceFilters.length >= 1 && !isLoading && activeTab === "suggestions" && (
+        <div data-service-filter className="sticky z-[5] bg-background border-b border-border py-2 relative" style={{ top: `${stickyTops.serviceBar}px` }}>
+          <span className="absolute top-0 left-1 z-[60] bg-cyan-500 text-white text-[10px] font-bold px-2 py-0.5 rounded select-all cursor-text">🩵 STICKY 3d — Service Filter</span>
           <div className="mx-auto px-4 max-w-[80%]">
             <div className="flex gap-2 overflow-x-auto pb-0.5 scrollbar-hide">
               {searchServiceFilters.map((svc) => {
@@ -2240,7 +2240,6 @@ const SearchPage = () => {
           </div>
         </div>
       )}
-      */}
 
       {activeTab === "map" && (
         <section className="pt-4 pb-4 lg:pt-20 lg:pb-4 bg-background">
