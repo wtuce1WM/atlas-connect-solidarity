@@ -1497,21 +1497,19 @@ const SearchPage = () => {
     }
   }, [isLoading]);
 
-  // Auto-regenerate AI text when a filter changes (category/subcategory/service)
-  const prevFilterRef = useRef({ cat: "", sub: "", svc: "" });
+  // Auto-regenerate AI text when a category/subcategory filter changes (NOT service filter — 3d)
+  const prevFilterRef = useRef({ cat: "", sub: "" });
   useEffect(() => {
     const prev = prevFilterRef.current;
     const changed =
       prev.cat !== (selectedCategoryFilter || "") ||
-      prev.sub !== (selectedSubcategoryFilter || "") ||
-      prev.svc !== (selectedServiceFilter || "");
+      prev.sub !== (selectedSubcategoryFilter || "");
     prevFilterRef.current = {
       cat: selectedCategoryFilter || "",
       sub: selectedSubcategoryFilter || "",
-      svc: selectedServiceFilter || "",
     };
     if (!changed || !aiAnswerText || isAiRegenerating) return;
-    if (!selectedCategoryFilter && !selectedSubcategoryFilter && !selectedServiceFilter) return;
+    if (!selectedCategoryFilter && !selectedSubcategoryFilter) return;
 
     const regenerate = async () => {
       setIsAiRegenerating(true);
@@ -1539,7 +1537,7 @@ const SearchPage = () => {
       }
     };
     regenerate();
-  }, [selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter]);
+  }, [selectedCategoryFilter, selectedSubcategoryFilter]);
 
 
   const translations = {
