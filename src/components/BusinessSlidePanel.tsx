@@ -30,6 +30,53 @@ const LANG_FLAGS: Record<string, string> = {
 };
 const langToFlag = (lang: string) => LANG_FLAGS[lang?.toUpperCase()] || "";
 
+  // Auto-translate reviews when they're in a different language than the UI
+  useEffect(() => {
+    setTranslatedReviewTexts([]);
+    if (reviewTexts.length === 0) return;
+
+    const langCode = language === "en" ? "en" : language === "ar" ? "ar" : "fr";
+    // Check if any review needs translation
+    const needsTranslation = reviewTexts.some(
+      (r) => r.text && r.language && r.language !== langCode
+    );
+    if (!needsTranslation) return;
+
+    const translateReviews = async () => {
+      setIsTranslatingReviews(true);
+      try {
+        const reviewsToTranslate = reviewTexts
+          .filter((r) => r.text && r.language && r.language !== langCode)
+          .map((r) => ({ text: r.text }));
+
+        if (reviewsToTranslate.length === 0) return;
+
+        const { data, error } = await supabase.functions.invoke("translate-reviews", {
+          body: { reviews: reviewsToTranslate, targetLanguage: langCode },
+        });
+
+        if (!error && data?.translations?.length) {
+          // Map translations back to full review list
+          const mapped: string[] = [];
+          let tIdx = 0;
+          for (const r of reviewTexts) {
+            if (r.text && r.language && r.language !== langCode && tIdx < data.translations.length) {
+              mapped.push(data.translations[tIdx]);
+              tIdx++;
+            } else {
+              mapped.push(r.text || "");
+            }
+          }
+          setTranslatedReviewTexts(mapped);
+        }
+      } catch (e) {
+        console.error("Translation error:", e);
+      } finally {
+        setIsTranslatingReviews(false);
+      }
+    };
+    translateReviews();
+  }, [reviewTexts, language]);
 
 export interface LiteApiData {
   offers: { roomName: string; price: string; currency: string; paymentType?: string }[];
