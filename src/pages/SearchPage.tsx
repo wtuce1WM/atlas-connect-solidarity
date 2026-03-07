@@ -1610,6 +1610,8 @@ const SearchPage = () => {
   const handleCityChange = (city: string) => {
     setSelectedCity(city);
     setIsGeoCityAutoSelected(false);
+    setAiAnswerText("");
+    setAiRegenerateKey(k => k + 1);
   };
 
   const handleCategoryChange = (category: string) => {
