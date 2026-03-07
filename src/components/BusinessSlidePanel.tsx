@@ -576,6 +576,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   const isVerified = business.wtuce_status === "verified";
   const isInstitution = business.account_type?.toLowerCase() === "institution";
    const images = business.images || [];
+   useEffect(() => { onImageCount?.(images.length); }, [images.length, onImageCount]);
    const hasVideo = !!business.video_1_url && !videoError;
    const hasMatterport = !!business.matterport_url;
    const hasFlipbook = !!business.flipbook_url;
