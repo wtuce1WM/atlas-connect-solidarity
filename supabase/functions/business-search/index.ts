@@ -2912,7 +2912,8 @@ serve(async (req) => {
       }
 
       // Skip in strict mode to preserve the rating-based sort order from the DB query
-      if (effectiveQuery && businesses.length > 1 && subcategorySearchConfig?.search_mode !== "strict") {
+      // TEST: Force broad mode — ignore strict check
+      if (effectiveQuery && businesses.length > 1 /* && subcategorySearchConfig?.search_mode !== "strict" */) {
         const qLower = effectiveQuery.toLowerCase();
         const qWords = qLower.split(/\s+/).filter(w => w.length > 1 && !FRENCH_STOP_WORDS.has(w));
         if (qWords.length >= 2) {
@@ -2951,7 +2952,8 @@ serve(async (req) => {
     }
 
     // In strict mode, if subcategory was detected, do NOT fall through to tsquery
-    const isStrictMode = subcategorySearchConfig?.search_mode === 'strict' && !!detectedSubcategory;
+    // TEST: Force broad mode — always false
+    const isStrictMode = false; // subcategorySearchConfig?.search_mode === 'strict' && !!detectedSubcategory;
     // In broad mode (default), ALSO run tsquery even if subcategory direct query found results,
     // and merge the results. This is the key difference: broad = subcategory + full-text merged.
     const isBroadWithResults = !isStrictMode && !bundleActivated && detectedSubcategory && businesses.length > 0;
@@ -4090,7 +4092,7 @@ serve(async (req) => {
       totalCount,
       detectedSubcategory: detectedSubcategory || null,
       detectedCity: effectiveCity || null,
-      searchMode: serviceShortcutActivated ? "service_shortcut" : (typeof subcategorySearchConfig !== 'undefined' && subcategorySearchConfig?.search_mode) || null,
+      searchMode: serviceShortcutActivated ? "service_shortcut" : "broad", // TEST: Force broad — was: (typeof subcategorySearchConfig !== 'undefined' && subcategorySearchConfig?.search_mode) || null,
       bundleTimeSlots: (typeof bundleTimeSlots !== 'undefined' && bundleTimeSlots.length > 0) ? bundleTimeSlots : undefined,
       disambiguationType,
       synonymUsed: synonymWasUsed || undefined,
