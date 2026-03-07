@@ -2025,7 +2025,7 @@ serve(async (req) => {
             }
           }
 
-          if (fullyMatchedServices.length > 0) {
+          if (fullyMatchedServices.length > 0 || strongKeywordServices.length > 0) {
             detectedServices = [...fullyMatchedServices, ...strongKeywordServices];
             detectedService = strongKeywordServices.length > 0 ? strongKeywordServices[0] : fullyMatchedServices[0];
             
