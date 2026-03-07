@@ -84,6 +84,8 @@ interface Business {
   zone_chalandise?: string | null;
   is_visible_locale?: boolean;
   zone_city_ids?: string[] | null;
+  default_service?: string | null;
+  neighborhood?: string | null;
 }
 
 interface SearchResult {
@@ -462,7 +464,7 @@ const SearchPage = () => {
       
       let query = supabase
         .from("businesses")
-        .select("id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, services, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, rating, gamme_id, badge_id, hook_fr, hook_en, hook_ar, google_rating, tripadvisor_rating, restaurant_guru_rating, google_review_count, tripadvisor_review_count, restaurant_guru_review_count, opening_hours, is_open_24h, vacation_dates, zone_chalandise, is_visible_locale, zone_city_ids")
+        .select("id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, services, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, rating, gamme_id, badge_id, hook_fr, hook_en, hook_ar, google_rating, tripadvisor_rating, restaurant_guru_rating, google_review_count, tripadvisor_review_count, restaurant_guru_review_count, opening_hours, is_open_24h, vacation_dates, zone_chalandise, is_visible_locale, zone_city_ids, default_service, neighborhood")
         .eq("is_active", true)
         .eq("main_category", selectedCategoryFilter);
 
@@ -2823,41 +2825,80 @@ const SearchPage = () => {
             </div>
           ) : !showCelebrityGuide && !showSosMedecin && !showPompiers && filteredBusinesses.length > 0 ? (
             <>
-              {/* Results — Grouped by subcategory with horizontal scroll, or flat paginated grid */}
+              {/* TEST: Fallback-style cards in 4-column grid (old BusinessCard display commented out below) */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                {paginatedBusinesses.map((business) => {
+                  const img = business.images?.[0] || business.logo_url;
+                  const sources = collectRatingSources(business as any);
+                  const avgOn20 = computeWeightedRatingOn20(sources);
+                  const totalReviews = sources.reduce((s, r) => s + r.count, 0);
+                  const subcat = business.categories?.[0] || null;
+                  return (
+                    <Link to={`/business/${business.id}`} key={business.id}>
+                      <div className="group overflow-hidden rounded-xl border border-border shadow-sm hover:shadow-md transition-all cursor-pointer relative aspect-square bg-muted">
+                        {img ? (
+                          <img src={img} alt={business.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+                        ) : (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <Building2 className="h-10 w-10 text-muted-foreground" />
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                        {business.wtuce_status === "verified" && (
+                          <div className="absolute top-2 right-2 z-10">
+                            <img src={logoGold} alt="Vérifié" className="w-[4.5rem] h-[4.5rem] object-contain" />
+                          </div>
+                        )}
+                        <div className="absolute top-2 left-2 z-10 flex flex-wrap gap-1">
+                          {subcat && (
+                            <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-gold text-gold-foreground">
+                              {subcat}
+                            </span>
+                          )}
+                          {business.default_service && (
+                            <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-black text-white border border-white/20">
+                              {business.default_service}
+                            </span>
+                          )}
+                        </div>
+                        <div className="absolute bottom-0 left-0 right-0 p-3 space-y-1">
+                          <p className="font-semibold text-sm text-white leading-tight line-clamp-2">{business.name}</p>
+                          {avgOn20 !== null && (
+                            <div className="flex items-center gap-1.5 text-xs">
+                              <Star className="h-3 w-3 text-gold fill-gold" />
+                              <span className="font-medium text-white">{avgOn20}/20</span>
+                              {totalReviews > 0 && (
+                                <span className="text-white/70">· {totalReviews} avis</span>
+                              )}
+                            </div>
+                          )}
+                          {business.city && (
+                            <div className="flex items-center gap-1 text-xs text-white/60">
+                              <MapPin className="h-3 w-3" />
+                              <span className="truncate">{business.neighborhood ? `${business.city}, ${business.neighborhood}` : business.city}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+              {/* OLD grouped/paginated BusinessCard display:
               {groupedBusinesses ? (
                 <div className="space-y-10">
                   {groupedBusinesses.map((group) => (
-                    <GroupedSubcategoryRow
-                      key={group.subcategory}
-                      subcategory={group.subcategory}
-                      businesses={group.businesses}
-                      gammes={gammes}
-                      badges={badges}
-                      subcategories={subcategories}
-                      badgeSubcategories={badgeSubcategories}
-                      verifiedLabel={t.verified}
-                      getDistanceKm={getDistanceKm}
-                      activeTimeSlot={activeTimeSlot}
-                    />
+                    <GroupedSubcategoryRow ... />
                   ))}
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                   {paginatedBusinesses.map((business) => (
-                    <BusinessCard
-                      key={business.id}
-                      business={business as BusinessCardData}
-                      gammes={gammes}
-                      badges={badges}
-                      subcategories={subcategories}
-                      badgeSubcategories={badgeSubcategories}
-                      verifiedLabel={t.verified}
-                      distanceKm={getDistanceKm(business)}
-                      activeTimeSlot={activeTimeSlot}
-                    />
+                    <BusinessCard ... />
                   ))}
                 </div>
               )}
+              */}
 
               {/* Pagination */}
               {totalPages > 1 && !groupedBusinesses && (
