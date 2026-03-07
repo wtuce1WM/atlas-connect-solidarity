@@ -569,8 +569,8 @@ const SearchPage = () => {
     const [showAiPopup, setShowAiPopup] = useState(false);
     const aiPopupShownRef = useRef(false);
     const [overlaySelectedBusiness, setOverlaySelectedBusiness] = useState<AIBusinessData | null>(null);
+    const [isOverlayPanelExpanded, setIsOverlayPanelExpanded] = useState(false);
     const overlayLeftPanelRef = useRef<HTMLDivElement>(null);
-
    // Reset when query changes
    useEffect(() => {
      setHasScrolledPastHeroAi(false);
@@ -1814,25 +1814,20 @@ const SearchPage = () => {
 
           {/* Right panel: Business detail */}
           {overlaySelectedBusiness && (
-            <div className="w-1/2 h-full flex flex-col bg-background animate-in slide-in-from-right duration-300">
-              <div className="shrink-0 flex items-center px-4 py-2 border-b border-border">
-                <button
-                  onClick={() => setOverlaySelectedBusiness(null)}
-                  className="h-9 w-9 flex items-center justify-center rounded-full bg-black text-white border-2 border-white/20 shadow-2xl hover:opacity-90 transition-opacity"
-                  title="Fermer"
-                  aria-label="Fermer le panneau"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-                <div id="overlay-slide-panel-toolbar-center" className="flex-1 flex items-center justify-center gap-4" />
-                <div id="overlay-slide-panel-toolbar" className="flex items-center gap-3 shrink-0" />
-              </div>
+            <div className={`h-full flex flex-col bg-background animate-in slide-in-from-right duration-300 transition-all ${isOverlayPanelExpanded ? "w-[80%]" : "w-1/2"}`}>
+              <SlidePanelHeader
+                onClose={() => { setOverlaySelectedBusiness(null); setIsOverlayPanelExpanded(false); }}
+                isExpanded={isOverlayPanelExpanded}
+                onToggleExpand={() => setIsOverlayPanelExpanded(prev => !prev)}
+                toolbarCenterId="overlay-slide-panel-toolbar-center"
+                toolbarRightId="overlay-slide-panel-toolbar"
+              />
               <div className="flex-1 min-h-0">
                 <BusinessSlidePanel
                   businessId={overlaySelectedBusiness.id}
-                  onClose={() => setOverlaySelectedBusiness(null)}
-                  isExpanded={false}
-                  onToggleExpand={() => {}}
+                  onClose={() => { setOverlaySelectedBusiness(null); setIsOverlayPanelExpanded(false); }}
+                  isExpanded={isOverlayPanelExpanded}
+                  onToggleExpand={() => setIsOverlayPanelExpanded(prev => !prev)}
                   leftPanelPortalRef={overlayLeftPanelRef}
                 />
               </div>
@@ -3005,14 +3000,6 @@ const SearchPage = () => {
               isExpanded={isCompactPanelExpanded}
               onToggleExpand={() => setIsCompactPanelExpanded(prev => !prev)}
             />
-            <button
-              onClick={() => setIsCompactPanelExpanded(prev => !prev)}
-              className="absolute top-2 left-16 z-[120] h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background border border-background/20 shadow-md hover:opacity-90 transition-opacity"
-              title={isCompactPanelExpanded ? "Réduire" : "Agrandir"}
-              aria-label={isCompactPanelExpanded ? "Réduire le panneau" : "Agrandir le panneau"}
-            >
-              {isCompactPanelExpanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-            </button>
             <div className="flex-1 min-h-0">
               <BusinessSlidePanel
                 businessId={compactPanelBusiness.id}
