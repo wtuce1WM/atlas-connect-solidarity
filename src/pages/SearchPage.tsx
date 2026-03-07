@@ -664,6 +664,14 @@ const SearchPage = () => {
     }
   }, [isGeoCityAutoSelected, searchQuery, queryHasExplicitCity, selectedCity]);
 
+  // If query has country scope (e.g. "maroc"), force "all" cities
+  useEffect(() => {
+    if (queryHasCountryScope && selectedCity !== "all") {
+      setSelectedCity("all");
+      setIsGeoCityAutoSelected(false);
+    }
+  }, [queryHasCountryScope, selectedCity]);
+
   // Regenerate AI answer when city filter changes (e.g. "hotel" + city selection)
   const prevCityForAiRef = useRef<string>(selectedCity);
   useEffect(() => {
