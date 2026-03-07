@@ -41,6 +41,7 @@ import Club from "./pages/Club";
 import ScrollToTop from "./components/ScrollToTop";
 import RouteTransition from "./components/RouteTransition";
 const LogoEffectsDemo = lazy(() => import("./pages/LogoEffectsDemo"));
+const AIEffectsDemo = lazy(() => import("./pages/AIEffectsDemo"));
 import CGF from "./pages/CGF";
 import SearchAnalytics from "./pages/SearchAnalytics";
 import StaffMaster from "./pages/StaffMaster";
@@ -118,6 +119,7 @@ const AppContent = () => {
               <Route path="/blog/search-layouts" element={<SearchLayoutDemo />} />
               <Route path="/blog/search-copy" element={<SearchPageCopy />} />
               <Route path="/blog/mode-strict" element={<StrictModePage />} />
+              <Route path="/demo-ai-effects" element={<Suspense fallback={null}><AIEffectsDemo /></Suspense>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
