@@ -1746,7 +1746,9 @@ const SearchPage = () => {
                   className="relative w-16 h-16 rounded-full bg-black flex items-center justify-center shadow-lg transition-all hover:scale-105"
                   title={language === "en" ? "Geolocate yourself" : language === "ar" ? "حدد موقعك" : "Géolocalisez-vous"}
                 >
-                  <MapPin className="h-7 w-7 text-white" />
+                  <span className="text-white text-xs font-semibold text-center leading-tight px-1">
+                    {language === "en" ? "Geolocate" : language === "ar" ? "موقعك" : "Géolocalisez-vous"}
+                  </span>
                 </button>
                 <span className="text-xs text-muted-foreground font-medium">
                   {geo.isDetecting
