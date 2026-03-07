@@ -3065,14 +3065,14 @@ const SearchPage = () => {
                   <p className="text-xs text-muted-foreground mb-2">
                     {language === "en" ? "You can refine your search" : language === "ar" ? "يمكنك تحسين بحثك" : "Vous pouvez préciser votre recherche"}
                   </p>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
                     {searchServiceFilters.map((svc) => {
                       const isSelected = selectedServiceFilter === svc.name;
                       return (
                         <button
                           key={svc.name}
                           onClick={() => setSelectedServiceFilter(isSelected ? null : svc.name)}
-                          className={`flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-bold transition-all ${
+                          className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-bold transition-all whitespace-nowrap ${
                             isSelected
                               ? "bg-gold/20 border-gold text-gold shadow-sm"
                               : "bg-card border-border text-muted-foreground hover:border-gold/40 hover:text-foreground"
