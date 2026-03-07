@@ -1385,6 +1385,21 @@ serve(async (req) => {
           searchLevel = "exact";
           serviceShortcutActivated = true;
           console.log(`⚡ Synonym badge-only complete: ${businesses.length} results — skipping FTS chain`);
+          // Apply engagement/commodity post-filter for badge-only synonyms
+          if (matchedSynonymBadgeKey) {
+            const reqEng = synonymEngagements[matchedSynonymBadgeKey] || [];
+            const reqCom = synonymCommodities[matchedSynonymBadgeKey] || [];
+            if (reqEng.length > 0 || reqCom.length > 0) {
+              const before = businesses.length;
+              businesses = businesses.filter(b => {
+                const bizEngs: string[] = b.engagements || [];
+                for (const eng of reqEng) { if (!bizEngs.includes(eng)) return false; }
+                for (const com of reqCom) { if (!bizEngs.includes(`Logistique:${com}`)) return false; }
+                return true;
+              });
+              console.log(`⚡ Badge-only eng/com filter: ${before} → ${businesses.length}`);
+            }
+          }
         }
       }
     } else if (matchedSynonymFilters.length > 0) {
