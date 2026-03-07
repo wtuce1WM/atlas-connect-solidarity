@@ -1737,8 +1737,8 @@ const SearchPage = () => {
                   {language === "en" ? "Listen" : language === "ar" ? "استمع" : "Écouter"}
                 </button>
               )}
-              {/* Geo — même traitement overlay que le micro */}
-              <div className="flex flex-col items-center gap-2">
+              {/* Geo — même design que le bouton micro */}
+              <div className="relative">
                 <button
                   onClick={() => {
                     setLocationDialogOpen(true);
@@ -1746,20 +1746,8 @@ const SearchPage = () => {
                   className="relative w-16 h-16 rounded-full bg-black flex items-center justify-center shadow-lg transition-all hover:scale-105"
                   title={language === "en" ? "Geolocate yourself" : language === "ar" ? "حدد موقعك" : "Géolocalisez-vous"}
                 >
-                  <span className="text-white text-xs font-semibold text-center leading-tight px-1">
-                    {language === "en" ? "Geolocate" : language === "ar" ? "موقعك" : "Géolocalisez-vous"}
-                  </span>
+                  <MapPin className="h-7 w-7 text-white" />
                 </button>
-                <span className="text-xs text-muted-foreground font-medium">
-                  {geo.isDetecting
-                    ? (language === "en" ? "Detecting..." : "Détection...")
-                    : geo.isEnabled && geo.confirmedAddress
-                    ? `📍 ${geo.confirmedAddress}`
-                    : geo.isEnabled && geo.detectedCity
-                    ? `📍 ${geo.detectedCity}`
-                    : (language === "en" ? "Geolocate yourself" : language === "ar" ? "حدد موقعك" : "Géolocalisez-vous")
-                  }
-                </span>
               </div>
             </div>
 
