@@ -97,6 +97,7 @@ interface SearchResult {
   bundleTimeSlots?: string[];
   disambiguationType?: "needs_category" | "needs_city" | null;
   synonymUsed?: boolean;
+  preciseMatch?: boolean;
 }
 
 const ITEMS_PER_PAGE = 20;
@@ -371,7 +372,8 @@ const SearchPage = () => {
   const [detectedSubcategory, setDetectedSubcategory] = useState<string | null>(null);
   const [searchMode, setSearchMode] = useState<string | null>(null);
   const [searchLevel, setSearchLevel] = useState<string>("");
-  const [synonymUsed, setSynonymUsed] = useState(false);
+   const [synonymUsed, setSynonymUsed] = useState(false);
+   const [preciseMatch, setPreciseMatch] = useState(false);
   const [searchMessage, setSearchMessage] = useState<string>("");
   const [citiesWithPriority, setCitiesWithPriority] = useState<{ name: string; priority: number; id?: string; latitude?: number | null; longitude?: number | null }[]>([]);
   const [gammes, setGammes] = useState<Gamme[]>([]);
@@ -435,9 +437,9 @@ const SearchPage = () => {
   }, [selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, selectedCity]);
 
   // Fetch extra businesses from DB when entonnoir filters narrow beyond search results
-  // Skip when a synonym was used — the backend already returned precise results
+  // Skip when the search returned precise results (synonym or service/keyword detection)
   useEffect(() => {
-    if (!selectedCategoryFilter || synonymUsed) {
+    if (!selectedCategoryFilter || preciseMatch) {
       setExtraFilterBusinesses([]);
       return;
     }
@@ -472,7 +474,7 @@ const SearchPage = () => {
       }
     };
     fetchExtra();
-  }, [selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, selectedCity, detectedCity, synonymUsed]);
+  }, [selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, selectedCity, detectedCity, preciseMatch]);
 
    // Track when user has scrolled down to the tab bar — lock scroll above it from that point
    const [hasReachedTabBar, setHasReachedTabBar] = useState(false);
@@ -1171,7 +1173,8 @@ const SearchPage = () => {
         setSearchMessage("");
         setDetectedSubcategory(null);
         setSearchMode(null);
-        setSynonymUsed(false);
+         setSynonymUsed(false);
+         setPreciseMatch(false);
         setIsLoading(false);
         return;
       }
@@ -1180,6 +1183,7 @@ const SearchPage = () => {
       setAiAnswerText("");
       setDetectedSubcategory(null);
       setSynonymUsed(false);
+      setPreciseMatch(false);
       setSearchMode(null);
       try {
         // Fetch cities with sort_order
@@ -1213,6 +1217,7 @@ const SearchPage = () => {
         if (data) {
           setSearchLevel(data.searchLevel || "");
           setSynonymUsed(!!data.synonymUsed);
+          setPreciseMatch(!!data.preciseMatch);
           const safeDetectedSubcategory = data.detectedSubcategory || null;
           // Only use searchMode when explicitly set from back-office config
           const normalizedSearchMode = normalizeSearchMode(data.searchMode);

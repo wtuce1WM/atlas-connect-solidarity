@@ -181,6 +181,7 @@ interface SearchResult {
   bundleTimeSlots?: string[];
   disambiguationType?: "needs_category" | "needs_city" | null;
   synonymUsed?: boolean;
+  preciseMatch?: boolean;
 }
 
 // Synonyms and noise words are now loaded from DB (search_synonyms, search_noise_words)
@@ -3931,6 +3932,9 @@ serve(async (req) => {
     }
 
     const synonymWasUsed = matchedSynonymFilters.length > 0 || !!matchedSynonymBadgeId;
+    // preciseMatch: true when the search was driven by a synonym or a detected service/keyword
+    // This tells the frontend NOT to run the extra category fetch that would dilute precise results
+    const preciseMatch = synonymWasUsed || (typeof detectedService !== 'undefined' && !!detectedService) || false;
     const result: SearchResult = {
       businesses,
       searchLevel,
@@ -3943,6 +3947,7 @@ serve(async (req) => {
       bundleTimeSlots: (typeof bundleTimeSlots !== 'undefined' && bundleTimeSlots.length > 0) ? bundleTimeSlots : undefined,
       disambiguationType,
       synonymUsed: synonymWasUsed || undefined,
+      preciseMatch: preciseMatch || undefined,
     };
 
     // Async log to search_logs table (fire-and-forget, don't block response)
