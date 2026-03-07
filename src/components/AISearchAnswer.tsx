@@ -273,7 +273,7 @@ const formatAnswer = (
       if (text) {
         elements.push(
           <p key={`p-${blockIdx}`} className="mb-3 last:mb-0 leading-[1.8]">
-            {parseInline(text, businesses, onClickBusiness, `p-${blockIdx}`, hl)}
+            {parseInline(text, businesses, onClickBusiness, `p-${blockIdx}`, hl, fade)}
           </p>
         );
         blockIdx++;
@@ -292,7 +292,7 @@ const formatAnswer = (
         <Tag key={`list-${blockIdx}`} className={listClass}>
           {currentList.items.map((item, i) => (
             <li key={i} className="leading-[1.8]">
-              {parseInline(item, businesses, onClickBusiness, `li-${blockIdx}-${i}`, hl)}
+              {parseInline(item, businesses, onClickBusiness, `li-${blockIdx}-${i}`, hl, fade)}
             </li>
           ))}
         </Tag>
