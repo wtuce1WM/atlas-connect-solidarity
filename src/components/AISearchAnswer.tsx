@@ -128,65 +128,55 @@ interface HighlightState {
   target: number;
 }
 
-/** Parse inline markdown with optional word-level highlighting and fade */
+/** Parse inline markdown with optional word-level highlighting */
 const parseInline = (
   text: string,
   businesses: BusinessData[],
   onClickBusiness: (b: BusinessData) => void,
   keyPrefix: string,
-  hl?: HighlightState,
-  fade?: HighlightState
+  hl?: HighlightState
 ): ReactNode[] => {
   const boldParts = text.split(/\*\*(.+?)\*\*/g);
   const nodes: ReactNode[] = [];
 
   boldParts.forEach((part, j) => {
     if (j % 2 === 1) {
-      // Bold segment — business name or plain bold
       const wordCount = part.split(/\s+/).filter(Boolean).length;
       const startWordIdx = hl ? hl.wordIndex : 0;
-      const fadeStartIdx = fade ? fade.wordIndex : 0;
       if (hl) hl.wordIndex += wordCount;
-      if (fade) fade.wordIndex += wordCount;
       const highlighted = hl ? startWordIdx <= hl.target : false;
-      const fadeVisible = fade ? fadeStartIdx <= fade.target : true;
-
-      const fadeStyle: React.CSSProperties = fade ? {
-        opacity: fadeVisible ? 1 : 0,
-        transform: fadeVisible ? "translateY(0)" : "translateY(6px)",
-        filter: fadeVisible ? "blur(0px)" : "blur(3px)",
-        transition: "opacity 0.3s ease-out, transform 0.3s ease-out, filter 0.3s ease-out",
-        display: "inline-block",
-      } : {};
 
       const match = findBusiness(part, businesses);
       if (match) {
         const card = <BusinessHoverCard key={`${keyPrefix}-${j}`} name={part} business={match} onClickBusiness={onClickBusiness} />;
-        nodes.push(
-          <span key={`${keyPrefix}-hl-${j}`} className={`${hl ? `transition-colors duration-100 rounded-sm ${highlighted ? "bg-gold/20" : ""}` : ""}`} style={fadeStyle}>
-            {card}
-          </span>
-        );
+        if (hl) {
+          nodes.push(
+            <span key={`${keyPrefix}-hl-${j}`} className={`transition-colors duration-100 rounded-sm ${highlighted ? "bg-gold/20" : ""}`}>
+              {card}
+            </span>
+          );
+        } else {
+          nodes.push(card);
+        }
       } else {
         nodes.push(
-          <strong key={`${keyPrefix}-${j}`} className={`font-semibold text-foreground${hl ? ` transition-colors duration-100 rounded-sm${highlighted ? " bg-gold/20" : ""}` : ""}`} style={fadeStyle}>
+          <strong key={`${keyPrefix}-${j}`} className={`font-semibold text-foreground${hl ? ` transition-colors duration-100 rounded-sm${highlighted ? " bg-gold/20" : ""}` : ""}`}>
             {part}
           </strong>
         );
       }
     } else {
-      // Non-bold: parse italic, then split into words
       const italicParts = part.split(/\*(.+?)\*/g);
       italicParts.forEach((ip, k) => {
         if (k % 2 === 1) {
-          if (hl || fade) {
-            renderWordTokens(ip, nodes, `${keyPrefix}-${j}-i${k}`, true, hl, fade);
+          if (hl) {
+            renderWordTokens(ip, nodes, hl, `${keyPrefix}-${j}-i${k}`, true);
           } else {
             nodes.push(<em key={`${keyPrefix}-${j}-i${k}`}>{ip}</em>);
           }
         } else if (ip) {
-          if (hl || fade) {
-            renderWordTokens(ip, nodes, `${keyPrefix}-${j}-${k}`, false, hl, fade);
+          if (hl) {
+            renderWordTokens(ip, nodes, hl, `${keyPrefix}-${j}-${k}`, false);
           } else {
             nodes.push(<span key={`${keyPrefix}-${j}-${k}`}>{ip}</span>);
           }
@@ -198,14 +188,13 @@ const parseInline = (
   return nodes;
 };
 
-/** Render text split into word-level spans with highlighting and/or fade */
+/** Render text split into word-level spans with highlighting */
 const renderWordTokens = (
   text: string,
   nodes: ReactNode[],
+  hl: HighlightState,
   keyPrefix: string,
-  italic: boolean,
-  hl?: HighlightState,
-  fade?: HighlightState
+  italic: boolean
 ) => {
   const tokens = text.split(/(\s+)/);
   tokens.forEach((token, t) => {
@@ -214,25 +203,13 @@ const renderWordTokens = (
       nodes.push(<span key={`${keyPrefix}-ws-${t}`}>{token}</span>);
       return;
     }
-    const wordIdx = hl ? hl.wordIndex++ : 0;
-    const fadeIdx = fade ? fade.wordIndex++ : 0;
-    const highlighted = hl ? wordIdx <= hl.target : false;
-    const fadeVisible = fade ? fadeIdx <= fade.target : true;
-
-    const hlClass = hl ? `transition-colors duration-100 rounded-sm${highlighted ? " bg-gold/20" : ""}` : "";
-
-    const fadeStyle: React.CSSProperties = fade ? {
-      opacity: fadeVisible ? 1 : 0,
-      transform: fadeVisible ? "translateY(0)" : "translateY(6px)",
-      filter: fadeVisible ? "blur(0px)" : "blur(3px)",
-      transition: "opacity 0.3s ease-out, transform 0.3s ease-out, filter 0.3s ease-out",
-      display: "inline-block",
-    } : {};
-
+    const wordIdx = hl.wordIndex++;
+    const highlighted = wordIdx <= hl.target;
+    const hlClass = `transition-colors duration-100 rounded-sm${highlighted ? " bg-gold/20" : ""}`;
     if (italic) {
-      nodes.push(<em key={`${keyPrefix}-w-${t}`} className={hlClass} style={fadeStyle}>{token}</em>);
+      nodes.push(<em key={`${keyPrefix}-w-${t}`} className={hlClass}>{token}</em>);
     } else {
-      nodes.push(<span key={`${keyPrefix}-w-${t}`} className={hlClass} style={fadeStyle}>{token}</span>);
+      nodes.push(<span key={`${keyPrefix}-w-${t}`} className={hlClass}>{token}</span>);
     }
   });
 };
