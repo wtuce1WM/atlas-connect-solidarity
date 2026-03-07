@@ -1260,6 +1260,20 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     }
   };
 
+  const hookSectionRef = useRef<HTMLDivElement>(null);
+  const [hookStickyVisible, setHookStickyVisible] = useState(false);
+
+  useEffect(() => {
+    const el = hookSectionRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setHookStickyVisible(!entry.isIntersecting),
+      { threshold: 0, rootMargin: "-160px 0px 0px 0px" }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div className="bg-background rounded-lg border">
       {/* Sticky header */}
