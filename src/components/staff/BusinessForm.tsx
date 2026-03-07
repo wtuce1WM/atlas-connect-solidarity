@@ -359,7 +359,7 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
     fetchTaxonomy();
   }, []);
 
-/** Inline sub-component to manage LiteAPI hotel mapping for a single business */
+/** Standalone sub-component to manage LiteAPI hotel mapping for a single business */
 const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
   const [hotelId, setHotelId] = useState("");
   const [currentMapping, setCurrentMapping] = useState<string | null>(null);
@@ -367,7 +367,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    const fetch = async () => {
+    const fetchMapping = async () => {
       setLoadingMapping(true);
       const { data } = await supabase
         .from("hotel_api_mappings")
@@ -380,13 +380,12 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       }
       setLoadingMapping(false);
     };
-    fetch();
+    fetchMapping();
   }, [businessId]);
 
   const handleSave = async () => {
     setSaving(true);
     if (!hotelId.trim()) {
-      // Remove mapping
       if (currentMapping) {
         await supabase.from("hotel_api_mappings").delete().eq("business_id", businessId);
         setCurrentMapping(null);
@@ -443,6 +442,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     </div>
   );
 };
+
 
 
   const updateIntentWord = async (id: string, updates: Partial<{ word: string; category_name: string; merge_on_conflict: boolean; is_active: boolean }>) => {
