@@ -44,6 +44,8 @@ interface SynonymEntry {
   filters: SynonymFilter[];
   is_active: boolean;
   badge_id: string | null;
+  engagement_filters: string[];
+  commodity_filters: string[];
   created_at: string;
 }
 
@@ -90,6 +92,8 @@ const SynonymsManagement = () => {
       subcategory_names: d.subcategory_names || [],
       service_names: d.service_names || [],
       filters: d.filters || [],
+      engagement_filters: d.engagement_filters || [],
+      commodity_filters: d.commodity_filters || [],
     })) as SynonymEntry[]);
     if (subcats) setAllSubcategories(subcats.map((s: any) => ({ id: s.id, name: s.name_fr, category_id: s.category_id })));
     if (cats) setAllCategories(cats as any);
@@ -190,6 +194,8 @@ const SynonymsManagement = () => {
       subcategory_names: subcatNames,
       service_names: svcNames,
       badge_id: entry.badge_id,
+      engagement_filters: entry.engagement_filters,
+      commodity_filters: entry.commodity_filters,
     } as any).eq("id", id);
     setSavingEntries(prev => { const n = new Set(prev); n.delete(id); return n; });
     if (error) {
@@ -349,6 +355,16 @@ const SynonymsManagement = () => {
                   </span>
                 ) : null;
               })()}
+              {entry.engagement_filters.length > 0 && (
+                <span className="inline-flex items-center text-[10px] px-1.5 py-0.5 rounded bg-green-200/90 text-green-900 font-medium mt-0.5">
+                  {entry.engagement_filters.length} eng.
+                </span>
+              )}
+              {entry.commodity_filters.length > 0 && (
+                <span className="inline-flex items-center text-[10px] px-1.5 py-0.5 rounded bg-orange-200/90 text-orange-900 font-medium mt-0.5">
+                  {entry.commodity_filters.length} com.
+                </span>
+              )}
             </div>
 
             {/* Filter summary + count + link */}
@@ -465,6 +481,79 @@ const SynonymsManagement = () => {
                   </span>
                 ) : null;
               })()}
+            </div>
+
+            {/* Engagements */}
+            <div className="space-y-2">
+              <h4 className="text-sm font-semibold">Engagements</h4>
+              <div className="flex flex-wrap gap-1.5">
+                {selectedEntry.engagement_filters.map(eng => (
+                  <Badge key={eng} variant="outline" className="gap-1 group bg-green-50 border-green-300">
+                    {eng}
+                    <button
+                      className="opacity-0 group-hover:opacity-100"
+                      onClick={() => {
+                        const updated = selectedEntry.engagement_filters.filter(e => e !== eng);
+                        setEntries(prev => prev.map(e => e.id === selectedEntry.id ? { ...e, engagement_filters: updated } : e));
+                        setDirtyEntries(prev => new Set(prev).add(selectedEntry.id));
+                      }}
+                    >
+                      <X className="h-3 w-3 text-destructive" />
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+              <Input
+                placeholder="Ajouter un engagement (ex: Bio (intégral))..."
+                className="max-w-xs text-sm h-8"
+                onKeyDown={e => {
+                  if (e.key === "Enter") {
+                    const val = (e.target as HTMLInputElement).value.trim();
+                    if (val && !selectedEntry.engagement_filters.includes(val)) {
+                      setEntries(prev => prev.map(en => en.id === selectedEntry.id ? { ...en, engagement_filters: [...en.engagement_filters, val] } : en));
+                      setDirtyEntries(prev => new Set(prev).add(selectedEntry.id));
+                      (e.target as HTMLInputElement).value = "";
+                    }
+                  }
+                }}
+              />
+            </div>
+
+            {/* Commodités */}
+            <div className="space-y-2">
+              <h4 className="text-sm font-semibold">Commodités</h4>
+              <p className="text-xs text-muted-foreground">Préfixe « Logistique: » ajouté automatiquement lors du filtrage.</p>
+              <div className="flex flex-wrap gap-1.5">
+                {selectedEntry.commodity_filters.map(com => (
+                  <Badge key={com} variant="outline" className="gap-1 group bg-orange-50 border-orange-300">
+                    {com}
+                    <button
+                      className="opacity-0 group-hover:opacity-100"
+                      onClick={() => {
+                        const updated = selectedEntry.commodity_filters.filter(c => c !== com);
+                        setEntries(prev => prev.map(e => e.id === selectedEntry.id ? { ...e, commodity_filters: updated } : e));
+                        setDirtyEntries(prev => new Set(prev).add(selectedEntry.id));
+                      }}
+                    >
+                      <X className="h-3 w-3 text-destructive" />
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+              <Input
+                placeholder="Ajouter une commodité (ex: Parking)..."
+                className="max-w-xs text-sm h-8"
+                onKeyDown={e => {
+                  if (e.key === "Enter") {
+                    const val = (e.target as HTMLInputElement).value.trim();
+                    if (val && !selectedEntry.commodity_filters.includes(val)) {
+                      setEntries(prev => prev.map(en => en.id === selectedEntry.id ? { ...en, commodity_filters: [...en.commodity_filters, val] } : en));
+                      setDirtyEntries(prev => new Set(prev).add(selectedEntry.id));
+                      (e.target as HTMLInputElement).value = "";
+                    }
+                  }
+                }}
+              />
             </div>
 
             {/* Synonymes */}

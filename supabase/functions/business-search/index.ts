@@ -190,19 +190,23 @@ let synonymSubcategories: Record<string, string[]> = {}; // key_word → subcate
 let synonymServices: Record<string, string[]> = {}; // key_word → service_names (legacy)
 let synonymFilters: Record<string, { subcategory_name: string | null; required_service: string | null }[]> = {}; // key_word → paired filters
 let synonymBadges: Record<string, string> = {}; // key_word → badge_id (for badge-only synonyms)
+let synonymEngagements: Record<string, string[]> = {}; // key_word → engagement_filters
+let synonymCommodities: Record<string, string[]> = {}; // key_word → commodity_filters (Logistique:X)
 let NOISE_ADJECTIVES = new Set<string>();
 let searchConfigLoadedAt = 0;
 const SEARCH_CONFIG_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
 async function loadSearchConfig(supabase: any) {
   if (Date.now() - searchConfigLoadedAt < SEARCH_CONFIG_TTL_MS && Object.keys(synonyms).length > 0) return;
-  const { data: synData } = await supabase.from("search_synonyms").select("key_word, synonyms, subcategory_names, service_names, filters, badge_id").eq("is_active", true);
+  const { data: synData } = await supabase.from("search_synonyms").select("key_word, synonyms, subcategory_names, service_names, filters, badge_id, engagement_filters, commodity_filters").eq("is_active", true);
   if (synData) {
     synonyms = {};
     synonymSubcategories = {};
     synonymServices = {};
     synonymFilters = {};
     synonymBadges = {};
+    synonymEngagements = {};
+    synonymCommodities = {};
     for (const row of synData) {
       synonyms[row.key_word] = row.synonyms || [];
       if (row.subcategory_names && row.subcategory_names.length > 0) {
@@ -216,6 +220,12 @@ async function loadSearchConfig(supabase: any) {
       }
       if (row.badge_id) {
         synonymBadges[row.key_word] = row.badge_id;
+      }
+      if (row.engagement_filters && row.engagement_filters.length > 0) {
+        synonymEngagements[row.key_word] = row.engagement_filters;
+      }
+      if (row.commodity_filters && row.commodity_filters.length > 0) {
+        synonymCommodities[row.key_word] = row.commodity_filters;
       }
     }
   }
@@ -1375,6 +1385,21 @@ serve(async (req) => {
           searchLevel = "exact";
           serviceShortcutActivated = true;
           console.log(`⚡ Synonym badge-only complete: ${businesses.length} results — skipping FTS chain`);
+          // Apply engagement/commodity post-filter for badge-only synonyms
+          if (matchedSynonymBadgeKey) {
+            const reqEng = synonymEngagements[matchedSynonymBadgeKey] || [];
+            const reqCom = synonymCommodities[matchedSynonymBadgeKey] || [];
+            if (reqEng.length > 0 || reqCom.length > 0) {
+              const before = businesses.length;
+              businesses = businesses.filter(b => {
+                const bizEngs: string[] = b.engagements || [];
+                for (const eng of reqEng) { if (!bizEngs.includes(eng)) return false; }
+                for (const com of reqCom) { if (!bizEngs.includes(`Logistique:${com}`)) return false; }
+                return true;
+              });
+              console.log(`⚡ Badge-only eng/com filter: ${before} → ${businesses.length}`);
+            }
+          }
         }
       }
     } else if (matchedSynonymFilters.length > 0) {
@@ -1461,6 +1486,32 @@ serve(async (req) => {
                 console.log(`⚡ Badge merge (${matchedSynonymBadgeId}): +${mapped.length} businesses (total: ${businesses.length})`);
               }
             }
+          }
+        }
+
+        // ── ENGAGEMENT/COMMODITY POST-FILTER ──
+        {
+          const allMatchedKeys = [...matchedSynonymFilterKeys];
+          if (matchedSynonymBadgeKey && !allMatchedKeys.includes(matchedSynonymBadgeKey)) allMatchedKeys.push(matchedSynonymBadgeKey);
+          const requiredEngagements: string[] = [];
+          const requiredCommodities: string[] = [];
+          for (const k of allMatchedKeys) {
+            if (synonymEngagements[k]) requiredEngagements.push(...synonymEngagements[k]);
+            if (synonymCommodities[k]) requiredCommodities.push(...synonymCommodities[k]);
+          }
+          if (requiredEngagements.length > 0 || requiredCommodities.length > 0) {
+            const before = businesses.length;
+            businesses = businesses.filter(b => {
+              const bizEngs: string[] = b.engagements || [];
+              for (const eng of requiredEngagements) {
+                if (!bizEngs.includes(eng)) return false;
+              }
+              for (const com of requiredCommodities) {
+                if (!bizEngs.includes(`Logistique:${com}`)) return false;
+              }
+              return true;
+            });
+            console.log(`⚡ Engagement/commodity filter: ${before} → ${businesses.length} (eng: [${requiredEngagements.join(",")}], com: [${requiredCommodities.join(",")}])`);
           }
         }
         
