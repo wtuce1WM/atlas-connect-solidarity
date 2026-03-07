@@ -1381,15 +1381,23 @@ serve(async (req) => {
       // ── NEW: Paired filters mode ──
       console.log(`⚡ Synonym paired filters PRIORITY: ${matchedSynonymFilters.length} filter(s) — skipping FTS`);
       const existingIds = new Set<string>();
-      // If a subcategory was explicitly detected in the query, prioritize matching paired filters
-      // scoped to that subcategory to avoid broad cross-domain leakage (e.g. "location voiture" matching villas).
+      // If a subcategory was explicitly detected in the query, check if any paired filter covers it.
+      // If NOT, the detected subcategory is more specific than the synonym — skip paired filters entirely
+      // and fall through to FTS/subcategory-based search (e.g. "location moto" → "Location motos" not in synonym "location" filters).
       const normalizeSubcat = (v: string) => stripAccentsGlobal(v.toLowerCase().replace(/-/g, " ").replace(/\s+/g, " ").trim());
-      // When synonym filters are matched, skip subcategory scoping entirely —
-      // the synonym's own filters define the intent more precisely than auto-detected subcategories.
-      const scopedSynonymFilters = matchedSynonymFilters;
+      const detectedSubNorm = detectedSubcategory ? normalizeSubcat(detectedSubcategory) : null;
+      const pairedFilterCoversDetected = detectedSubNorm
+        ? matchedSynonymFilters.some(f => f.subcategory_name && normalizeSubcat(f.subcategory_name) === detectedSubNorm)
+        : true; // no detected subcategory → let paired filters run normally
+
+      if (detectedSubcategory && !pairedFilterCoversDetected) {
+        console.log(`🔀 Detected subcategory "${detectedSubcategory}" NOT in synonym paired filters — skipping synonym shortcut, falling through to subcategory search`);
+        // Don't run paired filters — let the engine proceed to FTS/subcategory logic below
+      } else {
       if (detectedSubcategory) {
-        console.log(`🔓 Synonym filters present (${matchedSynonymFilters.length}) — skipping subcategory scoping for "${detectedSubcategory}"`);
+        console.log(`🔓 Synonym filters present (${matchedSynonymFilters.length}) — covers detected subcategory "${detectedSubcategory}"`);
       }
+      const scopedSynonymFilters = matchedSynonymFilters;
       for (const filter of scopedSynonymFilters) {
         let builder = supabase.from("businesses").select("*").eq("is_active", true);
         // Apply subcategory filter
@@ -1482,9 +1490,10 @@ serve(async (req) => {
             for (const sv of synVals) addConsumed(sv);
           }
           console.log(`🔑 Paired consumed words: [${[...pairedConsumedWords].join(", ")}] (keys: [${matchedSynonymFilterKeys.join(", ")}])`);
-          // Also exclude detected city/neighborhood words from remaining
+          // Also exclude detected city/neighborhood/subcategory words from remaining
           if (effectiveCity) { for (const w of effectiveCity.toLowerCase().split(/[\s-]+/)) { pairedConsumedWords.add(w); pairedConsumedWords.add(stripAccentsGlobal(w)); } }
           if (detectedNeighborhood) { for (const w of detectedNeighborhood.toLowerCase().split(/[\s-]+/)) { pairedConsumedWords.add(w); pairedConsumedWords.add(stripAccentsGlobal(w)); } }
+          if (detectedSubcategory) { for (const w of detectedSubcategory.toLowerCase().split(/[\s-]+/)) { pairedConsumedWords.add(w); pairedConsumedWords.add(stripAccentsGlobal(w)); } }
           const pairedRemainingWords = effectiveQuery.toLowerCase().split(/\s+/)
             .filter(w => w.length > 1 && !FRENCH_STOP_WORDS.has(w) && !NOISE_ADJECTIVES.has(w) && !pairedConsumedWords.has(w) && !pairedConsumedWords.has(stripAccentsGlobal(w)));
           if (pairedRemainingWords.length > 0) {
@@ -1552,6 +1561,7 @@ serve(async (req) => {
           }
         }
       }
+      } // end else (paired filters cover detected subcategory)
     } else if (synonymLinkedServices.length > 0) {
       // ── LEGACY: flat arrays mode (backward compat for entries without filters) ──
       const hasSubcatScope = synonymLinkedSubcategories.length > 0;
