@@ -3064,7 +3064,7 @@ const SearchPage = () => {
                 </button>
                 <button
                   onClick={() => setIsCompactPanelExpanded(prev => !prev)}
-                  className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors"
+                  className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors border border-border"
                   title={isCompactPanelExpanded ? "Réduire" : "Agrandir"}
                   aria-label={isCompactPanelExpanded ? "Réduire le panneau" : "Agrandir le panneau"}
                 >
