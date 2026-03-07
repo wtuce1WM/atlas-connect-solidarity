@@ -355,6 +355,16 @@ const SynonymsManagement = () => {
                   </span>
                 ) : null;
               })()}
+              {entry.engagement_filters.length > 0 && (
+                <span className="inline-flex items-center text-[10px] px-1.5 py-0.5 rounded bg-green-200/90 text-green-900 font-medium mt-0.5">
+                  {entry.engagement_filters.length} eng.
+                </span>
+              )}
+              {entry.commodity_filters.length > 0 && (
+                <span className="inline-flex items-center text-[10px] px-1.5 py-0.5 rounded bg-orange-200/90 text-orange-900 font-medium mt-0.5">
+                  {entry.commodity_filters.length} com.
+                </span>
+              )}
             </div>
 
             {/* Filter summary + count + link */}
