@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Sparkles, RefreshCw } from "lucide-react";
+import { Sparkles, RefreshCw, Play } from "lucide-react";
 
 const DEMO_TEXT = `Voici nos meilleures recommandations pour déguster un **steak frites à Marrakech**. Le **Café des Épices** propose une version revisitée avec des épices locales, tandis que **Le Comptoir Darna** offre une ambiance festive et une cuisine française raffinée. Pour une expérience plus décontractée, **Grand Café de la Poste** est un incontournable avec son cadre colonial élégant.`;
 
