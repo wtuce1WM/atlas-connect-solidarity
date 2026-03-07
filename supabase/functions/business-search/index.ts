@@ -1561,6 +1561,7 @@ serve(async (req) => {
           }
         }
       }
+      } // end else (paired filters cover detected subcategory)
     } else if (synonymLinkedServices.length > 0) {
       // ── LEGACY: flat arrays mode (backward compat for entries without filters) ──
       const hasSubcatScope = synonymLinkedSubcategories.length > 0;
