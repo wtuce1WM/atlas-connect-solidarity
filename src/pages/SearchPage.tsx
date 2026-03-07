@@ -2630,7 +2630,7 @@ const SearchPage = () => {
       {activeTab === "suggestions" && (
       <section
         ref={resultsRef}
-        className="bg-background pb-6 lg:pb-12 pt-4 overflow-y-auto"
+        className="bg-background pb-6 lg:pb-4 pt-4 overflow-y-auto"
         style={stickyStackPadding > 0 ? {
           position: 'sticky',
           top: `${stickyStackPadding}px`,
