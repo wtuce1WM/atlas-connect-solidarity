@@ -3103,7 +3103,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         {/* Engagements & Services */}
         <div id="section-services" className="p-4 bg-red-50 border border-red-200 rounded-lg space-y-4" style={{ scrollMarginTop: '160px' }}>
           <Label className="text-xl font-semibold">Engagements & Commodités</Label>
-          <div className="flex flex-col md:flex-row gap-4 max-h-[350px] overflow-y-auto pr-1">
+          <div className="flex flex-col md:flex-row gap-4 max-h-[500px] overflow-y-auto pr-1">
             <div className="space-y-2 flex-1">
               <div className="flex items-center gap-1">
                 <Label>Certifications</Label>
