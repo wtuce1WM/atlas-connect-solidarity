@@ -116,11 +116,11 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
       <>
       {/* Backdrop 20% left — click to collapse */}
       <div
-        className="fixed top-[53px] left-0 bottom-0 z-[39] bg-black/40 backdrop-blur-[2px] animate-in fade-in duration-800"
+        className="fixed top-[53px] left-0 bottom-0 z-[39] bg-black/40 backdrop-blur-[2px] animate-in fade-in duration-1000"
         style={{ width: "20%" }}
         onClick={() => setIsExpanded(false)}
       />
-      <div className="fixed top-[53px] right-0 bottom-0 z-[40] bg-background flex flex-col border-l-2 border-border shadow-[-8px_0_30px_-5px_rgba(0,0,0,0.15)] animate-in fade-in slide-in-from-right duration-800" style={{ width: "80%" }}>
+      <div className="fixed top-[53px] right-0 bottom-0 z-[40] bg-background flex flex-col border-l-2 border-border shadow-[-8px_0_30px_-5px_rgba(0,0,0,0.15)] animate-in fade-in slide-in-from-right duration-1000" style={{ width: "80%" }}>
         <div className="shrink-0 flex items-center px-4 py-3 gap-3 bg-white border-b border-border">
           <button
             onClick={() => { onClose(); setIsExpanded(false); }}
