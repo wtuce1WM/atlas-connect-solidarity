@@ -110,7 +110,7 @@ const SearchInput = ({
     if (onSubmit) {
       onSubmit(inputValue.trim());
     } else {
-      go(`/search?q=${encodeURIComponent(inputValue.trim())}`);
+      go(`/search?q=${encodeURIComponent(inputValue.trim())}&_t=${Date.now()}`);
     }
     if (shouldClear) setInputValue("");
   };
