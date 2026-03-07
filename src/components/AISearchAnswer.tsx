@@ -426,21 +426,8 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
         }
 
         if (data?.answer) {
-          setFadeWordIndex(-1);
-          setFadeComplete(false);
           setAnswer(data.answer);
           onAnswerReady?.(data.answer);
-          // Start word-by-word fade
-          const plainWords = data.answer.replace(/\*\*/g, "").replace(/\*/g, "").split(/\s+/).filter(Boolean);
-          let i = -1;
-          const iv = setInterval(() => {
-            i++;
-            setFadeWordIndex(i);
-            if (i >= plainWords.length - 1) {
-              clearInterval(iv);
-              setFadeComplete(true);
-            }
-          }, 45);
         }
       } catch (err) {
         if (currentFetchId !== fetchIdRef.current) return;
