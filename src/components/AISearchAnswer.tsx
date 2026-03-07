@@ -368,6 +368,43 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
     setSelectedBusiness(null);
   }, [query]);
 
+  // Word-by-word fade animation when answer arrives
+  useEffect(() => {
+    if (fadeIntervalRef.current) {
+      clearInterval(fadeIntervalRef.current);
+      fadeIntervalRef.current = null;
+    }
+    if (!answer || isLoading) {
+      setFadeWordIndex(undefined);
+      setFadeComplete(true);
+      return;
+    }
+    const plainWords = answer.replace(/\*\*/g, "").replace(/\*/g, "").split(/\s+/).filter(Boolean);
+    const total = plainWords.length;
+    if (total === 0) { setFadeComplete(true); return; }
+    
+    setFadeComplete(false);
+    setFadeWordIndex(-1);
+    
+    let i = -1;
+    fadeIntervalRef.current = setInterval(() => {
+      i++;
+      setFadeWordIndex(i);
+      if (i >= total - 1) {
+        if (fadeIntervalRef.current) clearInterval(fadeIntervalRef.current);
+        fadeIntervalRef.current = null;
+        setFadeComplete(true);
+      }
+    }, 45);
+
+    return () => {
+      if (fadeIntervalRef.current) {
+        clearInterval(fadeIntervalRef.current);
+        fadeIntervalRef.current = null;
+      }
+    };
+  }, [answer, isLoading]);
+
   // When search finishes with 0 results, stop any loading state
   useEffect(() => {
     if (!isSearchLoading && businesses.length === 0 && isLoading) {
