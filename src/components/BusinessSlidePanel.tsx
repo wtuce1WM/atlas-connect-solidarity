@@ -701,7 +701,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   const bookingUrl = business.reserve_now_url || business.booking_url || business.other_booking_url || null;
   const hasLiteApiMapping = !!liteApiHotelId;
   const showFloatingButton = (business.reserve_now_url || hasLiteApiMapping) && !isBookingOpen;
-  const floatingLabel = hasLiteApiMapping ? "DISPO ?" : "RÉSERVER";
+  const floatingLabel = hasLiteApiMapping ? "DISPONIBILITÉ" : "RÉSERVER";
 
   return (
     <div className="flex flex-col h-full relative">
