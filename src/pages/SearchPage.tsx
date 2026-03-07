@@ -3005,6 +3005,14 @@ const SearchPage = () => {
               isExpanded={isCompactPanelExpanded}
               onToggleExpand={() => setIsCompactPanelExpanded(prev => !prev)}
             />
+            <button
+              onClick={() => setIsCompactPanelExpanded(prev => !prev)}
+              className="absolute top-2 left-16 z-[120] h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background border border-background/20 shadow-md hover:opacity-90 transition-opacity"
+              title={isCompactPanelExpanded ? "Réduire" : "Agrandir"}
+              aria-label={isCompactPanelExpanded ? "Réduire le panneau" : "Agrandir le panneau"}
+            >
+              {isCompactPanelExpanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+            </button>
             <div className="flex-1 min-h-0">
               <BusinessSlidePanel
                 businessId={compactPanelBusiness.id}
