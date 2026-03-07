@@ -2217,21 +2217,21 @@ const SearchPage = () => {
         <div data-service-filter className="sticky z-[5] bg-background border-b border-border py-2 relative" style={{ top: `${stickyTops.serviceBar}px` }}>
           <span className="absolute top-0 left-1 z-[60] bg-cyan-500 text-white text-[10px] font-bold px-2 py-0.5 rounded select-all cursor-text">🩵 STICKY 3d — Service Filter</span>
           <div className="mx-auto px-4 max-w-[80%]">
-            <div className="flex gap-2 overflow-x-auto pb-0.5 scrollbar-hide">
+            <div className="flex flex-wrap gap-2">
               {searchServiceFilters.map((svc) => {
                 const isSelected = selectedServiceFilter === svc.name;
                 return (
                   <button
                     key={svc.name}
                     onClick={() => setSelectedServiceFilter(isSelected ? null : svc.name)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium whitespace-nowrap transition-all shrink-0 ${
+                    className={`flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-bold transition-all ${
                       isSelected
                         ? "bg-gold/20 border-gold text-gold shadow-sm"
                         : "bg-card border-border text-muted-foreground hover:border-gold/40 hover:text-foreground"
                     }`}
                   >
                     <span>{svc.name}</span>
-                    <span className={`text-[10px] ${isSelected ? "text-gold/70" : "text-muted-foreground/60"}`}>
+                    <span className={`text-xs font-normal ${isSelected ? "text-gold/70" : "text-muted-foreground/60"}`}>
                       {svc.count}
                     </span>
                   </button>
