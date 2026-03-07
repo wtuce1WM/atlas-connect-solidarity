@@ -41,6 +41,7 @@ import Club from "./pages/Club";
 import ScrollToTop from "./components/ScrollToTop";
 import RouteTransition from "./components/RouteTransition";
 const LogoEffectsDemo = lazy(() => import("./pages/LogoEffectsDemo"));
+const AIEffectsDemo = lazy(() => import("./pages/AIEffectsDemo"));
 import CGF from "./pages/CGF";
 import SearchAnalytics from "./pages/SearchAnalytics";
 import StaffMaster from "./pages/StaffMaster";
