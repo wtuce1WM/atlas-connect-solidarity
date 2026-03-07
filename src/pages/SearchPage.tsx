@@ -1171,6 +1171,7 @@ const SearchPage = () => {
         setSearchMessage("");
         setDetectedSubcategory(null);
         setSearchMode(null);
+        setSynonymUsed(false);
         setIsLoading(false);
         return;
       }
@@ -1178,6 +1179,7 @@ const SearchPage = () => {
       setIsLoading(true);
       setAiAnswerText("");
       setDetectedSubcategory(null);
+      setSynonymUsed(false);
       setSearchMode(null);
       try {
         // Fetch cities with sort_order
