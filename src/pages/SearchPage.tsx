@@ -2271,17 +2271,32 @@ const SearchPage = () => {
                 />
               </div>
             </section>
+            {poiSelectedBusinessId && poiPanelExpanded && (
+              <div
+                className="fixed top-[53px] left-0 bottom-0 z-[39] bg-black/40 backdrop-blur-[2px]"
+                style={{ width: "20%" }}
+                onClick={() => setPoiPanelExpanded(false)}
+              />
+            )}
             {poiSelectedBusinessId && (
-              <div className="fixed top-0 left-0 right-0 z-40 bg-background shadow-2xl overflow-hidden flex flex-col animate-slide-in-right lg:w-1/2 lg:top-[54px] lg:left-auto lg:border-l lg:border-border" style={{ height: isMobile ? "100vh" : "calc(100vh - 54px)" }}>
+              <div className={`fixed top-0 left-0 right-0 z-40 bg-background shadow-2xl overflow-hidden flex flex-col animate-slide-in-right lg:top-[53px] lg:left-auto lg:border-l lg:border-border ${poiPanelExpanded ? "lg:w-[80%] border-l-2 border-border shadow-[-8px_0_30px_-5px_rgba(0,0,0,0.15)]" : "lg:w-1/2"} transition-all duration-500 ease-out`} style={{ height: isMobile ? "100vh" : "calc(100vh - 53px)" }}>
                 <div className="shrink-0 flex items-center px-4 py-2 bg-white border-b border-border z-40">
                   <div className="flex items-center gap-3 shrink-0">
                     <button
-                      onClick={() => setPoiSelectedBusinessId(null)}
-                      className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background border-2 border-background/20 shadow-2xl hover:opacity-90 transition-opacity"
+                      onClick={() => { setPoiSelectedBusinessId(null); setPoiPanelExpanded(false); }}
+                      className="h-9 w-9 flex items-center justify-center rounded-full bg-destructive text-white hover:bg-destructive/90 transition-colors"
                       title="Fermer"
                       aria-label="Fermer le panneau"
                     >
                       <X className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => setPoiPanelExpanded(v => !v)}
+                      className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors"
+                      title={poiPanelExpanded ? "Réduire" : "Agrandir"}
+                      aria-label={poiPanelExpanded ? "Réduire le panneau" : "Agrandir le panneau"}
+                    >
+                      {poiPanelExpanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
                     </button>
                   </div>
                   <div id="slide-panel-toolbar-center" className="flex-1 flex items-center justify-center gap-4" />
@@ -2290,9 +2305,9 @@ const SearchPage = () => {
                 <div className="flex-1 min-h-0">
                   <BusinessSlidePanel
                     businessId={poiSelectedBusinessId}
-                    onClose={() => setPoiSelectedBusinessId(null)}
-                    isExpanded={false}
-                    onToggleExpand={() => {}}
+                    onClose={() => { setPoiSelectedBusinessId(null); setPoiPanelExpanded(false); }}
+                    isExpanded={poiPanelExpanded}
+                    onToggleExpand={() => setPoiPanelExpanded(v => !v)}
                   />
                 </div>
               </div>
