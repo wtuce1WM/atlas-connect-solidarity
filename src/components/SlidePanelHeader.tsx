@@ -42,7 +42,7 @@ const SlidePanelHeader = ({
         {onToggleExpand && (
           <button
             onClick={onToggleExpand}
-            className="h-9 w-9 flex items-center justify-center rounded-full bg-card text-foreground border-2 border-border shadow-sm hover:bg-muted transition-colors"
+            className="h-9 w-9 flex items-center justify-center rounded-full bg-muted text-foreground border border-border shadow-sm hover:bg-muted/80 transition-colors"
             title={isExpanded ? "Réduire" : "Agrandir"}
             aria-label={isExpanded ? "Réduire le panneau" : "Agrandir le panneau"}
           >
