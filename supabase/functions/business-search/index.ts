@@ -1997,6 +1997,7 @@ serve(async (req) => {
             serviceMatchWordsForInjection = [];
           }
           console.log(`Detected service(s) for SQL filter: [${detectedServices.join(", ")}], all candidates: [${allCandidateServiceNames.join(", ")}] (from: ${serviceMatchWords.join(", ")})`);
+          if (detectedService) serviceWasDetected = true;
         }
       }
     }
