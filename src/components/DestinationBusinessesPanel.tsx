@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
-import { MapPin, Star, Loader2, X, ChevronLeft, ChevronRight, Maximize2, Minimize2 } from "lucide-react";
+import { MapPin, Star, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import SlidePanelHeader from "@/components/SlidePanelHeader";
 import FullscreenLightbox from "@/components/FullscreenLightbox";
 import type { MediaItem } from "@/components/FullscreenLightbox";
 import { supabase } from "@/integrations/supabase/client";
