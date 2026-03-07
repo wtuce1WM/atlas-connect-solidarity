@@ -118,6 +118,7 @@ const AppContent = () => {
               <Route path="/blog/search-layouts" element={<SearchLayoutDemo />} />
               <Route path="/blog/search-copy" element={<SearchPageCopy />} />
               <Route path="/blog/mode-strict" element={<StrictModePage />} />
+              <Route path="/demo-ai-effects" element={<Suspense fallback={null}><AIEffectsDemo /></Suspense>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
