@@ -2096,7 +2096,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                   return (
                     <div
                       key={hotel.hotelId}
-                      className="group overflow-hidden rounded-xl border border-white/15 shadow-sm hover:shadow-md transition-all cursor-pointer relative aspect-[3/4]"
+                      className="group overflow-hidden rounded-xl border border-white/15 shadow-sm hover:shadow-md transition-all cursor-pointer relative aspect-square"
                       onClick={(e) => {
                         e.stopPropagation();
                         if (hotel.businessId) {
@@ -2117,7 +2117,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
 
                       {hotel.wtuce_status === "verified" && (
                         <div className="absolute top-2 right-2 z-10">
-                          <img src={logoGold} alt="WTUCE" className="w-7 h-7 object-contain" />
+                          <img src={logoGold} alt="WTUCE" className="w-[5.25rem] h-[5.25rem] object-contain" />
                         </div>
                       )}
 
