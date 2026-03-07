@@ -3045,6 +3045,17 @@ const SearchPage = () => {
               </button>
             </div>
             <div className="flex-1 min-h-0 overflow-y-auto px-6 py-5">
+              <div className="mb-4 text-center">
+                <p className="text-muted-foreground text-sm">
+                  {language === "en" ? "Search results for" : language === "ar" ? "نتائج البحث عن" : "Résultats de recherche pour"}
+                </p>
+                <p className="text-lg font-bold text-foreground mt-1">
+                  « {searchQuery} »
+                </p>
+                <p className="text-gold font-semibold mt-1">
+                  {displayedResultsCount} {language === "en" ? "establishments found" : language === "ar" ? "مؤسسة وجدت" : "établissements trouvés"}
+                </p>
+              </div>
               <div className="text-sm text-muted-foreground leading-relaxed space-y-1">
                 {parseInline(
                   aiAnswerText.replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "").replace(/\n+/g, " "),
