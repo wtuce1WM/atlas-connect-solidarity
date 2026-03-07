@@ -1006,6 +1006,25 @@ serve(async (req) => {
         }
       }
     }
+    // ── Pre-fetch services for synonym disambiguation (multi-word service check) ──
+    const { data: allServicesForSynCheck } = await supabase.from("services").select("name_fr");
+    // Helper: check if synonym key is part of a more specific multi-word service matching the query
+    const synonymKeyMatchesMultiWordService = (key: string): boolean => {
+      const qLowerFull = effectiveQuery.toLowerCase().replace(/-/g, " ").replace(/\s+/g, " ").trim();
+      const qWordsFull = qLowerFull.split(/\s+/).filter(w => w.length > 1 && !FRENCH_STOP_WORDS.has(w));
+      if (qWordsFull.length < 2 || !allServicesForSynCheck) return false;
+      const normSyn = (w: string): string => stripAccentsGlobal(w.toLowerCase().replace(/-/g, " ").replace(/\s+/g, " ").trim());
+      const stripPlSyn = (w: string): string => { if (w.endsWith("aux")) return w.slice(0, -3) + "al"; if (w.endsWith("s")) return w.slice(0, -1); return w; };
+      const normWordSyn = (w: string): string => stripAccentsGlobal(stripPlSyn(w));
+      return allServicesForSynCheck.some((svc: any) => {
+        const svcCW = normSyn(svc.name_fr).split(/\s+/).filter((w: string) => w.length > 1 && !FRENCH_STOP_WORDS.has(w));
+        if (svcCW.length < 2) return false;
+        const keyNorm = normSyn(key);
+        const keyInSvc = svcCW.some((sw: string) => normWordSyn(sw) === normWordSyn(keyNorm));
+        if (!keyInSvc) return false;
+        return svcCW.every((sw: string) => qWordsFull.some(qw => normWordSyn(qw) === normWordSyn(sw)));
+      });
+    };
     // ── Synonym-linked subcategories: when a query word matches a synonym entry with subcategory_names ──
     // Check ALL query variants (effectiveQuery, original query, spoken) to catch natural language synonyms
     let synonymLinkedSubcategories: string[] = [];
@@ -1030,6 +1049,10 @@ serve(async (req) => {
           if (matched) break;
         }
         if (matched) {
+          if (synonymKeyMatchesMultiWordService(key)) {
+            console.log(`⏭️ Synonym "${key}" subcategory link skipped: query matches a more specific multi-word service`);
+            continue;
+          }
           synonymLinkedSubcategories = [...new Set([...synonymLinkedSubcategories, ...subcatNames])];
           console.log(`Synonym "${key}" matched → linked subcategories: [${subcatNames.join(", ")}]`);
         }
@@ -1059,6 +1082,10 @@ serve(async (req) => {
           if (matched) break;
         }
         if (matched) {
+          if (synonymKeyMatchesMultiWordService(key)) {
+            console.log(`⏭️ Synonym "${key}" service link skipped: query matches a more specific multi-word service`);
+            continue;
+          }
           synonymLinkedServices = [...new Set([...synonymLinkedServices, ...svcNames])];
           console.log(`Synonym "${key}" matched → linked services: [${svcNames.join(", ")}]`);
         }
@@ -1090,6 +1117,10 @@ serve(async (req) => {
           if (matched) break;
         }
         if (matched) {
+          if (synonymKeyMatchesMultiWordService(key)) {
+            console.log(`⏭️ Synonym "${key}" paired filters skipped: query matches a more specific multi-word service`);
+            continue;
+          }
           matchedSynonymFilters = [...matchedSynonymFilters, ...filters];
           matchedSynonymFilterKeys.push(key);
           console.log(`Synonym "${key}" matched → paired filters: ${JSON.stringify(filters)}`);
@@ -1439,12 +1470,21 @@ serve(async (req) => {
             if (f.required_service) addConsumed(f.required_service);
           }
           // Also consume synonym key words AND synonym value words that triggered the match
+          // Track synonym key words separately for multi-word service detection
+          const synonymKeyConsumedWords = new Set<string>();
           for (const key of matchedSynonymFilterKeys) {
             addConsumed(key);
+            for (const w of key.toLowerCase().split(/[\s-]+/)) {
+              synonymKeyConsumedWords.add(w);
+              synonymKeyConsumedWords.add(stripAccentsGlobal(w));
+            }
             const synVals = synonyms[key] || [];
             for (const sv of synVals) addConsumed(sv);
           }
           console.log(`🔑 Paired consumed words: [${[...pairedConsumedWords].join(", ")}] (keys: [${matchedSynonymFilterKeys.join(", ")}])`);
+          // Also exclude detected city/neighborhood words from remaining
+          if (effectiveCity) { for (const w of effectiveCity.toLowerCase().split(/[\s-]+/)) { pairedConsumedWords.add(w); pairedConsumedWords.add(stripAccentsGlobal(w)); } }
+          if (detectedNeighborhood) { for (const w of detectedNeighborhood.toLowerCase().split(/[\s-]+/)) { pairedConsumedWords.add(w); pairedConsumedWords.add(stripAccentsGlobal(w)); } }
           const pairedRemainingWords = effectiveQuery.toLowerCase().split(/\s+/)
             .filter(w => w.length > 1 && !FRENCH_STOP_WORDS.has(w) && !NOISE_ADJECTIVES.has(w) && !pairedConsumedWords.has(w) && !pairedConsumedWords.has(stripAccentsGlobal(w)));
           if (pairedRemainingWords.length > 0) {
@@ -1457,18 +1497,56 @@ serve(async (req) => {
               for (const svc of allSvcs) {
                 const svcNorm = stripAccentsGlobal(svc.name_fr.toLowerCase().replace(/-/g, " "));
                 const svcCW = svcNorm.split(/\s+/).filter((w: string) => w.length > 1 && !FRENCH_STOP_WORDS.has(w));
-                if (svcCW.length > 0 && svcCW.every((sw: string) => pairedRemainingWords.some(rw => normR(rw) === sw || normR(rw) === stripPlR(sw)))) {
+                if (svcCW.length === 0) continue;
+                // Check if ALL content words are in remaining words (original logic)
+                const allInRemaining = svcCW.every((sw: string) => pairedRemainingWords.some(rw => normR(rw) === sw || normR(rw) === stripPlR(sw)));
+                if (allInRemaining) {
                   extraServices.push(svc.name_fr);
+                  continue;
+                }
+                // NEW: For multi-word services, check if words span remaining + synonym key words,
+                // with at least one word in remaining. This catches "Plats à tajine" when
+                // "tajine" was consumed by the synonym but "plats" remains.
+                // Only use synonym KEY words (not all consumed words) to avoid false positives
+                // like "Plats cuisinés" matching because "cuisine" is a consumed service name word.
+                if (svcCW.length >= 2) {
+                  const hasAtLeastOneRemaining = svcCW.some((sw: string) => pairedRemainingWords.some(rw => normR(rw) === sw || normR(rw) === stripPlR(sw)));
+                  const allInRemainingOrSynonymKey = svcCW.every((sw: string) => {
+                    const inRemaining = pairedRemainingWords.some(rw => normR(rw) === sw || normR(rw) === stripPlR(sw));
+                    const inSynonymKey = synonymKeyConsumedWords.has(sw) || synonymKeyConsumedWords.has(stripPlR(sw));
+                    return inRemaining || inSynonymKey;
+                  });
+                  if (hasAtLeastOneRemaining && allInRemainingOrSynonymKey) {
+                    extraServices.push(svc.name_fr);
+                    console.log(`🔍 Multi-word service "${svc.name_fr}" spans remaining+synonym key words`);
+                  }
                 }
               }
-              const uniqueExtra = [...new Map(extraServices.map(n => [stripAccentsGlobal(n.toLowerCase().replace(/-/g, " ")), n])).values()];
-              if (uniqueExtra.length > 0) {
+              // Separate services found via remaining-only vs remaining+synonym-key
+              // remaining-only services use AND (original logic), synonym-spanning use OR filter
+              const remainingOnlyServices: string[] = [];
+              const synonymSpanningServices: string[] = [];
+              for (const svc of extraServices) {
+                const svcNorm = stripAccentsGlobal(svc.toLowerCase().replace(/-/g, " "));
+                const svcCW = svcNorm.split(/\s+/).filter((w: string) => w.length > 1 && !FRENCH_STOP_WORDS.has(w));
+                const allInRemaining = svcCW.every((sw: string) => pairedRemainingWords.some(rw => normR(rw) === sw || normR(rw) === stripPlR(sw)));
+                if (allInRemaining) remainingOnlyServices.push(svc);
+                else synonymSpanningServices.push(svc);
+              }
+              const uniqueRemainingOnly = [...new Map(remainingOnlyServices.map(n => [stripAccentsGlobal(n.toLowerCase().replace(/-/g, " ")), n])).values()];
+              const uniqueSynonymSpanning = [...new Map(synonymSpanningServices.map(n => [stripAccentsGlobal(n.toLowerCase().replace(/-/g, " ")), n])).values()];
+              
+              if (uniqueRemainingOnly.length > 0 || uniqueSynonymSpanning.length > 0) {
                 const bc = businesses.length;
                 businesses = businesses.filter((b: any) => {
                   const bSvcs = ((b.services || []) as string[]).map((s: string) => stripAccentsGlobal(s.toLowerCase().replace(/-/g, " ")));
-                  return uniqueExtra.every(req => bSvcs.some(bs => bs === stripAccentsGlobal(req.toLowerCase().replace(/-/g, " "))));
+                  // Remaining-only services: require ALL (AND)
+                  const remainingOk = uniqueRemainingOnly.every(req => bSvcs.some(bs => bs === stripAccentsGlobal(req.toLowerCase().replace(/-/g, " "))));
+                  // Synonym-spanning services: require ANY (OR) — they're more specific alternatives
+                  const synonymOk = uniqueSynonymSpanning.length === 0 || uniqueSynonymSpanning.some(req => bSvcs.some(bs => bs === stripAccentsGlobal(req.toLowerCase().replace(/-/g, " "))));
+                  return remainingOk && synonymOk;
                 });
-                console.log(`🔍 Paired post-filter: required [${uniqueExtra.join(", ")}] → ${bc} → ${businesses.length}`);
+                console.log(`🔍 Paired post-filter: remaining-AND [${uniqueRemainingOnly.join(", ")}], synonym-OR [${uniqueSynonymSpanning.join(", ")}] → ${bc} → ${businesses.length}`);
               }
             }
           }
