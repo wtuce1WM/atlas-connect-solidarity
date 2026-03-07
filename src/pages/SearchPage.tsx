@@ -1192,6 +1192,9 @@ const SearchPage = () => {
       
       setIsLoading(true);
       setAiAnswerText("");
+      setShowAiPopup(false);
+      setOverlaySelectedBusiness(null);
+      aiPopupShownRef.current = false;
       setDetectedSubcategory(null);
       setSynonymUsed(false);
       setPreciseMatch(false);
