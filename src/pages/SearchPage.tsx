@@ -1610,12 +1610,12 @@ const SearchPage = () => {
       <Header />
 
       {/* Hidden AISearchAnswer instance — always renders to ensure onAnswerReady fires even when hero is hidden */}
-      {searchQuery && !isLoading && allBusinesses.length > 0 && !aiAnswerText && (
+      {searchQuery && !isLoading && filteredBusinesses.length > 0 && !aiAnswerText && (
         <div className="hidden">
           <AISearchAnswer
             query={spokenText || searchQuery}
             spokenText={spokenText || undefined}
-            businesses={allBusinesses}
+            businesses={filteredBusinesses}
             isSearchLoading={isLoading}
             onAnswerReady={setAiAnswerText}
             externalRegenerateKey={aiRegenerateKey}
