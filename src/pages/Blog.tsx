@@ -178,7 +178,30 @@ const Blog = () => {
               </Card>
             </Link>
 
-            {/* Carte Mode Strict */}
+            {/* Carte Effets IA */}
+            <Link to="/blog/ai-effects">
+              <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-950/30 dark:to-yellow-950/30">
+                <div className="aspect-video overflow-hidden bg-gradient-to-br from-amber-500/20 to-yellow-500/5 flex items-center justify-center">
+                  <Sparkles className="h-16 w-16 text-amber-500" />
+                </div>
+                <CardContent className="p-6">
+                  <h2 className="text-xl font-semibold mb-3 font-['Playfair_Display'] italic">
+                    Effets CSS — Texte IA
+                  </h2>
+                  <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
+                    Démo des 4 effets d'animation pour l'apparition du texte IA : typewriter, reveal par ligne, fondu mot par mot, expansion shimmer.
+                  </p>
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1 text-amber-500 font-medium">
+                      <Sparkles className="h-3 w-3" /> Animation
+                    </span>
+                    <ArrowRight className="h-4 w-4 text-amber-500" />
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+
+
             <Link to="/blog/mode-strict">
               <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-red-50 to-rose-50 dark:from-red-950/30 dark:to-rose-950/30">
                 <div className="aspect-video overflow-hidden bg-gradient-to-br from-red-500/20 to-rose-500/5 flex items-center justify-center">
