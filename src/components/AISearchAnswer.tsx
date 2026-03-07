@@ -252,7 +252,7 @@ const formatAnswer = (
       : undefined;
 
   const fade: HighlightState | undefined =
-    !fadeComplete && fadeWordIndex !== undefined && fadeWordIndex >= -1
+    !fadeComplete && fadeWordIndex !== undefined
       ? { wordIndex: 0, target: fadeWordIndex }
       : undefined;
 
@@ -348,8 +348,9 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
   const [selectedBusiness, setSelectedBusiness] = useState<BusinessData | null>(null);
   const [fontSize, setFontSize] = useState(0);
   const [regenerateCount, setRegenerateCount] = useState(0);
-  const [fadeWordIndex, setFadeWordIndex] = useState(-1);
-  const [fadeComplete, setFadeComplete] = useState(false);
+  const [fadeWordIndex, setFadeWordIndex] = useState<number | undefined>(undefined);
+  const [fadeComplete, setFadeComplete] = useState(true);
+  const fadeIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const fetchIdRef = useRef(0);
   const lastFetchKeyRef = useRef("");
   const aiPanelRef = useRef<HTMLDivElement>(null);
@@ -366,6 +367,43 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
     setError(null);
     setSelectedBusiness(null);
   }, [query]);
+
+  // Word-by-word fade animation when answer arrives
+  useEffect(() => {
+    if (fadeIntervalRef.current) {
+      clearInterval(fadeIntervalRef.current);
+      fadeIntervalRef.current = null;
+    }
+    if (!answer || isLoading) {
+      setFadeWordIndex(undefined);
+      setFadeComplete(true);
+      return;
+    }
+    const plainWords = answer.replace(/\*\*/g, "").replace(/\*/g, "").split(/\s+/).filter(Boolean);
+    const total = plainWords.length;
+    if (total === 0) { setFadeComplete(true); return; }
+    
+    setFadeComplete(false);
+    setFadeWordIndex(-1);
+    
+    let i = -1;
+    fadeIntervalRef.current = setInterval(() => {
+      i++;
+      setFadeWordIndex(i);
+      if (i >= total - 1) {
+        if (fadeIntervalRef.current) clearInterval(fadeIntervalRef.current);
+        fadeIntervalRef.current = null;
+        setFadeComplete(true);
+      }
+    }, 45);
+
+    return () => {
+      if (fadeIntervalRef.current) {
+        clearInterval(fadeIntervalRef.current);
+        fadeIntervalRef.current = null;
+      }
+    };
+  }, [answer, isLoading]);
 
   // When search finishes with 0 results, stop any loading state
   useEffect(() => {
@@ -425,21 +463,8 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
         }
 
         if (data?.answer) {
-          setFadeWordIndex(-1);
-          setFadeComplete(false);
           setAnswer(data.answer);
           onAnswerReady?.(data.answer);
-          // Start word-by-word fade
-          const plainWords = data.answer.replace(/\*\*/g, "").replace(/\*/g, "").split(/\s+/).filter(Boolean);
-          let i = -1;
-          const iv = setInterval(() => {
-            i++;
-            setFadeWordIndex(i);
-            if (i >= plainWords.length - 1) {
-              clearInterval(iv);
-              setFadeComplete(true);
-            }
-          }, 45);
         }
       } catch (err) {
         if (currentFetchId !== fetchIdRef.current) return;
