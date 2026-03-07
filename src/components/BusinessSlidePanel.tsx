@@ -154,7 +154,7 @@ const SkypeIcon = ({ className = "h-5 w-5" }: { className?: string }) => (
   </svg>
 );
 
-const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpanded, onToggleExpand, liteApiData, leftPanelPortalRef }: BusinessSlidePanelProps) => {
+const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpanded, onToggleExpand, liteApiData, leftPanelPortalRef, onImageCount }: BusinessSlidePanelProps) => {
   const [internalBusinessId, setInternalBusinessId] = useState(externalBusinessId);
   const businessId = internalBusinessId;
 
