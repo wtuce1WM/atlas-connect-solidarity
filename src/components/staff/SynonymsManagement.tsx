@@ -76,17 +76,27 @@ const SynonymsManagement = () => {
   const [editFilterValues, setEditFilterValues] = useState<{ subcategory_name: string; required_service: string }>({ subcategory_name: "", required_service: "" });
   const [selectedEntryId, setSelectedEntryId] = useState<string | null>(null);
   const [searchText, setSearchText] = useState("");
+  const [globalEngagements, setGlobalEngagements] = useState<string[]>([]);
+  const [globalCommodites, setGlobalCommodites] = useState<string[]>([]);
 
   const load = async () => {
     setIsLoading(true);
-    const [{ data }, { data: subcats }, { data: cats }, svcData, { data: bdgData }, bizData] = await Promise.all([
+    const [{ data }, { data: subcats }, { data: cats }, svcData, { data: bdgData }, bizData, { data: engOptsData }] = await Promise.all([
       supabase.from("search_synonyms").select("*").order("key_word"),
       supabase.from("subcategories").select("id, name_fr, category_id").order("name_fr"),
       supabase.from("categories").select("id, name_fr").order("name_fr"),
       fetchAllRows<{ name_fr: string; subcategory_id: string }>("services", "name_fr, subcategory_id", "name_fr"),
       supabase.from("badges").select("id, name_fr, color_hex, text_color_hex").order("name_fr"),
       fetchAllRows<{ categories: string[]; services: string[] }>("businesses", "categories, services", "name"),
+      supabase.from("staff_notes").select("content").eq("key", "engagement_custom_options_v1").maybeSingle(),
     ]);
+    if (engOptsData?.content) {
+      try {
+        const parsed = JSON.parse(engOptsData.content);
+        setGlobalEngagements((Array.isArray(parsed?.engagements) ? parsed.engagements.filter((v: unknown) => typeof v === "string" && v.trim()) : []).sort((a: string, b: string) => a.localeCompare(b, "fr")));
+        setGlobalCommodites((Array.isArray(parsed?.commodites) ? parsed.commodites.filter((v: unknown) => typeof v === "string" && v.trim()) : []).sort((a: string, b: string) => a.localeCompare(b, "fr")));
+      } catch { /* ignore */ }
+    }
     if (data) setEntries(data.map((d: any) => ({
       ...d,
       subcategory_names: d.subcategory_names || [],
@@ -487,7 +497,7 @@ const SynonymsManagement = () => {
             <div className="space-y-2">
               <h4 className="text-sm font-semibold">Engagements</h4>
               <div className="flex flex-wrap gap-1.5">
-                {selectedEntry.engagement_filters.map(eng => (
+                {selectedEntry.engagement_filters.sort((a, b) => a.localeCompare(b, "fr")).map(eng => (
                   <Badge key={eng} variant="outline" className="gap-1 group bg-green-50 border-green-300">
                     {eng}
                     <button
@@ -503,20 +513,21 @@ const SynonymsManagement = () => {
                   </Badge>
                 ))}
               </div>
-              <Input
-                placeholder="Ajouter un engagement (ex: Bio (intégral))..."
-                className="max-w-xs text-sm h-8"
-                onKeyDown={e => {
-                  if (e.key === "Enter") {
-                    const val = (e.target as HTMLInputElement).value.trim();
-                    if (val && !selectedEntry.engagement_filters.includes(val)) {
-                      setEntries(prev => prev.map(en => en.id === selectedEntry.id ? { ...en, engagement_filters: [...en.engagement_filters, val] } : en));
-                      setDirtyEntries(prev => new Set(prev).add(selectedEntry.id));
-                      (e.target as HTMLInputElement).value = "";
-                    }
-                  }
-                }}
-              />
+              {(() => {
+                const available = globalEngagements.filter(e => !selectedEntry.engagement_filters.includes(e));
+                if (available.length === 0) return <p className="text-xs text-muted-foreground">Tous les engagements sont déjà ajoutés.</p>;
+                return (
+                  <Select onValueChange={val => {
+                    setEntries(prev => prev.map(en => en.id === selectedEntry.id ? { ...en, engagement_filters: [...en.engagement_filters, val] } : en));
+                    setDirtyEntries(prev => new Set(prev).add(selectedEntry.id));
+                  }}>
+                    <SelectTrigger className="max-w-xs h-8 text-sm"><SelectValue placeholder="Ajouter un engagement…" /></SelectTrigger>
+                    <SelectContent>
+                      {available.map(e => <SelectItem key={e} value={e}>{e}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                );
+              })()}
             </div>
 
             {/* Commodités */}
@@ -524,7 +535,7 @@ const SynonymsManagement = () => {
               <h4 className="text-sm font-semibold">Commodités</h4>
               <p className="text-xs text-muted-foreground">Préfixe « Logistique: » ajouté automatiquement lors du filtrage.</p>
               <div className="flex flex-wrap gap-1.5">
-                {selectedEntry.commodity_filters.map(com => (
+                {selectedEntry.commodity_filters.sort((a, b) => a.localeCompare(b, "fr")).map(com => (
                   <Badge key={com} variant="outline" className="gap-1 group bg-orange-50 border-orange-300">
                     {com}
                     <button
@@ -540,20 +551,21 @@ const SynonymsManagement = () => {
                   </Badge>
                 ))}
               </div>
-              <Input
-                placeholder="Ajouter une commodité (ex: Parking)..."
-                className="max-w-xs text-sm h-8"
-                onKeyDown={e => {
-                  if (e.key === "Enter") {
-                    const val = (e.target as HTMLInputElement).value.trim();
-                    if (val && !selectedEntry.commodity_filters.includes(val)) {
-                      setEntries(prev => prev.map(en => en.id === selectedEntry.id ? { ...en, commodity_filters: [...en.commodity_filters, val] } : en));
-                      setDirtyEntries(prev => new Set(prev).add(selectedEntry.id));
-                      (e.target as HTMLInputElement).value = "";
-                    }
-                  }
-                }}
-              />
+              {(() => {
+                const available = globalCommodites.filter(c => !selectedEntry.commodity_filters.includes(c));
+                if (available.length === 0) return <p className="text-xs text-muted-foreground">Toutes les commodités sont déjà ajoutées.</p>;
+                return (
+                  <Select onValueChange={val => {
+                    setEntries(prev => prev.map(en => en.id === selectedEntry.id ? { ...en, commodity_filters: [...en.commodity_filters, val] } : en));
+                    setDirtyEntries(prev => new Set(prev).add(selectedEntry.id));
+                  }}>
+                    <SelectTrigger className="max-w-xs h-8 text-sm"><SelectValue placeholder="Ajouter une commodité…" /></SelectTrigger>
+                    <SelectContent>
+                      {available.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                );
+              })()}
             </div>
 
             {/* Synonymes */}
