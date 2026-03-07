@@ -1737,35 +1737,28 @@ const SearchPage = () => {
                   {language === "en" ? "Listen" : language === "ar" ? "استمع" : "Écouter"}
                 </button>
               )}
-              {/* Geo */}
-              <button
-                onClick={() => {
-                  setShowAiPopup(false);
-                  setOverlaySelectedBusiness(null);
-                  setTimeout(() => setLocationDialogOpen(true), 300);
-                }}
-                className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                  geo.isEnabled
-                    ? "bg-gold/20 text-gold border border-gold/40"
-                    : "bg-card text-muted-foreground border border-border hover:border-gold/30"
-                }`}
-              >
-                {geo.isDetecting ? (
-                  <Loader className="h-4 w-4 animate-spin" />
-                ) : geo.isEnabled ? (
-                  <MapPin className="h-4 w-4" />
-                ) : (
-                  <MapPinOff className="h-4 w-4" />
-                )}
-                {geo.isDetecting
-                  ? (language === "en" ? "Detecting..." : "Détection...")
-                  : geo.isEnabled && geo.confirmedAddress
-                  ? `📍 ${geo.confirmedAddress}`
-                  : geo.isEnabled && geo.detectedCity
-                  ? `📍 ${geo.detectedCity}`
-                  : (language === "en" ? "Location" : "Position")
-                }
-              </button>
+              {/* Geo — même traitement overlay que le micro */}
+              <div className="flex flex-col items-center gap-2">
+                <button
+                  onClick={() => {
+                    setLocationDialogOpen(true);
+                  }}
+                  className="relative w-16 h-16 rounded-full bg-black flex items-center justify-center shadow-lg transition-all hover:scale-105"
+                  title={language === "en" ? "Geolocate yourself" : language === "ar" ? "حدد موقعك" : "Géolocalisez-vous"}
+                >
+                  <MapPin className="h-7 w-7 text-white" />
+                </button>
+                <span className="text-xs text-muted-foreground font-medium">
+                  {geo.isDetecting
+                    ? (language === "en" ? "Detecting..." : "Détection...")
+                    : geo.isEnabled && geo.confirmedAddress
+                    ? `📍 ${geo.confirmedAddress}`
+                    : geo.isEnabled && geo.detectedCity
+                    ? `📍 ${geo.detectedCity}`
+                    : (language === "en" ? "Geolocate yourself" : language === "ar" ? "حدد موقعك" : "Géolocalisez-vous")
+                  }
+                </span>
+              </div>
             </div>
 
             {/* Mic button */}
