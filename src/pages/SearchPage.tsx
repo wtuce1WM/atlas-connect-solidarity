@@ -2273,8 +2273,8 @@ const SearchPage = () => {
             </section>
             {poiSelectedBusinessId && poiPanelExpanded && (
               <div
-                className="fixed top-[53px] left-0 bottom-0 z-[39] bg-black/40 backdrop-blur-[2px] animate-in fade-in duration-[1200ms]"
-                style={{ width: "20%" }}
+                className="fixed top-[53px] left-0 bottom-0 z-[39] bg-black/40 backdrop-blur-[2px]"
+                style={{ width: "20%", animation: "panelFadeIn 1.2s ease-out forwards" }}
                 onClick={() => setPoiPanelExpanded(false)}
               />
             )}
