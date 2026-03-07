@@ -2271,6 +2271,7 @@ const SearchPage = () => {
             {poiSelectedBusinessId && poiPanelExpanded && (
               <div
                 className="fixed inset-0 top-[53px] z-[39] bg-black/40 backdrop-blur-[2px]"
+                style={{ opacity: 0, animation: "panelFadeIn 0.2s ease-out 0.1s forwards" }}
                 onClick={() => setPoiPanelExpanded(false)}
               />
             )}
@@ -2953,6 +2954,7 @@ const SearchPage = () => {
           {isCompactPanelExpanded && (
             <div
               className="fixed inset-0 top-[53px] z-[99] bg-black/40 backdrop-blur-[2px]"
+              style={{ opacity: 0, animation: "panelFadeIn 0.2s ease-out 0.1s forwards" }}
               onClick={() => setIsCompactPanelExpanded(false)}
             />
           )}
