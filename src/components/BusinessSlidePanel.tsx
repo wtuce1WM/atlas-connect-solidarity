@@ -1285,10 +1285,6 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
             {/* Nous joindre — Phone + WhatsApp + Skype grouped */}
             {(business.phone || business.whatsapp || business.skype) && (
               <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-2.5">
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1.5">
-                  <Phone className="h-3.5 w-3.5" />
-                  Nous joindre
-                </p>
                 <div className="space-y-2">
                   {business.phone && (
                     <a href={`tel:${business.phone}`} className="flex items-center gap-2.5 text-sm hover:text-foreground transition-colors group">
