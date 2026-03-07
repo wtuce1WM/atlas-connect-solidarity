@@ -156,49 +156,31 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
     {/* Normal panel (hidden when expanded) */}
     {!isExpanded && (
     <div className="fixed top-[53px] right-0 bottom-0 z-40 border-l border-border bg-background flex flex-col shadow-2xl transition-all duration-500 ease-out w-1/2">
-      {/* Header */}
-      <div className="shrink-0 flex items-center px-3 py-2 border-b border-border gap-2 bg-white">
-        <div className="flex items-center gap-2 shrink-0">
-          <button
-            onClick={() => { onClose(); setIsExpanded(false); }}
-            className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-destructive hover:text-white transition-colors"
-            title="Fermer"
-            aria-label="Fermer"
-          >
-            <X className="h-4 w-4" />
-          </button>
-          {(() => {
-            const imgs = destination.images && destination.images.length > 0 ? destination.images : destination.image_url ? [destination.image_url] : [];
-            if (imgs.length <= 1) return null;
-            return (
-              <button
-                onClick={() => setIsExpanded(true)}
-                className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors"
-                title="Agrandir"
-                aria-label="Agrandir le panneau"
-              >
-                <Maximize2 className="h-4 w-4" />
-              </button>
-            );
-          })()}
-        </div>
-        <div className="flex-1 flex items-center justify-center gap-0">
-          <button
-            onClick={() => { scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" }); }}
-            className={`px-4 py-1.5 text-sm font-semibold border-b-2 transition-colors ${activeTab === "info" ? "border-gold text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
-          >
-            {getName()}
-          </button>
-          <button
-            onClick={() => { providersRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }); }}
-            className={`px-4 py-1.5 text-sm font-semibold border-b-2 transition-colors ${activeTab === "providers" ? "border-gold text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
-          >
-            {language === "en" ? "Providers" : language === "ar" ? "مزودون" : "Prestataires"}
-            {!isLoading && <span className="ml-1.5 text-xs font-normal text-muted-foreground">{businesses.length}</span>}
-          </button>
-        </div>
-        <div className="w-[76px] shrink-0" />
-      </div>
+      <SlidePanelHeader
+        onClose={() => { onClose(); setIsExpanded(false); }}
+        isExpanded={false}
+        onToggleExpand={(() => {
+          const imgs = destination.images && destination.images.length > 0 ? destination.images : destination.image_url ? [destination.image_url] : [];
+          return imgs.length > 1 ? () => setIsExpanded(true) : undefined;
+        })()}
+        centerContent={
+          <div className="flex items-center justify-center gap-0">
+            <button
+              onClick={() => { scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" }); }}
+              className={`px-4 py-1.5 text-sm font-semibold border-b-2 transition-colors ${activeTab === "info" ? "border-gold text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+            >
+              {getName()}
+            </button>
+            <button
+              onClick={() => { providersRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }); }}
+              className={`px-4 py-1.5 text-sm font-semibold border-b-2 transition-colors ${activeTab === "providers" ? "border-gold text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+            >
+              {language === "en" ? "Providers" : language === "ar" ? "مزودون" : "Prestataires"}
+              {!isLoading && <span className="ml-1.5 text-xs font-normal text-muted-foreground">{businesses.length}</span>}
+            </button>
+          </div>
+        }
+      />
 
       {/* Scrollable content — single flow */}
       <div className="flex-1 overflow-y-auto p-4 pb-24" ref={scrollRef}>
