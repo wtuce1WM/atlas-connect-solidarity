@@ -4092,7 +4092,7 @@ serve(async (req) => {
       totalCount,
       detectedSubcategory: detectedSubcategory || null,
       detectedCity: effectiveCity || null,
-      searchMode: serviceShortcutActivated ? "service_shortcut" : (typeof subcategorySearchConfig !== 'undefined' && subcategorySearchConfig?.search_mode) || null,
+      searchMode: serviceShortcutActivated ? "service_shortcut" : "broad", // TEST: Force broad — was: (typeof subcategorySearchConfig !== 'undefined' && subcategorySearchConfig?.search_mode) || null,
       bundleTimeSlots: (typeof bundleTimeSlots !== 'undefined' && bundleTimeSlots.length > 0) ? bundleTimeSlots : undefined,
       disambiguationType,
       synonymUsed: synonymWasUsed || undefined,
