@@ -499,9 +499,10 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
             ) : (
               <div
                 key={`answer-fade-${answerKey}`}
-                className={`leading-relaxed text-foreground animate-[slideInUp_1200ms_cubic-bezier(0.22,1,0.36,1)] ${
+                className={`leading-relaxed text-foreground ${
                   fontSize === -1 ? "text-xs" : fontSize === 1 ? "text-base" : "text-sm"
                 }`}
+                style={{ animation: "slideInUp 1200ms cubic-bezier(0.22, 1, 0.36, 1) both" }}
               >
                 {formatAnswer(answer, businesses, setSelectedBusiness, highlightWordIndex)}
               </div>
