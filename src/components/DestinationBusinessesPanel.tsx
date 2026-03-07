@@ -115,11 +115,11 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
       <>
       {/* Backdrop 20% left — click to collapse */}
       <div
-        className="fixed top-[50px] left-0 bottom-0 z-[39] bg-black/40 backdrop-blur-[2px]"
+        className="fixed top-[52px] left-0 bottom-0 z-[39] bg-black/40 backdrop-blur-[2px]"
         style={{ width: "20%" }}
         onClick={() => setIsExpanded(false)}
       />
-      <div className="fixed top-[50px] right-0 bottom-0 z-[40] bg-background flex flex-col border-l-2 border-border shadow-[-8px_0_30px_-5px_rgba(0,0,0,0.15)]" style={{ width: "80%" }}>
+      <div className="fixed top-[52px] right-0 bottom-0 z-[40] bg-background flex flex-col border-l-2 border-border shadow-[-8px_0_30px_-5px_rgba(0,0,0,0.15)]" style={{ width: "80%" }}>
         <div className="shrink-0 flex items-center px-4 py-3 gap-3 bg-background border-b border-border">
           <button
             onClick={() => { onClose(); setIsExpanded(false); }}
@@ -166,7 +166,7 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
 
     {/* Normal panel (hidden when expanded) */}
     {!isExpanded && (
-    <div className="fixed top-[50px] right-0 bottom-0 z-40 border-l border-border bg-background flex flex-col shadow-2xl transition-all duration-500 ease-out w-1/2">
+    <div className="fixed top-[52px] right-0 bottom-0 z-40 border-l border-border bg-background flex flex-col shadow-2xl transition-all duration-500 ease-out w-1/2">
       {/* Header */}
       <div className="shrink-0 flex items-center px-3 py-2 border-b border-border gap-2 bg-white">
         <div className="flex items-center gap-2 shrink-0">
