@@ -2077,7 +2077,20 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
             </div>
             <div className="flex-1 overflow-y-auto p-3 pb-24">
               <div className="grid grid-cols-2 gap-3">
-                {fallbackPanelData.hotels.filter(h => h.hotelId !== selectedFallbackHotelId).map((hotel) => {
+                {[...fallbackPanelData.hotels.filter(h => h.hotelId !== selectedFallbackHotelId)].sort((a, b) => {
+                  const aV = a.wtuce_status === "verified" ? 1 : 0;
+                  const bV = b.wtuce_status === "verified" ? 1 : 0;
+                  if (bV !== aV) return bV - aV;
+                  const computeRating = (h: typeof a) => {
+                    const src: { rating: number; count: number }[] = [];
+                    if (h.dbGoogleRating && h.dbGoogleReviewCount) src.push({ rating: h.dbGoogleRating, count: h.dbGoogleReviewCount });
+                    if (h.dbTripadvisorRating && h.dbTripadvisorReviewCount) src.push({ rating: h.dbTripadvisorRating, count: h.dbTripadvisorReviewCount });
+                    const total = src.reduce((s, r) => s + r.count, 0);
+                    if (total === 0) return 0;
+                    return src.reduce((s, r) => s + (r.rating / 5) * 20 * r.count, 0) / total;
+                  };
+                  return computeRating(b) - computeRating(a);
+                }).map((hotel) => {
                   const cheapest = hotel.offers.length > 0
                     ? hotel.offers.reduce((a, b) => parseFloat(a.price.total) < parseFloat(b.price.total) ? a : b)
                     : null;
