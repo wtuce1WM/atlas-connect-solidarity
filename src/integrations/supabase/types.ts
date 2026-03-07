@@ -2152,7 +2152,9 @@ export type Database = {
       search_synonyms: {
         Row: {
           badge_id: string | null
+          commodity_filters: string[]
           created_at: string | null
+          engagement_filters: string[]
           filters: Json
           id: string
           is_active: boolean
@@ -2164,7 +2166,9 @@ export type Database = {
         }
         Insert: {
           badge_id?: string | null
+          commodity_filters?: string[]
           created_at?: string | null
+          engagement_filters?: string[]
           filters?: Json
           id?: string
           is_active?: boolean
@@ -2176,7 +2180,9 @@ export type Database = {
         }
         Update: {
           badge_id?: string | null
+          commodity_filters?: string[]
           created_at?: string | null
+          engagement_filters?: string[]
           filters?: Json
           id?: string
           is_active?: boolean
