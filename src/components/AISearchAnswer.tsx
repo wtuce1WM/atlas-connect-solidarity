@@ -312,6 +312,29 @@ const formatAnswer = (
   return elements;
 };
 
+/** Animated word-by-word fade-in wrapper */
+const WordFadeIn = ({ children, onComplete }: { children: string; onComplete?: () => void }) => {
+  const words = children.replace(/\*\*/g, "").split(/\s+/);
+  const [visibleCount, setVisibleCount] = useState(0);
+  const totalWords = words.length;
+
+  useEffect(() => {
+    setVisibleCount(0);
+    let i = 0;
+    const iv = setInterval(() => {
+      i++;
+      setVisibleCount(i);
+      if (i >= totalWords) {
+        clearInterval(iv);
+        onComplete?.();
+      }
+    }, 45);
+    return () => clearInterval(iv);
+  }, [totalWords]);
+
+  return visibleCount;
+};
+
 const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnswerReady, highlightWordIndex, externalRegenerateKey }: AISearchAnswerProps) => {
   const { language } = useLanguage();
   const [answer, setAnswer] = useState("");
@@ -321,6 +344,8 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
   const [selectedBusiness, setSelectedBusiness] = useState<BusinessData | null>(null);
   const [fontSize, setFontSize] = useState(0);
   const [regenerateCount, setRegenerateCount] = useState(0);
+  const [fadeWordIndex, setFadeWordIndex] = useState(-1);
+  const [fadeComplete, setFadeComplete] = useState(false);
   const fetchIdRef = useRef(0);
   const lastFetchKeyRef = useRef("");
   const aiPanelRef = useRef<HTMLDivElement>(null);
