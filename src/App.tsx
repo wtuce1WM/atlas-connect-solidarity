@@ -44,6 +44,7 @@ const LogoEffectsDemo = lazy(() => import("./pages/LogoEffectsDemo"));
 import CGF from "./pages/CGF";
 import SearchAnalytics from "./pages/SearchAnalytics";
 import StaffMaster from "./pages/StaffMaster";
+import StaffB2B from "./pages/StaffB2B";
 import DestinationPage from "./pages/DestinationPage";
 import SearchLayoutDemo from "./pages/SearchLayoutDemo";
 import SearchPageCopy from "./pages/SearchPageCopy";
@@ -54,7 +55,7 @@ const queryClient = new QueryClient();
 const GlobalFloatingSearchBar = () => {
   const location = useLocation();
   // Hide on home page and staff/affiliate backoffice pages
-  const hiddenPaths = ["/", "/search", "/staff/login", "/staff/backoffice", "/staff/catalogue", "/staff/crm", "/staff/master", "/affiliates", "/affiliates/dashboard", "/search-analytics"];
+  const hiddenPaths = ["/", "/search", "/staff/login", "/staff/backoffice", "/staff/catalogue", "/staff/crm", "/staff/master", "/staff/b2b", "/affiliates", "/affiliates/dashboard", "/search-analytics"];
   if (hiddenPaths.includes(location.pathname)) return null;
   return <FloatingSearchBar />;
 };
@@ -90,6 +91,7 @@ const AppContent = () => {
               <Route path="/staff/catalogue" element={<StaffBackoffice />} />
               <Route path="/staff/crm" element={<StaffCRM />} />
               <Route path="/staff/master" element={<StaffMaster />} />
+              <Route path="/staff/b2b" element={<StaffB2B />} />
               <Route path="/affiliates" element={<AffiliatesLogin />} />
               <Route path="/affiliates/reset-password" element={<AffiliatesResetPassword />} />
               <Route path="/affiliates/dashboard" element={<AffiliatesDashboard />} />

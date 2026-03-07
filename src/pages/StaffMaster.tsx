@@ -7,7 +7,6 @@ import { LogOut, Users, Search, ArrowLeft, BarChart3, FlaskConical, BookOpen, Eg
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import SearchConfigManagement from "@/components/staff/SearchConfigManagement";
 import UserManagement from "@/components/staff/UserManagement";
-import SponsorManagement from "@/components/staff/SponsorManagement";
 import SearchAnalytics from "@/pages/SearchAnalytics";
 import TestSuitePanel from "@/components/staff/TestSuitePanel";
 import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
