@@ -1711,9 +1711,9 @@ const SearchPage = () => {
 
           {/* Bottom actions */}
           <div className="shrink-0 pb-8 pt-4 flex flex-col items-center gap-4">
-            {/* Action buttons row */}
-            <div className="flex items-center gap-3">
-              {/* Listen — même design rond noir */}
+            {/* Action buttons row — 3 boutons sur une ligne */}
+            <div className="flex items-center justify-center gap-6">
+              {/* Listen */}
               <div className="relative">
                 {(ttsStatus === "playing" || ttsStatus === "loading") ? (
                   <button
@@ -1738,31 +1738,26 @@ const SearchPage = () => {
                   </button>
                 )}
               </div>
-              {/* Geo — même design que le bouton micro */}
+              {/* Geo */}
               <div className="relative">
                 <button
-                  onClick={() => {
-                    setLocationDialogOpen(true);
-                  }}
+                  onClick={() => setLocationDialogOpen(true)}
                   className="relative w-16 h-16 rounded-full bg-black flex items-center justify-center shadow-lg transition-all hover:scale-105"
                   title={language === "en" ? "Geolocate yourself" : language === "ar" ? "حدد موقعك" : "Géolocalisez-vous"}
                 >
                   <MapPin className="h-7 w-7 text-white" />
                 </button>
               </div>
-            </div>
-
-            {/* Mic button */}
-            <div className="relative">
-              <button
-                onClick={() => {
-                  toggleRecording();
-                }}
-                className="relative w-16 h-16 rounded-full bg-black flex items-center justify-center shadow-lg transition-all hover:scale-105"
-                title={language === "en" ? "Voice search" : language === "ar" ? "بحث صوتي" : "Recherche vocale"}
-              >
-                <Mic className="h-7 w-7 text-white" />
-              </button>
+              {/* Mic */}
+              <div className="relative">
+                <button
+                  onClick={() => toggleRecording()}
+                  className="relative w-16 h-16 rounded-full bg-black flex items-center justify-center shadow-lg transition-all hover:scale-105"
+                  title={language === "en" ? "Voice search" : language === "ar" ? "بحث صوتي" : "Recherche vocale"}
+                >
+                  <Mic className="h-7 w-7 text-white" />
+                </button>
+              </div>
             </div>
 
             {/* Bottom See results */}
