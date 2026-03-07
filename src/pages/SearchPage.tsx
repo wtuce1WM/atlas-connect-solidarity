@@ -553,6 +553,15 @@ const SearchPage = () => {
       const [destSelectedBusinessId, setDestSelectedBusinessId] = useState<string | null>(null);
       const [destPanelExpanded, setDestPanelExpanded] = useState(false);
      const [allDestItems, setAllDestItems] = useState<DestinationItem[]>([]);
+   const resetPanelStates = () => {
+     setPoiSelectedBusinessId(null);
+     setPoiPanelExpanded(false);
+     setPoiMapBusiness(null);
+     setDestMapItem(null);
+     setSelectedDestination(null);
+     setDestSelectedBusinessId(null);
+     setDestPanelExpanded(false);
+   };
    const [locationDialogOpen, setLocationDialogOpen] = useState(false);
    const heroAiRef = useRef<HTMLDivElement>(null);
    const [hasScrolledPastHeroAi, setHasScrolledPastHeroAi] = useState(false);
