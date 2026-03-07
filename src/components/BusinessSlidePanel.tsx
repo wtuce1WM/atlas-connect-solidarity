@@ -559,7 +559,51 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
     fetch();
   }, [businessId]);
 
-  // Report image count to parent
+  // Auto-translate reviews when they're in a different language than the UI
+  useEffect(() => {
+    setTranslatedReviewTexts([]);
+    if (reviewTexts.length === 0) return;
+
+    const langCode = language === "en" ? "en" : language === "ar" ? "ar" : "fr";
+    const needsTranslation = reviewTexts.some(
+      (r) => r.text && r.language && r.language !== langCode
+    );
+    if (!needsTranslation) return;
+
+    const translateReviews = async () => {
+      setIsTranslatingReviews(true);
+      try {
+        const reviewsToTranslate = reviewTexts
+          .filter((r) => r.text && r.language && r.language !== langCode)
+          .map((r) => ({ text: r.text }));
+        if (reviewsToTranslate.length === 0) return;
+
+        const { data, error } = await supabase.functions.invoke("translate-reviews", {
+          body: { reviews: reviewsToTranslate, targetLanguage: langCode },
+        });
+
+        if (!error && data?.translations?.length) {
+          const mapped: string[] = [];
+          let tIdx = 0;
+          for (const r of reviewTexts) {
+            if (r.text && r.language && r.language !== langCode && tIdx < data.translations.length) {
+              mapped.push(data.translations[tIdx]);
+              tIdx++;
+            } else {
+              mapped.push(r.text || "");
+            }
+          }
+          setTranslatedReviewTexts(mapped);
+        }
+      } catch (e) {
+        console.error("Translation error:", e);
+      } finally {
+        setIsTranslatingReviews(false);
+      }
+    };
+    translateReviews();
+  }, [reviewTexts, language]);
+
   const imageCount = business?.images?.length ?? 0;
   useEffect(() => { onImageCount?.(imageCount); }, [imageCount, onImageCount]);
 
