@@ -3005,9 +3005,6 @@ const SearchPage = () => {
               isExpanded={isCompactPanelExpanded}
               onToggleExpand={() => setIsCompactPanelExpanded(prev => !prev)}
             />
-              <div id="slide-panel-toolbar-center" className="flex-1 flex items-center justify-center gap-4" />
-              <div id="slide-panel-toolbar" className="flex items-center gap-3 shrink-0" />
-            </div>
             <div className="flex-1 min-h-0">
               <BusinessSlidePanel
                 businessId={compactPanelBusiness.id}
