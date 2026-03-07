@@ -115,15 +115,15 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
       <>
       {/* Backdrop 20% left — click to collapse */}
       <div
-        className="fixed top-[46px] left-0 bottom-0 z-[149] bg-black/40 backdrop-blur-[2px]"
+        className="fixed top-[46px] left-0 bottom-0 z-[39] bg-black/40 backdrop-blur-[2px]"
         style={{ width: "20%" }}
         onClick={() => setIsExpanded(false)}
       />
-      <div className="fixed top-[46px] right-0 bottom-0 z-[150] bg-background flex flex-col border-l-2 border-border shadow-[-8px_0_30px_-5px_rgba(0,0,0,0.15)]" style={{ width: "80%" }}>
-        <div className="shrink-0 flex items-center px-4 py-3 gap-3 bg-white border-b border-border">
+      <div className="fixed top-[46px] right-0 bottom-0 z-[40] bg-background flex flex-col border-l-2 border-border shadow-[-8px_0_30px_-5px_rgba(0,0,0,0.15)]" style={{ width: "80%" }}>
+        <div className="shrink-0 flex items-center px-4 py-3 gap-3 bg-background border-b border-border">
           <button
             onClick={() => { onClose(); setIsExpanded(false); }}
-            className="h-9 w-9 flex items-center justify-center rounded-full bg-white/10 hover:bg-destructive hover:text-white transition-colors text-white"
+            className="h-9 w-9 flex items-center justify-center rounded-full bg-destructive text-white hover:bg-destructive/90 transition-colors"
             title="Fermer"
             aria-label="Fermer"
           >
@@ -131,13 +131,13 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
           </button>
           <button
             onClick={() => setIsExpanded(false)}
-            className="h-9 w-9 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors text-white"
+            className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors"
             title="Réduire"
             aria-label="Réduire le panneau"
           >
             <Minimize2 className="h-4 w-4" />
           </button>
-          <span className="text-white/70 text-sm font-medium ml-2">{getName()}</span>
+          <span className="text-muted-foreground text-sm font-medium ml-2">{getName()}</span>
         </div>
         <div className="flex-1 overflow-y-auto p-3">
           {(() => {
@@ -166,7 +166,7 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
 
     {/* Normal panel (hidden when expanded) */}
     {!isExpanded && (
-    <div className="fixed top-[54px] right-0 bottom-0 z-40 border-l border-border bg-background flex flex-col shadow-2xl transition-all duration-500 ease-out w-1/2">
+    <div className="fixed top-[46px] right-0 bottom-0 z-40 border-l border-border bg-background flex flex-col shadow-2xl transition-all duration-500 ease-out w-1/2">
       {/* Header */}
       <div className="shrink-0 flex items-center px-3 py-2 border-b border-border gap-2 bg-white">
         <div className="flex items-center gap-2 shrink-0">
