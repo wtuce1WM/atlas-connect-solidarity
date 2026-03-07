@@ -468,8 +468,8 @@ const ImageUploader = ({
               return exts.size > 0 ? <span>📄 {Array.from(exts).join(', ')}</span> : null;
             })()}
           </div>
-          {images.length > 12 && (
-            <p className="text-destructive font-medium">🚫 {images.length - 12} image{images.length - 12 > 1 ? 's' : ''} en trop — la sauvegarde sera bloquée tant que le nombre dépasse 12.</p>
+          {images.length > 30 && (
+            <p className="text-destructive font-medium">🚫 {images.length - 30} image{images.length - 30 > 1 ? 's' : ''} en trop — la sauvegarde sera bloquée tant que le nombre dépasse 30.</p>
           )}
         </div>
       )}
