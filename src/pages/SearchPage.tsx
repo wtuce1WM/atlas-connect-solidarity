@@ -2263,7 +2263,7 @@ const SearchPage = () => {
               </div>
             </section>
             {poiSelectedBusinessId && (
-              <div className="fixed top-0 left-0 right-0 z-[100] bg-background shadow-2xl overflow-hidden flex flex-col animate-slide-in-right lg:w-1/2 lg:top-[54px] lg:left-auto lg:border-l lg:border-border" style={{ height: isMobile ? "100vh" : "calc(100vh - 54px)" }}>
+              <div className="fixed top-0 left-0 right-0 z-40 bg-background shadow-2xl overflow-hidden flex flex-col animate-slide-in-right lg:w-1/2 lg:top-[54px] lg:left-auto lg:border-l lg:border-border" style={{ height: isMobile ? "100vh" : "calc(100vh - 54px)" }}>
                 <div className="shrink-0 flex items-center px-4 py-2 bg-white border-b border-border z-40">
                   <div className="flex items-center gap-3 shrink-0">
                     <button
@@ -2289,7 +2289,7 @@ const SearchPage = () => {
               </div>
             )}
             {poiMapBusiness && (
-              <div className={`fixed top-0 left-0 right-0 z-[100] bg-background shadow-2xl overflow-hidden flex flex-col animate-slide-up-from-bottom lg:w-1/2 lg:top-[54px] lg:left-auto lg:border-l lg:border-border`} style={{ height: isMobile ? "100vh" : "calc(100vh - 54px)" }}>
+              <div className={`fixed top-0 left-0 right-0 z-40 bg-background shadow-2xl overflow-hidden flex flex-col animate-slide-up-from-bottom lg:w-1/2 lg:top-[54px] lg:left-auto lg:border-l lg:border-border`} style={{ height: isMobile ? "100vh" : "calc(100vh - 54px)" }}>
                 <div className="shrink-0 flex items-center px-4 py-2 bg-white border-b border-border z-40">
                   <div className="flex items-center gap-3 shrink-0">
                     <button
@@ -2372,7 +2372,7 @@ const SearchPage = () => {
               />
             )}
             {destSelectedBusinessId && (
-              <div className={`fixed top-[54px] right-0 z-[101] bg-background shadow-2xl border-l border-border overflow-hidden flex flex-col animate-slide-in-right transition-all duration-500 ease-out ${destPanelExpanded ? "w-[80%]" : "w-1/2"}`} style={{ height: "calc(100vh - 54px)" }}>
+              <div className={`fixed top-[54px] right-0 z-40 bg-background shadow-2xl border-l border-border overflow-hidden flex flex-col animate-slide-in-right transition-all duration-500 ease-out ${destPanelExpanded ? "w-[80%]" : "w-1/2"}`} style={{ height: "calc(100vh - 54px)" }}>
                 <div className="shrink-0 flex items-center px-4 py-2 bg-white border-b border-border z-40">
                   <div className="flex items-center gap-3 shrink-0">
                     <button
@@ -2406,7 +2406,7 @@ const SearchPage = () => {
               </div>
             )}
             {destMapItem && !selectedDestination && (
-              <div className={`fixed top-0 left-0 right-0 z-[100] bg-background shadow-2xl overflow-hidden flex flex-col animate-slide-up-from-bottom lg:w-1/2 lg:top-[54px] lg:left-auto lg:border-l lg:border-border`} style={{ height: isMobile ? "100vh" : "calc(100vh - 54px)" }}>
+              <div className={`fixed top-0 left-0 right-0 z-40 bg-background shadow-2xl overflow-hidden flex flex-col animate-slide-up-from-bottom lg:w-1/2 lg:top-[54px] lg:left-auto lg:border-l lg:border-border`} style={{ height: isMobile ? "100vh" : "calc(100vh - 54px)" }}>
                 <div className="flex items-center px-3 py-2 border-b border-border gap-2">
                   <div>
                     <button
