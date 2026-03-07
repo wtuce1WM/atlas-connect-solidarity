@@ -161,6 +161,7 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
           })()}
         </div>
       </div>
+      </>
     )}
 
     {/* Normal panel (hidden when expanded) */}
