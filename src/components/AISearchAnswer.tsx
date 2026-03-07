@@ -338,6 +338,15 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
     setSelectedBusiness(null);
   }, [query]);
 
+  // When search finishes with 0 results, stop any loading state
+  useEffect(() => {
+    if (!isSearchLoading && businesses.length === 0 && isLoading) {
+      setIsLoading(false);
+      setAnswer("");
+      onAnswerReady?.("");
+    }
+  }, [isSearchLoading, businesses.length, isLoading]);
+
   useEffect(() => {
     if (!fetchKey || isSearchLoading || isDismissed) return;
     if (fetchKey === lastFetchKeyRef.current && answer) return;
