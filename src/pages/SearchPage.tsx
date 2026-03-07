@@ -37,6 +37,7 @@ import DestinationBusinessesPanel from "@/components/DestinationBusinessesPanel"
 import BusinessCard, { type BusinessCardData, type Gamme, type Badge, type SubcategoryRef, type BadgeSubcategoryRef } from "@/components/BusinessCard";
 import AISearchAnswer, { parseInline, type BusinessData as AIBusinessData } from "@/components/AISearchAnswer";
 import BusinessSlidePanel from "@/components/BusinessSlidePanel";
+import SlidePanelHeader from "@/components/SlidePanelHeader";
 import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
@@ -2388,20 +2389,10 @@ const SearchPage = () => {
             )}
             {destMapItem && !selectedDestination && (
               <div className={`fixed top-0 left-0 right-0 z-40 bg-background shadow-2xl overflow-hidden flex flex-col animate-slide-up-from-bottom lg:w-1/2 lg:top-[54px] lg:left-auto lg:border-l lg:border-border`} style={{ height: isMobile ? "100vh" : "calc(100vh - 54px)" }}>
-                <div className="flex items-center px-3 py-2 border-b border-border gap-2 bg-white">
-                  <div>
-                    <button
-                      onClick={() => setDestMapItem(null)}
-                      className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-destructive hover:text-white transition-colors"
-                      title="Fermer"
-                      aria-label="Fermer la carte"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                  </div>
-                  <span className="flex-1 text-center font-semibold text-sm truncate">{destMapItem.name_fr}</span>
-                  <div className="w-9" />
-                </div>
+                <SlidePanelHeader
+                  onClose={() => setDestMapItem(null)}
+                  centerContent={destMapItem.name_fr}
+                />
                 <div className="flex-1 min-h-0">
                   <PoiGoogleMap
                     pois={allDests}
