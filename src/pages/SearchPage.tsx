@@ -3065,39 +3065,43 @@ const SearchPage = () => {
                   <p className="text-xs text-muted-foreground mb-1">
                     {language === "en" ? "You can refine your search" : language === "ar" ? "يمكنك تحسين بحثك" : "Vous pouvez préciser votre recherche"}
                   </p>
-                  <p className="text-base font-bold text-foreground mb-2">
-                    {language === "en" ? "Where are you looking?" : language === "ar" ? "أين تبحث؟" : "Où le cherchez-vous ?"}
-                  </p>
-                  <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide mb-4">
-                    <button
-                      onClick={() => handleCityChange("all")}
-                      className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-bold transition-all whitespace-nowrap ${
-                        selectedCity === "all"
-                          ? "bg-gold/20 border-gold text-gold shadow-sm"
-                          : "bg-card border-border text-muted-foreground hover:border-gold/40 hover:text-foreground"
-                      }`}
-                    >
-                      <MapPin size={14} className={selectedCity === "all" ? "text-gold" : "text-muted-foreground"} />
-                      <span>{t.allCities}</span>
-                    </button>
-                    {availableCities.map((city) => {
-                      const isSelected = selectedCity === city;
-                      return (
+                  {availableCities.length > 1 && !queryHasExplicitCity && (
+                    <>
+                      <p className="text-base font-bold text-foreground mb-2">
+                        {language === "en" ? "Where are you looking?" : language === "ar" ? "أين تبحث؟" : "Où le cherchez-vous ?"}
+                      </p>
+                      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide mb-4">
                         <button
-                          key={city}
-                          onClick={() => handleCityChange(isSelected ? "all" : city)}
+                          onClick={() => handleCityChange("all")}
                           className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-bold transition-all whitespace-nowrap ${
-                            isSelected
+                            selectedCity === "all"
                               ? "bg-gold/20 border-gold text-gold shadow-sm"
                               : "bg-card border-border text-muted-foreground hover:border-gold/40 hover:text-foreground"
                           }`}
                         >
-                          <MapPin size={14} className={isSelected ? "text-gold" : "text-muted-foreground"} />
-                          <span>{city}</span>
+                          <MapPin size={14} className={selectedCity === "all" ? "text-gold" : "text-muted-foreground"} />
+                          <span>{t.allCities}</span>
                         </button>
-                      );
-                    })}
-                  </div>
+                        {availableCities.map((city) => {
+                          const isSelected = selectedCity === city;
+                          return (
+                            <button
+                              key={city}
+                              onClick={() => handleCityChange(isSelected ? "all" : city)}
+                              className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-bold transition-all whitespace-nowrap ${
+                                isSelected
+                                  ? "bg-gold/20 border-gold text-gold shadow-sm"
+                                  : "bg-card border-border text-muted-foreground hover:border-gold/40 hover:text-foreground"
+                              }`}
+                            >
+                              <MapPin size={14} className={isSelected ? "text-gold" : "text-muted-foreground"} />
+                              <span>{city}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </>
+                  )}
                   <p className="text-base font-bold text-foreground mb-2">
                     {language === "en" ? "What are you looking for?" : language === "ar" ? "ماذا تبحث عنه؟" : "Que cherchez-vous ?"}
                   </p>
