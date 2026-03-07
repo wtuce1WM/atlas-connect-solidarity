@@ -2274,7 +2274,7 @@ const SearchPage = () => {
             {poiSelectedBusinessId && poiPanelExpanded && (
               <div
                 className="fixed top-[53px] left-0 bottom-0 z-[39] bg-black/40 backdrop-blur-[2px]"
-                style={{ width: "20%", animation: "panelFadeIn 1.5s ease-out forwards" }}
+                style={{ width: "20%", opacity: 0, animation: "panelFadeIn 0.3s ease-out 1s forwards" }}
                 onClick={() => setPoiPanelExpanded(false)}
               />
             )}
@@ -3010,7 +3010,7 @@ const SearchPage = () => {
           {isCompactPanelExpanded && (
             <div
               className="fixed top-[53px] left-0 bottom-0 z-[99] bg-black/40 backdrop-blur-[2px]"
-              style={{ width: "20%", animation: "panelFadeIn 1.5s ease-out forwards" }}
+              style={{ width: "20%", opacity: 0, animation: "panelFadeIn 0.3s ease-out 1s forwards" }}
               onClick={() => setIsCompactPanelExpanded(false)}
             />
           )}
@@ -3050,7 +3050,7 @@ const SearchPage = () => {
           {/* Right panel — business detail */}
           <div
             className={`fixed top-[53px] right-0 z-[100] bg-background shadow-2xl border-l border-border overflow-hidden flex flex-col ${isCompactPanelExpanded ? "border-l-2 shadow-[-8px_0_30px_-5px_rgba(0,0,0,0.15)]" : "animate-slide-in-right"} transition-all duration-500 ease-out`}
-            style={{ height: "calc(100vh - 53px)", width: isCompactPanelExpanded ? "80%" : "50%", ...(isCompactPanelExpanded ? { animation: "panelSlideIn 1.5s ease-out forwards" } : {}) }}
+            style={{ height: "calc(100vh - 53px)", width: isCompactPanelExpanded ? "80%" : "50%", ...(isCompactPanelExpanded ? { opacity: 0, animation: "panelSlideIn 0.3s ease-out 1s forwards" } : {}) }}
           >
             <div className="shrink-0 flex items-center px-4 py-2 bg-white border-b border-border z-40">
               <div className="flex items-center gap-3 shrink-0">
