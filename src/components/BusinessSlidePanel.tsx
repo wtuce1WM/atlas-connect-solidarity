@@ -557,6 +557,10 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
     fetch();
   }, [businessId]);
 
+  // Report image count to parent
+  const imageCount = business?.images?.length ?? 0;
+  useEffect(() => { onImageCount?.(imageCount); }, [imageCount, onImageCount]);
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -576,7 +580,6 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   const isVerified = business.wtuce_status === "verified";
   const isInstitution = business.account_type?.toLowerCase() === "institution";
    const images = business.images || [];
-   useEffect(() => { onImageCount?.(images.length); }, [images.length, onImageCount]);
    const hasVideo = !!business.video_1_url && !videoError;
    const hasMatterport = !!business.matterport_url;
    const hasFlipbook = !!business.flipbook_url;
