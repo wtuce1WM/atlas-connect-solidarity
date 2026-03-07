@@ -243,18 +243,15 @@ const formatAnswer = (
   businesses: BusinessData[],
   onClickBusiness: (b: BusinessData) => void,
   highlightWordIndex?: number,
-  fadeWordIndex?: number,
-  fadeComplete?: boolean
+  answerKey?: number
 ): ReactNode[] => {
   const hl: HighlightState | undefined =
     highlightWordIndex !== undefined && highlightWordIndex >= 0
       ? { wordIndex: 0, target: highlightWordIndex }
       : undefined;
 
-  const fade: HighlightState | undefined =
-    !fadeComplete && fadeWordIndex !== undefined
-      ? { wordIndex: 0, target: fadeWordIndex }
-      : undefined;
+  // CSS-based fade: use a global word counter for animation-delay
+  const fadeCounter = answerKey !== undefined ? { wordIndex: 0 } : undefined;
 
   // Normalize bold markers spanning newlines
   const normalized = text.replace(/\*\*([^*]*?)\*\*/gs, (_, inner) =>
