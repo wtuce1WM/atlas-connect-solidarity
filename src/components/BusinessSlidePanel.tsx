@@ -408,6 +408,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
       setVideoError(false);
       setActiveTab("apercu");
       setIsDescriptionExpanded(false);
+      setShowReviewComments(false);
       setSimilarCount(null);
       setNearbyCount(null);
 
