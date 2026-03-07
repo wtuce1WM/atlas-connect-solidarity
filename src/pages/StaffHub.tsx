@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { LogOut, BookOpen, Users, Shield, Star, Sparkles, Wand2 } from "lucide-react";
+import { LogOut, BookOpen, Users, Shield, Star, Sparkles, Wand2, Briefcase } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 
 const StaffHub = () => {
@@ -58,6 +58,14 @@ const StaffHub = () => {
       iconColor: "text-blue-600",
     },
     {
+      title: "B2B",
+      description: "Gestion des affiliés, sponsors et partenariats commerciaux.",
+      icon: Briefcase,
+      href: "/staff/b2b",
+      color: "from-emerald-500/20 to-green-500/10",
+      iconColor: "text-emerald-600",
+    },
+    {
       title: "Master",
       description: "Administration avancée, configuration système et contrôle des accès.",
       icon: Shield,
@@ -104,7 +112,7 @@ const StaffHub = () => {
           <p className="text-muted-foreground">Sélectionnez un module pour commencer</p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+        <div className="grid md:grid-cols-4 gap-6 max-w-5xl mx-auto">
           {sections.map((section) => {
             const Icon = section.icon;
             return (
