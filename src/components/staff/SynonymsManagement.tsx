@@ -66,7 +66,7 @@ const SynonymsManagement = () => {
   const [allCategories, setAllCategories] = useState<{id: string; name_fr: string}[]>([]);
   const [allServices, setAllServices] = useState<{name: string; subcategory_id: string}[]>([]);
   const [badges, setBadges] = useState<BadgeEntry[]>([]);
-  const [businessData, setBusinessData] = useState<{categories: string[]; services: string[]}[]>([]);
+  const [businessData, setBusinessData] = useState<{categories: string[]; services: string[]; engagements: string[]}[]>([]);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc" | "oldest" | "newest">("asc");
   const [filterCategory, setFilterCategory] = useState("");
   const [filterSubcategory, setFilterSubcategory] = useState("");
