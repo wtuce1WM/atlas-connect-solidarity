@@ -463,6 +463,8 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
         }
 
         if (data?.answer) {
+          setFadeWordIndex(-1);
+          setFadeComplete(false);
           setAnswer(data.answer);
           onAnswerReady?.(data.answer);
         }
