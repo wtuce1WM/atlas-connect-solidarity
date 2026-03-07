@@ -3060,6 +3060,34 @@ const SearchPage = () => {
                     : `10 établissements recommandés sur ${displayedResultsCount} établissements trouvés`}
                 </p>
               </div>
+              {searchServiceFilters.length > 0 && (
+                <div className="mt-3 mb-4">
+                  <p className="text-xs text-muted-foreground mb-2">
+                    {language === "en" ? "You can refine your search" : language === "ar" ? "يمكنك تحسين بحثك" : "Vous pouvez préciser votre recherche"}
+                  </p>
+                  <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                    {searchServiceFilters.map((svc) => {
+                      const isSelected = selectedServiceFilter === svc.name;
+                      return (
+                        <button
+                          key={svc.name}
+                          onClick={() => setSelectedServiceFilter(isSelected ? null : svc.name)}
+                          className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition-all ${
+                            isSelected
+                              ? "bg-gold/20 border-gold text-gold shadow-sm"
+                              : "bg-card border-border text-muted-foreground hover:border-gold/40 hover:text-foreground"
+                          }`}
+                        >
+                          <span>{svc.name}</span>
+                          <span className={`text-[10px] font-normal ${isSelected ? "text-gold/70" : "text-muted-foreground/60"}`}>
+                            {svc.count}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
               <div className="text-sm text-muted-foreground leading-relaxed space-y-1">
                 {parseInline(
                   aiAnswerText.replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "").replace(/\n+/g, " "),
