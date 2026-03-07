@@ -1454,6 +1454,15 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         </Button>
       </div>
 
+      {/* Sticky hook bar - visible on scroll down */}
+      {hookStickyVisible && formData.hook_fr && (
+        <div className="sticky top-[73px] z-[19] bg-muted/80 backdrop-blur border-b px-6 py-1.5 transition-all">
+          <p className="text-sm font-medium text-muted-foreground italic truncate max-w-3xl">
+            « {formData.hook_fr} »
+          </p>
+        </div>
+      )}
+
       <div className="p-6">
 
       <form onSubmit={handleSubmit} className="space-y-6">
