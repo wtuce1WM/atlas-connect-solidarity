@@ -2976,7 +2976,7 @@ const SearchPage = () => {
       <Footer />
 
       {/* Floating Search Bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-[120] border-t border-gold/20 py-3 px-4 bg-black/90 backdrop-blur-md">
+      <div className="fixed bottom-0 left-0 right-0 z-[120] py-3 px-4">
         <div className="max-w-2xl mx-auto">
           <SearchInput
             variant="floating"
