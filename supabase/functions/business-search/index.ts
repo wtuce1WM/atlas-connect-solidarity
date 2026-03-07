@@ -1439,8 +1439,14 @@ serve(async (req) => {
             if (f.required_service) addConsumed(f.required_service);
           }
           // Also consume synonym key words AND synonym value words that triggered the match
+          // Track synonym key words separately for multi-word service detection
+          const synonymKeyConsumedWords = new Set<string>();
           for (const key of matchedSynonymFilterKeys) {
             addConsumed(key);
+            for (const w of key.toLowerCase().split(/[\s-]+/)) {
+              synonymKeyConsumedWords.add(w);
+              synonymKeyConsumedWords.add(stripAccentsGlobal(w));
+            }
             const synVals = synonyms[key] || [];
             for (const sv of synVals) addConsumed(sv);
           }
