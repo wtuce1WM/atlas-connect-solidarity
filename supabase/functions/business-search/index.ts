@@ -1064,6 +1064,8 @@ serve(async (req) => {
         }
       }
     }
+    // ── Pre-fetch services for synonym disambiguation (multi-word service check) ──
+    const { data: allServicesForSynCheck } = await supabase.from("services").select("name_fr");
     // ── Synonym paired filters: when a query word matches a synonym entry with filters[] ──
     let matchedSynonymFilters: { subcategory_name: string | null; required_service: string | null }[] = [];
     const matchedSynonymFilterKeys: string[] = [];
