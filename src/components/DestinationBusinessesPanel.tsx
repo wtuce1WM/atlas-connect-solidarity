@@ -110,90 +110,68 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
     return destination.name_fr;
   };
 
+  const imgs = destination.images && destination.images.length > 0
+    ? destination.images
+    : destination.image_url ? [destination.image_url] : [];
+
   return (
     <>
-    {/* Expanded: full-screen black overlay with only images */}
+    {/* Backdrop 20% left — click to collapse (only when expanded) */}
     {isExpanded && (
-      <>
-      {/* Backdrop 20% left — click to collapse */}
       <div
-        className="fixed top-[53px] left-0 bottom-0 z-[39] bg-black/40 backdrop-blur-[2px]"
-        style={{ width: "20%", opacity: 0, animation: "panelFadeIn 0.3s ease-out 1s forwards" }}
+        className="fixed top-[53px] left-0 bottom-0 z-[39] bg-black/40 backdrop-blur-[2px] animate-fade-in"
+        style={{ width: "20%" }}
         onClick={() => setIsExpanded(false)}
       />
-      <div className="fixed top-[53px] right-0 bottom-0 z-[40] bg-background flex flex-col border-l-2 border-border shadow-[-8px_0_30px_-5px_rgba(0,0,0,0.15)]" style={{ width: "80%", opacity: 0, animation: "panelSlideIn 0.3s ease-out 1s forwards" }}>
-        <SlidePanelHeader
-          onClose={() => { onClose(); setIsExpanded(false); }}
-          isExpanded={true}
-          onToggleExpand={() => setIsExpanded(false)}
-          centerContent={getName()}
-        />
-        <div className="flex-1 overflow-y-auto p-3">
-          {(() => {
-            const imgs = destination.images && destination.images.length > 0
-              ? destination.images
-              : destination.image_url ? [destination.image_url] : [];
-            return (
-              <div style={{ columns: "300px 3", columnGap: 8 }}>
-                {imgs.map((img, i) => (
-                  <img
-                    key={i}
-                    src={img}
-                    alt={`${getName()} - ${i + 1}`}
-                    className="w-full rounded-lg cursor-pointer hover:scale-[1.02] transition-transform duration-300 mb-2 break-inside-avoid"
-                    loading="lazy"
-                    onClick={() => { setCurrentImageIndex(i); setIsLightboxOpen(true); }}
-                  />
-                ))}
-              </div>
-            );
-          })()}
-        </div>
-      </div>
-      </>
     )}
 
-    {/* Normal panel (hidden when expanded) */}
-    {!isExpanded && (
-    <div className="fixed top-[53px] right-0 bottom-0 z-40 border-l border-border bg-background flex flex-col shadow-2xl transition-all duration-500 ease-out w-1/2">
+    {/* Single panel — transitions between 50% and 80% like POI */}
+    <div className={`fixed top-[53px] right-0 bottom-0 z-40 bg-background flex flex-col shadow-2xl overflow-hidden border-l border-border transition-all duration-500 ease-out ${isExpanded ? "w-[80%] border-l-2 shadow-[-8px_0_30px_-5px_rgba(0,0,0,0.15)]" : "w-1/2"}`}>
       <SlidePanelHeader
         onClose={() => { onClose(); setIsExpanded(false); }}
-        isExpanded={false}
-        onToggleExpand={(() => {
-          const imgs = destination.images && destination.images.length > 0 ? destination.images : destination.image_url ? [destination.image_url] : [];
-          return imgs.length > 1 ? () => setIsExpanded(true) : undefined;
-        })()}
+        isExpanded={isExpanded}
+        onToggleExpand={imgs.length > 1 ? () => setIsExpanded(v => !v) : undefined}
         centerContent={
-          <div className="flex items-center justify-center gap-0">
-            <button
-              onClick={() => { scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" }); }}
-              className={`px-4 py-1.5 text-sm font-semibold border-b-2 transition-colors ${activeTab === "info" ? "border-gold text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
-            >
-              {getName()}
-            </button>
-            <button
-              onClick={() => { providersRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }); }}
-              className={`px-4 py-1.5 text-sm font-semibold border-b-2 transition-colors ${activeTab === "providers" ? "border-gold text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
-            >
-              {language === "en" ? "Providers" : language === "ar" ? "مزودون" : "Prestataires"}
-              {!isLoading && <span className="ml-1.5 text-xs font-normal text-muted-foreground">{businesses.length}</span>}
-            </button>
-          </div>
+          isExpanded ? getName() : (
+            <div className="flex items-center justify-center gap-0">
+              <button
+                onClick={() => { scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" }); }}
+                className={`px-4 py-1.5 text-sm font-semibold border-b-2 transition-colors ${activeTab === "info" ? "border-gold text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+              >
+                {getName()}
+              </button>
+              <button
+                onClick={() => { providersRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }); }}
+                className={`px-4 py-1.5 text-sm font-semibold border-b-2 transition-colors ${activeTab === "providers" ? "border-gold text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+              >
+                {language === "en" ? "Providers" : language === "ar" ? "مزودون" : "Prestataires"}
+                {!isLoading && <span className="ml-1.5 text-xs font-normal text-muted-foreground">{businesses.length}</span>}
+              </button>
+            </div>
+          )
         }
       />
 
-      {/* Scrollable content — single flow */}
-      <div className="flex-1 overflow-y-auto p-4 pb-24" ref={scrollRef}>
-        {/* Image carousel */}
-        {(() => {
-          const imgs = destination.images && destination.images.length > 0
-            ? destination.images
-            : destination.image_url
-              ? [destination.image_url]
-              : [];
-          if (imgs.length === 0) return null;
-
-          return (
+      {/* Content switches between expanded gallery and normal view */}
+      {isExpanded ? (
+        <div className="flex-1 overflow-y-auto p-3">
+          <div style={{ columns: "300px 3", columnGap: 8 }}>
+            {imgs.map((img, i) => (
+              <img
+                key={i}
+                src={img}
+                alt={`${getName()} - ${i + 1}`}
+                className="w-full rounded-lg cursor-pointer hover:scale-[1.02] transition-transform duration-300 mb-2 break-inside-avoid"
+                loading="lazy"
+                onClick={() => { setCurrentImageIndex(i); setIsLightboxOpen(true); }}
+              />
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="flex-1 overflow-y-auto p-4 pb-24" ref={scrollRef}>
+          {/* Image carousel */}
+          {imgs.length > 0 && (
             <div className="mb-4 -mx-4 -mt-4 relative">
               <div
                 className={`relative w-full aspect-[16/9] bg-muted ${imgs.length > 1 ? "cursor-pointer" : ""}`}
@@ -231,106 +209,103 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
                 )}
               </div>
             </div>
-          );
-        })()}
-
-        {/* Title & region */}
-        <div className="mb-4 space-y-1">
-          <h2 className="text-lg font-bold text-foreground">{getName()}</h2>
-          {destination.region && destination.region.length > 0 && (
-            <p className="text-sm text-muted-foreground">{destination.region.join(", ")}</p>
           )}
-        </div>
 
-        {/* Description */}
-        {destination.description && (
-          <div className="text-sm text-muted-foreground leading-relaxed mb-6">
-            <div dangerouslySetInnerHTML={{ __html: destination.description }} className="prose prose-sm max-w-none text-muted-foreground [&>p]:mb-2" />
+          {/* Title & region */}
+          <div className="mb-4 space-y-1">
+            <h2 className="text-lg font-bold text-foreground">{getName()}</h2>
+            {destination.region && destination.region.length > 0 && (
+              <p className="text-sm text-muted-foreground">{destination.region.join(", ")}</p>
+            )}
           </div>
-        )}
 
-        {/* Providers */}
-        <div ref={providersRef} className="border-t border-border pt-4">
-          <h2 className="text-lg font-bold text-foreground mb-4">
-            {language === "en" ? `These providers will take you to ${getName()}` : language === "ar" ? `هؤلاء المزودون سيأخذونك إلى ${getName()}` : `Ces prestataires vous emmèneront à ${getName()}`}
-            {!isLoading && <span className="ml-1.5 text-xs font-normal text-muted-foreground">({businesses.length})</span>}
-          </h2>
-          
-          {isLoading ? (
-            <div className="flex justify-center py-16">
-              <Loader2 className="h-6 w-6 animate-spin text-gold" />
-            </div>
-          ) : businesses.length === 0 ? (
-            <div className="text-center py-16 text-muted-foreground text-sm">
-              {language === "en" ? "No businesses found" : "Aucun établissement trouvé"}
-            </div>
-          ) : (
-            <div className="grid grid-cols-3 gap-2">
-              {businesses.map((biz) => {
-                const img = biz.images && biz.images.length > 0 ? biz.images[0] : null;
-                const sources = collectRatingSources(biz);
-                const avgOn20 = biz.rating ?? computeWeightedRatingOn20(sources);
-                const totalReviews = sources.reduce((s, r) => s + r.count, 0);
-
-                return (
-                  <Link
-                    key={biz.id}
-                    to={`/business/${biz.id}`}
-                    onClick={(e) => {
-                      if (onBusinessClick) {
-                        e.preventDefault();
-                        onBusinessClick(biz.id);
-                      }
-                    }}
-                    className="group overflow-hidden rounded-xl border border-gold/20 shadow-sm hover:shadow-md transition-shadow aspect-square relative"
-                  >
-                    {img && (
-                      <img src={img} alt={biz.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                    <div className="absolute top-1.5 right-1.5 z-10" onClick={(e) => e.preventDefault()}>
-                      <BookmarkButton businessId={biz.id} onLoginRequired={onLoginRequired} />
-                    </div>
-                    <div className="absolute bottom-0 left-0 right-0 p-2 space-y-0.5">
-                      <p className="font-semibold text-[11px] text-white leading-tight line-clamp-2">{biz.name}</p>
-                      <div className="flex items-center gap-1 text-[10px] text-white/80">
-                        <MapPin className="h-2.5 w-2.5 shrink-0" />
-                        <span className="truncate">{biz.city}{biz.neighborhood ? ` · ${biz.neighborhood}` : ""}</span>
-                      </div>
-                      {avgOn20 && (
-                        <div className="flex items-center gap-1 text-[10px]">
-                          <Star className="h-2.5 w-2.5 text-gold fill-gold" />
-                          <span className="font-medium text-white">{avgOn20}/20</span>
-                          {totalReviews > 0 && (
-                            <span className="text-white/70">· {totalReviews} avis</span>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </Link>
-                );
-              })}
+          {/* Description */}
+          {destination.description && (
+            <div className="text-sm text-muted-foreground leading-relaxed mb-6">
+              <div dangerouslySetInnerHTML={{ __html: destination.description }} className="prose prose-sm max-w-none text-muted-foreground [&>p]:mb-2" />
             </div>
           )}
+
+          {/* Providers */}
+          <div ref={providersRef} className="border-t border-border pt-4">
+            <h2 className="text-lg font-bold text-foreground mb-4">
+              {language === "en" ? `These providers will take you to ${getName()}` : language === "ar" ? `هؤلاء المزودون سيأخذونك إلى ${getName()}` : `Ces prestataires vous emmèneront à ${getName()}`}
+              {!isLoading && <span className="ml-1.5 text-xs font-normal text-muted-foreground">({businesses.length})</span>}
+            </h2>
+            
+            {isLoading ? (
+              <div className="flex justify-center py-16">
+                <Loader2 className="h-6 w-6 animate-spin text-gold" />
+              </div>
+            ) : businesses.length === 0 ? (
+              <div className="text-center py-16 text-muted-foreground text-sm">
+                {language === "en" ? "No businesses found" : "Aucun établissement trouvé"}
+              </div>
+            ) : (
+              <div className="grid grid-cols-3 gap-2">
+                {businesses.map((biz) => {
+                  const img = biz.images && biz.images.length > 0 ? biz.images[0] : null;
+                  const sources = collectRatingSources(biz);
+                  const avgOn20 = biz.rating ?? computeWeightedRatingOn20(sources);
+                  const totalReviews = sources.reduce((s, r) => s + r.count, 0);
+
+                  return (
+                    <Link
+                      key={biz.id}
+                      to={`/business/${biz.id}`}
+                      onClick={(e) => {
+                        if (onBusinessClick) {
+                          e.preventDefault();
+                          onBusinessClick(biz.id);
+                        }
+                      }}
+                      className="group overflow-hidden rounded-xl border border-gold/20 shadow-sm hover:shadow-md transition-shadow aspect-square relative"
+                    >
+                      {img && (
+                        <img src={img} alt={biz.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                      <div className="absolute top-1.5 right-1.5 z-10" onClick={(e) => e.preventDefault()}>
+                        <BookmarkButton businessId={biz.id} onLoginRequired={onLoginRequired} />
+                      </div>
+                      <div className="absolute bottom-0 left-0 right-0 p-2 space-y-0.5">
+                        <p className="font-semibold text-[11px] text-white leading-tight line-clamp-2">{biz.name}</p>
+                        <div className="flex items-center gap-1 text-[10px] text-white/80">
+                          <MapPin className="h-2.5 w-2.5 shrink-0" />
+                          <span className="truncate">{biz.city}{biz.neighborhood ? ` · ${biz.neighborhood}` : ""}</span>
+                        </div>
+                        {avgOn20 && (
+                          <div className="flex items-center gap-1 text-[10px]">
+                            <Star className="h-2.5 w-2.5 text-gold fill-gold" />
+                            <span className="font-medium text-white">{avgOn20}/20</span>
+                            {totalReviews > 0 && (
+                              <span className="text-white/70">· {totalReviews} avis</span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
-    )}
-      {isLightboxOpen && (() => {
-        const imgs = destination.images && destination.images.length > 0
-          ? destination.images
-          : destination.image_url ? [destination.image_url] : [];
-        if (imgs.length === 0) return null;
-        const items: MediaItem[] = imgs.map((src, i) => ({ type: "image" as const, src, alt: `${getName()} - ${i + 1}` }));
-        return (
-          <FullscreenLightbox
-            items={items}
-            currentIndex={currentImageIndex}
-            onIndexChange={setCurrentImageIndex}
-            onClose={() => setIsLightboxOpen(false)}
-          />
-        );
-      })()}
+
+    {isLightboxOpen && (() => {
+      if (imgs.length === 0) return null;
+      const items: MediaItem[] = imgs.map((src, i) => ({ type: "image" as const, src, alt: `${getName()} - ${i + 1}` }));
+      return (
+        <FullscreenLightbox
+          items={items}
+          currentIndex={currentImageIndex}
+          onIndexChange={setCurrentImageIndex}
+          onClose={() => setIsLightboxOpen(false)}
+        />
+      );
+    })()}
     </>
   );
 };
