@@ -2116,6 +2116,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                           setSelectedFallbackHotelId(hotel.hotelId);
                           setInternalBusinessId(hotel.businessId);
                           scrollContainerRef.current?.scrollTo({ top: 0 });
+                          if (isExpanded) onToggleExpand?.();
                         }
                       }}
                     >
