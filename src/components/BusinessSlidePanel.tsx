@@ -1922,88 +1922,20 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
       </div>
 
       {/* Fullscreen lightbox — rendered via portal to escape panel stacking context */}
-      {isLightboxOpen && mediaCount > 0 && createPortal(
-        <div className="fixed inset-0 z-[9999] bg-black flex items-center justify-center" onClick={() => { setIsLightboxOpen(false); if (isExpanded) onToggleExpand?.(); scrollContainerRef.current?.scrollTo({ top: 0 }); }}>
-          <button
-            onClick={(e) => { e.stopPropagation(); setIsLightboxOpen(false); if (isExpanded) onToggleExpand?.(); scrollContainerRef.current?.scrollTo({ top: 0 }); }}
-            className="absolute top-6 left-6 z-20 flex items-center gap-2 px-4 py-2.5 rounded-full bg-white text-black font-semibold text-sm shadow-2xl hover:bg-white/90 transition-colors"
-          >
-            <X className="h-5 w-5" />
-            <span>Fermer</span>
-          </button>
-           {hasMatterport && currentImageIndex === matterportIndex ? (
-              <iframe
-                src={business.matterport_url!}
-                className="w-[95%] h-[90vh]"
-                allow="fullscreen; vr; xr"
-                allowFullScreen
-                frameBorder="0"
-                title={`Visite 3D - ${business.name}`}
-                onClick={(e: any) => e.stopPropagation()}
-              />
-           ) : hasVideo && currentImageIndex === 0 ? (
-             (() => {
-               const url = business.video_1_url!;
-               const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]+)/);
-               if (ytMatch) {
-                 return (
-                   <iframe
-                     src={`https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&mute=0&loop=1&playlist=${ytMatch[1]}&rel=0`}
-                     className="w-[90%] max-h-[90vh] aspect-video"
-                     allow="autoplay; encrypted-media; fullscreen"
-                     allowFullScreen
-                     frameBorder="0"
-                     onClick={(e: any) => e.stopPropagation()}
-                   />
-                 );
-               }
-               const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
-               if (vimeoMatch) {
-                 return (
-                   <iframe
-                     src={`https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1&loop=1`}
-                     className="w-[90%] max-h-[90vh] aspect-video"
-                     allow="autoplay; encrypted-media; fullscreen"
-                     allowFullScreen
-                     frameBorder="0"
-                     onClick={(e: any) => e.stopPropagation()}
-                   />
-                 );
-               }
-               return (
-                 <video src={url} autoPlay controls loop playsInline className="max-w-[90%] max-h-[90vh] object-contain" onClick={(e) => e.stopPropagation()} />
-               );
-             })()
-           ) : (
-             <img
-               src={images[currentImageIndex - videoOffset]}
-               alt={`${business.name} - ${currentImageIndex - videoOffset + 1}`}
-               className="max-w-[90%] max-h-[90vh] object-contain"
-               onClick={(e) => e.stopPropagation()}
-             />
-           )}
-          {mediaCount > 1 && (
-            <>
-              <button
-                onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(i => i === 0 ? mediaCount - 1 : i - 1); }}
-                className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
-              >
-                <ChevronLeft className="h-6 w-6 text-white" />
-              </button>
-              <button
-                onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(i => i === mediaCount - 1 ? 0 : i + 1); }}
-                className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
-              >
-                <ChevronRight className="h-6 w-6 text-white" />
-              </button>
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-white/10 text-sm text-white">
-                {currentImageIndex + 1} / {mediaCount}
-              </div>
-            </>
-      )}
-        </div>,
-        document.body
-      )}
+      {isLightboxOpen && mediaCount > 0 && (() => {
+        const items: MediaItem[] = [];
+        if (hasVideo) items.push({ type: "video", src: business.video_1_url!, alt: business.name });
+        images.forEach((src, i) => items.push({ type: "image", src, alt: `${business.name} - ${i + 1}` }));
+        if (hasMatterport) items.push({ type: "matterport", src: business.matterport_url!, alt: `Visite 3D - ${business.name}` });
+        return (
+          <FullscreenLightbox
+            items={items}
+            currentIndex={currentImageIndex}
+            onIndexChange={setCurrentImageIndex}
+            onClose={() => { setIsLightboxOpen(false); if (isExpanded) onToggleExpand?.(); scrollContainerRef.current?.scrollTo({ top: 0 }); }}
+          />
+        );
+      })()}
       {/* Club signup floating overlay - centered in panel */}
       {showClubCard && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/40 animate-in fade-in-0">
