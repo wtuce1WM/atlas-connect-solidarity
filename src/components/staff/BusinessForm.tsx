@@ -893,8 +893,15 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
   // Group services by subcategory for tabbed display
   const servicesGroupedBySubcategory = useMemo(() => {
     if (selectedSubcategoryIds.length === 0) return [];
-    const selectedSubs = dbSubcategories.filter(sub => formData.categories.includes(sub.name_fr));
+    const selectedSubs = dbSubcategories.filter(sub => selectedSubcategoryIds.includes(sub.id));
+    // Deduplicate by subcategory name (same name can exist under different categories)
+    const seen = new Set<string>();
     return selectedSubs
+      .filter(sub => {
+        if (seen.has(sub.name_fr)) return false;
+        seen.add(sub.name_fr);
+        return true;
+      })
       .map(sub => ({
         subcategoryId: sub.id,
         subcategoryName: sub.name_fr,
@@ -903,7 +910,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           .map(srv => srv.name_fr)
           .sort((a, b) => a.localeCompare(b, 'fr')),
       }));
-  }, [dbSubcategories, dbServices, formData.categories, selectedSubcategoryIds]);
+  }, [dbSubcategories, dbServices, selectedSubcategoryIds]);
 
   // Get gammes available for the selected main category
   const availableGammes = useMemo(() => {
