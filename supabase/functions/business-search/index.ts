@@ -181,6 +181,7 @@ interface SearchResult {
   bundleTimeSlots?: string[];
   disambiguationType?: "needs_category" | "needs_city" | null;
   synonymUsed?: boolean;
+  preciseMatch?: boolean;
 }
 
 // Synonyms and noise words are now loaded from DB (search_synonyms, search_noise_words)
