@@ -3053,7 +3053,11 @@ const SearchPage = () => {
                   « {searchQuery} »
                 </p>
                 <p className="text-gold font-semibold mt-1">
-                  {displayedResultsCount} {language === "en" ? "establishments found" : language === "ar" ? "مؤسسة وجدت" : "établissements trouvés"}
+                  {language === "en"
+                    ? `10 recommended establishments out of ${displayedResultsCount} found`
+                    : language === "ar"
+                    ? `10 مؤسسات موصى بها من أصل ${displayedResultsCount} وجدت`
+                    : `10 établissements recommandés sur ${displayedResultsCount} établissements trouvés`}
                 </p>
               </div>
               <div className="text-sm text-muted-foreground leading-relaxed space-y-1">
