@@ -435,8 +435,9 @@ const SearchPage = () => {
   }, [selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, selectedCity]);
 
   // Fetch extra businesses from DB when entonnoir filters narrow beyond search results
+  // Skip when a synonym was used — the backend already returned precise results
   useEffect(() => {
-    if (!selectedCategoryFilter) {
+    if (!selectedCategoryFilter || synonymUsed) {
       setExtraFilterBusinesses([]);
       return;
     }
@@ -471,7 +472,7 @@ const SearchPage = () => {
       }
     };
     fetchExtra();
-  }, [selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, selectedCity, detectedCity]);
+  }, [selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, selectedCity, detectedCity, synonymUsed]);
 
    // Track when user has scrolled down to the tab bar — lock scroll above it from that point
    const [hasReachedTabBar, setHasReachedTabBar] = useState(false);
