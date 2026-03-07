@@ -542,6 +542,9 @@ const SynonymsManagement = () => {
                 ))}
               </div>
               {(() => {
+                if (globalEngagements.length === 0) {
+                  return <p className="text-xs text-muted-foreground">Aucun engagement disponible dans le référentiel.</p>;
+                }
                 const available = globalEngagements.filter(e => !selectedEntry.engagement_filters.includes(e));
                 if (available.length === 0) return <p className="text-xs text-muted-foreground">Tous les engagements sont déjà ajoutés.</p>;
                 return (
