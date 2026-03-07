@@ -1,0 +1,126 @@
+import { createPortal } from "react-dom";
+import { X, ChevronLeft, ChevronRight } from "lucide-react";
+
+interface MediaItem {
+  type: "image" | "video" | "matterport";
+  src: string;
+  alt?: string;
+}
+
+interface FullscreenLightboxProps {
+  items: MediaItem[];
+  currentIndex: number;
+  onIndexChange: (index: number) => void;
+  onClose: () => void;
+}
+
+const FullscreenLightbox = ({ items, currentIndex, onIndexChange, onClose }: FullscreenLightboxProps) => {
+  if (items.length === 0) return null;
+
+  const count = items.length;
+  const current = items[currentIndex] || items[0];
+
+  const goPrev = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onIndexChange(currentIndex === 0 ? count - 1 : currentIndex - 1);
+  };
+
+  const goNext = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onIndexChange(currentIndex === count - 1 ? 0 : currentIndex + 1);
+  };
+
+  const renderMedia = () => {
+    if (current.type === "matterport") {
+      return (
+        <iframe
+          src={current.src}
+          className="w-[95%] h-[90vh]"
+          allow="fullscreen; vr; xr"
+          allowFullScreen
+          frameBorder="0"
+          title={current.alt || "Visite 3D"}
+          onClick={(e: any) => e.stopPropagation()}
+        />
+      );
+    }
+
+    if (current.type === "video") {
+      const url = current.src;
+      const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]+)/);
+      if (ytMatch) {
+        return (
+          <iframe
+            src={`https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&mute=0&loop=1&playlist=${ytMatch[1]}&rel=0`}
+            className="w-[90%] max-h-[90vh] aspect-video"
+            allow="autoplay; encrypted-media; fullscreen"
+            allowFullScreen
+            frameBorder="0"
+            onClick={(e: any) => e.stopPropagation()}
+          />
+        );
+      }
+      const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+      if (vimeoMatch) {
+        return (
+          <iframe
+            src={`https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1&loop=1`}
+            className="w-[90%] max-h-[90vh] aspect-video"
+            allow="autoplay; encrypted-media; fullscreen"
+            allowFullScreen
+            frameBorder="0"
+            onClick={(e: any) => e.stopPropagation()}
+          />
+        );
+      }
+      return (
+        <video src={url} autoPlay controls loop playsInline className="max-w-[90%] max-h-[90vh] object-contain" onClick={(e) => e.stopPropagation()} />
+      );
+    }
+
+    return (
+      <img
+        src={current.src}
+        alt={current.alt || ""}
+        className="max-w-[90%] max-h-[90vh] object-contain"
+        onClick={(e) => e.stopPropagation()}
+      />
+    );
+  };
+
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] bg-black flex items-center justify-center" onClick={onClose}>
+      <button
+        onClick={(e) => { e.stopPropagation(); onClose(); }}
+        className="absolute top-6 left-6 z-20 h-10 w-10 flex items-center justify-center rounded-full bg-destructive text-white hover:bg-destructive/90 transition-colors shadow-2xl"
+        aria-label="Fermer"
+      >
+        <X className="h-5 w-5" />
+      </button>
+      {renderMedia()}
+      {count > 1 && (
+        <>
+          <button
+            onClick={goPrev}
+            className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+          >
+            <ChevronLeft className="h-6 w-6 text-white" />
+          </button>
+          <button
+            onClick={goNext}
+            className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+          >
+            <ChevronRight className="h-6 w-6 text-white" />
+          </button>
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-white/10 text-sm text-white">
+            {currentIndex + 1} / {count}
+          </div>
+        </>
+      )}
+    </div>,
+    document.body
+  );
+};
+
+export default FullscreenLightbox;
+export type { MediaItem };
