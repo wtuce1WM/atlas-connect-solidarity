@@ -894,22 +894,28 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
   const servicesGroupedBySubcategory = useMemo(() => {
     if (selectedSubcategoryIds.length === 0) return [];
     const selectedSubs = dbSubcategories.filter(sub => selectedSubcategoryIds.includes(sub.id));
-    // Deduplicate by subcategory name (same name can exist under different categories)
-    const seen = new Set<string>();
-    return selectedSubs
-      .filter(sub => {
-        if (seen.has(sub.name_fr)) return false;
-        seen.add(sub.name_fr);
-        return true;
-      })
-      .map(sub => ({
-        subcategoryId: sub.id,
-        subcategoryName: sub.name_fr,
-        services: dbServices
-          .filter(srv => srv.subcategory_id === sub.id)
-          .map(srv => srv.name_fr)
-          .sort((a, b) => a.localeCompare(b, 'fr')),
-      }));
+    // Group by subcategory name, merging services from all subcategories with the same name
+    const groupMap = new Map<string, { subcategoryId: string; subcategoryName: string; serviceNames: Set<string> }>();
+    for (const sub of selectedSubs) {
+      const existing = groupMap.get(sub.name_fr);
+      const svcNames = dbServices
+        .filter(srv => srv.subcategory_id === sub.id)
+        .map(srv => srv.name_fr);
+      if (existing) {
+        for (const name of svcNames) existing.serviceNames.add(name);
+      } else {
+        groupMap.set(sub.name_fr, {
+          subcategoryId: sub.id,
+          subcategoryName: sub.name_fr,
+          serviceNames: new Set(svcNames),
+        });
+      }
+    }
+    return [...groupMap.values()].map(g => ({
+      subcategoryId: g.subcategoryId,
+      subcategoryName: g.subcategoryName,
+      services: [...g.serviceNames].sort((a, b) => a.localeCompare(b, 'fr')),
+    }));
   }, [dbSubcategories, dbServices, selectedSubcategoryIds]);
 
   // Get gammes available for the selected main category
