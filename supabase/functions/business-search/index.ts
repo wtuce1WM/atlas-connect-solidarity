@@ -1457,8 +1457,27 @@ serve(async (req) => {
               for (const svc of allSvcs) {
                 const svcNorm = stripAccentsGlobal(svc.name_fr.toLowerCase().replace(/-/g, " "));
                 const svcCW = svcNorm.split(/\s+/).filter((w: string) => w.length > 1 && !FRENCH_STOP_WORDS.has(w));
-                if (svcCW.length > 0 && svcCW.every((sw: string) => pairedRemainingWords.some(rw => normR(rw) === sw || normR(rw) === stripPlR(sw)))) {
+                if (svcCW.length === 0) continue;
+                // Check if ALL content words are in remaining words (original logic)
+                const allInRemaining = svcCW.every((sw: string) => pairedRemainingWords.some(rw => normR(rw) === sw || normR(rw) === stripPlR(sw)));
+                if (allInRemaining) {
                   extraServices.push(svc.name_fr);
+                  continue;
+                }
+                // NEW: For multi-word services, check if words span remaining + consumed words,
+                // with at least one word in remaining. This catches "Plats à tajine" when
+                // "tajine" was consumed by the synonym but "plats" remains.
+                if (svcCW.length >= 2) {
+                  const hasAtLeastOneRemaining = svcCW.some((sw: string) => pairedRemainingWords.some(rw => normR(rw) === sw || normR(rw) === stripPlR(sw)));
+                  const allInRemainingOrConsumed = svcCW.every((sw: string) => {
+                    const inRemaining = pairedRemainingWords.some(rw => normR(rw) === sw || normR(rw) === stripPlR(sw));
+                    const inConsumed = pairedConsumedWords.has(sw) || pairedConsumedWords.has(stripPlR(sw));
+                    return inRemaining || inConsumed;
+                  });
+                  if (hasAtLeastOneRemaining && allInRemainingOrConsumed) {
+                    extraServices.push(svc.name_fr);
+                    console.log(`🔍 Multi-word service "${svc.name_fr}" spans remaining+consumed words`);
+                  }
                 }
               }
               const uniqueExtra = [...new Map(extraServices.map(n => [stripAccentsGlobal(n.toLowerCase().replace(/-/g, " ")), n])).values()];
