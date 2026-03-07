@@ -2906,7 +2906,7 @@ const SearchPage = () => {
               */}
 
               {/* Pagination */}
-              {totalPages > 1 && !groupedBusinesses && (
+              {totalPages > 1 && (
                 <div className="mt-12 flex flex-col items-center gap-4">
                   {/* Results count */}
                   <p className="text-sm text-gray-400">
