@@ -319,9 +319,23 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
   const [fontSize, setFontSize] = useState(0);
   const [regenerateCount, setRegenerateCount] = useState(0);
   const [answerKey, setAnswerKey] = useState(0);
+  const [isAnswerVisible, setIsAnswerVisible] = useState(false);
   const fetchIdRef = useRef(0);
   const lastFetchKeyRef = useRef("");
   const aiPanelRef = useRef<HTMLDivElement>(null);
+  const answerRevealRafRef = useRef<number | null>(null);
+
+  const revealAnswer = () => {
+    if (answerRevealRafRef.current !== null) {
+      cancelAnimationFrame(answerRevealRafRef.current);
+    }
+    setIsAnswerVisible(false);
+    answerRevealRafRef.current = requestAnimationFrame(() => {
+      answerRevealRafRef.current = requestAnimationFrame(() => {
+        setIsAnswerVisible(true);
+      });
+    });
+  };
 
   const fetchKey = useMemo(() => {
     if (!query || !businesses.length) return "";
@@ -334,6 +348,7 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
     setAnswer("");
     setError(null);
     setSelectedBusiness(null);
+    setIsAnswerVisible(false);
   }, [query]);
 
 
@@ -343,6 +358,7 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
       setIsLoading(false);
       setAnswer("");
       onAnswerReady?.("");
+      setIsAnswerVisible(false);
     }
   }, [isSearchLoading, businesses.length, isLoading]);
 
@@ -356,6 +372,7 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
     setAnswer("");
     onAnswerReady?.("");
     setError(null);
+    setIsAnswerVisible(false);
 
     const fetchAnswer = async () => {
       try {
@@ -398,6 +415,7 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
           setAnswerKey(k => k + 1);
           setAnswer(data.answer);
           onAnswerReady?.(data.answer);
+          revealAnswer();
         }
       } catch (err) {
         if (currentFetchId !== fetchIdRef.current) return;
@@ -412,6 +430,14 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
 
     fetchAnswer();
   }, [fetchKey, isSearchLoading, isDismissed, language]);
+
+  useEffect(() => {
+    return () => {
+      if (answerRevealRafRef.current !== null) {
+        cancelAnimationFrame(answerRevealRafRef.current);
+      }
+    };
+  }, []);
 
   const isPanelOpen = !!selectedBusiness;
   const [isPanelExpanded, setIsPanelExpanded] = useState(false);
@@ -499,10 +525,9 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
             ) : (
               <div
                 key={`answer-fade-${answerKey}`}
-                className={`leading-relaxed text-foreground ${
-                  fontSize === -1 ? "text-xs" : fontSize === 1 ? "text-base" : "text-sm"
-                }`}
-                style={{ animation: "slideInUp 1200ms cubic-bezier(0.22, 1, 0.36, 1) both" }}
+                className={`leading-relaxed text-foreground transition-all duration-700 ease-out ${
+                  isAnswerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+                } ${fontSize === -1 ? "text-xs" : fontSize === 1 ? "text-base" : "text-sm"}`}
               >
                 {formatAnswer(answer, businesses, setSelectedBusiness, highlightWordIndex)}
               </div>
