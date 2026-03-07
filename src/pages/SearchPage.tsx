@@ -3062,8 +3062,11 @@ const SearchPage = () => {
               </div>
               {searchServiceFilters.length > 0 && (
                 <div className="mt-3 mb-4">
-                  <p className="text-xs text-muted-foreground mb-2">
+                  <p className="text-xs text-muted-foreground mb-1">
                     {language === "en" ? "You can refine your search" : language === "ar" ? "يمكنك تحسين بحثك" : "Vous pouvez préciser votre recherche"}
+                  </p>
+                  <p className="text-base font-bold text-foreground mb-2">
+                    {language === "en" ? "What are you looking for?" : language === "ar" ? "ماذا تبحث عنه؟" : "Que cherchez-vous ?"}
                   </p>
                   <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
                     {searchServiceFilters.map((svc) => {
