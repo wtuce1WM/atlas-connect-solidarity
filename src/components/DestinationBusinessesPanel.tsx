@@ -122,25 +122,12 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
         onClick={() => setIsExpanded(false)}
       />
       <div className="fixed top-[53px] right-0 bottom-0 z-[40] bg-background flex flex-col border-l-2 border-border shadow-[-8px_0_30px_-5px_rgba(0,0,0,0.15)]" style={{ width: "80%", opacity: 0, animation: "panelSlideIn 0.3s ease-out 1s forwards" }}>
-        <div className="shrink-0 flex items-center px-4 py-3 gap-3 bg-white border-b border-border">
-          <button
-            onClick={() => { onClose(); setIsExpanded(false); }}
-            className="h-9 w-9 flex items-center justify-center rounded-full bg-destructive text-white hover:bg-destructive/90 transition-colors"
-            title="Fermer"
-            aria-label="Fermer"
-          >
-            <X className="h-4 w-4" />
-          </button>
-          <button
-            onClick={() => setIsExpanded(false)}
-            className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors"
-            title="Réduire"
-            aria-label="Réduire le panneau"
-          >
-            <Minimize2 className="h-4 w-4" />
-          </button>
-          <span className="text-muted-foreground text-sm font-medium ml-2">{getName()}</span>
-        </div>
+        <SlidePanelHeader
+          onClose={() => { onClose(); setIsExpanded(false); }}
+          isExpanded={true}
+          onToggleExpand={() => setIsExpanded(false)}
+          centerContent={getName()}
+        />
         <div className="flex-1 overflow-y-auto p-3">
           {(() => {
             const imgs = destination.images && destination.images.length > 0
