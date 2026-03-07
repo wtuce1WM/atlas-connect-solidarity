@@ -1473,6 +1473,32 @@ serve(async (req) => {
             }
           }
         }
+
+        // ── ENGAGEMENT/COMMODITY POST-FILTER ──
+        {
+          const allMatchedKeys = [...matchedSynonymFilterKeys];
+          if (matchedSynonymBadgeKey && !allMatchedKeys.includes(matchedSynonymBadgeKey)) allMatchedKeys.push(matchedSynonymBadgeKey);
+          const requiredEngagements: string[] = [];
+          const requiredCommodities: string[] = [];
+          for (const k of allMatchedKeys) {
+            if (synonymEngagements[k]) requiredEngagements.push(...synonymEngagements[k]);
+            if (synonymCommodities[k]) requiredCommodities.push(...synonymCommodities[k]);
+          }
+          if (requiredEngagements.length > 0 || requiredCommodities.length > 0) {
+            const before = businesses.length;
+            businesses = businesses.filter(b => {
+              const bizEngs: string[] = b.engagements || [];
+              for (const eng of requiredEngagements) {
+                if (!bizEngs.includes(eng)) return false;
+              }
+              for (const com of requiredCommodities) {
+                if (!bizEngs.includes(`Logistique:${com}`)) return false;
+              }
+              return true;
+            });
+            console.log(`⚡ Engagement/commodity filter: ${before} → ${businesses.length} (eng: [${requiredEngagements.join(",")}], com: [${requiredCommodities.join(",")}])`);
+          }
+        }
         
         // ── POST-FILTER: intersect additional services detected in remaining query words ──
         if (businesses.length > 1 && effectiveQuery) {
