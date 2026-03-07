@@ -2280,28 +2280,12 @@ const SearchPage = () => {
             )}
             {poiSelectedBusinessId && (
               <div className={`fixed top-0 left-0 right-0 z-40 bg-background shadow-2xl overflow-hidden flex flex-col animate-slide-in-right lg:top-[53px] lg:left-auto lg:border-l lg:border-border ${poiPanelExpanded ? "lg:w-[80%] border-l-2 border-border shadow-[-8px_0_30px_-5px_rgba(0,0,0,0.15)]" : "lg:w-1/2"} transition-all duration-500 ease-out`} style={{ height: isMobile ? "100vh" : "calc(100vh - 53px)" }}>
-                <div className="shrink-0 flex items-center px-4 py-2 bg-white border-b border-border z-40">
-                  <div className="flex items-center gap-3 shrink-0">
-                    <button
-                      onClick={() => { setPoiSelectedBusinessId(null); setPoiPanelExpanded(false); }}
-                      className="h-9 w-9 flex items-center justify-center rounded-full bg-destructive text-white hover:bg-destructive/90 transition-colors"
-                      title="Fermer"
-                      aria-label="Fermer le panneau"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={() => setPoiPanelExpanded(v => !v)}
-                      className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors"
-                      title={poiPanelExpanded ? "Réduire" : "Agrandir"}
-                      aria-label={poiPanelExpanded ? "Réduire le panneau" : "Agrandir le panneau"}
-                    >
-                      {poiPanelExpanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-                    </button>
-                  </div>
-                  <div id="slide-panel-toolbar-center" className="flex-1 flex items-center justify-center gap-4" />
-                  <div id="slide-panel-toolbar" className="flex items-center gap-3 shrink-0" />
-                </div>
+                <SlidePanelHeader
+                  onClose={() => { setPoiSelectedBusinessId(null); setPoiPanelExpanded(false); }}
+                  isExpanded={poiPanelExpanded}
+                  onToggleExpand={() => setPoiPanelExpanded(v => !v)}
+                  closeVariant="destructive"
+                />
                 <div className="flex-1 min-h-0">
                   <BusinessSlidePanel
                     businessId={poiSelectedBusinessId}
@@ -2314,20 +2298,10 @@ const SearchPage = () => {
             )}
             {poiMapBusiness && (
               <div className={`fixed top-0 left-0 right-0 z-40 bg-background shadow-2xl overflow-hidden flex flex-col animate-slide-up-from-bottom lg:w-1/2 lg:top-[54px] lg:left-auto lg:border-l lg:border-border`} style={{ height: isMobile ? "100vh" : "calc(100vh - 54px)" }}>
-                <div className="shrink-0 flex items-center px-4 py-2 bg-white border-b border-border z-40">
-                  <div className="flex items-center gap-3 shrink-0">
-                    <button
-                      onClick={() => setPoiMapBusiness(null)}
-                      className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background border-2 border-background/20 shadow-2xl hover:opacity-90 transition-opacity"
-                      title="Fermer"
-                      aria-label="Fermer la carte"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                  </div>
-                  <span className="flex-1 text-center font-semibold text-sm truncate">{poiMapBusiness.name}</span>
-                  <div className="w-9" />
-                </div>
+                <SlidePanelHeader
+                  onClose={() => setPoiMapBusiness(null)}
+                  centerContent={poiMapBusiness.name}
+                />
                 <div className="flex-1 min-h-0">
                   <PoiGoogleMap
                     pois={allPois}
@@ -2397,28 +2371,11 @@ const SearchPage = () => {
             )}
             {destSelectedBusinessId && (
               <div className={`fixed top-[54px] right-0 z-40 bg-background shadow-2xl border-l border-border overflow-hidden flex flex-col animate-slide-in-right transition-all duration-500 ease-out ${destPanelExpanded ? "w-[80%]" : "w-1/2"}`} style={{ height: "calc(100vh - 54px)" }}>
-                <div className="shrink-0 flex items-center px-4 py-2 bg-white border-b border-border z-40">
-                  <div className="flex items-center gap-3 shrink-0">
-                    <button
-                      onClick={() => { setDestSelectedBusinessId(null); setDestPanelExpanded(false); }}
-                      className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background border-2 border-background/20 shadow-2xl hover:opacity-90 transition-opacity"
-                      title="Retour"
-                      aria-label="Retour à la destination"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={() => setDestPanelExpanded(prev => !prev)}
-                      className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background border-2 border-background/20 shadow-2xl hover:opacity-90 transition-opacity"
-                      title={destPanelExpanded ? "Réduire" : "Agrandir"}
-                      aria-label={destPanelExpanded ? "Réduire le panneau" : "Agrandir le panneau"}
-                    >
-                      {destPanelExpanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-                    </button>
-                  </div>
-                  <div id="slide-panel-toolbar-center" className="flex-1 flex items-center justify-center gap-4" />
-                  <div id="slide-panel-toolbar" className="flex items-center gap-3 shrink-0" />
-                </div>
+                <SlidePanelHeader
+                  onClose={() => { setDestSelectedBusinessId(null); setDestPanelExpanded(false); }}
+                  isExpanded={destPanelExpanded}
+                  onToggleExpand={() => setDestPanelExpanded(prev => !prev)}
+                />
                 <div className="flex-1 min-h-0">
                   <BusinessSlidePanel
                     businessId={destSelectedBusinessId}
@@ -3052,25 +3009,11 @@ const SearchPage = () => {
             className={`fixed top-[53px] right-0 z-[100] bg-background shadow-2xl border-l border-border overflow-hidden flex flex-col ${isCompactPanelExpanded ? "border-l-2 shadow-[-8px_0_30px_-5px_rgba(0,0,0,0.15)]" : "animate-slide-in-right"} transition-all duration-500 ease-out`}
             style={{ height: "calc(100vh - 53px)", width: isCompactPanelExpanded ? "80%" : "50%", ...(isCompactPanelExpanded ? { opacity: 0, animation: "panelSlideIn 0.3s ease-out 1s forwards" } : {}) }}
           >
-            <div className="shrink-0 flex items-center px-4 py-2 bg-card text-foreground border-b border-border z-40">
-              <div className="flex items-center gap-3 shrink-0 relative z-10">
-                <button
-                  onClick={() => { setCompactPanelBusiness(null); setIsCompactPanelExpanded(false); }}
-                  className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background border-2 border-background/20 shadow-2xl hover:opacity-90 transition-opacity"
-                  title="Fermer"
-                  aria-label="Fermer le panneau"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-                <button
-                  onClick={() => setIsCompactPanelExpanded(prev => !prev)}
-                  className="h-9 w-9 flex items-center justify-center rounded-full bg-card text-foreground border-2 border-border shadow-sm hover:bg-muted transition-colors"
-                  title={isCompactPanelExpanded ? "Réduire" : "Agrandir"}
-                  aria-label={isCompactPanelExpanded ? "Réduire le panneau" : "Agrandir le panneau"}
-                >
-                  {isCompactPanelExpanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-                </button>
-              </div>
+            <SlidePanelHeader
+              onClose={() => { setCompactPanelBusiness(null); setIsCompactPanelExpanded(false); }}
+              isExpanded={isCompactPanelExpanded}
+              onToggleExpand={() => setIsCompactPanelExpanded(prev => !prev)}
+            />
               <div id="slide-panel-toolbar-center" className="flex-1 flex items-center justify-center gap-4" />
               <div id="slide-panel-toolbar" className="flex items-center gap-3 shrink-0" />
             </div>
