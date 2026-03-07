@@ -585,6 +585,14 @@ const SearchPage = () => {
       .replace(/\s+/g, " ")
       .trim();
 
+  // Detect country-level terms (e.g. "maroc", "morocco") → national scope, no city filter
+  const queryHasCountryScope = useMemo(() => {
+    const normalizedQuery = normalizeText(searchQuery || inputValue);
+    if (!normalizedQuery) return false;
+    const countryTerms = ["maroc", "morocco", "marocco", "marruecos"];
+    return countryTerms.some(term => normalizedQuery.includes(term));
+  }, [searchQuery, inputValue]);
+
   const queryHasExplicitCity = useMemo(() => {
     if (cityFromUrl) return true;
     const normalizedQuery = normalizeText(searchQuery || inputValue);
