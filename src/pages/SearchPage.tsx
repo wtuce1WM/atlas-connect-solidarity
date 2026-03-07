@@ -1713,30 +1713,31 @@ const SearchPage = () => {
           <div className="shrink-0 pb-8 pt-4 flex flex-col items-center gap-4">
             {/* Action buttons row */}
             <div className="flex items-center gap-3">
-              {/* Listen */}
-              {(ttsStatus === "playing" || ttsStatus === "loading") ? (
-                <button
-                  onClick={ttsStop}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-gold/20 text-gold text-sm font-medium hover:bg-gold/30 transition-colors"
-                >
-                  {ttsStatus === "loading" ? <Loader className="h-4 w-4 animate-spin" /> : <Volume2 className="h-4 w-4" />}
-                  {ttsStatus === "loading" ? "…" : "Stop"}
-                </button>
-              ) : (
-                <button
-                  onClick={() => {
-                    const cleanText = aiAnswerText.replace(/\*{1,2}/g, "").replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "");
-                    const intro = ttsIntroPhrase ? `${ttsIntroPhrase}. ` : "";
-                    ttsIntroWordCountRef.current = intro.trim().split(/\s+/).filter(Boolean).length;
-                    voiceLoopRef.current = true;
-                    ttsSpeak(intro + cleanText + " … Vous pouvez me poser une autre question.", undefined, true);
-                  }}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-card border border-gold/30 text-gold text-sm font-medium hover:bg-gold/20 transition-colors"
-                >
-                  <Volume2 className="h-4 w-4" />
-                  {language === "en" ? "Listen" : language === "ar" ? "استمع" : "Écouter"}
-                </button>
-              )}
+              {/* Listen — même design rond noir */}
+              <div className="relative">
+                {(ttsStatus === "playing" || ttsStatus === "loading") ? (
+                  <button
+                    onClick={ttsStop}
+                    className="relative w-16 h-16 rounded-full bg-black flex items-center justify-center shadow-lg transition-all hover:scale-105"
+                  >
+                    {ttsStatus === "loading" ? <Loader className="h-7 w-7 text-white animate-spin" /> : <VolumeX className="h-7 w-7 text-white" />}
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => {
+                      const cleanText = aiAnswerText.replace(/\*{1,2}/g, "").replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "");
+                      const intro = ttsIntroPhrase ? `${ttsIntroPhrase}. ` : "";
+                      ttsIntroWordCountRef.current = intro.trim().split(/\s+/).filter(Boolean).length;
+                      voiceLoopRef.current = true;
+                      ttsSpeak(intro + cleanText + " … Vous pouvez me poser une autre question.", undefined, true);
+                    }}
+                    className="relative w-16 h-16 rounded-full bg-black flex items-center justify-center shadow-lg transition-all hover:scale-105"
+                    title={language === "en" ? "Listen" : language === "ar" ? "استمع" : "Écouter"}
+                  >
+                    <Volume2 className="h-7 w-7 text-white" />
+                  </button>
+                )}
+              </div>
               {/* Geo — même design que le bouton micro */}
               <div className="relative">
                 <button
