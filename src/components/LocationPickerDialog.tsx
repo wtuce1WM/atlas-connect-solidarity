@@ -76,6 +76,7 @@ const LocationPickerDialog = ({
   isDetecting,
   onUseCurrentPosition,
   onConfirm,
+  onDisableGeo,
 }: LocationPickerDialogProps) => {
   const { language } = useLanguage();
   const mapRef = useRef<any>(null);
@@ -280,14 +281,25 @@ const LocationPickerDialog = ({
         </DialogHeader>
 
         <div className="px-5 space-y-3 shrink-0">
-          <button
-            onClick={handleUseCurrentPosition}
-            disabled={isDetecting}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gold text-white font-medium text-sm hover:bg-gold/90 transition-colors disabled:opacity-50"
-          >
-            {isDetecting ? <Loader className="h-4 w-4 animate-spin" /> : <Navigation className="h-4 w-4" />}
-            {language === "en" ? "Use my current position" : language === "ar" ? "استخدام موقعي الحالي" : "Utiliser ma position actuelle"}
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleUseCurrentPosition}
+              disabled={isDetecting}
+              className="flex-1 flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-gold text-white font-medium text-sm hover:bg-gold/90 transition-colors disabled:opacity-50"
+            >
+              {isDetecting ? <Loader className="h-4 w-4 animate-spin" /> : <Navigation className="h-4 w-4" />}
+              {language === "en" ? "My position" : language === "ar" ? "موقعي" : "Ma position"}
+            </button>
+            {onDisableGeo && (
+              <button
+                onClick={() => { onDisableGeo(); onOpenChange(false); }}
+                className="flex-1 flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-destructive text-white font-medium text-sm hover:bg-destructive/90 transition-colors"
+              >
+                <X className="h-4 w-4" />
+                {language === "en" ? "Don't geolocate me" : language === "ar" ? "لا تحدد موقعي" : "Ne pas me géolocaliser"}
+              </button>
+            )}
+          </div>
 
           <div className="relative flex items-center border border-border rounded-xl overflow-hidden focus-within:border-gold/50 transition-colors">
             <Search className="h-4 w-4 text-muted-foreground ml-3 shrink-0" />
