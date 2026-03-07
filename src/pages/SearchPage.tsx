@@ -2630,13 +2630,7 @@ const SearchPage = () => {
       {activeTab === "suggestions" && (
       <section
         ref={resultsRef}
-        className="bg-background pb-6 lg:pb-4 pt-4 overflow-y-auto"
-        style={stickyStackPadding > 0 ? {
-          position: 'sticky',
-          top: `${stickyStackPadding}px`,
-          maxHeight: `calc(100vh - ${stickyStackPadding}px)`,
-          zIndex: 0,
-        } : undefined}
+        className="bg-background pb-6 lg:pb-4 pt-4"
       >
         <div className="mx-auto px-4 max-w-[80%]">
           {/* Filters: City + Geo toggle — on mobile shown before hero via order */}
