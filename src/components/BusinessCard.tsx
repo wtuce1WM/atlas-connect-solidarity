@@ -371,6 +371,16 @@ const BusinessCard = ({
                   <Headphones className="h-4 w-4" />
                 )}
               </button>
+              {business.wtuce_status === "verified" && (
+                <div className="[perspective:600px] relative z-0" style={{ transformStyle: "preserve-3d" }}>
+                  <img
+                    src={logoGold}
+                    alt=""
+                    className="object-contain animate-[coinSpin_1.2s_cubic-bezier(0.16,1,0.3,1)_forwards]"
+                    style={{ width: 60, height: 60, transformStyle: "preserve-3d" }}
+                  />
+                </div>
+              )}
             </div>
           </div>
 
