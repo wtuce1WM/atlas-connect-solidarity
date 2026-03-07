@@ -1173,7 +1173,8 @@ const SearchPage = () => {
         setSearchMessage("");
         setDetectedSubcategory(null);
         setSearchMode(null);
-        setSynonymUsed(false);
+         setSynonymUsed(false);
+         setPreciseMatch(false);
         setIsLoading(false);
         return;
       }
@@ -1182,6 +1183,7 @@ const SearchPage = () => {
       setAiAnswerText("");
       setDetectedSubcategory(null);
       setSynonymUsed(false);
+      setPreciseMatch(false);
       setSearchMode(null);
       try {
         // Fetch cities with sort_order
@@ -1215,6 +1217,7 @@ const SearchPage = () => {
         if (data) {
           setSearchLevel(data.searchLevel || "");
           setSynonymUsed(!!data.synonymUsed);
+          setPreciseMatch(!!data.preciseMatch);
           const safeDetectedSubcategory = data.detectedSubcategory || null;
           // Only use searchMode when explicitly set from back-office config
           const normalizedSearchMode = normalizeSearchMode(data.searchMode);
