@@ -500,7 +500,7 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
               <div className={`leading-relaxed text-foreground transition-all duration-200 ${
                 fontSize === -1 ? "text-xs" : fontSize === 1 ? "text-base" : "text-sm"
               }`}>
-                {formatAnswer(answer, businesses, setSelectedBusiness, highlightWordIndex, answerKey)}
+                {formatAnswer(answer, businesses, setSelectedBusiness, highlightWordIndex)}
               </div>
             )}
           </div>
