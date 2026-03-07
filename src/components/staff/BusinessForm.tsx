@@ -1402,6 +1402,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   { id: "section-avis", label: "Avis" },
                   { id: "section-services", label: "Engagements" },
                   { id: "section-taxonomie", label: "Taxonomie" },
+                  { id: "section-keywords", label: "Mots clés" },
                   { id: "section-horaires", label: "Horaires" },
                   { id: "section-notes", label: "Notes" },
                 ].map(({ id, label }) => (
@@ -3944,6 +3945,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           </div>
         </div>
 
+        <div id="section-keywords" style={{ scrollMarginTop: "140px" }} />
         <div className="space-y-2">
           <Label htmlFor="keywords">Mots-clés (séparés par virgule)</Label>
           <textarea
