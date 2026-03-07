@@ -3167,7 +3167,7 @@ const SearchPage = () => {
                 </div>
                 {/* Geolocation */}
                 <button
-                  onClick={() => geo.isEnabled ? geo.clearLocation() : geo.requestLocation()}
+                  onClick={geo.toggle}
                   className="relative w-16 h-16 rounded-full bg-black flex items-center justify-center shadow-lg transition-all hover:scale-105"
                   title={geo.isEnabled ? (language === "en" ? "Disable location" : "Désactiver la localisation") : (language === "en" ? "Enable location" : "Activer la localisation")}
                 >
