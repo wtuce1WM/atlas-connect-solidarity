@@ -2280,7 +2280,7 @@ const SearchPage = () => {
                   onClose={() => { setPoiSelectedBusinessId(null); setPoiPanelExpanded(false); }}
                   isExpanded={poiPanelExpanded}
                   onToggleExpand={() => setPoiPanelExpanded(v => !v)}
-                  closeVariant="destructive"
+                  
                 />
                 <div className="flex-1 min-h-0">
                   <BusinessSlidePanel
