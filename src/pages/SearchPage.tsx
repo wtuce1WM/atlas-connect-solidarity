@@ -3006,7 +3006,17 @@ const SearchPage = () => {
       {/* Split view: Left AI text panel + Right business panel */}
       {compactPanelBusiness && (
         <>
-          {/* Left panel — full AI text (slide from top) */}
+          {/* Backdrop when expanded to 80% */}
+          {isCompactPanelExpanded && (
+            <div
+              className="fixed top-[53px] left-0 bottom-0 z-[99] bg-black/40 backdrop-blur-[2px]"
+              style={{ width: "20%", animation: "panelFadeIn 1.5s ease-out forwards" }}
+              onClick={() => setIsCompactPanelExpanded(false)}
+            />
+          )}
+
+          {/* Left panel — full AI text (hidden when expanded) */}
+          {!isCompactPanelExpanded && (
           <div
             className="fixed top-[62px] left-0 w-1/2 z-[100] bg-background border-r border-border shadow-xl flex flex-col animate-fade-in"
             style={{ height: "calc(100vh - 62px)" }}
@@ -3035,11 +3045,12 @@ const SearchPage = () => {
               </div>
             </div>
           </div>
+          )}
 
           {/* Right panel — business detail */}
           <div
-            className="fixed top-[62px] right-0 w-1/2 z-[100] bg-background shadow-2xl border-l border-border overflow-hidden transition-all duration-500 ease-out animate-slide-in-right flex flex-col"
-            style={{ height: "calc(100vh - 62px)" }}
+            className={`fixed top-[53px] right-0 z-[100] bg-background shadow-2xl border-l border-border overflow-hidden flex flex-col ${isCompactPanelExpanded ? "border-l-2 shadow-[-8px_0_30px_-5px_rgba(0,0,0,0.15)]" : "animate-slide-in-right"} transition-all duration-500 ease-out`}
+            style={{ height: "calc(100vh - 53px)", width: isCompactPanelExpanded ? "80%" : "50%", ...(isCompactPanelExpanded ? { animation: "panelSlideIn 1.5s ease-out forwards" } : {}) }}
           >
             <div className="shrink-0 flex items-center px-4 py-2 bg-white border-b border-border z-40">
               <div className="flex items-center gap-3 shrink-0">
@@ -3051,6 +3062,14 @@ const SearchPage = () => {
                 >
                   <X className="h-4 w-4" />
                 </button>
+                <button
+                  onClick={() => setIsCompactPanelExpanded(prev => !prev)}
+                  className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors"
+                  title={isCompactPanelExpanded ? "Réduire" : "Agrandir"}
+                  aria-label={isCompactPanelExpanded ? "Réduire le panneau" : "Agrandir le panneau"}
+                >
+                  {isCompactPanelExpanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+                </button>
               </div>
               <div id="slide-panel-toolbar-center" className="flex-1 flex items-center justify-center gap-4" />
               <div id="slide-panel-toolbar" className="flex items-center gap-3 shrink-0" />
@@ -3059,8 +3078,8 @@ const SearchPage = () => {
               <BusinessSlidePanel
                 businessId={compactPanelBusiness.id}
                 onClose={() => { setCompactPanelBusiness(null); setIsCompactPanelExpanded(false); }}
-                isExpanded={false}
-                onToggleExpand={() => {}}
+                isExpanded={isCompactPanelExpanded}
+                onToggleExpand={() => setIsCompactPanelExpanded(prev => !prev)}
               />
             </div>
           </div>
