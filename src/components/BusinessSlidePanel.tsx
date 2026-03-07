@@ -48,6 +48,8 @@ interface BusinessSlidePanelProps {
   liteApiData?: LiteApiData;
   /** When provided, availability overlay & fallback panel are portaled into this container (used in AI overlay split-screen) */
   leftPanelPortalRef?: React.RefObject<HTMLDivElement | null>;
+  /** Called when business images are loaded, reports the count */
+  onImageCount?: (count: number) => void;
 }
 
 interface FullBusiness {
@@ -152,7 +154,7 @@ const SkypeIcon = ({ className = "h-5 w-5" }: { className?: string }) => (
   </svg>
 );
 
-const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpanded, onToggleExpand, liteApiData, leftPanelPortalRef }: BusinessSlidePanelProps) => {
+const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpanded, onToggleExpand, liteApiData, leftPanelPortalRef, onImageCount }: BusinessSlidePanelProps) => {
   const [internalBusinessId, setInternalBusinessId] = useState(externalBusinessId);
   const businessId = internalBusinessId;
 
@@ -554,6 +556,10 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
     };
     fetch();
   }, [businessId]);
+
+  // Report image count to parent
+  const imageCount = business?.images?.length ?? 0;
+  useEffect(() => { onImageCount?.(imageCount); }, [imageCount, onImageCount]);
 
   if (isLoading) {
     return (
