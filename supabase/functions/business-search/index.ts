@@ -1451,6 +1451,9 @@ serve(async (req) => {
             for (const sv of synVals) addConsumed(sv);
           }
           console.log(`🔑 Paired consumed words: [${[...pairedConsumedWords].join(", ")}] (keys: [${matchedSynonymFilterKeys.join(", ")}])`);
+          // Also exclude detected city/neighborhood words from remaining
+          if (effectiveCity) { for (const w of effectiveCity.toLowerCase().split(/[\s-]+/)) { pairedConsumedWords.add(w); pairedConsumedWords.add(stripAccentsGlobal(w)); } }
+          if (detectedNeighborhood) { for (const w of detectedNeighborhood.toLowerCase().split(/[\s-]+/)) { pairedConsumedWords.add(w); pairedConsumedWords.add(stripAccentsGlobal(w)); } }
           const pairedRemainingWords = effectiveQuery.toLowerCase().split(/\s+/)
             .filter(w => w.length > 1 && !FRENCH_STOP_WORDS.has(w) && !NOISE_ADJECTIVES.has(w) && !pairedConsumedWords.has(w) && !pairedConsumedWords.has(stripAccentsGlobal(w)));
           if (pairedRemainingWords.length > 0) {
