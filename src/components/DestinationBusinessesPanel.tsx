@@ -118,9 +118,8 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
     <>
     {/* Backdrop 20% left — click to collapse (only when expanded) */}
     {isExpanded && (
-      <div
-        className="fixed top-[53px] left-0 bottom-0 z-[39] bg-black/40 backdrop-blur-[2px] animate-fade-in"
-        style={{ width: "20%" }}
+       <div
+        className="fixed inset-0 top-[53px] z-[39] bg-black/40 backdrop-blur-[2px] animate-fade-in"
         onClick={() => setIsExpanded(false)}
       />
     )}
