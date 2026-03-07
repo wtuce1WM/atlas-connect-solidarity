@@ -2944,7 +2944,7 @@ const SearchPage = () => {
               setSelectedSubcategoryFilter(null);
               setSelectedServiceFilter(null);
               setSearchQuery(query);
-              const params: Record<string, string> = { q: query };
+              const params: Record<string, string> = { q: query, _t: String(Date.now()) };
               const timeResult = extractTimeSlot(query);
               if (timeResult) {
                 params.timeStart = String(timeResult.timeSlot.startHour);
