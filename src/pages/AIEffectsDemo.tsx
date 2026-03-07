@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Sparkles, RefreshCw } from "lucide-react";
+import { Sparkles, RefreshCw, Play } from "lucide-react";
 
 const DEMO_TEXT = `Voici nos meilleures recommandations pour déguster un **steak frites à Marrakech**. Le **Café des Épices** propose une version revisitée avec des épices locales, tandis que **Le Comptoir Darna** offre une ambiance festive et une cuisine française raffinée. Pour une expérience plus décontractée, **Grand Café de la Poste** est un incontournable avec son cadre colonial élégant.`;
 
@@ -232,6 +232,15 @@ const AIEffectsDemo = () => {
               {idx === 1 && <LineRevealEffect lines={LINES} active={!!activeEffects[1]} key={activeEffects[1]} />}
               {idx === 2 && <WordFadeEffect text={DEMO_TEXT} active={!!activeEffects[2]} key={activeEffects[2]} />}
               {idx === 3 && <ExpandShimmerEffect text={DEMO_TEXT} active={!!activeEffects[3]} key={activeEffects[3]} />}
+            </div>
+            <div className="px-5 py-2.5 border-t border-gold/10">
+              <button
+                onClick={(e) => { e.stopPropagation(); trigger(idx); }}
+                className="inline-flex items-center gap-1.5 text-xs font-medium text-gold hover:text-gold/80 transition-colors"
+              >
+                <Play className="h-3 w-3 fill-current" />
+                Relancer cet effet
+              </button>
             </div>
           </div>
         ))}
