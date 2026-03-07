@@ -1259,6 +1259,12 @@ const SearchPage = () => {
            setDetectedCity(data.detectedCity || null);
            setDisambiguationType(data.disambiguationType || null);
 
+          // When the fallback heuristic auto-selects a subcategory (not the backend),
+          // treat results as precise to prevent the extra category fetch from diluting them
+          if (fallbackSubcategory && !safeDetectedSubcategory && !data.preciseMatch) {
+            setPreciseMatch(true);
+          }
+
           // Auto-select category + subcategory when engine detected a subcategory
           if (finalDetectedSubcategory && businesses.length > 0) {
             // Derive parent category from a business that actually has the detected subcategory
