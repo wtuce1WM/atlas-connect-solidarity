@@ -222,11 +222,18 @@ const formatAnswer = (
   text: string,
   businesses: BusinessData[],
   onClickBusiness: (b: BusinessData) => void,
-  highlightWordIndex?: number
+  highlightWordIndex?: number,
+  fadeWordIndex?: number,
+  fadeComplete?: boolean
 ): ReactNode[] => {
   const hl: HighlightState | undefined =
     highlightWordIndex !== undefined && highlightWordIndex >= 0
       ? { wordIndex: 0, target: highlightWordIndex }
+      : undefined;
+
+  const fade: HighlightState | undefined =
+    !fadeComplete && fadeWordIndex !== undefined && fadeWordIndex >= -1
+      ? { wordIndex: 0, target: fadeWordIndex }
       : undefined;
 
   // Normalize bold markers spanning newlines
