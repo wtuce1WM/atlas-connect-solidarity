@@ -585,6 +585,14 @@ const SearchPage = () => {
       .replace(/\s+/g, " ")
       .trim();
 
+  // Detect country-level terms (e.g. "maroc", "morocco") → national scope, no city filter
+  const queryHasCountryScope = useMemo(() => {
+    const normalizedQuery = normalizeText(searchQuery || inputValue);
+    if (!normalizedQuery) return false;
+    const countryTerms = ["maroc", "morocco", "marocco", "marruecos"];
+    return countryTerms.some(term => normalizedQuery.includes(term));
+  }, [searchQuery, inputValue]);
+
   const queryHasExplicitCity = useMemo(() => {
     if (cityFromUrl) return true;
     const normalizedQuery = normalizeText(searchQuery || inputValue);
@@ -655,6 +663,14 @@ const SearchPage = () => {
       setIsGeoCityAutoSelected(false);
     }
   }, [isGeoCityAutoSelected, searchQuery, queryHasExplicitCity, selectedCity]);
+
+  // If query has country scope (e.g. "maroc"), force "all" cities
+  useEffect(() => {
+    if (queryHasCountryScope && selectedCity !== "all") {
+      setSelectedCity("all");
+      setIsGeoCityAutoSelected(false);
+    }
+  }, [queryHasCountryScope, selectedCity]);
 
   // Regenerate AI answer when city filter changes (e.g. "hotel" + city selection)
   const prevCityForAiRef = useRef<string>(selectedCity);
@@ -1232,8 +1248,8 @@ const SearchPage = () => {
             setSelectedSubcategoryFilter(finalDetectedSubcategory);
             setSelectedServiceFilter(null);
 
-            // Auto-select city if not detected and only one city in results
-            if (!data.detectedCity) {
+            // Auto-select city if not detected and only one city in results (skip for country-scope queries)
+            if (!data.detectedCity && !queryHasCountryScope) {
               const resultCities = [...new Set(businesses.map(b => b.city).filter(Boolean))];
               if (resultCities.length === 1) {
                 setSelectedCity(resultCities[0]);
