@@ -425,8 +425,7 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
         }
 
         if (data?.answer) {
-          setFadeWordIndex(-1);
-          setFadeComplete(false);
+          setAnswerKey(k => k + 1);
           setAnswer(data.answer);
           onAnswerReady?.(data.answer);
         }
