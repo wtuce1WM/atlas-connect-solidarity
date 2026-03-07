@@ -2246,7 +2246,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         </div>
 
         {/* Hook multilingue - affiché en gros comme Nom */}
-        <div ref={hookSectionRef} id="section-description" className="space-y-3" style={{ scrollMarginTop: '160px' }}>
+        <div id="section-description" className="space-y-3" style={{ scrollMarginTop: '160px' }}>
           <Input
             id="hook_fr"
             value={formData.hook_fr}
