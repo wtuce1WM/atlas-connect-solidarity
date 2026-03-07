@@ -359,7 +359,9 @@ const BusinessForm = ({ business, onSuccess, onCancel, brokenLinks = [] }: Busin
     fetchTaxonomy();
   }, []);
 
-/** Inline sub-component to manage LiteAPI hotel mapping for a single business */
+// LiteApiMappingField is intentionally defined here (inside BusinessForm scope)
+// but we memoize the reference to avoid unmount/remount flicker.
+// Actually moved outside — see above BusinessForm declaration.
 const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
   const [hotelId, setHotelId] = useState("");
   const [currentMapping, setCurrentMapping] = useState<string | null>(null);
