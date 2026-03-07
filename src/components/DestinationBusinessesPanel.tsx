@@ -346,48 +346,19 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
       </div>
     </div>
     )}
-      {/* Fullscreen lightbox via portal — same as BusinessSlidePanel */}
       {isLightboxOpen && (() => {
         const imgs = destination.images && destination.images.length > 0
           ? destination.images
           : destination.image_url ? [destination.image_url] : [];
         if (imgs.length === 0) return null;
-        return createPortal(
-          <div className="fixed inset-0 z-[9999] bg-black flex items-center justify-center" onClick={() => setIsLightboxOpen(false)}>
-            <button
-              onClick={(e) => { e.stopPropagation(); setIsLightboxOpen(false); }}
-              className="absolute top-6 left-6 z-20 h-10 w-10 flex items-center justify-center rounded-full bg-destructive text-white hover:bg-destructive/90 transition-colors shadow-2xl"
-              aria-label="Fermer"
-            >
-              <X className="h-5 w-5" />
-            </button>
-            <img
-              src={imgs[currentImageIndex]}
-              alt={`${getName()} - ${currentImageIndex + 1}`}
-              className="max-w-[90%] max-h-[90vh] object-contain"
-              onClick={(e) => e.stopPropagation()}
-            />
-            {imgs.length > 1 && (
-              <>
-                <button
-                  onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(i => i === 0 ? imgs.length - 1 : i - 1); }}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
-                >
-                  <ChevronLeft className="h-6 w-6 text-white" />
-                </button>
-                <button
-                  onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(i => i === imgs.length - 1 ? 0 : i + 1); }}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
-                >
-                  <ChevronRight className="h-6 w-6 text-white" />
-                </button>
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-white/10 text-sm text-white">
-                  {currentImageIndex + 1} / {imgs.length}
-                </div>
-              </>
-            )}
-          </div>,
-          document.body
+        const items: MediaItem[] = imgs.map((src, i) => ({ type: "image" as const, src, alt: `${getName()} - ${i + 1}` }));
+        return (
+          <FullscreenLightbox
+            items={items}
+            currentIndex={currentImageIndex}
+            onIndexChange={setCurrentImageIndex}
+            onClose={() => setIsLightboxOpen(false)}
+          />
         );
       })()}
     </>
