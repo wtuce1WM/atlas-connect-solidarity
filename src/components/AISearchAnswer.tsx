@@ -499,7 +499,7 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
             ) : (
               <div
                 key={`answer-fade-${answerKey}`}
-                className={`leading-relaxed text-foreground motion-reduce:animate-none animate-[fade-in_900ms_ease-out] ${
+                className={`leading-relaxed text-foreground animate-[slideInUp_1200ms_cubic-bezier(0.22,1,0.36,1)] ${
                   fontSize === -1 ? "text-xs" : fontSize === 1 ? "text-base" : "text-sm"
                 }`}
               >
