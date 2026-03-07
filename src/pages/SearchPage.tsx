@@ -1383,7 +1383,7 @@ const SearchPage = () => {
     };
 
     fetchData();
-  }, [searchQuery, categoryFromUrl, language]);
+  }, [searchQuery, categoryFromUrl, language, urlT]);
 
   // Fetch celebrity businesses on mount (used when celebrity query detected)
   useEffect(() => {
