@@ -3065,7 +3065,7 @@ const SearchPage = () => {
                   <p className="text-xs text-muted-foreground mb-2">
                     {language === "en" ? "You can refine your search" : language === "ar" ? "يمكنك تحسين بحثك" : "Vous pouvez préciser votre recherche"}
                   </p>
-                  <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                  <div className="flex flex-wrap gap-2">
                     {searchServiceFilters.map((svc) => {
                       const isSelected = selectedServiceFilter === svc.name;
                       return (
