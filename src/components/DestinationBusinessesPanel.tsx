@@ -120,7 +120,7 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
         onClick={() => setIsExpanded(false)}
       />
       <div className="fixed top-[53px] right-0 bottom-0 z-[40] bg-background flex flex-col border-l-2 border-border shadow-[-8px_0_30px_-5px_rgba(0,0,0,0.15)]" style={{ width: "80%" }}>
-        <div className="shrink-0 flex items-center px-4 py-3 gap-3 bg-background border-b border-border">
+        <div className="shrink-0 flex items-center px-4 py-3 gap-3 bg-white border-b border-border">
           <button
             onClick={() => { onClose(); setIsExpanded(false); }}
             className="h-9 w-9 flex items-center justify-center rounded-full bg-destructive text-white hover:bg-destructive/90 transition-colors"
