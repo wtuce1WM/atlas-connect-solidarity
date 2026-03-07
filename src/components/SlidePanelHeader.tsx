@@ -39,7 +39,7 @@ const SlidePanelHeader = ({
         >
           <X className="h-4 w-4" />
         </button>
-        {onToggleExpand && (
+        {onToggleExpand ? (
           <button
             onClick={onToggleExpand}
             className="h-9 w-9 flex items-center justify-center rounded-full bg-muted text-foreground border border-border shadow-sm hover:bg-muted/80 transition-colors"
@@ -48,7 +48,7 @@ const SlidePanelHeader = ({
           >
             {isExpanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
           </button>
-        )}
+        ) : null}
       </div>
       {centerContent ? (
         <>
