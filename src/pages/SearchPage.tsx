@@ -1248,8 +1248,8 @@ const SearchPage = () => {
             setSelectedSubcategoryFilter(finalDetectedSubcategory);
             setSelectedServiceFilter(null);
 
-            // Auto-select city if not detected and only one city in results
-            if (!data.detectedCity) {
+            // Auto-select city if not detected and only one city in results (skip for country-scope queries)
+            if (!data.detectedCity && !queryHasCountryScope) {
               const resultCities = [...new Set(businesses.map(b => b.city).filter(Boolean))];
               if (resultCities.length === 1) {
                 setSelectedCity(resultCities[0]);
