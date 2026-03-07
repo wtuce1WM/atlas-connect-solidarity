@@ -1870,6 +1870,7 @@ serve(async (req) => {
             );
           });
         });
+        console.log(`keywordMatches: ${keywordMatches.length} services (from ${(matchingByKeywords || []).length} total), names: [${keywordMatches.slice(0,10).map((s:any) => s.name_fr).join(", ")}]`);
         // Accent-insensitive fallback on service names to catch inputs like "francaise" vs "française"
         const nameMatchesAccentInsensitive = (matchingByKeywords || []).filter((svc) => {
           const nameTokens = stripAccentsKw(svc.name_fr.toLowerCase())
