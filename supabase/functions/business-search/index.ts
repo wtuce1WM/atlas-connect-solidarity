@@ -1470,30 +1470,49 @@ serve(async (req) => {
                   extraServices.push(svc.name_fr);
                   continue;
                 }
-                // NEW: For multi-word services, check if words span remaining + consumed words,
+                // NEW: For multi-word services, check if words span remaining + synonym key words,
                 // with at least one word in remaining. This catches "Plats à tajine" when
                 // "tajine" was consumed by the synonym but "plats" remains.
+                // Only use synonym KEY words (not all consumed words) to avoid false positives
+                // like "Plats cuisinés" matching because "cuisine" is a consumed service name word.
                 if (svcCW.length >= 2) {
                   const hasAtLeastOneRemaining = svcCW.some((sw: string) => pairedRemainingWords.some(rw => normR(rw) === sw || normR(rw) === stripPlR(sw)));
-                  const allInRemainingOrConsumed = svcCW.every((sw: string) => {
+                  const allInRemainingOrSynonymKey = svcCW.every((sw: string) => {
                     const inRemaining = pairedRemainingWords.some(rw => normR(rw) === sw || normR(rw) === stripPlR(sw));
-                    const inConsumed = pairedConsumedWords.has(sw) || pairedConsumedWords.has(stripPlR(sw));
-                    return inRemaining || inConsumed;
+                    const inSynonymKey = synonymKeyConsumedWords.has(sw) || synonymKeyConsumedWords.has(stripPlR(sw));
+                    return inRemaining || inSynonymKey;
                   });
-                  if (hasAtLeastOneRemaining && allInRemainingOrConsumed) {
+                  if (hasAtLeastOneRemaining && allInRemainingOrSynonymKey) {
                     extraServices.push(svc.name_fr);
-                    console.log(`🔍 Multi-word service "${svc.name_fr}" spans remaining+consumed words`);
+                    console.log(`🔍 Multi-word service "${svc.name_fr}" spans remaining+synonym key words`);
                   }
                 }
               }
-              const uniqueExtra = [...new Map(extraServices.map(n => [stripAccentsGlobal(n.toLowerCase().replace(/-/g, " ")), n])).values()];
-              if (uniqueExtra.length > 0) {
+              // Separate services found via remaining-only vs remaining+synonym-key
+              // remaining-only services use AND (original logic), synonym-spanning use OR filter
+              const remainingOnlyServices: string[] = [];
+              const synonymSpanningServices: string[] = [];
+              for (const svc of extraServices) {
+                const svcNorm = stripAccentsGlobal(svc.toLowerCase().replace(/-/g, " "));
+                const svcCW = svcNorm.split(/\s+/).filter((w: string) => w.length > 1 && !FRENCH_STOP_WORDS.has(w));
+                const allInRemaining = svcCW.every((sw: string) => pairedRemainingWords.some(rw => normR(rw) === sw || normR(rw) === stripPlR(sw)));
+                if (allInRemaining) remainingOnlyServices.push(svc);
+                else synonymSpanningServices.push(svc);
+              }
+              const uniqueRemainingOnly = [...new Map(remainingOnlyServices.map(n => [stripAccentsGlobal(n.toLowerCase().replace(/-/g, " ")), n])).values()];
+              const uniqueSynonymSpanning = [...new Map(synonymSpanningServices.map(n => [stripAccentsGlobal(n.toLowerCase().replace(/-/g, " ")), n])).values()];
+              
+              if (uniqueRemainingOnly.length > 0 || uniqueSynonymSpanning.length > 0) {
                 const bc = businesses.length;
                 businesses = businesses.filter((b: any) => {
                   const bSvcs = ((b.services || []) as string[]).map((s: string) => stripAccentsGlobal(s.toLowerCase().replace(/-/g, " ")));
-                  return uniqueExtra.every(req => bSvcs.some(bs => bs === stripAccentsGlobal(req.toLowerCase().replace(/-/g, " "))));
+                  // Remaining-only services: require ALL (AND)
+                  const remainingOk = uniqueRemainingOnly.every(req => bSvcs.some(bs => bs === stripAccentsGlobal(req.toLowerCase().replace(/-/g, " "))));
+                  // Synonym-spanning services: require ANY (OR) — they're more specific alternatives
+                  const synonymOk = uniqueSynonymSpanning.length === 0 || uniqueSynonymSpanning.some(req => bSvcs.some(bs => bs === stripAccentsGlobal(req.toLowerCase().replace(/-/g, " "))));
+                  return remainingOk && synonymOk;
                 });
-                console.log(`🔍 Paired post-filter: required [${uniqueExtra.join(", ")}] → ${bc} → ${businesses.length}`);
+                console.log(`🔍 Paired post-filter: remaining-AND [${uniqueRemainingOnly.join(", ")}], synonym-OR [${uniqueSynonymSpanning.join(", ")}] → ${bc} → ${businesses.length}`);
               }
             }
           }
