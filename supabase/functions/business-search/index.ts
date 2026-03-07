@@ -1620,6 +1620,9 @@ serve(async (req) => {
       }
     }
 
+    // Flag hoisted outside block scope so it's accessible at response construction
+    let serviceWasDetected = false;
+
     if (!serviceShortcutActivated) {
     // ── Pre-detect matching service(s) from query keywords ──
     let detectedService: string | null = null;
