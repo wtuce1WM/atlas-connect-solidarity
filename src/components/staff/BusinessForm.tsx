@@ -1260,20 +1260,6 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     }
   };
 
-  const hookSectionRef = useRef<HTMLDivElement>(null);
-  const [hookStickyVisible, setHookStickyVisible] = useState(false);
-
-  useEffect(() => {
-    const el = hookSectionRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => setHookStickyVisible(!entry.isIntersecting),
-      { threshold: 0, rootMargin: "-160px 0px 0px 0px" }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
   return (
     <div className="bg-background rounded-lg border">
       {/* Sticky header */}
@@ -1454,14 +1440,6 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         </Button>
       </div>
 
-      {/* Sticky hook bar - visible on scroll down */}
-      {hookStickyVisible && formData.hook_fr && (
-        <div className="sticky top-[73px] z-[19] bg-muted/80 backdrop-blur border-b px-6 py-1.5 transition-all">
-          <p className="text-sm font-medium text-muted-foreground italic truncate max-w-3xl">
-            « {formData.hook_fr} »
-          </p>
-        </div>
-      )}
 
       <div className="p-6">
 
@@ -2268,7 +2246,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         </div>
 
         {/* Hook multilingue - affiché en gros comme Nom */}
-        <div ref={hookSectionRef} id="section-description" className="space-y-3" style={{ scrollMarginTop: '160px' }}>
+        <div id="section-description" className="space-y-3" style={{ scrollMarginTop: '160px' }}>
           <Input
             id="hook_fr"
             value={formData.hook_fr}
