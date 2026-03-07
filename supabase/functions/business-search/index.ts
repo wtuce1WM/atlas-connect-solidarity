@@ -180,6 +180,7 @@ interface SearchResult {
   searchMode?: string | null;
   bundleTimeSlots?: string[];
   disambiguationType?: "needs_category" | "needs_city" | null;
+  synonymUsed?: boolean;
 }
 
 // Synonyms and noise words are now loaded from DB (search_synonyms, search_noise_words)
@@ -3929,6 +3930,7 @@ serve(async (req) => {
       disambiguationType = "needs_city";
     }
 
+    const synonymWasUsed = matchedSynonymFilters.length > 0 || !!matchedSynonymBadgeId;
     const result: SearchResult = {
       businesses,
       searchLevel,
@@ -3940,6 +3942,7 @@ serve(async (req) => {
       searchMode: serviceShortcutActivated ? "service_shortcut" : (typeof subcategorySearchConfig !== 'undefined' && subcategorySearchConfig?.search_mode) || null,
       bundleTimeSlots: (typeof bundleTimeSlots !== 'undefined' && bundleTimeSlots.length > 0) ? bundleTimeSlots : undefined,
       disambiguationType,
+      synonymUsed: synonymWasUsed || undefined,
     };
 
     // Async log to search_logs table (fire-and-forget, don't block response)
