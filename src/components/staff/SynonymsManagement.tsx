@@ -66,7 +66,7 @@ const SynonymsManagement = () => {
   const [allCategories, setAllCategories] = useState<{id: string; name_fr: string}[]>([]);
   const [allServices, setAllServices] = useState<{name: string; subcategory_id: string}[]>([]);
   const [badges, setBadges] = useState<BadgeEntry[]>([]);
-  const [businessData, setBusinessData] = useState<{categories: string[]; services: string[]}[]>([]);
+  const [businessData, setBusinessData] = useState<{categories: string[]; services: string[]; engagements: string[]}[]>([]);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc" | "oldest" | "newest">("asc");
   const [filterCategory, setFilterCategory] = useState("");
   const [filterSubcategory, setFilterSubcategory] = useState("");
@@ -87,16 +87,44 @@ const SynonymsManagement = () => {
       supabase.from("categories").select("id, name_fr").order("name_fr"),
       fetchAllRows<{ name_fr: string; subcategory_id: string }>("services", "name_fr, subcategory_id", "name_fr"),
       supabase.from("badges").select("id, name_fr, color_hex, text_color_hex").order("name_fr"),
-      fetchAllRows<{ categories: string[]; services: string[] }>("businesses", "categories, services", "name"),
+      fetchAllRows<{ categories: string[]; services: string[]; engagements: string[] }>("businesses", "categories, services, engagements", "name"),
       supabase.from("staff_notes").select("content").eq("key", "engagement_custom_options_v1").maybeSingle(),
     ]);
+
+    const dbEngagements = new Set<string>();
+    const dbCommodites = new Set<string>();
+    for (const biz of bizData || []) {
+      for (const raw of biz.engagements || []) {
+        const value = typeof raw === "string" ? raw.trim() : "";
+        if (!value) continue;
+        if (value.startsWith("Logistique:")) {
+          const commodity = value.replace("Logistique:", "").trim();
+          if (commodity) dbCommodites.add(commodity);
+        } else if (!value.startsWith("Certification:") && !value.startsWith("Marché:")) {
+          dbEngagements.add(value);
+        }
+      }
+    }
+
+    let noteEngagements: string[] = [];
+    let noteCommodites: string[] = [];
     if (engOptsData?.content) {
       try {
         const parsed = JSON.parse(engOptsData.content);
-        setGlobalEngagements((Array.isArray(parsed?.engagements) ? parsed.engagements.filter((v: unknown) => typeof v === "string" && v.trim()) : []).sort((a: string, b: string) => a.localeCompare(b, "fr")));
-        setGlobalCommodites((Array.isArray(parsed?.commodites) ? parsed.commodites.filter((v: unknown) => typeof v === "string" && v.trim()) : []).sort((a: string, b: string) => a.localeCompare(b, "fr")));
-      } catch { /* ignore */ }
+        noteEngagements = Array.isArray(parsed?.engagements)
+          ? parsed.engagements.filter((v: unknown) => typeof v === "string" && v.trim())
+          : [];
+        noteCommodites = Array.isArray(parsed?.commodites)
+          ? parsed.commodites.filter((v: unknown) => typeof v === "string" && v.trim())
+          : [];
+      } catch {
+        // ignore malformed staff_notes content
+      }
     }
+
+    setGlobalEngagements([...new Set([...noteEngagements, ...dbEngagements])].sort((a, b) => a.localeCompare(b, "fr")));
+    setGlobalCommodites([...new Set([...noteCommodites, ...dbCommodites])].sort((a, b) => a.localeCompare(b, "fr")));
+
     if (data) setEntries(data.map((d: any) => ({
       ...d,
       subcategory_names: d.subcategory_names || [],
@@ -109,7 +137,7 @@ const SynonymsManagement = () => {
     if (cats) setAllCategories(cats as any);
     if (svcData) setAllServices(svcData.map((s: any) => ({ name: s.name_fr, subcategory_id: s.subcategory_id })));
     if (bdgData) setBadges(bdgData as BadgeEntry[]);
-    if (bizData) setBusinessData(bizData.map((b: any) => ({ categories: b.categories || [], services: b.services || [] })));
+    if (bizData) setBusinessData(bizData.map((b: any) => ({ categories: b.categories || [], services: b.services || [], engagements: b.engagements || [] })));
     setIsLoading(false);
   };
 
@@ -514,6 +542,9 @@ const SynonymsManagement = () => {
                 ))}
               </div>
               {(() => {
+                if (globalEngagements.length === 0) {
+                  return <p className="text-xs text-muted-foreground">Aucun engagement disponible dans le référentiel.</p>;
+                }
                 const available = globalEngagements.filter(e => !selectedEntry.engagement_filters.includes(e));
                 if (available.length === 0) return <p className="text-xs text-muted-foreground">Tous les engagements sont déjà ajoutés.</p>;
                 return (
