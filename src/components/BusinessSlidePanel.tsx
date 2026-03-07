@@ -214,6 +214,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   const [reviewTexts, setReviewTexts] = useState<{ source: string; author_name: string | null; rating: number | null; text: string | null; relative_time: string | null; language?: string | null }[]>([]);
   const [translatedReviewTexts, setTranslatedReviewTexts] = useState<string[]>([]);
   const [isTranslatingReviews, setIsTranslatingReviews] = useState(false);
+  const [showReviewComments, setShowReviewComments] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
@@ -407,6 +408,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
       setVideoError(false);
       setActiveTab("apercu");
       setIsDescriptionExpanded(false);
+      setShowReviewComments(false);
       setSimilarCount(null);
       setNearbyCount(null);
 
@@ -1643,56 +1645,69 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
               {/* Review comments */}
               {reviewTexts.length > 0 && (
                 <div>
-                  {isTranslatingReviews && (
-                    <div className="flex items-center gap-2 mb-3 text-xs text-muted-foreground">
-                      <Loader2 className="h-3 w-3 animate-spin" />
-                      {language === "en" ? "Translating reviews..." : language === "ar" ? "جارٍ ترجمة الآراء..." : "Traduction des avis..."}
-                    </div>
-                  )}
-                  <div className="space-y-2.5">
-                    {reviewTexts.map((review, idx) => {
-                      const displayText = translatedReviewTexts[idx] || review.text;
-                      const langCode = language === "en" ? "en" : language === "ar" ? "ar" : "fr";
-                      const wasTranslated = translatedReviewTexts[idx] && review.language && review.language !== langCode;
-                      return (
-                        <div key={idx} className="p-3 rounded-xl border border-border">
-                          <div className="flex items-center gap-2 mb-2">
-                            {review.rating && (
-                              <div className="flex items-center gap-0.5">
-                                {[...Array(5)].map((_, i) => (
-                                  <Star
-                                    key={i}
-                                    className={`h-3.5 w-3.5 ${i < review.rating! ? 'fill-amber-400 text-amber-400' : 'text-muted-foreground/30'}`}
-                                  />
-                                ))}
-                              </div>
-                            )}
-                            <span className="text-sm font-semibold text-foreground">
-                              {review.author_name || (language === "en" ? "Anonymous" : language === "ar" ? "مجهول" : "Anonyme")}
-                            </span>
-                            {review.relative_time && (
-                              <span className="text-xs text-muted-foreground">
-                                · {review.relative_time}
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-sm leading-relaxed text-muted-foreground">
-                            {displayText}
-                          </p>
-                          <div className="mt-2 flex items-center gap-2">
-                            <Badge variant="outline" className="text-[10px]">
-                              {review.source === 'google' ? 'Google' : review.source === 'tripadvisor' ? 'TripAdvisor' : review.source}
-                            </Badge>
-                            {wasTranslated && (
-                              <span className="text-[10px] text-muted-foreground italic">
-                                {language === "en" ? "Translated" : language === "ar" ? "مترجم" : "Traduit"}
-                              </span>
-                            )}
-                          </div>
+                  {!showReviewComments ? (
+                    <button
+                      onClick={() => setShowReviewComments(true)}
+                      className="w-full py-2.5 px-4 rounded-xl border border-border text-sm font-medium text-foreground hover:bg-muted/50 transition-colors flex items-center justify-center gap-2"
+                    >
+                      <Star className="h-4 w-4 text-amber-400" />
+                      {language === "en" ? "Read reviews" : language === "ar" ? "قراءة الآراء" : "Lire les avis"}
+                      <span className="text-muted-foreground">({reviewTexts.length})</span>
+                    </button>
+                  ) : (
+                    <>
+                      {isTranslatingReviews && (
+                        <div className="flex items-center gap-2 mb-3 text-xs text-muted-foreground">
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                          {language === "en" ? "Translating reviews..." : language === "ar" ? "جارٍ ترجمة الآراء..." : "Traduction des avis..."}
                         </div>
-                      );
-                    })}
-                  </div>
+                      )}
+                      <div className="space-y-2.5">
+                        {reviewTexts.map((review, idx) => {
+                          const displayText = translatedReviewTexts[idx] || review.text;
+                          const langCode = language === "en" ? "en" : language === "ar" ? "ar" : "fr";
+                          const wasTranslated = translatedReviewTexts[idx] && review.language && review.language !== langCode;
+                          return (
+                            <div key={idx} className="p-3 rounded-xl border border-border">
+                              <div className="flex items-center gap-2 mb-2">
+                                {review.rating && (
+                                  <div className="flex items-center gap-0.5">
+                                    {[...Array(5)].map((_, i) => (
+                                      <Star
+                                        key={i}
+                                        className={`h-3.5 w-3.5 ${i < review.rating! ? 'fill-amber-400 text-amber-400' : 'text-muted-foreground/30'}`}
+                                      />
+                                    ))}
+                                  </div>
+                                )}
+                                <span className="text-sm font-semibold text-foreground">
+                                  {review.author_name || (language === "en" ? "Anonymous" : language === "ar" ? "مجهول" : "Anonyme")}
+                                </span>
+                                {review.relative_time && (
+                                  <span className="text-xs text-muted-foreground">
+                                    · {review.relative_time}
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-sm leading-relaxed text-muted-foreground">
+                                {displayText}
+                              </p>
+                              <div className="mt-2 flex items-center gap-2">
+                                <Badge variant="outline" className="text-[10px]">
+                                  {review.source === 'google' ? 'Google' : review.source === 'tripadvisor' ? 'TripAdvisor' : review.source}
+                                </Badge>
+                                {wasTranslated && (
+                                  <span className="text-[10px] text-muted-foreground italic">
+                                    {language === "en" ? "Translated" : language === "ar" ? "مترجم" : "Traduit"}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </>
+                  )}
                 </div>
               )}
             </div>
