@@ -1772,14 +1772,12 @@ const SearchPage = () => {
             <div className="relative">
               <button
                 onClick={() => {
-                  setShowAiPopup(false);
-                  setOverlaySelectedBusiness(null);
-                  setTimeout(() => toggleRecording(), 300);
+                  toggleRecording();
                 }}
-                className="relative w-16 h-16 rounded-full bg-card border-2 border-gold/30 flex items-center justify-center shadow-lg hover:border-gold/60 transition-all hover:scale-105"
+                className="relative w-16 h-16 rounded-full bg-black flex items-center justify-center shadow-lg transition-all hover:scale-105"
                 title={language === "en" ? "Voice search" : language === "ar" ? "بحث صوتي" : "Recherche vocale"}
               >
-                <Mic className="h-7 w-7 text-gold" />
+                <Mic className="h-7 w-7 text-white" />
               </button>
             </div>
 
