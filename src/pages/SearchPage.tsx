@@ -3136,6 +3136,52 @@ const SearchPage = () => {
                   "left-panel-ai"
                 )}
               </div>
+              {/* Action buttons: Listen, Geo, Mic */}
+              <div className="flex items-center justify-center gap-6 pt-8">
+                {/* Listen */}
+                <div className="relative">
+                  {(ttsStatus === "playing" || ttsStatus === "loading") ? (
+                    <button
+                      onClick={ttsStop}
+                      className="relative w-16 h-16 rounded-full bg-black flex items-center justify-center shadow-lg transition-all hover:scale-105"
+                      title={ttsStatus === "loading" ? "Chargement…" : "Stop"}
+                    >
+                      {ttsStatus === "loading" ? <Loader className="h-7 w-7 text-white animate-spin" /> : <VolumeX className="h-7 w-7 text-white" />}
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        if (!aiAnswerText) return;
+                        const cleanText = aiAnswerText.replace(/\*\*/g, "").replace(/\n+/g, " ").trim();
+                        const intro = language === "en" ? `Here are my suggestions for ${searchQuery}. ` : `Voici mes suggestions pour ${searchQuery}. `;
+                        ttsIntroWordCountRef.current = intro.trim().split(/\s+/).filter(Boolean).length;
+                        voiceLoopRef.current = true;
+                        ttsSpeak(intro + cleanText + " … Vous pouvez me poser une autre question.", undefined, true);
+                      }}
+                      className="relative w-16 h-16 rounded-full bg-black flex items-center justify-center shadow-lg transition-all hover:scale-105"
+                      title={language === "en" ? "Listen" : "Écouter"}
+                    >
+                      <Volume2 className="h-7 w-7 text-white" />
+                    </button>
+                  )}
+                </div>
+                {/* Geolocation */}
+                <button
+                  onClick={geo.toggle}
+                  className="relative w-16 h-16 rounded-full bg-black flex items-center justify-center shadow-lg transition-all hover:scale-105"
+                  title={geo.isEnabled ? (language === "en" ? "Disable location" : "Désactiver la localisation") : (language === "en" ? "Enable location" : "Activer la localisation")}
+                >
+                  {geo.isEnabled ? <MapPinOff className="h-7 w-7 text-white" /> : <MapPin className="h-7 w-7 text-white" />}
+                </button>
+                {/* Mic */}
+                <button
+                  onClick={() => toggleRecording()}
+                  className="relative w-16 h-16 rounded-full bg-black flex items-center justify-center shadow-lg transition-all hover:scale-105"
+                  title={language === "en" ? "Voice search" : "Recherche vocale"}
+                >
+                  <Mic className="h-7 w-7 text-white" />
+                </button>
+              </div>
             </div>
           </div>
           )}
