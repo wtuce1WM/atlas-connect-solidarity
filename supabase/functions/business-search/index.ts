@@ -1090,6 +1090,30 @@ serve(async (req) => {
           if (matched) break;
         }
         if (matched) {
+          // Before accepting: check if the synonym key word is part of a more specific
+          // multi-word service name that matches the full query. If so, skip this synonym
+          // to let service detection handle it (e.g. "Plats à tajine" shouldn't trigger synonym "tajine").
+          const qLowerFull = effectiveQuery.toLowerCase().replace(/-/g, " ").replace(/\s+/g, " ").trim();
+          const qWordsFull = qLowerFull.split(/\s+/).filter(w => w.length > 1 && !FRENCH_STOP_WORDS.has(w));
+          if (qWordsFull.length >= 2 && allServicesForSynCheck) {
+            const normSyn = (w: string): string => stripAccentsGlobal(w.toLowerCase().replace(/-/g, " ").replace(/\s+/g, " ").trim());
+            const stripPlSyn = (w: string): string => { if (w.endsWith("aux")) return w.slice(0, -3) + "al"; if (w.endsWith("s")) return w.slice(0, -1); return w; };
+            const normWordSyn = (w: string): string => stripAccentsGlobal(stripPlSyn(w));
+            const hasMoreSpecificService = allServicesForSynCheck.some((svc: any) => {
+              const svcCW = normSyn(svc.name_fr).split(/\s+/).filter((w: string) => w.length > 1 && !FRENCH_STOP_WORDS.has(w));
+              if (svcCW.length < 2) return false;
+              // Service must contain the synonym key word
+              const keyNorm = normSyn(key);
+              const keyInSvc = svcCW.some((sw: string) => normWordSyn(sw) === normWordSyn(keyNorm));
+              if (!keyInSvc) return false;
+              // ALL content words of the service must appear in the query
+              return svcCW.every((sw: string) => qWordsFull.some(qw => normWordSyn(qw) === normWordSyn(sw)));
+            });
+            if (hasMoreSpecificService) {
+              console.log(`⏭️ Synonym "${key}" skipped: query matches a more specific multi-word service`);
+              continue;
+            }
+          }
           matchedSynonymFilters = [...matchedSynonymFilters, ...filters];
           matchedSynonymFilterKeys.push(key);
           console.log(`Synonym "${key}" matched → paired filters: ${JSON.stringify(filters)}`);
