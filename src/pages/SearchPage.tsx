@@ -2280,15 +2280,15 @@ const SearchPage = () => {
                 <SlidePanelHeader
                   onClose={() => { setPoiSelectedBusinessId(null); setPoiPanelExpanded(false); }}
                   isExpanded={poiPanelExpanded}
-                  onToggleExpand={() => setPoiPanelExpanded(v => !v)}
-                  
+                  onToggleExpand={poiBusinessImageCount > 1 ? () => setPoiPanelExpanded(v => !v) : undefined}
                 />
                 <div className="flex-1 min-h-0">
                   <BusinessSlidePanel
                     businessId={poiSelectedBusinessId}
                     onClose={() => { setPoiSelectedBusinessId(null); setPoiPanelExpanded(false); }}
                     isExpanded={poiPanelExpanded}
-                    onToggleExpand={() => setPoiPanelExpanded(v => !v)}
+                    onToggleExpand={poiBusinessImageCount > 1 ? () => setPoiPanelExpanded(v => !v) : undefined}
+                    onImageCount={setPoiBusinessImageCount}
                   />
                 </div>
               </div>
