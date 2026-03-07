@@ -2271,7 +2271,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
            </div>
 
         {/* POI / Destinations */}
-        <div id="section-poi" />
+        <div id="section-poi" style={{ scrollMarginTop: "140px" }} />
         {allDestinations.length > 0 && (
           <Accordion type="single" collapsible>
             <AccordionItem value="destinations" className="border-none">
