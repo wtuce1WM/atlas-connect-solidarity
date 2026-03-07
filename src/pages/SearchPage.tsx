@@ -3065,21 +3065,21 @@ const SearchPage = () => {
                   <p className="text-xs text-muted-foreground mb-2">
                     {language === "en" ? "You can refine your search" : language === "ar" ? "يمكنك تحسين بحثك" : "Vous pouvez préciser votre recherche"}
                   </p>
-                  <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                  <div className="flex flex-wrap gap-2">
                     {searchServiceFilters.map((svc) => {
                       const isSelected = selectedServiceFilter === svc.name;
                       return (
                         <button
                           key={svc.name}
                           onClick={() => setSelectedServiceFilter(isSelected ? null : svc.name)}
-                          className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition-all ${
+                          className={`flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-bold transition-all ${
                             isSelected
                               ? "bg-gold/20 border-gold text-gold shadow-sm"
                               : "bg-card border-border text-muted-foreground hover:border-gold/40 hover:text-foreground"
                           }`}
                         >
                           <span>{svc.name}</span>
-                          <span className={`text-[10px] font-normal ${isSelected ? "text-gold/70" : "text-muted-foreground/60"}`}>
+                          <span className={`text-xs font-normal ${isSelected ? "text-gold/70" : "text-muted-foreground/60"}`}>
                             {svc.count}
                           </span>
                         </button>
