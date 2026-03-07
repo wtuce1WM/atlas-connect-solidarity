@@ -2184,7 +2184,7 @@ const SearchPage = () => {
       */}
 
       {activeTab === "map" && (
-        <section className="pt-14 pb-4 lg:pt-16 lg:pb-12 bg-background">
+        <section className="pt-24 pb-4 lg:pt-28 lg:pb-12 bg-background">
           <div className="mx-auto px-2 md:px-4 lg:max-w-[80%]">
             <Suspense fallback={<div className="flex justify-center py-16"><Loader2 className="h-8 w-8 animate-spin text-gold" /></div>}>
               <BusinessMap
