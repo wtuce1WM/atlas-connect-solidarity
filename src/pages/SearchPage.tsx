@@ -2828,7 +2828,7 @@ const SearchPage = () => {
           ) : !showCelebrityGuide && !showSosMedecin && !showPompiers && filteredBusinesses.length > 0 ? (
             <>
               {/* TEST: Fallback-style cards in 4-column grid (old BusinessCard display commented out below) */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 pt-4">
                 {paginatedBusinesses.map((business) => {
                   const img = business.images?.[0] || business.logo_url;
                   const sources = collectRatingSources(business as any);
