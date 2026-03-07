@@ -388,6 +388,18 @@ const SearchPage = () => {
   const [isGeoCityAutoSelected, setIsGeoCityAutoSelected] = useState(false);
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
   const [inputValue, setInputValue] = useState(searchParams.get("q") || "");
+
+  // Sync searchQuery & inputValue when URL params change (e.g. same query re-submitted with _t)
+  const urlQ = searchParams.get("q") || "";
+  const urlT = searchParams.get("_t") || "";
+  useEffect(() => {
+    if (urlQ !== searchQuery || urlT) {
+      setSearchQuery(urlQ);
+      setInputValue(urlQ);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [urlQ, urlT]);
+
   
   const categoryFromUrl = searchParams.get("category") || "";
   const [celebrityBusinesses, setCelebrityBusinesses] = useState<Business[]>([]);
