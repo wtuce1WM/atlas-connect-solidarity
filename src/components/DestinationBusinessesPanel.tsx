@@ -112,7 +112,14 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
     <>
     {/* Expanded: full-screen black overlay with only images */}
     {isExpanded && (
-      <div className="fixed top-[46px] right-0 bottom-0 z-[150] bg-background flex flex-col" style={{ width: "80%" }}>
+      <>
+      {/* Backdrop 20% left — click to collapse */}
+      <div
+        className="fixed top-[46px] left-0 bottom-0 z-[149] bg-black/40 backdrop-blur-[2px]"
+        style={{ width: "20%" }}
+        onClick={() => setIsExpanded(false)}
+      />
+      <div className="fixed top-[46px] right-0 bottom-0 z-[150] bg-background flex flex-col border-l-2 border-border shadow-[-8px_0_30px_-5px_rgba(0,0,0,0.15)]" style={{ width: "80%" }}>
         <div className="shrink-0 flex items-center px-4 py-3 gap-3 bg-white border-b border-border">
           <button
             onClick={() => { onClose(); setIsExpanded(false); }}
@@ -154,6 +161,7 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
           })()}
         </div>
       </div>
+      </>
     )}
 
     {/* Normal panel (hidden when expanded) */}
