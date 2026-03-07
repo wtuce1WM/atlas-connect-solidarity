@@ -76,17 +76,27 @@ const SynonymsManagement = () => {
   const [editFilterValues, setEditFilterValues] = useState<{ subcategory_name: string; required_service: string }>({ subcategory_name: "", required_service: "" });
   const [selectedEntryId, setSelectedEntryId] = useState<string | null>(null);
   const [searchText, setSearchText] = useState("");
+  const [globalEngagements, setGlobalEngagements] = useState<string[]>([]);
+  const [globalCommodites, setGlobalCommodites] = useState<string[]>([]);
 
   const load = async () => {
     setIsLoading(true);
-    const [{ data }, { data: subcats }, { data: cats }, svcData, { data: bdgData }, bizData] = await Promise.all([
+    const [{ data }, { data: subcats }, { data: cats }, svcData, { data: bdgData }, bizData, { data: engOptsData }] = await Promise.all([
       supabase.from("search_synonyms").select("*").order("key_word"),
       supabase.from("subcategories").select("id, name_fr, category_id").order("name_fr"),
       supabase.from("categories").select("id, name_fr").order("name_fr"),
       fetchAllRows<{ name_fr: string; subcategory_id: string }>("services", "name_fr, subcategory_id", "name_fr"),
       supabase.from("badges").select("id, name_fr, color_hex, text_color_hex").order("name_fr"),
       fetchAllRows<{ categories: string[]; services: string[] }>("businesses", "categories, services", "name"),
+      supabase.from("staff_notes").select("content").eq("key", "engagement_custom_options_v1").maybeSingle(),
     ]);
+    if (engOptsData?.content) {
+      try {
+        const parsed = JSON.parse(engOptsData.content);
+        setGlobalEngagements((Array.isArray(parsed?.engagements) ? parsed.engagements.filter((v: unknown) => typeof v === "string" && v.trim()) : []).sort((a: string, b: string) => a.localeCompare(b, "fr")));
+        setGlobalCommodites((Array.isArray(parsed?.commodites) ? parsed.commodites.filter((v: unknown) => typeof v === "string" && v.trim()) : []).sort((a: string, b: string) => a.localeCompare(b, "fr")));
+      } catch { /* ignore */ }
+    }
     if (data) setEntries(data.map((d: any) => ({
       ...d,
       subcategory_names: d.subcategory_names || [],
