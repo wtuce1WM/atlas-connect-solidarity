@@ -2065,7 +2065,7 @@ const SearchPage = () => {
         <div className="mx-auto px-4 max-w-[80%]">
           <div className="flex gap-0">
             <button
-              onClick={() => setActiveTab("suggestions")}
+              onClick={() => { resetPanelStates(); setActiveTab("suggestions"); }}
               className={`flex items-center gap-2 px-5 py-3 text-sm font-medium transition-colors border-b-2 ${
                 activeTab === "suggestions"
                   ? "border-gold text-gold"
@@ -2076,7 +2076,7 @@ const SearchPage = () => {
               {language === "en" ? "Results" : language === "ar" ? "النتائج" : "Résultats"}
             </button>
             <button
-              onClick={() => setActiveTab("map")}
+              onClick={() => { resetPanelStates(); setActiveTab("map"); }}
               className={`flex items-center gap-2 px-5 py-3 text-sm font-medium transition-colors border-b-2 ${
                 activeTab === "map"
                   ? "border-gold text-gold"
@@ -2087,7 +2087,7 @@ const SearchPage = () => {
               {language === "en" ? "Map" : language === "ar" ? "خريطة" : "Carte"}
             </button>
             <button
-              onClick={() => setActiveTab("poi")}
+              onClick={() => { resetPanelStates(); setActiveTab("poi"); }}
               className={`flex items-center gap-2 px-5 py-3 text-sm font-medium transition-colors border-b-2 ${
                 activeTab === "poi"
                   ? "border-gold text-gold"
@@ -2098,7 +2098,7 @@ const SearchPage = () => {
               {language === "en" ? "Points of Interest" : language === "ar" ? "أماكن مهمة" : "Lieux d'intérêt"}
             </button>
             <button
-              onClick={() => setActiveTab("destinations")}
+              onClick={() => { resetPanelStates(); setActiveTab("destinations"); }}
               className={`flex items-center gap-2 px-5 py-3 text-sm font-medium transition-colors border-b-2 ${
                 activeTab === "destinations"
                   ? "border-gold text-gold"
