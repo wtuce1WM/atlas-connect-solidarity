@@ -1706,68 +1706,65 @@ const SearchPage = () => {
                   "ai-popup"
                 )}
               </div>
-            </div>
-          </div>
 
-          {/* Bottom actions */}
-          <div className="shrink-0 pb-8 pt-4 flex flex-col items-center gap-4">
-            {/* Action buttons row — 3 boutons sur une ligne */}
-            <div className="flex items-center justify-center gap-6">
-              {/* Listen */}
-              <div className="relative">
-                {(ttsStatus === "playing" || ttsStatus === "loading") ? (
-                  <button
-                    onClick={ttsStop}
-                    className="relative w-16 h-16 rounded-full bg-black flex items-center justify-center shadow-lg transition-all hover:scale-105"
-                  >
-                    {ttsStatus === "loading" ? <Loader className="h-7 w-7 text-white animate-spin" /> : <VolumeX className="h-7 w-7 text-white" />}
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => {
-                      const cleanText = aiAnswerText.replace(/\*{1,2}/g, "").replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "");
-                      const intro = ttsIntroPhrase ? `${ttsIntroPhrase}. ` : "";
-                      ttsIntroWordCountRef.current = intro.trim().split(/\s+/).filter(Boolean).length;
-                      voiceLoopRef.current = true;
-                      ttsSpeak(intro + cleanText + " … Vous pouvez me poser une autre question.", undefined, true);
-                    }}
-                    className="relative w-16 h-16 rounded-full bg-black flex items-center justify-center shadow-lg transition-all hover:scale-105"
-                    title={language === "en" ? "Listen" : language === "ar" ? "استمع" : "Écouter"}
-                  >
-                    <Volume2 className="h-7 w-7 text-white" />
-                  </button>
-                )}
-              </div>
-              {/* Geo */}
-              <div className="relative">
+              {/* 3 boutons + Voir résultats — sous le texte IA, même marge que le haut */}
+              <div className="flex flex-col items-center gap-4 pt-14">
+                <div className="flex items-center justify-center gap-6">
+                  {/* Listen */}
+                  <div className="relative">
+                    {(ttsStatus === "playing" || ttsStatus === "loading") ? (
+                      <button
+                        onClick={ttsStop}
+                        className="relative w-16 h-16 rounded-full bg-black flex items-center justify-center shadow-lg transition-all hover:scale-105"
+                      >
+                        {ttsStatus === "loading" ? <Loader className="h-7 w-7 text-white animate-spin" /> : <VolumeX className="h-7 w-7 text-white" />}
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => {
+                          const cleanText = aiAnswerText.replace(/\*{1,2}/g, "").replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "");
+                          const intro = ttsIntroPhrase ? `${ttsIntroPhrase}. ` : "";
+                          ttsIntroWordCountRef.current = intro.trim().split(/\s+/).filter(Boolean).length;
+                          voiceLoopRef.current = true;
+                          ttsSpeak(intro + cleanText + " … Vous pouvez me poser une autre question.", undefined, true);
+                        }}
+                        className="relative w-16 h-16 rounded-full bg-black flex items-center justify-center shadow-lg transition-all hover:scale-105"
+                        title={language === "en" ? "Listen" : language === "ar" ? "استمع" : "Écouter"}
+                      >
+                        <Volume2 className="h-7 w-7 text-white" />
+                      </button>
+                    )}
+                  </div>
+                  {/* Geo */}
+                  <div className="relative">
+                    <button
+                      onClick={() => setLocationDialogOpen(true)}
+                      className="relative w-16 h-16 rounded-full bg-black flex items-center justify-center shadow-lg transition-all hover:scale-105"
+                      title={language === "en" ? "Geolocate yourself" : language === "ar" ? "حدد موقعك" : "Géolocalisez-vous"}
+                    >
+                      <MapPin className="h-7 w-7 text-white" />
+                    </button>
+                  </div>
+                  {/* Mic */}
+                  <div className="relative">
+                    <button
+                      onClick={() => toggleRecording()}
+                      className="relative w-16 h-16 rounded-full bg-black flex items-center justify-center shadow-lg transition-all hover:scale-105"
+                      title={language === "en" ? "Voice search" : language === "ar" ? "بحث صوتي" : "Recherche vocale"}
+                    >
+                      <Mic className="h-7 w-7 text-white" />
+                    </button>
+                  </div>
+                </div>
                 <button
-                  onClick={() => setLocationDialogOpen(true)}
-                  className="relative w-16 h-16 rounded-full bg-black flex items-center justify-center shadow-lg transition-all hover:scale-105"
-                  title={language === "en" ? "Geolocate yourself" : language === "ar" ? "حدد موقعك" : "Géolocalisez-vous"}
+                  onClick={() => { setShowAiPopup(false); setOverlaySelectedBusiness(null); }}
+                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-gold text-black text-sm font-semibold hover:bg-gold/90 transition-colors"
                 >
-                  <MapPin className="h-7 w-7 text-white" />
+                  {language === "en" ? "See results" : language === "ar" ? "عرض النتائج" : "Voir les résultats"}
+                  <ChevronRight className="h-4 w-4" />
                 </button>
               </div>
-              {/* Mic */}
-              <div className="relative">
-                <button
-                  onClick={() => toggleRecording()}
-                  className="relative w-16 h-16 rounded-full bg-black flex items-center justify-center shadow-lg transition-all hover:scale-105"
-                  title={language === "en" ? "Voice search" : language === "ar" ? "بحث صوتي" : "Recherche vocale"}
-                >
-                  <Mic className="h-7 w-7 text-white" />
-                </button>
-              </div>
             </div>
-
-            {/* Bottom See results */}
-            <button
-              onClick={() => { setShowAiPopup(false); setOverlaySelectedBusiness(null); }}
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-gold text-black text-sm font-semibold hover:bg-gold/90 transition-colors"
-            >
-              {language === "en" ? "See results" : language === "ar" ? "عرض النتائج" : "Voir les résultats"}
-              <ChevronRight className="h-4 w-4" />
-            </button>
           </div>
           </div>
 
