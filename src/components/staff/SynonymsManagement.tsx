@@ -44,6 +44,8 @@ interface SynonymEntry {
   filters: SynonymFilter[];
   is_active: boolean;
   badge_id: string | null;
+  engagement_filters: string[];
+  commodity_filters: string[];
   created_at: string;
 }
 
@@ -90,6 +92,8 @@ const SynonymsManagement = () => {
       subcategory_names: d.subcategory_names || [],
       service_names: d.service_names || [],
       filters: d.filters || [],
+      engagement_filters: d.engagement_filters || [],
+      commodity_filters: d.commodity_filters || [],
     })) as SynonymEntry[]);
     if (subcats) setAllSubcategories(subcats.map((s: any) => ({ id: s.id, name: s.name_fr, category_id: s.category_id })));
     if (cats) setAllCategories(cats as any);
@@ -190,6 +194,8 @@ const SynonymsManagement = () => {
       subcategory_names: subcatNames,
       service_names: svcNames,
       badge_id: entry.badge_id,
+      engagement_filters: entry.engagement_filters,
+      commodity_filters: entry.commodity_filters,
     } as any).eq("id", id);
     setSavingEntries(prev => { const n = new Set(prev); n.delete(id); return n; });
     if (error) {
