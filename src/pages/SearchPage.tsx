@@ -96,6 +96,7 @@ interface SearchResult {
   searchMode?: string | null;
   bundleTimeSlots?: string[];
   disambiguationType?: "needs_category" | "needs_city" | null;
+  synonymUsed?: boolean;
 }
 
 const ITEMS_PER_PAGE = 20;
