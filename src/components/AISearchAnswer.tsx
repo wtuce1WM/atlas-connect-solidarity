@@ -339,29 +339,6 @@ const formatAnswer = (
   return elements;
 };
 
-/** Animated word-by-word fade-in wrapper */
-const WordFadeIn = ({ children, onComplete }: { children: string; onComplete?: () => void }) => {
-  const words = children.replace(/\*\*/g, "").split(/\s+/);
-  const [visibleCount, setVisibleCount] = useState(0);
-  const totalWords = words.length;
-
-  useEffect(() => {
-    setVisibleCount(0);
-    let i = 0;
-    const iv = setInterval(() => {
-      i++;
-      setVisibleCount(i);
-      if (i >= totalWords) {
-        clearInterval(iv);
-        onComplete?.();
-      }
-    }, 45);
-    return () => clearInterval(iv);
-  }, [totalWords]);
-
-  return visibleCount;
-};
-
 const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnswerReady, highlightWordIndex, externalRegenerateKey }: AISearchAnswerProps) => {
   const { language } = useLanguage();
   const [answer, setAnswer] = useState("");
