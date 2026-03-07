@@ -3052,8 +3052,8 @@ const SearchPage = () => {
             className={`fixed top-[53px] right-0 z-[100] bg-background shadow-2xl border-l border-border overflow-hidden flex flex-col ${isCompactPanelExpanded ? "border-l-2 shadow-[-8px_0_30px_-5px_rgba(0,0,0,0.15)]" : "animate-slide-in-right"} transition-all duration-500 ease-out`}
             style={{ height: "calc(100vh - 53px)", width: isCompactPanelExpanded ? "80%" : "50%", ...(isCompactPanelExpanded ? { opacity: 0, animation: "panelSlideIn 0.3s ease-out 1s forwards" } : {}) }}
           >
-            <div className="shrink-0 flex items-center px-4 py-2 bg-white border-b border-border z-40">
-              <div className="flex items-center gap-3 shrink-0">
+            <div className="shrink-0 flex items-center px-4 py-2 bg-card text-foreground border-b border-border z-40">
+              <div className="flex items-center gap-3 shrink-0 relative z-10">
                 <button
                   onClick={() => { setCompactPanelBusiness(null); setIsCompactPanelExpanded(false); }}
                   className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background border-2 border-background/20 shadow-2xl hover:opacity-90 transition-opacity"
@@ -3064,7 +3064,7 @@ const SearchPage = () => {
                 </button>
                 <button
                   onClick={() => setIsCompactPanelExpanded(prev => !prev)}
-                  className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors border border-border"
+                  className="h-9 w-9 flex items-center justify-center rounded-full bg-card text-foreground border-2 border-border shadow-sm hover:bg-muted transition-colors"
                   title={isCompactPanelExpanded ? "Réduire" : "Agrandir"}
                   aria-label={isCompactPanelExpanded ? "Réduire le panneau" : "Agrandir le panneau"}
                 >
