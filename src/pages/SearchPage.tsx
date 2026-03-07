@@ -2615,6 +2615,7 @@ const SearchPage = () => {
                         onConfirm={(confirmedCoords, address) => {
                           geo.setManualLocation(confirmedCoords, address);
                         }}
+                        onDisableGeo={() => geo.decline()}
                       />
                     </>
                   )}
