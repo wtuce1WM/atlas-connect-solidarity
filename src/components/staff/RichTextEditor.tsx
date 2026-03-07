@@ -57,8 +57,7 @@ const RichTextEditor = ({ content, onChange, placeholder, maxHeight }: RichTextE
     editorProps: {
       attributes: {
         class:
-          "prose prose-sm max-w-none min-h-[150px] overflow-y-auto p-3 focus:outline-none [&_table]:border-collapse [&_td]:border [&_td]:border-border [&_td]:p-2 [&_th]:border [&_th]:border-border [&_th]:p-2 [&_th]:bg-muted [&_img]:max-w-full [&_img]:rounded-md [&_iframe]:max-w-full [&_iframe]:rounded-md",
-        style: maxHeight ? `max-height: ${maxHeight}` : "",
+          "prose prose-sm max-w-none min-h-[150px] p-3 focus:outline-none [&_table]:border-collapse [&_td]:border [&_td]:border-border [&_td]:p-2 [&_th]:border [&_th]:border-border [&_th]:p-2 [&_th]:bg-muted [&_img]:max-w-full [&_img]:rounded-md [&_iframe]:max-w-full [&_iframe]:rounded-md",
       },
     },
   });
