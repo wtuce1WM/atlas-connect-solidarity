@@ -233,6 +233,15 @@ const AIEffectsDemo = () => {
               {idx === 2 && <WordFadeEffect text={DEMO_TEXT} active={!!activeEffects[2]} key={activeEffects[2]} />}
               {idx === 3 && <ExpandShimmerEffect text={DEMO_TEXT} active={!!activeEffects[3]} key={activeEffects[3]} />}
             </div>
+            <div className="px-5 py-2.5 border-t border-gold/10">
+              <button
+                onClick={(e) => { e.stopPropagation(); trigger(idx); }}
+                className="inline-flex items-center gap-1.5 text-xs font-medium text-gold hover:text-gold/80 transition-colors"
+              >
+                <Play className="h-3 w-3 fill-current" />
+                Relancer cet effet
+              </button>
+            </div>
           </div>
         ))}
       </div>
