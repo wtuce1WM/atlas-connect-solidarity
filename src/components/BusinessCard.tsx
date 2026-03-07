@@ -444,8 +444,8 @@ const BusinessCard = ({
             )}
           </div>
 
-          {/* Map button + Rating row */}
-          {(displayRating || (showMapButton && hasMapData && onSelectBusiness)) && (
+          {/* Map button + Rating row + WTUCE logo */}
+          {(displayRating || business.wtuce_status === "verified" || (showMapButton && hasMapData && onSelectBusiness)) && (
             <div className="flex items-center justify-between mt-3">
               {showMapButton && hasMapData && onSelectBusiness ? (
                 mapButtonVariant === "button" ? (
@@ -482,15 +482,27 @@ const BusinessCard = ({
                   </button>
                 )
               ) : <span />}
-              {displayRating && (
-                <div className="flex items-center gap-1.5">
-                  <Star className="h-4 w-4 fill-gold text-gold" />
-                  <span className="text-gold font-semibold text-sm">{displayRating}/20</span>
-                  {totalReviews > 0 && (
-                    <span className="text-muted-foreground text-xs">({totalReviews} avis)</span>
-                  )}
-                </div>
-              )}
+              <div className="flex items-center gap-2">
+                {business.wtuce_status === "verified" && (
+                  <div className="[perspective:600px]" style={{ transformStyle: "preserve-3d" }}>
+                    <img
+                      src={logoGold}
+                      alt=""
+                      className="object-contain animate-[coinSpin_1.2s_cubic-bezier(0.16,1,0.3,1)_forwards]"
+                      style={{ width: 32, height: 32, transformStyle: "preserve-3d" }}
+                    />
+                  </div>
+                )}
+                {displayRating && (
+                  <div className="flex items-center gap-1.5">
+                    <Star className="h-4 w-4 fill-gold text-gold" />
+                    <span className="text-gold font-semibold text-sm">{displayRating}/20</span>
+                    {totalReviews > 0 && (
+                      <span className="text-muted-foreground text-xs">({totalReviews} avis)</span>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </CardContent>
