@@ -546,6 +546,7 @@ const SearchPage = () => {
     const [isCompactPanelExpanded, setIsCompactPanelExpanded] = useState(false);
      const [poiSelectedBusinessId, setPoiSelectedBusinessId] = useState<string | null>(null);
      const [poiPanelExpanded, setPoiPanelExpanded] = useState(false);
+     const [poiBusinessImageCount, setPoiBusinessImageCount] = useState(0);
      const [poiMapBusiness, setPoiMapBusiness] = useState<{ name: string; latitude: number | null; longitude: number | null; address: string | null; google_maps_url: string | null; id: string } | null>(null);
      const [allPois, setAllPois] = useState<PoiMapItem[]>([]);
      const [destMapItem, setDestMapItem] = useState<{ id: string; name_fr: string; latitude: number | null; longitude: number | null } | null>(null);
