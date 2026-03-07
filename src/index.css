@@ -273,7 +273,7 @@ textarea::placeholder {
   }
 }
 
-/* LocationPickerDialog: ensure overlay + content appear above slide panels (z-100) */
-.location-picker-portal [data-radix-portal] > * {
+/* LocationPickerDialog: ensure overlay appears above slide panels (z-[100]) */
+[data-radix-portal]:has(.\!z-\[300\]) > [data-state] {
   z-index: 300 !important;
 }
