@@ -84,6 +84,8 @@ interface Business {
   zone_chalandise?: string | null;
   is_visible_locale?: boolean;
   zone_city_ids?: string[] | null;
+  default_service?: string | null;
+  neighborhood?: string | null;
 }
 
 interface SearchResult {
