@@ -371,6 +371,7 @@ const SearchPage = () => {
   const [detectedSubcategory, setDetectedSubcategory] = useState<string | null>(null);
   const [searchMode, setSearchMode] = useState<string | null>(null);
   const [searchLevel, setSearchLevel] = useState<string>("");
+  const [synonymUsed, setSynonymUsed] = useState(false);
   const [searchMessage, setSearchMessage] = useState<string>("");
   const [citiesWithPriority, setCitiesWithPriority] = useState<{ name: string; priority: number; id?: string; latitude?: number | null; longitude?: number | null }[]>([]);
   const [gammes, setGammes] = useState<Gamme[]>([]);
