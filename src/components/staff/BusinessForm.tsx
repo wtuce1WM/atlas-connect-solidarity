@@ -1395,6 +1395,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   { id: "__top__", label: "Top" },
                   { id: "section-contact", label: "Contact" },
                   { id: "section-description", label: "Description" },
+                  { id: "section-poi", label: "POI" },
                   { id: "section-menu", label: "Menu" },
                   { id: "section-images", label: "Images" },
                   { id: "section-social", label: "Réseaux" },
@@ -2269,7 +2270,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             <BrokenUrlBadge url={formData.menu_url} />
            </div>
 
-        {/* Destinations */}
+        {/* POI / Destinations */}
+        <div id="section-poi" />
         {allDestinations.length > 0 && (
           <Accordion type="single" collapsible>
             <AccordionItem value="destinations" className="border-none">
