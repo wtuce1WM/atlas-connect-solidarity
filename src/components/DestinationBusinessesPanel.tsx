@@ -1,7 +1,8 @@
 import { useEffect, useState, useRef } from "react";
-import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import { MapPin, Star, Loader2, X, ChevronLeft, ChevronRight, Maximize2, Minimize2 } from "lucide-react";
+import FullscreenLightbox from "@/components/FullscreenLightbox";
+import type { MediaItem } from "@/components/FullscreenLightbox";
 import { supabase } from "@/integrations/supabase/client";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
 import BookmarkButton from "@/components/BookmarkButton";
