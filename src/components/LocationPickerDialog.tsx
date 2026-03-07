@@ -24,6 +24,7 @@ interface LocationPickerDialogProps {
   isDetecting: boolean;
   onUseCurrentPosition: () => void;
   onConfirm: (coords: { lat: number; lng: number }, address: string) => void;
+  onDisableGeo?: () => void;
 }
 
 const DEFAULT_CENTER = { lat: 31.6295, lng: -7.9811 };
