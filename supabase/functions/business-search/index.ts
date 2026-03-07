@@ -1996,7 +1996,7 @@ serve(async (req) => {
           // (≥2 distinct query words matching their keywords, or a multi-word keyword fully matched)
           // Also include services whose keyword exactly matches a fully-matched service name (alias match)
           const fullyMatchedNamesLower = fullyMatchedServices.map(n => normalizeWordKw(n.toLowerCase()));
-          const strongKeywordServices: string[] = [];
+          console.log(`Strong KW check: ${matchingServices.length} services in pool, fullyMatched=[${fullyMatchedServices.join(",")}], serviceMatchWords=[${serviceMatchWords.join(",")}]`);
           for (const svc of matchingServices) {
             if (fullyMatchedServices.includes(svc.name_fr)) continue;
             const svcKws = (svc.keywords || []).map((k: string) => k.toLowerCase());
