@@ -1209,6 +1209,7 @@ const SearchPage = () => {
         
         if (data) {
           setSearchLevel(data.searchLevel || "");
+          setSynonymUsed(!!data.synonymUsed);
           const safeDetectedSubcategory = data.detectedSubcategory || null;
           // Only use searchMode when explicitly set from back-office config
           const normalizedSearchMode = normalizeSearchMode(data.searchMode);
