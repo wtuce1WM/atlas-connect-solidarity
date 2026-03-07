@@ -272,3 +272,8 @@ textarea::placeholder {
     max-width: 100% !important;
   }
 }
+
+/* LocationPickerDialog: ensure overlay appears above slide panels (z-[100]) */
+[data-radix-portal]:has(.\!z-\[300\]) > [data-state] {
+  z-index: 300 !important;
+}

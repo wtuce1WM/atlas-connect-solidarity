@@ -270,7 +270,7 @@ const LocationPickerDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg md:max-w-2xl p-0 gap-0 overflow-hidden rounded-2xl max-h-[90vh] flex flex-col">
+      <DialogContent className="sm:max-w-lg md:max-w-2xl p-0 gap-0 overflow-hidden rounded-2xl max-h-[90vh] flex flex-col !z-[300]">
         <DialogHeader className="p-5 pb-3 shrink-0">
           <DialogTitle className="text-lg font-bold text-foreground">
             {language === "en" ? "Choose your address" : language === "ar" ? "اختر عنوانك" : "Choisir votre adresse"}
