@@ -128,65 +128,55 @@ interface HighlightState {
   target: number;
 }
 
-/** Parse inline markdown with optional word-level highlighting and fade */
+/** Parse inline markdown with optional word-level highlighting */
 const parseInline = (
   text: string,
   businesses: BusinessData[],
   onClickBusiness: (b: BusinessData) => void,
   keyPrefix: string,
-  hl?: HighlightState,
-  fade?: HighlightState
+  hl?: HighlightState
 ): ReactNode[] => {
   const boldParts = text.split(/\*\*(.+?)\*\*/g);
   const nodes: ReactNode[] = [];
 
   boldParts.forEach((part, j) => {
     if (j % 2 === 1) {
-      // Bold segment — business name or plain bold
       const wordCount = part.split(/\s+/).filter(Boolean).length;
       const startWordIdx = hl ? hl.wordIndex : 0;
-      const fadeStartIdx = fade ? fade.wordIndex : 0;
       if (hl) hl.wordIndex += wordCount;
-      if (fade) fade.wordIndex += wordCount;
       const highlighted = hl ? startWordIdx <= hl.target : false;
-      const fadeVisible = fade ? fadeStartIdx <= fade.target : true;
-
-      const fadeStyle: React.CSSProperties = fade ? {
-        opacity: fadeVisible ? 1 : 0,
-        transform: fadeVisible ? "translateY(0)" : "translateY(6px)",
-        filter: fadeVisible ? "blur(0px)" : "blur(3px)",
-        transition: "opacity 0.3s ease-out, transform 0.3s ease-out, filter 0.3s ease-out",
-        display: "inline-block",
-      } : {};
 
       const match = findBusiness(part, businesses);
       if (match) {
         const card = <BusinessHoverCard key={`${keyPrefix}-${j}`} name={part} business={match} onClickBusiness={onClickBusiness} />;
-        nodes.push(
-          <span key={`${keyPrefix}-hl-${j}`} className={`${hl ? `transition-colors duration-100 rounded-sm ${highlighted ? "bg-gold/20" : ""}` : ""}`} style={fadeStyle}>
-            {card}
-          </span>
-        );
+        if (hl) {
+          nodes.push(
+            <span key={`${keyPrefix}-hl-${j}`} className={`transition-colors duration-100 rounded-sm ${highlighted ? "bg-gold/20" : ""}`}>
+              {card}
+            </span>
+          );
+        } else {
+          nodes.push(card);
+        }
       } else {
         nodes.push(
-          <strong key={`${keyPrefix}-${j}`} className={`font-semibold text-foreground${hl ? ` transition-colors duration-100 rounded-sm${highlighted ? " bg-gold/20" : ""}` : ""}`} style={fadeStyle}>
+          <strong key={`${keyPrefix}-${j}`} className={`font-semibold text-foreground${hl ? ` transition-colors duration-100 rounded-sm${highlighted ? " bg-gold/20" : ""}` : ""}`}>
             {part}
           </strong>
         );
       }
     } else {
-      // Non-bold: parse italic, then split into words
       const italicParts = part.split(/\*(.+?)\*/g);
       italicParts.forEach((ip, k) => {
         if (k % 2 === 1) {
-          if (hl || fade) {
-            renderWordTokens(ip, nodes, `${keyPrefix}-${j}-i${k}`, true, hl, fade);
+          if (hl) {
+            renderWordTokens(ip, nodes, hl, `${keyPrefix}-${j}-i${k}`, true);
           } else {
             nodes.push(<em key={`${keyPrefix}-${j}-i${k}`}>{ip}</em>);
           }
         } else if (ip) {
-          if (hl || fade) {
-            renderWordTokens(ip, nodes, `${keyPrefix}-${j}-${k}`, false, hl, fade);
+          if (hl) {
+            renderWordTokens(ip, nodes, hl, `${keyPrefix}-${j}-${k}`, false);
           } else {
             nodes.push(<span key={`${keyPrefix}-${j}-${k}`}>{ip}</span>);
           }
@@ -198,14 +188,13 @@ const parseInline = (
   return nodes;
 };
 
-/** Render text split into word-level spans with highlighting and/or fade */
+/** Render text split into word-level spans with highlighting */
 const renderWordTokens = (
   text: string,
   nodes: ReactNode[],
+  hl: HighlightState,
   keyPrefix: string,
-  italic: boolean,
-  hl?: HighlightState,
-  fade?: HighlightState
+  italic: boolean
 ) => {
   const tokens = text.split(/(\s+)/);
   tokens.forEach((token, t) => {
@@ -214,25 +203,13 @@ const renderWordTokens = (
       nodes.push(<span key={`${keyPrefix}-ws-${t}`}>{token}</span>);
       return;
     }
-    const wordIdx = hl ? hl.wordIndex++ : 0;
-    const fadeIdx = fade ? fade.wordIndex++ : 0;
-    const highlighted = hl ? wordIdx <= hl.target : false;
-    const fadeVisible = fade ? fadeIdx <= fade.target : true;
-
-    const hlClass = hl ? `transition-colors duration-100 rounded-sm${highlighted ? " bg-gold/20" : ""}` : "";
-
-    const fadeStyle: React.CSSProperties = fade ? {
-      opacity: fadeVisible ? 1 : 0,
-      transform: fadeVisible ? "translateY(0)" : "translateY(6px)",
-      filter: fadeVisible ? "blur(0px)" : "blur(3px)",
-      transition: "opacity 0.3s ease-out, transform 0.3s ease-out, filter 0.3s ease-out",
-      display: "inline-block",
-    } : {};
-
+    const wordIdx = hl.wordIndex++;
+    const highlighted = wordIdx <= hl.target;
+    const hlClass = `transition-colors duration-100 rounded-sm${highlighted ? " bg-gold/20" : ""}`;
     if (italic) {
-      nodes.push(<em key={`${keyPrefix}-w-${t}`} className={hlClass} style={fadeStyle}>{token}</em>);
+      nodes.push(<em key={`${keyPrefix}-w-${t}`} className={hlClass}>{token}</em>);
     } else {
-      nodes.push(<span key={`${keyPrefix}-w-${t}`} className={hlClass} style={fadeStyle}>{token}</span>);
+      nodes.push(<span key={`${keyPrefix}-w-${t}`} className={hlClass}>{token}</span>);
     }
   });
 };
@@ -242,18 +219,11 @@ const formatAnswer = (
   text: string,
   businesses: BusinessData[],
   onClickBusiness: (b: BusinessData) => void,
-  highlightWordIndex?: number,
-  fadeWordIndex?: number,
-  fadeComplete?: boolean
+  highlightWordIndex?: number
 ): ReactNode[] => {
   const hl: HighlightState | undefined =
     highlightWordIndex !== undefined && highlightWordIndex >= 0
       ? { wordIndex: 0, target: highlightWordIndex }
-      : undefined;
-
-  const fade: HighlightState | undefined =
-    !fadeComplete && fadeWordIndex !== undefined
-      ? { wordIndex: 0, target: fadeWordIndex }
       : undefined;
 
   // Normalize bold markers spanning newlines
@@ -273,7 +243,7 @@ const formatAnswer = (
       if (text) {
         elements.push(
           <p key={`p-${blockIdx}`} className="mb-3 last:mb-0 leading-[1.8]">
-            {parseInline(text, businesses, onClickBusiness, `p-${blockIdx}`, hl, fade)}
+            {parseInline(text, businesses, onClickBusiness, `p-${blockIdx}`, hl)}
           </p>
         );
         blockIdx++;
@@ -292,7 +262,7 @@ const formatAnswer = (
         <Tag key={`list-${blockIdx}`} className={listClass}>
           {currentList.items.map((item, i) => (
             <li key={i} className="leading-[1.8]">
-              {parseInline(item, businesses, onClickBusiness, `li-${blockIdx}-${i}`, hl, fade)}
+              {parseInline(item, businesses, onClickBusiness, `li-${blockIdx}-${i}`, hl)}
             </li>
           ))}
         </Tag>
@@ -348,9 +318,7 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
   const [selectedBusiness, setSelectedBusiness] = useState<BusinessData | null>(null);
   const [fontSize, setFontSize] = useState(0);
   const [regenerateCount, setRegenerateCount] = useState(0);
-  const [fadeWordIndex, setFadeWordIndex] = useState<number | undefined>(undefined);
-  const [fadeComplete, setFadeComplete] = useState(true);
-  const fadeIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [answerKey, setAnswerKey] = useState(0);
   const fetchIdRef = useRef(0);
   const lastFetchKeyRef = useRef("");
   const aiPanelRef = useRef<HTMLDivElement>(null);
@@ -368,42 +336,6 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
     setSelectedBusiness(null);
   }, [query]);
 
-  // Word-by-word fade animation when answer arrives
-  useEffect(() => {
-    if (fadeIntervalRef.current) {
-      clearInterval(fadeIntervalRef.current);
-      fadeIntervalRef.current = null;
-    }
-    if (!answer || isLoading) {
-      setFadeWordIndex(undefined);
-      setFadeComplete(true);
-      return;
-    }
-    const plainWords = answer.replace(/\*\*/g, "").replace(/\*/g, "").split(/\s+/).filter(Boolean);
-    const total = plainWords.length;
-    if (total === 0) { setFadeComplete(true); return; }
-    
-    setFadeComplete(false);
-    setFadeWordIndex(-1);
-    
-    let i = -1;
-    fadeIntervalRef.current = setInterval(() => {
-      i++;
-      setFadeWordIndex(i);
-      if (i >= total - 1) {
-        if (fadeIntervalRef.current) clearInterval(fadeIntervalRef.current);
-        fadeIntervalRef.current = null;
-        setFadeComplete(true);
-      }
-    }, 45);
-
-    return () => {
-      if (fadeIntervalRef.current) {
-        clearInterval(fadeIntervalRef.current);
-        fadeIntervalRef.current = null;
-      }
-    };
-  }, [answer, isLoading]);
 
   // When search finishes with 0 results, stop any loading state
   useEffect(() => {
@@ -463,6 +395,7 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
         }
 
         if (data?.answer) {
+          setAnswerKey(k => k + 1);
           setAnswer(data.answer);
           onAnswerReady?.(data.answer);
         }
@@ -567,7 +500,7 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
               <div className={`leading-relaxed text-foreground transition-all duration-200 ${
                 fontSize === -1 ? "text-xs" : fontSize === 1 ? "text-base" : "text-sm"
               }`}>
-                {formatAnswer(answer, businesses, setSelectedBusiness, highlightWordIndex, fadeWordIndex, fadeComplete)}
+                {formatAnswer(answer, businesses, setSelectedBusiness, highlightWordIndex)}
               </div>
             )}
           </div>
