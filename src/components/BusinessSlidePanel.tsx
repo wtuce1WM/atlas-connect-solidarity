@@ -2081,11 +2081,22 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                   const cheapest = hotel.offers.length > 0
                     ? hotel.offers.reduce((a, b) => parseFloat(a.price.total) < parseFloat(b.price.total) ? a : b)
                     : null;
-                  const starCount = hotel.rating ? parseInt(hotel.rating) : 0;
+                  const img = hotel.dbImage || hotel.mainImage;
+                  // Compute our weighted rating from DB data
+                  const sources: { rating: number; count: number }[] = [];
+                  if (hotel.dbGoogleRating && hotel.dbGoogleReviewCount) sources.push({ rating: hotel.dbGoogleRating, count: hotel.dbGoogleReviewCount });
+                  if (hotel.dbTripadvisorRating && hotel.dbTripadvisorReviewCount) sources.push({ rating: hotel.dbTripadvisorRating, count: hotel.dbTripadvisorReviewCount });
+                  const totalReviews = sources.reduce((s, r) => s + r.count, 0);
+                  let avgOn20: number | null = null;
+                  if (sources.length > 0) {
+                    const weighted = sources.reduce((s, r) => s + (r.rating / 5) * 20 * r.count, 0);
+                    avgOn20 = Math.round((weighted / totalReviews) * 10) / 10;
+                  }
+
                   return (
                     <div
                       key={hotel.hotelId}
-                      className="bg-white/10 border border-white/15 rounded-xl overflow-hidden hover:bg-white/15 transition-colors cursor-pointer"
+                      className="group overflow-hidden rounded-xl border border-white/15 shadow-sm hover:shadow-md transition-all cursor-pointer relative aspect-[3/4]"
                       onClick={(e) => {
                         e.stopPropagation();
                         if (hotel.businessId) {
@@ -2095,59 +2106,46 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                         }
                       }}
                     >
-                      <div className="aspect-square w-full overflow-hidden">
-                        {hotel.mainImage ? (
-                          <img src={hotel.mainImage} alt={hotel.name} className="w-full h-full object-cover" loading="lazy" />
-                        ) : (
-                          <div className="w-full h-full bg-white/5 flex items-center justify-center">
-                            <BedDouble className="h-8 w-8 text-white/20" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="p-2.5 space-y-1">
-                        <div className="flex items-start gap-1">
-                          <p className="text-xs font-semibold text-white leading-tight line-clamp-2 flex-1">{hotel.name}</p>
-                          {hotel.wtuce_status === "verified" && (
-                            <img src={logoGold} alt="WTUCE" className="w-5 h-5 object-contain shrink-0 opacity-90" />
-                          )}
+                      {img ? (
+                        <img src={img} alt={hotel.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+                      ) : (
+                        <div className="absolute inset-0 bg-white/5 flex items-center justify-center">
+                          <BedDouble className="h-10 w-10 text-white/20" />
                         </div>
-                        {starCount > 0 && (
-                          <div className="flex">
-                            {Array.from({ length: starCount }).map((_, i) => (
-                              <Star key={i} className="h-2.5 w-2.5 text-yellow-400 fill-yellow-400" />
-                            ))}
-                          </div>
-                        )}
-                        {hotel.guestRating && (
-                          <div className="flex items-center gap-1">
-                            <span className="text-[10px] font-bold text-white bg-white/20 rounded px-1 py-0.5">
-                              {parseFloat(String(hotel.guestRating)).toFixed(1)}
-                            </span>
-                            {hotel.reviewCount != null && hotel.reviewCount > 0 && (
-                              <span className="text-[10px] text-white/50">
-                                ({hotel.reviewCount})
-                              </span>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+
+                      {hotel.wtuce_status === "verified" && (
+                        <div className="absolute top-2 right-2 z-10">
+                          <img src={logoGold} alt="WTUCE" className="w-7 h-7 object-contain" />
+                        </div>
+                      )}
+
+                      <div className="absolute bottom-0 left-0 right-0 p-3 space-y-1">
+                        <p className="font-semibold text-sm text-white leading-tight line-clamp-2">{hotel.name}</p>
+                        
+                        {avgOn20 && (
+                          <div className="flex items-center gap-1.5 text-xs">
+                            <Star className="h-3 w-3 text-gold fill-gold" />
+                            <span className="font-medium text-white">{avgOn20}/20</span>
+                            {totalReviews > 0 && (
+                              <span className="text-white/70">· {totalReviews} {language === "en" ? "reviews" : "avis"}</span>
                             )}
                           </div>
                         )}
-                        {hotel.accessibilityAttributes?.attributes && hotel.accessibilityAttributes.attributes.length > 0 && (
-                          <div className="flex items-center gap-1">
-                            <span className="text-[10px] text-blue-300">♿</span>
-                            <span className="text-[10px] text-white/50">
-                              {language === "en" ? "Accessible" : "Accessible"}
-                            </span>
-                          </div>
-                        )}
-                        {cheapest && (
-                          <p className="text-sm font-bold text-white">
-                            {new Intl.NumberFormat(language === "ar" ? "ar-MA" : language === "en" ? "en-US" : "fr-FR", {
-                              style: "currency", currency: cheapest.price.currency, minimumFractionDigits: 0,
-                            }).format(parseFloat(cheapest.price.total))}
-                          </p>
-                        )}
-                        <p className="text-[10px] text-white/40">
-                          {hotel.offers.length} {language === "en" ? "room(s)" : "chambre(s)"}
-                        </p>
+
+                        <div className="flex items-center justify-between pt-1">
+                          {cheapest && (
+                            <p className="text-base font-bold text-white">
+                              {new Intl.NumberFormat(language === "ar" ? "ar-MA" : language === "en" ? "en-US" : "fr-FR", {
+                                style: "currency", currency: cheapest.price.currency, minimumFractionDigits: 0,
+                              }).format(parseFloat(cheapest.price.total))}
+                            </p>
+                          )}
+                          <span className="text-[10px] text-white/50">
+                            {hotel.offers.length} {language === "en" ? "room(s)" : "chambre(s)"}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   );
