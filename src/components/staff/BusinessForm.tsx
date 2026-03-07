@@ -1500,7 +1500,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         </div>
 
         {/* Basic Info */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border rounded-lg bg-green-50">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border rounded-lg bg-green-50">
 
           <div className="space-y-2">
             <Label htmlFor="affiliate_id">Affilié</Label>
@@ -1538,7 +1538,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="kp_regroupement">KP regroupement (max 20 caractères)</Label>
+            <Label htmlFor="kp_regroupement">KP regroupement (max 20)</Label>
             <Input
               id="kp_regroupement"
               value={formData.kp_regroupement}
@@ -1550,6 +1550,15 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               maxLength={20}
               pattern="[a-zA-Z0-9]*"
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="liteapi_id">ID LiteAPI (max 20)</Label>
+            {business?.id ? (
+              <LiteApiMappingField businessId={business.id} />
+            ) : (
+              <Input disabled placeholder="Enregistrez d'abord" />
+            )}
           </div>
         </div>
 
