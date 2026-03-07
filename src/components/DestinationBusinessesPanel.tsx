@@ -178,14 +178,20 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
           >
             <X className="h-4 w-4" />
           </button>
-          <button
-            onClick={() => setIsExpanded(true)}
-            className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors"
-            title="Agrandir"
-            aria-label="Agrandir le panneau"
-          >
-            <Maximize2 className="h-4 w-4" />
-          </button>
+          {(() => {
+            const imgs = destination.images && destination.images.length > 0 ? destination.images : destination.image_url ? [destination.image_url] : [];
+            if (imgs.length <= 1) return null;
+            return (
+              <button
+                onClick={() => setIsExpanded(true)}
+                className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors"
+                title="Agrandir"
+                aria-label="Agrandir le panneau"
+              >
+                <Maximize2 className="h-4 w-4" />
+              </button>
+            );
+          })()}
         </div>
         <div className="flex-1 flex items-center justify-center gap-0">
           <button
