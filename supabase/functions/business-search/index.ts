@@ -1006,6 +1006,25 @@ serve(async (req) => {
         }
       }
     }
+    // ── Pre-fetch services for synonym disambiguation (multi-word service check) ──
+    const { data: allServicesForSynCheck } = await supabase.from("services").select("name_fr");
+    // Helper: check if synonym key is part of a more specific multi-word service matching the query
+    const synonymKeyMatchesMultiWordService = (key: string): boolean => {
+      const qLowerFull = effectiveQuery.toLowerCase().replace(/-/g, " ").replace(/\s+/g, " ").trim();
+      const qWordsFull = qLowerFull.split(/\s+/).filter(w => w.length > 1 && !FRENCH_STOP_WORDS.has(w));
+      if (qWordsFull.length < 2 || !allServicesForSynCheck) return false;
+      const normSyn = (w: string): string => stripAccentsGlobal(w.toLowerCase().replace(/-/g, " ").replace(/\s+/g, " ").trim());
+      const stripPlSyn = (w: string): string => { if (w.endsWith("aux")) return w.slice(0, -3) + "al"; if (w.endsWith("s")) return w.slice(0, -1); return w; };
+      const normWordSyn = (w: string): string => stripAccentsGlobal(stripPlSyn(w));
+      return allServicesForSynCheck.some((svc: any) => {
+        const svcCW = normSyn(svc.name_fr).split(/\s+/).filter((w: string) => w.length > 1 && !FRENCH_STOP_WORDS.has(w));
+        if (svcCW.length < 2) return false;
+        const keyNorm = normSyn(key);
+        const keyInSvc = svcCW.some((sw: string) => normWordSyn(sw) === normWordSyn(keyNorm));
+        if (!keyInSvc) return false;
+        return svcCW.every((sw: string) => qWordsFull.some(qw => normWordSyn(qw) === normWordSyn(sw)));
+      });
+    };
     // ── Synonym-linked subcategories: when a query word matches a synonym entry with subcategory_names ──
     // Check ALL query variants (effectiveQuery, original query, spoken) to catch natural language synonyms
     let synonymLinkedSubcategories: string[] = [];
@@ -1030,6 +1049,10 @@ serve(async (req) => {
           if (matched) break;
         }
         if (matched) {
+          if (synonymKeyMatchesMultiWordService(key)) {
+            console.log(`⏭️ Synonym "${key}" subcategory link skipped: query matches a more specific multi-word service`);
+            continue;
+          }
           synonymLinkedSubcategories = [...new Set([...synonymLinkedSubcategories, ...subcatNames])];
           console.log(`Synonym "${key}" matched → linked subcategories: [${subcatNames.join(", ")}]`);
         }
@@ -1059,13 +1082,15 @@ serve(async (req) => {
           if (matched) break;
         }
         if (matched) {
+          if (synonymKeyMatchesMultiWordService(key)) {
+            console.log(`⏭️ Synonym "${key}" service link skipped: query matches a more specific multi-word service`);
+            continue;
+          }
           synonymLinkedServices = [...new Set([...synonymLinkedServices, ...svcNames])];
           console.log(`Synonym "${key}" matched → linked services: [${svcNames.join(", ")}]`);
         }
       }
     }
-    // ── Pre-fetch services for synonym disambiguation (multi-word service check) ──
-    const { data: allServicesForSynCheck } = await supabase.from("services").select("name_fr");
     // ── Synonym paired filters: when a query word matches a synonym entry with filters[] ──
     let matchedSynonymFilters: { subcategory_name: string | null; required_service: string | null }[] = [];
     const matchedSynonymFilterKeys: string[] = [];
