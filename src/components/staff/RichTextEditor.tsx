@@ -71,8 +71,11 @@ const RichTextEditor = ({ content, onChange, placeholder, maxHeight }: RichTextE
   if (!editor) return null;
 
   return (
-    <div className="border rounded-md bg-background">
-      <div className="sticky top-[120px] z-10 bg-background border-b rounded-t-md">
+    <div
+      className="border rounded-md bg-background overflow-y-auto"
+      style={maxHeight ? { maxHeight } : undefined}
+    >
+      <div className="sticky top-0 z-10 bg-background border-b rounded-t-md">
         <RichTextToolbar editor={editor} />
       </div>
       <EditorContent editor={editor} />
