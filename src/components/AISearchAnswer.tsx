@@ -252,7 +252,7 @@ const formatAnswer = (
       : undefined;
 
   const fade: HighlightState | undefined =
-    !fadeComplete && fadeWordIndex !== undefined && fadeWordIndex >= -1
+    !fadeComplete && fadeWordIndex !== undefined
       ? { wordIndex: 0, target: fadeWordIndex }
       : undefined;
 
