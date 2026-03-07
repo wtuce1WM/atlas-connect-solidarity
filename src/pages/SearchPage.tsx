@@ -1102,7 +1102,10 @@ const SearchPage = () => {
 
   const searchServiceFilters = useMemo(() => {
     if (!searchQuery.trim() || allBusinesses.length === 0) return [];
-    if (selectedCategoryFilter || selectedSubcategoryFilter) return [];
+    // Don't short-circuit when auto-selection came from detection — only when user manually picked via CityCategoryFilter
+    // (auto-detection sets both detectedSubcategory AND selectedSubcategoryFilter simultaneously)
+    const isAutoSelected = !!detectedSubcategory && selectedSubcategoryFilter === detectedSubcategory;
+    if ((selectedCategoryFilter || selectedSubcategoryFilter) && !isAutoSelected) return [];
 
     // Determine which service names are allowed based on detected subcategory
     let allowedNames: Set<string>;
