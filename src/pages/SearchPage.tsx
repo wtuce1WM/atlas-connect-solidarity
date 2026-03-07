@@ -2836,8 +2836,11 @@ const SearchPage = () => {
                   const totalReviews = sources.reduce((s, r) => s + r.count, 0);
                   const subcat = business.categories?.[0] || null;
                   return (
-                    <Link to={`/business/${business.id}`} key={business.id}>
-                      <div className="group overflow-hidden rounded-xl border border-border shadow-sm hover:shadow-md transition-all cursor-pointer relative aspect-square bg-muted">
+                    <div
+                      key={business.id}
+                      onClick={() => setCompactPanelBusiness({ id: business.id, name: business.name } as AIBusinessData)}
+                      className="group overflow-hidden rounded-xl border border-border shadow-sm hover:shadow-md transition-all cursor-pointer relative aspect-square bg-muted"
+                    >
                         {img ? (
                           <img src={img} alt={business.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
                         ) : (
@@ -2881,8 +2884,7 @@ const SearchPage = () => {
                             </div>
                           )}
                         </div>
-                      </div>
-                    </Link>
+                    </div>
                   );
                 })}
               </div>
