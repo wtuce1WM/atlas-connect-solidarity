@@ -3122,6 +3122,10 @@ serve(async (req) => {
         });
         const { data, error } = result;
 
+        if (error) {
+          console.error(`RPC search_businesses_with_rank error: ${error.message} (query="${expandedQuery}", city="${effectiveCity}")`);
+        }
+
         if (!error && data && data.length > 0) {
           businesses = data.map((b: any) => ({
             ...b,
