@@ -407,6 +407,11 @@ const SearchPage = () => {
   const [celebrityBusinesses, setCelebrityBusinesses] = useState<Business[]>([]);
   const [ttsIntroPhrase, setTtsIntroPhrase] = useState<string>("");
   const [aiAnswerText, setAiAnswerText] = useState<string>("");
+  const [stickyAiAnimationNonce, setStickyAiAnimationNonce] = useState(0);
+  const handleAiAnswerReady = useCallback((answer: string) => {
+    setAiAnswerText(answer);
+    setStickyAiAnimationNonce((prev) => prev + 1);
+  }, []);
    const [activeTab, setActiveTab] = useState<"suggestions" | "map" | "poi" | "destinations">("suggestions");
    const [detectedCity, setDetectedCity] = useState<string | null>(null);
    const [disambiguationType, setDisambiguationType] = useState<"needs_category" | "needs_city" | null>(null);
