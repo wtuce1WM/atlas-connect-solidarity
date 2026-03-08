@@ -55,6 +55,7 @@ interface BusinessDataWithBadges {
   services: string[];
   engagements: string[];
   is_visible_locale: boolean;
+  is_active: boolean;
   badge_ids: string[];
 }
 
