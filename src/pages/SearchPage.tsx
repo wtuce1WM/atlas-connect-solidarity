@@ -3215,7 +3215,7 @@ const SearchPage = () => {
                     <button
                       onClick={() => {
                         if (!aiAnswerText) return;
-                        const cleanText = aiAnswerText.replace(/\*\*/g, "").replace(/\n+/g, " ").trim();
+                        const cleanText = aiAnswerText.replace(/\*\*/g, "").replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "").replace(/\n+/g, " ").trim();
                         const intro = language === "en" ? `Here are my suggestions for ${searchQuery}. ` : `Voici mes suggestions pour ${searchQuery}. `;
                         ttsIntroWordCountRef.current = intro.trim().split(/\s+/).filter(Boolean).length;
                         voiceLoopRef.current = true;
