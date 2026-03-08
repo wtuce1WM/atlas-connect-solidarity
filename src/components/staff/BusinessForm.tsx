@@ -558,6 +558,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     menu_url: (business as any)?.menu_url || "",
     menu_name: (business as any)?.menu_name || "",
     menu_language: (business as any)?.menu_language || "",
+    menu_summary: (business as any)?.menu_summary || "",
     logo_bg: (business as any)?.logo_bg || "transparent",
     zone_city_ids: (business as any)?.zone_city_ids || [] as string[],
     poissonnerie_details: (business as any)?.poissonnerie_details || null,
@@ -1085,6 +1086,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       menu_url: formData.menu_url || null,
       menu_name: (formData as any).menu_name || null,
       menu_language: (formData as any).menu_language || null,
+      menu_summary: (formData as any).menu_summary?.trim() || null,
       logo_bg: (formData as any).logo_bg || "transparent",
       poissonnerie_details: formData.poissonnerie_details || null,
       destination_hook: (formData as any).destination_hook?.trim().slice(0, 120) || null,
@@ -2578,6 +2580,20 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             </div>
           ))}
           {menuDocs.length === 0 && <p className="text-xs text-muted-foreground">Aucun menu ajouté.</p>}
+
+          {/* Menu Summary */}
+          <div className="mt-3 space-y-1">
+            <Label htmlFor="menu_summary" className="text-sm font-medium">📝 Résumé du menu <span className="text-muted-foreground font-normal">(pour l'IA)</span></Label>
+            <textarea
+              id="menu_summary"
+              value={(formData as any).menu_summary || ""}
+              onChange={(e) => handleChange("menu_summary", e.target.value)}
+              placeholder="Cuisine fusion méditerranéenne, entrées à partager, plats signatures, desserts..."
+              rows={4}
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            />
+            <span className="text-xs text-muted-foreground">{((formData as any).menu_summary || "").length} caractères (recommandé : ~1000)</span>
+          </div>
         </div>
 
         {/* Flipbook / Issuu */}
