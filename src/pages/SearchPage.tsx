@@ -407,6 +407,11 @@ const SearchPage = () => {
   const [celebrityBusinesses, setCelebrityBusinesses] = useState<Business[]>([]);
   const [ttsIntroPhrase, setTtsIntroPhrase] = useState<string>("");
   const [aiAnswerText, setAiAnswerText] = useState<string>("");
+  const [stickyAiAnimationNonce, setStickyAiAnimationNonce] = useState(0);
+  const handleAiAnswerReady = useCallback((answer: string) => {
+    setAiAnswerText(answer);
+    setStickyAiAnimationNonce((prev) => prev + 1);
+  }, []);
    const [activeTab, setActiveTab] = useState<"suggestions" | "map" | "poi" | "destinations">("suggestions");
    const [detectedCity, setDetectedCity] = useState<string | null>(null);
    const [disambiguationType, setDisambiguationType] = useState<"needs_category" | "needs_city" | null>(null);
@@ -746,7 +751,7 @@ const SearchPage = () => {
         language,
       },
     }).then(({ data }) => {
-      if (data?.answer) setAiAnswerText(data.answer);
+      if (data?.answer) handleAiAnswerReady(data.answer);
     }).catch(e => {
       console.error("AI city-regenerate error:", e);
     }).finally(() => {
@@ -1529,7 +1534,7 @@ const SearchPage = () => {
             vary: Date.now() % 1000,
           },
         });
-        if (data?.answer) setAiAnswerText(data.answer);
+        if (data?.answer) handleAiAnswerReady(data.answer);
       } catch (e) {
         console.error("AI filter-regenerate error:", e);
       } finally {
@@ -1633,8 +1638,8 @@ const SearchPage = () => {
   const endResult = Math.min(currentPage * ITEMS_PER_PAGE, filteredBusinesses.length);
   const displayedResultsCount = totalCount && totalCount > filteredBusinesses.length ? totalCount : filteredBusinesses.length;
   const stickyAiAnimationKey = useMemo(
-    () => `sticky4-ai-${aiRegenerateKey}-${aiAnswerText.length}-${aiAnswerText.slice(0, 40)}-${aiAnswerText.slice(-40)}`,
-    [aiRegenerateKey, aiAnswerText]
+    () => `sticky4-ai-${stickyAiAnimationNonce}`,
+    [stickyAiAnimationNonce]
   );
 
   const showZitounEasterEgg = !isLoading && isZitounMask(spokenText || searchQuery);
@@ -1658,7 +1663,7 @@ const SearchPage = () => {
             spokenText={spokenText || undefined}
             businesses={filteredBusinesses}
             isSearchLoading={isLoading}
-            onAnswerReady={setAiAnswerText}
+            onAnswerReady={handleAiAnswerReady}
             externalRegenerateKey={aiRegenerateKey}
           />
         </div>
@@ -2538,7 +2543,7 @@ const SearchPage = () => {
                           vary: Date.now() % 1000,
                         },
                       });
-                      if (data?.answer) setAiAnswerText(data.answer);
+                      if (data?.answer) handleAiAnswerReady(data.answer);
                     } catch (e) {
                       console.error("AI regenerate error:", e);
                     } finally {
