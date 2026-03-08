@@ -459,6 +459,133 @@ const StaffMaster = () => {
                   </CollapsibleContent>
                 </Card>
               </Collapsible>
+
+              <Collapsible>
+                <Card>
+                  <CollapsibleTrigger className="w-full">
+                    <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
+                      <CardTitle className="flex items-center gap-2">
+                        <ChevronRight className="h-4 w-4 transition-transform [[data-state=open]>&]:rotate-90" />
+                        BusinessSlidePanel (Fiche établissement)
+                      </CardTitle>
+                    </CardHeader>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <CardContent>
+                      <div className="space-y-6">
+                        <div>
+                          <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Nom de l'établissement</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <DisplayParam label="Balise" value="<h3>" />
+                            <DisplayParam label="Taille" value="text-2xl font-bold" />
+                            <DisplayParam label="Couleur" value="text-foreground" />
+                            <DisplayParam label="Ligne" value="leading-tight" />
+                          </div>
+                        </div>
+
+                        <div>
+                          <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Sticky sub-header (après scroll)</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <DisplayParam label="Nom" value="<h4> text-sm font-bold text-foreground truncate" />
+                            <DisplayParam label="Note" value="text-xs font-bold text-gold" />
+                            <DisplayParam label="Avis" value="text-xs text-muted-foreground" />
+                            <DisplayParam label="Badge horaire" value="text-xs font-medium (text-emerald-600 | text-muted-foreground)" />
+                            <DisplayParam label="Badge service" value="text-xs bg-gold text-black" />
+                            <DisplayParam label="Fond" value="bg-background/95 backdrop-blur-sm border-b" />
+                          </div>
+                        </div>
+
+                        <div>
+                          <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Sous-ligne (note, vérifié, lieu)</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <DisplayParam label="Conteneur" value="text-sm text-muted-foreground flex-wrap" />
+                            <DisplayParam label="Note" value="font-bold text-gold" />
+                            <DisplayParam label="Vérifié" value="font-semibold text-gold + BadgeCheck h-4 w-4" />
+                            <DisplayParam label="Icône lieu" value="MapPin h-3.5 w-3.5" />
+                          </div>
+                        </div>
+
+                        <div>
+                          <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Hook</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <DisplayParam label="Style" value="text-sm text-muted-foreground italic leading-relaxed" />
+                            <DisplayParam label="Bordure" value="border-l-2 border-gold/30 pl-3" />
+                          </div>
+                        </div>
+
+                        <div>
+                          <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Onglets internes</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <DisplayParam label="Police" value="text-sm font-medium" />
+                            <DisplayParam label="Padding" value="px-3 py-2.5" />
+                            <DisplayParam label="Actif" value="border-primary text-primary border-b-2" preview={<span className="text-sm font-medium text-primary">Aperçu</span>} />
+                            <DisplayParam label="Inactif" value="border-transparent text-muted-foreground" preview={<span className="text-sm font-medium text-muted-foreground">Contact</span>} />
+                            <DisplayParam label="Hover" value="hover:text-foreground hover:border-border" />
+                          </div>
+                          <div className="overflow-x-auto mt-3">
+                            <table className="w-full text-sm">
+                              <thead>
+                                <tr className="border-b">
+                                  <th className="text-left py-2 pr-4 font-medium text-muted-foreground">Onglet</th>
+                                  <th className="text-left py-2 pr-4 font-medium text-muted-foreground">Clé</th>
+                                  <th className="text-left py-2 font-medium text-muted-foreground">Condition d'affichage</th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y">
+                                <tr><td className="py-2 pr-4">Aperçu</td><td className="py-2 pr-4 font-mono text-xs">apercu</td><td className="py-2 text-xs">description non vide</td></tr>
+                                <tr><td className="py-2 pr-4">Contact</td><td className="py-2 pr-4 font-mono text-xs">contact</td><td className="py-2 text-xs">adresse, phone, email ou whatsapp</td></tr>
+                                <tr><td className="py-2 pr-4">Avis clients</td><td className="py-2 pr-4 font-mono text-xs">avis</td><td className="py-2 text-xs">reviews ou note moyenne</td></tr>
+                                <tr><td className="py-2 pr-4">Localiser</td><td className="py-2 pr-4 font-mono text-xs">localiser</td><td className="py-2 text-xs">google_maps_url</td></tr>
+                                <tr><td className="py-2 pr-4">Services</td><td className="py-2 pr-4 font-mono text-xs">services</td><td className="py-2 text-xs">services actifs</td></tr>
+                                <tr><td className="py-2 pr-4">Similaires</td><td className="py-2 pr-4 font-mono text-xs">similaires</td><td className="py-2 text-xs">toujours (sauf si 0)</td></tr>
+                                <tr><td className="py-2 pr-4">À côté</td><td className="py-2 pr-4 font-mono text-xs">acote</td><td className="py-2 text-xs">latitude + longitude</td></tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+
+                        <div>
+                          <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Description (corps)</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <DisplayParam label="Corps" value="text-sm text-foreground leading-relaxed" />
+                            <DisplayParam label="H2 interne" value="text-xl font-bold mb-4 mt-5" />
+                            <DisplayParam label="H3 interne" value="text-lg font-semibold mb-3 mt-4" />
+                            <DisplayParam label="Max replié" value="max-h-[21em]" />
+                            <DisplayParam label="Seuil « Voir + »" value="> 500 caractères" />
+                            <DisplayParam label="Bouton « Voir + »" value="text-sm font-semibold text-muted-foreground w-[20%]" />
+                          </div>
+                        </div>
+
+                        <div>
+                          <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Overlay documents</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <DisplayParam label="Titre" value="text-sm font-semibold truncate" />
+                            <DisplayParam label="Fond" value="bg-background, opaque, z-[60]" />
+                          </div>
+                        </div>
+
+                        <div>
+                          <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Galerie & compteur</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <DisplayParam label="Compteur" value="text-xs text-foreground bg-background/80 rounded-full" />
+                            <DisplayParam label="Bouton « Voir les N photos »" value="text-xs font-semibold bg-background/90 backdrop-blur-sm" />
+                            <DisplayParam label="Visite 3D label" value="text-sm font-semibold text-primary" />
+                          </div>
+                        </div>
+
+                        <div>
+                          <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Statut horaire</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <DisplayParam label="Ouvert" value="text-sm font-medium text-emerald-600" />
+                            <DisplayParam label="Fermé" value="text-sm font-medium text-muted-foreground" />
+                            <DisplayParam label="Icône" value="Clock h-4 w-4" />
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </CollapsibleContent>
+                </Card>
+              </Collapsible>
             </div>
           </TabsContent>
 
