@@ -298,15 +298,50 @@ const SynonymsManagement = () => {
   const getBusinessCount = useMemo(() => {
     const cache = new Map<string, number>();
     for (const entry of entries) {
-      if (entry.filters.length === 0) { cache.set(entry.id, 0); continue; }
+      // Check if entry has any criteria at all
+      const hasFilters = entry.filters.length > 0;
+      const hasBadge = !!entry.badge_id;
+      const hasEngagements = entry.engagement_filters.length > 0;
+      const hasCommodities = entry.commodity_filters.length > 0;
+      
+      if (!hasFilters && !hasBadge && !hasEngagements && !hasCommodities) {
+        cache.set(entry.id, 0);
+        continue;
+      }
+      
       let count = 0;
       for (const biz of businessData) {
-        const matches = entry.filters.some(f => {
-          const subcatMatch = !f.subcategory_name || biz.categories.includes(f.subcategory_name);
-          const svcMatch = !f.required_service || biz.services.includes(f.required_service);
-          return subcatMatch && svcMatch;
-        });
-        if (matches) count++;
+        // Filter by is_visible_locale to match front behavior
+        if (!biz.is_visible_locale) continue;
+        
+        // Badge match: business must have the badge
+        if (hasBadge && !biz.badge_ids.includes(entry.badge_id!)) continue;
+        
+        // Engagement match: business must have ALL required engagements
+        if (hasEngagements) {
+          const bizEngs = biz.engagements.map(e => typeof e === 'string' ? e.trim() : '');
+          const allEngMatch = entry.engagement_filters.every(eng => bizEngs.includes(eng));
+          if (!allEngMatch) continue;
+        }
+        
+        // Commodity match: business must have ALL required commodities (prefixed with "Logistique:")
+        if (hasCommodities) {
+          const bizEngs = biz.engagements.map(e => typeof e === 'string' ? e.trim() : '');
+          const allComMatch = entry.commodity_filters.every(com => bizEngs.includes(`Logistique:${com}`));
+          if (!allComMatch) continue;
+        }
+        
+        // Filters match (OR between filter rows): at least one filter row must match
+        if (hasFilters) {
+          const filterMatch = entry.filters.some(f => {
+            const subcatMatch = !f.subcategory_name || biz.categories.includes(f.subcategory_name);
+            const svcMatch = !f.required_service || biz.services.includes(f.required_service);
+            return subcatMatch && svcMatch;
+          });
+          if (!filterMatch) continue;
+        }
+        
+        count++;
       }
       cache.set(entry.id, count);
     }
