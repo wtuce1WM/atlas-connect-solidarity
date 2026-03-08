@@ -237,7 +237,7 @@ const HeroSection = () => {
         {/* Restaurant Guru-style location selector */}
         <HeroLocationSelector
           detectedCity={geo.detectedCity}
-          isEnabled={geo.isEnabled}
+          confirmedAddress={geo.confirmedAddress}
           isDetecting={geo.isDetecting}
           onAcceptGeo={geo.accept}
           onSelectCity={(city) => {
