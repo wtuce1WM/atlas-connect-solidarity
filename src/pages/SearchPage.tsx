@@ -462,18 +462,19 @@ const SearchPage = () => {
 
     if (stickyElements.length === 0) return;
 
+    // Use only the configured sticky position (CSS top + height), NOT getBoundingClientRect().bottom
+    // which can be huge when elements haven't scrolled into their sticky position yet
     const stickyBottom = stickyElements.reduce((maxBottom, el) => {
       const stickyComputedTop = Number.parseFloat(window.getComputedStyle(el).top || "0");
       const stickyHeight = el.getBoundingClientRect().height;
       const stickyConfiguredBottom = (Number.isFinite(stickyComputedTop) ? stickyComputedTop : 0) + stickyHeight;
-      const stickyCurrentBottom = el.getBoundingClientRect().bottom;
-      return Math.max(maxBottom, stickyConfiguredBottom, stickyCurrentBottom);
+      return Math.max(maxBottom, stickyConfiguredBottom);
     }, 0);
 
     const firstResultCard = resultsEl.querySelector<HTMLElement>("[data-result-card='true']");
     const anchorEl = firstResultCard ?? resultsEl;
     const resultsTopInViewport = anchorEl.getBoundingClientRect().top;
-    const overlap = stickyBottom + 80 - resultsTopInViewport;
+    const overlap = stickyBottom + 16 - resultsTopInViewport;
     if (overlap <= 0) return;
 
     const targetScroll = Math.max(0, window.scrollY + overlap);
@@ -492,26 +493,24 @@ const SearchPage = () => {
     requestAnimationFrame(() => ensureResultsVisibleBelowSticky("smooth"));
   }, [selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, selectedCity, ensureResultsVisibleBelowSticky]);
 
-  // Ensure first row never stays hidden under sticky stack after loading completes
-  // (NOT on new search — that's handled by the scroll-to-top effect)
-  useEffect(() => {
-    if (isLoading || activeTab !== "suggestions") return;
-    // Only adjust if user has already scrolled down (not on fresh page load at top)
-    if (window.scrollY < 100) return;
+   // Ensure first row never stays hidden under sticky stack after loading completes
+   // or when AI bar appears/changes height
+   useEffect(() => {
+     if (isLoading || activeTab !== "suggestions") return;
 
-    const timers = [0, 120, 320].map((delay) =>
-      window.setTimeout(() => {
-        if (window.scrollY >= 100) ensureResultsVisibleBelowSticky("auto");
-      }, delay)
-    );
+     const timers = [50, 200, 500].map((delay) =>
+       window.setTimeout(() => {
+         ensureResultsVisibleBelowSticky("auto");
+       }, delay)
+     );
 
-    return () => timers.forEach((id) => window.clearTimeout(id));
-  }, [
-    isLoading,
-    activeTab,
-    aiAnswerText,
-    ensureResultsVisibleBelowSticky,
-  ]);
+     return () => timers.forEach((id) => window.clearTimeout(id));
+   }, [
+     isLoading,
+     activeTab,
+     aiAnswerText,
+     ensureResultsVisibleBelowSticky,
+   ]);
 
   // Fetch extra businesses from DB when entonnoir filters narrow beyond search results
   // Skip when the search returned precise results (synonym or service/keyword detection)
