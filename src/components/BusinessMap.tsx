@@ -131,6 +131,8 @@ const BusinessMap = ({
   const clustererRef = useRef<MarkerClusterer | null>(null);
   const markersRef = useRef<google.maps.Marker[]>([]);
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
+  const rippleOverlayRef = useRef<google.maps.OverlayView | null>(null);
+  const rippleDivRef = useRef<HTMLDivElement | null>(null);
 
   const [internalBusinesses, setInternalBusinesses] = useState<MapBusiness[]>([]);
   const [internalLoading, setInternalLoading] = useState(!externalBusinesses);
@@ -193,7 +195,57 @@ const BusinessMap = ({
     mapRef.current = map;
     infoWindowRef.current = new google.maps.InfoWindow();
 
+    // Create ripple overlay for selected marker
+    const rippleDiv = document.createElement("div");
+    rippleDiv.style.cssText = "position:absolute;pointer-events:none;display:none;";
+    rippleDiv.innerHTML = `
+      <style>
+        @keyframes gmapRipple {
+          0% { transform: scale(0.5); opacity: 1; }
+          100% { transform: scale(3); opacity: 0; }
+        }
+        .gmap-ripple-ring {
+          position: absolute; top: 50%; left: 50%; width: 28px; height: 28px;
+          margin-left: -14px; margin-top: -14px; border-radius: 50%;
+          border: 2px solid; animation: gmapRipple 2.4s ease-out infinite;
+        }
+      </style>
+      <div class="gmap-ripple-ring" style="border-color:#EA4335;animation-delay:0s"></div>
+      <div class="gmap-ripple-ring" style="border-color:#34A853;animation-delay:0.6s"></div>
+      <div class="gmap-ripple-ring" style="border-color:#FBBC05;animation-delay:1.2s"></div>
+    `;
+    rippleDivRef.current = rippleDiv;
+
+    class RippleOverlay extends google.maps.OverlayView {
+      private pos: google.maps.LatLng | null = null;
+      private div: HTMLDivElement;
+      constructor(div: HTMLDivElement) { super(); this.div = div; }
+      setPosition(p: google.maps.LatLng) { this.pos = p; this.div.style.display = "block"; this.draw(); }
+      hide() { this.div.style.display = "none"; this.pos = null; }
+      onAdd() { this.getPanes()?.overlayLayer.appendChild(this.div); }
+      draw() {
+        if (!this.pos) return;
+        const proj = this.getProjection();
+        if (!proj) return;
+        const pt = proj.fromLatLngToDivPixel(this.pos);
+        if (!pt) return;
+        this.div.style.left = pt.x + "px";
+        this.div.style.top = (pt.y - 20) + "px"; // offset to marker center
+      }
+      onRemove() { this.div.parentNode?.removeChild(this.div); }
+    }
+
+    const overlay = new RippleOverlay(rippleDiv);
+    overlay.setMap(map);
+    rippleOverlayRef.current = overlay;
+
+    // Hide ripple when infoWindow is closed
+    infoWindowRef.current.addListener("closeclick", () => {
+      (overlay as any).hide();
+    });
+
     return () => {
+      overlay.setMap(null);
       mapRef.current = null;
     };
   }, [gmapsReady]);
@@ -232,6 +284,11 @@ const BusinessMap = ({
       marker.addListener("click", () => {
         infoWindow.setContent(infoHtml(b));
         infoWindow.open(map, marker);
+        // Show ripple on selected marker
+        const overlay = rippleOverlayRef.current as any;
+        if (overlay && marker.getPosition()) {
+          overlay.setPosition(marker.getPosition()!);
+        }
       });
 
       markers.push(marker);
