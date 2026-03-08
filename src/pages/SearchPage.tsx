@@ -2710,7 +2710,7 @@ const SearchPage = () => {
       {activeTab === "suggestions" && (
       <section
         ref={resultsRef}
-        className="bg-white pb-6 lg:pb-4 pt-4"
+        className={`bg-white pb-6 lg:pb-4 pt-4 transition-all duration-300 ${compactPanelBusiness ? "w-1/2" : "w-full"}`}
       >
         <div className="mx-auto px-4 max-w-[80%]">
           {/* Filters: City + Geo toggle — on mobile shown before hero via order */}
