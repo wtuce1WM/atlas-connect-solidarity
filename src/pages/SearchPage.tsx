@@ -462,18 +462,19 @@ const SearchPage = () => {
 
     if (stickyElements.length === 0) return;
 
+    // Use only the configured sticky position (CSS top + height), NOT getBoundingClientRect().bottom
+    // which can be huge when elements haven't scrolled into their sticky position yet
     const stickyBottom = stickyElements.reduce((maxBottom, el) => {
       const stickyComputedTop = Number.parseFloat(window.getComputedStyle(el).top || "0");
       const stickyHeight = el.getBoundingClientRect().height;
       const stickyConfiguredBottom = (Number.isFinite(stickyComputedTop) ? stickyComputedTop : 0) + stickyHeight;
-      const stickyCurrentBottom = el.getBoundingClientRect().bottom;
-      return Math.max(maxBottom, stickyConfiguredBottom, stickyCurrentBottom);
+      return Math.max(maxBottom, stickyConfiguredBottom);
     }, 0);
 
     const firstResultCard = resultsEl.querySelector<HTMLElement>("[data-result-card='true']");
     const anchorEl = firstResultCard ?? resultsEl;
     const resultsTopInViewport = anchorEl.getBoundingClientRect().top;
-    const overlap = stickyBottom + 80 - resultsTopInViewport;
+    const overlap = stickyBottom + 16 - resultsTopInViewport;
     if (overlap <= 0) return;
 
     const targetScroll = Math.max(0, window.scrollY + overlap);
