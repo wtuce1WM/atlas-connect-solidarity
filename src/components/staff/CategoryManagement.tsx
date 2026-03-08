@@ -1087,7 +1087,7 @@ const CategoryManagement = () => {
                         </Link>
                       </Button>
                       <Button variant="ghost" size="sm" className="h-7 px-2 text-xs gap-1 text-primary" asChild>
-                        <Link to={`/staff/backoffice?edit=${b.id}`} target="_blank">
+                        <Link to={`/staff/catalogue?edit=${b.id}`} target="_blank">
                           <Settings className="h-3 w-3" />
                           Back
                         </Link>
