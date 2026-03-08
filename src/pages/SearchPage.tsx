@@ -2621,24 +2621,32 @@ const SearchPage = () => {
                   <Sparkles className="h-5 w-5" />
                 </button>
               </div>
-              {/* Action buttons row: Plus de filtres, Écouter, Géolocalisation */}
+              {/* Action buttons row: Results count, Plus de filtres, Écouter, Géolocalisation */}
               <div className="flex items-center justify-between mt-2 pt-2">
-                <button
-                  onClick={() => setMoreFiltersOpen(true)}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium transition-all ${
-                    (moreFilterTimeSlots.length + moreFilterEngagements.length + moreFilterCommodites.length) > 0
-                      ? "border-primary bg-primary/10 text-primary hover:bg-primary/20"
-                      : "border-dashed border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground"
-                  }`}
-                >
-                  <SlidersHorizontal size={14} />
-                  <span>Plus de filtres</span>
-                  {(moreFilterTimeSlots.length + moreFilterEngagements.length + moreFilterCommodites.length) > 0 && (
-                    <span className="bg-primary text-primary-foreground text-xs rounded-full px-1.5 py-0.5 min-w-[18px] text-center">
-                      {moreFilterTimeSlots.length + moreFilterEngagements.length + moreFilterCommodites.length}
+                <div className="flex items-center gap-3">
+                  {/* Results count */}
+                  {totalCount > 0 && (
+                    <span className="text-xs text-muted-foreground">
+                      {totalCount} {language === "en" ? "result" : language === "ar" ? "نتيجة" : "résultat"}{totalCount > 1 && language !== "ar" ? "s" : ""}
                     </span>
                   )}
-                </button>
+                  <button
+                    onClick={() => setMoreFiltersOpen(true)}
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium transition-all ${
+                      (moreFilterTimeSlots.length + moreFilterEngagements.length + moreFilterCommodites.length) > 0
+                        ? "border-primary bg-primary/10 text-primary hover:bg-primary/20"
+                        : "border-dashed border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground"
+                    }`}
+                  >
+                    <SlidersHorizontal size={14} />
+                    <span>Plus de filtres</span>
+                    {(moreFilterTimeSlots.length + moreFilterEngagements.length + moreFilterCommodites.length) > 0 && (
+                      <span className="bg-primary text-primary-foreground text-xs rounded-full px-1.5 py-0.5 min-w-[18px] text-center">
+                        {moreFilterTimeSlots.length + moreFilterEngagements.length + moreFilterCommodites.length}
+                      </span>
+                    )}
+                  </button>
+                </div>
                 <div className="flex items-center gap-2">
                   {(ttsStatus === "playing" || ttsStatus === "loading") ? (
                     <button
@@ -2895,12 +2903,6 @@ const SearchPage = () => {
             </div>
           ) : !showCelebrityGuide && !showSosMedecin && !showPompiers && filteredBusinesses.length > 0 ? (
             <>
-              {/* Results count — hidden when Sticky 4 (AI summary) is visible */}
-              {totalCount > 0 && !aiAnswerText && !isAiRegenerating && (
-                <p className="text-sm text-muted-foreground mb-4">
-                  {totalCount} {language === "en" ? "result" : language === "ar" ? "نتيجة" : "résultat"}{totalCount > 1 && language !== "ar" ? "s" : ""} {language === "en" ? "found" : language === "ar" ? "وُجدت" : "trouvé"}{totalCount > 1 && language === "fr" ? "s" : ""}
-                </p>
-              )}
               {/* TEST: Fallback-style cards in 4-column grid (old BusinessCard display commented out below) */}
               <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-4 pt-4">
                 {paginatedBusinesses.map((business) => {
