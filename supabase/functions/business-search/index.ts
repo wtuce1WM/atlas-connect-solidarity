@@ -3292,7 +3292,17 @@ serve(async (req) => {
               // But "cours" → "Cours", "surf" → "Surf" → different triggers → distinct concepts (AND)
               const serviceTriggerMap = detectedServices.map(ds => {
                 const dsNorm = normalizeServiceToken(ds);
-                return triggerWordsNorm.filter(tw => dsNorm.includes(tw) || tw.includes(dsNorm));
+                // Check service name
+                const nameMatches = triggerWordsNorm.filter(tw => dsNorm.includes(tw) || tw.includes(dsNorm));
+                if (nameMatches.length > 0) return nameMatches;
+                // Also check service keywords — a service matched via keyword "balade à vélo"
+                // should be linked to trigger words "balade", "velo"
+                const svcData = matchingByKeywords.find(s => s.name_fr === ds);
+                if (svcData && svcData.keywords) {
+                  const kwsNorm = (svcData.keywords as string[]).map(k => normalizeServiceToken(k)).join(" ");
+                  return triggerWordsNorm.filter(tw => kwsNorm.includes(tw));
+                }
+                return [];
               });
               // Find trigger words common to ALL services
               const commonTriggers = serviceTriggerMap.length > 0
