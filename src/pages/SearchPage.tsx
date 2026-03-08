@@ -2625,7 +2625,7 @@ const SearchPage = () => {
               <div className="flex items-center justify-between mt-2 pt-2">
                 <div className="flex items-center gap-3">
                   {/* Results count */}
-                  {totalCount > 0 && (
+                  {totalCount !== null && totalCount > 0 && (
                     <span className="text-xs text-muted-foreground">
                       {totalCount} {language === "en" ? "result" : language === "ar" ? "نتيجة" : "résultat"}{totalCount > 1 && language !== "ar" ? "s" : ""}
                     </span>
