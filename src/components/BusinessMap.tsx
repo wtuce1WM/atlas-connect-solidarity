@@ -239,6 +239,11 @@ const BusinessMap = ({
     overlay.setMap(map);
     rippleOverlayRef.current = overlay;
 
+    // Hide ripple when infoWindow is closed
+    infoWindowRef.current.addListener("closeclick", () => {
+      (overlay as any).hide();
+    });
+
     return () => {
       overlay.setMap(null);
       mapRef.current = null;
