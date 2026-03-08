@@ -289,7 +289,7 @@ const BusinessCard = ({
 
   return (
     <Link to={`/business/${business.id}`}>
-      <Card className="group h-full overflow-hidden bg-card border-border hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 relative z-[1]">
+      <Card className="group h-full overflow-hidden bg-card border-border hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 relative">
         {/* Image - 16:9 aspect ratio */}
         <div className={`aspect-video overflow-hidden relative ${businessImage.isLogo ? 'bg-white' : 'bg-muted'}`}>
           <img
