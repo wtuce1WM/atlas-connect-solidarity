@@ -1136,7 +1136,7 @@ const SearchPage = () => {
       .filter(([, count]) => count >= 1)
       .sort((a, b) => a[0].localeCompare(b[0], "fr"))
       .map(([name, count]) => ({ name, count }));
-  }, [searchQuery, allBusinesses, selectedCity, selectedCategoryFilter, selectedSubcategoryFilter, serviceCityLookup, allFilteredServiceNames, filteredServicesBySubcategory, detectedSubcategory]);
+  }, [searchQuery, allBusinesses, selectedCity, selectedCategoryFilter, selectedSubcategoryFilter, serviceCityLookup, allFilteredServiceNames, filteredServicesBySubcategory, detectedSubcategory, isHeuristicFallback]);
 
   // Group businesses by primary subcategory when a subcategory was detected
   const groupedBusinesses = useMemo(() => {
