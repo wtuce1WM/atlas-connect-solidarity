@@ -3247,7 +3247,7 @@ const SearchPage = () => {
 
           {/* Right panel — business detail */}
           <div
-            className={`fixed top-0 lg:top-[53px] right-0 z-[100] bg-background shadow-2xl border-l border-border overflow-hidden flex flex-col transition-all duration-500 ease-out animate-slide-in-right ${isCompactPanelExpanded ? "border-l-2 shadow-[-8px_0_30px_-5px_rgba(0,0,0,0.15)]" : ""}`}
+            className={`fixed top-0 lg:top-[53px] right-0 z-[100] bg-background shadow-2xl border-l border-border overflow-hidden flex flex-col animate-slide-in-right ${isCompactPanelExpanded ? "border-l-2 shadow-[-8px_0_30px_-5px_rgba(0,0,0,0.15)]" : ""}`}
             style={{ height: isSubDesktop ? "100vh" : "calc(100vh - 53px)", width: isSubDesktop ? "100%" : isCompactPanelExpanded ? "80%" : "50%" }}
           >
             <SlidePanelHeader
