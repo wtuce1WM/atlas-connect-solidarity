@@ -55,6 +55,7 @@ interface BusinessDataWithBadges {
   services: string[];
   engagements: string[];
   is_visible_locale: boolean;
+  is_active: boolean;
   badge_ids: string[];
 }
 
@@ -96,7 +97,7 @@ const SynonymsManagement = () => {
       supabase.from("categories").select("id, name_fr").order("name_fr"),
       fetchAllRows<{ name_fr: string; subcategory_id: string }>("services", "name_fr, subcategory_id", "name_fr"),
       supabase.from("badges").select("id, name_fr, color_hex, text_color_hex").order("name_fr"),
-      fetchAllRows<{ id: string; categories: string[]; services: string[]; engagements: string[]; is_visible_locale: boolean }>("businesses", "id, categories, services, engagements, is_visible_locale", "name"),
+      fetchAllRows<{ id: string; categories: string[]; services: string[]; engagements: string[]; is_visible_locale: boolean; is_active: boolean }>("businesses", "id, categories, services, engagements, is_visible_locale, is_active", "name"),
       supabase.from("staff_notes").select("content").eq("key", "engagement_custom_options_v1").maybeSingle(),
       fetchAllRows<{ business_id: string; badge_id: string }>("business_badges", "business_id, badge_id", "business_id"),
     ]);
@@ -160,6 +161,7 @@ const SynonymsManagement = () => {
       services: b.services || [],
       engagements: b.engagements || [],
       is_visible_locale: b.is_visible_locale ?? true,
+      is_active: b.is_active ?? true,
       badge_ids: bizBadgeMap.get(b.id) || [],
     })));
     setIsLoading(false);
@@ -312,8 +314,8 @@ const SynonymsManagement = () => {
       
       let count = 0;
       for (const biz of businessData) {
-        // Filter by is_visible_locale to match front behavior
-        if (!biz.is_visible_locale) continue;
+        // Filter by is_active and is_visible_locale to match front behavior
+        if (!biz.is_active || !biz.is_visible_locale) continue;
         
         // Badge match: business must have the badge
         if (hasBadge && !biz.badge_ids.includes(entry.badge_id!)) continue;
