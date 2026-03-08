@@ -1879,7 +1879,7 @@ serve(async (req) => {
               if (k.includes(" ")) return false;
               const kNorm = stripPlural(k);
               // Exact match (with accent normalization) or whole-word boundary match
-              return k === w || w === k || kNorm === wNorm || normalizeWordKw(k) === normalizeWordKw(w) || wordBoundaryMatch(k, w) || (w.length > 3 && k.length > 3 && k.length / w.length >= 0.7 && w.includes(k));
+              return k === w || w === k || kNorm === wNorm || normalizeWordKw(k) === normalizeWordKw(w) || wordBoundaryMatch(k, w);
             });
           }) ||
           // Multi-word keyword match: if ALL content words of a multi-word keyword appear in the query
