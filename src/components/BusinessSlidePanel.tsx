@@ -891,26 +891,6 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
         <>
           <ShareButton title={business.name} variant="dark" className="toolbar-icon" />
           <BookmarkButton businessId={business.id} variant="gold" onLoginRequired={() => setShowClubCard(true)} />
-          <button
-            onClick={() => {
-              if (ttsStatus === "playing" || ttsStatus === "loading") {
-                ttsStop();
-                voiceLoopRef.current = false;
-              } else {
-                voiceLoopRef.current = true;
-                const synthesis = buildTtsSynthesis();
-                ttsSpeak(synthesis + " … Vous pouvez me poser une autre question.");
-              }
-            }}
-            className={`h-9 w-9 flex items-center justify-center rounded-full transition-colors ${ttsStatus === "playing" || ttsStatus === "loading" ? "bg-gold/20 text-gold" : "bg-muted text-muted-foreground hover:bg-muted/80"}`}
-            title={ttsStatus === "playing" ? "Arrêter la lecture" : "Écouter la synthèse"}
-          >
-            {ttsStatus === "loading" ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Headphones className="h-4 w-4" />
-            )}
-          </button>
         </>,
         toolbarPortal
       )}
