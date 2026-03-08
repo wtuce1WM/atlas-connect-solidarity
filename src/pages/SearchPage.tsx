@@ -2602,16 +2602,26 @@ const SearchPage = () => {
                       );
                     })()}
                   </div>
-                  <button
-                    onClick={() => setIsAiSummaryExpanded(!isAiSummaryExpanded)}
-                    className="inline-flex items-center gap-1 mt-1 text-xs font-medium text-gold hover:text-gold/80 transition-colors"
-                  >
-                    {isAiSummaryExpanded ? (
-                      <><ChevronUp className="h-3 w-3" />{language === "en" ? "Show less" : "Réduire"}</>
-                    ) : (
-                      <><ChevronDown className="h-3 w-3" />{language === "en" ? "Read more" : "Lire la suite"}</>
-                    )}
-                  </button>
+                  {/* Mobile: "Lire la suite" opens fullscreen AI overlay; Desktop: expand/collapse */}
+                  {!isAiSummaryExpanded && isMobile ? (
+                    <button
+                      onClick={() => { aiPopupShownRef.current = false; setShowAiPopup(true); }}
+                      className="inline-flex items-center gap-1 mt-1 text-xs font-medium text-gold hover:text-gold/80 transition-colors"
+                    >
+                      <ChevronDown className="h-3 w-3" />{language === "en" ? "Read more" : "Lire la suite"}
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => setIsAiSummaryExpanded(!isAiSummaryExpanded)}
+                      className="inline-flex items-center gap-1 mt-1 text-xs font-medium text-gold hover:text-gold/80 transition-colors"
+                    >
+                      {isAiSummaryExpanded ? (
+                        <><ChevronUp className="h-3 w-3" />{language === "en" ? "Show less" : "Réduire"}</>
+                      ) : (
+                        <><ChevronDown className="h-3 w-3" />{language === "en" ? "Read more" : "Lire la suite"}</>
+                      )}
+                    </button>
+                  )}
                 </div>
                 <button
                   disabled={isAiRegenerating}
