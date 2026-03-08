@@ -1791,7 +1791,7 @@ const SearchPage = () => {
                 <Sparkles className="h-4 w-4 text-gold" />
                 <span className="text-xs font-semibold text-gold uppercase tracking-wider">Suggestion IA</span>
               </div>
-              <div className="text-base text-foreground/80 leading-relaxed whitespace-pre-line">
+              <div className="text-sm sm:text-base text-foreground/80 leading-relaxed whitespace-pre-line">
                 {(!aiAnswerText || isAiRegenerating) ? (
                   <div className="flex items-center gap-3 py-8 justify-center">
                     <Loader2 className="h-6 w-6 animate-spin text-gold" />
