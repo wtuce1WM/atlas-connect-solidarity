@@ -574,6 +574,10 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
   const [menuDocs, setMenuDocs] = useState<DocEntry[]>([]);
   const [flipbookDocs, setFlipbookDocs] = useState<DocEntry[]>([]);
 
+  // --- Menu summaries (multiple per business) ---
+  type MenuSummaryEntry = { id?: string; title: string; content: string; avg_price_range: any };
+  const [menuSummaries, setMenuSummaries] = useState<MenuSummaryEntry[]>([]);
+
   useEffect(() => {
     if (!business?.id) return;
     const fetchDocs = async () => {
@@ -587,7 +591,23 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         setFlipbookDocs((data as any[]).filter((d: any) => d.type === "flipbook").map((d: any) => ({ id: d.id, url: d.url, name: d.name || "", language: d.language || "", icon: d.icon || "" })));
       }
     };
+    const fetchSummaries = async () => {
+      const { data } = await supabase
+        .from("business_menu_summaries" as any)
+        .select("*")
+        .eq("business_id", business.id)
+        .order("sort_order");
+      if (data) {
+        setMenuSummaries((data as any[]).map((d: any) => ({
+          id: d.id,
+          title: d.title || "",
+          content: d.content || "",
+          avg_price_range: d.avg_price_range || null,
+        })));
+      }
+    };
     fetchDocs();
+    fetchSummaries();
   }, [business?.id]);
 
   const DOC_ICON_OPTIONS = [
