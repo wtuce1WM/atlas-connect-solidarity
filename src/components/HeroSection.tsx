@@ -241,8 +241,7 @@ const HeroSection = () => {
           isDetecting={geo.isDetecting}
           onAcceptGeo={geo.accept}
           onSelectCity={(city) => {
-            // Set manual location with city name (coords will be resolved by search)
-            geo.accept();
+            geo.setManualCity(city);
           }}
           onOpenMap={() => setLocationDialogOpen(true)}
         />
