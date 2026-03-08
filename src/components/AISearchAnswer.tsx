@@ -126,6 +126,8 @@ const BusinessHoverCard = ({ name, business, onClickBusiness }: { name: string; 
 interface HighlightState {
   wordIndex: number;
   target: number;
+  /** "reveal" = fade-in words up to target; "karaoke" = gold highlight on current word */
+  mode?: "reveal" | "karaoke";
 }
 
 /** Parse inline markdown with optional word-level highlighting */
