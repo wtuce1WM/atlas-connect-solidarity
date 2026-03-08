@@ -463,18 +463,19 @@ const SearchPage = () => {
     const stickyCurrentBottom = lastSticky.getBoundingClientRect().bottom;
     const stickyBottom = Math.max(stickyConfiguredBottom, stickyCurrentBottom);
 
-    const resultsTop = resultsEl.getBoundingClientRect().top + window.scrollY;
-    const targetScroll = Math.max(0, resultsTop - stickyBottom - 8);
+    const resultsTopInViewport = resultsEl.getBoundingClientRect().top;
+    const overlap = stickyBottom + 8 - resultsTopInViewport;
+    if (overlap <= 0) return;
 
+    const targetScroll = Math.max(0, window.scrollY + overlap);
     const tabBar = document.querySelector<HTMLElement>('[data-tab-bar]');
     const tabBarTop = tabBar ? (tabBar.getBoundingClientRect().top + window.scrollY - 60) : 0;
 
-    if (window.scrollY > targetScroll) {
-      if (hasReachedTabBar && tabBar && targetScroll < tabBarTop) {
-        setHasReachedTabBar(false);
-      }
-      window.scrollTo({ top: targetScroll, behavior });
+    if (hasReachedTabBar && tabBar && targetScroll < tabBarTop) {
+      setHasReachedTabBar(false);
     }
+
+    window.scrollTo({ top: targetScroll, behavior });
   }, [hasReachedTabBar]);
 
   useEffect(() => {
@@ -485,8 +486,20 @@ const SearchPage = () => {
   // Ensure first row never stays hidden under sticky stack after a new search
   useEffect(() => {
     if (isLoading || activeTab !== "suggestions") return;
-    requestAnimationFrame(() => ensureResultsVisibleBelowSticky("auto"));
-  }, [urlT, searchQuery, isLoading, activeTab, ensureResultsVisibleBelowSticky]);
+
+    const timers = [0, 120, 320].map((delay) =>
+      window.setTimeout(() => ensureResultsVisibleBelowSticky("auto"), delay)
+    );
+
+    return () => timers.forEach((id) => window.clearTimeout(id));
+  }, [
+    urlT,
+    searchQuery,
+    isLoading,
+    activeTab,
+    aiAnswerText,
+    ensureResultsVisibleBelowSticky,
+  ]);
 
   // Fetch extra businesses from DB when entonnoir filters narrow beyond search results
   // Skip when the search returned precise results (synonym or service/keyword detection)
