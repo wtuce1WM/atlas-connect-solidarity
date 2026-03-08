@@ -2706,7 +2706,7 @@ const SearchPage = () => {
       {activeTab === "suggestions" && (
       <section
         ref={resultsRef}
-        className="bg-background pb-6 lg:pb-4 pt-4"
+        className="bg-white pb-6 lg:pb-4 pt-4"
       >
         <div className="mx-auto px-4 max-w-[80%]">
           {/* Filters: City + Geo toggle — on mobile shown before hero via order */}
