@@ -2102,7 +2102,9 @@ serve(async (req) => {
                   const regex = new RegExp(`(^|[\\s''/-])${w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}($|[\\s''/-])`, 'i');
                   return regex.test(text);
                 }
-                return text.includes(w);
+                // Use word-boundary match for longer words too, to prevent "astronomie" matching "gastronomie"
+                const regex = new RegExp(`(^|[\\s''/-])${w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}($|[\\s''/-])`, 'i');
+                return regex.test(text);
               };
               const matchCount = serviceMatchWords.filter(w => wordMatchesService(w, svcLower)).length;
               const svcWordCount = svcWords.length;
