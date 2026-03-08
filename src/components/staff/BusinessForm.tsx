@@ -1178,6 +1178,23 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         }
       }
 
+      // Save menu summaries
+      if (businessId) {
+        await supabase.from("business_menu_summaries" as any).delete().eq("business_id", businessId);
+        const summariesToInsert = menuSummaries
+          .filter(s => s.title?.trim() || s.content?.trim() || s.avg_price_range)
+          .map((s, i) => ({
+            business_id: businessId,
+            title: s.title?.trim() || null,
+            content: s.content?.trim() || null,
+            avg_price_range: s.avg_price_range || null,
+            sort_order: i,
+          }));
+        if (summariesToInsert.length > 0) {
+          await supabase.from("business_menu_summaries" as any).insert(summariesToInsert);
+        }
+      }
+
       // Save business destinations
       if (businessId) {
         await supabase.from("business_destinations" as any).delete().eq("business_id", businessId);
