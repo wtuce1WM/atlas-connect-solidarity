@@ -2094,7 +2094,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
               </button>
             </div>
             <div className="flex-1 overflow-y-auto p-3 pb-24">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {[...fallbackPanelData.hotels.filter(h => h.hotelId !== selectedFallbackHotelId)].sort((a, b) => {
                   const aV = a.wtuce_status === "verified" ? 1 : 0;
                   const bV = b.wtuce_status === "verified" ? 1 : 0;
