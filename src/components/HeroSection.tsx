@@ -188,8 +188,10 @@ const HeroSection = () => {
                     const btn = e.currentTarget;
                     const container = tabsRef.current;
                     if (container) {
-                      const scrollLeft = btn.offsetLeft - container.offsetWidth / 2 + btn.offsetWidth / 2;
-                      container.scrollTo({ left: scrollLeft, behavior: "smooth" });
+                      const containerRect = container.getBoundingClientRect();
+                      const btnRect = btn.getBoundingClientRect();
+                      const targetScroll = container.scrollLeft + (btnRect.left - containerRect.left) - (containerRect.width / 2) + (btnRect.width / 2);
+                      container.scrollTo({ left: Math.max(0, targetScroll), behavior: "smooth" });
                     }
                   }}
                   className={`flex items-center gap-1.5 pb-2 text-sm font-semibold transition-all border-b-2 whitespace-nowrap ${
