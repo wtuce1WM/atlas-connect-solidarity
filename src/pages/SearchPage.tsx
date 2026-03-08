@@ -2621,9 +2621,32 @@ const SearchPage = () => {
                   <Sparkles className="h-5 w-5" />
                 </button>
               </div>
-              {/* Action buttons row: Plus de filtres, Écouter, Géolocalisation */}
+              {/* Action buttons row: Results count, Plus de filtres, Écouter, Géolocalisation */}
               <div className="flex items-center justify-between mt-2 pt-2">
-                <button
+                <div className="flex items-center gap-3">
+                  {/* Results count */}
+                  {totalCount > 0 && (
+                    <span className="text-xs text-muted-foreground">
+                      {totalCount} {language === "en" ? "result" : language === "ar" ? "نتيجة" : "résultat"}{totalCount > 1 && language !== "ar" ? "s" : ""}
+                    </span>
+                  )}
+                  <button
+                    onClick={() => setMoreFiltersOpen(true)}
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium transition-all ${
+                      (moreFilterTimeSlots.length + moreFilterEngagements.length + moreFilterCommodites.length) > 0
+                        ? "border-primary bg-primary/10 text-primary hover:bg-primary/20"
+                        : "border-dashed border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground"
+                    }`}
+                  >
+                    <SlidersHorizontal size={14} />
+                    <span>Plus de filtres</span>
+                    {(moreFilterTimeSlots.length + moreFilterEngagements.length + moreFilterCommodites.length) > 0 && (
+                      <span className="bg-primary text-primary-foreground text-xs rounded-full px-1.5 py-0.5 min-w-[18px] text-center">
+                        {moreFilterTimeSlots.length + moreFilterEngagements.length + moreFilterCommodites.length}
+                      </span>
+                    )}
+                  </button>
+                </div>
                   onClick={() => setMoreFiltersOpen(true)}
                   className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium transition-all ${
                     (moreFilterTimeSlots.length + moreFilterEngagements.length + moreFilterCommodites.length) > 0
