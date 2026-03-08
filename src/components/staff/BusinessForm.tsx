@@ -2580,6 +2580,20 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             </div>
           ))}
           {menuDocs.length === 0 && <p className="text-xs text-muted-foreground">Aucun menu ajouté.</p>}
+
+          {/* Menu Summary */}
+          <div className="mt-3 space-y-1">
+            <Label htmlFor="menu_summary" className="text-sm font-medium">📝 Résumé du menu <span className="text-muted-foreground font-normal">(pour l'IA)</span></Label>
+            <textarea
+              id="menu_summary"
+              value={(formData as any).menu_summary || ""}
+              onChange={(e) => handleChange("menu_summary", e.target.value)}
+              placeholder="Cuisine fusion méditerranéenne, entrées à partager, plats signatures, desserts..."
+              rows={4}
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            />
+            <span className="text-xs text-muted-foreground">{((formData as any).menu_summary || "").length} caractères (recommandé : ~1000)</span>
+          </div>
         </div>
 
         {/* Flipbook / Issuu */}
