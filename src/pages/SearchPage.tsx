@@ -371,7 +371,7 @@ const SearchPage = () => {
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const [isSubDesktop, setIsSubDesktop] = useState(false);
-  React.useEffect(() => {
+  useEffect(() => {
     const mql = window.matchMedia("(max-width: 1023px)");
     const onChange = () => setIsSubDesktop(mql.matches);
     mql.addEventListener("change", onChange);
