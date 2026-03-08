@@ -1465,20 +1465,20 @@ const SearchPage = () => {
      }
    }, [isLoading, spokenText, allBusinesses.length]);
 
-   // Show AI popup when arriving from homepage (non-voice) once AI text is ready
-   useEffect(() => {
-     if (
-       !isLoading &&
-       searchQuery &&
-       !spokenText &&
-       aiAnswerText &&
-       allBusinesses.length > 0 &&
-       !aiPopupShownRef.current
-     ) {
-       aiPopupShownRef.current = true;
-       setShowAiPopup(true);
-     }
-   }, [isLoading, searchQuery, spokenText, aiAnswerText, allBusinesses.length]);
+   // Show AI popup when arriving from homepage (non-voice) — DISABLED: overlay no longer shown
+   // useEffect(() => {
+   //   if (
+   //     !isLoading &&
+   //     searchQuery &&
+   //     !spokenText &&
+   //     aiAnswerText &&
+   //     allBusinesses.length > 0 &&
+   //     !aiPopupShownRef.current
+   //   ) {
+   //     aiPopupShownRef.current = true;
+   //     setShowAiPopup(true);
+   //   }
+   // }, [isLoading, searchQuery, spokenText, aiAnswerText, allBusinesses.length]);
 
   const dismissOverlay = () => {
     setOverlayDismissing(true);
@@ -1646,8 +1646,8 @@ const SearchPage = () => {
     <div className="min-h-screen bg-background">
       <Header />
 
-      {/* Hidden AISearchAnswer instance — COMMENTED OUT: disable AI text generation for fullscreen overlay */}
-      {/* searchQuery && !isLoading && filteredBusinesses.length > 0 && !aiAnswerText && (
+      {/* Hidden AISearchAnswer instance — generates AI text for Sticky 4 (overlay disabled) */}
+      {searchQuery && !isLoading && filteredBusinesses.length > 0 && !aiAnswerText && (
         <div className="hidden">
           <AISearchAnswer
             query={spokenText || searchQuery}
@@ -1658,7 +1658,7 @@ const SearchPage = () => {
             externalRegenerateKey={aiRegenerateKey}
           />
         </div>
-      ) */}
+      )}
 
       {/* AI Suggestion Overlay — fullscreen takeover shown on arrival from homepage */}
       {showAiPopup && (
@@ -2481,7 +2481,7 @@ const SearchPage = () => {
             <div className="mx-auto px-4 max-w-[80%]">
               <div className="flex items-start gap-3">
                 <div className="flex-1 min-w-0">
-                  <div className={`text-sm text-muted-foreground leading-relaxed ${isAiSummaryExpanded ? '' : 'line-clamp-2'}`}>
+                  <div key={`sticky4-ai-${aiRegenerateKey}-${aiAnswerText?.slice(0,20)}`} className={`text-sm text-muted-foreground leading-relaxed animate-fade-in ${isAiSummaryExpanded ? '' : 'line-clamp-2'}`}>
                     <Sparkles className="h-3.5 w-3.5 inline-block mr-1.5 text-gold align-text-bottom" />
                     {isAiRegenerating ? (
                       <span className="italic text-muted-foreground/60">{language === "en" ? "Regenerating…" : "Régénération en cours…"}</span>
