@@ -3184,12 +3184,19 @@ const SearchPage = () => {
                 </div>
               )}
               <div className="text-sm text-muted-foreground leading-relaxed space-y-1">
-                {parseInline(
-                  aiAnswerText.replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "").replace(/\n+/g, " "),
-                  allBusinesses as unknown as AIBusinessData[],
-                  (b) => setCompactPanelBusiness(b),
-                  "left-panel-ai"
-                )}
+                {(() => {
+                  const isTTSActive = ttsStatus === "playing" && ttsSpokenWordIndex >= 0;
+                  const karaokeTarget = isTTSActive ? ttsSpokenWordIndex - ttsIntroWordCountRef.current : -1;
+                  return parseInline(
+                    aiAnswerText.replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "").replace(/\n+/g, " "),
+                    allBusinesses as unknown as AIBusinessData[],
+                    (b) => setCompactPanelBusiness(b),
+                    "left-panel-ai",
+                    isTTSActive
+                      ? { wordIndex: 0, target: karaokeTarget, mode: "karaoke" as const }
+                      : undefined
+                  );
+                })()}
               </div>
               {/* Action buttons: Listen, Geo, Mic */}
               <div className="flex items-center justify-center gap-6 pt-8">
