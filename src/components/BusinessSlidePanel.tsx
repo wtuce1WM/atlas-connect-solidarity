@@ -887,7 +887,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
             <button
               onClick={() => mapSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
               className="hover:opacity-70 transition-opacity"
-              style={{ color: "#6050DC" }}
+              style={{ color: "#404040" }}
               title="Voir sur la carte"
             >
               <MapPin className="h-6 w-6" />
