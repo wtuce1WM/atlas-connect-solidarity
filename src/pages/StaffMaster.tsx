@@ -2,9 +2,10 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LogOut, Users, Search, ArrowLeft, BarChart3, FlaskConical, BookOpen, Egg, Sparkles, Brain, LayoutDashboard, Monitor } from "lucide-react";
+import { LogOut, Users, Search, ArrowLeft, BarChart3, FlaskConical, BookOpen, Egg, Sparkles, Brain, LayoutDashboard, Monitor, ChevronRight } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import SearchConfigManagement from "@/components/staff/SearchConfigManagement";
 import UserManagement from "@/components/staff/UserManagement";
@@ -191,14 +192,19 @@ const StaffMaster = () => {
 
           <TabsContent value="display">
             <div className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Monitor className="h-5 w-5" />
-                    Header
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
+              <Collapsible>
+                <Card>
+                  <CollapsibleTrigger className="w-full">
+                    <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
+                      <CardTitle className="flex items-center gap-2">
+                        <ChevronRight className="h-4 w-4 transition-transform [[data-state=open]>&]:rotate-90" />
+                        <Monitor className="h-5 w-5" />
+                        Header
+                      </CardTitle>
+                    </CardHeader>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <CardContent>
                   <div className="space-y-6">
                     {/* Structure */}
                     <div>
@@ -285,8 +291,10 @@ const StaffMaster = () => {
                       </div>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                    </CardContent>
+                  </CollapsibleContent>
+                </Card>
+              </Collapsible>
             </div>
           </TabsContent>
 
