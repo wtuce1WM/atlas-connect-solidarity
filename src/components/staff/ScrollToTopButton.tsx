@@ -94,6 +94,17 @@ export function renderTables(md: string) {
   });
 }
 
+/** Color swatches data */
+const colorTokens = [
+  { token: "text-foreground", label: "Texte principal", className: "text-foreground" },
+  { token: "text-muted-foreground", label: "Texte secondaire / atténué", className: "text-muted-foreground" },
+  { token: "text-primary", label: "Terracotta", className: "text-primary" },
+  { token: "text-secondary", label: "Majorelle Blue", className: "text-secondary" },
+  { token: "text-gold", label: "Or / Gold accent", className: "text-gold" },
+  { token: "text-atlas-green", label: "Atlas Green", className: "text-atlas-green" },
+  { token: "text-destructive", label: "Erreur / destructif", className: "text-destructive" },
+];
+
 /** Reusable help content panel (inline, no overlay) */
 export const HelpContentPanel = () => (
   <div className="prose prose-sm max-w-none text-foreground [&_table]:w-full [&_th]:text-left [&_th]:py-2 [&_th]:pr-4 [&_th]:font-medium [&_th]:text-muted-foreground [&_th]:border-b [&_td]:py-1.5 [&_td]:pr-4 [&_td]:text-sm [&_code]:bg-muted [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-xs [&_code]:font-mono [&_h2]:text-base [&_h2]:font-bold [&_h2]:mt-5 [&_h2]:mb-2 [&_li]:text-sm [&_strong]:text-foreground">
@@ -106,6 +117,29 @@ export const HelpContentPanel = () => (
       return null;
     })}
     {renderTables(helpContent)}
+
+    {/* Color tokens with live preview */}
+    <h2>Couleurs de texte (tokens sémantiques)</h2>
+    <div className="space-y-2 not-prose">
+      {colorTokens.map((c) => (
+        <div key={c.token} className="flex items-center gap-4 py-2 px-3 rounded-lg bg-muted/40 border border-border/50">
+          <code className="bg-muted px-2 py-1 rounded text-xs font-mono text-foreground min-w-[180px]">{c.token}</code>
+          <span className={`text-base font-semibold ${c.className}`}>{c.label} — Marrakech</span>
+        </div>
+      ))}
+    </div>
+
+    {/* Link to typography page */}
+    <div className="mt-6 pt-4 border-t border-border not-prose">
+      <a
+        href="https://atlas-connect-solidarity.lovable.app/blog/typographie"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-colors underline underline-offset-2"
+      >
+        Voir le guide typographique complet ↗
+      </a>
+    </div>
   </div>
 );
 
