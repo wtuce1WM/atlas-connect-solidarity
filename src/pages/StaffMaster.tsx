@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, Users, Search, ArrowLeft, BarChart3, FlaskConical, BookOpen, Egg, Sparkles, Brain, LayoutDashboard } from "lucide-react";
+import { LogOut, Users, Search, ArrowLeft, BarChart3, FlaskConical, BookOpen, Egg, Sparkles, Brain, LayoutDashboard, Monitor } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import SearchConfigManagement from "@/components/staff/SearchConfigManagement";
 import UserManagement from "@/components/staff/UserManagement";
@@ -125,6 +125,10 @@ const StaffMaster = () => {
               <Egg className="h-4 w-4" />
               Easter Eggs
             </TabsTrigger>
+            <TabsTrigger value="display" className="gap-2">
+              <Monitor className="h-4 w-4" />
+              Affichage
+            </TabsTrigger>
             {isAdmin && (
               <TabsTrigger value="users" className="gap-2">
                 <Users className="h-4 w-4" />
@@ -172,6 +176,20 @@ const StaffMaster = () => {
 
           <TabsContent value="easter-eggs">
             <EasterEggManagement />
+          </TabsContent>
+
+          <TabsContent value="display">
+            <Card className="p-6">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Monitor className="h-5 w-5" />
+                  Affichage
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">Configuration d'affichage à venir.</p>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {isAdmin && (
