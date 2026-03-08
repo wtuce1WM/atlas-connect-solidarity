@@ -1200,6 +1200,7 @@ const SearchPage = () => {
         setTotalCount(null);
         setSearchMessage("");
         setDetectedSubcategory(null);
+        setIsHeuristicFallback(false);
         setSearchMode(null);
          setSynonymUsed(false);
          setPreciseMatch(false);
@@ -1213,6 +1214,7 @@ const SearchPage = () => {
       setOverlaySelectedBusiness(null);
       aiPopupShownRef.current = false;
       setDetectedSubcategory(null);
+      setIsHeuristicFallback(false);
       setSynonymUsed(false);
       setPreciseMatch(false);
       setSearchMode(null);
