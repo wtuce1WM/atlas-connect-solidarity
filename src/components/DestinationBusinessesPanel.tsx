@@ -242,7 +242,7 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
                 {language === "en" ? "No businesses found" : "Aucun établissement trouvé"}
               </div>
             ) : (
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 {businesses.map((biz) => {
                   const img = biz.images && biz.images.length > 0 ? biz.images[0] : null;
                   const sources = collectRatingSources(biz);
