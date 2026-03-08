@@ -438,6 +438,9 @@ const SearchPage = () => {
   const isCategoryFilterActive = !!(selectedCategoryFilter || selectedSubcategoryFilter || selectedServiceFilter);
   const [isAiSummaryExpanded, setIsAiSummaryExpanded] = useState(false);
 
+  // Track when user has scrolled down to the tab bar — lock scroll above it from that point
+  const [hasReachedTabBar, setHasReachedTabBar] = useState(false);
+
   // Keep AI summary expanded when filters change
   const ensureResultsVisibleBelowSticky = useCallback((behavior: ScrollBehavior = "smooth") => {
     const resultsEl = resultsRef.current;
@@ -459,13 +462,20 @@ const SearchPage = () => {
     const stickyConfiguredBottom = (Number.isFinite(stickyComputedTop) ? stickyComputedTop : 0) + stickyHeight;
     const stickyCurrentBottom = lastSticky.getBoundingClientRect().bottom;
     const stickyBottom = Math.max(stickyConfiguredBottom, stickyCurrentBottom);
+
     const resultsTop = resultsEl.getBoundingClientRect().top + window.scrollY;
-    const targetScroll = resultsTop - stickyBottom - 8;
+    const targetScroll = Math.max(0, resultsTop - stickyBottom - 8);
+
+    const tabBar = document.querySelector<HTMLElement>('[data-tab-bar]');
+    const tabBarTop = tabBar ? (tabBar.getBoundingClientRect().top + window.scrollY - 60) : 0;
 
     if (window.scrollY > targetScroll) {
-      window.scrollTo({ top: Math.max(0, targetScroll), behavior });
+      if (hasReachedTabBar && tabBar && targetScroll < tabBarTop) {
+        setHasReachedTabBar(false);
+      }
+      window.scrollTo({ top: targetScroll, behavior });
     }
-  }, []);
+  }, [hasReachedTabBar]);
 
   useEffect(() => {
     setIsAiSummaryExpanded(false);
@@ -518,8 +528,6 @@ const SearchPage = () => {
     fetchExtra();
   }, [selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, selectedCity, detectedCity, preciseMatch]);
 
-   // Track when user has scrolled down to the tab bar — lock scroll above it from that point
-   const [hasReachedTabBar, setHasReachedTabBar] = useState(false);
 
    useEffect(() => {
      setHasReachedTabBar(false);
