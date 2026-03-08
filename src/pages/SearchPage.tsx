@@ -428,11 +428,11 @@ const SearchPage = () => {
 
   // Track whether a category/subcategory filter is active (compact AI mode)
   const isCategoryFilterActive = !!(selectedCategoryFilter || selectedSubcategoryFilter || selectedServiceFilter);
-  const [isAiSummaryExpanded, setIsAiSummaryExpanded] = useState(true);
+  const [isAiSummaryExpanded, setIsAiSummaryExpanded] = useState(false);
 
   // Keep AI summary expanded when filters change
   useEffect(() => {
-    setIsAiSummaryExpanded(true);
+    setIsAiSummaryExpanded(false);
     // After a filter change, ensure the results section is visible below the sticky stack
     requestAnimationFrame(() => {
       const resultsEl = resultsRef.current;
@@ -719,7 +719,7 @@ const SearchPage = () => {
       : searchQuery;
 
     setIsAiRegenerating(true);
-    setIsAiSummaryExpanded(true);
+    setIsAiSummaryExpanded(false);
     supabase.functions.invoke("ai-search-answer", {
       body: {
         query: combinedQuery,
