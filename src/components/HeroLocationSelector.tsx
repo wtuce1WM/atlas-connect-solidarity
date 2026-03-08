@@ -3,7 +3,6 @@ import { MapPin, ChevronUp, ChevronDown, Navigation, Map, Info } from "lucide-re
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { supabase } from "@/integrations/supabase/client";
 
 interface HeroLocationSelectorProps {
   detectedCity: string | null;
