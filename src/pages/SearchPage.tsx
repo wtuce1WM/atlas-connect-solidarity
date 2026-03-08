@@ -2177,6 +2177,11 @@ const SearchPage = () => {
               >
                 {tab.icon}
                 {tab.label}
+                {tab.count !== undefined && tab.count > 0 && (
+                  <span className="ml-1 text-xs bg-muted text-muted-foreground rounded-full px-1.5 py-0.5 font-normal">
+                    {tab.count}
+                  </span>
+                )}
               </button>
             ))}
           </div>
