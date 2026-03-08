@@ -2954,15 +2954,6 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           </div>
           <Button type="button" variant="outline" size="sm" className="text-xs text-muted-foreground hover:text-destructive" onClick={() => setShowClearBooking(true)}>🗑️ Effacer toutes les plateformes</Button>
           
-          {/* LiteAPI Hotel Mapping */}
-          {business?.id && (
-            <div className="space-y-2 p-3 border border-blue-200 rounded-lg bg-blue-50">
-              <Label className="flex items-center gap-2 font-medium text-sm">
-                🏨 Association LiteAPI
-              </Label>
-              <LiteApiMappingField businessId={business.id} />
-            </div>
-          )}
         </div>
 
         {/* Avis clients */}
