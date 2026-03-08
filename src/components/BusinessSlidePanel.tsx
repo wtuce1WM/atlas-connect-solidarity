@@ -1739,7 +1739,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                     </div>
                   )}
                 </div>
-                <div className="rounded-lg overflow-hidden border border-border">
+                <div className="rounded-lg overflow-hidden border border-border relative">
                   <iframe
                     src={mapUrl}
                     className={`w-full border-0 ${isExpanded ? "h-[500px]" : "h-[350px]"}`}
@@ -1748,6 +1748,14 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                     referrerPolicy="no-referrer-when-downgrade"
                     title={`Carte de ${business.name}`}
                   />
+                  {/* Google-colored concentric ripple on marker */}
+                  <div className="absolute pointer-events-none" style={{ top: "calc(50% - 28px)", left: "50%", transform: "translate(-50%, -50%)" }}>
+                    <div className="relative w-0 h-0">
+                      <span className="absolute rounded-full border-2 pointer-events-none" style={{ width: 28, height: 28, top: -14, left: -14, borderColor: "#EA4335", animation: "gmapRippleSP 2.4s ease-out infinite 0s" }} />
+                      <span className="absolute rounded-full border-2 pointer-events-none" style={{ width: 28, height: 28, top: -14, left: -14, borderColor: "#34A853", animation: "gmapRippleSP 2.4s ease-out infinite 0.6s" }} />
+                      <span className="absolute rounded-full border-2 pointer-events-none" style={{ width: 28, height: 28, top: -14, left: -14, borderColor: "#FBBC05", animation: "gmapRippleSP 2.4s ease-out infinite 1.2s" }} />
+                    </div>
+                  </div>
                   <div className="p-2 flex gap-2">
                     <button
                       onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&destination=${dest}`, "_blank")}
