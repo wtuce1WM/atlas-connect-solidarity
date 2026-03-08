@@ -2320,8 +2320,8 @@ const SearchPage = () => {
         const poiCity = selectedCity && selectedCity !== "all" ? selectedCity : detectedCity;
 
         return (
-          <div className={`flex ${(poiSelectedBusinessId || poiMapBusiness) ? "" : ""}`}>
-            <section className={`pt-16 pb-6 lg:pt-20 lg:pb-12 bg-background transition-all duration-300 ${(poiSelectedBusinessId || poiMapBusiness) ? "hidden lg:block lg:w-1/2" : "w-full"}`}>
+          <div className="flex">
+            <section className={`pt-16 pb-6 lg:pt-20 lg:pb-12 bg-background transition-all duration-300 ${(poiSelectedBusinessId || poiMapBusiness) ? "w-1/2" : "w-full"}`}>
               <div className={`mx-auto px-4 ${(poiSelectedBusinessId || poiMapBusiness) ? "max-w-full" : "max-w-[80%]"}`}>
                 <PoiSection
                   city={poiCity}
