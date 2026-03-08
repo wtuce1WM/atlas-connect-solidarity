@@ -1902,15 +1902,8 @@ serve(async (req) => {
             const wNorm = normalizeWordKw(w);
             if (wNorm.length <= 1) return false;
             return nameTokens.some((t) => {
-              if (t === wNorm) return true;
-              // For short words (≤4 chars), require exact match to avoid "ana" matching "ananas"
-              if (wNorm.length <= 4 || t.length <= 4) return false;
-              // Substring match only if the shorter string covers ≥70% of the longer one
-              // This prevents "astronomie" matching "gastronomie" (10/12 = 83% of longer but only 58% overlap)
-              const shorter = wNorm.length <= t.length ? wNorm : t;
-              const longer = wNorm.length <= t.length ? t : wNorm;
-              if (shorter.length / longer.length < 0.7) return false;
-              return longer.includes(shorter);
+              // Only exact match (accent/plural-insensitive) — no substring matching
+              return t === wNorm;
             });
           });
         });
