@@ -2114,9 +2114,9 @@ serve(async (req) => {
                 return kws.some((k: string) => {
                   const kNorm = stripPlural(k);
                   if (k === w || kNorm === wNorm) return true;
-                  // For short words, require word boundary
                   if (w.length <= 4) return wordBoundaryMatch(k, w);
-                  return k.includes(w) || w.includes(k);
+                  // For longer words, also use word boundary to prevent substring false positives
+                  return wordBoundaryMatch(k, w) || wordBoundaryMatch(w, k);
                 });
               }).length;
               
