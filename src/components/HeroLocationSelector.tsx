@@ -89,7 +89,7 @@ const HeroLocationSelector = ({
         <button
           type="button"
           onClick={() => setOpen(!open)}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-full border-2 border-[#25D366] bg-white text-foreground font-semibold text-sm shadow-md hover:shadow-lg transition-all"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-[#25D366] bg-white text-foreground font-semibold text-sm shadow-md hover:bg-gold/90 transition-all"
         >
           <MapPin className="h-5 w-5 text-[#25D366]" />
           <span>{isDetecting ? (language === "fr" ? "Détection..." : "Detecting...") : cityLabel}</span>
@@ -187,7 +187,7 @@ const HeroLocationSelector = ({
         <button
           type="button"
           onClick={onAcceptGeo}
-          className="flex items-center gap-2 pl-5 pr-3 py-2.5 rounded-l-full text-white font-semibold text-sm shadow-md hover:shadow-lg transition-all"
+          className="flex items-center gap-2 pl-4 pr-3 py-2 rounded-l-lg text-white font-semibold text-sm shadow-md hover:bg-gold/90 transition-all"
           style={{ backgroundColor: "#25D366" }}
         >
           <span>
@@ -203,7 +203,7 @@ const HeroLocationSelector = ({
             <TooltipTrigger asChild>
               <button
                 type="button"
-                className="flex items-center justify-center pr-4 pl-2 py-2.5 rounded-r-full text-white"
+                className="flex items-center justify-center pr-4 pl-2 py-2 rounded-r-lg text-white"
                 style={{ backgroundColor: "#25D366" }}
               >
                 <Info className="h-5 w-5 opacity-90" />
