@@ -194,7 +194,7 @@ const SearchInput = ({
             className={`w-full ${isHero ? "pl-5 pr-16 py-7 text-lg" : "pl-5 pr-16 py-6 text-base"} bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-xl shadow-lg`}
           />
           {/* Mic inside input, right side */}
-          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 overflow-visible">
             {inlineMicButton}
           </div>
           {suggestionMode === "text" ? (
