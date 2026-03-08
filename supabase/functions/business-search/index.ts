@@ -1879,7 +1879,7 @@ serve(async (req) => {
               if (k.includes(" ")) return false;
               const kNorm = stripPlural(k);
               // Exact match (with accent normalization) or whole-word boundary match
-              return k === w || w === k || kNorm === wNorm || normalizeWordKw(k) === normalizeWordKw(w) || wordBoundaryMatch(k, w) || (w.length > 3 && w.includes(k));
+              return k === w || w === k || kNorm === wNorm || normalizeWordKw(k) === normalizeWordKw(w) || wordBoundaryMatch(k, w) || (w.length > 3 && k.length > 3 && k.length / w.length >= 0.7 && w.includes(k));
             });
           }) ||
           // Multi-word keyword match: if ALL content words of a multi-word keyword appear in the query
@@ -1905,7 +1905,12 @@ serve(async (req) => {
               if (t === wNorm) return true;
               // For short words (≤4 chars), require exact match to avoid "ana" matching "ananas"
               if (wNorm.length <= 4 || t.length <= 4) return false;
-              return t.includes(wNorm) || wNorm.includes(t);
+              // Substring match only if the shorter string covers ≥70% of the longer one
+              // This prevents "astronomie" matching "gastronomie" (10/12 = 83% of longer but only 58% overlap)
+              const shorter = wNorm.length <= t.length ? wNorm : t;
+              const longer = wNorm.length <= t.length ? t : wNorm;
+              if (shorter.length / longer.length < 0.7) return false;
+              return longer.includes(shorter);
             });
           });
         });
@@ -2097,7 +2102,9 @@ serve(async (req) => {
                   const regex = new RegExp(`(^|[\\s''/-])${w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}($|[\\s''/-])`, 'i');
                   return regex.test(text);
                 }
-                return text.includes(w);
+                // Use word-boundary match for longer words too, to prevent "astronomie" matching "gastronomie"
+                const regex = new RegExp(`(^|[\\s''/-])${w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}($|[\\s''/-])`, 'i');
+                return regex.test(text);
               };
               const matchCount = serviceMatchWords.filter(w => wordMatchesService(w, svcLower)).length;
               const svcWordCount = svcWords.length;
@@ -2107,9 +2114,9 @@ serve(async (req) => {
                 return kws.some((k: string) => {
                   const kNorm = stripPlural(k);
                   if (k === w || kNorm === wNorm) return true;
-                  // For short words, require word boundary
                   if (w.length <= 4) return wordBoundaryMatch(k, w);
-                  return k.includes(w) || w.includes(k);
+                  // For longer words, also use word boundary to prevent substring false positives
+                  return wordBoundaryMatch(k, w) || wordBoundaryMatch(w, k);
                 });
               }).length;
               
