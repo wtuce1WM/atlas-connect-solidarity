@@ -439,31 +439,42 @@ const SearchPage = () => {
   const [isAiSummaryExpanded, setIsAiSummaryExpanded] = useState(false);
 
   // Keep AI summary expanded when filters change
+  const ensureResultsVisibleBelowSticky = useCallback((behavior: ScrollBehavior = "smooth") => {
+    const resultsEl = resultsRef.current;
+    if (!resultsEl) return;
+
+    const aiBar = document.querySelector<HTMLElement>('[data-ai-bar]');
+    const lastSticky = aiBar
+      || document.querySelector<HTMLElement>('[data-search-service-filter]')
+      || document.querySelector<HTMLElement>('[data-service-filter]')
+      || document.querySelector<HTMLElement>('[data-subcategory-filter]')
+      || document.querySelector<HTMLElement>('[data-category-filter]')
+      || document.querySelector<HTMLElement>('[data-city-bar]')
+      || document.querySelector<HTMLElement>('[data-tab-bar]');
+
+    if (!lastSticky) return;
+
+    const stickyComputedTop = Number.parseFloat(window.getComputedStyle(lastSticky).top || "0");
+    const stickyHeight = lastSticky.getBoundingClientRect().height;
+    const stickyBottom = (Number.isFinite(stickyComputedTop) ? stickyComputedTop : 0) + stickyHeight;
+    const resultsTop = resultsEl.getBoundingClientRect().top + window.scrollY;
+    const targetScroll = resultsTop - stickyBottom - 8;
+
+    if (window.scrollY > targetScroll) {
+      window.scrollTo({ top: Math.max(0, targetScroll), behavior });
+    }
+  }, []);
+
   useEffect(() => {
     setIsAiSummaryExpanded(false);
-    // After a filter change, ensure the results section is visible below the sticky stack
-    requestAnimationFrame(() => {
-      const resultsEl = resultsRef.current;
-      if (!resultsEl) return;
-      const aiBar = document.querySelector<HTMLElement>('[data-ai-bar]');
-      const lastSticky = aiBar
-        || document.querySelector<HTMLElement>('[data-search-service-filter]')
-        || document.querySelector<HTMLElement>('[data-service-filter]')
-        || document.querySelector<HTMLElement>('[data-subcategory-filter]')
-        || document.querySelector<HTMLElement>('[data-category-filter]')
-        || document.querySelector<HTMLElement>('[data-city-bar]')
-        || document.querySelector<HTMLElement>('[data-tab-bar]');
-      if (!lastSticky) return;
-      const stickyComputedTop = Number.parseFloat(window.getComputedStyle(lastSticky).top || '0');
-      const stickyH = lastSticky.getBoundingClientRect().height;
-      const stickyBottom = (Number.isFinite(stickyComputedTop) ? stickyComputedTop : 0) + stickyH;
-      const resultsTop = resultsEl.getBoundingClientRect().top + window.scrollY;
-      const targetScroll = resultsTop - stickyBottom - 8;
-      if (window.scrollY > targetScroll) {
-        window.scrollTo({ top: Math.max(0, targetScroll), behavior: 'smooth' });
-      }
-    });
-  }, [selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, selectedCity]);
+    requestAnimationFrame(() => ensureResultsVisibleBelowSticky("smooth"));
+  }, [selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, selectedCity, ensureResultsVisibleBelowSticky]);
+
+  // Ensure first row never stays hidden under sticky stack after a new search
+  useEffect(() => {
+    if (isLoading || activeTab !== "suggestions") return;
+    requestAnimationFrame(() => ensureResultsVisibleBelowSticky("auto"));
+  }, [urlT, searchQuery, isLoading, activeTab, ensureResultsVisibleBelowSticky]);
 
   // Fetch extra businesses from DB when entonnoir filters narrow beyond search results
   // Skip when the search returned precise results (synonym or service/keyword detection)
