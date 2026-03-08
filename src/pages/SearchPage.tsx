@@ -428,7 +428,7 @@ const SearchPage = () => {
 
   // Track whether a category/subcategory filter is active (compact AI mode)
   const isCategoryFilterActive = !!(selectedCategoryFilter || selectedSubcategoryFilter || selectedServiceFilter);
-  const [isAiSummaryExpanded, setIsAiSummaryExpanded] = useState(true);
+  const [isAiSummaryExpanded, setIsAiSummaryExpanded] = useState(false);
 
   // Keep AI summary expanded when filters change
   useEffect(() => {
