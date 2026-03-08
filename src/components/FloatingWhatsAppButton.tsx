@@ -13,11 +13,9 @@ const FloatingWhatsAppButton = ({ isOpen, onToggle }: FloatingWhatsAppButtonProp
   const location = useLocation();
   const { language } = useLanguage();
 
-  const hiddenPaths = ["/staff/login", "/staff/backoffice", "/staff/catalogue", "/staff/crm", "/staff/master", "/affiliates", "/affiliates/dashboard"];
-  if (hiddenPaths.includes(location.pathname)) return null;
+  if (location.pathname !== "/") return null;
 
-  const isHome = location.pathname === "/";
-  const isClub = location.pathname === "/club";
+  const isHome = true;
 
   const t = {
     fr: {
