@@ -492,21 +492,21 @@ const SearchPage = () => {
     requestAnimationFrame(() => ensureResultsVisibleBelowSticky("smooth"));
   }, [selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, selectedCity, ensureResultsVisibleBelowSticky]);
 
-  // Ensure first row never stays hidden under sticky stack after a new search
+  // Ensure first row never stays hidden under sticky stack after loading completes
+  // (NOT on new search — that's handled by the scroll-to-top effect)
   useEffect(() => {
     if (isLoading || activeTab !== "suggestions") return;
-    if (skipEnsureVisibleRef.current) return;
+    // Only adjust if user has already scrolled down (not on fresh page load at top)
+    if (window.scrollY < 100) return;
 
     const timers = [0, 120, 320].map((delay) =>
       window.setTimeout(() => {
-        if (!skipEnsureVisibleRef.current) ensureResultsVisibleBelowSticky("auto");
+        if (window.scrollY >= 100) ensureResultsVisibleBelowSticky("auto");
       }, delay)
     );
 
     return () => timers.forEach((id) => window.clearTimeout(id));
   }, [
-    urlT,
-    searchQuery,
     isLoading,
     activeTab,
     aiAnswerText,
