@@ -1707,7 +1707,7 @@ const SearchPage = () => {
       {showAiPopup && (
         <div className="fixed inset-0 z-[200] flex bg-background/95 backdrop-blur-sm animate-in fade-in duration-200">
           {/* Left panel: AI suggestion */}
-          <div ref={overlayLeftPanelRef} className={`relative flex flex-col transition-all duration-500 ease-out ${overlaySelectedBusiness ? "w-1/2 border-r border-border" : "w-full"}`}>
+          <div ref={overlayLeftPanelRef} className={`relative flex flex-col justify-center transition-all duration-500 ease-out ${overlaySelectedBusiness ? "w-1/2 border-r border-border" : "w-full"}`}>
           {/* Close button */}
           <button
             onClick={() => { setShowAiPopup(false); setOverlaySelectedBusiness(null); }}
