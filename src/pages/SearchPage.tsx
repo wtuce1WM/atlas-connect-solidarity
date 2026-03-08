@@ -1291,8 +1291,13 @@ const SearchPage = () => {
             const parentCategory = matchingBusiness?.main_category || null;
             // When synonym paired filters produced the results (mix of subcategory + service matches),
             // do NOT auto-select category or subcategory filters — they would hide cross-category service matches
-            setSelectedCategoryFilter(data.synonymUsed ? null : parentCategory);
-            setSelectedSubcategoryFilter(data.synonymUsed ? null : finalDetectedSubcategory);
+            // Also skip auto-selection when:
+            // 1. preciseMatch is true (service-based search) AND subcategory came from heuristic fallback
+            // This prevents filtering out valid service matches that happen to be in a minority subcategory
+            const isHeuristicFallbackWithPrecise = fallbackSubcategory && !safeDetectedSubcategory && data.preciseMatch;
+            const shouldSkipAutoFilter = data.synonymUsed || isHeuristicFallbackWithPrecise;
+            setSelectedCategoryFilter(shouldSkipAutoFilter ? null : parentCategory);
+            setSelectedSubcategoryFilter(shouldSkipAutoFilter ? null : finalDetectedSubcategory);
             setSelectedServiceFilter(null);
 
             // When synonyms produced cross-category results, reset city filter to "all"
