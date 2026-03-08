@@ -719,7 +719,7 @@ const SearchPage = () => {
       : searchQuery;
 
     setIsAiRegenerating(true);
-    setIsAiSummaryExpanded(true);
+    setIsAiSummaryExpanded(false);
     supabase.functions.invoke("ai-search-answer", {
       body: {
         query: combinedQuery,
