@@ -528,7 +528,15 @@ const SynonymsManagement = () => {
           <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                <code className="font-mono text-lg bg-amber-100 text-amber-800 px-2 py-0.5 rounded">{selectedEntry.key_word}</code>
+                <Input
+                  value={selectedEntry.key_word}
+                  onChange={e => {
+                    const newKey = e.target.value;
+                    setEntries(prev => prev.map(ent => ent.id === selectedEntry.id ? { ...ent, key_word: newKey } : ent));
+                    setDirtyEntries(prev => new Set(prev).add(selectedEntry.id));
+                  }}
+                  className="font-mono text-lg bg-amber-100 text-amber-800 px-2 py-0.5 rounded w-auto max-w-[300px] h-8"
+                />
                 <Switch checked={selectedEntry.is_active} onCheckedChange={v => toggleActive(selectedEntry.id, v)} />
                 <span className="text-xs text-muted-foreground font-normal">{selectedEntry.is_active ? "Actif" : "Inactif"}</span>
               </DialogTitle>
