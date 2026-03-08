@@ -2657,7 +2657,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-4">
                   <div className="space-y-1">
                     <Label className="text-sm font-medium">💰 Budget moyen par personne</Label>
                     <div className="flex items-center gap-2">
