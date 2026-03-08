@@ -558,6 +558,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     menu_url: (business as any)?.menu_url || "",
     menu_name: (business as any)?.menu_name || "",
     menu_language: (business as any)?.menu_language || "",
+    menu_summary: (business as any)?.menu_summary || "",
     logo_bg: (business as any)?.logo_bg || "transparent",
     zone_city_ids: (business as any)?.zone_city_ids || [] as string[],
     poissonnerie_details: (business as any)?.poissonnerie_details || null,
