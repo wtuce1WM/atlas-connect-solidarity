@@ -1847,6 +1847,12 @@ serve(async (req) => {
           .select("name_fr, keywords, subcategories!inner(name_fr)")
           .range(1000, 1999);
         const matchingByKeywords = [...(matchingByKeywords1 || []), ...(matchingByKeywords2 || [])];
+        // Populate outer-scope keyword lookup for use in areDistinctConcepts check
+        for (const svc of matchingByKeywords) {
+          if (svc.keywords && svc.keywords.length > 0) {
+            serviceKeywordsLookup.set(svc.name_fr, svc.keywords as string[]);
+          }
+        }
 
         // Merge: services matched by name + services whose keywords contain a query word
         const stripPlural = (w: string): string => {
