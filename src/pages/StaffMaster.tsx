@@ -766,6 +766,17 @@ const StaffMaster = () => {
                 </Card>
               </Collapsible>
             </div>
+            {/* Floating help panel on the right */}
+            <div className="hidden xl:block w-72 shrink-0 sticky top-20">
+              <div className="bg-card border border-border rounded-xl shadow-sm p-4 max-h-[calc(100vh-6rem)] overflow-y-auto">
+                <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border">
+                  <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Aide — Design tokens</span>
+                </div>
+                <HelpContentPanel />
+              </div>
+            </div>
+            </div>
           </TabsContent>
 
           {isAdmin && (
