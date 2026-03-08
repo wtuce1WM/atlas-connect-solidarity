@@ -464,7 +464,7 @@ const SearchPage = () => {
     const stickyBottom = Math.max(stickyConfiguredBottom, stickyCurrentBottom);
 
     const resultsTopInViewport = resultsEl.getBoundingClientRect().top;
-    const overlap = stickyBottom + 8 - resultsTopInViewport;
+    const overlap = stickyBottom + 28 - resultsTopInViewport;
     if (overlap <= 0) return;
 
     const targetScroll = Math.max(0, window.scrollY + overlap);
