@@ -1289,9 +1289,9 @@ const SearchPage = () => {
               b.categories?.includes(finalDetectedSubcategory!)
             ) || businesses[0];
             const parentCategory = matchingBusiness?.main_category || null;
-            setSelectedCategoryFilter(parentCategory);
             // When synonym paired filters produced the results (mix of subcategory + service matches),
-            // do NOT auto-select the subcategory filter — it would hide service-only matches
+            // do NOT auto-select category or subcategory filters — they would hide cross-category service matches
+            setSelectedCategoryFilter(data.synonymUsed ? null : parentCategory);
             setSelectedSubcategoryFilter(data.synonymUsed ? null : finalDetectedSubcategory);
             setSelectedServiceFilter(null);
 
