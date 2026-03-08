@@ -442,6 +442,8 @@ const SearchPage = () => {
   const [hasReachedTabBar, setHasReachedTabBar] = useState(false);
 
   // Keep AI summary expanded when filters change
+  const hasAiSticky = !!aiAnswerText || isAiRegenerating;
+
   const ensureResultsVisibleBelowSticky = useCallback((behavior: ScrollBehavior = "smooth") => {
     const resultsEl = resultsRef.current;
     if (!resultsEl) return;
@@ -462,8 +464,6 @@ const SearchPage = () => {
 
     if (stickyElements.length === 0) return;
 
-    // Use only the configured sticky position (CSS top + height), NOT getBoundingClientRect().bottom
-    // which can be huge when elements haven't scrolled into their sticky position yet
     const stickyBottom = stickyElements.reduce((maxBottom, el) => {
       const stickyComputedTop = Number.parseFloat(window.getComputedStyle(el).top || "0");
       const stickyHeight = el.getBoundingClientRect().height;
@@ -473,11 +473,13 @@ const SearchPage = () => {
 
     const firstResultCard = resultsEl.querySelector<HTMLElement>("[data-result-card='true']");
     const anchorEl = firstResultCard ?? resultsEl;
-    const resultsTopInViewport = anchorEl.getBoundingClientRect().top;
-    const overlap = stickyBottom + 16 - resultsTopInViewport;
-    if (overlap <= 0) return;
+    const safetyOffset = 16;
+    const anchorTopInPage = anchorEl.getBoundingClientRect().top + window.scrollY;
+    const targetScroll = Math.max(0, anchorTopInPage - stickyBottom - safetyOffset);
 
-    const targetScroll = Math.max(0, window.scrollY + overlap);
+    // Avoid jitter from tiny diffs while still correcting clipped first row
+    if (Math.abs(window.scrollY - targetScroll) < 4) return;
+
     const tabBar = document.querySelector<HTMLElement>('[data-tab-bar]');
     const tabBarTop = tabBar ? (tabBar.getBoundingClientRect().top + window.scrollY - 60) : 0;
 
@@ -493,24 +495,24 @@ const SearchPage = () => {
     requestAnimationFrame(() => ensureResultsVisibleBelowSticky("smooth"));
   }, [selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, selectedCity, ensureResultsVisibleBelowSticky]);
 
-   // Ensure first row never stays hidden under sticky stack after loading completes
-   // or when AI bar appears/changes height
-   useEffect(() => {
-     if (isLoading || activeTab !== "suggestions") return;
+  // Ensure first row never stays hidden under sticky stack after loading completes
+  // or when sticky AI bar appears/disappears
+  useEffect(() => {
+    if (isLoading || activeTab !== "suggestions") return;
 
-     const timers = [50, 200, 500].map((delay) =>
-       window.setTimeout(() => {
-         ensureResultsVisibleBelowSticky("auto");
-       }, delay)
-     );
+    const timers = [50, 200, 500].map((delay) =>
+      window.setTimeout(() => {
+        ensureResultsVisibleBelowSticky("auto");
+      }, delay)
+    );
 
-     return () => timers.forEach((id) => window.clearTimeout(id));
-   }, [
-     isLoading,
-     activeTab,
-     aiAnswerText,
-     ensureResultsVisibleBelowSticky,
-   ]);
+    return () => timers.forEach((id) => window.clearTimeout(id));
+  }, [
+    isLoading,
+    activeTab,
+    hasAiSticky,
+    ensureResultsVisibleBelowSticky,
+  ]);
 
   // Fetch extra businesses from DB when entonnoir filters narrow beyond search results
   // Skip when the search returned precise results (synonym or service/keyword detection)
