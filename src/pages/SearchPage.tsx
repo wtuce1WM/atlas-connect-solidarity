@@ -2420,7 +2420,7 @@ const SearchPage = () => {
               />
             )}
             {destSelectedBusinessId && (
-              <div className={`fixed top-[54px] right-0 z-40 bg-background shadow-2xl border-l border-border overflow-hidden flex flex-col animate-slide-in-right transition-all duration-500 ease-out ${destPanelExpanded ? "w-[80%]" : "w-1/2"}`} style={{ height: "calc(100vh - 54px)" }}>
+              <div className={`fixed top-0 left-0 right-0 z-40 bg-background shadow-2xl overflow-hidden flex flex-col animate-slide-in-right transition-all duration-500 ease-out lg:top-[54px] lg:left-auto lg:border-l lg:border-border ${destPanelExpanded ? "lg:w-[80%]" : "lg:w-1/2"}`} style={{ height: isMobile ? "100vh" : "calc(100vh - 54px)" }}>
                 <SlidePanelHeader
                   onClose={() => { setDestSelectedBusinessId(null); setDestPanelExpanded(false); }}
                   isExpanded={destPanelExpanded}
