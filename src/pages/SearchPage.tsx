@@ -2345,6 +2345,9 @@ const SearchPage = () => {
                 onClick={() => setPoiPanelExpanded(false)}
               />
             )}
+            {poiSelectedBusinessId && isSubDesktop && (
+              <div className="fixed inset-0 z-[39] bg-background" />
+            )}
             {poiSelectedBusinessId && (
               <div className={`fixed top-0 left-0 right-0 z-40 bg-background shadow-2xl overflow-hidden flex flex-col animate-slide-in-right lg:top-[53px] lg:left-auto lg:border-l lg:border-border ${poiPanelExpanded ? "lg:w-[80%] border-l-2 border-border shadow-[-8px_0_30px_-5px_rgba(0,0,0,0.15)]" : "lg:w-1/2"}`} style={{ height: isSubDesktop ? "100vh" : "calc(100vh - 53px)" }}>
                 <SlidePanelHeader
@@ -3257,7 +3260,7 @@ const SearchPage = () => {
           {/* Right panel — business detail */}
           <div
             className={`fixed top-0 lg:top-[53px] right-0 z-[100] bg-background shadow-2xl border-l border-border overflow-hidden flex flex-col animate-slide-in-right ${isCompactPanelExpanded ? "border-l-2 shadow-[-8px_0_30px_-5px_rgba(0,0,0,0.15)]" : ""}`}
-            style={{ height: isSubDesktop ? "100vh" : "calc(100vh - 53px)", width: isSubDesktop ? "10%" : isCompactPanelExpanded ? "80%" : "50%" }}
+            style={{ height: isSubDesktop ? "100vh" : "calc(100vh - 53px)", width: isSubDesktop ? "100%" : isCompactPanelExpanded ? "80%" : "50%" }}
           >
             <SlidePanelHeader
               onClose={() => { setCompactPanelBusiness(null); setIsCompactPanelExpanded(false); }}
