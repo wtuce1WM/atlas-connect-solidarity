@@ -6,6 +6,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 
 interface HeroLocationSelectorProps {
   detectedCity: string | null;
+  confirmedAddress: string | null;
   isEnabled: boolean;
   isDetecting: boolean;
   onAcceptGeo: () => void;
@@ -21,6 +22,7 @@ interface CityOption {
 
 const HeroLocationSelector = ({
   detectedCity,
+  confirmedAddress,
   isEnabled,
   isDetecting,
   onAcceptGeo,
@@ -89,7 +91,7 @@ const HeroLocationSelector = ({
         <button
           type="button"
           onClick={() => setOpen(!open)}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-[#25D366] bg-white text-foreground font-semibold text-sm shadow-md hover:bg-gold/90 transition-all"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-[#25D366] bg-white text-foreground font-semibold text-sm shadow-md transition-all"
         >
           <MapPin className="h-5 w-5 text-[#25D366]" />
           <span>{isDetecting ? (language === "fr" ? "Détection..." : "Detecting...") : cityLabel}</span>
@@ -187,7 +189,7 @@ const HeroLocationSelector = ({
         <button
           type="button"
           onClick={onAcceptGeo}
-          className="flex items-center gap-2 pl-4 pr-3 py-2 rounded-l-lg text-white font-semibold text-sm shadow-md hover:bg-gold/90 transition-all"
+          className="flex items-center gap-2 pl-4 pr-3 py-2 rounded-l-lg text-white font-semibold text-sm shadow-md transition-all"
           style={{ backgroundColor: "#25D366" }}
         >
           <span>
@@ -219,6 +221,15 @@ const HeroLocationSelector = ({
           </Tooltip>
         </TooltipProvider>
       </div>
+
+      {/* Address/position label below buttons */}
+      {isEnabled && (detectedCity || confirmedAddress) && (
+        <div className="w-full text-center mt-1">
+          <p className="text-xs text-foreground/60">
+            📍 {confirmedAddress || detectedCity}
+          </p>
+        </div>
+      )}
     </div>
   );
 };
