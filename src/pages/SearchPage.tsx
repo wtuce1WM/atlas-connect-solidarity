@@ -370,6 +370,14 @@ const SearchPage = () => {
   const { language } = useLanguage();
   const { toast } = useToast();
   const isMobile = useIsMobile();
+  const [isSubDesktop, setIsSubDesktop] = useState(false);
+  React.useEffect(() => {
+    const mql = window.matchMedia("(max-width: 1023px)");
+    const onChange = () => setIsSubDesktop(mql.matches);
+    mql.addEventListener("change", onChange);
+    setIsSubDesktop(mql.matches);
+    return () => mql.removeEventListener("change", onChange);
+  }, []);
   const [allBusinesses, setAllBusinesses] = useState<Business[]>([]);
   const [totalCount, setTotalCount] = useState<number | null>(null);
   const [detectedSubcategory, setDetectedSubcategory] = useState<string | null>(null);
