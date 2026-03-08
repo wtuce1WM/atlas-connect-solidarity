@@ -49,6 +49,15 @@ interface SynonymEntry {
   created_at: string;
 }
 
+interface BusinessDataWithBadges {
+  id: string;
+  categories: string[];
+  services: string[];
+  engagements: string[];
+  is_visible_locale: boolean;
+  badge_ids: string[];
+}
+
 interface BadgeEntry {
   id: string;
   name_fr: string;
