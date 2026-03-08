@@ -2345,9 +2345,6 @@ const SearchPage = () => {
                 onClick={() => setPoiPanelExpanded(false)}
               />
             )}
-            {poiSelectedBusinessId && isSubDesktop && (
-              <div className="fixed inset-0 z-[39] bg-background" />
-            )}
             {poiSelectedBusinessId && (
               <div className={`fixed top-0 left-0 right-0 bottom-0 z-40 bg-background shadow-2xl overflow-hidden flex flex-col animate-slide-in-right lg:top-[53px] lg:left-auto lg:bottom-auto lg:border-l lg:border-border ${poiPanelExpanded ? "lg:w-[80%] border-l-2 border-border shadow-[-8px_0_30px_-5px_rgba(0,0,0,0.15)]" : "lg:w-1/2"}`} style={{ height: isSubDesktop ? undefined : "calc(100vh - 53px)" }}>
                 <SlidePanelHeader
