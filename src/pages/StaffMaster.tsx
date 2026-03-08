@@ -586,6 +586,89 @@ const StaffMaster = () => {
                   </CollapsibleContent>
                 </Card>
               </Collapsible>
+
+              <Collapsible>
+                <Card>
+                  <CollapsibleTrigger className="w-full">
+                    <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
+                      <CardTitle className="flex items-center gap-2">
+                        <ChevronRight className="h-4 w-4 transition-transform [[data-state=open]>&]:rotate-90" />
+                        Overlay Texte IA (AISearchAnswer)
+                      </CardTitle>
+                    </CardHeader>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <CardContent>
+                      <div className="space-y-6">
+                        <div>
+                          <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Positionnement</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <DisplayParam label="Position" value="top-[53px] z-[40]" />
+                            <DisplayParam label="Fond" value="bg-background" />
+                            <DisplayParam label="Largeur" value="Panneau latéral (50% écran)" />
+                          </div>
+                        </div>
+
+                        <div>
+                          <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">En-tête « Suggestion IA »</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <DisplayParam label="Label" value="text-xs font-medium text-muted-foreground" />
+                            <DisplayParam label="Icône" value="Sparkles h-4 w-4 text-muted-foreground" />
+                          </div>
+                        </div>
+
+                        <div>
+                          <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Corps du texte IA</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <DisplayParam label="Taille par défaut" value="text-sm (14px)" />
+                            <DisplayParam label="Taille réduite (A-)" value="text-xs (12px)" />
+                            <DisplayParam label="Taille agrandie (A+)" value="text-base (16px)" />
+                            <DisplayParam label="Couleur" value="text-foreground" />
+                            <DisplayParam label="Interligne" value="leading-relaxed" />
+                            <DisplayParam label="Animation" value="reveal mot par mot (45ms), opacity + blur + translate-y" />
+                          </div>
+                        </div>
+
+                        <div>
+                          <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Noms d'établissements (liens cliquables)</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <DisplayParam label="Police" value="text-base font-semibold (16px, 600)" />
+                            <DisplayParam label="Couleur" value="text-foreground" />
+                            <DisplayParam label="Décoration" value="underline decoration-gold/40 underline-offset-2" />
+                            <DisplayParam label="Hover" value="hover:decoration-gold" />
+                          </div>
+                        </div>
+
+                        <div>
+                          <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Gras dans le texte</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <DisplayParam label="Police" value="font-semibold text-foreground (600)" />
+                            <DisplayParam label="Highlight TTS" value="bg-gold/25 rounded-sm (mot en cours de lecture)" />
+                          </div>
+                        </div>
+
+                        <div>
+                          <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">HoverCard (aperçu établissement)</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <DisplayParam label="Nom" value="text-sm font-semibold text-foreground" />
+                            <DisplayParam label="Ville" value="text-xs text-muted-foreground" />
+                            <DisplayParam label="Note" value="text-xs font-medium text-foreground" />
+                            <DisplayParam label="Icônes" value="MapPin h-3 w-3 · Star h-3 w-3 text-gold fill-gold" />
+                          </div>
+                        </div>
+
+                        <div>
+                          <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">État de chargement</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <DisplayParam label="Spinner" value="Loader2 h-4 w-4 animate-spin text-gold" />
+                            <DisplayParam label="Texte" value="text-sm italic text-gold/90" />
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </CollapsibleContent>
+                </Card>
+              </Collapsible>
             </div>
           </TabsContent>
 
