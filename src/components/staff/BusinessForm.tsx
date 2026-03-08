@@ -575,7 +575,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
   const [flipbookDocs, setFlipbookDocs] = useState<DocEntry[]>([]);
 
   // --- Menu summaries (multiple per business) ---
-  type MenuSummaryEntry = { id?: string; title: string; content: string; avg_price_range: any };
+  type MenuSummaryEntry = { id?: string; title: string; content: string; avg_price_range: any; price_details: string };
   const [menuSummaries, setMenuSummaries] = useState<MenuSummaryEntry[]>([]);
 
   useEffect(() => {
