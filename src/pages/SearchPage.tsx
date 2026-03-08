@@ -2519,7 +2519,7 @@ const SearchPage = () => {
           || (baseTop + 62);
 
         return (
-          <div data-ai-bar className="sticky z-[1] bg-white border-b border-border py-2 relative" style={{ top: `${aiTop}px` }}>
+          <div data-ai-bar className="sticky z-[1] bg-background py-2 relative" style={{ top: `${aiTop}px` }}>
             <span className="absolute top-0 left-1 z-[60] bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded select-all cursor-text">🔵 STICKY 4</span>
             <div className="mx-auto px-4 max-w-[80%]">
               <div className="flex items-start gap-3">
@@ -2532,13 +2532,19 @@ const SearchPage = () => {
                     <Sparkles className="h-3.5 w-3.5 inline-block mr-1.5 text-gold align-text-bottom" />
                     {isAiRegenerating ? (
                       <span className="italic text-muted-foreground/60">{language === "en" ? "Regenerating…" : "Régénération en cours…"}</span>
-                    ) : parseInline(
-                      stickyAiText,
-                      allBusinesses as unknown as AIBusinessData[],
-                      (b) => setCompactPanelBusiness(b),
-                      "compact-ai",
-                      { wordIndex: 0, target: stickyAiVisibleWordIndex }
-                    )}
+                    ) : (() => {
+                      const isTTSActive = ttsStatus === "playing" && ttsSpokenWordIndex >= 0;
+                      const karaokeTarget = isTTSActive ? ttsSpokenWordIndex - ttsIntroWordCountRef.current : -1;
+                      return parseInline(
+                        stickyAiText,
+                        allBusinesses as unknown as AIBusinessData[],
+                        (b) => setCompactPanelBusiness(b),
+                        "compact-ai",
+                        isTTSActive
+                          ? { wordIndex: 0, target: karaokeTarget, mode: "karaoke" as const }
+                          : { wordIndex: 0, target: stickyAiVisibleWordIndex }
+                      );
+                    })()}
                   </div>
                   <button
                     onClick={() => setIsAiSummaryExpanded(!isAiSummaryExpanded)}
