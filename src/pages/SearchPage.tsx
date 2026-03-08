@@ -1090,6 +1090,16 @@ const SearchPage = () => {
     return [...filtered].sort(sortWtuceAndRating);
   }, [allBusinesses, extraFilterBusinesses, selectedCity, selectedCityId, selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, activeTimeSlot, searchQuery, categoryFromUrl, moreFilterMatchingIds, moreFilterTimeSlots]);
 
+  // Auto-reset city to "all" when city filter yields 0 results but national results exist
+  useEffect(() => {
+    if (isLoading) return;
+    if (!selectedCity || selectedCity === "all") return;
+    if (filteredBusinesses.length > 0) return;
+    if (allBusinesses.length === 0) return;
+    setSelectedCity("all");
+    setIsGeoCityAutoSelected(false);
+  }, [isLoading, selectedCity, filteredBusinesses.length, allBusinesses.length]);
+
   // Extract services from search results for inline filter bar (only is_filtered=true, respecting service_city_filters)
   // filteredServicesBySubcategory: subcategory name -> Set of service names where is_filtered=true
   // serviceCityLookup: service name -> list of allowed city names (empty array = allowed everywhere)
