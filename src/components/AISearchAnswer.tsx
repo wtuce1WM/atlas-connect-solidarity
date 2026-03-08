@@ -201,6 +201,7 @@ const renderWordTokens = (
   keyPrefix: string,
   italic: boolean
 ) => {
+  const isKaraoke = hl.mode === "karaoke";
   const tokens = text.split(/(\s+)/);
   tokens.forEach((token, t) => {
     if (!token) return;
@@ -210,11 +211,21 @@ const renderWordTokens = (
     }
     const wordIdx = hl.wordIndex++;
     const highlighted = wordIdx <= hl.target;
-    const hlClass = `transition-all duration-300 inline-block rounded-sm ${highlighted ? "opacity-100 blur-0 translate-y-0" : "opacity-0 blur-[2px] translate-y-1"}`;
-    if (italic) {
-      nodes.push(<em key={`${keyPrefix}-w-${t}`} className={hlClass}>{token}</em>);
+
+    if (isKaraoke) {
+      const karaokeClass = `transition-colors duration-150 inline-block rounded-sm ${highlighted ? "bg-gold/25 text-foreground" : ""}`;
+      if (italic) {
+        nodes.push(<em key={`${keyPrefix}-w-${t}`} className={karaokeClass}>{token}</em>);
+      } else {
+        nodes.push(<span key={`${keyPrefix}-w-${t}`} className={karaokeClass}>{token}</span>);
+      }
     } else {
-      nodes.push(<span key={`${keyPrefix}-w-${t}`} className={hlClass}>{token}</span>);
+      const hlClass = `transition-all duration-300 inline-block rounded-sm ${highlighted ? "opacity-100 blur-0 translate-y-0" : "opacity-0 blur-[2px] translate-y-1"}`;
+      if (italic) {
+        nodes.push(<em key={`${keyPrefix}-w-${t}`} className={hlClass}>{token}</em>);
+      } else {
+        nodes.push(<span key={`${keyPrefix}-w-${t}`} className={hlClass}>{token}</span>);
+      }
     }
   });
 };
