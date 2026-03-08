@@ -35,6 +35,9 @@ const Header = ({ variant = "default" }: HeaderProps) => {
           <Link to="/contact" className="text-foreground text-sm font-semibold transition-colors hover:text-gold">
             {t("footer.contact")}
           </Link>
+          <Link to="/devenir-affilie" className="rounded-lg bg-gold px-4 py-2 text-sm font-semibold text-gold-foreground transition-colors hover:bg-gold/90">
+            {t("nav.joinNow")}
+          </Link>
         </nav>
       </div>
     </header>
