@@ -386,6 +386,79 @@ const StaffMaster = () => {
                   </CollapsibleContent>
                 </Card>
               </Collapsible>
+
+              <Collapsible>
+                <Card>
+                  <CollapsibleTrigger className="w-full">
+                    <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
+                      <CardTitle className="flex items-center gap-2">
+                        <ChevronRight className="h-4 w-4 transition-transform [[data-state=open]>&]:rotate-90" />
+                        Onglets (Résultats / Carte / POI / Destinations)
+                      </CardTitle>
+                    </CardHeader>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <CardContent>
+                      <div className="space-y-6">
+                        <div>
+                          <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Barre d'onglets (Sticky 1)</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <DisplayParam label="Position" value="sticky top-[60px] z-[20]" />
+                            <DisplayParam label="Fond" value="bg-white" />
+                            <DisplayParam label="Bordure" value="border-b border-border" />
+                            <DisplayParam label="Conteneur" value="mx-auto px-4 max-w-[80%]" />
+                            <DisplayParam label="Layout" value="flex gap-0" />
+                          </div>
+                        </div>
+
+                        <div>
+                          <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Style des onglets</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <DisplayParam label="Police" value="text-sm font-medium" />
+                            <DisplayParam label="Padding" value="px-5 py-3" />
+                            <DisplayParam label="Couleur actif" value="text-gold border-b-2 border-gold" preview={<span className="text-sm font-medium" style={{ color: 'hsl(43, 75%, 55%)' }}>Résultats</span>} />
+                            <DisplayParam label="Couleur inactif" value="text-muted-foreground border-transparent" preview={<span className="text-sm font-medium text-muted-foreground">Carte</span>} />
+                            <DisplayParam label="Hover inactif" value="hover:text-foreground" />
+                            <DisplayParam label="Transition" value="transition-colors" />
+                          </div>
+                        </div>
+
+                        <div>
+                          <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Onglets disponibles</h3>
+                          <div className="overflow-x-auto">
+                            <table className="w-full text-sm">
+                              <thead>
+                                <tr className="border-b">
+                                  <th className="text-left py-2 pr-4 font-medium text-muted-foreground">Onglet</th>
+                                  <th className="text-left py-2 pr-4 font-medium text-muted-foreground">Clé</th>
+                                  <th className="text-left py-2 pr-4 font-medium text-muted-foreground">Icône</th>
+                                  <th className="text-left py-2 pr-4 font-medium text-muted-foreground">Label FR</th>
+                                  <th className="text-left py-2 pr-4 font-medium text-muted-foreground">Label EN</th>
+                                  <th className="text-left py-2 font-medium text-muted-foreground">Label AR</th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y">
+                                <tr><td className="py-2 pr-4 font-mono text-xs">suggestions</td><td className="py-2 pr-4 font-mono text-xs">suggestions</td><td className="py-2 pr-4 text-xs">Sparkles (h-4 w-4)</td><td className="py-2 pr-4">Résultats</td><td className="py-2 pr-4">Results</td><td className="py-2">النتائج</td></tr>
+                                <tr><td className="py-2 pr-4 font-mono text-xs">map</td><td className="py-2 pr-4 font-mono text-xs">map</td><td className="py-2 pr-4 text-xs">Map (h-4 w-4)</td><td className="py-2 pr-4">Carte</td><td className="py-2 pr-4">Map</td><td className="py-2">خريطة</td></tr>
+                                <tr><td className="py-2 pr-4 font-mono text-xs">poi</td><td className="py-2 pr-4 font-mono text-xs">poi</td><td className="py-2 pr-4 text-xs">MapPin (h-4 w-4)</td><td className="py-2 pr-4">Lieux d'intérêt</td><td className="py-2 pr-4">Points of Interest</td><td className="py-2">أماكن مهمة</td></tr>
+                                <tr><td className="py-2 pr-4 font-mono text-xs">destinations</td><td className="py-2 pr-4 font-mono text-xs">destinations</td><td className="py-2 pr-4 text-xs">Compass (h-4 w-4)</td><td className="py-2 pr-4">Destinations</td><td className="py-2 pr-4">Destinations</td><td className="py-2">وجهات</td></tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+
+                        <div>
+                          <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Icônes (lucide-react)</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <DisplayParam label="Taille" value="h-4 w-4" />
+                            <DisplayParam label="Couleur" value="Héritée du parent (text-gold ou text-muted-foreground)" />
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </CollapsibleContent>
+                </Card>
+              </Collapsible>
             </div>
           </TabsContent>
 
