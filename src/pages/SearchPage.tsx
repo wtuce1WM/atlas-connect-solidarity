@@ -3211,7 +3211,7 @@ const SearchPage = () => {
                 <p className="text-lg font-bold text-foreground mt-1">
                   « {searchQuery} »
                 </p>
-                <p className="text-gold font-semibold mt-1">
+                <p className="text-muted-foreground text-sm mt-1">
                   {language === "en"
                     ? `10 recommended establishments out of ${displayedResultsCount} found`
                     : language === "ar"
