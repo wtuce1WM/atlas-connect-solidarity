@@ -1780,6 +1780,7 @@ serve(async (req) => {
     let serviceMatchWordsForInjection: string[] = [];
     let serviceMatchWordsOuter: string[] = []; // All query words used in service detection (for cleanRemainder)
     let keywordMatchedSubcategories: string[] = []; // Subcategories of services matched via keywords
+    let serviceKeywordsLookup: Map<string, string[]> = new Map(); // service name → keywords
     
     if (effectiveQuery || query || spoken) {
       // Strip French contractions: l'aéroport → aéroport, d'art → art, etc.
@@ -1846,6 +1847,12 @@ serve(async (req) => {
           .select("name_fr, keywords, subcategories!inner(name_fr)")
           .range(1000, 1999);
         const matchingByKeywords = [...(matchingByKeywords1 || []), ...(matchingByKeywords2 || [])];
+        // Populate outer-scope keyword lookup for use in areDistinctConcepts check
+        for (const svc of matchingByKeywords) {
+          if (svc.keywords && svc.keywords.length > 0) {
+            serviceKeywordsLookup.set(svc.name_fr, svc.keywords as string[]);
+          }
+        }
 
         // Merge: services matched by name + services whose keywords contain a query word
         const stripPlural = (w: string): string => {
@@ -3297,9 +3304,9 @@ serve(async (req) => {
                 if (nameMatches.length > 0) return nameMatches;
                 // Also check service keywords — a service matched via keyword "balade à vélo"
                 // should be linked to trigger words "balade", "velo"
-                const svcData = matchingByKeywords.find(s => s.name_fr === ds);
-                if (svcData && svcData.keywords) {
-                  const kwsNorm = (svcData.keywords as string[]).map(k => normalizeServiceToken(k)).join(" ");
+                const svcKws = serviceKeywordsLookup.get(ds);
+                if (svcKws) {
+                  const kwsNorm = svcKws.map(k => normalizeServiceToken(k)).join(" ");
                   return triggerWordsNorm.filter(tw => kwsNorm.includes(tw));
                 }
                 return [];
