@@ -2069,7 +2069,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
           <div className="
             relative bg-black/90 backdrop-blur-md flex flex-col overflow-hidden
             w-full lg:w-1/2
-            h-[85vh] lg:h-full
+            h-full lg:h-full
             rounded-t-2xl lg:rounded-none
             animate-slide-up-from-bottom lg:animate-slide-in-left
           ">
