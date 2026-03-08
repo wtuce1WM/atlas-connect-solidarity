@@ -873,16 +873,6 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
               <WhatsAppIcon className="h-6 w-6" />
             </a>
           )}
-          {business.skype && (
-            <a href={`skype:${business.skype}?chat`} target="_blank" rel="noopener noreferrer" className="hover:opacity-70 transition-opacity" style={{ color: "#00AFF0" }}>
-              <SkypeIcon className="h-6 w-6" />
-            </a>
-          )}
-          {business.phone && (
-            <a href={`tel:${business.phone}`} className="hover:opacity-70 transition-opacity" style={{ color: "#404040" }}>
-              <Phone className="h-6 w-6" />
-            </a>
-          )}
           {(business.latitude || business.google_maps_url) && (
             <button
               onClick={() => mapSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
