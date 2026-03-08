@@ -180,17 +180,104 @@ const StaffMaster = () => {
           </TabsContent>
 
           <TabsContent value="display">
-            <Card className="p-6">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Monitor className="h-5 w-5" />
-                  Affichage
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">Configuration d'affichage à venir.</p>
-              </CardContent>
-            </Card>
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Monitor className="h-5 w-5" />
+                    Header
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-6">
+                    {/* Structure */}
+                    <div>
+                      <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Structure</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <DisplayParam label="Balise HTML" value="<header>" />
+                        <DisplayParam label="Position" value="fixed top-0 left-0 right-0" />
+                        <DisplayParam label="Z-index" value="z-50" />
+                        <DisplayParam label="Conteneur" value="container mx-auto" />
+                        <DisplayParam label="Padding" value="px-4 py-3" />
+                        <DisplayParam label="Layout" value="flex items-center justify-between gap-3" />
+                      </div>
+                    </div>
+
+                    {/* Variants de fond */}
+                    <div>
+                      <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Variants de fond</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <DisplayParam label='variant="default"' value="bg-white" preview={<div className="w-8 h-8 rounded border bg-white" />} />
+                        <DisplayParam label='variant="morocco"' value="bg-gradient-to-b from-morocco-red to-morocco-red/80 backdrop-blur-sm" preview={<div className="w-8 h-8 rounded border bg-gradient-to-b from-red-700 to-red-700/80" />} />
+                        <DisplayParam label='variant="city"' value="bg-transparent" preview={<div className="w-8 h-8 rounded border bg-transparent" style={{ backgroundImage: 'repeating-conic-gradient(#ccc 0% 25%, white 0% 50%)', backgroundSize: '8px 8px' }} />} />
+                      </div>
+                    </div>
+
+                    {/* Logo */}
+                    <div>
+                      <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Logo</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <DisplayParam label="Balise" value="<a> → <img> + <span>" />
+                        <DisplayParam label="Image" value="logoGOLDsimpleSML.webp" />
+                        <DisplayParam label="Taille image" value="h-9 w-9 object-contain" />
+                        <DisplayParam label="Texte 1" value='"ONE WORLD"' preview={<span className="text-gold font-bold">ONE WORLD</span>} />
+                        <DisplayParam label="Texte 2" value='"MOROCCO"' preview={<span className="text-black font-bold">MOROCCO</span>} />
+                        <DisplayParam label="Police texte" value="text-lg font-bold tracking-tight" />
+                        <DisplayParam label="Couleur texte 1" value="text-gold" preview={<div className="w-8 h-8 rounded border" style={{ backgroundColor: 'hsl(var(--gold))' }} />} />
+                        <DisplayParam label="Couleur texte 2" value="text-black" preview={<div className="w-8 h-8 rounded border bg-black" />} />
+                        <DisplayParam label="Responsive" value="hidden sm:inline (texte masqué mobile)" />
+                      </div>
+                    </div>
+
+                    {/* Menu */}
+                    <div>
+                      <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Menu</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <DisplayParam label="Icône ouvert" value="<X> (lucide)" />
+                        <DisplayParam label="Icône fermé" value="<Menu> (lucide)" />
+                        <DisplayParam label="Taille icône" value="h-6 w-6" />
+                        <DisplayParam label="Couleur icône" value="text-black" />
+                        <DisplayParam label="Fond dropdown" value="bg-background border-t border-border" />
+                        <DisplayParam label="Layout dropdown" value="flex-col items-center gap-4 px-4 py-6" />
+                      </div>
+                    </div>
+
+                    {/* Navigation links */}
+                    <div>
+                      <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Liens de navigation</h3>
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="border-b">
+                              <th className="text-left py-2 pr-4 font-medium text-muted-foreground">Lien</th>
+                              <th className="text-left py-2 pr-4 font-medium text-muted-foreground">Route</th>
+                              <th className="text-left py-2 pr-4 font-medium text-muted-foreground">Clé i18n</th>
+                              <th className="text-left py-2 font-medium text-muted-foreground">Style</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y">
+                            <tr><td className="py-2 pr-4">Notre Mission</td><td className="py-2 pr-4 font-mono text-xs">/mission</td><td className="py-2 pr-4 font-mono text-xs">footer.ourMission</td><td className="py-2 text-xs">text-foreground hover:text-gold</td></tr>
+                            <tr><td className="py-2 pr-4">Recherche</td><td className="py-2 pr-4 font-mono text-xs">/search</td><td className="py-2 pr-4 font-mono text-xs">—</td><td className="py-2 text-xs">text-foreground hover:text-gold</td></tr>
+                            <tr><td className="py-2 pr-4">Hôtels</td><td className="py-2 pr-4 font-mono text-xs">/hotels</td><td className="py-2 pr-4 font-mono text-xs">—</td><td className="py-2 text-xs">text-foreground hover:text-gold</td></tr>
+                            <tr><td className="py-2 pr-4">Contact</td><td className="py-2 pr-4 font-mono text-xs">/contact</td><td className="py-2 pr-4 font-mono text-xs">footer.contact</td><td className="py-2 text-xs">text-foreground hover:text-gold</td></tr>
+                            <tr><td className="py-2 pr-4 font-semibold">Rejoignez-nous</td><td className="py-2 pr-4 font-mono text-xs">/devenir-affilie</td><td className="py-2 pr-4 font-mono text-xs">nav.joinNow</td><td className="py-2 text-xs">bg-gold text-gold-foreground rounded-lg px-4 py-2 font-semibold</td></tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    {/* Comportement */}
+                    <div>
+                      <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Comportement</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <DisplayParam label="Fermeture auto" value="Clic à l'extérieur (mousedown listener)" />
+                        <DisplayParam label="Props" value='variant: "default" | "morocco" | "city"' />
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
 
           {isAdmin && (
