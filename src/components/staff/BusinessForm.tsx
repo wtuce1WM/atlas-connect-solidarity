@@ -1189,6 +1189,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             title: s.title?.trim() || null,
             content: s.content?.trim() || null,
             avg_price_range: s.avg_price_range || null,
+            price_details: s.price_details?.trim() || null,
             sort_order: i,
           }));
         if (summariesToInsert.length > 0) {
