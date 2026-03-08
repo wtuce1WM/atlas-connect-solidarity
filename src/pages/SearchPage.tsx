@@ -1465,20 +1465,20 @@ const SearchPage = () => {
      }
    }, [isLoading, spokenText, allBusinesses.length]);
 
-   // Show AI popup when arriving from homepage (non-voice) once AI text is ready
-   useEffect(() => {
-     if (
-       !isLoading &&
-       searchQuery &&
-       !spokenText &&
-       aiAnswerText &&
-       allBusinesses.length > 0 &&
-       !aiPopupShownRef.current
-     ) {
-       aiPopupShownRef.current = true;
-       setShowAiPopup(true);
-     }
-   }, [isLoading, searchQuery, spokenText, aiAnswerText, allBusinesses.length]);
+   // Show AI popup when arriving from homepage (non-voice) — DISABLED: overlay no longer shown
+   // useEffect(() => {
+   //   if (
+   //     !isLoading &&
+   //     searchQuery &&
+   //     !spokenText &&
+   //     aiAnswerText &&
+   //     allBusinesses.length > 0 &&
+   //     !aiPopupShownRef.current
+   //   ) {
+   //     aiPopupShownRef.current = true;
+   //     setShowAiPopup(true);
+   //   }
+   // }, [isLoading, searchQuery, spokenText, aiAnswerText, allBusinesses.length]);
 
   const dismissOverlay = () => {
     setOverlayDismissing(true);
@@ -1646,8 +1646,8 @@ const SearchPage = () => {
     <div className="min-h-screen bg-background">
       <Header />
 
-      {/* Hidden AISearchAnswer instance — COMMENTED OUT: disable AI text generation for fullscreen overlay */}
-      {/* searchQuery && !isLoading && filteredBusinesses.length > 0 && !aiAnswerText && (
+      {/* Hidden AISearchAnswer instance — generates AI text for Sticky 4 (overlay disabled) */}
+      {searchQuery && !isLoading && filteredBusinesses.length > 0 && !aiAnswerText && (
         <div className="hidden">
           <AISearchAnswer
             query={spokenText || searchQuery}
@@ -1658,7 +1658,7 @@ const SearchPage = () => {
             externalRegenerateKey={aiRegenerateKey}
           />
         </div>
-      ) */}
+      )}
 
       {/* AI Suggestion Overlay — fullscreen takeover shown on arrival from homepage */}
       {showAiPopup && (
