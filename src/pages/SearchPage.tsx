@@ -2151,7 +2151,7 @@ const SearchPage = () => {
             }
           }} className="flex gap-0 overflow-x-auto scrollbar-hide whitespace-nowrap" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
             {[
-              { key: "suggestions", icon: <Sparkles className="h-4 w-4" />, label: language === "en" ? "Results" : language === "ar" ? "النتائج" : "Résultats" },
+              { key: "suggestions", icon: <Sparkles className="h-4 w-4" />, label: language === "en" ? "Results" : language === "ar" ? "النتائج" : "Résultats", count: totalCount },
               { key: "map", icon: <Map className="h-4 w-4" />, label: language === "en" ? "Map" : language === "ar" ? "خريطة" : "Carte" },
               { key: "poi", icon: <MapPin className="h-4 w-4" />, label: language === "en" ? "Points of Interest" : language === "ar" ? "أماكن مهمة" : "Lieux d'intérêt" },
               { key: "destinations", icon: <Compass className="h-4 w-4" />, label: language === "en" ? "Destinations" : language === "ar" ? "وجهات" : "Destinations" },
