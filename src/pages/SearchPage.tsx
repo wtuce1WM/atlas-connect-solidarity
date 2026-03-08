@@ -495,9 +495,12 @@ const SearchPage = () => {
   // Ensure first row never stays hidden under sticky stack after a new search
   useEffect(() => {
     if (isLoading || activeTab !== "suggestions") return;
+    if (skipEnsureVisibleRef.current) return;
 
     const timers = [0, 120, 320].map((delay) =>
-      window.setTimeout(() => ensureResultsVisibleBelowSticky("auto"), delay)
+      window.setTimeout(() => {
+        if (!skipEnsureVisibleRef.current) ensureResultsVisibleBelowSticky("auto");
+      }, delay)
     );
 
     return () => timers.forEach((id) => window.clearTimeout(id));
@@ -551,10 +554,17 @@ const SearchPage = () => {
   }, [selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, selectedCity, detectedCity, preciseMatch]);
 
 
+   // Ref to suppress ensureResultsVisible right after a new search scroll-to-top
+   const skipEnsureVisibleRef = useRef(false);
+
    // Reset scroll lock and scroll to top on new search / reload
    useEffect(() => {
      setHasReachedTabBar(false);
+     skipEnsureVisibleRef.current = true;
      window.scrollTo({ top: 0, behavior: "auto" });
+     // Allow ensureResultsVisible again after the delayed timers would have fired
+     const id = window.setTimeout(() => { skipEnsureVisibleRef.current = false; }, 500);
+     return () => window.clearTimeout(id);
    }, [searchQuery, urlT]);
 
    useEffect(() => {
