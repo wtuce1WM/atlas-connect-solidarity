@@ -2575,7 +2575,7 @@ const SearchPage = () => {
           || (baseTop + 62);
 
         return (
-          <div data-ai-bar className="sticky z-[1] bg-white py-2 relative" style={{ top: `${aiTop}px` }}>
+          <div data-ai-bar className="sticky z-[20] bg-white py-2 relative" style={{ top: `${aiTop}px` }}>
             <span className="absolute top-0 left-1 z-[60] bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded select-all cursor-text">🔵 STICKY 4</span>
             <div className="mx-auto px-4 max-w-[80%]">
               <div className="flex items-start gap-3">
