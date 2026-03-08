@@ -21,7 +21,6 @@ const Header = ({ variant = "default" }: HeaderProps) => {
         {/* Logo */}
         <a href="/" className="flex items-center gap-2 shrink-0">
           <span className="text-lg font-bold tracking-tight">
-          <span className="hidden sm:inline text-lg font-bold tracking-tight">
             <span className="text-foreground">ONE WORLD</span>{" "}
             <span className="text-foreground">MOROCCO</span>
           </span>
