@@ -20,7 +20,7 @@ const Header = ({ variant = "default" }: HeaderProps) => {
       <div className="container mx-auto flex items-center justify-between px-4 py-3">
         {/* Logo */}
         <a href="/" className="flex items-center gap-2 shrink-0">
-          <img src={logoGold} alt="WTUCEMA Logo" className="h-9 w-9 object-contain" />
+          <span className="text-lg font-bold tracking-tight">
           <span className="hidden sm:inline text-lg font-bold tracking-tight">
             <span className="text-foreground">ONE WORLD</span>{" "}
             <span className="text-foreground">MOROCCO</span>
