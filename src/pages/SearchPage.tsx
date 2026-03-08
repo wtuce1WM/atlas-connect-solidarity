@@ -2486,7 +2486,7 @@ const SearchPage = () => {
       })()}
 
       {/* AI Summary Bar — sticky below all filter bars (OUTSIDE section for proper sticky) */}
-      {activeTab === "suggestions" && (isCategoryFilterActive || hasScrolledPastHeroAi) && (aiAnswerText || isAiRegenerating) && (() => {
+      {activeTab === "suggestions" && (aiAnswerText || isAiRegenerating) && (() => {
         const hasCB = availableCities.length > 1 && !queryHasExplicitCity;
         const baseTop = 104 + (hasCB ? 44 : 0);
         const categoryEl = typeof document !== "undefined"
