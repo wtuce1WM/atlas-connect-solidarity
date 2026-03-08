@@ -432,7 +432,7 @@ const SearchPage = () => {
 
   // Keep AI summary expanded when filters change
   useEffect(() => {
-    setIsAiSummaryExpanded(true);
+    setIsAiSummaryExpanded(false);
     // After a filter change, ensure the results section is visible below the sticky stack
     requestAnimationFrame(() => {
       const resultsEl = resultsRef.current;
