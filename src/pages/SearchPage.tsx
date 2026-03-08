@@ -528,8 +528,6 @@ const SearchPage = () => {
     fetchExtra();
   }, [selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, selectedCity, detectedCity, preciseMatch]);
 
-   // Track when user has scrolled down to the tab bar — lock scroll above it from that point
-   const [hasReachedTabBar, setHasReachedTabBar] = useState(false);
 
    useEffect(() => {
      setHasReachedTabBar(false);
