@@ -16,6 +16,16 @@ import EasterEggManagement from "@/components/staff/EasterEggManagement";
 import AIConfigManagement from "@/components/staff/AIConfigManagement";
 import MasterDashboard from "@/components/staff/MasterDashboard";
 
+const DisplayParam = ({ label, value, preview }: { label: string; value: string; preview?: React.ReactNode }) => (
+  <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 border">
+    {preview && <div className="shrink-0 mt-0.5">{preview}</div>}
+    <div className="min-w-0">
+      <p className="text-xs font-medium text-muted-foreground">{label}</p>
+      <p className="text-sm font-mono text-foreground break-all">{value}</p>
+    </div>
+  </div>
+);
+
 const StaffMaster = () => {
   const [user, setUser] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
