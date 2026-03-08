@@ -1290,7 +1290,9 @@ const SearchPage = () => {
             ) || businesses[0];
             const parentCategory = matchingBusiness?.main_category || null;
             setSelectedCategoryFilter(parentCategory);
-            setSelectedSubcategoryFilter(finalDetectedSubcategory);
+            // When synonym paired filters produced the results (mix of subcategory + service matches),
+            // do NOT auto-select the subcategory filter — it would hide service-only matches
+            setSelectedSubcategoryFilter(data.synonymUsed ? null : finalDetectedSubcategory);
             setSelectedServiceFilter(null);
 
             // Auto-select city if not detected and only one city in results
