@@ -30,6 +30,8 @@ interface GeolocationState {
   dismiss: () => void;
   /** Manually set coords + address (from location picker) */
   setManualLocation: (coords: { lat: number; lng: number }, address: string) => void;
+  /** Manually set city by name (from city dropdown) */
+  setManualCity: (cityName: string) => void;
 }
 
 const STORAGE_KEY = "geo_preference";
@@ -211,6 +213,27 @@ export function useGeolocation(): GeolocationState {
     }
   }, [cities]);
 
+  const setManualCity = useCallback((cityName: string) => {
+    localStorage.setItem(STORAGE_KEY, "enabled");
+    // Find city coords if available
+    const city = cities.find((c) => c.name_fr === cityName);
+    if (city?.latitude != null && city?.longitude != null) {
+      const newCoords = { lat: city.latitude, lng: city.longitude };
+      localStorage.setItem(MANUAL_COORDS_KEY, JSON.stringify(newCoords));
+      localStorage.setItem(MANUAL_ADDRESS_KEY, cityName);
+      setCoords(newCoords);
+    } else {
+      localStorage.removeItem(MANUAL_COORDS_KEY);
+      localStorage.setItem(MANUAL_ADDRESS_KEY, cityName);
+      setCoords(null);
+    }
+    setConfirmedAddress(cityName);
+    setDetectedCity(cityName);
+    setIsManual(true);
+    setIsEnabled(true);
+    setShowBanner(false);
+  }, [cities]);
+
   return {
     detectedCity,
     isEnabled,
@@ -223,5 +246,6 @@ export function useGeolocation(): GeolocationState {
     toggle,
     dismiss,
     setManualLocation,
+    setManualCity,
   };
 }
