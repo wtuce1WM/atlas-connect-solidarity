@@ -7,9 +7,8 @@ export const helpContent = `
 | Élément | Police | Style |
 |---|---|---|
 | \`body\` | Libre Baskerville (serif) | 400, line-height 1.8 |
-| \`h1\` | Josefin Sans | 300, uppercase, tracking 0.20em |
-| \`h2\` | Josefin Sans | 300, uppercase, tracking 0.15em |
-| \`h3\` | Josefin Sans | 300, uppercase, tracking 0.12em |
+| \`h1, h2, h3\` | Libre Baskerville (serif) | 400, casse mixte (éditorial) |
+| \`nav, button, .font-venus\` | Josefin Sans (sans-serif) | 300, uppercase, tracking 0.12em |
 | \`.font-arabic\` | Amiri | 400, 700 |
 
 ## Classes Tailwind — Tailles de police

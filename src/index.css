@@ -129,21 +129,20 @@ All colors MUST be HSL.
 }
 
 /* Brummell-inspired typography */
-/* Josefin Sans — Titres, navigation, boutons (replaces Venus) */
+/* Libre Baskerville — Titres éditoriaux (replaces Freight Text) */
 h1, h2, h3 {
+  font-family: 'Libre Baskerville', serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+/* Josefin Sans — Navigation, boutons, labels, CTA (replaces Venus) */
+.font-venus, nav, button, [role="button"], label,
+.uppercase {
   font-family: 'Josefin Sans', sans-serif;
   font-weight: 300;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  font-style: normal;
-}
-
-h1 {
-  letter-spacing: 0.20em;
-}
-
-h2 {
-  letter-spacing: 0.15em;
 }
 
 /* Libre Baskerville — Corps de texte (replaces Freight Text) */
