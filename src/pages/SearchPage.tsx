@@ -456,7 +456,9 @@ const SearchPage = () => {
 
     const stickyComputedTop = Number.parseFloat(window.getComputedStyle(lastSticky).top || "0");
     const stickyHeight = lastSticky.getBoundingClientRect().height;
-    const stickyBottom = (Number.isFinite(stickyComputedTop) ? stickyComputedTop : 0) + stickyHeight;
+    const stickyConfiguredBottom = (Number.isFinite(stickyComputedTop) ? stickyComputedTop : 0) + stickyHeight;
+    const stickyCurrentBottom = lastSticky.getBoundingClientRect().bottom;
+    const stickyBottom = Math.max(stickyConfiguredBottom, stickyCurrentBottom);
     const resultsTop = resultsEl.getBoundingClientRect().top + window.scrollY;
     const targetScroll = resultsTop - stickyBottom - 8;
 
