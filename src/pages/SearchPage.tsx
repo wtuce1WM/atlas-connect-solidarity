@@ -1102,6 +1102,8 @@ const SearchPage = () => {
 
   const searchServiceFilters = useMemo(() => {
     if (!searchQuery.trim() || allBusinesses.length === 0) return [];
+    // Don't show service filters when subcategory was detected via heuristic fallback (not backend)
+    if (isHeuristicFallback) return [];
     // Don't short-circuit when auto-selection came from detection — only when user manually picked via CityCategoryFilter
     // (auto-detection sets both detectedSubcategory AND selectedSubcategoryFilter simultaneously)
     const isAutoSelected = !!detectedSubcategory && selectedSubcategoryFilter === detectedSubcategory;
