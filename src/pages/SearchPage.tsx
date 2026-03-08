@@ -1646,8 +1646,8 @@ const SearchPage = () => {
     <div className="min-h-screen bg-background">
       <Header />
 
-      {/* Hidden AISearchAnswer instance — always renders to ensure onAnswerReady fires even when hero is hidden */}
-      {searchQuery && !isLoading && filteredBusinesses.length > 0 && !aiAnswerText && (
+      {/* Hidden AISearchAnswer instance — COMMENTED OUT: disable AI text generation for fullscreen overlay */}
+      {/* searchQuery && !isLoading && filteredBusinesses.length > 0 && !aiAnswerText && (
         <div className="hidden">
           <AISearchAnswer
             query={spokenText || searchQuery}
@@ -1658,7 +1658,7 @@ const SearchPage = () => {
             externalRegenerateKey={aiRegenerateKey}
           />
         </div>
-      )}
+      ) */}
 
       {/* AI Suggestion Overlay — fullscreen takeover shown on arrival from homepage */}
       {showAiPopup && (
