@@ -90,7 +90,7 @@ const SynonymsManagement = () => {
 
   const load = async () => {
     setIsLoading(true);
-    const [{ data }, { data: subcats }, { data: cats }, svcData, { data: bdgData }, bizData, { data: engOptsData }, { data: bizBadgesData }] = await Promise.all([
+    const [{ data }, { data: subcats }, { data: cats }, svcData, { data: bdgData }, bizData, { data: engOptsData }, bizBadgesData] = await Promise.all([
       supabase.from("search_synonyms").select("*").order("key_word"),
       supabase.from("subcategories").select("id, name_fr, category_id").order("name_fr"),
       supabase.from("categories").select("id, name_fr").order("name_fr"),
