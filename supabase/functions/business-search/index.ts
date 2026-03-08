@@ -1915,10 +1915,17 @@ serve(async (req) => {
           });
         });
 
+        // ── Post-filter matchingByName: ILIKE is too permissive (e.g. "astronomie" matches "Gastronomie").
+        // Keep only services where at least one name token matches a query word exactly (accent/plural-insensitive).
+        const validatedByName = (matchingByName || []).filter(svc => {
+          const nameTokens = svc.name_fr.toLowerCase().split(/[\s/\-]+/).map((t: string) => normalizeWordKw(t)).filter((t: string) => t.length > 1);
+          return nameTokens.some(t => serviceMatchWords.some(w => normalizeWordKw(w) === t));
+        });
+
         const allMatched = new Map<string, any>();
         // Normalize key: replace hyphens with spaces for merging variants like "Sur-mesure" / "Sur mesure"
         const normalizeServiceKey = (name: string) => name.toLowerCase().replace(/-/g, " ").replace(/\s+/g, " ").trim();
-        for (const s of [...(matchingByName || []), ...keywordMatches, ...nameMatchesAccentInsensitive]) {
+        for (const s of [...validatedByName, ...keywordMatches, ...nameMatchesAccentInsensitive]) {
           const normKey = normalizeServiceKey(s.name_fr);
           // Extract subcategory name from joined data
           const sSubcat = s.subcategories?.name_fr || null;
