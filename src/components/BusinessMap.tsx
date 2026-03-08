@@ -279,6 +279,11 @@ const BusinessMap = ({
       marker.addListener("click", () => {
         infoWindow.setContent(infoHtml(b));
         infoWindow.open(map, marker);
+        // Show ripple on selected marker
+        const overlay = rippleOverlayRef.current as any;
+        if (overlay && marker.getPosition()) {
+          overlay.setPosition(marker.getPosition()!);
+        }
       });
 
       markers.push(marker);
