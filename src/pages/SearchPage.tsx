@@ -495,9 +495,12 @@ const SearchPage = () => {
   // Ensure first row never stays hidden under sticky stack after a new search
   useEffect(() => {
     if (isLoading || activeTab !== "suggestions") return;
+    if (skipEnsureVisibleRef.current) return;
 
     const timers = [0, 120, 320].map((delay) =>
-      window.setTimeout(() => ensureResultsVisibleBelowSticky("auto"), delay)
+      window.setTimeout(() => {
+        if (!skipEnsureVisibleRef.current) ensureResultsVisibleBelowSticky("auto");
+      }, delay)
     );
 
     return () => timers.forEach((id) => window.clearTimeout(id));
