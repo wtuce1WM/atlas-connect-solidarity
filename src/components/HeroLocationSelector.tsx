@@ -182,22 +182,43 @@ const HeroLocationSelector = ({
         )}
       </div>
 
-      {/* "Utilisez ma position exacte" button */}
-      <button
-        type="button"
-        onClick={onAcceptGeo}
-        className="flex items-center gap-2 px-5 py-2.5 rounded-full text-white font-semibold text-sm shadow-md hover:shadow-lg transition-all"
-        style={{ backgroundColor: "#25D366" }}
-      >
-        <span>
-          {language === "fr"
-            ? "Utilisez ma position exacte"
-            : language === "ar"
-              ? "استخدم موقعي الدقيق"
-              : "Use my exact location"}
-        </span>
-        <Info className="h-4 w-4 opacity-80" />
-      </button>
+      {/* "Utilisez ma position exacte" button with info tooltip */}
+      <div className="flex items-center gap-0">
+        <button
+          type="button"
+          onClick={onAcceptGeo}
+          className="flex items-center gap-2 pl-5 pr-3 py-2.5 rounded-l-full text-white font-semibold text-sm shadow-md hover:shadow-lg transition-all"
+          style={{ backgroundColor: "#25D366" }}
+        >
+          <span>
+            {language === "fr"
+              ? "Utilisez ma position exacte"
+              : language === "ar"
+                ? "استخدم موقعي الدقيق"
+                : "Use my exact location"}
+          </span>
+        </button>
+        <TooltipProvider delayDuration={0}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                className="flex items-center justify-center pr-4 pl-2 py-2.5 rounded-r-full text-white"
+                style={{ backgroundColor: "#25D366" }}
+              >
+                <Info className="h-5 w-5 opacity-90" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom" className="max-w-[280px] text-sm bg-foreground text-background p-3 rounded-lg">
+              {language === "fr"
+                ? "Veuillez activer la géolocalisation pour trouver les meilleurs établissements près de chez vous. Cela nous permettra de montrer des résultats plus précis."
+                : language === "ar"
+                  ? "يرجى تفعيل تحديد الموقع الجغرافي للعثور على أفضل المؤسسات بالقرب منك. سيسمح لنا ذلك بعرض نتائج أكثر دقة."
+                  : "Please enable geolocation to find the best businesses near you. This will allow us to show more accurate results."}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
     </div>
   );
 };
