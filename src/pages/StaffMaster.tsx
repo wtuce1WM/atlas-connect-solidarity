@@ -173,7 +173,7 @@ const StaffMaster = () => {
 
           <TabsContent value="knowledge">
             <KnowledgeBaseManagement
-              categories={["search-engine", "voice-search", "opening-hours", "UI", "architecture", "business-rules", "bug-fix", "tech"]}
+              categories={["search-engine", "voice-search", "opening-hours", "UI", "architecture", "business-rules", "bug-fix", "tech", "technique"]}
               newEntryLabel="Nouvelle note technique"
               emptyLabel="Aucune note technique"
             />
