@@ -1116,13 +1116,24 @@ const SearchPage = () => {
 
     // Determine which service names are allowed based on detected subcategory
     let allowedNames: Set<string>;
-    if (detectedSubcategory && filteredServicesBySubcategory[detectedSubcategory]) {
-      allowedNames = filteredServicesBySubcategory[detectedSubcategory];
+    if (detectedSubcategory) {
+      const subcategoryAllowed = filteredServicesBySubcategory[detectedSubcategory];
+      // Strict mode: if detected subcategory has no configured filtered services, hide sticky 3d
+      if (!subcategoryAllowed || subcategoryAllowed.size === 0) return [];
+      allowedNames = subcategoryAllowed;
     } else {
       allowedNames = allFilteredServiceNames;
     }
 
-    const source = selectedCity === "all" ? allBusinesses : allBusinesses.filter(b => b.city === selectedCity);
+    // When subcategory is detected, only count services from businesses that truly belong to it
+    const subcategoryScopedBusinesses = detectedSubcategory
+      ? allBusinesses.filter((b) => b.categories?.includes(detectedSubcategory))
+      : allBusinesses;
+
+    const source = selectedCity === "all"
+      ? subcategoryScopedBusinesses
+      : subcategoryScopedBusinesses.filter((b) => b.city === selectedCity);
+
     const countMap: Record<string, number> = {};
     for (const b of source) {
       if (b.services) {
@@ -1137,6 +1148,7 @@ const SearchPage = () => {
         }
       }
     }
+
     return Object.entries(countMap)
       .filter(([, count]) => count >= 1)
       .sort((a, b) => a[0].localeCompare(b[0], "fr"))
