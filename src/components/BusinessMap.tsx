@@ -131,6 +131,8 @@ const BusinessMap = ({
   const clustererRef = useRef<MarkerClusterer | null>(null);
   const markersRef = useRef<google.maps.Marker[]>([]);
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
+  const rippleOverlayRef = useRef<google.maps.OverlayView | null>(null);
+  const rippleDivRef = useRef<HTMLDivElement | null>(null);
 
   const [internalBusinesses, setInternalBusinesses] = useState<MapBusiness[]>([]);
   const [internalLoading, setInternalLoading] = useState(!externalBusinesses);
