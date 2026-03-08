@@ -2130,51 +2130,45 @@ const SearchPage = () => {
       <section data-tab-bar className="sticky top-[60px] z-[20] bg-white border-b border-border relative">
         <span className="absolute top-0 left-1 z-[60] bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded select-all cursor-text">🔴 STICKY 1</span>
         <div className="mx-auto px-4 max-w-full sm:max-w-[80%]">
-          <div className="flex gap-0 overflow-x-auto scrollbar-hide whitespace-nowrap" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
-            <button
-              onClick={() => { resetPanelStates(); setActiveTab("suggestions"); }}
-              className={`flex items-center gap-2 px-5 py-3 text-sm font-medium transition-colors border-b-2 ${
-                activeTab === "suggestions"
-                  ? "border-gold text-gold"
-                  : "border-transparent text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <Sparkles className="h-4 w-4" />
-              {language === "en" ? "Results" : language === "ar" ? "النتائج" : "Résultats"}
-            </button>
-            <button
-              onClick={() => { resetPanelStates(); setActiveTab("map"); }}
-              className={`flex items-center gap-2 px-5 py-3 text-sm font-medium transition-colors border-b-2 ${
-                activeTab === "map"
-                  ? "border-gold text-gold"
-                  : "border-transparent text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <Map className="h-4 w-4" />
-              {language === "en" ? "Map" : language === "ar" ? "خريطة" : "Carte"}
-            </button>
-            <button
-              onClick={() => { resetPanelStates(); setActiveTab("poi"); }}
-              className={`flex items-center gap-2 px-5 py-3 text-sm font-medium transition-colors border-b-2 ${
-                activeTab === "poi"
-                  ? "border-gold text-gold"
-                  : "border-transparent text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <MapPin className="h-4 w-4" />
-              {language === "en" ? "Points of Interest" : language === "ar" ? "أماكن مهمة" : "Lieux d'intérêt"}
-            </button>
-            <button
-              onClick={() => { resetPanelStates(); setActiveTab("destinations"); }}
-              className={`flex items-center gap-2 px-5 py-3 text-sm font-medium transition-colors border-b-2 ${
-                activeTab === "destinations"
-                  ? "border-gold text-gold"
-                  : "border-transparent text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <Compass className="h-4 w-4" />
-              {language === "en" ? "Destinations" : language === "ar" ? "وجهات" : "Destinations"}
-            </button>
+          <div ref={(el) => {
+            // Auto-center active tab on mount and tab change
+            if (el) {
+              const active = el.querySelector('[data-active-tab="true"]') as HTMLElement;
+              if (active) {
+                const scrollLeft = active.offsetLeft - el.clientWidth / 2 + active.offsetWidth / 2;
+                el.scrollTo({ left: scrollLeft, behavior: "smooth" });
+              }
+            }
+          }} className="flex gap-0 overflow-x-auto scrollbar-hide whitespace-nowrap" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
+            {[
+              { key: "suggestions", icon: <Sparkles className="h-4 w-4" />, label: language === "en" ? "Results" : language === "ar" ? "النتائج" : "Résultats" },
+              { key: "map", icon: <Map className="h-4 w-4" />, label: language === "en" ? "Map" : language === "ar" ? "خريطة" : "Carte" },
+              { key: "poi", icon: <MapPin className="h-4 w-4" />, label: language === "en" ? "Points of Interest" : language === "ar" ? "أماكن مهمة" : "Lieux d'intérêt" },
+              { key: "destinations", icon: <Compass className="h-4 w-4" />, label: language === "en" ? "Destinations" : language === "ar" ? "وجهات" : "Destinations" },
+            ].map((tab) => (
+              <button
+                key={tab.key}
+                data-active-tab={activeTab === tab.key ? "true" : undefined}
+                onClick={(e) => {
+                  resetPanelStates();
+                  setActiveTab(tab.key as any);
+                  const btn = e.currentTarget;
+                  const container = btn.parentElement;
+                  if (container) {
+                    const scrollLeft = btn.offsetLeft - container.clientWidth / 2 + btn.offsetWidth / 2;
+                    container.scrollTo({ left: scrollLeft, behavior: "smooth" });
+                  }
+                }}
+                className={`flex items-center gap-2 px-5 py-3 text-sm font-medium transition-colors border-b-2 ${
+                  activeTab === tab.key
+                    ? "border-gold text-gold"
+                    : "border-transparent text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {tab.icon}
+                {tab.label}
+              </button>
+            ))}
           </div>
         </div>
       </section>
