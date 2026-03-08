@@ -684,13 +684,14 @@ const SearchPage = () => {
     }
   }, [searchQuery, categoryFromUrl, queryHasExplicitCity, geo.isEnabled, geo.detectedCity, selectedCity]);
 
-  // If query explicitly targets a city, don't keep a stale geo city filter
+  // If query text itself contains a city name, don't also filter by city in the frontend
+  // (the search engine handles it). But keep the filter when city comes from URL param.
   useEffect(() => {
-    if (queryHasExplicitCity && selectedCity !== "all") {
+    if (queryHasExplicitCity && !cityFromUrl && selectedCity !== "all") {
       setSelectedCity("all");
       setIsGeoCityAutoSelected(false);
     }
-  }, [queryHasExplicitCity, selectedCity]);
+  }, [queryHasExplicitCity, cityFromUrl, selectedCity]);
 
   // Clear auto geo city filter as soon as user starts a free-text search without explicit city
   useEffect(() => {
