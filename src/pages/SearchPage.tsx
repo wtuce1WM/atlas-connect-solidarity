@@ -473,7 +473,7 @@ const SearchPage = () => {
     const firstResultCard = resultsEl.querySelector<HTMLElement>("[data-result-card='true']");
     const anchorEl = firstResultCard ?? resultsEl;
     const resultsTopInViewport = anchorEl.getBoundingClientRect().top;
-    const overlap = stickyBottom + 64 - resultsTopInViewport;
+    const overlap = stickyBottom + 80 - resultsTopInViewport;
     if (overlap <= 0) return;
 
     const targetScroll = Math.max(0, window.scrollY + overlap);
