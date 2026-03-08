@@ -161,6 +161,7 @@ const SynonymsManagement = () => {
       services: b.services || [],
       engagements: b.engagements || [],
       is_visible_locale: b.is_visible_locale ?? true,
+      is_active: b.is_active ?? true,
       badge_ids: bizBadgeMap.get(b.id) || [],
     })));
     setIsLoading(false);
