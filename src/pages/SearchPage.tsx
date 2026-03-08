@@ -2948,7 +2948,7 @@ const SearchPage = () => {
             <>
               {/* TEST: Fallback-style cards in 4-column grid (old BusinessCard display commented out below) */}
               <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-4 pt-4">
-                {paginatedBusinesses.map((business) => {
+                {paginatedBusinesses.map((business, index) => {
                   const img = business.images?.[0] || business.logo_url;
                   const sources = collectRatingSources(business as any);
                   const avgOn20 = computeWeightedRatingOn20(sources);
@@ -2957,6 +2957,7 @@ const SearchPage = () => {
                   return (
                     <div
                       key={business.id}
+                      data-result-card={index === 0 ? "true" : undefined}
                       onClick={() => setCompactPanelBusiness({ id: business.id, name: business.name } as AIBusinessData)}
                       className="group overflow-hidden rounded-xl border border-border shadow-sm hover:shadow-md transition-all cursor-pointer relative aspect-square bg-muted"
                     >
