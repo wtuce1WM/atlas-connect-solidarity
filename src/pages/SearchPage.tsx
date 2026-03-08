@@ -1802,7 +1802,16 @@ const SearchPage = () => {
                 ) : parseInline(
                   aiAnswerText,
                   allBusinesses as unknown as AIBusinessData[],
-                  (b: AIBusinessData) => setOverlaySelectedBusiness(b),
+                  (b: AIBusinessData) => {
+                    if (isSubDesktop) {
+                      setShowAiPopup(false);
+                      setOverlaySelectedBusiness(null);
+                      setCompactPanelBusiness(b);
+                      setIsCompactPanelExpanded(false);
+                      return;
+                    }
+                    setOverlaySelectedBusiness(b);
+                  },
                   "ai-popup"
                 )}
               </div>
