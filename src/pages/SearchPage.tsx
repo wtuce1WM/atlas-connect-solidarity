@@ -2727,7 +2727,8 @@ const SearchPage = () => {
       {activeTab === "suggestions" && (
       <section
         ref={resultsRef}
-        className={`bg-white pb-6 lg:pb-4 pt-4 transition-all duration-300 ${compactPanelBusiness ? "w-1/2" : "w-full"}`}
+        className={`bg-white pb-6 lg:pb-4 transition-all duration-300 ${compactPanelBusiness ? "w-1/2" : "w-full"}`}
+        style={{ paddingTop: stickyStackPadding > 0 ? `${stickyStackPadding}px` : '16px' }}
       >
         <div className={`mx-auto px-4 ${compactPanelBusiness ? "max-w-full" : "max-w-[80%]"}`}>
           {/* Filters: City + Geo toggle — on mobile shown before hero via order */}
