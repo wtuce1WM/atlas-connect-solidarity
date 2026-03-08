@@ -575,7 +575,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
   const [flipbookDocs, setFlipbookDocs] = useState<DocEntry[]>([]);
 
   // --- Menu summaries (multiple per business) ---
-  type MenuSummaryEntry = { id?: string; title: string; content: string; avg_price_range: any };
+  type MenuSummaryEntry = { id?: string; title: string; content: string; avg_price_range: any; price_details: string };
   const [menuSummaries, setMenuSummaries] = useState<MenuSummaryEntry[]>([]);
 
   useEffect(() => {
@@ -603,6 +603,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           title: d.title || "",
           content: d.content || "",
           avg_price_range: d.avg_price_range || null,
+          price_details: d.price_details || "",
         })));
       }
     };
@@ -1188,6 +1189,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             title: s.title?.trim() || null,
             content: s.content?.trim() || null,
             avg_price_range: s.avg_price_range || null,
+            price_details: s.price_details?.trim() || null,
             sort_order: i,
           }));
         if (summariesToInsert.length > 0) {
@@ -2622,7 +2624,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           <div className="mt-4 space-y-3">
             <div className="flex items-center justify-between">
               <Label className="text-base font-semibold">📝 Résumés du menu <span className="text-muted-foreground font-normal text-sm">(pour l'IA)</span></Label>
-              <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setMenuSummaries(prev => [...prev, { title: "", content: "", avg_price_range: null }])}>
+              <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setMenuSummaries(prev => [...prev, { title: "", content: "", avg_price_range: null, price_details: "" }])}>
                 <Plus className="h-3 w-3" /> Ajouter un résumé
               </Button>
             </div>
@@ -2655,45 +2657,57 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   />
                 </div>
 
-                <div className="space-y-1">
-                  <Label className="text-sm font-medium">💰 Budget moyen par personne</Label>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      type="number"
-                      value={summary.avg_price_range?.min ?? ""}
-                      onChange={(e) => {
-                        const val = e.target.value ? Number(e.target.value) : undefined;
-                        setMenuSummaries(prev => prev.map((s, i) => i === idx ? { ...s, avg_price_range: { ...(s.avg_price_range || {}), min: val } } : s));
-                      }}
-                      placeholder="Min"
-                      className="w-24"
-                    />
-                    <span className="text-muted-foreground">—</span>
-                    <Input
-                      type="number"
-                      value={summary.avg_price_range?.max ?? ""}
-                      onChange={(e) => {
-                        const val = e.target.value ? Number(e.target.value) : undefined;
-                        setMenuSummaries(prev => prev.map((s, i) => i === idx ? { ...s, avg_price_range: { ...(s.avg_price_range || {}), max: val } } : s));
-                      }}
-                      placeholder="Max"
-                      className="w-24"
-                    />
-                    <select
-                      value={summary.avg_price_range?.currency || "MAD"}
-                      onChange={(e) => setMenuSummaries(prev => prev.map((s, i) => i === idx ? { ...s, avg_price_range: { ...(s.avg_price_range || {}), currency: e.target.value } } : s))}
-                      className="h-9 rounded-md border border-input bg-background px-3 text-sm w-24"
-                    >
-                      <option value="MAD">MAD</option>
-                      <option value="EUR">EUR</option>
-                      <option value="USD">USD</option>
-                    </select>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <Label className="text-sm font-medium">💰 Budget moyen par personne</Label>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="number"
+                        value={summary.avg_price_range?.min ?? ""}
+                        onChange={(e) => {
+                          const val = e.target.value ? Number(e.target.value) : undefined;
+                          setMenuSummaries(prev => prev.map((s, i) => i === idx ? { ...s, avg_price_range: { ...(s.avg_price_range || {}), min: val } } : s));
+                        }}
+                        placeholder="Min"
+                        className="w-24"
+                      />
+                      <span className="text-muted-foreground">—</span>
+                      <Input
+                        type="number"
+                        value={summary.avg_price_range?.max ?? ""}
+                        onChange={(e) => {
+                          const val = e.target.value ? Number(e.target.value) : undefined;
+                          setMenuSummaries(prev => prev.map((s, i) => i === idx ? { ...s, avg_price_range: { ...(s.avg_price_range || {}), max: val } } : s));
+                        }}
+                        placeholder="Max"
+                        className="w-24"
+                      />
+                      <select
+                        value={summary.avg_price_range?.currency || "MAD"}
+                        onChange={(e) => setMenuSummaries(prev => prev.map((s, i) => i === idx ? { ...s, avg_price_range: { ...(s.avg_price_range || {}), currency: e.target.value } } : s))}
+                        className="h-9 rounded-md border border-input bg-background px-3 text-sm w-24"
+                      >
+                        <option value="MAD">MAD</option>
+                        <option value="EUR">EUR</option>
+                        <option value="USD">USD</option>
+                      </select>
+                    </div>
+                    {summary.avg_price_range?.min != null && summary.avg_price_range?.max != null && (
+                      <p className="text-xs text-muted-foreground">
+                        Affiché : {summary.avg_price_range.min}–{summary.avg_price_range.max} {summary.avg_price_range.currency || "MAD"} / personne
+                      </p>
+                    )}
                   </div>
-                  {summary.avg_price_range?.min != null && summary.avg_price_range?.max != null && (
-                    <p className="text-xs text-muted-foreground">
-                      Affiché : {summary.avg_price_range.min}–{summary.avg_price_range.max} {summary.avg_price_range.currency || "MAD"} / personne
-                    </p>
-                  )}
+
+                  <div className="space-y-1">
+                    <Label className="text-sm font-medium">📊 Détail des prix</Label>
+                    <RichTextEditor
+                      content={summary.price_details || ""}
+                      onChange={(html) => setMenuSummaries(prev => prev.map((s, i) => i === idx ? { ...s, price_details: html } : s))}
+                      placeholder="Entrées 220–450 MAD · Plats 290–970 MAD · Desserts 200–250 MAD..."
+                      maxHeight="180px"
+                    />
+                  </div>
                 </div>
               </div>
             ))}

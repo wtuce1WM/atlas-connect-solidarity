@@ -1,0 +1,1 @@
+ALTER TABLE public.business_menu_summaries ADD COLUMN price_details text;
