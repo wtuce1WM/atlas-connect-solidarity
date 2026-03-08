@@ -446,24 +446,33 @@ const SearchPage = () => {
     const resultsEl = resultsRef.current;
     if (!resultsEl) return;
 
-    const aiBar = document.querySelector<HTMLElement>('[data-ai-bar]');
-    const lastSticky = aiBar
-      || document.querySelector<HTMLElement>('[data-search-service-filter]')
-      || document.querySelector<HTMLElement>('[data-service-filter]')
-      || document.querySelector<HTMLElement>('[data-subcategory-filter]')
-      || document.querySelector<HTMLElement>('[data-category-filter]')
-      || document.querySelector<HTMLElement>('[data-city-bar]')
-      || document.querySelector<HTMLElement>('[data-tab-bar]');
+    const stickySelectors = [
+      '[data-ai-bar]',
+      '[data-search-service-filter]',
+      '[data-service-filter]',
+      '[data-subcategory-filter]',
+      '[data-category-filter]',
+      '[data-city-bar]',
+      '[data-tab-bar]',
+    ] as const;
 
-    if (!lastSticky) return;
+    const stickyElements = stickySelectors
+      .map((selector) => document.querySelector<HTMLElement>(selector))
+      .filter((el): el is HTMLElement => !!el && el.getBoundingClientRect().height > 0);
 
-    const stickyComputedTop = Number.parseFloat(window.getComputedStyle(lastSticky).top || "0");
-    const stickyHeight = lastSticky.getBoundingClientRect().height;
-    const stickyConfiguredBottom = (Number.isFinite(stickyComputedTop) ? stickyComputedTop : 0) + stickyHeight;
-    const stickyCurrentBottom = lastSticky.getBoundingClientRect().bottom;
-    const stickyBottom = Math.max(stickyConfiguredBottom, stickyCurrentBottom);
+    if (stickyElements.length === 0) return;
 
-    const resultsTopInViewport = resultsEl.getBoundingClientRect().top;
+    const stickyBottom = stickyElements.reduce((maxBottom, el) => {
+      const stickyComputedTop = Number.parseFloat(window.getComputedStyle(el).top || "0");
+      const stickyHeight = el.getBoundingClientRect().height;
+      const stickyConfiguredBottom = (Number.isFinite(stickyComputedTop) ? stickyComputedTop : 0) + stickyHeight;
+      const stickyCurrentBottom = el.getBoundingClientRect().bottom;
+      return Math.max(maxBottom, stickyConfiguredBottom, stickyCurrentBottom);
+    }, 0);
+
+    const firstResultCard = resultsEl.querySelector<HTMLElement>("[data-result-card='true']");
+    const anchorEl = firstResultCard ?? resultsEl;
+    const resultsTopInViewport = anchorEl.getBoundingClientRect().top;
     const overlap = stickyBottom + 48 - resultsTopInViewport;
     if (overlap <= 0) return;
 
@@ -2939,7 +2948,7 @@ const SearchPage = () => {
             <>
               {/* TEST: Fallback-style cards in 4-column grid (old BusinessCard display commented out below) */}
               <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-4 pt-4">
-                {paginatedBusinesses.map((business) => {
+                {paginatedBusinesses.map((business, index) => {
                   const img = business.images?.[0] || business.logo_url;
                   const sources = collectRatingSources(business as any);
                   const avgOn20 = computeWeightedRatingOn20(sources);
@@ -2948,6 +2957,7 @@ const SearchPage = () => {
                   return (
                     <div
                       key={business.id}
+                      data-result-card={index === 0 ? "true" : undefined}
                       onClick={() => setCompactPanelBusiness({ id: business.id, name: business.name } as AIBusinessData)}
                       className="group overflow-hidden rounded-xl border border-border shadow-sm hover:shadow-md transition-all cursor-pointer relative aspect-square bg-muted"
                     >
