@@ -149,21 +149,24 @@ const parseInline = (
       const match = findBusiness(part, businesses);
       if (match) {
         const card = <BusinessHoverCard key={`${keyPrefix}-${j}`} name={part} business={match} onClickBusiness={onClickBusiness} />;
-        if (hl) {
-          nodes.push(
-            <span key={`${keyPrefix}-hl-${j}`} className={`transition-colors duration-100 rounded-sm ${highlighted ? "bg-gold/20" : ""}`}>
-              {card}
-            </span>
-          );
+          if (hl) {
+            nodes.push(
+              <span
+                key={`${keyPrefix}-hl-${j}`}
+                className={`inline-flex transition-all duration-300 rounded-sm ${highlighted ? "opacity-100 blur-0 translate-y-0" : "opacity-0 blur-[2px] translate-y-1 pointer-events-none"}`}
+              >
+                {card}
+              </span>
+            );
+          } else {
+            nodes.push(card);
+          }
         } else {
-          nodes.push(card);
-        }
-      } else {
-        nodes.push(
-          <strong key={`${keyPrefix}-${j}`} className={`font-semibold text-foreground${hl ? ` transition-colors duration-100 rounded-sm${highlighted ? " bg-gold/20" : ""}` : ""}`}>
-            {part}
-          </strong>
-        );
+          nodes.push(
+            <strong key={`${keyPrefix}-${j}`} className={`font-semibold text-foreground${hl ? ` inline-block transition-all duration-300 rounded-sm ${highlighted ? "opacity-100 blur-0 translate-y-0" : "opacity-0 blur-[2px] translate-y-1"}` : ""}`}>
+              {part}
+            </strong>
+          );
       }
     } else {
       const italicParts = part.split(/\*(.+?)\*/g);
@@ -205,7 +208,7 @@ const renderWordTokens = (
     }
     const wordIdx = hl.wordIndex++;
     const highlighted = wordIdx <= hl.target;
-    const hlClass = `transition-colors duration-100 rounded-sm${highlighted ? " bg-gold/20" : ""}`;
+    const hlClass = `transition-all duration-300 inline-block rounded-sm ${highlighted ? "opacity-100 blur-0 translate-y-0" : "opacity-0 blur-[2px] translate-y-1"}`;
     if (italic) {
       nodes.push(<em key={`${keyPrefix}-w-${t}`} className={hlClass}>{token}</em>);
     } else {
