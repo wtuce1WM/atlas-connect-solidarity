@@ -74,7 +74,7 @@ const HeroSection = () => {
     <section
       ref={heroRef}
       className={`relative w-full transition-all duration-350 ease-in-out ${
-        isExiting ? "opacity-0 -translate-y-16" : "opacity-100 translate-y-0"
+        isExiting ? "opacity-0 -translate-y-16" : "opacity-100"
       }`}
     >
       {/* Hero Background Image — disabled
