@@ -438,6 +438,9 @@ const SearchPage = () => {
   const isCategoryFilterActive = !!(selectedCategoryFilter || selectedSubcategoryFilter || selectedServiceFilter);
   const [isAiSummaryExpanded, setIsAiSummaryExpanded] = useState(false);
 
+  // Track when user has scrolled down to the tab bar — lock scroll above it from that point
+  const [hasReachedTabBar, setHasReachedTabBar] = useState(false);
+
   // Keep AI summary expanded when filters change
   const ensureResultsVisibleBelowSticky = useCallback((behavior: ScrollBehavior = "smooth") => {
     const resultsEl = resultsRef.current;
