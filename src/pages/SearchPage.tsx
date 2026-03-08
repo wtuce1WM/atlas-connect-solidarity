@@ -2532,13 +2532,19 @@ const SearchPage = () => {
                     <Sparkles className="h-3.5 w-3.5 inline-block mr-1.5 text-gold align-text-bottom" />
                     {isAiRegenerating ? (
                       <span className="italic text-muted-foreground/60">{language === "en" ? "Regenerating…" : "Régénération en cours…"}</span>
-                    ) : parseInline(
-                      stickyAiText,
-                      allBusinesses as unknown as AIBusinessData[],
-                      (b) => setCompactPanelBusiness(b),
-                      "compact-ai",
-                      { wordIndex: 0, target: stickyAiVisibleWordIndex }
-                    )}
+                    ) : (() => {
+                      const isTTSActive = ttsStatus === "playing" && ttsSpokenWordIndex >= 0;
+                      const karaokeTarget = isTTSActive ? ttsSpokenWordIndex - ttsIntroWordCountRef.current : -1;
+                      return parseInline(
+                        stickyAiText,
+                        allBusinesses as unknown as AIBusinessData[],
+                        (b) => setCompactPanelBusiness(b),
+                        "compact-ai",
+                        isTTSActive
+                          ? { wordIndex: 0, target: karaokeTarget, mode: "karaoke" as const }
+                          : { wordIndex: 0, target: stickyAiVisibleWordIndex }
+                      );
+                    })()}
                   </div>
                   <button
                     onClick={() => setIsAiSummaryExpanded(!isAiSummaryExpanded)}
