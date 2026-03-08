@@ -1756,9 +1756,9 @@ const SearchPage = () => {
           {/* Close button */}
           <button
             onClick={() => { setShowAiPopup(false); setOverlaySelectedBusiness(null); }}
-            className="absolute top-4 right-4 sm:top-6 sm:right-6 p-2 rounded-full bg-black sm:bg-transparent hover:bg-black/80 sm:hover:bg-muted transition-colors z-10"
+            className="absolute top-4 right-4 sm:top-6 sm:right-6 p-2 rounded-full bg-black hover:bg-black/80 transition-colors z-10"
           >
-            <X className="h-5 w-5 sm:h-6 sm:w-6 text-white sm:text-muted-foreground" />
+            <X className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
           </button>
 
           {/* AI text — scrollable center, wider */}
