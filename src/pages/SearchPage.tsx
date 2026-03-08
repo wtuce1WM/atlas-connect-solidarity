@@ -2726,10 +2726,9 @@ const SearchPage = () => {
       {/* Filters & Results — Suggestion IA tab */}
       {activeTab === "suggestions" && (
       <section
-        ref={resultsRef}
-        className={`bg-white pb-6 lg:pb-4 transition-all duration-300 ${compactPanelBusiness ? "w-1/2" : "w-full"}`}
-        style={{ paddingTop: stickyStackPadding > 0 ? `${stickyStackPadding}px` : '16px' }}
-      >
+         ref={resultsRef}
+         className={`bg-white pt-4 pb-6 lg:pb-4 transition-all duration-300 ${compactPanelBusiness ? "w-1/2" : "w-full"}`}
+       >
         <div className={`mx-auto px-4 ${compactPanelBusiness ? "max-w-full" : "max-w-[80%]"}`}>
           {/* Filters: City + Geo toggle — on mobile shown before hero via order */}
           <div className={`${isCategoryFilterActive ? 'mb-3' : 'mb-8'} flex flex-wrap items-center gap-3 ${isMobile ? 'hidden' : ''}`}>
