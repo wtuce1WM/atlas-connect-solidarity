@@ -73,7 +73,7 @@ const HeroSection = () => {
   return (
     <section
       ref={heroRef}
-      className={`relative w-full overflow-hidden transition-all duration-350 ease-in-out ${
+      className={`relative w-full transition-all duration-350 ease-in-out ${
         isExiting ? "opacity-0 -translate-y-16" : "opacity-100 translate-y-0"
       }`}
     >
