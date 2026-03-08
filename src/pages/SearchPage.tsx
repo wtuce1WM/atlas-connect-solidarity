@@ -492,21 +492,21 @@ const SearchPage = () => {
     requestAnimationFrame(() => ensureResultsVisibleBelowSticky("smooth"));
   }, [selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, selectedCity, ensureResultsVisibleBelowSticky]);
 
-  // Ensure first row never stays hidden under sticky stack after a new search
+  // Ensure first row never stays hidden under sticky stack after loading completes
+  // (NOT on new search — that's handled by the scroll-to-top effect)
   useEffect(() => {
     if (isLoading || activeTab !== "suggestions") return;
-    if (skipEnsureVisibleRef.current) return;
+    // Only adjust if user has already scrolled down (not on fresh page load at top)
+    if (window.scrollY < 100) return;
 
     const timers = [0, 120, 320].map((delay) =>
       window.setTimeout(() => {
-        if (!skipEnsureVisibleRef.current) ensureResultsVisibleBelowSticky("auto");
+        if (window.scrollY >= 100) ensureResultsVisibleBelowSticky("auto");
       }, delay)
     );
 
     return () => timers.forEach((id) => window.clearTimeout(id));
   }, [
-    urlT,
-    searchQuery,
     isLoading,
     activeTab,
     aiAnswerText,
@@ -554,17 +554,10 @@ const SearchPage = () => {
   }, [selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, selectedCity, detectedCity, preciseMatch]);
 
 
-   // Ref to suppress ensureResultsVisible right after a new search scroll-to-top
-   const skipEnsureVisibleRef = useRef(false);
-
    // Reset scroll lock and scroll to top on new search / reload
    useEffect(() => {
      setHasReachedTabBar(false);
-     skipEnsureVisibleRef.current = true;
      window.scrollTo({ top: 0, behavior: "auto" });
-     // Allow ensureResultsVisible again after the delayed timers would have fired
-     const id = window.setTimeout(() => { skipEnsureVisibleRef.current = false; }, 500);
-     return () => window.clearTimeout(id);
    }, [searchQuery, urlT]);
 
    useEffect(() => {
