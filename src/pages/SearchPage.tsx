@@ -428,11 +428,11 @@ const SearchPage = () => {
 
   // Track whether a category/subcategory filter is active (compact AI mode)
   const isCategoryFilterActive = !!(selectedCategoryFilter || selectedSubcategoryFilter || selectedServiceFilter);
-  const [isAiSummaryExpanded, setIsAiSummaryExpanded] = useState(false);
+  const [isAiSummaryExpanded, setIsAiSummaryExpanded] = useState(true);
 
-  // Collapse AI summary and scroll results into view when any filter changes
+  // Keep AI summary expanded when filters change
   useEffect(() => {
-    setIsAiSummaryExpanded(false);
+    setIsAiSummaryExpanded(true);
     // After a filter change, ensure the results section is visible below the sticky stack
     requestAnimationFrame(() => {
       const resultsEl = resultsRef.current;
@@ -736,7 +736,7 @@ const SearchPage = () => {
       : searchQuery;
 
     setIsAiRegenerating(true);
-    setIsAiSummaryExpanded(false);
+    setIsAiSummaryExpanded(true);
     supabase.functions.invoke("ai-search-answer", {
       body: {
         query: combinedQuery,
@@ -1658,7 +1658,7 @@ const SearchPage = () => {
     }
 
     if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setStickyAiVisibleWordIndex(stickyAiWordCount - 1);
+      setStickyAiVisibleWordIndex(Number.MAX_SAFE_INTEGER);
       return;
     }
 
@@ -1669,6 +1669,7 @@ const SearchPage = () => {
       setStickyAiVisibleWordIndex(currentWord);
       if (currentWord >= stickyAiWordCount - 1) {
         window.clearInterval(intervalId);
+        setStickyAiVisibleWordIndex(Number.MAX_SAFE_INTEGER);
       }
     }, 45);
 
