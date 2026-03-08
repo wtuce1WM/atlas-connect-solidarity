@@ -15,8 +15,7 @@ const FloatingWhatsAppButton = ({ isOpen, onToggle }: FloatingWhatsAppButtonProp
 
   if (location.pathname !== "/") return null;
 
-  const isHome = location.pathname === "/";
-  const isClub = location.pathname === "/club";
+  const isHome = true;
 
   const t = {
     fr: {
