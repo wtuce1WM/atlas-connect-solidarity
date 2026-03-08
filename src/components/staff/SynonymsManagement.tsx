@@ -49,6 +49,15 @@ interface SynonymEntry {
   created_at: string;
 }
 
+interface BusinessDataWithBadges {
+  id: string;
+  categories: string[];
+  services: string[];
+  engagements: string[];
+  is_visible_locale: boolean;
+  badge_ids: string[];
+}
+
 interface BadgeEntry {
   id: string;
   name_fr: string;
@@ -66,7 +75,7 @@ const SynonymsManagement = () => {
   const [allCategories, setAllCategories] = useState<{id: string; name_fr: string}[]>([]);
   const [allServices, setAllServices] = useState<{name: string; subcategory_id: string}[]>([]);
   const [badges, setBadges] = useState<BadgeEntry[]>([]);
-  const [businessData, setBusinessData] = useState<{categories: string[]; services: string[]; engagements: string[]}[]>([]);
+  const [businessData, setBusinessData] = useState<BusinessDataWithBadges[]>([]);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc" | "oldest" | "newest">("asc");
   const [filterCategory, setFilterCategory] = useState("");
   const [filterSubcategory, setFilterSubcategory] = useState("");
@@ -81,15 +90,23 @@ const SynonymsManagement = () => {
 
   const load = async () => {
     setIsLoading(true);
-    const [{ data }, { data: subcats }, { data: cats }, svcData, { data: bdgData }, bizData, { data: engOptsData }] = await Promise.all([
+    const [{ data }, { data: subcats }, { data: cats }, svcData, { data: bdgData }, bizData, { data: engOptsData }, bizBadgesData] = await Promise.all([
       supabase.from("search_synonyms").select("*").order("key_word"),
       supabase.from("subcategories").select("id, name_fr, category_id").order("name_fr"),
       supabase.from("categories").select("id, name_fr").order("name_fr"),
       fetchAllRows<{ name_fr: string; subcategory_id: string }>("services", "name_fr, subcategory_id", "name_fr"),
       supabase.from("badges").select("id, name_fr, color_hex, text_color_hex").order("name_fr"),
-      fetchAllRows<{ categories: string[]; services: string[]; engagements: string[] }>("businesses", "categories, services, engagements", "name"),
+      fetchAllRows<{ id: string; categories: string[]; services: string[]; engagements: string[]; is_visible_locale: boolean }>("businesses", "id, categories, services, engagements, is_visible_locale", "name"),
       supabase.from("staff_notes").select("content").eq("key", "engagement_custom_options_v1").maybeSingle(),
+      fetchAllRows<{ business_id: string; badge_id: string }>("business_badges", "business_id, badge_id", "business_id"),
     ]);
+
+    // Build a map of business_id → badge_ids
+    const bizBadgeMap = new Map<string, string[]>();
+    for (const bb of bizBadgesData || []) {
+      if (!bizBadgeMap.has(bb.business_id)) bizBadgeMap.set(bb.business_id, []);
+      bizBadgeMap.get(bb.business_id)!.push(bb.badge_id);
+    }
 
     const dbEngagements = new Set<string>();
     const dbCommodites = new Set<string>();
@@ -137,7 +154,14 @@ const SynonymsManagement = () => {
     if (cats) setAllCategories(cats as any);
     if (svcData) setAllServices(svcData.map((s: any) => ({ name: s.name_fr, subcategory_id: s.subcategory_id })));
     if (bdgData) setBadges(bdgData as BadgeEntry[]);
-    if (bizData) setBusinessData(bizData.map((b: any) => ({ categories: b.categories || [], services: b.services || [], engagements: b.engagements || [] })));
+    if (bizData) setBusinessData(bizData.map((b: any) => ({
+      id: b.id,
+      categories: b.categories || [],
+      services: b.services || [],
+      engagements: b.engagements || [],
+      is_visible_locale: b.is_visible_locale ?? true,
+      badge_ids: bizBadgeMap.get(b.id) || [],
+    })));
     setIsLoading(false);
   };
 
@@ -228,6 +252,7 @@ const SynonymsManagement = () => {
     const subcatNames = [...new Set(entry.filters.map(f => f.subcategory_name).filter(Boolean) as string[])];
     const svcNames = [...new Set(entry.filters.map(f => f.required_service).filter(Boolean) as string[])];
     const { error } = await supabase.from("search_synonyms").update({
+      key_word: entry.key_word,
       filters: entry.filters,
       subcategory_names: subcatNames,
       service_names: svcNames,
@@ -274,15 +299,50 @@ const SynonymsManagement = () => {
   const getBusinessCount = useMemo(() => {
     const cache = new Map<string, number>();
     for (const entry of entries) {
-      if (entry.filters.length === 0) { cache.set(entry.id, 0); continue; }
+      // Check if entry has any criteria at all
+      const hasFilters = entry.filters.length > 0;
+      const hasBadge = !!entry.badge_id;
+      const hasEngagements = entry.engagement_filters.length > 0;
+      const hasCommodities = entry.commodity_filters.length > 0;
+      
+      if (!hasFilters && !hasBadge && !hasEngagements && !hasCommodities) {
+        cache.set(entry.id, 0);
+        continue;
+      }
+      
       let count = 0;
       for (const biz of businessData) {
-        const matches = entry.filters.some(f => {
-          const subcatMatch = !f.subcategory_name || biz.categories.includes(f.subcategory_name);
-          const svcMatch = !f.required_service || biz.services.includes(f.required_service);
-          return subcatMatch && svcMatch;
-        });
-        if (matches) count++;
+        // Filter by is_visible_locale to match front behavior
+        if (!biz.is_visible_locale) continue;
+        
+        // Badge match: business must have the badge
+        if (hasBadge && !biz.badge_ids.includes(entry.badge_id!)) continue;
+        
+        // Engagement match: business must have ALL required engagements
+        if (hasEngagements) {
+          const bizEngs = biz.engagements.map(e => typeof e === 'string' ? e.trim() : '');
+          const allEngMatch = entry.engagement_filters.every(eng => bizEngs.includes(eng));
+          if (!allEngMatch) continue;
+        }
+        
+        // Commodity match: business must have ALL required commodities (prefixed with "Logistique:")
+        if (hasCommodities) {
+          const bizEngs = biz.engagements.map(e => typeof e === 'string' ? e.trim() : '');
+          const allComMatch = entry.commodity_filters.every(com => bizEngs.includes(`Logistique:${com}`));
+          if (!allComMatch) continue;
+        }
+        
+        // Filters match (OR between filter rows): at least one filter row must match
+        if (hasFilters) {
+          const filterMatch = entry.filters.some(f => {
+            const subcatMatch = !f.subcategory_name || biz.categories.includes(f.subcategory_name);
+            const svcMatch = !f.required_service || biz.services.includes(f.required_service);
+            return subcatMatch && svcMatch;
+          });
+          if (!filterMatch) continue;
+        }
+        
+        count++;
       }
       cache.set(entry.id, count);
     }
@@ -468,7 +528,15 @@ const SynonymsManagement = () => {
           <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                <code className="font-mono text-lg bg-amber-100 text-amber-800 px-2 py-0.5 rounded">{selectedEntry.key_word}</code>
+                <Input
+                  value={selectedEntry.key_word}
+                  onChange={e => {
+                    const newKey = e.target.value;
+                    setEntries(prev => prev.map(ent => ent.id === selectedEntry.id ? { ...ent, key_word: newKey } : ent));
+                    setDirtyEntries(prev => new Set(prev).add(selectedEntry.id));
+                  }}
+                  className="font-mono text-lg bg-amber-100 text-amber-800 px-2 py-0.5 rounded w-auto max-w-[300px] h-8"
+                />
                 <Switch checked={selectedEntry.is_active} onCheckedChange={v => toggleActive(selectedEntry.id, v)} />
                 <span className="text-xs text-muted-foreground font-normal">{selectedEntry.is_active ? "Actif" : "Inactif"}</span>
               </DialogTitle>
