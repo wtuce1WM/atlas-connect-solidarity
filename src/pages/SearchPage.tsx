@@ -921,23 +921,16 @@ const SearchPage = () => {
   toggleRecordingRef.current = toggleRecording;
 
   // Get cities available in results, sorted by priority score
-  // Show cities that are either the direct city of a result OR covered via zone_city_ids
+  // Only use direct physical city (b.city), NOT zone_city_ids to avoid phantom cities
   const availableCities = useMemo(() => {
-    // Collect direct cities
     const coveredCityNames = new Set<string>();
-    const coveredCityIds = new Set<string>();
 
     for (const b of allBusinesses) {
       if (b.city) coveredCityNames.add(b.city);
-      if (b.zone_city_ids && b.is_visible_locale) {
-        for (const cid of b.zone_city_ids) {
-          coveredCityIds.add(cid);
-        }
-      }
     }
 
     return citiesWithPriority
-      .filter(c => coveredCityNames.has(c.name) || (c.id && coveredCityIds.has(c.id)))
+      .filter(c => coveredCityNames.has(c.name))
       .sort((a, b) => a.priority - b.priority)
       .map(c => c.name);
   }, [allBusinesses, citiesWithPriority]);
