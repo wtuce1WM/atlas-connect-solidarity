@@ -135,27 +135,33 @@ const SearchInput = ({
 
   // Mic button inside input (Restaurant Guru style: white icon on dark rounded square)
   const inlineMicButton = (
-    <button
-      type="button"
-      onClick={toggleRecording}
-      disabled={voiceStatus === "processing"}
-      className={`flex items-center justify-center w-10 h-10 rounded-xl transition-all ${
-        voiceStatus === "recording"
-          ? "bg-red-500 animate-pulse"
-          : voiceStatus === "processing"
-            ? "bg-muted"
-            : "bg-foreground/80 hover:bg-foreground"
-      }`}
-      title={language === "fr" ? "Recherche vocale" : language === "ar" ? "بحث صوتي" : "Voice search"}
-    >
-      {voiceStatus === "processing" ? (
-        <Loader className="h-5 w-5 text-white animate-spin" />
-      ) : voiceStatus === "recording" ? (
-        <MicOff className="h-5 w-5 text-white" />
-      ) : (
-        <Mic className="h-5 w-5 text-white" />
-      )}
-    </button>
+    <div className="relative flex items-center justify-center">
+      {/* Concentric ripple rings — black */}
+      <span className="absolute w-10 h-10 rounded-full border border-foreground/30 animate-[ripple_2.4s_ease-out_infinite] pointer-events-none" />
+      <span className="absolute w-10 h-10 rounded-full border border-foreground/20 animate-[ripple_2.4s_ease-out_0.6s_infinite] pointer-events-none" />
+      <span className="absolute w-10 h-10 rounded-full border border-foreground/10 animate-[ripple_2.4s_ease-out_1.2s_infinite] pointer-events-none" />
+      <button
+        type="button"
+        onClick={toggleRecording}
+        disabled={voiceStatus === "processing"}
+        className={`relative z-10 flex items-center justify-center w-10 h-10 rounded-xl transition-all ${
+          voiceStatus === "recording"
+            ? "bg-red-500 animate-pulse"
+            : voiceStatus === "processing"
+              ? "bg-muted"
+              : "bg-foreground/80 hover:bg-foreground"
+        }`}
+        title={language === "fr" ? "Recherche vocale" : language === "ar" ? "بحث صوتي" : "Voice search"}
+      >
+        {voiceStatus === "processing" ? (
+          <Loader className="h-5 w-5 text-white animate-spin" />
+        ) : voiceStatus === "recording" ? (
+          <MicOff className="h-5 w-5 text-white" />
+        ) : (
+          <Mic className="h-5 w-5 text-white" />
+        )}
+      </button>
+    </div>
   );
 
   // Search button outside input (Restaurant Guru style: red/green square with magnifying glass)
@@ -188,7 +194,7 @@ const SearchInput = ({
             className={`w-full ${isHero ? "pl-5 pr-16 py-7 text-lg" : "pl-5 pr-16 py-6 text-base"} bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-xl shadow-lg`}
           />
           {/* Mic inside input, right side */}
-          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 overflow-visible">
             {inlineMicButton}
           </div>
           {suggestionMode === "text" ? (
@@ -223,7 +229,7 @@ const SearchInput = ({
             onBlur={() => setIsFocused(false)}
             className={`w-full ${isHero ? "pl-4 pr-14 py-6 text-base" : "pl-4 pr-12 py-5 text-sm"} bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-xl shadow-lg`}
           />
-          <div className="absolute right-2 top-1/2 -translate-y-1/2">
+          <div className="absolute right-2 top-1/2 -translate-y-1/2 overflow-visible">
             {inlineMicButton}
           </div>
           {suggestionMode === "text" ? (
