@@ -442,7 +442,7 @@ const SearchPage = () => {
   const [hasReachedTabBar, setHasReachedTabBar] = useState(false);
 
   // Keep AI summary expanded when filters change
-  const hasAiSticky = !!aiAnswerText || isAiRegenerating;
+  const hasAiSticky = !!aiAnswerText;
 
   const ensureResultsVisibleBelowSticky = useCallback((behavior: ScrollBehavior = "smooth") => {
     const resultsEl = resultsRef.current;
