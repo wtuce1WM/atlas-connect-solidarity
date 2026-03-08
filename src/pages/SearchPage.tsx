@@ -498,7 +498,6 @@ const SearchPage = () => {
     isLoading,
     activeTab,
     aiAnswerText,
-    filteredBusinesses.length,
     ensureResultsVisibleBelowSticky,
   ]);
 
