@@ -2624,7 +2624,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           <div className="mt-4 space-y-3">
             <div className="flex items-center justify-between">
               <Label className="text-base font-semibold">📝 Résumés du menu <span className="text-muted-foreground font-normal text-sm">(pour l'IA)</span></Label>
-              <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setMenuSummaries(prev => [...prev, { title: "", content: "", avg_price_range: null }])}>
+              <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setMenuSummaries(prev => [...prev, { title: "", content: "", avg_price_range: null, price_details: "" }])}>
                 <Plus className="h-3 w-3" /> Ajouter un résumé
               </Button>
             </div>
