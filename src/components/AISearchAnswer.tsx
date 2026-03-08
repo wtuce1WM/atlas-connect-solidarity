@@ -96,7 +96,7 @@ const BusinessHoverCard = ({ name, business, onClickBusiness }: { name: string; 
           {name}
         </button>
       </HoverCardTrigger>
-      <HoverCardContent side="bottom" align="center" avoidCollisions sideOffset={8} className="z-[100] w-72 p-0 overflow-hidden rounded-xl border border-gold/20 shadow-xl bg-popover [&]:bg-popover">
+      <HoverCardContent side="bottom" align="center" avoidCollisions sideOffset={8} className="z-[100] w-72 p-0 overflow-hidden rounded-xl border border-gold/20 shadow-xl !bg-white dark:!bg-zinc-900">
         {img && (
           <div className="h-32 w-full overflow-hidden">
             <img src={img} alt={business.name} className="w-full h-full object-cover" />
