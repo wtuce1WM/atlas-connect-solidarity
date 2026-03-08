@@ -156,7 +156,7 @@ const parseInline = (
             if (isKaraoke) {
               const isSpoken = startWordIdx <= hl.target;
               nodes.push(
-                <span key={`${keyPrefix}-hl-${j}`} className={`inline-flex transition-colors duration-150 rounded-sm ${isSpoken ? "bg-gold/25" : ""}`}>
+                <span key={`${keyPrefix}-hl-${j}`} className={`inline transition-colors duration-150 rounded-sm ${isSpoken ? "bg-gold/25" : ""}`}>
                   {card}
                 </span>
               );
