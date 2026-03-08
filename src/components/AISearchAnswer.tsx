@@ -156,13 +156,13 @@ const parseInline = (
             if (isKaraoke) {
               const isSpoken = startWordIdx <= hl.target;
               nodes.push(
-                <span key={`${keyPrefix}-hl-${j}`} className={`inline-flex transition-colors duration-150 rounded-sm ${isSpoken ? "bg-gold/25" : ""}`}>
+                <span key={`${keyPrefix}-hl-${j}`} className={`inline transition-colors duration-150 rounded-sm ${isSpoken ? "bg-gold/25" : ""}`}>
                   {card}
                 </span>
               );
             } else {
               nodes.push(
-                <span key={`${keyPrefix}-hl-${j}`} className={`inline-flex transition-all duration-300 rounded-sm ${highlighted ? "opacity-100 blur-0 translate-y-0" : "opacity-0 blur-[2px] translate-y-1 pointer-events-none"}`}>
+                <span key={`${keyPrefix}-hl-${j}`} className={`inline transition-all duration-300 rounded-sm ${highlighted ? "opacity-100 blur-0 translate-y-0" : "opacity-0 blur-[2px] translate-y-1 pointer-events-none"}`}>
                   {card}
                 </span>
               );
