@@ -879,11 +879,14 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
           {(business.latitude || business.google_maps_url) && (
             <button
               onClick={() => mapSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-              className="hover:opacity-70 transition-opacity"
+              className="relative flex items-center justify-center hover:opacity-70 transition-opacity"
               style={{ color: "#404040" }}
               title="Voir sur la carte"
             >
-              <MapPin className="h-6 w-6" />
+              <span className="absolute w-10 h-10 rounded-full border-2 pointer-events-none" style={{ borderColor: "#EA4335", animation: "gmapRippleSP 2.4s ease-out infinite 0s" }} />
+              <span className="absolute w-10 h-10 rounded-full border-2 pointer-events-none" style={{ borderColor: "#34A853", animation: "gmapRippleSP 2.4s ease-out infinite 0.6s" }} />
+              <span className="absolute w-10 h-10 rounded-full border-2 pointer-events-none" style={{ borderColor: "#FBBC05", animation: "gmapRippleSP 2.4s ease-out infinite 1.2s" }} />
+              <MapPin className="h-6 w-6 relative z-10" />
             </button>
           )}
         </div>,
