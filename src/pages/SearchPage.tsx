@@ -3046,7 +3046,12 @@ const SearchPage = () => {
               setSelectedSubcategoryFilter(null);
               setSelectedServiceFilter(null);
               setSearchQuery(query);
+              setActiveTab("suggestions");
               const params: Record<string, string> = { q: query, _t: String(Date.now()) };
+              // Preserve current city selection in URL
+              if (selectedCity && selectedCity !== "all") {
+                params.city = selectedCity;
+              }
               const timeResult = extractTimeSlot(query);
               if (timeResult) {
                 params.timeStart = String(timeResult.timeSlot.startHour);
