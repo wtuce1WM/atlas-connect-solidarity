@@ -96,7 +96,7 @@ const SynonymsManagement = () => {
       supabase.from("categories").select("id, name_fr").order("name_fr"),
       fetchAllRows<{ name_fr: string; subcategory_id: string }>("services", "name_fr, subcategory_id", "name_fr"),
       supabase.from("badges").select("id, name_fr, color_hex, text_color_hex").order("name_fr"),
-      fetchAllRows<{ id: string; categories: string[]; services: string[]; engagements: string[]; is_visible_locale: boolean }>("businesses", "id, categories, services, engagements, is_visible_locale", "name"),
+      fetchAllRows<{ id: string; categories: string[]; services: string[]; engagements: string[]; is_visible_locale: boolean; is_active: boolean }>("businesses", "id, categories, services, engagements, is_visible_locale, is_active", "name"),
       supabase.from("staff_notes").select("content").eq("key", "engagement_custom_options_v1").maybeSingle(),
       fetchAllRows<{ business_id: string; badge_id: string }>("business_badges", "business_id, badge_id", "business_id"),
     ]);
