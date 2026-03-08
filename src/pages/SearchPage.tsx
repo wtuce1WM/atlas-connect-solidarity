@@ -551,9 +551,11 @@ const SearchPage = () => {
   }, [selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, selectedCity, detectedCity, preciseMatch]);
 
 
+   // Reset scroll lock and scroll to top on new search / reload
    useEffect(() => {
      setHasReachedTabBar(false);
-   }, [searchQuery]);
+     window.scrollTo({ top: 0, behavior: "auto" });
+   }, [searchQuery, urlT]);
 
    useEffect(() => {
      const handleScroll = () => {
