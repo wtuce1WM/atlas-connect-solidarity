@@ -314,10 +314,9 @@ const StaffMaster = () => {
                       <div className="space-y-6">
                         <div>
                           <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Polices chargées (Google Fonts)</h3>
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                            <DisplayParam label="Playfair Display" value="400, 600, 700" preview={<span style={{ fontFamily: "'Playfair Display', serif", fontSize: 18 }}>Abc</span>} />
-                            <DisplayParam label="Cormorant Garamond" value="400, 600 (+ italic)" preview={<span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 18 }}>Abc</span>} />
-                            <DisplayParam label="Raleway" value="600" preview={<span style={{ fontFamily: "'Raleway', sans-serif", fontSize: 18 }}>Abc</span>} />
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <DisplayParam label="Josefin Sans (→ Venus)" value="300, 400, 600" preview={<span style={{ fontFamily: "'Josefin Sans', sans-serif", fontSize: 18, letterSpacing: "0.12em", textTransform: "uppercase" as const }}>Marrakech</span>} />
+                            <DisplayParam label="Libre Baskerville (→ Freight)" value="400, 700, 400 italic" preview={<span style={{ fontFamily: "'Libre Baskerville', serif", fontSize: 16 }}>Au cœur de la Médina</span>} />
                             <DisplayParam label="Amiri" value="400, 700 (arabe)" preview={<span style={{ fontFamily: "'Amiri', serif", fontSize: 18 }}>عربي</span>} />
                           </div>
                         </div>
@@ -337,27 +336,33 @@ const StaffMaster = () => {
                               <tbody className="divide-y">
                                 <tr>
                                   <td className="py-2 pr-4 font-mono text-xs">body</td>
-                                  <td className="py-2 pr-4">Système (Tailwind default)</td>
-                                  <td className="py-2 pr-4 text-xs">bg-background text-foreground</td>
-                                  <td className="py-2">Corps de texte normal</td>
+                                  <td className="py-2 pr-4">Libre Baskerville, serif</td>
+                                  <td className="py-2 pr-4 text-xs">font-weight: 400, line-height: 1.8</td>
+                                  <td className="py-2"><span style={{ fontFamily: "'Libre Baskerville', serif" }}>Corps de texte</span></td>
+                                </tr>
+                                <tr>
+                                  <td className="py-2 pr-4 font-mono text-xs">&lt;h1&gt;</td>
+                                  <td className="py-2 pr-4">Josefin Sans, sans-serif</td>
+                                  <td className="py-2 pr-4 text-xs">weight: 300, uppercase, tracking: 0.20em</td>
+                                  <td className="py-2"><span style={{ fontFamily: "'Josefin Sans', sans-serif", fontWeight: 300, textTransform: "uppercase" as const, letterSpacing: "0.20em", fontSize: 14 }}>MARRAKECH</span></td>
                                 </tr>
                                 <tr>
                                   <td className="py-2 pr-4 font-mono text-xs">&lt;h2&gt;</td>
-                                  <td className="py-2 pr-4">Playfair Display, serif</td>
-                                  <td className="py-2 pr-4 text-xs">font-style: italic</td>
-                                  <td className="py-2"><span style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic" }}>Titre section</span></td>
+                                  <td className="py-2 pr-4">Josefin Sans, sans-serif</td>
+                                  <td className="py-2 pr-4 text-xs">weight: 300, uppercase, tracking: 0.15em</td>
+                                  <td className="py-2"><span style={{ fontFamily: "'Josefin Sans', sans-serif", fontWeight: 300, textTransform: "uppercase" as const, letterSpacing: "0.15em", fontSize: 14 }}>HÉBERGEMENTS</span></td>
                                 </tr>
                                 <tr>
                                   <td className="py-2 pr-4 font-mono text-xs">&lt;h3&gt;</td>
-                                  <td className="py-2 pr-4">Raleway, sans-serif</td>
-                                  <td className="py-2 pr-4 text-xs">—</td>
-                                  <td className="py-2"><span style={{ fontFamily: "'Raleway', sans-serif" }}>Sous-titre</span></td>
+                                  <td className="py-2 pr-4">Josefin Sans, sans-serif</td>
+                                  <td className="py-2 pr-4 text-xs">weight: 300, uppercase, tracking: 0.12em</td>
+                                  <td className="py-2"><span style={{ fontFamily: "'Josefin Sans', sans-serif", fontWeight: 300, textTransform: "uppercase" as const, letterSpacing: "0.12em", fontSize: 14 }}>SOUS-TITRE</span></td>
                                 </tr>
                                 <tr>
                                   <td className="py-2 pr-4 font-mono text-xs">.font-arabic</td>
-                                  <td className="py-2 pr-4">Noto Sans Arabic, Segoe UI, Tahoma</td>
+                                  <td className="py-2 pr-4">Amiri, Noto Sans Arabic</td>
                                   <td className="py-2 pr-4 text-xs">—</td>
-                                  <td className="py-2"><span style={{ fontFamily: "'Noto Sans Arabic', 'Segoe UI', Tahoma, sans-serif" }}>نص عربي</span></td>
+                                  <td className="py-2"><span style={{ fontFamily: "'Amiri', serif" }}>نص عربي</span></td>
                                 </tr>
                               </tbody>
                             </table>
