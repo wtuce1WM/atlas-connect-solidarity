@@ -2903,12 +2903,6 @@ const SearchPage = () => {
             </div>
           ) : !showCelebrityGuide && !showSosMedecin && !showPompiers && filteredBusinesses.length > 0 ? (
             <>
-              {/* Results count — hidden when Sticky 4 (AI summary) is visible */}
-              {totalCount > 0 && !aiAnswerText && !isAiRegenerating && (
-                <p className="text-sm text-muted-foreground mb-4">
-                  {totalCount} {language === "en" ? "result" : language === "ar" ? "نتيجة" : "résultat"}{totalCount > 1 && language !== "ar" ? "s" : ""} {language === "en" ? "found" : language === "ar" ? "وُجدت" : "trouvé"}{totalCount > 1 && language === "fr" ? "s" : ""}
-                </p>
-              )}
               {/* TEST: Fallback-style cards in 4-column grid (old BusinessCard display commented out below) */}
               <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-4 pt-4">
                 {paginatedBusinesses.map((business) => {
