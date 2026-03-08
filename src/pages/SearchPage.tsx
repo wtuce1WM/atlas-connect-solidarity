@@ -751,7 +751,7 @@ const SearchPage = () => {
         language,
       },
     }).then(({ data }) => {
-      if (data?.answer) setAiAnswerText(data.answer);
+      if (data?.answer) handleAiAnswerReady(data.answer);
     }).catch(e => {
       console.error("AI city-regenerate error:", e);
     }).finally(() => {
@@ -1534,7 +1534,7 @@ const SearchPage = () => {
             vary: Date.now() % 1000,
           },
         });
-        if (data?.answer) setAiAnswerText(data.answer);
+        if (data?.answer) handleAiAnswerReady(data.answer);
       } catch (e) {
         console.error("AI filter-regenerate error:", e);
       } finally {
@@ -2543,7 +2543,7 @@ const SearchPage = () => {
                           vary: Date.now() % 1000,
                         },
                       });
-                      if (data?.answer) setAiAnswerText(data.answer);
+                      if (data?.answer) handleAiAnswerReady(data.answer);
                     } catch (e) {
                       console.error("AI regenerate error:", e);
                     } finally {
