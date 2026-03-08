@@ -493,26 +493,24 @@ const SearchPage = () => {
     requestAnimationFrame(() => ensureResultsVisibleBelowSticky("smooth"));
   }, [selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, selectedCity, ensureResultsVisibleBelowSticky]);
 
-  // Ensure first row never stays hidden under sticky stack after loading completes
-  // (NOT on new search — that's handled by the scroll-to-top effect)
-  useEffect(() => {
-    if (isLoading || activeTab !== "suggestions") return;
-    // Only adjust if user has already scrolled down (not on fresh page load at top)
-    if (window.scrollY < 100) return;
+   // Ensure first row never stays hidden under sticky stack after loading completes
+   // or when AI bar appears/changes height
+   useEffect(() => {
+     if (isLoading || activeTab !== "suggestions") return;
 
-    const timers = [0, 120, 320].map((delay) =>
-      window.setTimeout(() => {
-        if (window.scrollY >= 100) ensureResultsVisibleBelowSticky("auto");
-      }, delay)
-    );
+     const timers = [50, 200, 500].map((delay) =>
+       window.setTimeout(() => {
+         ensureResultsVisibleBelowSticky("auto");
+       }, delay)
+     );
 
-    return () => timers.forEach((id) => window.clearTimeout(id));
-  }, [
-    isLoading,
-    activeTab,
-    aiAnswerText,
-    ensureResultsVisibleBelowSticky,
-  ]);
+     return () => timers.forEach((id) => window.clearTimeout(id));
+   }, [
+     isLoading,
+     activeTab,
+     aiAnswerText,
+     ensureResultsVisibleBelowSticky,
+   ]);
 
   // Fetch extra businesses from DB when entonnoir filters narrow beyond search results
   // Skip when the search returned precise results (synonym or service/keyword detection)
