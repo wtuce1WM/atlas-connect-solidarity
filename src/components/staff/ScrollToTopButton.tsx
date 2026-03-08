@@ -101,7 +101,7 @@ const colorTokens = [
   { token: "text-primary", label: "Terracotta", className: "text-primary" },
   { token: "text-secondary", label: "Majorelle Blue", className: "text-secondary" },
   { token: "text-gold", label: "Or / Gold accent", className: "text-gold" },
-  { token: "text-atlas-green", label: "Atlas Green", className: "text-atlas-green" },
+  { token: "text-atlas", label: "Atlas Green", className: "text-atlas" },
   { token: "text-destructive", label: "Erreur / destructif", className: "text-destructive" },
 ];
 
