@@ -1616,8 +1616,9 @@ const SearchPage = () => {
   const handleCityChange = (city: string) => {
     setSelectedCity(city);
     setIsGeoCityAutoSelected(false);
-    setAiAnswerText("");
-    setAiRegenerateKey(k => k + 1);
+    // TEMP DISABLED: auto-regenerate AI text on city filter change
+    // setAiAnswerText("");
+    // setAiRegenerateKey(k => k + 1);
   };
 
   const handleCategoryChange = (category: string) => {
@@ -3166,7 +3167,7 @@ const SearchPage = () => {
                       return (
                         <button
                           key={svc.name}
-                          onClick={() => { setSelectedServiceFilter(isSelected ? null : svc.name); setAiAnswerText(""); setAiRegenerateKey(k => k + 1); }}
+                          onClick={() => { setSelectedServiceFilter(isSelected ? null : svc.name); /* TEMP DISABLED: setAiAnswerText(""); setAiRegenerateKey(k => k + 1); */ }}
                           className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-bold transition-all whitespace-nowrap ${
                             isSelected
                               ? "bg-gold/20 border-gold text-gold shadow-sm"
