@@ -96,7 +96,7 @@ const HeroSection = () => {
 
       {/* Logo CSS — single spin + float */}
       <div className="absolute inset-0 z-[20] lg:z-[90] flex items-start justify-center pt-24 pointer-events-none">
-        <LogoCSSSpinner className="w-56 h-56 md:w-96 md:h-96" replayKey={0} />
+        <LogoCSSSpinner className="w-44 h-44 md:w-96 md:h-96" replayKey={0} />
       </div>
 
       {/* Content — text layer above logo */}
