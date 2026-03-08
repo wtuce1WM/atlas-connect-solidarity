@@ -669,6 +669,99 @@ const StaffMaster = () => {
                   </CollapsibleContent>
                 </Card>
               </Collapsible>
+
+              <Collapsible>
+                <Card>
+                  <CollapsibleTrigger className="w-full">
+                    <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
+                      <CardTitle className="flex items-center gap-2">
+                        <ChevronRight className="h-4 w-4 transition-transform [[data-state=open]>&]:rotate-90" />
+                        Résumé IA — Panneau de gauche (Overlay)
+                      </CardTitle>
+                    </CardHeader>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <CardContent>
+                      <div className="space-y-6">
+                        <div>
+                          <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Positionnement</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <DisplayParam label="Conteneur" value="fixed inset-0 z-[200] bg-background/95 backdrop-blur-sm" />
+                            <DisplayParam label="Panneau gauche" value="w-full (sans fiche) ou w-1/2 (avec fiche)" />
+                            <DisplayParam label="Transition" value="animate-in fade-in duration-200" />
+                          </div>
+                        </div>
+
+                        <div>
+                          <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">En-tête (requête + compteur)</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <DisplayParam label="Bouton « Voir les résultats »" value="text-sm font-semibold bg-gold text-black rounded-full px-5 py-2" />
+                            <DisplayParam label="Libellé recherche" value="text-sm text-muted-foreground" />
+                            <DisplayParam label="Requête" value="text-lg md:text-xl font-bold text-foreground" />
+                            <DisplayParam label="Compteur" value="font-semibold text-gold" />
+                          </div>
+                        </div>
+
+                        <div>
+                          <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Filtres de désambiguïsation</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <DisplayParam label="Titre filtre" value="text-sm font-medium text-foreground" />
+                            <DisplayParam label="Bouton filtre" value="text-sm text-foreground px-4 py-2 rounded-full border bg-card" />
+                            <DisplayParam label="Hover filtre" value="hover:border-gold/50 hover:bg-gold/10" />
+                            <DisplayParam label="Icône ville" value="MapPin h-3.5 w-3.5 text-muted-foreground inline" />
+                          </div>
+                        </div>
+
+                        <div>
+                          <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Label « Suggestion IA »</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <DisplayParam label="Police" value="text-xs font-semibold uppercase tracking-wider" />
+                            <DisplayParam label="Couleur" value="text-gold" />
+                            <DisplayParam label="Icône" value="Sparkles h-4 w-4 text-gold" />
+                          </div>
+                        </div>
+
+                        <div>
+                          <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Corps du texte IA</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <DisplayParam label="Taille" value="text-base (16px)" />
+                            <DisplayParam label="Couleur" value="text-foreground/80" />
+                            <DisplayParam label="Interligne" value="leading-relaxed" />
+                            <DisplayParam label="Mise en forme" value="whitespace-pre-line" />
+                          </div>
+                        </div>
+
+                        <div>
+                          <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Chargement</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <DisplayParam label="Spinner" value="Loader2 h-6 w-6 animate-spin text-gold" />
+                            <DisplayParam label="Texte" value="text-sm italic text-muted-foreground" />
+                          </div>
+                        </div>
+
+                        <div>
+                          <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Boutons d'action (Listen / Geo / Mic)</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <DisplayParam label="Taille" value="w-16 h-16 rounded-full" />
+                            <DisplayParam label="Fond" value="bg-black" />
+                            <DisplayParam label="Icônes" value="h-7 w-7 text-white (Volume2, MapPin, Mic)" />
+                            <DisplayParam label="Hover" value="hover:scale-105" />
+                            <DisplayParam label="Ombre" value="shadow-lg" />
+                          </div>
+                        </div>
+
+                        <div>
+                          <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Adresse géolocalisée</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <DisplayParam label="Police" value="text-sm font-medium text-muted-foreground" />
+                            <DisplayParam label="Emoji" value="📍 préfixe" />
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </CollapsibleContent>
+                </Card>
+              </Collapsible>
             </div>
           </TabsContent>
 
