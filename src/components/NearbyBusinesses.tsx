@@ -145,7 +145,66 @@ const NearbyBusinesses = ({ currentBusinessId, businessName, latitude, longitude
       </div>
       <p className="text-xs text-muted-foreground -mt-1">À moins de 1 km de {businessName}</p>
 
-      <div className="grid grid-cols-3 gap-2">
+      {/* Mobile: horizontal scroll */}
+      <div className="flex gap-2 overflow-x-auto scrollbar-hide sm:hidden" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
+        {allBusinesses.map((biz) => {
+          const img = biz.images && biz.images.length > 0 ? biz.images[0] : null;
+          const sources = collectRatingSources(biz);
+          const avgOn20 = biz.rating ?? computeWeightedRatingOn20(sources);
+          const totalReviews = sources.reduce((s, r) => s + r.count, 0);
+          const distLabel = biz.distance != null && biz.distance < Infinity
+            ? biz.distance < 0.1
+              ? `${Math.round(biz.distance * 1000)}m`
+              : `${biz.distance.toFixed(1)}km`
+            : null;
+
+          return (
+            <Link
+              key={biz.id}
+              to={`/business/${biz.id}`}
+              onClick={(e) => {
+                if (onNavigate) {
+                  e.preventDefault();
+                  onNavigate(biz.id);
+                }
+              }}
+              className="group overflow-hidden rounded-xl border border-gold/20 shadow-sm hover:shadow-md transition-shadow aspect-square relative shrink-0 w-[75%]"
+            >
+              {img && (
+                <img src={img} alt={biz.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+              <div className="absolute top-1.5 right-1.5 z-10" onClick={(e) => e.preventDefault()}>
+                <BookmarkButton businessId={biz.id} onLoginRequired={onLoginRequired} />
+              </div>
+              {distLabel && (
+                <div className="absolute top-1.5 left-1.5 bg-background/80 backdrop-blur-sm text-[9px] font-semibold text-foreground px-1.5 py-0.5 rounded-md">
+                  {distLabel}
+                </div>
+              )}
+              <div className="absolute bottom-0 left-0 right-0 p-2 space-y-0.5">
+                <p className="font-semibold text-[11px] text-white leading-tight line-clamp-2">{biz.name}</p>
+                <div className="flex items-center gap-1 text-[10px] text-white/80">
+                  <MapPin className="h-2.5 w-2.5 shrink-0" />
+                  <span className="truncate">{biz.city}{biz.neighborhood ? ` · ${biz.neighborhood}` : ""}</span>
+                </div>
+                {avgOn20 && (
+                  <div className="flex items-center gap-1 text-[10px]">
+                    <Star className="h-2.5 w-2.5 text-gold fill-gold" />
+                    <span className="font-medium text-white">{avgOn20}/20</span>
+                    {totalReviews > 0 && (
+                      <span className="text-white/70">· {totalReviews} avis</span>
+                    )}
+                  </div>
+                )}
+              </div>
+            </Link>
+          );
+        })}
+      </div>
+
+      {/* Tablet/Desktop: grid + pagination */}
+      <div className="hidden sm:grid grid-cols-3 gap-2">
         {businesses.map((biz) => {
           const img = biz.images && biz.images.length > 0 ? biz.images[0] : null;
           const sources = collectRatingSources(biz);
@@ -173,18 +232,14 @@ const NearbyBusinesses = ({ currentBusinessId, businessName, latitude, longitude
                 <img src={img} alt={biz.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-
               <div className="absolute top-1.5 right-1.5 z-10" onClick={(e) => e.preventDefault()}>
                 <BookmarkButton businessId={biz.id} onLoginRequired={onLoginRequired} />
               </div>
-
-              {/* Distance badge */}
               {distLabel && (
                 <div className="absolute top-1.5 left-1.5 bg-background/80 backdrop-blur-sm text-[9px] font-semibold text-foreground px-1.5 py-0.5 rounded-md">
                   {distLabel}
                 </div>
               )}
-
               <div className="absolute bottom-0 left-0 right-0 p-2 space-y-0.5">
                 <p className="font-semibold text-[11px] text-white leading-tight line-clamp-2">{biz.name}</p>
                 <div className="flex items-center gap-1 text-[10px] text-white/80">
@@ -207,7 +262,7 @@ const NearbyBusinesses = ({ currentBusinessId, businessName, latitude, longitude
       </div>
 
       {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-1 pt-1">
+        <div className="hidden sm:flex items-center justify-center gap-1 pt-1">
           <button
             onClick={() => { setPage(p => Math.max(0, p - 1)); sectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }); }}
             disabled={page === 0}
