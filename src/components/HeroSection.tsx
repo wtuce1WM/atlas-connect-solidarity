@@ -166,7 +166,7 @@ const HeroSection = () => {
           {/* Category Tabs — une seule ligne, scroll si besoin */}
            <div
             ref={tabsRef}
-            className="flex items-center w-full gap-4 md:gap-6 mb-6 md:justify-center overflow-x-auto scrollbar-hide pb-1 px-1 md:px-0"
+            className="flex items-center w-full justify-start gap-4 md:gap-6 mb-6 overflow-x-auto scrollbar-hide pb-1 px-1 md:px-0"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
             {[
