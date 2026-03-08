@@ -3305,11 +3305,14 @@ const SearchPage = () => {
               {/* Action buttons: Listen, Geo, Mic */}
               <div className="flex items-center justify-center gap-6 pt-8">
                 {/* Listen */}
-                <div className="relative">
+                <div className="relative flex items-center justify-center">
+                  <span className="absolute w-16 h-16 rounded-full border border-secondary/40 animate-[ripple_2.4s_ease-out_infinite] pointer-events-none" />
+                  <span className="absolute w-16 h-16 rounded-full border border-secondary/30 animate-[ripple_2.4s_ease-out_0.6s_infinite] pointer-events-none" />
+                  <span className="absolute w-16 h-16 rounded-full border border-secondary/20 animate-[ripple_2.4s_ease-out_1.2s_infinite] pointer-events-none" />
                   {(ttsStatus === "playing" || ttsStatus === "loading") ? (
                     <button
                       onClick={ttsStop}
-                      className="relative w-16 h-16 rounded-full bg-black flex items-center justify-center shadow-lg transition-all hover:scale-105"
+                      className="relative z-10 w-16 h-16 rounded-full bg-black flex items-center justify-center shadow-lg transition-all hover:scale-105"
                       title={ttsStatus === "loading" ? "Chargement…" : "Stop"}
                     >
                       {ttsStatus === "loading" ? <Loader className="h-7 w-7 text-white animate-spin" /> : <VolumeX className="h-7 w-7 text-white" />}
@@ -3324,7 +3327,7 @@ const SearchPage = () => {
                         voiceLoopRef.current = true;
                         ttsSpeak(intro + cleanText + " … Vous pouvez me poser une autre question.", undefined, true);
                       }}
-                      className="relative w-16 h-16 rounded-full bg-black flex items-center justify-center shadow-lg transition-all hover:scale-105"
+                      className="relative z-10 w-16 h-16 rounded-full bg-black flex items-center justify-center shadow-lg transition-all hover:scale-105"
                       title={language === "en" ? "Listen" : "Écouter"}
                     >
                       <Volume2 className="h-7 w-7 text-white" />
@@ -3340,13 +3343,18 @@ const SearchPage = () => {
                   {geo.isEnabled ? <MapPinOff className="h-7 w-7 text-white" /> : <MapPin className="h-7 w-7 text-white" />}
                 </button>
                 {/* Mic */}
-                <button
-                  onClick={() => toggleRecording()}
-                  className="relative w-16 h-16 rounded-full bg-black flex items-center justify-center shadow-lg transition-all hover:scale-105"
-                  title={language === "en" ? "Voice search" : "Recherche vocale"}
-                >
-                  <Mic className="h-7 w-7 text-white" />
-                </button>
+                <div className="relative flex items-center justify-center">
+                  <span className="absolute w-16 h-16 rounded-full border border-primary/40 animate-[ripple_2.4s_ease-out_infinite] pointer-events-none" />
+                  <span className="absolute w-16 h-16 rounded-full border border-primary/30 animate-[ripple_2.4s_ease-out_0.6s_infinite] pointer-events-none" />
+                  <span className="absolute w-16 h-16 rounded-full border border-primary/20 animate-[ripple_2.4s_ease-out_1.2s_infinite] pointer-events-none" />
+                  <button
+                    onClick={() => toggleRecording()}
+                    className="relative z-10 w-16 h-16 rounded-full bg-black flex items-center justify-center shadow-lg transition-all hover:scale-105"
+                    title={language === "en" ? "Voice search" : "Recherche vocale"}
+                  >
+                    <Mic className="h-7 w-7 text-white" />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
