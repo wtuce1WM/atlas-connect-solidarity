@@ -3304,9 +3304,9 @@ serve(async (req) => {
                 if (nameMatches.length > 0) return nameMatches;
                 // Also check service keywords — a service matched via keyword "balade à vélo"
                 // should be linked to trigger words "balade", "velo"
-                const svcData = matchingByKeywords.find(s => s.name_fr === ds);
-                if (svcData && svcData.keywords) {
-                  const kwsNorm = (svcData.keywords as string[]).map(k => normalizeServiceToken(k)).join(" ");
+                const svcKws = serviceKeywordsLookup.get(ds);
+                if (svcKws) {
+                  const kwsNorm = svcKws.map(k => normalizeServiceToken(k)).join(" ");
                   return triggerWordsNorm.filter(tw => kwsNorm.includes(tw));
                 }
                 return [];
