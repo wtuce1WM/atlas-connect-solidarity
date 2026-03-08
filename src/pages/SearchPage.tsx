@@ -923,18 +923,23 @@ const SearchPage = () => {
 
   // Get cities available in results, sorted by priority score
   // Only use direct physical city (b.city), NOT zone_city_ids to avoid phantom cities
+  // If a subcategory is detected, scope cities to businesses that actually belong to that subcategory
   const availableCities = useMemo(() => {
-    const coveredCityNames = new Set<string>();
+    const scopedBusinesses = detectedSubcategory
+      ? allBusinesses.filter((b) => b.categories?.includes(detectedSubcategory))
+      : allBusinesses;
 
-    for (const b of allBusinesses) {
-      if (b.city) coveredCityNames.add(b.city);
+    const coveredCityNames = new Set<string>();
+    for (const b of scopedBusinesses) {
+      const city = b.city?.trim();
+      if (city) coveredCityNames.add(city);
     }
 
     return citiesWithPriority
-      .filter(c => coveredCityNames.has(c.name))
+      .filter((c) => coveredCityNames.has(c.name))
       .sort((a, b) => a.priority - b.priority)
-      .map(c => c.name);
-  }, [allBusinesses, citiesWithPriority]);
+      .map((c) => c.name);
+  }, [allBusinesses, citiesWithPriority, detectedSubcategory]);
 
   const getEffectiveRating = (b: typeof allBusinesses[0]): number | null => {
     if (b.rating) return Number(b.rating);
