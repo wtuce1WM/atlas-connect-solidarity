@@ -365,6 +365,7 @@ const ServiceManagement = () => {
                     const { catName, subName } = getHierarchy(svc);
                     const count = businessCountBySvc[svc.id] || 0;
                     const filterCityCount = serviceCityFilters[svc.id]?.size || 0;
+                    const isFilterActive = svc.is_filtered || filterCityCount > 0;
                     return (
                       <TableRow key={svc.id}>
                         <TableCell className="text-muted-foreground text-sm">{catName}</TableCell>
@@ -372,13 +373,13 @@ const ServiceManagement = () => {
                         <TableCell className="font-medium">{svc.name_fr}</TableCell>
                         <TableCell className="text-center">
                           <Button
-                            variant={filterCityCount > 0 ? "default" : "outline"}
+                            variant={isFilterActive ? "default" : "outline"}
                             size="sm"
-                            className={`gap-1.5 ${filterCityCount > 0 ? "bg-red-500 hover:bg-red-600 text-white" : ""}`}
+                            className={`gap-1.5 ${isFilterActive ? "bg-red-500 hover:bg-red-600 text-white" : ""}`}
                             onClick={() => openFilterPopup(svc)}
                           >
                             <Filter className="h-3.5 w-3.5" />
-                            {filterCityCount > 0 ? filterCityCount : "—"}
+                            {filterCityCount > 0 ? filterCityCount : isFilterActive ? "✓" : "—"}
                           </Button>
                         </TableCell>
                         <TableCell className="text-center">
