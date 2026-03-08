@@ -1295,9 +1295,12 @@ const SearchPage = () => {
             setSelectedSubcategoryFilter(data.synonymUsed ? null : finalDetectedSubcategory);
             setSelectedServiceFilter(null);
 
-            // Auto-select city if not detected and only one city in results
-            // Only auto-select when geolocation is enabled; when geo is off, keep national scope
-            if (!data.detectedCity && !queryHasCountryScope && geo.isEnabled) {
+            // When synonyms produced cross-category results, reset city filter to "all"
+            // to avoid filtering out results that don't match a leftover city from a previous search
+            if (data.synonymUsed && !data.detectedCity) {
+              setSelectedCity("all");
+            } else if (!data.detectedCity && !queryHasCountryScope && geo.isEnabled) {
+              // Auto-select city if not detected and only one city in results
               const resultCities = [...new Set(businesses.map(b => b.city).filter(Boolean))];
               if (resultCities.length === 1) {
                 setSelectedCity(resultCities[0]);
