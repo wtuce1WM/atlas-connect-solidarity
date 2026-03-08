@@ -675,31 +675,13 @@ const SearchPage = () => {
   const toggleRecordingRef = useRef<(() => void) | null>(null);
   const geo = useGeolocation();
 
-  // Auto-select city from geolocation only when there is no active search query
+  // Auto-select city from geolocation when geo is enabled and no city is explicitly set
   useEffect(() => {
-    const hasActiveQuery = !!searchQuery.trim() || !!categoryFromUrl;
-    if (!hasActiveQuery && !queryHasExplicitCity && geo.isEnabled && geo.detectedCity && selectedCity === "all") {
+    if (!queryHasExplicitCity && geo.isEnabled && geo.detectedCity && selectedCity === "all" && !cityFromUrl) {
       setSelectedCity(geo.detectedCity);
       setIsGeoCityAutoSelected(true);
     }
-  }, [searchQuery, categoryFromUrl, queryHasExplicitCity, geo.isEnabled, geo.detectedCity, selectedCity]);
-
-  // If query text itself contains a city name, don't also filter by city in the frontend
-  // (the search engine handles it). But keep the filter when city comes from URL param.
-  useEffect(() => {
-    if (queryHasExplicitCity && !cityFromUrl && selectedCity !== "all") {
-      setSelectedCity("all");
-      setIsGeoCityAutoSelected(false);
-    }
-  }, [queryHasExplicitCity, cityFromUrl, selectedCity]);
-
-  // Clear auto geo city filter as soon as user starts a free-text search without explicit city
-  useEffect(() => {
-    if (isGeoCityAutoSelected && !!searchQuery.trim() && !queryHasExplicitCity && selectedCity !== "all") {
-      setSelectedCity("all");
-      setIsGeoCityAutoSelected(false);
-    }
-  }, [isGeoCityAutoSelected, searchQuery, queryHasExplicitCity, selectedCity]);
+  }, [searchQuery, categoryFromUrl, queryHasExplicitCity, geo.isEnabled, geo.detectedCity, selectedCity, cityFromUrl]);
 
   // If query has country scope (e.g. "maroc"), force "all" cities
   useEffect(() => {
