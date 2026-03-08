@@ -673,8 +673,20 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
       {/* Fallback hotels left panel overlay */}
       {showFallbackPanel && createPortal(
         <div className="fixed inset-0 z-[200] flex animate-fade-in" style={{ top: "62px" }}>
-          {/* Left panel overlay – covers left half */}
-          <div className="w-1/2 h-full bg-black/90 backdrop-blur-md flex flex-col overflow-hidden animate-slide-in-left">
+          {/* Desktop: left panel, Mobile/Tablet: bottom sheet */}
+          <div className="
+            w-full lg:w-1/2 bg-black/90 backdrop-blur-md flex flex-col overflow-hidden
+            fixed lg:relative
+            bottom-0 left-0 lg:bottom-auto lg:left-auto
+            h-[85vh] lg:h-full
+            rounded-t-2xl lg:rounded-none
+            animate-slide-up-from-bottom lg:animate-slide-in-left
+          ">
+            {/* Drag handle – mobile only */}
+            <div className="lg:hidden flex justify-center pt-2 pb-1 shrink-0">
+              <div className="w-10 h-1 rounded-full bg-white/30" />
+            </div>
+
             {/* Panel header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 shrink-0">
               <div>
