@@ -2,6 +2,16 @@ import { useState, useEffect } from "react";
 import { ArrowUp, HelpCircle, X } from "lucide-react";
 
 export const helpContent = `
+## Polices du site
+
+| Élément | Police | Style |
+|---|---|---|
+| \`body\` | Libre Baskerville (serif) | 400, line-height 1.8 |
+| \`h1\` | Josefin Sans | 300, uppercase, tracking 0.20em |
+| \`h2\` | Josefin Sans | 300, uppercase, tracking 0.15em |
+| \`h3\` | Josefin Sans | 300, uppercase, tracking 0.12em |
+| \`.font-arabic\` | Amiri | 400, 700 |
+
 ## Classes Tailwind — Tailles de police
 
 | Classe | Taille réelle |
@@ -20,6 +30,7 @@ export const helpContent = `
 
 | Classe | Poids CSS |
 |---|---|
+| \`font-light\` | 300 |
 | \`font-normal\` | 400 |
 | \`font-medium\` | 500 |
 | \`font-semibold\` | 600 |
@@ -30,7 +41,7 @@ export const helpContent = `
 - \`text-2xl font-bold\` → **24px, gras (700)**
 - \`text-sm font-medium\` → **14px, medium (500)**
 - \`text-xs font-semibold\` → **12px, semi-gras (600)**
-- \`text-lg font-bold\` → **18px, gras (700)**
+- \`text-lg font-light\` → **18px, light (300)**
 `;
 
 /** Render `code` segments in text */
