@@ -2610,7 +2610,7 @@ const SearchPage = () => {
                 </button>
               </div>
               {/* Action buttons row: Plus de filtres, Écouter, Géolocalisation */}
-              <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/50">
+              <div className="flex items-center justify-between mt-2 pt-2">
                 <button
                   onClick={() => setMoreFiltersOpen(true)}
                   className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium transition-all ${
