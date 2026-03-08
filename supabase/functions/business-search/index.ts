@@ -3127,7 +3127,19 @@ serve(async (req) => {
         const originalKeywordTerms = serviceMatchWordsForInjection
           .map(w => stripAccentsGlobal(sanitizeTerm(w.toLowerCase())))
           .filter(t => t.length > 1 && !FRENCH_STOP_WORDS.has(t) && !svcTermVariants.has(t));
-        const uniqueSvcTerms = [...new Set([...allSvcTerms, ...originalKeywordTerms])];
+        const uniqueSvcTermsBase = [...new Set([...allSvcTerms, ...originalKeywordTerms])];
+        // Add singular/plural variants for each service term so FTS matches both forms
+        // e.g. "trottinettes" → also add "trottinette" (search_vector may store either form)
+        const uniqueSvcTermsWithVariants = new Set(uniqueSvcTermsBase);
+        for (const t of uniqueSvcTermsBase) {
+          if (t.length > 3 && t.endsWith("s") && !t.endsWith("ss")) {
+            uniqueSvcTermsWithVariants.add(t.slice(0, -1));
+          }
+          if (t.length > 2 && !t.endsWith("s")) {
+            uniqueSvcTermsWithVariants.add(t + "s");
+          }
+        }
+        const uniqueSvcTerms = [...uniqueSvcTermsWithVariants];
         const svcPart = uniqueSvcTerms.length > 1
           ? `(${uniqueSvcTerms.join(" | ")})`
           : uniqueSvcTerms[0] || "";
