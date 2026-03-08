@@ -95,7 +95,7 @@ const HeroSection = () => {
       <div className="absolute inset-0 bg-gradient-to-b from-white/20 via-white/40 to-white" />
 
       {/* Logo CSS — single spin + float */}
-      <div className="absolute inset-0 z-[90] flex items-start justify-center pt-24 pointer-events-none">
+      <div className="absolute inset-0 z-[20] lg:z-[90] flex items-start justify-center pt-24 pointer-events-none">
         <LogoCSSSpinner className="w-56 h-56 md:w-96 md:h-96" replayKey={0} />
       </div>
 
