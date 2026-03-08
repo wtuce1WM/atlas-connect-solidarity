@@ -128,13 +128,27 @@ All colors MUST be HSL.
   }
 }
 
-/* Playfair Display for headings */
-h2 {
-  font-family: 'Playfair Display', serif;
-  font-style: italic;
+/* Brummell-inspired typography */
+/* Josefin Sans — Titres, navigation, boutons (replaces Venus) */
+h1, h2, h3 {
+  font-family: 'Josefin Sans', sans-serif;
+  font-weight: 300;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-style: normal;
 }
-h3 {
-  font-family: 'Raleway', sans-serif;
+
+h1 {
+  letter-spacing: 0.20em;
+}
+
+h2 {
+  letter-spacing: 0.15em;
+}
+
+/* Libre Baskerville — Corps de texte (replaces Freight Text) */
+body {
+  font-family: 'Libre Baskerville', serif;
 }
 
  
