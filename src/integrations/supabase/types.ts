@@ -482,6 +482,7 @@ export type Database = {
           content: string | null
           created_at: string
           id: string
+          price_details: string | null
           sort_order: number
           title: string | null
           updated_at: string
@@ -492,6 +493,7 @@ export type Database = {
           content?: string | null
           created_at?: string
           id?: string
+          price_details?: string | null
           sort_order?: number
           title?: string | null
           updated_at?: string
@@ -502,6 +504,7 @@ export type Database = {
           content?: string | null
           created_at?: string
           id?: string
+          price_details?: string | null
           sort_order?: number
           title?: string | null
           updated_at?: string
