@@ -139,6 +139,7 @@ const parseInline = (
   hl?: HighlightState
 ): ReactNode[] => {
   const boldParts = text.split(/\*\*(.+?)\*\*/g);
+  const nodes: ReactNode[] = [];
   const isKaraoke = hl?.mode === "karaoke";
 
   boldParts.forEach((part, j) => {
