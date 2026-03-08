@@ -613,6 +613,7 @@ export type Database = {
           menu_language: string | null
           menu_name: string | null
           menu_summary: string | null
+          menu_summary_title: string | null
           menu_url: string | null
           name: string
           neighborhood: string | null
@@ -729,6 +730,7 @@ export type Database = {
           menu_language?: string | null
           menu_name?: string | null
           menu_summary?: string | null
+          menu_summary_title?: string | null
           menu_url?: string | null
           name: string
           neighborhood?: string | null
@@ -845,6 +847,7 @@ export type Database = {
           menu_language?: string | null
           menu_name?: string | null
           menu_summary?: string | null
+          menu_summary_title?: string | null
           menu_url?: string | null
           name?: string
           neighborhood?: string | null
@@ -2720,6 +2723,7 @@ export type Database = {
               menu_language: string | null
               menu_name: string | null
               menu_summary: string | null
+              menu_summary_title: string | null
               menu_url: string | null
               name: string
               neighborhood: string | null
@@ -2852,6 +2856,7 @@ export type Database = {
               menu_language: string | null
               menu_name: string | null
               menu_summary: string | null
+              menu_summary_title: string | null
               menu_url: string | null
               name: string
               neighborhood: string | null
