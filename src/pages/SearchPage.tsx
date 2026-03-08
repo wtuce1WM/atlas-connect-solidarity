@@ -2485,7 +2485,7 @@ const SearchPage = () => {
             <div className="mx-auto px-4 max-w-[80%]">
               <div className="flex items-start gap-3">
                 <div className="flex-1 min-w-0">
-                  <div key={`sticky4-ai-${aiRegenerateKey}-${aiAnswerText?.slice(0,20)}`} className={`text-sm text-muted-foreground leading-relaxed animate-fade-in ${isAiSummaryExpanded ? '' : 'line-clamp-2'}`}>
+                  <div key={stickyAiAnimationKey} className={`text-sm text-muted-foreground leading-relaxed animate-fade-in ${isAiSummaryExpanded ? '' : 'line-clamp-2'}`}>
                     <Sparkles className="h-3.5 w-3.5 inline-block mr-1.5 text-gold align-text-bottom" />
                     {isAiRegenerating ? (
                       <span className="italic text-muted-foreground/60">{language === "en" ? "Regenerating…" : "Régénération en cours…"}</span>
