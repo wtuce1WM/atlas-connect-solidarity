@@ -1705,7 +1705,7 @@ const SearchPage = () => {
 
       {/* AI Suggestion Overlay — fullscreen takeover shown on arrival from homepage */}
       {showAiPopup && (
-        <div className="fixed inset-0 z-40 flex bg-background/95 backdrop-blur-sm animate-in fade-in duration-200" style={{ top: "53px" }}>
+        <div className="fixed inset-0 z-[200] flex bg-background/95 backdrop-blur-sm animate-in fade-in duration-200">
           {/* Left panel: AI suggestion */}
           <div ref={overlayLeftPanelRef} className={`relative flex flex-col transition-all duration-500 ease-out ${overlaySelectedBusiness ? "w-1/2 border-r border-border" : "w-full"}`}>
           {/* Close button */}
