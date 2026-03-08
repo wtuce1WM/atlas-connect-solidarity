@@ -229,7 +229,7 @@ const SearchInput = ({
             onBlur={() => setIsFocused(false)}
             className={`w-full ${isHero ? "pl-4 pr-14 py-6 text-base" : "pl-4 pr-12 py-5 text-sm"} bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-xl shadow-lg`}
           />
-          <div className="absolute right-2 top-1/2 -translate-y-1/2">
+          <div className="absolute right-2 top-1/2 -translate-y-1/2 overflow-visible">
             {inlineMicButton}
           </div>
           {suggestionMode === "text" ? (
