@@ -2625,9 +2625,9 @@ const SearchPage = () => {
               <div className="flex items-center justify-between mt-2 pt-2">
                 <div className="flex items-center gap-3">
                   {/* Results count */}
-                  {totalCount !== null && totalCount > 0 && (
-                    <span className="text-xs text-muted-foreground">
-                      {totalCount} {language === "en" ? "result" : language === "ar" ? "نتيجة" : "résultat"}{totalCount > 1 && language !== "ar" ? "s" : ""}
+                  {(totalCount ?? filteredBusinesses.length) > 0 && (
+                    <span className="text-xs text-muted-foreground font-medium">
+                      {totalCount ?? filteredBusinesses.length} {language === "en" ? "result" : language === "ar" ? "نتيجة" : "résultat"}{(totalCount ?? filteredBusinesses.length) > 1 && language !== "ar" ? "s" : ""}
                     </span>
                   )}
                   <button
