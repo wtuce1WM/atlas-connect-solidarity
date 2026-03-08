@@ -314,8 +314,8 @@ const SynonymsManagement = () => {
       
       let count = 0;
       for (const biz of businessData) {
-        // Filter by is_visible_locale to match front behavior
-        if (!biz.is_visible_locale) continue;
+        // Filter by is_active and is_visible_locale to match front behavior
+        if (!biz.is_active || !biz.is_visible_locale) continue;
         
         // Badge match: business must have the badge
         if (hasBadge && !biz.badge_ids.includes(entry.badge_id!)) continue;
