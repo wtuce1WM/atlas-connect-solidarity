@@ -31,20 +31,6 @@ export const helpContent = `
 - \`text-sm font-medium\` → **14px, medium (500)**
 - \`text-xs font-semibold\` → **12px, semi-gras (600)**
 - \`text-lg font-bold\` → **18px, gras (700)**
-
-## Couleurs sémantiques
-
-| Token | Usage |
-|---|---|
-| \`text-foreground\` | Texte principal |
-| \`text-muted-foreground\` | Texte secondaire / atténué |
-| \`text-primary\` | Terracotta (accent principal) |
-| \`text-gold\` | Or (notes, badges, vérifié) |
-| \`text-destructive\` | Rouge (erreurs, suppressions) |
-| \`bg-background\` | Fond de page |
-| \`bg-card\` | Fond des cartes |
-| \`bg-muted\` | Fond atténué |
-| \`border-border\` | Bordure standard |
 `;
 
 /** Render `code` segments in text */
