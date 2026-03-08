@@ -2526,7 +2526,7 @@ const SearchPage = () => {
                 <div className="flex-1 min-w-0">
                   <div
                     key={stickyAiAnimationKey}
-                    className="text-sm text-muted-foreground leading-relaxed animate-fade-in"
+                    className={`text-sm text-muted-foreground leading-relaxed animate-fade-in ${isAiSummaryExpanded ? '' : 'line-clamp-2'}`}
                     style={{ animation: "fade-in 0.45s ease-out both" }}
                   >
                     <Sparkles className="h-3.5 w-3.5 inline-block mr-1.5 text-gold align-text-bottom" />
