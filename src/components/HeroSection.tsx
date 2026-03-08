@@ -238,6 +238,7 @@ const HeroSection = () => {
         <HeroLocationSelector
           detectedCity={geo.detectedCity}
           confirmedAddress={geo.confirmedAddress}
+          isEnabled={geo.isEnabled}
           isDetecting={geo.isDetecting}
           onAcceptGeo={geo.accept}
           onSelectCity={(city) => {
