@@ -295,6 +295,97 @@ const StaffMaster = () => {
                   </CollapsibleContent>
                 </Card>
               </Collapsible>
+
+              <Collapsible>
+                <Card>
+                  <CollapsibleTrigger className="w-full">
+                    <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
+                      <CardTitle className="flex items-center gap-2">
+                        <ChevronRight className="h-4 w-4 transition-transform [[data-state=open]>&]:rotate-90" />
+                        Accueil
+                      </CardTitle>
+                    </CardHeader>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <CardContent>
+                      <div className="space-y-6">
+                        <div>
+                          <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Polices chargées (Google Fonts)</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <DisplayParam label="Playfair Display" value="400, 600, 700" preview={<span style={{ fontFamily: "'Playfair Display', serif", fontSize: 18 }}>Abc</span>} />
+                            <DisplayParam label="Cormorant Garamond" value="400, 600 (+ italic)" preview={<span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 18 }}>Abc</span>} />
+                            <DisplayParam label="Raleway" value="600" preview={<span style={{ fontFamily: "'Raleway', sans-serif", fontSize: 18 }}>Abc</span>} />
+                            <DisplayParam label="Amiri" value="400, 700 (arabe)" preview={<span style={{ fontFamily: "'Amiri', serif", fontSize: 18 }}>عربي</span>} />
+                          </div>
+                        </div>
+
+                        <div>
+                          <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Assignation des polices (index.css)</h3>
+                          <div className="overflow-x-auto">
+                            <table className="w-full text-sm">
+                              <thead>
+                                <tr className="border-b">
+                                  <th className="text-left py-2 pr-4 font-medium text-muted-foreground">Balise / Classe</th>
+                                  <th className="text-left py-2 pr-4 font-medium text-muted-foreground">Police</th>
+                                  <th className="text-left py-2 pr-4 font-medium text-muted-foreground">Style</th>
+                                  <th className="text-left py-2 font-medium text-muted-foreground">Aperçu</th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y">
+                                <tr>
+                                  <td className="py-2 pr-4 font-mono text-xs">body</td>
+                                  <td className="py-2 pr-4">Système (Tailwind default)</td>
+                                  <td className="py-2 pr-4 text-xs">bg-background text-foreground</td>
+                                  <td className="py-2">Corps de texte normal</td>
+                                </tr>
+                                <tr>
+                                  <td className="py-2 pr-4 font-mono text-xs">&lt;h2&gt;</td>
+                                  <td className="py-2 pr-4">Playfair Display, serif</td>
+                                  <td className="py-2 pr-4 text-xs">font-style: italic</td>
+                                  <td className="py-2"><span style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic" }}>Titre section</span></td>
+                                </tr>
+                                <tr>
+                                  <td className="py-2 pr-4 font-mono text-xs">&lt;h3&gt;</td>
+                                  <td className="py-2 pr-4">Raleway, sans-serif</td>
+                                  <td className="py-2 pr-4 text-xs">—</td>
+                                  <td className="py-2"><span style={{ fontFamily: "'Raleway', sans-serif" }}>Sous-titre</span></td>
+                                </tr>
+                                <tr>
+                                  <td className="py-2 pr-4 font-mono text-xs">.font-arabic</td>
+                                  <td className="py-2 pr-4">Noto Sans Arabic, Segoe UI, Tahoma</td>
+                                  <td className="py-2 pr-4 text-xs">—</td>
+                                  <td className="py-2"><span style={{ fontFamily: "'Noto Sans Arabic', 'Segoe UI', Tahoma, sans-serif" }}>نص عربي</span></td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+
+                        <div>
+                          <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Typographie du Hero (HeroSection)</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <DisplayParam label="Sous-titre (plateforme)" value="text-sm md:text-base text-foreground/70 font-medium tracking-wide" />
+                            <DisplayParam label="H1 principal" value="text-3xl md:text-4xl lg:text-5xl font-bold text-black" />
+                            <DisplayParam label="H1 balise" value="<h1>" />
+                            <DisplayParam label="H1 max-width" value="max-w-4xl" />
+                            <DisplayParam label="H1 min-height" value="min-h-[4.5rem] md:min-h-[3rem]" />
+                            <DisplayParam label="H1 alignement" value="text-center" />
+                          </div>
+                        </div>
+
+                        <div>
+                          <h3 className="text-sm font-semibold text-foreground mb-3 border-b pb-2">Onglets catégories</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <DisplayParam label="Label actif" value="text-sm font-semibold text-black" />
+                            <DisplayParam label="Label inactif" value="text-sm text-muted-foreground" />
+                            <DisplayParam label="Icône taille" value="h-6 w-6 md:h-7 md:w-7" />
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </CollapsibleContent>
+                </Card>
+              </Collapsible>
             </div>
           </TabsContent>
 
