@@ -2618,71 +2618,86 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           ))}
           {menuDocs.length === 0 && <p className="text-xs text-muted-foreground">Aucun menu ajouté.</p>}
 
-          {/* Menu Summary - Rich Text */}
-          <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg space-y-3">
-            <Label className="text-base font-semibold">📝 Résumé du menu <span className="text-muted-foreground font-normal text-sm">(pour l'IA)</span></Label>
-            
-            <div className="space-y-1">
-              <Label htmlFor="menu_summary_title" className="text-sm">Titre</Label>
-              <Input
-                id="menu_summary_title"
-                value={(formData as any).menu_summary_title || ""}
-                onChange={(e) => handleChange("menu_summary_title", e.target.value)}
-                placeholder="Ex: La carte de La Grande Brasserie"
-              />
+          {/* Menu Summaries - Multiple */}
+          <div className="mt-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <Label className="text-base font-semibold">📝 Résumés du menu <span className="text-muted-foreground font-normal text-sm">(pour l'IA)</span></Label>
+              <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setMenuSummaries(prev => [...prev, { title: "", content: "", avg_price_range: null }])}>
+                <Plus className="h-3 w-3" /> Ajouter un résumé
+              </Button>
             </div>
 
-            <div className="space-y-1">
-              <Label className="text-sm">Contenu</Label>
-              <RichTextEditor
-                content={(formData as any).menu_summary || ""}
-                onChange={(html) => handleChange("menu_summary", html)}
-                placeholder="Cuisine fusion méditerranéenne, entrées à partager, plats signatures, desserts..."
-                maxHeight="300px"
-              />
-            </div>
+            {menuSummaries.map((summary, idx) => (
+              <div key={idx} className="p-4 bg-amber-50 border border-amber-200 rounded-lg space-y-3 relative">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-semibold text-amber-800">Résumé #{idx + 1}</span>
+                  <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive h-7 px-2" onClick={() => setMenuSummaries(prev => prev.filter((_, i) => i !== idx))}>
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
 
-            {/* Prix moyens / Budget */}
-            <div className="space-y-1">
-              <Label className="text-sm font-medium">💰 Budget moyen par personne</Label>
-              <div className="flex items-center gap-2">
-                <Input
-                  type="number"
-                  value={(formData as any).avg_price_range?.min ?? ""}
-                  onChange={(e) => {
-                    const val = e.target.value ? Number(e.target.value) : undefined;
-                    handleChange("avg_price_range", { ...((formData as any).avg_price_range || {}), min: val });
-                  }}
-                  placeholder="Min"
-                  className="w-24"
-                />
-                <span className="text-muted-foreground">—</span>
-                <Input
-                  type="number"
-                  value={(formData as any).avg_price_range?.max ?? ""}
-                  onChange={(e) => {
-                    const val = e.target.value ? Number(e.target.value) : undefined;
-                    handleChange("avg_price_range", { ...((formData as any).avg_price_range || {}), max: val });
-                  }}
-                  placeholder="Max"
-                  className="w-24"
-                />
-                <select
-                  value={(formData as any).avg_price_range?.currency || "MAD"}
-                  onChange={(e) => handleChange("avg_price_range", { ...((formData as any).avg_price_range || {}), currency: e.target.value })}
-                  className="h-9 rounded-md border border-input bg-background px-3 text-sm w-24"
-                >
-                  <option value="MAD">MAD</option>
-                  <option value="EUR">EUR</option>
-                  <option value="USD">USD</option>
-                </select>
+                <div className="space-y-1">
+                  <Label className="text-sm">Titre</Label>
+                  <Input
+                    value={summary.title}
+                    onChange={(e) => setMenuSummaries(prev => prev.map((s, i) => i === idx ? { ...s, title: e.target.value } : s))}
+                    placeholder="Ex: La carte de La Grande Brasserie"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <Label className="text-sm">Contenu</Label>
+                  <RichTextEditor
+                    content={summary.content}
+                    onChange={(html) => setMenuSummaries(prev => prev.map((s, i) => i === idx ? { ...s, content: html } : s))}
+                    placeholder="Cuisine fusion méditerranéenne, entrées à partager, plats signatures, desserts..."
+                    maxHeight="300px"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <Label className="text-sm font-medium">💰 Budget moyen par personne</Label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="number"
+                      value={summary.avg_price_range?.min ?? ""}
+                      onChange={(e) => {
+                        const val = e.target.value ? Number(e.target.value) : undefined;
+                        setMenuSummaries(prev => prev.map((s, i) => i === idx ? { ...s, avg_price_range: { ...(s.avg_price_range || {}), min: val } } : s));
+                      }}
+                      placeholder="Min"
+                      className="w-24"
+                    />
+                    <span className="text-muted-foreground">—</span>
+                    <Input
+                      type="number"
+                      value={summary.avg_price_range?.max ?? ""}
+                      onChange={(e) => {
+                        const val = e.target.value ? Number(e.target.value) : undefined;
+                        setMenuSummaries(prev => prev.map((s, i) => i === idx ? { ...s, avg_price_range: { ...(s.avg_price_range || {}), max: val } } : s));
+                      }}
+                      placeholder="Max"
+                      className="w-24"
+                    />
+                    <select
+                      value={summary.avg_price_range?.currency || "MAD"}
+                      onChange={(e) => setMenuSummaries(prev => prev.map((s, i) => i === idx ? { ...s, avg_price_range: { ...(s.avg_price_range || {}), currency: e.target.value } } : s))}
+                      className="h-9 rounded-md border border-input bg-background px-3 text-sm w-24"
+                    >
+                      <option value="MAD">MAD</option>
+                      <option value="EUR">EUR</option>
+                      <option value="USD">USD</option>
+                    </select>
+                  </div>
+                  {summary.avg_price_range?.min != null && summary.avg_price_range?.max != null && (
+                    <p className="text-xs text-muted-foreground">
+                      Affiché : {summary.avg_price_range.min}–{summary.avg_price_range.max} {summary.avg_price_range.currency || "MAD"} / personne
+                    </p>
+                  )}
+                </div>
               </div>
-              {(formData as any).avg_price_range?.min != null && (formData as any).avg_price_range?.max != null && (
-                <p className="text-xs text-muted-foreground">
-                  Affiché : {(formData as any).avg_price_range.min}–{(formData as any).avg_price_range.max} {(formData as any).avg_price_range.currency || "MAD"} / personne
-                </p>
-              )}
-            </div>
+            ))}
+            {menuSummaries.length === 0 && <p className="text-xs text-muted-foreground">Aucun résumé ajouté.</p>}
           </div>
         </div>
 
