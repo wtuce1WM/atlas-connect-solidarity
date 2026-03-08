@@ -1598,7 +1598,7 @@ serve(async (req) => {
               
               if (uniqueRemainingOnly.length > 0 || uniqueSynonymSpanning.length > 0) {
                 const bc = businesses.length;
-                businesses = businesses.filter((b: any) => {
+                const filtered = businesses.filter((b: any) => {
                   const bSvcs = ((b.services || []) as string[]).map((s: string) => stripAccentsGlobal(s.toLowerCase().replace(/-/g, " ")));
                   // Remaining-only services: require ALL (AND)
                   const remainingOk = uniqueRemainingOnly.every(req => bSvcs.some(bs => bs === stripAccentsGlobal(req.toLowerCase().replace(/-/g, " "))));
@@ -1606,7 +1606,15 @@ serve(async (req) => {
                   const synonymOk = uniqueSynonymSpanning.length === 0 || uniqueSynonymSpanning.some(req => bSvcs.some(bs => bs === stripAccentsGlobal(req.toLowerCase().replace(/-/g, " "))));
                   return remainingOk && synonymOk;
                 });
-                console.log(`🔍 Paired post-filter: remaining-AND [${uniqueRemainingOnly.join(", ")}], synonym-OR [${uniqueSynonymSpanning.join(", ")}] → ${bc} → ${businesses.length}`);
+                // Safety net: if post-filter drops ALL results, keep original synonym results
+                // This prevents cases like "location villa" where "location" matches a service
+                // but none of the villa businesses have that service
+                if (filtered.length > 0) {
+                  businesses = filtered;
+                  console.log(`🔍 Paired post-filter: remaining-AND [${uniqueRemainingOnly.join(", ")}], synonym-OR [${uniqueSynonymSpanning.join(", ")}] → ${bc} → ${businesses.length}`);
+                } else {
+                  console.log(`🔍 Paired post-filter would drop ALL results (remaining-AND [${uniqueRemainingOnly.join(", ")}]) → keeping ${bc} original results`);
+                }
               }
             }
           }
