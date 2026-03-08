@@ -1638,8 +1638,8 @@ const SearchPage = () => {
   const endResult = Math.min(currentPage * ITEMS_PER_PAGE, filteredBusinesses.length);
   const displayedResultsCount = totalCount && totalCount > filteredBusinesses.length ? totalCount : filteredBusinesses.length;
   const stickyAiAnimationKey = useMemo(
-    () => `sticky4-ai-${aiRegenerateKey}-${aiAnswerText.length}-${aiAnswerText.slice(0, 40)}-${aiAnswerText.slice(-40)}`,
-    [aiRegenerateKey, aiAnswerText]
+    () => `sticky4-ai-${stickyAiAnimationNonce}`,
+    [stickyAiAnimationNonce]
   );
 
   const showZitounEasterEgg = !isLoading && isZitounMask(spokenText || searchQuery);
@@ -1663,7 +1663,7 @@ const SearchPage = () => {
             spokenText={spokenText || undefined}
             businesses={filteredBusinesses}
             isSearchLoading={isLoading}
-            onAnswerReady={setAiAnswerText}
+            onAnswerReady={handleAiAnswerReady}
             externalRegenerateKey={aiRegenerateKey}
           />
         </div>
