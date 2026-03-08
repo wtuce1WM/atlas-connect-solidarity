@@ -1275,6 +1275,7 @@ const SearchPage = () => {
           
           const finalDetectedSubcategory = safeDetectedSubcategory || fallbackSubcategory || null;
           setDetectedSubcategory(finalDetectedSubcategory);
+          setIsHeuristicFallback(!!fallbackSubcategory && !safeDetectedSubcategory);
           setSearchMode(normalizedSearchMode);
            setDetectedCity(data.detectedCity || null);
            setDisambiguationType(data.disambiguationType || null);
