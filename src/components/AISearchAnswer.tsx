@@ -139,7 +139,7 @@ const parseInline = (
   hl?: HighlightState
 ): ReactNode[] => {
   const boldParts = text.split(/\*\*(.+?)\*\*/g);
-  const nodes: ReactNode[] = [];
+  const isKaraoke = hl?.mode === "karaoke";
 
   boldParts.forEach((part, j) => {
     if (j % 2 === 1) {
@@ -152,23 +152,38 @@ const parseInline = (
       if (match) {
         const card = <BusinessHoverCard key={`${keyPrefix}-${j}`} name={part} business={match} onClickBusiness={onClickBusiness} />;
           if (hl) {
-            nodes.push(
-              <span
-                key={`${keyPrefix}-hl-${j}`}
-                className={`inline-flex transition-all duration-300 rounded-sm ${highlighted ? "opacity-100 blur-0 translate-y-0" : "opacity-0 blur-[2px] translate-y-1 pointer-events-none"}`}
-              >
-                {card}
-              </span>
-            );
+            if (isKaraoke) {
+              const isSpoken = startWordIdx <= hl.target;
+              nodes.push(
+                <span key={`${keyPrefix}-hl-${j}`} className={`inline-flex transition-colors duration-150 rounded-sm ${isSpoken ? "bg-gold/25" : ""}`}>
+                  {card}
+                </span>
+              );
+            } else {
+              nodes.push(
+                <span key={`${keyPrefix}-hl-${j}`} className={`inline-flex transition-all duration-300 rounded-sm ${highlighted ? "opacity-100 blur-0 translate-y-0" : "opacity-0 blur-[2px] translate-y-1 pointer-events-none"}`}>
+                  {card}
+                </span>
+              );
+            }
           } else {
             nodes.push(card);
           }
         } else {
-          nodes.push(
-            <strong key={`${keyPrefix}-${j}`} className={`font-semibold text-foreground${hl ? ` inline-block transition-all duration-300 rounded-sm ${highlighted ? "opacity-100 blur-0 translate-y-0" : "opacity-0 blur-[2px] translate-y-1"}` : ""}`}>
-              {part}
-            </strong>
-          );
+          if (hl && isKaraoke) {
+            const isSpoken = startWordIdx <= hl.target;
+            nodes.push(
+              <strong key={`${keyPrefix}-${j}`} className={`font-semibold text-foreground inline-block transition-colors duration-150 rounded-sm ${isSpoken ? "bg-gold/25" : ""}`}>
+                {part}
+              </strong>
+            );
+          } else {
+            nodes.push(
+              <strong key={`${keyPrefix}-${j}`} className={`font-semibold text-foreground${hl ? ` inline-block transition-all duration-300 rounded-sm ${highlighted ? "opacity-100 blur-0 translate-y-0" : "opacity-0 blur-[2px] translate-y-1"}` : ""}`}>
+                {part}
+              </strong>
+            );
+          }
       }
     } else {
       const italicParts = part.split(/\*(.+?)\*/g);
