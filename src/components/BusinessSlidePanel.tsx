@@ -2061,16 +2061,22 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
 
       {/* Fallback hotels left panel – lives outside the overlay */}
       {fallbackPanelData && createPortal(
-        <div className={leftPanelPortalRef?.current ? "absolute inset-0 z-10 flex" : "fixed left-0 z-[105] flex lg:flex-row flex-col justify-end lg:justify-start"} style={leftPanelPortalRef?.current ? undefined : { top: "62px", bottom: 0, width: leftPanelPortalRef?.current ? undefined : undefined }} {...(!leftPanelPortalRef?.current ? { style: { top: 0, bottom: 0, left: 0, right: 0 } } : {})}>
+        <div className={leftPanelPortalRef?.current ? "absolute inset-0 z-10 flex" : "fixed inset-0 z-[105] flex flex-col justify-end lg:flex-row lg:justify-start"} style={leftPanelPortalRef?.current ? undefined : { top: "62px" }}>
           {/* Mobile/Tablet backdrop */}
-          <div className="lg:hidden absolute inset-0 bg-black/40" onClick={() => setFallbackPanelData(null)} />
+          {!leftPanelPortalRef?.current && (
+            <div className="lg:hidden absolute inset-0 bg-black/40" onClick={() => setFallbackPanelData(null)} />
+          )}
           <div className="
             relative bg-black/90 backdrop-blur-md flex flex-col overflow-hidden
-            w-full lg:w-[50vw]
+            w-full lg:w-1/2
             h-[85vh] lg:h-full
             rounded-t-2xl lg:rounded-none
             animate-slide-up-from-bottom lg:animate-slide-in-left
           ">
+            {/* Drag handle – mobile only */}
+            <div className="lg:hidden flex justify-center pt-2 pb-1 shrink-0">
+              <div className="w-10 h-1 rounded-full bg-white/30" />
+            </div>
             <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 shrink-0">
               <div>
                 <p className="text-sm font-bold text-white">
