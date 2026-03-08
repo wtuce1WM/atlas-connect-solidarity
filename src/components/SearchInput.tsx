@@ -132,43 +132,50 @@ const SearchInput = ({
   const buttonLabel = language === "fr" ? "Recherche" : language === "ar" ? "بحث" : "Search";
 
   const isHero = variant === "hero";
-  const desktopInputClass = isHero ? "pl-14 pr-36 py-7 text-lg" : "pl-14 pr-36 py-6 text-base";
-  const mobileInputClass = isHero ? "pl-14 pr-4 py-7 text-lg" : "pl-11 pr-4 py-5 text-sm";
-  const desktopMicSize = isHero ? "w-14 h-14" : "w-12 h-12";
-  const mobileMicSize = "w-11 h-11";
-  const desktopIconSize = isHero ? "h-6 w-6" : "h-5 w-5";
-  const mobileIconSize = isHero ? "h-5 w-5" : "h-4 w-4";
 
-  const micButton = (size: string, iconSize: string) => (
+  // Mic button inside input (Restaurant Guru style: white icon on dark rounded square)
+  const inlineMicButton = (
     <button
       type="button"
       onClick={toggleRecording}
       disabled={voiceStatus === "processing"}
-      className={`flex-shrink-0 flex items-center justify-center ${size} rounded-2xl shadow-lg transition-all ${
+      className={`flex items-center justify-center w-10 h-10 rounded-xl transition-all ${
         voiceStatus === "recording"
-          ? "bg-red-100 animate-pulse"
+          ? "bg-red-500 animate-pulse"
           : voiceStatus === "processing"
-            ? "bg-white/70"
-            : "bg-white/90 hover:bg-white"
+            ? "bg-muted"
+            : "bg-foreground/80 hover:bg-foreground"
       }`}
       title={language === "fr" ? "Recherche vocale" : language === "ar" ? "بحث صوتي" : "Voice search"}
     >
       {voiceStatus === "processing" ? (
-        <Loader className={`${iconSize} text-black animate-spin`} />
+        <Loader className="h-5 w-5 text-white animate-spin" />
       ) : voiceStatus === "recording" ? (
-        <MicOff className={`${iconSize} text-red-600`} />
+        <MicOff className="h-5 w-5 text-white" />
       ) : (
-        <Mic className={`${iconSize} text-black`} />
+        <Mic className="h-5 w-5 text-white" />
       )}
+    </button>
+  );
+
+  // Search button outside input (Restaurant Guru style: red/green square with magnifying glass)
+  const searchButton = (
+    <button
+      type="button"
+      onClick={handleSubmit}
+      className="flex items-center justify-center w-14 h-14 rounded-xl shadow-lg transition-all hover:opacity-90 shrink-0"
+      style={{ backgroundColor: "#c0392b" }}
+      title={buttonLabel}
+    >
+      <Search className="h-6 w-6 text-white" />
     </button>
   );
 
   return (
     <div className="w-full">
       {/* Desktop */}
-      <div className="hidden md:flex items-center gap-2">
+      <div className="hidden md:flex items-center gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <Input
             type="text"
             placeholder={placeholder}
@@ -178,17 +185,12 @@ const SearchInput = ({
             onKeyDown={handleKeyDown}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
-            className={`w-full ${desktopInputClass} bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-full shadow-lg`}
+            className={`w-full ${isHero ? "pl-5 pr-16 py-7 text-lg" : "pl-5 pr-16 py-6 text-base"} bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-xl shadow-lg`}
           />
-          <Button
-            type="button"
-            size="lg"
-            onClick={handleSubmit}
-            className="absolute right-2 top-1/2 -translate-y-1/2 text-white font-semibold rounded-full px-6 py-4 shadow-md border border-black/10"
-            style={{ backgroundColor: "#25D366" }}
-          >
-            {buttonLabel}
-          </Button>
+          {/* Mic inside input, right side */}
+          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+            {inlineMicButton}
+          </div>
           {suggestionMode === "text" ? (
             <TextSuggestionsDropdown
               suggestions={popularSuggestions.map(s => s.query)}
@@ -204,13 +206,12 @@ const SearchInput = ({
             />
           )}
         </div>
-        {micButton(desktopMicSize, desktopIconSize)}
+        {searchButton}
       </div>
 
       {/* Mobile */}
-      <div className="flex flex-col gap-2 md:hidden">
-        <div className="relative w-full">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+      <div className="flex items-center gap-2 md:hidden">
+        <div className="relative flex-1">
           <Input
             type="text"
             placeholder={placeholder}
@@ -220,8 +221,11 @@ const SearchInput = ({
             onKeyDown={handleKeyDown}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
-            className={`w-full ${mobileInputClass} bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-full shadow-lg`}
+            className={`w-full ${isHero ? "pl-4 pr-14 py-6 text-base" : "pl-4 pr-12 py-5 text-sm"} bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-xl shadow-lg`}
           />
+          <div className="absolute right-2 top-1/2 -translate-y-1/2">
+            {inlineMicButton}
+          </div>
           {suggestionMode === "text" ? (
             <TextSuggestionsDropdown
               suggestions={popularSuggestions.map(s => s.query)}
@@ -237,17 +241,14 @@ const SearchInput = ({
             />
           )}
         </div>
-        <div className="flex items-center justify-center gap-2">
-          <button
-            type="button"
-            onClick={handleSubmit}
-            className="flex items-center justify-center gap-2 rounded-full px-4 py-3 text-white font-semibold text-sm shadow-lg h-[48px]"
-            style={{ backgroundColor: "#25D366" }}
-          >
-            {isHero ? buttonLabel : <Search className="h-5 w-5" />}
-          </button>
-          {micButton(mobileMicSize, mobileIconSize)}
-        </div>
+        <button
+          type="button"
+          onClick={handleSubmit}
+          className="flex items-center justify-center w-12 h-12 rounded-xl shadow-lg transition-all hover:opacity-90 shrink-0"
+          style={{ backgroundColor: "#c0392b" }}
+        >
+          <Search className="h-5 w-5 text-white" />
+        </button>
       </div>
     </div>
   );
