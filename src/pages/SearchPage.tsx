@@ -408,6 +408,7 @@ const SearchPage = () => {
   const [ttsIntroPhrase, setTtsIntroPhrase] = useState<string>("");
   const [aiAnswerText, setAiAnswerText] = useState<string>("");
   const [stickyAiAnimationNonce, setStickyAiAnimationNonce] = useState(0);
+  const [stickyAiVisibleWordIndex, setStickyAiVisibleWordIndex] = useState(-1);
   const handleAiAnswerReady = useCallback((answer: string) => {
     setAiAnswerText(answer);
     setStickyAiAnimationNonce((prev) => prev + 1);
@@ -1637,10 +1638,42 @@ const SearchPage = () => {
   const startResult = (currentPage - 1) * ITEMS_PER_PAGE + 1;
   const endResult = Math.min(currentPage * ITEMS_PER_PAGE, filteredBusinesses.length);
   const displayedResultsCount = totalCount && totalCount > filteredBusinesses.length ? totalCount : filteredBusinesses.length;
+  const stickyAiText = useMemo(
+    () => aiAnswerText.replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "").replace(/\n+/g, " "),
+    [aiAnswerText]
+  );
+  const stickyAiWordCount = useMemo(
+    () => stickyAiText.split(/\s+/).filter(Boolean).length,
+    [stickyAiText]
+  );
   const stickyAiAnimationKey = useMemo(
     () => `sticky4-ai-${stickyAiAnimationNonce}`,
     [stickyAiAnimationNonce]
   );
+
+  useEffect(() => {
+    if (!stickyAiText || isAiRegenerating) {
+      setStickyAiVisibleWordIndex(-1);
+      return;
+    }
+
+    if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setStickyAiVisibleWordIndex(stickyAiWordCount - 1);
+      return;
+    }
+
+    setStickyAiVisibleWordIndex(-1);
+    let currentWord = -1;
+    const intervalId = window.setInterval(() => {
+      currentWord += 1;
+      setStickyAiVisibleWordIndex(currentWord);
+      if (currentWord >= stickyAiWordCount - 1) {
+        window.clearInterval(intervalId);
+      }
+    }, 45);
+
+    return () => window.clearInterval(intervalId);
+  }, [stickyAiAnimationNonce, stickyAiText, stickyAiWordCount, isAiRegenerating]);
 
   const showZitounEasterEgg = !isLoading && isZitounMask(spokenText || searchQuery);
   const showCelebrityGuide = !isLoading && isCelebrityQuery(spokenText || searchQuery);
@@ -2499,10 +2532,11 @@ const SearchPage = () => {
                     {isAiRegenerating ? (
                       <span className="italic text-muted-foreground/60">{language === "en" ? "Regenerating…" : "Régénération en cours…"}</span>
                     ) : parseInline(
-                      aiAnswerText.replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "").replace(/\n+/g, " "),
+                      stickyAiText,
                       allBusinesses as unknown as AIBusinessData[],
                       (b) => setCompactPanelBusiness(b),
-                      "compact-ai"
+                      "compact-ai",
+                      { wordIndex: 0, target: stickyAiVisibleWordIndex }
                     )}
                   </div>
                   <button
