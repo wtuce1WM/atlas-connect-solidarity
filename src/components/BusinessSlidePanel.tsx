@@ -873,16 +873,6 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
               <WhatsAppIcon className="h-6 w-6" />
             </a>
           )}
-          {business.skype && (
-            <a href={`skype:${business.skype}?chat`} target="_blank" rel="noopener noreferrer" className="hover:opacity-70 transition-opacity" style={{ color: "#00AFF0" }}>
-              <SkypeIcon className="h-6 w-6" />
-            </a>
-          )}
-          {business.phone && (
-            <a href={`tel:${business.phone}`} className="hover:opacity-70 transition-opacity" style={{ color: "#404040" }}>
-              <Phone className="h-6 w-6" />
-            </a>
-          )}
           {(business.latitude || business.google_maps_url) && (
             <button
               onClick={() => mapSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
@@ -901,26 +891,6 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
         <>
           <ShareButton title={business.name} variant="dark" className="toolbar-icon" />
           <BookmarkButton businessId={business.id} variant="gold" onLoginRequired={() => setShowClubCard(true)} />
-          <button
-            onClick={() => {
-              if (ttsStatus === "playing" || ttsStatus === "loading") {
-                ttsStop();
-                voiceLoopRef.current = false;
-              } else {
-                voiceLoopRef.current = true;
-                const synthesis = buildTtsSynthesis();
-                ttsSpeak(synthesis + " … Vous pouvez me poser une autre question.");
-              }
-            }}
-            className={`h-9 w-9 flex items-center justify-center rounded-full transition-colors ${ttsStatus === "playing" || ttsStatus === "loading" ? "bg-gold/20 text-gold" : "bg-muted text-muted-foreground hover:bg-muted/80"}`}
-            title={ttsStatus === "playing" ? "Arrêter la lecture" : "Écouter la synthèse"}
-          >
-            {ttsStatus === "loading" ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Headphones className="h-4 w-4" />
-            )}
-          </button>
         </>,
         toolbarPortal
       )}
