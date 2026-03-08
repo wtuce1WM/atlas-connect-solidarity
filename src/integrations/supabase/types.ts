@@ -475,6 +475,47 @@ export type Database = {
           },
         ]
       }
+      business_menu_summaries: {
+        Row: {
+          avg_price_range: Json | null
+          business_id: string
+          content: string | null
+          created_at: string
+          id: string
+          sort_order: number
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          avg_price_range?: Json | null
+          business_id: string
+          content?: string | null
+          created_at?: string
+          id?: string
+          sort_order?: number
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          avg_price_range?: Json | null
+          business_id?: string
+          content?: string | null
+          created_at?: string
+          id?: string
+          sort_order?: number
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_menu_summaries_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_poi_businesses: {
         Row: {
           business_id: string
