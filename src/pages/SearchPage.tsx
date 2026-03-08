@@ -3090,7 +3090,7 @@ const SearchPage = () => {
           )}
 
           {/* Left panel — full AI text (hidden when expanded) */}
-          {!isCompactPanelExpanded && (
+          {!isCompactPanelExpanded && !isSubDesktop && (
           <div
             className="fixed top-[62px] left-0 w-1/2 z-[100] bg-background border-r border-border shadow-xl flex flex-col animate-fade-in"
             style={{ height: "calc(100vh - 62px)" }}
