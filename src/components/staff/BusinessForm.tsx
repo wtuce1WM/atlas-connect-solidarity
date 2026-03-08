@@ -603,6 +603,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           title: d.title || "",
           content: d.content || "",
           avg_price_range: d.avg_price_range || null,
+          price_details: d.price_details || "",
         })));
       }
     };
