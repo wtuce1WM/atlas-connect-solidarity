@@ -2656,45 +2656,57 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   />
                 </div>
 
-                <div className="space-y-1">
-                  <Label className="text-sm font-medium">💰 Budget moyen par personne</Label>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      type="number"
-                      value={summary.avg_price_range?.min ?? ""}
-                      onChange={(e) => {
-                        const val = e.target.value ? Number(e.target.value) : undefined;
-                        setMenuSummaries(prev => prev.map((s, i) => i === idx ? { ...s, avg_price_range: { ...(s.avg_price_range || {}), min: val } } : s));
-                      }}
-                      placeholder="Min"
-                      className="w-24"
-                    />
-                    <span className="text-muted-foreground">—</span>
-                    <Input
-                      type="number"
-                      value={summary.avg_price_range?.max ?? ""}
-                      onChange={(e) => {
-                        const val = e.target.value ? Number(e.target.value) : undefined;
-                        setMenuSummaries(prev => prev.map((s, i) => i === idx ? { ...s, avg_price_range: { ...(s.avg_price_range || {}), max: val } } : s));
-                      }}
-                      placeholder="Max"
-                      className="w-24"
-                    />
-                    <select
-                      value={summary.avg_price_range?.currency || "MAD"}
-                      onChange={(e) => setMenuSummaries(prev => prev.map((s, i) => i === idx ? { ...s, avg_price_range: { ...(s.avg_price_range || {}), currency: e.target.value } } : s))}
-                      className="h-9 rounded-md border border-input bg-background px-3 text-sm w-24"
-                    >
-                      <option value="MAD">MAD</option>
-                      <option value="EUR">EUR</option>
-                      <option value="USD">USD</option>
-                    </select>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <Label className="text-sm font-medium">💰 Budget moyen par personne</Label>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="number"
+                        value={summary.avg_price_range?.min ?? ""}
+                        onChange={(e) => {
+                          const val = e.target.value ? Number(e.target.value) : undefined;
+                          setMenuSummaries(prev => prev.map((s, i) => i === idx ? { ...s, avg_price_range: { ...(s.avg_price_range || {}), min: val } } : s));
+                        }}
+                        placeholder="Min"
+                        className="w-24"
+                      />
+                      <span className="text-muted-foreground">—</span>
+                      <Input
+                        type="number"
+                        value={summary.avg_price_range?.max ?? ""}
+                        onChange={(e) => {
+                          const val = e.target.value ? Number(e.target.value) : undefined;
+                          setMenuSummaries(prev => prev.map((s, i) => i === idx ? { ...s, avg_price_range: { ...(s.avg_price_range || {}), max: val } } : s));
+                        }}
+                        placeholder="Max"
+                        className="w-24"
+                      />
+                      <select
+                        value={summary.avg_price_range?.currency || "MAD"}
+                        onChange={(e) => setMenuSummaries(prev => prev.map((s, i) => i === idx ? { ...s, avg_price_range: { ...(s.avg_price_range || {}), currency: e.target.value } } : s))}
+                        className="h-9 rounded-md border border-input bg-background px-3 text-sm w-24"
+                      >
+                        <option value="MAD">MAD</option>
+                        <option value="EUR">EUR</option>
+                        <option value="USD">USD</option>
+                      </select>
+                    </div>
+                    {summary.avg_price_range?.min != null && summary.avg_price_range?.max != null && (
+                      <p className="text-xs text-muted-foreground">
+                        Affiché : {summary.avg_price_range.min}–{summary.avg_price_range.max} {summary.avg_price_range.currency || "MAD"} / personne
+                      </p>
+                    )}
                   </div>
-                  {summary.avg_price_range?.min != null && summary.avg_price_range?.max != null && (
-                    <p className="text-xs text-muted-foreground">
-                      Affiché : {summary.avg_price_range.min}–{summary.avg_price_range.max} {summary.avg_price_range.currency || "MAD"} / personne
-                    </p>
-                  )}
+
+                  <div className="space-y-1">
+                    <Label className="text-sm font-medium">📊 Détail des prix</Label>
+                    <RichTextEditor
+                      content={summary.price_details || ""}
+                      onChange={(html) => setMenuSummaries(prev => prev.map((s, i) => i === idx ? { ...s, price_details: html } : s))}
+                      placeholder="Entrées 220–450 MAD · Plats 290–970 MAD · Desserts 200–250 MAD..."
+                      maxHeight="180px"
+                    />
+                  </div>
                 </div>
               </div>
             ))}
