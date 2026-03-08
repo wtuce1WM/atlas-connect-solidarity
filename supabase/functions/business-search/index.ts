@@ -1780,6 +1780,7 @@ serve(async (req) => {
     let serviceMatchWordsForInjection: string[] = [];
     let serviceMatchWordsOuter: string[] = []; // All query words used in service detection (for cleanRemainder)
     let keywordMatchedSubcategories: string[] = []; // Subcategories of services matched via keywords
+    let serviceKeywordsLookup: Map<string, string[]> = new Map(); // service name → keywords
     
     if (effectiveQuery || query || spoken) {
       // Strip French contractions: l'aéroport → aéroport, d'art → art, etc.
