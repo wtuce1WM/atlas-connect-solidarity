@@ -81,7 +81,7 @@ const StaffB2B = () => {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
+      <main className="w-full px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-6 flex flex-wrap h-auto gap-1">
             <TabsTrigger value="affiliates" className="gap-2">
