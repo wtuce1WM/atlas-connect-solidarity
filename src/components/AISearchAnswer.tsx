@@ -162,7 +162,7 @@ const parseInline = (
               );
             } else {
               nodes.push(
-                <span key={`${keyPrefix}-hl-${j}`} className={`inline-flex transition-all duration-300 rounded-sm ${highlighted ? "opacity-100 blur-0 translate-y-0" : "opacity-0 blur-[2px] translate-y-1 pointer-events-none"}`}>
+                <span key={`${keyPrefix}-hl-${j}`} className={`inline transition-all duration-300 rounded-sm ${highlighted ? "opacity-100 blur-0 translate-y-0" : "opacity-0 blur-[2px] translate-y-1 pointer-events-none"}`}>
                   {card}
                 </span>
               );
