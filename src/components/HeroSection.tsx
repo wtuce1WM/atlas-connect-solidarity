@@ -13,8 +13,11 @@ import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
 import { toast } from "@/hooks/use-toast";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { getTimeGreeting, extractTimeSlot } from "@/lib/timeSlots";
+import HeroLocationSelector from "@/components/HeroLocationSelector";
+import LocationPickerDialog from "@/components/LocationPickerDialog";
 
 const HeroSection = () => {
+  const [locationDialogOpen, setLocationDialogOpen] = useState(false);
   const { t, language } = useLanguage();
   const navigate = useNavigate();
   
@@ -231,27 +234,31 @@ const HeroSection = () => {
           />
         </div>
 
-        {/* Geo toggle badge */}
-        <button
-          type="button"
-          onClick={geo.toggle}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all border ${
-            geo.isEnabled && geo.detectedCity
-              ? "bg-gold/20 border-gold/50 text-gold"
-              : geo.isEnabled
-                ? "bg-black/5 border-black/10 text-black/60"
-                : "bg-black/5 border-black/10 text-black/50"
-          }`}
-        >
-          <MapPin className="h-3.5 w-3.5" />
-          {geo.isEnabled
-            ? geo.isDetecting
-              ? (language === "fr" ? "Détection..." : language === "ar" ? "جاري الكشف..." : "Detecting...")
-              : geo.detectedCity
-                ? `📍 ${geo.detectedCity}`
-                : (language === "fr" ? "Aucune ville proche" : language === "ar" ? "لا توجد مدينة قريبة" : "No nearby city")
-            : (language === "fr" ? "Position désactivée" : language === "ar" ? "الموقع معطل" : "Location off")}
-        </button>
+        {/* Restaurant Guru-style location selector */}
+        <HeroLocationSelector
+          detectedCity={geo.detectedCity}
+          isEnabled={geo.isEnabled}
+          isDetecting={geo.isDetecting}
+          onAcceptGeo={geo.accept}
+          onSelectCity={(city) => {
+            // Set manual location with city name (coords will be resolved by search)
+            geo.accept();
+          }}
+          onOpenMap={() => setLocationDialogOpen(true)}
+        />
+
+        {/* Location Picker Dialog */}
+        <LocationPickerDialog
+          open={locationDialogOpen}
+          onOpenChange={setLocationDialogOpen}
+          coords={geo.coords}
+          detectedCity={geo.detectedCity}
+          isEnabled={geo.isEnabled}
+          isDetecting={geo.isDetecting}
+          onUseCurrentPosition={geo.accept}
+          onConfirm={(coords, address) => geo.setManualLocation(coords, address)}
+          onDisableGeo={geo.decline}
+        />
 
         {/* Listez votre entreprise */}
         <p className="text-2xl md:text-3xl text-black/80 font-medium mt-4">
