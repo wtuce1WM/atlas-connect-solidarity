@@ -13,6 +13,8 @@ import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
 import { toast } from "@/hooks/use-toast";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { getTimeGreeting, extractTimeSlot } from "@/lib/timeSlots";
+import HeroLocationSelector from "@/components/HeroLocationSelector";
+import LocationPickerDialog from "@/components/LocationPickerDialog";
 
 const HeroSection = () => {
   const { t, language } = useLanguage();
