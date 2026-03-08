@@ -373,7 +373,6 @@ const SearchPage = () => {
   const [allBusinesses, setAllBusinesses] = useState<Business[]>([]);
   const [totalCount, setTotalCount] = useState<number | null>(null);
   const [detectedSubcategory, setDetectedSubcategory] = useState<string | null>(null);
-  const [isHeuristicFallback, setIsHeuristicFallback] = useState(false);
   const [searchMode, setSearchMode] = useState<string | null>(null);
   const [searchLevel, setSearchLevel] = useState<string>("");
    const [synonymUsed, setSynonymUsed] = useState(false);
@@ -922,16 +921,23 @@ const SearchPage = () => {
   toggleRecordingRef.current = toggleRecording;
 
   // Get cities available in results, sorted by priority score
-  // Only use direct physical city (b.city), NOT zone_city_ids to avoid phantom cities
+  // Show cities that are either the direct city of a result OR covered via zone_city_ids
   const availableCities = useMemo(() => {
+    // Collect direct cities
     const coveredCityNames = new Set<string>();
+    const coveredCityIds = new Set<string>();
 
     for (const b of allBusinesses) {
       if (b.city) coveredCityNames.add(b.city);
+      if (b.zone_city_ids && b.is_visible_locale) {
+        for (const cid of b.zone_city_ids) {
+          coveredCityIds.add(cid);
+        }
+      }
     }
 
     return citiesWithPriority
-      .filter(c => coveredCityNames.has(c.name))
+      .filter(c => coveredCityNames.has(c.name) || (c.id && coveredCityIds.has(c.id)))
       .sort((a, b) => a.priority - b.priority)
       .map(c => c.name);
   }, [allBusinesses, citiesWithPriority]);
@@ -1102,8 +1108,6 @@ const SearchPage = () => {
 
   const searchServiceFilters = useMemo(() => {
     if (!searchQuery.trim() || allBusinesses.length === 0) return [];
-    // Don't show service filters when subcategory was detected via heuristic fallback (not backend)
-    if (isHeuristicFallback) return [];
     // Don't short-circuit when auto-selection came from detection — only when user manually picked via CityCategoryFilter
     // (auto-detection sets both detectedSubcategory AND selectedSubcategoryFilter simultaneously)
     const isAutoSelected = !!detectedSubcategory && selectedSubcategoryFilter === detectedSubcategory;
@@ -1136,7 +1140,7 @@ const SearchPage = () => {
       .filter(([, count]) => count >= 1)
       .sort((a, b) => a[0].localeCompare(b[0], "fr"))
       .map(([name, count]) => ({ name, count }));
-  }, [searchQuery, allBusinesses, selectedCity, selectedCategoryFilter, selectedSubcategoryFilter, serviceCityLookup, allFilteredServiceNames, filteredServicesBySubcategory, detectedSubcategory, isHeuristicFallback]);
+  }, [searchQuery, allBusinesses, selectedCity, selectedCategoryFilter, selectedSubcategoryFilter, serviceCityLookup, allFilteredServiceNames, filteredServicesBySubcategory, detectedSubcategory]);
 
   // Group businesses by primary subcategory when a subcategory was detected
   const groupedBusinesses = useMemo(() => {
@@ -1202,7 +1206,6 @@ const SearchPage = () => {
         setTotalCount(null);
         setSearchMessage("");
         setDetectedSubcategory(null);
-        setIsHeuristicFallback(false);
         setSearchMode(null);
          setSynonymUsed(false);
          setPreciseMatch(false);
@@ -1216,7 +1219,6 @@ const SearchPage = () => {
       setOverlaySelectedBusiness(null);
       aiPopupShownRef.current = false;
       setDetectedSubcategory(null);
-      setIsHeuristicFallback(false);
       setSynonymUsed(false);
       setPreciseMatch(false);
       setSearchMode(null);
@@ -1279,7 +1281,6 @@ const SearchPage = () => {
           
           const finalDetectedSubcategory = safeDetectedSubcategory || fallbackSubcategory || null;
           setDetectedSubcategory(finalDetectedSubcategory);
-          setIsHeuristicFallback(!!fallbackSubcategory && !safeDetectedSubcategory);
           setSearchMode(normalizedSearchMode);
            setDetectedCity(data.detectedCity || null);
            setDisambiguationType(data.disambiguationType || null);
