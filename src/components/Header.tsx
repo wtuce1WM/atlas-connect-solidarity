@@ -40,8 +40,8 @@ const Header = ({ variant = "default" }: HeaderProps) => {
         <a href="/" className="flex items-center gap-2 shrink-0">
           <img src={logoGold} alt="WTUCEMA Logo" className="h-9 w-9 object-contain" />
           <span className="hidden sm:inline text-lg font-bold tracking-tight">
-            <span className="text-gold">ONE WORLD</span>{" "}
-            <span className={logoSecondary}>MOROCCO</span>
+            <span className="text-foreground">ONE WORLD</span>{" "}
+            <span className="text-foreground">MOROCCO</span>
           </span>
         </a>
 

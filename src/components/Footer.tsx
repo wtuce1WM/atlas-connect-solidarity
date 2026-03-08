@@ -33,7 +33,7 @@ const Footer = ({ variant = "default" }: FooterProps) => {
             <div className="mb-4 flex items-center gap-2">
               <img src={logoGold} alt="WTUCEMA Logo" className="h-10 w-10 object-contain" />
             <span className="text-xl font-bold tracking-tight">
-              <span className="text-gold">ONE WORLD</span> <span className={brandMorocco}>MOROCCO</span>
+              <span className="text-black">ONE WORLD</span> <span className="text-black">MOROCCO</span>
             </span>
             </div>
             <p className={`mb-6 text-sm leading-relaxed ${textSecondary}`}>
