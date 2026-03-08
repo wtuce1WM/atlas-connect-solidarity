@@ -126,7 +126,7 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
     )}
 
     {/* Single panel — transitions between 50% and 80% like POI */}
-    <div className={`fixed top-[53px] right-0 bottom-0 z-40 bg-background flex flex-col shadow-2xl overflow-hidden border-l border-border transition-all duration-500 ease-out ${isExpanded ? "w-[80%] border-l-2 shadow-[-8px_0_30px_-5px_rgba(0,0,0,0.15)]" : "w-1/2"}`}>
+    <div className={`fixed top-0 left-0 right-0 bottom-0 z-40 bg-background flex flex-col shadow-2xl overflow-hidden animate-slide-in-right lg:top-[53px] lg:left-auto lg:border-l lg:border-border ${isExpanded ? "lg:w-[80%] border-l-2 border-border shadow-[-8px_0_30px_-5px_rgba(0,0,0,0.15)]" : "lg:w-1/2"}`}>
       <SlidePanelHeader
         onClose={() => { onClose(); setIsExpanded(false); }}
         isExpanded={isExpanded}
