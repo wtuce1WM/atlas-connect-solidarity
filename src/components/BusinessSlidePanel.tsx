@@ -250,7 +250,8 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   const [menuCarouselCurrent, setMenuCarouselCurrent] = useState(0);
   const [nearbyCount, setNearbyCount] = useState<number | null>(null);
   const menuDragStartXRef = useRef<number | null>(null);
-  const menuDragTriggeredRef = useRef(false);
+  const menuDragStartYRef = useRef<number | null>(null);
+  const menuDragLastXRef = useRef<number | null>(null);
   const isScrollingToTabRef = useRef(false);
   const tabScrollUnlockTimeoutRef = useRef<number | null>(null);
 
@@ -262,24 +263,49 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
     return () => { menuCarouselApi.off("select", onSelect); };
   }, [menuCarouselApi]);
 
-  const handleMenuMouseDown = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
-    menuDragStartXRef.current = event.clientX;
-    menuDragTriggeredRef.current = false;
-  }, []);
-
-  const handleMenuMouseMove = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
-    if (!menuCarouselApi || menuDragStartXRef.current === null || menuDragTriggeredRef.current) return;
-    const deltaX = event.clientX - menuDragStartXRef.current;
-    if (Math.abs(deltaX) < 24) return;
-    if (deltaX < 0) menuCarouselApi.scrollNext();
-    if (deltaX > 0) menuCarouselApi.scrollPrev();
-    menuDragTriggeredRef.current = true;
-  }, [menuCarouselApi]);
-
   const resetMenuMouseDrag = useCallback(() => {
     menuDragStartXRef.current = null;
-    menuDragTriggeredRef.current = false;
+    menuDragStartYRef.current = null;
+    menuDragLastXRef.current = null;
+    document.body.style.userSelect = "";
   }, []);
+
+  const handleMenuMouseDown = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+    menuDragStartXRef.current = event.clientX;
+    menuDragStartYRef.current = event.clientY;
+    menuDragLastXRef.current = event.clientX;
+    document.body.style.userSelect = "none";
+  }, []);
+
+  useEffect(() => {
+    const handleWindowMouseMove = (event: MouseEvent) => {
+      if (!menuCarouselApi || menuDragStartXRef.current === null || menuDragStartYRef.current === null) return;
+
+      const totalDeltaX = event.clientX - menuDragStartXRef.current;
+      const totalDeltaY = event.clientY - menuDragStartYRef.current;
+      const stepDeltaX = event.clientX - (menuDragLastXRef.current ?? event.clientX);
+
+      if (Math.abs(totalDeltaX) <= Math.abs(totalDeltaY) || Math.abs(stepDeltaX) < 28) return;
+
+      if (stepDeltaX < 0) {
+        menuCarouselApi.scrollNext();
+      } else {
+        menuCarouselApi.scrollPrev();
+      }
+
+      menuDragLastXRef.current = event.clientX;
+    };
+
+    const handleWindowMouseUp = () => resetMenuMouseDrag();
+
+    window.addEventListener("mousemove", handleWindowMouseMove);
+    window.addEventListener("mouseup", handleWindowMouseUp);
+
+    return () => {
+      window.removeEventListener("mousemove", handleWindowMouseMove);
+      window.removeEventListener("mouseup", handleWindowMouseUp);
+    };
+  }, [menuCarouselApi, resetMenuMouseDrag]);
 
   const handleFullscreen = useCallback(() => {
     // For native video, use the video element's fullscreen
