@@ -1584,7 +1584,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                     )}
                     {summary.content && (
                       <div 
-                        className="text-sm text-foreground whitespace-pre-wrap [&>p]:mb-2 [&>p:last-child]:mb-0 [&>ul]:list-disc [&>ul]:pl-5 [&>ol]:list-decimal [&>ol]:pl-5"
+                        className="prose prose-sm max-w-none text-foreground [&_p]:mb-2 [&_p:last-child]:mb-0 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_h2]:text-base [&_h2]:font-bold [&_h2]:mt-4 [&_h2]:mb-2 [&_h3]:text-sm [&_h3]:font-semibold [&_h3]:mt-3 [&_h3]:mb-1 [&_li]:mb-0.5 [&_strong]:font-semibold"
                         dangerouslySetInnerHTML={{ __html: summary.content }}
                       />
                     )}
