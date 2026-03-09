@@ -3226,9 +3226,6 @@ const SearchPage = () => {
               </div>
               {searchServiceFilters.length > 0 && (
                 <div className="mt-3 mb-4">
-                  <p className="text-xs text-muted-foreground mb-1">
-                    {language === "en" ? "You can refine your search" : language === "ar" ? "يمكنك تحسين بحثك" : "Vous pouvez préciser votre recherche"}
-                  </p>
                   {availableCities.length > 1 && !queryHasExplicitCity && (
                     <>
                       <p className="text-base font-bold text-foreground mb-2">
