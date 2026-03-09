@@ -3222,71 +3222,111 @@ const SearchPage = () => {
                     : `10 établissements recommandés sur ${displayedResultsCount} établissements trouvés`}
                 </p>
               </div>
-              {searchServiceFilters.length > 0 && (
-                <div className="mt-3 mb-4">
-                  {availableCities.length > 1 && !queryHasExplicitCity && (
-                    <>
-                      <p className="text-base font-bold text-foreground mb-2">
-                        {language === "en" ? "Where are you looking?" : language === "ar" ? "أين تبحث؟" : "Où le cherchez-vous ?"}
-                      </p>
-                      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide mb-4">
-                        <button
-                          onClick={() => handleCityChange("all")}
-                          className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-bold transition-all whitespace-nowrap ${
-                            selectedCity === "all"
-                              ? "bg-gold/20 border-gold text-gold shadow-sm"
-                              : "bg-card border-border text-muted-foreground hover:border-gold/40 hover:text-foreground"
-                          }`}
-                        >
-                          <MapPin size={14} className={selectedCity === "all" ? "text-gold" : "text-muted-foreground"} />
-                          <span>{t.allCities}</span>
-                        </button>
-                        {availableCities.map((city) => {
-                          const isSelected = selectedCity === city;
-                          return (
-                            <button
-                              key={city}
-                              onClick={() => handleCityChange(isSelected ? "all" : city)}
-                              className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-bold transition-all whitespace-nowrap ${
-                                isSelected
-                                  ? "bg-gold/20 border-gold text-gold shadow-sm"
-                                  : "bg-card border-border text-muted-foreground hover:border-gold/40 hover:text-foreground"
-                              }`}
-                            >
-                              <MapPin size={14} className={isSelected ? "text-gold" : "text-muted-foreground"} />
-                              <span>{city}</span>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </>
-                  )}
-                  <p className="text-base font-bold text-foreground mb-2">
-                    {language === "en" ? "What are you looking for?" : language === "ar" ? "ماذا تبحث عنه؟" : "Que cherchez-vous ?"}
-                  </p>
-                  <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-                    {searchServiceFilters.map((svc) => {
-                      const isSelected = selectedServiceFilter === svc.name;
-                      return (
-                        <button
-                          key={svc.name}
-                          onClick={() => { setSelectedServiceFilter(isSelected ? null : svc.name); /* TEMP DISABLED: setAiAnswerText(""); setAiRegenerateKey(k => k + 1); */ }}
-                          className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-bold transition-all whitespace-nowrap ${
-                            isSelected
-                              ? "bg-gold/20 border-gold text-gold shadow-sm"
-                              : "bg-card border-border text-muted-foreground hover:border-gold/40 hover:text-foreground"
-                          }`}
-                        >
-                          <span>{svc.name}</span>
-                          <span className={`text-xs font-normal ${isSelected ? "text-gold/70" : "text-muted-foreground/60"}`}>
-                            {svc.count}
-                          </span>
-                        </button>
-                      );
-                    })}
+              {(() => {
+                // Compute category counts from results for the left panel
+                const categoryCounts: Record<string, number> = {};
+                for (const b of allBusinesses) {
+                  if (b.main_category) {
+                    categoryCounts[b.main_category] = (categoryCounts[b.main_category] || 0) + 1;
+                  }
+                }
+                const categoryList = Object.entries(categoryCounts)
+                  .sort((a, b) => b[1] - a[1])
+                  .map(([name, count]) => ({ name, count }));
+                const showServices = searchServiceFilters.length > 0;
+                const showCategories = !showServices && categoryList.length > 1;
+                if (!showServices && !showCategories) return null;
+                return (
+                  <div className="mt-3 mb-4">
+                    {availableCities.length > 1 && !queryHasExplicitCity && (
+                      <>
+                        <p className="text-base font-bold text-foreground mb-2">
+                          {language === "en" ? "Where are you looking?" : language === "ar" ? "أين تبحث؟" : "Où le cherchez-vous ?"}
+                        </p>
+                        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide mb-4">
+                          <button
+                            onClick={() => handleCityChange("all")}
+                            className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-bold transition-all whitespace-nowrap ${
+                              selectedCity === "all"
+                                ? "bg-gold/20 border-gold text-gold shadow-sm"
+                                : "bg-card border-border text-muted-foreground hover:border-gold/40 hover:text-foreground"
+                            }`}
+                          >
+                            <MapPin size={14} className={selectedCity === "all" ? "text-gold" : "text-muted-foreground"} />
+                            <span>{t.allCities}</span>
+                          </button>
+                          {availableCities.map((city) => {
+                            const isSelected = selectedCity === city;
+                            return (
+                              <button
+                                key={city}
+                                onClick={() => handleCityChange(isSelected ? "all" : city)}
+                                className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-bold transition-all whitespace-nowrap ${
+                                  isSelected
+                                    ? "bg-gold/20 border-gold text-gold shadow-sm"
+                                    : "bg-card border-border text-muted-foreground hover:border-gold/40 hover:text-foreground"
+                                }`}
+                              >
+                                <MapPin size={14} className={isSelected ? "text-gold" : "text-muted-foreground"} />
+                                <span>{city}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </>
+                    )}
+                    <p className="text-base font-bold text-foreground mb-2">
+                      {language === "en" ? "What are you looking for?" : language === "ar" ? "ماذا تبحث عنه؟" : "Que cherchez-vous ?"}
+                    </p>
+                    <div className="flex flex-wrap gap-2 pb-1">
+                      {showServices
+                        ? searchServiceFilters.map((svc) => {
+                            const isSelected = selectedServiceFilter === svc.name;
+                            return (
+                              <button
+                                key={svc.name}
+                                onClick={() => { setSelectedServiceFilter(isSelected ? null : svc.name); }}
+                                className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-bold transition-all whitespace-nowrap ${
+                                  isSelected
+                                    ? "bg-primary/20 border-primary text-primary shadow-sm"
+                                    : "bg-card border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                                }`}
+                              >
+                                <span>{svc.name}</span>
+                                <span className={`text-xs font-normal ${isSelected ? "text-primary/70" : "text-muted-foreground/60"}`}>
+                                  {svc.count}
+                                </span>
+                              </button>
+                            );
+                          })
+                        : categoryList.map((cat) => {
+                            const isSelected = selectedCategoryFilter === cat.name;
+                            return (
+                              <button
+                                key={cat.name}
+                                onClick={() => {
+                                  setSelectedCategoryFilter(isSelected ? null : cat.name);
+                                  setSelectedSubcategoryFilter(null);
+                                  setSelectedServiceFilter(null);
+                                }}
+                                className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-bold transition-all whitespace-nowrap ${
+                                  isSelected
+                                    ? "bg-primary/20 border-primary text-primary shadow-sm"
+                                    : "bg-card border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                                }`}
+                              >
+                                <span>{cat.name}</span>
+                                <span className={`text-xs font-normal ${isSelected ? "text-primary/70" : "text-muted-foreground/60"}`}>
+                                  {cat.count}
+                                </span>
+                              </button>
+                            );
+                          })
+                      }
+                    </div>
                   </div>
-                </div>
-              )}
+                );
+              })()}
               <div className="text-sm text-muted-foreground leading-relaxed space-y-1">
                 {(() => {
                   const isTTSActive = ttsStatus === "playing" && ttsSpokenWordIndex >= 0;
