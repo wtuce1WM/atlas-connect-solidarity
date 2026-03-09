@@ -3278,7 +3278,7 @@ const SearchPage = () => {
                     <p className="text-base font-bold text-foreground mb-2">
                       {language === "en" ? "What are you looking for?" : language === "ar" ? "ماذا تبحث عنه؟" : "Que cherchez-vous ?"}
                     </p>
-                    <div className="flex flex-wrap gap-2 pb-1">
+                    <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
                       {showServices
                         ? searchServiceFilters.map((svc) => {
                             const isSelected = selectedServiceFilter === svc.name;
