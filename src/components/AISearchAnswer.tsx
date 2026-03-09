@@ -500,7 +500,7 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
           isPanelExpanded
             ? "fixed top-0 left-0 z-[100] w-0 h-full overflow-hidden opacity-0 pointer-events-none"
             : isPanelOpen
-              ? "fixed top-[51px] left-0 z-[100] w-1/2 h-[calc(100%-51px)] overflow-y-auto p-6 flex items-start justify-center bg-white dark:bg-zinc-900 animate-slide-down-from-top"
+              ? "fixed top-[52px] left-0 z-[100] w-1/2 h-[calc(100%-52px)] overflow-y-auto p-6 flex items-start justify-center bg-white dark:bg-zinc-900 animate-slide-down-from-top"
               : "w-[70%] mx-auto"
         }`}
         style={isPanelOpen ? { animationName: undefined } : undefined}
