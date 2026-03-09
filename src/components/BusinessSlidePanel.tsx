@@ -214,6 +214,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   const [isLoadingArticle, setIsLoadingArticle] = useState(false);
   
   const [businessDocs, setBusinessDocs] = useState<{ id: string; type: string; url: string; name: string | null; icon: string | null; sort_order: number }[]>([]);
+  const [menuSummaries, setMenuSummaries] = useState<any[]>([]);
   const [docOverlay, setDocOverlay] = useState<{ url: string; name: string; type: 'pdf' | 'flipbook' | 'webpage' } | null>(null);
   const [reviewTexts, setReviewTexts] = useState<{ source: string; author_name: string | null; rating: number | null; text: string | null; relative_time: string | null; language?: string | null }[]>([]);
   const [translatedReviewTexts, setTranslatedReviewTexts] = useState<string[]>([]);
@@ -559,6 +560,13 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
         .order("sort_order", { ascending: true })
         .limit(4);
       setBusinessDocs(docs || []);
+
+      const { data: summariesData } = await supabase
+        .from("business_menu_summaries")
+        .select("*")
+        .eq("business_id", businessId)
+        .order("sort_order", { ascending: true });
+      setMenuSummaries(summariesData || []);
 
       setIsLoading(false);
     };
@@ -1562,6 +1570,46 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
               </div>
             );
           })()}
+
+          {menuSummaries.length > 0 && (
+            <div className="space-y-4 border-t border-border pt-6 pb-2">
+              <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wide">
+                {language === "en" ? "Find out more" : language === "ar" ? "اكتشف المزيد" : "En savoir plus"}
+              </h3>
+              <div className="space-y-5">
+                {menuSummaries.map((summary) => (
+                  <div key={summary.id} className="space-y-2">
+                    {summary.title && (
+                      <h4 className="font-semibold text-base">{summary.title}</h4>
+                    )}
+                    {summary.content && (
+                      <p className="text-sm text-foreground whitespace-pre-wrap">
+                        {summary.content}
+                      </p>
+                    )}
+                    {summary.avg_price_range && (
+                      <div className="mt-2">
+                        <Badge variant="outline" className="bg-muted/30">
+                          {language === "en" ? "Average price" : language === "ar" ? "متوسط السعر" : "Prix moyen"} :{" "}
+                          <span className="font-semibold ml-1">
+                            {summary.avg_price_range.min && summary.avg_price_range.max 
+                              ? `${summary.avg_price_range.min} - ${summary.avg_price_range.max}`
+                              : summary.avg_price_range.min || summary.avg_price_range.max} {summary.avg_price_range.currency || "MAD"}
+                          </span>
+                        </Badge>
+                      </div>
+                    )}
+                    {summary.price_details && (
+                      <p className="text-xs text-muted-foreground italic mt-1">
+                        {summary.price_details}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {(reviews.length > 0 || avgOn20) && (
             <div ref={reviewsSectionRef} className="space-y-4 scroll-mt-28 border-t pt-6">
               <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wide">{language === "en" ? "Customer reviews" : language === "ar" ? "آراء العملاء" : "Avis clients"}</h3>
