@@ -262,6 +262,25 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
     return () => { menuCarouselApi.off("select", onSelect); };
   }, [menuCarouselApi]);
 
+  const handleMenuMouseDown = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+    menuDragStartXRef.current = event.clientX;
+    menuDragTriggeredRef.current = false;
+  }, []);
+
+  const handleMenuMouseMove = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+    if (!menuCarouselApi || menuDragStartXRef.current === null || menuDragTriggeredRef.current) return;
+    const deltaX = event.clientX - menuDragStartXRef.current;
+    if (Math.abs(deltaX) < 24) return;
+    if (deltaX < 0) menuCarouselApi.scrollNext();
+    if (deltaX > 0) menuCarouselApi.scrollPrev();
+    menuDragTriggeredRef.current = true;
+  }, [menuCarouselApi]);
+
+  const resetMenuMouseDrag = useCallback(() => {
+    menuDragStartXRef.current = null;
+    menuDragTriggeredRef.current = false;
+  }, []);
+
   const handleFullscreen = useCallback(() => {
     // For native video, use the video element's fullscreen
     if (videoRef.current) {
