@@ -25,6 +25,8 @@ interface RichTextEditorProps {
 }
 
 const RichTextEditor = ({ content, onChange, placeholder, maxHeight }: RichTextEditorProps) => {
+  const isInternalChange = useRef(false);
+
   const extensions = useMemo(() => [
     StarterKit.configure({
       heading: { levels: [2, 3] },
@@ -52,6 +54,7 @@ const RichTextEditor = ({ content, onChange, placeholder, maxHeight }: RichTextE
     extensions,
     content,
     onUpdate: ({ editor }) => {
+      isInternalChange.current = true;
       onChange(editor.getHTML());
     },
     editorProps: {
@@ -63,9 +66,10 @@ const RichTextEditor = ({ content, onChange, placeholder, maxHeight }: RichTextE
   });
 
   useEffect(() => {
-    if (editor && content !== editor.getHTML()) {
+    if (editor && !isInternalChange.current && content !== editor.getHTML()) {
       editor.commands.setContent(content);
     }
+    isInternalChange.current = false;
   }, [content, editor]);
 
   if (!editor) return null;
