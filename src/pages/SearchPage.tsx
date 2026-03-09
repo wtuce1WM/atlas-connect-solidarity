@@ -555,9 +555,15 @@ const SearchPage = () => {
   }, [selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, selectedCity, detectedCity, preciseMatch]);
 
 
-   // Reset scroll lock and scroll to top on new search / reload
+   // Reset scroll lock, close panels, and return to suggestions tab on new search / reload
    useEffect(() => {
      setHasReachedTabBar(false);
+     setActiveTab("suggestions");
+     resetPanelStates();
+     setOverlaySelectedBusiness(null);
+     setIsOverlayPanelExpanded(false);
+     setCompactPanelBusiness(null);
+     setIsCompactPanelExpanded(false);
      window.scrollTo({ top: 0, behavior: "auto" });
    }, [searchQuery, urlT]);
 
