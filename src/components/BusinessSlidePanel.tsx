@@ -1576,9 +1576,9 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
               <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wide">
                 {language === "en" ? "Find out more" : language === "ar" ? "اكتشف المزيد" : "En savoir plus"}
               </h3>
-              <div className="space-y-5">
-                {menuSummaries.map((summary) => (
-                  <div key={summary.id} className="space-y-2">
+              {menuSummaries.length === 1 ? (
+                <div className="space-y-2">
+                  {(() => { const summary = menuSummaries[0]; return (<>
                     {summary.title && (
                       <div className="flex items-center gap-3 flex-wrap">
                         <h4 className="font-semibold text-base">{summary.title}</h4>
@@ -1592,9 +1592,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                                   : summary.avg_price_range.min || summary.avg_price_range.max} {summary.avg_price_range.currency || "MAD"}
                               </span>
                             </Badge>
-                            <span className="text-[10px] text-muted-foreground italic ml-1">
-                              * {language === "en" ? "one starter + one main" : language === "ar" ? "مقبلة + طبق رئيسي" : "une entrée + un plat"}
-                            </span>
+                            <span className="text-[10px] text-muted-foreground italic ml-1">* {language === "en" ? "one starter + one main" : language === "ar" ? "مقبلة + طبق رئيسي" : "une entrée + un plat"}</span>
                           </div>
                         )}
                       </div>
@@ -1609,26 +1607,75 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                               : summary.avg_price_range.min || summary.avg_price_range.max} {summary.avg_price_range.currency || "MAD"}
                           </span>
                         </Badge>
-                        <span className="text-[10px] text-muted-foreground italic ml-1">
-                          * {language === "en" ? "one starter + one main" : language === "ar" ? "مقبلة + طبق رئيسي" : "une entrée + un plat"}
-                        </span>
+                        <span className="text-[10px] text-muted-foreground italic ml-1">* {language === "en" ? "one starter + one main" : language === "ar" ? "مقبلة + طبق رئيسي" : "une entrée + un plat"}</span>
                       </div>
                     )}
                     {summary.content && (
-                      <div 
-                        className="prose prose-sm max-w-none text-foreground [&_p]:mb-2 [&_p:last-child]:mb-0 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_h2]:text-base [&_h2]:font-bold [&_h2]:mt-4 [&_h2]:mb-2 [&_h3]:text-sm [&_h3]:font-semibold [&_h3]:mt-3 [&_h3]:mb-1 [&_li]:mb-0.5 [&_strong]:font-semibold"
-                        dangerouslySetInnerHTML={{ __html: summary.content }}
-                      />
+                      <div className="prose prose-sm max-w-none text-foreground [&_p]:mb-2 [&_p:last-child]:mb-0 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_h2]:text-base [&_h2]:font-bold [&_h2]:mt-4 [&_h2]:mb-2 [&_h3]:text-sm [&_h3]:font-semibold [&_h3]:mt-3 [&_h3]:mb-1 [&_li]:mb-0.5 [&_strong]:font-semibold"
+                        dangerouslySetInnerHTML={{ __html: summary.content }} />
                     )}
                     {summary.price_details && (
-                      <div 
-                        className="text-xs text-muted-foreground italic mt-1 [&>p]:mb-0 [&>p:last-child]:mb-0"
-                        dangerouslySetInnerHTML={{ __html: summary.price_details }}
-                      />
+                      <div className="text-xs text-muted-foreground italic mt-1 [&>p]:mb-0 [&>p:last-child]:mb-0"
+                        dangerouslySetInnerHTML={{ __html: summary.price_details }} />
                     )}
+                  </>); })()}
+                </div>
+              ) : (
+                <Carousel opts={{ align: "start", loop: false }} className="w-full">
+                  <CarouselContent className="-ml-2">
+                    {menuSummaries.map((summary, idx) => (
+                      <CarouselItem key={summary.id} className="pl-2 basis-[85%] sm:basis-[80%]">
+                        <div className="space-y-2 rounded-lg border border-border bg-muted/20 p-4">
+                          {summary.title && (
+                            <div className="flex items-center gap-3 flex-wrap">
+                              <h4 className="font-semibold text-base">{summary.title}</h4>
+                              {summary.avg_price_range && (
+                                <div className="flex flex-col items-start gap-0.5">
+                                  <Badge variant="outline" className="bg-muted/30">
+                                    * {language === "en" ? "Average price excl. drinks" : language === "ar" ? "متوسط السعر بدون مشروبات" : "Prix moyen hors boissons"} :{" "}
+                                    <span className="font-semibold ml-1">
+                                      {summary.avg_price_range.min && summary.avg_price_range.max && summary.avg_price_range.min !== summary.avg_price_range.max
+                                        ? `${summary.avg_price_range.min} - ${summary.avg_price_range.max}`
+                                        : summary.avg_price_range.min || summary.avg_price_range.max} {summary.avg_price_range.currency || "MAD"}
+                                    </span>
+                                  </Badge>
+                                  <span className="text-[10px] text-muted-foreground italic ml-1">* {language === "en" ? "one starter + one main" : language === "ar" ? "مقبلة + طبق رئيسي" : "une entrée + un plat"}</span>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                          {!summary.title && summary.avg_price_range && (
+                            <div className="flex flex-col items-start gap-0.5">
+                              <Badge variant="outline" className="bg-muted/30">
+                                * {language === "en" ? "Average price excl. drinks" : language === "ar" ? "متوسط السعر بدون مشروبات" : "Prix moyen hors boissons"} :{" "}
+                                <span className="font-semibold ml-1">
+                                  {summary.avg_price_range.min && summary.avg_price_range.max && summary.avg_price_range.min !== summary.avg_price_range.max
+                                    ? `${summary.avg_price_range.min} - ${summary.avg_price_range.max}`
+                                    : summary.avg_price_range.min || summary.avg_price_range.max} {summary.avg_price_range.currency || "MAD"}
+                                </span>
+                              </Badge>
+                              <span className="text-[10px] text-muted-foreground italic ml-1">* {language === "en" ? "one starter + one main" : language === "ar" ? "مقبلة + طبق رئيسي" : "une entrée + un plat"}</span>
+                            </div>
+                          )}
+                          {summary.content && (
+                            <div className="prose prose-sm max-w-none text-foreground [&_p]:mb-2 [&_p:last-child]:mb-0 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_h2]:text-base [&_h2]:font-bold [&_h2]:mt-4 [&_h2]:mb-2 [&_h3]:text-sm [&_h3]:font-semibold [&_h3]:mt-3 [&_h3]:mb-1 [&_li]:mb-0.5 [&_strong]:font-semibold"
+                              dangerouslySetInnerHTML={{ __html: summary.content }} />
+                          )}
+                          {summary.price_details && (
+                            <div className="text-xs text-muted-foreground italic mt-1 [&>p]:mb-0 [&>p:last-child]:mb-0"
+                              dangerouslySetInnerHTML={{ __html: summary.price_details }} />
+                          )}
+                        </div>
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                  <div className="flex justify-center gap-1 mt-3">
+                    {menuSummaries.map((_, idx) => (
+                      <div key={idx} className="w-1.5 h-1.5 rounded-full bg-muted-foreground/30" />
+                    ))}
                   </div>
-                ))}
-              </div>
+                </Carousel>
+              )}
             </div>
           )}
 
