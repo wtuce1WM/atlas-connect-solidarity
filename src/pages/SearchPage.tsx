@@ -1150,41 +1150,63 @@ const SearchPage = () => {
     fetchServiceCityData();
   }, []);
 
-  const searchServiceFilters = useMemo(() => {
-    if (!searchQuery.trim() || allBusinesses.length === 0) return [];
-    // Don't short-circuit when auto-selection came from detection — only when user manually picked via CityCategoryFilter
-    // (auto-detection sets both detectedSubcategory AND selectedSubcategoryFilter simultaneously)
-    const isAutoSelected = !!detectedSubcategory && selectedSubcategoryFilter === detectedSubcategory;
-    if ((selectedCategoryFilter || selectedSubcategoryFilter) && !isAutoSelected) return [];
-
-    // Determine which service names are allowed based on detected subcategory
-    let allowedNames: Set<string>;
-    if (detectedSubcategory && filteredServicesBySubcategory[detectedSubcategory]) {
-      allowedNames = filteredServicesBySubcategory[detectedSubcategory];
-    } else {
-      allowedNames = allFilteredServiceNames;
+  // Populate service filters from taxonomy + direct DB counts (not from FTS results)
+  const [searchServiceFilters, setSearchServiceFilters] = useState<{ name: string; count: number }[]>([]);
+  
+  useEffect(() => {
+    const effectiveSubcategory = selectedSubcategoryFilter || detectedSubcategory;
+    if (!effectiveSubcategory || !searchQuery.trim()) {
+      setSearchServiceFilters([]);
+      return;
+    }
+    
+    // Get allowed service names from taxonomy for this subcategory
+    const allowedNames = filteredServicesBySubcategory[effectiveSubcategory];
+    if (!allowedNames || allowedNames.size === 0) {
+      setSearchServiceFilters([]);
+      return;
     }
 
-    const source = selectedCity === "all" ? allBusinesses : allBusinesses.filter(b => b.city === selectedCity);
-    const countMap: Record<string, number> = {};
-    for (const b of source) {
-      if (b.services) {
-        for (const s of b.services) {
-          if (!allowedNames.has(s)) continue;
-          // If this service has city restrictions (from service_city_filters), respect them
-          const allowedCities = serviceCityLookup[s];
-          if (allowedCities && allowedCities.length > 0 && selectedCity !== "all") {
-            if (!allowedCities.some(c => c.toLowerCase() === selectedCity.toLowerCase())) continue;
+    const effectiveCity = (selectedCity && selectedCity !== "all") ? selectedCity : detectedCity;
+
+    const fetchServiceCounts = async () => {
+      let query = supabase
+        .from("businesses")
+        .select("services")
+        .eq("is_active", true)
+        .contains("categories", [effectiveSubcategory]);
+      
+      if (effectiveCity) {
+        query = query.ilike("city", effectiveCity);
+      }
+
+      const { data } = await query.limit(1000);
+      if (!data) return;
+
+      const countMap: Record<string, number> = {};
+      for (const b of data) {
+        if (b.services) {
+          for (const s of b.services as string[]) {
+            if (!allowedNames.has(s)) continue;
+            // Respect city restrictions from service_city_filters
+            const allowedCities = serviceCityLookup[s];
+            if (allowedCities && allowedCities.length > 0 && effectiveCity) {
+              if (!allowedCities.some(c => c.toLowerCase() === effectiveCity.toLowerCase())) continue;
+            }
+            countMap[s] = (countMap[s] || 0) + 1;
           }
-          countMap[s] = (countMap[s] || 0) + 1;
         }
       }
-    }
-    return Object.entries(countMap)
-      .filter(([, count]) => count >= 1)
-      .sort((a, b) => a[0].localeCompare(b[0], "fr"))
-      .map(([name, count]) => ({ name, count }));
-  }, [searchQuery, allBusinesses, selectedCity, selectedCategoryFilter, selectedSubcategoryFilter, serviceCityLookup, allFilteredServiceNames, filteredServicesBySubcategory, detectedSubcategory]);
+      
+      setSearchServiceFilters(
+        Object.entries(countMap)
+          .filter(([, count]) => count >= 1)
+          .sort((a, b) => a[0].localeCompare(b[0], "fr"))
+          .map(([name, count]) => ({ name, count }))
+      );
+    };
+    fetchServiceCounts();
+  }, [searchQuery, selectedCity, detectedCity, selectedSubcategoryFilter, detectedSubcategory, filteredServicesBySubcategory, serviceCityLookup]);
 
   // Group businesses by primary subcategory when a subcategory was detected
   const groupedBusinesses = useMemo(() => {
