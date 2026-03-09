@@ -514,48 +514,37 @@ const SearchPage = () => {
     ensureResultsVisibleBelowSticky,
   ]);
 
-  // Fetch extra businesses from DB when entonnoir filters narrow beyond search results
-  // Skip when the search returned precise results (synonym or service/keyword detection)
+  // Direct DB query when user selects a service filter — replaces the old "extra fetch" mechanism
+  // This fetches ALL businesses matching the subcategory + service + city, independent of FTS results
   useEffect(() => {
-    // Allow extra fetch when user manually selects a service filter, even if preciseMatch is active
-    const blockExtraFetch = preciseMatch && !selectedServiceFilter;
-    if (!selectedCategoryFilter || blockExtraFetch) {
-      setExtraFilterBusinesses([]);
+    if (!selectedServiceFilter) {
+      setServiceFilterBusinesses([]);
       return;
     }
-    const fetchExtra = async () => {
-      // Use detectedCity from search engine as fallback when no city is manually selected
+    const fetchServiceBusinesses = async () => {
       const effectiveCity = (selectedCity && selectedCity !== "all") ? selectedCity : detectedCity;
+      const effectiveSubcategory = selectedSubcategoryFilter || detectedSubcategory;
       
       let query = supabase
         .from("businesses")
         .select("id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, services, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, rating, gamme_id, badge_id, hook_fr, hook_en, hook_ar, google_rating, tripadvisor_rating, restaurant_guru_rating, google_review_count, tripadvisor_review_count, restaurant_guru_review_count, opening_hours, is_open_24h, vacation_dates, zone_chalandise, is_visible_locale, zone_city_ids, default_service, neighborhood")
         .eq("is_active", true)
-        .eq("main_category", selectedCategoryFilter);
+        .contains("services", [selectedServiceFilter]);
 
       if (effectiveCity) {
         query = query.ilike("city", effectiveCity);
       }
-
-      if (selectedSubcategoryFilter) {
-        query = query.contains("categories", [selectedSubcategoryFilter]);
-      }
-      if (selectedServiceFilter) {
-        query = query.contains("services", [selectedServiceFilter]);
+      if (effectiveSubcategory) {
+        query = query.contains("categories", [effectiveSubcategory]);
       }
 
-      const { data } = await query.limit(200);
+      const { data } = await query.order("priority_score", { ascending: false }).limit(200);
       if (data) {
-        const mapped = data.map((b: any) => ({
-          ...b,
-          distance_km: null,
-        })) as Business[];
-        setExtraFilterBusinesses(mapped);
+        setServiceFilterBusinesses(data.map((b: any) => ({ ...b, distance_km: null })) as Business[]);
       }
     };
-    fetchExtra();
-  }, [selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, selectedCity, detectedCity, preciseMatch]);
-
+    fetchServiceBusinesses();
+  }, [selectedServiceFilter, selectedSubcategoryFilter, detectedSubcategory, selectedCity, detectedCity]);
 
    // Reset scroll lock and scroll to top on new search / reload
    useEffect(() => {
