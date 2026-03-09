@@ -1,6 +1,9 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 
 type TTSStatus = "idle" | "loading" | "playing" | "error";
+
+/** Words that trigger a voice-activated stop (case-insensitive) */
+const STOP_WORDS = ["stop", "arrête", "arrêter", "tais-toi", "silence"];
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
