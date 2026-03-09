@@ -247,21 +247,12 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   const [showStickyTabs, setShowStickyTabs] = useState(false);
   const [similarCount, setSimilarCount] = useState<number | null>(null);
   const [menuCarouselApi, setMenuCarouselApi] = useState<CarouselApi>();
-  const [menuCarouselCurrent, setMenuCarouselCurrent] = useState(0);
   const [nearbyCount, setNearbyCount] = useState<number | null>(null);
   const menuDragStartXRef = useRef<number | null>(null);
   const menuDragStartYRef = useRef<number | null>(null);
   const menuDragLastXRef = useRef<number | null>(null);
   const isScrollingToTabRef = useRef(false);
   const tabScrollUnlockTimeoutRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    if (!menuCarouselApi) return;
-    const onSelect = () => setMenuCarouselCurrent(menuCarouselApi.selectedScrollSnap());
-    menuCarouselApi.on("select", onSelect);
-    onSelect();
-    return () => { menuCarouselApi.off("select", onSelect); };
-  }, [menuCarouselApi]);
 
   const resetMenuMouseDrag = useCallback(() => {
     menuDragStartXRef.current = null;
