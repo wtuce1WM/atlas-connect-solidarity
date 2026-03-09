@@ -287,5 +287,5 @@ export function useTextToSpeech(options?: { onEnd?: () => void }) {
     };
   }, [status, stop, pause, resume]);
 
-  return { speak, stop, status, spokenWordIndex };
+  return { speak, stop, pause, resume, status, spokenWordIndex };
 }
