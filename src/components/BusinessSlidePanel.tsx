@@ -561,6 +561,13 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
         .limit(4);
       setBusinessDocs(docs || []);
 
+      const { data: summariesData } = await supabase
+        .from("business_menu_summaries")
+        .select("*")
+        .eq("business_id", businessId)
+        .order("sort_order", { ascending: true });
+      setMenuSummaries(summariesData || []);
+
       setIsLoading(false);
     };
     fetch();
