@@ -133,6 +133,7 @@ const BusinessMap = ({
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
   const rippleOverlayRef = useRef<google.maps.OverlayView | null>(null);
   const rippleDivRef = useRef<HTMLDivElement | null>(null);
+  const lastFingerprintRef = useRef<string>("");
 
   const [internalBusinesses, setInternalBusinesses] = useState<MapBusiness[]>([]);
   const [internalLoading, setInternalLoading] = useState(!externalBusinesses);
@@ -260,6 +261,10 @@ const BusinessMap = ({
   useEffect(() => {
     const map = mapRef.current;
     if (!map || isLoading || !gmapsReady) return;
+
+    // Skip rebuild if businesses haven't actually changed
+    if (businessFingerprint === lastFingerprintRef.current && markersRef.current.length > 0) return;
+    lastFingerprintRef.current = businessFingerprint;
 
     // Clear previous
     markersRef.current.forEach((m) => m.setMap(null));
