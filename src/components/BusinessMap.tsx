@@ -180,7 +180,6 @@ const BusinessMap = ({
     () => geoBusinesses.map(b => `${b.id}:${b.wtuce_status ?? ""}`).join(","),
     [geoBusinesses]
   );
-  }, [businesses]);
 
   // Initialize map once gmaps is ready
   useEffect(() => {
