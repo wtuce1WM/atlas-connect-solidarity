@@ -433,6 +433,7 @@ const SearchPage = () => {
   const [moreFilterCommodites, setMoreFilterCommodites] = useState<string[]>([]);
   const [moreFilterMatchingIds, setMoreFilterMatchingIds] = useState<Set<string> | null>(null);
   const [serviceFilterBusinesses, setServiceFilterBusinesses] = useState<Business[]>([]);
+  const [subcategoryFilterBusinesses, setSubcategoryFilterBusinesses] = useState<Business[]>([]);
 
   // Track whether a category/subcategory filter is active (compact AI mode)
   const isCategoryFilterActive = !!(selectedCategoryFilter || selectedSubcategoryFilter || selectedServiceFilter);
@@ -516,6 +517,40 @@ const SearchPage = () => {
 
   // Direct DB query when user selects a service filter — replaces the old "extra fetch" mechanism
   // This fetches ALL businesses matching the subcategory + service + city, independent of FTS results
+  // Direct DB query when a subcategory is selected manually (not auto-detected)
+  // This ensures we get ALL matching businesses, not just those in the FTS results
+  useEffect(() => {
+    if (!selectedSubcategoryFilter) {
+      setSubcategoryFilterBusinesses([]);
+      return;
+    }
+    // Only fetch from DB if the subcategory was manually selected (not auto-detected from FTS)
+    // We detect this by checking if enough FTS results already match the subcategory
+    const ftsMatchCount = allBusinesses.filter(b => b.categories?.includes(selectedSubcategoryFilter)).length;
+    const effectiveCity = (selectedCity && selectedCity !== "all") ? selectedCity : detectedCity;
+    
+    const fetchSubcategoryBusinesses = async () => {
+      let query = supabase
+        .from("businesses")
+        .select("id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, services, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, rating, gamme_id, badge_id, hook_fr, hook_en, hook_ar, google_rating, tripadvisor_rating, restaurant_guru_rating, google_review_count, tripadvisor_review_count, restaurant_guru_review_count, opening_hours, is_open_24h, vacation_dates, zone_chalandise, is_visible_locale, zone_city_ids, default_service, neighborhood, priority_score")
+        .eq("is_active", true)
+        .contains("categories", [selectedSubcategoryFilter]);
+
+      if (selectedCategoryFilter) {
+        query = query.eq("main_category", selectedCategoryFilter);
+      }
+      if (effectiveCity) {
+        query = query.ilike("city", effectiveCity);
+      }
+
+      const { data } = await query.order("priority_score", { ascending: false }).limit(200);
+      if (data) {
+        setSubcategoryFilterBusinesses(data.map((b: any) => ({ ...b, distance_km: null })) as Business[]);
+      }
+    };
+    fetchSubcategoryBusinesses();
+  }, [selectedSubcategoryFilter, selectedCategoryFilter, selectedCity, detectedCity]);
+
   useEffect(() => {
     if (!selectedServiceFilter) {
       setServiceFilterBusinesses([]);
@@ -1018,6 +1053,9 @@ const SearchPage = () => {
     let filtered: Business[];
     if (selectedServiceFilter && serviceFilterBusinesses.length > 0) {
       filtered = [...serviceFilterBusinesses];
+    } else if (selectedSubcategoryFilter && subcategoryFilterBusinesses.length > 0) {
+      // When a subcategory is selected, use direct DB results to get ALL matches
+      filtered = [...subcategoryFilterBusinesses];
     } else {
       filtered = [...allBusinesses];
     }
@@ -1083,7 +1121,7 @@ const SearchPage = () => {
 
     // Always sort by WTUCE status first, then by rating (highest first)
     return [...filtered].sort(sortWtuceAndRating);
-  }, [allBusinesses, serviceFilterBusinesses, selectedCity, selectedCityId, selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, activeTimeSlot, searchQuery, categoryFromUrl, moreFilterMatchingIds, moreFilterTimeSlots]);
+  }, [allBusinesses, serviceFilterBusinesses, subcategoryFilterBusinesses, selectedCity, selectedCityId, selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, activeTimeSlot, searchQuery, categoryFromUrl, moreFilterMatchingIds, moreFilterTimeSlots]);
 
   // Auto-reset city to "all" when city filter yields 0 results but national results exist
   useEffect(() => {
