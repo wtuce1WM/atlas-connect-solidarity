@@ -1393,8 +1393,10 @@ serve(async (req) => {
               const before = businesses.length;
               businesses = businesses.filter(b => {
                 const bizEngs: string[] = b.engagements || [];
+                // Engagements use AND logic (all must match)
                 for (const eng of reqEng) { if (!bizEngs.includes(eng)) return false; }
-                for (const com of reqCom) { if (!bizEngs.includes(`Logistique:${com}`)) return false; }
+                // Commodities use OR logic (at least one must match)
+                if (reqCom.length > 0 && !reqCom.some(com => bizEngs.includes(`Logistique:${com}`))) return false;
                 return true;
               });
               console.log(`⚡ Badge-only eng/com filter: ${before} → ${businesses.length}`);
