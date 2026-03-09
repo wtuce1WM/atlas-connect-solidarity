@@ -3191,7 +3191,7 @@ const SearchPage = () => {
             style={{ height: "calc(100vh - 62px)" }}
           >
             <div className="shrink-0 flex items-center justify-between px-5 py-3 border-b border-border">
-              <div className="flex items-center gap-2 text-gold">
+              <div className="flex items-center gap-2 text-foreground">
                 <Sparkles className="h-4 w-4" />
                 <span className="text-sm font-semibold">{language === "en" ? "AI Summary" : "Résumé IA"}</span>
               </div>
