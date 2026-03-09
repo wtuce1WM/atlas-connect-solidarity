@@ -247,21 +247,12 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   const [showStickyTabs, setShowStickyTabs] = useState(false);
   const [similarCount, setSimilarCount] = useState<number | null>(null);
   const [menuCarouselApi, setMenuCarouselApi] = useState<CarouselApi>();
-  const [menuCarouselCurrent, setMenuCarouselCurrent] = useState(0);
   const [nearbyCount, setNearbyCount] = useState<number | null>(null);
   const menuDragStartXRef = useRef<number | null>(null);
   const menuDragStartYRef = useRef<number | null>(null);
   const menuDragLastXRef = useRef<number | null>(null);
   const isScrollingToTabRef = useRef(false);
   const tabScrollUnlockTimeoutRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    if (!menuCarouselApi) return;
-    const onSelect = () => setMenuCarouselCurrent(menuCarouselApi.selectedScrollSnap());
-    menuCarouselApi.on("select", onSelect);
-    onSelect();
-    return () => { menuCarouselApi.off("select", onSelect); };
-  }, [menuCarouselApi]);
 
   const resetMenuMouseDrag = useCallback(() => {
     menuDragStartXRef.current = null;
@@ -1738,15 +1729,6 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                       </CarouselItem>
                     ))}
                   </CarouselContent>
-                  <div className="flex justify-center gap-1.5 mt-3">
-                    {menuSummaries.map((_, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => menuCarouselApi?.scrollTo(idx)}
-                        className={`w-2 h-2 rounded-full transition-all ${idx === menuCarouselCurrent ? "bg-primary scale-125" : "bg-muted-foreground/30"}`}
-                      />
-                    ))}
-                  </div>
                 </Carousel>
               )}
             </div>
