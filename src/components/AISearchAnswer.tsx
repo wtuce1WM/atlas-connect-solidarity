@@ -506,7 +506,7 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
         style={isPanelOpen ? { animationName: undefined } : undefined}
       >
         <div className={`relative isolate rounded-2xl border border-gold/30 bg-white dark:bg-zinc-900 backdrop-blur-sm ${isPanelOpen ? "w-full max-w-2xl" : ""}`}>
-          <div className="flex items-center px-4 py-2.5 border-b border-gold/15">
+          <div className="flex items-center px-4 py-2.5">
             <div className="flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-muted-foreground" />
               <span className="text-xs font-medium text-muted-foreground">
