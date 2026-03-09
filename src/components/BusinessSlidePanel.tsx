@@ -1601,9 +1601,10 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                       </div>
                     )}
                     {summary.price_details && (
-                      <p className="text-xs text-muted-foreground italic mt-1">
-                        {summary.price_details}
-                      </p>
+                      <div 
+                        className="text-xs text-muted-foreground italic mt-1 [&>p]:mb-0 [&>p:last-child]:mb-0"
+                        dangerouslySetInnerHTML={{ __html: summary.price_details }}
+                      />
                     )}
                   </div>
                 ))}
