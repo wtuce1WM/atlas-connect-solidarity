@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 
-type TTSStatus = "idle" | "loading" | "playing" | "error";
+type TTSStatus = "idle" | "loading" | "playing" | "paused" | "error";
 
 /** Words that trigger a voice-activated stop (case-insensitive) */
 const STOP_WORDS = ["stop", "arrête", "arrêter", "tais-toi", "silence"];
