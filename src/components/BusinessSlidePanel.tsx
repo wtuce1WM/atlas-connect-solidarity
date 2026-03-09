@@ -1632,8 +1632,13 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                   </>); })()}
                 </div>
               ) : (
-                <Carousel setApi={setMenuCarouselApi} opts={{ align: "start", loop: false, skipSnaps: false, watchDrag: true }} className="w-full cursor-grab active:cursor-grabbing">
-                  <CarouselContent className="-ml-2">
+                <Carousel
+                  setApi={setMenuCarouselApi}
+                  opts={{ align: "start", loop: false, skipSnaps: false, watchDrag: true }}
+                  className="w-full"
+                  style={{ touchAction: "pan-y" }}
+                >
+                  <CarouselContent className="-ml-2 select-none cursor-grab active:cursor-grabbing">
                     {menuSummaries.map((summary, idx) => (
                       <CarouselItem key={summary.id} className="pl-2 basis-[85%] sm:basis-[80%]">
                         <div className="space-y-2 rounded-lg border border-border bg-muted/20 p-4">
