@@ -517,7 +517,9 @@ const SearchPage = () => {
   // Fetch extra businesses from DB when entonnoir filters narrow beyond search results
   // Skip when the search returned precise results (synonym or service/keyword detection)
   useEffect(() => {
-    if (!selectedCategoryFilter || preciseMatch) {
+    // Allow extra fetch when user manually selects a service filter, even if preciseMatch is active
+    const blockExtraFetch = preciseMatch && !selectedServiceFilter;
+    if (!selectedCategoryFilter || blockExtraFetch) {
       setExtraFilterBusinesses([]);
       return;
     }
