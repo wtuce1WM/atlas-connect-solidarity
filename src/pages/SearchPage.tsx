@@ -1053,6 +1053,9 @@ const SearchPage = () => {
     let filtered: Business[];
     if (selectedServiceFilter && serviceFilterBusinesses.length > 0) {
       filtered = [...serviceFilterBusinesses];
+    } else if (selectedSubcategoryFilter && subcategoryFilterBusinesses.length > 0) {
+      // When a subcategory is selected, use direct DB results to get ALL matches
+      filtered = [...subcategoryFilterBusinesses];
     } else {
       filtered = [...allBusinesses];
     }
