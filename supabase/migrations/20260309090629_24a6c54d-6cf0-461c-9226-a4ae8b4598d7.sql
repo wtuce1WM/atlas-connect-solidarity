@@ -1,0 +1,1 @@
+UPDATE businesses SET images = array_append(images, 'https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/ef699604-menu-fr-2025.jpeg') WHERE id = 'ef699604-57f1-4e7b-be82-038e8b7d56db';
