@@ -2078,11 +2078,12 @@ serve(async (req) => {
               if (matched) kwScore++;
             }
             // Check multi-word keyword full match (e.g. "boite de com" with query words boîte + com)
+            // Use full queryWords for multi-word keyword matching (same fix as keywordMatches)
             const hasMultiWordMatch = svcKws.some((k: string) => {
               if (!k.includes(" ")) return false;
               const kwContentWords = k.split(/\s+/).filter((w: string) => w.length > 1 && !FRENCH_STOP_WORDS.has(w));
               return kwContentWords.length >= 2 && kwContentWords.every((kw: string) =>
-                serviceMatchWords.some(qw => qw === kw || normalizeWordKw(qw) === normalizeWordKw(kw))
+                queryWords.some(qw => qw === kw || normalizeWordKw(qw) === normalizeWordKw(kw))
               );
             });
             // Alias match: a keyword of this service exactly matches the name of a fully-matched service
