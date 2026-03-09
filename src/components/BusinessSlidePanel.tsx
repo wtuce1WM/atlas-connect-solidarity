@@ -1622,7 +1622,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                   </>); })()}
                 </div>
               ) : (
-                <Carousel opts={{ align: "start", loop: false }} className="w-full">
+                <Carousel opts={{ align: "start", loop: false, dragFree: true }} className="w-full touch-pan-y">
                   <CarouselContent className="-ml-2">
                     {menuSummaries.map((summary, idx) => (
                       <CarouselItem key={summary.id} className="pl-2 basis-[85%] sm:basis-[80%]">
