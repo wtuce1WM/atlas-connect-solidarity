@@ -249,6 +249,8 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   const [menuCarouselApi, setMenuCarouselApi] = useState<CarouselApi>();
   const [menuCarouselCurrent, setMenuCarouselCurrent] = useState(0);
   const [nearbyCount, setNearbyCount] = useState<number | null>(null);
+  const menuDragStartXRef = useRef<number | null>(null);
+  const menuDragTriggeredRef = useRef(false);
   const isScrollingToTabRef = useRef(false);
   const tabScrollUnlockTimeoutRef = useRef<number | null>(null);
 
