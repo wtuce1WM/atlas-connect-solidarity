@@ -361,7 +361,7 @@ const BusinessMap = ({
       map.setCenter({ lat: 31.63, lng: -7.98 });
       map.setZoom(6);
     }
-  }, [geoBusinesses, isLoading, gmapsReady, center, zoom, forceOverview]);
+  }, [geoBusinesses, businessFingerprint, isLoading, gmapsReady, center, zoom, forceOverview]);
 
   if (gmapsError) {
     return (
