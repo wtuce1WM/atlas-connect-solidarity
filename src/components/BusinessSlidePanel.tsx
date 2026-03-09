@@ -1580,25 +1580,35 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                 {menuSummaries.map((summary) => (
                   <div key={summary.id} className="space-y-2">
                     {summary.title && (
-                      <h4 className="font-semibold text-base">{summary.title}</h4>
+                      <div className="flex items-center gap-3 flex-wrap">
+                        <h4 className="font-semibold text-base">{summary.title}</h4>
+                        {summary.avg_price_range && (
+                          <Badge variant="outline" className="bg-muted/30">
+                            {language === "en" ? "Average price excl. drinks" : language === "ar" ? "متوسط السعر بدون مشروبات" : "Prix moyen hors boissons"} :{" "}
+                            <span className="font-semibold ml-1">
+                              {summary.avg_price_range.min && summary.avg_price_range.max 
+                                ? `${summary.avg_price_range.min} - ${summary.avg_price_range.max}`
+                                : summary.avg_price_range.min || summary.avg_price_range.max} {summary.avg_price_range.currency || "MAD"}
+                            </span>
+                          </Badge>
+                        )}
+                      </div>
+                    )}
+                    {!summary.title && summary.avg_price_range && (
+                      <Badge variant="outline" className="bg-muted/30">
+                        {language === "en" ? "Average price excl. drinks" : language === "ar" ? "متوسط السعر بدون مشروبات" : "Prix moyen hors boissons"} :{" "}
+                        <span className="font-semibold ml-1">
+                          {summary.avg_price_range.min && summary.avg_price_range.max 
+                            ? `${summary.avg_price_range.min} - ${summary.avg_price_range.max}`
+                            : summary.avg_price_range.min || summary.avg_price_range.max} {summary.avg_price_range.currency || "MAD"}
+                        </span>
+                      </Badge>
                     )}
                     {summary.content && (
                       <div 
                         className="prose prose-sm max-w-none text-foreground [&_p]:mb-2 [&_p:last-child]:mb-0 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_h2]:text-base [&_h2]:font-bold [&_h2]:mt-4 [&_h2]:mb-2 [&_h3]:text-sm [&_h3]:font-semibold [&_h3]:mt-3 [&_h3]:mb-1 [&_li]:mb-0.5 [&_strong]:font-semibold"
                         dangerouslySetInnerHTML={{ __html: summary.content }}
                       />
-                    )}
-                    {summary.avg_price_range && (
-                      <div className="mt-2">
-                        <Badge variant="outline" className="bg-muted/30">
-                          {language === "en" ? "Average price" : language === "ar" ? "متوسط السعر" : "Prix moyen"} :{" "}
-                          <span className="font-semibold ml-1">
-                            {summary.avg_price_range.min && summary.avg_price_range.max 
-                              ? `${summary.avg_price_range.min} - ${summary.avg_price_range.max}`
-                              : summary.avg_price_range.min || summary.avg_price_range.max} {summary.avg_price_range.currency || "MAD"}
-                          </span>
-                        </Badge>
-                      </div>
                     )}
                     {summary.price_details && (
                       <div 
