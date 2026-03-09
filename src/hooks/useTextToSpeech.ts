@@ -285,7 +285,7 @@ export function useTextToSpeech(options?: { onEnd?: () => void }) {
         stopRecognitionRef.current = null;
       }
     };
-  }, [status, stop]);
+  }, [status, stop, pause, resume]);
 
   return { speak, stop, status, spokenWordIndex };
 }
