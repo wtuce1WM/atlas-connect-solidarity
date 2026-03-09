@@ -1923,21 +1923,28 @@ const SearchPage = () => {
                       {language === "en" ? "Generating suggestion…" : language === "ar" ? "جاري إنشاء الاقتراح…" : "Génération de la suggestion…"}
                     </span>
                   </div>
-                ) : parseInline(
-                  aiAnswerText,
-                  allBusinesses as unknown as AIBusinessData[],
-                  (b: AIBusinessData) => {
-                    if (isSubDesktop) {
-                      setShowAiPopup(false);
-                      setOverlaySelectedBusiness(null);
-                      setCompactPanelBusiness(b);
-                      setIsCompactPanelExpanded(false);
-                      return;
-                    }
-                    setOverlaySelectedBusiness(b);
-                  },
-                  "ai-popup"
-                )}
+                ) : (() => {
+                  const isTTSActive = ttsStatus === "playing" && ttsSpokenWordIndex >= 0;
+                  const karaokeTarget = isTTSActive ? ttsSpokenWordIndex - ttsIntroWordCountRef.current : -1;
+                  return parseInline(
+                    aiAnswerText,
+                    allBusinesses as unknown as AIBusinessData[],
+                    (b: AIBusinessData) => {
+                      if (isSubDesktop) {
+                        setShowAiPopup(false);
+                        setOverlaySelectedBusiness(null);
+                        setCompactPanelBusiness(b);
+                        setIsCompactPanelExpanded(false);
+                        return;
+                      }
+                      setOverlaySelectedBusiness(b);
+                    },
+                    "ai-popup",
+                    isTTSActive
+                      ? { wordIndex: 0, target: karaokeTarget, mode: "karaoke" as const }
+                      : undefined
+                  );
+                })()}
               </div>
 
               {/* 3 boutons + Voir résultats — sous le texte IA, même marge que le haut */}
