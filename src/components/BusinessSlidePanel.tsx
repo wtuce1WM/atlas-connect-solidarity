@@ -1485,9 +1485,8 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                       const iconSrc = `/images/doc-icons/${iconFile}${ext}`;
                       const isPdf = doc.url?.toLowerCase().endsWith('.pdf') || doc.url?.includes('/pdfs/');
                       const isFlipbook = /issuu\.com|calameo\.com/i.test(doc.url || '');
-                      // Only show in overlay for internal PDFs (stored in our storage) and flipbooks
-                      const isInternalPdf = isPdf && doc.url?.includes('supabase');
-                      const isInlineDoc = isInternalPdf || isFlipbook;
+                      // Open all PDFs and flipbooks in the internal overlay (Google Docs Viewer handles external PDFs)
+                      const isInlineDoc = isPdf || isFlipbook;
                       const handleClick = (e: React.MouseEvent) => {
                         if (isInlineDoc) {
                           e.preventDefault();
