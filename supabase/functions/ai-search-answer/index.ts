@@ -121,6 +121,7 @@ serve(async (req) => {
 
     const noResultsInstructions = !hasResults
       ? `\n- ${noResultsCfg || "Utilise tes connaissances générales sur le Maroc pour donner des conseils utiles."}
+- IMPORTANT : Ne cite AUCUN nom d'établissement spécifique. Tu ne connais pas notre annuaire, donc n'invente pas de noms. Donne uniquement des conseils généraux sur la thématique ou la destination.
 - Si la recherche mentionne une ville marocaine, partage ce que tu sais sur cette ville en rapport avec la requête.
 - Propose à l'utilisateur d'affiner sa recherche ou de chercher avec d'autres mots-clés.`
       : `\n- Si la liste contient peu de résultats (1-2), complète ta réponse avec des conseils généraux sur la destination/thématique pour enrichir l'expérience.`;
