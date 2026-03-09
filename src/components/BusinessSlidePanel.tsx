@@ -1688,9 +1688,9 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                   <CarouselContent
                     className="-ml-2 select-none cursor-grab active:cursor-grabbing"
                     onMouseDown={handleMenuMouseDown}
-                    onMouseMove={handleMenuMouseMove}
                     onMouseUp={resetMenuMouseDrag}
                     onMouseLeave={resetMenuMouseDrag}
+                    onDragStart={(event) => event.preventDefault()}
                   >
                     {menuSummaries.map((summary, idx) => (
                       <CarouselItem key={summary.id} className="pl-2 basis-[85%] sm:basis-[80%]">
