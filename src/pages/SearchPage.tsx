@@ -3223,7 +3223,12 @@ const SearchPage = () => {
                 </p>
               </div>
               {(() => {
-                // Compute category counts from results for the left panel
+                // Determine what filters to show based on search context
+                const hasCity = !!(detectedCity || (selectedCity && selectedCity !== "all"));
+                const hasSubcategory = !!detectedSubcategory;
+                const hasServices = searchServiceFilters.length > 0 && hasSubcategory;
+
+                // Compute category counts from results
                 const categoryCounts: Record<string, number> = {};
                 for (const b of allBusinesses) {
                   if (b.main_category) {
@@ -3233,12 +3238,16 @@ const SearchPage = () => {
                 const categoryList = Object.entries(categoryCounts)
                   .sort((a, b) => b[1] - a[1])
                   .map(([name, count]) => ({ name, count }));
-                const showServices = searchServiceFilters.length > 0;
-                const showCategories = !showServices && categoryList.length > 1;
-                if (!showServices && !showCategories) return null;
+
+                const showCityFilter = availableCities.length > 1 && !queryHasExplicitCity;
+                const showCategories = !hasSubcategory && categoryList.length > 1;
+                const showServices = hasServices;
+
+                if (!showCityFilter && !showCategories && !showServices) return null;
+
                 return (
                   <div className="mt-3 mb-4">
-                    {availableCities.length > 1 && !queryHasExplicitCity && (
+                    {showCityFilter && (
                       <>
                         <p className="text-base font-bold text-foreground mb-2">
                           {language === "en" ? "Where are you looking?" : language === "ar" ? "أين تبحث؟" : "Où le cherchez-vous ?"}
@@ -3275,55 +3284,59 @@ const SearchPage = () => {
                         </div>
                       </>
                     )}
-                    <p className="text-base font-bold text-foreground mb-2">
-                      {language === "en" ? "What are you looking for?" : language === "ar" ? "ماذا تبحث عنه؟" : "Que cherchez-vous ?"}
-                    </p>
-                    <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-                      {showServices
-                        ? searchServiceFilters.map((svc) => {
-                            const isSelected = selectedServiceFilter === svc.name;
-                            return (
-                              <button
-                                key={svc.name}
-                                onClick={() => { setSelectedServiceFilter(isSelected ? null : svc.name); }}
-                                className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-bold transition-all whitespace-nowrap ${
-                                  isSelected
-                                    ? "bg-primary/20 border-primary text-primary shadow-sm"
-                                    : "bg-card border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
-                                }`}
-                              >
-                                <span>{svc.name}</span>
-                                <span className={`text-xs font-normal ${isSelected ? "text-primary/70" : "text-muted-foreground/60"}`}>
-                                  {svc.count}
-                                </span>
-                              </button>
-                            );
-                          })
-                        : categoryList.map((cat) => {
-                            const isSelected = selectedCategoryFilter === cat.name;
-                            return (
-                              <button
-                                key={cat.name}
-                                onClick={() => {
-                                  setSelectedCategoryFilter(isSelected ? null : cat.name);
-                                  setSelectedSubcategoryFilter(null);
-                                  setSelectedServiceFilter(null);
-                                }}
-                                className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-bold transition-all whitespace-nowrap ${
-                                  isSelected
-                                    ? "bg-primary/20 border-primary text-primary shadow-sm"
-                                    : "bg-card border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
-                                }`}
-                              >
-                                <span>{cat.name}</span>
-                                <span className={`text-xs font-normal ${isSelected ? "text-primary/70" : "text-muted-foreground/60"}`}>
-                                  {cat.count}
-                                </span>
-                              </button>
-                            );
-                          })
-                      }
-                    </div>
+                    {(showCategories || showServices) && (
+                      <>
+                        <p className="text-base font-bold text-foreground mb-2">
+                          {language === "en" ? "What are you looking for?" : language === "ar" ? "ماذا تبحث عنه؟" : "Que cherchez-vous ?"}
+                        </p>
+                        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                          {showServices
+                            ? searchServiceFilters.map((svc) => {
+                                const isSelected = selectedServiceFilter === svc.name;
+                                return (
+                                  <button
+                                    key={svc.name}
+                                    onClick={() => { setSelectedServiceFilter(isSelected ? null : svc.name); }}
+                                    className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-bold transition-all whitespace-nowrap ${
+                                      isSelected
+                                        ? "bg-primary/20 border-primary text-primary shadow-sm"
+                                        : "bg-card border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                                    }`}
+                                  >
+                                    <span>{svc.name}</span>
+                                    <span className={`text-xs font-normal ${isSelected ? "text-primary/70" : "text-muted-foreground/60"}`}>
+                                      {svc.count}
+                                    </span>
+                                  </button>
+                                );
+                              })
+                            : categoryList.map((cat) => {
+                                const isSelected = selectedCategoryFilter === cat.name;
+                                return (
+                                  <button
+                                    key={cat.name}
+                                    onClick={() => {
+                                      setSelectedCategoryFilter(isSelected ? null : cat.name);
+                                      setSelectedSubcategoryFilter(null);
+                                      setSelectedServiceFilter(null);
+                                    }}
+                                    className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-bold transition-all whitespace-nowrap ${
+                                      isSelected
+                                        ? "bg-primary/20 border-primary text-primary shadow-sm"
+                                        : "bg-card border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                                    }`}
+                                  >
+                                    <span>{cat.name}</span>
+                                    <span className={`text-xs font-normal ${isSelected ? "text-primary/70" : "text-muted-foreground/60"}`}>
+                                      {cat.count}
+                                    </span>
+                                  </button>
+                                );
+                              })
+                          }
+                        </div>
+                      </>
+                    )}
                   </div>
                 );
               })()}
