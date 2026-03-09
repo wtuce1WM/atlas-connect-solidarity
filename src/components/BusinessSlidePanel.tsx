@@ -1583,9 +1583,10 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                       <h4 className="font-semibold text-base">{summary.title}</h4>
                     )}
                     {summary.content && (
-                      <p className="text-sm text-foreground whitespace-pre-wrap">
-                        {summary.content}
-                      </p>
+                      <div 
+                        className="text-sm text-foreground whitespace-pre-wrap [&>p]:mb-2 [&>p:last-child]:mb-0 [&>ul]:list-disc [&>ul]:pl-5 [&>ol]:list-decimal [&>ol]:pl-5"
+                        dangerouslySetInnerHTML={{ __html: summary.content }}
+                      />
                     )}
                     {summary.avg_price_range && (
                       <div className="mt-2">
