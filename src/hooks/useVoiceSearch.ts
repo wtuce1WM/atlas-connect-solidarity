@@ -123,12 +123,24 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onError, lan
     }
   }, []);
 
-  const startRecording = useCallback(() => {
+  const startRecording = useCallback(async () => {
     const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (!SpeechRecognitionAPI) {
       setStatus("idle");
       onErrorRef.current?.("Votre navigateur ne supporte pas la reconnaissance vocale. Utilisez Chrome ou Edge.");
+      return;
+    }
+
+    // Request microphone permission explicitly FIRST (direct user gesture chain)
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      // Stop the stream immediately — we only needed the permission grant
+      stream.getTracks().forEach(track => track.stop());
+    } catch (err) {
+      console.error("Microphone permission denied:", err);
+      onErrorRef.current?.("Accès au microphone refusé. Vérifiez les permissions de votre navigateur.");
+      setStatus("idle");
       return;
     }
 
