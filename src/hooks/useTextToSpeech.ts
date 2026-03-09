@@ -98,6 +98,26 @@ export function useTextToSpeech(options?: { onEnd?: () => void }) {
     rafRef.current = requestAnimationFrame(trackPlayback);
   }, []);
 
+  const pause = useCallback(() => {
+    if (audioRef.current && !audioRef.current.paused) {
+      audioRef.current.pause();
+      stopTracking();
+      setStatus("paused");
+      console.log("[TTS] Paused");
+    }
+  }, [stopTracking]);
+
+  const resume = useCallback(() => {
+    if (audioRef.current && audioRef.current.paused && status === "paused") {
+      audioRef.current.play();
+      setStatus("playing");
+      if (wordTimingsRef.current) {
+        rafRef.current = requestAnimationFrame(trackPlayback);
+      }
+      console.log("[TTS] Resumed");
+    }
+  }, [status, trackPlayback]);
+
   const stop = useCallback(() => {
     stopTracking();
     if (audioRef.current) {
