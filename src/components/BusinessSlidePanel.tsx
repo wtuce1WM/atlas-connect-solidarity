@@ -1600,14 +1600,19 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                       </div>
                     )}
                     {!summary.title && summary.avg_price_range && (
-                      <Badge variant="outline" className="bg-muted/30">
-                        {language === "en" ? "Average price excl. drinks" : language === "ar" ? "متوسط السعر بدون مشروبات" : "Prix moyen hors boissons"} :{" "}
-                        <span className="font-semibold ml-1">
-                          {summary.avg_price_range.min && summary.avg_price_range.max 
-                            ? `${summary.avg_price_range.min} - ${summary.avg_price_range.max}`
-                            : summary.avg_price_range.min || summary.avg_price_range.max} {summary.avg_price_range.currency || "MAD"}
+                      <div className="flex flex-col items-start gap-0.5">
+                        <Badge variant="outline" className="bg-muted/30">
+                          * {language === "en" ? "Average price excl. drinks" : language === "ar" ? "متوسط السعر بدون مشروبات" : "Prix moyen hors boissons"} :{" "}
+                          <span className="font-semibold ml-1">
+                            {summary.avg_price_range.min && summary.avg_price_range.max && summary.avg_price_range.min !== summary.avg_price_range.max
+                              ? `${summary.avg_price_range.min} - ${summary.avg_price_range.max}`
+                              : summary.avg_price_range.min || summary.avg_price_range.max} {summary.avg_price_range.currency || "MAD"}
+                          </span>
+                        </Badge>
+                        <span className="text-[10px] text-muted-foreground italic ml-1">
+                          * {language === "en" ? "one starter + one main" : language === "ar" ? "مقبلة + طبق رئيسي" : "une entrée + un plat"}
                         </span>
-                      </Badge>
+                      </div>
                     )}
                     {summary.content && (
                       <div 
