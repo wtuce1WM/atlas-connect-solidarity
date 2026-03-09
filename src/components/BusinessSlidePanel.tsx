@@ -1632,41 +1632,15 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                   </>); })()}
                 </div>
               ) : (
-                {(() => {
-                  const [menuApi, setMenuApi] = React.useState<CarouselApi>();
-                  const [menuCurrent, setMenuCurrent] = React.useState(0);
-                  React.useEffect(() => {
-                    if (!menuApi) return;
-                    const onSelect = () => setMenuCurrent(menuApi.selectedScrollSnap());
-                    menuApi.on("select", onSelect);
-                    onSelect();
-                    return () => { menuApi.off("select", onSelect); };
-                  }, [menuApi]);
-                  return (
-                    <Carousel setApi={setMenuApi} opts={{ align: "start", loop: false, skipSnaps: false }} className="w-full">
-                      <CarouselContent className="-ml-2">
-                        {menuSummaries.map((summary, idx) => (
-                          <CarouselItem key={summary.id} className="pl-2 basis-[85%] sm:basis-[80%]">
-                            <div className="space-y-2 rounded-lg border border-border bg-muted/20 p-4">
-                              {summary.title && (
-                                <div className="flex items-center gap-3 flex-wrap">
-                                  <h4 className="font-semibold text-base">{summary.title}</h4>
-                                  {summary.avg_price_range && (
-                                    <div className="flex flex-col items-start gap-0.5">
-                                      <Badge variant="outline" className="bg-muted/30">
-                                        * {language === "en" ? "Average price excl. drinks" : language === "ar" ? "متوسط السعر بدون مشروبات" : "Prix moyen hors boissons"} :{" "}
-                                        <span className="font-semibold ml-1">
-                                          {summary.avg_price_range.min && summary.avg_price_range.max && summary.avg_price_range.min !== summary.avg_price_range.max
-                                            ? `${summary.avg_price_range.min} - ${summary.avg_price_range.max}`
-                                            : summary.avg_price_range.min || summary.avg_price_range.max} {summary.avg_price_range.currency || "MAD"}
-                                        </span>
-                                      </Badge>
-                                      <span className="text-[10px] text-muted-foreground italic ml-1">* {language === "en" ? "one starter + one main" : language === "ar" ? "مقبلة + طبق رئيسي" : "une entrée + un plat"}</span>
-                                    </div>
-                                  )}
-                                </div>
-                              )}
-                              {!summary.title && summary.avg_price_range && (
+                <Carousel setApi={setMenuCarouselApi} opts={{ align: "start", loop: false, skipSnaps: false }} className="w-full">
+                  <CarouselContent className="-ml-2">
+                    {menuSummaries.map((summary, idx) => (
+                      <CarouselItem key={summary.id} className="pl-2 basis-[85%] sm:basis-[80%]">
+                        <div className="space-y-2 rounded-lg border border-border bg-muted/20 p-4">
+                          {summary.title && (
+                            <div className="flex items-center gap-3 flex-wrap">
+                              <h4 className="font-semibold text-base">{summary.title}</h4>
+                              {summary.avg_price_range && (
                                 <div className="flex flex-col items-start gap-0.5">
                                   <Badge variant="outline" className="bg-muted/30">
                                     * {language === "en" ? "Average price excl. drinks" : language === "ar" ? "متوسط السعر بدون مشروبات" : "Prix moyen hors boissons"} :{" "}
@@ -1679,30 +1653,43 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                                   <span className="text-[10px] text-muted-foreground italic ml-1">* {language === "en" ? "one starter + one main" : language === "ar" ? "مقبلة + طبق رئيسي" : "une entrée + un plat"}</span>
                                 </div>
                               )}
-                              {summary.content && (
-                                <div className="prose prose-sm max-w-none text-foreground [&_p]:mb-2 [&_p:last-child]:mb-0 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_h2]:text-base [&_h2]:font-bold [&_h2]:mt-4 [&_h2]:mb-2 [&_h3]:text-sm [&_h3]:font-semibold [&_h3]:mt-3 [&_h3]:mb-1 [&_li]:mb-0.5 [&_strong]:font-semibold"
-                                  dangerouslySetInnerHTML={{ __html: summary.content }} />
-                              )}
-                              {summary.price_details && (
-                                <div className="text-xs text-muted-foreground italic mt-1 [&>p]:mb-0 [&>p:last-child]:mb-0"
-                                  dangerouslySetInnerHTML={{ __html: summary.price_details }} />
-                              )}
                             </div>
-                          </CarouselItem>
-                        ))}
-                      </CarouselContent>
-                      <div className="flex justify-center gap-1.5 mt-3">
-                        {menuSummaries.map((_, idx) => (
-                          <button
-                            key={idx}
-                            onClick={() => menuApi?.scrollTo(idx)}
-                            className={`w-2 h-2 rounded-full transition-all ${idx === menuCurrent ? "bg-primary scale-125" : "bg-muted-foreground/30"}`}
-                          />
-                        ))}
-                      </div>
-                    </Carousel>
-                  );
-                })()}
+                          )}
+                          {!summary.title && summary.avg_price_range && (
+                            <div className="flex flex-col items-start gap-0.5">
+                              <Badge variant="outline" className="bg-muted/30">
+                                * {language === "en" ? "Average price excl. drinks" : language === "ar" ? "متوسط السعر بدون مشروبات" : "Prix moyen hors boissons"} :{" "}
+                                <span className="font-semibold ml-1">
+                                  {summary.avg_price_range.min && summary.avg_price_range.max && summary.avg_price_range.min !== summary.avg_price_range.max
+                                    ? `${summary.avg_price_range.min} - ${summary.avg_price_range.max}`
+                                    : summary.avg_price_range.min || summary.avg_price_range.max} {summary.avg_price_range.currency || "MAD"}
+                                </span>
+                              </Badge>
+                              <span className="text-[10px] text-muted-foreground italic ml-1">* {language === "en" ? "one starter + one main" : language === "ar" ? "مقبلة + طبق رئيسي" : "une entrée + un plat"}</span>
+                            </div>
+                          )}
+                          {summary.content && (
+                            <div className="prose prose-sm max-w-none text-foreground [&_p]:mb-2 [&_p:last-child]:mb-0 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_h2]:text-base [&_h2]:font-bold [&_h2]:mt-4 [&_h2]:mb-2 [&_h3]:text-sm [&_h3]:font-semibold [&_h3]:mt-3 [&_h3]:mb-1 [&_li]:mb-0.5 [&_strong]:font-semibold"
+                              dangerouslySetInnerHTML={{ __html: summary.content }} />
+                          )}
+                          {summary.price_details && (
+                            <div className="text-xs text-muted-foreground italic mt-1 [&>p]:mb-0 [&>p:last-child]:mb-0"
+                              dangerouslySetInnerHTML={{ __html: summary.price_details }} />
+                          )}
+                        </div>
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                  <div className="flex justify-center gap-1.5 mt-3">
+                    {menuSummaries.map((_, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => menuCarouselApi?.scrollTo(idx)}
+                        className={`w-2 h-2 rounded-full transition-all ${idx === menuCarouselCurrent ? "bg-primary scale-125" : "bg-muted-foreground/30"}`}
+                      />
+                    ))}
+                  </div>
+                </Carousel>
               )}
             </div>
           )}
