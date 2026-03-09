@@ -2403,7 +2403,7 @@ const SearchPage = () => {
 
         return (
           <div className="flex">
-            <section className={`pt-16 pb-6 lg:pt-20 lg:pb-12 bg-background transition-all duration-300 ${(poiSelectedBusinessId || poiMapBusiness) ? "w-1/2" : "w-full"}`}>
+            <section className={`pt-16 pb-6 lg:pt-20 lg:pb-12 bg-white dark:bg-zinc-900 transition-all duration-300 ${(poiSelectedBusinessId || poiMapBusiness) ? "w-1/2" : "w-full"}`}>
               <div className={`mx-auto px-4 ${(poiSelectedBusinessId || poiMapBusiness) ? "max-w-full" : "max-w-[80%]"}`}>
                 <PoiSection
                   city={poiCity}
