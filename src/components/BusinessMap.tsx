@@ -175,6 +175,12 @@ const BusinessMap = ({
     return Array.from(uniqueById.values());
   }, [businesses]);
 
+  // Fingerprint to force marker rebuild when wtuce_status changes
+  const businessFingerprint = useMemo(
+    () => geoBusinesses.map(b => `${b.id}:${b.wtuce_status ?? ""}`).join(","),
+    [geoBusinesses]
+  );
+
   // Initialize map once gmaps is ready
   useEffect(() => {
     if (!gmapsReady || !mapContainerRef.current || mapRef.current) return;
@@ -355,7 +361,7 @@ const BusinessMap = ({
       map.setCenter({ lat: 31.63, lng: -7.98 });
       map.setZoom(6);
     }
-  }, [geoBusinesses, isLoading, gmapsReady, center, zoom, forceOverview]);
+  }, [geoBusinesses, businessFingerprint, isLoading, gmapsReady, center, zoom, forceOverview]);
 
   if (gmapsError) {
     return (
