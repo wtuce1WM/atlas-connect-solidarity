@@ -260,6 +260,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
     return () => { menuCarouselApi.off("select", onSelect); };
   }, [menuCarouselApi]);
 
+  const handleFullscreen = useCallback(() => {
     // For native video, use the video element's fullscreen
     if (videoRef.current) {
       if (videoRef.current.requestFullscreen) {
