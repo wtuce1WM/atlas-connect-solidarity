@@ -76,8 +76,8 @@ function loadGoogleMaps(): Promise<void> {
 
 /* ── Marker SVG builder ── */
 function markerSvgUrl(isVerified: boolean): string {
-  const color = isVerified ? "#3b82f6" : "#D4AF37";
-  const border = isVerified ? "#2563eb" : "#B8860B";
+  const color = isVerified ? "#D4AF37" : "#3b82f6";
+  const border = isVerified ? "#B8860B" : "#2563eb";
   const badge = isVerified
     ? `<circle cx="20" cy="6" r="6" fill="#D4AF37" stroke="white" stroke-width="1.5"/><text x="20" y="9" text-anchor="middle" fill="white" font-size="8" font-weight="bold">✓</text>`
     : "";
