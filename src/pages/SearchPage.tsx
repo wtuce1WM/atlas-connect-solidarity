@@ -2300,7 +2300,7 @@ const SearchPage = () => {
         </div>
       )}
 
-      {activeTab === "suggestions" && allBusinesses.length > 0 && !isLoading && (
+      {activeTab === "suggestions" && allBusinesses.length > 0 && !isLoading && !detectedSubcategory && (
         <CityCategoryFilter
           cityName={detectedCity || (selectedCity && selectedCity !== "all" ? selectedCity : null) || ""}
           hasCityBar={availableCities.length > 1 && !queryHasExplicitCity}
