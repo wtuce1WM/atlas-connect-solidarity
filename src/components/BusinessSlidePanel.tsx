@@ -1666,21 +1666,18 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                   </>); })()}
                 </div>
               ) : (
-                <Carousel
-                  setApi={setMenuCarouselApi}
-                  opts={{ align: "start", loop: false, skipSnaps: false, watchDrag: true }}
-                  className="w-full"
+                <div
+                  ref={menuScrollRef}
+                  className="w-full overflow-x-auto scrollbar-hide"
                   style={{ touchAction: "pan-y" }}
+                  onMouseDown={handleMenuMouseDown}
+                  onMouseUp={resetMenuMouseDrag}
+                  onMouseLeave={resetMenuMouseDrag}
+                  onDragStart={(event) => event.preventDefault()}
                 >
-                  <CarouselContent
-                    className="-ml-2 select-none cursor-grab active:cursor-grabbing"
-                    onMouseDown={handleMenuMouseDown}
-                    onMouseUp={resetMenuMouseDrag}
-                    onMouseLeave={resetMenuMouseDrag}
-                    onDragStart={(event) => event.preventDefault()}
-                  >
+                  <div className="flex gap-2 pr-2 select-none cursor-grab active:cursor-grabbing">
                     {menuSummaries.map((summary, idx) => (
-                      <CarouselItem key={summary.id} className="pl-2 basis-[85%] sm:basis-[80%]">
+                      <div key={summary.id} className="min-w-0 shrink-0 grow-0 basis-[85%] sm:basis-[80%]">
                         <div className="space-y-2 rounded-lg border border-border bg-muted/20 p-4">
                           {summary.title && (
                             <div className="flex items-center gap-3 flex-wrap">
@@ -1722,10 +1719,10 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                               dangerouslySetInnerHTML={{ __html: summary.price_details }} />
                           )}
                         </div>
-                      </CarouselItem>
+                      </div>
                     ))}
-                  </CarouselContent>
-                </Carousel>
+                  </div>
+                </div>
               )}
             </div>
           )}
