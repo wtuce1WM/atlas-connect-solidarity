@@ -246,45 +246,41 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   const [activeTab, setActiveTab] = useState<string>("apercu");
   const [showStickyTabs, setShowStickyTabs] = useState(false);
   const [similarCount, setSimilarCount] = useState<number | null>(null);
-  const [menuCarouselApi, setMenuCarouselApi] = useState<CarouselApi>();
   const [nearbyCount, setNearbyCount] = useState<number | null>(null);
+  const menuScrollRef = useRef<HTMLDivElement>(null);
   const menuDragStartXRef = useRef<number | null>(null);
   const menuDragStartYRef = useRef<number | null>(null);
-  const menuDragLastXRef = useRef<number | null>(null);
+  const menuDragStartScrollLeftRef = useRef(0);
+  const menuIsDraggingRef = useRef(false);
   const isScrollingToTabRef = useRef(false);
   const tabScrollUnlockTimeoutRef = useRef<number | null>(null);
 
   const resetMenuMouseDrag = useCallback(() => {
     menuDragStartXRef.current = null;
     menuDragStartYRef.current = null;
-    menuDragLastXRef.current = null;
+    menuIsDraggingRef.current = false;
     document.body.style.userSelect = "";
   }, []);
 
   const handleMenuMouseDown = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+    if (!menuScrollRef.current) return;
+    menuIsDraggingRef.current = true;
     menuDragStartXRef.current = event.clientX;
     menuDragStartYRef.current = event.clientY;
-    menuDragLastXRef.current = event.clientX;
+    menuDragStartScrollLeftRef.current = menuScrollRef.current.scrollLeft;
     document.body.style.userSelect = "none";
   }, []);
 
   useEffect(() => {
     const handleWindowMouseMove = (event: MouseEvent) => {
-      if (!menuCarouselApi || menuDragStartXRef.current === null || menuDragStartYRef.current === null) return;
+      if (!menuIsDraggingRef.current || menuDragStartXRef.current === null || menuDragStartYRef.current === null || !menuScrollRef.current) return;
 
-      const totalDeltaX = event.clientX - menuDragStartXRef.current;
-      const totalDeltaY = event.clientY - menuDragStartYRef.current;
-      const stepDeltaX = event.clientX - (menuDragLastXRef.current ?? event.clientX);
+      const deltaX = event.clientX - menuDragStartXRef.current;
+      const deltaY = event.clientY - menuDragStartYRef.current;
+      if (Math.abs(deltaX) <= Math.abs(deltaY)) return;
 
-      if (Math.abs(totalDeltaX) <= Math.abs(totalDeltaY) || Math.abs(stepDeltaX) < 28) return;
-
-      if (stepDeltaX < 0) {
-        menuCarouselApi.scrollNext();
-      } else {
-        menuCarouselApi.scrollPrev();
-      }
-
-      menuDragLastXRef.current = event.clientX;
+      event.preventDefault();
+      menuScrollRef.current.scrollLeft = menuDragStartScrollLeftRef.current - deltaX;
     };
 
     const handleWindowMouseUp = () => resetMenuMouseDrag();
@@ -296,7 +292,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
       window.removeEventListener("mousemove", handleWindowMouseMove);
       window.removeEventListener("mouseup", handleWindowMouseUp);
     };
-  }, [menuCarouselApi, resetMenuMouseDrag]);
+  }, [resetMenuMouseDrag]);
 
   const handleFullscreen = useCallback(() => {
     // For native video, use the video element's fullscreen
