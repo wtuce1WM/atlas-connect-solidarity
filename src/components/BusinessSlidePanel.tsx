@@ -252,7 +252,14 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   const isScrollingToTabRef = useRef(false);
   const tabScrollUnlockTimeoutRef = useRef<number | null>(null);
 
-  const handleFullscreen = useCallback(() => {
+  useEffect(() => {
+    if (!menuCarouselApi) return;
+    const onSelect = () => setMenuCarouselCurrent(menuCarouselApi.selectedScrollSnap());
+    menuCarouselApi.on("select", onSelect);
+    onSelect();
+    return () => { menuCarouselApi.off("select", onSelect); };
+  }, [menuCarouselApi]);
+
     // For native video, use the video element's fullscreen
     if (videoRef.current) {
       if (videoRef.current.requestFullscreen) {
