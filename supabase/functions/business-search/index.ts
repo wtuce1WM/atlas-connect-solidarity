@@ -1393,8 +1393,10 @@ serve(async (req) => {
               const before = businesses.length;
               businesses = businesses.filter(b => {
                 const bizEngs: string[] = b.engagements || [];
+                // Engagements use AND logic (all must match)
                 for (const eng of reqEng) { if (!bizEngs.includes(eng)) return false; }
-                for (const com of reqCom) { if (!bizEngs.includes(`Logistique:${com}`)) return false; }
+                // Commodities use OR logic (at least one must match)
+                if (reqCom.length > 0 && !reqCom.some(com => bizEngs.includes(`Logistique:${com}`))) return false;
                 return true;
               });
               console.log(`⚡ Badge-only eng/com filter: ${before} → ${businesses.length}`);
@@ -1489,7 +1491,7 @@ serve(async (req) => {
           }
         }
 
-        // ── ENGAGEMENT/COMMODITY POST-FILTER ──
+        // ── ENGAGEMENT/COMMODITY MERGE + FILTER ──
         {
           const allMatchedKeys = [...matchedSynonymFilterKeys];
           if (matchedSynonymBadgeKey && !allMatchedKeys.includes(matchedSynonymBadgeKey)) allMatchedKeys.push(matchedSynonymBadgeKey);
@@ -1500,15 +1502,52 @@ serve(async (req) => {
             if (synonymCommodities[k]) requiredCommodities.push(...synonymCommodities[k]);
           }
           if (requiredEngagements.length > 0 || requiredCommodities.length > 0) {
+            // First, MERGE additional businesses that match the commodity/engagement filters
+            // but were not found by the service-based paired filters
+            const existingIdsForMerge = new Set(businesses.map(b => b.id));
+            const commodityConditions = requiredCommodities.map(com => `Logistique:${com}`);
+            const allEngConditions = [...requiredEngagements, ...commodityConditions];
+            if (allEngConditions.length > 0) {
+              // Fetch businesses that have ANY of the required engagement/commodity tags
+              for (const engTag of allEngConditions) {
+                let engBuilder = supabase.from("businesses").select("*")
+                  .eq("is_active", true)
+                  .contains("engagements", [engTag]);
+                if (effectiveCity) engBuilder = applyCityFilter(engBuilder);
+                if (detectedNeighborhood) {
+                  engBuilder = engBuilder.or(buildNeighborhoodOrClause(detectedNeighborhood, loadedNeighborhoods));
+                }
+                engBuilder = engBuilder.order("wtuce_status", { ascending: true })
+                  .order("google_rating", { ascending: false, nullsFirst: false })
+                  .limit(limit);
+                const { data: engData } = await engBuilder;
+                if (engData) {
+                  const newResults = engData
+                    .filter((b: any) => !existingIdsForMerge.has(b.id))
+                    .map((b: any) => ({
+                      ...b,
+                      distance_km: latitude && longitude && b.latitude && b.longitude
+                        ? calculateDistance(latitude, longitude, b.latitude, b.longitude) : null,
+                    }));
+                  for (const b of newResults) existingIdsForMerge.add(b.id);
+                  businesses = [...businesses, ...newResults];
+                  if (newResults.length > 0) {
+                    console.log(`⚡ Engagement/commodity merge ("${engTag}"): +${newResults.length} (total: ${businesses.length})`);
+                  }
+                }
+              }
+            }
+
+            // Then, POST-FILTER: keep only businesses that match engagements AND/OR commodities
             const before = businesses.length;
             businesses = businesses.filter(b => {
               const bizEngs: string[] = b.engagements || [];
+              // Engagements use AND logic (all must match)
               for (const eng of requiredEngagements) {
                 if (!bizEngs.includes(eng)) return false;
               }
-              for (const com of requiredCommodities) {
-                if (!bizEngs.includes(`Logistique:${com}`)) return false;
-              }
+              // Commodities use OR logic (at least one must match)
+              if (requiredCommodities.length > 0 && !requiredCommodities.some(com => bizEngs.includes(`Logistique:${com}`))) return false;
               return true;
             });
             console.log(`⚡ Engagement/commodity filter: ${before} → ${businesses.length} (eng: [${requiredEngagements.join(",")}], com: [${requiredCommodities.join(",")}])`);
