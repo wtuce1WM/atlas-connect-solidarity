@@ -135,7 +135,7 @@ export function useTextToSpeech(options?: { onEnd?: () => void }) {
   const speak = useCallback(
     async (text: string, voiceId?: string, withTimestamps = false) => {
       // If already playing, stop
-      if (status === "playing" || status === "loading") {
+      if (status === "playing" || status === "loading" || status === "paused") {
         stop();
         return;
       }
