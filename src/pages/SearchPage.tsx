@@ -2300,7 +2300,6 @@ const SearchPage = () => {
         </div>
       )}
 
-      {/* COMMENTED OUT FOR TESTING — STICKY 3b (Category Filter) + STICKY 3c (Subcategory Filter)
       {activeTab === "suggestions" && allBusinesses.length > 0 && !isLoading && (
         <CityCategoryFilter
           cityName={detectedCity || (selectedCity && selectedCity !== "all" ? selectedCity : null) || ""}
@@ -2337,7 +2336,6 @@ const SearchPage = () => {
           }}
         />
       )}
-      */}
 
       {/* 🩵 STICKY 3d — Service Filter (shown when subcategory detected) */}
       {detectedSubcategory && searchServiceFilters.length >= 1 && !isLoading && activeTab === "suggestions" && (
