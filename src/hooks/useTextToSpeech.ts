@@ -4,6 +4,8 @@ type TTSStatus = "idle" | "loading" | "playing" | "error";
 
 /** Words that trigger a voice-activated stop (case-insensitive) */
 const STOP_WORDS = ["stop", "arrête", "arrêter", "tais-toi", "silence"];
+/** Words that trigger a voice-activated resume (case-insensitive) */
+const RESUME_WORDS = ["continue", "reprends", "reprendre", "play", "lecture"];
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
