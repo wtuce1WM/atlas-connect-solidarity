@@ -905,7 +905,6 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                 className="h-full w-full border-0"
                 title={docOverlay.name}
                 sandbox="allow-scripts allow-same-origin allow-popups"
-                onError={() => window.open(docOverlay.url, '_blank')}
               />
             ) : (
               <iframe
@@ -1485,13 +1484,12 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                       const iconSrc = `/images/doc-icons/${iconFile}${ext}`;
                       const isPdf = doc.url?.toLowerCase().endsWith('.pdf') || doc.url?.includes('/pdfs/');
                       const isFlipbook = /issuu\.com|calameo\.com/i.test(doc.url || '');
-                      const isWebpage = doc.type === 'webpage';
-                      // Open all documents in the internal overlay (PDFs via Google Docs Viewer, webpages & flipbooks via iframe)
-                      const isInlineDoc = isPdf || isFlipbook || isWebpage;
+                      // Open every document inside the internal overlay
+                      const isInlineDoc = true;
                       const handleClick = (e: React.MouseEvent) => {
                         if (isInlineDoc) {
                           e.preventDefault();
-                          const docType = isFlipbook ? 'flipbook' : isWebpage ? 'webpage' : 'pdf';
+                          const docType = isFlipbook ? 'flipbook' : isPdf ? 'pdf' : 'webpage';
                           setDocOverlay({ url: doc.url, name: doc.name || (doc.type === "flipbook" ? "Flipbook" : "Menu"), type: docType });
                         }
                       };
