@@ -200,5 +200,65 @@ export function useTextToSpeech(options?: { onEnd?: () => void }) {
     [status, stop, trackPlayback, stopTracking]
   );
 
+  // Voice-activated stop: listen for "stop" while TTS is playing
+  const stopRecognitionRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (status !== "playing") {
+      // Tear down listener when not playing
+      if (stopRecognitionRef.current) {
+        try { stopRecognitionRef.current.stop(); } catch {}
+        stopRecognitionRef.current = null;
+      }
+      return;
+    }
+
+    const SpeechRecognitionAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognitionAPI) return;
+
+    const recognition = new SpeechRecognitionAPI();
+    recognition.lang = "fr-FR";
+    recognition.interimResults = true;
+    recognition.continuous = true;
+    recognition.maxAlternatives = 1;
+
+    recognition.onresult = (event: any) => {
+      for (let i = 0; i < event.results.length; i++) {
+        const text = event.results[i][0].transcript.toLowerCase().trim();
+        if (STOP_WORDS.some(w => text.includes(w))) {
+          console.log("[TTS] Voice stop command detected:", text);
+          stop();
+          return;
+        }
+      }
+    };
+
+    recognition.onerror = (e: any) => {
+      // "aborted" or "no-speech" are expected; ignore silently
+      if (e.error !== "aborted" && e.error !== "no-speech") {
+        console.warn("[TTS] Stop listener error:", e.error);
+      }
+    };
+
+    recognition.onend = () => {
+      // Restart listener if still playing (browser auto-stops after silence)
+      if (status === "playing" && stopRecognitionRef.current) {
+        try { recognition.start(); } catch {}
+      }
+    };
+
+    stopRecognitionRef.current = recognition;
+    try { recognition.start(); } catch (err) {
+      console.warn("[TTS] Could not start stop listener:", err);
+    }
+
+    return () => {
+      if (stopRecognitionRef.current) {
+        try { stopRecognitionRef.current.stop(); } catch {}
+        stopRecognitionRef.current = null;
+      }
+    };
+  }, [status, stop]);
+
   return { speak, stop, status, spokenWordIndex };
 }
