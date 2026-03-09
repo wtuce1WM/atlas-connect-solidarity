@@ -432,7 +432,7 @@ const SearchPage = () => {
   const [moreFilterEngagements, setMoreFilterEngagements] = useState<string[]>([]);
   const [moreFilterCommodites, setMoreFilterCommodites] = useState<string[]>([]);
   const [moreFilterMatchingIds, setMoreFilterMatchingIds] = useState<Set<string> | null>(null);
-  const [extraFilterBusinesses, setExtraFilterBusinesses] = useState<Business[]>([]);
+  const [serviceFilterBusinesses, setServiceFilterBusinesses] = useState<Business[]>([]);
 
   // Track whether a category/subcategory filter is active (compact AI mode)
   const isCategoryFilterActive = !!(selectedCategoryFilter || selectedSubcategoryFilter || selectedServiceFilter);
