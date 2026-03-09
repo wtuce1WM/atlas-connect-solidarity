@@ -3150,11 +3150,10 @@ const SearchPage = () => {
               setSelectedServiceFilter(null);
               setSearchQuery(query);
               setActiveTab("suggestions");
+              // Reset city filter on new search — the engine will detect the right city
+              setSelectedCity("all");
+              setIsGeoCityAutoSelected(false);
               const params: Record<string, string> = { q: query, _t: String(Date.now()) };
-              // Preserve current city selection in URL
-              if (selectedCity && selectedCity !== "all") {
-                params.city = selectedCity;
-              }
               const timeResult = extractTimeSlot(query);
               if (timeResult) {
                 params.timeStart = String(timeResult.timeSlot.startHour);
