@@ -23,7 +23,7 @@ import { Separator } from "@/components/ui/separator";
 import { FacebookIcon, InstagramIcon, LinkedInIcon, YouTubeIcon, TikTokIcon, TwitterIcon, PinterestIcon, VimeoIcon } from "@/components/staff/SocialMediaIcons";
 import BookingOverlay from "@/components/BookingOverlay";
 import HotelAvailabilityOverlay, { type FallbackPanelData, type FallbackHotel } from "@/components/HotelAvailabilityOverlay";
-import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
+import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from "@/components/ui/carousel";
 
 const LANG_FLAGS: Record<string, string> = {
   FR: "🇫🇷", EN: "🇬🇧", ES: "🇪🇸", AR: "🇲🇦", DE: "🇩🇪", IT: "🇮🇹",
@@ -246,9 +246,19 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   const [activeTab, setActiveTab] = useState<string>("apercu");
   const [showStickyTabs, setShowStickyTabs] = useState(false);
   const [similarCount, setSimilarCount] = useState<number | null>(null);
+  const [menuCarouselApi, setMenuCarouselApi] = useState<CarouselApi>();
+  const [menuCarouselCurrent, setMenuCarouselCurrent] = useState(0);
   const [nearbyCount, setNearbyCount] = useState<number | null>(null);
   const isScrollingToTabRef = useRef(false);
   const tabScrollUnlockTimeoutRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (!menuCarouselApi) return;
+    const onSelect = () => setMenuCarouselCurrent(menuCarouselApi.selectedScrollSnap());
+    menuCarouselApi.on("select", onSelect);
+    onSelect();
+    return () => { menuCarouselApi.off("select", onSelect); };
+  }, [menuCarouselApi]);
 
   const handleFullscreen = useCallback(() => {
     // For native video, use the video element's fullscreen
@@ -1622,7 +1632,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                   </>); })()}
                 </div>
               ) : (
-                <Carousel opts={{ align: "start", loop: false }} className="w-full">
+                <Carousel setApi={setMenuCarouselApi} opts={{ align: "start", loop: false, skipSnaps: false }} className="w-full">
                   <CarouselContent className="-ml-2">
                     {menuSummaries.map((summary, idx) => (
                       <CarouselItem key={summary.id} className="pl-2 basis-[85%] sm:basis-[80%]">
@@ -1670,9 +1680,13 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                       </CarouselItem>
                     ))}
                   </CarouselContent>
-                  <div className="flex justify-center gap-1 mt-3">
+                  <div className="flex justify-center gap-1.5 mt-3">
                     {menuSummaries.map((_, idx) => (
-                      <div key={idx} className="w-1.5 h-1.5 rounded-full bg-muted-foreground/30" />
+                      <button
+                        key={idx}
+                        onClick={() => menuCarouselApi?.scrollTo(idx)}
+                        className={`w-2 h-2 rounded-full transition-all ${idx === menuCarouselCurrent ? "bg-primary scale-125" : "bg-muted-foreground/30"}`}
+                      />
                     ))}
                   </div>
                 </Carousel>
