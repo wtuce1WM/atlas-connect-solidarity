@@ -226,8 +226,8 @@ export function useTextToSpeech(options?: { onEnd?: () => void }) {
   const stopRecognitionRef = useRef<any>(null);
 
   useEffect(() => {
-    if (status !== "playing") {
-      // Tear down listener when not playing
+    if (status !== "playing" && status !== "paused") {
+      // Tear down listener when not playing/paused
       if (stopRecognitionRef.current) {
         try { stopRecognitionRef.current.stop(); } catch {}
         stopRecognitionRef.current = null;
