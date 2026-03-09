@@ -262,6 +262,10 @@ const BusinessMap = ({
     const map = mapRef.current;
     if (!map || isLoading || !gmapsReady) return;
 
+    // Skip rebuild if businesses haven't actually changed
+    if (businessFingerprint === lastFingerprintRef.current && markersRef.current.length > 0) return;
+    lastFingerprintRef.current = businessFingerprint;
+
     // Clear previous
     markersRef.current.forEach((m) => m.setMap(null));
     markersRef.current = [];
