@@ -1,9 +1,11 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 
-type TTSStatus = "idle" | "loading" | "playing" | "error";
+type TTSStatus = "idle" | "loading" | "playing" | "paused" | "error";
 
 /** Words that trigger a voice-activated stop (case-insensitive) */
 const STOP_WORDS = ["stop", "arrête", "arrêter", "tais-toi", "silence"];
+/** Words that trigger a voice-activated resume (case-insensitive) */
+const RESUME_WORDS = ["continue", "reprends", "reprendre", "play", "lecture"];
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
@@ -96,6 +98,26 @@ export function useTextToSpeech(options?: { onEnd?: () => void }) {
     rafRef.current = requestAnimationFrame(trackPlayback);
   }, []);
 
+  const pause = useCallback(() => {
+    if (audioRef.current && !audioRef.current.paused) {
+      audioRef.current.pause();
+      stopTracking();
+      setStatus("paused");
+      console.log("[TTS] Paused");
+    }
+  }, [stopTracking]);
+
+  const resume = useCallback(() => {
+    if (audioRef.current && audioRef.current.paused && status === "paused") {
+      audioRef.current.play();
+      setStatus("playing");
+      if (wordTimingsRef.current) {
+        rafRef.current = requestAnimationFrame(trackPlayback);
+      }
+      console.log("[TTS] Resumed");
+    }
+  }, [status, trackPlayback]);
+
   const stop = useCallback(() => {
     stopTracking();
     if (audioRef.current) {
@@ -113,7 +135,7 @@ export function useTextToSpeech(options?: { onEnd?: () => void }) {
   const speak = useCallback(
     async (text: string, voiceId?: string, withTimestamps = false) => {
       // If already playing, stop
-      if (status === "playing" || status === "loading") {
+      if (status === "playing" || status === "loading" || status === "paused") {
         stop();
         return;
       }
@@ -204,8 +226,8 @@ export function useTextToSpeech(options?: { onEnd?: () => void }) {
   const stopRecognitionRef = useRef<any>(null);
 
   useEffect(() => {
-    if (status !== "playing") {
-      // Tear down listener when not playing
+    if (status !== "playing" && status !== "paused") {
+      // Tear down listener when not playing/paused
       if (stopRecognitionRef.current) {
         try { stopRecognitionRef.current.stop(); } catch {}
         stopRecognitionRef.current = null;
@@ -226,8 +248,13 @@ export function useTextToSpeech(options?: { onEnd?: () => void }) {
       for (let i = 0; i < event.results.length; i++) {
         const text = event.results[i][0].transcript.toLowerCase().trim();
         if (STOP_WORDS.some(w => text.includes(w))) {
-          console.log("[TTS] Voice stop command detected:", text);
-          stop();
+          console.log("[TTS] Voice stop/pause command detected:", text);
+          pause();
+          return;
+        }
+        if (RESUME_WORDS.some(w => text.includes(w))) {
+          console.log("[TTS] Voice resume command detected:", text);
+          resume();
           return;
         }
       }
@@ -242,7 +269,7 @@ export function useTextToSpeech(options?: { onEnd?: () => void }) {
 
     recognition.onend = () => {
       // Restart listener if still playing (browser auto-stops after silence)
-      if (status === "playing" && stopRecognitionRef.current) {
+      if ((status === "playing" || status === "paused") && stopRecognitionRef.current) {
         try { recognition.start(); } catch {}
       }
     };
@@ -258,7 +285,7 @@ export function useTextToSpeech(options?: { onEnd?: () => void }) {
         stopRecognitionRef.current = null;
       }
     };
-  }, [status, stop]);
+  }, [status, stop, pause, resume]);
 
-  return { speak, stop, status, spokenWordIndex };
+  return { speak, stop, pause, resume, status, spokenWordIndex };
 }
