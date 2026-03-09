@@ -1485,12 +1485,13 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                       const iconSrc = `/images/doc-icons/${iconFile}${ext}`;
                       const isPdf = doc.url?.toLowerCase().endsWith('.pdf') || doc.url?.includes('/pdfs/');
                       const isFlipbook = /issuu\.com|calameo\.com/i.test(doc.url || '');
-                      // Open all PDFs and flipbooks in the internal overlay (Google Docs Viewer handles external PDFs)
-                      const isInlineDoc = isPdf || isFlipbook;
+                      const isWebpage = doc.type === 'webpage';
+                      // Open all documents in the internal overlay (PDFs via Google Docs Viewer, webpages & flipbooks via iframe)
+                      const isInlineDoc = isPdf || isFlipbook || isWebpage;
                       const handleClick = (e: React.MouseEvent) => {
                         if (isInlineDoc) {
                           e.preventDefault();
-                          const docType = isFlipbook ? 'flipbook' : 'pdf';
+                          const docType = isFlipbook ? 'flipbook' : isWebpage ? 'webpage' : 'pdf';
                           setDocOverlay({ url: doc.url, name: doc.name || (doc.type === "flipbook" ? "Flipbook" : "Menu"), type: docType });
                         }
                       };
