@@ -1505,12 +1505,12 @@ serve(async (req) => {
             const before = businesses.length;
             businesses = businesses.filter(b => {
               const bizEngs: string[] = b.engagements || [];
+              // Engagements use AND logic (all must match)
               for (const eng of requiredEngagements) {
                 if (!bizEngs.includes(eng)) return false;
               }
-              for (const com of requiredCommodities) {
-                if (!bizEngs.includes(`Logistique:${com}`)) return false;
-              }
+              // Commodities use OR logic (at least one must match)
+              if (requiredCommodities.length > 0 && !requiredCommodities.some(com => bizEngs.includes(`Logistique:${com}`))) return false;
               return true;
             });
             console.log(`⚡ Engagement/commodity filter: ${before} → ${businesses.length} (eng: [${requiredEngagements.join(",")}], com: [${requiredCommodities.join(",")}])`);
