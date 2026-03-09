@@ -3305,7 +3305,7 @@ const SearchPage = () => {
                 })()}
               </div>
               {/* Action buttons: Listen, Geo, Mic */}
-              <div className="flex items-center justify-center gap-6 pt-8">
+              <div className="flex items-center justify-center gap-12 pt-8">
                 {/* Listen */}
                 <div className="relative flex items-center justify-center">
                   <span className="absolute w-16 h-16 rounded-full border border-secondary/40 animate-[ripple_2.4s_ease-out_infinite] pointer-events-none" />
