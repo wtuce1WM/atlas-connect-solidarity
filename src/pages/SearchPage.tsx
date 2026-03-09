@@ -3336,14 +3336,6 @@ const SearchPage = () => {
                     </button>
                   )}
                 </div>
-                {/* Geolocation */}
-                <button
-                  onClick={() => setLocationDialogOpen(true)}
-                  className="relative w-16 h-16 rounded-full bg-black flex items-center justify-center shadow-lg transition-all hover:scale-105"
-                  title={geo.isEnabled ? (language === "en" ? "Disable location" : "Désactiver la localisation") : (language === "en" ? "Enable location" : "Activer la localisation")}
-                >
-                  {geo.isEnabled ? <MapPinOff className="h-7 w-7 text-white" /> : <MapPin className="h-7 w-7 text-white" />}
-                </button>
                 {/* Mic */}
                 <div className="relative flex items-center justify-center">
                   <span className="absolute w-16 h-16 rounded-full border border-primary/40 animate-[ripple_2.4s_ease-out_infinite] pointer-events-none" />
