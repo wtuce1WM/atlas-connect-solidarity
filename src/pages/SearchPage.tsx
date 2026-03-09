@@ -2477,7 +2477,7 @@ const SearchPage = () => {
         const hasRightPanel = !!destMapItem || !!selectedDestination;
         return (
           <div className="flex">
-            <section className={`pt-16 pb-6 lg:pt-20 lg:pb-12 bg-background transition-all duration-300 ${hasRightPanel ? "w-1/2" : "w-full"}`}>
+            <section className={`pt-16 pb-6 lg:pt-20 lg:pb-12 bg-white dark:bg-zinc-900 transition-all duration-300 ${hasRightPanel ? "w-1/2" : "w-full"}`}>
               <div className={`mx-auto px-4 ${hasRightPanel ? "max-w-full" : "max-w-[80%]"}`}>
                 <DestinationSection
                   city={destCity}
