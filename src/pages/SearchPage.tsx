@@ -1013,20 +1013,17 @@ const SearchPage = () => {
   }, [selectedCity, citiesWithPriority]);
 
   const filteredBusinesses = useMemo(() => {
-    // Merge search results with extra businesses fetched for entonnoir filters (deduplicate by id)
-    const mergedBase = selectedCategoryFilter && extraFilterBusinesses.length > 0
-      ? (() => {
-          const ids = new Set(allBusinesses.map(b => b.id));
-          const extras = extraFilterBusinesses.filter(b => !ids.has(b.id));
-          return [...allBusinesses, ...extras];
-        })()
-      : allBusinesses;
-    let filtered = mergedBase;
+    // When a service filter is manually selected, use the direct DB results as the base
+    // instead of merging with FTS results — this ensures we get ALL matching businesses
+    let filtered: Business[];
+    if (selectedServiceFilter && serviceFilterBusinesses.length > 0) {
+      filtered = [...serviceFilterBusinesses];
+    } else {
+      filtered = [...allBusinesses];
+    }
     if (selectedCity && selectedCity !== "all") {
-      filtered = mergedBase.filter(b => {
-        // Direct city match
+      filtered = filtered.filter(b => {
         if (b.city === selectedCity) return true;
-        // National/zone businesses that cover this city
         if (selectedCityId && b.zone_city_ids?.includes(selectedCityId) && b.is_visible_locale) return true;
         return false;
       });
