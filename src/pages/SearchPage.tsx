@@ -2391,7 +2391,7 @@ const SearchPage = () => {
                 }))}
                 height="calc(100vh - 250px)"
                 isLoading={isLoading}
-                forceOverview={!selectedCity || selectedCity === "all"}
+                forceOverview={!selectedCity || (selectedCity === "all" && !detectedCity)}
               />
             </Suspense>
           </div>
