@@ -175,6 +175,13 @@ const BusinessMap = ({
     return Array.from(uniqueById.values());
   }, [businesses]);
 
+  // Fingerprint to force marker rebuild when wtuce_status changes
+  const businessFingerprint = useMemo(
+    () => geoBusinesses.map(b => `${b.id}:${b.wtuce_status ?? ""}`).join(","),
+    [geoBusinesses]
+  );
+  }, [businesses]);
+
   // Initialize map once gmaps is ready
   useEffect(() => {
     if (!gmapsReady || !mapContainerRef.current || mapRef.current) return;
