@@ -1659,7 +1659,13 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                   className="w-full"
                   style={{ touchAction: "pan-y" }}
                 >
-                  <CarouselContent className="-ml-2 select-none cursor-grab active:cursor-grabbing">
+                  <CarouselContent
+                    className="-ml-2 select-none cursor-grab active:cursor-grabbing"
+                    onMouseDown={handleMenuMouseDown}
+                    onMouseMove={handleMenuMouseMove}
+                    onMouseUp={resetMenuMouseDrag}
+                    onMouseLeave={resetMenuMouseDrag}
+                  >
                     {menuSummaries.map((summary, idx) => (
                       <CarouselItem key={summary.id} className="pl-2 basis-[85%] sm:basis-[80%]">
                         <div className="space-y-2 rounded-lg border border-border bg-muted/20 p-4">
