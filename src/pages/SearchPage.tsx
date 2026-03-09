@@ -649,11 +649,17 @@ const SearchPage = () => {
     const [overlaySelectedBusiness, setOverlaySelectedBusiness] = useState<AIBusinessData | null>(null);
     const [isOverlayPanelExpanded, setIsOverlayPanelExpanded] = useState(false);
     const overlayLeftPanelRef = useRef<HTMLDivElement>(null);
-   // Reset when query changes
+   // Reset panels, tab, and scroll when query changes
    useEffect(() => {
      setHasScrolledPastHeroAi(false);
      aiPopupShownRef.current = false;
-   }, [searchQuery]);
+     setActiveTab("suggestions");
+     resetPanelStates();
+     setOverlaySelectedBusiness(null);
+     setIsOverlayPanelExpanded(false);
+     setCompactPanelBusiness(null);
+     setIsCompactPanelExpanded(false);
+   }, [searchQuery, urlT]);
 
    // Track when the hero AI card scrolls out of view — once past, stays hidden
    useEffect(() => {
