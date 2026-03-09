@@ -1729,15 +1729,6 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                       </CarouselItem>
                     ))}
                   </CarouselContent>
-                  <div className="flex justify-center gap-1.5 mt-3">
-                    {menuSummaries.map((_, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => menuCarouselApi?.scrollTo(idx)}
-                        className={`w-2 h-2 rounded-full transition-all ${idx === menuCarouselCurrent ? "bg-primary scale-125" : "bg-muted-foreground/30"}`}
-                      />
-                    ))}
-                  </div>
                 </Carousel>
               )}
             </div>
