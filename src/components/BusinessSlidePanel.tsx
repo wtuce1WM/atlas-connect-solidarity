@@ -249,6 +249,8 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   const [menuCarouselApi, setMenuCarouselApi] = useState<CarouselApi>();
   const [menuCarouselCurrent, setMenuCarouselCurrent] = useState(0);
   const [nearbyCount, setNearbyCount] = useState<number | null>(null);
+  const menuDragStartXRef = useRef<number | null>(null);
+  const menuDragTriggeredRef = useRef(false);
   const isScrollingToTabRef = useRef(false);
   const tabScrollUnlockTimeoutRef = useRef<number | null>(null);
 
@@ -259,6 +261,25 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
     onSelect();
     return () => { menuCarouselApi.off("select", onSelect); };
   }, [menuCarouselApi]);
+
+  const handleMenuMouseDown = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+    menuDragStartXRef.current = event.clientX;
+    menuDragTriggeredRef.current = false;
+  }, []);
+
+  const handleMenuMouseMove = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+    if (!menuCarouselApi || menuDragStartXRef.current === null || menuDragTriggeredRef.current) return;
+    const deltaX = event.clientX - menuDragStartXRef.current;
+    if (Math.abs(deltaX) < 24) return;
+    if (deltaX < 0) menuCarouselApi.scrollNext();
+    if (deltaX > 0) menuCarouselApi.scrollPrev();
+    menuDragTriggeredRef.current = true;
+  }, [menuCarouselApi]);
+
+  const resetMenuMouseDrag = useCallback(() => {
+    menuDragStartXRef.current = null;
+    menuDragTriggeredRef.current = false;
+  }, []);
 
   const handleFullscreen = useCallback(() => {
     // For native video, use the video element's fullscreen
@@ -1638,7 +1659,13 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                   className="w-full"
                   style={{ touchAction: "pan-y" }}
                 >
-                  <CarouselContent className="-ml-2 select-none cursor-grab active:cursor-grabbing">
+                  <CarouselContent
+                    className="-ml-2 select-none cursor-grab active:cursor-grabbing"
+                    onMouseDown={handleMenuMouseDown}
+                    onMouseMove={handleMenuMouseMove}
+                    onMouseUp={resetMenuMouseDrag}
+                    onMouseLeave={resetMenuMouseDrag}
+                  >
                     {menuSummaries.map((summary, idx) => (
                       <CarouselItem key={summary.id} className="pl-2 basis-[85%] sm:basis-[80%]">
                         <div className="space-y-2 rounded-lg border border-border bg-muted/20 p-4">
