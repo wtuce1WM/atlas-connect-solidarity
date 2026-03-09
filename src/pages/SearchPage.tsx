@@ -3192,8 +3192,8 @@ const SearchPage = () => {
           {/* Left panel — full AI text (hidden when expanded) */}
           {!isCompactPanelExpanded && !isSubDesktop && (
           <div
-            className="fixed top-[62px] left-0 w-1/2 z-[100] bg-background border-r border-border shadow-xl flex flex-col animate-fade-in"
-            style={{ height: "calc(100vh - 62px)" }}
+            className="fixed top-[48px] left-0 w-1/2 z-[100] bg-white dark:bg-zinc-900 border-r border-border shadow-xl flex flex-col animate-fade-in"
+            style={{ height: "calc(100vh - 48px)" }}
           >
             <div className="shrink-0 flex items-center justify-between px-5 py-3 border-b border-border">
               <div className="flex items-center gap-2 text-foreground">
