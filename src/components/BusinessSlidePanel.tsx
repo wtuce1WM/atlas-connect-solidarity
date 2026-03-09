@@ -905,7 +905,6 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                 className="h-full w-full border-0"
                 title={docOverlay.name}
                 sandbox="allow-scripts allow-same-origin allow-popups"
-                onError={() => window.open(docOverlay.url, '_blank')}
               />
             ) : (
               <iframe
