@@ -23,7 +23,7 @@ import { Separator } from "@/components/ui/separator";
 import { FacebookIcon, InstagramIcon, LinkedInIcon, YouTubeIcon, TikTokIcon, TwitterIcon, PinterestIcon, VimeoIcon } from "@/components/staff/SocialMediaIcons";
 import BookingOverlay from "@/components/BookingOverlay";
 import HotelAvailabilityOverlay, { type FallbackPanelData, type FallbackHotel } from "@/components/HotelAvailabilityOverlay";
-import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from "@/components/ui/carousel";
+
 
 const LANG_FLAGS: Record<string, string> = {
   FR: "🇫🇷", EN: "🇬🇧", ES: "🇪🇸", AR: "🇲🇦", DE: "🇩🇪", IT: "🇮🇹",
@@ -246,45 +246,41 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   const [activeTab, setActiveTab] = useState<string>("apercu");
   const [showStickyTabs, setShowStickyTabs] = useState(false);
   const [similarCount, setSimilarCount] = useState<number | null>(null);
-  const [menuCarouselApi, setMenuCarouselApi] = useState<CarouselApi>();
   const [nearbyCount, setNearbyCount] = useState<number | null>(null);
+  const menuScrollRef = useRef<HTMLDivElement>(null);
   const menuDragStartXRef = useRef<number | null>(null);
   const menuDragStartYRef = useRef<number | null>(null);
-  const menuDragLastXRef = useRef<number | null>(null);
+  const menuDragStartScrollLeftRef = useRef(0);
+  const menuIsDraggingRef = useRef(false);
   const isScrollingToTabRef = useRef(false);
   const tabScrollUnlockTimeoutRef = useRef<number | null>(null);
 
   const resetMenuMouseDrag = useCallback(() => {
     menuDragStartXRef.current = null;
     menuDragStartYRef.current = null;
-    menuDragLastXRef.current = null;
+    menuIsDraggingRef.current = false;
     document.body.style.userSelect = "";
   }, []);
 
   const handleMenuMouseDown = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+    if (!menuScrollRef.current) return;
+    menuIsDraggingRef.current = true;
     menuDragStartXRef.current = event.clientX;
     menuDragStartYRef.current = event.clientY;
-    menuDragLastXRef.current = event.clientX;
+    menuDragStartScrollLeftRef.current = menuScrollRef.current.scrollLeft;
     document.body.style.userSelect = "none";
   }, []);
 
   useEffect(() => {
     const handleWindowMouseMove = (event: MouseEvent) => {
-      if (!menuCarouselApi || menuDragStartXRef.current === null || menuDragStartYRef.current === null) return;
+      if (!menuIsDraggingRef.current || menuDragStartXRef.current === null || menuDragStartYRef.current === null || !menuScrollRef.current) return;
 
-      const totalDeltaX = event.clientX - menuDragStartXRef.current;
-      const totalDeltaY = event.clientY - menuDragStartYRef.current;
-      const stepDeltaX = event.clientX - (menuDragLastXRef.current ?? event.clientX);
+      const deltaX = event.clientX - menuDragStartXRef.current;
+      const deltaY = event.clientY - menuDragStartYRef.current;
+      if (Math.abs(deltaX) <= Math.abs(deltaY)) return;
 
-      if (Math.abs(totalDeltaX) <= Math.abs(totalDeltaY) || Math.abs(stepDeltaX) < 28) return;
-
-      if (stepDeltaX < 0) {
-        menuCarouselApi.scrollNext();
-      } else {
-        menuCarouselApi.scrollPrev();
-      }
-
-      menuDragLastXRef.current = event.clientX;
+      event.preventDefault();
+      menuScrollRef.current.scrollLeft = menuDragStartScrollLeftRef.current - deltaX;
     };
 
     const handleWindowMouseUp = () => resetMenuMouseDrag();
@@ -296,7 +292,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
       window.removeEventListener("mousemove", handleWindowMouseMove);
       window.removeEventListener("mouseup", handleWindowMouseUp);
     };
-  }, [menuCarouselApi, resetMenuMouseDrag]);
+  }, [resetMenuMouseDrag]);
 
   const handleFullscreen = useCallback(() => {
     // For native video, use the video element's fullscreen
@@ -1670,21 +1666,18 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                   </>); })()}
                 </div>
               ) : (
-                <Carousel
-                  setApi={setMenuCarouselApi}
-                  opts={{ align: "start", loop: false, skipSnaps: false, watchDrag: true }}
-                  className="w-full"
+                <div
+                  ref={menuScrollRef}
+                  className="w-full overflow-x-auto scrollbar-hide"
                   style={{ touchAction: "pan-y" }}
+                  onMouseDown={handleMenuMouseDown}
+                  onMouseUp={resetMenuMouseDrag}
+                  onMouseLeave={resetMenuMouseDrag}
+                  onDragStart={(event) => event.preventDefault()}
                 >
-                  <CarouselContent
-                    className="-ml-2 select-none cursor-grab active:cursor-grabbing"
-                    onMouseDown={handleMenuMouseDown}
-                    onMouseUp={resetMenuMouseDrag}
-                    onMouseLeave={resetMenuMouseDrag}
-                    onDragStart={(event) => event.preventDefault()}
-                  >
+                  <div className="flex gap-2 pr-2 select-none cursor-grab active:cursor-grabbing">
                     {menuSummaries.map((summary, idx) => (
-                      <CarouselItem key={summary.id} className="pl-2 basis-[85%] sm:basis-[80%]">
+                      <div key={summary.id} className="min-w-0 shrink-0 grow-0 basis-[85%] sm:basis-[80%]">
                         <div className="space-y-2 rounded-lg border border-border bg-muted/20 p-4">
                           {summary.title && (
                             <div className="flex items-center gap-3 flex-wrap">
@@ -1726,10 +1719,10 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                               dangerouslySetInnerHTML={{ __html: summary.price_details }} />
                           )}
                         </div>
-                      </CarouselItem>
+                      </div>
                     ))}
-                  </CarouselContent>
-                </Carousel>
+                  </div>
+                </div>
               )}
             </div>
           )}
