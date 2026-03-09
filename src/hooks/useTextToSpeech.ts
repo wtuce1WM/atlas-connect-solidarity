@@ -269,7 +269,7 @@ export function useTextToSpeech(options?: { onEnd?: () => void }) {
 
     recognition.onend = () => {
       // Restart listener if still playing (browser auto-stops after silence)
-      if (status === "playing" && stopRecognitionRef.current) {
+      if ((status === "playing" || status === "paused") && stopRecognitionRef.current) {
         try { recognition.start(); } catch {}
       }
     };
