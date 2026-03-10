@@ -1418,7 +1418,10 @@ const SearchPage = () => {
             // 1. preciseMatch is true (service-based search) AND subcategory came from heuristic fallback
             // This prevents filtering out valid service matches that happen to be in a minority subcategory
             const isHeuristicFallbackWithPrecise = fallbackSubcategory && !safeDetectedSubcategory && data.preciseMatch;
-            const shouldSkipAutoFilter = data.synonymUsed || isHeuristicFallbackWithPrecise;
+            // When preciseMatch is true (e.g. service-level filtering like "Excursions Vélo"),
+            // skip auto-selecting subcategory filter to prevent the direct DB fetch from
+            // widening results (it would fetch ALL businesses in the subcategory, ignoring the service filter)
+            const shouldSkipAutoFilter = data.synonymUsed || isHeuristicFallbackWithPrecise || data.preciseMatch;
             setSelectedCategoryFilter(shouldSkipAutoFilter ? null : parentCategory);
             setSelectedSubcategoryFilter(shouldSkipAutoFilter ? null : finalDetectedSubcategory);
             setSelectedServiceFilter(null);
