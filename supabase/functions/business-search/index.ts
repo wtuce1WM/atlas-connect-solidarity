@@ -899,7 +899,10 @@ serve(async (req) => {
         }
 
         // ── PASS 2: Keyword matches (only if no name match found) ──
+        // When a keyword matches MULTIPLE subcategories, don't lock to one — skip subcategory auto-detection
+        // so the broader category or FTS results are used instead.
         if (!detectedSubcategory) {
+          const keywordMatchedSubcats: string[] = [];
           for (const sc of sorted) {
             const n = sc.name_fr?.toLowerCase();
             if (!n) continue;
@@ -920,10 +923,14 @@ serve(async (req) => {
                 );
               })
             )) {
-              detectedSubcategory = sc.name_fr;
-              console.log(`Auto-detected subcategory "${sc.name_fr}" from keyword match in query "${effectiveQuery}"`);
-              break;
+              keywordMatchedSubcats.push(sc.name_fr);
             }
+          }
+          if (keywordMatchedSubcats.length === 1) {
+            detectedSubcategory = keywordMatchedSubcats[0];
+            console.log(`Auto-detected subcategory "${keywordMatchedSubcats[0]}" from keyword match in query "${effectiveQuery}"`);
+          } else if (keywordMatchedSubcats.length > 1) {
+            console.log(`Keyword matched ${keywordMatchedSubcats.length} subcategories [${keywordMatchedSubcats.join(", ")}] — skipping subcategory lock, will use broader search`);
           }
         }
 
