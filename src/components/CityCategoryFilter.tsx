@@ -311,21 +311,21 @@ const CityCategoryFilter = ({
                   onClick={() => onSelectCategory(isSelected ? null : cat.name_fr)}
                   className={`flex items-center gap-1.5 px-3 py-2 rounded-full border text-xs font-medium whitespace-nowrap transition-all shrink-0 ${
                     isSelected
-                      ? "bg-gold/20 border-gold text-gold shadow-sm"
-                      : "bg-card border-border text-muted-foreground hover:border-gold/40 hover:text-foreground"
+                      ? "bg-primary/20 border-primary text-primary shadow-sm"
+                      : "bg-card border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
                   }`}
                 >
                   {cat.icon ? (
                     <DynamicIcon
                       name={cat.icon}
                       size={16}
-                      className={isSelected ? "text-gold" : "text-muted-foreground"}
+                      className={isSelected ? "text-primary" : "text-muted-foreground"}
                     />
                   ) : (
-                    <LayoutGrid size={16} className={isSelected ? "text-gold" : "text-muted-foreground"} />
+                    <LayoutGrid size={16} className={isSelected ? "text-primary" : "text-muted-foreground"} />
                   )}
                   <span>{getLabel(cat)}</span>
-                  <span className={`text-[10px] ${isSelected ? "text-gold" : "text-muted-foreground/60"}`}>
+                  <span className={`text-[10px] ${isSelected ? "text-primary" : "text-muted-foreground/60"}`}>
                     {cat.count}
                   </span>
                 </button>

@@ -2298,7 +2298,7 @@ const SearchPage = () => {
                 }}
                 className={`flex items-center gap-2 px-5 py-3 text-sm font-medium transition-colors border-b-2 ${
                   activeTab === tab.key
-                    ? "border-gold text-gold"
+                    ? "border-primary text-primary"
                     : "border-transparent text-muted-foreground hover:text-foreground"
                 }`}
               >
@@ -2324,13 +2324,13 @@ const SearchPage = () => {
               <button
                 onClick={() => handleCityChange("all")}
                 className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-bold whitespace-nowrap transition-all ${
-                  selectedCity === "all"
-                    ? "bg-gold/20 border-gold text-gold shadow-sm"
-                    : "bg-card border-border text-muted-foreground hover:border-gold/40 hover:text-foreground"
-                }`}
-              >
-                <MapPin size={14} className={selectedCity === "all" ? "text-gold" : "text-muted-foreground"} />
-                <span>{t.allCities}</span>
+                   selectedCity === "all"
+                     ? "bg-primary/20 border-primary text-primary shadow-sm"
+                     : "bg-card border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                 }`}
+               >
+                 <MapPin size={14} className={selectedCity === "all" ? "text-primary" : "text-muted-foreground"} />
+                 <span>{t.allCities}</span>
               </button>
               {availableCities.map((city) => {
                 const isSelected = selectedCity === city;
@@ -2339,13 +2339,13 @@ const SearchPage = () => {
                     key={city}
                     onClick={() => handleCityChange(isSelected ? "all" : city)}
                     className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-bold whitespace-nowrap transition-all ${
-                      isSelected
-                        ? "bg-gold/20 border-gold text-gold shadow-sm"
-                        : "bg-card border-border text-muted-foreground hover:border-gold/40 hover:text-foreground"
-                    }`}
-                  >
-                    <MapPin size={14} className={isSelected ? "text-gold" : "text-muted-foreground"} />
-                    <span>{city}</span>
+                       isSelected
+                         ? "bg-primary/20 border-primary text-primary shadow-sm"
+                         : "bg-card border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                     }`}
+                   >
+                     <MapPin size={14} className={isSelected ? "text-primary" : "text-muted-foreground"} />
+                     <span>{city}</span>
                   </button>
                 );
               })}
