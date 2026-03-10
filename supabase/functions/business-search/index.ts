@@ -1891,9 +1891,11 @@ serve(async (req) => {
         "sais-tu", "sais", "savez", "peux", "pouvez", "pourriez", "voudrais", "voudriez", "vouloir",
         "stp", "svp",
       ]);
+      const COUNTRY_NOISE_RE = /^(maroc|marocain|marocaine|marocains|marocaines|morocco|moroccan)$/i;
       const serviceMatchWords = [...new Set(queryWords.filter(w => 
         !FRENCH_STOP_WORDS.has(w) && w !== cityLower && w !== neighborhoodLower 
         && !subcatNameWords.includes(w) && !INTENT_TO_CATEGORY[w] && !TIME_NOISE.has(w) && !PERSONAL_CONTEXT_NOISE.has(w)
+        && !COUNTRY_NOISE_RE.test(stripAccentsGlobal(w))
       ))];
 
       serviceMatchWordsOuter = [...serviceMatchWords]; // Store for cleanRemainder later
