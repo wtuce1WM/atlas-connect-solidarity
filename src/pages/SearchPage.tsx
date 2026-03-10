@@ -647,6 +647,7 @@ const SearchPage = () => {
    const [isAiRegenerating, setIsAiRegenerating] = useState(false);
     const [compactPanelBusiness, setCompactPanelBusiness] = useState<AIBusinessData | null>(null);
     const [isCompactPanelExpanded, setIsCompactPanelExpanded] = useState(false);
+    const [compactBusinessImageCount, setCompactBusinessImageCount] = useState(0);
      const [poiSelectedBusinessId, setPoiSelectedBusinessId] = useState<string | null>(null);
      const [poiPanelExpanded, setPoiPanelExpanded] = useState(false);
      const [poiBusinessImageCount, setPoiBusinessImageCount] = useState(0);
