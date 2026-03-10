@@ -3470,7 +3470,7 @@ const SearchPage = () => {
             <SlidePanelHeader
               onClose={() => { setCompactPanelBusiness(null); setIsCompactPanelExpanded(false); }}
               isExpanded={isCompactPanelExpanded}
-              onToggleExpand={() => setIsCompactPanelExpanded(prev => !prev)}
+              onToggleExpand={compactBusinessImageCount > 5 ? () => setIsCompactPanelExpanded(prev => !prev) : undefined}
             />
             <div className="flex-1 min-h-0">
               <BusinessSlidePanel
@@ -3478,6 +3478,7 @@ const SearchPage = () => {
                 onClose={() => { setCompactPanelBusiness(null); setIsCompactPanelExpanded(false); }}
                 isExpanded={isCompactPanelExpanded}
                 onToggleExpand={() => setIsCompactPanelExpanded(prev => !prev)}
+                onImageCount={setCompactBusinessImageCount}
               />
             </div>
           </div>
