@@ -2298,7 +2298,7 @@ const SearchPage = () => {
                 }}
                 className={`flex items-center gap-2 px-5 py-3 text-sm font-medium transition-colors border-b-2 ${
                   activeTab === tab.key
-                    ? "border-gold text-gold"
+                    ? "border-primary text-primary"
                     : "border-transparent text-muted-foreground hover:text-foreground"
                 }`}
               >
