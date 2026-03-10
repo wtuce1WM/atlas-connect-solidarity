@@ -1356,6 +1356,26 @@ serve(async (req) => {
               }
             }
           }
+          // If no subcategory matched, check if a SERVICE under the target category matches
+          // e.g. "manger du poisson" → intent=Restauration, service "Poisson" exists under "Restaurant"
+          if (!betterSubcat) {
+            const { data: targetServices } = await supabase
+              .from("services")
+              .select("name_fr, subcategories!inner(name_fr, categories!inner(name_fr))")
+              .eq("is_active", true)
+              .eq("subcategories.categories.name_fr", categoryForConflictCheck);
+            if (targetServices) {
+              for (const svc of targetServices) {
+                const svcName = (svc.name_fr || "").toLowerCase();
+                const svcNameNorm = normalizeWordRe(svcName);
+                if (qWords.some(qw => normalizeWordRe(qw) === svcNameNorm)) {
+                  betterSubcat = (svc as any).subcategories?.name_fr;
+                  console.log(`Category-subcategory re-evaluation via SERVICE: "${svc.name_fr}" found under "${betterSubcat}" (${categoryForConflictCheck})`);
+                  break;
+                }
+              }
+            }
+          }
           if (betterSubcat) {
             console.log(`Category-subcategory re-evaluation: switching from "${detectedSubcategory}" (${parentCatName}) to "${betterSubcat}" (${categoryForConflictCheck}) — better match for category`);
             detectedSubcategory = betterSubcat;
