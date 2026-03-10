@@ -245,6 +245,7 @@ const FRENCH_STOP_WORDS = new Set([
   "est", "sont", "suis", "ai", "a", "ont", "être", "avoir", "faire",
   "cherche", "chercher", "veux", "voudrais", "vouloir", "peux", "pouvoir",
   "trouve", "trouver", "besoin", "faut", "aimer", "aller",
+  "acheter", "achete", "achetez", "vendre", "vend", "vendez", "louer", "louez",
   "me", "te", "se", "ce", "cette", "ces", "mon", "ma", "mes", "son", "sa", "ses",
   "ne", "pas", "plus", "très", "aussi", "bien", "comme", "mais", "ou", "et",
 ]);
@@ -864,7 +865,8 @@ serve(async (req) => {
         const GENERIC_KEYWORD_BLOCKLIST = new Set([
           "produit", "produits", "article", "articles", "service", "services",
           "chose", "choses", "truc", "trucs", "objet", "objets", "materiel",
-          "achat", "achats", "vente", "ventes", "magasin", "magasins",
+          "achat", "achats", "acheter", "vente", "ventes", "vendre",
+          "magasin", "magasins",
           "boutique", "boutiques", "commerce", "commerces",
         ]);
         const isBlockedGenericWord = (w: string) => GENERIC_KEYWORD_BLOCKLIST.has(normalizeWord(w));
