@@ -647,6 +647,7 @@ const SearchPage = () => {
    const [isAiRegenerating, setIsAiRegenerating] = useState(false);
     const [compactPanelBusiness, setCompactPanelBusiness] = useState<AIBusinessData | null>(null);
     const [isCompactPanelExpanded, setIsCompactPanelExpanded] = useState(false);
+    const [compactBusinessImageCount, setCompactBusinessImageCount] = useState(0);
      const [poiSelectedBusinessId, setPoiSelectedBusinessId] = useState<string | null>(null);
      const [poiPanelExpanded, setPoiPanelExpanded] = useState(false);
      const [poiBusinessImageCount, setPoiBusinessImageCount] = useState(0);
@@ -3469,7 +3470,7 @@ const SearchPage = () => {
             <SlidePanelHeader
               onClose={() => { setCompactPanelBusiness(null); setIsCompactPanelExpanded(false); }}
               isExpanded={isCompactPanelExpanded}
-              onToggleExpand={() => setIsCompactPanelExpanded(prev => !prev)}
+              onToggleExpand={compactBusinessImageCount > 5 ? () => setIsCompactPanelExpanded(prev => !prev) : undefined}
             />
             <div className="flex-1 min-h-0">
               <BusinessSlidePanel
@@ -3477,6 +3478,7 @@ const SearchPage = () => {
                 onClose={() => { setCompactPanelBusiness(null); setIsCompactPanelExpanded(false); }}
                 isExpanded={isCompactPanelExpanded}
                 onToggleExpand={() => setIsCompactPanelExpanded(prev => !prev)}
+                onImageCount={setCompactBusinessImageCount}
               />
             </div>
           </div>
