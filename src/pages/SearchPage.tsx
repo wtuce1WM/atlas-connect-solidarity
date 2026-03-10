@@ -591,7 +591,7 @@ const SearchPage = () => {
       }
     };
     fetchServiceBusinesses();
-  }, [selectedServiceFilter, selectedSubcategoryFilter, detectedSubcategory, selectedCity, detectedCity]);
+  }, [selectedServiceFilter, selectedSubcategoryFilter, detectedSubcategory, selectedCity, detectedCity, citiesWithPriority]);
 
    // Reset scroll lock and scroll to top on new search / reload
    useEffect(() => {
