@@ -1323,22 +1323,36 @@ serve(async (req) => {
           // e.g. "poisson" + category=Commerce → detected="Poisson" (Agriculture)
           // → prefer "Poissonnerie" (Commerce) which has "poisson" in its keywords
           const qLower = (effectiveQuery || "").toLowerCase();
-          const qWords = qLower.split(/\s+/).filter((w: string) => w.length > 1);
+          const qWords = qLower.split(/\s+/).filter((w: string) => w.length > 1 && !FRENCH_STOP_WORDS.has(w));
+          const normalizeWordRe = (w: string): string => stripAccentsGlobal(w.toLowerCase().replace(/s$/, ""));
           const { data: targetSubcats } = await supabase
             .from("subcategories")
             .select("name_fr, keywords, categories!inner(name_fr)")
             .eq("categories.name_fr", categoryForConflictCheck);
           let betterSubcat: string | null = null;
+          let bestScore = 0;
           if (targetSubcats) {
             for (const sc of targetSubcats) {
               const scName = (sc.name_fr || "").toLowerCase();
               const scKws: string[] = ((sc as any).keywords || []).map((k: string) => k.toLowerCase());
-              // Check if any query word matches this subcategory's name or keywords
-              const nameMatch = qWords.some(qw => scName.includes(qw) || qw.includes(scName));
-              const kwMatch = qWords.some(qw => scKws.some(k => k === qw || k.includes(qw) || qw.includes(k)));
+              // Strict word-level matching: require full word match (with normalization)
+              const scNameWords = scName.split(/\s+/).filter((w: string) => w.length > 1);
+              const nameMatch = qWords.some(qw => scNameWords.some(nw => normalizeWordRe(qw) === normalizeWordRe(nw)));
+              const kwMatch = qWords.some(qw => scKws.some(k => {
+                if (k.includes(" ")) {
+                  // Multi-word keyword: all content words must match
+                  const kWords = k.split(/\s+/).filter((w: string) => w.length > 1 && !FRENCH_STOP_WORDS.has(w));
+                  return kWords.length > 0 && kWords.every(kw => qWords.some(qw2 => normalizeWordRe(qw2) === normalizeWordRe(kw)));
+                }
+                return normalizeWordRe(k) === normalizeWordRe(qw);
+              }));
               if (nameMatch || kwMatch) {
-                betterSubcat = sc.name_fr;
-                break;
+                // Score: name match = 2, keyword match = 1
+                const score = (nameMatch ? 2 : 0) + (kwMatch ? 1 : 0);
+                if (score > bestScore) {
+                  bestScore = score;
+                  betterSubcat = sc.name_fr;
+                }
               }
             }
           }
