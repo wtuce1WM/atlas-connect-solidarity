@@ -2810,9 +2810,18 @@ serve(async (req) => {
       // filter subcategory results to only those offering the detected service(s)
       // BUT skip service filter when the detected service is essentially the same concept as the subcategory
       // (e.g. service "Boucherie" ≈ subcategory "Boucherie / Charcuterie") — the category filter is sufficient
-      const subcatNorm = stripAccentsGlobal(detectedSubcategory.toLowerCase());
+      const subcatNorm = stripAccentsGlobal(detectedSubcategory.toLowerCase()).replace(/[\s/\-]+/g, " ").trim();
       const serviceIsRedundantWithSubcategory = detectedServices.length > 0 && detectedServices.every(svc => {
-        const svcNorm = stripAccentsGlobal(svc.toLowerCase());
+        const svcNorm = stripAccentsGlobal(svc.toLowerCase()).replace(/[\s/\-]+/g, " ").trim();
+        // Only redundant if the service and subcategory names are essentially the same concept
+        // NOT when the service has additional qualifying words (e.g. "Excursions Vélo" vs "Excursions")
+        const svcContentWords = svcNorm.split(" ").filter(w => w.length > 1 && !FRENCH_STOP_WORDS.has(w));
+        const subcatContentWords = subcatNorm.split(" ").filter(w => w.length > 1 && !FRENCH_STOP_WORDS.has(w));
+        // Redundant only if same word count and mutual inclusion (e.g. "Boucherie" ≈ "Boucherie / Charcuterie")
+        // or exact match after normalization
+        if (svcNorm === subcatNorm) return true;
+        // If the service has MORE content words than the subcategory, it's more specific → NOT redundant
+        if (svcContentWords.length > subcatContentWords.length) return false;
         return subcatNorm.includes(svcNorm) || svcNorm.includes(subcatNorm);
       });
       if (serviceIsRedundantWithSubcategory) {
