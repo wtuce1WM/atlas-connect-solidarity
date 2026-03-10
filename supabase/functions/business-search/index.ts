@@ -865,7 +865,8 @@ serve(async (req) => {
         const GENERIC_KEYWORD_BLOCKLIST = new Set([
           "produit", "produits", "article", "articles", "service", "services",
           "chose", "choses", "truc", "trucs", "objet", "objets", "materiel",
-          "achat", "achats", "vente", "ventes", "magasin", "magasins",
+          "achat", "achats", "acheter", "vente", "ventes", "vendre",
+          "magasin", "magasins",
           "boutique", "boutiques", "commerce", "commerces",
         ]);
         const isBlockedGenericWord = (w: string) => GENERIC_KEYWORD_BLOCKLIST.has(normalizeWord(w));
