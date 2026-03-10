@@ -2296,7 +2296,7 @@ const SearchPage = () => {
                     container.scrollTo({ left: scrollLeft, behavior: "smooth" });
                   }
                 }}
-                className={`flex items-center gap-2 px-5 py-3 text-sm font-medium transition-colors border-b-2 ${
+                className={`flex items-center gap-2 px-5 py-3 text-sm font-bold transition-colors border-b-2 ${
                   activeTab === tab.key
                     ? "border-primary text-primary"
                     : "border-transparent text-muted-foreground hover:text-foreground"
