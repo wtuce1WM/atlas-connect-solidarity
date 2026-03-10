@@ -928,7 +928,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
               <WhatsAppIcon className="h-6 w-6 relative z-10" />
             </a>
           )}
-          {(business.latitude || business.google_maps_url) && (
+          {!isExpanded && (business.latitude || business.google_maps_url) && (
             <button
               onClick={() => mapSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
               className="hover:opacity-70 transition-opacity"
