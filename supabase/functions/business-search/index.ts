@@ -245,7 +245,6 @@ const FRENCH_STOP_WORDS = new Set([
   "est", "sont", "suis", "ai", "a", "ont", "être", "avoir", "faire",
   "cherche", "chercher", "veux", "voudrais", "vouloir", "peux", "pouvoir",
   "trouve", "trouver", "besoin", "faut", "aimer", "aller",
-  "acheter", "achete", "achetez", "vendre", "vend", "vendez", "louer", "louez",
   "me", "te", "se", "ce", "cette", "ces", "mon", "ma", "mes", "son", "sa", "ses",
   "ne", "pas", "plus", "très", "aussi", "bien", "comme", "mais", "ou", "et",
 ]);
