@@ -773,13 +773,16 @@ const SearchPage = () => {
     }
   }, [searchQuery, categoryFromUrl, queryHasExplicitCity, geo.isEnabled, geo.detectedCity, selectedCity, cityFromUrl]);
 
-  // If query has country scope (e.g. "maroc"), force "all" cities
+  // If query has country scope (e.g. "maroc"), force "all" cities only on initial search
+  const prevQueryForCountryScopeRef = useRef<string>(searchQuery);
   useEffect(() => {
-    if (queryHasCountryScope && selectedCity !== "all") {
+    const queryChanged = prevQueryForCountryScopeRef.current !== searchQuery;
+    prevQueryForCountryScopeRef.current = searchQuery;
+    if (queryChanged && queryHasCountryScope && selectedCity !== "all") {
       setSelectedCity("all");
       setIsGeoCityAutoSelected(false);
     }
-  }, [queryHasCountryScope, selectedCity]);
+  }, [queryHasCountryScope, searchQuery]);
 
   // Regenerate AI answer when city filter changes (e.g. "hotel" + city selection)
   const prevCityForAiRef = useRef<string>(selectedCity);
