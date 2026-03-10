@@ -1871,7 +1871,10 @@ serve(async (req) => {
           if (w.endsWith("s")) return w.slice(0, -1);
           return w;
         };
-        const nameSearchTerms = [...new Set(serviceMatchWords.flatMap(w => {
+        // Include subcategory words in name search so multi-word service names
+        // that contain the subcategory name (e.g. "Excursions Vélo") can be matched
+        const allQueryWordsForNameSearch = [...new Set([...serviceMatchWords, ...subcatNameWords])];
+        const nameSearchTerms = [...new Set(allQueryWordsForNameSearch.flatMap(w => {
           const stripped = stripPluralForName(w);
           return stripped !== w ? [w, stripped] : [w];
         }))];
@@ -1963,7 +1966,7 @@ serve(async (req) => {
         // Keep only services where at least one name token matches a query word exactly (accent/plural-insensitive).
         const validatedByName = (matchingByName || []).filter(svc => {
           const nameTokens = svc.name_fr.toLowerCase().split(/[\s/\-]+/).map((t: string) => normalizeWordKw(t)).filter((t: string) => t.length > 1);
-          return nameTokens.some(t => serviceMatchWords.some(w => normalizeWordKw(w) === t));
+          return nameTokens.some(t => allQueryWordsForNameSearch.some(w => normalizeWordKw(w) === t));
         });
 
         const allMatched = new Map<string, any>();
@@ -2027,8 +2030,10 @@ serve(async (req) => {
               const candidates = w.includes("-") 
                 ? [w, ...w.split("-").filter(p => p.length > 1 && !FRENCH_STOP_WORDS.has(p))]
                 : [w];
+              // Use allQueryWordsForNameSearch (includes subcat words) so that
+              // "Excursions Vélo" can fully match when query is "Excursions Vélo"
               return candidates.some(cand =>
-                serviceMatchWords.some(qw => {
+                allQueryWordsForNameSearch.some(qw => {
                   if (usedQueryWords.has(qw)) return false;
                   return normalizeWordKw(qw) === normalizeWordKw(cand);
                 })
@@ -2043,7 +2048,7 @@ serve(async (req) => {
                   ? [sw, ...sw.split("-").filter(p => p.length > 1 && !FRENCH_STOP_WORDS.has(p))]
                   : [sw];
                 for (const cand of candidates) {
-                  const matchedQw = serviceMatchWords.find(qw => !usedQueryWords.has(qw) && normalizeWordKw(qw) === normalizeWordKw(cand));
+                  const matchedQw = allQueryWordsForNameSearch.find(qw => !usedQueryWords.has(qw) && normalizeWordKw(qw) === normalizeWordKw(cand));
                   if (matchedQw) usedQueryWords.add(matchedQw);
                 }
               }
