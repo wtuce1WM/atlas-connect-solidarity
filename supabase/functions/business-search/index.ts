@@ -2139,13 +2139,13 @@ serve(async (req) => {
             // e.g. "Barber Shop" has keyword "Barbier" which is also a fully-matched service name
             // BUT only if they share the same subcategory — prevents "Artisanat marocain" (keyword "tapis")
             // from being added as alias of service "Tapis" when they belong to different subcategories
-            const svcSubcatName = (svc as any).subcategories?.name_fr || (svc as any)._subcategoryName || "";
-            const fullyMatchedSubcatNames = fullyMatchedServices.map(fmName => {
+            const svcSubcats: string[] = (svc as any)._allSubcategories || [];
+            const fullyMatchedSubcats = fullyMatchedServices.flatMap(fmName => {
               const fmSvc = matchingServices.find((s: any) => s.name_fr === fmName);
-              return (fmSvc as any)?.subcategories?.name_fr || (fmSvc as any)?._subcategoryName || "";
+              return (fmSvc as any)?._allSubcategories || [];
             });
             const hasAliasMatch = svcKws.some((k: string) => fullyMatchedNamesLower.includes(normalizeWordKw(k)))
-              && svcSubcatName && fullyMatchedSubcatNames.some(sc => sc === svcSubcatName);
+              && svcSubcats.length > 0 && svcSubcats.some((sc: string) => fullyMatchedSubcats.includes(sc));
             if (kwScore >= 2 || hasMultiWordMatch || hasAliasMatch) {
               strongKeywordServices.push(svc.name_fr);
               console.log(`Strong keyword match: "${svc.name_fr}" (kwScore=${kwScore}, multiWord=${hasMultiWordMatch}, alias=${hasAliasMatch})`);
