@@ -2339,13 +2339,13 @@ const SearchPage = () => {
                     key={city}
                     onClick={() => handleCityChange(isSelected ? "all" : city)}
                     className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-bold whitespace-nowrap transition-all ${
-                      isSelected
-                        ? "bg-gold/20 border-gold text-gold shadow-sm"
-                        : "bg-card border-border text-muted-foreground hover:border-gold/40 hover:text-foreground"
-                    }`}
-                  >
-                    <MapPin size={14} className={isSelected ? "text-gold" : "text-muted-foreground"} />
-                    <span>{city}</span>
+                       isSelected
+                         ? "bg-primary/20 border-primary text-primary shadow-sm"
+                         : "bg-card border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                     }`}
+                   >
+                     <MapPin size={14} className={isSelected ? "text-primary" : "text-muted-foreground"} />
+                     <span>{city}</span>
                   </button>
                 );
               })}
