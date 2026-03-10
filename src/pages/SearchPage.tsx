@@ -539,8 +539,14 @@ const SearchPage = () => {
       if (selectedCategoryFilter) {
         query = query.eq("main_category", selectedCategoryFilter);
       }
+      // Filter by city: include businesses physically in the city OR covering it via zone_city_ids
       if (effectiveCity) {
-        query = query.ilike("city", effectiveCity);
+        const cityId = citiesWithPriority.find(c => c.name === effectiveCity)?.id;
+        if (cityId) {
+          query = query.or(`city.ilike.${effectiveCity},and(zone_city_ids.cs.{"${cityId}"},is_visible_locale.eq.true)`);
+        } else {
+          query = query.ilike("city", effectiveCity);
+        }
       }
 
       const { data } = await query.order("priority_score", { ascending: false }).limit(200);
