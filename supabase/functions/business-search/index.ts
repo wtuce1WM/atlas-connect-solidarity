@@ -2048,7 +2048,7 @@ serve(async (req) => {
                   ? [sw, ...sw.split("-").filter(p => p.length > 1 && !FRENCH_STOP_WORDS.has(p))]
                   : [sw];
                 for (const cand of candidates) {
-                  const matchedQw = serviceMatchWords.find(qw => !usedQueryWords.has(qw) && normalizeWordKw(qw) === normalizeWordKw(cand));
+                  const matchedQw = allQueryWordsForNameSearch.find(qw => !usedQueryWords.has(qw) && normalizeWordKw(qw) === normalizeWordKw(cand));
                   if (matchedQw) usedQueryWords.add(matchedQw);
                 }
               }
