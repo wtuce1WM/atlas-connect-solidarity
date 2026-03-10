@@ -2203,8 +2203,8 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
             <div className="lg:hidden absolute inset-0 bg-black/40" onClick={() => setFallbackPanelData(null)} />
           )}
           <div className="
-            relative bg-black/90 backdrop-blur-md flex flex-col overflow-hidden pointer-events-auto
-            w-full lg:w-1/2
+            relative bg-black/90 backdrop-blur-md flex flex-col overflow-hidden
+            w-full
             h-full lg:h-full
             rounded-t-2xl lg:rounded-none
             animate-slide-up-from-bottom lg:animate-slide-in-left
