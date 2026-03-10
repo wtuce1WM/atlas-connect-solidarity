@@ -539,8 +539,14 @@ const SearchPage = () => {
       if (selectedCategoryFilter) {
         query = query.eq("main_category", selectedCategoryFilter);
       }
+      // Filter by city: include businesses physically in the city OR covering it via zone_city_ids
       if (effectiveCity) {
-        query = query.ilike("city", effectiveCity);
+        const cityId = citiesWithPriority.find(c => c.name === effectiveCity)?.id;
+        if (cityId) {
+          query = query.or(`city.ilike.${effectiveCity},and(zone_city_ids.cs.{"${cityId}"},is_visible_locale.eq.true)`);
+        } else {
+          query = query.ilike("city", effectiveCity);
+        }
       }
 
       const { data } = await query.order("priority_score", { ascending: false }).limit(200);
@@ -549,7 +555,7 @@ const SearchPage = () => {
       }
     };
     fetchSubcategoryBusinesses();
-  }, [selectedSubcategoryFilter, selectedCategoryFilter, selectedCity, detectedCity]);
+  }, [selectedSubcategoryFilter, selectedCategoryFilter, selectedCity, detectedCity, citiesWithPriority]);
 
   useEffect(() => {
     if (!selectedServiceFilter) {
@@ -566,8 +572,14 @@ const SearchPage = () => {
         .eq("is_active", true)
         .contains("services", [selectedServiceFilter]);
 
+      // Filter by city: include businesses physically in the city OR covering it via zone_city_ids
       if (effectiveCity) {
-        query = query.ilike("city", effectiveCity);
+        const cityId = citiesWithPriority.find(c => c.name === effectiveCity)?.id;
+        if (cityId) {
+          query = query.or(`city.ilike.${effectiveCity},and(zone_city_ids.cs.{"${cityId}"},is_visible_locale.eq.true)`);
+        } else {
+          query = query.ilike("city", effectiveCity);
+        }
       }
       if (effectiveSubcategory) {
         query = query.contains("categories", [effectiveSubcategory]);
@@ -579,7 +591,7 @@ const SearchPage = () => {
       }
     };
     fetchServiceBusinesses();
-  }, [selectedServiceFilter, selectedSubcategoryFilter, detectedSubcategory, selectedCity, detectedCity]);
+  }, [selectedServiceFilter, selectedSubcategoryFilter, detectedSubcategory, selectedCity, detectedCity, citiesWithPriority]);
 
    // Reset scroll lock and scroll to top on new search / reload
    useEffect(() => {
