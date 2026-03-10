@@ -2536,8 +2536,25 @@ serve(async (req) => {
         return true;
       }).join(" ").trim();
       
-      // Build queryForExpansion with ALL detected service names (for AND matching when distinct)
-      const serviceNamesForQuery = allDetectedServiceNames.join(" ");
+      // Build queryForExpansion with detected service names
+      // When multiple services are variants triggered by a single query word (e.g. "tapis" → "Tapis" + "Artisanat marocain"),
+      // only use the PRIMARY service name for the tsquery to avoid polluting results with unrelated words.
+      // The post-filter will handle OR matching across all variant services.
+      let serviceNamesForQuery: string;
+      if (allDetectedServiceNames.length > 1 && serviceMatchWordsForInjection.length > 0) {
+        // Check if all services were triggered by a single query word → variants, not distinct
+        const normalizeForCheck = (w: string): string => stripAccentsGlobal(w.toLowerCase().replace(/s$/, ""));
+        const uniqueTriggers = new Set(serviceMatchWordsForInjection.map(normalizeForCheck));
+        if (uniqueTriggers.size <= 1) {
+          // Variants: only use the primary (first) service name for the tsquery
+          serviceNamesForQuery = allDetectedServiceNames[0];
+          console.log(`Service variants detected (single trigger "${serviceMatchWordsForInjection[0]}") → tsquery uses only primary service "${serviceNamesForQuery}" (skipping: ${allDetectedServiceNames.slice(1).join(", ")})`);
+        } else {
+          serviceNamesForQuery = allDetectedServiceNames.join(" ");
+        }
+      } else {
+        serviceNamesForQuery = allDetectedServiceNames.join(" ");
+      }
       if (!hasServiceNameInQuery) {
         queryForExpansion = serviceNamesForQuery + (cleanRemainder ? " " + cleanRemainder : "");
         console.log(`Injected service name(s) into query: "${queryForExpansion}" (was: "${effectiveQuery}")`);
