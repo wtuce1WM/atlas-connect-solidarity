@@ -1871,7 +1871,10 @@ serve(async (req) => {
           if (w.endsWith("s")) return w.slice(0, -1);
           return w;
         };
-        const nameSearchTerms = [...new Set(serviceMatchWords.flatMap(w => {
+        // Include subcategory words in name search so multi-word service names
+        // that contain the subcategory name (e.g. "Excursions Vélo") can be matched
+        const allQueryWordsForNameSearch = [...new Set([...serviceMatchWords, ...subcatNameWords])];
+        const nameSearchTerms = [...new Set(allQueryWordsForNameSearch.flatMap(w => {
           const stripped = stripPluralForName(w);
           return stripped !== w ? [w, stripped] : [w];
         }))];
