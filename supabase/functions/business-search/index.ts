@@ -2030,8 +2030,10 @@ serve(async (req) => {
               const candidates = w.includes("-") 
                 ? [w, ...w.split("-").filter(p => p.length > 1 && !FRENCH_STOP_WORDS.has(p))]
                 : [w];
+              // Use allQueryWordsForNameSearch (includes subcat words) so that
+              // "Excursions Vélo" can fully match when query is "Excursions Vélo"
               return candidates.some(cand =>
-                serviceMatchWords.some(qw => {
+                allQueryWordsForNameSearch.some(qw => {
                   if (usedQueryWords.has(qw)) return false;
                   return normalizeWordKw(qw) === normalizeWordKw(cand);
                 })
