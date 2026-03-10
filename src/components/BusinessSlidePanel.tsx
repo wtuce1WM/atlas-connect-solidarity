@@ -2197,14 +2197,14 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
 
       {/* Fallback hotels left panel – lives outside the overlay */}
       {fallbackPanelData && createPortal(
-        <div className={leftPanelPortalRef?.current ? "absolute inset-0 z-10 flex" : "fixed inset-0 z-[220] flex flex-col justify-end lg:flex-row lg:justify-start pointer-events-none"} style={leftPanelPortalRef?.current ? undefined : { top: "53px" }}>
+        <div className={leftPanelPortalRef?.current ? "absolute inset-0 z-10 flex" : "fixed inset-0 z-[220] flex flex-col justify-end lg:justify-start lg:right-auto lg:w-1/2"} style={leftPanelPortalRef?.current ? undefined : { top: "53px" }}>
           {/* Mobile/Tablet backdrop */}
           {!leftPanelPortalRef?.current && (
-            <div className="lg:hidden absolute inset-0 bg-black/40 pointer-events-auto" onClick={() => setFallbackPanelData(null)} />
+            <div className="lg:hidden absolute inset-0 bg-black/40" onClick={() => setFallbackPanelData(null)} />
           )}
           <div className="
-            relative bg-black/90 backdrop-blur-md flex flex-col overflow-hidden pointer-events-auto
-            w-full lg:w-1/2
+            relative bg-black/90 backdrop-blur-md flex flex-col overflow-hidden
+            w-full
             h-full lg:h-full
             rounded-t-2xl lg:rounded-none
             animate-slide-up-from-bottom lg:animate-slide-in-left
