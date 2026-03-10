@@ -555,7 +555,7 @@ const SearchPage = () => {
       }
     };
     fetchSubcategoryBusinesses();
-  }, [selectedSubcategoryFilter, selectedCategoryFilter, selectedCity, detectedCity]);
+  }, [selectedSubcategoryFilter, selectedCategoryFilter, selectedCity, detectedCity, citiesWithPriority]);
 
   useEffect(() => {
     if (!selectedServiceFilter) {
