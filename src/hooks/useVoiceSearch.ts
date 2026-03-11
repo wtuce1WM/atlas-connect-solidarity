@@ -123,7 +123,7 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onError, lan
     }
   }, []);
 
-  const startRecording = useCallback(() => {
+  const startRecording = useCallback(async () => {
     const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (!SpeechRecognitionAPI) {
@@ -132,8 +132,24 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onError, lan
       return;
     }
 
-    // No getUserMedia pre-check: SpeechRecognition handles its own permissions
-    // getUserMedia fails in iframes without allow="microphone" policy
+    // Pre-check microphone permission via getUserMedia (triggers Chrome prompt)
+    // Falls back silently if in iframe (NotFoundError / NotAllowedError)
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach(t => t.stop());
+    } catch (err: any) {
+      console.warn("[VoiceSearch] getUserMedia pre-check failed:", err?.name, err?.message);
+      // In iframe or no device → let SpeechRecognition try anyway
+      // But if explicitly denied by user on the real site, stop here
+      if (err?.name === "NotAllowedError" && window.self === window.top) {
+        setStatus("idle");
+        onErrorRef.current?.(
+          "Microphone bloqué. Cliquez sur 🔒 dans la barre d'adresse → Autoriser le micro, puis rechargez la page."
+        );
+        return;
+      }
+      // Other errors (NotFoundError in iframe, etc.) → continue to SpeechRecognition
+    }
 
     accumulatedTranscriptRef.current = "";
     setLiveTranscript("");
