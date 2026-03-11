@@ -123,7 +123,7 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onError, lan
     }
   }, []);
 
-  const startRecording = useCallback(async () => {
+  const startRecording = useCallback(() => {
     const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (!SpeechRecognitionAPI) {
