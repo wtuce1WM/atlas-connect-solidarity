@@ -183,23 +183,21 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onError, lan
     };
 
     recognition.onerror = (event) => {
-      console.error("[VoiceSearch] onerror:", event.error, "| userAgent:", navigator.userAgent, "| secure:", window.isSecureContext);
+      console.error("[VoiceSearch] onerror:", event.error, "| inIframe:", window.self !== window.top, "| secure:", window.isSecureContext);
       clearSilenceTimer();
       recognitionRef.current = null;
       accumulatedTranscriptRef.current = "";
-      if (event.error === "not-allowed") {
-        onErrorRef.current?.(
-          "Microphone bloqué. Cliquez sur 🔒 dans la barre d'adresse → Autoriser le micro, puis rechargez la page."
-        );
-      } else if (event.error === "service-not-allowed") {
-        // Chrome may fire this in iframes or when the speech service is unavailable
-        // Retry once by creating a fresh instance
-        console.warn("[VoiceSearch] service-not-allowed — retrying with fresh instance");
-        recognitionRef.current = null;
-        accumulatedTranscriptRef.current = "";
-        setStatus("idle");
-        onErrorRef.current?.("Service vocal indisponible. Veuillez réessayer.");
-        return;
+      const isInIframe = window.self !== window.top;
+      if (event.error === "not-allowed" || event.error === "service-not-allowed") {
+        if (isInIframe) {
+          onErrorRef.current?.(
+            "La recherche vocale ne fonctionne pas dans la prévisualisation. Testez sur le site publié."
+          );
+        } else {
+          onErrorRef.current?.(
+            "Microphone bloqué. Cliquez sur 🔒 dans la barre d'adresse → Autoriser le micro, puis rechargez la page."
+          );
+        }
       } else if (event.error === "no-speech") {
         onErrorRef.current?.("Aucune parole détectée, réessayez.");
       } else {
