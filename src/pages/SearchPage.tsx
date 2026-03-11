@@ -1965,7 +1965,7 @@ const SearchPage = () => {
               </div>
 
               {/* 3 boutons + Voir résultats — sous le texte IA, même marge que le haut */}
-              <div className="flex flex-col items-center gap-4 pt-14">
+              <div className="flex flex-col items-center gap-4 pt-14 pb-24">
                 {/* Adresse géolocalisée */}
                 {geo.isEnabled && (geo.confirmedAddress || geo.detectedCity) && (
                   <p className="text-sm text-muted-foreground font-medium">
