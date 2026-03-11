@@ -31,7 +31,7 @@ const extractMarkerCoordsFromMapsUrl = (url: string): { lat: number; lng: number
 };
 
 const GoogleMapEmbed = ({ address, businessName, latitude, longitude, googleMapsUrl, fillHeight }: GoogleMapEmbedProps) => {
-  const [activeView, setActiveView] = useState<"map" | "streetview" | "directions">("map");
+  const [activeView, setActiveView] = useState<"map" | "streetview">("map");
 
   const markerCoords = googleMapsUrl ? extractMarkerCoordsFromMapsUrl(googleMapsUrl) : null;
   const placeName = googleMapsUrl ? extractPlaceNameFromMapsUrl(googleMapsUrl) : null;
