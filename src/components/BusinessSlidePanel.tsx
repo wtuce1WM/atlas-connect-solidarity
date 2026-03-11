@@ -217,7 +217,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   const [businessDocs, setBusinessDocs] = useState<{ id: string; type: string; url: string; name: string | null; icon: string | null; sort_order: number }[]>([]);
   const [menuSummaries, setMenuSummaries] = useState<any[]>([]);
   const [docOverlay, setDocOverlay] = useState<{ url: string; name: string; type: 'pdf' | 'flipbook' | 'webpage' } | null>(null);
-  const [websiteTitle, setWebsiteTitle] = useState<string | null>(null);
+  
   const [reviewTexts, setReviewTexts] = useState<{ source: string; author_name: string | null; rating: number | null; text: string | null; relative_time: string | null; language?: string | null }[]>([]);
   const [translatedReviewTexts, setTranslatedReviewTexts] = useState<string[]>([]);
   const [isTranslatingReviews, setIsTranslatingReviews] = useState(false);
@@ -445,23 +445,6 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
     };
   }, []);
 
-  // Fetch website page title when website overlay opens
-  useEffect(() => {
-    if (!docOverlay || docOverlay.name !== 'Site web') {
-      setWebsiteTitle(null);
-      return;
-    }
-    let cancelled = false;
-    (async () => {
-      try {
-        const resp = await supabase.functions.invoke('fetch-page-title', { body: { url: docOverlay.url } });
-        if (!cancelled && resp.data?.title) {
-          setWebsiteTitle(resp.data.title);
-        }
-      } catch { /* ignore */ }
-    })();
-    return () => { cancelled = true; };
-  }, [docOverlay]);
 
   useEffect(() => {
     const fetch = async () => {
