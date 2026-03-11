@@ -132,23 +132,8 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onError, lan
       return;
     }
 
-    // Request microphone permission explicitly FIRST (direct user gesture chain)
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      // Stop the stream immediately — we only needed the permission grant
-      stream.getTracks().forEach(track => track.stop());
-    } catch (err: any) {
-      console.error("Microphone permission denied:", err);
-      if (err?.name === "NotFoundError" || err?.name === "DevicesNotFoundError") {
-        onErrorRef.current?.("Aucun microphone détecté sur cet appareil.");
-      } else if (err?.name === "NotAllowedError" || err?.name === "PermissionDeniedError") {
-        onErrorRef.current?.("Accès au microphone refusé. Vérifiez les permissions de votre navigateur.");
-      } else {
-        onErrorRef.current?.("Impossible d'accéder au microphone.");
-      }
-      setStatus("idle");
-      return;
-    }
+    // No pre-flight getUserMedia — let SpeechRecognition handle its own permissions natively.
+    // Pre-flight getUserMedia can break the gesture chain on Safari and cause "NotAllowedError".
 
     accumulatedTranscriptRef.current = "";
     setLiveTranscript("");
