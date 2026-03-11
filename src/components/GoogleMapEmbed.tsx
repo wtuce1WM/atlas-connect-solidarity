@@ -50,7 +50,6 @@ const GoogleMapEmbed = ({ address, businessName, latitude, longitude, googleMaps
   const mapEmbedUrl = `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(embedQuery)}&zoom=17`;
   const streetViewEmbedUrl = `https://www.google.com/maps/embed/v1/streetview?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&location=${resolvedLat || 31.6295},${resolvedLng || -7.9811}&heading=0&pitch=0&fov=90`;
 
-
   const handleGetDirections = () => {
     const destination = resolvedLat && resolvedLng
       ? `${resolvedLat},${resolvedLng}`
@@ -92,8 +91,6 @@ const GoogleMapEmbed = ({ address, businessName, latitude, longitude, googleMaps
             <Eye className="h-4 w-4" />
             Street View
           </button>
-
-
         </div>
 
         {/* Map Container */}
@@ -107,7 +104,7 @@ const GoogleMapEmbed = ({ address, businessName, latitude, longitude, googleMaps
               referrerPolicy="no-referrer-when-downgrade"
               title={`Carte de ${businessName}`}
             />
-          ) : activeView === "streetview" ? (
+          ) : (
             <iframe
               src={streetViewEmbedUrl}
               className="w-full h-full border-0"
@@ -116,7 +113,7 @@ const GoogleMapEmbed = ({ address, businessName, latitude, longitude, googleMaps
               referrerPolicy="no-referrer-when-downgrade"
               title={`Street View de ${businessName}`}
             />
-          ) : null}
+          )}
         </div>
 
         {/* Action Buttons */}
