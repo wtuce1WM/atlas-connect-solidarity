@@ -18,6 +18,7 @@ import KnowledgeBaseManagement from "@/components/staff/KnowledgeBaseManagement"
 import EasterEggManagement from "@/components/staff/EasterEggManagement";
 import AIConfigManagement from "@/components/staff/AIConfigManagement";
 import MasterDashboard from "@/components/staff/MasterDashboard";
+import PopularSearchesManagement from "@/components/staff/PopularSearchesManagement";
 
 const DisplayParam = ({ label, value, preview }: { label: string; value: string; preview?: React.ReactNode }) => (
   <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 border">
@@ -139,6 +140,10 @@ const StaffMaster = () => {
               <Egg className="h-4 w-4" />
               Easter Eggs
             </TabsTrigger>
+            <TabsTrigger value="popular-searches" className="gap-2">
+              <Search className="h-4 w-4" />
+              Suggestions
+            </TabsTrigger>
             <TabsTrigger value="display" className="gap-2">
               <Monitor className="h-4 w-4" />
               Affichage
@@ -190,6 +195,10 @@ const StaffMaster = () => {
 
           <TabsContent value="easter-eggs">
             <EasterEggManagement />
+          </TabsContent>
+
+          <TabsContent value="popular-searches">
+            <PopularSearchesManagement />
           </TabsContent>
 
           <TabsContent value="display">
