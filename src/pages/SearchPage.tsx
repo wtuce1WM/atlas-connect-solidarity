@@ -1080,9 +1080,13 @@ const SearchPage = () => {
     if (selectedCategoryFilter) {
       filtered = filtered.filter(b => b.main_category === selectedCategoryFilter);
     }
-    // Apply subcategory filter
+    // Apply subcategory filter — but only if at least one business matches
+    // (prevents false-positive subcategory detection from hiding name-match results, e.g. "Jardin Majorelle")
     if (selectedSubcategoryFilter) {
-      filtered = filtered.filter(b => b.categories && b.categories.includes(selectedSubcategoryFilter));
+      const subcatMatches = filtered.filter(b => b.categories && b.categories.includes(selectedSubcategoryFilter));
+      if (subcatMatches.length > 0) {
+        filtered = subcatMatches;
+      }
     }
     // Apply service filter
     if (selectedServiceFilter) {
