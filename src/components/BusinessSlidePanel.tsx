@@ -876,8 +876,36 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
           onClose={() => setForceBookingOverlay(false)}
         />
       )}
-      {/* Document Overlay (PDF or Flipbook) */}
-      {docOverlay && (
+      {/* Document Overlay (PDF, Flipbook or Website) */}
+      {docOverlay && docOverlay.name === 'Site web' && createPortal(
+        <div className="fixed inset-0 z-[9998] bg-background flex flex-col animate-fade-in overflow-hidden">
+          <div className="flex items-center justify-between px-3 py-2 border-b bg-background">
+            <span className="text-sm font-semibold truncate">{docOverlay.name}</span>
+            <div className="flex items-center gap-2">
+              <a href={docOverlay.url} target="_blank" rel="noopener noreferrer" className="p-1 rounded-full hover:bg-muted transition-colors" title="Ouvrir dans un nouvel onglet">
+                <ExternalLink className="h-5 w-5" />
+              </a>
+              <button
+                onClick={() => setDocOverlay(null)}
+                className="p-1 rounded-full hover:bg-muted transition-colors"
+                title="Fermer"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
+          <div className="flex-1 bg-background">
+            <iframe
+              src={docOverlay.url}
+              className="h-full w-full border-0"
+              title={docOverlay.name}
+              sandbox="allow-scripts allow-same-origin allow-popups"
+            />
+          </div>
+        </div>,
+        document.body
+      )}
+      {docOverlay && docOverlay.name !== 'Site web' && (
         <div className="absolute inset-0 z-[60] bg-background flex flex-col animate-fade-in overflow-hidden">
           <div className="flex items-center justify-between px-3 py-2 border-b bg-background">
             <span className="text-sm font-semibold truncate">{docOverlay.name}</span>
