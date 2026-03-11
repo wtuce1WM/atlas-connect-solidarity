@@ -31,7 +31,7 @@ const extractMarkerCoordsFromMapsUrl = (url: string): { lat: number; lng: number
 };
 
 const GoogleMapEmbed = ({ address, businessName, latitude, longitude, googleMapsUrl, fillHeight }: GoogleMapEmbedProps) => {
-  const [activeView, setActiveView] = useState<"map" | "streetview">("map");
+  const [activeView, setActiveView] = useState<"map" | "streetview" | "directions">("map");
 
   const markerCoords = googleMapsUrl ? extractMarkerCoordsFromMapsUrl(googleMapsUrl) : null;
   const placeName = googleMapsUrl ? extractPlaceNameFromMapsUrl(googleMapsUrl) : null;
@@ -49,6 +49,8 @@ const GoogleMapEmbed = ({ address, businessName, latitude, longitude, googleMaps
     : businessName + (address ? `, ${address}` : resolvedLat && resolvedLng ? `, ${resolvedLat},${resolvedLng}` : "");
   const mapEmbedUrl = `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(embedQuery)}&zoom=17`;
   const streetViewEmbedUrl = `https://www.google.com/maps/embed/v1/streetview?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&location=${resolvedLat || 31.6295},${resolvedLng || -7.9811}&heading=0&pitch=0&fov=90`;
+  const directionsDestination = resolvedLat && resolvedLng ? `${resolvedLat},${resolvedLng}` : embedQuery;
+  const directionsEmbedUrl = `https://www.google.com/maps/embed/v1/directions?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&destination=${encodeURIComponent(directionsDestination)}&origin=My+location&mode=driving`;
 
   const handleGetDirections = () => {
     const destination = resolvedLat && resolvedLng
@@ -91,6 +93,17 @@ const GoogleMapEmbed = ({ address, businessName, latitude, longitude, googleMaps
             <Eye className="h-4 w-4" />
             Street View
           </button>
+          <button
+            onClick={() => setActiveView("directions")}
+            className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium transition-colors ${
+              activeView === "directions"
+                ? "bg-primary/10 text-primary border-b-2 border-primary"
+                : "text-muted-foreground hover:bg-muted"
+            }`}
+          >
+            <Navigation className="h-4 w-4" />
+            Itinéraire
+          </button>
         </div>
 
         {/* Map Container */}
@@ -104,7 +117,7 @@ const GoogleMapEmbed = ({ address, businessName, latitude, longitude, googleMaps
               referrerPolicy="no-referrer-when-downgrade"
               title={`Carte de ${businessName}`}
             />
-          ) : (
+          ) : activeView === "streetview" ? (
             <iframe
               src={streetViewEmbedUrl}
               className="w-full h-full border-0"
@@ -112,6 +125,15 @@ const GoogleMapEmbed = ({ address, businessName, latitude, longitude, googleMaps
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
               title={`Street View de ${businessName}`}
+            />
+          ) : (
+            <iframe
+              src={directionsEmbedUrl}
+              className="w-full h-full border-0"
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              title={`Itinéraire vers ${businessName}`}
             />
           )}
         </div>
