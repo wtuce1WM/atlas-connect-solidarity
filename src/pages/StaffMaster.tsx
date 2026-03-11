@@ -149,6 +149,10 @@ const StaffMaster = () => {
               <Monitor className="h-4 w-4" />
               Affichage
             </TabsTrigger>
+            <TabsTrigger value="blocked-domains" className="gap-2">
+              <ShieldAlert className="h-4 w-4" />
+              Domaines bloqués
+            </TabsTrigger>
             {isAdmin && (
               <TabsTrigger value="users" className="gap-2">
                 <Users className="h-4 w-4" />
