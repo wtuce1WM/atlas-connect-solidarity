@@ -93,6 +93,17 @@ const GoogleMapEmbed = ({ address, businessName, latitude, longitude, googleMaps
             <Eye className="h-4 w-4" />
             Street View
           </button>
+          <button
+            onClick={() => setActiveView("directions")}
+            className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium transition-colors ${
+              activeView === "directions"
+                ? "bg-primary/10 text-primary border-b-2 border-primary"
+                : "text-muted-foreground hover:bg-muted"
+            }`}
+          >
+            <Navigation className="h-4 w-4" />
+            Itinéraire
+          </button>
         </div>
 
         {/* Map Container */}
