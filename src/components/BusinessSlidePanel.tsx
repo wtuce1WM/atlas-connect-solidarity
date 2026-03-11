@@ -1149,7 +1149,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                   </div>
                 )}
                 {isVerified && !isInstitution && (
-                  <img src={logoGold} alt="WTUCE" className="absolute top-3 right-3 w-[4.5rem] h-[4.5rem] md:w-[7rem] md:h-[7rem] lg:w-36 lg:h-36 object-contain opacity-90 pointer-events-none drop-shadow-lg" />
+                  <img src={logoGold} alt="WTUCE" className="absolute top-3 right-3 w-[4.5rem] h-[4.5rem] md:w-[7rem] md:h-[7rem] lg:w-[7.5rem] lg:h-[7.5rem] object-contain opacity-90 pointer-events-none drop-shadow-lg" />
                 )}
                 {mediaCount > 1 && (
                   <>
