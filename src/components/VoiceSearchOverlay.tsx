@@ -10,7 +10,7 @@ const VoiceSearchOverlay = ({ isOpen, liveTranscript, onClose }: VoiceSearchOver
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-background/95 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[10000] flex flex-col items-center justify-center bg-background/95 backdrop-blur-sm animate-in fade-in duration-200">
       {/* Close button */}
       <button
         onClick={onClose}
