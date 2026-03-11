@@ -116,7 +116,7 @@ const GoogleMapEmbed = ({ address, businessName, latitude, longitude, googleMaps
               referrerPolicy="no-referrer-when-downgrade"
               title={`Street View de ${businessName}`}
             />
-          )
+          ) : null}
         </div>
 
         {/* Action Buttons */}
