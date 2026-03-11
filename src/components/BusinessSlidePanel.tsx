@@ -1389,10 +1389,13 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
             {(business.website || business.email || business.reserve_now_url || business.online_shop_url) && (
               <div className="space-y-1.5">
                 {business.website && (
-                  <a href={business.website} target="_blank" rel="noopener noreferrer" className="text-sm hover:text-foreground transition-colors flex items-center gap-2">
-                    <ExternalLink className="h-4 w-4 shrink-0 text-foreground/60" />
+                  <button
+                    onClick={() => setDocOverlay({ url: business.website!, name: 'Site web', type: 'webpage' })}
+                    className="text-sm hover:text-foreground transition-colors flex items-center gap-2 text-left"
+                  >
+                    <Globe className="h-4 w-4 shrink-0 text-foreground/60" />
                     <span className="text-foreground/70 font-medium">Site web</span>
-                  </a>
+                  </button>
                 )}
                 {business.email && (
                   <a href={`mailto:${business.email}`} className="text-sm hover:text-foreground transition-colors flex items-center gap-2">
