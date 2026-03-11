@@ -445,7 +445,24 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
     };
   }, []);
 
+  // Fetch website page title when website overlay opens
   useEffect(() => {
+    if (!docOverlay || docOverlay.name !== 'Site web') {
+      setWebsiteTitle(null);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const resp = await supabase.functions.invoke('fetch-page-title', { body: { url: docOverlay.url } });
+        if (!cancelled && resp.data?.title) {
+          setWebsiteTitle(resp.data.title);
+        }
+      } catch { /* ignore */ }
+    })();
+    return () => { cancelled = true; };
+  }, [docOverlay]);
+
     const fetch = async () => {
       // Don't show loading skeleton when browsing via fallback panel (avoids flash)
       if (!fallbackPanelData) {
