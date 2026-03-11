@@ -899,7 +899,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
       {docOverlay && docOverlay.name === 'Site web' && createPortal(
         <div className="fixed inset-x-0 bottom-0 top-[53px] z-[9998] bg-background flex flex-col animate-fade-in overflow-hidden">
           <div className="flex items-center justify-between px-3 py-2 border-b bg-background">
-            <span className="text-sm font-semibold truncate">{docOverlay.name}</span>
+            <span className="text-sm font-semibold truncate">{websiteTitle || docOverlay.name}</span>
             <div className="flex items-center gap-2">
               <a href={docOverlay.url} target="_blank" rel="noopener noreferrer" className="p-1 rounded-full hover:bg-muted transition-colors" title="Ouvrir dans un nouvel onglet">
                 <ExternalLink className="h-5 w-5" />
