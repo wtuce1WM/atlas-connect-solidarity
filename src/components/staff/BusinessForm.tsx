@@ -500,7 +500,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     booking_url: (business as any)?.booking_url || "",
     account_type: (business as any)?.account_type || "",
     zone_chalandise: (business as any)?.zone_chalandise || "locale",
-    is_visible_locale: (business as any)?.is_visible_locale || false,
+    is_visible_locale: (business as any)?.is_visible_locale ?? true,
     languages: (business as any)?.languages || [],
     affiliate_id: (business as any)?.affiliate_id || "",
     internal_notes: (business as any)?.internal_notes || "",
