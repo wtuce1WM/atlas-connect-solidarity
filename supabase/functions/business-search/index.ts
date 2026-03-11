@@ -424,7 +424,7 @@ function filterByNeighborhood(businesses: any[], neighborhood: string, keepNameM
 // Build SQL OR clause for neighborhood variants
 function buildNeighborhoodOrClause(neighborhood: string, neighborhoods: NeighborhoodEntry[]): string {
   const variants = getNeighborhoodVariants(neighborhood, neighborhoods);
-  return [...variants.map(n => `neighborhood.ilike.${n}`), 'is_visible_locale.eq.true'].join(",");
+  return variants.map(n => `neighborhood.ilike.${n}`).join(",");
 }
 
 // Sanitize a term for to_tsquery: remove apostrophes and special chars
