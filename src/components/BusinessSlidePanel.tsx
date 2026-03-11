@@ -217,6 +217,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   const [businessDocs, setBusinessDocs] = useState<{ id: string; type: string; url: string; name: string | null; icon: string | null; sort_order: number }[]>([]);
   const [menuSummaries, setMenuSummaries] = useState<any[]>([]);
   const [docOverlay, setDocOverlay] = useState<{ url: string; name: string; type: 'pdf' | 'flipbook' | 'webpage' } | null>(null);
+  const [websiteTitle, setWebsiteTitle] = useState<string | null>(null);
   const [reviewTexts, setReviewTexts] = useState<{ source: string; author_name: string | null; rating: number | null; text: string | null; relative_time: string | null; language?: string | null }[]>([]);
   const [translatedReviewTexts, setTranslatedReviewTexts] = useState<string[]>([]);
   const [isTranslatingReviews, setIsTranslatingReviews] = useState(false);
@@ -443,6 +444,24 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
       }
     };
   }, []);
+
+  // Fetch website page title when website overlay opens
+  useEffect(() => {
+    if (!docOverlay || docOverlay.name !== 'Site web') {
+      setWebsiteTitle(null);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const resp = await supabase.functions.invoke('fetch-page-title', { body: { url: docOverlay.url } });
+        if (!cancelled && resp.data?.title) {
+          setWebsiteTitle(resp.data.title);
+        }
+      } catch { /* ignore */ }
+    })();
+    return () => { cancelled = true; };
+  }, [docOverlay]);
 
   useEffect(() => {
     const fetch = async () => {
@@ -880,7 +899,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
       {docOverlay && docOverlay.name === 'Site web' && createPortal(
         <div className="fixed inset-x-0 bottom-0 top-[53px] z-[9998] bg-background flex flex-col animate-fade-in overflow-hidden">
           <div className="flex items-center justify-between px-3 py-2 border-b bg-background">
-            <span className="text-sm font-semibold truncate">{docOverlay.name}</span>
+            <span className="text-sm font-semibold truncate">{websiteTitle || docOverlay.name}</span>
             <div className="flex items-center gap-2">
               <a href={docOverlay.url} target="_blank" rel="noopener noreferrer" className="p-1 rounded-full hover:bg-muted transition-colors" title="Ouvrir dans un nouvel onglet">
                 <ExternalLink className="h-5 w-5" />
