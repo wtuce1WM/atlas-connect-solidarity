@@ -1,0 +1,1 @@
+ALTER TABLE businesses ALTER COLUMN is_visible_locale SET DEFAULT true;
