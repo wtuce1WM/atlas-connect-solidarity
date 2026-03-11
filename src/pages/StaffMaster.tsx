@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LogOut, Users, Search, ArrowLeft, BarChart3, FlaskConical, BookOpen, Egg, Sparkles, Brain, LayoutDashboard, Monitor, ChevronRight } from "lucide-react";
+import { LogOut, Users, Search, ArrowLeft, BarChart3, FlaskConical, BookOpen, Egg, Sparkles, Brain, LayoutDashboard, Monitor, ChevronRight, ShieldAlert } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import SearchConfigManagement from "@/components/staff/SearchConfigManagement";
 import UserManagement from "@/components/staff/UserManagement";
@@ -19,6 +19,7 @@ import EasterEggManagement from "@/components/staff/EasterEggManagement";
 import AIConfigManagement from "@/components/staff/AIConfigManagement";
 import MasterDashboard from "@/components/staff/MasterDashboard";
 import PopularSearchesManagement from "@/components/staff/PopularSearchesManagement";
+import BlockedDomainsManagement from "@/components/staff/BlockedDomainsManagement";
 
 const DisplayParam = ({ label, value, preview }: { label: string; value: string; preview?: React.ReactNode }) => (
   <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 border">
@@ -148,6 +149,10 @@ const StaffMaster = () => {
               <Monitor className="h-4 w-4" />
               Affichage
             </TabsTrigger>
+            <TabsTrigger value="blocked-domains" className="gap-2">
+              <ShieldAlert className="h-4 w-4" />
+              Domaines bloqués
+            </TabsTrigger>
             {isAdmin && (
               <TabsTrigger value="users" className="gap-2">
                 <Users className="h-4 w-4" />
@@ -199,6 +204,10 @@ const StaffMaster = () => {
 
           <TabsContent value="popular-searches">
             <PopularSearchesManagement />
+          </TabsContent>
+
+          <TabsContent value="blocked-domains">
+            <BlockedDomainsManagement />
           </TabsContent>
 
           <TabsContent value="display">
