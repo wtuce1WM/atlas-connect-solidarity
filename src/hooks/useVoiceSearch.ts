@@ -183,16 +183,18 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onError, lan
     };
 
     recognition.onerror = (event) => {
-      console.error("Speech recognition error:", event.error);
+      console.error("[VoiceSearch] onerror:", event.error, "| userAgent:", navigator.userAgent, "| secure:", window.isSecureContext);
       clearSilenceTimer();
       recognitionRef.current = null;
       accumulatedTranscriptRef.current = "";
-      if (event.error === "not-allowed") {
-        onErrorRef.current?.("Accès au microphone refusé.");
+      if (event.error === "not-allowed" || event.error === "service-not-allowed") {
+        onErrorRef.current?.(
+          "Microphone bloqué. Cliquez sur 🔒 dans la barre d'adresse → Autoriser le micro, puis rechargez la page."
+        );
       } else if (event.error === "no-speech") {
         onErrorRef.current?.("Aucune parole détectée, réessayez.");
       } else {
-        onErrorRef.current?.("Erreur de reconnaissance vocale.");
+        onErrorRef.current?.(`Erreur vocale: ${event.error}`);
       }
       setStatus("idle");
     };
