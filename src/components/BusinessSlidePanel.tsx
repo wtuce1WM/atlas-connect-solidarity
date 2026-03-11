@@ -878,7 +878,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
       )}
       {/* Document Overlay (PDF, Flipbook or Website) */}
       {docOverlay && docOverlay.name === 'Site web' && createPortal(
-        <div className="fixed inset-0 z-[9998] bg-background flex flex-col animate-fade-in overflow-hidden">
+        <div className="fixed inset-x-0 bottom-0 top-[53px] z-[9998] bg-background flex flex-col animate-fade-in overflow-hidden">
           <div className="flex items-center justify-between px-3 py-2 border-b bg-background">
             <span className="text-sm font-semibold truncate">{docOverlay.name}</span>
             <div className="flex items-center gap-2">
