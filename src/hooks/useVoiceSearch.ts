@@ -123,7 +123,7 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onError, lan
     }
   }, []);
 
-  const startRecording = useCallback(() => {
+  const startRecording = useCallback(async () => {
     const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (!SpeechRecognitionAPI) {
@@ -132,8 +132,26 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onError, lan
       return;
     }
 
-    // No pre-flight getUserMedia — let SpeechRecognition handle its own permissions natively.
-    // Pre-flight getUserMedia can break the gesture chain on Safari and cause "NotAllowedError".
+    // Request mic permission first — this triggers Chrome's permission prompt
+    // and must happen in direct response to user gesture
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      // Stop the stream immediately — SpeechRecognition will open its own
+      stream.getTracks().forEach(t => t.stop());
+    } catch (err: any) {
+      console.error("[VoiceSearch] getUserMedia denied:", err?.name, err?.message);
+      if (err?.name === "NotAllowedError" || err?.name === "PermissionDeniedError") {
+        onErrorRef.current?.(
+          "Microphone bloqué. Cliquez sur 🔒 dans la barre d'adresse → Autoriser le micro, puis rechargez."
+        );
+      } else if (err?.name === "NotFoundError") {
+        onErrorRef.current?.("Aucun microphone détecté sur cet appareil.");
+      } else {
+        onErrorRef.current?.(`Erreur micro: ${err?.message || err}`);
+      }
+      setStatus("idle");
+      return;
+    }
 
     accumulatedTranscriptRef.current = "";
     setLiveTranscript("");
