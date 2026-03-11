@@ -187,10 +187,19 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onError, lan
       clearSilenceTimer();
       recognitionRef.current = null;
       accumulatedTranscriptRef.current = "";
-      if (event.error === "not-allowed" || event.error === "service-not-allowed") {
+      if (event.error === "not-allowed") {
         onErrorRef.current?.(
           "Microphone bloqué. Cliquez sur 🔒 dans la barre d'adresse → Autoriser le micro, puis rechargez la page."
         );
+      } else if (event.error === "service-not-allowed") {
+        // Chrome may fire this in iframes or when the speech service is unavailable
+        // Retry once by creating a fresh instance
+        console.warn("[VoiceSearch] service-not-allowed — retrying with fresh instance");
+        recognitionRef.current = null;
+        accumulatedTranscriptRef.current = "";
+        setStatus("idle");
+        onErrorRef.current?.("Service vocal indisponible. Veuillez réessayer.");
+        return;
       } else if (event.error === "no-speech") {
         onErrorRef.current?.("Aucune parole détectée, réessayez.");
       } else {
