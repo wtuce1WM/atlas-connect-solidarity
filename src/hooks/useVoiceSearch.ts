@@ -137,9 +137,15 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onError, lan
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       // Stop the stream immediately — we only needed the permission grant
       stream.getTracks().forEach(track => track.stop());
-    } catch (err) {
+    } catch (err: any) {
       console.error("Microphone permission denied:", err);
-      onErrorRef.current?.("Accès au microphone refusé. Vérifiez les permissions de votre navigateur.");
+      if (err?.name === "NotFoundError" || err?.name === "DevicesNotFoundError") {
+        onErrorRef.current?.("Aucun microphone détecté sur cet appareil.");
+      } else if (err?.name === "NotAllowedError" || err?.name === "PermissionDeniedError") {
+        onErrorRef.current?.("Accès au microphone refusé. Vérifiez les permissions de votre navigateur.");
+      } else {
+        onErrorRef.current?.("Impossible d'accéder au microphone.");
+      }
       setStatus("idle");
       return;
     }
