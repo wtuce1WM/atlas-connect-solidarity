@@ -116,16 +116,7 @@ const GoogleMapEmbed = ({ address, businessName, latitude, longitude, googleMaps
               referrerPolicy="no-referrer-when-downgrade"
               title={`Street View de ${businessName}`}
             />
-          ) : (
-            <iframe
-              src={directionsEmbedUrl}
-              className="w-full h-full border-0"
-              allowFullScreen
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              title={`Itinéraire vers ${businessName}`}
-            />
-          )}
+          )
         </div>
 
         {/* Action Buttons */}
