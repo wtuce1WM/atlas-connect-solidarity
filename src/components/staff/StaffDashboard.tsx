@@ -471,8 +471,6 @@ const StaffDashboard = ({ businesses, onNavigateTab, onNewBusiness, onEditBusine
       {/* TTS Intro Phrase */}
       <TTSPhraseEditor />
 
-      {/* Blocked Booking Domains */}
-      <BlockedDomainsSection />
 
       {/* Internal Notes */}
       <InternalNotesSection />
