@@ -463,6 +463,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
     return () => { cancelled = true; };
   }, [docOverlay]);
 
+  useEffect(() => {
     const fetch = async () => {
       // Don't show loading skeleton when browsing via fallback panel (avoids flash)
       if (!fallbackPanelData) {
