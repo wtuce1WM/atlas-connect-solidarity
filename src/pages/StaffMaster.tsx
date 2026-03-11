@@ -206,6 +206,10 @@ const StaffMaster = () => {
             <PopularSearchesManagement />
           </TabsContent>
 
+          <TabsContent value="blocked-domains">
+            <BlockedDomainsManagement />
+          </TabsContent>
+
           <TabsContent value="display">
             <div className="flex gap-6 items-start">
             <div className="flex-1 min-w-0 space-y-6">
