@@ -24,6 +24,7 @@ interface DestinationSectionProps {
   columns?: number;
   onMapClick?: (dest: DestinationItem) => void;
   onDestinationsLoaded?: (dests: DestinationItem[]) => void;
+  onHover?: (destId: string | null) => void;
 }
 
 const DestinationSection = ({ city, language, onDestinationClick, columns, onMapClick, onDestinationsLoaded }: DestinationSectionProps) => {
