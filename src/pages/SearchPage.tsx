@@ -421,7 +421,8 @@ const SearchPage = () => {
   const handleAiAnswerReady = useCallback((answer: string) => {
     setAiAnswerText(answer);
     setStickyAiAnimationNonce((prev) => prev + 1);
-  }, []);
+    lastAiServiceRef.current = selectedServiceFilter;
+  }, [selectedServiceFilter]);
    const [activeTab, setActiveTab] = useState<"suggestions" | "map" | "poi" | "destinations">("suggestions");
    const [detectedCity, setDetectedCity] = useState<string | null>(null);
    const [detectedNeighborhood, setDetectedNeighborhood] = useState<string | null>(null);
