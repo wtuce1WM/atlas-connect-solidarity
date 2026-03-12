@@ -2055,12 +2055,6 @@ const SearchPage = () => {
 
               {/* 3 boutons + Voir résultats — sous le texte IA, même marge que le haut */}
               <div className="flex flex-col items-center gap-4 pt-14 pb-24">
-                {/* Adresse géolocalisée */}
-                {geo.isEnabled && (geo.confirmedAddress || geo.detectedCity) && (
-                  <p className="text-sm text-muted-foreground font-medium">
-                    📍 {geo.confirmedAddress || geo.detectedCity}
-                  </p>
-                )}
                 <div className="flex items-center justify-center gap-16">
                   {/* Listen */}
                   <div className="relative flex items-center justify-center">
@@ -2099,6 +2093,12 @@ const SearchPage = () => {
                   {language === "en" ? "See results" : language === "ar" ? "عرض النتائج" : "Voir les résultats"}
                   <ChevronRight className="h-4 w-4" />
                 </button>
+                {/* Adresse géolocalisée */}
+                {geo.isEnabled && (geo.confirmedAddress || geo.detectedCity) && (
+                  <p className="text-sm text-muted-foreground font-medium">
+                    📍 {geo.confirmedAddress || geo.detectedCity}
+                  </p>
+                )}
               </div>
             </div>
           </div>
