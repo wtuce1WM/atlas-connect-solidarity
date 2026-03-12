@@ -170,6 +170,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
     setIsBookingOpen(false);
     setForceBookingOverlay(false);
     setDocOverlay(null);
+    setShowDirectionsOverlay(false);
   }, [externalBusinessId]);
 
   const { language } = useLanguage();
@@ -217,6 +218,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   const [businessDocs, setBusinessDocs] = useState<{ id: string; type: string; url: string; name: string | null; icon: string | null; sort_order: number }[]>([]);
   const [menuSummaries, setMenuSummaries] = useState<any[]>([]);
   const [docOverlay, setDocOverlay] = useState<{ url: string; name: string; type: 'pdf' | 'flipbook' | 'webpage' } | null>(null);
+  const [showDirectionsOverlay, setShowDirectionsOverlay] = useState(false);
   
   const [reviewTexts, setReviewTexts] = useState<{ source: string; author_name: string | null; rating: number | null; text: string | null; relative_time: string | null; language?: string | null }[]>([]);
   const [translatedReviewTexts, setTranslatedReviewTexts] = useState<string[]>([]);
@@ -878,6 +880,47 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
           onClose={() => setForceBookingOverlay(false)}
         />
       )}
+      {/* Directions Overlay */}
+      {showDirectionsOverlay && business && (
+        <div className="absolute inset-0 z-[60] bg-background flex flex-col animate-fade-in">
+          <div className="flex items-center justify-between px-3 py-2 border-b bg-background">
+            <span className="text-sm font-semibold">Itinéraire — {business.name}</span>
+            <div className="flex items-center gap-2">
+              <a
+                href={business.latitude && business.longitude
+                  ? `https://www.google.com/maps/dir/?api=1&destination=${business.latitude},${business.longitude}`
+                  : `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(business.address || business.name)}`
+                }
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-1 rounded-full hover:bg-muted transition-colors"
+                title="Ouvrir dans Google Maps"
+              >
+                <ExternalLink className="h-5 w-5" />
+              </a>
+              <button
+                onClick={() => setShowDirectionsOverlay(false)}
+                className="p-1 rounded-full hover:bg-muted transition-colors"
+                title="Fermer"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
+          <iframe
+            src={`https://www.google.com/maps/embed/v1/directions?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&origin=My+location&destination=${
+              business.latitude && business.longitude
+                ? `${business.latitude},${business.longitude}`
+                : encodeURIComponent(business.address || business.name)
+            }&mode=driving`}
+            className="flex-1 w-full border-0"
+            allowFullScreen
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            title={`Itinéraire vers ${business.name}`}
+          />
+        </div>
+      )}
       {/* Document Overlay (PDF, Flipbook or Website) */}
       {docOverlay && docOverlay.name === 'Site web' && createPortal(
         <div className="fixed inset-x-0 bottom-0 top-[53px] z-[9998] bg-background flex flex-col animate-fade-in overflow-hidden">
@@ -959,19 +1002,14 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
             </a>
           )}
           {!isExpanded && (business.latitude || business.google_maps_url) && (
-            <a
-              href={business.latitude && business.longitude
-                ? `https://www.google.com/maps/dir/?api=1&destination=${business.latitude},${business.longitude}`
-                : `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(business.address || business.name)}`
-              }
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={() => setShowDirectionsOverlay(true)}
               className="hover:opacity-70 transition-opacity"
               style={{ color: "#404040" }}
               title="Itinéraire"
             >
               <Route className="h-6 w-6" />
-            </a>
+            </button>
           )}
         </div>,
         toolbarCenterPortal
