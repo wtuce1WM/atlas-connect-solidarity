@@ -424,6 +424,7 @@ const SearchPage = () => {
   }, []);
    const [activeTab, setActiveTab] = useState<"suggestions" | "map" | "poi" | "destinations">("suggestions");
    const [detectedCity, setDetectedCity] = useState<string | null>(null);
+   const [detectedNeighborhood, setDetectedNeighborhood] = useState<string | null>(null);
    const [disambiguationType, setDisambiguationType] = useState<"needs_category" | "needs_city" | null>(null);
    const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string | null>(null);
    const [selectedSubcategoryFilter, setSelectedSubcategoryFilter] = useState<string | null>(null);
