@@ -170,6 +170,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
     setIsBookingOpen(false);
     setForceBookingOverlay(false);
     setDocOverlay(null);
+    setShowDirectionsOverlay(false);
   }, [externalBusinessId]);
 
   const { language } = useLanguage();
