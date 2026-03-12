@@ -495,9 +495,10 @@ const SearchPage = () => {
   }, [hasReachedTabBar]);
 
   useEffect(() => {
+    if (showAiPopup) return; // Don't auto-scroll while overlay is open
     setIsAiSummaryExpanded(false);
     requestAnimationFrame(() => ensureResultsVisibleBelowSticky("smooth"));
-  }, [selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, selectedCity, ensureResultsVisibleBelowSticky]);
+  }, [selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, selectedCity, ensureResultsVisibleBelowSticky, showAiPopup]);
 
   // Ensure first row never stays hidden under sticky stack after loading completes
   // or when sticky AI bar appears/disappears
