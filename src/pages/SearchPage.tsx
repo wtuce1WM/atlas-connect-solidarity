@@ -664,6 +664,8 @@ const SearchPage = () => {
     const [isCompactPanelExpanded, setIsCompactPanelExpanded] = useState(false);
      const [compactBusinessImageCount, setCompactBusinessImageCount] = useState(0);
      const [hoveredResultId, setHoveredResultId] = useState<string | null>(null);
+     const [hoveredPoiId, setHoveredPoiId] = useState<string | null>(null);
+     const [hoveredDestId, setHoveredDestId] = useState<string | null>(null);
      const [poiSelectedBusinessId, setPoiSelectedBusinessId] = useState<string | null>(null);
      const [poiPanelExpanded, setPoiPanelExpanded] = useState(false);
      const [poiBusinessImageCount, setPoiBusinessImageCount] = useState(0);
