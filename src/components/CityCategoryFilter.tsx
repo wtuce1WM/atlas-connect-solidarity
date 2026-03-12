@@ -174,11 +174,9 @@ const CityCategoryFilter = ({
           count: countMap[sub.name_fr] || 0,
         }))
         .sort((a, b) => {
-          // Put the detected (selected) subcategory first
-          const aSelected = a.name_fr === selectedSubcategory ? -1 : 0;
-          const bSelected = b.name_fr === selectedSubcategory ? -1 : 0;
-          if (aSelected !== bSelected) return aSelected - bSelected;
-          return b.sort_order - a.sort_order;
+          if (a.name_fr === selectedSubcategory) return -1;
+          if (b.name_fr === selectedSubcategory) return 1;
+          return (a.sort_order ?? 999) - (b.sort_order ?? 999);
         });
 
       setSubcategories(result);
