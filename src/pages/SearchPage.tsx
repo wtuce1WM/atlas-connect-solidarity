@@ -96,6 +96,7 @@ interface SearchResult {
   totalCount?: number;
   detectedSubcategory?: string | null;
   detectedCity?: string | null;
+  detectedNeighborhood?: string | null;
   searchMode?: string | null;
   bundleTimeSlots?: string[];
   disambiguationType?: "needs_category" | "needs_city" | null;
@@ -423,7 +424,9 @@ const SearchPage = () => {
   }, []);
    const [activeTab, setActiveTab] = useState<"suggestions" | "map" | "poi" | "destinations">("suggestions");
    const [detectedCity, setDetectedCity] = useState<string | null>(null);
+   const [detectedNeighborhood, setDetectedNeighborhood] = useState<string | null>(null);
    const [disambiguationType, setDisambiguationType] = useState<"needs_category" | "needs_city" | null>(null);
+   const [neighborhoodCoords, setNeighborhoodCoords] = useState<{ lat: number; lng: number } | null>(null);
    const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string | null>(null);
    const [selectedSubcategoryFilter, setSelectedSubcategoryFilter] = useState<string | null>(null);
    const [selectedServiceFilter, setSelectedServiceFilter] = useState<string | null>(null);
@@ -795,6 +798,27 @@ const SearchPage = () => {
       setIsGeoCityAutoSelected(false);
     }
   }, [queryHasCountryScope, searchQuery]);
+
+  // Fetch neighborhood coordinates when a neighborhood is detected
+  useEffect(() => {
+    if (!detectedNeighborhood) {
+      setNeighborhoodCoords(null);
+      return;
+    }
+    const fetchCoords = async () => {
+      const { data } = await supabase
+        .from("neighborhoods")
+        .select("latitude, longitude")
+        .eq("name", detectedNeighborhood)
+        .maybeSingle();
+      if (data?.latitude && data?.longitude) {
+        setNeighborhoodCoords({ lat: data.latitude, lng: data.longitude });
+      } else {
+        setNeighborhoodCoords(null);
+      }
+    };
+    fetchCoords();
+  }, [detectedNeighborhood]);
 
   // TEMP DISABLED: Regenerate AI answer when city filter changes
   // const prevCityForAiRef = useRef<string>(selectedCity);
@@ -1401,6 +1425,7 @@ const SearchPage = () => {
           setDetectedSubcategory(finalDetectedSubcategory);
           setSearchMode(normalizedSearchMode);
            setDetectedCity(data.detectedCity || null);
+           setDetectedNeighborhood(data.detectedNeighborhood || null);
            setDisambiguationType(data.disambiguationType || null);
 
           // When the fallback heuristic auto-selects a subcategory (not the backend),
@@ -2473,6 +2498,7 @@ const SearchPage = () => {
                   if (city?.latitude && city?.longitude) return { lat: city.latitude, lng: city.longitude };
                   return null;
                 })()}
+                neighborhoodCenter={neighborhoodCoords}
               />
             </Suspense>
           </div>

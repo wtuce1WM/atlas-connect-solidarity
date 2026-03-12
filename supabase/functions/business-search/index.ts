@@ -177,6 +177,7 @@ interface SearchResult {
   totalCount?: number;
   detectedSubcategory?: string | null;
   detectedCity?: string | null;
+  detectedNeighborhood?: string | null;
   searchMode?: string | null;
   bundleTimeSlots?: string[];
   disambiguationType?: "needs_category" | "needs_city" | null;
@@ -4272,6 +4273,7 @@ serve(async (req) => {
       totalCount,
       detectedSubcategory: detectedSubcategory || null,
       detectedCity: effectiveCity || null,
+      detectedNeighborhood: detectedNeighborhood || null,
       searchMode: serviceShortcutActivated ? "service_shortcut" : "broad", // TEST: Force broad — was: (typeof subcategorySearchConfig !== 'undefined' && subcategorySearchConfig?.search_mode) || null,
       bundleTimeSlots: (typeof bundleTimeSlots !== 'undefined' && bundleTimeSlots.length > 0) ? bundleTimeSlots : undefined,
       disambiguationType,
