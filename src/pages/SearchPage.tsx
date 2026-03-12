@@ -799,6 +799,27 @@ const SearchPage = () => {
     }
   }, [queryHasCountryScope, searchQuery]);
 
+  // Fetch neighborhood coordinates when a neighborhood is detected
+  useEffect(() => {
+    if (!detectedNeighborhood) {
+      setNeighborhoodCoords(null);
+      return;
+    }
+    const fetchCoords = async () => {
+      const { data } = await supabase
+        .from("neighborhoods")
+        .select("latitude, longitude")
+        .eq("name", detectedNeighborhood)
+        .maybeSingle();
+      if (data?.latitude && data?.longitude) {
+        setNeighborhoodCoords({ lat: data.latitude, lng: data.longitude });
+      } else {
+        setNeighborhoodCoords(null);
+      }
+    };
+    fetchCoords();
+  }, [detectedNeighborhood]);
+
   // TEMP DISABLED: Regenerate AI answer when city filter changes
   // const prevCityForAiRef = useRef<string>(selectedCity);
   // useEffect(() => {
