@@ -2348,7 +2348,7 @@ const SearchPage = () => {
 
       {/* Tab Bar — stickybar 1 (above cities) */}
       <section data-tab-bar className="sticky top-[60px] z-[20] bg-white border-b border-border relative">
-        <span className="absolute top-0 left-1 z-[60] bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded select-all cursor-text">🔴 STICKY 1</span>
+        {/* <span className="absolute top-0 left-1 z-[60] bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded select-all cursor-text">🔴 STICKY 1</span> */}
         <div className="mx-auto px-4 max-w-full sm:max-w-[80%]">
           <div ref={(el) => {
             // Auto-center active tab on mount and tab change
@@ -2401,7 +2401,7 @@ const SearchPage = () => {
       {/* 🟠 STICKY 2 (City Bar) */}
       {availableCities.length > 1 && !queryHasExplicitCity && activeTab === "suggestions" && (
         <div data-city-bar className="sticky z-[6] bg-white border-b border-border py-2 relative" style={{ top: `${stickyTops.cityBar}px` }}>
-          <span className="absolute top-0 left-1 z-[60] bg-orange-500 text-white text-[10px] font-bold px-2 py-0.5 rounded select-all cursor-text">🟠 STICKY 2</span>
+          {/* <span className="absolute top-0 left-1 z-[60] bg-orange-500 text-white text-[10px] font-bold px-2 py-0.5 rounded select-all cursor-text">🟠 STICKY 2</span> */}
           <div className="mx-auto px-4 max-w-[80%]">
             <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
               <button
@@ -2477,7 +2477,7 @@ const SearchPage = () => {
       {/* 🩵 STICKY 3d — Service Filter (shown when subcategory detected) */}
       {detectedSubcategory && searchServiceFilters.length >= 1 && !isLoading && activeTab === "suggestions" && (
         <div data-service-filter className="sticky z-[5] bg-white py-2 relative" style={{ top: `${stickyTops.serviceBar}px` }}>
-          <span className="absolute top-0 left-1 z-[60] bg-cyan-500 text-white text-[10px] font-bold px-2 py-0.5 rounded select-all cursor-text">🩵 STICKY 3d — Service Filter</span>
+          {/* <span className="absolute top-0 left-1 z-[60] bg-cyan-500 text-white text-[10px] font-bold px-2 py-0.5 rounded select-all cursor-text">🩵 STICKY 3d — Service Filter</span> */}
           <div className="mx-auto px-4 max-w-[80%]">
             <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
               {searchServiceFilters.map((svc) => {
@@ -2759,7 +2759,7 @@ const SearchPage = () => {
 
         return (
           <div data-ai-bar className="sticky z-[1] bg-white py-2 relative" style={{ top: `${aiTop}px` }}>
-            <span className="absolute top-0 left-1 z-[60] bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded select-all cursor-text">🔵 STICKY 4</span>
+            {/* <span className="absolute top-0 left-1 z-[60] bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded select-all cursor-text">🔵 STICKY 4</span> */}
             <div className="mx-auto px-4 max-w-[80%]">
               <div className="flex items-start gap-3">
                 <div className="flex-1 min-w-0">
