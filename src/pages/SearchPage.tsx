@@ -1171,6 +1171,15 @@ const SearchPage = () => {
     return [...filtered].sort(sortWtuceAndRating);
   }, [allBusinesses, serviceFilterBusinesses, subcategoryFilterBusinesses, selectedCity, selectedCityId, selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, activeTimeSlot, searchQuery, categoryFromUrl, moreFilterMatchingIds, moreFilterTimeSlots]);
 
+  // Build subcategory name → icon name map
+  const subcategoryIconMap = useMemo(() => {
+    const map: Record<string, string> = {};
+    for (const sub of subcategories) {
+      if ((sub as any).icon) map[sub.name_fr] = (sub as any).icon;
+    }
+    return map;
+  }, [subcategories]);
+
   const mapPoiItems: PoiMapItem[] = useMemo(() => {
     if (!hasKnownLocation) return [];
     const center = mapCenterForResults;
@@ -1185,7 +1194,6 @@ const SearchPage = () => {
     return filteredBusinesses
       .filter(b => {
         if (!b.latitude || !b.longitude) return false;
-        // Morocco bounding box
         if (b.latitude < 21 || b.latitude > 36.5 || b.longitude < -17.5 || b.longitude > -1) return false;
         if (center) {
           const dist = haversine(center.lat, center.lng, b.latitude, b.longitude);
@@ -1205,6 +1213,7 @@ const SearchPage = () => {
         rating: b.rating,
         avgOn20: computeWeightedRatingOn20(collectRatingSources(b as any)),
         totalReviews: collectRatingSources(b as any).reduce((s, r) => s + r.count, 0),
+        subcategory: b.categories?.[0] || null,
       }));
   }, [hasKnownLocation, filteredBusinesses, mapCenterForResults, neighborhoodCoords]);
 
