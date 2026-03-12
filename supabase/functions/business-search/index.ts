@@ -177,6 +177,7 @@ interface SearchResult {
   totalCount?: number;
   detectedSubcategory?: string | null;
   detectedCity?: string | null;
+  detectedNeighborhood?: string | null;
   searchMode?: string | null;
   bundleTimeSlots?: string[];
   disambiguationType?: "needs_category" | "needs_city" | null;
