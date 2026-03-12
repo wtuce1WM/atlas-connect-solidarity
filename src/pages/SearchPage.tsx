@@ -1919,8 +1919,8 @@ const SearchPage = () => {
               </p>
             </div>
 
-            {/* Disambiguation prompts */}
-            {disambiguationType === "needs_category" && (
+            {/* Disambiguation prompts — show both when neither city nor subcategory is known */}
+            {!selectedCategoryFilter && !selectedSubcategoryFilter && !detectedSubcategory && (
               <div className="pb-4">
                 <div className="max-w-3xl mx-auto text-center">
                   <p className="text-sm font-medium text-foreground mb-3">
@@ -1950,7 +1950,7 @@ const SearchPage = () => {
               </div>
             )}
 
-            {disambiguationType === "needs_city" && (!selectedCity || selectedCity === "all") && (
+            {(!selectedCity || selectedCity === "all") && !detectedCity && (
               <div className="pb-4">
                 <div className="max-w-3xl mx-auto text-center">
                   <p className="text-sm font-medium text-foreground mb-3">
