@@ -2660,7 +2660,7 @@ const SearchPage = () => {
                   city={poiCity}
                   language={language}
                   onBusinessClick={(bizId) => { setPoiMapBusiness(null); setPoiSelectedBusinessId(bizId); }}
-                  columns={(poiSelectedBusinessId || poiMapBusiness) ? 3 : hasKnownLocation ? 2 : undefined}
+                  columns={hasKnownLocation ? 2 : undefined}
                   onMapClick={(biz) => { setPoiSelectedBusinessId(null); setPoiMapBusiness({ id: biz.id, name: biz.name, latitude: biz.latitude, longitude: biz.longitude, address: biz.address, google_maps_url: biz.google_maps_url }); }}
                   onPoisLoaded={(loadedPois) => setAllPois(loadedPois.map(p => {
                     const sources = collectRatingSources(p);
