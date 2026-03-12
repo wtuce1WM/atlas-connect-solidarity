@@ -510,25 +510,7 @@ const SearchPage = () => {
     activeTab,
   ]);
 
-  // Ensure first row never stays hidden under sticky stack after loading completes
-  // or when sticky AI bar appears/disappears
-  useEffect(() => {
-    if (isLoading || activeTab !== "suggestions" || showAiPopup) return;
-
-    const timers = [50, 200, 500].map((delay) =>
-      window.setTimeout(() => {
-        ensureResultsVisibleBelowSticky("auto");
-      }, delay)
-    );
-
-    return () => timers.forEach((id) => window.clearTimeout(id));
-  }, [
-    isLoading,
-    activeTab,
-    hasAiSticky,
-    showAiPopup,
-    ensureResultsVisibleBelowSticky,
-  ]);
+   // NOTE: Delayed auto-scroll removed — was causing scroll blocking on filter changes.
 
   // Direct DB query when user selects a service filter — replaces the old "extra fetch" mechanism
   // This fetches ALL businesses matching the subcategory + service + city, independent of FTS results
