@@ -63,7 +63,22 @@ const GoogleMapEmbed = ({ address, businessName, latitude, longitude, googleMaps
     window.open(`https://www.google.com/maps/dir/?api=1&destination=${destination}`, "_blank");
   };
 
-  const handleOpenInMaps = () => {
+  const handleNavigateWith = (app: "waze" | "apple") => {
+    const lat = resolvedLat;
+    const lng = resolvedLng;
+    if (app === "waze") {
+      const url = lat && lng
+        ? `https://waze.com/ul?ll=${lat},${lng}&navigate=yes`
+        : `https://waze.com/ul?q=${encodedAddress}&navigate=yes`;
+      window.open(url, "_blank");
+    } else {
+      const url = lat && lng
+        ? `https://maps.apple.com/?daddr=${lat},${lng}&dirflg=d`
+        : `https://maps.apple.com/?daddr=${encodedAddress}&dirflg=d`;
+      window.open(url, "_blank");
+    }
+  };
+
     const query = resolvedLat && resolvedLng
       ? `${resolvedLat},${resolvedLng}`
       : encodedAddress;
