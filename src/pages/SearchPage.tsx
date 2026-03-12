@@ -2497,7 +2497,7 @@ const SearchPage = () => {
                         : "bg-card border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
                     }`}
                   >
-                    <span>{svc.name}</span>
+                    <span>{svc.name.charAt(0).toUpperCase() + svc.name.slice(1).toLowerCase()}</span>
                     <span className={`text-xs font-normal ${isSelected ? "text-primary/70" : "text-muted-foreground/60"}`}>
                       {svc.count}
                     </span>
