@@ -551,6 +551,7 @@ const SearchPage = () => {
       }
 
       const { data } = await query.order("priority_score", { ascending: false }).limit(200);
+      if (data) {
         setSubcategoryFilterBusinesses(data.map((b: any) => ({ ...b, distance_km: null })) as Business[]);
       }
     };
