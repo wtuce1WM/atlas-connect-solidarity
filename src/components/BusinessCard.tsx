@@ -372,7 +372,7 @@ const BusinessCard = ({
                 )}
               </button>
               {business.wtuce_status === "verified" && (
-                <div className="overflow-hidden" style={{ width: 40, height: 40 }}>
+                <div className="overflow-hidden" style={{ width: 28, height: 28 }}>
                   <div className="[perspective:600px]" style={{ transformStyle: "preserve-3d" }}>
                     <img
                       src={logoGold}
