@@ -441,6 +441,7 @@ const SearchPage = () => {
   // Track whether a category/subcategory filter is active (compact AI mode)
   const isCategoryFilterActive = !!(selectedCategoryFilter || selectedSubcategoryFilter || selectedServiceFilter);
   const [isAiSummaryExpanded, setIsAiSummaryExpanded] = useState(false);
+  const [showAiPopup, setShowAiPopup] = useState(false);
 
   // Track when user has scrolled down to the tab bar — lock scroll above it from that point
   const [hasReachedTabBar, setHasReachedTabBar] = useState(false);
@@ -495,14 +496,15 @@ const SearchPage = () => {
   }, [hasReachedTabBar]);
 
   useEffect(() => {
+    if (showAiPopup) return; // Don't auto-scroll while overlay is open
     setIsAiSummaryExpanded(false);
     requestAnimationFrame(() => ensureResultsVisibleBelowSticky("smooth"));
-  }, [selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, selectedCity, ensureResultsVisibleBelowSticky]);
+  }, [selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, selectedCity, ensureResultsVisibleBelowSticky, showAiPopup]);
 
   // Ensure first row never stays hidden under sticky stack after loading completes
   // or when sticky AI bar appears/disappears
   useEffect(() => {
-    if (isLoading || activeTab !== "suggestions") return;
+    if (isLoading || activeTab !== "suggestions" || showAiPopup) return;
 
     const timers = [50, 200, 500].map((delay) =>
       window.setTimeout(() => {
@@ -515,6 +517,7 @@ const SearchPage = () => {
     isLoading,
     activeTab,
     hasAiSticky,
+    showAiPopup,
     ensureResultsVisibleBelowSticky,
   ]);
 
@@ -686,7 +689,7 @@ const SearchPage = () => {
    const [locationDialogOpen, setLocationDialogOpen] = useState(false);
    const heroAiRef = useRef<HTMLDivElement>(null);
    const [hasScrolledPastHeroAi, setHasScrolledPastHeroAi] = useState(false);
-    const [showAiPopup, setShowAiPopup] = useState(false);
+    // showAiPopup moved earlier (before ensureResultsVisibleBelowSticky)
     const aiPopupShownRef = useRef(false);
     const [overlaySelectedBusiness, setOverlaySelectedBusiness] = useState<AIBusinessData | null>(null);
     const [isOverlayPanelExpanded, setIsOverlayPanelExpanded] = useState(false);
