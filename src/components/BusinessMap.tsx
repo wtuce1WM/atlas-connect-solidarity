@@ -146,6 +146,7 @@ const BusinessMap = ({
   forceOverview = false,
   cityCenter = null,
   neighborhoodCenter = null,
+  onBusinessClick,
 }: BusinessMapProps) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
