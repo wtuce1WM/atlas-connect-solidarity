@@ -13,6 +13,7 @@ export interface PoiMapItem {
   rating?: number | null;
   avgOn20?: number | null;
   totalReviews?: number;
+  subcategory?: string | null;
 }
 
 interface PoiGoogleMapProps {
@@ -20,6 +21,7 @@ interface PoiGoogleMapProps {
   selectedPoiId: string | null;
   onPoiClick?: (poiId: string) => void;
   center?: { lat: number; lng: number };
+  subcategoryIconMap?: Record<string, string>;
 }
 
 /* ── Google Maps loader (reuses shared singleton) ── */
@@ -61,33 +63,162 @@ function loadGoogleMaps(): Promise<void> {
   return gmapsPromise;
 }
 
-function markerSvgUrl(isSelected: boolean): string {
-  const color = isSelected ? "#ef4444" : "#D4AF37";
-  const border = isSelected ? "#b91c1c" : "#B8860B";
-  const size = isSelected ? 36 : 28;
-  const h = isSelected ? 50 : 40;
-  const r = isSelected ? 8 : 6;
-  const cy = size / 2;
-  const cx = size / 2;
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${h}" viewBox="0 0 ${size} ${h}">
-    <path d="M${cx} 0 C${cx * 0.45} 0 0 ${cx * 0.45} 0 ${cx} C0 ${h * 0.6125} ${cx} ${h} ${cx} ${h} S${size} ${h * 0.6125} ${size} ${cx} C${size} ${cx * 0.45} ${cx * 1.55} 0 ${cx} 0Z" fill="${color}" stroke="${border}" stroke-width="1.5"/>
-    <circle cx="${cx}" cy="${cy}" r="${r}" fill="white"/>
-  </svg>`;
-  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+/* ── Lucide icon SVG cache ── */
+const iconSvgCache = new Map<string, string>();
+function toKebabCase(name: string): string {
+  return name
+    .replace(/([a-z])([A-Z])/g, "$1-$2")
+    .replace(/\s+/g, "-")
+    .toLowerCase();
 }
 
-const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center }: PoiGoogleMapProps) => {
+async function fetchLucideIcon(name: string): Promise<string> {
+  if (iconSvgCache.has(name)) return iconSvgCache.get(name)!;
+  const kebab = toKebabCase(name);
+  try {
+    const res = await fetch(`https://unpkg.com/lucide-static@latest/icons/${kebab}.svg`);
+    if (!res.ok) throw new Error("not found");
+    let svg = await res.text();
+    // Make it small and white
+    svg = svg.replace(/<svg /, '<svg width="14" height="14" ');
+    iconSvgCache.set(name, svg);
+    return svg;
+  } catch {
+    iconSvgCache.set(name, "");
+    return "";
+  }
+}
+
+/* ── Custom Label Overlay ── */
+class LabelMarker extends google.maps.OverlayView {
+  private div: HTMLDivElement | null = null;
+  private position: google.maps.LatLng;
+  private name: string;
+  private iconSvg: string;
+  private highlighted: boolean;
+  private _onClick?: () => void;
+  private _onMouseOver?: () => void;
+  private _onMouseOut?: () => void;
+
+  constructor(
+    position: google.maps.LatLngLiteral,
+    map: google.maps.Map,
+    name: string,
+    iconSvg: string,
+    highlighted: boolean,
+    onClick?: () => void,
+    onMouseOver?: () => void,
+    onMouseOut?: () => void,
+  ) {
+    super();
+    this.position = new google.maps.LatLng(position.lat, position.lng);
+    this.name = name;
+    this.iconSvg = iconSvg;
+    this.highlighted = highlighted;
+    this._onClick = onClick;
+    this._onMouseOver = onMouseOver;
+    this._onMouseOut = onMouseOut;
+    this.setMap(map);
+  }
+
+  onAdd() {
+    this.div = document.createElement("div");
+    this.applyStyle();
+    this.div.addEventListener("click", (e) => {
+      e.stopPropagation();
+      this._onClick?.();
+    });
+    this.div.addEventListener("mouseenter", () => this._onMouseOver?.());
+    this.div.addEventListener("mouseleave", () => this._onMouseOut?.());
+    const panes = this.getPanes();
+    panes?.overlayMouseTarget.appendChild(this.div);
+  }
+
+  draw() {
+    if (!this.div) return;
+    const proj = this.getProjection();
+    if (!proj) return;
+    const point = proj.fromLatLngToDivPixel(this.position);
+    if (!point) return;
+    this.div.style.left = `${point.x}px`;
+    this.div.style.top = `${point.y}px`;
+  }
+
+  onRemove() {
+    if (this.div?.parentNode) {
+      this.div.parentNode.removeChild(this.div);
+      this.div = null;
+    }
+  }
+
+  setHighlighted(val: boolean) {
+    this.highlighted = val;
+    if (this.div) this.applyStyle();
+  }
+
+  private applyStyle() {
+    if (!this.div) return;
+    const bg = this.highlighted ? "#ef4444" : "#1a1a1a";
+    const border = this.highlighted ? "#b91c1c" : "#D4AF37";
+    const shadow = this.highlighted
+      ? "0 2px 8px rgba(239,68,68,0.5)"
+      : "0 1px 4px rgba(0,0,0,0.3)";
+    const scale = this.highlighted ? "scale(1.08)" : "scale(1)";
+    const z = this.highlighted ? "1000" : "1";
+
+    this.div.style.cssText = `
+      position:absolute;
+      transform:translate(-50%,-100%) ${scale};
+      transition:transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+      display:flex;align-items:center;gap:4px;
+      background:${bg};color:white;
+      border:1.5px solid ${border};
+      border-radius:6px;padding:3px 8px 3px 5px;
+      font-family:system-ui,-apple-system,sans-serif;
+      font-size:11px;font-weight:600;
+      white-space:nowrap;cursor:pointer;
+      box-shadow:${shadow};z-index:${z};
+      line-height:1.2;
+    `;
+
+    const iconHtml = this.iconSvg
+      ? `<span style="display:flex;align-items:center;flex-shrink:0;opacity:0.9;">${this.iconSvg}</span>`
+      : "";
+    // Truncate long names
+    const shortName = this.name.length > 22 ? this.name.slice(0, 20) + "…" : this.name;
+    this.div.innerHTML = `${iconHtml}<span>${shortName}</span>`;
+  }
+}
+
+const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIconMap }: PoiGoogleMapProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
-  const markersRef = useRef<Map<string, google.maps.Marker>>(new Map());
+  const overlaysRef = useRef<Map<string, LabelMarker>>(new Map());
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
   const [ready, setReady] = useState(false);
   const hasFittedRef = useRef(false);
+  const [iconCache, setIconCache] = useState<Map<string, string>>(new Map());
 
   // Load Google Maps
   useEffect(() => {
     loadGoogleMaps().then(() => setReady(true)).catch(console.error);
   }, []);
+
+  // Pre-fetch Lucide icons for visible subcategories
+  useEffect(() => {
+    if (!subcategoryIconMap) return;
+    const iconsToFetch = new Set<string>();
+    pois.forEach((poi) => {
+      if (poi.subcategory) {
+        const iconName = subcategoryIconMap[poi.subcategory];
+        if (iconName && !iconSvgCache.has(iconName)) iconsToFetch.add(iconName);
+      }
+    });
+    if (iconsToFetch.size === 0) return;
+    Promise.all(Array.from(iconsToFetch).map(fetchLucideIcon)).then(() => {
+      setIconCache(new Map(iconSvgCache));
+    });
+  }, [pois, subcategoryIconMap]);
 
   // Init map
   useEffect(() => {
@@ -104,14 +235,14 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center }: PoiGoogleMapP
     infoWindowRef.current = new google.maps.InfoWindow();
   }, [ready]);
 
-  // Create/update markers when pois change (NOT when selectedPoiId changes)
+  // Create/update label markers when pois change
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
 
-    // Clear old markers
-    markersRef.current.forEach((m) => m.setMap(null));
-    markersRef.current.clear();
+    // Clear old overlays
+    overlaysRef.current.forEach((o) => o.setMap(null));
+    overlaysRef.current.clear();
     hasFittedRef.current = false;
 
     const bounds = new google.maps.LatLngBounds();
@@ -123,52 +254,53 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center }: PoiGoogleMapP
       const position = { lat: poi.latitude, lng: poi.longitude };
       bounds.extend(position);
 
+      const iconName = poi.subcategory && subcategoryIconMap
+        ? subcategoryIconMap[poi.subcategory]
+        : undefined;
+      const iconSvg = iconName ? (iconSvgCache.get(iconName) || "") : "";
+
       const isSelected = poi.id === selectedPoiId;
-      const marker = new google.maps.Marker({
+
+      const overlay = new LabelMarker(
         position,
         map,
-        title: poi.name,
-        icon: {
-          url: markerSvgUrl(isSelected),
-          scaledSize: new google.maps.Size(isSelected ? 36 : 28, isSelected ? 50 : 40),
-          anchor: new google.maps.Point(isSelected ? 18 : 14, isSelected ? 50 : 40),
+        poi.name,
+        iconSvg,
+        isSelected,
+        () => {
+          map.setZoom(16);
+          map.panTo(position);
+          onPoiClick?.(poi.id);
         },
-        zIndex: isSelected ? 1000 : 1,
-      });
+        () => {
+          const img = poi.images?.[0];
+          const loc = `${poi.city || ""}${poi.neighborhood ? ` · ${poi.neighborhood}` : ""}`;
+          const ratingHtml = poi.avgOn20
+            ? `<div style="display:flex;align-items:center;gap:4px;font-size:13px;">
+                <span style="color:#D4AF37;">★</span>
+                <span style="font-weight:600;">${poi.avgOn20}/20</span>
+                ${poi.totalReviews ? `<span style="color:rgba(255,255,255,0.7);">· ${poi.totalReviews} avis</span>` : ""}
+              </div>`
+            : "";
+          const html = `<div style="width:260px;font-family:system-ui,sans-serif;overflow:hidden;border-radius:10px;position:relative;">
+            ${img ? `<img src="${img}" style="width:100%;height:180px;display:block;object-fit:cover;" />` : ""}
+            <div style="background:linear-gradient(to top,rgba(0,0,0,0.75),rgba(0,0,0,0.2));position:absolute;bottom:0;left:0;right:0;padding:10px;">
+              <div style="font-weight:700;font-size:14px;color:white;line-height:1.3;">${poi.name}</div>
+              <div style="font-size:12px;color:rgba(255,255,255,0.8);margin-top:3px;">${loc}</div>
+              ${ratingHtml ? `<div style="margin-top:3px;color:white;">${ratingHtml}</div>` : ""}
+            </div>
+          </div>`;
+          // Position infowindow at the overlay position
+          infoWindowRef.current?.setContent(html);
+          infoWindowRef.current?.setPosition(position);
+          infoWindowRef.current?.open(map);
+        },
+        () => {
+          infoWindowRef.current?.close();
+        },
+      );
 
-      marker.addListener("mouseover", () => {
-        const img = poi.images?.[0];
-        const loc = `${poi.city || ""}${poi.neighborhood ? ` · ${poi.neighborhood}` : ""}`;
-        const ratingHtml = poi.avgOn20
-          ? `<div style="display:flex;align-items:center;gap:4px;font-size:13px;">
-              <span style="color:#D4AF37;">★</span>
-              <span style="font-weight:600;">${poi.avgOn20}/20</span>
-              ${poi.totalReviews ? `<span style="color:rgba(255,255,255,0.7);">· ${poi.totalReviews} avis</span>` : ""}
-            </div>`
-          : "";
-        const html = `<div style="width:260px;font-family:system-ui,sans-serif;overflow:hidden;border-radius:10px;position:relative;">
-          ${img ? `<img src="${img}" style="width:100%;height:180px;display:block;object-fit:cover;" />` : ""}
-          <div style="background:linear-gradient(to top,rgba(0,0,0,0.75),rgba(0,0,0,0.2));position:absolute;bottom:0;left:0;right:0;padding:10px;">
-            <div style="font-weight:700;font-size:14px;color:white;line-height:1.3;">${poi.name}</div>
-            <div style="font-size:12px;color:rgba(255,255,255,0.8);margin-top:3px;">${loc}</div>
-            ${ratingHtml ? `<div style="margin-top:3px;color:white;">${ratingHtml}</div>` : ""}
-          </div>
-        </div>`;
-        infoWindowRef.current?.setContent(html);
-        infoWindowRef.current?.open(map, marker);
-      });
-
-      marker.addListener("mouseout", () => {
-        infoWindowRef.current?.close();
-      });
-
-      marker.addListener("click", () => {
-        map.setZoom(16);
-        map.panTo(position);
-        onPoiClick?.(poi.id);
-      });
-
-      markersRef.current.set(poi.id, marker);
+      overlaysRef.current.set(poi.id, overlay);
     });
 
     if (center) bounds.extend(center);
@@ -183,22 +315,15 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center }: PoiGoogleMapP
         hasFittedRef.current = true;
       });
     }
-  }, [pois, ready, center]);
+  }, [pois, ready, center, iconCache]);
 
-  // Update marker icons when selectedPoiId changes (no fitBounds!)
-  // Keep previous marker highlighted (red) when hover ends
+  // Update overlay highlighting when selectedPoiId changes
   const prevSelectedRef = useRef<string | null>(null);
   useEffect(() => {
-    markersRef.current.forEach((marker, id) => {
+    overlaysRef.current.forEach((overlay, id) => {
       const isSelected = id === selectedPoiId;
       const isLastHovered = !selectedPoiId && id === prevSelectedRef.current;
-      const highlighted = isSelected || isLastHovered;
-      marker.setIcon({
-        url: markerSvgUrl(highlighted),
-        scaledSize: new google.maps.Size(highlighted ? 36 : 28, highlighted ? 50 : 40),
-        anchor: new google.maps.Point(highlighted ? 18 : 14, highlighted ? 50 : 40),
-      });
-      marker.setZIndex(highlighted ? 1000 : 1);
+      overlay.setHighlighted(isSelected || isLastHovered);
     });
     if (selectedPoiId) {
       prevSelectedRef.current = selectedPoiId;
