@@ -27,6 +27,8 @@ interface BusinessMapProps {
   height?: string;
   isLoading?: boolean;
   forceOverview?: boolean;
+  /** When set, only markers within ~50km of this point are shown (filters out national-scope businesses physically elsewhere) */
+  cityCenter?: { lat: number; lng: number } | null;
 }
 
 declare global {
