@@ -79,6 +79,7 @@ const GoogleMapEmbed = ({ address, businessName, latitude, longitude, googleMaps
     }
   };
 
+  const handleOpenInMaps = () => {
     const query = resolvedLat && resolvedLng
       ? `${resolvedLat},${resolvedLng}`
       : encodedAddress;
