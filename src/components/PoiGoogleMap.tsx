@@ -199,6 +199,8 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
   const [ready, setReady] = useState(false);
   const hasFittedRef = useRef(false);
   const [iconCache, setIconCache] = useState<Map<string, string>>(new Map());
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const infoWindowHoveredRef = useRef(false);
 
   // Load Google Maps
   useEffect(() => {
