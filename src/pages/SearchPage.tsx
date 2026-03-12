@@ -2437,8 +2437,8 @@ const SearchPage = () => {
         </div>
       )}
 
-      {/* CityCategoryFilter (3b/3c) — COMMENTÉ */}
-      {false && activeTab === "suggestions" && allBusinesses.length > 0 && !isLoading && !detectedSubcategory && (
+      {/* CityCategoryFilter (3b hidden, 3c visible) */}
+      {activeTab === "suggestions" && allBusinesses.length > 0 && !isLoading && !detectedSubcategory && (
         <CityCategoryFilter
           cityName={detectedCity || (selectedCity && selectedCity !== "all" ? selectedCity : null) || ""}
           hasCityBar={availableCities.length > 1 && !queryHasExplicitCity}
