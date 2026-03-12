@@ -763,7 +763,8 @@ const SearchPage = () => {
   const isVoiceSearchRef = useRef(false);
   const [showResultsOverlay, setShowResultsOverlay] = useState(false);
   const [overlayDismissing, setOverlayDismissing] = useState(false);
-  const resultsRef = useRef<HTMLDivElement>(null);
+   const resultsRef = useRef<HTMLDivElement>(null);
+   const resultsBarRef = useRef<HTMLDivElement>(null);
   const latestFetchIdRef = useRef(0);
 
   const voiceLoopRef = useRef(false);
