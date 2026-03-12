@@ -503,7 +503,7 @@ const SearchPage = () => {
   // Ensure first row never stays hidden under sticky stack after loading completes
   // or when sticky AI bar appears/disappears
   useEffect(() => {
-    if (isLoading || activeTab !== "suggestions") return;
+    if (isLoading || activeTab !== "suggestions" || showAiPopup) return;
 
     const timers = [50, 200, 500].map((delay) =>
       window.setTimeout(() => {
