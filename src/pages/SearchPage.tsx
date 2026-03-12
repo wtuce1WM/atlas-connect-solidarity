@@ -3004,7 +3004,7 @@ const SearchPage = () => {
       {activeTab === "suggestions" && (
       <section
          ref={resultsRef}
-         className={`bg-white pt-4 pb-6 lg:pb-4 transition-all duration-300 ${compactPanelBusiness ? "w-1/2" : "w-full"}`}
+         className={`bg-white pt-4 pb-6 lg:pb-4 transition-all duration-300`}
        >
         {/* Split layout wrapper: results left + map right when city/neighborhood known */}
         <div className={hasKnownLocation && !compactPanelBusiness ? "flex gap-0" : ""}>
@@ -3476,8 +3476,8 @@ const SearchPage = () => {
             />
           )}
 
-          {/* Left panel — full AI text (hidden when expanded) */}
-          {!isCompactPanelExpanded && !isSubDesktop && (
+          {/* Left panel — full AI text — DISABLED */}
+          {false && !isCompactPanelExpanded && !isSubDesktop && (
           <div
             className="fixed top-[48px] left-0 w-1/2 z-[100] bg-white dark:bg-zinc-900 border-r border-border shadow-xl flex flex-col animate-fade-in"
             style={{ height: "calc(100vh - 48px)" }}
