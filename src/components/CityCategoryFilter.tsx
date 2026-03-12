@@ -286,6 +286,13 @@ const CityCategoryFilter = ({
     fetchServices();
   }, [selectedSubcategory, cityName, subcategories]);
 
+  // Measure subcategory bar height for service bar positioning
+  useEffect(() => {
+    if (subFilterRef.current) {
+      setServiceTop(baseTop + subFilterRef.current.offsetHeight);
+    }
+  }, [subcategories, baseTop]);
+
   if (isLoading || categories.length === 0) return null;
 
   const getLabel = (item: { name_fr: string; name_en: string | null; name_ar: string | null }) => {
