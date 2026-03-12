@@ -153,6 +153,8 @@ const DestinationSection = ({ city, language, onDestinationClick, columns, onMap
                   onDestinationClick(dest.id);
                 }
               }}
+              onMouseEnter={() => onHover?.(dest.id)}
+              onMouseLeave={() => onHover?.(null)}
               className="group overflow-hidden rounded-xl border border-gold/20 shadow-sm hover:shadow-md transition-shadow aspect-square relative"
             >
               {img ? (

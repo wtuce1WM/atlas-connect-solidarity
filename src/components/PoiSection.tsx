@@ -116,6 +116,8 @@ const PoiSection = ({ city, language, onBusinessClick, columns, onMapClick, onPo
                   onBusinessClick(biz.id);
                 }
               }}
+              onMouseEnter={() => onHover?.(biz.id)}
+              onMouseLeave={() => onHover?.(null)}
               className="group overflow-hidden rounded-xl border border-gold/20 shadow-sm hover:shadow-md transition-shadow aspect-square relative"
             >
               {img ? (
