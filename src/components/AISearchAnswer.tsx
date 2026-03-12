@@ -498,15 +498,12 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
       <div
         ref={aiPanelRef}
         className={`mb-6 transition-all duration-500 ease-out ${
-          isPanelExpanded
-            ? "fixed top-0 left-0 z-[100] w-0 h-full overflow-hidden opacity-0 pointer-events-none"
-            : isPanelOpen
-              ? "fixed top-[52px] left-0 z-[100] w-1/2 h-[calc(100%-52px)] overflow-y-auto p-6 flex items-start justify-center bg-white dark:bg-zinc-900 animate-slide-down-from-top"
-              : "w-[70%] mx-auto"
+          isPanelOpen
+            ? "hidden"
+            : "w-[70%] mx-auto"
         }`}
-        style={isPanelOpen ? { animationName: undefined } : undefined}
       >
-        <div className={`relative isolate rounded-2xl border border-gold/30 bg-white dark:bg-zinc-900 backdrop-blur-sm ${isPanelOpen ? "w-full max-w-2xl" : ""}`}>
+        <div className="relative isolate rounded-2xl border border-gold/30 bg-white dark:bg-zinc-900 backdrop-blur-sm">
           <div className="flex items-center px-4 py-2.5">
             <div className="flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-muted-foreground" />
