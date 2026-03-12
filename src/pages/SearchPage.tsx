@@ -1077,6 +1077,19 @@ const SearchPage = () => {
     return citiesWithPriority.find(c => c.name === selectedCity)?.id || null;
   }, [selectedCity, citiesWithPriority]);
 
+  // Detect if we have a known city or neighborhood for the split map layout
+  const effectiveCityForMap = (selectedCity && selectedCity !== "all") ? selectedCity : detectedCity;
+  const hasKnownLocation = !isMobile && !!(effectiveCityForMap || detectedNeighborhood);
+
+  const mapCenterForResults = useMemo(() => {
+    if (neighborhoodCoords) return neighborhoodCoords;
+    if (effectiveCityForMap) {
+      const city = citiesWithPriority.find(c => c.name === effectiveCityForMap);
+      if (city?.latitude && city?.longitude) return { lat: city.latitude, lng: city.longitude };
+    }
+    return undefined;
+  }, [effectiveCityForMap, neighborhoodCoords, citiesWithPriority]);
+
   const filteredBusinesses = useMemo(() => {
     // When a service filter is manually selected, use the direct DB results as the base
     // instead of merging with FTS results — this ensures we get ALL matching businesses
@@ -1157,7 +1170,26 @@ const SearchPage = () => {
     return [...filtered].sort(sortWtuceAndRating);
   }, [allBusinesses, serviceFilterBusinesses, subcategoryFilterBusinesses, selectedCity, selectedCityId, selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, activeTimeSlot, searchQuery, categoryFromUrl, moreFilterMatchingIds, moreFilterTimeSlots]);
 
-  // Auto-reset city to "all" when city filter yields 0 results but national results exist
+  const mapPoiItems: PoiMapItem[] = useMemo(() => {
+    if (!hasKnownLocation) return [];
+    return filteredBusinesses
+      .filter(b => b.latitude && b.longitude)
+      .slice(0, 100)
+      .map(b => ({
+        id: b.id,
+        name: b.name,
+        latitude: b.latitude,
+        longitude: b.longitude,
+        images: b.images,
+        city: b.city,
+        neighborhood: b.neighborhood,
+        rating: b.rating,
+        avgOn20: computeWeightedRatingOn20(collectRatingSources(b as any)),
+        totalReviews: collectRatingSources(b as any).reduce((s, r) => s + r.count, 0),
+      }));
+  }, [hasKnownLocation, filteredBusinesses]);
+
+
   useEffect(() => {
     if (isLoading) return;
     if (!selectedCity || selectedCity === "all") return;
@@ -2931,7 +2963,11 @@ const SearchPage = () => {
          ref={resultsRef}
          className={`bg-white pt-4 pb-6 lg:pb-4 transition-all duration-300 ${compactPanelBusiness ? "w-1/2" : "w-full"}`}
        >
-        <div className={`mx-auto px-4 ${compactPanelBusiness ? "max-w-full" : "max-w-[80%]"}`}>
+        {/* Split layout wrapper: results left + map right when city/neighborhood known */}
+        <div className={hasKnownLocation && !compactPanelBusiness ? "flex gap-0" : ""}>
+        <div className={`${hasKnownLocation && !compactPanelBusiness ? "w-1/2 overflow-y-auto" : "w-full"} mx-auto px-4 ${compactPanelBusiness ? "max-w-full" : hasKnownLocation ? "max-w-full" : "max-w-[80%]"}`}
+          style={hasKnownLocation && !compactPanelBusiness ? { maxHeight: "calc(100vh - 200px)" } : undefined}
+        >
           {/* Filters: City + Geo toggle — on mobile shown before hero via order */}
           <div className={`${isCategoryFilterActive ? 'mb-3' : 'mb-8'} flex flex-wrap items-center gap-3 ${isMobile ? 'hidden' : ''}`}>
             {/* Time slot indicator */}
@@ -3178,7 +3214,7 @@ const SearchPage = () => {
                 </div>
               </div>
               {/* Fallback-style cards in 4-column grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-4 pt-4 sm:pt-4">
+              <div className={`grid gap-4 pt-4 sm:pt-4 ${hasKnownLocation && !compactPanelBusiness ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1 sm:grid-cols-3 lg:grid-cols-4"}`}>
                 {paginatedBusinesses.map((business, index) => {
                   const img = business.images?.[0] || business.logo_url;
                   const sources = collectRatingSources(business as any);
@@ -3318,6 +3354,21 @@ const SearchPage = () => {
               )}
             </>
           ) : null}
+        </div>
+        {/* Right side: Sticky Google Map when city/neighborhood known */}
+        {hasKnownLocation && !compactPanelBusiness && (
+          <div className="w-1/2 sticky top-[53px] h-[calc(100vh-53px)]">
+            <PoiGoogleMap
+              pois={mapPoiItems}
+              selectedPoiId={compactPanelBusiness?.id ?? null}
+              onPoiClick={(poiId) => {
+                const biz = filteredBusinesses.find(b => b.id === poiId);
+                if (biz) setCompactPanelBusiness({ id: biz.id, name: biz.name } as AIBusinessData);
+              }}
+              center={mapCenterForResults}
+            />
+          </div>
+        )}
         </div>
       </section>
       )}
