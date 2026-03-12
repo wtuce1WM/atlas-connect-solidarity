@@ -393,7 +393,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
     const startZoom = map.getZoom() || 12;
     const targetZoom = Math.max(startZoom, 15);
 
-    const DURATION = 1200; // ms
+    const DURATION = 1600; // ms
     const startTime = performance.now();
 
     // Ease-in-out cubic
