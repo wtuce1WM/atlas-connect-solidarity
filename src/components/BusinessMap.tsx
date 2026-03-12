@@ -251,6 +251,7 @@ const BusinessMap = ({
       fullscreenControl: true,
       zoomControl: true,
       zoomControlOptions: { position: google.maps.ControlPosition.RIGHT_CENTER },
+      gestureHandling: "greedy",
       styles: [
         { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] },
       ],
