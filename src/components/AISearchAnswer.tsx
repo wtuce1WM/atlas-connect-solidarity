@@ -91,7 +91,8 @@ const BusinessHoverCard = ({ name, business, onClickBusiness }: { name: string; 
         <button
           type="button"
           onClick={() => onClickBusiness(business)}
-          className="text-base font-semibold text-foreground underline decoration-gold/40 underline-offset-2 hover:decoration-gold transition-colors cursor-pointer"
+          className="text-base font-semibold text-foreground underline decoration-gold/40 underline-offset-2 hover:decoration-gold transition-colors cursor-pointer !normal-case !tracking-normal"
+          style={{ fontFamily: "'Libre Baskerville', serif" }}
         >
           {business.name}
         </button>
