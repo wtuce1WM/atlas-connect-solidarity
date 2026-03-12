@@ -1122,6 +1122,17 @@ const SearchPage = () => {
         filtered = subcatMatches;
       }
     }
+    // Apply neighborhood filter when detected from search query
+    if (detectedNeighborhood && !selectedCity) {
+      const nhLower = detectedNeighborhood.toLowerCase();
+      const nhFiltered = filtered.filter(b => {
+        const bNh = (b.neighborhood || "").toLowerCase();
+        return bNh.includes(nhLower) || bNh.includes("toute la ville");
+      });
+      if (nhFiltered.length > 0) {
+        filtered = nhFiltered;
+      }
+    }
     // Apply service filter
     if (selectedServiceFilter) {
       filtered = filtered.filter(b => b.services && b.services.includes(selectedServiceFilter));
