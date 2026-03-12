@@ -3117,7 +3117,7 @@ const SearchPage = () => {
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
                         {business.wtuce_status === "verified" && (
                           <div className="absolute top-2 right-2 z-0">
-                            <img src={logoGold} alt="Vérifié" className="w-[4.5rem] h-[4.5rem] object-contain" />
+                            <img src={logoGold} alt="Vérifié" className="w-10 h-10 object-contain" />
                           </div>
                         )}
                         <div className="absolute top-2 left-2 flex flex-wrap gap-1">
