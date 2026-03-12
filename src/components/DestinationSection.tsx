@@ -27,7 +27,7 @@ interface DestinationSectionProps {
   onHover?: (destId: string | null) => void;
 }
 
-const DestinationSection = ({ city, language, onDestinationClick, columns, onMapClick, onDestinationsLoaded }: DestinationSectionProps) => {
+const DestinationSection = ({ city, language, onDestinationClick, columns, onMapClick, onDestinationsLoaded, onHover }: DestinationSectionProps) => {
   const [destinations, setDestinations] = useState<DestinationItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
