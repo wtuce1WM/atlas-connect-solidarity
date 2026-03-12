@@ -1,0 +1,1 @@
+UPDATE businesses SET latitude = 31.6367, longitude = -8.0087 WHERE id = '6e12320b-ee52-40ef-adb8-e7b7fd806aed'
