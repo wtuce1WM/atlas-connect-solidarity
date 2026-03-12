@@ -50,6 +50,7 @@ import DestinationPage from "./pages/DestinationPage";
 import SearchLayoutDemo from "./pages/SearchLayoutDemo";
 import SearchPageCopy from "./pages/SearchPageCopy";
 import StrictModePage from "./pages/StrictModePage";
+import IconPreview from "./pages/IconPreview";
 
 const queryClient = new QueryClient();
 
