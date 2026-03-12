@@ -139,6 +139,7 @@ const BusinessMap = ({
   isLoading: externalLoading,
   forceOverview = false,
   cityCenter = null,
+  neighborhoodCenter = null,
 }: BusinessMapProps) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
