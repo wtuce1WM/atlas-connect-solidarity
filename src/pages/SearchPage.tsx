@@ -2883,6 +2883,13 @@ const SearchPage = () => {
                     )}
                   </button>
                 </div>
+                <button
+                  onClick={() => { aiPopupShownRef.current = false; setShowAiPopup(true); }}
+                  className="shrink-0 w-9 h-9 rounded-full bg-gold text-black flex items-center justify-center hover:bg-gold/90 transition-colors shadow-md"
+                  title={language === "en" ? "View AI suggestion" : "Voir la suggestion IA"}
+                >
+                  <Sparkles className="h-4 w-4" />
+                </button>
                 <div className="flex items-center gap-2">
                   {(ttsStatus === "playing" || ttsStatus === "loading") ? (
                     <button
