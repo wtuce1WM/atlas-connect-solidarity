@@ -204,14 +204,28 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center }: PoiGoogleMapP
     mapRef.current.setCenter(center);
   }, [center]);
 
-  // Pan to selected (only when no forced city center)
+  // Pan + zoom to selected poi
+  const prevSelectedRef = useRef<string | null>(null);
   useEffect(() => {
-    if (!mapRef.current || !selectedPoiId || center) return;
+    if (!mapRef.current || !selectedPoiId) return;
     const poi = pois.find((p) => p.id === selectedPoiId);
     if (poi?.latitude && poi?.longitude) {
       mapRef.current.panTo({ lat: poi.latitude, lng: poi.longitude });
+      const currentZoom = mapRef.current.getZoom();
+      if (currentZoom && currentZoom < 15) mapRef.current.setZoom(15);
     }
-  }, [selectedPoiId, pois, center]);
+    prevSelectedRef.current = selectedPoiId;
+  }, [selectedPoiId, pois]);
+
+  // Zoom back out when deselected (hover out)
+  useEffect(() => {
+    if (!mapRef.current || selectedPoiId || !prevSelectedRef.current) return;
+    if (center) {
+      mapRef.current.panTo(center);
+      mapRef.current.setZoom(13);
+    }
+    prevSelectedRef.current = null;
+  }, [selectedPoiId, center]);
 
   if (!ready) {
     return (
