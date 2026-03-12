@@ -959,14 +959,19 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
             </a>
           )}
           {!isExpanded && (business.latitude || business.google_maps_url) && (
-            <button
-              onClick={() => mapSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+            <a
+              href={business.latitude && business.longitude
+                ? `https://www.google.com/maps/dir/?api=1&destination=${business.latitude},${business.longitude}`
+                : `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(business.address || business.name)}`
+              }
+              target="_blank"
+              rel="noopener noreferrer"
               className="hover:opacity-70 transition-opacity"
               style={{ color: "#404040" }}
-              title="Voir sur la carte"
+              title="Itinéraire"
             >
-              <MapPin className="h-6 w-6" />
-            </button>
+              <Route className="h-6 w-6" />
+            </a>
           )}
         </div>,
         toolbarCenterPortal
