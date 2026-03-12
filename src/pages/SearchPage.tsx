@@ -1173,8 +1173,26 @@ const SearchPage = () => {
 
   const mapPoiItems: PoiMapItem[] = useMemo(() => {
     if (!hasKnownLocation) return [];
+    const center = mapCenterForResults;
+    const maxRadiusKm = neighborhoodCoords ? 2 : 60;
+    const haversine = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+      const R = 6371;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    };
     return filteredBusinesses
-      .filter(b => b.latitude && b.longitude)
+      .filter(b => {
+        if (!b.latitude || !b.longitude) return false;
+        // Morocco bounding box
+        if (b.latitude < 21 || b.latitude > 36.5 || b.longitude < -17.5 || b.longitude > -1) return false;
+        if (center) {
+          const dist = haversine(center.lat, center.lng, b.latitude, b.longitude);
+          if (dist > maxRadiusKm) return false;
+        }
+        return true;
+      })
       .slice(0, 100)
       .map(b => ({
         id: b.id,
@@ -1188,7 +1206,7 @@ const SearchPage = () => {
         avgOn20: computeWeightedRatingOn20(collectRatingSources(b as any)),
         totalReviews: collectRatingSources(b as any).reduce((s, r) => s + r.count, 0),
       }));
-  }, [hasKnownLocation, filteredBusinesses]);
+  }, [hasKnownLocation, filteredBusinesses, mapCenterForResults, neighborhoodCoords]);
 
 
   useEffect(() => {
