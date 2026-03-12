@@ -286,6 +286,8 @@ const CityCategoryFilter = ({
     fetchServices();
   }, [selectedSubcategory, cityName, subcategories]);
 
+  const baseTop = stickyBaseTop ?? (104 + (hasCityBar ? 44 : 0));
+
   // Measure subcategory bar height for service bar positioning
   useEffect(() => {
     if (subFilterRef.current) {
@@ -300,8 +302,6 @@ const CityCategoryFilter = ({
     if (language === "ar" && item.name_ar) return item.name_ar;
     return item.name_fr;
   };
-
-  const baseTop = stickyBaseTop ?? (104 + (hasCityBar ? 44 : 0));
 
   return (
     <>
