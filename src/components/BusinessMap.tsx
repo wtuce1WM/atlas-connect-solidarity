@@ -370,7 +370,7 @@ const BusinessMap = ({
           if (dirBtn) {
             dirBtn.addEventListener("click", (e) => {
               e.preventDefault();
-              window.open(`https://www.google.com/maps/dir/?api=1&destination=${b.latitude},${b.longitude}`, "_blank", "noopener,noreferrer");
+              window.open(`https://www.google.com/maps/dir/?api=1&destination=${b.latitude},${b.longitude}`, "_blank");
             });
           }
         });
