@@ -2053,20 +2053,6 @@ const SearchPage = () => {
                       </button>
                     )}
                   </div>
-                  {/* Mic */}
-                  <div className="relative flex items-center justify-center">
-                    {/* Concentric ripple rings */}
-                    <span className="absolute w-16 h-16 rounded-full border border-primary/40 animate-[ripple_2.4s_ease-out_infinite]" />
-                    <span className="absolute w-16 h-16 rounded-full border border-primary/30 animate-[ripple_2.4s_ease-out_0.6s_infinite]" />
-                    <span className="absolute w-16 h-16 rounded-full border border-primary/20 animate-[ripple_2.4s_ease-out_1.2s_infinite]" />
-                    <button
-                      onClick={() => toggleRecording()}
-                      className="relative z-10 w-16 h-16 rounded-full bg-black flex items-center justify-center shadow-lg transition-all hover:scale-105"
-                      title={language === "en" ? "Voice search" : language === "ar" ? "بحث صوتي" : "Recherche vocale"}
-                    >
-                      <Mic className="h-7 w-7 text-white" />
-                    </button>
-                  </div>
                 </div>
                 <button
                   onClick={() => { setShowAiPopup(false); setOverlaySelectedBusiness(null); }}
