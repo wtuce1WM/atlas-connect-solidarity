@@ -276,6 +276,10 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
           onPoiClick?.(poi.id);
         },
         () => {
+          // Cancel any pending close
+          if (closeTimerRef.current) { clearTimeout(closeTimerRef.current); closeTimerRef.current = null; }
+          infoWindowHoveredRef.current = false;
+
           const img = poi.images?.[0];
           const loc = `${poi.city || ""}${poi.neighborhood ? ` · ${poi.neighborhood}` : ""}`;
           const ratingHtml = poi.avgOn20
@@ -293,12 +297,11 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
               ${ratingHtml ? `<div style="margin-top:3px;color:white;">${ratingHtml}</div>` : ""}
             </div>
           </div>`;
-          // Position infowindow above the overlay with offset to prevent flickering
           infoWindowRef.current?.setContent(html);
           infoWindowRef.current?.setOptions({ pixelOffset: new google.maps.Size(0, -30) });
           infoWindowRef.current?.setPosition(position);
           infoWindowRef.current?.open(map);
-          // Make infowindow clickable
+          // Make infowindow clickable + hoverable
           google.maps.event.addListenerOnce(infoWindowRef.current!, "domready", () => {
             const el = document.querySelector(`[data-poi-id="${poi.id}"]`);
             if (el) {
@@ -306,10 +309,28 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
                 onPoiClick?.(poi.id);
               });
             }
+            // Keep infowindow open while mouse is over it
+            const iwContainer = document.querySelector(".gm-style-iw")?.closest(".gm-style-iw-a") 
+              || document.querySelector(".gm-style-iw")?.parentElement;
+            if (iwContainer) {
+              (iwContainer as HTMLElement).addEventListener("mouseenter", () => {
+                infoWindowHoveredRef.current = true;
+                if (closeTimerRef.current) { clearTimeout(closeTimerRef.current); closeTimerRef.current = null; }
+              });
+              (iwContainer as HTMLElement).addEventListener("mouseleave", () => {
+                infoWindowHoveredRef.current = false;
+                closeTimerRef.current = setTimeout(() => { infoWindowRef.current?.close(); }, 200);
+              });
+            }
           });
         },
         () => {
-          infoWindowRef.current?.close();
+          // Delayed close to allow cursor to reach infowindow
+          closeTimerRef.current = setTimeout(() => {
+            if (!infoWindowHoveredRef.current) {
+              infoWindowRef.current?.close();
+            }
+          }, 300);
         },
       );
 
