@@ -93,7 +93,7 @@ const BusinessHoverCard = ({ name, business, onClickBusiness }: { name: string; 
           onClick={() => onClickBusiness(business)}
           className="text-base font-semibold text-foreground underline decoration-gold/40 underline-offset-2 hover:decoration-gold transition-colors cursor-pointer"
         >
-          {name}
+          {business.name}
         </button>
       </HoverCardTrigger>
       <HoverCardContent side="bottom" align="center" avoidCollisions sideOffset={8} className="z-[200] w-72 p-0 overflow-hidden rounded-xl border border-gold/20 shadow-xl !bg-white dark:!bg-zinc-900">
