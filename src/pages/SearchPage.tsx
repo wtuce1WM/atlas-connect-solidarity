@@ -1170,7 +1170,26 @@ const SearchPage = () => {
     return [...filtered].sort(sortWtuceAndRating);
   }, [allBusinesses, serviceFilterBusinesses, subcategoryFilterBusinesses, selectedCity, selectedCityId, selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, activeTimeSlot, searchQuery, categoryFromUrl, moreFilterMatchingIds, moreFilterTimeSlots]);
 
-  // Auto-reset city to "all" when city filter yields 0 results but national results exist
+  const mapPoiItems: PoiMapItem[] = useMemo(() => {
+    if (!hasKnownLocation) return [];
+    return filteredBusinesses
+      .filter(b => b.latitude && b.longitude)
+      .slice(0, 100)
+      .map(b => ({
+        id: b.id,
+        name: b.name,
+        latitude: b.latitude,
+        longitude: b.longitude,
+        images: b.images,
+        city: b.city,
+        neighborhood: b.neighborhood,
+        rating: b.rating,
+        avgOn20: computeWeightedRatingOn20(collectRatingSources(b as any)),
+        totalReviews: collectRatingSources(b as any).reduce((s, r) => s + r.count, 0),
+      }));
+  }, [hasKnownLocation, filteredBusinesses]);
+
+
   useEffect(() => {
     if (isLoading) return;
     if (!selectedCity || selectedCity === "all") return;
