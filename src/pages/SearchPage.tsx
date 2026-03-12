@@ -2525,6 +2525,10 @@ const SearchPage = () => {
                   neighborhood: (b as any).neighborhood,
                   images: b.images,
                   hook_fr: b.hook_fr,
+                  google_rating: b.google_rating,
+                  google_review_count: b.google_review_count,
+                  tripadvisor_rating: b.tripadvisor_rating,
+                  tripadvisor_review_count: b.tripadvisor_review_count,
                 }))}
                 height="calc(100vh - 250px)"
                 isLoading={isLoading}
