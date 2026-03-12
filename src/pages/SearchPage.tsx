@@ -3287,10 +3287,8 @@ const SearchPage = () => {
                         )}
                         {geo.isDetecting
                           ? "…"
-                          : geo.isEnabled && geo.confirmedAddress
-                          ? `📍 ${geo.confirmedAddress}`
-                          : geo.isEnabled && geo.detectedCity
-                          ? `📍 ${geo.detectedCity}`
+                          : geo.isEnabled && (detectedNeighborhood || geo.detectedCity)
+                          ? `📍 ${[detectedNeighborhood, geo.detectedCity].filter(Boolean).join(", ")}`
                           : geo.isEnabled
                           ? (language === "en" ? "No city" : "Aucune ville")
                           : (language === "en" ? "Location" : "Position")
