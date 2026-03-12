@@ -657,7 +657,8 @@ const SearchPage = () => {
    const lastAiServiceRef = useRef<string | null>(null);
     const [compactPanelBusiness, setCompactPanelBusiness] = useState<AIBusinessData | null>(null);
     const [isCompactPanelExpanded, setIsCompactPanelExpanded] = useState(false);
-    const [compactBusinessImageCount, setCompactBusinessImageCount] = useState(0);
+     const [compactBusinessImageCount, setCompactBusinessImageCount] = useState(0);
+     const [hoveredResultId, setHoveredResultId] = useState<string | null>(null);
      const [poiSelectedBusinessId, setPoiSelectedBusinessId] = useState<string | null>(null);
      const [poiPanelExpanded, setPoiPanelExpanded] = useState(false);
      const [poiBusinessImageCount, setPoiBusinessImageCount] = useState(0);
@@ -3360,7 +3361,7 @@ const SearchPage = () => {
           <div className="w-1/2 sticky top-[53px] h-[calc(100vh-53px)]">
             <PoiGoogleMap
               pois={mapPoiItems}
-              selectedPoiId={compactPanelBusiness?.id ?? null}
+              selectedPoiId={hoveredResultId || compactPanelBusiness?.id || null}
               onPoiClick={(poiId) => {
                 const biz = filteredBusinesses.find(b => b.id === poiId);
                 if (biz) setCompactPanelBusiness({ id: biz.id, name: biz.name } as AIBusinessData);
