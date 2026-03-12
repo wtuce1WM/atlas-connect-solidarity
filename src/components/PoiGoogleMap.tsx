@@ -158,11 +158,12 @@ class LabelMarker extends google.maps.OverlayView {
 
   private applyStyle() {
     if (!this.div) return;
-    const bg = this.highlighted ? "#ef4444" : "#1a1a1a";
-    const border = this.highlighted ? "#b91c1c" : "#D4AF37";
+    const bg = this.highlighted ? "#1a1a1a" : "#ffffff";
+    const fg = this.highlighted ? "#ffffff" : "#1a1a1a";
+    const border = this.highlighted ? "#1a1a1a" : "#d1d5db";
     const shadow = this.highlighted
-      ? "0 2px 8px rgba(239,68,68,0.5)"
-      : "0 1px 4px rgba(0,0,0,0.3)";
+      ? "0 2px 8px rgba(0,0,0,0.4)"
+      : "0 1px 4px rgba(0,0,0,0.15)";
     const scale = this.highlighted ? "scale(1.08)" : "scale(1)";
     const z = this.highlighted ? "1000" : "1";
 
@@ -171,7 +172,7 @@ class LabelMarker extends google.maps.OverlayView {
       transform:translate(-50%,-100%) ${scale};
       transition:transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
       display:flex;align-items:center;gap:4px;
-      background:${bg};color:white;
+      background:${bg};color:${fg};
       border:1.5px solid ${border};
       border-radius:6px;padding:3px 8px 3px 5px;
       font-family:system-ui,-apple-system,sans-serif;
