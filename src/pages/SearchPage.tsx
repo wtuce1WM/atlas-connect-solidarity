@@ -1892,9 +1892,28 @@ const SearchPage = () => {
                 {language === "en" ? "Search results for" : language === "ar" ? "نتائج البحث عن" : "Résultats de recherche pour"}
               </p>
               <p className="text-lg md:text-xl font-bold text-foreground mt-1">
-                «&nbsp;{(spokenText || searchQuery)}{selectedCity && selectedCity !== "all" ? ` ${selectedCity}` : ""}&nbsp;»
+                «&nbsp;{(spokenText || searchQuery)}&nbsp;»
               </p>
-              <p className="text-gold font-semibold mt-1">
+              {/* Active filters as chips — most recently selected first */}
+              {(() => {
+                const chips: { label: string; color: string }[] = [];
+                if (selectedCity && selectedCity !== "all") chips.push({ label: `📍 ${selectedCity}`, color: "bg-secondary/15 text-secondary" });
+                if (selectedCategoryFilter) chips.push({ label: selectedCategoryFilter, color: "bg-primary/15 text-primary" });
+                if (selectedSubcategoryFilter) chips.push({ label: selectedSubcategoryFilter, color: "bg-primary/15 text-primary" });
+                if (selectedServiceFilter) chips.push({ label: selectedServiceFilter, color: "bg-gold/15 text-gold" });
+                if (detectedSubcategory && !selectedSubcategoryFilter && !selectedCategoryFilter) chips.push({ label: detectedSubcategory, color: "bg-muted text-muted-foreground" });
+                if (detectedCity && (!selectedCity || selectedCity === "all")) chips.push({ label: `📍 ${detectedCity}`, color: "bg-muted text-muted-foreground" });
+                return chips.length > 0 ? (
+                  <div className="flex flex-wrap justify-center gap-1.5 mt-2">
+                    {chips.map((c, i) => (
+                      <span key={i} className={`inline-block text-xs font-medium px-3 py-1 rounded-full ${c.color}`}>
+                        {c.label}
+                      </span>
+                    ))}
+                  </div>
+                ) : null;
+              })()}
+              <p className="text-gold font-semibold mt-2">
                 {displayedResultsCount} {language === "en" ? "establishments found" : language === "ar" ? "مؤسسة وجدت" : "établissements trouvés"}
               </p>
             </div>
