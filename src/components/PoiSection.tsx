@@ -36,9 +36,10 @@ interface PoiSectionProps {
   columns?: number;
   onMapClick?: (business: PoiBusiness) => void;
   onPoisLoaded?: (pois: PoiBusiness[]) => void;
+  onHover?: (businessId: string | null) => void;
 }
 
-const PoiSection = ({ city, language, onBusinessClick, columns, onMapClick, onPoisLoaded }: PoiSectionProps) => {
+const PoiSection = ({ city, language, onBusinessClick, columns, onMapClick, onPoisLoaded, onHover }: PoiSectionProps) => {
   const [pois, setPois] = useState<PoiBusiness[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -98,7 +99,7 @@ const PoiSection = ({ city, language, onBusinessClick, columns, onMapClick, onPo
         <span className="text-xs text-muted-foreground">{pois.length} {language === "en" ? "results" : "résultats"}</span>
       </div>
 
-      <div className={columns === 3 ? "grid grid-cols-1 sm:grid-cols-3 gap-3" : "grid grid-cols-1 sm:grid-cols-3 gap-3 lg:grid-cols-6"}>
+      <div className={columns === 3 ? "grid grid-cols-1 sm:grid-cols-3 gap-3" : "grid grid-cols-1 sm:grid-cols-2 gap-3 lg:grid-cols-4"}>
         {pois.map((biz) => {
           const img = biz.images && biz.images.length > 0 ? biz.images[0] : null;
           const sources = collectRatingSources(biz);
@@ -115,6 +116,8 @@ const PoiSection = ({ city, language, onBusinessClick, columns, onMapClick, onPo
                   onBusinessClick(biz.id);
                 }
               }}
+              onMouseEnter={() => onHover?.(biz.id)}
+              onMouseLeave={() => onHover?.(null)}
               className="group overflow-hidden rounded-xl border border-gold/20 shadow-sm hover:shadow-md transition-shadow aspect-square relative"
             >
               {img ? (

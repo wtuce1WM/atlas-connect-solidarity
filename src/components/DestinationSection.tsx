@@ -24,9 +24,10 @@ interface DestinationSectionProps {
   columns?: number;
   onMapClick?: (dest: DestinationItem) => void;
   onDestinationsLoaded?: (dests: DestinationItem[]) => void;
+  onHover?: (destId: string | null) => void;
 }
 
-const DestinationSection = ({ city, language, onDestinationClick, columns, onMapClick, onDestinationsLoaded }: DestinationSectionProps) => {
+const DestinationSection = ({ city, language, onDestinationClick, columns, onMapClick, onDestinationsLoaded, onHover }: DestinationSectionProps) => {
   const [destinations, setDestinations] = useState<DestinationItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -137,7 +138,7 @@ const DestinationSection = ({ city, language, onDestinationClick, columns, onMap
         <span className="text-xs text-muted-foreground">{destinations.length} {language === "en" ? "results" : "résultats"}</span>
       </div>
 
-      <div className={columns === 3 ? "grid grid-cols-1 sm:grid-cols-3 gap-3" : "grid grid-cols-1 sm:grid-cols-3 gap-3 lg:grid-cols-6"}>
+      <div className={columns === 3 ? "grid grid-cols-1 sm:grid-cols-3 gap-3" : "grid grid-cols-1 sm:grid-cols-2 gap-3 lg:grid-cols-4"}>
         {destinations.map((dest) => {
           const img = dest.image_url || (dest.images && dest.images.length > 0 ? dest.images[0] : null);
           const name = getName(dest);
@@ -152,6 +153,8 @@ const DestinationSection = ({ city, language, onDestinationClick, columns, onMap
                   onDestinationClick(dest.id);
                 }
               }}
+              onMouseEnter={() => onHover?.(dest.id)}
+              onMouseLeave={() => onHover?.(null)}
               className="group overflow-hidden rounded-xl border border-gold/20 shadow-sm hover:shadow-md transition-shadow aspect-square relative"
             >
               {img ? (
