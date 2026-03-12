@@ -124,14 +124,37 @@ const GoogleMapEmbed = ({ address, businessName, latitude, longitude, googleMaps
 
         {/* Action Buttons */}
         <div className="p-4 space-y-2">
-          <Button
-            onClick={handleGetDirections}
-            className="w-full"
-            variant="default"
-          >
-            <Navigation className="h-4 w-4 mr-2" />
-            Obtenir l'itinéraire
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              onClick={handleGetDirections}
+              className="flex-1"
+              variant="default"
+            >
+              <Navigation className="h-4 w-4 mr-2" />
+              Obtenir l'itinéraire
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="default" size="icon">
+                  <ChevronDown className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={handleGetDirections}>
+                  <img src="https://www.google.com/favicon.ico" alt="" className="h-4 w-4 mr-2" />
+                  Google Maps
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleNavigateWith("waze")}>
+                  <img src="https://www.waze.com/favicon.ico" alt="" className="h-4 w-4 mr-2" />
+                  Waze
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleNavigateWith("apple")}>
+                  <img src="https://www.apple.com/favicon.ico" alt="" className="h-4 w-4 mr-2" />
+                  Apple Plans
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
           <Button
             onClick={handleOpenInMaps}
             className="w-full"
