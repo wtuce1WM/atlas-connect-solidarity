@@ -2023,7 +2023,7 @@ const SearchPage = () => {
                     📍 {geo.confirmedAddress || geo.detectedCity}
                   </p>
                 )}
-                <div className="flex items-center justify-center gap-6">
+                <div className="flex items-center justify-center gap-16">
                   {/* Listen */}
                   <div className="relative flex items-center justify-center">
                     {/* Concentric ripple rings — Majorelle Blue */}
@@ -2052,16 +2052,6 @@ const SearchPage = () => {
                         <Volume2 className="h-7 w-7 text-white" />
                       </button>
                     )}
-                  </div>
-                  {/* Geo */}
-                  <div className="relative">
-                    <button
-                      onClick={() => setLocationDialogOpen(true)}
-                      className="relative w-16 h-16 rounded-full bg-black flex items-center justify-center shadow-lg transition-all hover:scale-105"
-                      title={language === "en" ? "Geolocate yourself" : language === "ar" ? "حدد موقعك" : "Géolocalisez-vous"}
-                    >
-                      <MapPin className="h-7 w-7 text-white" />
-                    </button>
                   </div>
                   {/* Mic */}
                   <div className="relative flex items-center justify-center">
