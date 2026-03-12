@@ -186,16 +186,23 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center }: PoiGoogleMapP
   }, [pois, ready, center]);
 
   // Update marker icons when selectedPoiId changes (no fitBounds!)
+  // Keep previous marker highlighted (red) when hover ends
+  const prevSelectedRef = useRef<string | null>(null);
   useEffect(() => {
     markersRef.current.forEach((marker, id) => {
       const isSelected = id === selectedPoiId;
+      const isLastHovered = !selectedPoiId && id === prevSelectedRef.current;
+      const highlighted = isSelected || isLastHovered;
       marker.setIcon({
-        url: markerSvgUrl(isSelected),
-        scaledSize: new google.maps.Size(isSelected ? 36 : 28, isSelected ? 50 : 40),
-        anchor: new google.maps.Point(isSelected ? 18 : 14, isSelected ? 50 : 40),
+        url: markerSvgUrl(highlighted),
+        scaledSize: new google.maps.Size(highlighted ? 36 : 28, highlighted ? 50 : 40),
+        anchor: new google.maps.Point(highlighted ? 18 : 14, highlighted ? 50 : 40),
       });
-      marker.setZIndex(isSelected ? 1000 : 1);
+      marker.setZIndex(highlighted ? 1000 : 1);
     });
+    if (selectedPoiId) {
+      prevSelectedRef.current = selectedPoiId;
+    }
   }, [selectedPoiId]);
 
   // Keep city centered when a city center is provided
@@ -205,7 +212,6 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center }: PoiGoogleMapP
   }, [center]);
 
   // Pan + zoom to selected poi
-  const prevSelectedRef = useRef<string | null>(null);
   useEffect(() => {
     if (!mapRef.current || !selectedPoiId) return;
     const poi = pois.find((p) => p.id === selectedPoiId);
@@ -214,15 +220,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center }: PoiGoogleMapP
       const currentZoom = mapRef.current.getZoom();
       if (currentZoom && currentZoom < 15) mapRef.current.setZoom(15);
     }
-    prevSelectedRef.current = selectedPoiId;
   }, [selectedPoiId, pois]);
-
-  // When hover ends, keep the map positioned on the last hovered marker
-  useEffect(() => {
-    if (!selectedPoiId && prevSelectedRef.current) {
-      prevSelectedRef.current = null;
-    }
-  }, [selectedPoiId]);
 
   if (!ready) {
     return (
