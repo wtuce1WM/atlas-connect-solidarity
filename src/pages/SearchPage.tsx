@@ -43,6 +43,7 @@ import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { useToast } from "@/hooks/use-toast";
 import LocationPickerDialog from "@/components/LocationPickerDialog";
+import WarningOverlay from "@/components/WarningOverlay";
 
 interface Business {
   id: string;
@@ -1933,6 +1934,27 @@ const SearchPage = () => {
             externalRegenerateKey={aiRegenerateKey}
           />
         </div>
+      )}
+
+      {/* Warning Overlay — forces user to pick city + category */}
+      {!isLoading && allBusinesses.length > 0 && !compactPanelBusiness && !showAiPopup && (
+        <WarningOverlay
+          allBusinesses={allBusinesses}
+          citiesWithPriority={citiesWithPriority}
+          selectedCity={selectedCity}
+          detectedCity={detectedCity}
+          selectedCategoryFilter={selectedCategoryFilter}
+          detectedSubcategory={detectedSubcategory}
+          searchQuery={searchQuery}
+          spokenText={spokenText}
+          onSelectCity={(city) => {
+            setSelectedCity(city);
+            setIsGeoCityAutoSelected(false);
+          }}
+          onSelectCategory={(cat) => {
+            setSelectedCategoryFilter(cat);
+          }}
+        />
       )}
 
       {/* AI Suggestion Overlay — fullscreen takeover shown on arrival from homepage */}
