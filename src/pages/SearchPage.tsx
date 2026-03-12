@@ -1123,7 +1123,7 @@ const SearchPage = () => {
       }
     }
     // Apply neighborhood filter when detected from search query
-    if (detectedNeighborhood && !selectedCity) {
+    if (detectedNeighborhood) {
       const nhLower = detectedNeighborhood.toLowerCase();
       const nhFiltered = filtered.filter(b => {
         const bNh = (b.neighborhood || "").toLowerCase();
