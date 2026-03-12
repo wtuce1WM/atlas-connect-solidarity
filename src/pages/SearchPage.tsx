@@ -2055,10 +2055,22 @@ const SearchPage = () => {
 
               {/* 3 boutons + Voir résultats — sous le texte IA, même marge que le haut */}
               <div className="flex flex-col items-center gap-4 pt-14 pb-24">
+                <button
+                  onClick={() => { setShowAiPopup(false); setOverlaySelectedBusiness(null); }}
+                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-gold text-black text-sm font-semibold hover:bg-gold/90 transition-colors"
+                >
+                  {language === "en" ? "See results" : language === "ar" ? "عرض النتائج" : "Voir les résultats"}
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+                {/* Adresse géolocalisée */}
+                {geo.isEnabled && (geo.confirmedAddress || geo.detectedCity) && (
+                  <p className="text-sm text-muted-foreground font-medium">
+                    📍 {geo.confirmedAddress || geo.detectedCity}
+                  </p>
+                )}
                 <div className="flex items-center justify-center gap-16">
                   {/* Listen */}
                   <div className="relative flex items-center justify-center">
-                    {/* Concentric ripple rings — Majorelle Blue */}
                     <span className="absolute w-16 h-16 rounded-full border border-secondary/40 animate-[ripple_2.4s_ease-out_infinite]" />
                     <span className="absolute w-16 h-16 rounded-full border border-secondary/30 animate-[ripple_2.4s_ease-out_0.6s_infinite]" />
                     <span className="absolute w-16 h-16 rounded-full border border-secondary/20 animate-[ripple_2.4s_ease-out_1.2s_infinite]" />
@@ -2086,19 +2098,6 @@ const SearchPage = () => {
                     )}
                   </div>
                 </div>
-                <button
-                  onClick={() => { setShowAiPopup(false); setOverlaySelectedBusiness(null); }}
-                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-gold text-black text-sm font-semibold hover:bg-gold/90 transition-colors"
-                >
-                  {language === "en" ? "See results" : language === "ar" ? "عرض النتائج" : "Voir les résultats"}
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-                {/* Adresse géolocalisée */}
-                {geo.isEnabled && (geo.confirmedAddress || geo.detectedCity) && (
-                  <p className="text-sm text-muted-foreground font-medium">
-                    📍 {geo.confirmedAddress || geo.detectedCity}
-                  </p>
-                )}
               </div>
             </div>
           </div>
