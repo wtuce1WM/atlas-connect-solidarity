@@ -239,6 +239,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
       fullscreenControl: true,
       zoomControl: true,
       zoomControlOptions: { position: gmaps.ControlPosition.RIGHT_CENTER },
+      gestureHandling: "greedy",
     });
     infoWindowRef.current = new gmaps.InfoWindow();
   }, [ready, center]);
