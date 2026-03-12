@@ -184,12 +184,17 @@ const BusinessMap = ({
 
   const geoBusinesses = useMemo(() => {
     const MAX_CITY_RADIUS_KM = 60;
+    const MAX_NEIGHBORHOOD_RADIUS_KM = 1;
     const withCoordinates = businesses.filter((b) => {
       if (b.latitude == null || b.longitude == null) return false;
       // Only show markers within Morocco's bounding box
       if (b.latitude < 21 || b.latitude > 36.5 || b.longitude < -17.5 || b.longitude > -1) return false;
-      // When a city center is known, exclude markers too far from it
-      if (cityCenter) {
+      // When a neighborhood center is known, use tight 1km radius
+      if (neighborhoodCenter) {
+        const dist = haversineKm(neighborhoodCenter.lat, neighborhoodCenter.lng, b.latitude, b.longitude);
+        if (dist > MAX_NEIGHBORHOOD_RADIUS_KM) return false;
+      } else if (cityCenter) {
+        // When a city center is known, exclude markers too far from it
         const dist = haversineKm(cityCenter.lat, cityCenter.lng, b.latitude, b.longitude);
         if (dist > MAX_CITY_RADIUS_KM) return false;
       }
@@ -200,7 +205,7 @@ const BusinessMap = ({
       if (!uniqueById.has(business.id)) uniqueById.set(business.id, business);
     }
     return Array.from(uniqueById.values());
-  }, [businesses, cityCenter]);
+  }, [businesses, cityCenter, neighborhoodCenter]);
 
   // Fingerprint to force marker rebuild when wtuce_status changes
   const businessFingerprint = useMemo(

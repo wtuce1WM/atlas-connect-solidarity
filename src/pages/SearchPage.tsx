@@ -1403,6 +1403,7 @@ const SearchPage = () => {
           setDetectedSubcategory(finalDetectedSubcategory);
           setSearchMode(normalizedSearchMode);
            setDetectedCity(data.detectedCity || null);
+           setDetectedNeighborhood(data.detectedNeighborhood || null);
            setDisambiguationType(data.disambiguationType || null);
 
           // When the fallback heuristic auto-selects a subcategory (not the backend),
