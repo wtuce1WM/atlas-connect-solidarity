@@ -487,7 +487,8 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
     return () => { document.body.style.overflow = ""; };
   }, [isPanelOpen]);
 
-  if (isDismissed || (!isLoading && !answer) || error) return null;
+  // Panel rendering fully disabled — component only generates AI text via onAnswerReady
+  return null;
 
   return (
     <>
