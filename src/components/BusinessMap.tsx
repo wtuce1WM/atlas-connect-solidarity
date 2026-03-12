@@ -20,6 +20,10 @@ interface MapBusiness {
   neighborhood?: string | null;
   images?: string[] | null;
   hook_fr?: string | null;
+  google_rating?: number | null;
+  google_review_count?: number | null;
+  tripadvisor_rating?: number | null;
+  tripadvisor_review_count?: number | null;
 }
 
 interface BusinessMapProps {
@@ -101,8 +105,24 @@ function markerSvgUrl(isVerified: boolean): string {
 function infoHtml(b: MapBusiness, hasClickHandler: boolean): string {
   const isVerified = b.wtuce_status === "verified";
   const subcategory = b.categories?.[0] || b.main_category || "";
-  const thumbnail = b.images?.[0] || b.logo_url || "";
-  const hook = b.hook_fr || "";
+  const thumbnail = b.images?.[0] || "";
+
+  // Build review stars
+  const rating = b.google_rating || b.tripadvisor_rating;
+  const reviewCount = b.google_review_count || b.tripadvisor_review_count;
+  const reviewSource = b.google_rating ? "Google" : b.tripadvisor_rating ? "TripAdvisor" : "";
+  let starsHtml = "";
+  if (rating) {
+    const fullStars = Math.floor(rating);
+    const halfStar = rating - fullStars >= 0.3;
+    let stars = "";
+    for (let i = 0; i < fullStars; i++) stars += "★";
+    if (halfStar) stars += "½";
+    starsHtml = `<div style="font-size:11px;color:#D4AF37;margin-bottom:4px;">
+      <span style="letter-spacing:1px;">${stars}</span>
+      <span style="color:#888;font-size:10px;margin-left:4px;">${rating.toFixed(1)}${reviewCount ? ` (${reviewCount})` : ""} · ${reviewSource}</span>
+    </div>`;
+  }
 
   const actionBtn = hasClickHandler
     ? `<button data-business-id="${b.id}" style="flex:1;padding:6px 0;border-radius:6px;background:#D4AF37;color:white;font-size:11px;font-weight:600;border:none;cursor:pointer;">Voir la fiche →</button>`
@@ -113,12 +133,11 @@ function infoHtml(b: MapBusiness, hasClickHandler: boolean): string {
       <img src="${thumbnail}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.style.display='none'" />
     </div>` : ""}
     <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
-      ${b.logo_url && thumbnail !== b.logo_url ? `<img src="${b.logo_url}" style="width:28px;height:28px;border-radius:6px;object-fit:cover;flex-shrink:0;" onerror="this.style.display='none'" />` : ""}
       <span style="font-weight:700;font-size:13px;color:#1a1a1a;flex:1;">${b.name}</span>
       ${isVerified ? `<span style="display:inline-flex;align-items:center;gap:2px;padding:1px 6px;border-radius:9999px;background:#D4AF37;color:white;font-size:9px;font-weight:600;flex-shrink:0;">✓</span>` : ""}
     </div>
     ${subcategory ? `<div style="font-size:11px;color:#D4AF37;font-weight:500;margin-bottom:2px;">${subcategory}</div>` : ""}
-    ${hook ? `<div style="font-size:11px;color:#666;margin-bottom:4px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${hook}</div>` : ""}
+    ${starsHtml}
     <div style="font-size:10px;color:#888;margin-bottom:6px;">📍 ${b.city}${b.neighborhood ? ` · ${b.neighborhood}` : ""}</div>
     <div style="display:flex;gap:6px;">
       ${actionBtn}
