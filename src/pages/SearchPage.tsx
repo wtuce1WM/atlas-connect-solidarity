@@ -1914,8 +1914,10 @@ const SearchPage = () => {
                           key={cat}
                           onClick={() => {
                             setSelectedCategoryFilter(cat);
-                            setShowAiPopup(false);
                             setOverlaySelectedBusiness(null);
+                            // Regenerate AI text with the new filter
+                            setAiAnswerText("");
+                            setAiRegenerateKey(k => k + 1);
                           }}
                           className="px-4 py-2 rounded-full border border-border bg-card text-sm text-foreground hover:border-gold/50 hover:bg-gold/10 transition-colors"
                         >
