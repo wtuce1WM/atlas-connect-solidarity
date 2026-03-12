@@ -545,6 +545,10 @@ const SearchPage = () => {
           query = query.ilike("city", effectiveCity);
         }
       }
+      // Filter by neighborhood if detected from search query
+      if (detectedNeighborhood) {
+        query = query.or(`neighborhood.ilike.%${detectedNeighborhood}%,neighborhood.ilike.%toute la ville%`);
+      }
 
       const { data } = await query.order("priority_score", { ascending: false }).limit(200);
       if (data) {
@@ -552,7 +556,7 @@ const SearchPage = () => {
       }
     };
     fetchSubcategoryBusinesses();
-  }, [selectedSubcategoryFilter, selectedCategoryFilter, selectedCity, detectedCity, citiesWithPriority]);
+  }, [selectedSubcategoryFilter, selectedCategoryFilter, selectedCity, detectedCity, detectedNeighborhood, citiesWithPriority]);
 
   useEffect(() => {
     if (!selectedServiceFilter) {
@@ -1123,7 +1127,7 @@ const SearchPage = () => {
       }
     }
     // Apply neighborhood filter when detected from search query
-    if (detectedNeighborhood && !selectedCity) {
+    if (detectedNeighborhood) {
       const nhLower = detectedNeighborhood.toLowerCase();
       const nhFiltered = filtered.filter(b => {
         const bNh = (b.neighborhood || "").toLowerCase();
