@@ -305,11 +305,11 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
             </div>
           </div>`;
           infoWindowRef.current?.setContent(html);
-          infoWindowRef.current?.setOptions({ pixelOffset: new google.maps.Size(0, -30) });
+          infoWindowRef.current?.setOptions({ pixelOffset: new gmaps.Size(0, -30) });
           infoWindowRef.current?.setPosition(position);
           infoWindowRef.current?.open(map);
           // Make infowindow clickable + hoverable
-          google.maps.event.addListenerOnce(infoWindowRef.current!, "domready", () => {
+          gmaps.event.addListenerOnce(infoWindowRef.current!, "domready", () => {
             const el = document.querySelector(`[data-poi-id="${poi.id}"]`);
             if (el) {
               (el as HTMLElement).addEventListener("click", () => {
