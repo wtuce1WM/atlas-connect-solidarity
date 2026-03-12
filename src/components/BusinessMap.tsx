@@ -18,6 +18,8 @@ interface MapBusiness {
   wtuce_status?: string | null;
   logo_url?: string | null;
   neighborhood?: string | null;
+  images?: string[] | null;
+  hook_fr?: string | null;
 }
 
 interface BusinessMapProps {
@@ -31,6 +33,8 @@ interface BusinessMapProps {
   cityCenter?: { lat: number; lng: number } | null;
   /** When set, only markers within ~1km of this point are shown (neighborhood-level filtering) */
   neighborhoodCenter?: { lat: number; lng: number } | null;
+  /** Callback when user clicks "Voir la fiche" in the InfoWindow */
+  onBusinessClick?: (business: MapBusiness) => void;
 }
 
 declare global {
@@ -94,29 +98,31 @@ function markerSvgUrl(isVerified: boolean): string {
 }
 
 /* ── InfoWindow HTML ── */
-function infoHtml(b: MapBusiness): string {
+function infoHtml(b: MapBusiness, hasClickHandler: boolean): string {
   const isVerified = b.wtuce_status === "verified";
   const subcategory = b.categories?.[0] || b.main_category || "";
-  const verifiedBadge = isVerified
-    ? `<span style="display:inline-flex;align-items:center;gap:2px;padding:1px 6px;border-radius:9999px;background:#D4AF37;color:white;font-size:10px;font-weight:600;">✓ Vérifié</span>`
-    : "";
+  const thumbnail = b.images?.[0] || b.logo_url || "";
+  const hook = b.hook_fr || "";
 
-  return `<div style="min-width:180px;max-width:240px;font-family:system-ui,sans-serif;">
-    <div style="display:flex;align-items:start;gap:8px;margin-bottom:6px;">
-      ${b.logo_url ? `<img src="${b.logo_url}" style="width:32px;height:32px;border-radius:6px;object-fit:cover;flex-shrink:0;" onerror="this.style.display='none'" />` : ""}
-      <div>
-        <a href="/business/${b.id}" style="font-weight:600;font-size:13px;color:#1a1a1a;text-decoration:none;">${b.name}</a>
-        ${verifiedBadge}
-      </div>
+  const actionBtn = hasClickHandler
+    ? `<button data-business-id="${b.id}" style="flex:1;padding:6px 0;border-radius:6px;background:#D4AF37;color:white;font-size:11px;font-weight:600;border:none;cursor:pointer;">Voir la fiche →</button>`
+    : `<a href="/business/${b.id}" style="flex:1;padding:6px 0;border-radius:6px;background:#D4AF37;color:white;font-size:11px;font-weight:600;text-decoration:none;text-align:center;display:block;">Voir la fiche →</a>`;
+
+  return `<div style="min-width:220px;max-width:280px;font-family:system-ui,sans-serif;overflow:hidden;">
+    ${thumbnail ? `<div style="width:100%;height:120px;overflow:hidden;border-radius:8px;margin-bottom:8px;">
+      <img src="${thumbnail}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.style.display='none'" />
+    </div>` : ""}
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+      ${b.logo_url && thumbnail !== b.logo_url ? `<img src="${b.logo_url}" style="width:28px;height:28px;border-radius:6px;object-fit:cover;flex-shrink:0;" onerror="this.style.display='none'" />` : ""}
+      <span style="font-weight:700;font-size:13px;color:#1a1a1a;flex:1;">${b.name}</span>
+      ${isVerified ? `<span style="display:inline-flex;align-items:center;gap:2px;padding:1px 6px;border-radius:9999px;background:#D4AF37;color:white;font-size:9px;font-weight:600;flex-shrink:0;">✓</span>` : ""}
     </div>
-    <div style="font-size:11px;color:#666;">
-      ${subcategory ? `<div style="color:#D4AF37;font-weight:500;margin-bottom:2px;">${subcategory}</div>` : ""}
-      <div>📍 ${b.city}${b.neighborhood ? ` · ${b.neighborhood}` : ""}${b.address ? ` — ${b.address}` : ""}</div>
-      ${b.phone ? `<div style="margin-top:2px;"><a href="tel:${b.phone}" style="color:#3b82f6;text-decoration:none;">📞 ${b.phone}</a></div>` : ""}
-    </div>
-    <div style="margin-top:6px;display:flex;gap:6px;">
-      <a href="/business/${b.id}" style="font-size:11px;color:#D4AF37;font-weight:500;text-decoration:none;">Voir la fiche →</a>
-      <a href="https://www.google.com/maps/dir/?api=1&destination=${b.latitude},${b.longitude}" target="_blank" style="font-size:11px;color:#3b82f6;font-weight:500;text-decoration:none;">Itinéraire →</a>
+    ${subcategory ? `<div style="font-size:11px;color:#D4AF37;font-weight:500;margin-bottom:2px;">${subcategory}</div>` : ""}
+    ${hook ? `<div style="font-size:11px;color:#666;margin-bottom:4px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${hook}</div>` : ""}
+    <div style="font-size:10px;color:#888;margin-bottom:6px;">📍 ${b.city}${b.neighborhood ? ` · ${b.neighborhood}` : ""}</div>
+    <div style="display:flex;gap:6px;">
+      ${actionBtn}
+      <a href="https://www.google.com/maps/dir/?api=1&destination=${b.latitude},${b.longitude}" target="_blank" style="flex:1;padding:6px 0;border-radius:6px;background:#f3f4f6;color:#333;font-size:11px;font-weight:500;text-decoration:none;text-align:center;display:block;">Itinéraire →</a>
     </div>
   </div>`;
 }
@@ -140,6 +146,7 @@ const BusinessMap = ({
   forceOverview = false,
   cityCenter = null,
   neighborhoodCenter = null,
+  onBusinessClick,
 }: BusinessMapProps) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
@@ -324,8 +331,22 @@ const BusinessMap = ({
       (marker as any)._isVerified = isVerified;
 
       marker.addListener("click", () => {
-        infoWindow.setContent(infoHtml(b));
+        infoWindow.setContent(infoHtml(b, !!onBusinessClick));
         infoWindow.open(map, marker);
+
+        // Attach click handler to the "Voir la fiche" button inside InfoWindow
+        if (onBusinessClick) {
+          google.maps.event.addListenerOnce(infoWindow, "domready", () => {
+            const btn = document.querySelector(`button[data-business-id="${b.id}"]`);
+            if (btn) {
+              btn.addEventListener("click", (e) => {
+                e.preventDefault();
+                onBusinessClick(b);
+              });
+            }
+          });
+        }
+
         // Show ripple on selected marker
         const overlay = rippleOverlayRef.current as any;
         if (overlay && marker.getPosition()) {

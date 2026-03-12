@@ -2523,6 +2523,8 @@ const SearchPage = () => {
                   wtuce_status: b.wtuce_status,
                   logo_url: b.logo_url,
                   neighborhood: (b as any).neighborhood,
+                  images: b.images,
+                  hook_fr: b.hook_fr,
                 }))}
                 height="calc(100vh - 250px)"
                 isLoading={isLoading}
@@ -2535,6 +2537,10 @@ const SearchPage = () => {
                   return null;
                 })()}
                 neighborhoodCenter={neighborhoodCoords}
+                onBusinessClick={(b) => {
+                  setCompactPanelBusiness(b as any);
+                  setIsCompactPanelExpanded(false);
+                }}
               />
             </Suspense>
           </div>
