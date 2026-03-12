@@ -7,9 +7,17 @@ interface GeoCity {
   longitude: number;
 }
 
+interface GeoNeighborhood {
+  name: string;
+  latitude: number;
+  longitude: number;
+}
+
 interface GeolocationState {
   /** User's detected city (nearest from DB), or null */
   detectedCity: string | null;
+  /** User's detected neighborhood (nearest from DB), or null */
+  detectedNeighborhood: string | null;
   /** Whether geolocation is enabled by the user */
   isEnabled: boolean;
   /** Whether the consent banner should be shown */
@@ -53,17 +61,37 @@ function haversineDistance(
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+/** Find nearest neighborhood within 5km */
+function findNearestNeighborhood(
+  lat: number, lng: number,
+  neighborhoods: GeoNeighborhood[]
+): string | null {
+  let nearest: string | null = null;
+  let minDist = Infinity;
+  for (const nh of neighborhoods) {
+    if (nh.latitude == null || nh.longitude == null) continue;
+    const dist = haversineDistance(lat, lng, nh.latitude, nh.longitude);
+    if (dist < minDist) {
+      minDist = dist;
+      nearest = nh.name;
+    }
+  }
+  return minDist <= 5 ? nearest : null;
+}
+
 export function useGeolocation(): GeolocationState {
   const [detectedCity, setDetectedCity] = useState<string | null>(null);
+  const [detectedNeighborhood, setDetectedNeighborhood] = useState<string | null>(null);
   const [isEnabled, setIsEnabled] = useState(false);
   const [showBanner, setShowBanner] = useState(false);
   const [isDetecting, setIsDetecting] = useState(false);
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [confirmedAddress, setConfirmedAddress] = useState<string | null>(null);
   const [cities, setCities] = useState<GeoCity[]>([]);
+  const [neighborhoods, setNeighborhoods] = useState<GeoNeighborhood[]>([]);
   const [isManual, setIsManual] = useState(false);
 
-  // Load cities with coordinates on mount
+  // Load cities and neighborhoods with coordinates on mount
   useEffect(() => {
     supabase
       .from("cities")
@@ -73,6 +101,15 @@ export function useGeolocation(): GeolocationState {
       .not("longitude", "is", null)
       .then(({ data }) => {
         if (data) setCities(data as GeoCity[]);
+      });
+
+    supabase
+      .from("neighborhoods")
+      .select("name, latitude, longitude")
+      .not("latitude", "is", null)
+      .not("longitude", "is", null)
+      .then(({ data }) => {
+        if (data) setNeighborhoods(data as GeoNeighborhood[]);
       });
   }, []);
 
@@ -107,11 +144,21 @@ export function useGeolocation(): GeolocationState {
     }
   }, []);
 
+  // Detect neighborhood when coords and neighborhoods are available
+  useEffect(() => {
+    if (!coords || neighborhoods.length === 0) {
+      setDetectedNeighborhood(null);
+      return;
+    }
+    setDetectedNeighborhood(findNearestNeighborhood(coords.lat, coords.lng, neighborhoods));
+  }, [coords, neighborhoods]);
+
   // Detect position when enabled (only if not manual)
   useEffect(() => {
     if (!isEnabled || cities.length === 0 || isManual) {
       if (!isEnabled && !isManual) {
         setDetectedCity(null);
+        setDetectedNeighborhood(null);
         setCoords(null);
         setConfirmedAddress(null);
       }
@@ -236,6 +283,7 @@ export function useGeolocation(): GeolocationState {
 
   return {
     detectedCity,
+    detectedNeighborhood,
     isEnabled,
     showBanner,
     isDetecting,
