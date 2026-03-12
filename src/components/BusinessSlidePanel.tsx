@@ -880,6 +880,47 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
           onClose={() => setForceBookingOverlay(false)}
         />
       )}
+      {/* Directions Overlay */}
+      {showDirectionsOverlay && business && (
+        <div className="absolute inset-0 z-[60] bg-background flex flex-col animate-fade-in">
+          <div className="flex items-center justify-between px-3 py-2 border-b bg-background">
+            <span className="text-sm font-semibold">Itinéraire — {business.name}</span>
+            <div className="flex items-center gap-2">
+              <a
+                href={business.latitude && business.longitude
+                  ? `https://www.google.com/maps/dir/?api=1&destination=${business.latitude},${business.longitude}`
+                  : `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(business.address || business.name)}`
+                }
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-1 rounded-full hover:bg-muted transition-colors"
+                title="Ouvrir dans Google Maps"
+              >
+                <ExternalLink className="h-5 w-5" />
+              </a>
+              <button
+                onClick={() => setShowDirectionsOverlay(false)}
+                className="p-1 rounded-full hover:bg-muted transition-colors"
+                title="Fermer"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
+          <iframe
+            src={`https://www.google.com/maps/embed/v1/directions?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&origin=My+location&destination=${
+              business.latitude && business.longitude
+                ? `${business.latitude},${business.longitude}`
+                : encodeURIComponent(business.address || business.name)
+            }&mode=driving`}
+            className="flex-1 w-full border-0"
+            allowFullScreen
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            title={`Itinéraire vers ${business.name}`}
+          />
+        </div>
+      )}
       {/* Document Overlay (PDF, Flipbook or Website) */}
       {docOverlay && docOverlay.name === 'Site web' && createPortal(
         <div className="fixed inset-x-0 bottom-0 top-[53px] z-[9998] bg-background flex flex-col animate-fade-in overflow-hidden">
