@@ -2398,8 +2398,8 @@ const SearchPage = () => {
         </div>
       </section>
 
-      {/* 🟠 STICKY 2 (City Bar) */}
-      {availableCities.length > 1 && !queryHasExplicitCity && activeTab === "suggestions" && (
+      {/* 🟠 STICKY 2 (City Bar) — COMMENTÉ */}
+      {false && availableCities.length > 1 && !queryHasExplicitCity && activeTab === "suggestions" && (
         <div data-city-bar className="sticky z-[6] bg-white border-b border-border py-2 relative" style={{ top: `${stickyTops.cityBar}px` }}>
           {/* <span className="absolute top-0 left-1 z-[60] bg-orange-500 text-white text-[10px] font-bold px-2 py-0.5 rounded select-all cursor-text">🟠 STICKY 2</span> */}
           <div className="mx-auto px-4 max-w-[80%]">
@@ -2437,7 +2437,8 @@ const SearchPage = () => {
         </div>
       )}
 
-      {activeTab === "suggestions" && allBusinesses.length > 0 && !isLoading && !detectedSubcategory && (
+      {/* CityCategoryFilter (3b/3c) — COMMENTÉ */}
+      {false && activeTab === "suggestions" && allBusinesses.length > 0 && !isLoading && !detectedSubcategory && (
         <CityCategoryFilter
           cityName={detectedCity || (selectedCity && selectedCity !== "all" ? selectedCity : null) || ""}
           hasCityBar={availableCities.length > 1 && !queryHasExplicitCity}
