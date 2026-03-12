@@ -298,8 +298,8 @@ const CityCategoryFilter = ({
 
   return (
     <>
-      {/* Sticky categories zone */}
-      <div data-category-filter className={`sticky z-[5] bg-white border-b border-border py-2 relative`} style={{ top: `${baseTop}px` }}>
+      {/* Sticky categories zone — MASQUÉ */}
+      <div data-category-filter className={`sticky z-[5] bg-white border-b border-border py-2 relative hidden`} style={{ top: `${baseTop}px` }}>
         <span className="absolute top-0 left-1 z-50 bg-yellow-500 text-black text-[10px] font-bold px-2 py-0.5 rounded select-all cursor-text">🟡 STICKY 3b — Category Filter</span>
         <div className="mx-auto px-4 max-w-[80%]">
           <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
