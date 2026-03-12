@@ -2654,13 +2654,13 @@ const SearchPage = () => {
 
         return (
           <div className="flex">
-            <section className={`pt-16 pb-6 lg:pt-20 lg:pb-12 bg-white dark:bg-zinc-900 transition-all duration-300 ${(poiSelectedBusinessId || poiMapBusiness) ? "w-1/2" : "w-full"}`}>
-              <div className={`mx-auto px-4 ${(poiSelectedBusinessId || poiMapBusiness) ? "max-w-full" : "max-w-[80%]"}`}>
+            <section className={`pt-16 pb-6 lg:pt-20 lg:pb-12 bg-white dark:bg-zinc-900 transition-all duration-300 ${(poiSelectedBusinessId || poiMapBusiness) ? "w-1/2" : hasKnownLocation ? "w-1/2" : "w-full"}`}>
+              <div className={`mx-auto px-4 ${(poiSelectedBusinessId || poiMapBusiness || hasKnownLocation) ? "max-w-full" : "max-w-[80%]"}`}>
                 <PoiSection
                   city={poiCity}
                   language={language}
                   onBusinessClick={(bizId) => { setPoiMapBusiness(null); setPoiSelectedBusinessId(bizId); }}
-                  columns={(poiSelectedBusinessId || poiMapBusiness) ? 3 : undefined}
+                  columns={(poiSelectedBusinessId || poiMapBusiness) ? 3 : hasKnownLocation ? 2 : undefined}
                   onMapClick={(biz) => { setPoiSelectedBusinessId(null); setPoiMapBusiness({ id: biz.id, name: biz.name, latitude: biz.latitude, longitude: biz.longitude, address: biz.address, google_maps_url: biz.google_maps_url }); }}
                   onPoisLoaded={(loadedPois) => setAllPois(loadedPois.map(p => {
                     const sources = collectRatingSources(p);
@@ -2668,9 +2668,24 @@ const SearchPage = () => {
                     const totalReviews = sources.reduce((s, r) => s + r.count, 0);
                     return { id: p.id, name: p.name, latitude: p.latitude, longitude: p.longitude, images: p.images, city: p.city, neighborhood: p.neighborhood, avgOn20, totalReviews };
                   }))}
+                  onHover={setHoveredPoiId}
                 />
               </div>
             </section>
+            {/* Sticky map for POI — shown when location known and no panel open */}
+            {hasKnownLocation && !poiSelectedBusinessId && !poiMapBusiness && (
+              <div className="w-1/2 sticky top-[53px] h-[calc(100vh-53px)]">
+                <PoiGoogleMap
+                  pois={allPois}
+                  selectedPoiId={hoveredPoiId || null}
+                  onPoiClick={(poiId) => {
+                    setPoiMapBusiness(null);
+                    setPoiSelectedBusinessId(poiId);
+                  }}
+                  center={mapCenterForResults}
+                />
+              </div>
+            )}
             {poiSelectedBusinessId && poiPanelExpanded && (
               <div
                 className="fixed inset-0 top-[53px] z-[39] bg-black/40 backdrop-blur-[2px]"
