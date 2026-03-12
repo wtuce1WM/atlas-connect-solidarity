@@ -496,10 +496,19 @@ const SearchPage = () => {
   }, [hasReachedTabBar]);
 
   useEffect(() => {
-    if (showAiPopup) return; // Don't auto-scroll while overlay is open
+    if (showAiPopup || isLoading || activeTab !== "suggestions") return;
     setIsAiSummaryExpanded(false);
-    requestAnimationFrame(() => ensureResultsVisibleBelowSticky("smooth"));
-  }, [selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, selectedCity, ensureResultsVisibleBelowSticky, showAiPopup]);
+    requestAnimationFrame(() => ensureResultsVisibleBelowSticky("auto"));
+  }, [
+    selectedCategoryFilter,
+    selectedSubcategoryFilter,
+    selectedServiceFilter,
+    selectedCity,
+    ensureResultsVisibleBelowSticky,
+    showAiPopup,
+    isLoading,
+    activeTab,
+  ]);
 
   // Ensure first row never stays hidden under sticky stack after loading completes
   // or when sticky AI bar appears/disappears
