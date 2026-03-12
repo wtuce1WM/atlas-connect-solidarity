@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import DynamicIcon from "@/components/DynamicIcon";
@@ -61,6 +61,8 @@ const CityCategoryFilter = ({
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingSubs, setIsLoadingSubs] = useState(false);
   const [isLoadingServices, setIsLoadingServices] = useState(false);
+  const [serviceTop, setServiceTop] = useState<number | null>(null);
+  const subFilterRef = useRef<HTMLDivElement>(null);
   const { language } = useLanguage();
 
   // Fetch categories
@@ -284,6 +286,15 @@ const CityCategoryFilter = ({
     fetchServices();
   }, [selectedSubcategory, cityName, subcategories]);
 
+  const baseTop = stickyBaseTop ?? (104 + (hasCityBar ? 44 : 0));
+
+  // Measure subcategory bar height for service bar positioning
+  useEffect(() => {
+    if (subFilterRef.current) {
+      setServiceTop(baseTop + subFilterRef.current.offsetHeight);
+    }
+  }, [subcategories, baseTop]);
+
   if (isLoading || categories.length === 0) return null;
 
   const getLabel = (item: { name_fr: string; name_en: string | null; name_ar: string | null }) => {
@@ -291,8 +302,6 @@ const CityCategoryFilter = ({
     if (language === "ar" && item.name_ar) return item.name_ar;
     return item.name_fr;
   };
-
-  const baseTop = stickyBaseTop ?? (104 + (hasCityBar ? 44 : 0));
 
   return (
     <>
@@ -335,7 +344,7 @@ const CityCategoryFilter = ({
 
       {/* Sticky subcategories zone */}
       {selectedCategory && !isLoadingSubs && subcategories.length > 0 && (
-        <div data-subcategory-filter className={`sticky z-[4] bg-white border-b border-border py-2 relative`} style={{ top: `${baseTop}px` }}>
+        <div ref={subFilterRef} data-subcategory-filter className={`sticky z-[4] bg-white border-b border-border py-2 relative`} style={{ top: `${baseTop}px` }}>
           {/* <span className="absolute top-0 left-1 z-50 bg-pink-500 text-white text-[10px] font-bold px-2 py-0.5 rounded select-all cursor-text">🩷 STICKY 3c — Subcategory Filter</span> */}
           <div className="mx-auto px-4 max-w-[80%]">
             <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
@@ -372,7 +381,7 @@ const CityCategoryFilter = ({
 
       {/* Sticky services zone */}
       {selectedSubcategory && !isLoadingServices && services.length > 0 && (
-        <div data-service-filter className={`sticky z-[3] bg-white border-b border-border py-2 relative`} style={{ top: `${baseTop + 44}px` }}>
+        <div data-service-filter className={`sticky z-[3] bg-white border-b border-border py-2 relative`} style={{ top: `${serviceTop ?? (baseTop + 44)}px` }}>
           <span className="absolute top-0 left-1 z-50 bg-cyan-500 text-white text-[10px] font-bold px-2 py-0.5 rounded select-all cursor-text">🩵 STICKY 3d — Service Filter</span>
           <div className="mx-auto px-4 max-w-[80%]">
             <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
