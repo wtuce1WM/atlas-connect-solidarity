@@ -4234,15 +4234,25 @@ serve(async (req) => {
     } // end if (!serviceShortcutActivated)
 
     // If results hit the limit, do a count query to get the true total
+    // (works for city-scoped and national queries like "maroc")
     let totalCount: number | undefined;
-    if (businesses.length >= limit && effectiveCity) {
+    if (businesses.length >= limit) {
       try {
-        let countBuilder = supabase.from("businesses").select("id", { count: "exact", head: true }).eq("is_active", true).ilike("city", effectiveCity);
+        let countBuilder = supabase
+          .from("businesses")
+          .select("id", { count: "exact", head: true })
+          .eq("is_active", true);
+
+        if (effectiveCity) {
+          countBuilder = countBuilder.ilike("city", effectiveCity);
+        }
         if (effectiveCategory) {
           countBuilder = countBuilder.eq("main_category", effectiveCategory);
         }
+
         const { count, error: countError } = await countBuilder;
-        console.log(`Count query for "${effectiveCity}": count=${count}, error=${countError?.message || 'none'}`);
+        console.log(`Count query (city=${effectiveCity || "all"}, category=${effectiveCategory || "all"}): count=${count}, error=${countError?.message || "none"}`);
+
         if (!countError && count !== null && count > businesses.length) {
           totalCount = count;
         }
