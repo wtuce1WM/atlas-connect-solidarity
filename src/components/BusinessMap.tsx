@@ -168,7 +168,12 @@ const BusinessMap = ({
   }, [externalBusinesses]);
 
   const geoBusinesses = useMemo(() => {
-    const withCoordinates = businesses.filter((b) => b.latitude != null && b.longitude != null);
+    const withCoordinates = businesses.filter((b) =>
+      b.latitude != null && b.longitude != null &&
+      // Only show markers within Morocco's bounding box
+      b.latitude >= 21 && b.latitude <= 36.5 &&
+      b.longitude >= -17.5 && b.longitude <= -1
+    );
     const uniqueById = new Map<string, MapBusiness>();
     for (const business of withCoordinates) {
       if (!uniqueById.has(business.id)) uniqueById.set(business.id, business);
