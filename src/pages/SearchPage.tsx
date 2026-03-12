@@ -2498,6 +2498,7 @@ const SearchPage = () => {
                   if (city?.latitude && city?.longitude) return { lat: city.latitude, lng: city.longitude };
                   return null;
                 })()}
+                neighborhoodCenter={neighborhoodCoords}
               />
             </Suspense>
           </div>
