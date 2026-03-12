@@ -550,7 +550,7 @@ const SearchPage = () => {
         query = query.or(`neighborhood.ilike.%${detectedNeighborhood}%,neighborhood.ilike.%toute la ville%`);
       }
 
-      if (data) {
+      const { data } = await query.order("priority_score", { ascending: false }).limit(200);
         setSubcategoryFilterBusinesses(data.map((b: any) => ({ ...b, distance_km: null })) as Business[]);
       }
     };
