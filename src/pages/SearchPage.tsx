@@ -1950,7 +1950,7 @@ const SearchPage = () => {
               </div>
             )}
 
-            {disambiguationType === "needs_city" && (!selectedCity || selectedCity === "all") && (
+            {(!selectedCity || selectedCity === "all") && !detectedCity && (
               <div className="pb-4">
                 <div className="max-w-3xl mx-auto text-center">
                   <p className="text-sm font-medium text-foreground mb-3">
