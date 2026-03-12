@@ -27,6 +27,8 @@ interface BusinessMapProps {
   height?: string;
   isLoading?: boolean;
   forceOverview?: boolean;
+  /** When set, only markers within ~50km of this point are shown (filters out national-scope businesses physically elsewhere) */
+  cityCenter?: { lat: number; lng: number } | null;
 }
 
 declare global {
@@ -118,6 +120,15 @@ function infoHtml(b: MapBusiness): string {
 }
 
 /* ── Component ── */
+/* Haversine approx distance in km */
+function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
 const BusinessMap = ({
   businesses: externalBusinesses,
   center,
@@ -125,6 +136,7 @@ const BusinessMap = ({
   height = "500px",
   isLoading: externalLoading,
   forceOverview = false,
+  cityCenter = null,
 }: BusinessMapProps) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
@@ -168,18 +180,24 @@ const BusinessMap = ({
   }, [externalBusinesses]);
 
   const geoBusinesses = useMemo(() => {
-    const withCoordinates = businesses.filter((b) =>
-      b.latitude != null && b.longitude != null &&
+    const MAX_CITY_RADIUS_KM = 60;
+    const withCoordinates = businesses.filter((b) => {
+      if (b.latitude == null || b.longitude == null) return false;
       // Only show markers within Morocco's bounding box
-      b.latitude >= 21 && b.latitude <= 36.5 &&
-      b.longitude >= -17.5 && b.longitude <= -1
-    );
+      if (b.latitude < 21 || b.latitude > 36.5 || b.longitude < -17.5 || b.longitude > -1) return false;
+      // When a city center is known, exclude markers too far from it
+      if (cityCenter) {
+        const dist = haversineKm(cityCenter.lat, cityCenter.lng, b.latitude, b.longitude);
+        if (dist > MAX_CITY_RADIUS_KM) return false;
+      }
+      return true;
+    });
     const uniqueById = new Map<string, MapBusiness>();
     for (const business of withCoordinates) {
       if (!uniqueById.has(business.id)) uniqueById.set(business.id, business);
     }
     return Array.from(uniqueById.values());
-  }, [businesses]);
+  }, [businesses, cityCenter]);
 
   // Fingerprint to force marker rebuild when wtuce_status changes
   const businessFingerprint = useMemo(

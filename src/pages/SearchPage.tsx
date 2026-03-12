@@ -2466,6 +2466,13 @@ const SearchPage = () => {
                 height="calc(100vh - 250px)"
                 isLoading={isLoading}
                 forceOverview={!selectedCity || (selectedCity === "all" && !detectedCity)}
+                cityCenter={(() => {
+                  const effectiveCity = selectedCity && selectedCity !== "all" ? selectedCity : detectedCity;
+                  if (!effectiveCity) return null;
+                  const city = citiesWithPriority.find(c => c.name === effectiveCity);
+                  if (city?.latitude && city?.longitude) return { lat: city.latitude, lng: city.longitude };
+                  return null;
+                })()}
               />
             </Suspense>
           </div>
