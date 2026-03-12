@@ -1090,25 +1090,6 @@ const SearchPage = () => {
     return undefined;
   }, [effectiveCityForMap, neighborhoodCoords, citiesWithPriority]);
 
-  const mapPoiItems: PoiMapItem[] = useMemo(() => {
-    if (!hasKnownLocation) return [];
-    return filteredBusinesses
-      .filter(b => b.latitude && b.longitude)
-      .slice(0, 100)
-      .map(b => ({
-        id: b.id,
-        name: b.name,
-        latitude: b.latitude,
-        longitude: b.longitude,
-        images: b.images,
-        city: b.city,
-        neighborhood: b.neighborhood,
-        rating: b.rating,
-        avgOn20: computeWeightedRatingOn20(collectRatingSources(b as any)),
-        totalReviews: collectRatingSources(b as any).reduce((s, r) => s + r.count, 0),
-      }));
-  }, [hasKnownLocation, filteredBusinesses]);
-
   const filteredBusinesses = useMemo(() => {
     // When a service filter is manually selected, use the direct DB results as the base
     // instead of merging with FTS results — this ensures we get ALL matching businesses
