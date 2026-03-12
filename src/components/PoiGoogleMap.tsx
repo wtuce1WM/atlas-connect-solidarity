@@ -347,9 +347,9 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
     if (center) bounds.extend(center);
 
     if (hasPoints || center) {
-      google.maps.event.trigger(map, "resize");
+      gmaps.event.trigger(map, "resize");
       map.fitBounds(bounds, 40);
-      google.maps.event.addListenerOnce(map, "idle", () => {
+      gmaps.event.addListenerOnce(map, "idle", () => {
         const z = map.getZoom();
         if (z && z > 16) map.setZoom(16);
         if (center) map.setCenter(center);
