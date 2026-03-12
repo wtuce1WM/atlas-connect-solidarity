@@ -763,7 +763,8 @@ const SearchPage = () => {
   const isVoiceSearchRef = useRef(false);
   const [showResultsOverlay, setShowResultsOverlay] = useState(false);
   const [overlayDismissing, setOverlayDismissing] = useState(false);
-  const resultsRef = useRef<HTMLDivElement>(null);
+   const resultsRef = useRef<HTMLDivElement>(null);
+   const resultsBarRef = useRef<HTMLDivElement>(null);
   const latestFetchIdRef = useRef(0);
 
   const voiceLoopRef = useRef(false);
@@ -1705,6 +1706,17 @@ const SearchPage = () => {
   //   regenerate();
   // }, [selectedCategoryFilter, selectedSubcategoryFilter]);
 
+  // Auto-scroll to results bar after initial load
+  const hasAutoScrolledRef = useRef(false);
+  useEffect(() => {
+    if (!isLoading && filteredBusinesses.length > 0 && resultsBarRef.current && !hasAutoScrolledRef.current) {
+      hasAutoScrolledRef.current = true;
+      // Small delay to let sticky filters render
+      setTimeout(() => {
+        resultsBarRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 300);
+    }
+  }, [isLoading, filteredBusinesses.length]);
 
   const translations = {
     fr: {
@@ -3089,7 +3101,7 @@ const SearchPage = () => {
           ) : !showCelebrityGuide && !showSosMedecin && !showPompiers && filteredBusinesses.length > 0 ? (
             <>
               {/* Bar: Results count + AI suggestion + Geolocation — above results */}
-              <div className="flex items-center justify-between pt-10 pb-2">
+              <div ref={resultsBarRef} className="flex items-center justify-between pt-10 pb-2">
                 <div className="flex items-center gap-3">
                   {(totalCount ?? filteredBusinesses.length) > 0 && (
                     <span className="text-xs text-muted-foreground font-medium">
