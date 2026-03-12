@@ -141,7 +141,7 @@ function infoHtml(b: MapBusiness, hasClickHandler: boolean): string {
     <div style="font-size:10px;color:#888;margin-bottom:6px;">📍 ${b.city}${b.neighborhood ? ` · ${b.neighborhood}` : ""}</div>
     <div style="display:flex;gap:6px;">
       ${actionBtn}
-      <a href="https://www.google.com/maps/dir/?api=1&destination=${b.latitude},${b.longitude}" target="_blank" style="flex:1;padding:6px 0;border-radius:6px;background:#f3f4f6;color:#333;font-size:11px;font-weight:500;text-decoration:none;text-align:center;display:block;">Itinéraire →</a>
+      <button data-directions-id="${b.id}" style="flex:1;padding:6px 0;border-radius:6px;background:#f3f4f6;color:#333;font-size:11px;font-weight:500;border:none;cursor:pointer;">Itinéraire →</button>
     </div>
   </div>`;
 }
