@@ -1706,6 +1706,17 @@ const SearchPage = () => {
   //   regenerate();
   // }, [selectedCategoryFilter, selectedSubcategoryFilter]);
 
+  // Auto-scroll to results bar after initial load
+  const hasAutoScrolledRef = useRef(false);
+  useEffect(() => {
+    if (!isLoading && filteredBusinesses.length > 0 && resultsBarRef.current && !hasAutoScrolledRef.current) {
+      hasAutoScrolledRef.current = true;
+      // Small delay to let sticky filters render
+      setTimeout(() => {
+        resultsBarRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 300);
+    }
+  }, [isLoading, filteredBusinesses.length]);
 
   const translations = {
     fr: {
