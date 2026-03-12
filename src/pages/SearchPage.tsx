@@ -2721,7 +2721,7 @@ const SearchPage = () => {
         );
       })()}
 
-      {/* AI Summary Bar — sticky below all filter bars (OUTSIDE section for proper sticky) */}
+      {/* AI Summary Bar — STICKY 4 — commented out
       {activeTab === "suggestions" && (aiAnswerText || isAiRegenerating) && (() => {
         const hasCB = availableCities.length > 1 && !queryHasExplicitCity;
         const baseTop = 104 + (hasCB ? 44 : 0);
