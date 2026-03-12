@@ -355,11 +355,9 @@ const BusinessMap = ({
 
         // Attach click handlers inside InfoWindow
         google.maps.event.addListenerOnce(infoWindow, "domready", () => {
-          console.log("[BusinessMap] InfoWindow domready for", b.id, b.name);
           // "Voir la fiche" button
           if (onBusinessClick) {
             const btn = document.querySelector(`button[data-business-id="${b.id}"]`);
-            console.log("[BusinessMap] Voir la fiche btn found:", !!btn);
             if (btn) {
               btn.addEventListener("click", (e) => {
                 e.preventDefault();
@@ -369,11 +367,9 @@ const BusinessMap = ({
           }
           // "Itinéraire" button — use window.open to avoid ERR_BLOCKED_BY_RESPONSE
           const dirBtn = document.querySelector(`button[data-directions-id="${b.id}"]`);
-          console.log("[BusinessMap] Directions btn found:", !!dirBtn);
           if (dirBtn) {
             dirBtn.addEventListener("click", (e) => {
               e.preventDefault();
-              console.log("[BusinessMap] Opening directions for", b.name);
               window.open(`https://www.google.com/maps/dir/?api=1&destination=${b.latitude},${b.longitude}`, "_blank");
             });
           }
