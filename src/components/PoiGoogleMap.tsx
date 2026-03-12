@@ -217,15 +217,12 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center }: PoiGoogleMapP
     prevSelectedRef.current = selectedPoiId;
   }, [selectedPoiId, pois]);
 
-  // Zoom back out when deselected (hover out)
+  // When hover ends, keep the map positioned on the last hovered marker
   useEffect(() => {
-    if (!mapRef.current || selectedPoiId || !prevSelectedRef.current) return;
-    if (center) {
-      mapRef.current.panTo(center);
-      mapRef.current.setZoom(13);
+    if (!selectedPoiId && prevSelectedRef.current) {
+      prevSelectedRef.current = null;
     }
-    prevSelectedRef.current = null;
-  }, [selectedPoiId, center]);
+  }, [selectedPoiId]);
 
   if (!ready) {
     return (
