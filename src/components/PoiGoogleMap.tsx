@@ -245,14 +245,16 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
   // Create/update label markers when pois change
   useEffect(() => {
     const map = mapRef.current;
-    if (!map) return;
+    const gmaps = window.google?.maps;
+    if (!map || !gmaps) return;
+    const LabelMarker = createLabelMarkerClass(gmaps);
 
     // Clear old overlays
     overlaysRef.current.forEach((o) => o.setMap(null));
     overlaysRef.current.clear();
     hasFittedRef.current = false;
 
-    const bounds = new google.maps.LatLngBounds();
+    const bounds = new gmaps.LatLngBounds();
     let hasPoints = false;
 
     pois.forEach((poi) => {
