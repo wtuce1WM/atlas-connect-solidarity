@@ -1,0 +1,1 @@
+UPDATE businesses SET zone_chalandise = 'locale' WHERE id = '199d1963-1fec-405e-9f8a-b4c31572a3a6';
