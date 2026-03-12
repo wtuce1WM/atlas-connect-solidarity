@@ -517,6 +517,7 @@ const SearchPage = () => {
     isLoading,
     activeTab,
     hasAiSticky,
+    showAiPopup,
     ensureResultsVisibleBelowSticky,
   ]);
 
