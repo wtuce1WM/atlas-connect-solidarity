@@ -476,8 +476,8 @@ const SearchPage = () => {
     }, 0);
 
     const firstResultCard = resultsEl.querySelector<HTMLElement>("[data-result-card='true']");
-    const anchorEl = firstResultCard ?? resultsEl;
-    const safetyOffset = 16;
+    const anchorEl = resultsBarRef.current ?? firstResultCard ?? resultsEl;
+    const safetyOffset = 24;
     const anchorTopInPage = anchorEl.getBoundingClientRect().top + window.scrollY;
     const targetScroll = Math.max(0, anchorTopInPage - stickyBottom - safetyOffset);
 
@@ -1706,17 +1706,6 @@ const SearchPage = () => {
   //   regenerate();
   // }, [selectedCategoryFilter, selectedSubcategoryFilter]);
 
-  // Auto-scroll to results bar after initial load
-  const hasAutoScrolledRef = useRef(false);
-  useEffect(() => {
-    if (!isLoading && filteredBusinesses.length > 0 && resultsBarRef.current && !hasAutoScrolledRef.current) {
-      hasAutoScrolledRef.current = true;
-      // Small delay to let sticky filters render
-      setTimeout(() => {
-        resultsBarRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 300);
-    }
-  }, [isLoading, filteredBusinesses.length]);
 
   const translations = {
     fr: {
