@@ -39,7 +39,7 @@ interface PoiSectionProps {
   onHover?: (businessId: string | null) => void;
 }
 
-const PoiSection = ({ city, language, onBusinessClick, columns, onMapClick, onPoisLoaded }: PoiSectionProps) => {
+const PoiSection = ({ city, language, onBusinessClick, columns, onMapClick, onPoisLoaded, onHover }: PoiSectionProps) => {
   const [pois, setPois] = useState<PoiBusiness[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
