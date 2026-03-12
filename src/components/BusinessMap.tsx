@@ -331,8 +331,22 @@ const BusinessMap = ({
       (marker as any)._isVerified = isVerified;
 
       marker.addListener("click", () => {
-        infoWindow.setContent(infoHtml(b));
+        infoWindow.setContent(infoHtml(b, !!onBusinessClick));
         infoWindow.open(map, marker);
+
+        // Attach click handler to the "Voir la fiche" button inside InfoWindow
+        if (onBusinessClick) {
+          google.maps.event.addListenerOnce(infoWindow, "domready", () => {
+            const btn = document.querySelector(`button[data-business-id="${b.id}"]`);
+            if (btn) {
+              btn.addEventListener("click", (e) => {
+                e.preventDefault();
+                onBusinessClick(b);
+              });
+            }
+          });
+        }
+
         // Show ripple on selected marker
         const overlay = rippleOverlayRef.current as any;
         if (overlay && marker.getPosition()) {
