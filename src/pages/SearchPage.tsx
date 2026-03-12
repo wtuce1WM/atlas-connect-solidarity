@@ -545,8 +545,11 @@ const SearchPage = () => {
           query = query.ilike("city", effectiveCity);
         }
       }
+      // Filter by neighborhood if detected from search query
+      if (detectedNeighborhood) {
+        query = query.or(`neighborhood.ilike.%${detectedNeighborhood}%,neighborhood.ilike.%toute la ville%`);
+      }
 
-      const { data } = await query.order("priority_score", { ascending: false }).limit(200);
       if (data) {
         setSubcategoryFilterBusinesses(data.map((b: any) => ({ ...b, distance_km: null })) as Business[]);
       }
