@@ -377,15 +377,47 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
     mapRef.current.setCenter(center);
   }, [center]);
 
-  // Pan + zoom to selected poi
+  // Smooth pan + zoom to selected poi (works regardless of distance)
   useEffect(() => {
     if (!mapRef.current || !selectedPoiId) return;
     const poi = pois.find((p) => p.id === selectedPoiId);
-    if (poi?.latitude && poi?.longitude) {
-      mapRef.current.panTo({ lat: poi.latitude, lng: poi.longitude });
-      const currentZoom = mapRef.current.getZoom();
-      if (currentZoom && currentZoom < 15) mapRef.current.setZoom(15);
-    }
+    if (!poi?.latitude || !poi?.longitude) return;
+
+    const map = mapRef.current;
+    const target = { lat: poi.latitude, lng: poi.longitude };
+    const startCenter = map.getCenter();
+    if (!startCenter) { map.panTo(target); return; }
+
+    const startLat = startCenter.lat();
+    const startLng = startCenter.lng();
+    const startZoom = map.getZoom() || 12;
+    const targetZoom = Math.max(startZoom, 15);
+
+    const DURATION = 600; // ms
+    const startTime = performance.now();
+
+    // Ease-in-out cubic
+    const ease = (t: number) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+    let rafId: number;
+    const animate = (now: number) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / DURATION, 1);
+      const t = ease(progress);
+
+      const lat = startLat + (target.lat - startLat) * t;
+      const lng = startLng + (target.lng - startLng) * t;
+      const zoom = startZoom + (targetZoom - startZoom) * t;
+
+      map.moveCamera({ center: { lat, lng }, zoom });
+
+      if (progress < 1) {
+        rafId = requestAnimationFrame(animate);
+      }
+    };
+
+    rafId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(rafId);
   }, [selectedPoiId, pois]);
 
   if (!ready) {
