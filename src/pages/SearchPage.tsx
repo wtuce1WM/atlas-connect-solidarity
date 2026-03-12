@@ -2721,8 +2721,8 @@ const SearchPage = () => {
         );
       })()}
 
-      {/* AI Summary Bar — STICKY 4 — commented out
-      {activeTab === "suggestions" && (aiAnswerText || isAiRegenerating) && (() => {
+      {/* AI Summary Bar — STICKY 4 — disabled */}
+      {false && activeTab === "suggestions" && (aiAnswerText || isAiRegenerating) && (() => {
         const hasCB = availableCities.length > 1 && !queryHasExplicitCity;
         const baseTop = 104 + (hasCB ? 44 : 0);
         const categoryEl = typeof document !== "undefined"
