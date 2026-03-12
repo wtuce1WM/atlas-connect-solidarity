@@ -2491,13 +2491,13 @@ const SearchPage = () => {
                   <button
                     key={svc.name}
                     onClick={() => setSelectedServiceFilter(isSelected ? null : svc.name)}
-                    className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-bold transition-all whitespace-nowrap ${
+                    className={`flex-shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-full border text-xs font-medium transition-all whitespace-nowrap ${
                       isSelected
                         ? "bg-primary/20 border-primary text-primary shadow-sm"
                         : "bg-card border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
                     }`}
                   >
-                    <span>{svc.name}</span>
+                    <span>{svc.name.charAt(0).toUpperCase() + svc.name.slice(1).toLowerCase()}</span>
                     <span className={`text-xs font-normal ${isSelected ? "text-primary/70" : "text-muted-foreground/60"}`}>
                       {svc.count}
                     </span>
