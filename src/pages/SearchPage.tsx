@@ -3089,7 +3089,7 @@ const SearchPage = () => {
           ) : !showCelebrityGuide && !showSosMedecin && !showPompiers && filteredBusinesses.length > 0 ? (
             <>
               {/* Bar: Results count + AI suggestion + Geolocation — above results */}
-              <div className="flex items-center justify-between pt-6 pb-2">
+              <div className="flex items-center justify-between pt-10 pb-2">
                 <div className="flex items-center gap-3">
                   {(totalCount ?? filteredBusinesses.length) > 0 && (
                     <span className="text-xs text-muted-foreground font-medium">
