@@ -2857,15 +2857,9 @@ const SearchPage = () => {
                   <Sparkles className="h-5 w-5" />
                 </button>
               </div>
-              {/* Action buttons row: Results count, Plus de filtres, Écouter, Géolocalisation */}
+              {/* Action buttons row: Plus de filtres, Écouter */}
               <div className="flex items-center justify-between mt-2 pt-2">
                 <div className="flex items-center gap-3">
-                  {/* Results count */}
-                  {(totalCount ?? filteredBusinesses.length) > 0 && (
-                    <span className="text-xs text-muted-foreground font-medium">
-                      {totalCount ?? filteredBusinesses.length} {language === "en" ? "result" : language === "ar" ? "نتيجة" : "résultat"}{(totalCount ?? filteredBusinesses.length) > 1 && language !== "ar" ? "s" : ""}
-                    </span>
-                  )}
                   <button
                     onClick={() => setMoreFiltersOpen(true)}
                     className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium transition-all ${
@@ -2883,13 +2877,6 @@ const SearchPage = () => {
                     )}
                   </button>
                 </div>
-                <button
-                  onClick={() => { aiPopupShownRef.current = false; setShowAiPopup(true); }}
-                  className="shrink-0 w-9 h-9 rounded-full bg-gold text-black flex items-center justify-center hover:bg-gold/90 transition-colors shadow-md"
-                  title={language === "en" ? "View AI suggestion" : "Voir la suggestion IA"}
-                >
-                  <Sparkles className="h-4 w-4" />
-                </button>
                 <div className="flex items-center gap-2">
                   {(ttsStatus === "playing" || ttsStatus === "loading") ? (
                     <button
@@ -2913,51 +2900,6 @@ const SearchPage = () => {
                       <Volume2 className="h-3.5 w-3.5" />
                       {language === "en" ? "Listen" : language === "ar" ? "استمع" : "Écouter"}
                     </button>
-                  )}
-                  {!isMobile && (
-                    <>
-                      <button
-                        onClick={() => setLocationDialogOpen(true)}
-                        className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                          geo.isEnabled
-                            ? "bg-gold/20 text-gold border border-gold/40"
-                            : "bg-card text-muted-foreground border border-border hover:border-gold/30"
-                        }`}
-                      >
-                        {geo.isDetecting ? (
-                          <Loader className="h-3 w-3 animate-spin" />
-                        ) : geo.isEnabled ? (
-                          <MapPin className="h-3 w-3" />
-                        ) : (
-                          <MapPinOff className="h-3 w-3" />
-                        )}
-                        {geo.isDetecting
-                          ? "…"
-                          : geo.isEnabled && geo.confirmedAddress
-                          ? `📍 ${geo.confirmedAddress}`
-                          : geo.isEnabled && geo.detectedCity
-                          ? `📍 ${geo.detectedCity}`
-                          : geo.isEnabled
-                          ? (language === "en" ? "No city" : "Aucune ville")
-                          : (language === "en" ? "Location" : "Position")
-                        }
-                      </button>
-                      <LocationPickerDialog
-                        open={locationDialogOpen}
-                        onOpenChange={setLocationDialogOpen}
-                        coords={geo.coords}
-                        detectedCity={geo.confirmedAddress || geo.detectedCity}
-                        isEnabled={geo.isEnabled}
-                        isDetecting={geo.isDetecting}
-                        onUseCurrentPosition={() => {
-                          if (!geo.isEnabled) geo.accept();
-                        }}
-                        onConfirm={(confirmedCoords, address) => {
-                          geo.setManualLocation(confirmedCoords, address);
-                        }}
-                        onDisableGeo={() => geo.decline()}
-                      />
-                    </>
                   )}
                 </div>
               </div>
