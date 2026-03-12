@@ -20,6 +20,10 @@ interface MapBusiness {
   neighborhood?: string | null;
   images?: string[] | null;
   hook_fr?: string | null;
+  google_rating?: number | null;
+  google_review_count?: number | null;
+  tripadvisor_rating?: number | null;
+  tripadvisor_review_count?: number | null;
 }
 
 interface BusinessMapProps {
