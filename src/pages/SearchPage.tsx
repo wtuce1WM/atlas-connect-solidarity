@@ -426,6 +426,7 @@ const SearchPage = () => {
    const [detectedCity, setDetectedCity] = useState<string | null>(null);
    const [detectedNeighborhood, setDetectedNeighborhood] = useState<string | null>(null);
    const [disambiguationType, setDisambiguationType] = useState<"needs_category" | "needs_city" | null>(null);
+   const [neighborhoodCoords, setNeighborhoodCoords] = useState<{ lat: number; lng: number } | null>(null);
    const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string | null>(null);
    const [selectedSubcategoryFilter, setSelectedSubcategoryFilter] = useState<string | null>(null);
    const [selectedServiceFilter, setSelectedServiceFilter] = useState<string | null>(null);
