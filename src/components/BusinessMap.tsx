@@ -33,6 +33,8 @@ interface BusinessMapProps {
   cityCenter?: { lat: number; lng: number } | null;
   /** When set, only markers within ~1km of this point are shown (neighborhood-level filtering) */
   neighborhoodCenter?: { lat: number; lng: number } | null;
+  /** Callback when user clicks "Voir la fiche" in the InfoWindow */
+  onBusinessClick?: (business: MapBusiness) => void;
 }
 
 declare global {
