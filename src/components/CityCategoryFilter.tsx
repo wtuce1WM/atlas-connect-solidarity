@@ -176,7 +176,7 @@ const CityCategoryFilter = ({
         .sort((a, b) => {
           if (a.name_fr === selectedSubcategory) return -1;
           if (b.name_fr === selectedSubcategory) return 1;
-          return (a.sort_order ?? 999) - (b.sort_order ?? 999);
+          return a.name_fr.localeCompare(b.name_fr, "fr");
         });
 
       setSubcategories(result);
