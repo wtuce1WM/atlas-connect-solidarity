@@ -1978,6 +1978,42 @@ const SearchPage = () => {
               </div>
             )}
 
+            {/* Service filters when subcategory is known */}
+            {(() => {
+              const effectiveSub = selectedSubcategoryFilter || detectedSubcategory;
+              if (!effectiveSub || searchServiceFilters.length === 0) return null;
+              return (
+                <div className="max-w-3xl mx-auto pb-4">
+                  <p className="text-xs font-medium text-muted-foreground mb-2 text-center">
+                    {language === "en" ? "Filter by service" : language === "ar" ? "تصفية حسب الخدمة" : "Filtrer par service"}
+                  </p>
+                  <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 justify-center flex-wrap">
+                    {searchServiceFilters.map(sf => {
+                      const isActive = selectedServiceFilter === sf.name;
+                      return (
+                        <button
+                          key={sf.name}
+                          onClick={() => {
+                            setSelectedServiceFilter(isActive ? null : sf.name);
+                            setOverlaySelectedBusiness(null);
+                            setAiAnswerText("");
+                            setAiRegenerateKey(k => k + 1);
+                          }}
+                          className={`shrink-0 text-xs px-3 py-1.5 rounded-full border transition-colors whitespace-nowrap ${
+                            isActive
+                              ? "bg-primary text-primary-foreground border-primary"
+                              : "bg-card text-muted-foreground border-border hover:border-primary/50 hover:text-foreground"
+                          }`}
+                        >
+                          {sf.name}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })()}
+
             <div className="max-w-3xl mx-auto">
               <div className="flex items-center gap-2 mb-4">
                 <Sparkles className="h-4 w-4 text-gold" />
