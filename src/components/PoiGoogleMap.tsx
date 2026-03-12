@@ -229,18 +229,19 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
 
   // Init map
   useEffect(() => {
-    if (!ready || !containerRef.current || mapRef.current) return;
-    mapRef.current = new google.maps.Map(containerRef.current, {
+    const gmaps = window.google?.maps;
+    if (!ready || !gmaps || !containerRef.current || mapRef.current) return;
+    mapRef.current = new gmaps.Map(containerRef.current, {
       center: center || { lat: 31.63, lng: -7.98 },
       zoom: 13,
       mapTypeControl: false,
       streetViewControl: false,
       fullscreenControl: true,
       zoomControl: true,
-      zoomControlOptions: { position: google.maps.ControlPosition.RIGHT_CENTER },
+      zoomControlOptions: { position: gmaps.ControlPosition.RIGHT_CENTER },
     });
-    infoWindowRef.current = new google.maps.InfoWindow();
-  }, [ready]);
+    infoWindowRef.current = new gmaps.InfoWindow();
+  }, [ready, center]);
 
   // Create/update label markers when pois change
   useEffect(() => {
