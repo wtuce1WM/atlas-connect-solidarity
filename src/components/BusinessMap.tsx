@@ -18,6 +18,8 @@ interface MapBusiness {
   wtuce_status?: string | null;
   logo_url?: string | null;
   neighborhood?: string | null;
+  images?: string[] | null;
+  hook_fr?: string | null;
 }
 
 interface BusinessMapProps {
