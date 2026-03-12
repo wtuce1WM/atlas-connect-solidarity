@@ -291,8 +291,9 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
               ${ratingHtml ? `<div style="margin-top:3px;color:white;">${ratingHtml}</div>` : ""}
             </div>
           </div>`;
-          // Position infowindow at the overlay position
+          // Position infowindow above the overlay with offset to prevent flickering
           infoWindowRef.current?.setContent(html);
+          infoWindowRef.current?.setOptions({ pixelOffset: new google.maps.Size(0, -30) });
           infoWindowRef.current?.setPosition(position);
           infoWindowRef.current?.open(map);
         },
