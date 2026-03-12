@@ -2545,10 +2545,9 @@ const SearchPage = () => {
         />
       )}
 
-      {/* 🩵 STICKY 3d — Service Filter (shown when subcategory detected) */}
-      {detectedSubcategory && searchServiceFilters.length >= 1 && !isLoading && activeTab === "suggestions" && (
+      {/* 🩵 STICKY 3d — Service Filter (shown when subcategory detected) — DISABLED in Résultats tab */}
+      {/* {detectedSubcategory && searchServiceFilters.length >= 1 && !isLoading && activeTab === "suggestions" && (
         <div data-service-filter className="sticky z-[5] bg-white py-2 relative" style={{ top: `${stickyTops.serviceBar}px` }}>
-          {/* <span className="absolute top-0 left-1 z-[60] bg-cyan-500 text-white text-[10px] font-bold px-2 py-0.5 rounded select-all cursor-text">🩵 STICKY 3d — Service Filter</span> */}
           <div className="mx-auto px-4 max-w-[80%]">
             <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
               {[...searchServiceFilters].sort((a, b) => {
@@ -2577,7 +2576,7 @@ const SearchPage = () => {
             </div>
           </div>
         </div>
-      )}
+      )} */}
 
       {activeTab === "map" && (
         <section className="pt-4 pb-4 lg:pt-20 lg:pb-4 bg-white dark:bg-zinc-900">
