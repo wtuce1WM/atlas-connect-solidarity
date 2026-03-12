@@ -3256,7 +3256,7 @@ const SearchPage = () => {
                 </div>
               </div>
               {/* Fallback-style cards in 4-column grid */}
-              <div className={`grid gap-4 pt-4 sm:pt-4 ${hasKnownLocation && !compactPanelBusiness ? "grid-cols-1 lg:grid-cols-2" : compactPanelBusiness ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1 sm:grid-cols-3 lg:grid-cols-4"}`}>
+              <div className={`grid gap-4 pt-4 sm:pt-4 ${compactPanelBusiness ? "grid-cols-1 sm:grid-cols-2" : hasKnownLocation ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1 sm:grid-cols-3 lg:grid-cols-4"}`}>
                 {paginatedBusinesses.map((business, index) => {
                   const img = business.images?.[0] || business.logo_url;
                   const sources = collectRatingSources(business as any);
