@@ -36,6 +36,7 @@ interface PoiSectionProps {
   columns?: number;
   onMapClick?: (business: PoiBusiness) => void;
   onPoisLoaded?: (pois: PoiBusiness[]) => void;
+  onHover?: (businessId: string | null) => void;
 }
 
 const PoiSection = ({ city, language, onBusinessClick, columns, onMapClick, onPoisLoaded }: PoiSectionProps) => {
