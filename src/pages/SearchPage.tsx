@@ -1122,6 +1122,17 @@ const SearchPage = () => {
         filtered = subcatMatches;
       }
     }
+    // Apply neighborhood filter when detected from search query
+    if (detectedNeighborhood && !selectedCity) {
+      const nhLower = detectedNeighborhood.toLowerCase();
+      const nhFiltered = filtered.filter(b => {
+        const bNh = (b.neighborhood || "").toLowerCase();
+        return bNh.includes(nhLower) || bNh.includes("toute la ville");
+      });
+      if (nhFiltered.length > 0) {
+        filtered = nhFiltered;
+      }
+    }
     // Apply service filter
     if (selectedServiceFilter) {
       filtered = filtered.filter(b => b.services && b.services.includes(selectedServiceFilter));
@@ -1169,7 +1180,7 @@ const SearchPage = () => {
 
     // Always sort by WTUCE status first, then by rating (highest first)
     return [...filtered].sort(sortWtuceAndRating);
-  }, [allBusinesses, serviceFilterBusinesses, subcategoryFilterBusinesses, selectedCity, selectedCityId, selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, activeTimeSlot, searchQuery, categoryFromUrl, moreFilterMatchingIds, moreFilterTimeSlots]);
+  }, [allBusinesses, serviceFilterBusinesses, subcategoryFilterBusinesses, selectedCity, selectedCityId, selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, activeTimeSlot, searchQuery, categoryFromUrl, moreFilterMatchingIds, moreFilterTimeSlots, detectedNeighborhood]);
 
   // Build subcategory name → icon name map
   const subcategoryIconMap = useMemo(() => {
