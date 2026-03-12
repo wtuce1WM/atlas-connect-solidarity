@@ -2743,12 +2743,12 @@ const SearchPage = () => {
         const hasRightPanel = !!destMapItem || !!selectedDestination;
         return (
           <div className="flex">
-            <section className={`pt-16 pb-6 lg:pt-20 lg:pb-12 bg-white dark:bg-zinc-900 transition-all duration-300 ${hasRightPanel ? "w-1/2" : "w-full"}`}>
-              <div className={`mx-auto px-4 ${hasRightPanel ? "max-w-full" : "max-w-[80%]"}`}>
+            <section className={`pt-16 pb-6 lg:pt-20 lg:pb-12 bg-white dark:bg-zinc-900 transition-all duration-300 ${hasRightPanel ? "w-1/2" : hasKnownLocation ? "w-1/2" : "w-full"}`}>
+              <div className={`mx-auto px-4 ${(hasRightPanel || hasKnownLocation) ? "max-w-full" : "max-w-[80%]"}`}>
                 <DestinationSection
                   city={destCity}
                   language={language}
-                  columns={hasRightPanel ? 3 : undefined}
+                  columns={hasRightPanel ? 3 : hasKnownLocation ? 2 : undefined}
                   onDestinationClick={(destId) => {
                     const dest = allDestItems.find(d => d.id === destId);
                     if (dest) {
@@ -2771,9 +2771,27 @@ const SearchPage = () => {
                       images: (d.images && d.images.length > 0) ? d.images : (d.image_url ? [d.image_url] : null),
                     })));
                   }}
+                  onHover={setHoveredDestId}
                 />
               </div>
             </section>
+            {/* Sticky map for Destinations — shown when location known and no panel open */}
+            {hasKnownLocation && !hasRightPanel && (
+              <div className="w-1/2 sticky top-[53px] h-[calc(100vh-53px)]">
+                <PoiGoogleMap
+                  pois={allDests}
+                  selectedPoiId={hoveredDestId || null}
+                  onPoiClick={(id) => {
+                    const dest = allDestItems.find(d => d.id === id);
+                    if (dest) {
+                      setSelectedDestination(dest);
+                      setDestMapItem(null);
+                    }
+                  }}
+                  center={mapCenterForResults}
+                />
+              </div>
+            )}
             {selectedDestination && (
               <DestinationBusinessesPanel
                 destination={selectedDestination}
