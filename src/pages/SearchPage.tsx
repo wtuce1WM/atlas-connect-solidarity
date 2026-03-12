@@ -1171,6 +1171,15 @@ const SearchPage = () => {
     return [...filtered].sort(sortWtuceAndRating);
   }, [allBusinesses, serviceFilterBusinesses, subcategoryFilterBusinesses, selectedCity, selectedCityId, selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, activeTimeSlot, searchQuery, categoryFromUrl, moreFilterMatchingIds, moreFilterTimeSlots]);
 
+  // Build subcategory name → icon name map
+  const subcategoryIconMap = useMemo(() => {
+    const map: Record<string, string> = {};
+    for (const sub of subcategories) {
+      if ((sub as any).icon) map[sub.name_fr] = (sub as any).icon;
+    }
+    return map;
+  }, [subcategories]);
+
   const mapPoiItems: PoiMapItem[] = useMemo(() => {
     if (!hasKnownLocation) return [];
     const center = mapCenterForResults;
@@ -1185,7 +1194,6 @@ const SearchPage = () => {
     return filteredBusinesses
       .filter(b => {
         if (!b.latitude || !b.longitude) return false;
-        // Morocco bounding box
         if (b.latitude < 21 || b.latitude > 36.5 || b.longitude < -17.5 || b.longitude > -1) return false;
         if (center) {
           const dist = haversine(center.lat, center.lng, b.latitude, b.longitude);
@@ -1205,6 +1213,7 @@ const SearchPage = () => {
         rating: b.rating,
         avgOn20: computeWeightedRatingOn20(collectRatingSources(b as any)),
         totalReviews: collectRatingSources(b as any).reduce((s, r) => s + r.count, 0),
+        subcategory: b.categories?.[0] || null,
       }));
   }, [hasKnownLocation, filteredBusinesses, mapCenterForResults, neighborhoodCoords]);
 
@@ -1373,7 +1382,7 @@ const SearchPage = () => {
     Promise.all([
       supabase.from("gammes").select("id, name_fr, color_hex, text_color_hex, sort_order"),
       supabase.from("badges").select("id, name_fr, color_hex, text_color_hex").order("sort_order", { ascending: true }),
-      supabase.from("subcategories").select("id, name_fr, sort_order").order("sort_order", { ascending: true }),
+      supabase.from("subcategories").select("id, name_fr, sort_order, icon").order("sort_order", { ascending: true }),
       supabase.from("badge_subcategories").select("badge_id, subcategory_id"),
       supabase.from("staff_notes").select("content").eq("key", "tts_intro_phrase").maybeSingle(),
     ]).then(([gammesRes, badgesRes, subcatsRes, badgeSubcatsRes, ttsIntroRes]) => {
@@ -3387,6 +3396,7 @@ const SearchPage = () => {
                 if (biz) setCompactPanelBusiness({ id: biz.id, name: biz.name } as AIBusinessData);
               }}
               center={mapCenterForResults}
+              subcategoryIconMap={subcategoryIconMap}
             />
           </div>
         )}
