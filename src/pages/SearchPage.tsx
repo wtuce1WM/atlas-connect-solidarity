@@ -2453,7 +2453,7 @@ const SearchPage = () => {
                 el.scrollTo({ left: scrollLeft, behavior: "smooth" });
               }
             }
-          }} className="flex gap-0 overflow-x-auto scrollbar-hide whitespace-nowrap" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
+          }} className="flex gap-0 overflow-x-auto scrollbar-hide whitespace-nowrap justify-start" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
             {[
               { key: "suggestions", icon: <Sparkles className="h-4 w-4" />, label: language === "en" ? "Results" : language === "ar" ? "النتائج" : "Résultats", count: totalCount },
               // { key: "map", icon: <Map className="h-4 w-4" />, label: language === "en" ? "Map" : language === "ar" ? "خريطة" : "Carte" },
