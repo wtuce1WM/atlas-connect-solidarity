@@ -1981,7 +1981,7 @@ const SearchPage = () => {
             {/* Service filters when subcategory is known */}
             {(() => {
               const effectiveSub = selectedSubcategoryFilter || detectedSubcategory;
-              const effectiveCity = selectedCityFilter || detectedCity;
+              const effectiveCity = (selectedCity && selectedCity !== "all") ? selectedCity : detectedCity;
               if (!effectiveSub || !effectiveCity || searchServiceFilters.length === 0) return null;
               return (
                 <div className="max-w-3xl mx-auto pb-4">
