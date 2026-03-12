@@ -90,84 +90,89 @@ async function fetchLucideIcon(name: string): Promise<string> {
 }
 
 /* ── Custom Label Overlay ── */
-class LabelMarker extends google.maps.OverlayView {
-  private div: HTMLDivElement | null = null;
-  private position: google.maps.LatLng;
-  private name: string;
-  private iconSvg: string;
-  private highlighted: boolean;
-  private _onClick?: () => void;
-  private _onMouseOver?: () => void;
-  private _onMouseOut?: () => void;
+type LabelMarkerOverlay = google.maps.OverlayView & {
+  setHighlighted: (val: boolean) => void;
+};
 
-  constructor(
-    position: google.maps.LatLngLiteral,
-    map: google.maps.Map,
-    name: string,
-    iconSvg: string,
-    highlighted: boolean,
-    onClick?: () => void,
-    onMouseOver?: () => void,
-    onMouseOut?: () => void,
-  ) {
-    super();
-    this.position = new google.maps.LatLng(position.lat, position.lng);
-    this.name = name;
-    this.iconSvg = iconSvg;
-    this.highlighted = highlighted;
-    this._onClick = onClick;
-    this._onMouseOver = onMouseOver;
-    this._onMouseOut = onMouseOut;
-    this.setMap(map);
-  }
+const createLabelMarkerClass = (gmaps: typeof google.maps) =>
+  class LabelMarker extends gmaps.OverlayView {
+    private div: HTMLDivElement | null = null;
+    private position: google.maps.LatLng;
+    private name: string;
+    private iconSvg: string;
+    private highlighted: boolean;
+    private _onClick?: () => void;
+    private _onMouseOver?: () => void;
+    private _onMouseOut?: () => void;
 
-  onAdd() {
-    this.div = document.createElement("div");
-    this.applyStyle();
-    this.div.addEventListener("click", (e) => {
-      e.stopPropagation();
-      this._onClick?.();
-    });
-    this.div.addEventListener("mouseenter", () => this._onMouseOver?.());
-    this.div.addEventListener("mouseleave", () => this._onMouseOut?.());
-    const panes = this.getPanes();
-    panes?.overlayMouseTarget.appendChild(this.div);
-  }
-
-  draw() {
-    if (!this.div) return;
-    const proj = this.getProjection();
-    if (!proj) return;
-    const point = proj.fromLatLngToDivPixel(this.position);
-    if (!point) return;
-    this.div.style.left = `${point.x}px`;
-    this.div.style.top = `${point.y}px`;
-  }
-
-  onRemove() {
-    if (this.div?.parentNode) {
-      this.div.parentNode.removeChild(this.div);
-      this.div = null;
+    constructor(
+      position: google.maps.LatLngLiteral,
+      map: google.maps.Map,
+      name: string,
+      iconSvg: string,
+      highlighted: boolean,
+      onClick?: () => void,
+      onMouseOver?: () => void,
+      onMouseOut?: () => void,
+    ) {
+      super();
+      this.position = new gmaps.LatLng(position.lat, position.lng);
+      this.name = name;
+      this.iconSvg = iconSvg;
+      this.highlighted = highlighted;
+      this._onClick = onClick;
+      this._onMouseOver = onMouseOver;
+      this._onMouseOut = onMouseOut;
+      this.setMap(map);
     }
-  }
 
-  setHighlighted(val: boolean) {
-    this.highlighted = val;
-    if (this.div) this.applyStyle();
-  }
+    onAdd() {
+      this.div = document.createElement("div");
+      this.applyStyle();
+      this.div.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this._onClick?.();
+      });
+      this.div.addEventListener("mouseenter", () => this._onMouseOver?.());
+      this.div.addEventListener("mouseleave", () => this._onMouseOut?.());
+      const panes = this.getPanes();
+      panes?.overlayMouseTarget.appendChild(this.div);
+    }
 
-  private applyStyle() {
-    if (!this.div) return;
-    const bg = this.highlighted ? "#1a1a1a" : "#ffffff";
-    const fg = this.highlighted ? "#ffffff" : "#1a1a1a";
-    const border = this.highlighted ? "#1a1a1a" : "#d1d5db";
-    const shadow = this.highlighted
-      ? "0 2px 8px rgba(0,0,0,0.4)"
-      : "0 1px 4px rgba(0,0,0,0.15)";
-    const scale = this.highlighted ? "scale(1.08)" : "scale(1)";
-    const z = this.highlighted ? "1000" : "1";
+    draw() {
+      if (!this.div) return;
+      const proj = this.getProjection();
+      if (!proj) return;
+      const point = proj.fromLatLngToDivPixel(this.position);
+      if (!point) return;
+      this.div.style.left = `${point.x}px`;
+      this.div.style.top = `${point.y}px`;
+    }
 
-    this.div.style.cssText = `
+    onRemove() {
+      if (this.div?.parentNode) {
+        this.div.parentNode.removeChild(this.div);
+        this.div = null;
+      }
+    }
+
+    setHighlighted(val: boolean) {
+      this.highlighted = val;
+      if (this.div) this.applyStyle();
+    }
+
+    private applyStyle() {
+      if (!this.div) return;
+      const bg = this.highlighted ? "#1a1a1a" : "#ffffff";
+      const fg = this.highlighted ? "#ffffff" : "#1a1a1a";
+      const border = this.highlighted ? "#1a1a1a" : "#d1d5db";
+      const shadow = this.highlighted
+        ? "0 2px 8px rgba(0,0,0,0.4)"
+        : "0 1px 4px rgba(0,0,0,0.15)";
+      const scale = this.highlighted ? "scale(1.08)" : "scale(1)";
+      const z = this.highlighted ? "1000" : "1";
+
+      this.div.style.cssText = `
       position:absolute;
       transform:translate(-50%,-100%) ${scale};
       transition:transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
@@ -182,14 +187,13 @@ class LabelMarker extends google.maps.OverlayView {
       line-height:1.2;
     `;
 
-    const iconHtml = this.iconSvg
-      ? `<span style="display:flex;align-items:center;flex-shrink:0;opacity:0.9;">${this.iconSvg}</span>`
-      : "";
-    // Truncate long names
-    const shortName = this.name.length > 22 ? this.name.slice(0, 20) + "…" : this.name;
-    this.div.innerHTML = `${iconHtml}<span>${shortName}</span>`;
-  }
-}
+      const iconHtml = this.iconSvg
+        ? `<span style="display:flex;align-items:center;flex-shrink:0;opacity:0.9;">${this.iconSvg}</span>`
+        : "";
+      const shortName = this.name.length > 22 ? this.name.slice(0, 20) + "…" : this.name;
+      this.div.innerHTML = `${iconHtml}<span>${shortName}</span>`;
+    }
+  };
 
 const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIconMap }: PoiGoogleMapProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
