@@ -283,7 +283,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
                 ${poi.totalReviews ? `<span style="color:rgba(255,255,255,0.7);">· ${poi.totalReviews} avis</span>` : ""}
               </div>`
             : "";
-          const html = `<div style="width:260px;font-family:system-ui,sans-serif;overflow:hidden;border-radius:10px;position:relative;">
+          const html = `<div data-poi-id="${poi.id}" style="width:260px;font-family:system-ui,sans-serif;overflow:hidden;border-radius:10px;position:relative;cursor:pointer;">
             ${img ? `<img src="${img}" style="width:100%;height:180px;display:block;object-fit:cover;" />` : ""}
             <div style="background:linear-gradient(to top,rgba(0,0,0,0.75),rgba(0,0,0,0.2));position:absolute;bottom:0;left:0;right:0;padding:10px;">
               <div style="font-weight:700;font-size:14px;color:white;line-height:1.3;">${poi.name}</div>
@@ -296,6 +296,15 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
           infoWindowRef.current?.setOptions({ pixelOffset: new google.maps.Size(0, -30) });
           infoWindowRef.current?.setPosition(position);
           infoWindowRef.current?.open(map);
+          // Make infowindow clickable
+          google.maps.event.addListenerOnce(infoWindowRef.current!, "domready", () => {
+            const el = document.querySelector(`[data-poi-id="${poi.id}"]`);
+            if (el) {
+              (el as HTMLElement).addEventListener("click", () => {
+                onPoiClick?.(poi.id);
+              });
+            }
+          });
         },
         () => {
           infoWindowRef.current?.close();
