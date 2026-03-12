@@ -3396,6 +3396,7 @@ const SearchPage = () => {
                 if (biz) setCompactPanelBusiness({ id: biz.id, name: biz.name } as AIBusinessData);
               }}
               center={mapCenterForResults}
+              subcategoryIconMap={subcategoryIconMap}
             />
           </div>
         )}
