@@ -61,6 +61,8 @@ const CityCategoryFilter = ({
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingSubs, setIsLoadingSubs] = useState(false);
   const [isLoadingServices, setIsLoadingServices] = useState(false);
+  const [serviceTop, setServiceTop] = useState<number | null>(null);
+  const subFilterRef = useRef<HTMLDivElement>(null);
   const { language } = useLanguage();
 
   // Fetch categories
