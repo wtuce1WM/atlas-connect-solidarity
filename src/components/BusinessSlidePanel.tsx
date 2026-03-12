@@ -960,19 +960,14 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
             </a>
           )}
           {!isExpanded && (business.latitude || business.google_maps_url) && (
-            <a
-              href={business.latitude && business.longitude
-                ? `https://www.google.com/maps/dir/?api=1&destination=${business.latitude},${business.longitude}`
-                : `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(business.address || business.name)}`
-              }
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={() => setShowDirectionsOverlay(true)}
               className="hover:opacity-70 transition-opacity"
               style={{ color: "#404040" }}
               title="Itinéraire"
             >
               <Route className="h-6 w-6" />
-            </a>
+            </button>
           )}
         </div>,
         toolbarCenterPortal
