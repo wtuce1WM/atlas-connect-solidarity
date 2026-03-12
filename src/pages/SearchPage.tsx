@@ -1373,7 +1373,7 @@ const SearchPage = () => {
     Promise.all([
       supabase.from("gammes").select("id, name_fr, color_hex, text_color_hex, sort_order"),
       supabase.from("badges").select("id, name_fr, color_hex, text_color_hex").order("sort_order", { ascending: true }),
-      supabase.from("subcategories").select("id, name_fr, sort_order").order("sort_order", { ascending: true }),
+      supabase.from("subcategories").select("id, name_fr, sort_order, icon").order("sort_order", { ascending: true }),
       supabase.from("badge_subcategories").select("badge_id, subcategory_id"),
       supabase.from("staff_notes").select("content").eq("key", "tts_intro_phrase").maybeSingle(),
     ]).then(([gammesRes, badgesRes, subcatsRes, badgeSubcatsRes, ttsIntroRes]) => {
