@@ -688,7 +688,7 @@ const SearchPage = () => {
    const [locationDialogOpen, setLocationDialogOpen] = useState(false);
    const heroAiRef = useRef<HTMLDivElement>(null);
    const [hasScrolledPastHeroAi, setHasScrolledPastHeroAi] = useState(false);
-    const [showAiPopup, setShowAiPopup] = useState(false);
+    // showAiPopup moved earlier (before ensureResultsVisibleBelowSticky)
     const aiPopupShownRef = useRef(false);
     const [overlaySelectedBusiness, setOverlaySelectedBusiness] = useState<AIBusinessData | null>(null);
     const [isOverlayPanelExpanded, setIsOverlayPanelExpanded] = useState(false);
