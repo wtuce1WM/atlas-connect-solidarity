@@ -43,6 +43,7 @@ import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { useToast } from "@/hooks/use-toast";
 import LocationPickerDialog from "@/components/LocationPickerDialog";
+import WarningOverlay from "@/components/WarningOverlay";
 
 interface Business {
   id: string;
