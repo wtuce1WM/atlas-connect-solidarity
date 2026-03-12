@@ -278,8 +278,6 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
         iconSvg,
         isSelected,
         () => {
-          map.setZoom(16);
-          map.panTo(position);
           onPoiClick?.(poi.id);
         },
         () => {
