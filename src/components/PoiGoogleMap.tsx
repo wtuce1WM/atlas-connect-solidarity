@@ -198,7 +198,7 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
 const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIconMap }: PoiGoogleMapProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
-  const overlaysRef = useRef<Map<string, LabelMarker>>(new Map());
+  const overlaysRef = useRef<Map<string, LabelMarkerOverlay>>(new Map());
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
   const [ready, setReady] = useState(false);
   const hasFittedRef = useRef(false);
