@@ -654,6 +654,7 @@ const SearchPage = () => {
 
    const [aiRegenerateKey, setAiRegenerateKey] = useState(0);
    const [isAiRegenerating, setIsAiRegenerating] = useState(false);
+   const lastAiServiceRef = useRef<string | null>(null);
     const [compactPanelBusiness, setCompactPanelBusiness] = useState<AIBusinessData | null>(null);
     const [isCompactPanelExpanded, setIsCompactPanelExpanded] = useState(false);
     const [compactBusinessImageCount, setCompactBusinessImageCount] = useState(0);
@@ -2787,7 +2788,15 @@ const SearchPage = () => {
                   {/* Mobile: "Lire la suite" opens fullscreen AI overlay; Desktop: expand/collapse */}
                   {!isAiSummaryExpanded && isMobile ? (
                     <button
-                      onClick={() => { aiPopupShownRef.current = false; setShowAiPopup(true); }}
+                      onClick={() => {
+                        aiPopupShownRef.current = false;
+                        if (selectedServiceFilter && lastAiServiceRef.current !== selectedServiceFilter) {
+                          setAiAnswerText("");
+                          setAiRegenerateKey(k => k + 1);
+                          lastAiServiceRef.current = selectedServiceFilter;
+                        }
+                        setShowAiPopup(true);
+                      }}
                       className="inline-flex items-center gap-1 mt-1 text-xs font-medium text-gold hover:text-gold/80 transition-colors"
                     >
                       <ChevronDown className="h-3 w-3" />{language === "en" ? "Read more" : "Lire la suite"}
@@ -2849,7 +2858,16 @@ const SearchPage = () => {
                   <RefreshCw className={`h-5 w-5 ${isAiRegenerating ? "animate-spin" : ""}`} />
                 </button>
                 <button
-                  onClick={() => { aiPopupShownRef.current = false; setShowAiPopup(true); }}
+                  onClick={() => {
+                    aiPopupShownRef.current = false;
+                    // Regenerate AI text if a service filter was selected since last generation
+                    if (selectedServiceFilter && lastAiServiceRef.current !== selectedServiceFilter) {
+                      setAiAnswerText("");
+                      setAiRegenerateKey(k => k + 1);
+                      lastAiServiceRef.current = selectedServiceFilter;
+                    }
+                    setShowAiPopup(true);
+                  }}
                   className="shrink-0 w-10 h-10 rounded-full bg-gold text-black flex items-center justify-center hover:bg-gold/90 transition-colors shadow-lg mt-0.5"
                   title={language === "en" ? "View AI suggestion" : "Voir la suggestion IA"}
                 >
@@ -3098,7 +3116,15 @@ const SearchPage = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => { aiPopupShownRef.current = false; setShowAiPopup(true); }}
+                    onClick={() => {
+                      aiPopupShownRef.current = false;
+                      if (selectedServiceFilter && lastAiServiceRef.current !== selectedServiceFilter) {
+                        setAiAnswerText("");
+                        setAiRegenerateKey(k => k + 1);
+                        lastAiServiceRef.current = selectedServiceFilter;
+                      }
+                      setShowAiPopup(true);
+                    }}
                     className="shrink-0 w-9 h-9 rounded-full bg-gold text-black flex items-center justify-center hover:bg-gold/90 transition-colors shadow-md"
                     title={language === "en" ? "View AI suggestion" : "Voir la suggestion IA"}
                   >
