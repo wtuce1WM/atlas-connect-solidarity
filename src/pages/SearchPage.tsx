@@ -3355,6 +3355,21 @@ const SearchPage = () => {
             </>
           ) : null}
         </div>
+        {/* Right side: Sticky Google Map when city/neighborhood known */}
+        {hasKnownLocation && !compactPanelBusiness && (
+          <div className="w-1/2 sticky top-[53px] h-[calc(100vh-53px)]">
+            <PoiGoogleMap
+              pois={mapPoiItems}
+              selectedPoiId={compactPanelBusiness?.id ?? null}
+              onPoiClick={(poiId) => {
+                const biz = filteredBusinesses.find(b => b.id === poiId);
+                if (biz) setCompactPanelBusiness({ id: biz.id, name: biz.name } as AIBusinessData);
+              }}
+              center={mapCenterForResults}
+            />
+          </div>
+        )}
+        </div>
       </section>
       )}
 
