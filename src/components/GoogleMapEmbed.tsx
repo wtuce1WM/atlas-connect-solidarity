@@ -1,7 +1,13 @@
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MapPin, Navigation, Eye, ExternalLink } from "lucide-react";
+import { MapPin, Navigation, Eye, ExternalLink, ChevronDown } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface GoogleMapEmbedProps {
   address: string;
@@ -55,6 +61,22 @@ const GoogleMapEmbed = ({ address, businessName, latitude, longitude, googleMaps
       ? `${resolvedLat},${resolvedLng}`
       : encodedAddress;
     window.open(`https://www.google.com/maps/dir/?api=1&destination=${destination}`, "_blank");
+  };
+
+  const handleNavigateWith = (app: "waze" | "apple") => {
+    const lat = resolvedLat;
+    const lng = resolvedLng;
+    if (app === "waze") {
+      const url = lat && lng
+        ? `https://waze.com/ul?ll=${lat},${lng}&navigate=yes`
+        : `https://waze.com/ul?q=${encodedAddress}&navigate=yes`;
+      window.open(url, "_blank");
+    } else {
+      const url = lat && lng
+        ? `https://maps.apple.com/?daddr=${lat},${lng}&dirflg=d`
+        : `https://maps.apple.com/?daddr=${encodedAddress}&dirflg=d`;
+      window.open(url, "_blank");
+    }
   };
 
   const handleOpenInMaps = () => {
@@ -118,14 +140,37 @@ const GoogleMapEmbed = ({ address, businessName, latitude, longitude, googleMaps
 
         {/* Action Buttons */}
         <div className="p-4 space-y-2">
-          <Button
-            onClick={handleGetDirections}
-            className="w-full"
-            variant="default"
-          >
-            <Navigation className="h-4 w-4 mr-2" />
-            Obtenir l'itinéraire
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              onClick={handleGetDirections}
+              className="flex-1"
+              variant="default"
+            >
+              <Navigation className="h-4 w-4 mr-2" />
+              Obtenir l'itinéraire
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="default" size="icon">
+                  <ChevronDown className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={handleGetDirections}>
+                  <img src="https://www.google.com/favicon.ico" alt="" className="h-4 w-4 mr-2" />
+                  Google Maps
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleNavigateWith("waze")}>
+                  <img src="https://www.waze.com/favicon.ico" alt="" className="h-4 w-4 mr-2" />
+                  Waze
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleNavigateWith("apple")}>
+                  <img src="https://www.apple.com/favicon.ico" alt="" className="h-4 w-4 mr-2" />
+                  Apple Plans
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
           <Button
             onClick={handleOpenInMaps}
             className="w-full"
