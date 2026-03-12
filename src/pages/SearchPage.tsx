@@ -2465,6 +2465,10 @@ const SearchPage = () => {
                 data-active-tab={activeTab === tab.key ? "true" : undefined}
                 onClick={(e) => {
                   resetPanelStates();
+                  setCompactPanelBusiness(null);
+                  setIsCompactPanelExpanded(false);
+                  setOverlaySelectedBusiness(null);
+                  setIsOverlayPanelExpanded(false);
                   setActiveTab(tab.key as any);
                   const btn = e.currentTarget;
                   const container = btn.parentElement;
