@@ -3001,12 +3001,14 @@ const SearchPage = () => {
                 <button
                   onClick={() => {
                     aiPopupShownRef.current = false;
-                    // Regenerate AI text if a service filter was selected since last generation
                     if (selectedServiceFilter && lastAiServiceRef.current !== selectedServiceFilter) {
                       setAiAnswerText("");
                       setAiRegenerateKey(k => k + 1);
                       lastAiServiceRef.current = selectedServiceFilter;
                     }
+                    setWarningDismissed(true);
+                    setCompactPanelBusiness(null);
+                    setIsCompactPanelExpanded(false);
                     setShowAiPopup(true);
                   }}
                   className="shrink-0 w-10 h-10 rounded-full bg-gold text-black flex items-center justify-center hover:bg-gold/90 transition-colors shadow-lg mt-0.5"
