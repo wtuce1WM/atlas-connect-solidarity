@@ -3159,7 +3159,7 @@ const SearchPage = () => {
 
           {/* Easter egg: SOS Médecin */}
           {showSosMedecin && (
-            <div className="max-w-lg mx-auto mb-10 rounded-2xl overflow-hidden border border-red-500/40 shadow-2xl bg-gradient-to-br from-black to-zinc-900">
+            <div className="max-w-lg mx-auto mt-28 mb-10 rounded-2xl overflow-hidden border border-red-500/40 shadow-2xl bg-gradient-to-br from-black to-zinc-900">
               <div className="px-6 py-5 border-b border-red-500/20 bg-gradient-to-r from-red-500/10 to-transparent">
                 <p className="text-red-400 font-semibold text-lg flex items-center gap-2">
                   🚨 SOS Médecin — Numéros d'urgence au Maroc
@@ -3204,7 +3204,7 @@ const SearchPage = () => {
 
           {/* Easter egg: Pompiers */}
           {showPompiers && (
-            <div className="max-w-lg mx-auto mb-10 rounded-2xl overflow-hidden border border-orange-500/40 shadow-2xl bg-gradient-to-br from-black to-zinc-900">
+            <div className="max-w-lg mx-auto mt-28 mb-10 rounded-2xl overflow-hidden border border-orange-500/40 shadow-2xl bg-gradient-to-br from-black to-zinc-900">
               <div className="px-6 py-5 border-b border-orange-500/20 bg-gradient-to-r from-orange-500/10 to-transparent">
                 <p className="text-orange-400 font-semibold text-lg flex items-center gap-2">
                   🔥 Pompiers — Numéros d'urgence au Maroc
