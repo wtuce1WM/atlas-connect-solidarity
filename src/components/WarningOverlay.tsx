@@ -25,6 +25,7 @@ interface WarningOverlayProps {
   spokenText?: string;
   onSelectCity: (city: string) => void;
   onSelectCategory: (cat: string) => void;
+  onClose?: () => void;
 }
 
 const WarningOverlay = ({
