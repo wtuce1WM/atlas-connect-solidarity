@@ -1505,6 +1505,7 @@ const SearchPage = () => {
            setDetectedCity(data.detectedCity || null);
            setDetectedNeighborhood(data.detectedNeighborhood || null);
            setDisambiguationType(data.disambiguationType || null);
+           setDetectedCategory(data.detectedCategory || null);
 
           // When the fallback heuristic auto-selects a subcategory (not the backend),
           // treat results as precise to prevent the extra category fetch from diluting them
