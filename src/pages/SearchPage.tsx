@@ -3403,7 +3403,7 @@ const SearchPage = () => {
                             const days = ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
                             const now = new Date();
                             const todayKey = days[now.getDay()];
-                            if (isCurrentlyOpenCheck(oh[todayKey])) return <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-[#25D366] text-white">Ouvert</span>;
+                            if (isCurrentlyOpenCheck(oh[todayKey])) return <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-[#25D366] text-black">Ouvert</span>;
                             const nowMin = now.getHours() * 60 + now.getMinutes();
                             const dh = oh[todayKey];
                             let badge: string | null = null;
