@@ -724,6 +724,7 @@ export type Database = {
           skype: string | null
           telegram: string | null
           tiktok_url: string | null
+          tripadvisor_location_id: string | null
           tripadvisor_rating: number | null
           tripadvisor_review_count: number | null
           tripadvisor_review_url: string | null
@@ -841,6 +842,7 @@ export type Database = {
           skype?: string | null
           telegram?: string | null
           tiktok_url?: string | null
+          tripadvisor_location_id?: string | null
           tripadvisor_rating?: number | null
           tripadvisor_review_count?: number | null
           tripadvisor_review_url?: string | null
@@ -958,6 +960,7 @@ export type Database = {
           skype?: string | null
           telegram?: string | null
           tiktok_url?: string | null
+          tripadvisor_location_id?: string | null
           tripadvisor_rating?: number | null
           tripadvisor_review_count?: number | null
           tripadvisor_review_url?: string | null
@@ -2834,6 +2837,7 @@ export type Database = {
               skype: string | null
               telegram: string | null
               tiktok_url: string | null
+              tripadvisor_location_id: string | null
               tripadvisor_rating: number | null
               tripadvisor_review_count: number | null
               tripadvisor_review_url: string | null
@@ -2967,6 +2971,7 @@ export type Database = {
               skype: string | null
               telegram: string | null
               tiktok_url: string | null
+              tripadvisor_location_id: string | null
               tripadvisor_rating: number | null
               tripadvisor_review_count: number | null
               tripadvisor_review_url: string | null
