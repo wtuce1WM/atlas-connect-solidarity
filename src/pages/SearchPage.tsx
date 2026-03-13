@@ -3424,7 +3424,7 @@ const SearchPage = () => {
                               }
                             }
                             if (!badge) return null;
-                            return <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-black/70 text-white">{badge}</span>;
+                            return <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-primary text-primary-foreground">{badge}</span>;
                           })()}
                         </div>
                         <div className="absolute bottom-0 left-0 right-0 p-3 space-y-1">
