@@ -440,11 +440,13 @@ Deno.serve(async (req) => {
       })
     );
 
-    if (!google_only && business.tripadvisor_review_url) {
+    let tripadvisorLocationId: string | null = null;
+    if (!google_only) {
       promises.push(
-        fetchTripAdvisorReviews(business.tripadvisor_review_url).then(r => {
+        fetchTripAdvisorReviews(business.name, business.city || '', business.tripadvisor_location_id, business.latitude, business.longitude).then(r => {
           results.tripadvisor_rating = r.rating;
           results.tripadvisor_review_count = r.count;
+          tripadvisorLocationId = r.locationId;
         })
       );
     }
