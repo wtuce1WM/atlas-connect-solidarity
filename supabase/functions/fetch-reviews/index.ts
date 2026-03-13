@@ -487,6 +487,7 @@ Deno.serve(async (req) => {
     if (results.google_review_count != null) updateData.google_review_count = results.google_review_count;
     if (results.tripadvisor_rating != null) updateData.tripadvisor_rating = results.tripadvisor_rating;
     if (results.tripadvisor_review_count != null) updateData.tripadvisor_review_count = results.tripadvisor_review_count;
+    if (tripadvisorLocationId && !business.tripadvisor_location_id) updateData.tripadvisor_location_id = tripadvisorLocationId;
     if (results.restaurant_guru_rating != null) updateData.restaurant_guru_rating = results.restaurant_guru_rating;
     if (results.restaurant_guru_review_count != null) updateData.restaurant_guru_review_count = results.restaurant_guru_review_count;
     if (results.getyourguide_rating != null) updateData.getyourguide_rating = results.getyourguide_rating;
