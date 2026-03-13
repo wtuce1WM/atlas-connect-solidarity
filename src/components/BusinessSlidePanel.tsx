@@ -356,6 +356,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
     const sectionMap: { id: string; ref: React.RefObject<HTMLDivElement | null> }[] = [
       { id: "acote", ref: nearbySectionRef },
       { id: "similaires", ref: similarSectionRef },
+      { id: "social", ref: socialSectionRef },
       { id: "services", ref: servicesSectionRef },
       { id: "localiser", ref: mapSectionRef },
       { id: "avis", ref: reviewsSectionRef },
