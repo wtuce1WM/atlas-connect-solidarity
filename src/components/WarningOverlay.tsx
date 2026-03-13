@@ -39,6 +39,7 @@ const WarningOverlay = ({
   spokenText,
   onSelectCity,
   onSelectCategory,
+  onClose,
 }: WarningOverlayProps) => {
   const { language } = useLanguage();
 
