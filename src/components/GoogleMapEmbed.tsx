@@ -48,11 +48,14 @@ const GoogleMapEmbed = ({ address, businessName, latitude, longitude, googleMaps
 
   const encodedAddress = encodeURIComponent(`${businessName}, ${address}`);
 
-  // Build map embed URL: prefer place name from URL (shows nice marker label),
-  // then business name + address. Raw coords as absolute last resort.
-  const embedQuery = placeName 
-    ? placeName 
-    : businessName + (address ? `, ${address}` : resolvedLat && resolvedLng ? `, ${resolvedLat},${resolvedLng}` : "");
+  // Build map embed URL: when we have exact coordinates, use them to avoid
+  // Google resolving a place name to a different location.
+  // Append coordinates to the place name query for precision.
+  const embedQuery = resolvedLat && resolvedLng
+    ? `${resolvedLat},${resolvedLng}`
+    : placeName 
+      ? placeName 
+      : businessName + (address ? `, ${address}` : "");
   const mapEmbedUrl = `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(embedQuery)}&zoom=17`;
   const streetViewEmbedUrl = `https://www.google.com/maps/embed/v1/streetview?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&location=${resolvedLat || 31.6295},${resolvedLng || -7.9811}&heading=0&pitch=0&fov=90`;
 
