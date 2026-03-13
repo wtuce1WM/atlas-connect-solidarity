@@ -3330,10 +3330,10 @@ const SearchPage = () => {
                         onConfirm={(confirmedCoords, address) => {
                           geo.setManualLocation(confirmedCoords, address);
                           // Update city filter to match the manually picked location
-                          if (allCities.length > 0) {
+                          if (citiesWithPriority.length > 0) {
                             let nearest: string | null = null;
                             let minDist = Infinity;
-                            for (const city of allCities) {
+                            for (const city of citiesWithPriority) {
                               if (!city.latitude || !city.longitude) continue;
                               const R = 6371;
                               const dLat = ((city.latitude - confirmedCoords.lat) * Math.PI) / 180;
