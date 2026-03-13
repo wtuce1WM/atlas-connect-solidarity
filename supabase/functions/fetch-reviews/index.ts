@@ -184,52 +184,65 @@ async function fetchGoogleReviews(businessName: string, city: string, googleMaps
   return { rating: null, count: null, reviews: [] };
 }
 
-async function fetchTripAdvisorReviews(url: string): Promise<{ rating: number | null; count: number | null }> {
-  const apiKey = Deno.env.get('FIRECRAWL_API_KEY');
+async function fetchTripAdvisorReviews(businessName: string, city: string, tripadvisorLocationId: string | null, latitude: number | null, longitude: number | null): Promise<{ rating: number | null; count: number | null; locationId: string | null }> {
+  const apiKey = Deno.env.get('TRIPADVISOR_API_KEY');
   if (!apiKey) {
-    console.error('FIRECRAWL_API_KEY not configured');
-    return { rating: null, count: null };
+    console.error('TRIPADVISOR_API_KEY not configured');
+    return { rating: null, count: null, locationId: null };
   }
 
   try {
-    console.log(`Scraping TripAdvisor: ${url}`);
-    const response = await fetch('https://api.firecrawl.dev/v1/scrape', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        url,
-        formats: ['extract'],
-        extract: {
-          prompt: 'Extract the overall rating (out of 5, as a decimal like 4.5) and total number of reviews from this TripAdvisor page.',
-          schema: {
-            type: 'object',
-            properties: {
-              rating: { type: 'number', description: 'Overall rating out of 5' },
-              review_count: { type: 'number', description: 'Total number of reviews' },
-            },
-          },
-        },
-        waitFor: 3000,
-      }),
-    });
+    let locationId = tripadvisorLocationId;
 
-    const data = await response.json();
-    console.log('TripAdvisor Firecrawl response:', JSON.stringify(data).substring(0, 500));
+    // Search for location if no cached ID
+    if (!locationId) {
+      const searchQuery = `${businessName} ${city}`;
+      const searchUrl = new URL('https://api.content.tripadvisor.com/api/v1/location/search');
+      searchUrl.searchParams.set('key', apiKey);
+      searchUrl.searchParams.set('searchQuery', searchQuery);
+      searchUrl.searchParams.set('language', 'fr');
+      if (latitude && longitude) {
+        searchUrl.searchParams.set('latLong', `${latitude},${longitude}`);
+      }
 
-    const extracted = data?.data?.extract;
-    if (extracted) {
-      return {
-        rating: extracted.rating ? parseFloat(String(extracted.rating)) : null,
-        count: extracted.review_count ? parseInt(String(extracted.review_count)) : null,
-      };
+      console.log(`TripAdvisor search: "${searchQuery}"`);
+      const searchRes = await fetch(searchUrl.toString(), { headers: { 'Accept': 'application/json' } });
+      if (!searchRes.ok) {
+        const errText = await searchRes.text();
+        console.error(`TripAdvisor search error ${searchRes.status}: ${errText}`);
+        return { rating: null, count: null, locationId: null };
+      }
+      const searchData = await searchRes.json();
+      if (!searchData?.data?.length) {
+        console.log(`No TripAdvisor location found for: ${searchQuery}`);
+        return { rating: null, count: null, locationId: null };
+      }
+      locationId = searchData.data[0].location_id;
+      console.log(`Found TripAdvisor location: "${searchData.data[0].name}" (ID: ${locationId})`);
     }
+
+    // Get details
+    const detailUrl = new URL(`https://api.content.tripadvisor.com/api/v1/location/${locationId}/details`);
+    detailUrl.searchParams.set('key', apiKey);
+    detailUrl.searchParams.set('language', 'fr');
+
+    const detailRes = await fetch(detailUrl.toString(), { headers: { 'Accept': 'application/json' } });
+    if (!detailRes.ok) {
+      const errText = await detailRes.text();
+      console.error(`TripAdvisor details error ${detailRes.status}: ${errText}`);
+      return { rating: null, count: null, locationId };
+    }
+    const detailData = await detailRes.json();
+
+    return {
+      rating: detailData.rating ? parseFloat(detailData.rating) : null,
+      count: detailData.num_reviews ? parseInt(detailData.num_reviews) : null,
+      locationId,
+    };
   } catch (e) {
-    console.error('Firecrawl TripAdvisor error:', e);
+    console.error('TripAdvisor API error:', e);
+    return { rating: null, count: null, locationId: null };
   }
-  return { rating: null, count: null };
 }
 
 async function fetchRestaurantGuruReviews(url: string): Promise<{ rating: number | null; count: number | null }> {
@@ -402,7 +415,7 @@ Deno.serve(async (req) => {
 
     const { data: business, error: fetchError } = await supabase
       .from('businesses')
-      .select('name, city, google_maps_url, google_reviews_url, tripadvisor_review_url, restaurant_guru_url, getyourguide_url, viator_url')
+      .select('name, city, latitude, longitude, google_maps_url, google_reviews_url, tripadvisor_review_url, tripadvisor_location_id, restaurant_guru_url, getyourguide_url, viator_url')
       .eq('id', business_id)
       .single();
 
@@ -427,11 +440,13 @@ Deno.serve(async (req) => {
       })
     );
 
-    if (!google_only && business.tripadvisor_review_url) {
+    let tripadvisorLocationId: string | null = null;
+    if (!google_only) {
       promises.push(
-        fetchTripAdvisorReviews(business.tripadvisor_review_url).then(r => {
+        fetchTripAdvisorReviews(business.name, business.city || '', business.tripadvisor_location_id, business.latitude, business.longitude).then(r => {
           results.tripadvisor_rating = r.rating;
           results.tripadvisor_review_count = r.count;
+          tripadvisorLocationId = r.locationId;
         })
       );
     }
@@ -472,6 +487,7 @@ Deno.serve(async (req) => {
     if (results.google_review_count != null) updateData.google_review_count = results.google_review_count;
     if (results.tripadvisor_rating != null) updateData.tripadvisor_rating = results.tripadvisor_rating;
     if (results.tripadvisor_review_count != null) updateData.tripadvisor_review_count = results.tripadvisor_review_count;
+    if (tripadvisorLocationId && !business.tripadvisor_location_id) updateData.tripadvisor_location_id = tripadvisorLocationId;
     if (results.restaurant_guru_rating != null) updateData.restaurant_guru_rating = results.restaurant_guru_rating;
     if (results.restaurant_guru_review_count != null) updateData.restaurant_guru_review_count = results.restaurant_guru_review_count;
     if (results.getyourguide_rating != null) updateData.getyourguide_rating = results.getyourguide_rating;
