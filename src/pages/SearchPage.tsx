@@ -5,6 +5,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
 import { extractTimeSlot, isOpenDuringSlot, getCurrentTimePeriod, type TimeSlot, type TimePeriod } from "@/lib/timeSlots";
+import { isCurrentlyOpen as isCurrentlyOpenCheck } from "@/lib/formatOpeningHours";
 import zitounMaskImg from "@/assets/zitoun-mask.jpg";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import LoadingScreen from "@/components/LoadingScreen";
@@ -3395,6 +3396,36 @@ const SearchPage = () => {
                               {business.default_service}
                             </span>
                           )}
+                          {(() => {
+                            if (business.is_open_24h) return <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-emerald-600 text-white">Ouvert 24h</span>;
+                            if (!business.opening_hours) return null;
+                            const oh = business.opening_hours as Record<string, { open?: string; close?: string; open2?: string; close2?: string; closed?: boolean; continuous?: boolean }>;
+                            const days = ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
+                            const now = new Date();
+                            const todayKey = days[now.getDay()];
+                            if (isCurrentlyOpenCheck(oh[todayKey])) return <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-emerald-600 text-white">Ouvert</span>;
+                            const nowMin = now.getHours() * 60 + now.getMinutes();
+                            const dh = oh[todayKey];
+                            let badge: string | null = null;
+                            if (dh && !dh.closed && dh.open) {
+                              const [oH, oM] = dh.open.split(":").map(Number);
+                              if (oH * 60 + (oM || 0) > nowMin) badge = `Ouvre à ${dh.open}`;
+                              else if (dh.open2 && !dh.continuous) {
+                                const [oH2, oM2] = dh.open2.split(":").map(Number);
+                                if (oH2 * 60 + (oM2 || 0) > nowMin) badge = `Ouvre à ${dh.open2}`;
+                              }
+                            }
+                            if (!badge) {
+                              const dayLabels = ["dim.","lun.","mar.","mer.","jeu.","ven.","sam."];
+                              for (let i = 1; i <= 7; i++) {
+                                const idx = (now.getDay() + i) % 7;
+                                const nd = oh[days[idx]];
+                                if (nd && !nd.closed && nd.open) { badge = `Ouvre ${dayLabels[idx]} à ${nd.open}`; break; }
+                              }
+                            }
+                            if (!badge) return null;
+                            return <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-black/70 text-white">{badge}</span>;
+                          })()}
                         </div>
                         <div className="absolute bottom-0 left-0 right-0 p-3 space-y-1">
                           <p className="font-semibold text-sm text-white leading-tight line-clamp-2">{business.name}</p>
