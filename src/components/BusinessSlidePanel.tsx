@@ -245,6 +245,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   const servicesSectionRef = useRef<HTMLDivElement>(null);
   const similarSectionRef = useRef<HTMLDivElement>(null);
   const nearbySectionRef = useRef<HTMLDivElement>(null);
+  const socialSectionRef = useRef<HTMLDivElement>(null);
   const descriptionRef = useRef<HTMLDivElement>(null);
   const tabsSentinelRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState<string>("apercu");
