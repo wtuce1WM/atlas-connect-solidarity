@@ -3308,6 +3308,8 @@ const SearchPage = () => {
                         )}
                         {geo.isDetecting
                           ? "…"
+                          : geo.isEnabled && geo.confirmedAddress
+                          ? `📍 ${geo.confirmedAddress}`
                           : geo.isEnabled && (geo.detectedNeighborhood || geo.detectedCity)
                           ? `📍 ${[geo.detectedNeighborhood, geo.detectedCity].filter(Boolean).join(", ")}`
                           : geo.isEnabled
