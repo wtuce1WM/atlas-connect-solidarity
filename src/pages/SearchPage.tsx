@@ -1541,7 +1541,11 @@ const SearchPage = () => {
             // to avoid filtering out results that don't match a leftover city from a previous search
             if (data.synonymUsed && !data.detectedCity) {
               setSelectedCity("all");
-            } else if (!data.detectedCity && !queryHasCountryScope && geo.isEnabled) {
+            } else if (data.detectedCity) {
+              // Auto-select city when the search engine detected one from the query
+              setSelectedCity(data.detectedCity);
+              setIsGeoCityAutoSelected(false);
+            } else if (!queryHasCountryScope && geo.isEnabled) {
               // Auto-select city if not detected and only one city in results
               const resultCities = [...new Set(businesses.map(b => b.city).filter(Boolean))];
               if (resultCities.length === 1) {
