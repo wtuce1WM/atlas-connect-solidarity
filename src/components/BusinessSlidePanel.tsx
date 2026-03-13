@@ -1321,6 +1321,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                   { id: "avis", label: "Avis clients", show: !!(reviews.length > 0 || avgOn20) },
                   { id: "localiser", label: "Localiser", show: !!business.google_maps_url },
                   { id: "services", label: "Services", show: !!(business.services && activeServiceNames && business.services.some(s => activeServiceNames.has(s))) },
+                  { id: "social", label: "Social", show: socialPostCount !== null && socialPostCount > 0 },
                   { id: "similaires", label: "Similaires", show: true },
                   { id: "acote", label: "À côté", show: !!(business.latitude && business.longitude) },
                 ].filter(t => t.show).map(tab => (
