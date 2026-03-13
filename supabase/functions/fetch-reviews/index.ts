@@ -415,7 +415,7 @@ Deno.serve(async (req) => {
 
     const { data: business, error: fetchError } = await supabase
       .from('businesses')
-      .select('name, city, google_maps_url, google_reviews_url, tripadvisor_review_url, restaurant_guru_url, getyourguide_url, viator_url')
+      .select('name, city, latitude, longitude, google_maps_url, google_reviews_url, tripadvisor_review_url, tripadvisor_location_id, restaurant_guru_url, getyourguide_url, viator_url')
       .eq('id', business_id)
       .single();
 
