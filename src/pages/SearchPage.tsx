@@ -1940,7 +1940,7 @@ const SearchPage = () => {
       )}
 
       {/* Warning Overlay — forces user to pick city + category */}
-      {!isLoading && allBusinesses.length > 0 && !compactPanelBusiness && !showAiPopup && (
+      {!isLoading && allBusinesses.length > 0 && !compactPanelBusiness && !showAiPopup && !warningDismissed && (
         <WarningOverlay
           allBusinesses={allBusinesses}
           citiesWithPriority={citiesWithPriority}
@@ -1957,6 +1957,7 @@ const SearchPage = () => {
           onSelectCategory={(cat) => {
             setSelectedCategoryFilter(cat);
           }}
+          onClose={() => setWarningDismissed(true)}
         />
       )}
 
