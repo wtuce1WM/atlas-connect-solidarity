@@ -384,6 +384,7 @@ const SearchPage = () => {
   const [allBusinesses, setAllBusinesses] = useState<Business[]>([]);
   const [totalCount, setTotalCount] = useState<number | null>(null);
   const [detectedSubcategory, setDetectedSubcategory] = useState<string | null>(null);
+  const [detectedCategory, setDetectedCategory] = useState<string | null>(null);
   const [searchMode, setSearchMode] = useState<string | null>(null);
   const [searchLevel, setSearchLevel] = useState<string>("");
    const [synonymUsed, setSynonymUsed] = useState(false);
