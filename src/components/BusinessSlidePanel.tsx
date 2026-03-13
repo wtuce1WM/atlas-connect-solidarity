@@ -470,6 +470,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
       setShowReviewComments(false);
       setSimilarCount(null);
       setNearbyCount(null);
+      setSocialPostCount(null);
 
       const { data, error } = await supabase
         .from("businesses")
