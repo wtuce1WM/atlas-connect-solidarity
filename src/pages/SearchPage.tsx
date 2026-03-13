@@ -3397,7 +3397,7 @@ const SearchPage = () => {
                             </span>
                           )}
                           {(() => {
-                            if (business.is_open_24h) return <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-[#25D366] text-white">Ouvert 24h</span>;
+                            if (business.is_open_24h) return <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-[#25D366] text-black">Ouvert 24h</span>;
                             if (!business.opening_hours) return null;
                             const oh = business.opening_hours as Record<string, { open?: string; close?: string; open2?: string; close2?: string; closed?: boolean; continuous?: boolean }>;
                             const days = ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
