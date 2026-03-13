@@ -2933,6 +2933,9 @@ const SearchPage = () => {
                           setAiRegenerateKey(k => k + 1);
                           lastAiServiceRef.current = selectedServiceFilter;
                         }
+                        setWarningDismissed(true);
+                        setCompactPanelBusiness(null);
+                        setIsCompactPanelExpanded(false);
                         setShowAiPopup(true);
                       }}
                       className="inline-flex items-center gap-1 mt-1 text-xs font-medium text-gold hover:text-gold/80 transition-colors"
