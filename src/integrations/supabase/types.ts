@@ -591,6 +591,41 @@ export type Database = {
           },
         ]
       }
+      business_social_posts: {
+        Row: {
+          business_id: string
+          created_at: string
+          id: string
+          platform: string
+          post_url: string
+          sort_order: number
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          id?: string
+          platform: string
+          post_url: string
+          sort_order?: number
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          id?: string
+          platform?: string
+          post_url?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_social_posts_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       businesses: {
         Row: {
           account_type: string | null

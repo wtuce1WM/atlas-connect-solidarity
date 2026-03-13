@@ -22,6 +22,7 @@ import NearbyBusinesses from "@/components/NearbyBusinesses";
 import { Separator } from "@/components/ui/separator";
 import { FacebookIcon, InstagramIcon, LinkedInIcon, YouTubeIcon, TikTokIcon, TwitterIcon, PinterestIcon, VimeoIcon } from "@/components/staff/SocialMediaIcons";
 import BookingOverlay from "@/components/BookingOverlay";
+import SocialEmbedsTab from "@/components/SocialEmbedsTab";
 import HotelAvailabilityOverlay, { type FallbackPanelData, type FallbackHotel } from "@/components/HotelAvailabilityOverlay";
 
 
@@ -244,12 +245,14 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   const servicesSectionRef = useRef<HTMLDivElement>(null);
   const similarSectionRef = useRef<HTMLDivElement>(null);
   const nearbySectionRef = useRef<HTMLDivElement>(null);
+  const socialSectionRef = useRef<HTMLDivElement>(null);
   const descriptionRef = useRef<HTMLDivElement>(null);
   const tabsSentinelRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState<string>("apercu");
   const [showStickyTabs, setShowStickyTabs] = useState(false);
   const [similarCount, setSimilarCount] = useState<number | null>(null);
   const [nearbyCount, setNearbyCount] = useState<number | null>(null);
+  const [socialPostCount, setSocialPostCount] = useState<number | null>(null);
   const menuScrollRef = useRef<HTMLDivElement>(null);
   const menuDragStartXRef = useRef<number | null>(null);
   const menuDragStartYRef = useRef<number | null>(null);
@@ -353,6 +356,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
     const sectionMap: { id: string; ref: React.RefObject<HTMLDivElement | null> }[] = [
       { id: "acote", ref: nearbySectionRef },
       { id: "similaires", ref: similarSectionRef },
+      { id: "social", ref: socialSectionRef },
       { id: "services", ref: servicesSectionRef },
       { id: "localiser", ref: mapSectionRef },
       { id: "avis", ref: reviewsSectionRef },
@@ -411,6 +415,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
       avis: reviewsSectionRef,
       localiser: mapSectionRef,
       services: servicesSectionRef,
+      social: socialSectionRef,
       similaires: similarSectionRef,
       acote: nearbySectionRef,
       apercu: descriptionRef,
@@ -465,6 +470,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
       setShowReviewComments(false);
       setSimilarCount(null);
       setNearbyCount(null);
+      setSocialPostCount(null);
 
       const { data, error } = await supabase
         .from("businesses")
@@ -1316,6 +1322,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                   { id: "avis", label: "Avis clients", show: !!(reviews.length > 0 || avgOn20) },
                   { id: "localiser", label: "Localiser", show: !!business.google_maps_url },
                   { id: "services", label: "Services", show: !!(business.services && activeServiceNames && business.services.some(s => activeServiceNames.has(s))) },
+                  { id: "social", label: "Social", show: socialPostCount !== null && socialPostCount > 0 },
                   { id: "similaires", label: "Similaires", show: true },
                   { id: "acote", label: "À côté", show: !!(business.latitude && business.longitude) },
                 ].filter(t => t.show).map(tab => (
@@ -1401,6 +1408,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
               { id: "avis", label: "Avis clients", show: !!(reviews.length > 0 || avgOn20) },
               { id: "localiser", label: "Localiser", show: !!business.google_maps_url },
               { id: "services", label: "Services", show: !!(business.services && activeServiceNames && business.services.some(s => activeServiceNames.has(s))) },
+              { id: "social", label: "Social", show: socialPostCount !== null && socialPostCount > 0 },
               { id: "similaires", label: "Similaires", show: similarCount === null || similarCount > 0 },
               { id: "acote", label: "À côté", show: nearbyCount === null || nearbyCount > 0 },
             ].filter(t => t.show).map(tab => (
@@ -2205,6 +2213,11 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
               <Separator />
             </>
           )}
+
+          {/* Social embeds */}
+          <div ref={socialSectionRef} className="scroll-mt-28" />
+          <SocialEmbedsTab businessId={business.id} onPostCount={setSocialPostCount} />
+          {socialPostCount !== null && socialPostCount > 0 && <Separator />}
 
           {/* Similar businesses */}
           <div ref={similarSectionRef} className="scroll-mt-28" />

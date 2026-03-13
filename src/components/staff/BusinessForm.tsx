@@ -31,6 +31,7 @@ import LogoUploader from "./LogoUploader";
 import BusinessLabelsEditor from "./BusinessLabelsEditor";
 import OpeningHoursEditor, { OpeningHours, DEFAULT_OPENING_HOURS } from "./OpeningHoursEditor";
 import VacationDatesEditor, { VacationPeriod } from "./VacationDatesEditor";
+import SocialPostsEditor from "./SocialPostsEditor";
 import {
   FacebookIcon,
   InstagramIcon,
@@ -2794,6 +2795,9 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             onChange={(e) => handleChange("matterport_url", e.target.value)}
           />
         </div>
+
+        {/* Social posts embeds */}
+        {business?.id && <SocialPostsEditor businessId={business.id} />}
 
 
         {/* Images */}
