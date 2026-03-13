@@ -1433,6 +1433,7 @@ const SearchPage = () => {
       setIsLoading(true);
       setAiAnswerText("");
       setShowAiPopup(false);
+      setWarningDismissed(false);
       setOverlaySelectedBusiness(null);
       aiPopupShownRef.current = false;
       setDetectedSubcategory(null);
