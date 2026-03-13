@@ -788,12 +788,15 @@ const SearchPage = () => {
   const geo = useGeolocation();
 
   // Auto-select city from geolocation when geo is enabled and no city is explicitly set
+  // Also update when geo city changes and current selection was auto-set by geo
   useEffect(() => {
-    if (!queryHasExplicitCity && geo.isEnabled && geo.detectedCity && selectedCity === "all" && !cityFromUrl) {
-      setSelectedCity(geo.detectedCity);
-      setIsGeoCityAutoSelected(true);
+    if (!queryHasExplicitCity && geo.isEnabled && geo.detectedCity && !cityFromUrl) {
+      if (selectedCity === "all" || isGeoCityAutoSelected) {
+        setSelectedCity(geo.detectedCity);
+        setIsGeoCityAutoSelected(true);
+      }
     }
-  }, [searchQuery, categoryFromUrl, queryHasExplicitCity, geo.isEnabled, geo.detectedCity, selectedCity, cityFromUrl]);
+  }, [searchQuery, categoryFromUrl, queryHasExplicitCity, geo.isEnabled, geo.detectedCity, selectedCity, cityFromUrl, isGeoCityAutoSelected]);
 
   // If query has country scope (e.g. "maroc"), force "all" cities only on initial search
   const prevQueryForCountryScopeRef = useRef<string>(searchQuery);
