@@ -61,7 +61,7 @@ function haversineDistance(
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-/** Find nearest neighborhood within 5km */
+/** Find nearest neighborhood within 2km */
 function findNearestNeighborhood(
   lat: number, lng: number,
   neighborhoods: GeoNeighborhood[]
@@ -76,7 +76,7 @@ function findNearestNeighborhood(
       nearest = nh.name;
     }
   }
-  return minDist <= 5 ? nearest : null;
+  return minDist <= 2 ? nearest : null;
 }
 
 export function useGeolocation(): GeolocationState {
