@@ -37,6 +37,7 @@ const WarningOverlay = ({
   detectedCity,
   selectedCategoryFilter,
   detectedSubcategory,
+  detectedCategory,
   searchQuery,
   spokenText,
   onSelectCity,
