@@ -19,6 +19,8 @@ interface WarningOverlayProps {
   selectedCategoryFilter: string | null;
   /** Subcategory detected by the search engine */
   detectedSubcategory: string | null;
+  /** Category detected by intent words */
+  detectedCategory: string | null;
   /** The raw search query for display */
   searchQuery: string;
   /** Spoken text alternative */
@@ -35,6 +37,7 @@ const WarningOverlay = ({
   detectedCity,
   selectedCategoryFilter,
   detectedSubcategory,
+  detectedCategory,
   searchQuery,
   spokenText,
   onSelectCity,
@@ -44,7 +47,7 @@ const WarningOverlay = ({
   const { language } = useLanguage();
 
   const hasCity = (selectedCity && selectedCity !== "all") || !!detectedCity;
-  const hasCategory = !!selectedCategoryFilter || !!detectedSubcategory;
+  const hasCategory = !!selectedCategoryFilter || !!detectedSubcategory || !!detectedCategory;
 
   // Don't render if both are already known
   if (hasCity && hasCategory) return null;

@@ -98,6 +98,7 @@ interface SearchResult {
   detectedSubcategory?: string | null;
   detectedCity?: string | null;
   detectedNeighborhood?: string | null;
+  detectedCategory?: string | null;
   searchMode?: string | null;
   bundleTimeSlots?: string[];
   disambiguationType?: "needs_category" | "needs_city" | null;
@@ -383,6 +384,7 @@ const SearchPage = () => {
   const [allBusinesses, setAllBusinesses] = useState<Business[]>([]);
   const [totalCount, setTotalCount] = useState<number | null>(null);
   const [detectedSubcategory, setDetectedSubcategory] = useState<string | null>(null);
+  const [detectedCategory, setDetectedCategory] = useState<string | null>(null);
   const [searchMode, setSearchMode] = useState<string | null>(null);
   const [searchLevel, setSearchLevel] = useState<string>("");
    const [synonymUsed, setSynonymUsed] = useState(false);
@@ -1503,6 +1505,7 @@ const SearchPage = () => {
            setDetectedCity(data.detectedCity || null);
            setDetectedNeighborhood(data.detectedNeighborhood || null);
            setDisambiguationType(data.disambiguationType || null);
+           setDetectedCategory(data.detectedCategory || null);
 
           // When the fallback heuristic auto-selects a subcategory (not the backend),
           // treat results as precise to prevent the extra category fetch from diluting them
@@ -1949,6 +1952,7 @@ const SearchPage = () => {
           detectedCity={detectedCity}
           selectedCategoryFilter={selectedCategoryFilter}
           detectedSubcategory={detectedSubcategory}
+          detectedCategory={detectedCategory}
           searchQuery={searchQuery}
           spokenText={spokenText}
           onSelectCity={(city) => {
