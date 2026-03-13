@@ -1,4 +1,4 @@
-import { MapPin, AlertTriangle } from "lucide-react";
+import { MapPin, AlertTriangle, X } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface CityOption {
