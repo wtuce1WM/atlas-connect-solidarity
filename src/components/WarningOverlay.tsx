@@ -47,7 +47,7 @@ const WarningOverlay = ({
   const { language } = useLanguage();
 
   const hasCity = (selectedCity && selectedCity !== "all") || !!detectedCity;
-  const hasCategory = !!selectedCategoryFilter || !!detectedSubcategory;
+  const hasCategory = !!selectedCategoryFilter || !!detectedSubcategory || !!detectedCategory;
 
   // Don't render if both are already known
   if (hasCity && hasCategory) return null;
