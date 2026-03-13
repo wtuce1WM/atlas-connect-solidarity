@@ -3391,6 +3391,15 @@ const SearchPage = () => {
                             <div className="flex items-center gap-1 text-xs text-white/60">
                               <MapPin className="h-3 w-3" />
                               <span className="truncate">{business.neighborhood ? `${business.city}, ${business.neighborhood}` : business.city}</span>
+                              {(() => {
+                                const dist = getDistanceKm(business);
+                                if (dist == null) return null;
+                                return (
+                                  <span className="ml-auto text-[10px] font-medium text-gold whitespace-nowrap">
+                                    {dist < 1 ? `${Math.round(dist * 1000)} m` : `${dist.toFixed(1)} km`}
+                                  </span>
+                                );
+                              })()}
                             </div>
                           )}
                         </div>
