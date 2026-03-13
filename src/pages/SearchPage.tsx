@@ -443,6 +443,7 @@ const SearchPage = () => {
   const isCategoryFilterActive = !!(selectedCategoryFilter || selectedSubcategoryFilter || selectedServiceFilter);
   const [isAiSummaryExpanded, setIsAiSummaryExpanded] = useState(false);
   const [showAiPopup, setShowAiPopup] = useState(false);
+  const [warningDismissed, setWarningDismissed] = useState(false);
 
   // Track when user has scrolled down to the tab bar — lock scroll above it from that point
   const [hasReachedTabBar, setHasReachedTabBar] = useState(false);
@@ -1432,6 +1433,7 @@ const SearchPage = () => {
       setIsLoading(true);
       setAiAnswerText("");
       setShowAiPopup(false);
+      setWarningDismissed(false);
       setOverlaySelectedBusiness(null);
       aiPopupShownRef.current = false;
       setDetectedSubcategory(null);
@@ -1939,7 +1941,7 @@ const SearchPage = () => {
       )}
 
       {/* Warning Overlay — forces user to pick city + category */}
-      {!isLoading && allBusinesses.length > 0 && !compactPanelBusiness && !showAiPopup && (
+      {!isLoading && allBusinesses.length > 0 && !compactPanelBusiness && !showAiPopup && !warningDismissed && (
         <WarningOverlay
           allBusinesses={allBusinesses}
           citiesWithPriority={citiesWithPriority}
@@ -1956,6 +1958,7 @@ const SearchPage = () => {
           onSelectCategory={(cat) => {
             setSelectedCategoryFilter(cat);
           }}
+          onClose={() => setWarningDismissed(true)}
         />
       )}
 

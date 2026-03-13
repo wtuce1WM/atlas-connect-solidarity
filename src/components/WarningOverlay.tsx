@@ -1,4 +1,4 @@
-import { MapPin, AlertTriangle } from "lucide-react";
+import { MapPin, AlertTriangle, X } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface CityOption {
@@ -25,6 +25,7 @@ interface WarningOverlayProps {
   spokenText?: string;
   onSelectCity: (city: string) => void;
   onSelectCategory: (cat: string) => void;
+  onClose?: () => void;
 }
 
 const WarningOverlay = ({
@@ -38,6 +39,7 @@ const WarningOverlay = ({
   spokenText,
   onSelectCity,
   onSelectCategory,
+  onClose,
 }: WarningOverlayProps) => {
   const { language } = useLanguage();
 
@@ -51,6 +53,16 @@ const WarningOverlay = ({
 
   return (
     <div className="fixed inset-0 z-[200] flex flex-col bg-background/95 backdrop-blur-sm animate-in fade-in duration-200">
+      {/* Close button */}
+      {onClose && (
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 z-10 p-2 rounded-full hover:bg-muted transition-colors"
+          aria-label="Fermer"
+        >
+          <X className="h-5 w-5 text-foreground" />
+        </button>
+      )}
       {/* Scrollable content — leave space for bottom search bar */}
       <div className="flex-1 overflow-y-auto px-4 sm:px-6 pb-28">
         <div className="max-w-3xl mx-auto pt-20 sm:pt-24">
