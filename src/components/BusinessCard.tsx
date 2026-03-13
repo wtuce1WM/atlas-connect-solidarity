@@ -264,13 +264,15 @@ const BusinessCard = ({
         }
       }
 
-      // If nothing found today, show next day's opening time
+      // If nothing found today, show next day's opening time with day name
       if (!foundToday) {
+        const dayLabels = ["dim.", "lun.", "mar.", "mer.", "jeu.", "ven.", "sam."];
         for (let i = 1; i <= 7; i++) {
-          const nextDayKey = days[(now.getDay() + i) % 7];
+          const idx = (now.getDay() + i) % 7;
+          const nextDayKey = days[idx];
           const nextDh = openingHoursTyped[nextDayKey];
           if (nextDh && !nextDh.closed && nextDh.open) {
-            openBadgeText = `Ouvre à ${nextDh.open}`;
+            openBadgeText = `Ouvre ${dayLabels[idx]} à ${nextDh.open}`;
             break;
           }
         }

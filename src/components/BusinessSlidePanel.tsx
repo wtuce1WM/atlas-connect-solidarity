@@ -791,11 +791,13 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
         }
 
         if (!foundToday) {
+          const dayLabels = ["dim.", "lun.", "mar.", "mer.", "jeu.", "ven.", "sam."];
           for (let i = 1; i <= 7; i++) {
-            const nextDayKey = days[(now.getDay() + i) % 7];
+            const idx = (now.getDay() + i) % 7;
+            const nextDayKey = days[idx];
             const nextDh = oh[nextDayKey];
             if (nextDh && !nextDh.closed && nextDh.open) {
-              openBadgeText = `Ouvre à ${nextDh.open}`;
+              openBadgeText = `Ouvre ${dayLabels[idx]} à ${nextDh.open}`;
               break;
             }
           }
