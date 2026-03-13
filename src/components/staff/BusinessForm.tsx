@@ -2795,6 +2795,9 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           />
         </div>
 
+        {/* Social posts embeds */}
+        {business?.id && <SocialPostsEditor businessId={business.id} />}
+
 
         {/* Images */}
         <div className="space-y-2">
