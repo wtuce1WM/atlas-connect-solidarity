@@ -1952,6 +1952,7 @@ const SearchPage = () => {
           detectedCity={detectedCity}
           selectedCategoryFilter={selectedCategoryFilter}
           detectedSubcategory={detectedSubcategory}
+          detectedCategory={detectedCategory}
           searchQuery={searchQuery}
           spokenText={spokenText}
           onSelectCity={(city) => {
