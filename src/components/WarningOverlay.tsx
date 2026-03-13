@@ -19,6 +19,8 @@ interface WarningOverlayProps {
   selectedCategoryFilter: string | null;
   /** Subcategory detected by the search engine */
   detectedSubcategory: string | null;
+  /** Category detected by intent words */
+  detectedCategory: string | null;
   /** The raw search query for display */
   searchQuery: string;
   /** Spoken text alternative */
