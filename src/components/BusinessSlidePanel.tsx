@@ -415,6 +415,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
       avis: reviewsSectionRef,
       localiser: mapSectionRef,
       services: servicesSectionRef,
+      social: socialSectionRef,
       similaires: similarSectionRef,
       acote: nearbySectionRef,
       apercu: descriptionRef,
