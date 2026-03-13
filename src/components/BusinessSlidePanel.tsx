@@ -2213,6 +2213,11 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
             </>
           )}
 
+          {/* Social embeds */}
+          <div ref={socialSectionRef} className="scroll-mt-28" />
+          <SocialEmbedsTab businessId={business.id} onPostCount={setSocialPostCount} />
+          {socialPostCount !== null && socialPostCount > 0 && <Separator />}
+
           {/* Similar businesses */}
           <div ref={similarSectionRef} className="scroll-mt-28" />
           <SimilarBusinesses
