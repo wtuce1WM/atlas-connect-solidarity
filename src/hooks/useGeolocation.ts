@@ -244,6 +244,11 @@ export function useGeolocation(): GeolocationState {
     setIsEnabled(true);
     setShowBanner(false);
 
+    // Eagerly detect neighborhood from new coords
+    if (neighborhoods.length > 0) {
+      setDetectedNeighborhood(findNearestNeighborhood(newCoords.lat, newCoords.lng, neighborhoods));
+    }
+
     // Find nearest city for the manual coords
     if (cities.length > 0) {
       let nearest: string | null = null;
@@ -258,7 +263,7 @@ export function useGeolocation(): GeolocationState {
       }
       setDetectedCity(minDist <= 100 ? nearest : null);
     }
-  }, [cities]);
+  }, [cities, neighborhoods]);
 
   const setManualCity = useCallback((cityName: string) => {
     localStorage.setItem(STORAGE_KEY, "enabled");
