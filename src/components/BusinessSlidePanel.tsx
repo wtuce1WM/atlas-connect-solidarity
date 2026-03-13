@@ -252,6 +252,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   const [showStickyTabs, setShowStickyTabs] = useState(false);
   const [similarCount, setSimilarCount] = useState<number | null>(null);
   const [nearbyCount, setNearbyCount] = useState<number | null>(null);
+  const [socialPostCount, setSocialPostCount] = useState<number | null>(null);
   const menuScrollRef = useRef<HTMLDivElement>(null);
   const menuDragStartXRef = useRef<number | null>(null);
   const menuDragStartYRef = useRef<number | null>(null);
