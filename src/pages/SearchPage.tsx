@@ -98,6 +98,7 @@ interface SearchResult {
   detectedSubcategory?: string | null;
   detectedCity?: string | null;
   detectedNeighborhood?: string | null;
+  detectedCategory?: string | null;
   searchMode?: string | null;
   bundleTimeSlots?: string[];
   disambiguationType?: "needs_category" | "needs_city" | null;
