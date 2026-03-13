@@ -22,6 +22,7 @@ import NearbyBusinesses from "@/components/NearbyBusinesses";
 import { Separator } from "@/components/ui/separator";
 import { FacebookIcon, InstagramIcon, LinkedInIcon, YouTubeIcon, TikTokIcon, TwitterIcon, PinterestIcon, VimeoIcon } from "@/components/staff/SocialMediaIcons";
 import BookingOverlay from "@/components/BookingOverlay";
+import SocialEmbedsTab from "@/components/SocialEmbedsTab";
 import HotelAvailabilityOverlay, { type FallbackPanelData, type FallbackHotel } from "@/components/HotelAvailabilityOverlay";
 
 
