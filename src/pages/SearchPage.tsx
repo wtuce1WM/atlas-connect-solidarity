@@ -484,7 +484,7 @@ const SearchPage = () => {
 
     const firstResultCard = resultsEl.querySelector<HTMLElement>("[data-result-card='true']");
     const anchorEl = firstResultCard ?? resultsBarRef.current ?? resultsEl;
-    const safetyOffset = 16;
+    const safetyOffset = 28;
     const anchorTopInPage = anchorEl.getBoundingClientRect().top + window.scrollY;
     const targetScroll = Math.max(0, anchorTopInPage - stickyBottom - safetyOffset);
 
