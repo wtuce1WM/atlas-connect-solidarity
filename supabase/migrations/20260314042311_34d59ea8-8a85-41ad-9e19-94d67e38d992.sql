@@ -1,0 +1,1 @@
+UPDATE blog_posts SET content_fr = replace(replace(replace(content_fr, 'color:#7c9a92', 'color:#daa520'), 'border-left:4px solid #7c9a92', 'border-left:4px solid #daa520'), 'background:#7c9a92', 'background:#daa520') WHERE slug = 'yoga-a-marrakech'
