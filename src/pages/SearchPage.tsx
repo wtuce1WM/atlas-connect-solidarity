@@ -3733,7 +3733,7 @@ const SearchPage = () => {
                         </div>
                       </>
                     )}
-                    {(showCategories || showServices) && (
+                    {(showCategories || showSubcategories || showServices) && (
                       <>
                         <p className="text-base font-bold text-foreground mb-2">
                           {language === "en" ? "What are you looking for?" : language === "ar" ? "ماذا تبحث عنه؟" : "Que cherchez-vous ?"}
@@ -3759,7 +3759,33 @@ const SearchPage = () => {
                                   </button>
                                 );
                               })
-                            : categoryList.map((cat) => {
+                            : showSubcategories
+                              ? subcategoryList.map((sub) => {
+                                  const isSelected = selectedSubcategoryFilter === sub.name;
+                                  return (
+                                    <button
+                                      key={sub.name}
+                                      onClick={() => {
+                                        setSelectedSubcategoryFilter(isSelected ? null : sub.name);
+                                        setSelectedServiceFilter(null);
+                                        if (singleCategory && !selectedCategoryFilter) {
+                                          setSelectedCategoryFilter(singleCategory);
+                                        }
+                                      }}
+                                      className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-bold transition-all whitespace-nowrap ${
+                                        isSelected
+                                          ? "bg-primary/20 border-primary text-primary shadow-sm"
+                                          : "bg-card border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                                      }`}
+                                    >
+                                      <span>{sub.name}</span>
+                                      <span className={`text-xs font-normal ${isSelected ? "text-primary/70" : "text-muted-foreground/60"}`}>
+                                        {sub.count}
+                                      </span>
+                                    </button>
+                                  );
+                                })
+                              : categoryList.map((cat) => {
                                 const isSelected = selectedCategoryFilter === cat.name;
                                 return (
                                   <button
