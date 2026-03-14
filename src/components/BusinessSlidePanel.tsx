@@ -958,7 +958,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
             </div>
           </div>
           <iframe
-            src={`https://www.google.com/maps/embed/v1/directions?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&origin=My+location&destination=${dest}&mode=driving`}
+            src={`https://www.google.com/maps/embed/v1/directions?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&origin=${userOrigin || 'My+location'}&destination=${dest}&mode=driving`}
             className="flex-1 w-full border-0"
             allowFullScreen
             loading="lazy"
