@@ -399,16 +399,24 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
     const zoomDelta = Math.abs(targetZoom - startZoom);
 
     // Adaptive duration: short for nearby pans, longer for big jumps
-    const baseDuration = Math.min(600 + distance * 8000, 2000);
+    const baseDuration = distance < 0.05
+      ? Math.min(600 + distance * 8000, 1800)
+      : Math.min(900 + distance * 4000, 3200);
     const zoomBonus = zoomDelta * 120;
-    const DURATION = Math.round(Math.min(baseDuration + zoomBonus, 2400));
+    const DURATION = Math.round(Math.min(baseDuration + zoomBonus, 3500));
 
-    // Adaptive easing: snappy for close targets, smoother for far ones
+    // Adaptive easing: snappy for close targets, very gentle for far ones
     const ease = distance < 0.005
       ? (t: number) => 1 - Math.pow(1 - t, 3) // ease-out cubic (snappy)
       : distance < 0.05
         ? (t: number) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2 // ease-in-out cubic
-        : (t: number) => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; // ease-in-out quad (gentler)
+        : (t: number) => { // slow-in, cruise, slow-out (sine-based, very smooth)
+            return t < 0.3
+              ? 0.5 * (1 - Math.cos(Math.PI * (t / 0.3))) * 0.3
+              : t < 0.7
+                ? 0.3 + (t - 0.3) / 0.4 * 0.4
+                : 0.7 + 0.5 * (1 - Math.cos(Math.PI * ((t - 0.7) / 0.3))) * 0.3;
+          };
 
     const startTime = performance.now();
     let rafId: number;
