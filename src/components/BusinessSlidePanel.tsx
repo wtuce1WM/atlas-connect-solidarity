@@ -220,6 +220,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   const [menuSummaries, setMenuSummaries] = useState<any[]>([]);
   const [docOverlay, setDocOverlay] = useState<{ url: string; name: string; type: 'pdf' | 'flipbook' | 'webpage' } | null>(null);
   const [showDirectionsOverlay, setShowDirectionsOverlay] = useState(false);
+  const [directionsMode, setDirectionsMode] = useState<"walking" | "driving">("walking");
   const [userOrigin, setUserOrigin] = useState<string | null>(null);
 
   // Fetch user geolocation when directions overlay opens
@@ -913,7 +914,23 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
         return (
         <div className="absolute inset-0 z-[60] bg-background flex flex-col animate-fade-in">
           <div className="flex items-center justify-between px-3 py-2 border-b bg-background">
-            <span className="text-sm font-semibold">Itinéraire — {business.name}</span>
+           <div className="flex items-center gap-3">
+             <span className="text-sm font-semibold">Itinéraire — {business.name}</span>
+             <div className="flex items-center bg-muted rounded-full p-0.5">
+               <button
+                 onClick={() => setDirectionsMode("walking")}
+                 className={`px-2.5 py-1 text-xs font-medium rounded-full transition-colors ${directionsMode === "walking" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+               >
+                 🚶 À pied
+               </button>
+               <button
+                 onClick={() => setDirectionsMode("driving")}
+                 className={`px-2.5 py-1 text-xs font-medium rounded-full transition-colors ${directionsMode === "driving" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+               >
+                 🚗 Voiture
+               </button>
+             </div>
+           </div>
             <div className="flex items-center gap-2">
               <a
                 href={`https://www.google.com/maps/dir/?api=1&destination=${dest}`}
@@ -958,7 +975,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
             </div>
           </div>
           <iframe
-            src={`https://www.google.com/maps/embed/v1/directions?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&origin=${userOrigin || 'My+location'}&destination=${dest}&mode=walking`}
+            src={`https://www.google.com/maps/embed/v1/directions?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&origin=${userOrigin || 'My+location'}&destination=${dest}&mode=${directionsMode}`}
             className="flex-1 w-full border-0"
             allowFullScreen
             loading="lazy"
