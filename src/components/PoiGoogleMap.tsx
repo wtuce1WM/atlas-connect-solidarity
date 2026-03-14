@@ -399,35 +399,49 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
     const zoomDelta = Math.abs(targetZoom - startZoom);
 
     // Adaptive duration: short for nearby pans, longer for big jumps
-    const baseDuration = distance < 0.05
-      ? Math.min(600 + distance * 8000, 1800)
-      : Math.min(900 + distance * 4000, 3200);
+    const isFar = distance >= 0.05;
+    const baseDuration = isFar
+      ? Math.min(1200 + distance * 3000, 3500)
+      : distance < 0.005
+        ? 500
+        : Math.min(600 + distance * 8000, 1800);
     const zoomBonus = zoomDelta * 120;
-    const DURATION = Math.round(Math.min(baseDuration + zoomBonus, 3500));
+    const DURATION = Math.round(Math.min(baseDuration + zoomBonus, 4000));
 
-    // Adaptive easing: snappy for close targets, very gentle for far ones
-    const ease = distance < 0.005
-      ? (t: number) => 1 - Math.pow(1 - t, 3) // ease-out cubic (snappy)
-      : distance < 0.05
-        ? (t: number) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2 // ease-in-out cubic
-        : (t: number) => { // slow-in, cruise, slow-out (sine-based, very smooth)
-            return t < 0.3
-              ? 0.5 * (1 - Math.cos(Math.PI * (t / 0.3))) * 0.3
-              : t < 0.7
-                ? 0.3 + (t - 0.3) / 0.4 * 0.4
-                : 0.7 + 0.5 * (1 - Math.cos(Math.PI * ((t - 0.7) / 0.3))) * 0.3;
-          };
+    // Adaptive easing for position: snappy close, smooth mid
+    const posEase = distance < 0.005
+      ? (t: number) => 1 - Math.pow(1 - t, 3) // ease-out cubic
+      : (t: number) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; // ease-in-out cubic
+
+    // For far distances: "fly" zoom curve — zoom out to a cruise altitude then back down
+    // Cruise altitude = midpoint zoom between current and a pulled-back level
+    const cruiseZoom = isFar
+      ? Math.min(startZoom, targetZoom) - Math.min(3 + distance * 8, 6) // pull back 3-6 zoom levels
+      : startZoom;
+    const minCruise = Math.max(cruiseZoom, 5); // never go below zoom 5
 
     const startTime = performance.now();
     let rafId: number;
     const animate = (now: number) => {
       const elapsed = now - startTime;
       const progress = Math.min(elapsed / DURATION, 1);
-      const t = ease(progress);
+      const t = posEase(progress);
 
       const lat = startLat + dLat * t;
       const lng = startLng + dLng * t;
-      const zoom = startZoom + (targetZoom - startZoom) * t;
+
+      let zoom: number;
+      if (isFar) {
+        // Parabolic zoom: zoom out during first half, zoom in during second half
+        // z(t) = startZoom + (minCruise - startZoom) * up(t) + (targetZoom - minCruise) * down(t)
+        // Simplified: use a sine-based curve that dips in the middle
+        const zoomDip = Math.sin(progress * Math.PI); // 0→1→0 bell curve
+        const linearZoom = startZoom + (targetZoom - startZoom) * progress;
+        const dipAmount = linearZoom - minCruise;
+        zoom = linearZoom - dipAmount * zoomDip;
+      } else {
+        zoom = startZoom + (targetZoom - startZoom) * t;
+      }
 
       map.moveCamera({ center: { lat, lng }, zoom });
 
