@@ -2167,7 +2167,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                     } catch (err: any) {
                       toast({ variant: "destructive", title: "Erreur", description: err.message || "Impossible de résoudre l'URL." });
                     }
-                  }
+                  }}
                 >
                   <MapPinned className="h-3.5 w-3.5" />
                   GPS
