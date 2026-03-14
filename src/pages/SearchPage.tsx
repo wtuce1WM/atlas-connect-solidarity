@@ -3667,11 +3667,32 @@ const SearchPage = () => {
                   .sort((a, b) => b[1] - a[1])
                   .map(([name, count]) => ({ name, count }));
 
+                // When only 1 category exists, auto-select it and show subcategories instead
+                const singleCategory = categoryList.length === 1 ? categoryList[0].name : null;
+                const effectiveCategoryForSubs = selectedCategoryFilter || singleCategory;
+
+                // Compute subcategory counts from results when we have a single/selected category
+                let subcategoryList: { name: string; count: number }[] = [];
+                if (effectiveCategoryForSubs && !hasSubcategory && !hasServices) {
+                  const subCounts: Record<string, number> = {};
+                  for (const b of allBusinesses) {
+                    if (b.main_category === effectiveCategoryForSubs && b.categories) {
+                      for (const c of b.categories) {
+                        subCounts[c] = (subCounts[c] || 0) + 1;
+                      }
+                    }
+                  }
+                  subcategoryList = Object.entries(subCounts)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([name, count]) => ({ name, count }));
+                }
+
                 const showCityFilter = availableCities.length > 1 && !queryHasExplicitCity;
-                const showCategories = !hasSubcategory && categoryList.length > 1;
+                const showCategories = !hasSubcategory && categoryList.length > 1 && subcategoryList.length === 0;
+                const showSubcategories = subcategoryList.length > 1;
                 const showServices = hasServices;
 
-                if (!showCityFilter && !showCategories && !showServices) return null;
+                if (!showCityFilter && !showCategories && !showSubcategories && !showServices) return null;
 
                 return (
                   <div className="mt-3 mb-4">
@@ -3712,7 +3733,7 @@ const SearchPage = () => {
                         </div>
                       </>
                     )}
-                    {(showCategories || showServices) && (
+                    {(showCategories || showSubcategories || showServices) && (
                       <>
                         <p className="text-base font-bold text-foreground mb-2">
                           {language === "en" ? "What are you looking for?" : language === "ar" ? "ماذا تبحث عنه؟" : "Que cherchez-vous ?"}
@@ -3738,7 +3759,33 @@ const SearchPage = () => {
                                   </button>
                                 );
                               })
-                            : categoryList.map((cat) => {
+                            : showSubcategories
+                              ? subcategoryList.map((sub) => {
+                                  const isSelected = selectedSubcategoryFilter === sub.name;
+                                  return (
+                                    <button
+                                      key={sub.name}
+                                      onClick={() => {
+                                        setSelectedSubcategoryFilter(isSelected ? null : sub.name);
+                                        setSelectedServiceFilter(null);
+                                        if (singleCategory && !selectedCategoryFilter) {
+                                          setSelectedCategoryFilter(singleCategory);
+                                        }
+                                      }}
+                                      className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-bold transition-all whitespace-nowrap ${
+                                        isSelected
+                                          ? "bg-primary/20 border-primary text-primary shadow-sm"
+                                          : "bg-card border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                                      }`}
+                                    >
+                                      <span>{sub.name}</span>
+                                      <span className={`text-xs font-normal ${isSelected ? "text-primary/70" : "text-muted-foreground/60"}`}>
+                                        {sub.count}
+                                      </span>
+                                    </button>
+                                  );
+                                })
+                              : categoryList.map((cat) => {
                                 const isSelected = selectedCategoryFilter === cat.name;
                                 return (
                                   <button
