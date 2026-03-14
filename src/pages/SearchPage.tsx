@@ -459,6 +459,7 @@ const SearchPage = () => {
     if (!resultsEl) return;
 
     const stickySelectors = [
+      '[data-results-bar]',
       '[data-ai-bar]',
       '[data-search-service-filter]',
       '[data-service-filter]',
