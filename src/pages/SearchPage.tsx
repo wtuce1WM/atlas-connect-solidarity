@@ -3605,8 +3605,6 @@ const SearchPage = () => {
       </section>
       )}
 
-      {/* Bottom spacer for floating search bar */}
-      <div className="h-20" />
 
       {/* Floating Search Bar */}
       <div className={`fixed bottom-0 left-0 right-0 py-3 px-4 ${isCompactPanelExpanded ? "z-[190]" : "z-[210]"}`}>
