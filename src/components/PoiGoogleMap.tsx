@@ -376,7 +376,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
     mapRef.current.setCenter(center);
   }, [center]);
 
-  // Smooth pan + zoom to selected poi (works regardless of distance)
+  // Smooth pan + zoom to selected poi — speed & easing adapt to distance/zoom delta
   useEffect(() => {
     if (!mapRef.current || !selectedPoiId) return;
     const poi = pois.find((p) => p.id === selectedPoiId);
@@ -392,20 +392,33 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
     const startZoom = map.getZoom() || 12;
     const targetZoom = Math.max(startZoom, 15);
 
-    const DURATION = 1600; // ms
+    // Compute geographic distance (degrees) to calibrate animation
+    const dLat = target.lat - startLat;
+    const dLng = target.lng - startLng;
+    const distance = Math.sqrt(dLat * dLat + dLng * dLng);
+    const zoomDelta = Math.abs(targetZoom - startZoom);
+
+    // Adaptive duration: short for nearby pans, longer for big jumps
+    const baseDuration = Math.min(600 + distance * 8000, 2000);
+    const zoomBonus = zoomDelta * 120;
+    const DURATION = Math.round(Math.min(baseDuration + zoomBonus, 2400));
+
+    // Adaptive easing: snappy for close targets, smoother for far ones
+    const ease = distance < 0.005
+      ? (t: number) => 1 - Math.pow(1 - t, 3) // ease-out cubic (snappy)
+      : distance < 0.05
+        ? (t: number) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2 // ease-in-out cubic
+        : (t: number) => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; // ease-in-out quad (gentler)
+
     const startTime = performance.now();
-
-    // Ease-in-out cubic
-    const ease = (t: number) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-
     let rafId: number;
     const animate = (now: number) => {
       const elapsed = now - startTime;
       const progress = Math.min(elapsed / DURATION, 1);
       const t = ease(progress);
 
-      const lat = startLat + (target.lat - startLat) * t;
-      const lng = startLng + (target.lng - startLng) * t;
+      const lat = startLat + dLat * t;
+      const lng = startLng + dLng * t;
       const zoom = startZoom + (targetZoom - startZoom) * t;
 
       map.moveCamera({ center: { lat, lng }, zoom });
