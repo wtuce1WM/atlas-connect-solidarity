@@ -188,8 +188,25 @@ const LocationPickerDialog = ({
       setSelectedCoords(null);
       setSelectedAddress("");
       setAddressQuery("");
+      setWaitingForPosition(false);
     }
   }, [open]);
+
+  // Track when we're waiting for browser geolocation to resolve
+  const [waitingForPosition, setWaitingForPosition] = useState(false);
+
+  // When coords arrive after clicking "Ma position", update the dialog
+  useEffect(() => {
+    if (waitingForPosition && coords) {
+      setSelectedCoords(coords);
+      setSelectedAddress(detectedCity || "");
+      setAddressQuery(detectedCity || "");
+      setWaitingForPosition(false);
+      placeMarker(coords);
+      mapRef.current?.setCenter(coords);
+      mapRef.current?.setZoom(14);
+    }
+  }, [waitingForPosition, coords, detectedCity, placeMarker]);
 
   const placeMarker = useCallback((pos: { lat: number; lng: number }) => {
     if (!mapRef.current) return;
