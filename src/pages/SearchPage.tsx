@@ -2027,36 +2027,83 @@ const SearchPage = () => {
               </p>
             </div>
 
-            {/* Disambiguation prompts — show both when neither city nor subcategory is known */}
-            {!selectedCategoryFilter && !selectedSubcategoryFilter && !detectedSubcategory && (
-              <div className="pb-4">
-                <div className="max-w-3xl mx-auto text-center">
-                  <p className="text-sm font-medium text-foreground mb-3">
-                    {language === "en" ? "What are you looking for?" : language === "ar" ? "ماذا تبحث عنه؟" : "Que cherchez-vous ?"}
-                  </p>
-                  <div className="flex flex-wrap justify-center gap-2">
-                    {(() => {
-                      const cats = [...new Set(allBusinesses.map(b => b.main_category).filter(Boolean))] as string[];
-                      return cats.slice(0, 8).map(cat => (
-                        <button
-                          key={cat}
-                          onClick={() => {
-                            setSelectedCategoryFilter(cat);
-                            setOverlaySelectedBusiness(null);
-                            // Regenerate AI text with the new filter
-                            setAiAnswerText("");
-                            setAiRegenerateKey(k => k + 1);
-                          }}
-                          className="px-4 py-2 rounded-full border border-border bg-card text-sm text-foreground hover:border-gold/50 hover:bg-gold/10 transition-colors"
-                        >
-                          {cat}
-                        </button>
-                      ));
-                    })()}
+            {/* Disambiguation prompts — show subcategories when only 1 category, else show categories */}
+            {!selectedCategoryFilter && !selectedSubcategoryFilter && !detectedSubcategory && (() => {
+              const cats = [...new Set(allBusinesses.map(b => b.main_category).filter(Boolean))] as string[];
+              // If only 1 category, show subcategories directly
+              if (cats.length === 1) {
+                const singleCat = cats[0];
+                const subCounts: Record<string, number> = {};
+                for (const b of allBusinesses) {
+                  if (b.main_category === singleCat && b.categories) {
+                    for (const c of b.categories) {
+                      subCounts[c] = (subCounts[c] || 0) + 1;
+                    }
+                  }
+                }
+                const subcatList = Object.entries(subCounts)
+                  .sort((a, b) => b[1] - a[1])
+                  .map(([name, count]) => ({ name, count }));
+                if (subcatList.length > 1) {
+                  return (
+                    <div className="pb-4">
+                      <div className="max-w-3xl mx-auto text-center">
+                        <p className="text-sm font-medium text-foreground mb-3">
+                          {language === "en" ? "What are you looking for?" : language === "ar" ? "ماذا تبحث عنه؟" : "Que cherchez-vous ?"}
+                        </p>
+                        <div className="flex flex-wrap justify-center gap-2">
+                          {subcatList.map(sub => (
+                            <button
+                              key={sub.name}
+                              onClick={() => {
+                                setSelectedCategoryFilter(singleCat);
+                                setSelectedSubcategoryFilter(sub.name);
+                                setOverlaySelectedBusiness(null);
+                                setAiAnswerText("");
+                                setAiRegenerateKey(k => k + 1);
+                              }}
+                              className="px-4 py-2 rounded-full border border-border bg-card text-sm text-foreground hover:border-gold/50 hover:bg-gold/10 transition-colors"
+                            >
+                              {sub.name}
+                              <span className="ml-1.5 text-xs text-muted-foreground">{sub.count}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+              }
+              // Multiple categories or no subcats: show categories
+              if (cats.length > 1) {
+                return (
+                  <div className="pb-4">
+                    <div className="max-w-3xl mx-auto text-center">
+                      <p className="text-sm font-medium text-foreground mb-3">
+                        {language === "en" ? "What are you looking for?" : language === "ar" ? "ماذا تبحث عنه؟" : "Que cherchez-vous ?"}
+                      </p>
+                      <div className="flex flex-wrap justify-center gap-2">
+                        {cats.slice(0, 8).map(cat => (
+                          <button
+                            key={cat}
+                            onClick={() => {
+                              setSelectedCategoryFilter(cat);
+                              setOverlaySelectedBusiness(null);
+                              setAiAnswerText("");
+                              setAiRegenerateKey(k => k + 1);
+                            }}
+                            className="px-4 py-2 rounded-full border border-border bg-card text-sm text-foreground hover:border-gold/50 hover:bg-gold/10 transition-colors"
+                          >
+                            {cat}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-            )}
+                );
+              }
+              return null;
+            })()}
 
             {(!selectedCity || selectedCity === "all") && !detectedCity && (
               <div className="pb-4">
