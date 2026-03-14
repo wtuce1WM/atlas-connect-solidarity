@@ -2034,7 +2034,7 @@ const SearchPage = () => {
                 ) : null;
               })()}
               <p className="text-gold font-semibold mt-2">
-                {displayedResultsCount} {language === "en" ? "establishments found" : language === "ar" ? "مؤسسة وجدت" : "établissements trouvés"}
+                {filteredBusinesses.length} {language === "en" ? "establishments found" : language === "ar" ? "مؤسسة وجدت" : "établissements trouvés"}
               </p>
             </div>
 
@@ -2360,7 +2360,7 @@ const SearchPage = () => {
               «&nbsp;{(spokenText || searchQuery)}{selectedCity && selectedCity !== "all" ? ` ${selectedCity}` : ""}&nbsp;»
             </p>
             <p className="text-foreground font-semibold text-lg mb-5">
-              {displayedResultsCount} {language === "en" ? "establishments found" : language === "ar" ? "مؤسسة وجدت" : "établissements trouvés"}
+              {filteredBusinesses.length} {language === "en" ? "establishments found" : language === "ar" ? "مؤسسة وجدت" : "établissements trouvés"}
             </p>
 
             {/* TTS button */}
@@ -3744,10 +3744,10 @@ const SearchPage = () => {
                 </p>
                 <p className="text-muted-foreground text-sm mt-1">
                   {language === "en"
-                    ? `10 recommended establishments out of ${displayedResultsCount} found`
+                    ? `10 recommended establishments out of ${filteredBusinesses.length} found`
                     : language === "ar"
-                    ? `10 مؤسسات موصى بها من أصل ${displayedResultsCount} وجدت`
-                    : `10 établissements recommandés sur ${displayedResultsCount} établissements trouvés`}
+                    ? `10 مؤسسات موصى بها من أصل ${filteredBusinesses.length} وجدت`
+                    : `10 établissements recommandés sur ${filteredBusinesses.length} établissements trouvés`}
                 </p>
               </div>
               {(() => {
