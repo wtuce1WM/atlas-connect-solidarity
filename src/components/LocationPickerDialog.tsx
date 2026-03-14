@@ -216,6 +216,19 @@ const LocationPickerDialog = ({
     }
   }, []);
 
+  // When coords arrive after clicking "Ma position", update the dialog
+  useEffect(() => {
+    if (waitingForPosition && coords) {
+      setSelectedCoords(coords);
+      setSelectedAddress(detectedCity || "");
+      setAddressQuery(detectedCity || "");
+      setWaitingForPosition(false);
+      placeMarker(coords);
+      mapRef.current?.setCenter(coords);
+      mapRef.current?.setZoom(14);
+    }
+  }, [waitingForPosition, coords, detectedCity, placeMarker]);
+
   const reverseGeocode = useCallback((pos: { lat: number; lng: number }) => {
     if (!window.google?.maps) return;
     const geocoder = new window.google.maps.Geocoder();
@@ -252,9 +265,16 @@ const LocationPickerDialog = ({
   const handleUseCurrentPosition = () => {
     onUseCurrentPosition();
     if (coords) {
+      // Coords already available, use them immediately
       setSelectedCoords(coords);
       setSelectedAddress(detectedCity || "");
       setAddressQuery(detectedCity || "");
+      placeMarker(coords);
+      mapRef.current?.setCenter(coords);
+      mapRef.current?.setZoom(14);
+    } else {
+      // Coords not yet available (geolocation in progress), wait for them
+      setWaitingForPosition(true);
     }
   };
 
