@@ -3692,6 +3692,7 @@ const SearchPage = () => {
                 const showSubcategories = subcategoryList.length > 1;
                 const showServices = hasServices;
 
+                console.log("[Overlay filters]", { showCityFilter, showCategories, showSubcategories, showServices, categoryListLen: categoryList.length, subcategoryListLen: subcategoryList.length, singleCategory, effectiveCategoryForSubs, hasSubcategory, hasServices, allBusinessesLen: allBusinesses.length, sampleCategories: allBusinesses.slice(0, 3).map(b => ({ mc: b.main_category, cats: b.categories })) });
                 if (!showCityFilter && !showCategories && !showSubcategories && !showServices) return null;
 
                 return (
