@@ -504,7 +504,17 @@ const SearchPage = () => {
   useEffect(() => {
     if (showAiPopup || isLoading || activeTab !== "suggestions") return;
     setIsAiSummaryExpanded(false);
-    requestAnimationFrame(() => ensureResultsVisibleBelowSticky("auto"));
+
+    let raf2 = 0;
+    const raf1 = requestAnimationFrame(() => {
+      ensureResultsVisibleBelowSticky("auto");
+      raf2 = requestAnimationFrame(() => ensureResultsVisibleBelowSticky("auto"));
+    });
+
+    return () => {
+      cancelAnimationFrame(raf1);
+      if (raf2) cancelAnimationFrame(raf2);
+    };
   }, [
     selectedCategoryFilter,
     selectedSubcategoryFilter,
