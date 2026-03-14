@@ -2070,6 +2070,28 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                       handleChange("google_reviews_url", val);
                     }
                   }}
+                  onBlur={async (e) => {
+                    const val = e.target.value?.trim();
+                    if (!val || !val.includes("google") || (formData.latitude && formData.longitude)) return;
+                    // Auto-extract GPS via edge function on blur when lat/lng are empty
+                    try {
+                      const { data, error } = await supabase.functions.invoke("resolve-maps-url", {
+                        body: { url: val },
+                      });
+                      if (error) throw error;
+                      if (data?.lat && data?.lng) {
+                        handleChange("latitude", data.lat);
+                        handleChange("longitude", data.lng);
+                        if (data.resolvedUrl && data.resolvedUrl !== val) {
+                          handleChange("google_maps_url", data.resolvedUrl);
+                          handleChange("google_reviews_url", data.resolvedUrl);
+                        }
+                        toast({ title: "GPS auto-détecté", description: `Lat: ${data.lat}, Lng: ${data.lng}${data.method ? ` (${data.method})` : ""}` });
+                      }
+                    } catch {
+                      // Silent fail on auto-extract — user can still use the GPS button
+                    }
+                  }}
                   placeholder="https://maps.google.com/..."
                   className="flex-1"
                 />
