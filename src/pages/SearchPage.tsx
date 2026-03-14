@@ -2034,7 +2034,7 @@ const SearchPage = () => {
                 ) : null;
               })()}
               <p className="text-gold font-semibold mt-2">
-                {displayedResultsCount} {language === "en" ? "establishments found" : language === "ar" ? "مؤسسة وجدت" : "établissements trouvés"}
+                {filteredBusinesses.length} {language === "en" ? "establishments found" : language === "ar" ? "مؤسسة وجدت" : "établissements trouvés"}
               </p>
             </div>
 
