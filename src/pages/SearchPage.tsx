@@ -641,13 +641,12 @@ const SearchPage = () => {
        });
 
        // Measure the bottom of the last sticky bar to compute content padding
-        const resultsBar = document.querySelector<HTMLElement>('[data-results-bar]');
         const aiBar = document.querySelector<HTMLElement>('[data-ai-bar]');
         const searchSvcBar = document.querySelector<HTMLElement>('[data-search-service-filter]');
         const svcBar = document.querySelector<HTMLElement>('[data-service-filter]');
         const subBar = document.querySelector<HTMLElement>('[data-subcategory-filter]');
         const catBar = document.querySelector<HTMLElement>('[data-category-filter]');
-        const lastSticky = resultsBar || aiBar || searchSvcBar || svcBar || subBar || catBar || cityBar || tabBar;
+        const lastSticky = aiBar || searchSvcBar || svcBar || subBar || catBar || cityBar || tabBar;
        if (lastSticky) {
          const computedTop = Number.parseFloat(window.getComputedStyle(lastSticky).top || '0');
          const h = lastSticky.getBoundingClientRect().height;
