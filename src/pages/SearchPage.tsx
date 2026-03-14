@@ -2116,6 +2116,50 @@ const SearchPage = () => {
               return null;
             })()}
 
+            {/* Subcategory disambiguation — when category is known but subcategory is not */}
+            {!selectedSubcategoryFilter && !detectedSubcategory && (selectedCategoryFilter || detectedCategory) && (() => {
+              const effectiveCat = selectedCategoryFilter || detectedCategory;
+              const subCounts: Record<string, number> = {};
+              for (const b of allBusinesses) {
+                if (b.main_category === effectiveCat && b.categories) {
+                  for (const c of b.categories) {
+                    subCounts[c] = (subCounts[c] || 0) + 1;
+                  }
+                }
+              }
+              const subcatList = Object.entries(subCounts)
+                .sort((a, b) => b[1] - a[1])
+                .map(([name, count]) => ({ name, count }));
+              if (subcatList.length <= 1) return null;
+              return (
+                <div className="pb-4">
+                  <div className="max-w-3xl mx-auto text-center">
+                    <p className="text-sm font-medium text-foreground mb-3">
+                      {language === "en" ? "What type exactly?" : language === "ar" ? "أي نوع بالتحديد؟" : "Quel type précisément ?"}
+                    </p>
+                    <div className="flex flex-wrap justify-center gap-2">
+                      {subcatList.map(sub => (
+                        <button
+                          key={sub.name}
+                          onClick={() => {
+                            if (!selectedCategoryFilter && effectiveCat) setSelectedCategoryFilter(effectiveCat);
+                            setSelectedSubcategoryFilter(sub.name);
+                            setOverlaySelectedBusiness(null);
+                            setAiAnswerText("");
+                            setAiRegenerateKey(k => k + 1);
+                          }}
+                          className="px-4 py-2 rounded-full border border-border bg-card text-sm text-foreground hover:border-gold/50 hover:bg-gold/10 transition-colors"
+                        >
+                          {sub.name}
+                          <span className="ml-1.5 text-xs text-muted-foreground">{sub.count}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
+
             {(!selectedCity || selectedCity === "all") && !detectedCity && (
               <div className="pb-4">
                 <div className="max-w-3xl mx-auto text-center">
