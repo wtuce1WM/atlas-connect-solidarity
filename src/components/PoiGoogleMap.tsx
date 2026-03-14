@@ -394,7 +394,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
     const dLat = target.lat - startLat;
     const dLng = target.lng - startLng;
     const distance = Math.sqrt(dLat * dLat + dLng * dLng);
-    const isFar = distance >= 0.05;
+    const isFar = distance >= 0.5;
 
     const targetZoom = Math.max(startZoom, isFar ? 13 : 14);
     const zoomDelta = Math.abs(targetZoom - startZoom);
