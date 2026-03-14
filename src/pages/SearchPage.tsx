@@ -3667,11 +3667,32 @@ const SearchPage = () => {
                   .sort((a, b) => b[1] - a[1])
                   .map(([name, count]) => ({ name, count }));
 
+                // When only 1 category exists, auto-select it and show subcategories instead
+                const singleCategory = categoryList.length === 1 ? categoryList[0].name : null;
+                const effectiveCategoryForSubs = selectedCategoryFilter || singleCategory;
+
+                // Compute subcategory counts from results when we have a single/selected category
+                let subcategoryList: { name: string; count: number }[] = [];
+                if (effectiveCategoryForSubs && !hasSubcategory && !hasServices) {
+                  const subCounts: Record<string, number> = {};
+                  for (const b of allBusinesses) {
+                    if (b.main_category === effectiveCategoryForSubs && b.categories) {
+                      for (const c of b.categories) {
+                        subCounts[c] = (subCounts[c] || 0) + 1;
+                      }
+                    }
+                  }
+                  subcategoryList = Object.entries(subCounts)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([name, count]) => ({ name, count }));
+                }
+
                 const showCityFilter = availableCities.length > 1 && !queryHasExplicitCity;
-                const showCategories = !hasSubcategory && categoryList.length > 1;
+                const showCategories = !hasSubcategory && categoryList.length > 1 && subcategoryList.length === 0;
+                const showSubcategories = subcategoryList.length > 1;
                 const showServices = hasServices;
 
-                if (!showCityFilter && !showCategories && !showServices) return null;
+                if (!showCityFilter && !showCategories && !showSubcategories && !showServices) return null;
 
                 return (
                   <div className="mt-3 mb-4">
