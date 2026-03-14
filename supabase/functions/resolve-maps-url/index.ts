@@ -2,8 +2,107 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
+
+/**
+ * Extract a Google Maps Place ID from a URL string.
+ * Patterns: !1s0x...:0x... or place_id=... or ftid=0x...:0x...
+ */
+function extractPlaceId(url: string): string | null {
+  // Pattern: !1s0x<hex>:0x<hex>
+  const ftidMatch = url.match(/!1s(0x[0-9a-fA-F]+:0x[0-9a-fA-F]+)/);
+  if (ftidMatch) return ftidMatch[1];
+  // Pattern: place_id=ChI...
+  const pidMatch = url.match(/place_id=([A-Za-z0-9_-]+)/);
+  if (pidMatch) return pidMatch[1];
+  return null;
+}
+
+/**
+ * Use Google Places API to get coordinates from a place ID (ftid or ChI...).
+ */
+async function resolveViaPlacesAPI(placeId: string, apiKey: string): Promise<{ lat: number; lng: number } | null> {
+  // For ftid-style IDs, use the Place Details with ftid query
+  const isFtid = placeId.startsWith("0x");
+  
+  if (isFtid) {
+    // Use findplacefromtext with ftid doesn't work directly.
+    // Instead, use the legacy place details endpoint with ftid as a query parameter via textsearch.
+    // Best approach: use the geocode endpoint or the place search with CID.
+    // Actually, we can use: https://maps.googleapis.com/maps/api/place/details/json?ftid=0x...&key=...
+    // This is an undocumented but working endpoint.
+    const detailsUrl = `https://maps.googleapis.com/maps/api/geocode/json?place_id=${encodeURIComponent(placeId)}&key=${apiKey}`;
+    // ftid won't work with geocode. Let's try the Place Details API with a CID conversion.
+    // Actually, the simplest reliable approach: extract the place name from the URL and use Places API text search.
+    return null; // Fall through to URL-based extraction
+  }
+  
+  // Standard ChI... place_id
+  const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${encodeURIComponent(placeId)}&fields=geometry&key=${apiKey}`;
+  const resp = await fetch(detailsUrl);
+  const data = await resp.json();
+  if (data.result?.geometry?.location) {
+    return {
+      lat: data.result.geometry.location.lat,
+      lng: data.result.geometry.location.lng,
+    };
+  }
+  return null;
+}
+
+/**
+ * Extract place name from Google Maps URL for Places API text search.
+ * Pattern: /maps/place/Place+Name/ or /maps/place/Place%20Name/
+ */
+function extractPlaceName(url: string): string | null {
+  const match = url.match(/\/place\/([^/@?]+)/);
+  if (match) {
+    return decodeURIComponent(match[1].replace(/\+/g, " "));
+  }
+  return null;
+}
+
+/**
+ * Use Google Places Text Search to get coordinates from a place name.
+ */
+async function resolveViaTextSearch(placeName: string, apiKey: string): Promise<{ lat: number; lng: number } | null> {
+  const searchUrl = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${encodeURIComponent(placeName)}&inputtype=textquery&fields=geometry&key=${apiKey}`;
+  const resp = await fetch(searchUrl);
+  const data = await resp.json();
+  if (data.candidates?.[0]?.geometry?.location) {
+    return {
+      lat: data.candidates[0].geometry.location.lat,
+      lng: data.candidates[0].geometry.location.lng,
+    };
+  }
+  return null;
+}
+
+/**
+ * Regex-based fallback extraction from URL string.
+ * Priority: !8m2!3d/!4d > !3d/!4d > @lat,lng > ?q= > place/
+ */
+function extractFromUrlRegex(url: string): { lat: string; lng: string } | null {
+  // 1. Specific place marker: !8m2!3d...!4d...
+  const m8 = url.match(/!8m2!3d(-?\d+\.?\d*)!4d(-?\d+\.?\d*)/);
+  if (m8) return { lat: m8[1], lng: m8[2] };
+
+  // 2. General !3d/!4d
+  const embedMatch = url.match(/!3d(-?\d+\.?\d*).*!4d(-?\d+\.?\d*)/);
+  if (embedMatch) return { lat: embedMatch[1], lng: embedMatch[2] };
+
+  // 3. Camera position @lat,lng (less reliable but sometimes only option)
+  const atMatch = url.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+  if (atMatch) return { lat: atMatch[1], lng: atMatch[2] };
+
+  // 4. Query parameter
+  const qMatch = url.match(/[?&]q=(-?\d+\.?\d*),(-?\d+\.?\d*)/) ||
+                 url.match(/place\/(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+  if (qMatch) return { lat: qMatch[1], lng: qMatch[2] };
+
+  return null;
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -19,53 +118,87 @@ serve(async (req) => {
       });
     }
 
-    // Follow redirects to get the final URL
-    const response = await fetch(url, { redirect: "follow" });
-    const finalUrl = response.url;
+    const apiKey = Deno.env.get("GOOGLE_MAPS_API_KEY");
 
-    let lat: string | null = null;
-    let lng: string | null = null;
-
-    // Try @lat,lng
-    const atMatch = finalUrl.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
-    if (atMatch) {
-      lat = atMatch[1];
-      lng = atMatch[2];
+    // Step 1: Follow redirects to get the final URL
+    let finalUrl = url;
+    try {
+      const response = await fetch(url, { redirect: "follow" });
+      finalUrl = response.url;
+    } catch {
+      // If fetch fails (e.g. network), try to parse the original URL
     }
 
-    // Try ?q=lat,lng or place/lat,lng
-    if (!lat) {
-      const qMatch = finalUrl.match(/[?&]q=(-?\d+\.?\d*),(-?\d+\.?\d*)/) ||
-                      finalUrl.match(/place\/(-?\d+\.?\d*),(-?\d+\.?\d*)/);
-      if (qMatch) {
-        lat = qMatch[1];
-        lng = qMatch[2];
+    let lat: number | null = null;
+    let lng: number | null = null;
+    let method = "unknown";
+
+    // Step 2: Try Google Places API with place name (most reliable)
+    if (apiKey) {
+      const placeName = extractPlaceName(finalUrl) || extractPlaceName(url);
+      if (placeName) {
+        const result = await resolveViaTextSearch(placeName, apiKey);
+        if (result) {
+          lat = result.lat;
+          lng = result.lng;
+          method = "places-api";
+        }
       }
     }
 
-    // Try !3d...!4d...
-    if (!lat) {
-      const embedMatch = finalUrl.match(/!3d(-?\d+\.?\d*).*!4d(-?\d+\.?\d*)/);
-      if (embedMatch) {
-        lat = embedMatch[1];
-        lng = embedMatch[2];
+    // Step 3: Try place_id (ChI...) via Places Details API
+    if (lat === null && apiKey) {
+      const placeId = extractPlaceId(finalUrl) || extractPlaceId(url);
+      if (placeId && !placeId.startsWith("0x")) {
+        const result = await resolveViaPlacesAPI(placeId, apiKey);
+        if (result) {
+          lat = result.lat;
+          lng = result.lng;
+          method = "place-details-api";
+        }
       }
     }
 
-    // Also try parsing the HTML body for coordinates if URL parsing failed
-    if (!lat) {
-      const body = await response.text();
-      const bodyMatch = body.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/) ||
-                        body.match(/center=(-?\d+\.?\d*)%2C(-?\d+\.?\d*)/) ||
-                        body.match(/ll=(-?\d+\.?\d*),(-?\d+\.?\d*)/);
-      if (bodyMatch) {
-        lat = bodyMatch[1];
-        lng = bodyMatch[2];
+    // Step 4: Regex fallback on final URL
+    if (lat === null) {
+      const regex = extractFromUrlRegex(finalUrl);
+      if (regex) {
+        lat = parseFloat(regex.lat);
+        lng = parseFloat(regex.lng);
+        method = "regex-url";
       }
     }
 
-    if (lat && lng) {
-      return new Response(JSON.stringify({ lat, lng, resolvedUrl: finalUrl }), {
+    // Step 5: Regex fallback on original URL
+    if (lat === null) {
+      const regex = extractFromUrlRegex(url);
+      if (regex) {
+        lat = parseFloat(regex.lat);
+        lng = parseFloat(regex.lng);
+        method = "regex-original";
+      }
+    }
+
+    // Step 6: Try parsing HTML body
+    if (lat === null) {
+      try {
+        const response = await fetch(url, { redirect: "follow" });
+        const body = await response.text();
+        const bodyMatch = body.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/) ||
+                          body.match(/center=(-?\d+\.?\d*)%2C(-?\d+\.?\d*)/) ||
+                          body.match(/ll=(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+        if (bodyMatch) {
+          lat = parseFloat(bodyMatch[1]);
+          lng = parseFloat(bodyMatch[2]);
+          method = "html-body";
+        }
+      } catch {
+        // ignore
+      }
+    }
+
+    if (lat !== null && lng !== null) {
+      return new Response(JSON.stringify({ lat: String(lat), lng: String(lng), resolvedUrl: finalUrl, method }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
