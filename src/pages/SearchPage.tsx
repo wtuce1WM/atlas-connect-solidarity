@@ -3309,8 +3309,22 @@ const SearchPage = () => {
             </div>
           ) : !showCelebrityGuide && !showSosMedecin && !showPompiers && filteredBusinesses.length > 0 ? (
             <>
-              {/* Bar: Results count + AI suggestion + Geolocation — above results */}
-              <div ref={resultsBarRef} className="flex items-center justify-between pt-10 pb-2">
+              {/* Bar: Results count + AI suggestion + Geolocation — STICKY 5 */}
+              <div ref={resultsBarRef} data-results-bar className="sticky z-[1] bg-background flex items-center justify-between py-2" style={{ top: (() => {
+                const getStickyBottom = (el: HTMLElement) => {
+                  const computedTop = Number.parseFloat(window.getComputedStyle(el).top || '0');
+                  const safeTop = Number.isFinite(computedTop) ? computedTop : 0;
+                  return safeTop + el.getBoundingClientRect().height;
+                };
+                const aiBar = document.querySelector<HTMLElement>('[data-ai-bar]');
+                const searchSvcBar = document.querySelector<HTMLElement>('[data-search-service-filter]');
+                const svcBar = document.querySelector<HTMLElement>('[data-service-filter]');
+                const subBar = document.querySelector<HTMLElement>('[data-subcategory-filter]');
+                const catBar = document.querySelector<HTMLElement>('[data-category-filter]');
+                const tabBar = document.querySelector<HTMLElement>('[data-tab-bar]');
+                const anchor = aiBar || searchSvcBar || svcBar || subBar || catBar || tabBar;
+                return anchor ? `${getStickyBottom(anchor)}px` : '104px';
+              })() }}>
                 <div className="flex items-center gap-3">
                   {(totalCount ?? filteredBusinesses.length) > 0 && (
                     <span className="text-xs text-muted-foreground font-medium">
