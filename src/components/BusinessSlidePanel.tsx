@@ -220,6 +220,20 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   const [menuSummaries, setMenuSummaries] = useState<any[]>([]);
   const [docOverlay, setDocOverlay] = useState<{ url: string; name: string; type: 'pdf' | 'flipbook' | 'webpage' } | null>(null);
   const [showDirectionsOverlay, setShowDirectionsOverlay] = useState(false);
+  const [userOrigin, setUserOrigin] = useState<string | null>(null);
+
+  // Fetch user geolocation when directions overlay opens
+  useEffect(() => {
+    if (!showDirectionsOverlay) return;
+    setUserOrigin(null);
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => setUserOrigin(`${pos.coords.latitude},${pos.coords.longitude}`),
+        () => setUserOrigin(null),
+        { enableHighAccuracy: false, timeout: 8000 }
+      );
+    }
+  }, [showDirectionsOverlay]);
   
   const [reviewTexts, setReviewTexts] = useState<{ source: string; author_name: string | null; rating: number | null; text: string | null; relative_time: string | null; language?: string | null }[]>([]);
   const [translatedReviewTexts, setTranslatedReviewTexts] = useState<string[]>([]);
