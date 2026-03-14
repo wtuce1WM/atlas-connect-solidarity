@@ -390,7 +390,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
     const startLat = startCenter.lat();
     const startLng = startCenter.lng();
     const startZoom = map.getZoom() || 12;
-    const targetZoom = Math.max(startZoom, 14);
+    const targetZoom = Math.max(startZoom, 10);
 
     // Compute geographic distance (degrees) to calibrate animation
     const dLat = target.lat - startLat;
