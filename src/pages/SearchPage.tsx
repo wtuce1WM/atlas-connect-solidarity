@@ -3537,7 +3537,7 @@ const SearchPage = () => {
                             target="_blank"
                             rel="noopener noreferrer"
                             onClick={(e) => e.stopPropagation()}
-                            className="absolute inset-0 z-10 flex items-center justify-center bg-black/65 hover:bg-black/75 transition-colors"
+                            className="absolute inset-0 z-10 flex items-center justify-center bg-black/65 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                           >
                             <div className="text-center px-3">
                               <p className="text-white font-black text-3xl leading-none tracking-wide">WEB ONLY</p>
