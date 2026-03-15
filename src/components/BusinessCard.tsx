@@ -341,6 +341,8 @@ const BusinessCard = ({
               <p className="text-white text-lg group-hover:text-xl italic font-['Cormorant_Garamond'] line-clamp-2 group-hover:line-clamp-4 text-center leading-snug transition-all duration-300">
                 {business.hook_fr}
               </p>
+            </div>
+          )}
           {/* Web Only overlay */}
           {isWebOnly && (
             <a
@@ -355,8 +357,6 @@ const BusinessCard = ({
                 <p className="text-white/80 text-xs mt-1">Boutique en ligne →</p>
               </div>
             </a>
-          )}
-        </div>
           )}
         </div>
         
