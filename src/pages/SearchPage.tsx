@@ -3568,7 +3568,8 @@ const SearchPage = () => {
                         {card}
                         <div
                           key="ai-suggestion-card"
-                          className="overflow-hidden rounded-xl border-2 border-gold/60 shadow-md relative aspect-square bg-gradient-to-br from-gold/5 via-background to-gold/10 flex flex-col"
+                          className="overflow-hidden rounded-xl border-2 border-gold/60 shadow-md relative aspect-square bg-gradient-to-br from-gold/5 via-background to-gold/10 flex flex-col cursor-pointer hover:shadow-lg hover:border-gold transition-all"
+                          onClick={() => setShowAiPopup(true)}
                         >
                           <div className="absolute top-2 left-2 flex items-center gap-1.5 z-10">
                             <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-gold text-gold-foreground flex items-center gap-1">
