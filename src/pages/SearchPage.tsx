@@ -3546,11 +3546,11 @@ const SearchPage = () => {
                           </a>
                         )}
                         {business.wtuce_status === "verified" && (
-                          <div className="absolute top-2 right-2 z-30">
+                          <div className="absolute top-2 right-2 z-[15]">
                             <img src={logoGold} alt="Vérifié" className="w-12 h-12 object-contain" />
                           </div>
                         )}
-                        <div className="absolute top-2 left-2 z-30 flex flex-wrap gap-1">
+                        <div className="absolute top-2 left-2 z-[15] flex flex-wrap gap-1">
                           {subcat && (
                             <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-gold text-gold-foreground">
                               {subcat}
