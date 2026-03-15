@@ -56,15 +56,113 @@ const computeWordTimings = (alignment: TTSAlignment): { start: number; end: numb
   return words;
 };
 
+// ─── Audio cache ────────────────────────────────────────────────────────
+/** Simple in-memory cache: hash → { blobUrl, alignment? } */
+const audioCache = new Map<string, { blobUrl: string; alignment?: TTSAlignment }>();
+const MAX_CACHE = 30;
+
+function cacheKey(text: string, voiceId?: string, withTimestamps?: boolean): string {
+  return `${voiceId ?? "default"}|${withTimestamps ? "ts" : "no"}|${text.slice(0, 200)}`;
+}
+
+function addToCache(key: string, value: { blobUrl: string; alignment?: TTSAlignment }) {
+  if (audioCache.size >= MAX_CACHE) {
+    // Evict oldest
+    const first = audioCache.keys().next().value;
+    if (first) {
+      const old = audioCache.get(first);
+      if (old?.blobUrl.startsWith("blob:")) URL.revokeObjectURL(old.blobUrl);
+      audioCache.delete(first);
+    }
+  }
+  audioCache.set(key, value);
+}
+
+// ─── Chunking ───────────────────────────────────────────────────────────
+/** Split text into chunks of ~maxLen chars at sentence boundaries */
+function splitTextChunks(text: string, maxLen = 800): string[] {
+  if (text.length <= maxLen) return [text];
+  const sentences = text.match(/[^.!?…]+[.!?…]+\s*/g) || [text];
+  const chunks: string[] = [];
+  let current = "";
+  for (const s of sentences) {
+    if (current.length + s.length > maxLen && current.length > 0) {
+      chunks.push(current.trimEnd());
+      current = s;
+    } else {
+      current += s;
+    }
+  }
+  if (current.trim()) chunks.push(current.trimEnd());
+  return chunks;
+}
+
+// ─── Fetch helper ───────────────────────────────────────────────────────
+async function fetchTTSAudio(
+  text: string,
+  voiceId?: string,
+  withTimestamps = false
+): Promise<{ blobUrl: string; alignment?: TTSAlignment }> {
+  const key = cacheKey(text, voiceId, withTimestamps);
+  const cached = audioCache.get(key);
+  if (cached) return cached;
+
+  const response = await fetch(`${SUPABASE_URL}/functions/v1/elevenlabs-tts`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      apikey: SUPABASE_KEY,
+      Authorization: `Bearer ${SUPABASE_KEY}`,
+    },
+    body: JSON.stringify({ text, voiceId, withTimestamps }),
+  });
+
+  if (!response.ok) throw new Error(`TTS request failed: ${response.status}`);
+
+  let blobUrl: string;
+  let alignment: TTSAlignment | undefined;
+
+  if (withTimestamps) {
+    const data = await response.json();
+    alignment = data.alignment;
+    blobUrl = `data:audio/mpeg;base64,${data.audio_base64}`;
+  } else {
+    const blob = await response.blob();
+    blobUrl = URL.createObjectURL(blob);
+  }
+
+  const result = { blobUrl, alignment };
+  addToCache(key, result);
+  return result;
+}
+
+// ─── Pre-generation (background fetch) ──────────────────────────────────
+const preloadingKeys = new Set<string>();
+
+/** Pre-fetch TTS audio in background so it's cached when user clicks play */
+export function preloadTTS(text: string, voiceId?: string, withTimestamps = false) {
+  if (!text.trim()) return;
+  const finalText = withTimestamps ? text : normalizeTTSText(text);
+  const key = cacheKey(finalText, voiceId, withTimestamps);
+  if (audioCache.has(key) || preloadingKeys.has(key)) return;
+  preloadingKeys.add(key);
+  fetchTTSAudio(finalText, voiceId, withTimestamps)
+    .catch(() => {}) // silent background failure
+    .finally(() => preloadingKeys.delete(key));
+}
+
+// ─── Hook ───────────────────────────────────────────────────────────────
 export function useTextToSpeech(options?: { onEnd?: () => void }) {
   const [status, setStatus] = useState<TTSStatus>("idle");
   const [spokenWordIndex, setSpokenWordIndex] = useState(-1);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const objectUrlRef = useRef<string | null>(null);
   const wordTimingsRef = useRef<{ start: number; end: number }[] | null>(null);
   const rafRef = useRef<number>(0);
   const onEndRef = useRef(options?.onEnd);
   onEndRef.current = options?.onEnd;
+  const chunkQueueRef = useRef<string[]>([]);
+  const chunkVoiceRef = useRef<string | undefined>();
+  const abortRef = useRef(false);
 
   const stopTracking = useCallback(() => {
     if (rafRef.current) {
@@ -81,7 +179,6 @@ export function useTextToSpeech(options?: { onEnd?: () => void }) {
     if (!audio || !timings || audio.paused) return;
 
     const t = audio.currentTime;
-    // Binary search for current word
     let idx = -1;
     let lo = 0;
     let hi = timings.length - 1;
@@ -98,91 +195,40 @@ export function useTextToSpeech(options?: { onEnd?: () => void }) {
     rafRef.current = requestAnimationFrame(trackPlayback);
   }, []);
 
-  const pause = useCallback(() => {
-    if (audioRef.current && !audioRef.current.paused) {
-      audioRef.current.pause();
-      stopTracking();
-      setStatus("paused");
-      console.log("[TTS] Paused");
-    }
-  }, [stopTracking]);
-
-  const resume = useCallback(() => {
-    if (audioRef.current && audioRef.current.paused && status === "paused") {
-      audioRef.current.play();
-      setStatus("playing");
-      if (wordTimingsRef.current) {
-        rafRef.current = requestAnimationFrame(trackPlayback);
-      }
-      console.log("[TTS] Resumed");
-    }
-  }, [status, trackPlayback]);
-
-  const stop = useCallback(() => {
+  const cleanupAudio = useCallback(() => {
     stopTracking();
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
       audioRef.current = null;
     }
-    if (objectUrlRef.current) {
-      URL.revokeObjectURL(objectUrlRef.current);
-      objectUrlRef.current = null;
-    }
-    setStatus("idle");
   }, [stopTracking]);
 
-  const speak = useCallback(
-    async (text: string, voiceId?: string, withTimestamps = false) => {
-      // If already playing, stop
-      if (status === "playing" || status === "loading" || status === "paused") {
-        stop();
-        return;
-      }
+  const pause = useCallback(() => {
+    if (audioRef.current && !audioRef.current.paused) {
+      audioRef.current.pause();
+      stopTracking();
+      setStatus("paused");
+    }
+  }, [stopTracking]);
 
-      if (!text.trim()) return;
+  const stop = useCallback(() => {
+    abortRef.current = true;
+    chunkQueueRef.current = [];
+    cleanupAudio();
+    setStatus("idle");
+  }, [cleanupAudio]);
 
-      // Skip normalization when timestamps are requested for precise alignment
-      const finalText = withTimestamps ? text : normalizeTTSText(text);
-
-      setStatus("loading");
-      setSpokenWordIndex(-1);
-      wordTimingsRef.current = null;
-
-      try {
-        const response = await fetch(
-          `${SUPABASE_URL}/functions/v1/elevenlabs-tts`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              apikey: SUPABASE_KEY,
-              Authorization: `Bearer ${SUPABASE_KEY}`,
-            },
-            body: JSON.stringify({ text: finalText, voiceId, withTimestamps }),
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error(`TTS request failed: ${response.status}`);
-        }
-
-        let audioUrl: string;
-
-        if (withTimestamps) {
-          const data = await response.json();
-          if (data.alignment) {
-            wordTimingsRef.current = computeWordTimings(data.alignment);
-          }
-          audioUrl = `data:audio/mpeg;base64,${data.audio_base64}`;
-        } else {
-          const audioBlob = await response.blob();
-          audioUrl = URL.createObjectURL(audioBlob);
-          objectUrlRef.current = audioUrl;
-        }
-
-        const audio = new Audio(audioUrl);
+  /** Play a single audio blob URL. Returns a promise that resolves when done. */
+  const playAudioUrl = useCallback(
+    (blobUrl: string, alignment?: TTSAlignment): Promise<void> =>
+      new Promise((resolve, reject) => {
+        const audio = new Audio(blobUrl);
         audioRef.current = audio;
+
+        if (alignment) {
+          wordTimingsRef.current = computeWordTimings(alignment);
+        }
 
         audio.onplay = () => {
           if (wordTimingsRef.current) {
@@ -192,42 +238,103 @@ export function useTextToSpeech(options?: { onEnd?: () => void }) {
 
         audio.onended = () => {
           stopTracking();
-          setStatus("idle");
-          if (objectUrlRef.current) {
-            URL.revokeObjectURL(objectUrlRef.current);
-            objectUrlRef.current = null;
-          }
           audioRef.current = null;
-          onEndRef.current?.();
+          resolve();
         };
 
         audio.onerror = () => {
           stopTracking();
-          setStatus("error");
-          if (objectUrlRef.current) {
-            URL.revokeObjectURL(objectUrlRef.current);
-            objectUrlRef.current = null;
-          }
           audioRef.current = null;
+          reject(new Error("Audio playback error"));
         };
 
-        await audio.play();
-        setStatus("playing");
+        audio.play().catch(reject);
+      }),
+    [trackPlayback, stopTracking]
+  );
+
+  const resume = useCallback(() => {
+    if (audioRef.current && audioRef.current.paused && status === "paused") {
+      audioRef.current.play();
+      setStatus("playing");
+      if (wordTimingsRef.current) {
+        rafRef.current = requestAnimationFrame(trackPlayback);
+      }
+    }
+  }, [status, trackPlayback]);
+
+  const speak = useCallback(
+    async (text: string, voiceId?: string, withTimestamps = false) => {
+      // Toggle off if already active
+      if (status === "playing" || status === "loading" || status === "paused") {
+        stop();
+        return;
+      }
+
+      if (!text.trim()) return;
+
+      abortRef.current = false;
+      const finalText = withTimestamps ? text : normalizeTTSText(text);
+
+      setStatus("loading");
+      setSpokenWordIndex(-1);
+      wordTimingsRef.current = null;
+
+      try {
+        if (withTimestamps) {
+          // Timestamps mode: single request (no chunking, alignment needed)
+          const result = await fetchTTSAudio(finalText, voiceId, true);
+          if (abortRef.current) return;
+          setStatus("playing");
+          await playAudioUrl(result.blobUrl, result.alignment);
+          if (!abortRef.current) {
+            setStatus("idle");
+            onEndRef.current?.();
+          }
+        } else {
+          // Chunking mode: split text, play first chunk ASAP, prefetch rest
+          const chunks = splitTextChunks(finalText);
+          chunkQueueRef.current = chunks.slice(1);
+          chunkVoiceRef.current = voiceId;
+
+          // Start prefetching chunks 2+ in parallel
+          chunks.slice(1).forEach((c) => {
+            fetchTTSAudio(c, voiceId, false).catch(() => {});
+          });
+
+          // Fetch & play chunk 1
+          const first = await fetchTTSAudio(chunks[0], voiceId, false);
+          if (abortRef.current) return;
+          setStatus("playing");
+          await playAudioUrl(first.blobUrl);
+
+          // Play remaining chunks sequentially
+          while (chunkQueueRef.current.length > 0 && !abortRef.current) {
+            const nextText = chunkQueueRef.current.shift()!;
+            const next = await fetchTTSAudio(nextText, voiceId, false);
+            if (abortRef.current) return;
+            await playAudioUrl(next.blobUrl);
+          }
+
+          if (!abortRef.current) {
+            setStatus("idle");
+            onEndRef.current?.();
+          }
+        }
       } catch (error) {
         console.error("TTS error:", error);
         setStatus("error");
         setTimeout(() => setStatus("idle"), 3000);
       }
     },
-    [status, stop, trackPlayback, stopTracking]
+    [status, stop, playAudioUrl]
   );
 
-  // Voice-activated stop: listen for "stop" while TTS is playing
+  // Voice-activated stop/resume
   const stopRecognitionRef = useRef<any>(null);
 
   useEffect(() => {
     if (status !== "playing" && status !== "paused") {
-      // Tear down listener when not playing/paused
       if (stopRecognitionRef.current) {
         try { stopRecognitionRef.current.stop(); } catch {}
         stopRecognitionRef.current = null;
@@ -248,12 +355,10 @@ export function useTextToSpeech(options?: { onEnd?: () => void }) {
       for (let i = 0; i < event.results.length; i++) {
         const text = event.results[i][0].transcript.toLowerCase().trim();
         if (STOP_WORDS.some(w => text.includes(w))) {
-          console.log("[TTS] Voice stop/pause command detected:", text);
           pause();
           return;
         }
         if (RESUME_WORDS.some(w => text.includes(w))) {
-          console.log("[TTS] Voice resume command detected:", text);
           resume();
           return;
         }
@@ -261,14 +366,12 @@ export function useTextToSpeech(options?: { onEnd?: () => void }) {
     };
 
     recognition.onerror = (e: any) => {
-      // "aborted" or "no-speech" are expected; ignore silently
       if (e.error !== "aborted" && e.error !== "no-speech") {
         console.warn("[TTS] Stop listener error:", e.error);
       }
     };
 
     recognition.onend = () => {
-      // Restart listener if still playing (browser auto-stops after silence)
       if ((status === "playing" || status === "paused") && stopRecognitionRef.current) {
         try { recognition.start(); } catch {}
       }
@@ -287,5 +390,5 @@ export function useTextToSpeech(options?: { onEnd?: () => void }) {
     };
   }, [status, stop, pause, resume]);
 
-  return { speak, stop, pause, resume, status, spokenWordIndex };
+  return { speak, stop, pause, resume, status, spokenWordIndex, preload: preloadTTS };
 }
