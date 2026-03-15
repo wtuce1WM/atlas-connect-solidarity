@@ -168,6 +168,7 @@ const BusinessMap = ({
   onBusinessClick,
 }: BusinessMapProps) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapShellRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
   const clustererRef = useRef<MarkerClusterer | null>(null);
   const markersRef = useRef<google.maps.Marker[]>([]);
@@ -180,6 +181,7 @@ const BusinessMap = ({
   const [internalLoading, setInternalLoading] = useState(!externalBusinesses);
   const [gmapsReady, setGmapsReady] = useState(false);
   const [gmapsError, setGmapsError] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const businesses = externalBusinesses || internalBusinesses;
   const isLoading = externalLoading ?? internalLoading;
