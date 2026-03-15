@@ -45,6 +45,8 @@ export interface BusinessCardData {
   is_open_24h?: boolean | null;
   show_opening_hours?: boolean | null;
   vacation_dates?: unknown;
+  engagements?: string[];
+  online_shop_url?: string | null;
 }
 
 export interface Gamme {
