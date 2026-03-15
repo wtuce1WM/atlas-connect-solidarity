@@ -2855,7 +2855,10 @@ serve(async (req) => {
         }
         // Skip category filter when there's an intent-subcategory conflict
         // (e.g. "manger du poisson" → intent=Restauration but subcategory=Poissonnerie/Commerce)
-        if (effectiveCategory && !intentSubcategoryConflict) {
+        if (effectiveCategories.length > 0 && !intentSubcategoryConflict) {
+          const catOrClauses = effectiveCategories.map(c => `main_category.eq.${c},categories.cs.{"${c}"}`).join(",");
+          subBuilder = subBuilder.or(catOrClauses);
+        } else if (effectiveCategory && !intentSubcategoryConflict) {
           subBuilder = subBuilder.or(`main_category.eq.${effectiveCategory},categories.cs.{"${effectiveCategory}"}`);
         }
         // Filter by neighborhood if detected (unless explicitly skipped)
