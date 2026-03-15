@@ -2990,10 +2990,11 @@ serve(async (req) => {
           }
         }
 
-        // Filter by category: use effectiveCategory (from intent/URL) or fall back to detected subcategory's parent
-        const enrichmentCategory = effectiveCategory || subcategoryParentCategory;
-        if (enrichmentCategory && !intentSubcategoryConflict) {
-          svcBuilder = svcBuilder.or(`main_category.eq.${enrichmentCategory},categories.cs.{"${enrichmentCategory}"}`);
+        // Filter by category: use effectiveCategories (from intent/URL) or fall back to detected subcategory's parent
+        const enrichmentCats = effectiveCategories.length > 0 ? effectiveCategories : (subcategoryParentCategory ? [subcategoryParentCategory] : []);
+        if (enrichmentCats.length > 0 && !intentSubcategoryConflict) {
+          const catOrClauses = enrichmentCats.map(c => `main_category.eq.${c},categories.cs.{"${c}"}`).join(",");
+          svcBuilder = svcBuilder.or(catOrClauses);
         }
 
         if (detectedNeighborhood) {
