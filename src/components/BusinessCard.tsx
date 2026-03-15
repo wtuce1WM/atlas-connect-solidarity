@@ -3,7 +3,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Phone, ShieldCheck, Star, Globe, Clock, Headphones, Loader2 } from "lucide-react";
+import { MapPin, Phone, ShieldCheck, Star, Globe, Clock, Headphones, Loader2, Leaf, Truck, Accessibility } from "lucide-react";
 import logoWatermark from "@/assets/logoGOLDsimpleSML.webp";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import { collectRatingSources, computeWeightedRatingOn20, getTotalReviewCount as getTotalReviews } from "@/lib/ratingUtils";
