@@ -63,6 +63,13 @@ export type Database = {
             referencedRelation: "businesses"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "affiliate_business_promotions_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       affiliates: {
@@ -319,6 +326,13 @@ export type Database = {
             referencedRelation: "businesses"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "bookmarks_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       business_badges: {
@@ -358,6 +372,13 @@ export type Database = {
             referencedRelation: "businesses"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "business_badges_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       business_destinations: {
@@ -385,6 +406,13 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_destinations_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
             referencedColumns: ["id"]
           },
           {
@@ -438,6 +466,13 @@ export type Database = {
             referencedRelation: "businesses"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "business_documents_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       business_labels: {
@@ -471,6 +506,13 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_labels_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
             referencedColumns: ["id"]
           },
         ]
@@ -517,6 +559,13 @@ export type Database = {
             referencedRelation: "businesses"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "business_menu_summaries_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       business_poi_businesses: {
@@ -547,10 +596,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "business_poi_businesses_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "business_poi_businesses_poi_business_id_fkey"
             columns: ["poi_business_id"]
             isOneToOne: false
             referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_poi_businesses_poi_business_id_fkey"
+            columns: ["poi_business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
             referencedColumns: ["id"]
           },
         ]
@@ -580,6 +643,13 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_points_of_interest_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
             referencedColumns: ["id"]
           },
           {
@@ -622,6 +692,13 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_social_posts_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
             referencedColumns: ["id"]
           },
         ]
@@ -1448,6 +1525,13 @@ export type Database = {
             referencedRelation: "businesses"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "hotel_api_mappings_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       knowledge_entries: {
@@ -1517,6 +1601,13 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "knowledge_entries_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
             referencedColumns: ["id"]
           },
           {
@@ -2034,6 +2125,13 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
             referencedColumns: ["id"]
           },
         ]
@@ -2685,7 +2783,379 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      businesses_public: {
+        Row: {
+          account_type: string | null
+          address: string | null
+          affiliate_id: string | null
+          ai_review_summary: Json | null
+          airbnb_url: string | null
+          avg_price_range: Json | null
+          badge_id: string | null
+          booking_url: string | null
+          business_type: string | null
+          categories: string[] | null
+          city: string | null
+          country: string | null
+          created_at: string | null
+          default_service: string | null
+          description: string | null
+          destination_description: string | null
+          destination_hook: string | null
+          email: string | null
+          engagements: string[] | null
+          facebook_url: string | null
+          flipbook_language: string | null
+          flipbook_name: string | null
+          flipbook_url: string | null
+          gamme_id: string | null
+          getyourguide_rating: number | null
+          getyourguide_review_count: number | null
+          getyourguide_url: string | null
+          glovo_url: string | null
+          google_maps_url: string | null
+          google_rating: number | null
+          google_review_count: number | null
+          google_reviews_url: string | null
+          hook_ar: string | null
+          hook_en: string | null
+          hook_fr: string | null
+          hotels_com_url: string | null
+          ice: string | null
+          id: string | null
+          images: string[] | null
+          instagram_url: string | null
+          is_active: boolean | null
+          is_featured: boolean | null
+          is_master: boolean | null
+          is_open_24h: boolean | null
+          is_poi: boolean | null
+          is_regulated_activity: boolean | null
+          is_visible_locale: boolean | null
+          keywords: string[] | null
+          label1_link_url: string | null
+          label1_url: string | null
+          languages: string[] | null
+          latitude: number | null
+          linkedin_url: string | null
+          logo_2_url: string | null
+          logo_bg: string | null
+          logo_url: string | null
+          longitude: number | null
+          main_category: string | null
+          matterport_url: string | null
+          menu_language: string | null
+          menu_name: string | null
+          menu_summary: string | null
+          menu_summary_title: string | null
+          menu_url: string | null
+          name: string | null
+          neighborhood: string | null
+          online_shop_url: string | null
+          opening_hours: Json | null
+          other_booking_name: string | null
+          other_booking_url: string | null
+          pdf_2_name: string | null
+          pdf_2_url: string | null
+          pdf_3_name: string | null
+          pdf_3_url: string | null
+          pdf_name: string | null
+          pdf_url: string | null
+          phone: string | null
+          pinterest_url: string | null
+          poi_description: string | null
+          poi_hook: string | null
+          poissonnerie_details: Json | null
+          priority_score: number | null
+          rating: number | null
+          region: string | null
+          reserve_now_url: string | null
+          restaurant_guru_rating: number | null
+          restaurant_guru_review_count: number | null
+          restaurant_guru_url: string | null
+          search_vector: unknown
+          services: string[] | null
+          show_opening_hours: boolean | null
+          skype: string | null
+          telegram: string | null
+          tiktok_url: string | null
+          tripadvisor_location_id: string | null
+          tripadvisor_rating: number | null
+          tripadvisor_review_count: number | null
+          tripadvisor_review_url: string | null
+          tripadvisor_url: string | null
+          trivago_url: string | null
+          twitter_url: string | null
+          updated_at: string | null
+          vacation_dates: Json | null
+          viator_rating: number | null
+          viator_review_count: number | null
+          viator_url: string | null
+          video_1_url: string | null
+          vimeo_url: string | null
+          website: string | null
+          whatsapp: string | null
+          wtuce_status: Database["public"]["Enums"]["wtuce_status"] | null
+          youtube_url: string | null
+          zone_chalandise: string | null
+          zone_city_ids: string[] | null
+        }
+        Insert: {
+          account_type?: string | null
+          address?: string | null
+          affiliate_id?: string | null
+          ai_review_summary?: Json | null
+          airbnb_url?: string | null
+          avg_price_range?: Json | null
+          badge_id?: string | null
+          booking_url?: string | null
+          business_type?: string | null
+          categories?: string[] | null
+          city?: string | null
+          country?: string | null
+          created_at?: string | null
+          default_service?: string | null
+          description?: string | null
+          destination_description?: string | null
+          destination_hook?: string | null
+          email?: string | null
+          engagements?: string[] | null
+          facebook_url?: string | null
+          flipbook_language?: string | null
+          flipbook_name?: string | null
+          flipbook_url?: string | null
+          gamme_id?: string | null
+          getyourguide_rating?: number | null
+          getyourguide_review_count?: number | null
+          getyourguide_url?: string | null
+          glovo_url?: string | null
+          google_maps_url?: string | null
+          google_rating?: number | null
+          google_review_count?: number | null
+          google_reviews_url?: string | null
+          hook_ar?: string | null
+          hook_en?: string | null
+          hook_fr?: string | null
+          hotels_com_url?: string | null
+          ice?: string | null
+          id?: string | null
+          images?: string[] | null
+          instagram_url?: string | null
+          is_active?: boolean | null
+          is_featured?: boolean | null
+          is_master?: boolean | null
+          is_open_24h?: boolean | null
+          is_poi?: boolean | null
+          is_regulated_activity?: boolean | null
+          is_visible_locale?: boolean | null
+          keywords?: string[] | null
+          label1_link_url?: string | null
+          label1_url?: string | null
+          languages?: string[] | null
+          latitude?: number | null
+          linkedin_url?: string | null
+          logo_2_url?: string | null
+          logo_bg?: string | null
+          logo_url?: string | null
+          longitude?: number | null
+          main_category?: string | null
+          matterport_url?: string | null
+          menu_language?: string | null
+          menu_name?: string | null
+          menu_summary?: string | null
+          menu_summary_title?: string | null
+          menu_url?: string | null
+          name?: string | null
+          neighborhood?: string | null
+          online_shop_url?: string | null
+          opening_hours?: Json | null
+          other_booking_name?: string | null
+          other_booking_url?: string | null
+          pdf_2_name?: string | null
+          pdf_2_url?: string | null
+          pdf_3_name?: string | null
+          pdf_3_url?: string | null
+          pdf_name?: string | null
+          pdf_url?: string | null
+          phone?: string | null
+          pinterest_url?: string | null
+          poi_description?: string | null
+          poi_hook?: string | null
+          poissonnerie_details?: Json | null
+          priority_score?: number | null
+          rating?: number | null
+          region?: string | null
+          reserve_now_url?: string | null
+          restaurant_guru_rating?: number | null
+          restaurant_guru_review_count?: number | null
+          restaurant_guru_url?: string | null
+          search_vector?: unknown
+          services?: string[] | null
+          show_opening_hours?: boolean | null
+          skype?: string | null
+          telegram?: string | null
+          tiktok_url?: string | null
+          tripadvisor_location_id?: string | null
+          tripadvisor_rating?: number | null
+          tripadvisor_review_count?: number | null
+          tripadvisor_review_url?: string | null
+          tripadvisor_url?: string | null
+          trivago_url?: string | null
+          twitter_url?: string | null
+          updated_at?: string | null
+          vacation_dates?: Json | null
+          viator_rating?: number | null
+          viator_review_count?: number | null
+          viator_url?: string | null
+          video_1_url?: string | null
+          vimeo_url?: string | null
+          website?: string | null
+          whatsapp?: string | null
+          wtuce_status?: Database["public"]["Enums"]["wtuce_status"] | null
+          youtube_url?: string | null
+          zone_chalandise?: string | null
+          zone_city_ids?: string[] | null
+        }
+        Update: {
+          account_type?: string | null
+          address?: string | null
+          affiliate_id?: string | null
+          ai_review_summary?: Json | null
+          airbnb_url?: string | null
+          avg_price_range?: Json | null
+          badge_id?: string | null
+          booking_url?: string | null
+          business_type?: string | null
+          categories?: string[] | null
+          city?: string | null
+          country?: string | null
+          created_at?: string | null
+          default_service?: string | null
+          description?: string | null
+          destination_description?: string | null
+          destination_hook?: string | null
+          email?: string | null
+          engagements?: string[] | null
+          facebook_url?: string | null
+          flipbook_language?: string | null
+          flipbook_name?: string | null
+          flipbook_url?: string | null
+          gamme_id?: string | null
+          getyourguide_rating?: number | null
+          getyourguide_review_count?: number | null
+          getyourguide_url?: string | null
+          glovo_url?: string | null
+          google_maps_url?: string | null
+          google_rating?: number | null
+          google_review_count?: number | null
+          google_reviews_url?: string | null
+          hook_ar?: string | null
+          hook_en?: string | null
+          hook_fr?: string | null
+          hotels_com_url?: string | null
+          ice?: string | null
+          id?: string | null
+          images?: string[] | null
+          instagram_url?: string | null
+          is_active?: boolean | null
+          is_featured?: boolean | null
+          is_master?: boolean | null
+          is_open_24h?: boolean | null
+          is_poi?: boolean | null
+          is_regulated_activity?: boolean | null
+          is_visible_locale?: boolean | null
+          keywords?: string[] | null
+          label1_link_url?: string | null
+          label1_url?: string | null
+          languages?: string[] | null
+          latitude?: number | null
+          linkedin_url?: string | null
+          logo_2_url?: string | null
+          logo_bg?: string | null
+          logo_url?: string | null
+          longitude?: number | null
+          main_category?: string | null
+          matterport_url?: string | null
+          menu_language?: string | null
+          menu_name?: string | null
+          menu_summary?: string | null
+          menu_summary_title?: string | null
+          menu_url?: string | null
+          name?: string | null
+          neighborhood?: string | null
+          online_shop_url?: string | null
+          opening_hours?: Json | null
+          other_booking_name?: string | null
+          other_booking_url?: string | null
+          pdf_2_name?: string | null
+          pdf_2_url?: string | null
+          pdf_3_name?: string | null
+          pdf_3_url?: string | null
+          pdf_name?: string | null
+          pdf_url?: string | null
+          phone?: string | null
+          pinterest_url?: string | null
+          poi_description?: string | null
+          poi_hook?: string | null
+          poissonnerie_details?: Json | null
+          priority_score?: number | null
+          rating?: number | null
+          region?: string | null
+          reserve_now_url?: string | null
+          restaurant_guru_rating?: number | null
+          restaurant_guru_review_count?: number | null
+          restaurant_guru_url?: string | null
+          search_vector?: unknown
+          services?: string[] | null
+          show_opening_hours?: boolean | null
+          skype?: string | null
+          telegram?: string | null
+          tiktok_url?: string | null
+          tripadvisor_location_id?: string | null
+          tripadvisor_rating?: number | null
+          tripadvisor_review_count?: number | null
+          tripadvisor_review_url?: string | null
+          tripadvisor_url?: string | null
+          trivago_url?: string | null
+          twitter_url?: string | null
+          updated_at?: string | null
+          vacation_dates?: Json | null
+          viator_rating?: number | null
+          viator_review_count?: number | null
+          viator_url?: string | null
+          video_1_url?: string | null
+          vimeo_url?: string | null
+          website?: string | null
+          whatsapp?: string | null
+          wtuce_status?: Database["public"]["Enums"]["wtuce_status"] | null
+          youtube_url?: string | null
+          zone_chalandise?: string | null
+          zone_city_ids?: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "businesses_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "businesses_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "badges"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "businesses_gamme_id_fkey"
+            columns: ["gamme_id"]
+            isOneToOne: false
+            referencedRelation: "gammes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       add_user_role_by_email: {
