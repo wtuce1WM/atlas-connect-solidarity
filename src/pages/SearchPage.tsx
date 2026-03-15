@@ -41,7 +41,7 @@ import BusinessSlidePanel from "@/components/BusinessSlidePanel";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
-import { useTextToSpeech } from "@/hooks/useTextToSpeech";
+import { useTextToSpeech, preloadTTS } from "@/hooks/useTextToSpeech";
 import { useToast } from "@/hooks/use-toast";
 import LocationPickerDialog from "@/components/LocationPickerDialog";
 import WarningOverlay from "@/components/WarningOverlay";
@@ -428,7 +428,13 @@ const SearchPage = () => {
   const handleAiAnswerReady = useCallback((answer: string) => {
     setAiAnswerText(answer);
     setStickyAiAnimationNonce((prev) => prev + 1);
-  }, []);
+    // Pre-generate TTS audio in background so it's instant when user clicks speaker
+    if (answer) {
+      const cleanText = answer.replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "").replace(/\*\*(.*?)\*\*/g, "$1").replace(/\*(.*?)\*/g, "$1").replace(/\n+/g, " ");
+      const intro = language === "en" ? "Here is what I found. " : "Voici ce que j'ai trouvé. ";
+      preloadTTS(intro + cleanText + " … Vous pouvez me poser une autre question.", undefined, true);
+    }
+  }, [language]);
    const [activeTab, setActiveTab] = useState<"suggestions" | "map" | "poi" | "destinations">("suggestions");
    const [detectedCity, setDetectedCity] = useState<string | null>(null);
    const [detectedNeighborhood, setDetectedNeighborhood] = useState<string | null>(null);
