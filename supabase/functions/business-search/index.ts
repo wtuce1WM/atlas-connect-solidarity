@@ -1250,8 +1250,9 @@ serve(async (req) => {
       }
     }
     // Auto-detect category from intent words when no explicit category is provided
-    // Load intent word → category mappings from DB
-    let INTENT_TO_CATEGORY: Record<string, string> = {};
+    // Load intent word → category mappings from DB (supports multiple categories per word)
+    let INTENT_TO_CATEGORY: Record<string, string> = {}; // flat lookup for noise filtering (first cat)
+    let INTENT_TO_CATEGORIES: Record<string, string[]> = {}; // multi-category lookup
     let INTENT_MERGE_FLAGS: Record<string, boolean> = {};
     {
       const { data: intentWords } = await supabase
@@ -1260,8 +1261,13 @@ serve(async (req) => {
         .eq("is_active", true);
       if (intentWords) {
         for (const iw of intentWords) {
-          INTENT_TO_CATEGORY[iw.word.toLowerCase()] = iw.category_name;
-          INTENT_MERGE_FLAGS[iw.word.toLowerCase()] = iw.merge_on_conflict;
+          const wLower = iw.word.toLowerCase();
+          if (!INTENT_TO_CATEGORY[wLower]) INTENT_TO_CATEGORY[wLower] = iw.category_name;
+          if (!INTENT_TO_CATEGORIES[wLower]) INTENT_TO_CATEGORIES[wLower] = [];
+          if (!INTENT_TO_CATEGORIES[wLower].includes(iw.category_name)) {
+            INTENT_TO_CATEGORIES[wLower].push(iw.category_name);
+          }
+          INTENT_MERGE_FLAGS[wLower] = iw.merge_on_conflict;
         }
         console.log(`Loaded ${intentWords.length} intent word mappings`);
       }
