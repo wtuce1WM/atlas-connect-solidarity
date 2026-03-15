@@ -1320,6 +1320,7 @@ serve(async (req) => {
     let intentSubcategoryConflict = false;
     let conflictSubcategoryParentCategory: string | null = null;
     const categoryForConflictCheck = intentCategory || category || null;
+    const allIntentCats = intentCategories.length > 0 ? intentCategories : (category ? [category] : []);
     if (categoryForConflictCheck && detectedSubcategory) {
       const { data: subcatWithCat } = await supabase
         .from("subcategories")
@@ -1329,7 +1330,8 @@ serve(async (req) => {
         .single();
       if (subcatWithCat) {
         const parentCatName = (subcatWithCat as any).categories?.name_fr;
-        if (parentCatName && parentCatName !== categoryForConflictCheck) {
+        // No conflict if subcategory's parent is in any of the intent categories
+        if (parentCatName && !allIntentCats.includes(parentCatName)) {
           // Before declaring a conflict, check if there's a better subcategory under the target category
           // e.g. "poisson" + category=Commerce → detected="Poisson" (Agriculture)
           // → prefer "Poissonnerie" (Commerce) which has "poisson" in its keywords
