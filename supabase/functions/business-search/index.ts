@@ -179,6 +179,7 @@ interface SearchResult {
   detectedCity?: string | null;
   detectedNeighborhood?: string | null;
   detectedCategory?: string | null;
+  intentSubcategoryConflict?: boolean;
   searchMode?: string | null;
   bundleTimeSlots?: string[];
   disambiguationType?: "needs_category" | "needs_city" | null;
@@ -4314,6 +4315,7 @@ serve(async (req) => {
       detectedCity: effectiveCity || null,
       detectedNeighborhood: detectedNeighborhood || null,
       detectedCategory: intentCategory || null,
+      intentSubcategoryConflict,
       searchMode: serviceShortcutActivated ? "service_shortcut" : "broad", // TEST: Force broad — was: (typeof subcategorySearchConfig !== 'undefined' && subcategorySearchConfig?.search_mode) || null,
       bundleTimeSlots: (typeof bundleTimeSlots !== 'undefined' && bundleTimeSlots.length > 0) ? bundleTimeSlots : undefined,
       disambiguationType,
