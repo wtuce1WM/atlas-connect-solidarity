@@ -3,7 +3,11 @@ import { useState, useRef, useCallback, useEffect } from "react";
 type TTSStatus = "idle" | "loading" | "playing" | "paused" | "error";
 
 /** Words that trigger a voice-activated stop (case-insensitive) */
-const STOP_WORDS = ["stop", "arrête", "arrêter", "tais-toi", "silence"];
+const STOP_WORDS = [
+  "stop", "arrête", "arrêter", "tais-toi", "silence",
+  "non", "non merci", "shut up", "ta gueule", "boucle-la",
+  "boucle là", "la ferme", "ferme-la", "enough", "ça suffit",
+];
 /** Words that trigger a voice-activated resume (case-insensitive) */
 const RESUME_WORDS = ["continue", "reprends", "reprendre", "play", "lecture"];
 
