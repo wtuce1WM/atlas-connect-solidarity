@@ -2333,10 +2333,10 @@ serve(async (req) => {
           const parentName = (sp as any).subcategories?.name_fr;
           const parentCategoryName = (sp as any).subcategories?.categories?.name_fr;
           if (parentName) {
-            // Skip if the service's parent category conflicts with the intent category
+            // Skip if the service's parent category conflicts with ALL intent categories
             // e.g. don't apply Yoga/strict config when intent is Commerce
-            if (intentCategory && parentCategoryName && parentCategoryName.toLowerCase() !== intentCategory.toLowerCase()) {
-              console.log(`Skipping search config from service "${detectedService}" parent "${parentName}" (category "${parentCategoryName}" ≠ intent "${intentCategory}")`);
+            if (intentCategories.length > 0 && parentCategoryName && !intentCategories.some(ic => ic.toLowerCase() === parentCategoryName.toLowerCase())) {
+              console.log(`Skipping search config from service "${detectedService}" parent "${parentName}" (category "${parentCategoryName}" not in intent [${intentCategories.join(", ")}])`);
               continue;
             }
             // If this parent IS the detected subcategory, use it directly
