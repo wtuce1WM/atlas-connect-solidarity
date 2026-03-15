@@ -3532,18 +3532,28 @@ const SearchPage = () => {
                         )}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
                         {isWebOnly && (
-                          <a
-                            href={webOnlyUrl!.startsWith("http") ? webOnlyUrl! : `https://${webOnlyUrl}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                          <div
+                            className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/65 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                             onClick={(e) => e.stopPropagation()}
-                            className="absolute inset-0 z-10 flex items-center justify-center bg-black/65 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                           >
-                            <div className="text-center px-3">
-                              <p className="text-white font-black text-3xl leading-none tracking-wide">WEB ONLY</p>
-                              <p className="text-white/85 text-xs mt-2">Boutique en ligne ↗</p>
+                            <p className="text-white font-black text-3xl leading-none tracking-wide mb-4">WEB ONLY</p>
+                            <div className="flex flex-col gap-2 px-4 w-full max-w-[200px]">
+                              <a
+                                href={webOnlyUrl!.startsWith("http") ? webOnlyUrl! : `https://${webOnlyUrl}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-white text-black text-xs font-semibold hover:bg-white/90 transition-colors"
+                              >
+                                Boutique en ligne ↗
+                              </a>
+                              <button
+                                onClick={() => setCompactPanelBusiness({ id: business.id, name: business.name } as AIBusinessData)}
+                                className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg border border-white/50 text-white text-xs font-semibold hover:bg-white/15 transition-colors"
+                              >
+                                Voir la fiche
+                              </button>
                             </div>
-                          </a>
+                          </div>
                         )}
                         {business.wtuce_status === "verified" && (
                           <div className="absolute top-2 right-2 z-[15]">
