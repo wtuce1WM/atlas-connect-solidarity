@@ -1272,7 +1272,7 @@ serve(async (req) => {
         console.log(`Loaded ${intentWords.length} intent word mappings`);
       }
     }
-    let intentCategory: string | null = null;
+    let intentCategories: string[] = [];
     let intentMergeOnConflict = true;
     // Always check intent words — even when a category is provided (e.g. from LLM voice intent)
     // Intent words from the DB should override the LLM-derived category
@@ -1282,31 +1282,34 @@ serve(async (req) => {
         const qLower = q.toLowerCase();
         const qWords = qLower.split(/\s+/);
         // Check multi-word intent phrases first (e.g. "faire livrer")
-        for (const intentPhrase of Object.keys(INTENT_TO_CATEGORY)) {
+        for (const intentPhrase of Object.keys(INTENT_TO_CATEGORIES)) {
           if (intentPhrase.includes(" ") && qLower.includes(intentPhrase)) {
-            intentCategory = INTENT_TO_CATEGORY[intentPhrase];
+            intentCategories = INTENT_TO_CATEGORIES[intentPhrase];
             intentMergeOnConflict = INTENT_MERGE_FLAGS[intentPhrase] ?? true;
-            console.log(`Intent phrase "${intentPhrase}" → category "${intentCategory}" (merge=${intentMergeOnConflict})`);
+            console.log(`Intent phrase "${intentPhrase}" → categories [${intentCategories.join(", ")}] (merge=${intentMergeOnConflict})`);
             break;
           }
         }
-        if (intentCategory) break;
+        if (intentCategories.length > 0) break;
         // Then check single words
         for (const w of qWords) {
           const wStripped = stripAccentsGlobal(w);
-          const match = INTENT_TO_CATEGORY[w] || INTENT_TO_CATEGORY[wStripped];
+          const match = INTENT_TO_CATEGORIES[w] || INTENT_TO_CATEGORIES[wStripped];
           if (match) {
-            intentCategory = match;
+            intentCategories = match;
             intentMergeOnConflict = INTENT_MERGE_FLAGS[w] ?? INTENT_MERGE_FLAGS[wStripped] ?? true;
-            console.log(`Intent word "${w}" → category "${intentCategory}" (merge=${intentMergeOnConflict})`);
+            console.log(`Intent word "${w}" → categories [${intentCategories.join(", ")}] (merge=${intentMergeOnConflict})`);
             break;
           }
         }
-        if (intentCategory) break;
+        if (intentCategories.length > 0) break;
       }
     }
-    // Intent words override the URL/LLM category when detected
-    const effectiveCategory = intentCategory || category || undefined;
+    // Backward compat: single intentCategory for conflict detection and response
+    const intentCategory: string | null = intentCategories.length > 0 ? intentCategories[0] : null;
+    // Build effective categories array for filtering
+    const effectiveCategories: string[] = intentCategories.length > 0 ? intentCategories : (category ? [category] : []);
+    const effectiveCategory: string | undefined = effectiveCategories[0] || undefined;
     if (intentCategory && category && intentCategory !== category) {
       console.log(`Intent category "${intentCategory}" overrides URL category "${category}"`);
     }
