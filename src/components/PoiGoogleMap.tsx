@@ -1,6 +1,6 @@
 /// <reference types="@types/google.maps" />
 import { useEffect, useRef, useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, Maximize2, Minimize2 } from "lucide-react";
 
 export interface PoiMapItem {
   id: string;
@@ -197,12 +197,14 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
 
 const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIconMap }: PoiGoogleMapProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const mapShellRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
   const overlaysRef = useRef<Map<string, LabelMarkerOverlay>>(new Map());
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
   const [ready, setReady] = useState(false);
   const hasFittedRef = useRef(false);
   const [iconCache, setIconCache] = useState<Map<string, string>>(new Map());
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const infoWindowHoveredRef = useRef(false);
 
@@ -210,6 +212,24 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
   useEffect(() => {
     loadGoogleMaps().then(() => setReady(true)).catch(console.error);
   }, []);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(document.fullscreenElement === mapShellRef.current);
+    };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, []);
+
+  const toggleFullscreen = async () => {
+    const shell = mapShellRef.current;
+    if (!shell) return;
+    if (document.fullscreenElement === shell) {
+      await document.exitFullscreen();
+      return;
+    }
+    await shell.requestFullscreen();
+  };
 
   // Pre-fetch Lucide icons for visible subcategories
   useEffect(() => {
@@ -236,14 +256,19 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
       zoom: 13,
       mapTypeControl: false,
       streetViewControl: false,
-      fullscreenControl: true,
-      fullscreenControlOptions: { position: gmaps.ControlPosition.TOP_RIGHT },
+      fullscreenControl: false,
       zoomControl: true,
       zoomControlOptions: { position: gmaps.ControlPosition.RIGHT_CENTER },
       gestureHandling: "greedy",
     });
     infoWindowRef.current = new gmaps.InfoWindow();
   }, [ready, center]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    map.setOptions({ fullscreenControl: false });
+  }, [ready]);
 
   // Create/update label markers when pois change
   useEffect(() => {
@@ -466,7 +491,18 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
   return (
     <>
       <style>{`.gm-style .gm-style-iw-chr { display: none !important; } .gm-style .gm-style-iw { padding: 0 !important; } .gm-style .gm-style-iw-d { overflow: hidden !important; }`}</style>
-      <div ref={containerRef} className="w-full h-full" />
+      <div ref={mapShellRef} className="relative w-full h-full">
+        <button
+          type="button"
+          onClick={toggleFullscreen}
+          className="absolute right-3 top-14 z-20 rounded-md border border-border bg-background/90 p-2 text-foreground shadow-sm backdrop-blur-sm transition-colors hover:bg-accent"
+          title={isFullscreen ? "Quitter le plein écran" : "Plein écran"}
+          aria-label={isFullscreen ? "Quitter le plein écran" : "Plein écran"}
+        >
+          {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+        </button>
+        <div ref={containerRef} className="w-full h-full" />
+      </div>
     </>
   );
 };
