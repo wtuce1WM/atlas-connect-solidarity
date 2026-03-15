@@ -182,7 +182,6 @@ const BusinessCard = ({
     business.online_shop_url
   );
   const businessImage = getBusinessImage(business);
-  const businessImage = getBusinessImage(business);
 
   const buildCardSynthesis = useCallback(async () => {
     // Fetch description + ai_review_summary from DB
