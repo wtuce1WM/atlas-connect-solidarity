@@ -1330,75 +1330,88 @@ serve(async (req) => {
         .single();
       if (subcatWithCat) {
         const parentCatName = (subcatWithCat as any).categories?.name_fr;
-        // No conflict if subcategory's parent is in any of the intent categories
-        if (parentCatName && !allIntentCats.includes(parentCatName)) {
+        // Check if subcategory's parent matches the intent categories
+        const parentInIntentCats = parentCatName && allIntentCats.includes(parentCatName);
+        // When multiple intent categories exist and subcategory matches ONE of them,
+        // check if other intent categories have a related subcategory to merge
+        // e.g. "acheter poisson" → intent=[Commerce, Agriculture], detected="Poisson" (Agriculture)
+        // → also find "Poissonnerie" (Commerce) and merge
+        const otherIntentCats = parentInIntentCats && allIntentCats.length > 1
+          ? allIntentCats.filter(c => c !== parentCatName)
+          : [];
+        if (parentCatName && (!parentInIntentCats || otherIntentCats.length > 0)) {
           // Before declaring a conflict, check if there's a better subcategory under the target category
           // e.g. "poisson" + category=Commerce → detected="Poisson" (Agriculture)
           // → prefer "Poissonnerie" (Commerce) which has "poisson" in its keywords
           const qLower = (effectiveQuery || "").toLowerCase();
           const qWords = qLower.split(/\s+/).filter((w: string) => w.length > 1 && !FRENCH_STOP_WORDS.has(w));
           const normalizeWordRe = (w: string): string => stripAccentsGlobal(w.toLowerCase().replace(/s$/, ""));
-          const { data: targetSubcats } = await supabase
-            .from("subcategories")
-            .select("name_fr, keywords, categories!inner(name_fr)")
-            .eq("categories.name_fr", categoryForConflictCheck);
+          // Search under the non-matching categories (or all if none match)
+          const catsToSearch = otherIntentCats.length > 0 ? otherIntentCats : [categoryForConflictCheck!];
           let betterSubcat: string | null = null;
           let bestScore = 0;
-          if (targetSubcats) {
-            for (const sc of targetSubcats) {
-              const scName = (sc.name_fr || "").toLowerCase();
-              const scKws: string[] = ((sc as any).keywords || []).map((k: string) => k.toLowerCase());
-              // Strict word-level matching: require full word match (with normalization)
-              const scNameWords = scName.split(/\s+/).filter((w: string) => w.length > 1);
-              const nameMatch = qWords.some(qw => scNameWords.some(nw => normalizeWordRe(qw) === normalizeWordRe(nw)));
-              const kwMatch = qWords.some(qw => scKws.some(k => {
-                if (k.includes(" ")) {
-                  // Multi-word keyword: all content words must match
-                  const kWords = k.split(/\s+/).filter((w: string) => w.length > 1 && !FRENCH_STOP_WORDS.has(w));
-                  return kWords.length > 0 && kWords.every(kw => qWords.some(qw2 => normalizeWordRe(qw2) === normalizeWordRe(kw)));
+          for (const catToSearch of catsToSearch) {
+            const { data: targetSubcats } = await supabase
+              .from("subcategories")
+              .select("name_fr, keywords, categories!inner(name_fr)")
+              .eq("categories.name_fr", catToSearch);
+            if (targetSubcats) {
+              for (const sc of targetSubcats) {
+                const scName = (sc.name_fr || "").toLowerCase();
+                const scKws: string[] = ((sc as any).keywords || []).map((k: string) => k.toLowerCase());
+                const scNameWords = scName.split(/\s+/).filter((w: string) => w.length > 1);
+                const nameMatch = qWords.some(qw => scNameWords.some(nw => normalizeWordRe(qw) === normalizeWordRe(nw)));
+                const kwMatch = qWords.some(qw => scKws.some(k => {
+                  if (k.includes(" ")) {
+                    const kWords = k.split(/\s+/).filter((w: string) => w.length > 1 && !FRENCH_STOP_WORDS.has(w));
+                    return kWords.length > 0 && kWords.every(kw => qWords.some(qw2 => normalizeWordRe(qw2) === normalizeWordRe(kw)));
+                  }
+                  return normalizeWordRe(k) === normalizeWordRe(qw);
+                }));
+                if (nameMatch || kwMatch) {
+                  const score = (nameMatch ? 2 : 0) + (kwMatch ? 1 : 0);
+                  if (score > bestScore) {
+                    bestScore = score;
+                    betterSubcat = sc.name_fr;
+                  }
                 }
-                return normalizeWordRe(k) === normalizeWordRe(qw);
-              }));
-              if (nameMatch || kwMatch) {
-                // Score: name match = 2, keyword match = 1
-                const score = (nameMatch ? 2 : 0) + (kwMatch ? 1 : 0);
-                if (score > bestScore) {
-                  bestScore = score;
-                  betterSubcat = sc.name_fr;
+              }
+            }
+            // If no subcategory matched, check if a SERVICE under the target category matches
+            if (!betterSubcat) {
+              const { data: targetServices } = await supabase
+                .from("services")
+                .select("name_fr, subcategories!inner(name_fr, categories!inner(name_fr))")
+                .eq("is_active", true)
+                .eq("subcategories.categories.name_fr", catToSearch);
+              if (targetServices) {
+                for (const svc of targetServices) {
+                  const svcName = (svc.name_fr || "").toLowerCase();
+                  const svcNameNorm = normalizeWordRe(svcName);
+                  if (qWords.some(qw => normalizeWordRe(qw) === svcNameNorm)) {
+                    betterSubcat = (svc as any).subcategories?.name_fr;
+                    console.log(`Category-subcategory re-evaluation via SERVICE: "${svc.name_fr}" found under "${betterSubcat}" (${catToSearch})`);
+                    break;
+                  }
                 }
               }
             }
           }
-          // If no subcategory matched, check if a SERVICE under the target category matches
-          // e.g. "manger du poisson" → intent=Restauration, service "Poisson" exists under "Restaurant"
-          if (!betterSubcat) {
-            const { data: targetServices } = await supabase
-              .from("services")
-              .select("name_fr, subcategories!inner(name_fr, categories!inner(name_fr))")
-              .eq("is_active", true)
-              .eq("subcategories.categories.name_fr", categoryForConflictCheck);
-            if (targetServices) {
-              for (const svc of targetServices) {
-                const svcName = (svc.name_fr || "").toLowerCase();
-                const svcNameNorm = normalizeWordRe(svcName);
-                if (qWords.some(qw => normalizeWordRe(qw) === svcNameNorm)) {
-                  betterSubcat = (svc as any).subcategories?.name_fr;
-                  console.log(`Category-subcategory re-evaluation via SERVICE: "${svc.name_fr}" found under "${betterSubcat}" (${categoryForConflictCheck})`);
-                  break;
-                }
-              }
-            }
-          }
-          if (betterSubcat) {
-            console.log(`Category-subcategory re-evaluation: switching from "${detectedSubcategory}" (${parentCatName}) to "${betterSubcat}" (${categoryForConflictCheck}) — better match for category`);
+          if (betterSubcat && !parentInIntentCats) {
+            // Full conflict resolved: switch to better subcategory
+            console.log(`Category-subcategory re-evaluation: switching from "${detectedSubcategory}" (${parentCatName}) to "${betterSubcat}" (${catsToSearch.join(", ")}) — better match for category`);
             detectedSubcategory = betterSubcat;
-            // No conflict since we found a matching subcategory under the target category
-          } else if (intentCategory && intentMergeOnConflict) {
+          } else if (betterSubcat && parentInIntentCats) {
+            // Multi-intent: detected subcategory is valid for one intent, but there's also a match in another
+            // Trigger merge so both subcategories appear in results
+            intentSubcategoryConflict = true;
+            conflictSubcategoryParentCategory = parentCatName;
+            console.log(`Multi-intent merge: "${detectedSubcategory}" (${parentCatName}) + "${betterSubcat}" (${catsToSearch.join(", ")}) — will merge results from both`);
+          } else if (!parentInIntentCats && intentCategory && intentMergeOnConflict) {
             intentSubcategoryConflict = true;
             conflictSubcategoryParentCategory = parentCatName;
             console.log(`Intent-subcategory conflict: intent="${intentCategory}" vs subcategory "${detectedSubcategory}" parent="${parentCatName}" → will merge results`);
-          } else if (category) {
-            // Explicit category from URL — just switch subcategory to null to avoid wrong results
+          } else if (!parentInIntentCats && category) {
             console.log(`Explicit category "${category}" conflicts with detected subcategory "${detectedSubcategory}" (${parentCatName}) — dropping subcategory`);
             detectedSubcategory = null;
           }
