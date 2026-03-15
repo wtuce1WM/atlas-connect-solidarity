@@ -176,6 +176,11 @@ const BusinessCard = ({
   const totalReviews = getCardTotalReviewCount(business);
   const isSelected = selectedBusinessId === business.id;
   const hasMapData = business.google_maps_url || (business.latitude && business.longitude);
+  const isWebOnly = !!(
+    business.engagements?.includes("Commandez en ligne et recevez votre colis chez vous") &&
+    business.engagements?.includes("Web only") &&
+    business.online_shop_url
+  );
   const businessImage = getBusinessImage(business);
 
   const buildCardSynthesis = useCallback(async () => {
