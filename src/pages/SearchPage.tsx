@@ -1255,7 +1255,7 @@ const SearchPage = () => {
         totalReviews: collectRatingSources(b as any).reduce((s, r) => s + r.count, 0),
         subcategory: b.categories?.[0] || null,
       }));
-  }, [hasKnownLocation, filteredBusinesses, mapCenterForResults, neighborhoodCoords]);
+  }, [hasKnownLocation, filteredBusinesses, mapCenterForResults, neighborhoodCoords, effectiveCityForMap]);
 
 
   useEffect(() => {
