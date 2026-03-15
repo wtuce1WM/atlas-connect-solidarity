@@ -4265,6 +4265,21 @@ serve(async (req) => {
     }
     } // end if (!serviceShortcutActivated)
 
+    // In multi-intent mode, keep only businesses that belong to one of the detected intent categories
+    // (prevents broad fallback/service merges from leaking unrelated categories)
+    if (intentCategories.length > 1 && businesses.length > 0) {
+      const allowedCats = new Set(intentCategories.map(c => c.toLowerCase()));
+      const beforeIntentFilter = businesses.length;
+      businesses = businesses.filter((b: any) => {
+        const main = (b.main_category || "").toLowerCase();
+        const cats = (b.categories || []).map((c: string) => c.toLowerCase());
+        return allowedCats.has(main) || cats.some((c: string) => allowedCats.has(c));
+      });
+      if (businesses.length !== beforeIntentFilter) {
+        console.log(`Multi-intent category guard: ${beforeIntentFilter} → ${businesses.length} (allowed: [${intentCategories.join(", ")}])`);
+      }
+    }
+
     // If results hit the limit, do a count query to get the true total
     // (works for city-scoped and national queries like "maroc")
     let totalCount: number | undefined;
