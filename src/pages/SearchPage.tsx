@@ -1977,10 +1977,19 @@ const SearchPage = () => {
           onSelectCity={(city) => {
             setSelectedCity(city);
             setIsGeoCityAutoSelected(false);
+            // If category is already known, dismiss overlay immediately to avoid
+            // it reappearing when the new search resets detectedSubcategory
+            if (selectedCategoryFilter || detectedSubcategory || detectedCategory) {
+              setWarningDismissed(true);
+            }
           }}
           onSelectCategory={(cat) => {
             setSelectedCategoryFilter(cat);
-          }}
+            // If city is already known, dismiss overlay immediately
+            if ((selectedCity && selectedCity !== "all") || detectedCity) {
+              setWarningDismissed(true);
+            }
+          }
           onClose={() => setWarningDismissed(true)}
         />
       )}
