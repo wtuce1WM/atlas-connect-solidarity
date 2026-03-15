@@ -177,8 +177,8 @@ const BusinessCard = ({
   const isSelected = selectedBusinessId === business.id;
   const hasMapData = business.google_maps_url || (business.latitude && business.longitude);
   const isWebOnly = !!(
-    business.engagements?.includes("Commandez en ligne et recevez votre colis chez vous") &&
-    business.engagements?.includes("Web only") &&
+    (business.engagements?.includes("Commandez en ligne et recevez votre colis chez vous") || business.engagements?.includes("Logistique:Commandez en ligne et recevez votre colis chez vous")) &&
+    (business.engagements?.includes("Web only") || business.engagements?.includes("Logistique:Web only")) &&
     business.online_shop_url
   );
   const businessImage = getBusinessImage(business);
