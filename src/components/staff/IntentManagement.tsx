@@ -64,8 +64,9 @@ const IntentManagement = () => {
   const addIntent = useCallback(async () => {
     const word = newWord.trim().toLowerCase();
     if (!word || !newCategory) return;
-    if (intents.some((i) => i.word === word)) {
-      toast({ title: "Erreur", description: `Le mot "${word}" existe déjà.`, variant: "destructive" });
+    // Allow same word with different category (multi-category support)
+    if (intents.some((i) => i.word === word && i.category_name === newCategory)) {
+      toast({ title: "Erreur", description: `Le mot "${word}" → ${newCategory} existe déjà.`, variant: "destructive" });
       return;
     }
     try {
