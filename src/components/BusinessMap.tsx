@@ -193,6 +193,24 @@ const BusinessMap = ({
       .catch(() => setGmapsError(true));
   }, []);
 
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(document.fullscreenElement === mapShellRef.current);
+    };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, []);
+
+  const toggleFullscreen = async () => {
+    const shell = mapShellRef.current;
+    if (!shell) return;
+    if (document.fullscreenElement === shell) {
+      await document.exitFullscreen();
+      return;
+    }
+    await shell.requestFullscreen();
+  };
+
   // Fetch all businesses if none provided
   useEffect(() => {
     if (externalBusinesses) return;
