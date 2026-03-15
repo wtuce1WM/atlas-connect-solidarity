@@ -3546,11 +3546,11 @@ const SearchPage = () => {
                           </a>
                         )}
                         {business.wtuce_status === "verified" && (
-                          <div className="absolute top-2 right-2 z-30">
+                          <div className="absolute top-2 right-2 z-[15]">
                             <img src={logoGold} alt="Vérifié" className="w-12 h-12 object-contain" />
                           </div>
                         )}
-                        <div className="absolute top-2 left-2 z-30 flex flex-wrap gap-1">
+                        <div className="absolute top-2 left-2 z-[15] flex flex-wrap gap-1">
                           {subcat && (
                             <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-gold text-gold-foreground">
                               {subcat}
@@ -3592,7 +3592,7 @@ const SearchPage = () => {
                             return <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-primary text-primary-foreground">{badge}</span>;
                           })()}
                         </div>
-                        <div className="absolute bottom-0 left-0 right-0 z-30 p-3 space-y-1">
+                        <div className="absolute bottom-0 left-0 right-0 z-[15] p-3 space-y-1">
                           <p className="font-semibold text-sm text-white leading-tight line-clamp-2">{business.name}</p>
                           {avgOn20 !== null && (
                             <div className="flex items-center gap-1.5 text-xs">
