@@ -3009,7 +3009,8 @@ serve(async (req) => {
 
         // Filter by category: use effectiveCategories (from intent/URL) or fall back to detected subcategory's parent
         const enrichmentCats = effectiveCategories.length > 0 ? effectiveCategories : (subcategoryParentCategory ? [subcategoryParentCategory] : []);
-        if (enrichmentCats.length > 0 && !intentSubcategoryConflict) {
+        const skipEnrichmentCategoryFilterForConflict = intentSubcategoryConflict && intentCategories.length <= 1;
+        if (enrichmentCats.length > 0 && !skipEnrichmentCategoryFilterForConflict) {
           const catOrClauses = enrichmentCats.map(c => `main_category.eq.${c},categories.cs.{"${c}"}`).join(",");
           svcBuilder = svcBuilder.or(catOrClauses);
         }
