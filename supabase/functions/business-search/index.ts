@@ -2409,7 +2409,7 @@ serve(async (req) => {
     }
     // Strip intent words (dormir, manger, etc.) from tsquery when they've already resolved to a category
     // These verbs don't appear in business search vectors and cause 0 results
-    if (intentCategory && queryForExpansion && INTENT_TO_CATEGORY) {
+    if (intentCategories.length > 0 && queryForExpansion && INTENT_TO_CATEGORY) {
       const before = queryForExpansion;
       const intentWords = new Set(Object.keys(INTENT_TO_CATEGORY));
       const stripped = queryForExpansion.split(/\s+/).filter(w => {
