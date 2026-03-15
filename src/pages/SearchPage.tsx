@@ -1252,8 +1252,8 @@ const SearchPage = () => {
           const dist = haversine(center.lat, center.lng, b.latitude, b.longitude);
           if (dist > maxRadiusKm) return false;
         } else if (effectiveCity) {
-          // Fallback: if center coords not yet loaded, filter by city name
-          if (b.city !== effectiveCity) return false;
+          // Fallback: if center coords not yet loaded, filter by city name (accent/case insensitive)
+          if (!b.city || normalizeText(b.city) !== normalizeText(effectiveCity)) return false;
         }
         return true;
       })
