@@ -1545,9 +1545,9 @@ const SearchPage = () => {
             // Also skip when the fallback heuristic auto-selected a subcategory (not the backend),
             // since auto-filtering would replace the precise FTS results with ALL businesses in that subcategory
             const isHeuristicFallback = fallbackSubcategory && !safeDetectedSubcategory;
-            // Skip auto-filter only for synonyms, heuristic fallbacks, or preciseMatch with heuristic
-            // When the backend explicitly detected the subcategory (safeDetectedSubcategory), always auto-select it
-            const shouldSkipAutoFilter = data.synonymUsed || isHeuristicFallbackWithPrecise || isHeuristicFallback || (data.preciseMatch && !safeDetectedSubcategory);
+            // Skip auto-filter for synonyms, heuristic fallbacks, conflict-merges, or preciseMatch with heuristic
+            // Conflict merge means backend intentionally returned cross-category results (e.g. Poisson + Poissonnerie)
+            const shouldSkipAutoFilter = data.synonymUsed || data.intentSubcategoryConflict || isHeuristicFallbackWithPrecise || isHeuristicFallback || (data.preciseMatch && !safeDetectedSubcategory);
             setSelectedCategoryFilter(shouldSkipAutoFilter ? null : parentCategory);
             setSelectedSubcategoryFilter(shouldSkipAutoFilter ? null : finalDetectedSubcategory);
             setSelectedServiceFilter(null);
