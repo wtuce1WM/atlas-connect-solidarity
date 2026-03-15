@@ -3503,6 +3503,20 @@ const SearchPage = () => {
                           </div>
                         )}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                        {isWebOnly && (
+                          <a
+                            href={webOnlyUrl!.startsWith("http") ? webOnlyUrl! : `https://${webOnlyUrl}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="absolute inset-0 z-20 flex items-center justify-center bg-black/65 hover:bg-black/75 transition-colors"
+                          >
+                            <div className="text-center px-3">
+                              <p className="text-white font-black text-3xl leading-none tracking-wide">WEB ONLY</p>
+                              <p className="text-white/85 text-xs mt-2">Boutique en ligne ↗</p>
+                            </div>
+                          </a>
+                        )}
                         {business.wtuce_status === "verified" && (
                           <div className="absolute top-2 right-2 z-0">
                             <img src={logoGold} alt="Vérifié" className="w-12 h-12 object-contain" />
