@@ -88,6 +88,8 @@ interface Business {
   zone_city_ids?: string[] | null;
   default_service?: string | null;
   neighborhood?: string | null;
+  engagements?: string[];
+  online_shop_url?: string | null;
 }
 
 interface SearchResult {
