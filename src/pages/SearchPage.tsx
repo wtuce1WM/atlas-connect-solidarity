@@ -1989,7 +1989,7 @@ const SearchPage = () => {
             if ((selectedCity && selectedCity !== "all") || detectedCity) {
               setWarningDismissed(true);
             }
-          }
+          }}
           onClose={() => setWarningDismissed(true)}
         />
       )}
