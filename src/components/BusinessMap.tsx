@@ -249,6 +249,7 @@ const BusinessMap = ({
       mapTypeControl: false,
       streetViewControl: false,
       fullscreenControl: true,
+      fullscreenControlOptions: { position: google.maps.ControlPosition.TOP_RIGHT },
       zoomControl: true,
       zoomControlOptions: { position: google.maps.ControlPosition.RIGHT_CENTER },
       gestureHandling: "greedy",
