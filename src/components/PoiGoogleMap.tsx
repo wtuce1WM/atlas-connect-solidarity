@@ -264,6 +264,12 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
     infoWindowRef.current = new gmaps.InfoWindow();
   }, [ready, center]);
 
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    map.setOptions({ fullscreenControl: false });
+  }, [ready]);
+
   // Create/update label markers when pois change
   useEffect(() => {
     const map = mapRef.current;
