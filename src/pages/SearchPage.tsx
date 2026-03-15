@@ -1227,6 +1227,7 @@ const SearchPage = () => {
       const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
       return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     };
+    const effectiveCity = effectiveCityForMap || null;
     return filteredBusinesses
       .filter(b => {
         if (!b.latitude || !b.longitude) return false;
@@ -1234,6 +1235,9 @@ const SearchPage = () => {
         if (center) {
           const dist = haversine(center.lat, center.lng, b.latitude, b.longitude);
           if (dist > maxRadiusKm) return false;
+        } else if (effectiveCity) {
+          // Fallback: if center coords not yet loaded, filter by city name
+          if (b.city !== effectiveCity) return false;
         }
         return true;
       })
