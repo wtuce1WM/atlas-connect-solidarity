@@ -181,9 +181,6 @@ const BusinessCard = ({
     (business.engagements?.includes("Web only") || business.engagements?.includes("Logistique:Web only")) &&
     business.online_shop_url
   );
-  if (business.name?.includes("UNO")) {
-    console.log("[WebOnly debug]", business.name, { engagements: (business as any).engagements, online_shop_url: (business as any).online_shop_url, isWebOnly });
-  }
   const businessImage = getBusinessImage(business);
 
   const buildCardSynthesis = useCallback(async () => {
