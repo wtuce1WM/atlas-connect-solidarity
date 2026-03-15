@@ -2869,12 +2869,13 @@ serve(async (req) => {
             subBuilder = subBuilder.ilike("city", cityToUse);
           }
         }
-        // Skip category filter when there's an intent-subcategory conflict
-        // (e.g. "manger du poisson" → intent=Restauration but subcategory=Poissonnerie/Commerce)
-        if (effectiveCategories.length > 0 && !intentSubcategoryConflict) {
+        // Skip category filter only for single-intent conflicts (e.g. "manger" vs Poissonnerie)
+        // For multi-intent queries (e.g. acheter → Commerce + Agriculture), keep category restriction.
+        const skipCategoryFilterForConflict = intentSubcategoryConflict && intentCategories.length <= 1;
+        if (effectiveCategories.length > 0 && !skipCategoryFilterForConflict) {
           const catOrClauses = effectiveCategories.map(c => `main_category.eq.${c},categories.cs.{"${c}"}`).join(",");
           subBuilder = subBuilder.or(catOrClauses);
-        } else if (effectiveCategory && !intentSubcategoryConflict) {
+        } else if (effectiveCategory && !skipCategoryFilterForConflict) {
           subBuilder = subBuilder.or(`main_category.eq.${effectiveCategory},categories.cs.{"${effectiveCategory}"}`);
         }
         // Filter by neighborhood if detected (unless explicitly skipped)
