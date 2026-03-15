@@ -237,7 +237,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
       mapTypeControl: false,
       streetViewControl: false,
       fullscreenControl: true,
-      fullscreenControlOptions: { position: gmaps.ControlPosition.RIGHT_TOP },
+      fullscreenControlOptions: { position: gmaps.ControlPosition.TOP_RIGHT },
       zoomControl: true,
       zoomControlOptions: { position: gmaps.ControlPosition.RIGHT_CENTER },
       gestureHandling: "greedy",
