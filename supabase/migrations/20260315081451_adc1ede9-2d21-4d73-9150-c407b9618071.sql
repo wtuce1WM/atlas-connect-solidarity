@@ -1,0 +1,2 @@
+ALTER TABLE public.search_intent_words DROP CONSTRAINT search_intent_words_word_key;
+ALTER TABLE public.search_intent_words ADD CONSTRAINT search_intent_words_word_category_key UNIQUE (word, category_name);

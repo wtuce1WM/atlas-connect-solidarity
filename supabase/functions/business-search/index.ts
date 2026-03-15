@@ -1250,8 +1250,9 @@ serve(async (req) => {
       }
     }
     // Auto-detect category from intent words when no explicit category is provided
-    // Load intent word → category mappings from DB
-    let INTENT_TO_CATEGORY: Record<string, string> = {};
+    // Load intent word → category mappings from DB (supports multiple categories per word)
+    let INTENT_TO_CATEGORY: Record<string, string> = {}; // flat lookup for noise filtering (first cat)
+    let INTENT_TO_CATEGORIES: Record<string, string[]> = {}; // multi-category lookup
     let INTENT_MERGE_FLAGS: Record<string, boolean> = {};
     {
       const { data: intentWords } = await supabase
@@ -1260,13 +1261,18 @@ serve(async (req) => {
         .eq("is_active", true);
       if (intentWords) {
         for (const iw of intentWords) {
-          INTENT_TO_CATEGORY[iw.word.toLowerCase()] = iw.category_name;
-          INTENT_MERGE_FLAGS[iw.word.toLowerCase()] = iw.merge_on_conflict;
+          const wLower = iw.word.toLowerCase();
+          if (!INTENT_TO_CATEGORY[wLower]) INTENT_TO_CATEGORY[wLower] = iw.category_name;
+          if (!INTENT_TO_CATEGORIES[wLower]) INTENT_TO_CATEGORIES[wLower] = [];
+          if (!INTENT_TO_CATEGORIES[wLower].includes(iw.category_name)) {
+            INTENT_TO_CATEGORIES[wLower].push(iw.category_name);
+          }
+          INTENT_MERGE_FLAGS[wLower] = iw.merge_on_conflict;
         }
         console.log(`Loaded ${intentWords.length} intent word mappings`);
       }
     }
-    let intentCategory: string | null = null;
+    let intentCategories: string[] = [];
     let intentMergeOnConflict = true;
     // Always check intent words — even when a category is provided (e.g. from LLM voice intent)
     // Intent words from the DB should override the LLM-derived category
@@ -1276,31 +1282,34 @@ serve(async (req) => {
         const qLower = q.toLowerCase();
         const qWords = qLower.split(/\s+/);
         // Check multi-word intent phrases first (e.g. "faire livrer")
-        for (const intentPhrase of Object.keys(INTENT_TO_CATEGORY)) {
+        for (const intentPhrase of Object.keys(INTENT_TO_CATEGORIES)) {
           if (intentPhrase.includes(" ") && qLower.includes(intentPhrase)) {
-            intentCategory = INTENT_TO_CATEGORY[intentPhrase];
+            intentCategories = INTENT_TO_CATEGORIES[intentPhrase];
             intentMergeOnConflict = INTENT_MERGE_FLAGS[intentPhrase] ?? true;
-            console.log(`Intent phrase "${intentPhrase}" → category "${intentCategory}" (merge=${intentMergeOnConflict})`);
+            console.log(`Intent phrase "${intentPhrase}" → categories [${intentCategories.join(", ")}] (merge=${intentMergeOnConflict})`);
             break;
           }
         }
-        if (intentCategory) break;
+        if (intentCategories.length > 0) break;
         // Then check single words
         for (const w of qWords) {
           const wStripped = stripAccentsGlobal(w);
-          const match = INTENT_TO_CATEGORY[w] || INTENT_TO_CATEGORY[wStripped];
+          const match = INTENT_TO_CATEGORIES[w] || INTENT_TO_CATEGORIES[wStripped];
           if (match) {
-            intentCategory = match;
+            intentCategories = match;
             intentMergeOnConflict = INTENT_MERGE_FLAGS[w] ?? INTENT_MERGE_FLAGS[wStripped] ?? true;
-            console.log(`Intent word "${w}" → category "${intentCategory}" (merge=${intentMergeOnConflict})`);
+            console.log(`Intent word "${w}" → categories [${intentCategories.join(", ")}] (merge=${intentMergeOnConflict})`);
             break;
           }
         }
-        if (intentCategory) break;
+        if (intentCategories.length > 0) break;
       }
     }
-    // Intent words override the URL/LLM category when detected
-    const effectiveCategory = intentCategory || category || undefined;
+    // Backward compat: single intentCategory for conflict detection and response
+    const intentCategory: string | null = intentCategories.length > 0 ? intentCategories[0] : null;
+    // Build effective categories array for filtering
+    const effectiveCategories: string[] = intentCategories.length > 0 ? intentCategories : (category ? [category] : []);
+    const effectiveCategory: string | undefined = effectiveCategories[0] || undefined;
     if (intentCategory && category && intentCategory !== category) {
       console.log(`Intent category "${intentCategory}" overrides URL category "${category}"`);
     }
@@ -1311,6 +1320,7 @@ serve(async (req) => {
     let intentSubcategoryConflict = false;
     let conflictSubcategoryParentCategory: string | null = null;
     const categoryForConflictCheck = intentCategory || category || null;
+    const allIntentCats = intentCategories.length > 0 ? intentCategories : (category ? [category] : []);
     if (categoryForConflictCheck && detectedSubcategory) {
       const { data: subcatWithCat } = await supabase
         .from("subcategories")
@@ -1320,7 +1330,8 @@ serve(async (req) => {
         .single();
       if (subcatWithCat) {
         const parentCatName = (subcatWithCat as any).categories?.name_fr;
-        if (parentCatName && parentCatName !== categoryForConflictCheck) {
+        // No conflict if subcategory's parent is in any of the intent categories
+        if (parentCatName && !allIntentCats.includes(parentCatName)) {
           // Before declaring a conflict, check if there's a better subcategory under the target category
           // e.g. "poisson" + category=Commerce → detected="Poisson" (Agriculture)
           // → prefer "Poissonnerie" (Commerce) which has "poisson" in its keywords
@@ -2322,10 +2333,10 @@ serve(async (req) => {
           const parentName = (sp as any).subcategories?.name_fr;
           const parentCategoryName = (sp as any).subcategories?.categories?.name_fr;
           if (parentName) {
-            // Skip if the service's parent category conflicts with the intent category
+            // Skip if the service's parent category conflicts with ALL intent categories
             // e.g. don't apply Yoga/strict config when intent is Commerce
-            if (intentCategory && parentCategoryName && parentCategoryName.toLowerCase() !== intentCategory.toLowerCase()) {
-              console.log(`Skipping search config from service "${detectedService}" parent "${parentName}" (category "${parentCategoryName}" ≠ intent "${intentCategory}")`);
+            if (intentCategories.length > 0 && parentCategoryName && !intentCategories.some(ic => ic.toLowerCase() === parentCategoryName.toLowerCase())) {
+              console.log(`Skipping search config from service "${detectedService}" parent "${parentName}" (category "${parentCategoryName}" not in intent [${intentCategories.join(", ")}])`);
               continue;
             }
             // If this parent IS the detected subcategory, use it directly
@@ -2398,7 +2409,7 @@ serve(async (req) => {
     }
     // Strip intent words (dormir, manger, etc.) from tsquery when they've already resolved to a category
     // These verbs don't appear in business search vectors and cause 0 results
-    if (intentCategory && queryForExpansion && INTENT_TO_CATEGORY) {
+    if (intentCategories.length > 0 && queryForExpansion && INTENT_TO_CATEGORY) {
       const before = queryForExpansion;
       const intentWords = new Set(Object.keys(INTENT_TO_CATEGORY));
       const stripped = queryForExpansion.split(/\s+/).filter(w => {
@@ -2846,7 +2857,10 @@ serve(async (req) => {
         }
         // Skip category filter when there's an intent-subcategory conflict
         // (e.g. "manger du poisson" → intent=Restauration but subcategory=Poissonnerie/Commerce)
-        if (effectiveCategory && !intentSubcategoryConflict) {
+        if (effectiveCategories.length > 0 && !intentSubcategoryConflict) {
+          const catOrClauses = effectiveCategories.map(c => `main_category.eq.${c},categories.cs.{"${c}"}`).join(",");
+          subBuilder = subBuilder.or(catOrClauses);
+        } else if (effectiveCategory && !intentSubcategoryConflict) {
           subBuilder = subBuilder.or(`main_category.eq.${effectiveCategory},categories.cs.{"${effectiveCategory}"}`);
         }
         // Filter by neighborhood if detected (unless explicitly skipped)
@@ -2978,10 +2992,11 @@ serve(async (req) => {
           }
         }
 
-        // Filter by category: use effectiveCategory (from intent/URL) or fall back to detected subcategory's parent
-        const enrichmentCategory = effectiveCategory || subcategoryParentCategory;
-        if (enrichmentCategory && !intentSubcategoryConflict) {
-          svcBuilder = svcBuilder.or(`main_category.eq.${enrichmentCategory},categories.cs.{"${enrichmentCategory}"}`);
+        // Filter by category: use effectiveCategories (from intent/URL) or fall back to detected subcategory's parent
+        const enrichmentCats = effectiveCategories.length > 0 ? effectiveCategories : (subcategoryParentCategory ? [subcategoryParentCategory] : []);
+        if (enrichmentCats.length > 0 && !intentSubcategoryConflict) {
+          const catOrClauses = enrichmentCats.map(c => `main_category.eq.${c},categories.cs.{"${c}"}`).join(",");
+          svcBuilder = svcBuilder.or(catOrClauses);
         }
 
         if (detectedNeighborhood) {
