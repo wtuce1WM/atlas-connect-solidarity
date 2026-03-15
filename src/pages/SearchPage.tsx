@@ -3634,6 +3634,36 @@ const SearchPage = () => {
                               })()}
                             </div>
                           )}
+                          {/* Engagements & Logistics badges */}
+                          {(() => {
+                            const engs = (business.engagements || []);
+                            const standards = engs.filter(e => !e.startsWith("Logistique:") && !e.startsWith("Certification:"));
+                            const logistics = engs.filter(e => e.startsWith("Logistique:")).map(e => e.replace("Logistique:", "").trim());
+                            if (standards.length === 0 && logistics.length === 0) return null;
+                            const getLogIcon = (l: string) => {
+                              const lower = l.toLowerCase();
+                              if (lower.includes("livraison")) return Truck;
+                              if (lower.includes("pmr") || lower.includes("handicap") || lower.includes("accès")) return Accessibility;
+                              return Package;
+                            };
+                            return (
+                              <div className="flex flex-wrap gap-1 mt-0.5">
+                                {standards.map((e, i) => (
+                                  <span key={`e-${i}`} className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-medium bg-green-500/30 text-green-200 backdrop-blur-sm">
+                                    <Leaf className="h-2.5 w-2.5" />{e}
+                                  </span>
+                                ))}
+                                {logistics.map((l, i) => {
+                                  const Icon = getLogIcon(l);
+                                  return (
+                                    <span key={`l-${i}`} className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-medium bg-blue-500/30 text-blue-200 backdrop-blur-sm">
+                                      <Icon className="h-2.5 w-2.5" />{l}
+                                    </span>
+                                  );
+                                })}
+                              </div>
+                            );
+                          })()}
                         </div>
                     </div>
                   );
