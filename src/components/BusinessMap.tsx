@@ -1,6 +1,6 @@
 /// <reference types="@types/google.maps" />
 import { useEffect, useRef, useState, useMemo, useCallback } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, Maximize2, Minimize2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
 
@@ -168,6 +168,7 @@ const BusinessMap = ({
   onBusinessClick,
 }: BusinessMapProps) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapShellRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
   const clustererRef = useRef<MarkerClusterer | null>(null);
   const markersRef = useRef<google.maps.Marker[]>([]);
@@ -180,6 +181,7 @@ const BusinessMap = ({
   const [internalLoading, setInternalLoading] = useState(!externalBusinesses);
   const [gmapsReady, setGmapsReady] = useState(false);
   const [gmapsError, setGmapsError] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const businesses = externalBusinesses || internalBusinesses;
   const isLoading = externalLoading ?? internalLoading;
@@ -190,6 +192,24 @@ const BusinessMap = ({
       .then(() => setGmapsReady(true))
       .catch(() => setGmapsError(true));
   }, []);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(document.fullscreenElement === mapShellRef.current);
+    };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, []);
+
+  const toggleFullscreen = async () => {
+    const shell = mapShellRef.current;
+    if (!shell) return;
+    if (document.fullscreenElement === shell) {
+      await document.exitFullscreen();
+      return;
+    }
+    await shell.requestFullscreen();
+  };
 
   // Fetch all businesses if none provided
   useEffect(() => {
@@ -248,8 +268,7 @@ const BusinessMap = ({
       zoom,
       mapTypeControl: false,
       streetViewControl: false,
-      fullscreenControl: true,
-      fullscreenControlOptions: { position: google.maps.ControlPosition.TOP_RIGHT },
+      fullscreenControl: false,
       zoomControl: true,
       zoomControlOptions: { position: google.maps.ControlPosition.RIGHT_CENTER },
       gestureHandling: "greedy",
@@ -314,6 +333,12 @@ const BusinessMap = ({
       overlay.setMap(null);
       mapRef.current = null;
     };
+  }, [gmapsReady]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    map.setOptions({ fullscreenControl: false });
   }, [gmapsReady]);
 
   // Update markers when businesses change
@@ -469,7 +494,18 @@ const BusinessMap = ({
   const verifiedCount = geoBusinesses.filter((b) => b.wtuce_status === "verified").length;
 
   return (
-    <div className="relative rounded-xl overflow-hidden border border-border shadow-sm">
+    <div ref={mapShellRef} className="relative rounded-xl overflow-hidden border border-border shadow-sm">
+      <style>{`.gm-style .gm-fullscreen-control { display: none !important; }`}</style>
+      <button
+        type="button"
+        onClick={toggleFullscreen}
+        className="absolute right-3 top-14 z-20 rounded-md border border-border bg-background/90 p-2 text-foreground shadow-sm backdrop-blur-sm transition-colors hover:bg-accent"
+        title={isFullscreen ? "Quitter le plein écran" : "Plein écran"}
+        aria-label={isFullscreen ? "Quitter le plein écran" : "Plein écran"}
+      >
+        {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+      </button>
+
       {/* Stats bar */}
       <div className="absolute top-3 left-3 z-10 bg-background/90 backdrop-blur-sm rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground shadow-md border border-border">
         <span className="font-semibold text-foreground">{geoBusinesses.length}</span> établissements sur la carte

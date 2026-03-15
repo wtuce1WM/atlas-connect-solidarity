@@ -490,7 +490,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
 
   return (
     <>
-      <style>{`.gm-style .gm-style-iw-chr { display: none !important; } .gm-style .gm-style-iw { padding: 0 !important; } .gm-style .gm-style-iw-d { overflow: hidden !important; }`}</style>
+      <style>{`.gm-style .gm-style-iw-chr { display: none !important; } .gm-style .gm-style-iw { padding: 0 !important; } .gm-style .gm-style-iw-d { overflow: hidden !important; } .gm-style .gm-fullscreen-control { display: none !important; }`}</style>
       <div ref={mapShellRef} className="relative w-full h-full">
         <button
           type="button"
