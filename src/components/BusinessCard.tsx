@@ -341,7 +341,22 @@ const BusinessCard = ({
               <p className="text-white text-lg group-hover:text-xl italic font-['Cormorant_Garamond'] line-clamp-2 group-hover:line-clamp-4 text-center leading-snug transition-all duration-300">
                 {business.hook_fr}
               </p>
-            </div>
+          {/* Web Only overlay */}
+          {isWebOnly && (
+            <a
+              href={business.online_shop_url!.startsWith('http') ? business.online_shop_url! : `https://${business.online_shop_url}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="absolute inset-0 flex items-center justify-center bg-black/60 z-10 hover:bg-black/70 transition-colors"
+            >
+              <div className="text-center">
+                <span className="text-white text-2xl font-bold tracking-wide drop-shadow-lg">🌐 Web Only</span>
+                <p className="text-white/80 text-xs mt-1">Boutique en ligne →</p>
+              </div>
+            </a>
+          )}
+        </div>
           )}
         </div>
         
