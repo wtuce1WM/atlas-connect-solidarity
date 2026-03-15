@@ -3466,7 +3466,8 @@ const SearchPage = () => {
                   const avgOn20 = computeWeightedRatingOn20(sources);
                   const totalReviews = sources.reduce((s, r) => s + r.count, 0);
                   const subcat = business.categories?.[0] || null;
-                  return (
+
+                  const card = (
                     <div
                       key={business.id}
                       data-result-card={index === 0 ? "true" : undefined}
@@ -3559,6 +3560,39 @@ const SearchPage = () => {
                         </div>
                     </div>
                   );
+
+                  // Insert AI suggestion card after the 3rd result (index 2), only on page 1
+                  if (index === 2 && currentPage === 1 && stickyAiText) {
+                    return (
+                      <>
+                        {card}
+                        <div
+                          key="ai-suggestion-card"
+                          className="overflow-hidden rounded-xl border-2 border-gold/60 shadow-md relative aspect-square bg-gradient-to-br from-gold/5 via-background to-gold/10 flex flex-col"
+                        >
+                          <div className="absolute top-2 left-2 flex items-center gap-1.5 z-10">
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-gold text-gold-foreground flex items-center gap-1">
+                              <Sparkles className="h-3 w-3" />
+                              Suggestion IA
+                            </span>
+                          </div>
+                          <div className="flex-1 flex items-center p-4 pt-10 overflow-hidden">
+                            <p className="text-sm text-foreground/80 leading-relaxed line-clamp-[10]">
+                              {stickyAiText}
+                            </p>
+                          </div>
+                          <div className="p-3 pt-0">
+                            <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                              <Sparkles className="h-2.5 w-2.5 text-gold" />
+                              <span>{language === "fr" ? "Généré par IA à partir de vos résultats" : language === "ar" ? "تم إنشاؤه بالذكاء الاصطناعي" : "AI-generated from your results"}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </>
+                    );
+                  }
+
+                  return card;
                 })}
               </div>
               {/* OLD grouped/paginated BusinessCard display:
