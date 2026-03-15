@@ -3,7 +3,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Phone, ShieldCheck, Star, Globe, Clock, Headphones, Loader2 } from "lucide-react";
+import { MapPin, Phone, ShieldCheck, Star, Globe, Clock, Headphones, Loader2, Leaf, Truck, Accessibility } from "lucide-react";
 import logoWatermark from "@/assets/logoGOLDsimpleSML.webp";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import { collectRatingSources, computeWeightedRatingOn20, getTotalReviewCount as getTotalReviews } from "@/lib/ratingUtils";
@@ -487,6 +487,33 @@ const BusinessCard = ({
               </a>
             )}
           </div>
+
+          {/* Engagements & Logistics badges */}
+          {business.engagements && business.engagements.length > 0 && (() => {
+            const engagementItems = business.engagements.filter(e => !e.startsWith("Logistique:") && !e.startsWith("Certification:"));
+            const logisticsItems = business.engagements
+              .filter(e => e.startsWith("Logistique:"))
+              .map(e => e.replace("Logistique:", "").trim());
+            if (engagementItems.length === 0 && logisticsItems.length === 0) return null;
+            return (
+              <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                {engagementItems.map((eng, i) => (
+                  <Badge key={`eng-${i}`} variant="outline" className="text-[10px] gap-1 bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800">
+                    <Leaf className="h-3 w-3" />
+                    {eng}
+                  </Badge>
+                ))}
+                {logisticsItems.map((item, i) => (
+                  <Badge key={`log-${i}`} variant="outline" className="text-[10px] gap-1 bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800">
+                    {item.toLowerCase().includes("livraison") ? <Truck className="h-3 w-3" /> :
+                     item.toLowerCase().includes("mobilité") || item.toLowerCase().includes("handicap") || item.toLowerCase().includes("accessible") ? <Accessibility className="h-3 w-3" /> :
+                     <Truck className="h-3 w-3" />}
+                    {item}
+                  </Badge>
+                ))}
+              </div>
+            );
+          })()}
 
           {/* Map button + Rating row */}
           {(displayRating || (showMapButton && hasMapData && onSelectBusiness)) && (
