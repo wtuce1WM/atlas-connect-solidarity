@@ -2869,12 +2869,13 @@ serve(async (req) => {
             subBuilder = subBuilder.ilike("city", cityToUse);
           }
         }
-        // Skip category filter when there's an intent-subcategory conflict
-        // (e.g. "manger du poisson" → intent=Restauration but subcategory=Poissonnerie/Commerce)
-        if (effectiveCategories.length > 0 && !intentSubcategoryConflict) {
+        // Skip category filter only for single-intent conflicts (e.g. "manger" vs Poissonnerie)
+        // For multi-intent queries (e.g. acheter → Commerce + Agriculture), keep category restriction.
+        const skipCategoryFilterForConflict = intentSubcategoryConflict && intentCategories.length <= 1;
+        if (effectiveCategories.length > 0 && !skipCategoryFilterForConflict) {
           const catOrClauses = effectiveCategories.map(c => `main_category.eq.${c},categories.cs.{"${c}"}`).join(",");
           subBuilder = subBuilder.or(catOrClauses);
-        } else if (effectiveCategory && !intentSubcategoryConflict) {
+        } else if (effectiveCategory && !skipCategoryFilterForConflict) {
           subBuilder = subBuilder.or(`main_category.eq.${effectiveCategory},categories.cs.{"${effectiveCategory}"}`);
         }
         // Filter by neighborhood if detected (unless explicitly skipped)
@@ -3008,7 +3009,8 @@ serve(async (req) => {
 
         // Filter by category: use effectiveCategories (from intent/URL) or fall back to detected subcategory's parent
         const enrichmentCats = effectiveCategories.length > 0 ? effectiveCategories : (subcategoryParentCategory ? [subcategoryParentCategory] : []);
-        if (enrichmentCats.length > 0 && !intentSubcategoryConflict) {
+        const skipEnrichmentCategoryFilterForConflict = intentSubcategoryConflict && intentCategories.length <= 1;
+        if (enrichmentCats.length > 0 && !skipEnrichmentCategoryFilterForConflict) {
           const catOrClauses = enrichmentCats.map(c => `main_category.eq.${c},categories.cs.{"${c}"}`).join(",");
           svcBuilder = svcBuilder.or(catOrClauses);
         }
@@ -4262,6 +4264,21 @@ serve(async (req) => {
       }
     }
     } // end if (!serviceShortcutActivated)
+
+    // In multi-intent mode, keep only businesses that belong to one of the detected intent categories
+    // (prevents broad fallback/service merges from leaking unrelated categories)
+    if (intentCategories.length > 1 && businesses.length > 0) {
+      const allowedCats = new Set(intentCategories.map(c => c.toLowerCase()));
+      const beforeIntentFilter = businesses.length;
+      businesses = businesses.filter((b: any) => {
+        const main = (b.main_category || "").toLowerCase();
+        const cats = (b.categories || []).map((c: string) => c.toLowerCase());
+        return allowedCats.has(main) || cats.some((c: string) => allowedCats.has(c));
+      });
+      if (businesses.length !== beforeIntentFilter) {
+        console.log(`Multi-intent category guard: ${beforeIntentFilter} → ${businesses.length} (allowed: [${intentCategories.join(", ")}])`);
+      }
+    }
 
     // If results hit the limit, do a count query to get the true total
     // (works for city-scoped and national queries like "maroc")
