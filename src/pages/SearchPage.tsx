@@ -3509,7 +3509,7 @@ const SearchPage = () => {
                             target="_blank"
                             rel="noopener noreferrer"
                             onClick={(e) => e.stopPropagation()}
-                            className="absolute inset-0 z-20 flex items-center justify-center bg-black/65 hover:bg-black/75 transition-colors"
+                            className="absolute inset-0 z-10 flex items-center justify-center bg-black/65 hover:bg-black/75 transition-colors"
                           >
                             <div className="text-center px-3">
                               <p className="text-white font-black text-3xl leading-none tracking-wide">WEB ONLY</p>
@@ -3518,11 +3518,11 @@ const SearchPage = () => {
                           </a>
                         )}
                         {business.wtuce_status === "verified" && (
-                          <div className="absolute top-2 right-2 z-0">
+                          <div className="absolute top-2 right-2 z-30">
                             <img src={logoGold} alt="Vérifié" className="w-12 h-12 object-contain" />
                           </div>
                         )}
-                        <div className="absolute top-2 left-2 flex flex-wrap gap-1">
+                        <div className="absolute top-2 left-2 z-30 flex flex-wrap gap-1">
                           {subcat && (
                             <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-gold text-gold-foreground">
                               {subcat}
