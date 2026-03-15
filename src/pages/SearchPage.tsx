@@ -2256,14 +2256,10 @@ const SearchPage = () => {
                     aiAnswerText,
                     allBusinesses as unknown as AIBusinessData[],
                     (b: AIBusinessData) => {
-                      if (isSubDesktop) {
-                        setShowAiPopup(false);
-                        setOverlaySelectedBusiness(null);
-                        setCompactPanelBusiness(b);
-                        setIsCompactPanelExpanded(false);
-                        return;
-                      }
-                      setOverlaySelectedBusiness(b);
+                      setShowAiPopup(false);
+                      setOverlaySelectedBusiness(null);
+                      setCompactPanelBusiness(b);
+                      setIsCompactPanelExpanded(false);
                     },
                     "ai-popup",
                     isTTSActive
