@@ -354,7 +354,7 @@ const BusinessCard = ({
           {/* Web Only overlay */}
           {isWebOnly && (
             <a
-              href={business.online_shop_url!.startsWith('http') ? business.online_shop_url! : `https://${business.online_shop_url}`}
+              href={webOnlyUrl!.startsWith('http') ? webOnlyUrl! : `https://${webOnlyUrl}`}
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
