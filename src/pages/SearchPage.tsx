@@ -2782,8 +2782,16 @@ const SearchPage = () => {
                 cityCenter={(() => {
                   const effectiveCity = selectedCity && selectedCity !== "all" ? selectedCity : detectedCity;
                   if (!effectiveCity) return null;
-                  const city = citiesWithPriority.find(c => c.name === effectiveCity);
-                  if (city?.latitude && city?.longitude) return { lat: city.latitude, lng: city.longitude };
+                  const normalizedCity = normalizeText(effectiveCity);
+                  const city = citiesWithPriority.find(c => normalizeText(c.name) === normalizedCity);
+                  if (city?.latitude != null && city?.longitude != null) {
+                    return { lat: city.latitude, lng: city.longitude };
+                  }
+                  const fallbackBusiness = filteredBusinesses.find((b) => {
+                    if (b.latitude == null || b.longitude == null || !b.city) return false;
+                    return normalizeText(b.city) === normalizedCity;
+                  });
+                  if (fallbackBusiness) return { lat: fallbackBusiness.latitude!, lng: fallbackBusiness.longitude! };
                   return null;
                 })()}
                 neighborhoodCenter={neighborhoodCoords}
