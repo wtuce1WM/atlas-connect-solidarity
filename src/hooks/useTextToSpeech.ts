@@ -359,7 +359,8 @@ export function useTextToSpeech(options?: { onEnd?: () => void }) {
       for (let i = 0; i < event.results.length; i++) {
         const text = event.results[i][0].transcript.toLowerCase().trim();
         if (STOP_WORDS.some(w => text.includes(w))) {
-          pause();
+          console.log("[TTS] Voice stop command detected:", text);
+          stop();
           return;
         }
         if (RESUME_WORDS.some(w => text.includes(w))) {
