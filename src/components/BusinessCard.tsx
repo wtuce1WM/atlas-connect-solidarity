@@ -176,10 +176,18 @@ const BusinessCard = ({
   const totalReviews = getCardTotalReviewCount(business);
   const isSelected = selectedBusinessId === business.id;
   const hasMapData = business.google_maps_url || (business.latitude && business.longitude);
+  const hasEngagement = (target: string) =>
+    (business.engagements || []).some((entry) => {
+      const normalized = entry.toLowerCase().trim();
+      const needle = target.toLowerCase();
+      return normalized === needle || normalized === `logistique:${needle}` || normalized.endsWith(`:${needle}`);
+    });
+
+  const webOnlyUrl = business.online_shop_url || business.website || null;
   const isWebOnly = !!(
-    (business.engagements?.includes("Commandez en ligne et recevez votre colis chez vous") || business.engagements?.includes("Logistique:Commandez en ligne et recevez votre colis chez vous")) &&
-    (business.engagements?.includes("Web only") || business.engagements?.includes("Logistique:Web only")) &&
-    business.online_shop_url
+    hasEngagement("Commandez en ligne et recevez votre colis chez vous") &&
+    hasEngagement("Web only") &&
+    webOnlyUrl
   );
   const businessImage = getBusinessImage(business);
 
@@ -346,7 +354,7 @@ const BusinessCard = ({
           {/* Web Only overlay */}
           {isWebOnly && (
             <a
-              href={business.online_shop_url!.startsWith('http') ? business.online_shop_url! : `https://${business.online_shop_url}`}
+              href={webOnlyUrl!.startsWith('http') ? webOnlyUrl! : `https://${webOnlyUrl}`}
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
