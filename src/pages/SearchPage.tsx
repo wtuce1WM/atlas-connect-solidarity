@@ -1098,9 +1098,15 @@ const SearchPage = () => {
   };
 
   // Filter businesses by city. Include businesses that cover the city via zone_city_ids.
+  const findCityByName = (cityName?: string | null) => {
+    if (!cityName) return null;
+    const normalizedTarget = normalizeText(cityName);
+    return citiesWithPriority.find((c) => normalizeText(c.name) === normalizedTarget) || null;
+  };
+
   const selectedCityId = useMemo(() => {
     if (!selectedCity || selectedCity === "all") return null;
-    return citiesWithPriority.find(c => c.name === selectedCity)?.id || null;
+    return findCityByName(selectedCity)?.id || null;
   }, [selectedCity, citiesWithPriority]);
 
   // Detect if we have a known city or neighborhood for the split map layout
@@ -1110,11 +1116,21 @@ const SearchPage = () => {
   const mapCenterForResults = useMemo(() => {
     if (neighborhoodCoords) return neighborhoodCoords;
     if (effectiveCityForMap) {
-      const city = citiesWithPriority.find(c => c.name === effectiveCityForMap);
-      if (city?.latitude && city?.longitude) return { lat: city.latitude, lng: city.longitude };
+      const city = findCityByName(effectiveCityForMap);
+      if (city?.latitude != null && city?.longitude != null) {
+        return { lat: city.latitude, lng: city.longitude };
+      }
+
+      const fallbackBusiness = allBusinesses.find((b) => {
+        if (b.latitude == null || b.longitude == null || !b.city) return false;
+        return normalizeText(b.city) === normalizeText(effectiveCityForMap);
+      });
+      if (fallbackBusiness) {
+        return { lat: fallbackBusiness.latitude!, lng: fallbackBusiness.longitude! };
+      }
     }
     return undefined;
-  }, [effectiveCityForMap, neighborhoodCoords, citiesWithPriority]);
+  }, [effectiveCityForMap, neighborhoodCoords, citiesWithPriority, allBusinesses]);
 
   const filteredBusinesses = useMemo(() => {
     // When a service filter is manually selected, use the direct DB results as the base
@@ -1236,8 +1252,8 @@ const SearchPage = () => {
           const dist = haversine(center.lat, center.lng, b.latitude, b.longitude);
           if (dist > maxRadiusKm) return false;
         } else if (effectiveCity) {
-          // Fallback: if center coords not yet loaded, filter by city name
-          if (b.city !== effectiveCity) return false;
+          // Fallback: if center coords not yet loaded, filter by city name (accent/case insensitive)
+          if (!b.city || normalizeText(b.city) !== normalizeText(effectiveCity)) return false;
         }
         return true;
       })
@@ -2766,8 +2782,16 @@ const SearchPage = () => {
                 cityCenter={(() => {
                   const effectiveCity = selectedCity && selectedCity !== "all" ? selectedCity : detectedCity;
                   if (!effectiveCity) return null;
-                  const city = citiesWithPriority.find(c => c.name === effectiveCity);
-                  if (city?.latitude && city?.longitude) return { lat: city.latitude, lng: city.longitude };
+                  const normalizedCity = normalizeText(effectiveCity);
+                  const city = citiesWithPriority.find(c => normalizeText(c.name) === normalizedCity);
+                  if (city?.latitude != null && city?.longitude != null) {
+                    return { lat: city.latitude, lng: city.longitude };
+                  }
+                  const fallbackBusiness = filteredBusinesses.find((b) => {
+                    if (b.latitude == null || b.longitude == null || !b.city) return false;
+                    return normalizeText(b.city) === normalizedCity;
+                  });
+                  if (fallbackBusiness) return { lat: fallbackBusiness.latitude!, lng: fallbackBusiness.longitude! };
                   return null;
                 })()}
                 neighborhoodCenter={neighborhoodCoords}
