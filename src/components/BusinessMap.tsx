@@ -335,6 +335,12 @@ const BusinessMap = ({
     };
   }, [gmapsReady]);
 
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    map.setOptions({ fullscreenControl: false });
+  }, [gmapsReady]);
+
   // Update markers when businesses change
   useEffect(() => {
     const map = mapRef.current;
