@@ -273,8 +273,24 @@ const LocationPickerDialog = ({
       mapRef.current?.setCenter(coords);
       mapRef.current?.setZoom(14);
     } else {
-      // Coords not yet available (geolocation in progress), wait for them
+      // Coords not yet available — directly request browser geolocation
+      // (handles the case where isEnabled is already true but coords are null)
       setWaitingForPosition(true);
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const pos = { lat: position.coords.latitude, lng: position.coords.longitude };
+          setSelectedCoords(pos);
+          placeMarker(pos);
+          mapRef.current?.setCenter(pos);
+          mapRef.current?.setZoom(14);
+          reverseGeocode(pos);
+          setWaitingForPosition(false);
+        },
+        () => {
+          setWaitingForPosition(false);
+        },
+        { enableHighAccuracy: false, timeout: 10000 }
+      );
     }
   };
 
