@@ -1953,7 +1953,7 @@ serve(async (req) => {
     // Flag hoisted outside block scope so it's accessible at response construction
     let serviceWasDetected = false;
 
-    if (!serviceShortcutActivated) {
+    if (!serviceShortcutActivated && !labelShortcutActivated) {
     // ── Pre-detect matching service(s) from query keywords ──
     let detectedService: string | null = null;
     let detectedServices: string[] = []; // ALL fully-matched services (distinct concepts → AND)
