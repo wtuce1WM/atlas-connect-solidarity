@@ -837,6 +837,55 @@ serve(async (req) => {
       }
     }
 
+    // ── Label detection: match query against label names (e.g. "Relais & Châteaux") ──
+    let labelShortcutActivated = false;
+    if (effectiveQuery && !isAutocomplete) {
+      const qLowerLabel = stripAccentsGlobal(effectiveQuery.toLowerCase().replace(/&/g, "et").replace(/\s+/g, " ").trim());
+      const { data: matchedLabels } = await supabase
+        .from("labels")
+        .select("id, name_fr, name_en, name_ar");
+      if (matchedLabels && matchedLabels.length > 0) {
+        const matchedLabel = matchedLabels.find((l: any) => {
+          for (const name of [l.name_fr, l.name_en, l.name_ar].filter(Boolean)) {
+            const normalized = stripAccentsGlobal(name.toLowerCase().replace(/&/g, "et").replace(/\s+/g, " ").trim());
+            if (normalized === qLowerLabel || qLowerLabel === normalized) return true;
+          }
+          return false;
+        });
+        if (matchedLabel) {
+          console.log(`🏷️ LABEL match: "${matchedLabel.name_fr}" (id: ${matchedLabel.id})`);
+          const { data: labelLinks } = await supabase
+            .from("business_labels")
+            .select("business_id")
+            .eq("label_id", matchedLabel.id);
+          if (labelLinks && labelLinks.length > 0) {
+            const businessIds = labelLinks.map((l: any) => l.business_id);
+            let labelBuilder = supabase
+              .from("businesses")
+              .select("*")
+              .eq("is_active", true)
+              .in("id", businessIds);
+            if (effectiveCity) labelBuilder = applyCityFilter(labelBuilder);
+            labelBuilder = labelBuilder
+              .order("wtuce_status", { ascending: true })
+              .order("priority_score", { ascending: false })
+              .limit(limit);
+            const { data: labelBusinesses, error: labelError } = await labelBuilder;
+            if (!labelError && labelBusinesses && labelBusinesses.length > 0) {
+              businesses = labelBusinesses.map((b: any) => ({
+                ...b,
+                distance_km: latitude && longitude && b.latitude && b.longitude
+                  ? calculateDistance(latitude, longitude, b.latitude, b.longitude) : null,
+              }));
+              searchLevel = "exact";
+              labelShortcutActivated = true;
+              console.log(`🏷️ Label shortcut: ${businesses.length} businesses for label "${matchedLabel.name_fr}"`);
+            }
+          }
+        }
+      }
+    }
+
     // ── Subcategory detection always runs (no longer skipped by name matches) ──
     let detectedSubcategory: string | null = null;
     let detectedSubcategoryIsReal = false;
