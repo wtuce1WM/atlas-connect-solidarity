@@ -845,10 +845,15 @@ serve(async (req) => {
         .from("labels")
         .select("id, name_fr, name_en, name_ar");
       if (matchedLabels && matchedLabels.length > 0) {
-        const matchedLabel = matchedLabels.find((l: any) => {
+        // Sort labels by name length DESC so longer names match first
+        const sortedLabels = [...matchedLabels].sort((a: any, b: any) => 
+          (b.name_fr?.length || 0) - (a.name_fr?.length || 0)
+        );
+        const matchedLabel = sortedLabels.find((l: any) => {
           for (const name of [l.name_fr, l.name_en, l.name_ar].filter(Boolean)) {
             const normalized = stripAccentsGlobal(name.toLowerCase().replace(/&/g, "et").replace(/\s+/g, " ").trim());
-            if (normalized === qLowerLabel || qLowerLabel === normalized) return true;
+            // Exact match OR label name contained in query (e.g. "relais et chateaux essaouira" contains "relais et chateaux")
+            if (normalized === qLowerLabel || qLowerLabel.includes(normalized)) return true;
           }
           return false;
         });
