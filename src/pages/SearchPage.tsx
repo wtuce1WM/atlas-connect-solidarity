@@ -3399,7 +3399,6 @@ const SearchPage = () => {
             </div>
           ) : filteredBusinesses.length === 0 && !showZitounEasterEgg && !showCelebrityGuide && !showSosMedecin && !showPompiers ? (
             <div className="text-center py-16 relative">
-              <span className="absolute top-0 left-1 z-[60] bg-purple-600 text-white text-[10px] font-bold px-2 py-0.5 rounded select-all cursor-text">🟣 ZONE EMPTY STATE</span>
               <Building2 className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
               <p className="text-xl text-muted-foreground mb-2">{t.noResults}</p>
               <p className="text-sm text-muted-foreground">{t.tryAnother}</p>

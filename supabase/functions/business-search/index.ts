@@ -3847,6 +3847,75 @@ serve(async (req) => {
       searchLevel = "exact";
     }
 
+    // ── Intent category + city fallback ──
+    // When FTS returned results but NONE match the detected city, and we have an intent category,
+    // fall back to showing all businesses of that category in the detected city.
+    // Example: "dormir face au coucher de soleil à essaouira" → FTS matches random businesses,
+    // but none are in Essaouira → fetch all "Hôtellerie" businesses in Essaouira instead.
+    if (businesses.length > 0 && effectiveCity && intentCategory && !detectedSubcategory) {
+      const cityLower = effectiveCity.toLowerCase();
+      const hasAnyInCity = businesses.some((b: any) => {
+        if ((b.city || "").toLowerCase() === cityLower) return true;
+        if (effectiveCityId && b.zone_city_ids?.includes(effectiveCityId) && b.is_visible_locale) return true;
+        return false;
+      });
+      if (!hasAnyInCity) {
+        console.log(`Intent+city fallback: FTS returned ${businesses.length} results but NONE in "${effectiveCity}" — fetching by category "${intentCategory}"`);
+        let catCityBuilder = supabase.from("businesses").select("*").eq("is_active", true);
+        catCityBuilder = applyCityFilter(catCityBuilder);
+        // Apply all intent categories if multiple
+        if (effectiveCategories.length > 1) {
+          const catOrClauses = effectiveCategories.map(c => `main_category.eq.${c},categories.cs.{"${c}"}`).join(",");
+          catCityBuilder = catCityBuilder.or(catOrClauses);
+        } else {
+          catCityBuilder = catCityBuilder.or(`main_category.eq.${intentCategory},categories.cs.{"${intentCategory}"}`);
+        }
+        catCityBuilder = catCityBuilder
+          .order("wtuce_status", { ascending: true })
+          .order("google_rating", { ascending: false, nullsFirst: false })
+          .order("priority_score", { ascending: false })
+          .limit(limit);
+        const { data: catCityData, error: catCityError } = await catCityBuilder;
+        if (!catCityError && catCityData && catCityData.length > 0) {
+          businesses = catCityData.map((b: any) => ({
+            ...b,
+            distance_km: latitude && longitude && b.latitude && b.longitude
+              ? calculateDistance(latitude, longitude, b.latitude, b.longitude) : null,
+          }));
+          searchLevel = "exact";
+          console.log(`Intent+city fallback: ${businesses.length} results for "${intentCategory}" in "${effectiveCity}"`);
+        }
+      }
+    }
+
+    // Also handle when FTS returned 0 results with intent category + city
+    if (businesses.length === 0 && effectiveCity && intentCategory) {
+      console.log(`Intent+city fallback (0 results): fetching by category "${intentCategory}" in "${effectiveCity}"`);
+      let catCityBuilder = supabase.from("businesses").select("*").eq("is_active", true);
+      catCityBuilder = applyCityFilter(catCityBuilder);
+      if (effectiveCategories.length > 1) {
+        const catOrClauses = effectiveCategories.map(c => `main_category.eq.${c},categories.cs.{"${c}"}`).join(",");
+        catCityBuilder = catCityBuilder.or(catOrClauses);
+      } else {
+        catCityBuilder = catCityBuilder.or(`main_category.eq.${intentCategory},categories.cs.{"${intentCategory}"}`);
+      }
+      catCityBuilder = catCityBuilder
+        .order("wtuce_status", { ascending: true })
+        .order("google_rating", { ascending: false, nullsFirst: false })
+        .order("priority_score", { ascending: false })
+        .limit(limit);
+      const { data: catCityData, error: catCityError } = await catCityBuilder;
+      if (!catCityError && catCityData && catCityData.length > 0) {
+        businesses = catCityData.map((b: any) => ({
+          ...b,
+          distance_km: latitude && longitude && b.latitude && b.longitude
+            ? calculateDistance(latitude, longitude, b.latitude, b.longitude) : null,
+        }));
+        searchLevel = "exact";
+        console.log(`Intent+city fallback (0 results): ${businesses.length} results`);
+      }
+    }
+
     // Level 2: Fuzzy search with trigram similarity
     if (businesses.length === 0 && effectiveQuery) {
       let fuzzyBuilder = supabase
