@@ -895,7 +895,7 @@ serve(async (req) => {
     let detectedSubcategory: string | null = null;
     let detectedSubcategoryIsReal = false;
     let subcategoryParentCategory: string | null = null;
-    if (effectiveQuery) {
+    if (effectiveQuery && !labelShortcutActivated) {
       const qLower = effectiveQuery.toLowerCase();
       const qWords = qLower.split(/\s+/);
 
