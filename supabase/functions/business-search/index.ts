@@ -4463,7 +4463,7 @@ serve(async (req) => {
     const synonymWasUsed = matchedSynonymFilters.length > 0 || !!matchedSynonymBadgeId;
     // preciseMatch: true when the search was driven by a synonym or a detected service/keyword
     // This tells the frontend NOT to run the extra category fetch that would dilute precise results
-    const preciseMatch = synonymWasUsed || serviceWasDetected || serviceShortcutActivated;
+    const preciseMatch = synonymWasUsed || serviceWasDetected || serviceShortcutActivated || labelShortcutActivated;
     const result: SearchResult = {
       businesses,
       searchLevel,
