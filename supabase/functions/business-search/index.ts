@@ -4405,7 +4405,7 @@ serve(async (req) => {
         console.warn("Destination enrichment failed:", e);
       }
     }
-    } // end if (!serviceShortcutActivated)
+    } // end if (!serviceShortcutActivated && !labelShortcutActivated)
 
     // In multi-intent mode, keep only businesses that belong to one of the detected intent categories
     // (prevents broad fallback/service merges from leaking unrelated categories)
