@@ -1315,6 +1315,30 @@ serve(async (req) => {
       console.log(`Intent category "${intentCategory}" overrides URL category "${category}"`);
     }
 
+    // ── Guard: clear LLM-injected subcategory when intent maps to parent category ──
+    // If the LLM rewrote the query and introduced a subcategory name that wasn't in the
+    // original user query, and an intent word was detected, clear the subcategory lock
+    // so ALL subcategories of the intent category are returned.
+    // Example: user says "dormir face au coucher de soleil à essaouira"
+    //   → LLM extracts "hôtel mer vue Essaouira" (injecting "hôtel")
+    //   → "Hôtel" subcategory auto-detected, but user never said "hôtel"
+    //   → clear lock so Riads, Maisons d'hôtes etc. also appear
+    if (detectedSubcategory && intentCategory && effectiveQuery !== query) {
+      const originalLower = query.toLowerCase();
+      const subcatLower = detectedSubcategory.toLowerCase();
+      const subcatWords = subcatLower.split(/[\s/]+/).filter((w: string) => w.length > 2);
+      const originalWords = originalLower.split(/\s+/);
+      const subcatInOriginal = subcatWords.some((sw: string) =>
+        originalWords.some((ow: string) => ow === sw || stripAccentsGlobal(ow) === stripAccentsGlobal(sw))
+      );
+      if (!subcatInOriginal) {
+        console.log(`Clearing LLM-injected subcategory "${detectedSubcategory}" — not present in original query "${query}"`);
+        detectedSubcategory = null;
+        detectedSubcategoryIsReal = false;
+        subcategoryParentCategory = null;
+      }
+    }
+
     // ── Detect category-subcategory conflict ──
     // When the effective category (from intent OR explicit URL param) conflicts with detected subcategory's parent,
     // try to find a better subcategory under the target category, or merge results from both
