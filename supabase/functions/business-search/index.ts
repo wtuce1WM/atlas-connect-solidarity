@@ -4281,6 +4281,7 @@ serve(async (req) => {
       const lightResults = businesses.slice(0, limit).map(b => ({
         id: b.id,
         name: b.name,
+        slug: (b as any).slug || null,
         city: b.city,
         main_category: b.main_category,
         logo_url: b.logo_url,
