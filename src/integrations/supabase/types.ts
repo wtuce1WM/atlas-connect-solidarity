@@ -2588,6 +2588,27 @@ export type Database = {
         }
         Relationships: []
       }
+      staff_user_notes: {
+        Row: {
+          content: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       subcategories: {
         Row: {
           adj_ar: string | null
