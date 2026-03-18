@@ -362,7 +362,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
             {bookmarks.map((bk) => (
               <div key={bk.id} className="rounded-lg border bg-background overflow-hidden">
                 <div className="flex items-center justify-between p-3">
-                  <Link to={`/business/${bk.business_id}`} className="flex-1 min-w-0 hover:underline">
+                  <Link to={businessUrl({ id: bk.business_id, slug: bk.slug })} className="flex-1 min-w-0 hover:underline">
                     <p className="font-medium text-sm truncate">{bk.name}</p>
                     <p className="text-xs text-muted-foreground">{[bk.city, bk.main_category].filter(Boolean).join(" · ")}</p>
                   </Link>
