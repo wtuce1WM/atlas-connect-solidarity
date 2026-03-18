@@ -13,6 +13,7 @@ import { Loader2, Search, Hotel, Star, MapPin, Calendar, Users, BedDouble } from
 import { toast } from "sonner";
 import HotelDetailDialog, { type HotelResult } from "@/components/HotelDetailDialog";
 import BusinessSlidePanel, { type LiteApiData } from "@/components/BusinessSlidePanel";
+import { useSEO } from "@/hooks/useSEO";
 
 // HotelOffer type is now in HotelDetailDialog
 
