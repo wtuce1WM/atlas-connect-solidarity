@@ -1,7 +1,13 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { useSEO } from "@/hooks/useSEO";
 
 const CGF = () => {
+  useSEO({
+    title: "Conditions Générales de Fonctionnement",
+    description: "Conditions générales de fonctionnement de la plateforme ONE WORLD MOROCCO.",
+    canonical: "/cgf",
+  });
   return (
     <div className="min-h-screen bg-background">
       <Header />

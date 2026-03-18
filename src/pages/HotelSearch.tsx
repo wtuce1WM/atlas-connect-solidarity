@@ -13,6 +13,7 @@ import { Loader2, Search, Hotel, Star, MapPin, Calendar, Users, BedDouble } from
 import { toast } from "sonner";
 import HotelDetailDialog, { type HotelResult } from "@/components/HotelDetailDialog";
 import BusinessSlidePanel, { type LiteApiData } from "@/components/BusinessSlidePanel";
+import { useSEO } from "@/hooks/useSEO";
 
 // HotelOffer type is now in HotelDetailDialog
 
@@ -32,6 +33,12 @@ const MOROCCAN_CITIES = [
 const HotelSearch = () => {
   const { language } = useLanguage();
   const [searchParams] = useSearchParams();
+
+  useSEO({
+    title: "Recherche d'hôtels au Maroc",
+    description: "Comparez et réservez les meilleurs hôtels au Maroc.",
+    canonical: "/hotel-search",
+  });
 
   // Resolve initial city from URL param (city name → code)
   const initialCityCode = useMemo(() => {

@@ -1,5 +1,6 @@
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { useEffect, useState, useMemo } from "react";
+import { useSEO } from "@/hooks/useSEO";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -100,7 +101,12 @@ const CategoryPage = () => {
 
   const decodedCategoryName = categoryName ? decodeURIComponent(categoryName) : "";
 
-  // Get cities available in this category, sorted by priority score
+  useSEO({
+    title: decodedCategoryName ? `${decodedCategoryName} au Maroc` : "Catégorie",
+    description: decodedCategoryName ? `Trouvez les meilleurs établissements de la catégorie ${decodedCategoryName} au Maroc. Adresses sélectionnées par ONE WORLD MOROCCO.` : undefined,
+    canonical: categoryName ? `/category/${categoryName}` : undefined,
+  });
+
   const availableCities = useMemo(() => {
     const businessCities = new Set(allBusinesses.map(b => b.city));
     // Filter cities that have businesses, then sort by priority

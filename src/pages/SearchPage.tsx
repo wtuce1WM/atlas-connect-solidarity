@@ -1,6 +1,7 @@
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import SearchInput from "@/components/SearchInput";
 import { useEffect, useState, useMemo, useCallback, useRef } from "react";
+import { useSEO } from "@/hooks/useSEO";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
@@ -406,6 +407,12 @@ const SearchPage = () => {
   const [isGeoCityAutoSelected, setIsGeoCityAutoSelected] = useState(false);
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
   const [inputValue, setInputValue] = useState(searchParams.get("q") || "");
+
+  useSEO({
+    title: searchQuery ? `Recherche : ${searchQuery}` : "Recherche",
+    description: searchQuery ? `Résultats de recherche pour « ${searchQuery} » au Maroc. Trouvez les meilleures adresses sur ONE WORLD MOROCCO.` : "Recherchez parmi les meilleures adresses au Maroc.",
+    canonical: "/search",
+  });
 
   // Sync searchQuery & inputValue when URL params change (e.g. same query re-submitted with _t)
   const urlQ = searchParams.get("q") || "";

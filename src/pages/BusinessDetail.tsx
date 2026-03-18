@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
+import { useSEO } from "@/hooks/useSEO";
 import { collectRatingSources, computeWeightedRatingOn20, computeWeightedRatingOn5 } from "@/lib/ratingUtils";
 import { DescriptionExpander } from "@/components/DescriptionExpander";
 import { useParams, Link, Navigate, useNavigate } from "react-router-dom";
@@ -396,7 +397,40 @@ const BusinessDetail = () => {
     fetchBusiness();
   }, [routeSlug]);
 
-  // Check which categories have other businesses in the same city
+  // SEO
+  const seoDescription = useMemo(() => {
+    if (!business) return "";
+    const plain = business.description?.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim() ?? "";
+    const cat = business.categories?.filter(c => c && c !== "?").join(", ") ?? "";
+    return `${business.name}${business.city ? ` à ${business.city}` : ""}${cat ? ` – ${cat}` : ""}. ${plain}`.slice(0, 160);
+  }, [business]);
+
+  const seoJsonLd = useMemo(() => {
+    if (!business) return undefined;
+    const ld: Record<string, unknown> = {
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      name: business.name,
+      ...(business.description && { description: business.description.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 300) }),
+      ...(business.address && { address: { "@type": "PostalAddress", streetAddress: business.address, addressLocality: business.city } }),
+      ...(business.phone && { telephone: business.phone }),
+      ...(business.website && { url: business.website }),
+      ...(business.latitude && business.longitude && { geo: { "@type": "GeoCoordinates", latitude: business.latitude, longitude: business.longitude } }),
+      ...(business.images?.[0] && { image: business.images[0] }),
+    };
+    if (business.google_rating) {
+      ld.aggregateRating = { "@type": "AggregateRating", ratingValue: business.google_rating, bestRating: 5, reviewCount: business.google_review_count ?? 1 };
+    }
+    return ld;
+  }, [business]);
+
+  useSEO({
+    title: business ? `${business.name}${business.city ? ` – ${business.city}` : ""}` : "Chargement…",
+    description: seoDescription || undefined,
+    canonical: business ? `/business/${(business as any).slug || business.id}` : undefined,
+    jsonLd: seoJsonLd,
+  });
+
   useEffect(() => {
     const checkCategories = async () => {
       if (!business?.categories) {

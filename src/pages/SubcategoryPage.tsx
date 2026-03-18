@@ -1,5 +1,6 @@
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect, useState, useMemo } from "react";
+import { useSEO } from "@/hooks/useSEO";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -108,8 +109,14 @@ const SubcategoryPage = () => {
   const [subcategoryServices, setSubcategoryServices] = useState<string[] | null>(null);
 
   const decodedSubcategoryName = subcategoryName ? decodeURIComponent(subcategoryName) : "";
+  const cityFromUrl = searchParams.get("city");
 
-  // Available cities
+  useSEO({
+    title: decodedSubcategoryName ? `${decodedSubcategoryName}${cityFromUrl ? ` à ${cityFromUrl}` : ""} au Maroc` : "Sous-catégorie",
+    description: decodedSubcategoryName ? `Les meilleurs ${decodedSubcategoryName.toLowerCase()}${cityFromUrl ? ` à ${cityFromUrl}` : " au Maroc"}. Adresses sélectionnées par ONE WORLD MOROCCO.` : undefined,
+    canonical: subcategoryName ? `/subcategory/${subcategoryName}${cityFromUrl ? `?city=${encodeURIComponent(cityFromUrl)}` : ""}` : undefined,
+  });
+
   const availableCities = useMemo(() => {
     const businessCities = new Set(allBusinesses.map(b => b.city));
     return citiesWithPriority

@@ -9,11 +9,18 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useSEO } from "@/hooks/useSEO";
 
 const BecomeAffiliate = () => {
   const { language } = useLanguage();
   const { toast } = useToast();
   const [formLoading, setFormLoading] = useState(false);
+
+  useSEO({
+    title: "Devenir affilié",
+    description: "Rejoignez le réseau ONE WORLD MOROCCO en tant qu'affilié et augmentez votre visibilité auprès des voyageurs.",
+    canonical: "/become-affiliate",
+  });
 
   const translations = {
     fr: {

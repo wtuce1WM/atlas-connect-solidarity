@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSEO } from "@/hooks/useSEO";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -45,6 +46,19 @@ const BlogPost = () => {
     };
     fetchPost();
   }, [slug]);
+
+  const postTitle = (() => {
+    if (!post) return "";
+    if (language === "ar" && post.title_ar) return post.title_ar;
+    if (language === "en" && post.title_en) return post.title_en;
+    return post.title_fr;
+  })();
+
+  useSEO({
+    title: postTitle || "Article",
+    description: postTitle ? `${postTitle} – Blog ONE WORLD MOROCCO.` : undefined,
+    canonical: slug ? `/blog/${slug}` : undefined,
+  });
 
   const getTitle = () => {
     if (!post) return "";

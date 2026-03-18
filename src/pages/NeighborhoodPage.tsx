@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
+import { useSEO } from "@/hooks/useSEO";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
 import { useParams, useNavigate, useSearchParams, Link } from "react-router-dom";
 import { ArrowLeft, Loader2, MapPin, ChevronLeft, ChevronRight, X, Phone, SlidersHorizontal } from "lucide-react";
@@ -84,6 +85,12 @@ const NeighborhoodPage = () => {
 
   const decodedNeighborhood = neighborhood ? decodeURIComponent(neighborhood) : "";
   const cityParam = searchParams.get("city") ? decodeURIComponent(searchParams.get("city")!) : "";
+
+  useSEO({
+    title: decodedNeighborhood ? `${decodedNeighborhood}${cityParam ? ` – ${cityParam}` : ""}` : "Quartier",
+    description: decodedNeighborhood ? `Les meilleures adresses du quartier ${decodedNeighborhood}${cityParam ? ` à ${cityParam}` : ""}. Guide ONE WORLD MOROCCO.` : undefined,
+    canonical: neighborhood ? `/neighborhood/${neighborhood}${cityParam ? `?city=${encodeURIComponent(cityParam)}` : ""}` : undefined,
+  });
 
   const availableCategories = useMemo(() => {
     const categories = new Set<string>();

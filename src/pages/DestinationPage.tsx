@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState, useMemo } from "react";
+import { useSEO } from "@/hooks/useSEO";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -63,6 +64,12 @@ const DestinationPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   const decodedName = destinationName ? decodeURIComponent(destinationName) : "";
+
+  useSEO({
+    title: decodedName ? `${decodedName} – Destination` : "Destination",
+    description: decodedName ? `Découvrez les meilleures adresses à ${decodedName}. Guide sélectionné par ONE WORLD MOROCCO.` : undefined,
+    canonical: destinationName ? `/destination/${destinationName}` : undefined,
+  });
 
   const getEffectiveRating = (b: Business): number | null => {
     if (b.rating) return Number(b.rating);

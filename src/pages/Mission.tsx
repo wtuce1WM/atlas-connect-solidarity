@@ -1,11 +1,16 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ShareButton from "@/components/ShareButton";
-
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useSEO } from "@/hooks/useSEO";
 
 const Mission = () => {
   const { t } = useLanguage();
+  useSEO({
+    title: "Notre mission – L'excellence éthique au meilleur prix",
+    description: "Découvrez la mission de ONE WORLD MOROCCO : promouvoir l'excellence éthique et les meilleures adresses au Maroc.",
+    canonical: "/mission",
+  });
 
   return (
     <div className="min-h-screen bg-background">

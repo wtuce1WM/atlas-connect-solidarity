@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSEO } from "@/hooks/useSEO";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -28,6 +29,12 @@ const Blog = () => {
   const { language, t } = useLanguage();
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  useSEO({
+    title: "Blog – Actualités et guides",
+    description: "Articles, guides et actualités sur le Maroc par ONE WORLD MOROCCO.",
+    canonical: "/blog",
+  });
 
   useEffect(() => {
     const fetchPosts = async () => {

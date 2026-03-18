@@ -1,10 +1,15 @@
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 import DynamicLabelSections from "@/components/DynamicLabelSections";
-
 import Footer from "@/components/Footer";
+import { useSEO } from "@/hooks/useSEO";
 
 const Index = () => {
+  useSEO({
+    title: "ONE WORLD MOROCCO – Les meilleures adresses au Maroc",
+    description: "Découvrez les meilleures adresses au Maroc : hôtels, restaurants, activités et services sélectionnés par ONE WORLD MOROCCO.",
+    canonical: "/",
+  });
   return (
     <div className="min-h-screen bg-white relative overflow-hidden">
       <Header />

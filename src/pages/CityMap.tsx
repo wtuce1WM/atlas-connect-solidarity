@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
+import { useSEO } from "@/hooks/useSEO";
 import { collectRatingSources, computeWeightedRatingOn20, getTotalReviewCount } from "@/lib/ratingUtils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useParams, Link, useSearchParams, useNavigate } from "react-router-dom";
@@ -104,12 +105,18 @@ const CityMap = () => {
   const [sortByReviews, setSortByReviews] = useState<"none" | "desc" | "asc">("none");
   const [currentPage, setCurrentPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
+  const decodedCity = city ? decodeURIComponent(city) : "";
+
+  useSEO({
+    title: decodedCity ? `${decodedCity} – Guide des meilleures adresses` : "Ville",
+    description: decodedCity ? `Explorez les meilleurs hôtels, restaurants, activités et services à ${decodedCity}. Guide ONE WORLD MOROCCO.` : undefined,
+    canonical: city ? `/city/${city}` : undefined,
+  });
   const isMobile = useIsMobile();
 
   const ITEMS_PER_PAGE = 20;
 
-  const decodedCity = city ? decodeURIComponent(city) : "";
-  
+
   // Initialize selectedActivities from URL parameter on mount
   useEffect(() => {
     const serviceParam = searchParams.get("service");
