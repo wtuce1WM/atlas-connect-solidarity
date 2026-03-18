@@ -19,7 +19,7 @@ export function useSEO({ title, description, canonical, jsonLd }: SEOOptions) {
   useEffect(() => {
     // Title
     const prevTitle = document.title;
-    document.title = title.includes(SITE_NAME) ? title : `${title} | ${SITE_NAME}`;
+    document.title = title.includes(SITE_NAME) ? `${title} – ${SITE_TAGLINE}` : `${title} | ${SITE_NAME} – ${SITE_TAGLINE}`;
 
     // Meta description
     let metaDesc = document.querySelector('meta[name="description"]') as HTMLMetaElement | null;
