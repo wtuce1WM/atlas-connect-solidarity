@@ -33,7 +33,7 @@ const LogoCSSSpinner = ({ className = "w-64 h-64", replayKey }: LogoCSSSpinnerPr
           <div
             className="absolute inset-0"
             style={{
-              background: "linear-gradient(105deg, transparent 30%, hsla(43,80%,75%,0.45) 45%, hsla(0,0%,100%,0.5) 50%, hsla(43,80%,75%,0.45) 55%, transparent 70%)",
+              background: "linear-gradient(105deg, transparent 30%, hsla(210,10%,85%,0.5) 45%, hsla(0,0%,100%,0.65) 50%, hsla(210,10%,85%,0.5) 55%, transparent 70%)",
               animation: "shineSwipe 3s ease-in-out 1.5s infinite",
             }}
           />
