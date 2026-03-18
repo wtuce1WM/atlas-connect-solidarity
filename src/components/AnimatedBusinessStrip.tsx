@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
+import { businessUrl } from "@/lib/businessUrl";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Phone, Globe, MapPin, Map, Crown, Star, MessageCircle } from "lucide-react";
