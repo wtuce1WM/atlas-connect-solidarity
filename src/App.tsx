@@ -127,6 +127,7 @@ const AppContent = () => {
               <Route path="/blog/ai-effects" element={<Suspense fallback={null}><AIEffectsDemo /></Suspense>} />
               <Route path="/blog/icon-preview" element={<IconPreview />} />
               <Route path="/blog/presentation" element={<BlogPresentation />} />
+              <Route path="/blog/presentation-fr" element={<BlogPresentationFR />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
