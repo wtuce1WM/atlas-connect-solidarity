@@ -408,6 +408,12 @@ const SearchPage = () => {
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
   const [inputValue, setInputValue] = useState(searchParams.get("q") || "");
 
+  useSEO({
+    title: searchQuery ? `Recherche : ${searchQuery}` : "Recherche",
+    description: searchQuery ? `Résultats de recherche pour « ${searchQuery} » au Maroc. Trouvez les meilleures adresses sur ONE WORLD MOROCCO.` : "Recherchez parmi les meilleures adresses au Maroc.",
+    canonical: "/search",
+  });
+
   // Sync searchQuery & inputValue when URL params change (e.g. same query re-submitted with _t)
   const urlQ = searchParams.get("q") || "";
   const urlT = searchParams.get("_t") || "";
