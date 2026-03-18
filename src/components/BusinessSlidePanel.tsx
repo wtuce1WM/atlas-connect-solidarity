@@ -1213,11 +1213,21 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                     <span className="text-xs text-muted-foreground">Cliquez pour lancer</span>
                   </div>
                 ) : (
-                  <img
-                    src={images[currentImageIndex - videoOffset]}
-                    alt={`${business.name} - ${currentImageIndex - videoOffset + 1}`}
-                    className="w-full h-full object-contain"
-                  />
+                  <div className="relative w-full h-full">
+                    {/* Blurred background fill */}
+                    <img
+                      src={images[currentImageIndex - videoOffset]}
+                      alt=""
+                      aria-hidden="true"
+                      className="absolute inset-0 w-full h-full object-cover scale-110 blur-2xl opacity-60"
+                    />
+                    {/* Sharp image on top */}
+                    <img
+                      src={images[currentImageIndex - videoOffset]}
+                      alt={`${business.name} - ${currentImageIndex - videoOffset + 1}`}
+                      className="relative w-full h-full object-contain"
+                    />
+                  </div>
                 )}
                 {/* Video controls: Mute + Fullscreen */}
                 {hasVideo && currentImageIndex === 0 && (
