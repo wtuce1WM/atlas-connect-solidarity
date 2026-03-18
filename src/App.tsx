@@ -124,7 +124,7 @@ const AppContent = () => {
               <Route path="/conditions-generales" element={<CGF />} />
               <Route path="/staff/search-layouts" element={<StaffRouteGuard><SearchLayoutDemo /></StaffRouteGuard>} />
               <Route path="/blog/search-copy" element={<SearchPageCopy />} />
-              <Route path="/blog/mode-strict" element={<StaffRouteGuard><StrictModePage /></StaffRouteGuard>} />
+              <Route path="/staff/mode-strict" element={<StaffRouteGuard><StrictModePage /></StaffRouteGuard>} />
               <Route path="/blog/ai-effects" element={<StaffRouteGuard><Suspense fallback={null}><AIEffectsDemo /></Suspense></StaffRouteGuard>} />
               <Route path="/blog/icon-preview" element={<IconPreview />} />
               <Route path="/blog/presentation" element={<BlogPresentation />} />
