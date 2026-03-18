@@ -21,6 +21,7 @@ import StaffCRM from "./pages/StaffCRM";
 import AffiliatesLogin from "./pages/AffiliatesLogin";
 import AffiliatesResetPassword from "./pages/AffiliatesResetPassword";
 import AffiliatesDashboard from "./pages/AffiliatesDashboard";
+import AffiliatePresence from "./pages/AffiliatePresence";
 import BecomeAffiliate from "./pages/BecomeAffiliate";
 import Mission from "./pages/Mission";
 import Contact from "./pages/Contact";
