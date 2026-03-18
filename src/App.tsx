@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
 import FloatingSearchBar from "@/components/FloatingSearchBar";
+import StaffRouteGuard from "@/components/StaffRouteGuard";
 import FloatingClubButton from "@/components/FloatingClubButton";
 import FloatingWhatsAppButton from "@/components/FloatingWhatsAppButton";
 import Index from "./pages/Index";
