@@ -5,7 +5,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, Calendar, User, ArrowRight, Star, MapPin, Play, Sparkles, BarChart3, Search, Type, Hotel, Database } from "lucide-react";
+import { Loader2, Calendar, User, ArrowRight, Star, MapPin, Play, Sparkles, BarChart3, Search, Type, Hotel, Database, Globe } from "lucide-react";
 import { format } from "date-fns";
 import { fr, enUS, ar } from "date-fns/locale";
 
@@ -334,6 +334,29 @@ const Blog = () => {
                       <MapPin className="h-3 w-3" /> Essaouira
                     </span>
                     <ArrowRight className="h-4 w-4 text-primary" />
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+
+            {/* Carte Présentation One World Morocco */}
+            <Link to="/blog/presentation">
+              <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-yellow-50 to-stone-50 dark:from-yellow-950/30 dark:to-stone-950/30">
+                <div className="aspect-video overflow-hidden bg-[#000] flex items-center justify-center">
+                  <span className="text-[#C9A84C] text-2xl font-light tracking-[0.3em] uppercase" style={{ fontFamily: "'Cinzel Decorative', serif" }}>ONE WORLD</span>
+                </div>
+                <CardContent className="p-6">
+                  <h2 className="text-xl font-semibold mb-3 font-['Playfair_Display'] italic">
+                    One World Morocco — Présentation
+                  </h2>
+                  <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
+                    Slideshow immersif en 10 slides : luxe, culture, aventure, tradition et mystique du Maroc.
+                  </p>
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1 text-[#C9A84C] font-medium">
+                      <Globe className="h-3 w-3" /> Présentation
+                    </span>
+                    <ArrowRight className="h-4 w-4 text-[#C9A84C]" />
                   </div>
                 </CardContent>
               </Card>
