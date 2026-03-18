@@ -146,20 +146,27 @@ serve(async (req) => {
     let lng: number | null = null;
     let method = "unknown";
 
-    // Step 2: Try Google Places API with place name (most reliable)
-    if (apiKey) {
-      const placeName = extractPlaceName(finalUrl) || extractPlaceName(url);
-      if (placeName) {
-        const result = await resolveViaTextSearch(placeName, apiKey);
-        if (result) {
-          lat = result.lat;
-          lng = result.lng;
-          method = "places-api";
-        }
+    // Step 2: Regex on final URL — most reliable when URL contains !3d/!4d marker coords
+    {
+      const regex = extractFromUrlRegex(finalUrl);
+      if (regex) {
+        lat = parseFloat(regex.lat);
+        lng = parseFloat(regex.lng);
+        method = "regex-url";
       }
     }
 
-    // Step 3: Try place_id (ChI...) via Places Details API
+    // Step 3: Regex on original URL (in case redirect didn't change it)
+    if (lat === null) {
+      const regex = extractFromUrlRegex(url);
+      if (regex) {
+        lat = parseFloat(regex.lat);
+        lng = parseFloat(regex.lng);
+        method = "regex-original";
+      }
+    }
+
+    // Step 4: Try place_id (ChI...) via Places Details API
     if (lat === null && apiKey) {
       const placeId = extractPlaceId(finalUrl) || extractPlaceId(url);
       if (placeId && !placeId.startsWith("0x")) {
@@ -172,23 +179,16 @@ serve(async (req) => {
       }
     }
 
-    // Step 4: Regex fallback on final URL
-    if (lat === null) {
-      const regex = extractFromUrlRegex(finalUrl);
-      if (regex) {
-        lat = parseFloat(regex.lat);
-        lng = parseFloat(regex.lng);
-        method = "regex-url";
-      }
-    }
-
-    // Step 5: Regex fallback on original URL
-    if (lat === null) {
-      const regex = extractFromUrlRegex(url);
-      if (regex) {
-        lat = parseFloat(regex.lat);
-        lng = parseFloat(regex.lng);
-        method = "regex-original";
+    // Step 5: Try Google Places API text search (may be ambiguous for generic names)
+    if (lat === null && apiKey) {
+      const placeName = extractPlaceName(finalUrl) || extractPlaceName(url);
+      if (placeName) {
+        const result = await resolveViaTextSearch(placeName, apiKey);
+        if (result) {
+          lat = result.lat;
+          lng = result.lng;
+          method = "places-api";
+        }
       }
     }
 
