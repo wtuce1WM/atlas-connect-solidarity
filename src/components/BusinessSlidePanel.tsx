@@ -1216,7 +1216,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                   <img
                     src={images[currentImageIndex - videoOffset]}
                     alt={`${business.name} - ${currentImageIndex - videoOffset + 1}`}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain"
                   />
                 )}
                 {/* Video controls: Mute + Fullscreen */}
