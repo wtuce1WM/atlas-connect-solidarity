@@ -2483,6 +2483,33 @@ export type Database = {
           },
         ]
       }
+      site_settings: {
+        Row: {
+          created_at: string
+          id: string
+          key: string
+          label: string | null
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          key: string
+          label?: string | null
+          updated_at?: string
+          value?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          key?: string
+          label?: string | null
+          updated_at?: string
+          value?: string
+        }
+        Relationships: []
+      }
       sponsors: {
         Row: {
           city_ids: string[] | null

@@ -32,6 +32,7 @@ import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
 import ServiceManagement from "@/components/staff/ServiceManagement";
 import KeywordManagement from "@/components/staff/KeywordManagement";
 import HotelMappingManagement from "@/components/staff/HotelMappingManagement";
+import SocialLinksManagement from "@/components/staff/SocialLinksManagement";
 
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -382,6 +383,10 @@ const StaffBackoffice = () => {
                 <Hotel className="h-4 w-4" />
                 Mapping Hôtels
               </TabsTrigger>
+              <TabsTrigger value="social-links" className="gap-2">
+                <Settings2 className="h-4 w-4" />
+                Réseaux sociaux
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="dashboard">
@@ -717,6 +722,10 @@ const StaffBackoffice = () => {
 
             <TabsContent value="hotel-mapping">
               <HotelMappingManagement />
+            </TabsContent>
+
+            <TabsContent value="social-links">
+              <SocialLinksManagement />
             </TabsContent>
 
           </Tabs>
