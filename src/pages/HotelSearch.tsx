@@ -33,6 +33,12 @@ const HotelSearch = () => {
   const { language } = useLanguage();
   const [searchParams] = useSearchParams();
 
+  useSEO({
+    title: "Recherche d'hôtels au Maroc",
+    description: "Comparez et réservez les meilleurs hôtels au Maroc.",
+    canonical: "/hotel-search",
+  });
+
   // Resolve initial city from URL param (city name → code)
   const initialCityCode = useMemo(() => {
     const cityParam = searchParams.get("city");
