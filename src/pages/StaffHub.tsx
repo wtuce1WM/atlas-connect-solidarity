@@ -362,7 +362,7 @@ const StaffHub = () => {
                   </div>
                 </button>
                 <button
-                  onClick={() => navigate("/blog/ai-effects")}
+                  onClick={() => navigate("/staff/ai-effects")}
                   className="group flex items-center gap-4 bg-background rounded-xl border p-5 text-left transition-all hover:shadow-md hover:border-purple-500/40 cursor-pointer"
                 >
                   <div className="inline-flex p-3 rounded-lg bg-gradient-to-br from-violet-500/20 to-indigo-500/10">
