@@ -230,7 +230,7 @@ const StaffHub = () => {
         </div>
 
         {/* Stats by City & Category */}
-        <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto mb-10">
+        {!isAdmin && <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto mb-10">
           <div className="bg-background rounded-xl border p-5">
             <div className="flex items-center gap-2 mb-4">
               <MapPin className="h-5 w-5 text-muted-foreground" />
