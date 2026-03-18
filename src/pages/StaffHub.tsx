@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { LogOut, BookOpen, Users, Shield, Star, Sparkles, Wand2, Briefcase, Building2, BadgeCheck } from "lucide-react";
+import { LogOut, BookOpen, Users, Shield, Star, Sparkles, Briefcase, Building2, BadgeCheck } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 
 const StaffHub = () => {
