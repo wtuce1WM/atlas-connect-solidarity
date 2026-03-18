@@ -260,7 +260,7 @@ const BecomeAffiliate = () => {
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
 
-              <p className="text-center text-white/40 text-sm mt-4">{t.personalSupport}</p>
+              <p className="text-center text-muted-foreground text-sm mt-4">{t.personalSupport}</p>
             </div>
           </div>
         </section>
