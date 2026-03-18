@@ -65,13 +65,15 @@ async function searchLocation(name: string, city: string, lat: number | null, ln
 }
 
 // Get location details (rating, review count)
-async function getLocationDetails(locationId: string, apiKey: string): Promise<{ rating: number | null; reviewCount: number | null }> {
+async function getLocationDetails(locationId: string, apiKey: string): Promise<{ rating: number | null; reviewCount: number | null; webUrl: string | null; writeReviewUrl: string | null }> {
   const data = await taFetch(`/location/${locationId}/details`, apiKey);
-  if (!data) return { rating: null, reviewCount: null };
+  if (!data) return { rating: null, reviewCount: null, webUrl: null, writeReviewUrl: null };
 
   return {
     rating: data.rating ? parseFloat(data.rating) : null,
     reviewCount: data.num_reviews ? parseInt(data.num_reviews) : null,
+    webUrl: data.web_url || null,
+    writeReviewUrl: data.write_review || null,
   };
 }
 
@@ -172,6 +174,8 @@ Deno.serve(async (req) => {
     const updateData: Record<string, any> = {};
     if (details.rating != null) updateData.tripadvisor_rating = details.rating;
     if (details.reviewCount != null) updateData.tripadvisor_review_count = details.reviewCount;
+    if (details.webUrl) updateData.tripadvisor_url = details.webUrl;
+    if (details.writeReviewUrl) updateData.tripadvisor_review_url = details.writeReviewUrl;
 
     // Step 4: Append new photos to existing images (NEVER overwrite)
     let newPhotosCount = 0;
