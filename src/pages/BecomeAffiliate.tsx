@@ -402,11 +402,11 @@ const BecomeAffiliate = () => {
               </Select>
             </div>
             <div>
-              <label className="block text-white/60 text-sm mb-1.5">{t.labelMessage}</label>
+              <label className="block text-muted-foreground text-sm mb-1.5">{t.labelMessage}</label>
               <Textarea
                 value={form.message}
                 onChange={(e) => setForm({ ...form, message: e.target.value })}
-                className="bg-white/[0.06] border-white/10 text-white placeholder:text-white/30 min-h-[100px]"
+                className="bg-black/[0.04] border-black/10 text-foreground placeholder:text-muted-foreground min-h-[100px]"
               />
             </div>
             <Button
