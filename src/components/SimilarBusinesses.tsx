@@ -131,7 +131,7 @@ const SimilarBusinesses = ({ currentBusinessId, categories, city, onNavigate, on
           return (
             <Link
               key={biz.id}
-              to={`/business/${biz.id}`}
+              to={businessUrl(biz)}
               onClick={(e) => {
                 if (onNavigate) {
                   e.preventDefault();
