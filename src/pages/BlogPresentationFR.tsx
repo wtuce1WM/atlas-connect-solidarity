@@ -414,7 +414,7 @@ const BlogPresentationFR = () => {
       const doc = iframeRef.current.contentDocument;
       if (doc) {
         doc.open();
-        doc.write(\`<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"></head><body>\${PRESENTATION_HTML_FR}</body></html>\`);
+        doc.write(`<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"></head><body>${PRESENTATION_HTML_FR}</body></html>`);
         doc.close();
       }
     }
