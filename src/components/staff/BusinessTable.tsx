@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { businessUrl } from "@/lib/businessUrl";
 import { collectRatingSources, computeWeightedRatingOn20, getTotalReviewCount } from "@/lib/ratingUtils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";

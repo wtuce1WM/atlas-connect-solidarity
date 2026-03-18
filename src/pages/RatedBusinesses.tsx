@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
+import { businessUrl } from "@/lib/businessUrl";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
