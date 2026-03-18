@@ -213,12 +213,12 @@ const BecomeAffiliate = () => {
         {/* Pricing Section */}
         <section className="container mx-auto px-4 mb-24">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
-              {t.pricingTitle}
-            </h2>
-            <p className="text-lg text-white/60 max-w-xl mx-auto">
-              {t.pricingSubtitle}
-            </p>
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
+               {t.pricingTitle}
+             </h2>
+             <p className="text-lg text-muted-foreground max-w-xl mx-auto">
+               {t.pricingSubtitle}
+             </p>
           </div>
 
           <div className="max-w-md mx-auto">
