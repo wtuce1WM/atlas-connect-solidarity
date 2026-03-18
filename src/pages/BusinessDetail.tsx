@@ -263,7 +263,7 @@ const BusinessDetail = () => {
         const { data: reviewsData } = await supabase
           .from("reviews" as any)
           .select("source, author_name, rating, text, relative_time")
-          .eq("business_id", id)
+          .eq("business_id", data.id)
           .order("rating", { ascending: false })
           .limit(5);
         if (reviewsData) setReviewTexts(reviewsData as any[]);
