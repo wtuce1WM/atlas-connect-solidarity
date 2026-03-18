@@ -365,9 +365,9 @@ const BecomeAffiliate = () => {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-white/60 text-sm mb-1.5">{t.labelMultipleListings}</label>
+                <label className="block text-muted-foreground text-sm mb-1.5">{t.labelMultipleListings}</label>
                 <Select value={form.multipleListings} onValueChange={(val) => setForm({ ...form, multipleListings: val })}>
-                  <SelectTrigger className="bg-white/[0.06] border-white/10 text-white h-11">
+                  <SelectTrigger className="bg-black/[0.04] border-black/10 text-foreground h-11">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
