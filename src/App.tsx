@@ -122,7 +122,7 @@ const AppContent = () => {
               <Route path="/search-analytics" element={<SearchAnalytics />} />
               <Route path="/destination/:destinationName" element={<DestinationPage />} />
               <Route path="/conditions-generales" element={<CGF />} />
-              <Route path="/blog/search-layouts" element={<StaffRouteGuard><SearchLayoutDemo /></StaffRouteGuard>} />
+              <Route path="/staff/search-layouts" element={<StaffRouteGuard><SearchLayoutDemo /></StaffRouteGuard>} />
               <Route path="/blog/search-copy" element={<SearchPageCopy />} />
               <Route path="/blog/mode-strict" element={<StaffRouteGuard><StrictModePage /></StaffRouteGuard>} />
               <Route path="/blog/ai-effects" element={<StaffRouteGuard><Suspense fallback={null}><AIEffectsDemo /></Suspense></StaffRouteGuard>} />
