@@ -1435,9 +1435,17 @@ const SearchPage = () => {
   }, [filteredBusinesses, detectedSubcategory]);
 
   // Paginate (only for non-grouped view)
-  const totalPages = Math.ceil(filteredBusinesses.length / ITEMS_PER_PAGE);
+  // Page 1 shows 1 fewer business to account for the AI suggestion card slot
+  const PAGE_1_ITEMS = ITEMS_PER_PAGE - 1;
+  const totalPages = useMemo(() => {
+    if (filteredBusinesses.length <= PAGE_1_ITEMS) return 1;
+    return 1 + Math.ceil((filteredBusinesses.length - PAGE_1_ITEMS) / ITEMS_PER_PAGE);
+  }, [filteredBusinesses.length]);
   const paginatedBusinesses = useMemo(() => {
-    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    if (currentPage === 1) {
+      return filteredBusinesses.slice(0, PAGE_1_ITEMS);
+    }
+    const start = PAGE_1_ITEMS + (currentPage - 2) * ITEMS_PER_PAGE;
     return filteredBusinesses.slice(start, start + ITEMS_PER_PAGE);
   }, [filteredBusinesses, currentPage]);
 
