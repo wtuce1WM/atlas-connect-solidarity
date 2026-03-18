@@ -799,6 +799,7 @@ export type Database = {
           services: string[] | null
           show_opening_hours: boolean | null
           skype: string | null
+          slug: string
           telegram: string | null
           tiktok_url: string | null
           tripadvisor_location_id: string | null
@@ -917,6 +918,7 @@ export type Database = {
           services?: string[] | null
           show_opening_hours?: boolean | null
           skype?: string | null
+          slug: string
           telegram?: string | null
           tiktok_url?: string | null
           tripadvisor_location_id?: string | null
@@ -1035,6 +1037,7 @@ export type Database = {
           services?: string[] | null
           show_opening_hours?: boolean | null
           skype?: string | null
+          slug?: string
           telegram?: string | null
           tiktok_url?: string | null
           tripadvisor_location_id?: string | null
@@ -3187,6 +3190,7 @@ export type Database = {
         Args: { lat1: number; lat2: number; lon1: number; lon2: number }
         Returns: number
       }
+      generate_slug: { Args: { input_text: string }; Returns: string }
       get_club_members_with_last_sign_in: {
         Args: never
         Returns: {
@@ -3330,6 +3334,7 @@ export type Database = {
               services: string[] | null
               show_opening_hours: boolean | null
               skype: string | null
+              slug: string
               telegram: string | null
               tiktok_url: string | null
               tripadvisor_location_id: string | null
@@ -3464,6 +3469,7 @@ export type Database = {
               services: string[] | null
               show_opening_hours: boolean | null
               skype: string | null
+              slug: string
               telegram: string | null
               tiktok_url: string | null
               tripadvisor_location_id: string | null
