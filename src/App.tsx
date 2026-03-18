@@ -107,25 +107,25 @@ const AppContent = () => {
               <Route path="/contact" element={<Contact />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/essaouira-vue-mer" element={<EssaouiraSeaView />} />
-              <Route path="/blog/animations" element={<BlogAnimations />} />
+              <Route path="/staff/animations" element={<StaffRouteGuard><BlogAnimations /></StaffRouteGuard>} />
               <Route path="/blog/ancien-accueil" element={<AncienAccueil />} />
               <Route path="/blog/typographie" element={<BlogTypography />} />
-              <Route path="/blog/brummell" element={<StaffRouteGuard><BlogBrummellTypography /></StaffRouteGuard>} />
+              <Route path="/staff/brummell" element={<StaffRouteGuard><BlogBrummellTypography /></StaffRouteGuard>} />
               <Route path="/blog/:slug" element={<BlogPost />} />
-              <Route path="/etablissements-notes" element={<RatedBusinesses />} />
+              <Route path="/staff/etablissements-notes" element={<StaffRouteGuard><RatedBusinesses /></StaffRouteGuard>} />
               <Route path="/neighborhood/:neighborhood" element={<NeighborhoodPage />} />
               <Route path="/carte" element={<AllBusinessesMap />} />
               <Route path="/subcategory/:subcategoryName" element={<SubcategoryPage />} />
               <Route path="/hotels" element={<HotelSearch />} />
               <Route path="/club" element={<Club />} />
-              <Route path="/demo-effects" element={<StaffRouteGuard><Suspense fallback={null}><LogoEffectsDemo /></Suspense></StaffRouteGuard>} />
+              <Route path="/staff/demo-effects" element={<StaffRouteGuard><Suspense fallback={null}><LogoEffectsDemo /></Suspense></StaffRouteGuard>} />
               <Route path="/search-analytics" element={<SearchAnalytics />} />
               <Route path="/destination/:destinationName" element={<DestinationPage />} />
               <Route path="/conditions-generales" element={<CGF />} />
-              <Route path="/blog/search-layouts" element={<StaffRouteGuard><SearchLayoutDemo /></StaffRouteGuard>} />
+              <Route path="/staff/search-layouts" element={<StaffRouteGuard><SearchLayoutDemo /></StaffRouteGuard>} />
               <Route path="/blog/search-copy" element={<SearchPageCopy />} />
-              <Route path="/blog/mode-strict" element={<StaffRouteGuard><StrictModePage /></StaffRouteGuard>} />
-              <Route path="/blog/ai-effects" element={<StaffRouteGuard><Suspense fallback={null}><AIEffectsDemo /></Suspense></StaffRouteGuard>} />
+              <Route path="/staff/mode-strict" element={<StaffRouteGuard><StrictModePage /></StaffRouteGuard>} />
+              <Route path="/staff/ai-effects" element={<StaffRouteGuard><Suspense fallback={null}><AIEffectsDemo /></Suspense></StaffRouteGuard>} />
               <Route path="/blog/icon-preview" element={<IconPreview />} />
               <Route path="/blog/presentation" element={<BlogPresentation />} />
               <Route path="/blog/presentation-fr" element={<BlogPresentationFR />} />

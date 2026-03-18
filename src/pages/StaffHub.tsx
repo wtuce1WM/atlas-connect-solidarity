@@ -324,7 +324,7 @@ const StaffHub = () => {
               </div>
             </button>
             <button
-              onClick={() => navigate("/etablissements-notes")}
+              onClick={() => navigate("/staff/etablissements-notes")}
               className="group flex items-center gap-4 bg-background rounded-xl border p-5 text-left transition-all hover:shadow-md hover:border-gold/40 cursor-pointer"
             >
               <div className="inline-flex p-3 rounded-lg bg-gradient-to-br from-blue-500/15 to-cyan-500/10">
@@ -336,7 +336,7 @@ const StaffHub = () => {
               </div>
             </button>
             <button
-              onClick={() => navigate("/blog/animations")}
+              onClick={() => navigate("/staff/animations")}
               className="group flex items-center gap-4 bg-background rounded-xl border p-5 text-left transition-all hover:shadow-md hover:border-purple-500/40 cursor-pointer"
             >
               <div className="inline-flex p-3 rounded-lg bg-gradient-to-br from-purple-500/20 to-pink-500/10">
@@ -350,7 +350,7 @@ const StaffHub = () => {
             {!isAdmin && (
               <>
                 <button
-                  onClick={() => navigate("/blog/brummell")}
+                  onClick={() => navigate("/staff/brummell")}
                   className="group flex items-center gap-4 bg-background rounded-xl border p-5 text-left transition-all hover:shadow-md hover:border-gold/40 cursor-pointer"
                 >
                   <div className="inline-flex p-3 rounded-lg bg-gradient-to-br from-amber-500/20 to-orange-500/10">
@@ -362,7 +362,7 @@ const StaffHub = () => {
                   </div>
                 </button>
                 <button
-                  onClick={() => navigate("/blog/ai-effects")}
+                  onClick={() => navigate("/staff/ai-effects")}
                   className="group flex items-center gap-4 bg-background rounded-xl border p-5 text-left transition-all hover:shadow-md hover:border-purple-500/40 cursor-pointer"
                 >
                   <div className="inline-flex p-3 rounded-lg bg-gradient-to-br from-violet-500/20 to-indigo-500/10">
@@ -374,7 +374,7 @@ const StaffHub = () => {
                   </div>
                 </button>
                 <button
-                  onClick={() => navigate("/blog/mode-strict")}
+                  onClick={() => navigate("/staff/mode-strict")}
                   className="group flex items-center gap-4 bg-background rounded-xl border p-5 text-left transition-all hover:shadow-md hover:border-emerald-500/40 cursor-pointer"
                 >
                   <div className="inline-flex p-3 rounded-lg bg-gradient-to-br from-emerald-500/20 to-teal-500/10">
@@ -386,7 +386,7 @@ const StaffHub = () => {
                   </div>
                 </button>
                 <button
-                  onClick={() => navigate("/blog/search-layouts")}
+                  onClick={() => navigate("/staff/search-layouts")}
                   className="group flex items-center gap-4 bg-background rounded-xl border p-5 text-left transition-all hover:shadow-md hover:border-blue-500/40 cursor-pointer"
                 >
                   <div className="inline-flex p-3 rounded-lg bg-gradient-to-br from-blue-500/20 to-sky-500/10">
@@ -398,7 +398,7 @@ const StaffHub = () => {
                   </div>
                 </button>
                 <button
-                  onClick={() => navigate("/demo-effects")}
+                  onClick={() => navigate("/staff/demo-effects")}
                   className="group flex items-center gap-4 bg-background rounded-xl border p-5 text-left transition-all hover:shadow-md hover:border-pink-500/40 cursor-pointer"
                 >
                   <div className="inline-flex p-3 rounded-lg bg-gradient-to-br from-pink-500/20 to-rose-500/10">
