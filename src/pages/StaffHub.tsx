@@ -208,7 +208,14 @@ const StaffHub = () => {
       <main className="container mx-auto px-4 py-12">
         <div className="text-center mb-10">
           <h1 className="text-3xl md:text-4xl font-serif font-bold mb-2">Bienvenue dans le Backoffice</h1>
-          <p className="text-muted-foreground">Sélectionnez un module pour commencer</p>
+          <ul className="text-muted-foreground text-sm space-y-1 mt-3">
+            <li>1 — Votre communication en ligne centralisée</li>
+            <li>2 — Pas de commission, la totalité des transactions restent dans l'économie nationale</li>
+            <li>3 — Un modèle économique vertueux (20% de commission à des associations)</li>
+            <li>4 — La précision de la recherche Google</li>
+            <li>5 — Une présentation Premium</li>
+            <li>6 — La personnalisation de l'IA</li>
+          </ul>
         </div>
 
         {/* Dashboard Stats */}
