@@ -314,7 +314,7 @@ const EngagementManagement = ({ onEditBusiness }: Props) => {
                           </Badge>
                         </TableCell>
                         <TableCell className="flex gap-1">
-                          <Link to={`/business/${b.id}`} target="_blank">
+                          <Link to={businessUrl(b)} target="_blank">
                             <Button variant="ghost" size="icon" className="h-7 w-7" title="Voir"><Eye className="h-3.5 w-3.5" /></Button>
                           </Link>
                           {onEditBusiness && (

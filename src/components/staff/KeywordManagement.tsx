@@ -510,7 +510,7 @@ const KeywordManagement = () => {
                           <Badge variant={b.is_active ? "default" : "secondary"} className={b.is_active ? "bg-green-200 text-black hover:bg-green-300" : ""}>{b.is_active ? "Actif" : "Inactif"}</Badge>
                         </TableCell>
                         <TableCell className="flex gap-1">
-                          <Link to={`/business/${b.id}`} target="_blank">
+                          <Link to={businessUrl(b)} target="_blank">
                             <Button variant="ghost" size="icon" className="h-7 w-7" title="Voir la fiche"><Eye className="h-3.5 w-3.5" /></Button>
                           </Link>
                           <Link to={`/staff/catalogue?edit=${b.id}`}>
