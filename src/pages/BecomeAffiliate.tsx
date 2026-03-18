@@ -306,11 +306,11 @@ const BecomeAffiliate = () => {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-white/60 text-sm mb-1.5">{t.labelPhone}</label>
+                <label className="block text-muted-foreground text-sm mb-1.5">{t.labelPhone}</label>
                 <Input
                   value={form.phone}
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                  className="bg-white/[0.06] border-white/10 text-white placeholder:text-white/30 h-11"
+                  className="bg-black/[0.04] border-black/10 text-foreground placeholder:text-muted-foreground h-11"
                   type="tel"
                 />
               </div>
