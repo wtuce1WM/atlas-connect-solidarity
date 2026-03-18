@@ -4214,7 +4214,7 @@ serve(async (req) => {
         // Fetch the missing businesses directly
         const { data: missingBusinesses } = await supabase
           .from("businesses")
-          .select("id, name, description, categories, services, city, region, latitude, longitude, wtuce_status, priority_score, phone, email, website, address, logo_url, main_category, neighborhood, keywords, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, images, google_maps_url, badge_id, gamme_id, is_featured")
+          .select("id, name, slug, description, categories, services, city, region, latitude, longitude, wtuce_status, priority_score, phone, email, website, address, logo_url, main_category, neighborhood, keywords, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, images, google_maps_url, badge_id, gamme_id, is_featured")
           .in("id", missingIds)
           .eq("is_active", true);
         if (missingBusinesses && missingBusinesses.length > 0) {
