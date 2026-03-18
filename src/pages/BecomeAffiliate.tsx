@@ -268,7 +268,7 @@ const BecomeAffiliate = () => {
         {/* Form Section */}
         <section id="affiliate-form" className="container mx-auto px-4 mb-16">
           <div className="text-center mb-10">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6">
               {t.formTitle}
             </h2>
             <div className="flex flex-wrap justify-center gap-4">
