@@ -159,7 +159,7 @@ const AllBusinessesMap = () => {
             {selectedBusiness && (
               <div className="absolute top-2 right-2 z-10 bg-white text-black px-4 py-3 rounded shadow-lg max-w-xs">
                 <div className="flex items-start justify-between gap-2 mb-2">
-                  <Link to={`/business/${selectedBusiness.id}`} className="text-sm font-bold hover:text-primary">
+                  <Link to={businessUrl(selectedBusiness)} className="text-sm font-bold hover:text-primary">
                     {selectedBusiness.name}
                   </Link>
                   <button onClick={() => setSelectedBusiness(null)} className="hover:bg-black/10 rounded p-1 flex-shrink-0">
