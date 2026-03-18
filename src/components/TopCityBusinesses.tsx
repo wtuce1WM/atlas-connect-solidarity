@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import { Link } from "react-router-dom";
+import { businessUrl } from "@/lib/businessUrl";
 import { Star, ChevronLeft, ChevronRight, MapPin } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Card, CardContent } from "@/components/ui/card";
