@@ -274,7 +274,7 @@ const BusinessDetail = () => {
         const { data: bdData } = await supabase
           .from("business_destinations" as any)
           .select("destination_id")
-          .eq("business_id", id);
+          .eq("business_id", data.id);
         if (bdData && bdData.length > 0) {
           const destIds = (bdData as any[]).map(d => d.destination_id);
           const { data: destData } = await supabase
