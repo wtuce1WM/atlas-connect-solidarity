@@ -203,11 +203,16 @@ const BusinessDetail = () => {
 
   useEffect(() => {
     const fetchBusiness = async () => {
-      if (!id) return;
+      if (!routeSlug) return;
+      
+      // Try by slug first, then fallback to UUID for backward compatibility
+      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(routeSlug);
+      const column = isUUID ? "id" : "slug" as any;
+      
       const { data, error } = await supabase
         .from("businesses")
         .select("*")
-        .eq("id", id)
+        .eq(column, routeSlug)
         .eq("is_active", true)
         .maybeSingle();
 
