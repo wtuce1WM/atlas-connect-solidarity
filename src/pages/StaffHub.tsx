@@ -1,14 +1,26 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { LogOut, BookOpen, Users, Shield, Star, Sparkles, Briefcase, Building2, BadgeCheck } from "lucide-react";
+import { LogOut, BookOpen, Users, Shield, Star, Sparkles, Briefcase, Building2, BadgeCheck, MapPin, LayoutGrid, Save, StickyNote } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
+import RichTextEditor from "@/components/staff/RichTextEditor";
+import { toast } from "sonner";
+
+interface CityCount { city: string; count: number }
+interface CatCount { main_category: string; count: number }
 
 const StaffHub = () => {
   const [user, setUser] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [stats, setStats] = useState({ active: 0, verified: 0 });
+  const [cityStats, setCityStats] = useState<CityCount[]>([]);
+  const [catStats, setCatStats] = useState<CatCount[]>([]);
+  const [noteContent, setNoteContent] = useState("");
+  const [noteId, setNoteId] = useState<string | null>(null);
+  const [noteSaving, setNoteSaving] = useState(false);
+  const [noteLoaded, setNoteLoaded] = useState(false);
+  const saveTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,18 +43,82 @@ const StaffHub = () => {
   }, [navigate]);
 
   useEffect(() => {
-    const fetchStats = async () => {
+    if (!user) return;
+    const fetchAll = async () => {
+      // Global stats
       const [activeRes, verifiedRes] = await Promise.all([
         supabase.from("businesses").select("id", { count: "exact", head: true }).eq("is_active", true),
         supabase.from("businesses").select("id", { count: "exact", head: true }).eq("is_active", true).eq("wtuce_status", "verified"),
       ]);
-      setStats({
-        active: activeRes.count ?? 0,
-        verified: verifiedRes.count ?? 0,
-      });
+      setStats({ active: activeRes.count ?? 0, verified: verifiedRes.count ?? 0 });
+
+      // City stats
+      const { data: cityData } = await supabase
+        .from("businesses")
+        .select("city")
+        .eq("is_active", true)
+        .not("city", "is", null);
+      if (cityData) {
+        const counts: Record<string, number> = {};
+        cityData.forEach((b: any) => { counts[b.city] = (counts[b.city] || 0) + 1; });
+        const sorted = Object.entries(counts)
+          .map(([city, count]) => ({ city, count }))
+          .sort((a, b) => b.count - a.count);
+        setCityStats(sorted);
+      }
+
+      // Category stats
+      const { data: catData } = await supabase
+        .from("businesses")
+        .select("main_category")
+        .eq("is_active", true)
+        .not("main_category", "is", null);
+      if (catData) {
+        const counts: Record<string, number> = {};
+        catData.forEach((b: any) => { counts[b.main_category] = (counts[b.main_category] || 0) + 1; });
+        const sorted = Object.entries(counts)
+          .map(([main_category, count]) => ({ main_category, count }))
+          .sort((a, b) => b.count - a.count);
+        setCatStats(sorted);
+      }
+
+      // Load personal note
+      const { data: noteData } = await supabase
+        .from("staff_user_notes" as any)
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (noteData) {
+        setNoteId((noteData as any).id);
+        setNoteContent((noteData as any).content || "");
+      }
+      setNoteLoaded(true);
     };
-    if (user) fetchStats();
+    fetchAll();
   }, [user]);
+
+  const saveNote = useCallback(async (content: string) => {
+    if (!user) return;
+    setNoteSaving(true);
+    try {
+      if (noteId) {
+        await supabase.from("staff_user_notes" as any).update({ content, updated_at: new Date().toISOString() } as any).eq("id", noteId);
+      } else {
+        const { data } = await supabase.from("staff_user_notes" as any).insert({ user_id: user.id, content } as any).select().single();
+        if (data) setNoteId((data as any).id);
+      }
+    } catch {
+      toast.error("Erreur lors de la sauvegarde");
+    } finally {
+      setNoteSaving(false);
+    }
+  }, [user, noteId]);
+
+  const handleNoteChange = useCallback((val: string) => {
+    setNoteContent(val);
+    if (saveTimeout.current) clearTimeout(saveTimeout.current);
+    saveTimeout.current = setTimeout(() => saveNote(val), 1500);
+  }, [saveNote]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -129,14 +205,14 @@ const StaffHub = () => {
       </header>
 
       {/* Hub content */}
-      <main className="container mx-auto px-4 py-16">
-        <div className="text-center mb-12">
+      <main className="container mx-auto px-4 py-12">
+        <div className="text-center mb-10">
           <h1 className="text-3xl md:text-4xl font-serif font-bold mb-2">Bienvenue dans le Backoffice</h1>
           <p className="text-muted-foreground">Sélectionnez un module pour commencer</p>
         </div>
 
         {/* Dashboard Stats */}
-        <div className="grid grid-cols-2 gap-4 max-w-md mx-auto mb-12">
+        <div className="grid grid-cols-2 gap-4 max-w-md mx-auto mb-10">
           <div className="bg-background rounded-xl border p-5 text-center">
             <div className="inline-flex p-3 rounded-lg bg-gradient-to-br from-blue-500/15 to-cyan-500/10 mb-3">
               <Building2 className="h-6 w-6 text-blue-600" />
@@ -153,7 +229,40 @@ const StaffHub = () => {
           </div>
         </div>
 
-        <div className={`grid gap-6 max-w-5xl mx-auto ${sections.length === 4 ? 'md:grid-cols-4' : 'md:grid-cols-3'}`}>
+        {/* Stats by City & Category */}
+        <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto mb-10">
+          <div className="bg-background rounded-xl border p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <MapPin className="h-5 w-5 text-muted-foreground" />
+              <h3 className="font-semibold text-sm">Par ville</h3>
+            </div>
+            <div className="space-y-2 max-h-60 overflow-y-auto">
+              {cityStats.map((c) => (
+                <div key={c.city} className="flex items-center justify-between text-sm">
+                  <span className="truncate">{c.city}</span>
+                  <span className="font-mono font-semibold text-muted-foreground ml-2">{c.count}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="bg-background rounded-xl border p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <LayoutGrid className="h-5 w-5 text-muted-foreground" />
+              <h3 className="font-semibold text-sm">Par catégorie</h3>
+            </div>
+            <div className="space-y-2 max-h-60 overflow-y-auto">
+              {catStats.map((c) => (
+                <div key={c.main_category} className="flex items-center justify-between text-sm">
+                  <span className="truncate">{c.main_category}</span>
+                  <span className="font-mono font-semibold text-muted-foreground ml-2">{c.count}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Modules */}
+        <div className={`grid gap-6 max-w-5xl mx-auto ${sections.length === 4 ? 'md:grid-cols-4' : sections.length === 3 ? 'md:grid-cols-3' : 'md:grid-cols-2'} mb-10`}>
           {sections.map((section) => {
             const Icon = section.icon;
             return (
@@ -171,8 +280,35 @@ const StaffHub = () => {
             );
           })}
         </div>
+
+        {/* Personal Note */}
+        <div className="max-w-4xl mx-auto mb-10">
+          <div className="bg-background rounded-xl border p-5">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <StickyNote className="h-5 w-5 text-gold" />
+                <h3 className="font-semibold text-sm">Ma note personnelle</h3>
+              </div>
+              {noteSaving && (
+                <span className="text-xs text-muted-foreground flex items-center gap-1">
+                  <Save className="h-3 w-3 animate-pulse" /> Sauvegarde...
+                </span>
+              )}
+              {!noteSaving && noteLoaded && noteId && (
+                <span className="text-xs text-muted-foreground">✓ Sauvegardé</span>
+              )}
+            </div>
+            {noteLoaded && (
+              <RichTextEditor
+                content={noteContent}
+                onChange={handleNoteChange}
+              />
+            )}
+          </div>
+        </div>
+
         {/* Quick access */}
-        <div className="max-w-4xl mx-auto mt-12">
+        <div className="max-w-4xl mx-auto">
           <h2 className="text-lg font-semibold text-muted-foreground mb-4">Accès rapide</h2>
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
             <button
