@@ -1946,8 +1946,6 @@ const SearchPage = () => {
       return;
     }
     setStickyAiVisibleWordIndex(Number.MAX_SAFE_INTEGER);
-
-    return () => window.clearInterval(intervalId);
   }, [stickyAiAnimationNonce, stickyAiText, stickyAiWordCount, isAiRegenerating]);
 
   const showZitounEasterEgg = !isLoading && isZitounMask(spokenText || searchQuery);
