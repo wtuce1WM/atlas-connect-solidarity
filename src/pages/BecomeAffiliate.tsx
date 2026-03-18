@@ -232,8 +232,8 @@ const BecomeAffiliate = () => {
 
               {/* Price */}
               <div className="text-center mt-4 mb-8">
-                <span className="text-5xl md:text-6xl font-extrabold text-white">{t.price}</span>
-                <p className="text-white/50 mt-2">{t.priceSuffix}</p>
+                <span className="text-5xl md:text-6xl font-extrabold text-foreground">{t.price}</span>
+                <p className="text-muted-foreground mt-2">{t.priceSuffix}</p>
               </div>
 
               {/* Divider */}
