@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { businessUrl } from "@/lib/businessUrl";
 import { Link } from "react-router-dom";
 import { MapPin, Star, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
