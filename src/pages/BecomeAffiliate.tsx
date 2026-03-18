@@ -192,19 +192,19 @@ const BecomeAffiliate = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-white">
       <Header />
       <main className="pt-24 pb-20">
         {/* Hero */}
         <section className="container mx-auto px-4 text-center mb-20">
           <div className="max-w-3xl mx-auto">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6" style={{ fontFamily: "'Playfair Display', serif" }}>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6" style={{ fontFamily: "'Playfair Display', serif" }}>
               {t.title}
             </h1>
             <p className="text-xl md:text-2xl text-gold mb-4">
               {t.subtitle}
             </p>
-            <p className="text-lg text-white/70">
+            <p className="text-lg text-muted-foreground">
               {t.description}
             </p>
           </div>
@@ -213,16 +213,16 @@ const BecomeAffiliate = () => {
         {/* Pricing Section */}
         <section className="container mx-auto px-4 mb-24">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
-              {t.pricingTitle}
-            </h2>
-            <p className="text-lg text-white/60 max-w-xl mx-auto">
-              {t.pricingSubtitle}
-            </p>
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
+               {t.pricingTitle}
+             </h2>
+             <p className="text-lg text-muted-foreground max-w-xl mx-auto">
+               {t.pricingSubtitle}
+             </p>
           </div>
 
           <div className="max-w-md mx-auto">
-            <div className="relative rounded-2xl border border-gold/30 bg-gradient-to-b from-white/[0.06] to-white/[0.02] backdrop-blur-sm p-8 md:p-10 shadow-[0_0_60px_-15px_hsl(43_75%_55%/0.2)]">
+            <div className="relative rounded-2xl border border-gold/30 bg-gradient-to-b from-black/[0.02] to-black/[0.04] p-8 md:p-10 shadow-[0_0_60px_-15px_hsl(43_75%_55%/0.2)]">
               {/* Badge */}
               <div className="absolute -top-4 left-1/2 -translate-x-1/2">
                 <span className="inline-block bg-gold text-black text-sm font-bold px-5 py-1.5 rounded-full shadow-lg">
@@ -232,8 +232,8 @@ const BecomeAffiliate = () => {
 
               {/* Price */}
               <div className="text-center mt-4 mb-8">
-                <span className="text-5xl md:text-6xl font-extrabold text-white">{t.price}</span>
-                <p className="text-white/50 mt-2">{t.priceSuffix}</p>
+                <span className="text-5xl md:text-6xl font-extrabold text-foreground">{t.price}</span>
+                <p className="text-muted-foreground mt-2">{t.priceSuffix}</p>
               </div>
 
               {/* Divider */}
@@ -242,7 +242,7 @@ const BecomeAffiliate = () => {
               {/* Features */}
               <ul className="space-y-4 mb-10">
                 {t.features.map((feat, i) => (
-                  <li key={i} className="flex items-start gap-3 text-white/85">
+                  <li key={i} className="flex items-start gap-3 text-foreground/85">
                     <Check className="h-5 w-5 text-gold mt-0.5 shrink-0" />
                     <span>{feat}</span>
                   </li>
@@ -260,7 +260,7 @@ const BecomeAffiliate = () => {
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
 
-              <p className="text-center text-white/40 text-sm mt-4">{t.personalSupport}</p>
+              <p className="text-center text-muted-foreground text-sm mt-4">{t.personalSupport}</p>
             </div>
           </div>
         </section>
@@ -268,7 +268,7 @@ const BecomeAffiliate = () => {
         {/* Form Section */}
         <section id="affiliate-form" className="container mx-auto px-4 mb-16">
           <div className="text-center mb-10">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6">
               {t.formTitle}
             </h2>
             <div className="flex flex-wrap justify-center gap-4">
@@ -277,7 +277,7 @@ const BecomeAffiliate = () => {
                 { icon: Shield, label: t.formBadge2 },
                 { icon: Headphones, label: t.formBadge3 },
               ].map(({ icon: Icon, label }) => (
-                <span key={label} className="inline-flex items-center gap-2 text-white/70 text-sm bg-white/[0.06] border border-white/10 rounded-full px-4 py-2">
+                <span key={label} className="inline-flex items-center gap-2 text-muted-foreground text-sm bg-black/[0.04] border border-black/10 rounded-full px-4 py-2">
                   <Icon className="h-4 w-4 text-gold" />
                   {label}
                 </span>
@@ -288,71 +288,71 @@ const BecomeAffiliate = () => {
           <form onSubmit={handleSubmit} className="max-w-lg mx-auto space-y-5">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-white/60 text-sm mb-1.5">{t.labelName}</label>
+                <label className="block text-muted-foreground text-sm mb-1.5">{t.labelName}</label>
                 <Input
                   value={form.businessName}
                   onChange={(e) => setForm({ ...form, businessName: e.target.value })}
-                  className="bg-white/[0.06] border-white/10 text-white placeholder:text-white/30 h-11"
+                  className="bg-black/[0.04] border-black/10 text-foreground placeholder:text-muted-foreground h-11"
                 />
               </div>
               <div>
-                <label className="block text-white/60 text-sm mb-1.5">{t.labelContact}</label>
+                <label className="block text-muted-foreground text-sm mb-1.5">{t.labelContact}</label>
                 <Input
                   value={form.contactName}
                   onChange={(e) => setForm({ ...form, contactName: e.target.value })}
-                  className="bg-white/[0.06] border-white/10 text-white placeholder:text-white/30 h-11"
+                  className="bg-black/[0.04] border-black/10 text-foreground placeholder:text-muted-foreground h-11"
                 />
               </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-white/60 text-sm mb-1.5">{t.labelPhone}</label>
+                <label className="block text-muted-foreground text-sm mb-1.5">{t.labelPhone}</label>
                 <Input
                   value={form.phone}
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                  className="bg-white/[0.06] border-white/10 text-white placeholder:text-white/30 h-11"
+                  className="bg-black/[0.04] border-black/10 text-foreground placeholder:text-muted-foreground h-11"
                   type="tel"
                 />
               </div>
               <div>
-                <label className="block text-white/60 text-sm mb-1.5">{t.labelEmail}</label>
+                <label className="block text-muted-foreground text-sm mb-1.5">{t.labelEmail}</label>
                 <Input
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  className="bg-white/[0.06] border-white/10 text-white placeholder:text-white/30 h-11"
+                  className="bg-black/[0.04] border-black/10 text-foreground placeholder:text-muted-foreground h-11"
                   type="email"
                 />
               </div>
             </div>
             <div>
-              <label className="block text-white/60 text-sm mb-1.5">{t.labelCity}</label>
+              <label className="block text-muted-foreground text-sm mb-1.5">{t.labelCity}</label>
               <Input
                 value={form.city}
                 onChange={(e) => setForm({ ...form, city: e.target.value })}
-                className="bg-white/[0.06] border-white/10 text-white placeholder:text-white/30 h-11"
+                className="bg-black/[0.04] border-black/10 text-foreground placeholder:text-muted-foreground h-11"
               />
             </div>
             <div>
-              <label className="block text-white/60 text-sm mb-1.5">{t.labelProjectName}</label>
+              <label className="block text-muted-foreground text-sm mb-1.5">{t.labelProjectName}</label>
               <Input
                 value={form.projectName}
                 onChange={(e) => setForm({ ...form, projectName: e.target.value })}
-                className="bg-white/[0.06] border-white/10 text-white placeholder:text-white/30 h-11"
+                className="bg-black/[0.04] border-black/10 text-foreground placeholder:text-muted-foreground h-11"
               />
             </div>
             <div>
-              <label className="block text-white/60 text-sm mb-1.5">{t.labelWebsite}</label>
+              <label className="block text-muted-foreground text-sm mb-1.5">{t.labelWebsite}</label>
               <Input
                 value={form.website}
                 onChange={(e) => setForm({ ...form, website: e.target.value })}
-                className="bg-white/[0.06] border-white/10 text-white placeholder:text-white/30 h-11"
+                className="bg-black/[0.04] border-black/10 text-foreground placeholder:text-muted-foreground h-11"
                 type="url"
               />
             </div>
             <div>
-              <label className="block text-white/60 text-sm mb-1.5">{t.labelPaymentMethod}</label>
+              <label className="block text-muted-foreground text-sm mb-1.5">{t.labelPaymentMethod}</label>
               <Select value={form.paymentMethod} onValueChange={(val) => setForm({ ...form, paymentMethod: val })}>
-                <SelectTrigger className="bg-white/[0.06] border-white/10 text-white h-11">
+                <SelectTrigger className="bg-black/[0.04] border-black/10 text-foreground h-11">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -365,9 +365,9 @@ const BecomeAffiliate = () => {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-white/60 text-sm mb-1.5">{t.labelMultipleListings}</label>
+                <label className="block text-muted-foreground text-sm mb-1.5">{t.labelMultipleListings}</label>
                 <Select value={form.multipleListings} onValueChange={(val) => setForm({ ...form, multipleListings: val })}>
-                  <SelectTrigger className="bg-white/[0.06] border-white/10 text-white h-11">
+                  <SelectTrigger className="bg-black/[0.04] border-black/10 text-foreground h-11">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -377,9 +377,9 @@ const BecomeAffiliate = () => {
                 </Select>
               </div>
               <div>
-                <label className="block text-white/60 text-sm mb-1.5">{t.labelContentReady}</label>
+                <label className="block text-muted-foreground text-sm mb-1.5">{t.labelContentReady}</label>
                 <Select value={form.contentReady} onValueChange={(val) => setForm({ ...form, contentReady: val })}>
-                  <SelectTrigger className="bg-white/[0.06] border-white/10 text-white h-11">
+                  <SelectTrigger className="bg-black/[0.04] border-black/10 text-foreground h-11">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -390,9 +390,9 @@ const BecomeAffiliate = () => {
               </div>
             </div>
             <div>
-              <label className="block text-white/60 text-sm mb-1.5">{t.labelPaymentPlan}</label>
+              <label className="block text-muted-foreground text-sm mb-1.5">{t.labelPaymentPlan}</label>
               <Select value={form.paymentPlan} onValueChange={(val) => setForm({ ...form, paymentPlan: val })}>
-                <SelectTrigger className="bg-white/[0.06] border-white/10 text-white h-11">
+                <SelectTrigger className="bg-black/[0.04] border-black/10 text-foreground h-11">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -402,11 +402,11 @@ const BecomeAffiliate = () => {
               </Select>
             </div>
             <div>
-              <label className="block text-white/60 text-sm mb-1.5">{t.labelMessage}</label>
+              <label className="block text-muted-foreground text-sm mb-1.5">{t.labelMessage}</label>
               <Textarea
                 value={form.message}
                 onChange={(e) => setForm({ ...form, message: e.target.value })}
-                className="bg-white/[0.06] border-white/10 text-white placeholder:text-white/30 min-h-[100px]"
+                className="bg-black/[0.04] border-black/10 text-foreground placeholder:text-muted-foreground min-h-[100px]"
               />
             </div>
             <Button
@@ -420,7 +420,7 @@ const BecomeAffiliate = () => {
           </form>
         </section>
       </main>
-      <Footer />
+      <Footer variant="verified" />
     </div>
   );
 };
