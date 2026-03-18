@@ -1,6 +1,7 @@
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import SearchInput from "@/components/SearchInput";
 import { useEffect, useState, useMemo, useCallback, useRef } from "react";
+import { useSEO } from "@/hooks/useSEO";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
