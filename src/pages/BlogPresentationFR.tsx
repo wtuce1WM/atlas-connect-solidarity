@@ -423,13 +423,17 @@ const BlogPresentationFR = () => {
   }, []);
 
   return (
-    <div className="w-full h-screen bg-black">
-      <iframe
-        ref={iframeRef}
-        className="w-full h-full border-0"
-        title="One World Morocco — Présentation FR"
-        sandbox="allow-scripts allow-same-origin"
-      />
+    <div className="min-h-screen bg-black">
+      <Header />
+      <div className="w-full" style={{ height: "100vh" }}>
+        <iframe
+          ref={iframeRef}
+          className="w-full h-full border-0"
+          title="One World Morocco — Présentation FR"
+          sandbox="allow-scripts allow-same-origin"
+        />
+      </div>
+      <Footer />
     </div>
   );
 };
