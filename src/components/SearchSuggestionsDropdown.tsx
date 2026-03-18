@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { businessUrl } from "@/lib/businessUrl";
 import { Building2 } from "lucide-react";
 import type { SearchSuggestion } from "@/hooks/useSearchSuggestions";
 
