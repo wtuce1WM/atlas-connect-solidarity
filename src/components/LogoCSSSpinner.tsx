@@ -1,5 +1,5 @@
 import { useState } from "react";
-import logoGold from "@/assets/logo-3d-coin.webp";
+import logoGold from "@/assets/logo-3d-coin-v2.webp";
 
 interface LogoCSSSpinnerProps {
   className?: string;
