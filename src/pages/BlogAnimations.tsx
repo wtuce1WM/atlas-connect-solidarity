@@ -13,11 +13,11 @@ const BlogAnimations = () => {
       <div className="bg-black pt-28 pb-12">
         <div className="container mx-auto px-4">
           <button
-            onClick={() => navigate("/blog")}
+            onClick={() => navigate("/staff/backoffice")}
             className="inline-flex items-center gap-2 text-white/60 hover:text-gold mb-4 transition-colors text-sm"
           >
             <ArrowLeft className="h-4 w-4" />
-            Retour au blog
+            Retour au backoffice
           </button>
           <h1 className="text-3xl md:text-4xl font-bold text-white font-['Playfair_Display'] italic">
             Animations
