@@ -47,3 +47,6 @@ verify_jwt = false
 
 [functions.tripadvisor-sync]
 verify_jwt = false
+
+[functions.yext-sync]
+verify_jwt = false
