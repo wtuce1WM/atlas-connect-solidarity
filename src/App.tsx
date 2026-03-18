@@ -107,7 +107,7 @@ const AppContent = () => {
               <Route path="/contact" element={<Contact />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/essaouira-vue-mer" element={<EssaouiraSeaView />} />
-              <Route path="/blog/animations" element={<BlogAnimations />} />
+              <Route path="/staff/animations" element={<StaffRouteGuard><BlogAnimations /></StaffRouteGuard>} />
               <Route path="/blog/ancien-accueil" element={<AncienAccueil />} />
               <Route path="/blog/typographie" element={<BlogTypography />} />
               <Route path="/blog/brummell" element={<StaffRouteGuard><BlogBrummellTypography /></StaffRouteGuard>} />
