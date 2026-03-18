@@ -47,6 +47,19 @@ const BlogPost = () => {
     fetchPost();
   }, [slug]);
 
+  const postTitle = (() => {
+    if (!post) return "";
+    if (language === "ar" && post.title_ar) return post.title_ar;
+    if (language === "en" && post.title_en) return post.title_en;
+    return post.title_fr;
+  })();
+
+  useSEO({
+    title: postTitle || "Article",
+    description: postTitle ? `${postTitle} – Blog ONE WORLD MOROCCO.` : undefined,
+    canonical: slug ? `/blog/${slug}` : undefined,
+  });
+
   const getTitle = () => {
     if (!post) return "";
     if (language === "ar" && post.title_ar) return post.title_ar;

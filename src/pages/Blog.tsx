@@ -30,6 +30,12 @@ const Blog = () => {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  useSEO({
+    title: "Blog – Actualités et guides",
+    description: "Articles, guides et actualités sur le Maroc par ONE WORLD MOROCCO.",
+    canonical: "/blog",
+  });
+
   useEffect(() => {
     const fetchPosts = async () => {
       const { data } = await supabase
