@@ -2497,6 +2497,7 @@ const SearchPage = () => {
               {language === "en" ? "Enable" : language === "ar" ? "تفعيل" : "Activer"}
             </Button>
           </div>
+          </div>
         </div>
       )}
 
