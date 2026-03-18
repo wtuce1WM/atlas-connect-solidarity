@@ -83,7 +83,11 @@ async function resolveViaTextSearch(placeName: string, apiKey: string): Promise<
  * Regex-based fallback extraction from URL string.
  * Priority: !8m2!3d/!4d > !3d/!4d > @lat,lng > ?q= > place/
  */
-function extractFromUrlRegex(url: string): { lat: string; lng: string } | null {
+/**
+ * Extract precise marker coordinates from URL (NOT camera position).
+ * Only returns !3d/!4d and q= coords which are marker-based.
+ */
+function extractMarkerCoords(url: string): { lat: string; lng: string } | null {
   // 1. Specific place marker: !8m2!3d...!4d...
   const m8 = url.match(/!8m2!3d(-?\d+\.?\d*)!4d(-?\d+\.?\d*)/);
   if (m8) return { lat: m8[1], lng: m8[2] };
@@ -92,15 +96,20 @@ function extractFromUrlRegex(url: string): { lat: string; lng: string } | null {
   const embedMatch = url.match(/!3d(-?\d+\.?\d*).*!4d(-?\d+\.?\d*)/);
   if (embedMatch) return { lat: embedMatch[1], lng: embedMatch[2] };
 
-  // 3. Camera position @lat,lng (less reliable but sometimes only option)
-  const atMatch = url.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
-  if (atMatch) return { lat: atMatch[1], lng: atMatch[2] };
-
-  // 4. Query parameter
+  // 3. Query parameter (explicit coords)
   const qMatch = url.match(/[?&]q=(-?\d+\.?\d*),(-?\d+\.?\d*)/) ||
                  url.match(/place\/(-?\d+\.?\d*),(-?\d+\.?\d*)/);
   if (qMatch) return { lat: qMatch[1], lng: qMatch[2] };
 
+  return null;
+}
+
+/**
+ * Extract camera position @lat,lng — less precise fallback.
+ */
+function extractCameraCoords(url: string): { lat: string; lng: string } | null {
+  const atMatch = url.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+  if (atMatch) return { lat: atMatch[1], lng: atMatch[2] };
   return null;
 }
 
