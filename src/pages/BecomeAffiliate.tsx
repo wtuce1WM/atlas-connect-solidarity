@@ -277,7 +277,7 @@ const BecomeAffiliate = () => {
                 { icon: Shield, label: t.formBadge2 },
                 { icon: Headphones, label: t.formBadge3 },
               ].map(({ icon: Icon, label }) => (
-                <span key={label} className="inline-flex items-center gap-2 text-white/70 text-sm bg-white/[0.06] border border-white/10 rounded-full px-4 py-2">
+                <span key={label} className="inline-flex items-center gap-2 text-muted-foreground text-sm bg-black/[0.04] border border-black/10 rounded-full px-4 py-2">
                   <Icon className="h-4 w-4 text-gold" />
                   {label}
                 </span>
