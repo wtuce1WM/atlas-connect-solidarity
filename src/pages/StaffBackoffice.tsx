@@ -32,6 +32,7 @@ import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
 import ServiceManagement from "@/components/staff/ServiceManagement";
 import KeywordManagement from "@/components/staff/KeywordManagement";
 import HotelMappingManagement from "@/components/staff/HotelMappingManagement";
+import SocialLinksManagement from "@/components/staff/SocialLinksManagement";
 
 import type { Tables } from "@/integrations/supabase/types";
 
