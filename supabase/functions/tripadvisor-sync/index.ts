@@ -65,13 +65,15 @@ async function searchLocation(name: string, city: string, lat: number | null, ln
 }
 
 // Get location details (rating, review count)
-async function getLocationDetails(locationId: string, apiKey: string): Promise<{ rating: number | null; reviewCount: number | null }> {
+async function getLocationDetails(locationId: string, apiKey: string): Promise<{ rating: number | null; reviewCount: number | null; webUrl: string | null; writeReviewUrl: string | null }> {
   const data = await taFetch(`/location/${locationId}/details`, apiKey);
-  if (!data) return { rating: null, reviewCount: null };
+  if (!data) return { rating: null, reviewCount: null, webUrl: null, writeReviewUrl: null };
 
   return {
     rating: data.rating ? parseFloat(data.rating) : null,
     reviewCount: data.num_reviews ? parseInt(data.num_reviews) : null,
+    webUrl: data.web_url || null,
+    writeReviewUrl: data.write_review || null,
   };
 }
 
