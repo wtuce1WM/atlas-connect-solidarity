@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { businessUrl } from "@/lib/businessUrl";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
