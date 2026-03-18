@@ -1011,6 +1011,18 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
 
     setLoading(true);
 
+    // Verify auth session is still valid before saving
+    const { data: sessionData } = await supabase.auth.getSession();
+    if (!sessionData.session) {
+      toast({
+        variant: "destructive",
+        title: "Session expirée",
+        description: "Votre session a expiré. Veuillez vous reconnecter.",
+      });
+      setLoading(false);
+      return;
+    }
+
     const businessData = {
       name: formData.name,
       description: formData.description || null,
