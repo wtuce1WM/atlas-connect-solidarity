@@ -8,7 +8,7 @@ interface FooterProps {
 }
 
 const Footer = ({ variant = "default" }: FooterProps) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const isVerified = variant === "verified";
 
