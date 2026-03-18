@@ -3200,6 +3200,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_own_affiliate_business: {
+        Args: { _business_id: string; _user_id: string }
+        Returns: boolean
+      }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
       search_businesses_with_rank:
         | {
