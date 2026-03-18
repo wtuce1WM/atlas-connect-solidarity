@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
+import { businessUrl } from "@/lib/businessUrl";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -328,7 +329,7 @@ const RatedBusinesses = () => {
                     <TableRow key={b.id} className="hover:bg-muted/30">
                       <TableCell className="text-center text-sm font-bold text-muted-foreground">{index + 1}</TableCell>
                       <TableCell className="font-medium max-w-[200px] truncate">
-                        <Link to={`/business/${b.id}`} target="_blank" rel="noopener noreferrer" className="hover:text-primary hover:underline">
+                        <Link to={businessUrl(b)} target="_blank" rel="noopener noreferrer" className="hover:text-primary hover:underline">
                           {b.name}
                         </Link>
                       </TableCell>
@@ -377,7 +378,7 @@ const RatedBusinesses = () => {
                       {/* Links */}
                       <TableCell className="text-center">
                         <div className="flex items-center justify-center gap-1">
-                          <Link to={`/business/${b.id}`} target="_blank" rel="noopener noreferrer" title="Voir la fiche">
+                          <Link to={businessUrl(b)} target="_blank" rel="noopener noreferrer" title="Voir la fiche">
                             <Button variant="ghost" size="icon" className="h-7 w-7">
                               <ExternalLink className="h-3.5 w-3.5" />
                             </Button>

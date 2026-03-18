@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { businessUrl } from "@/lib/businessUrl";
 import { collectRatingSources, computeWeightedRatingOn20, getTotalReviewCount } from "@/lib/ratingUtils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -247,7 +248,7 @@ const BusinessTable = ({ businesses, gammes, loading, onEdit, onDelete, onDuplic
                       </a>
                     )}
                     <a
-                      href={`/business/${business.id}`}
+                      href={businessUrl(business)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-sm text-primary hover:underline inline-flex items-center gap-1"

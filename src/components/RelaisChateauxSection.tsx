@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { businessUrl } from "@/lib/businessUrl";
 import { Link } from "react-router-dom";
 import { MapPin, Star, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -142,7 +143,7 @@ const RelaisChateauxSection = () => {
             return (
             <Link
               key={business.id}
-              to={`/business/${business.id}`}
+              to={businessUrl(business)}
               className="group"
             >
               <Card className="h-full overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-gold/20 border border-gold/30 relative">

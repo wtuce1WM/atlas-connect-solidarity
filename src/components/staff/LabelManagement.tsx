@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { businessUrl } from "@/lib/businessUrl";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchAllRows } from "@/lib/fetchAllRows";
 import { Button } from "@/components/ui/button";
@@ -819,7 +820,7 @@ const LabelManagement = () => {
                             <span className="text-sm">
                               {b.name} <span className="text-muted-foreground">— {b.city}</span>
                             </span>
-                            <a href={`/business/${b.id}`} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">
+                            <a href={businessUrl(b)} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">
                               Voir fiche
                             </a>
                           </div>

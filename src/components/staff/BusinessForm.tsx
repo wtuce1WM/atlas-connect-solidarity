@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from "react";
+import { businessUrl } from "@/lib/businessUrl";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Switch } from "@/components/ui/switch";
@@ -1402,7 +1403,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               })()}
               <span className="text-muted-foreground/40">|</span>
               <a
-                href={`/business/${business.id}`}
+                href={businessUrl(business)}
                 target="_blank"
                 rel="noopener noreferrer"
                 title="Voir la fiche publique"

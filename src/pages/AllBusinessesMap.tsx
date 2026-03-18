@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
+import { businessUrl } from "@/lib/businessUrl";
 import { Link } from "react-router-dom";
 import { Loader2, MapPin, X, Phone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -159,7 +160,7 @@ const AllBusinessesMap = () => {
             {selectedBusiness && (
               <div className="absolute top-2 right-2 z-10 bg-white text-black px-4 py-3 rounded shadow-lg max-w-xs">
                 <div className="flex items-start justify-between gap-2 mb-2">
-                  <Link to={`/business/${selectedBusiness.id}`} className="text-sm font-bold hover:text-primary">
+                  <Link to={businessUrl(selectedBusiness)} className="text-sm font-bold hover:text-primary">
                     {selectedBusiness.name}
                   </Link>
                   <button onClick={() => setSelectedBusiness(null)} className="hover:bg-black/10 rounded p-1 flex-shrink-0">
@@ -217,7 +218,7 @@ const AllBusinessesMap = () => {
                   <span className="text-[10px] text-muted-foreground">Pas de GPS</span>
                 )}
                 <Link 
-                  to={`/business/${b.id}`} 
+                  to={businessUrl(b)} 
                   className="text-[10px] text-primary hover:underline ml-auto"
                   onClick={e => e.stopPropagation()}
                 >

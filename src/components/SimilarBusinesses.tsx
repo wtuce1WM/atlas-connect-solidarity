@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type RefObject } from "react";
+import { businessUrl } from "@/lib/businessUrl";
 import { Link } from "react-router-dom";
 import { MapPin, Star, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -131,7 +132,7 @@ const SimilarBusinesses = ({ currentBusinessId, categories, city, onNavigate, on
           return (
             <Link
               key={biz.id}
-              to={`/business/${biz.id}`}
+              to={businessUrl(biz)}
               onClick={(e) => {
                 if (onNavigate) {
                   e.preventDefault();
@@ -179,7 +180,7 @@ const SimilarBusinesses = ({ currentBusinessId, categories, city, onNavigate, on
           return (
             <Link
               key={biz.id}
-              to={`/business/${biz.id}`}
+              to={businessUrl(biz)}
               onClick={(e) => {
                 if (onNavigate) {
                   e.preventDefault();

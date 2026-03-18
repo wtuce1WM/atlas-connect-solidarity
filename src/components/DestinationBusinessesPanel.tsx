@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import { businessUrl } from "@/lib/businessUrl";
 import { Link } from "react-router-dom";
 import { MapPin, Star, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
@@ -252,7 +253,7 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
                   return (
                     <Link
                       key={biz.id}
-                      to={`/business/${biz.id}`}
+                      to={businessUrl(biz)}
                       onClick={(e) => {
                         if (onBusinessClick) {
                           e.preventDefault();

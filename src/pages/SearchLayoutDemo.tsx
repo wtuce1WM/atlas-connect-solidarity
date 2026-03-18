@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo, useRef } from "react";
+import { businessUrl } from "@/lib/businessUrl";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
@@ -60,7 +61,7 @@ const CompactListItem = ({
   );
 
   return (
-    <Link to={`/business/${business.id}`} className="group">
+    <Link to={businessUrl(business)} className="group">
       <div className="flex items-center gap-3 p-3 rounded-xl bg-card border border-border hover:border-primary/50 transition-all hover:shadow-md">
         {/* Thumbnail */}
         <div className={`w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 ${isLogo ? "bg-white" : "bg-muted"}`}>

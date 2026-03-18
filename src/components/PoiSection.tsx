@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { businessUrl } from "@/lib/businessUrl";
 import { Link } from "react-router-dom";
 import { MapPin, Star, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -109,7 +110,7 @@ const PoiSection = ({ city, language, onBusinessClick, columns, onMapClick, onPo
           return (
             <Link
               key={biz.id}
-              to={`/business/${biz.id}`}
+              to={businessUrl(biz)}
               onClick={(e) => {
                 if (onBusinessClick) {
                   e.preventDefault();

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { businessUrl } from "@/lib/businessUrl";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -143,7 +144,7 @@ const EssaouiraSeaView = () => {
 
                 <div className="grid md:grid-cols-3 gap-6">
                   {featured.map((business, index) => (
-                    <Link key={business.id} to={`/business/${business.id}`} className="group">
+                    <Link key={business.id} to={businessUrl(business)} className="group">
                       <div className={`relative overflow-hidden rounded-2xl ${index === 1 ? "md:-mt-4 md:mb-4" : ""}`}>
                         <div className="aspect-[3/4] overflow-hidden">
                           <img
@@ -231,7 +232,7 @@ const EssaouiraSeaView = () => {
 
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                   {rest.map((business) => (
-                    <Link key={business.id} to={`/business/${business.id}`} className="group">
+                    <Link key={business.id} to={businessUrl(business)} className="group">
                       <Card className="overflow-hidden border-border/50 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300 h-full">
                         <div className="relative aspect-[4/3] overflow-hidden">
                           <img

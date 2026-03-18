@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { businessUrl } from "@/lib/businessUrl";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -292,7 +293,7 @@ const KPGroupManagement = ({ onEditBusiness }: KPGroupManagementProps) => {
                       >
                         <Pencil className="h-3.5 w-3.5 text-green-600" />
                       </Button>
-                      <a href={`/business/${b.id}`} target="_blank" rel="noopener noreferrer" title="Voir la fiche publique dans un nouvel onglet">
+                      <a href={businessUrl(b)} target="_blank" rel="noopener noreferrer" title="Voir la fiche publique dans un nouvel onglet">
                         <Button size="sm" variant="ghost" className="h-7 w-7 p-0" type="button" asChild>
                           <span><Eye className="h-3.5 w-3.5 text-blue-600" /></span>
                         </Button>

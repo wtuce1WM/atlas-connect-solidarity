@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { businessUrl } from "@/lib/businessUrl";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
@@ -380,7 +381,7 @@ const KeywordsBySubcategorySection = ({ categories, subcategories, services, bus
                         <TableCell className="text-sm text-muted-foreground">{b.city || "—"}</TableCell>
                         <TableCell><Badge variant={b.is_active ? "default" : "secondary"} className={b.is_active ? "bg-green-200 text-black hover:bg-green-300" : ""}>{b.is_active ? "Actif" : "Inactif"}</Badge></TableCell>
                         <TableCell className="flex gap-1">
-                          <Link to={`/business/${b.id}`} target="_blank"><Button variant="ghost" size="icon" className="h-7 w-7" title="Voir"><Eye className="h-3.5 w-3.5" /></Button></Link>
+                          <Link to={businessUrl(b)} target="_blank"><Button variant="ghost" size="icon" className="h-7 w-7" title="Voir"><Eye className="h-3.5 w-3.5" /></Button></Link>
                           <Link to={`/staff/catalogue?edit=${b.id}`}><Button variant="ghost" size="icon" className="h-7 w-7" title="Éditer"><ExternalLink className="h-3.5 w-3.5" /></Button></Link>
                         </TableCell>
                       </TableRow>

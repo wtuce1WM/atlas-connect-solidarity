@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { businessUrl } from "@/lib/businessUrl";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchAllRows } from "@/lib/fetchAllRows";
@@ -1081,7 +1082,7 @@ const CategoryManagement = () => {
                     </div>
                     <div className="flex items-center gap-1 flex-shrink-0">
                       <Button variant="ghost" size="sm" className="h-7 px-2 text-xs gap-1" asChild>
-                        <Link to={`/business/${b.id}`} target="_blank">
+                        <Link to={businessUrl(b)} target="_blank">
                           <ExternalLink className="h-3 w-3" />
                           Front
                         </Link>

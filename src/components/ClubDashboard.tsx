@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { businessUrl } from "@/lib/businessUrl";
 import { Crown, Loader2, LogOut, Save, Bookmark, Trash2, ExternalLink, Tag } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Input } from "@/components/ui/input";
@@ -20,7 +21,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [memberId, setMemberId] = useState<string | null>(null);
-  const [bookmarks, setBookmarks] = useState<{ id: string; business_id: string; name: string; city: string | null; main_category: string | null; promotion: { type: string; value: number; currency: string; message: string | null } | null }[]>([]);
+  const [bookmarks, setBookmarks] = useState<{ id: string; business_id: string; name: string; city: string | null; main_category: string | null; slug: string | null; promotion: { type: string; value: number; currency: string; message: string | null } | null }[]>([]);
   const [countries, setCountries] = useState<{ id: string; name_fr: string; name_en: string | null; name_ar: string | null; code: string | null }[]>([]);
   const [form, setForm] = useState({
     first_name: "",
@@ -165,7 +166,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
         if (bookmarksRes.data && bookmarksRes.data.length > 0) {
           const bIds = (bookmarksRes.data as any[]).map((b: any) => b.business_id);
           const [bizRes, promoRes] = await Promise.all([
-            supabase.from("businesses").select("id, name, city, main_category").in("id", bIds),
+            supabase.from("businesses").select("id, name, city, main_category, slug").in("id", bIds),
             supabase.from("affiliate_business_promotions").select("business_id, promotion_type, promotion_value, promotion_currency, promotion_message").in("business_id", bIds),
           ]);
           
@@ -181,6 +182,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
                 name: biz?.name || "—",
                 city: biz?.city || null,
                 main_category: biz?.main_category || null,
+                slug: biz?.slug || null,
                 promotion: promo ? { type: promo.promotion_type, value: promo.promotion_value, currency: promo.promotion_currency, message: promo.promotion_message } : null,
               };
             }).filter((bk: any) => bizMap.has(bk.business_id))
@@ -360,12 +362,12 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
             {bookmarks.map((bk) => (
               <div key={bk.id} className="rounded-lg border bg-background overflow-hidden">
                 <div className="flex items-center justify-between p-3">
-                  <Link to={`/business/${bk.business_id}`} className="flex-1 min-w-0 hover:underline">
+                  <Link to={businessUrl({ id: bk.business_id, slug: bk.slug })} className="flex-1 min-w-0 hover:underline">
                     <p className="font-medium text-sm truncate">{bk.name}</p>
                     <p className="text-xs text-muted-foreground">{[bk.city, bk.main_category].filter(Boolean).join(" · ")}</p>
                   </Link>
                   <div className="flex items-center gap-1 ml-2">
-                    <Link to={`/business/${bk.business_id}`}>
+                    <Link to={businessUrl({ id: bk.business_id, slug: bk.slug })}>
                       <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                         <ExternalLink className="h-3.5 w-3.5" />
                       </Button>
