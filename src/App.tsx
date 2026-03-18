@@ -58,7 +58,7 @@ const queryClient = new QueryClient();
 const GlobalFloatingSearchBar = () => {
   const location = useLocation();
   // Hide on home page and staff/affiliate backoffice pages
-  const hiddenPaths = ["/", "/search", "/staff/login", "/staff/backoffice", "/staff/catalogue", "/staff/crm", "/staff/master", "/staff/b2b", "/affiliates", "/affiliates/dashboard", "/search-analytics"];
+  const hiddenPaths = ["/", "/search", "/staff/login", "/staff/backoffice", "/staff/catalogue", "/staff/crm", "/staff/master", "/staff/b2b", "/affiliates", "/affiliates/dashboard", "/affiliates/presence", "/search-analytics"];
   if (hiddenPaths.includes(location.pathname)) return null;
   return <FloatingSearchBar />;
 };
