@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
+import { useSEO } from "@/hooks/useSEO";
 import { collectRatingSources, computeWeightedRatingOn20, getTotalReviewCount } from "@/lib/ratingUtils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useParams, Link, useSearchParams, useNavigate } from "react-router-dom";

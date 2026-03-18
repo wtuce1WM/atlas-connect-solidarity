@@ -1,5 +1,6 @@
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { useEffect, useState, useMemo } from "react";
+import { useSEO } from "@/hooks/useSEO";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
