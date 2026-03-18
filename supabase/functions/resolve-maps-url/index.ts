@@ -155,23 +155,23 @@ serve(async (req) => {
     let lng: number | null = null;
     let method = "unknown";
 
-    // Step 2: Regex on final URL — most reliable when URL contains !3d/!4d marker coords
+    // Step 2: Precise marker coords from final URL (!3d/!4d)
     {
-      const regex = extractFromUrlRegex(finalUrl);
-      if (regex) {
-        lat = parseFloat(regex.lat);
-        lng = parseFloat(regex.lng);
-        method = "regex-url";
+      const marker = extractMarkerCoords(finalUrl);
+      if (marker) {
+        lat = parseFloat(marker.lat);
+        lng = parseFloat(marker.lng);
+        method = "marker-regex-url";
       }
     }
 
-    // Step 3: Regex on original URL (in case redirect didn't change it)
+    // Step 3: Precise marker coords from original URL
     if (lat === null) {
-      const regex = extractFromUrlRegex(url);
-      if (regex) {
-        lat = parseFloat(regex.lat);
-        lng = parseFloat(regex.lng);
-        method = "regex-original";
+      const marker = extractMarkerCoords(url);
+      if (marker) {
+        lat = parseFloat(marker.lat);
+        lng = parseFloat(marker.lng);
+        method = "marker-regex-original";
       }
     }
 
@@ -188,7 +188,7 @@ serve(async (req) => {
       }
     }
 
-    // Step 5: Try Google Places API text search (may be ambiguous for generic names)
+    // Step 5: Try Google Places API text search (more precise than camera coords)
     if (lat === null && apiKey) {
       const placeName = extractPlaceName(finalUrl) || extractPlaceName(url);
       if (placeName) {
@@ -201,7 +201,17 @@ serve(async (req) => {
       }
     }
 
-    // Step 6: Try parsing HTML body
+    // Step 6: Camera position @lat,lng — less precise fallback
+    if (lat === null) {
+      const camera = extractCameraCoords(finalUrl) || extractCameraCoords(url);
+      if (camera) {
+        lat = parseFloat(camera.lat);
+        lng = parseFloat(camera.lng);
+        method = "camera-fallback";
+      }
+    }
+
+    // Step 7: Try parsing HTML body as last resort
     if (lat === null) {
       try {
         const response = await fetch(url, { redirect: "follow" });
