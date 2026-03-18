@@ -242,7 +242,7 @@ const BecomeAffiliate = () => {
               {/* Features */}
               <ul className="space-y-4 mb-10">
                 {t.features.map((feat, i) => (
-                  <li key={i} className="flex items-start gap-3 text-white/85">
+                  <li key={i} className="flex items-start gap-3 text-foreground/85">
                     <Check className="h-5 w-5 text-gold mt-0.5 shrink-0" />
                     <span>{feat}</span>
                   </li>
