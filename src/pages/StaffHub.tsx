@@ -2,11 +2,13 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { LogOut, BookOpen, Users, Shield, Star, Sparkles, Wand2, Briefcase } from "lucide-react";
+import { LogOut, BookOpen, Users, Shield, Star, Sparkles, Wand2, Briefcase, Building2, BadgeCheck } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 
 const StaffHub = () => {
   const [user, setUser] = useState<any>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [stats, setStats] = useState({ active: 0, verified: 0 });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,10 +24,25 @@ const StaffHub = () => {
         navigate("/staff/login");
         return;
       }
+      setIsAdmin(roles.some((r) => r.role === "admin"));
       setUser(session.user);
     };
     checkAuth();
   }, [navigate]);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      const [activeRes, verifiedRes] = await Promise.all([
+        supabase.from("businesses").select("id", { count: "exact", head: true }).eq("is_active", true),
+        supabase.from("businesses").select("id", { count: "exact", head: true }).eq("is_active", true).eq("wtuce_status", "verified"),
+      ]);
+      setStats({
+        active: activeRes.count ?? 0,
+        verified: verifiedRes.count ?? 0,
+      });
+    };
+    if (user) fetchStats();
+  }, [user]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -40,7 +57,7 @@ const StaffHub = () => {
     );
   }
 
-  const sections = [
+  const allSections = [
     {
       title: "Catalogue",
       description: "Gérer les établissements, catégories, labels, sponsors et toute la donnée métier.",
@@ -48,6 +65,7 @@ const StaffHub = () => {
       href: "/staff/catalogue",
       color: "from-gold/20 to-amber-500/10",
       iconColor: "text-gold",
+      adminOnly: false,
     },
     {
       title: "CRM",
@@ -56,6 +74,7 @@ const StaffHub = () => {
       href: "/staff/crm",
       color: "from-blue-500/20 to-cyan-500/10",
       iconColor: "text-blue-600",
+      adminOnly: false,
     },
     {
       title: "B2B",
@@ -64,6 +83,7 @@ const StaffHub = () => {
       href: "/staff/b2b",
       color: "from-emerald-500/20 to-green-500/10",
       iconColor: "text-emerald-600",
+      adminOnly: false,
     },
     {
       title: "Master",
@@ -72,8 +92,11 @@ const StaffHub = () => {
       href: "/staff/master",
       color: "from-purple-500/20 to-pink-500/10",
       iconColor: "text-purple-600",
+      adminOnly: true,
     },
   ];
+
+  const sections = allSections.filter((s) => !s.adminOnly || isAdmin);
 
   return (
     <div className="min-h-screen bg-muted">
@@ -112,7 +135,25 @@ const StaffHub = () => {
           <p className="text-muted-foreground">Sélectionnez un module pour commencer</p>
         </div>
 
-        <div className="grid md:grid-cols-4 gap-6 max-w-5xl mx-auto">
+        {/* Dashboard Stats */}
+        <div className="grid grid-cols-2 gap-4 max-w-md mx-auto mb-12">
+          <div className="bg-background rounded-xl border p-5 text-center">
+            <div className="inline-flex p-3 rounded-lg bg-gradient-to-br from-blue-500/15 to-cyan-500/10 mb-3">
+              <Building2 className="h-6 w-6 text-blue-600" />
+            </div>
+            <p className="text-3xl font-bold">{stats.active}</p>
+            <p className="text-xs text-muted-foreground mt-1">Entreprises actives</p>
+          </div>
+          <div className="bg-background rounded-xl border p-5 text-center">
+            <div className="inline-flex p-3 rounded-lg bg-gradient-to-br from-emerald-500/15 to-green-500/10 mb-3">
+              <BadgeCheck className="h-6 w-6 text-emerald-600" />
+            </div>
+            <p className="text-3xl font-bold">{stats.verified}</p>
+            <p className="text-xs text-muted-foreground mt-1">Entreprises vérifiées</p>
+          </div>
+        </div>
+
+        <div className={`grid gap-6 max-w-5xl mx-auto ${sections.length === 4 ? 'md:grid-cols-4' : 'md:grid-cols-3'}`}>
           {sections.map((section) => {
             const Icon = section.icon;
             return (
