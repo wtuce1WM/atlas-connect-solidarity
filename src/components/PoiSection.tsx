@@ -109,7 +109,7 @@ const PoiSection = ({ city, language, onBusinessClick, columns, onMapClick, onPo
           return (
             <Link
               key={biz.id}
-              to={`/business/${biz.id}`}
+              to={businessUrl(biz)}
               onClick={(e) => {
                 if (onBusinessClick) {
                   e.preventDefault();

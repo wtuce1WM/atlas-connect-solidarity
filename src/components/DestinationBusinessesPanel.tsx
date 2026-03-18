@@ -252,7 +252,7 @@ const DestinationBusinessesPanel = ({ destination, language, onClose, onBusiness
                   return (
                     <Link
                       key={biz.id}
-                      to={`/business/${biz.id}`}
+                      to={businessUrl(biz)}
                       onClick={(e) => {
                         if (onBusinessClick) {
                           e.preventDefault();

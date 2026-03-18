@@ -217,7 +217,7 @@ const AllBusinessesMap = () => {
                   <span className="text-[10px] text-muted-foreground">Pas de GPS</span>
                 )}
                 <Link 
-                  to={`/business/${b.id}`} 
+                  to={businessUrl(b)} 
                   className="text-[10px] text-primary hover:underline ml-auto"
                   onClick={e => e.stopPropagation()}
                 >

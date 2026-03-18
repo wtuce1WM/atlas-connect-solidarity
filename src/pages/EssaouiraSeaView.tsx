@@ -143,7 +143,7 @@ const EssaouiraSeaView = () => {
 
                 <div className="grid md:grid-cols-3 gap-6">
                   {featured.map((business, index) => (
-                    <Link key={business.id} to={`/business/${business.id}`} className="group">
+                    <Link key={business.id} to={businessUrl(business)} className="group">
                       <div className={`relative overflow-hidden rounded-2xl ${index === 1 ? "md:-mt-4 md:mb-4" : ""}`}>
                         <div className="aspect-[3/4] overflow-hidden">
                           <img
