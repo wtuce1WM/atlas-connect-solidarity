@@ -676,8 +676,9 @@ serve(async (req) => {
     // Detect superlative intent (meilleur, top, best…) → sort by rating
     const isSuperlatif = effectiveQuery ? detectSuperlative(effectiveQuery) : false;
 
-// Auto-détection de ville dans la query si aucune ville n'est passée explicitement
-    const cityDetection = (!city && effectiveQuery) ? await detectCityInQueryDynamic(effectiveQuery, supabase) : null;
+// Auto-détection de ville dans la query (toujours, même si city est passée explicitement,
+    // pour pouvoir purger le terme ville de la requête textuelle)
+    const cityDetection = effectiveQuery ? await detectCityInQueryDynamic(effectiveQuery, supabase) : null;
     const detectedCity = cityDetection?.cityName || null;
     const detectedCityMatchedTerm = cityDetection?.matchedTerm || null;
     let effectiveCity = city || detectedCity || undefined;
