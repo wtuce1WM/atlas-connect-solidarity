@@ -81,7 +81,15 @@ interface CityInfo {
   wikipedia_ar: string | null;
 }
 
-const CityMap = () => {
+  const decodedCity = city ? decodeURIComponent(city) : "";
+
+  useSEO({
+    title: decodedCity ? `${decodedCity} – Guide des meilleures adresses` : "Ville",
+    description: decodedCity ? `Explorez les meilleurs hôtels, restaurants, activités et services à ${decodedCity}. Guide ONE WORLD MOROCCO.` : undefined,
+    canonical: city ? `/city/${city}` : undefined,
+  });
+
+const CityMapInner = () => {
   const { city } = useParams<{ city: string }>();
   const [searchParams] = useSearchParams();
   const { language } = useLanguage();
