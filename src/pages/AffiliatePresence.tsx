@@ -18,6 +18,7 @@ import { InstagramIcon, TikTokIcon, PinterestIcon } from "@/components/staff/Soc
 import OpeningHoursEditor, { OpeningHours } from "@/components/staff/OpeningHoursEditor";
 import AffiliateContactEditor from "@/components/affiliate/AffiliateContactEditor";
 import AffiliatePlatformHelp from "@/components/affiliate/AffiliatePlatformHelp";
+import YextSyncButton from "@/components/affiliate/YextSyncButton";
 
 const PLATFORMS = [
   { key: "google_maps_url", label: "Google Business", icon: <MapPin className="h-4 w-4" />, color: "text-blue-500" },
