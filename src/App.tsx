@@ -127,8 +127,8 @@ const AppContent = () => {
               <Route path="/staff/mode-strict" element={<StaffRouteGuard><StrictModePage /></StaffRouteGuard>} />
               <Route path="/staff/ai-effects" element={<StaffRouteGuard><Suspense fallback={null}><AIEffectsDemo /></Suspense></StaffRouteGuard>} />
               <Route path="/blog/icon-preview" element={<IconPreview />} />
-              <Route path="/blog/presentation" element={<BlogPresentation />} />
-              <Route path="/blog/presentation-fr" element={<BlogPresentationFR />} />
+              <Route path="/staff/presentation" element={<StaffRouteGuard><BlogPresentation /></StaffRouteGuard>} />
+              <Route path="/staff/presentation-fr" element={<StaffRouteGuard><BlogPresentationFR /></StaffRouteGuard>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
