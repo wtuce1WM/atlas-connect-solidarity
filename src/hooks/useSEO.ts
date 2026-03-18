@@ -8,6 +8,7 @@ interface SEOOptions {
 }
 
 const SITE_NAME = "ONE WORLD MOROCCO";
+const SITE_TAGLINE = "1ère plateforme de e-commerce solidaire au Maroc";
 const BASE_URL = "https://oneworldmorocco.com";
 
 /**
