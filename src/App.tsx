@@ -112,7 +112,7 @@ const AppContent = () => {
               <Route path="/blog/typographie" element={<BlogTypography />} />
               <Route path="/staff/brummell" element={<StaffRouteGuard><BlogBrummellTypography /></StaffRouteGuard>} />
               <Route path="/blog/:slug" element={<BlogPost />} />
-              <Route path="/etablissements-notes" element={<RatedBusinesses />} />
+              <Route path="/staff/etablissements-notes" element={<StaffRouteGuard><RatedBusinesses /></StaffRouteGuard>} />
               <Route path="/neighborhood/:neighborhood" element={<NeighborhoodPage />} />
               <Route path="/carte" element={<AllBusinessesMap />} />
               <Route path="/subcategory/:subcategoryName" element={<SubcategoryPage />} />
