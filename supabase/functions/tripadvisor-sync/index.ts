@@ -174,6 +174,8 @@ Deno.serve(async (req) => {
     const updateData: Record<string, any> = {};
     if (details.rating != null) updateData.tripadvisor_rating = details.rating;
     if (details.reviewCount != null) updateData.tripadvisor_review_count = details.reviewCount;
+    if (details.webUrl) updateData.tripadvisor_url = details.webUrl;
+    if (details.writeReviewUrl) updateData.tripadvisor_review_url = details.writeReviewUrl;
 
     // Step 4: Append new photos to existing images (NEVER overwrite)
     let newPhotosCount = 0;
