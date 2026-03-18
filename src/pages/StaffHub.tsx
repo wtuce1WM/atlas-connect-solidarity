@@ -259,7 +259,7 @@ const StaffHub = () => {
               ))}
             </div>
           </div>
-        </div>
+        </div>}
 
         {/* Modules */}
         <div className={`grid gap-6 max-w-5xl mx-auto ${sections.length === 4 ? 'md:grid-cols-4' : sections.length === 3 ? 'md:grid-cols-3' : 'md:grid-cols-2'} mb-10`}>
