@@ -95,7 +95,7 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
       <div className="flex items-stretch gap-0">
         {/* Champion card - fixed on the left (desktop/tablet only) */}
         <Link
-          to={`/business/${champion.id}`}
+          to={businessUrl(champion)}
           className="hidden md:flex flex-shrink-0 w-64 px-4 group relative items-center justify-center"
         >
           <div className="flex flex-col items-center text-center space-y-3">
