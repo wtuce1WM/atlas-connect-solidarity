@@ -250,6 +250,11 @@ textarea::placeholder {
   50% { filter: drop-shadow(0 0 25px hsla(43,75%,55%,0.6)) drop-shadow(0 0 50px hsla(43,75%,55%,0.2)) brightness(1.08); }
 }
 
+@keyframes shineSwipe {
+  0%, 100% { transform: translateX(-120%); }
+  50% { transform: translateX(120%); }
+}
+
 @keyframes coinFloat {
   0%, 100% { transform: translateY(0) rotateX(0deg); }
   50% { transform: translateY(-6px) rotateX(3deg); }
