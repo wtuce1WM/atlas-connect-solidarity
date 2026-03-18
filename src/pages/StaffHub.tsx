@@ -300,7 +300,7 @@ const StaffHub = () => {
             </div>
             {noteLoaded && (
               <RichTextEditor
-                value={noteContent}
+                content={noteContent}
                 onChange={handleNoteChange}
               />
             )}
