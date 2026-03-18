@@ -206,12 +206,13 @@ const StaffBackoffice = () => {
 
   const handleDuplicate = async (business: Business) => {
     // Create a copy of the business without id and timestamps
-    const { id, created_at, updated_at, search_vector, ...businessData } = business;
+    const { id, created_at, updated_at, search_vector, slug, ...businessData } = business;
     
     const duplicatedBusiness = {
       ...businessData,
       name: `${business.name} (copie)`,
       is_active: false,
+      slug: null,
     };
 
     const { data, error } = await supabase
