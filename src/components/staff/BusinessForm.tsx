@@ -1011,9 +1011,9 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
 
     setLoading(true);
 
-    // Verify auth session is still valid before saving
-    const { data: sessionData } = await supabase.auth.getSession();
-    if (!sessionData.session) {
+    // Force token refresh to avoid RLS failures on expired JWT
+    const { data: sessionData, error: sessionError } = await supabase.auth.refreshSession();
+    if (sessionError || !sessionData.session) {
       toast({
         variant: "destructive",
         title: "Session expirée",
