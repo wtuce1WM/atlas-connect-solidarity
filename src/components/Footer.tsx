@@ -81,7 +81,7 @@ const Footer = ({ variant = "default" }: FooterProps) => {
               <li><Link to="/conditions-generales" className="transition-colors hover:text-gold">Conditions Générales de Fonctionnement</Link></li>
               <li><Link to="/mission" className="transition-colors hover:text-gold">{t("footer.ourMission")}</Link></li>
               <li><a href="/affiliates" className="transition-colors hover:text-gold">{t("footer.affiliates")}</a></li>
-              <li><a href="#" className="transition-colors hover:text-gold">{t("footer.press")}</a></li>
+              
               <li><a href="/staff/login" className="transition-colors hover:text-gold">{t("footer.staff")}</a></li>
               <li><Link to="/blog" className="transition-colors hover:text-gold">{t("footer.blog")}</Link></li>
             </ul>
