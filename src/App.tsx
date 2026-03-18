@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
 import FloatingSearchBar from "@/components/FloatingSearchBar";
+import StaffRouteGuard from "@/components/StaffRouteGuard";
 import FloatingClubButton from "@/components/FloatingClubButton";
 import FloatingWhatsAppButton from "@/components/FloatingWhatsAppButton";
 import Index from "./pages/Index";
@@ -109,7 +110,7 @@ const AppContent = () => {
               <Route path="/blog/animations" element={<BlogAnimations />} />
               <Route path="/blog/ancien-accueil" element={<AncienAccueil />} />
               <Route path="/blog/typographie" element={<BlogTypography />} />
-              <Route path="/blog/brummell" element={<BlogBrummellTypography />} />
+              <Route path="/blog/brummell" element={<StaffRouteGuard><BlogBrummellTypography /></StaffRouteGuard>} />
               <Route path="/blog/:slug" element={<BlogPost />} />
               <Route path="/etablissements-notes" element={<RatedBusinesses />} />
               <Route path="/neighborhood/:neighborhood" element={<NeighborhoodPage />} />
@@ -117,14 +118,14 @@ const AppContent = () => {
               <Route path="/subcategory/:subcategoryName" element={<SubcategoryPage />} />
               <Route path="/hotels" element={<HotelSearch />} />
               <Route path="/club" element={<Club />} />
-              <Route path="/demo-effects" element={<Suspense fallback={null}><LogoEffectsDemo /></Suspense>} />
+              <Route path="/demo-effects" element={<StaffRouteGuard><Suspense fallback={null}><LogoEffectsDemo /></Suspense></StaffRouteGuard>} />
               <Route path="/search-analytics" element={<SearchAnalytics />} />
               <Route path="/destination/:destinationName" element={<DestinationPage />} />
               <Route path="/conditions-generales" element={<CGF />} />
-              <Route path="/blog/search-layouts" element={<SearchLayoutDemo />} />
+              <Route path="/blog/search-layouts" element={<StaffRouteGuard><SearchLayoutDemo /></StaffRouteGuard>} />
               <Route path="/blog/search-copy" element={<SearchPageCopy />} />
-              <Route path="/blog/mode-strict" element={<StrictModePage />} />
-              <Route path="/blog/ai-effects" element={<Suspense fallback={null}><AIEffectsDemo /></Suspense>} />
+              <Route path="/blog/mode-strict" element={<StaffRouteGuard><StrictModePage /></StaffRouteGuard>} />
+              <Route path="/blog/ai-effects" element={<StaffRouteGuard><Suspense fallback={null}><AIEffectsDemo /></Suspense></StaffRouteGuard>} />
               <Route path="/blog/icon-preview" element={<IconPreview />} />
               <Route path="/blog/presentation" element={<BlogPresentation />} />
               <Route path="/blog/presentation-fr" element={<BlogPresentationFR />} />

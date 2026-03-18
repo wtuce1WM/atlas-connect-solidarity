@@ -347,6 +347,70 @@ const StaffHub = () => {
                 <p className="text-xs text-muted-foreground">Bibliothèque d'animations CSS disponibles</p>
               </div>
             </button>
+            {!isAdmin && (
+              <>
+                <button
+                  onClick={() => navigate("/blog/brummell")}
+                  className="group flex items-center gap-4 bg-background rounded-xl border p-5 text-left transition-all hover:shadow-md hover:border-gold/40 cursor-pointer"
+                >
+                  <div className="inline-flex p-3 rounded-lg bg-gradient-to-br from-amber-500/20 to-orange-500/10">
+                    <BookOpen className="h-6 w-6 text-amber-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-sm">Brummell Typographie</h3>
+                    <p className="text-xs text-muted-foreground">Guide typographique Brummell</p>
+                  </div>
+                </button>
+                <button
+                  onClick={() => navigate("/blog/ai-effects")}
+                  className="group flex items-center gap-4 bg-background rounded-xl border p-5 text-left transition-all hover:shadow-md hover:border-purple-500/40 cursor-pointer"
+                >
+                  <div className="inline-flex p-3 rounded-lg bg-gradient-to-br from-violet-500/20 to-indigo-500/10">
+                    <Sparkles className="h-6 w-6 text-violet-500" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-sm">AI Effects</h3>
+                    <p className="text-xs text-muted-foreground">Démonstration des effets IA</p>
+                  </div>
+                </button>
+                <button
+                  onClick={() => navigate("/blog/mode-strict")}
+                  className="group flex items-center gap-4 bg-background rounded-xl border p-5 text-left transition-all hover:shadow-md hover:border-emerald-500/40 cursor-pointer"
+                >
+                  <div className="inline-flex p-3 rounded-lg bg-gradient-to-br from-emerald-500/20 to-teal-500/10">
+                    <Shield className="h-6 w-6 text-emerald-500" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-sm">Mode Strict</h3>
+                    <p className="text-xs text-muted-foreground">Page de recherche en mode strict</p>
+                  </div>
+                </button>
+                <button
+                  onClick={() => navigate("/blog/search-layouts")}
+                  className="group flex items-center gap-4 bg-background rounded-xl border p-5 text-left transition-all hover:shadow-md hover:border-blue-500/40 cursor-pointer"
+                >
+                  <div className="inline-flex p-3 rounded-lg bg-gradient-to-br from-blue-500/20 to-sky-500/10">
+                    <LayoutGrid className="h-6 w-6 text-blue-500" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-sm">Search Layouts</h3>
+                    <p className="text-xs text-muted-foreground">Démo des layouts de recherche</p>
+                  </div>
+                </button>
+                <button
+                  onClick={() => navigate("/demo-effects")}
+                  className="group flex items-center gap-4 bg-background rounded-xl border p-5 text-left transition-all hover:shadow-md hover:border-pink-500/40 cursor-pointer"
+                >
+                  <div className="inline-flex p-3 rounded-lg bg-gradient-to-br from-pink-500/20 to-rose-500/10">
+                    <Sparkles className="h-6 w-6 text-pink-500" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-sm">Logo Effects</h3>
+                    <p className="text-xs text-muted-foreground">Démonstration des effets logo</p>
+                  </div>
+                </button>
+              </>
+            )}
           </div>
         </div>
       </main>

@@ -1,8 +1,18 @@
 User-agent: Googlebot
 Allow: /
+Disallow: /blog/brummell
+Disallow: /blog/ai-effects
+Disallow: /blog/mode-strict
+Disallow: /blog/search-layouts
+Disallow: /demo-effects
 
 User-agent: Bingbot
 Allow: /
+Disallow: /blog/brummell
+Disallow: /blog/ai-effects
+Disallow: /blog/mode-strict
+Disallow: /blog/search-layouts
+Disallow: /demo-effects
 
 User-agent: Twitterbot
 Allow: /
@@ -12,3 +22,8 @@ Allow: /
 
 User-agent: *
 Allow: /
+Disallow: /blog/brummell
+Disallow: /blog/ai-effects
+Disallow: /blog/mode-strict
+Disallow: /blog/search-layouts
+Disallow: /demo-effects
