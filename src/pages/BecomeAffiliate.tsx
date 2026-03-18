@@ -222,7 +222,7 @@ const BecomeAffiliate = () => {
           </div>
 
           <div className="max-w-md mx-auto">
-            <div className="relative rounded-2xl border border-gold/30 bg-gradient-to-b from-white/[0.06] to-white/[0.02] backdrop-blur-sm p-8 md:p-10 shadow-[0_0_60px_-15px_hsl(43_75%_55%/0.2)]">
+            <div className="relative rounded-2xl border border-gold/30 bg-gradient-to-b from-black/[0.02] to-black/[0.04] p-8 md:p-10 shadow-[0_0_60px_-15px_hsl(43_75%_55%/0.2)]">
               {/* Badge */}
               <div className="absolute -top-4 left-1/2 -translate-x-1/2">
                 <span className="inline-block bg-gold text-black text-sm font-bold px-5 py-1.5 rounded-full shadow-lg">
