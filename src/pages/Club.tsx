@@ -11,9 +11,15 @@ import { lovable } from "@/integrations/lovable/index";
 import { toast } from "@/hooks/use-toast";
 import ClubDashboard from "@/components/ClubDashboard";
 import type { User } from "@supabase/supabase-js";
+import { useSEO } from "@/hooks/useSEO";
 
 const Club = () => {
   const { language } = useLanguage();
+  useSEO({
+    title: "Club – Rejoignez la communauté",
+    description: "Rejoignez le Club ONE WORLD MOROCCO pour accéder à des avantages exclusifs et des recommandations personnalisées.",
+    canonical: "/club",
+  });
   const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [countries, setCountries] = useState<{ id: string; name_fr: string; name_en: string | null; name_ar: string | null; code: string | null }[]>([]);
