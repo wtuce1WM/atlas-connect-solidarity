@@ -1219,7 +1219,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                       src={images[currentImageIndex - videoOffset]}
                       alt=""
                       aria-hidden="true"
-                      className="absolute inset-0 w-full h-full object-cover scale-110 blur-lg opacity-60"
+                      className="absolute inset-0 w-full h-full object-cover scale-110 blur-md opacity-60"
                     />
                     {/* Sharp image on top */}
                     <img
