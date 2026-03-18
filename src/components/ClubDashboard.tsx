@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { businessUrl } from "@/lib/businessUrl";
 import { Crown, Loader2, LogOut, Save, Bookmark, Trash2, ExternalLink, Tag } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Input } from "@/components/ui/input";
