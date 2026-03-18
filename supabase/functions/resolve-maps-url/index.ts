@@ -120,11 +120,24 @@ serve(async (req) => {
 
     const apiKey = Deno.env.get("GOOGLE_MAPS_API_KEY");
 
-    // Step 1: Follow redirects to get the final URL
+    // Step 1: Follow redirects manually to get the true final URL
+    // (Deno's redirect: "follow" doesn't always expose the final URL correctly for Google short URLs)
     let finalUrl = url;
     try {
-      const response = await fetch(url, { redirect: "follow" });
-      finalUrl = response.url;
+      let currentUrl = url;
+      for (let i = 0; i < 10; i++) {
+        const response = await fetch(currentUrl, { redirect: "manual" });
+        const location = response.headers.get("location");
+        // Consume body to avoid resource leaks
+        try { await response.body?.cancel(); } catch { /* ignore */ }
+        if (location && (response.status >= 300 && response.status < 400)) {
+          // Handle relative redirects
+          currentUrl = location.startsWith("http") ? location : new URL(location, currentUrl).href;
+        } else {
+          break;
+        }
+      }
+      finalUrl = currentUrl;
     } catch {
       // If fetch fails (e.g. network), try to parse the original URL
     }
