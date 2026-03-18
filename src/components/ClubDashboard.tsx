@@ -21,7 +21,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [memberId, setMemberId] = useState<string | null>(null);
-  const [bookmarks, setBookmarks] = useState<{ id: string; business_id: string; name: string; city: string | null; main_category: string | null; promotion: { type: string; value: number; currency: string; message: string | null } | null }[]>([]);
+  const [bookmarks, setBookmarks] = useState<{ id: string; business_id: string; name: string; city: string | null; main_category: string | null; slug: string | null; promotion: { type: string; value: number; currency: string; message: string | null } | null }[]>([]);
   const [countries, setCountries] = useState<{ id: string; name_fr: string; name_en: string | null; name_ar: string | null; code: string | null }[]>([]);
   const [form, setForm] = useState({
     first_name: "",
