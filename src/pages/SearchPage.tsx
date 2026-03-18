@@ -3652,10 +3652,9 @@ const SearchPage = () => {
                     </div>
                   );
 
-                  // Insert AI suggestion card after the 3rd result (index 2), only on page 1
-                  if (index === 2 && currentPage === 1 && stickyAiText) {
-                    return [
-                      card,
+                  // Insert AI suggestion card (or loading placeholder) after the 3rd result (index 2), only on page 1
+                  if (index === 2 && currentPage === 1) {
+                    const aiCardEl = stickyAiText ? (
                       <div
                         key="ai-suggestion-card"
                         className="overflow-hidden rounded-xl border-2 border-gold/60 shadow-md relative aspect-square bg-gradient-to-br from-gold/5 via-background to-gold/10 flex flex-col cursor-pointer hover:shadow-lg hover:border-gold transition-all"
@@ -3679,7 +3678,16 @@ const SearchPage = () => {
                           </div>
                         </div>
                       </div>
-                    ];
+                    ) : (
+                      <div
+                        key="ai-suggestion-card-skeleton"
+                        className="overflow-hidden rounded-xl border-2 border-gold/30 shadow-sm relative aspect-square bg-gradient-to-br from-gold/5 via-background to-gold/10 flex flex-col items-center justify-center"
+                      >
+                        <Loader2 className="h-6 w-6 animate-spin text-gold mb-2" />
+                        <span className="text-xs text-muted-foreground">{language === "fr" ? "Suggestion IA en cours…" : language === "ar" ? "جارٍ التحميل…" : "Loading AI suggestion…"}</span>
+                      </div>
+                    );
+                    return [card, aiCardEl];
                   }
 
                   return card;
