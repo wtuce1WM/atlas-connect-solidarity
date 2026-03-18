@@ -394,7 +394,7 @@ const BusinessDetail = () => {
       setIsLoading(false);
     };
     fetchBusiness();
-  }, [id]);
+  }, [routeSlug]);
 
   // Check which categories have other businesses in the same city
   useEffect(() => {
