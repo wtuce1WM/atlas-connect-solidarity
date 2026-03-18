@@ -195,14 +195,15 @@ const ServicePage = () => {
     setCurrentPage(1);
   }, [selectedCity, selectedGammeFilter]);
 
-  // Update document title with service name and city
   // Build display title
   const displayTitle = subcategoryName ? `${subcategoryName} / ${serviceName}` : decodedServiceName;
+  const cityLabel = selectedCity !== "all" ? ` à ${selectedCity}` : "";
 
-  useEffect(() => {
-    const cityLabel = selectedCity !== "all" ? ` à ${selectedCity}` : "";
-    document.title = `${displayTitle}${cityLabel} | WTUCE`;
-  }, [displayTitle, selectedCity]);
+  useSEO({
+    title: `${displayTitle}${cityLabel}`,
+    description: `Trouvez les meilleurs ${decodedServiceName.toLowerCase()}${cityLabel} au Maroc. Adresses sélectionnées par ONE WORLD MOROCCO.`,
+    canonical: `/service/${encodeURIComponent(decodedServiceName)}`,
+  });
 
   useEffect(() => {
     const fetchData = async () => {
