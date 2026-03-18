@@ -209,18 +209,16 @@ const BusinessDetail = () => {
       const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(routeSlug);
       const column = isUUID ? "id" : "slug" as any;
       
-      let query = supabase
-        .from("businesses")
-        .select("*")
-        .eq("is_active", true);
+      let data: any = null;
+      let error: any = null;
       
       if (isUUID) {
-        query = query.eq("id", routeSlug);
+        const res = await supabase.from("businesses").select("*").eq("id", routeSlug).eq("is_active", true).maybeSingle();
+        data = res.data; error = res.error;
       } else {
-        query = query.eq("slug" as any, routeSlug);
+        const res = await supabase.from("businesses").select("*").eq("slug" as any, routeSlug).eq("is_active", true).maybeSingle();
+        data = res.data; error = res.error;
       }
-      
-      const { data, error } = await query.maybeSingle();
 
       if (error) {
         console.error("Error fetching business:", error);
