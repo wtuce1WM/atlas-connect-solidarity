@@ -2,9 +2,15 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Mail, Phone, MapPin } from "lucide-react";
+import { useSEO } from "@/hooks/useSEO";
 
 const Contact = () => {
   const { t } = useLanguage();
+  useSEO({
+    title: "Contact",
+    description: "Contactez ONE WORLD MOROCCO pour toute question sur nos services, adresses ou partenariats au Maroc.",
+    canonical: "/contact",
+  });
 
   return (
     <div className="min-h-screen bg-background">
