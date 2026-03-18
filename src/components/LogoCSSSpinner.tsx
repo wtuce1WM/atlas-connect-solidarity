@@ -1,5 +1,6 @@
 import { useState } from "react";
-import logoGold from "@/assets/logoGOLDsimple.webp";
+// import logoGold from "@/assets/logoGOLDsimple.webp";
+import logoGold from "@/assets/logo-one-world-morocco.webp";
 
 interface LogoCSSSpinnerProps {
   className?: string;
