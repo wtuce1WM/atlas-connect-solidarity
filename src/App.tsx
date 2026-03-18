@@ -52,6 +52,7 @@ import SearchLayoutDemo from "./pages/SearchLayoutDemo";
 import SearchPageCopy from "./pages/SearchPageCopy";
 import StrictModePage from "./pages/StrictModePage";
 import IconPreview from "./pages/IconPreview";
+import BlogPresentation from "./pages/BlogPresentation";
 
 const queryClient = new QueryClient();
 
@@ -124,6 +125,7 @@ const AppContent = () => {
               <Route path="/blog/mode-strict" element={<StrictModePage />} />
               <Route path="/blog/ai-effects" element={<Suspense fallback={null}><AIEffectsDemo /></Suspense>} />
               <Route path="/blog/icon-preview" element={<IconPreview />} />
+              <Route path="/blog/presentation" element={<BlogPresentation />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
