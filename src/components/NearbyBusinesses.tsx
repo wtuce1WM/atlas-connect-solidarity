@@ -162,7 +162,7 @@ const NearbyBusinesses = ({ currentBusinessId, businessName, latitude, longitude
           return (
             <Link
               key={biz.id}
-              to={`/business/${biz.id}`}
+              to={businessUrl(biz)}
               onClick={(e) => {
                 if (onNavigate) {
                   e.preventDefault();
