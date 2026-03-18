@@ -216,7 +216,7 @@ const BusinessDetail = () => {
         const res = await supabase.from("businesses").select("*").eq("id", routeSlug).eq("is_active", true).maybeSingle();
         data = res.data; error = res.error;
       } else {
-        const res = await supabase.from("businesses").select("*").eq("slug" as any, routeSlug).eq("is_active", true).maybeSingle();
+        const res = await (supabase.from("businesses").select("*") as any).eq("slug", routeSlug).eq("is_active", true).maybeSingle();
         data = res.data; error = res.error;
       }
 
