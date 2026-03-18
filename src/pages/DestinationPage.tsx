@@ -65,6 +65,12 @@ const DestinationPage = () => {
 
   const decodedName = destinationName ? decodeURIComponent(destinationName) : "";
 
+  useSEO({
+    title: decodedName ? `${decodedName} – Destination` : "Destination",
+    description: decodedName ? `Découvrez les meilleures adresses à ${decodedName}. Guide sélectionné par ONE WORLD MOROCCO.` : undefined,
+    canonical: destinationName ? `/destination/${destinationName}` : undefined,
+  });
+
   const getEffectiveRating = (b: Business): number | null => {
     if (b.rating) return Number(b.rating);
     return computeWeightedRatingOn20(collectRatingSources(b));

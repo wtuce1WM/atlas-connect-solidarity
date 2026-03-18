@@ -116,8 +116,7 @@ const CityMap = () => {
 
   const ITEMS_PER_PAGE = 20;
 
-  const decodedCity = city ? decodeURIComponent(city) : "";
-  
+
   // Initialize selectedActivities from URL parameter on mount
   useEffect(() => {
     const serviceParam = searchParams.get("service");
