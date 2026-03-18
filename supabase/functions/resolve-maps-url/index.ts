@@ -83,7 +83,11 @@ async function resolveViaTextSearch(placeName: string, apiKey: string): Promise<
  * Regex-based fallback extraction from URL string.
  * Priority: !8m2!3d/!4d > !3d/!4d > @lat,lng > ?q= > place/
  */
-function extractFromUrlRegex(url: string): { lat: string; lng: string } | null {
+/**
+ * Extract precise marker coordinates from URL (NOT camera position).
+ * Only returns !3d/!4d and q= coords which are marker-based.
+ */
+function extractMarkerCoords(url: string): { lat: string; lng: string } | null {
   // 1. Specific place marker: !8m2!3d...!4d...
   const m8 = url.match(/!8m2!3d(-?\d+\.?\d*)!4d(-?\d+\.?\d*)/);
   if (m8) return { lat: m8[1], lng: m8[2] };
@@ -92,15 +96,20 @@ function extractFromUrlRegex(url: string): { lat: string; lng: string } | null {
   const embedMatch = url.match(/!3d(-?\d+\.?\d*).*!4d(-?\d+\.?\d*)/);
   if (embedMatch) return { lat: embedMatch[1], lng: embedMatch[2] };
 
-  // 3. Camera position @lat,lng (less reliable but sometimes only option)
-  const atMatch = url.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
-  if (atMatch) return { lat: atMatch[1], lng: atMatch[2] };
-
-  // 4. Query parameter
+  // 3. Query parameter (explicit coords)
   const qMatch = url.match(/[?&]q=(-?\d+\.?\d*),(-?\d+\.?\d*)/) ||
                  url.match(/place\/(-?\d+\.?\d*),(-?\d+\.?\d*)/);
   if (qMatch) return { lat: qMatch[1], lng: qMatch[2] };
 
+  return null;
+}
+
+/**
+ * Extract camera position @lat,lng — less precise fallback.
+ */
+function extractCameraCoords(url: string): { lat: string; lng: string } | null {
+  const atMatch = url.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+  if (atMatch) return { lat: atMatch[1], lng: atMatch[2] };
   return null;
 }
 
@@ -146,23 +155,23 @@ serve(async (req) => {
     let lng: number | null = null;
     let method = "unknown";
 
-    // Step 2: Regex on final URL — most reliable when URL contains !3d/!4d marker coords
+    // Step 2: Precise marker coords from final URL (!3d/!4d)
     {
-      const regex = extractFromUrlRegex(finalUrl);
-      if (regex) {
-        lat = parseFloat(regex.lat);
-        lng = parseFloat(regex.lng);
-        method = "regex-url";
+      const marker = extractMarkerCoords(finalUrl);
+      if (marker) {
+        lat = parseFloat(marker.lat);
+        lng = parseFloat(marker.lng);
+        method = "marker-regex-url";
       }
     }
 
-    // Step 3: Regex on original URL (in case redirect didn't change it)
+    // Step 3: Precise marker coords from original URL
     if (lat === null) {
-      const regex = extractFromUrlRegex(url);
-      if (regex) {
-        lat = parseFloat(regex.lat);
-        lng = parseFloat(regex.lng);
-        method = "regex-original";
+      const marker = extractMarkerCoords(url);
+      if (marker) {
+        lat = parseFloat(marker.lat);
+        lng = parseFloat(marker.lng);
+        method = "marker-regex-original";
       }
     }
 
@@ -179,7 +188,7 @@ serve(async (req) => {
       }
     }
 
-    // Step 5: Try Google Places API text search (may be ambiguous for generic names)
+    // Step 5: Try Google Places API text search (more precise than camera coords)
     if (lat === null && apiKey) {
       const placeName = extractPlaceName(finalUrl) || extractPlaceName(url);
       if (placeName) {
@@ -192,7 +201,17 @@ serve(async (req) => {
       }
     }
 
-    // Step 6: Try parsing HTML body
+    // Step 6: Camera position @lat,lng — less precise fallback
+    if (lat === null) {
+      const camera = extractCameraCoords(finalUrl) || extractCameraCoords(url);
+      if (camera) {
+        lat = parseFloat(camera.lat);
+        lng = parseFloat(camera.lng);
+        method = "camera-fallback";
+      }
+    }
+
+    // Step 7: Try parsing HTML body as last resort
     if (lat === null) {
       try {
         const response = await fetch(url, { redirect: "follow" });
