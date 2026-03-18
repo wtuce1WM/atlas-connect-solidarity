@@ -20,7 +20,7 @@ const SearchSuggestionsDropdown = ({ suggestions, visible, onSelect, position = 
     if (onSelect) {
       onSelect(s);
     } else {
-      navigate(`/business/${s.id}`);
+      navigate(businessUrl(s));
     }
   };
 

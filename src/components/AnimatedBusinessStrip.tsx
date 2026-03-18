@@ -152,7 +152,7 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
               return (
               <Link
                 key={`${biz.id}-${index}`}
-                to={`/business/${biz.id}`}
+                to={businessUrl(biz)}
                 className="flex-shrink-0 w-56 mx-4 group"
               >
                 <div className="flex flex-col items-center text-center transition-all duration-500 group-hover:scale-105">
