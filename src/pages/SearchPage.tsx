@@ -1938,29 +1938,14 @@ const SearchPage = () => {
     [stickyAiAnimationNonce]
   );
 
+  // Word-by-word animation disabled (Sticky 4 bar is disabled) — set immediately to avoid
+  // ~22 state updates/sec that cause scroll jank in the left panel during AI loading
   useEffect(() => {
     if (!stickyAiText || isAiRegenerating) {
       setStickyAiVisibleWordIndex(-1);
       return;
     }
-
-    if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setStickyAiVisibleWordIndex(Number.MAX_SAFE_INTEGER);
-      return;
-    }
-
-    setStickyAiVisibleWordIndex(-1);
-    let currentWord = -1;
-    const intervalId = window.setInterval(() => {
-      currentWord += 1;
-      setStickyAiVisibleWordIndex(currentWord);
-      if (currentWord >= stickyAiWordCount - 1) {
-        window.clearInterval(intervalId);
-        setStickyAiVisibleWordIndex(Number.MAX_SAFE_INTEGER);
-      }
-    }, 45);
-
-    return () => window.clearInterval(intervalId);
+    setStickyAiVisibleWordIndex(Number.MAX_SAFE_INTEGER);
   }, [stickyAiAnimationNonce, stickyAiText, stickyAiWordCount, isAiRegenerating]);
 
   const showZitounEasterEgg = !isLoading && isZitounMask(spokenText || searchQuery);
