@@ -288,11 +288,11 @@ const BecomeAffiliate = () => {
           <form onSubmit={handleSubmit} className="max-w-lg mx-auto space-y-5">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-white/60 text-sm mb-1.5">{t.labelName}</label>
+                <label className="block text-muted-foreground text-sm mb-1.5">{t.labelName}</label>
                 <Input
                   value={form.businessName}
                   onChange={(e) => setForm({ ...form, businessName: e.target.value })}
-                  className="bg-white/[0.06] border-white/10 text-white placeholder:text-white/30 h-11"
+                  className="bg-black/[0.04] border-black/10 text-foreground placeholder:text-muted-foreground h-11"
                 />
               </div>
               <div>
