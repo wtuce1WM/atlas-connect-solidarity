@@ -21,6 +21,7 @@ import StaffCRM from "./pages/StaffCRM";
 import AffiliatesLogin from "./pages/AffiliatesLogin";
 import AffiliatesResetPassword from "./pages/AffiliatesResetPassword";
 import AffiliatesDashboard from "./pages/AffiliatesDashboard";
+import AffiliatePresence from "./pages/AffiliatePresence";
 import BecomeAffiliate from "./pages/BecomeAffiliate";
 import Mission from "./pages/Mission";
 import Contact from "./pages/Contact";
@@ -57,7 +58,7 @@ const queryClient = new QueryClient();
 const GlobalFloatingSearchBar = () => {
   const location = useLocation();
   // Hide on home page and staff/affiliate backoffice pages
-  const hiddenPaths = ["/", "/search", "/staff/login", "/staff/backoffice", "/staff/catalogue", "/staff/crm", "/staff/master", "/staff/b2b", "/affiliates", "/affiliates/dashboard", "/search-analytics"];
+  const hiddenPaths = ["/", "/search", "/staff/login", "/staff/backoffice", "/staff/catalogue", "/staff/crm", "/staff/master", "/staff/b2b", "/affiliates", "/affiliates/dashboard", "/affiliates/presence", "/search-analytics"];
   if (hiddenPaths.includes(location.pathname)) return null;
   return <FloatingSearchBar />;
 };
@@ -97,6 +98,7 @@ const AppContent = () => {
               <Route path="/affiliates" element={<AffiliatesLogin />} />
               <Route path="/affiliates/reset-password" element={<AffiliatesResetPassword />} />
               <Route path="/affiliates/dashboard" element={<AffiliatesDashboard />} />
+              <Route path="/affiliates/presence" element={<AffiliatePresence />} />
               <Route path="/devenir-affilie" element={<BecomeAffiliate />} />
               <Route path="/mission" element={<Mission />} />
               <Route path="/contact" element={<Contact />} />

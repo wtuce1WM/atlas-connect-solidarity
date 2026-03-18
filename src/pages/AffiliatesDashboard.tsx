@@ -162,18 +162,36 @@ const AffiliatesDashboard = () => {
           </Card>
         </div>
 
-        {/* Coming Soon Card */}
-        <Card className="bg-card border-border">
-          <CardHeader className="text-center">
-            <div className="flex justify-center mb-4">
-              <img src={logoGold} alt="Logo" className="h-16 w-16 object-contain opacity-50" />
-            </div>
-            <CardTitle className="text-xl text-foreground">{t.comingSoon}</CardTitle>
-            <CardDescription className="text-muted-foreground">
-              {t.comingSoonDesc}
-            </CardDescription>
-          </CardHeader>
-        </Card>
+        {/* Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <Card className="bg-card border-border hover:border-primary/50 transition-colors cursor-pointer" onClick={() => navigate("/affiliates/presence")}>
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <div className="rounded-full bg-primary/20 p-3">
+                  <LinkIcon className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <CardTitle className="text-lg text-foreground">Présence en ligne</CardTitle>
+                  <CardDescription className="text-muted-foreground">
+                    Gérez vos profils sociaux et plateformes d'avis
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+          </Card>
+
+          <Card className="bg-card border-border">
+            <CardHeader className="text-center">
+              <div className="flex justify-center mb-4">
+                <img src={logoGold} alt="Logo" className="h-16 w-16 object-contain opacity-50" />
+              </div>
+              <CardTitle className="text-xl text-foreground">{t.comingSoon}</CardTitle>
+              <CardDescription className="text-muted-foreground">
+                {t.comingSoonDesc}
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </div>
       </main>
 
       <Footer />
