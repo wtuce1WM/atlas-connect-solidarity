@@ -98,6 +98,7 @@ const AppContent = () => {
               <Route path="/affiliates" element={<AffiliatesLogin />} />
               <Route path="/affiliates/reset-password" element={<AffiliatesResetPassword />} />
               <Route path="/affiliates/dashboard" element={<AffiliatesDashboard />} />
+              <Route path="/affiliates/presence" element={<AffiliatePresence />} />
               <Route path="/devenir-affilie" element={<BecomeAffiliate />} />
               <Route path="/mission" element={<Mission />} />
               <Route path="/contact" element={<Contact />} />
