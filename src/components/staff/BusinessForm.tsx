@@ -1011,6 +1011,18 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
 
     setLoading(true);
 
+    // Force token refresh to avoid RLS failures on expired JWT
+    const { data: sessionData, error: sessionError } = await supabase.auth.refreshSession();
+    if (sessionError || !sessionData.session) {
+      toast({
+        variant: "destructive",
+        title: "Session expirée",
+        description: "Votre session a expiré. Veuillez vous reconnecter.",
+      });
+      setLoading(false);
+      return;
+    }
+
     const businessData = {
       name: formData.name,
       description: formData.description || null,
