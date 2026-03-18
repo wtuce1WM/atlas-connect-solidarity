@@ -165,7 +165,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
         if (bookmarksRes.data && bookmarksRes.data.length > 0) {
           const bIds = (bookmarksRes.data as any[]).map((b: any) => b.business_id);
           const [bizRes, promoRes] = await Promise.all([
-            supabase.from("businesses").select("id, name, city, main_category").in("id", bIds),
+            supabase.from("businesses").select("id, name, city, main_category, slug").in("id", bIds),
             supabase.from("affiliate_business_promotions").select("business_id, promotion_type, promotion_value, promotion_currency, promotion_message").in("business_id", bIds),
           ]);
           
