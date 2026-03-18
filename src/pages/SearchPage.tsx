@@ -2472,7 +2472,8 @@ const SearchPage = () => {
 
       {/* Geolocation consent banner */}
       {geo.showBanner && (
-        <div className="fixed bottom-4 left-4 right-4 z-[200] max-w-lg mx-auto bg-card border border-gold/30 rounded-2xl shadow-2xl p-4 animate-in slide-in-from-bottom-4">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 pointer-events-none">
+          <div className="max-w-lg w-full bg-card border border-gold/30 rounded-2xl shadow-2xl p-4 animate-in fade-in zoom-in-95 pointer-events-auto">
           <div className="flex items-start gap-3">
             <MapPin className="h-5 w-5 text-gold shrink-0 mt-0.5" />
             <div className="flex-1">
@@ -2495,6 +2496,7 @@ const SearchPage = () => {
               <MapPin className="h-3.5 w-3.5 mr-1" />
               {language === "en" ? "Enable" : language === "ar" ? "تفعيل" : "Activer"}
             </Button>
+          </div>
           </div>
         </div>
       )}
