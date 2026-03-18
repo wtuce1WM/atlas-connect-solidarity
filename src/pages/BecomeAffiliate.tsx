@@ -341,11 +341,11 @@ const BecomeAffiliate = () => {
               />
             </div>
             <div>
-              <label className="block text-white/60 text-sm mb-1.5">{t.labelWebsite}</label>
+              <label className="block text-muted-foreground text-sm mb-1.5">{t.labelWebsite}</label>
               <Input
                 value={form.website}
                 onChange={(e) => setForm({ ...form, website: e.target.value })}
-                className="bg-white/[0.06] border-white/10 text-white placeholder:text-white/30 h-11"
+                className="bg-black/[0.04] border-black/10 text-foreground placeholder:text-muted-foreground h-11"
                 type="url"
               />
             </div>
