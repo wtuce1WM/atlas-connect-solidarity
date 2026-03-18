@@ -234,7 +234,7 @@ const HeroSection = () => {
           />
         </div>
 
-        {/* Restaurant Guru-style location selector */}
+        {/* Restaurant Guru-style location selector — disabled
         <HeroLocationSelector
           detectedCity={geo.detectedCity}
           confirmedAddress={geo.confirmedAddress}
@@ -246,6 +246,7 @@ const HeroSection = () => {
           }}
           onOpenMap={() => setLocationDialogOpen(true)}
         />
+        */}
 
         {/* Location Picker Dialog */}
         <LocationPickerDialog
@@ -260,7 +261,7 @@ const HeroSection = () => {
           onDisableGeo={geo.decline}
         />
 
-        {/* Listez votre entreprise */}
+        {/* Listez votre entreprise — disabled
         <p className="text-2xl md:text-3xl text-black/80 font-medium mt-4">
           {language === "fr"
             ? <>Listez votre <Link to="/devenir-affilie" className="text-gold hover:underline font-bold">entreprise</Link></>
@@ -268,6 +269,7 @@ const HeroSection = () => {
               ? <>أدرج <Link to="/devenir-affilie" className="text-gold hover:underline font-bold">شركتك</Link></>
               : <>List your <Link to="/devenir-affilie" className="text-gold hover:underline font-bold">business</Link></>}
         </p>
+        */}
 
       </div>
 

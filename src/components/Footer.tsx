@@ -8,7 +8,7 @@ interface FooterProps {
 }
 
 const Footer = ({ variant = "default" }: FooterProps) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const isVerified = variant === "verified";
 
@@ -84,6 +84,7 @@ const Footer = ({ variant = "default" }: FooterProps) => {
               
               <li><a href="/staff/login" className="transition-colors hover:text-gold">{t("footer.staff")}</a></li>
               <li><Link to="/blog" className="transition-colors hover:text-gold">{t("footer.blog")}</Link></li>
+              <li><Link to="/devenir-affilie" className="transition-colors hover:text-gold">{language === "ar" ? "أدرج شركتك" : language === "en" ? "List your business" : "Listez votre entreprise"}</Link></li>
             </ul>
           </div>
 
