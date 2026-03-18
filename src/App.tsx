@@ -118,7 +118,7 @@ const AppContent = () => {
               <Route path="/subcategory/:subcategoryName" element={<SubcategoryPage />} />
               <Route path="/hotels" element={<HotelSearch />} />
               <Route path="/club" element={<Club />} />
-              <Route path="/demo-effects" element={<StaffRouteGuard><Suspense fallback={null}><LogoEffectsDemo /></Suspense></StaffRouteGuard>} />
+              <Route path="/staff/demo-effects" element={<StaffRouteGuard><Suspense fallback={null}><LogoEffectsDemo /></Suspense></StaffRouteGuard>} />
               <Route path="/search-analytics" element={<SearchAnalytics />} />
               <Route path="/destination/:destinationName" element={<DestinationPage />} />
               <Route path="/conditions-generales" element={<CGF />} />
