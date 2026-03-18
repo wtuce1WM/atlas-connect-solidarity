@@ -174,7 +174,7 @@ interface Destination {
 type TabKey = 'overview' | 'experiences' | 'video' | 'virtual-tour' | 'services' | 'reviews' | 'location';
 
 const BusinessDetail = () => {
-  const { id } = useParams<{ id: string }>();
+  const { slug: routeSlug } = useParams<{ slug: string }>();
   const [business, setBusiness] = useState<Business | null>(null);
   const [businessLabels, setBusinessLabels] = useState<BusinessLabel[]>([]);
   const [gamme, setGamme] = useState<Gamme | null>(null);
