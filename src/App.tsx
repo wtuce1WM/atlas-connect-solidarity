@@ -52,6 +52,7 @@ import SearchLayoutDemo from "./pages/SearchLayoutDemo";
 import SearchPageCopy from "./pages/SearchPageCopy";
 import StrictModePage from "./pages/StrictModePage";
 import IconPreview from "./pages/IconPreview";
+import BlogPresentation from "./pages/BlogPresentation";
 
 const queryClient = new QueryClient();
 
