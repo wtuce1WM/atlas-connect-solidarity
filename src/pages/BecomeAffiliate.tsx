@@ -377,9 +377,9 @@ const BecomeAffiliate = () => {
                 </Select>
               </div>
               <div>
-                <label className="block text-white/60 text-sm mb-1.5">{t.labelContentReady}</label>
+                <label className="block text-muted-foreground text-sm mb-1.5">{t.labelContentReady}</label>
                 <Select value={form.contentReady} onValueChange={(val) => setForm({ ...form, contentReady: val })}>
-                  <SelectTrigger className="bg-white/[0.06] border-white/10 text-white h-11">
+                  <SelectTrigger className="bg-black/[0.04] border-black/10 text-foreground h-11">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
