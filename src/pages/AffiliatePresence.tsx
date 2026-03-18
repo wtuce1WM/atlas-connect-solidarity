@@ -6,16 +6,19 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import {
   Loader2, ArrowLeft, Globe, CheckCircle2, AlertCircle, ExternalLink,
-  Save, Facebook, Instagram, Youtube, MapPin, Star, Building2
+  Save, Facebook, Instagram, Youtube, MapPin, Star, Building2, Phone, Clock, HelpCircle
 } from "lucide-react";
 import { InstagramIcon, TikTokIcon, PinterestIcon } from "@/components/staff/SocialMediaIcons";
+import OpeningHoursEditor, { OpeningHours } from "@/components/staff/OpeningHoursEditor";
+import AffiliateContactEditor from "@/components/affiliate/AffiliateContactEditor";
+import AffiliatePlatformHelp from "@/components/affiliate/AffiliatePlatformHelp";
 
-// Platform definitions with field keys from businesses table
 const PLATFORMS = [
   { key: "google_maps_url", label: "Google Business", icon: <MapPin className="h-4 w-4" />, color: "text-blue-500" },
   { key: "google_reviews_url", label: "Google Reviews", icon: <Star className="h-4 w-4" />, color: "text-yellow-500" },
@@ -41,6 +44,10 @@ interface BusinessPresence {
   city: string | null;
   main_category: string | null;
   logo_url: string | null;
+  phone: string | null;
+  whatsapp: string | null;
+  email: string | null;
+  opening_hours: OpeningHours | null;
   links: Record<PlatformKey, string | null>;
 }
 
@@ -50,7 +57,7 @@ const AffiliatePresence = () => {
   const { language } = useLanguage();
   const [isLoading, setIsLoading] = useState(true);
   const [businesses, setBusinesses] = useState<BusinessPresence[]>([]);
-  const [editedLinks, setEditedLinks] = useState<Record<string, Record<string, string>>>({});
+  const [editedFields, setEditedFields] = useState<Record<string, Record<string, any>>>({});
   const [savingId, setSavingId] = useState<string | null>(null);
   const [selectedBusiness, setSelectedBusiness] = useState<string | null>(null);
 
@@ -59,7 +66,6 @@ const AffiliatePresence = () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { navigate("/affiliates"); return; }
 
-      // Get affiliate record for this user
       const { data: affiliate } = await supabase
         .from("affiliates")
         .select("id")
@@ -72,8 +78,7 @@ const AffiliatePresence = () => {
         return;
       }
 
-      // Get businesses for this affiliate
-      const selectFields = ["id", "name", "city", "main_category", "logo_url",
+      const selectFields = ["id", "name", "city", "main_category", "logo_url", "phone", "whatsapp", "email", "opening_hours",
         ...PLATFORMS.map(p => p.key)].join(",");
 
       const { data: biz } = await supabase
@@ -89,6 +94,10 @@ const AffiliatePresence = () => {
         city: b.city,
         main_category: b.main_category,
         logo_url: b.logo_url,
+        phone: b.phone,
+        whatsapp: b.whatsapp,
+        email: b.email,
+        opening_hours: b.opening_hours as OpeningHours | null,
         links: Object.fromEntries(PLATFORMS.map(p => [p.key, b[p.key] || null])) as Record<PlatformKey, string | null>,
       }));
 
@@ -99,7 +108,6 @@ const AffiliatePresence = () => {
     load();
   }, [navigate, toast]);
 
-  // Audit stats
   const auditStats = useMemo(() => {
     const total = businesses.length * PLATFORMS.length;
     let filled = 0;
@@ -114,15 +122,15 @@ const AffiliatePresence = () => {
     return { filled, total: PLATFORMS.length, percent: Math.round((filled / PLATFORMS.length) * 100) };
   };
 
-  const handleLinkChange = (businessId: string, key: string, value: string) => {
-    setEditedLinks(prev => ({
+  const handleFieldChange = (businessId: string, key: string, value: any) => {
+    setEditedFields(prev => ({
       ...prev,
       [businessId]: { ...prev[businessId], [key]: value },
     }));
   };
 
   const handleSave = async (businessId: string) => {
-    const edits = editedLinks[businessId];
+    const edits = editedFields[businessId];
     if (!edits || Object.keys(edits).length === 0) return;
 
     setSavingId(businessId);
@@ -134,21 +142,31 @@ const AffiliatePresence = () => {
     if (error) {
       toast({ title: "Erreur", description: error.message, variant: "destructive" });
     } else {
-      // Update local state
       setBusinesses(prev => prev.map(b => {
         if (b.id !== businessId) return b;
-        const newLinks = { ...b.links };
-        Object.entries(edits).forEach(([k, v]) => { (newLinks as any)[k] = v || null; });
-        return { ...b, links: newLinks };
+        const updated = { ...b };
+        Object.entries(edits).forEach(([k, v]) => {
+          if (k in b.links) {
+            (updated.links as any)[k] = v || null;
+          } else if (k === "phone") updated.phone = v || null;
+          else if (k === "whatsapp") updated.whatsapp = v || null;
+          else if (k === "email") updated.email = v || null;
+          else if (k === "opening_hours") updated.opening_hours = v;
+        });
+        return updated;
       }));
-      setEditedLinks(prev => { const n = { ...prev }; delete n[businessId]; return n; });
-      toast({ title: "Liens mis à jour avec succès ✓" });
+      setEditedFields(prev => { const n = { ...prev }; delete n[businessId]; return n; });
+      toast({ title: "Modifications enregistrées ✓" });
     }
     setSavingId(null);
   };
 
   const currentBusiness = businesses.find(b => b.id === selectedBusiness);
-  const hasEdits = selectedBusiness ? Object.keys(editedLinks[selectedBusiness] || {}).length > 0 : false;
+  const hasEdits = selectedBusiness ? Object.keys(editedFields[selectedBusiness] || {}).length > 0 : false;
+
+  const getCurrentValue = (bizId: string, key: string, original: any) => {
+    return editedFields[bizId]?.[key] !== undefined ? editedFields[bizId][key] : (original ?? "");
+  };
 
   if (isLoading) {
     return (
@@ -162,14 +180,13 @@ const AffiliatePresence = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <main className="container mx-auto px-4 pt-28 pb-16 max-w-7xl">
-        {/* Back + Title */}
         <div className="flex items-center gap-3 mb-6">
           <Button variant="ghost" size="sm" onClick={() => navigate("/affiliates/dashboard")}>
             <ArrowLeft className="h-4 w-4 mr-1" /> Retour
           </Button>
           <div>
             <h1 className="text-2xl font-bold text-foreground">Présence en ligne</h1>
-            <p className="text-sm text-muted-foreground">Gérez les profils sociaux de vos établissements</p>
+            <p className="text-sm text-muted-foreground">Gérez les profils, horaires et coordonnées de vos établissements</p>
           </div>
         </div>
 
@@ -247,7 +264,6 @@ const AffiliatePresence = () => {
                         {comp.percent}%
                       </Badge>
                     </div>
-                    {/* Mini progress bar */}
                     <div className="mt-2 h-1 bg-muted rounded-full overflow-hidden">
                       <div
                         className={`h-full rounded-full transition-all ${
@@ -261,7 +277,7 @@ const AffiliatePresence = () => {
               })}
             </div>
 
-            {/* Platform Links Editor */}
+            {/* Editor Panel */}
             {currentBusiness && (
               <Card className="bg-card border-border">
                 <CardHeader className="pb-3">
@@ -286,51 +302,93 @@ const AffiliatePresence = () => {
                     </Button>
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  {PLATFORMS.map(platform => {
-                    const currentValue = editedLinks[currentBusiness.id]?.[platform.key]
-                      ?? currentBusiness.links[platform.key]
-                      ?? "";
-                    const originalValue = currentBusiness.links[platform.key] || "";
-                    const isFilled = !!currentValue;
-                    const isEdited = editedLinks[currentBusiness.id]?.[platform.key] !== undefined;
+                <CardContent>
+                  <Tabs defaultValue="links" className="w-full">
+                    <TabsList className="mb-4">
+                      <TabsTrigger value="links" className="gap-1.5">
+                        <Globe className="h-3.5 w-3.5" /> Liens
+                      </TabsTrigger>
+                      <TabsTrigger value="contact" className="gap-1.5">
+                        <Phone className="h-3.5 w-3.5" /> Contact
+                      </TabsTrigger>
+                      <TabsTrigger value="hours" className="gap-1.5">
+                        <Clock className="h-3.5 w-3.5" /> Horaires
+                      </TabsTrigger>
+                      <TabsTrigger value="help" className="gap-1.5">
+                        <HelpCircle className="h-3.5 w-3.5" /> Plateformes
+                      </TabsTrigger>
+                    </TabsList>
 
-                    return (
-                      <div key={platform.key} className="flex items-center gap-3">
-                        <div className={`shrink-0 ${platform.color}`}>
-                          {platform.icon}
-                        </div>
-                        <div className="w-[130px] shrink-0">
-                          <span className="text-sm font-medium text-foreground">{platform.label}</span>
-                        </div>
-                        <div className="flex-1 relative">
-                          <Input
-                            value={currentValue}
-                            onChange={(e) => handleLinkChange(currentBusiness.id, platform.key, e.target.value)}
-                            placeholder={`URL ${platform.label}...`}
-                            className={`text-xs pr-8 ${isEdited ? "border-primary" : ""}`}
-                          />
-                          {currentValue && (
-                            <a
-                              href={currentValue}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                            >
-                              <ExternalLink className="h-3.5 w-3.5" />
-                            </a>
-                          )}
-                        </div>
-                        <div className="shrink-0">
-                          {isFilled ? (
-                            <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                          ) : (
-                            <AlertCircle className="h-4 w-4 text-orange-400" />
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
+                    {/* Links Tab */}
+                    <TabsContent value="links" className="space-y-3">
+                      {PLATFORMS.map(platform => {
+                        const currentValue = getCurrentValue(currentBusiness.id, platform.key, currentBusiness.links[platform.key]);
+                        const isFilled = !!currentValue;
+                        const isEdited = editedFields[currentBusiness.id]?.[platform.key] !== undefined;
+
+                        return (
+                          <div key={platform.key} className="flex items-center gap-3">
+                            <div className={`shrink-0 ${platform.color}`}>
+                              {platform.icon}
+                            </div>
+                            <div className="w-[130px] shrink-0">
+                              <span className="text-sm font-medium text-foreground">{platform.label}</span>
+                            </div>
+                            <div className="flex-1 relative">
+                              <Input
+                                value={currentValue}
+                                onChange={(e) => handleFieldChange(currentBusiness.id, platform.key, e.target.value)}
+                                placeholder={`URL ${platform.label}...`}
+                                className={`text-xs pr-8 ${isEdited ? "border-primary" : ""}`}
+                              />
+                              {currentValue && (
+                                <a
+                                  href={currentValue}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                                >
+                                  <ExternalLink className="h-3.5 w-3.5" />
+                                </a>
+                              )}
+                            </div>
+                            <div className="shrink-0">
+                              {isFilled ? (
+                                <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                              ) : (
+                                <AlertCircle className="h-4 w-4 text-orange-400" />
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </TabsContent>
+
+                    {/* Contact Tab */}
+                    <TabsContent value="contact">
+                      <AffiliateContactEditor
+                        phone={getCurrentValue(currentBusiness.id, "phone", currentBusiness.phone)}
+                        whatsapp={getCurrentValue(currentBusiness.id, "whatsapp", currentBusiness.whatsapp)}
+                        email={getCurrentValue(currentBusiness.id, "email", currentBusiness.email)}
+                        onPhoneChange={(v) => handleFieldChange(currentBusiness.id, "phone", v)}
+                        onWhatsappChange={(v) => handleFieldChange(currentBusiness.id, "whatsapp", v)}
+                        onEmailChange={(v) => handleFieldChange(currentBusiness.id, "email", v)}
+                      />
+                    </TabsContent>
+
+                    {/* Hours Tab */}
+                    <TabsContent value="hours">
+                      <OpeningHoursEditor
+                        value={getCurrentValue(currentBusiness.id, "opening_hours", currentBusiness.opening_hours) || null}
+                        onChange={(hours) => handleFieldChange(currentBusiness.id, "opening_hours", hours)}
+                      />
+                    </TabsContent>
+
+                    {/* Platform Help Tab */}
+                    <TabsContent value="help">
+                      <AffiliatePlatformHelp />
+                    </TabsContent>
+                  </Tabs>
                 </CardContent>
               </Card>
             )}
