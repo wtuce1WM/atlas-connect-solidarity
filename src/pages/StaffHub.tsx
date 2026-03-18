@@ -65,7 +65,7 @@ const StaffHub = () => {
       href: "/staff/catalogue",
       color: "from-gold/20 to-amber-500/10",
       iconColor: "text-gold",
-      adminOnly: false,
+      adminOnly: true,
     },
     {
       title: "CRM",
