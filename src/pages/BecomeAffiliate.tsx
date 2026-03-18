@@ -420,7 +420,7 @@ const BecomeAffiliate = () => {
           </form>
         </section>
       </main>
-      <Footer />
+      <Footer variant="verified" />
     </div>
   );
 };
