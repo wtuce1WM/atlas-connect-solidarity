@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 export interface SearchSuggestion {
   id: string;
   name: string;
+  slug?: string | null;
   city: string | null;
   main_category: string | null;
   logo_url: string | null;
