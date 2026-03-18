@@ -53,6 +53,7 @@ import SearchPageCopy from "./pages/SearchPageCopy";
 import StrictModePage from "./pages/StrictModePage";
 import IconPreview from "./pages/IconPreview";
 import BlogPresentation from "./pages/BlogPresentation";
+import BlogPresentationFR from "./pages/BlogPresentationFR";
 
 const queryClient = new QueryClient();
 
