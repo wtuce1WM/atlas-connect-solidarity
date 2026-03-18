@@ -23,7 +23,7 @@ const LogoCSSSpinner = ({ className = "w-64 h-64", replayKey }: LogoCSSSpinnerPr
           }}
         />
         <div
-          className="absolute -inset-[60%] pointer-events-none"
+          className="absolute inset-0 pointer-events-none rounded-full overflow-hidden"
           style={{
             animation: "coinSpin 1.2s cubic-bezier(0.16,1,0.3,1) forwards",
           }}
@@ -31,7 +31,7 @@ const LogoCSSSpinner = ({ className = "w-64 h-64", replayKey }: LogoCSSSpinnerPr
           <div
             className="absolute inset-0"
             style={{
-              background: "linear-gradient(105deg, transparent 25%, hsla(43,75%,55%,0.15) 38%, hsla(210,10%,85%,0.4) 44%, hsla(0,0%,100%,0.55) 50%, hsla(210,10%,85%,0.4) 56%, hsla(43,75%,55%,0.15) 62%, transparent 75%)",
+              background: "linear-gradient(105deg, transparent 25%, hsla(210,10%,85%,0.4) 40%, hsla(0,0%,100%,0.6) 50%, hsla(210,10%,85%,0.4) 60%, transparent 75%)",
               animation: "shineSwipe 3s ease-in-out 1.5s infinite",
             }}
           />
