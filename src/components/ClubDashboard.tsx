@@ -367,7 +367,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
                     <p className="text-xs text-muted-foreground">{[bk.city, bk.main_category].filter(Boolean).join(" · ")}</p>
                   </Link>
                   <div className="flex items-center gap-1 ml-2">
-                    <Link to={`/business/${bk.business_id}`}>
+                    <Link to={businessUrl({ id: bk.business_id, slug: bk.slug })}>
                       <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                         <ExternalLink className="h-3.5 w-3.5" />
                       </Button>
