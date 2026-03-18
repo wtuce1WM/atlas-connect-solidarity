@@ -350,7 +350,7 @@ const StaffHub = () => {
             {!isAdmin && (
               <>
                 <button
-                  onClick={() => navigate("/blog/brummell")}
+                  onClick={() => navigate("/staff/brummell")}
                   className="group flex items-center gap-4 bg-background rounded-xl border p-5 text-left transition-all hover:shadow-md hover:border-gold/40 cursor-pointer"
                 >
                   <div className="inline-flex p-3 rounded-lg bg-gradient-to-br from-amber-500/20 to-orange-500/10">
