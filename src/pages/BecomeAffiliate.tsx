@@ -192,7 +192,7 @@ const BecomeAffiliate = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-white">
       <Header />
       <main className="pt-24 pb-20">
         {/* Hero */}
