@@ -176,27 +176,27 @@ const StaffHub = () => {
           <h2 className="text-lg font-semibold text-muted-foreground mb-4">Accès rapide</h2>
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
             <button
-              onClick={() => navigate("/etablissements-notes")}
+              onClick={() => navigate("/blog")}
               className="group flex items-center gap-4 bg-background rounded-xl border p-5 text-left transition-all hover:shadow-md hover:border-gold/40 cursor-pointer"
             >
               <div className="inline-flex p-3 rounded-lg bg-gradient-to-br from-gold/20 to-amber-500/10">
-                <Star className="h-6 w-6 text-gold" />
+                <BookOpen className="h-6 w-6 text-gold" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-sm">Articles de Blog</h3>
+                <p className="text-xs text-muted-foreground">Consulter et gérer les articles publiés</p>
+              </div>
+            </button>
+            <button
+              onClick={() => navigate("/etablissements-notes")}
+              className="group flex items-center gap-4 bg-background rounded-xl border p-5 text-left transition-all hover:shadow-md hover:border-gold/40 cursor-pointer"
+            >
+              <div className="inline-flex p-3 rounded-lg bg-gradient-to-br from-blue-500/15 to-cyan-500/10">
+                <Star className="h-6 w-6 text-blue-600" />
               </div>
               <div>
                 <h3 className="font-semibold text-sm">Établissements notés</h3>
                 <p className="text-xs text-muted-foreground">Classement par avis Google, TripAdvisor, Guru</p>
-              </div>
-            </button>
-            <button
-              onClick={() => navigate("/demo-effects")}
-              className="group flex items-center gap-4 bg-background rounded-xl border p-5 text-left transition-all hover:shadow-md hover:border-gold/40 cursor-pointer"
-            >
-              <div className="inline-flex p-3 rounded-lg bg-gradient-to-br from-amber-400/20 to-yellow-500/10">
-                <Wand2 className="h-6 w-6 text-amber-500" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-sm">Effets Logo — Démo</h3>
-                <p className="text-xs text-muted-foreground">Galerie d'effets visuels pour le logo</p>
               </div>
             </button>
             <button
