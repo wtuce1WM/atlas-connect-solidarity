@@ -19,8 +19,7 @@ const LogoCSSSpinner = ({ className = "w-64 h-64", replayKey }: LogoCSSSpinnerPr
           alt=""
           className="w-full h-full object-contain"
           style={{
-            filter: "drop-shadow(0 0 12px hsla(43,75%,55%,0.4))",
-            animation: "coinSpin 1.2s cubic-bezier(0.16,1,0.3,1) forwards, logoPulseGlow 2.5s ease-in-out 1.2s infinite",
+            animation: "coinSpin 1.2s cubic-bezier(0.16,1,0.3,1) forwards",
           }}
         />
         <div
