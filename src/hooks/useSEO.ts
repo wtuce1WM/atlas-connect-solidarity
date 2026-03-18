@@ -8,6 +8,7 @@ interface SEOOptions {
 }
 
 const SITE_NAME = "ONE WORLD MOROCCO";
+const SITE_TAGLINE = "1ère plateforme de e-commerce solidaire au Maroc";
 const BASE_URL = "https://oneworldmorocco.com";
 
 /**
@@ -18,7 +19,7 @@ export function useSEO({ title, description, canonical, jsonLd }: SEOOptions) {
   useEffect(() => {
     // Title
     const prevTitle = document.title;
-    document.title = title.includes(SITE_NAME) ? title : `${title} | ${SITE_NAME}`;
+    document.title = title.includes(SITE_NAME) ? `${title} – ${SITE_TAGLINE}` : `${title} | ${SITE_NAME} – ${SITE_TAGLINE}`;
 
     // Meta description
     let metaDesc = document.querySelector('meta[name="description"]') as HTMLMetaElement | null;
