@@ -282,7 +282,7 @@ const StaffHub = () => {
         </div>
 
         {/* Personal Note */}
-        <div className="max-w-4xl mx-auto mb-10">
+        {!isAdmin && <div className="max-w-4xl mx-auto mb-10">
           <div className="bg-background rounded-xl border p-5">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
