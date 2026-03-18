@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { LogOut, BookOpen, Users, Shield, Star, Sparkles, Briefcase, Building2, BadgeCheck, MapPin, LayoutGrid, Save, StickyNote } from "lucide-react";
+import { LogOut, BookOpen, Users, Shield, Star, Sparkles, Briefcase, Building2, BadgeCheck, MapPin, LayoutGrid, Save, StickyNote, Presentation } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import RichTextEditor from "@/components/staff/RichTextEditor";
 import { toast } from "sonner";
@@ -407,6 +407,30 @@ const StaffHub = () => {
                   <div>
                     <h3 className="font-semibold text-sm">Logo Effects</h3>
                     <p className="text-xs text-muted-foreground">Démonstration des effets logo</p>
+                  </div>
+                </button>
+                <button
+                  onClick={() => navigate("/staff/presentation")}
+                  className="group flex items-center gap-4 bg-background rounded-xl border p-5 text-left transition-all hover:shadow-md hover:border-gold/40 cursor-pointer"
+                >
+                  <div className="inline-flex p-3 rounded-lg bg-gradient-to-br from-gold/20 to-yellow-500/10">
+                    <Presentation className="h-6 w-6 text-gold" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-sm">Présentation EN</h3>
+                    <p className="text-xs text-muted-foreground">Présentation du projet (anglais)</p>
+                  </div>
+                </button>
+                <button
+                  onClick={() => navigate("/staff/presentation-fr")}
+                  className="group flex items-center gap-4 bg-background rounded-xl border p-5 text-left transition-all hover:shadow-md hover:border-gold/40 cursor-pointer"
+                >
+                  <div className="inline-flex p-3 rounded-lg bg-gradient-to-br from-gold/20 to-yellow-500/10">
+                    <Presentation className="h-6 w-6 text-gold" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-sm">Présentation FR</h3>
+                    <p className="text-xs text-muted-foreground">Présentation du projet (français)</p>
                   </div>
                 </button>
               </>
