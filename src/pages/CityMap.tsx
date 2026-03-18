@@ -105,6 +105,13 @@ const CityMap = () => {
   const [sortByReviews, setSortByReviews] = useState<"none" | "desc" | "asc">("none");
   const [currentPage, setCurrentPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
+  const decodedCity = city ? decodeURIComponent(city) : "";
+
+  useSEO({
+    title: decodedCity ? `${decodedCity} – Guide des meilleures adresses` : "Ville",
+    description: decodedCity ? `Explorez les meilleurs hôtels, restaurants, activités et services à ${decodedCity}. Guide ONE WORLD MOROCCO.` : undefined,
+    canonical: city ? `/city/${city}` : undefined,
+  });
   const isMobile = useIsMobile();
 
   const ITEMS_PER_PAGE = 20;
