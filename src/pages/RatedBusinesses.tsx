@@ -377,7 +377,7 @@ const RatedBusinesses = () => {
                       {/* Links */}
                       <TableCell className="text-center">
                         <div className="flex items-center justify-center gap-1">
-                          <Link to={`/business/${b.id}`} target="_blank" rel="noopener noreferrer" title="Voir la fiche">
+                          <Link to={businessUrl(b)} target="_blank" rel="noopener noreferrer" title="Voir la fiche">
                             <Button variant="ghost" size="icon" className="h-7 w-7">
                               <ExternalLink className="h-3.5 w-3.5" />
                             </Button>

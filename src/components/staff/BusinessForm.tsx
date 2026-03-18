@@ -1402,7 +1402,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               })()}
               <span className="text-muted-foreground/40">|</span>
               <a
-                href={`/business/${business.id}`}
+                href={businessUrl(business)}
                 target="_blank"
                 rel="noopener noreferrer"
                 title="Voir la fiche publique"

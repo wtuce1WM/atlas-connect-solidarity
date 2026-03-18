@@ -806,7 +806,7 @@ const BusinessOverviewTab = ({ businesses, loading, onEdit }: BusinessOverviewTa
                             </a>
                           )}
                           <a
-                            href={`/business/${business.id}`}
+                            href={businessUrl(business)}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-sm text-primary hover:underline inline-flex items-center gap-1"

@@ -232,7 +232,7 @@ const EssaouiraSeaView = () => {
 
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                   {rest.map((business) => (
-                    <Link key={business.id} to={`/business/${business.id}`} className="group">
+                    <Link key={business.id} to={businessUrl(business)} className="group">
                       <Card className="overflow-hidden border-border/50 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300 h-full">
                         <div className="relative aspect-[4/3] overflow-hidden">
                           <img
