@@ -123,7 +123,7 @@ const DestinationPage = () => {
         const [bizRes, gammesRes, badgesRes, subcatsRes, badgeSubcatsRes] = await Promise.all([
           supabase
             .from("businesses")
-            .select("id, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, services, default_service, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, opening_hours, show_opening_hours, is_open_24h, rating, gamme_id, badge_id, neighborhood, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, hook_fr")
+            .select("id, slug, name, description, city, region, address, phone, whatsapp, skype, website, logo_url, images, main_category, categories, services, default_service, wtuce_status, is_regulated_activity, latitude, longitude, google_maps_url, opening_hours, show_opening_hours, is_open_24h, rating, gamme_id, badge_id, neighborhood, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, hook_fr")
             .eq("is_active", true)
             .in("id", businessIds),
           supabase.from("gammes").select("id, name_fr, color_hex, text_color_hex, sort_order").order("sort_order"),
