@@ -233,7 +233,7 @@ const BusinessDetail = () => {
         const { data: labelsData } = await supabase
           .from("business_labels" as any)
           .select("id, label_id, custom_url")
-          .eq("business_id", id)
+          .eq("business_id", data.id)
           .order("sort_order", { ascending: true });
         
         if (labelsData && labelsData.length > 0) {
