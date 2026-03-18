@@ -242,6 +242,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   const [showReviewComments, setShowReviewComments] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isCurrentImageLandscape, setIsCurrentImageLandscape] = useState(false);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [isVideoMuted, setIsVideoMuted] = useState(true);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
