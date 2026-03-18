@@ -181,6 +181,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
                 name: biz?.name || "—",
                 city: biz?.city || null,
                 main_category: biz?.main_category || null,
+                slug: biz?.slug || null,
                 promotion: promo ? { type: promo.promotion_type, value: promo.promotion_value, currency: promo.promotion_currency, message: promo.promotion_message } : null,
               };
             }).filter((bk: any) => bizMap.has(bk.business_id))
