@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
+import { businessUrl } from "@/lib/businessUrl";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Phone, Globe, MapPin, Map, Crown, Star, MessageCircle } from "lucide-react";
@@ -94,7 +95,7 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
       <div className="flex items-stretch gap-0">
         {/* Champion card - fixed on the left (desktop/tablet only) */}
         <Link
-          to={`/business/${champion.id}`}
+          to={businessUrl(champion)}
           className="hidden md:flex flex-shrink-0 w-64 px-4 group relative items-center justify-center"
         >
           <div className="flex flex-col items-center text-center space-y-3">
@@ -151,7 +152,7 @@ const AnimatedBusinessStrip = ({ city, title, businessIds, category, showMapLink
               return (
               <Link
                 key={`${biz.id}-${index}`}
-                to={`/business/${biz.id}`}
+                to={businessUrl(biz)}
                 className="flex-shrink-0 w-56 mx-4 group"
               >
                 <div className="flex flex-col items-center text-center transition-all duration-500 group-hover:scale-105">

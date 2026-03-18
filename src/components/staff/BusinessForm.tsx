@@ -1145,7 +1145,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         // Create
         const { data: newBusiness, error } = await supabase
           .from("businesses")
-          .insert(businessData)
+          .insert(businessData as any)
           .select("id")
           .single();
 

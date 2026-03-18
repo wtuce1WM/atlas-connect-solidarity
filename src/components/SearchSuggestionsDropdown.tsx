@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { businessUrl } from "@/lib/businessUrl";
 import { Building2 } from "lucide-react";
 import type { SearchSuggestion } from "@/hooks/useSearchSuggestions";
 
@@ -19,7 +20,7 @@ const SearchSuggestionsDropdown = ({ suggestions, visible, onSelect, position = 
     if (onSelect) {
       onSelect(s);
     } else {
-      navigate(`/business/${s.id}`);
+      navigate(businessUrl(s));
     }
   };
 

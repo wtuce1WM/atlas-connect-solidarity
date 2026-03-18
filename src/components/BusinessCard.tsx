@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { businessUrl } from "@/lib/businessUrl";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
@@ -305,7 +306,7 @@ const BusinessCard = ({
     : null;
 
   return (
-    <Link to={`/business/${business.id}`}>
+    <Link to={businessUrl(business)}>
       <Card className="group h-full overflow-hidden bg-card border-border hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 relative">
         {/* Image - 16:9 aspect ratio */}
         <div className={`aspect-video overflow-hidden relative ${businessImage.isLogo ? 'bg-white' : 'bg-muted'}`}>

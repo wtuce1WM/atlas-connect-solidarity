@@ -174,7 +174,7 @@ interface Destination {
 type TabKey = 'overview' | 'experiences' | 'video' | 'virtual-tour' | 'services' | 'reviews' | 'location';
 
 const BusinessDetail = () => {
-  const { id } = useParams<{ id: string }>();
+  const { slug: routeSlug } = useParams<{ slug: string }>();
   const [business, setBusiness] = useState<Business | null>(null);
   const [businessLabels, setBusinessLabels] = useState<BusinessLabel[]>([]);
   const [gamme, setGamme] = useState<Gamme | null>(null);
@@ -203,13 +203,22 @@ const BusinessDetail = () => {
 
   useEffect(() => {
     const fetchBusiness = async () => {
-      if (!id) return;
-      const { data, error } = await supabase
-        .from("businesses")
-        .select("*")
-        .eq("id", id)
-        .eq("is_active", true)
-        .maybeSingle();
+      if (!routeSlug) return;
+      
+      // Try by slug first, then fallback to UUID for backward compatibility
+      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(routeSlug);
+      const column = isUUID ? "id" : "slug" as any;
+      
+      let data: any = null;
+      let error: any = null;
+      
+      if (isUUID) {
+        const res = await supabase.from("businesses").select("*").eq("id", routeSlug).eq("is_active", true).maybeSingle();
+        data = res.data; error = res.error;
+      } else {
+        const res = await (supabase.from("businesses").select("*") as any).eq("slug", routeSlug).eq("is_active", true).maybeSingle();
+        data = res.data; error = res.error;
+      }
 
       if (error) {
         console.error("Error fetching business:", error);
@@ -224,7 +233,7 @@ const BusinessDetail = () => {
         const { data: labelsData } = await supabase
           .from("business_labels" as any)
           .select("id, label_id, custom_url")
-          .eq("business_id", id)
+          .eq("business_id", data.id)
           .order("sort_order", { ascending: true });
         
         if (labelsData && labelsData.length > 0) {
@@ -254,7 +263,7 @@ const BusinessDetail = () => {
         const { data: reviewsData } = await supabase
           .from("reviews" as any)
           .select("source, author_name, rating, text, relative_time")
-          .eq("business_id", id)
+          .eq("business_id", data.id)
           .order("rating", { ascending: false })
           .limit(5);
         if (reviewsData) setReviewTexts(reviewsData as any[]);
@@ -265,7 +274,7 @@ const BusinessDetail = () => {
         const { data: bdData } = await supabase
           .from("business_destinations" as any)
           .select("destination_id")
-          .eq("business_id", id);
+          .eq("business_id", data.id);
         if (bdData && bdData.length > 0) {
           const destIds = (bdData as any[]).map(d => d.destination_id);
           const { data: destData } = await supabase
@@ -385,7 +394,7 @@ const BusinessDetail = () => {
       setIsLoading(false);
     };
     fetchBusiness();
-  }, [id]);
+  }, [routeSlug]);
 
   // Check which categories have other businesses in the same city
   useEffect(() => {

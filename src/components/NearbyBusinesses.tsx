@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type RefObject } from "react";
 import { Link } from "react-router-dom";
+import { businessUrl } from "@/lib/businessUrl";
 import { MapPin, Star, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
@@ -161,7 +162,7 @@ const NearbyBusinesses = ({ currentBusinessId, businessName, latitude, longitude
           return (
             <Link
               key={biz.id}
-              to={`/business/${biz.id}`}
+              to={businessUrl(biz)}
               onClick={(e) => {
                 if (onNavigate) {
                   e.preventDefault();
@@ -219,7 +220,7 @@ const NearbyBusinesses = ({ currentBusinessId, businessName, latitude, longitude
           return (
             <Link
               key={biz.id}
-              to={`/business/${biz.id}`}
+              to={businessUrl(biz)}
               onClick={(e) => {
                 if (onNavigate) {
                   e.preventDefault();

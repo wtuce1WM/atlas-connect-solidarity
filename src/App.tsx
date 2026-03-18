@@ -87,7 +87,7 @@ const AppContent = () => {
           <RouteTransition>
             <Routes>
               <Route path="/" element={<Index />} />
-              <Route path="/business/:id" element={<BusinessDetail />} />
+              <Route path="/business/:slug" element={<BusinessDetail />} />
               <Route path="/city/:city" element={<CityMap />} />
               <Route path="/category/:categoryName" element={<CategoryPage />} />
               <Route path="/service/*" element={<ServicePage />} />

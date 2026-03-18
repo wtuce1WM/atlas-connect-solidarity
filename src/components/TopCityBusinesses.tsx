@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import { Link } from "react-router-dom";
+import { businessUrl } from "@/lib/businessUrl";
 import { Star, ChevronLeft, ChevronRight, MapPin } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Card, CardContent } from "@/components/ui/card";
@@ -105,7 +106,7 @@ const TopCityBusinesses = ({ businesses, cityName, neighborhoodName, gammes = []
           {topBusinesses.map((business) => (
             <Link
               key={business.id}
-              to={`/business/${business.id}`}
+              to={businessUrl(business)}
               className="group flex-shrink-0 snap-center w-[55vw] sm:w-auto"
             >
               <Card className="w-full sm:w-72 h-full overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-gold/20 border border-gold/30 relative">
