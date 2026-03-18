@@ -289,18 +289,21 @@ const AffiliatePresence = () => {
                         {getBusinessCompleteness(currentBusiness).filled}/{PLATFORMS.length} plateformes configurées
                       </p>
                     </div>
-                    <Button
-                      size="sm"
-                      disabled={!hasEdits || savingId === currentBusiness.id}
-                      onClick={() => handleSave(currentBusiness.id)}
-                    >
-                      {savingId === currentBusiness.id ? (
-                        <Loader2 className="h-4 w-4 animate-spin mr-1" />
-                      ) : (
-                        <Save className="h-4 w-4 mr-1" />
-                      )}
-                      Enregistrer
-                    </Button>
+                    <div className="flex items-center gap-3">
+                      <YextSyncButton businessId={currentBusiness.id} businessName={currentBusiness.name} />
+                      <Button
+                        size="sm"
+                        disabled={!hasEdits || savingId === currentBusiness.id}
+                        onClick={() => handleSave(currentBusiness.id)}
+                      >
+                        {savingId === currentBusiness.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin mr-1" />
+                        ) : (
+                          <Save className="h-4 w-4 mr-1" />
+                        )}
+                        Enregistrer
+                      </Button>
+                    </div>
                   </div>
                 </CardHeader>
                 <CardContent>
