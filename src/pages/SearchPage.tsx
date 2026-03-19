@@ -3527,7 +3527,7 @@ const SearchPage = () => {
                     <div
                       key={business.id}
                       data-result-card={index === 0 ? "true" : undefined}
-                      onClick={() => setCompactPanelBusiness({ id: business.id, name: business.name } as AIBusinessData)}
+                      onClick={() => { setCompactPanelBusiness({ id: business.id, name: business.name } as AIBusinessData); setIsCompactPanelWebOnly(isWebOnly); }}
                       onMouseEnter={() => setHoveredResultId(business.id)}
                       onMouseLeave={() => setHoveredResultId(null)}
                       className="group overflow-hidden rounded-xl border border-border shadow-sm hover:shadow-md transition-all cursor-pointer relative aspect-square bg-muted"
