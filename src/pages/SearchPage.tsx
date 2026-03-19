@@ -650,40 +650,31 @@ const SearchPage = () => {
    // Measure sticky bar heights dynamically for perfect stacking
    const [stickyTops, setStickyTops] = useState({ cityBar: 104, serviceBar: 148 });
    const [stickyStackPadding, setStickyStackPadding] = useState(0);
-   useEffect(() => {
-     const measure = () => {
-       const tabBar = document.querySelector<HTMLElement>('[data-tab-bar]');
-       const cityBar = document.querySelector<HTMLElement>('[data-city-bar]');
-       const tabH = tabBar ? tabBar.getBoundingClientRect().height : 44;
-       const cityBarTop = 60 + tabH;
-       const cityH = cityBar ? cityBar.getBoundingClientRect().height : 0;
-       const serviceBarTop = cityBarTop + cityH;
-       setStickyTops(prev => {
-         if (prev.cityBar === cityBarTop && prev.serviceBar === serviceBarTop) return prev;
-         return { cityBar: cityBarTop, serviceBar: serviceBarTop };
-       });
+    useEffect(() => {
+      const measure = () => {
+        const tabBar = document.querySelector<HTMLElement>('[data-tab-bar]');
+        const tabH = tabBar ? tabBar.getBoundingClientRect().height : 44;
+        const cityBarTop = 60 + tabH;
+        setStickyTops(prev => {
+          if (prev.cityBar === cityBarTop && prev.serviceBar === cityBarTop) return prev;
+          return { cityBar: cityBarTop, serviceBar: cityBarTop };
+        });
 
-       // Measure the bottom of the last sticky bar to compute content padding
-        const aiBar = document.querySelector<HTMLElement>('[data-ai-bar]');
-        const searchSvcBar = document.querySelector<HTMLElement>('[data-search-service-filter]');
-        const svcBar = document.querySelector<HTMLElement>('[data-service-filter]');
+        // Measure the bottom of the last visible sticky bar to compute content padding
         const subBar = document.querySelector<HTMLElement>('[data-subcategory-filter]');
         const catBar = document.querySelector<HTMLElement>('[data-category-filter]');
-        const lastSticky = aiBar || searchSvcBar || svcBar || subBar || catBar || cityBar || tabBar;
-       if (lastSticky) {
-         const computedTop = Number.parseFloat(window.getComputedStyle(lastSticky).top || '0');
-         const h = lastSticky.getBoundingClientRect().height;
-         const bottom = (Number.isFinite(computedTop) ? computedTop : 0) + h;
-         setStickyStackPadding(prev => prev === bottom ? prev : bottom);
-       }
-     };
-     // Measure after DOM settles
-     const t1 = setTimeout(measure, 50);
-     const t2 = setTimeout(measure, 300);
-     const t3 = setTimeout(measure, 800);
-     window.addEventListener("resize", measure);
-     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); window.removeEventListener("resize", measure); };
-   }, [selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, selectedCity, activeTab, showAiPopup, aiAnswerText, isLoading]);
+        const lastSticky = subBar || catBar || tabBar;
+        if (lastSticky) {
+          const computedTop = Number.parseFloat(window.getComputedStyle(lastSticky).top || '0');
+          const h = lastSticky.getBoundingClientRect().height;
+          const bottom = (Number.isFinite(computedTop) ? computedTop : 0) + h;
+          setStickyStackPadding(prev => prev === bottom ? prev : bottom);
+        }
+      };
+      const t1 = setTimeout(measure, 80);
+      window.addEventListener("resize", measure);
+      return () => { clearTimeout(t1); window.removeEventListener("resize", measure); };
+    }, [selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, selectedCity, activeTab, showAiPopup, aiAnswerText, isLoading]);
 
    const [aiRegenerateKey, setAiRegenerateKey] = useState(0);
    const [isAiRegenerating, setIsAiRegenerating] = useState(false);
