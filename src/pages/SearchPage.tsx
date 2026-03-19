@@ -402,6 +402,7 @@ const SearchPage = () => {
   const [subcategories, setSubcategories] = useState<SubcategoryRef[]>([]);
   const [badgeSubcategories, setBadgeSubcategories] = useState<BadgeSubcategoryRef[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [activeEasterEggNames, setActiveEasterEggNames] = useState<Set<string>>(new Set());
   const [currentPage, setCurrentPage] = useState(1);
   const cityFromUrl = searchParams.get("city") || "";
   const [selectedCity, setSelectedCity] = useState<string>(cityFromUrl || "all");
