@@ -24,7 +24,6 @@ const ResumeLastSearch = () => {
 
   const handleClick = () => {
     const params = new URLSearchParams({ q: last.query });
-    if (last.city) params.set("city", last.city);
     if (last.category) params.set("category", last.category);
     navigate(`/search?${params.toString()}`);
   };
@@ -39,9 +38,6 @@ const ResumeLastSearch = () => {
         <Search className="h-3.5 w-3.5 text-muted-foreground" />
         <span className="text-muted-foreground">{label}</span>
         <span className="font-medium text-foreground group-hover:underline">{last.query}</span>
-        {last.city && (
-          <span className="text-muted-foreground">· {last.city}</span>
-        )}
       </button>
       <button
         type="button"
