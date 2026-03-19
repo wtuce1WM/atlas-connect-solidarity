@@ -387,6 +387,7 @@ const SearchPage = () => {
     setIsSubDesktop(mql.matches);
     return () => mql.removeEventListener("change", onChange);
   }, []);
+  const [showMobileMap, setShowMobileMap] = useState(false);
   const [allBusinesses, setAllBusinesses] = useState<Business[]>([]);
   const [totalCount, setTotalCount] = useState<number | null>(null);
   const [detectedSubcategory, setDetectedSubcategory] = useState<string | null>(null);
@@ -1307,6 +1308,44 @@ const SearchPage = () => {
         subcategory: b.categories?.[0] || null,
       }));
   }, [hasKnownLocation, filteredBusinesses, mapCenterForResults, neighborhoodCoords, effectiveCityForMap]);
+
+  // Mobile/tablet map items — same logic but without hasKnownLocation guard
+  const mobileMapPoiItems: PoiMapItem[] = useMemo(() => {
+    if (!isSubDesktop) return [];
+    const center = mapCenterForResults;
+    const maxRadiusKm = neighborhoodCoords ? 2 : 60;
+    const haversine = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+      const R = 6371;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    };
+    return filteredBusinesses
+      .filter(b => {
+        if (!b.latitude || !b.longitude) return false;
+        if (b.latitude < 21 || b.latitude > 36.5 || b.longitude < -17.5 || b.longitude > -1) return false;
+        if (center) {
+          const dist = haversine(center.lat, center.lng, b.latitude, b.longitude);
+          if (dist > maxRadiusKm) return false;
+        }
+        return true;
+      })
+      .slice(0, 100)
+      .map(b => ({
+        id: b.id,
+        name: b.name,
+        latitude: b.latitude,
+        longitude: b.longitude,
+        images: b.images,
+        city: b.city,
+        neighborhood: b.neighborhood,
+        rating: b.rating,
+        avgOn20: computeWeightedRatingOn20(collectRatingSources(b as any)),
+        totalReviews: collectRatingSources(b as any).reduce((s, r) => s + r.count, 0),
+        subcategory: b.categories?.[0] || null,
+      }));
+  }, [isSubDesktop, filteredBusinesses, mapCenterForResults, neighborhoodCoords]);
 
 
   useEffect(() => {
@@ -3440,9 +3479,7 @@ const SearchPage = () => {
                 {/* Map button — mobile & tablet only */}
                 {isSubDesktop && (
                   <button
-                    onClick={() => {
-                      // TODO: implement map view toggle
-                    }}
+                    onClick={() => setShowMobileMap(true)}
                     className="lg:hidden inline-flex items-center gap-2 px-5 py-2 rounded-full bg-foreground text-background text-sm font-semibold shadow-lg hover:bg-foreground/90 transition-colors"
                   >
                     <Map className="h-4 w-4" />
@@ -3853,6 +3890,40 @@ const SearchPage = () => {
       </section>
       )}
 
+
+      {/* Mobile/Tablet Map Overlay — slide-in from right */}
+      {isSubDesktop && showMobileMap && (
+        <div className="fixed inset-0 z-[201] bg-background flex flex-col animate-slide-in-right lg:hidden">
+          {/* Header bar with close */}
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+            <span className="text-sm font-semibold text-foreground">
+              {language === "en" ? "Map" : language === "ar" ? "خريطة" : "Carte"}
+            </span>
+            <button
+              onClick={() => setShowMobileMap(false)}
+              className="w-8 h-8 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 transition-colors"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+          {/* Map */}
+          <div className="flex-1">
+            <PoiGoogleMap
+              pois={mobileMapPoiItems}
+              selectedPoiId={hoveredResultId || compactPanelBusiness?.id || null}
+              onPoiClick={(poiId) => {
+                const biz = filteredBusinesses.find(b => b.id === poiId);
+                if (biz) {
+                  setShowMobileMap(false);
+                  openCompactPanel({ id: biz.id, name: biz.name } as AIBusinessData);
+                }
+              }}
+              center={mapCenterForResults}
+              subcategoryIconMap={subcategoryIconMap}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Floating Search Bar */}
       <div className={`fixed bottom-0 left-0 right-0 py-3 px-4 transition-transform duration-300 ${isCompactPanelWebOnly && compactPanelBusiness ? "translate-y-full" : ""} ${isCompactPanelExpanded ? "z-[190]" : "z-[210]"}`}>
