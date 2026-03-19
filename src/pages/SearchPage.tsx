@@ -1985,10 +1985,10 @@ const SearchPage = () => {
     setStickyAiVisibleWordIndex(Number.MAX_SAFE_INTEGER);
   }, [stickyAiAnimationNonce, stickyAiText, stickyAiWordCount, isAiRegenerating]);
 
-  const showZitounEasterEgg = !isLoading && isZitounMask(spokenText || searchQuery);
-  const showCelebrityGuide = !isLoading && isCelebrityQuery(spokenText || searchQuery);
-  const showSosMedecin = isSosMedecinQuery(spokenText || searchQuery);
-  const showPompiers = isPompiersQuery(spokenText || searchQuery);
+  const showZitounEasterEgg = !isLoading && activeEasterEggNames.has("Zitoun Musk") && isZitounMask(spokenText || searchQuery);
+  const showCelebrityGuide = !isLoading && activeEasterEggNames.has("Célébrités") && isCelebrityQuery(spokenText || searchQuery);
+  const showSosMedecin = activeEasterEggNames.has("SOS Médecin") && isSosMedecinQuery(spokenText || searchQuery);
+  const showPompiers = activeEasterEggNames.has("Pompiers") && isPompiersQuery(spokenText || searchQuery);
 
   if (isLoading) {
     return <LoadingScreen />;
