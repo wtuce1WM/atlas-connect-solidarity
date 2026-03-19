@@ -10,6 +10,7 @@ import LogoCSSSpinner from "@/components/LogoCSSSpinner";
 import heroBackground from "@/assets/hero-marrakech.jpg";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
+import ResumeLastSearch from "@/components/ResumeLastSearch";
 import { toast } from "@/hooks/use-toast";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { getTimeGreeting, extractTimeSlot } from "@/lib/timeSlots";
