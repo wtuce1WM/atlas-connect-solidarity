@@ -4,6 +4,7 @@ interface VoiceSearchOverlayProps {
   isOpen: boolean;
   liveTranscript: string;
   onClose: () => void;
+  onFinish?: () => void;
 }
 
 const VoiceSearchOverlay = ({ isOpen, liveTranscript, onClose }: VoiceSearchOverlayProps) => {

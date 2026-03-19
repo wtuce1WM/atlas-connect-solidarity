@@ -234,6 +234,23 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onError, lan
     setStatus("idle");
   }, [clearSilenceTimer]);
 
+  // Stop recording and immediately process whatever was said (like the silence timer)
+  const finishRecording = useCallback(() => {
+    clearSilenceTimer();
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+      recognitionRef.current = null;
+    }
+    const transcript = accumulatedTranscriptRef.current;
+    accumulatedTranscriptRef.current = "";
+    setLiveTranscript("");
+    if (transcript) {
+      processTranscript(transcript);
+    } else {
+      setStatus("idle");
+    }
+  }, [clearSilenceTimer, processTranscript]);
+
   const toggleRecording = useCallback(() => {
     if (status === "recording") {
       stopRecording();
@@ -242,5 +259,5 @@ export function useVoiceSearch({ onTranscript, onHotelAvailability, onError, lan
     }
   }, [status, startRecording, stopRecording]);
 
-  return { status, toggleRecording, liveTranscript };
+  return { status, toggleRecording, finishRecording, liveTranscript };
 }
