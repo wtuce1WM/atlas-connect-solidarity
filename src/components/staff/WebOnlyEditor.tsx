@@ -32,7 +32,7 @@ interface WebOnlyEditorProps {
 const BUCKET = "web-only-media";
 const MAX_IMAGES = 5;
 const MAX_VIDEOS = 5;
-const MAX_DESC_LENGTH = 1000;
+const MAX_DESC_LENGTH = 1500;
 
 const getPublicUrl = (path: string) =>
   supabase.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
