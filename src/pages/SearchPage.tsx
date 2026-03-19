@@ -3556,7 +3556,7 @@ const SearchPage = () => {
                                 Boutique en ligne ↗
                               </a>
                               <button
-                                onClick={() => setCompactPanelBusiness({ id: business.id, name: business.name } as AIBusinessData)}
+                                onClick={() => { setCompactPanelBusiness({ id: business.id, name: business.name } as AIBusinessData); setIsCompactPanelWebOnly(true); }}
                                 className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg border border-white/50 text-white text-xs font-semibold hover:bg-white/15 transition-colors"
                               >
                                 Voir la fiche
