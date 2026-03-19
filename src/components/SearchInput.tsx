@@ -125,12 +125,12 @@ const SearchInput = ({
     }
   };
 
-  const placeholder =
-    language === "fr"
+  const placeholder = customPlaceholder ||
+    (language === "fr"
       ? variant === "hero" ? "Que cherchez-vous ?" : "Rechercher un établissement..."
       : language === "ar"
         ? variant === "hero" ? "ماذا تبحث عنه؟" : "ابحث عن مؤسسة..."
-        : variant === "hero" ? "What are you looking for?" : "Search for a business...";
+        : variant === "hero" ? "What are you looking for?" : "Search for a business...");
 
   const buttonLabel = language === "fr" ? "Recherche" : language === "ar" ? "بحث" : "Search";
 
