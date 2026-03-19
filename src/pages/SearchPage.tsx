@@ -1309,6 +1309,44 @@ const SearchPage = () => {
       }));
   }, [hasKnownLocation, filteredBusinesses, mapCenterForResults, neighborhoodCoords, effectiveCityForMap]);
 
+  // Mobile/tablet map items — same logic but without hasKnownLocation guard
+  const mobileMapPoiItems: PoiMapItem[] = useMemo(() => {
+    if (!isSubDesktop) return [];
+    const center = mapCenterForResults;
+    const maxRadiusKm = neighborhoodCoords ? 2 : 60;
+    const haversine = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+      const R = 6371;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    };
+    return filteredBusinesses
+      .filter(b => {
+        if (!b.latitude || !b.longitude) return false;
+        if (b.latitude < 21 || b.latitude > 36.5 || b.longitude < -17.5 || b.longitude > -1) return false;
+        if (center) {
+          const dist = haversine(center.lat, center.lng, b.latitude, b.longitude);
+          if (dist > maxRadiusKm) return false;
+        }
+        return true;
+      })
+      .slice(0, 100)
+      .map(b => ({
+        id: b.id,
+        name: b.name,
+        latitude: b.latitude,
+        longitude: b.longitude,
+        images: b.images,
+        city: b.city,
+        neighborhood: b.neighborhood,
+        rating: b.rating,
+        avgOn20: computeWeightedRatingOn20(collectRatingSources(b as any)),
+        totalReviews: collectRatingSources(b as any).reduce((s, r) => s + r.count, 0),
+        subcategory: b.categories?.[0] || null,
+      }));
+  }, [isSubDesktop, filteredBusinesses, mapCenterForResults, neighborhoodCoords]);
+
 
   useEffect(() => {
     if (isLoading) return;
