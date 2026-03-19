@@ -250,6 +250,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   // isMatterportOpen removed — Matterport is now part of the unified lightbox
   const [isVideoPaused, setIsVideoPaused] = useState(false);
   const [videoError, setVideoError] = useState(false);
+  const [isVideoLandscape, setIsVideoLandscape] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
   const mediaContainerRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -481,6 +482,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
       setDocOverlay(null);
       setCurrentImageIndex(0);
       setVideoError(false);
+      setIsVideoLandscape(true);
       setActiveTab("apercu");
       setIsDescriptionExpanded(false);
       setShowReviewComments(false);
@@ -1195,16 +1197,33 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                       );
                     }
                     return (
-                      <video
-                        ref={videoRef}
-                        src={url}
-                        autoPlay
-                        muted={isVideoMuted}
-                        loop
-                        playsInline
-                        className="w-full h-full object-cover"
-                        onError={() => setVideoError(true)}
-                      />
+                      <div className="relative w-full h-full overflow-hidden">
+                        {/* Blurred background fill — only for portrait/vertical videos */}
+                        {!isVideoLandscape && (
+                          <video
+                            src={url}
+                            muted
+                            loop
+                            playsInline
+                            aria-hidden="true"
+                            className="absolute inset-0 w-full h-full object-cover scale-110 blur-md opacity-60"
+                          />
+                        )}
+                        <video
+                          ref={videoRef}
+                          src={url}
+                          autoPlay
+                          muted={isVideoMuted}
+                          loop
+                          playsInline
+                          className={`relative w-full h-full ${isVideoLandscape ? "object-cover" : "object-contain"}`}
+                          onError={() => setVideoError(true)}
+                          onLoadedMetadata={(e) => {
+                            const v = e.currentTarget;
+                            setIsVideoLandscape(v.videoWidth >= v.videoHeight);
+                          }}
+                        />
+                      </div>
                     );
                   })()
                 ) : hasMatterport && currentImageIndex === matterportIndex ? (
