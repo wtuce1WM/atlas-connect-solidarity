@@ -227,8 +227,8 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
           )}
 
           {/* Centered content block */}
-          <div className="flex-1 flex items-center justify-center">
-            <div className="w-[90%] lg:w-[70%] rounded-2xl bg-black/40 backdrop-blur-sm p-6 space-y-5 text-white pointer-events-auto">
+          <div className="flex-1 flex items-center justify-center overflow-hidden">
+            <div className="w-[95%] md:w-[90%] lg:w-[70%] max-h-[60vh] md:max-h-none overflow-y-auto rounded-2xl bg-black/40 backdrop-blur-sm p-4 md:p-6 space-y-5 text-white pointer-events-auto">
               {/* Logo + name */}
               <div className="flex items-end gap-4">
                 {business.logo_url && (
