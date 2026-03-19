@@ -110,59 +110,6 @@ const HeroSection = () => {
         </p>
 
 
-        {/* Titre dynamique selon l'onglet */}
-        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-black text-center max-w-5xl min-h-[4.5rem] md:min-h-[3rem]">
-          {(() => {
-            const texts: Record<string, { fr: string; fr2?: string; en: string; en2?: string; ar: string; ar2?: string }> = {
-              all: {
-                fr: "Que cherchez-vous ?",
-                fr2: "Et où ?",
-                en: "What are you looking for?",
-                en2: "And where?",
-                ar: "ماذا تبحث عنه؟",
-                ar2: "وأين؟",
-              },
-              "Hôtellerie": {
-                fr: "Trouvez les meilleurs hôtels & riads",
-                en: "Find the best hotels & riads",
-                ar: "ابحث عن أفضل الفنادق والرياضات",
-              },
-              "Restauration": {
-                fr: "Trouvez un bon restaurant",
-                en: "Find a good restaurant",
-                ar: "ابحث عن مطعم جيد",
-              },
-              "Tourisme": {
-                fr: "Amusez-vous",
-                en: "Have fun",
-                ar: "استمتعوا",
-              },
-              "Commerce": {
-                fr: "Que voulez-vous",
-                fr2: "acheter ?",
-                en: "What do you want",
-                en2: "to buy?",
-                ar: "ماذا تريدون",
-                ar2: "شراءه؟",
-              },
-              "Bien-être": {
-                fr: "Prenez soin de vous",
-                en: "Take care of yourself",
-                ar: "اعتنوا بأنفسكم",
-              },
-            };
-            const t = texts[searchCategory] || texts.all;
-            const line1 = language === "ar" ? t.ar : language === "en" ? t.en : t.fr;
-            const line2 = language === "ar" ? t.ar2 : language === "en" ? t.en2 : t.fr2;
-            return line2 ? (
-              <>
-                {line1}<br className="md:hidden" />{" "}
-                <span className="hidden md:inline">{line2}</span>
-                <span className="md:hidden">{line2}</span>
-              </>
-            ) : line1;
-          })()}
-        </h1>
 
         {/* Search Bar + Tabs */}
         <div className="w-full max-w-2xl" ref={searchContainerRef}>
