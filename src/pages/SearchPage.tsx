@@ -3893,21 +3893,16 @@ const SearchPage = () => {
 
       {/* Mobile/Tablet Map Overlay — slide-in from right */}
       {isSubDesktop && showMobileMap && (
-        <div className="fixed inset-0 z-[201] bg-background flex flex-col animate-slide-in-right lg:hidden">
-          {/* Header bar with close */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-            <span className="text-sm font-semibold text-foreground">
-              {language === "en" ? "Map" : language === "ar" ? "خريطة" : "Carte"}
-            </span>
-            <button
-              onClick={() => setShowMobileMap(false)}
-              className="w-8 h-8 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 transition-colors"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          </div>
-          {/* Map */}
-          <div className="flex-1">
+        <div className="fixed inset-0 z-[201] bg-background animate-slide-in-right lg:hidden">
+          {/* Close button overlaid on map — top-left */}
+          <button
+            onClick={() => setShowMobileMap(false)}
+            className="absolute top-3 left-3 z-10 w-9 h-9 rounded-full bg-foreground text-background flex items-center justify-center shadow-lg hover:bg-foreground/90 transition-colors"
+          >
+            <X className="h-5 w-5" />
+          </button>
+          {/* Map — full height */}
+          <div className="w-full h-full">
             <PoiGoogleMap
               pois={mobileMapPoiItems}
               selectedPoiId={hoveredResultId || compactPanelBusiness?.id || null}
