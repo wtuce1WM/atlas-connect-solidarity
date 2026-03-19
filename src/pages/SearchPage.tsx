@@ -696,6 +696,30 @@ const SearchPage = () => {
     const [isCompactPanelExpanded, setIsCompactPanelExpanded] = useState(false);
       const [compactBusinessImageCount, setCompactBusinessImageCount] = useState(0);
       const [isCompactPanelWebOnly, setIsCompactPanelWebOnly] = useState(false);
+
+      const openCompactPanel = useCallback((bizOrData: AIBusinessData | { id: string; name: string }, forceWebOnly?: boolean) => {
+        const b = bizOrData as AIBusinessData;
+        setCompactPanelBusiness(b);
+        setIsCompactPanelExpanded(false);
+        if (forceWebOnly !== undefined) {
+          setIsCompactPanelWebOnly(forceWebOnly);
+        } else {
+          // Try to detect from allBusinesses
+          const found = allBusinesses.find(biz => biz.id === b.id);
+          if (found) {
+            const engs = (found as any).engagements || [];
+            const hasEng = (target: string) => engs.some((e: string) => {
+              const n = e.toLowerCase().trim();
+              const needle = target.toLowerCase();
+              return n === needle || n === `logistique:${needle}` || n.endsWith(`:${needle}`);
+            });
+            const shopUrl = (found as any).online_shop_url || (found as any).website;
+            setIsCompactPanelWebOnly(!!(hasEng("Commandez en ligne et recevez votre colis chez vous") && hasEng("Web only") && shopUrl));
+          } else {
+            setIsCompactPanelWebOnly(false);
+          }
+        }
+      }, [allBusinesses]);
      const [hoveredResultId, setHoveredResultId] = useState<string | null>(null);
      const [hoveredPoiId, setHoveredPoiId] = useState<string | null>(null);
      const [hoveredDestId, setHoveredDestId] = useState<string | null>(null);
