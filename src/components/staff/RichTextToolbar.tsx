@@ -8,7 +8,7 @@ import {
   Quote, Minus, ImagePlus, TableIcon, Youtube, Palette,
   Plus, Trash2, ArrowDown, ArrowRight,
 } from "lucide-react";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import {
   Popover, PopoverContent, PopoverTrigger,
 } from "@/components/ui/popover";
