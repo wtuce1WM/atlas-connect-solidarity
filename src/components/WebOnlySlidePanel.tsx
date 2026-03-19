@@ -262,7 +262,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
 
           {/* CTA: outside content block on mobile, above video controls */}
           {shopUrl && (
-            <div className="pb-2 md:pb-4 flex justify-center pointer-events-auto">
+            <div className="pb-14 md:pb-4 flex justify-center pointer-events-auto">
               <a
                 href={shopUrl.startsWith("http") ? shopUrl : `https://${shopUrl}`}
                 target="_blank"
