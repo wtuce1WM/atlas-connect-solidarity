@@ -168,68 +168,70 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
         </div>
 
-        {/* Overlaid content */}
-        <div className="relative z-10 flex flex-col justify-end min-h-full p-6 pt-20">
-          {/* Video navigation dots */}
-          {videos.length > 1 && (
-            <div className="flex items-center justify-center gap-2 mb-6">
-              {videos.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setCurrentVideoIndex(i)}
-                  className={`w-2.5 h-2.5 rounded-full transition-all ${
-                    i === currentVideoIndex % videos.length
-                      ? "bg-white scale-110"
-                      : "bg-white/40 hover:bg-white/60"
-                  }`}
-                  aria-label={`Video ${i + 1}`}
-                />
-              ))}
-            </div>
-          )}
-
-          {/* Logo + name */}
-          <div className="flex items-end gap-4 mb-4">
-            {business.logo_url && (
-              <div
-                className="shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 border-white/20 shadow-lg"
-                style={{ backgroundColor: business.logo_bg || "#fff" }}
-              >
-                <img src={business.logo_url} alt="" className="w-full h-full object-contain p-1" />
+        {/* Overlaid content – centered vertically, 70% width */}
+        <div className="relative z-10 flex items-center justify-center min-h-full p-6">
+          <div className="w-[70%] rounded-2xl bg-black/40 backdrop-blur-sm p-6 space-y-5">
+            {/* Video navigation dots */}
+            {videos.length > 1 && (
+              <div className="flex items-center justify-center gap-2">
+                {videos.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setCurrentVideoIndex(i)}
+                    className={`w-2.5 h-2.5 rounded-full transition-all ${
+                      i === currentVideoIndex % videos.length
+                        ? "bg-white scale-110"
+                        : "bg-white/40 hover:bg-white/60"
+                    }`}
+                    aria-label={`Video ${i + 1}`}
+                  />
+                ))}
               </div>
             )}
-            <div className="min-w-0">
-              <h2 className="text-2xl font-bold text-white truncate drop-shadow-lg">{business.name}</h2>
-              {business.city && (
-                <p className="text-sm text-white/80 flex items-center gap-1 mt-0.5">
-                  <MapPin className="h-3.5 w-3.5" />
-                  {business.city}
-                </p>
+
+            {/* Logo + name */}
+            <div className="flex items-end gap-4">
+              {business.logo_url && (
+                <div
+                  className="shrink-0 w-14 h-14 rounded-xl overflow-hidden border-2 border-white/20 shadow-lg"
+                  style={{ backgroundColor: business.logo_bg || "#fff" }}
+                >
+                  <img src={business.logo_url} alt="" className="w-full h-full object-contain p-1" />
+                </div>
               )}
+              <div className="min-w-0">
+                <h2 className="text-xl font-bold text-white truncate drop-shadow-lg">{business.name}</h2>
+                {business.city && (
+                  <p className="text-sm text-white/80 flex items-center gap-1 mt-0.5">
+                    <MapPin className="h-3.5 w-3.5" />
+                    {business.city}
+                  </p>
+                )}
+              </div>
             </div>
+
+            {/* Web only description (rich text) */}
+            {woDescription && (
+              <div
+                className="text-sm text-white leading-relaxed max-h-40 overflow-y-auto prose prose-invert prose-sm max-w-none"
+                dangerouslySetInnerHTML={{ __html: woDescription }}
+              />
+            )}
+
+            {/* CTA: Shop online */}
+            {shopUrl && (
+              <a
+                href={shopUrl.startsWith("http") ? shopUrl : `https://${shopUrl}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-1.5 w-1/2 py-2 rounded-lg bg-white text-black font-medium text-sm shadow-lg hover:bg-white/90 transition-colors mx-auto"
+              >
+                <ShoppingBag className="h-4 w-4" />
+                {language === "en" ? "Visit Online Shop" : "Visiter la boutique en ligne"}
+                <ExternalLink className="h-3.5 w-3.5 ml-0.5" />
+              </a>
+            )}
           </div>
-
-          {/* Web only description (rich text) */}
-          {woDescription && (
-            <div
-              className="text-sm text-white/90 leading-relaxed mb-5 max-h-40 overflow-y-auto prose prose-invert prose-sm max-w-none"
-              dangerouslySetInnerHTML={{ __html: woDescription }}
-            />
-          )}
-
-          {/* CTA: Shop online – compact, anchored at bottom */}
-          {shopUrl && (
-            <a
-              href={shopUrl.startsWith("http") ? shopUrl : `https://${shopUrl}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-1.5 w-1/2 py-2 rounded-lg bg-white text-black font-medium text-sm shadow-lg hover:bg-white/90 transition-colors mx-auto"
-            >
-              <ShoppingBag className="h-4 w-4" />
-              {language === "en" ? "Visit Online Shop" : "Visiter la boutique en ligne"}
-              <ExternalLink className="h-3.5 w-3.5 ml-0.5" />
-            </a>
-          )}
         </div>
       </div>
     </div>
