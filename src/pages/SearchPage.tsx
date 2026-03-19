@@ -39,6 +39,7 @@ import DestinationBusinessesPanel from "@/components/DestinationBusinessesPanel"
 import BusinessCard, { type BusinessCardData, type Gamme, type Badge, type SubcategoryRef, type BadgeSubcategoryRef } from "@/components/BusinessCard";
 import AISearchAnswer, { parseInline, type BusinessData as AIBusinessData } from "@/components/AISearchAnswer";
 import BusinessSlidePanel from "@/components/BusinessSlidePanel";
+import WebOnlySlidePanel from "@/components/WebOnlySlidePanel";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
