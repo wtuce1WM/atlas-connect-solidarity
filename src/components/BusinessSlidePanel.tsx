@@ -250,6 +250,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
   // isMatterportOpen removed — Matterport is now part of the unified lightbox
   const [isVideoPaused, setIsVideoPaused] = useState(false);
   const [videoError, setVideoError] = useState(false);
+  const [isVideoLandscape, setIsVideoLandscape] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
   const mediaContainerRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
