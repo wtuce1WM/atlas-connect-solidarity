@@ -170,7 +170,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
 
         {/* Overlaid content – centered vertically, 70% width */}
         <div className="relative z-10 flex items-center justify-center min-h-full p-6">
-          <div className="w-[70%] rounded-2xl bg-black/40 backdrop-blur-sm p-6 space-y-5 [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white">
+          <div className="w-[70%] rounded-2xl bg-black/40 backdrop-blur-sm p-6 space-y-5 text-white">
             {/* Video navigation dots */}
             {videos.length > 1 && (
               <div className="flex items-center justify-center gap-2">
@@ -200,7 +200,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
                 </div>
               )}
               <div className="min-w-0">
-                <h2 className="text-xl font-bold text-white truncate drop-shadow-lg">{business.name}</h2>
+                <h2 className="text-xl font-bold truncate drop-shadow-lg">{business.name}</h2>
                 {business.city && (
                   <p className="text-sm text-white/80 flex items-center gap-1 mt-0.5">
                     <MapPin className="h-3.5 w-3.5" />
@@ -213,7 +213,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
             {/* Web only description (rich text) */}
             {woDescription && (
               <div
-                className="text-sm text-white leading-relaxed prose prose-invert prose-sm max-w-none break-words"
+                className="text-sm leading-relaxed prose prose-invert prose-sm max-w-none break-words [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white"
                 dangerouslySetInnerHTML={{ __html: woDescription }}
               />
             )}
@@ -224,12 +224,11 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
                 href={shopUrl.startsWith("http") ? shopUrl : `https://${shopUrl}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-1.5 w-1/2 py-2 rounded-lg bg-white font-medium text-sm shadow-lg hover:bg-white/90 transition-colors mx-auto"
-                style={{ color: "#000" }}
+                className="flex items-center justify-center gap-1.5 w-1/2 py-2 rounded-lg bg-white text-black font-medium text-sm shadow-lg hover:bg-white/90 transition-colors mx-auto [&_*]:text-black"
               >
-                <ShoppingBag className="h-4 w-4" style={{ color: "#000" }} />
+                <ShoppingBag className="h-4 w-4" />
                 {language === "en" ? "Visit Online Shop" : "Visiter la boutique en ligne"}
-                <ExternalLink className="h-3.5 w-3.5 ml-0.5" style={{ color: "#000" }} />
+                <ExternalLink className="h-3.5 w-3.5 ml-0.5" />
               </a>
             )}
           </div>
