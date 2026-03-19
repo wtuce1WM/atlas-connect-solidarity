@@ -742,6 +742,7 @@ const SearchPage = () => {
    useEffect(() => {
      setHasScrolledPastHeroAi(false);
      aiPopupShownRef.current = false;
+     hasAutoAlignedResultsRef.current = false;
      setActiveTab("suggestions");
      resetPanelStates();
      setOverlaySelectedBusiness(null);
