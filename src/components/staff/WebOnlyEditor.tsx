@@ -161,7 +161,7 @@ const WebOnlyEditor = ({ businessId }: WebOnlyEditorProps) => {
     const url = getPublicUrl(path);
     const next = [...videos, url];
     setVideos(next);
-    await save(description, next, videos);
+    await save(description, images, next);
     setUploadingVideo(false);
   }, [businessId, videos, description, save, toast]);
 
