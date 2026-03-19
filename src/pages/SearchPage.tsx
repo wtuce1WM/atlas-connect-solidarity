@@ -1825,12 +1825,12 @@ const SearchPage = () => {
     return parts.join(", ");
   }, [gammes, badges, geo.isEnabled, geo.coords, language]);
 
-   // Show overlay when arriving from voice search with results
-   useEffect(() => {
-     if (!isLoading && spokenText && allBusinesses.length > 0 && !showResultsOverlay && !overlayDismissing) {
-       setShowResultsOverlay(true);
-     }
-   }, [isLoading, spokenText, allBusinesses.length]);
+   // Voice results overlay disabled — was only shown on mobile after voice search
+   // useEffect(() => {
+   //   if (!isLoading && spokenText && allBusinesses.length > 0 && !showResultsOverlay && !overlayDismissing) {
+   //     setShowResultsOverlay(true);
+   //   }
+   // }, [isLoading, spokenText, allBusinesses.length]);
 
    // Show AI popup when arriving from homepage (non-voice) — DISABLED: overlay no longer shown
    // useEffect(() => {
