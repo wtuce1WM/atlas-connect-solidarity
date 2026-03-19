@@ -264,7 +264,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
 
         {/* CTA: outside the pointer-events-none overlay so it's always clickable */}
         {shopUrl && (
-          <div className="absolute bottom-22 md:bottom-4 left-0 right-0 z-20 flex justify-center">
+          <div className="absolute bottom-8 md:bottom-4 left-0 right-0 z-20 flex justify-center">
             <a
               href={shopUrl.startsWith("http") ? shopUrl : `https://${shopUrl}`}
               target="_blank"
