@@ -56,7 +56,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
           .maybeSingle(),
         supabase
           .from("business_web_only")
-          .select("description, videos")
+          .select("description, videos, images")
           .eq("business_id", businessId)
           .maybeSingle(),
       ]);
