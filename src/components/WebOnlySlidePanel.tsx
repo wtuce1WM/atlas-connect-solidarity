@@ -276,10 +276,10 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
               {language === "en" ? "Visit Online Shop" : "Visiter la boutique en ligne"}
               <ExternalLink className="h-3.5 w-3.5 ml-0.5" />
             </a>
-          </div>
-        )
+        )}
       </div>
     </div>
+  </div>
   );
 };
 
