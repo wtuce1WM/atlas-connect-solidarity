@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
-import { ExternalLink, ShoppingBag, MapPin } from "lucide-react";
+import { ExternalLink, ShoppingBag, MapPin, ChevronLeft, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import ShareButton from "@/components/ShareButton";
