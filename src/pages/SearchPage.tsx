@@ -47,6 +47,7 @@ import { useTextToSpeech, preloadTTS } from "@/hooks/useTextToSpeech";
 import { useToast } from "@/hooks/use-toast";
 import LocationPickerDialog from "@/components/LocationPickerDialog";
 import WarningOverlay from "@/components/WarningOverlay";
+import { useSearchHistory } from "@/hooks/useSearchHistory";
 
 interface Business {
   id: string;
@@ -378,6 +379,7 @@ const SearchPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { language } = useLanguage();
   const { toast } = useToast();
+  const { saveSearch } = useSearchHistory();
   const isMobile = useIsMobile();
   const [isSubDesktop, setIsSubDesktop] = useState(false);
   useEffect(() => {
@@ -1698,6 +1700,13 @@ const SearchPage = () => {
             setAllBusinesses(data.businesses || []);
             setTotalCount(data.totalCount || null);
             setSearchMessage(data.message || "");
+
+            // Save search to history
+            if (searchQuery.trim()) {
+              const categoryParam = searchParams.get("category") || undefined;
+              const cityParam = data.detectedCity || searchParams.get("city") || undefined;
+              saveSearch(searchQuery.trim(), cityParam, categoryParam);
+            }
             
             // Auto-activate time slot when bundle has time_slots and current time matches
             if (data.bundleTimeSlots?.length && !searchParams.get("timeStart")) {
