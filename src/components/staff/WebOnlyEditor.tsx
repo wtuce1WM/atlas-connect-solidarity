@@ -206,8 +206,6 @@ const WebOnlyEditor = ({ businessId }: WebOnlyEditorProps) => {
   }, [businessId, recordId]);
 
   const handleDescriptionChange = useCallback((html: string) => {
-    const textOnly = html.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ");
-    if (textOnly.length > MAX_DESC_LENGTH) return;
     setDescription(html);
     save(html, images, videos);
   }, [images, videos, save]);
