@@ -145,7 +145,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
       {/* Full-size video / image background with overlay content */}
       <div className="relative w-full h-full">
         {/* Media background */}
-        <div className="absolute inset-0">
+        <div className={`absolute inset-0 ${currentMedia?.kind === "video" ? "z-20" : ""}`}>
           {currentMedia?.kind === "video" && videoInfo ? (
             videoInfo.type === "file" ? (
               <video
@@ -156,13 +156,13 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
                 loop
                 playsInline
                 controls
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover relative z-10"
               />
             ) : (
               <iframe
                 key={currentMedia.url}
                 src={videoInfo.embedUrl}
-                className="w-full h-full"
+                className="w-full h-full relative z-10"
                 allow="autoplay; encrypted-media"
                 allowFullScreen
                 frameBorder="0"
@@ -176,7 +176,9 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
               <ShoppingBag className="h-16 w-16 text-muted-foreground/40" />
             </div>
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
+          {currentMedia?.kind !== "video" && (
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
+          )}
         </div>
 
         {/* Left / Right arrows */}
