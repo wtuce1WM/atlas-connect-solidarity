@@ -4,6 +4,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { useSearchSuggestions } from "@/hooks/useSearchSuggestions";
 import { usePopularSearches } from "@/hooks/usePopularSearches";
+import { useSearchHistory } from "@/hooks/useSearchHistory";
 import { useToast } from "@/hooks/use-toast";
 import SearchSuggestionsDropdown from "@/components/SearchSuggestionsDropdown";
 import TextSuggestionsDropdown from "@/components/TextSuggestionsDropdown";
@@ -106,6 +107,15 @@ const SearchInput = ({
     showSuggestions && isFocused && suggestionMode === "text"
   );
 
+  // Recent search history (shown when input is empty)
+  const { history, deleteEntry, clearHistory } = useSearchHistory();
+  const recentForDropdown = (showSuggestions && isFocused && (!inputValue || inputValue.trim().length < 2))
+    ? history.slice(0, 5).map(e => ({ id: e.id, query: e.query }))
+    : [];
+
+  const recentLabel = language === "fr" ? "Recherches récentes" : language === "ar" ? "عمليات البحث الأخيرة" : "Recent searches";
+  const clearLabel = language === "fr" ? "Effacer" : language === "ar" ? "مسح" : "Clear";
+
   const shouldClear = clearOnSubmit ?? !isControlled;
 
   const handleSubmit = () => {
@@ -203,9 +213,14 @@ const SearchInput = ({
           {suggestionMode === "text" ? (
             <TextSuggestionsDropdown
               suggestions={popularSuggestions.map(s => s.query)}
-              visible={isFocused && popularSuggestions.length > 0}
+              visible={isFocused && (popularSuggestions.length > 0 || recentForDropdown.length > 0)}
               onSelect={(text) => setInputValue(text)}
               position={suggestionsPosition}
+              recentSearches={recentForDropdown}
+              onDeleteRecent={deleteEntry}
+              onClearRecent={clearHistory}
+              recentLabel={recentLabel}
+              clearLabel={clearLabel}
             />
           ) : (
             <SearchSuggestionsDropdown
@@ -235,9 +250,14 @@ const SearchInput = ({
           {suggestionMode === "text" ? (
             <TextSuggestionsDropdown
               suggestions={popularSuggestions.map(s => s.query)}
-              visible={isFocused && popularSuggestions.length > 0}
+              visible={isFocused && (popularSuggestions.length > 0 || recentForDropdown.length > 0)}
               onSelect={(text) => setInputValue(text)}
               position={suggestionsPosition}
+              recentSearches={recentForDropdown}
+              onDeleteRecent={deleteEntry}
+              onClearRecent={clearHistory}
+              recentLabel={recentLabel}
+              clearLabel={clearLabel}
             />
           ) : (
             <SearchSuggestionsDropdown
