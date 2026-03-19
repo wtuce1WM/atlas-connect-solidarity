@@ -202,7 +202,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
         )}
 
         {/* Overlaid content */}
-        <div className="relative z-10 flex flex-col h-full p-6">
+        <div className={`relative z-10 flex flex-col h-full p-6 ${currentMedia?.kind === "video" ? "pointer-events-none" : ""}`}>
           {/* Media counter – top */}
           {totalMedia > 1 && (
             <div className="flex items-center justify-center gap-2 pb-4">
