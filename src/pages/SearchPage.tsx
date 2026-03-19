@@ -379,6 +379,7 @@ const SearchPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { language } = useLanguage();
   const { toast } = useToast();
+  const { saveSearch } = useSearchHistory();
   const isMobile = useIsMobile();
   const [isSubDesktop, setIsSubDesktop] = useState(false);
   useEffect(() => {
