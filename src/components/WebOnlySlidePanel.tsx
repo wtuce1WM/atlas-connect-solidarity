@@ -152,7 +152,6 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
                 key={currentMedia.url}
                 src={videoInfo.embedUrl}
                 autoPlay
-                muted
                 loop
                 playsInline
                 controls
