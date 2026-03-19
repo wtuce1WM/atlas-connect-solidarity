@@ -4105,7 +4105,7 @@ const SearchPage = () => {
                   return parseInline(
                     aiAnswerText.replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "").replace(/\n+/g, " "),
                     allBusinesses as unknown as AIBusinessData[],
-                    (b) => setCompactPanelBusiness(b),
+                    (b) => openCompactPanel(b),
                     "left-panel-ai",
                     isTTSActive
                       ? { wordIndex: 0, target: karaokeTarget, mode: "karaoke" as const }
