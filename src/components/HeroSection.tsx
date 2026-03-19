@@ -209,6 +209,11 @@ const HeroSection = () => {
             onNavigate={navigateWithSlide}
             voiceControl={{ status: voiceStatus, toggleRecording, liveTranscript }}
           />
+
+          {/* Resume last search chip */}
+          <div className="mt-4">
+            <ResumeLastSearch />
+          </div>
         </div>
 
         {/* Restaurant Guru-style location selector — disabled
