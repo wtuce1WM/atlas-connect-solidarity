@@ -402,6 +402,7 @@ const SearchPage = () => {
   const [subcategories, setSubcategories] = useState<SubcategoryRef[]>([]);
   const [badgeSubcategories, setBadgeSubcategories] = useState<BadgeSubcategoryRef[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [activeEasterEggNames, setActiveEasterEggNames] = useState<Set<string>>(new Set());
   const [currentPage, setCurrentPage] = useState(1);
   const cityFromUrl = searchParams.get("city") || "";
   const [selectedCity, setSelectedCity] = useState<string>(cityFromUrl || "all");
@@ -426,7 +427,14 @@ const SearchPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [urlQ, urlT]);
 
-  
+
+  // Fetch active easter eggs once
+  useEffect(() => {
+    supabase.from("easter_eggs").select("name, is_active").eq("is_active", true).then(({ data }) => {
+      if (data) setActiveEasterEggNames(new Set(data.map((e: any) => e.name)));
+    });
+  }, []);
+
   const categoryFromUrl = searchParams.get("category") || "";
   const [celebrityBusinesses, setCelebrityBusinesses] = useState<Business[]>([]);
   const [ttsIntroPhrase, setTtsIntroPhrase] = useState<string>("");
@@ -1977,10 +1985,10 @@ const SearchPage = () => {
     setStickyAiVisibleWordIndex(Number.MAX_SAFE_INTEGER);
   }, [stickyAiAnimationNonce, stickyAiText, stickyAiWordCount, isAiRegenerating]);
 
-  const showZitounEasterEgg = !isLoading && isZitounMask(spokenText || searchQuery);
-  const showCelebrityGuide = !isLoading && isCelebrityQuery(spokenText || searchQuery);
-  const showSosMedecin = isSosMedecinQuery(spokenText || searchQuery);
-  const showPompiers = isPompiersQuery(spokenText || searchQuery);
+  const showZitounEasterEgg = !isLoading && activeEasterEggNames.has("Zitoun Musk") && isZitounMask(spokenText || searchQuery);
+  const showCelebrityGuide = !isLoading && activeEasterEggNames.has("Célébrités") && isCelebrityQuery(spokenText || searchQuery);
+  const showSosMedecin = activeEasterEggNames.has("SOS Médecin") && isSosMedecinQuery(spokenText || searchQuery);
+  const showPompiers = activeEasterEggNames.has("Pompiers") && isPompiersQuery(spokenText || searchQuery);
 
   if (isLoading) {
     return <LoadingScreen />;
