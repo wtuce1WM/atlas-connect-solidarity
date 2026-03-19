@@ -144,7 +144,7 @@ const SearchInput = ({
         type="button"
         onClick={toggleRecording}
         disabled={voiceStatus === "processing"}
-        className={`relative z-10 flex items-center justify-center w-10 h-10 rounded-xl transition-all ${
+        className={`relative z-10 flex items-center justify-center w-12 h-12 md:w-10 md:h-10 rounded-xl transition-all ${
           voiceStatus === "recording"
             ? "bg-red-500 animate-pulse"
             : voiceStatus === "processing"
@@ -245,7 +245,7 @@ const SearchInput = ({
           )}
         </div>
         {/* Mic + Search buttons below input */}
-        <div className="flex items-center justify-center gap-3">
+        <div className="flex items-center justify-center gap-6">
           {inlineMicButton}
           <button
             type="button"
