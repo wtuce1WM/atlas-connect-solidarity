@@ -1700,6 +1700,13 @@ const SearchPage = () => {
             setAllBusinesses(data.businesses || []);
             setTotalCount(data.totalCount || null);
             setSearchMessage(data.message || "");
+
+            // Save search to history
+            if (searchQuery.trim()) {
+              const categoryParam = searchParams.get("category") || undefined;
+              const cityParam = data.detectedCity || searchParams.get("city") || undefined;
+              saveSearch(searchQuery.trim(), cityParam, categoryParam);
+            }
             
             // Auto-activate time slot when bundle has time_slots and current time matches
             if (data.bundleTimeSlots?.length && !searchParams.get("timeStart")) {
