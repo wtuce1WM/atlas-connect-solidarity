@@ -287,6 +287,7 @@ const HeroSection = () => {
         isOpen={voiceStatus === "recording" || voiceStatus === "processing"}
         liveTranscript={liveTranscript}
         onClose={() => toggleRecording()}
+        onFinish={() => finishRecording()}
       />
     </section>
   );
