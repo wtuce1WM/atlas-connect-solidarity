@@ -130,14 +130,6 @@ const DestinationSection = ({ city, language, onDestinationClick, columns, onMap
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold text-foreground">
-          {language === "en" ? "Destinations" : language === "ar" ? "وجهات" : "Destinations"}
-          {city && <span className="text-muted-foreground font-normal text-sm ml-2">— {city}</span>}
-        </h2>
-        <span className="text-xs text-muted-foreground">{destinations.length} {language === "en" ? "results" : "résultats"}</span>
-      </div>
-
       <div className={columns === 3 ? "grid grid-cols-1 sm:grid-cols-3 gap-3" : columns === 2 ? "grid grid-cols-1 sm:grid-cols-2 gap-3" : "grid grid-cols-1 sm:grid-cols-2 gap-3 lg:grid-cols-4"}>
         {destinations.map((dest) => {
           const img = dest.image_url || (dest.images && dest.images.length > 0 ? dest.images[0] : null);

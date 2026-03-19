@@ -92,14 +92,6 @@ const PoiSection = ({ city, language, onBusinessClick, columns, onMapClick, onPo
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold text-foreground">
-          {language === "en" ? "Points of Interest" : language === "ar" ? "أماكن مهمة" : "Lieux d'intérêt"}
-          {city && <span className="text-muted-foreground font-normal text-sm ml-2">— {city}</span>}
-        </h2>
-        <span className="text-xs text-muted-foreground">{pois.length} {language === "en" ? "results" : "résultats"}</span>
-      </div>
-
       <div className={columns === 3 ? "grid grid-cols-1 sm:grid-cols-3 gap-3" : columns === 2 ? "grid grid-cols-1 sm:grid-cols-2 gap-3" : "grid grid-cols-1 sm:grid-cols-2 gap-3 lg:grid-cols-4"}>
         {pois.map((biz) => {
           const img = biz.images && biz.images.length > 0 ? biz.images[0] : null;
