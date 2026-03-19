@@ -181,19 +181,19 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
           )}
         </div>
 
-        {/* Left / Right arrows */}
+        {/* Left / Right arrows — desktop/tablet: centered on media */}
         {totalMedia > 1 && (
           <>
             <button
               onClick={() => goMedia(-1)}
-              className="absolute left-3 top-1/2 -translate-y-1/2 z-30 w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors"
+              className="hidden md:flex absolute left-3 top-1/2 -translate-y-1/2 z-30 w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm items-center justify-center text-white hover:bg-black/60 transition-colors"
               aria-label="Previous"
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
             <button
               onClick={() => goMedia(1)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 z-30 w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors"
+              className="hidden md:flex absolute right-3 top-1/2 -translate-y-1/2 z-30 w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm items-center justify-center text-white hover:bg-black/60 transition-colors"
               aria-label="Next"
             >
               <ChevronRight className="h-5 w-5" />
@@ -203,12 +203,26 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
 
         {/* Overlaid content */}
         <div className={`relative z-10 flex flex-col h-full p-6 ${currentMedia?.kind === "video" ? "pointer-events-none" : ""}`}>
-          {/* Media counter – top */}
+          {/* Media counter + arrows on mobile */}
           {totalMedia > 1 && (
-            <div className="flex items-center justify-center gap-2 pb-4 pointer-events-auto">
+            <div className="flex items-center justify-center gap-3 pb-4 pointer-events-auto">
+              <button
+                onClick={() => goMedia(-1)}
+                className="md:hidden w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors"
+                aria-label="Previous"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
               <span className="text-white/80 text-xs font-medium bg-black/30 rounded-full px-3 py-1">
                 {safeIndex + 1} / {totalMedia}
               </span>
+              <button
+                onClick={() => goMedia(1)}
+                className="md:hidden w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors"
+                aria-label="Next"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
             </div>
           )}
 
