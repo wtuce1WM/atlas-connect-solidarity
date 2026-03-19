@@ -3909,7 +3909,7 @@ const SearchPage = () => {
           {/* Map */}
           <div className="flex-1">
             <PoiGoogleMap
-              pois={mapPoiItems}
+              pois={mobileMapPoiItems}
               selectedPoiId={hoveredResultId || compactPanelBusiness?.id || null}
               onPoiClick={(poiId) => {
                 const biz = filteredBusinesses.find(b => b.id === poiId);
