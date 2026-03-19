@@ -145,7 +145,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
       {/* Full-size video / image background with overlay content */}
       <div className="relative w-full h-full">
         {/* Media background */}
-        <div className="absolute inset-0">
+        <div className={`absolute inset-0 ${currentMedia?.kind === "video" ? "z-20" : ""}`}>
           {currentMedia?.kind === "video" && videoInfo ? (
             videoInfo.type === "file" ? (
               <video
@@ -156,13 +156,13 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
                 loop
                 playsInline
                 controls
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover relative z-10"
               />
             ) : (
               <iframe
                 key={currentMedia.url}
                 src={videoInfo.embedUrl}
-                className="w-full h-full"
+                className="w-full h-full relative z-10"
                 allow="autoplay; encrypted-media"
                 allowFullScreen
                 frameBorder="0"
@@ -176,7 +176,9 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
               <ShoppingBag className="h-16 w-16 text-muted-foreground/40" />
             </div>
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
+          {currentMedia?.kind !== "video" && (
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
+          )}
         </div>
 
         {/* Left / Right arrows */}
@@ -184,14 +186,14 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
           <>
             <button
               onClick={() => goMedia(-1)}
-              className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors"
+              className="absolute left-3 top-1/2 -translate-y-1/2 z-30 w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors"
               aria-label="Previous"
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
             <button
               onClick={() => goMedia(1)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors"
+              className="absolute right-3 top-1/2 -translate-y-1/2 z-30 w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors"
               aria-label="Next"
             >
               <ChevronRight className="h-5 w-5" />
@@ -200,10 +202,10 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
         )}
 
         {/* Overlaid content */}
-        <div className="relative z-10 flex flex-col h-full p-6">
+        <div className={`relative z-10 flex flex-col h-full p-6 ${currentMedia?.kind === "video" ? "pointer-events-none" : ""}`}>
           {/* Media counter – top */}
           {totalMedia > 1 && (
-            <div className="flex items-center justify-center gap-2 pb-4">
+            <div className="flex items-center justify-center gap-2 pb-4 pointer-events-auto">
               <span className="text-white/80 text-xs font-medium bg-black/30 rounded-full px-3 py-1">
                 {safeIndex + 1} / {totalMedia}
               </span>
@@ -212,7 +214,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
 
           {/* Centered content block */}
           <div className="flex-1 flex items-center justify-center">
-            <div className="w-[70%] rounded-2xl bg-black/40 backdrop-blur-sm p-6 space-y-5 text-white">
+            <div className="w-[70%] rounded-2xl bg-black/40 backdrop-blur-sm p-6 space-y-5 text-white pointer-events-auto">
               {/* Logo + name */}
               <div className="flex items-end gap-4">
                 {business.logo_url && (
