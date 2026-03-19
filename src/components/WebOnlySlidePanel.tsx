@@ -205,7 +205,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
         <div className={`relative z-10 flex flex-col h-full p-6 ${currentMedia?.kind === "video" ? "pointer-events-none" : ""}`}>
           {/* Media counter – top */}
           {totalMedia > 1 && (
-            <div className="flex items-center justify-center gap-2 pb-4">
+            <div className="flex items-center justify-center gap-2 pb-4 pointer-events-auto">
               <span className="text-white/80 text-xs font-medium bg-black/30 rounded-full px-3 py-1">
                 {safeIndex + 1} / {totalMedia}
               </span>
