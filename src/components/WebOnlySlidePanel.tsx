@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
-import { ExternalLink, ShoppingBag, MapPin } from "lucide-react";
+import { ExternalLink, ShoppingBag, MapPin, ChevronLeft, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import ShareButton from "@/components/ShareButton";
@@ -34,6 +34,7 @@ interface WebOnlyBusiness {
 interface WebOnlyData {
   description: string | null;
   videos: string[] | null;
+  images: string[] | null;
 }
 
 const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
@@ -41,7 +42,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
   const [business, setBusiness] = useState<WebOnlyBusiness | null>(null);
   const [webOnlyData, setWebOnlyData] = useState<WebOnlyData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
+  const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -55,7 +56,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
           .maybeSingle(),
         supabase
           .from("business_web_only")
-          .select("description, videos")
+          .select("description, videos, images")
           .eq("business_id", businessId)
           .maybeSingle(),
       ]);
@@ -67,24 +68,26 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
     fetchData();
   }, [businessId]);
 
-  if (isLoading) {
-    return (
-      <div className="h-full overflow-y-auto bg-background p-6 space-y-6">
-        <Skeleton className="w-full aspect-video rounded-xl" />
-        <Skeleton className="h-8 w-3/4" />
-        <Skeleton className="h-4 w-full" />
-      </div>
-    );
-  }
-
-  if (!business) return null;
-
-  const shopUrl = business.online_shop_url || business.website;
+  const shopUrl = business?.online_shop_url || business?.website || null;
   const videos = webOnlyData?.videos?.filter(Boolean) || [];
-  const heroImage = business.images?.[0] || null;
+  const woImages = webOnlyData?.images?.filter(Boolean) || [];
+  const images = woImages.length > 0 ? woImages : (business?.images?.filter(Boolean) || []);
   const woDescription = webOnlyData?.description || null;
 
-  // Resolve video src: could be a YouTube/Vimeo URL or a direct file
+  type MediaItem = { kind: "video"; url: string } | { kind: "image"; url: string };
+  const mediaItems: MediaItem[] = [
+    ...videos.map((v) => ({ kind: "video" as const, url: v })),
+    ...images.map((i) => ({ kind: "image" as const, url: i })),
+  ];
+  const totalMedia = mediaItems.length;
+  const safeIndex = totalMedia > 0 ? currentMediaIndex % totalMedia : 0;
+  const currentMedia = totalMedia > 0 ? mediaItems[safeIndex] : null;
+
+  const goMedia = useCallback((dir: 1 | -1) => {
+    if (totalMedia <= 1) return;
+    setCurrentMediaIndex((prev) => (prev + dir + totalMedia) % totalMedia);
+  }, [totalMedia]);
+
   const getVideoEmbed = (url: string) => {
     const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]+)/);
     if (ytMatch) {
@@ -97,8 +100,19 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
     return { type: "file" as const, embedUrl: url };
   };
 
-  const currentVideo = videos.length > 0 ? videos[currentVideoIndex % videos.length] : null;
-  const videoInfo = currentVideo ? getVideoEmbed(currentVideo) : null;
+  const videoInfo = currentMedia?.kind === "video" ? getVideoEmbed(currentMedia.url) : null;
+
+  if (isLoading) {
+    return (
+      <div className="h-full overflow-y-auto bg-background p-6 space-y-6">
+        <Skeleton className="w-full aspect-video rounded-xl" />
+        <Skeleton className="h-8 w-3/4" />
+        <Skeleton className="h-4 w-full" />
+      </div>
+    );
+  }
+
+  if (!business) return null;
 
   const toolbarPortal = document.getElementById("slide-panel-toolbar");
   const toolbarCenterPortal = document.getElementById("slide-panel-toolbar-center");
@@ -130,25 +144,22 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
 
       {/* Full-size video / image background with overlay content */}
       <div className="relative w-full h-full">
-        {/* Video / Image background */}
+        {/* Media background */}
         <div className="absolute inset-0">
-          {videoInfo ? (
+          {currentMedia?.kind === "video" && videoInfo ? (
             videoInfo.type === "file" ? (
               <video
-                key={currentVideo}
+                key={currentMedia.url}
                 src={videoInfo.embedUrl}
                 autoPlay
                 muted
                 loop
                 playsInline
                 className="w-full h-full object-cover"
-                onEnded={() => {
-                  if (videos.length > 1) setCurrentVideoIndex((i) => (i + 1) % videos.length);
-                }}
               />
             ) : (
               <iframe
-                key={currentVideo}
+                key={currentMedia.url}
                 src={videoInfo.embedUrl}
                 className="w-full h-full"
                 allow="autoplay; encrypted-media"
@@ -157,34 +168,44 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
                 style={{ border: 0 }}
               />
             )
-          ) : heroImage ? (
-            <img src={heroImage} alt={business.name} className="w-full h-full object-cover" />
+          ) : currentMedia?.kind === "image" ? (
+            <img src={currentMedia.url} alt={business.name} className="w-full h-full object-cover" />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-muted">
               <ShoppingBag className="h-16 w-16 text-muted-foreground/40" />
             </div>
           )}
-          {/* Dark gradient overlay for text legibility */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
         </div>
 
-        {/* Overlaid content – centered vertically, 70% width */}
+        {/* Left / Right arrows */}
+        {totalMedia > 1 && (
+          <>
+            <button
+              onClick={() => goMedia(-1)}
+              className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors"
+              aria-label="Previous"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+            <button
+              onClick={() => goMedia(1)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors"
+              aria-label="Next"
+            >
+              <ChevronRight className="h-5 w-5" />
+            </button>
+          </>
+        )}
+
+        {/* Overlaid content */}
         <div className="relative z-10 flex flex-col h-full p-6">
-          {/* Video navigation dots – top */}
-          {videos.length > 1 && (
+          {/* Media counter – top */}
+          {totalMedia > 1 && (
             <div className="flex items-center justify-center gap-2 pb-4">
-              {videos.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setCurrentVideoIndex(i)}
-                  className={`w-2.5 h-2.5 rounded-full transition-all ${
-                    i === currentVideoIndex % videos.length
-                      ? "bg-white scale-110"
-                      : "bg-white/40 hover:bg-white/60"
-                  }`}
-                  aria-label={`Video ${i + 1}`}
-                />
-              ))}
+              <span className="text-white/80 text-xs font-medium bg-black/30 rounded-full px-3 py-1">
+                {safeIndex + 1} / {totalMedia}
+              </span>
             </div>
           )}
 
