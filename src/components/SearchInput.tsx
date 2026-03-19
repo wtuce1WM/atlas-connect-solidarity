@@ -216,7 +216,7 @@ const SearchInput = ({
       </div>
 
       {/* Mobile */}
-      <div className="flex items-center gap-2 md:hidden">
+      <div className="flex flex-col gap-2 md:hidden">
         <div className="relative flex-1">
           <Input
             type="text"
@@ -227,11 +227,8 @@ const SearchInput = ({
             onKeyDown={handleKeyDown}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
-            className={`w-full ${isHero ? "pl-4 pr-14 py-6 text-base" : "pl-4 pr-12 py-5 text-sm"} bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-xl shadow-lg`}
+            className={`w-full ${isHero ? "pl-4 pr-4 py-6 text-base" : "pl-4 pr-4 py-5 text-sm"} bg-white/90 backdrop-blur-sm border-gold/50 focus:border-gold rounded-xl shadow-lg`}
           />
-          <div className="absolute right-2 top-1/2 -translate-y-1/2 overflow-visible">
-            {inlineMicButton}
-          </div>
           {suggestionMode === "text" ? (
             <TextSuggestionsDropdown
               suggestions={popularSuggestions.map(s => s.query)}
@@ -247,14 +244,18 @@ const SearchInput = ({
             />
           )}
         </div>
-        <button
-          type="button"
-          onClick={handleSubmit}
-          className="flex items-center justify-center w-12 h-12 rounded-xl shadow-lg transition-all hover:opacity-90 shrink-0"
-          style={{ backgroundColor: "#c0392b" }}
-        >
-          <Search className="h-5 w-5 text-white" />
-        </button>
+        {/* Mic + Search buttons below input */}
+        <div className="flex items-center justify-center gap-3">
+          {inlineMicButton}
+          <button
+            type="button"
+            onClick={handleSubmit}
+            className="flex items-center justify-center w-12 h-12 rounded-xl shadow-lg transition-all hover:opacity-90 shrink-0"
+            style={{ backgroundColor: "#c0392b" }}
+          >
+            <Search className="h-5 w-5 text-white" />
+          </button>
+        </div>
       </div>
     </div>
   );
