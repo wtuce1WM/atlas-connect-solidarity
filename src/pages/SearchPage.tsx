@@ -2999,6 +2999,27 @@ const SearchPage = () => {
           <div className="flex">
             <section className={`pt-16 pb-6 lg:pt-20 lg:pb-12 bg-white dark:bg-zinc-900 transition-all duration-300 ${hasRightPanel ? "w-1/2" : hasKnownLocation ? "w-1/2" : "w-full"}`}>
               <div className={`mx-auto px-4 ${(hasRightPanel || hasKnownLocation) ? "max-w-full" : "max-w-[80%]"}`}>
+                {/* Sticky bar for Destinations — mirrors STICKY 5 */}
+                <div className="sticky z-[19] bg-white flex items-center justify-between py-2 mb-2 border-b border-border/40" style={{ top: `${Math.max(stickyStackPadding || 0, 104)}px` }}>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-semibold text-foreground">
+                      {language === "en" ? "Destinations" : language === "ar" ? "وجهات" : "Destinations"}
+                      {destCity && <span className="text-muted-foreground font-normal ml-1">— {destCity}</span>}
+                    </span>
+                    {allDestItems.length > 0 && (
+                      <span className="text-xs text-muted-foreground">{allDestItems.length} {language === "en" ? "results" : "résultats"}</span>
+                    )}
+                  </div>
+                  {isSubDesktop && (
+                    <button
+                      onClick={() => setShowMobileMap(true)}
+                      className="lg:hidden inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-foreground text-background text-xs font-medium shadow-lg hover:bg-foreground/90 transition-colors"
+                    >
+                      <Map className="h-4 w-4" />
+                      {language === "en" ? "Map" : language === "ar" ? "خريطة" : "Carte"}
+                    </button>
+                  )}
+                </div>
                 <DestinationSection
                   city={destCity}
                   language={language}
