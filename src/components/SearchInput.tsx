@@ -107,6 +107,15 @@ const SearchInput = ({
     showSuggestions && isFocused && suggestionMode === "text"
   );
 
+  // Recent search history (shown when input is empty)
+  const { history, deleteEntry, clearHistory } = useSearchHistory();
+  const recentForDropdown = (showSuggestions && isFocused && (!inputValue || inputValue.trim().length < 2))
+    ? history.slice(0, 5).map(e => ({ id: e.id, query: e.query }))
+    : [];
+
+  const recentLabel = language === "fr" ? "Recherches récentes" : language === "ar" ? "عمليات البحث الأخيرة" : "Recent searches";
+  const clearLabel = language === "fr" ? "Effacer" : language === "ar" ? "مسح" : "Clear";
+
   const shouldClear = clearOnSubmit ?? !isControlled;
 
   const handleSubmit = () => {
