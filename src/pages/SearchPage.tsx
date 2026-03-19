@@ -674,7 +674,7 @@ const SearchPage = () => {
       const t1 = setTimeout(measure, 80);
       window.addEventListener("resize", measure);
       return () => { clearTimeout(t1); window.removeEventListener("resize", measure); };
-    }, [selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, selectedCity, activeTab, showAiPopup, aiAnswerText, isLoading]);
+    }, [selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, selectedCity, activeTab, showAiPopup, isLoading]);
 
    const [aiRegenerateKey, setAiRegenerateKey] = useState(0);
    const [isAiRegenerating, setIsAiRegenerating] = useState(false);
