@@ -213,7 +213,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
             {/* Web only description (rich text) */}
             {woDescription && (
               <div
-                className="text-sm text-white leading-relaxed prose prose-invert prose-sm max-w-none"
+                className="text-sm text-white leading-relaxed prose prose-invert prose-sm max-w-none break-words"
                 dangerouslySetInnerHTML={{ __html: woDescription }}
               />
             )}
@@ -224,7 +224,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
                 href={shopUrl.startsWith("http") ? shopUrl : `https://${shopUrl}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-1.5 w-1/2 py-2 rounded-lg bg-white text-black font-medium text-sm shadow-lg hover:bg-white/90 transition-colors mx-auto"
+                className="flex items-center justify-center gap-1.5 w-1/2 py-2 rounded-lg bg-white !text-black font-medium text-sm shadow-lg hover:bg-white/90 transition-colors mx-auto [&_*]:!text-black"
               >
                 <ShoppingBag className="h-4 w-4" />
                 {language === "en" ? "Visit Online Shop" : "Visiter la boutique en ligne"}
