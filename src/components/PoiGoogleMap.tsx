@@ -492,15 +492,6 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
     <>
       <style>{`.gm-style .gm-style-iw-chr { display: none !important; } .gm-style .gm-style-iw { padding: 0 !important; } .gm-style .gm-style-iw-d { overflow: hidden !important; } .gm-style .gm-fullscreen-control { display: none !important; }`}</style>
       <div ref={mapShellRef} className="relative w-full h-full">
-        <button
-          type="button"
-          onClick={toggleFullscreen}
-          className="absolute right-3 top-14 z-20 rounded-md border border-border bg-background/90 p-2 text-foreground shadow-sm backdrop-blur-sm transition-colors hover:bg-accent"
-          title={isFullscreen ? "Quitter le plein écran" : "Plein écran"}
-          aria-label={isFullscreen ? "Quitter le plein écran" : "Plein écran"}
-        >
-          {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-        </button>
         <div ref={containerRef} className="w-full h-full" />
       </div>
     </>
