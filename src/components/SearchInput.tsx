@@ -144,7 +144,7 @@ const SearchInput = ({
         type="button"
         onClick={toggleRecording}
         disabled={voiceStatus === "processing"}
-        className={`relative z-10 flex items-center justify-center w-10 h-10 rounded-xl transition-all ${
+        className={`relative z-10 flex items-center justify-center w-10 h-10 md:w-10 md:h-10 rounded-xl transition-all ${
           voiceStatus === "recording"
             ? "bg-red-500 animate-pulse"
             : voiceStatus === "processing"
