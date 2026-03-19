@@ -345,7 +345,7 @@ const WebOnlyEditor = ({ businessId }: WebOnlyEditorProps) => {
           content={description}
           onChange={handleDescriptionChange}
           placeholder="Décrivez l'offre web only…"
-          maxHeight="200px"
+          maxHeight="400px"
         />
         <p className={`text-xs text-right ${plainTextLength > MAX_DESC_LENGTH * 0.9 ? "text-destructive" : "text-muted-foreground"}`}>
           {plainTextLength} / {MAX_DESC_LENGTH}
