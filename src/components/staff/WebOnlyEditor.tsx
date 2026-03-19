@@ -317,7 +317,7 @@ const WebOnlyEditor = ({ businessId }: WebOnlyEditorProps) => {
     save(description, images, next);
   }, [videos, description, images, save]);
 
-  const plainTextLength = description.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").length;
+  const plainTextLength = description.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim().length;
 
   if (loading) {
     return (
