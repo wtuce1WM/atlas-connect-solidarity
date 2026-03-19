@@ -3970,6 +3970,7 @@ const SearchPage = () => {
         isOpen={voiceStatus === "recording" || voiceStatus === "processing"}
         liveTranscript={liveTranscript}
         onClose={() => toggleRecording()}
+        onFinish={() => finishRecording()}
       />
 
       {/* Split view: Left AI text panel + Right business panel */}
