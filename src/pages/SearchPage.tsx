@@ -3437,6 +3437,18 @@ const SearchPage = () => {
                     </span>
                   )}
                 </div>
+                {/* Map button — mobile & tablet only */}
+                {isSubDesktop && (
+                  <button
+                    onClick={() => {
+                      // TODO: implement map view toggle
+                    }}
+                    className="lg:hidden inline-flex items-center gap-2 px-5 py-2 rounded-full bg-foreground text-background text-sm font-semibold shadow-lg hover:bg-foreground/90 transition-colors"
+                  >
+                    <Map className="h-4 w-4" />
+                    {language === "en" ? "Map" : language === "ar" ? "خريطة" : "Carte"}
+                  </button>
+                )}
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => {
