@@ -14,6 +14,8 @@ import { Search, Mic, MicOff, Loader } from "lucide-react";
 export type SearchInputVariant = "hero" | "floating";
 
 interface SearchInputProps {
+  /** Custom placeholder override */
+  placeholder?: string;
   variant?: SearchInputVariant;
   /** Pre-fill input value (uncontrolled) */
   defaultValue?: string;
@@ -47,6 +49,7 @@ interface SearchInputProps {
 
 const SearchInput = ({
   variant = "floating",
+  placeholder: customPlaceholder,
   defaultValue = "",
   value: controlledValue,
   onChange: controlledOnChange,
@@ -122,12 +125,12 @@ const SearchInput = ({
     }
   };
 
-  const placeholder =
-    language === "fr"
+  const placeholder = customPlaceholder ||
+    (language === "fr"
       ? variant === "hero" ? "Que cherchez-vous ?" : "Rechercher un établissement..."
       : language === "ar"
         ? variant === "hero" ? "ماذا تبحث عنه؟" : "ابحث عن مؤسسة..."
-        : variant === "hero" ? "What are you looking for?" : "Search for a business...";
+        : variant === "hero" ? "What are you looking for?" : "Search for a business...");
 
   const buttonLabel = language === "fr" ? "Recherche" : language === "ar" ? "بحث" : "Search";
 

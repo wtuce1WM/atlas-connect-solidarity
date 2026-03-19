@@ -213,6 +213,18 @@ const HeroSection = () => {
           <SearchInput
             variant="hero"
             suggestionMode="text"
+            placeholder={(() => {
+              const placeholders: Record<string, { fr: string; en: string; ar: string }> = {
+                all: { fr: "Que cherchez-vous ? Et où ?", en: "What are you looking for? And where?", ar: "ماذا تبحث عنه؟ وأين؟" },
+                "Hôtellerie": { fr: "Trouvez les meilleurs hôtels & riads", en: "Find the best hotels & riads", ar: "اعثر على أفضل الفنادق والرياضات" },
+                "Restauration": { fr: "Trouvez un bon restaurant", en: "Find a great restaurant", ar: "اعثر على مطعم جيد" },
+                "Tourisme": { fr: "Trouvez une activité inoubliable", en: "Find an unforgettable activity", ar: "اعثر على نشاط لا يُنسى" },
+                "Commerce": { fr: "Trouvez les meilleures boutiques", en: "Find the best shops", ar: "اعثر على أفضل المتاجر" },
+                "Bien-être": { fr: "Trouvez un spa ou hammam", en: "Find a spa or hammam", ar: "اعثر على سبا أو حمام" },
+              };
+              const p = placeholders[searchCategory] || placeholders.all;
+              return language === "ar" ? p.ar : language === "en" ? p.en : p.fr;
+            })()}
             onSubmit={(query) => {
               const params = new URLSearchParams();
               const timeResult = extractTimeSlot(query);
