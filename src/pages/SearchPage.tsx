@@ -521,18 +521,17 @@ const SearchPage = () => {
 
   useEffect(() => {
     if (showAiPopup || isLoading || activeTab !== "suggestions") return;
+    if (hasAutoAlignedResultsRef.current) return;
+    if (window.scrollY > 120) return;
+
     setIsAiSummaryExpanded(false);
 
-    let raf2 = 0;
-    const raf1 = requestAnimationFrame(() => {
+    const raf = requestAnimationFrame(() => {
       ensureResultsVisibleBelowSticky("auto");
-      raf2 = requestAnimationFrame(() => ensureResultsVisibleBelowSticky("auto"));
+      hasAutoAlignedResultsRef.current = true;
     });
 
-    return () => {
-      cancelAnimationFrame(raf1);
-      if (raf2) cancelAnimationFrame(raf2);
-    };
+    return () => cancelAnimationFrame(raf);
   }, [
     selectedCategoryFilter,
     selectedSubcategoryFilter,
