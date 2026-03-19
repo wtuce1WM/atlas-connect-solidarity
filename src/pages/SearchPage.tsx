@@ -39,6 +39,7 @@ import DestinationBusinessesPanel from "@/components/DestinationBusinessesPanel"
 import BusinessCard, { type BusinessCardData, type Gamme, type Badge, type SubcategoryRef, type BadgeSubcategoryRef } from "@/components/BusinessCard";
 import AISearchAnswer, { parseInline, type BusinessData as AIBusinessData } from "@/components/AISearchAnswer";
 import BusinessSlidePanel from "@/components/BusinessSlidePanel";
+import WebOnlySlidePanel from "@/components/WebOnlySlidePanel";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
@@ -693,7 +694,32 @@ const SearchPage = () => {
    const lastAiServiceRef = useRef<string | null>(null);
     const [compactPanelBusiness, setCompactPanelBusiness] = useState<AIBusinessData | null>(null);
     const [isCompactPanelExpanded, setIsCompactPanelExpanded] = useState(false);
-     const [compactBusinessImageCount, setCompactBusinessImageCount] = useState(0);
+      const [compactBusinessImageCount, setCompactBusinessImageCount] = useState(0);
+      const [isCompactPanelWebOnly, setIsCompactPanelWebOnly] = useState(false);
+
+      const openCompactPanel = useCallback((bizOrData: AIBusinessData | { id: string; name: string }, forceWebOnly?: boolean) => {
+        const b = bizOrData as AIBusinessData;
+        setCompactPanelBusiness(b);
+        setIsCompactPanelExpanded(false);
+        if (forceWebOnly !== undefined) {
+          setIsCompactPanelWebOnly(forceWebOnly);
+        } else {
+          // Try to detect from allBusinesses
+          const found = allBusinesses.find(biz => biz.id === b.id);
+          if (found) {
+            const engs = (found as any).engagements || [];
+            const hasEng = (target: string) => engs.some((e: string) => {
+              const n = e.toLowerCase().trim();
+              const needle = target.toLowerCase();
+              return n === needle || n === `logistique:${needle}` || n.endsWith(`:${needle}`);
+            });
+            const shopUrl = (found as any).online_shop_url || (found as any).website;
+            setIsCompactPanelWebOnly(!!(hasEng("Commandez en ligne et recevez votre colis chez vous") && hasEng("Web only") && shopUrl));
+          } else {
+            setIsCompactPanelWebOnly(false);
+          }
+        }
+      }, [allBusinesses]);
      const [hoveredResultId, setHoveredResultId] = useState<string | null>(null);
      const [hoveredPoiId, setHoveredPoiId] = useState<string | null>(null);
      const [hoveredDestId, setHoveredDestId] = useState<string | null>(null);
@@ -2286,8 +2312,7 @@ const SearchPage = () => {
                     (b: AIBusinessData) => {
                       setShowAiPopup(false);
                       setOverlaySelectedBusiness(null);
-                      setCompactPanelBusiness(b);
-                      setIsCompactPanelExpanded(false);
+                      openCompactPanel(b);
                     },
                     "ai-popup",
                     isTTSActive
@@ -3072,7 +3097,7 @@ const SearchPage = () => {
                       return parseInline(
                         stickyAiText,
                         allBusinesses as unknown as AIBusinessData[],
-                        (b) => setCompactPanelBusiness(b),
+                        (b) => openCompactPanel(b),
                         "compact-ai",
                         isTTSActive
                           ? { wordIndex: 0, target: karaokeTarget, mode: "karaoke" as const }
@@ -3525,7 +3550,7 @@ const SearchPage = () => {
                     <div
                       key={business.id}
                       data-result-card={index === 0 ? "true" : undefined}
-                      onClick={() => setCompactPanelBusiness({ id: business.id, name: business.name } as AIBusinessData)}
+                      onClick={() => openCompactPanel({ id: business.id, name: business.name } as AIBusinessData, isWebOnly)}
                       onMouseEnter={() => setHoveredResultId(business.id)}
                       onMouseLeave={() => setHoveredResultId(null)}
                       className="group overflow-hidden rounded-xl border border-border shadow-sm hover:shadow-md transition-all cursor-pointer relative aspect-square bg-muted"
@@ -3554,7 +3579,7 @@ const SearchPage = () => {
                                 Boutique en ligne ↗
                               </a>
                               <button
-                                onClick={() => setCompactPanelBusiness({ id: business.id, name: business.name } as AIBusinessData)}
+                                onClick={() => openCompactPanel({ id: business.id, name: business.name } as AIBusinessData, true)}
                                 className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg border border-white/50 text-white text-xs font-semibold hover:bg-white/15 transition-colors"
                               >
                                 Voir la fiche
@@ -3805,7 +3830,7 @@ const SearchPage = () => {
               selectedPoiId={hoveredResultId || compactPanelBusiness?.id || null}
               onPoiClick={(poiId) => {
                 const biz = filteredBusinesses.find(b => b.id === poiId);
-                if (biz) setCompactPanelBusiness({ id: biz.id, name: biz.name } as AIBusinessData);
+                if (biz) openCompactPanel({ id: biz.id, name: biz.name } as AIBusinessData);
               }}
               center={mapCenterForResults}
               subcategoryIconMap={subcategoryIconMap}
@@ -4079,7 +4104,7 @@ const SearchPage = () => {
                   return parseInline(
                     aiAnswerText.replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "").replace(/\n+/g, " "),
                     allBusinesses as unknown as AIBusinessData[],
-                    (b) => setCompactPanelBusiness(b),
+                    (b) => openCompactPanel(b),
                     "left-panel-ai",
                     isTTSActive
                       ? { wordIndex: 0, target: karaokeTarget, mode: "karaoke" as const }
@@ -4139,22 +4164,29 @@ const SearchPage = () => {
 
           {/* Right panel — business detail */}
           <div
-            className={`fixed top-0 left-0 right-0 bottom-0 z-[201] bg-background shadow-2xl overflow-hidden flex flex-col animate-slide-in-right lg:top-[53px] lg:left-auto lg:bottom-auto lg:border-l lg:border-border ${isCompactPanelExpanded ? "lg:w-full border-l-2 shadow-[-8px_0_30px_-5px_rgba(0,0,0,0.15)]" : "lg:w-1/2"}`}
+            className={`fixed top-0 left-0 right-0 bottom-0 z-[201] bg-background shadow-2xl overflow-hidden flex flex-col animate-slide-in-right lg:top-[53px] lg:left-auto lg:bottom-auto lg:border-l lg:border-border ${isCompactPanelExpanded && !isCompactPanelWebOnly ? "lg:w-full border-l-2 shadow-[-8px_0_30px_-5px_rgba(0,0,0,0.15)]" : "lg:w-1/2"}`}
             style={{ height: isSubDesktop ? undefined : "calc(100vh - 53px)" }}
           >
             <SlidePanelHeader
               onClose={() => { setCompactPanelBusiness(null); setIsCompactPanelExpanded(false); }}
-              isExpanded={isCompactPanelExpanded}
-              onToggleExpand={compactBusinessImageCount > 5 ? () => setIsCompactPanelExpanded(prev => !prev) : undefined}
+              isExpanded={isCompactPanelWebOnly ? undefined : isCompactPanelExpanded}
+              onToggleExpand={isCompactPanelWebOnly ? undefined : (compactBusinessImageCount > 5 ? () => setIsCompactPanelExpanded(prev => !prev) : undefined)}
             />
             <div className="flex-1 min-h-0">
-              <BusinessSlidePanel
-                businessId={compactPanelBusiness.id}
-                onClose={() => { setCompactPanelBusiness(null); setIsCompactPanelExpanded(false); }}
-                isExpanded={isCompactPanelExpanded}
-                onToggleExpand={() => setIsCompactPanelExpanded(prev => !prev)}
-                onImageCount={setCompactBusinessImageCount}
-              />
+              {isCompactPanelWebOnly ? (
+                <WebOnlySlidePanel
+                  businessId={compactPanelBusiness.id}
+                  onClose={() => { setCompactPanelBusiness(null); setIsCompactPanelExpanded(false); }}
+                />
+              ) : (
+                <BusinessSlidePanel
+                  businessId={compactPanelBusiness.id}
+                  onClose={() => { setCompactPanelBusiness(null); setIsCompactPanelExpanded(false); }}
+                  isExpanded={isCompactPanelExpanded}
+                  onToggleExpand={() => setIsCompactPanelExpanded(prev => !prev)}
+                  onImageCount={setCompactBusinessImageCount}
+                />
+              )}
             </div>
           </div>
         </>
