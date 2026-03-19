@@ -7,7 +7,7 @@ interface VoiceSearchOverlayProps {
   onFinish?: () => void;
 }
 
-const VoiceSearchOverlay = ({ isOpen, liveTranscript, onClose }: VoiceSearchOverlayProps) => {
+const VoiceSearchOverlay = ({ isOpen, liveTranscript, onClose, onFinish }: VoiceSearchOverlayProps) => {
   if (!isOpen) return null;
 
   return (
