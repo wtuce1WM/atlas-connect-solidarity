@@ -2312,8 +2312,7 @@ const SearchPage = () => {
                     (b: AIBusinessData) => {
                       setShowAiPopup(false);
                       setOverlaySelectedBusiness(null);
-                      setCompactPanelBusiness(b);
-                      setIsCompactPanelExpanded(false);
+                      openCompactPanel(b);
                     },
                     "ai-popup",
                     isTTSActive
