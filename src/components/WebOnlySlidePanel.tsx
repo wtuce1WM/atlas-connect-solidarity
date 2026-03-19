@@ -1,13 +1,10 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { Globe, Phone, Mail, ExternalLink, ShoppingBag, MapPin } from "lucide-react";
+import { ExternalLink, ShoppingBag, MapPin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import ShareButton from "@/components/ShareButton";
 import BookmarkButton from "@/components/BookmarkButton";
-import { FacebookIcon, InstagramIcon, LinkedInIcon, YouTubeIcon, TikTokIcon, TwitterIcon, PinterestIcon, VimeoIcon } from "@/components/staff/SocialMediaIcons";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const WhatsAppIcon = ({ className = "h-5 w-5" }: { className?: string }) => (
@@ -25,51 +22,49 @@ interface WebOnlyBusiness {
   id: string;
   name: string;
   slug: string;
-  description: string | null;
-  hook_fr: string | null;
-  hook_en: string | null;
-  hook_ar: string | null;
   logo_url: string | null;
   logo_bg: string | null;
   images: string[] | null;
   city: string | null;
-  address: string | null;
-  phone: string | null;
-  email: string | null;
   website: string | null;
   whatsapp: string | null;
   online_shop_url: string | null;
-  facebook_url: string | null;
-  instagram_url: string | null;
-  linkedin_url: string | null;
-  youtube_url: string | null;
-  tiktok_url: string | null;
-  twitter_url: string | null;
-  pinterest_url: string | null;
-  vimeo_url: string | null;
-  categories: string[] | null;
-  main_category: string | null;
+}
+
+interface WebOnlyData {
+  description: string | null;
+  videos: string[] | null;
 }
 
 const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
   const { language } = useLanguage();
   const [business, setBusiness] = useState<WebOnlyBusiness | null>(null);
+  const [webOnlyData, setWebOnlyData] = useState<WebOnlyData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
 
   useEffect(() => {
-    const fetchBusiness = async () => {
+    const fetchData = async () => {
       setIsLoading(true);
-      const { data } = await supabase
-        .from("businesses")
-        .select("id, name, slug, description, hook_fr, hook_en, hook_ar, logo_url, logo_bg, images, city, address, phone, email, website, whatsapp, online_shop_url, facebook_url, instagram_url, linkedin_url, youtube_url, tiktok_url, twitter_url, pinterest_url, vimeo_url, categories, main_category")
-        .eq("id", businessId)
-        .eq("is_active", true)
-        .maybeSingle();
+      const [bizRes, woRes] = await Promise.all([
+        supabase
+          .from("businesses")
+          .select("id, name, slug, logo_url, logo_bg, images, city, website, whatsapp, online_shop_url")
+          .eq("id", businessId)
+          .eq("is_active", true)
+          .maybeSingle(),
+        supabase
+          .from("business_web_only")
+          .select("description, videos")
+          .eq("business_id", businessId)
+          .maybeSingle(),
+      ]);
 
-      setBusiness(data as WebOnlyBusiness | null);
+      setBusiness(bizRes.data as WebOnlyBusiness | null);
+      setWebOnlyData(woRes.data as WebOnlyData | null);
       setIsLoading(false);
     };
-    fetchBusiness();
+    fetchData();
   }, [businessId]);
 
   if (isLoading) {
@@ -78,8 +73,6 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
         <Skeleton className="w-full aspect-video rounded-xl" />
         <Skeleton className="h-8 w-3/4" />
         <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-2/3" />
-        <Skeleton className="h-12 w-full rounded-lg" />
       </div>
     );
   }
@@ -87,28 +80,31 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
   if (!business) return null;
 
   const shopUrl = business.online_shop_url || business.website;
-  const hook =
-    language === "en" ? business.hook_en :
-    language === "ar" ? business.hook_ar :
-    business.hook_fr;
+  const videos = webOnlyData?.videos?.filter(Boolean) || [];
   const heroImage = business.images?.[0] || null;
+  const woDescription = webOnlyData?.description || null;
 
-  const socialLinks = [
-    { url: business.instagram_url, icon: <InstagramIcon className="h-5 w-5" />, label: "Instagram" },
-    { url: business.facebook_url, icon: <FacebookIcon className="h-5 w-5" />, label: "Facebook" },
-    { url: business.tiktok_url, icon: <TikTokIcon className="h-5 w-5" />, label: "TikTok" },
-    { url: business.youtube_url, icon: <YouTubeIcon className="h-5 w-5" />, label: "YouTube" },
-    { url: business.linkedin_url, icon: <LinkedInIcon className="h-5 w-5" />, label: "LinkedIn" },
-    { url: business.twitter_url, icon: <TwitterIcon className="h-5 w-5" />, label: "Twitter" },
-    { url: business.pinterest_url, icon: <PinterestIcon className="h-5 w-5" />, label: "Pinterest" },
-    { url: business.vimeo_url, icon: <VimeoIcon className="h-5 w-5" />, label: "Vimeo" },
-  ].filter((l) => l.url);
+  // Resolve video src: could be a YouTube/Vimeo URL or a direct file
+  const getVideoEmbed = (url: string) => {
+    const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]+)/);
+    if (ytMatch) {
+      return { type: "youtube" as const, embedUrl: `https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&mute=1&loop=1&playlist=${ytMatch[1]}&rel=0&controls=0&showinfo=0&modestbranding=1` };
+    }
+    const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+    if (vimeoMatch) {
+      return { type: "vimeo" as const, embedUrl: `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1&muted=1&loop=1&background=1` };
+    }
+    return { type: "file" as const, embedUrl: url };
+  };
+
+  const currentVideo = videos.length > 0 ? videos[currentVideoIndex % videos.length] : null;
+  const videoInfo = currentVideo ? getVideoEmbed(currentVideo) : null;
 
   const toolbarPortal = document.getElementById("slide-panel-toolbar");
   const toolbarCenterPortal = document.getElementById("slide-panel-toolbar-center");
 
   return (
-    <div className="h-full overflow-y-auto bg-background">
+    <div className="h-full overflow-y-auto bg-black">
       {/* Portal WhatsApp icon into center of fixed bar */}
       {toolbarCenterPortal && createPortal(
         <div className="flex items-center gap-6">
@@ -131,163 +127,117 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
         </>,
         toolbarPortal
       )}
-      {/* Hero image / logo area */}
-      <div className="relative w-full aspect-[16/9] bg-muted overflow-hidden">
-        {heroImage ? (
-          <img
-            src={heroImage}
-            alt={business.name}
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center bg-muted">
-            <ShoppingBag className="h-16 w-16 text-muted-foreground/40" />
-          </div>
-        )}
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
 
-        {/* Logo + name overlay */}
-        <div className="absolute bottom-0 left-0 right-0 p-5 flex items-end gap-4">
-          {business.logo_url && (
-            <div
-              className="shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 border-background shadow-lg"
-              style={{ backgroundColor: business.logo_bg || "#fff" }}
-            >
-              <img
-                src={business.logo_url}
-                alt=""
-                className="w-full h-full object-contain p-1"
+      {/* Full-size video / image background with overlay content */}
+      <div className="relative w-full min-h-full flex flex-col">
+        {/* Video / Image background */}
+        <div className="absolute inset-0">
+          {videoInfo ? (
+            videoInfo.type === "file" ? (
+              <video
+                key={currentVideo}
+                src={videoInfo.embedUrl}
+                autoPlay
+                muted
+                loop
+                playsInline
+                className="w-full h-full object-cover"
+                onEnded={() => {
+                  if (videos.length > 1) setCurrentVideoIndex((i) => (i + 1) % videos.length);
+                }}
               />
+            ) : (
+              <iframe
+                key={currentVideo}
+                src={videoInfo.embedUrl}
+                className="w-full h-full"
+                allow="autoplay; encrypted-media"
+                allowFullScreen
+                frameBorder="0"
+                style={{ border: 0 }}
+              />
+            )
+          ) : heroImage ? (
+            <img src={heroImage} alt={business.name} className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-muted">
+              <ShoppingBag className="h-16 w-16 text-muted-foreground/40" />
             </div>
           )}
-          <div className="min-w-0">
-            <h2 className="text-xl font-bold text-white truncate">{business.name}</h2>
-            {business.city && (
-              <p className="text-sm text-white/80 flex items-center gap-1 mt-0.5">
-                <MapPin className="h-3.5 w-3.5" />
-                {business.city}
-              </p>
-            )}
-          </div>
+          {/* Dark gradient overlay for text legibility */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
         </div>
 
-        {/* WEB ONLY badge */}
-        <div className="absolute top-4 right-4">
-          <span className="px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-bold tracking-wider uppercase shadow-lg">
-            Web Only
-          </span>
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className="p-5 space-y-5">
-        {/* CTA: Shop online */}
-        {shopUrl && (
-          <a
-            href={shopUrl.startsWith("http") ? shopUrl : `https://${shopUrl}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl bg-primary text-primary-foreground font-semibold text-base shadow-md hover:opacity-90 transition-opacity"
-          >
-            <ShoppingBag className="h-5 w-5" />
-            {language === "en" ? "Visit Online Shop" : "Visiter la boutique en ligne"}
-            <ExternalLink className="h-4 w-4 ml-1" />
-          </a>
-        )}
-
-        {/* Hook / description */}
-        {(hook || business.description) && (
-          <div className="space-y-2">
-            {hook && (
-              <p className="text-sm font-medium text-primary italic">{hook}</p>
-            )}
-            {business.description && (
-              <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
-                {business.description}
-              </p>
-            )}
-          </div>
-        )}
-
-        <Separator />
-
-        {/* Contact */}
-        <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-foreground">
-            {language === "en" ? "Contact" : "Contact"}
-          </h3>
-          <div className="grid gap-2">
-            {business.phone && (
-              <a
-                href={`tel:${business.phone}`}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-sm"
-              >
-                <Phone className="h-4 w-4 text-primary shrink-0" />
-                <span>{business.phone}</span>
-              </a>
-            )}
-            {business.whatsapp && (
-              <a
-                href={`https://wa.me/${business.whatsapp.replace(/[^0-9]/g, "")}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-sm"
-              >
-                <WhatsAppIcon className="h-4 w-4 text-primary shrink-0" />
-                <span>WhatsApp</span>
-              </a>
-            )}
-            {business.email && (
-              <a
-                href={`mailto:${business.email}`}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-sm"
-              >
-                <Mail className="h-4 w-4 text-primary shrink-0" />
-                <span className="truncate">{business.email}</span>
-              </a>
-            )}
-            {business.website && business.website !== business.online_shop_url && (
-              <a
-                href={business.website.startsWith("http") ? business.website : `https://${business.website}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-sm"
-              >
-                <Globe className="h-4 w-4 text-primary shrink-0" />
-                <span className="truncate">{business.website.replace(/^https?:\/\//, "")}</span>
-              </a>
-            )}
-          </div>
-        </div>
-
-        {/* Social links */}
-        {socialLinks.length > 0 && (
-          <>
-            <Separator />
-            <div className="space-y-3">
-              <h3 className="text-sm font-semibold text-foreground">
-                {language === "en" ? "Social Media" : "Réseaux sociaux"}
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {socialLinks.map((link) => (
-                  <a
-                    key={link.label}
-                    href={link.url!}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center w-10 h-10 rounded-full bg-muted hover:bg-primary/10 hover:text-primary transition-colors text-muted-foreground"
-                    title={link.label}
-                  >
-                    {link.icon}
-                  </a>
-                ))}
-              </div>
+        {/* Overlaid content */}
+        <div className="relative z-10 flex flex-col justify-end min-h-full p-6 pt-20">
+          {/* Video navigation dots */}
+          {videos.length > 1 && (
+            <div className="flex items-center justify-center gap-2 mb-6">
+              {videos.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrentVideoIndex(i)}
+                  className={`w-2.5 h-2.5 rounded-full transition-all ${
+                    i === currentVideoIndex % videos.length
+                      ? "bg-white scale-110"
+                      : "bg-white/40 hover:bg-white/60"
+                  }`}
+                  aria-label={`Video ${i + 1}`}
+                />
+              ))}
             </div>
-          </>
-        )}
+          )}
 
-        <Separator />
+          {/* Logo + name */}
+          <div className="flex items-end gap-4 mb-4">
+            {business.logo_url && (
+              <div
+                className="shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 border-white/20 shadow-lg"
+                style={{ backgroundColor: business.logo_bg || "#fff" }}
+              >
+                <img src={business.logo_url} alt="" className="w-full h-full object-contain p-1" />
+              </div>
+            )}
+            <div className="min-w-0">
+              <h2 className="text-2xl font-bold text-white truncate drop-shadow-lg">{business.name}</h2>
+              {business.city && (
+                <p className="text-sm text-white/80 flex items-center gap-1 mt-0.5">
+                  <MapPin className="h-3.5 w-3.5" />
+                  {business.city}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Web only description (rich text) */}
+          {woDescription && (
+            <div
+              className="text-sm text-white/90 leading-relaxed mb-5 max-h-40 overflow-y-auto prose prose-invert prose-sm max-w-none"
+              dangerouslySetInnerHTML={{ __html: woDescription }}
+            />
+          )}
+
+          {/* WEB ONLY badge */}
+          <div className="mb-4">
+            <span className="px-3 py-1.5 rounded-full bg-white/15 backdrop-blur-sm text-white text-xs font-bold tracking-wider uppercase border border-white/20">
+              Web Only
+            </span>
+          </div>
+
+          {/* CTA: Shop online */}
+          {shopUrl && (
+            <a
+              href={shopUrl.startsWith("http") ? shopUrl : `https://${shopUrl}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 w-full py-4 rounded-xl bg-white text-black font-semibold text-base shadow-xl hover:bg-white/90 transition-colors"
+            >
+              <ShoppingBag className="h-5 w-5" />
+              {language === "en" ? "Visit Online Shop" : "Visiter la boutique en ligne"}
+              <ExternalLink className="h-4 w-4 ml-1" />
+            </a>
+          )}
+        </div>
       </div>
     </div>
   );
