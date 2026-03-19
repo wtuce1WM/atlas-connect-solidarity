@@ -217,24 +217,17 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
             />
           )}
 
-          {/* WEB ONLY badge */}
-          <div className="mb-4">
-            <span className="px-3 py-1.5 rounded-full bg-white/15 backdrop-blur-sm text-white text-xs font-bold tracking-wider uppercase border border-white/20">
-              Web Only
-            </span>
-          </div>
-
-          {/* CTA: Shop online */}
+          {/* CTA: Shop online – compact, anchored at bottom */}
           {shopUrl && (
             <a
               href={shopUrl.startsWith("http") ? shopUrl : `https://${shopUrl}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 w-full py-4 rounded-xl bg-white text-black font-semibold text-base shadow-xl hover:bg-white/90 transition-colors"
+              className="flex items-center justify-center gap-1.5 w-1/2 py-2 rounded-lg bg-white text-black font-medium text-sm shadow-lg hover:bg-white/90 transition-colors mx-auto"
             >
-              <ShoppingBag className="h-5 w-5" />
+              <ShoppingBag className="h-4 w-4" />
               {language === "en" ? "Visit Online Shop" : "Visiter la boutique en ligne"}
-              <ExternalLink className="h-4 w-4 ml-1" />
+              <ExternalLink className="h-3.5 w-3.5 ml-0.5" />
             </a>
           )}
         </div>
