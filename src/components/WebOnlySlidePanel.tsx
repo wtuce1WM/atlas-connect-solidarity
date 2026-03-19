@@ -118,7 +118,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
   const toolbarCenterPortal = document.getElementById("slide-panel-toolbar-center");
 
   return (
-    <div className="h-full overflow-y-auto bg-black">
+    <div className="h-full overflow-hidden bg-black">
       {/* Portal WhatsApp icon into center of fixed bar */}
       {toolbarCenterPortal && createPortal(
         <div className="flex items-center gap-6">
