@@ -145,7 +145,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
       {/* Full-size video / image background with overlay content */}
       <div className="relative w-full h-full">
         {/* Media background */}
-        <div className={`absolute inset-0 ${currentMedia?.kind === "video" ? "z-20" : ""}`}>
+        <div className="absolute inset-0">
           {currentMedia?.kind === "video" && videoInfo ? (
             videoInfo.type === "file" ? (
               <video
@@ -156,13 +156,13 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
                 loop
                 playsInline
                 controls
-                className="w-full h-full object-cover relative z-10"
+                className="w-full h-full object-cover"
               />
             ) : (
               <iframe
                 key={currentMedia.url}
                 src={videoInfo.embedUrl}
-                className="w-full h-full relative z-10"
+                className="w-full h-full"
                 allow="autoplay; encrypted-media"
                 allowFullScreen
                 frameBorder="0"
