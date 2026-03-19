@@ -259,24 +259,22 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
             </div>
           </div>
 
-          {/* CTA: outside content block on mobile, above video controls */}
+          {/* CTA: right below the text block */}
+          {shopUrl && (
+            <div className="shrink-0 py-3 flex justify-center pointer-events-auto">
+              <a
+                href={shopUrl.startsWith("http") ? shopUrl : `https://${shopUrl}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-1.5 w-[85%] md:w-1/2 py-2 rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black"
+              >
+                <ShoppingBag className="h-4 w-4" />
+                {language === "en" ? "Visit Online Shop" : "Visiter la boutique en ligne"}
+                <ExternalLink className="h-3.5 w-3.5 ml-0.5" />
+              </a>
+            </div>
+          )}
         </div>
-
-        {/* CTA: outside the pointer-events-none overlay so it's always clickable */}
-        {shopUrl && (
-          <div className="absolute bottom-8 md:bottom-4 left-0 right-0 z-20 flex justify-center">
-            <a
-              href={shopUrl.startsWith("http") ? shopUrl : `https://${shopUrl}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-1.5 w-[85%] md:w-1/2 py-2 rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black"
-            >
-              <ShoppingBag className="h-4 w-4" />
-              {language === "en" ? "Visit Online Shop" : "Visiter la boutique en ligne"}
-              <ExternalLink className="h-3.5 w-3.5 ml-0.5" />
-            </a>
-          </div>
-        )}
       </div>
     </div>
   );
