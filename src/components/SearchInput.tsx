@@ -4,6 +4,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { useSearchSuggestions } from "@/hooks/useSearchSuggestions";
 import { usePopularSearches } from "@/hooks/usePopularSearches";
+import { useSearchHistory } from "@/hooks/useSearchHistory";
 import { useToast } from "@/hooks/use-toast";
 import SearchSuggestionsDropdown from "@/components/SearchSuggestionsDropdown";
 import TextSuggestionsDropdown from "@/components/TextSuggestionsDropdown";
