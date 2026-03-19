@@ -288,12 +288,6 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
         )}
 
         <Separator />
-
-        {/* Share & Bookmark */}
-        <div className="flex items-center justify-center gap-4 py-2">
-          <ShareButton title={business.name} />
-          <BookmarkButton businessId={business.id} />
-        </div>
       </div>
     </div>
   );
