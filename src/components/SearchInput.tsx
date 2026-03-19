@@ -216,7 +216,7 @@ const SearchInput = ({
       </div>
 
       {/* Mobile */}
-      <div className="flex flex-col gap-4 md:hidden">
+      <div className="flex flex-col gap-6 md:hidden">
         <div className="relative flex-1">
           <Input
             type="text"
