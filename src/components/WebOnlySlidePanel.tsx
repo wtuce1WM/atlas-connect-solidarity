@@ -224,11 +224,12 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
                 href={shopUrl.startsWith("http") ? shopUrl : `https://${shopUrl}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-1.5 w-1/2 py-2 rounded-lg bg-white !text-black font-medium text-sm shadow-lg hover:bg-white/90 transition-colors mx-auto [&_*]:!text-black"
+                className="flex items-center justify-center gap-1.5 w-1/2 py-2 rounded-lg bg-white font-medium text-sm shadow-lg hover:bg-white/90 transition-colors mx-auto"
+                style={{ color: "#000" }}
               >
-                <ShoppingBag className="h-4 w-4" />
+                <ShoppingBag className="h-4 w-4" style={{ color: "#000" }} />
                 {language === "en" ? "Visit Online Shop" : "Visiter la boutique en ligne"}
-                <ExternalLink className="h-3.5 w-3.5 ml-0.5" />
+                <ExternalLink className="h-3.5 w-3.5 ml-0.5" style={{ color: "#000" }} />
               </a>
             )}
           </div>
