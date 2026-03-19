@@ -155,6 +155,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
                 muted
                 loop
                 playsInline
+                controls
                 className="w-full h-full object-cover"
               />
             ) : (
