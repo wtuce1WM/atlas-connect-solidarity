@@ -14,6 +14,8 @@ import { Search, Mic, MicOff, Loader } from "lucide-react";
 export type SearchInputVariant = "hero" | "floating";
 
 interface SearchInputProps {
+  /** Custom placeholder override */
+  placeholder?: string;
   variant?: SearchInputVariant;
   /** Pre-fill input value (uncontrolled) */
   defaultValue?: string;
