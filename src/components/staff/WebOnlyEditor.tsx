@@ -347,8 +347,8 @@ const WebOnlyEditor = ({ businessId }: WebOnlyEditorProps) => {
           placeholder="Décrivez l'offre web only…"
           maxHeight="400px"
         />
-        <p className={`text-xs text-right ${plainTextLength > MAX_DESC_LENGTH * 0.9 ? "text-destructive" : "text-muted-foreground"}`}>
-          {plainTextLength} / {MAX_DESC_LENGTH}
+        <p className={`text-xs text-right ${plainTextLength > MAX_DESC_LENGTH ? "text-destructive font-bold" : plainTextLength > MAX_DESC_LENGTH * 0.9 ? "text-destructive" : "text-muted-foreground"}`}>
+          {plainTextLength} / {MAX_DESC_LENGTH}{plainTextLength > MAX_DESC_LENGTH && " ⚠ Limite dépassée"}
         </p>
       </div>
 
