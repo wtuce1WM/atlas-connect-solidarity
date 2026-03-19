@@ -3480,7 +3480,7 @@ const SearchPage = () => {
                 {isSubDesktop && (
                   <button
                     onClick={() => setShowMobileMap(true)}
-                    className="lg:hidden inline-flex items-center gap-2 px-5 py-2 rounded-full bg-foreground text-background text-sm font-semibold shadow-lg hover:bg-foreground/90 transition-colors"
+                    className="lg:hidden inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-foreground text-background text-xs font-medium shadow-lg hover:bg-foreground/90 transition-colors"
                   >
                     <Map className="h-4 w-4" />
                     {language === "en" ? "Map" : language === "ar" ? "خريطة" : "Carte"}
