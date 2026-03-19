@@ -1146,7 +1146,7 @@ const SearchPage = () => {
 
   // Detect if we have a known city or neighborhood for the split map layout
   const effectiveCityForMap = (selectedCity && selectedCity !== "all") ? selectedCity : detectedCity;
-  const hasKnownLocation = !isMobile && !!(effectiveCityForMap || detectedNeighborhood);
+  const hasKnownLocation = !isMobile && !isSubDesktop && !!(effectiveCityForMap || detectedNeighborhood);
 
   const mapCenterForResults = useMemo(() => {
     if (neighborhoodCoords) return neighborhoodCoords;
