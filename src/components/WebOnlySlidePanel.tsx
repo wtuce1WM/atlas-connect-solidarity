@@ -68,25 +68,12 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
     fetchData();
   }, [businessId]);
 
-  if (isLoading) {
-    return (
-      <div className="h-full overflow-y-auto bg-background p-6 space-y-6">
-        <Skeleton className="w-full aspect-video rounded-xl" />
-        <Skeleton className="h-8 w-3/4" />
-        <Skeleton className="h-4 w-full" />
-      </div>
-    );
-  }
-
-  if (!business) return null;
-
-  const shopUrl = business.online_shop_url || business.website;
+  const shopUrl = business?.online_shop_url || business?.website || null;
   const videos = webOnlyData?.videos?.filter(Boolean) || [];
   const woImages = webOnlyData?.images?.filter(Boolean) || [];
-  const images = woImages.length > 0 ? woImages : (business.images?.filter(Boolean) || []);
+  const images = woImages.length > 0 ? woImages : (business?.images?.filter(Boolean) || []);
   const woDescription = webOnlyData?.description || null;
 
-  // Build unified media list: videos first, then images
   type MediaItem = { kind: "video"; url: string } | { kind: "image"; url: string };
   const mediaItems: MediaItem[] = [
     ...videos.map((v) => ({ kind: "video" as const, url: v })),
@@ -101,7 +88,6 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
     setCurrentMediaIndex((prev) => (prev + dir + totalMedia) % totalMedia);
   }, [totalMedia]);
 
-  // Resolve video src
   const getVideoEmbed = (url: string) => {
     const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]+)/);
     if (ytMatch) {
@@ -115,6 +101,18 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
   };
 
   const videoInfo = currentMedia?.kind === "video" ? getVideoEmbed(currentMedia.url) : null;
+
+  if (isLoading) {
+    return (
+      <div className="h-full overflow-y-auto bg-background p-6 space-y-6">
+        <Skeleton className="w-full aspect-video rounded-xl" />
+        <Skeleton className="h-8 w-3/4" />
+        <Skeleton className="h-4 w-full" />
+      </div>
+    );
+  }
+
+  if (!business) return null;
 
   const toolbarPortal = document.getElementById("slide-panel-toolbar");
   const toolbarCenterPortal = document.getElementById("slide-panel-toolbar-center");
