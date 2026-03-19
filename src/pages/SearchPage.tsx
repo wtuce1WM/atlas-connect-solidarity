@@ -467,6 +467,7 @@ const SearchPage = () => {
 
   // Track when user has scrolled down to the tab bar — lock scroll above it from that point
   const [hasReachedTabBar, setHasReachedTabBar] = useState(false);
+  const hasAutoAlignedResultsRef = useRef(false);
 
   // Keep AI summary expanded when filters change
   const hasAiSticky = !!aiAnswerText;
@@ -520,18 +521,17 @@ const SearchPage = () => {
 
   useEffect(() => {
     if (showAiPopup || isLoading || activeTab !== "suggestions") return;
+    if (hasAutoAlignedResultsRef.current) return;
+    if (window.scrollY > 120) return;
+
     setIsAiSummaryExpanded(false);
 
-    let raf2 = 0;
-    const raf1 = requestAnimationFrame(() => {
+    const raf = requestAnimationFrame(() => {
       ensureResultsVisibleBelowSticky("auto");
-      raf2 = requestAnimationFrame(() => ensureResultsVisibleBelowSticky("auto"));
+      hasAutoAlignedResultsRef.current = true;
     });
 
-    return () => {
-      cancelAnimationFrame(raf1);
-      if (raf2) cancelAnimationFrame(raf2);
-    };
+    return () => cancelAnimationFrame(raf);
   }, [
     selectedCategoryFilter,
     selectedSubcategoryFilter,
@@ -674,7 +674,7 @@ const SearchPage = () => {
       const t1 = setTimeout(measure, 80);
       window.addEventListener("resize", measure);
       return () => { clearTimeout(t1); window.removeEventListener("resize", measure); };
-    }, [selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, selectedCity, activeTab, showAiPopup, aiAnswerText, isLoading]);
+    }, [selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, selectedCity, activeTab, showAiPopup, isLoading]);
 
    const [aiRegenerateKey, setAiRegenerateKey] = useState(0);
    const [isAiRegenerating, setIsAiRegenerating] = useState(false);
@@ -742,6 +742,7 @@ const SearchPage = () => {
    useEffect(() => {
      setHasScrolledPastHeroAi(false);
      aiPopupShownRef.current = false;
+     hasAutoAlignedResultsRef.current = false;
      setActiveTab("suggestions");
      resetPanelStates();
      setOverlaySelectedBusiness(null);
@@ -3688,7 +3689,7 @@ const SearchPage = () => {
                       card,
                       <div
                         key="ai-suggestion-card"
-                        className={`overflow-hidden rounded-xl border-2 shadow-md relative aspect-square bg-gradient-to-br from-gold/5 via-background to-gold/10 flex flex-col transition-all ${
+                        className={`overflow-hidden rounded-xl border-2 shadow-md relative aspect-square bg-gradient-to-br from-gold/5 via-background to-gold/10 flex flex-col transition-colors transition-shadow ${
                           isAiReady
                             ? "border-gold/60 cursor-pointer hover:shadow-lg hover:border-gold"
                             : "border-gold/30"
