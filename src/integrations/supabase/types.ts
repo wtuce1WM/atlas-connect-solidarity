@@ -703,6 +703,51 @@ export type Database = {
           },
         ]
       }
+      business_web_only: {
+        Row: {
+          business_id: string
+          created_at: string
+          description: string | null
+          id: string
+          images: string[] | null
+          updated_at: string
+          videos: string[] | null
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          images?: string[] | null
+          updated_at?: string
+          videos?: string[] | null
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          images?: string[] | null
+          updated_at?: string
+          videos?: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_web_only_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: true
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_web_only_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: true
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       businesses: {
         Row: {
           account_type: string | null
