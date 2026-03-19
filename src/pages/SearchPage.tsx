@@ -3254,7 +3254,7 @@ const SearchPage = () => {
        >
         {/* Split layout wrapper: results left + map right when city/neighborhood known */}
         <div className={hasKnownLocation && !compactPanelBusiness ? "flex gap-0" : ""}>
-        <div className={`${hasKnownLocation && !compactPanelBusiness ? "w-1/2 overflow-visible" : "w-full"} mx-auto px-4 ${compactPanelBusiness ? "max-w-full" : hasKnownLocation ? "max-w-full" : "max-w-[80%]"}`}
+        <div className={`${hasKnownLocation && !compactPanelBusiness ? "w-1/2 overflow-visible" : "w-full"} mx-auto px-4 ${compactPanelBusiness ? "max-w-full" : hasKnownLocation ? "max-w-full" : "max-w-full lg:max-w-[80%]"}`}
         >
           {/* Filters: City + Geo toggle — on mobile shown before hero via order */}
           <div className={`${isCategoryFilterActive ? 'mb-3' : 'mb-8'} flex flex-wrap items-center gap-3 ${isMobile ? 'hidden' : ''}`}>
