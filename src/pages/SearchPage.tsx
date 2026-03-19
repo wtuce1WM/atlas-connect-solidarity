@@ -1059,7 +1059,7 @@ const SearchPage = () => {
     }
   }, [language, ttsSpeak]);
 
-  const { status: voiceStatus, toggleRecording, liveTranscript } = useVoiceSearch({
+  const { status: voiceStatus, toggleRecording, finishRecording, liveTranscript } = useVoiceSearch({
     onTranscript: (keywords, spoken, category, timeKeyword) => {
       isVoiceSearchRef.current = true;
       setInputValue(keywords);
