@@ -42,6 +42,35 @@ const ToolbarButton = ({
 
 const Sep = () => <div className="w-px h-8 bg-border mx-1" />;
 
+const MAX_GRID = 8;
+
+const TableGridPicker = ({ onSelect }: { onSelect: (rows: number, cols: number) => void }) => {
+  const [hover, setHover] = useState({ r: 0, c: 0 });
+  return (
+    <div>
+      <p className="text-xs text-muted-foreground mb-1 text-center">
+        {hover.r > 0 ? `${hover.r} × ${hover.c}` : "Choisir la taille"}
+      </p>
+      <div className="grid gap-[2px]" style={{ gridTemplateColumns: `repeat(${MAX_GRID}, 1fr)` }}>
+        {Array.from({ length: MAX_GRID * MAX_GRID }, (_, i) => {
+          const r = Math.floor(i / MAX_GRID) + 1;
+          const c = (i % MAX_GRID) + 1;
+          const active = r <= hover.r && c <= hover.c;
+          return (
+            <button
+              key={i}
+              type="button"
+              className={`w-4 h-4 rounded-[2px] border transition-colors ${active ? "bg-primary border-primary" : "bg-muted border-border hover:border-muted-foreground/40"}`}
+              onMouseEnter={() => setHover({ r, c })}
+              onClick={() => onSelect(r, c)}
+            />
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
 const RichTextToolbar = ({ editor }: RichTextToolbarProps) => {
   const setLink = useCallback(() => {
     const previousUrl = editor.getAttributes("link").href;
@@ -62,10 +91,6 @@ const RichTextToolbar = ({ editor }: RichTextToolbarProps) => {
   const addYoutube = useCallback(() => {
     const url = window.prompt("URL de la vidéo YouTube:");
     if (url) editor.chain().focus().setYoutubeVideo({ src: url, width: 640, height: 360 }).run();
-  }, [editor]);
-
-  const insertTable = useCallback(() => {
-    editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
   }, [editor]);
 
   return (
