@@ -96,14 +96,14 @@ const HeroSection = () => {
 
       {/* Logo CSS — single spin + float */}
       <div className="absolute inset-0 z-[20] lg:z-[90] flex items-start justify-center pt-24 pointer-events-none">
-        <LogoCSSSpinner className="w-44 h-44 md:w-80 md:h-80" replayKey={0} />
+        <LogoCSSSpinner className="w-56 h-56 md:w-80 md:h-80" replayKey={0} />
       </div>
 
       {/* Content — text layer above logo */}
       <div className="relative z-10 flex flex-col items-center px-4 pt-24 pb-16 gap-8">
 
         {/* Spacer for logo */}
-        <div className="w-44 h-44 mb-2 md:mb-0 md:w-80 md:h-80" />
+        <div className="w-56 h-56 mb-2 md:mb-0 md:w-80 md:h-80" />
 
         <p className="text-sm md:text-base text-foreground/70 font-medium tracking-wide text-center -mt-4">
           {language === "ar" ? "أول منصة تجارة إلكترونية تضامنية في المغرب" : language === "en" ? "1st solidarity e-commerce platform in Morocco" : "1ère plateforme de e-commerce solidaire au Maroc"}
