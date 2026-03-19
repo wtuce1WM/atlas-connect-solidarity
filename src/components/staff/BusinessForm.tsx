@@ -3017,6 +3017,9 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           <Button type="button" variant="outline" size="sm" className="text-xs text-muted-foreground hover:text-destructive" onClick={() => setShowClearSocial(true)}>🗑️ Effacer tous les réseaux sociaux</Button>
         </div>
 
+        {/* Social posts embeds */}
+        {business?.id && <SocialPostsEditor businessId={business.id} />}
+
         {/* Plateformes de réservation */}
         <div className="space-y-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
           <Label className="text-xl font-semibold">Plateformes de réservation</Label>
