@@ -8,7 +8,7 @@ import {
   Quote, Minus, ImagePlus, TableIcon, Youtube, Palette,
   Plus, Trash2, ArrowDown, ArrowRight,
 } from "lucide-react";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import {
   Popover, PopoverContent, PopoverTrigger,
 } from "@/components/ui/popover";
@@ -42,6 +42,35 @@ const ToolbarButton = ({
 
 const Sep = () => <div className="w-px h-8 bg-border mx-1" />;
 
+const MAX_GRID = 8;
+
+const TableGridPicker = ({ onSelect }: { onSelect: (rows: number, cols: number) => void }) => {
+  const [hover, setHover] = useState({ r: 0, c: 0 });
+  return (
+    <div>
+      <p className="text-xs text-muted-foreground mb-1 text-center">
+        {hover.r > 0 ? `${hover.r} × ${hover.c}` : "Choisir la taille"}
+      </p>
+      <div className="grid gap-[2px]" style={{ gridTemplateColumns: `repeat(${MAX_GRID}, 1fr)` }}>
+        {Array.from({ length: MAX_GRID * MAX_GRID }, (_, i) => {
+          const r = Math.floor(i / MAX_GRID) + 1;
+          const c = (i % MAX_GRID) + 1;
+          const active = r <= hover.r && c <= hover.c;
+          return (
+            <button
+              key={i}
+              type="button"
+              className={`w-4 h-4 rounded-[2px] border transition-colors ${active ? "bg-primary border-primary" : "bg-muted border-border hover:border-muted-foreground/40"}`}
+              onMouseEnter={() => setHover({ r, c })}
+              onClick={() => onSelect(r, c)}
+            />
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
 const RichTextToolbar = ({ editor }: RichTextToolbarProps) => {
   const setLink = useCallback(() => {
     const previousUrl = editor.getAttributes("link").href;
@@ -62,10 +91,6 @@ const RichTextToolbar = ({ editor }: RichTextToolbarProps) => {
   const addYoutube = useCallback(() => {
     const url = window.prompt("URL de la vidéo YouTube:");
     if (url) editor.chain().focus().setYoutubeVideo({ src: url, width: 640, height: 360 }).run();
-  }, [editor]);
-
-  const insertTable = useCallback(() => {
-    editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
   }, [editor]);
 
   return (
@@ -184,9 +209,11 @@ const RichTextToolbar = ({ editor }: RichTextToolbarProps) => {
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-2 space-y-1" align="start">
-          <Button type="button" variant="ghost" size="sm" className="w-full justify-start text-xs gap-2" onClick={insertTable}>
-            <Plus className="h-3 w-3" /> Insérer tableau 3×3
-          </Button>
+          {!editor.isActive("table") && (
+            <TableGridPicker onSelect={(rows, cols) => {
+              editor.chain().focus().insertTable({ rows, cols, withHeaderRow: true }).run();
+            }} />
+          )}
           {editor.isActive("table") && (
             <>
               <Button type="button" variant="ghost" size="sm" className="w-full justify-start text-xs gap-2" onClick={() => editor.chain().focus().addColumnAfter().run()}>
