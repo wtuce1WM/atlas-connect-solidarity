@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Globe, Phone, Mail, ExternalLink, ShoppingBag, MapPin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -103,8 +104,33 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
     { url: business.vimeo_url, icon: <VimeoIcon className="h-5 w-5" />, label: "Vimeo" },
   ].filter((l) => l.url);
 
+  const toolbarPortal = document.getElementById("slide-panel-toolbar");
+  const toolbarCenterPortal = document.getElementById("slide-panel-toolbar-center");
+
   return (
     <div className="h-full overflow-y-auto bg-background">
+      {/* Portal WhatsApp icon into center of fixed bar */}
+      {toolbarCenterPortal && createPortal(
+        <div className="flex items-center gap-6">
+          {business.whatsapp && (
+            <a href={`https://wa.me/${business.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="relative flex items-center justify-center hover:opacity-70 transition-opacity" style={{ color: "#25D366" }}>
+              <span className="absolute w-10 h-10 rounded-full border pointer-events-none animate-[ripple_2.4s_ease-out_infinite]" style={{ borderColor: "rgba(37,211,102,0.35)" }} />
+              <span className="absolute w-14 h-14 rounded-full border pointer-events-none animate-[ripple_2.4s_ease-out_0.6s_infinite]" style={{ borderColor: "rgba(37,211,102,0.2)" }} />
+              <span className="absolute w-[4.5rem] h-[4.5rem] rounded-full border pointer-events-none animate-[ripple_2.4s_ease-out_1.2s_infinite]" style={{ borderColor: "rgba(37,211,102,0.1)" }} />
+              <WhatsAppIcon className="h-6 w-6 relative z-10" />
+            </a>
+          )}
+        </div>,
+        toolbarCenterPortal
+      )}
+      {/* Portal Share & Bookmark into right of fixed bar */}
+      {toolbarPortal && createPortal(
+        <>
+          <ShareButton title={business.name} variant="dark" className="toolbar-icon" />
+          <BookmarkButton businessId={business.id} variant="gold" />
+        </>,
+        toolbarPortal
+      )}
       {/* Hero image / logo area */}
       <div className="relative w-full aspect-[16/9] bg-muted overflow-hidden">
         {heroImage ? (
@@ -262,12 +288,6 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
         )}
 
         <Separator />
-
-        {/* Share & Bookmark */}
-        <div className="flex items-center justify-center gap-4 py-2">
-          <ShareButton title={business.name} />
-          <BookmarkButton businessId={business.id} />
-        </div>
       </div>
     </div>
   );
