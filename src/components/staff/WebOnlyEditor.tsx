@@ -32,7 +32,7 @@ interface WebOnlyEditorProps {
 const BUCKET = "web-only-media";
 const MAX_IMAGES = 5;
 const MAX_VIDEOS = 5;
-const MAX_DESC_LENGTH = 1000;
+const MAX_DESC_LENGTH = 1500;
 
 const getPublicUrl = (path: string) =>
   supabase.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
@@ -206,8 +206,6 @@ const WebOnlyEditor = ({ businessId }: WebOnlyEditorProps) => {
   }, [businessId, recordId]);
 
   const handleDescriptionChange = useCallback((html: string) => {
-    const textOnly = html.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ");
-    if (textOnly.length > MAX_DESC_LENGTH) return;
     setDescription(html);
     save(html, images, videos);
   }, [images, videos, save]);
@@ -319,7 +317,7 @@ const WebOnlyEditor = ({ businessId }: WebOnlyEditorProps) => {
     save(description, images, next);
   }, [videos, description, images, save]);
 
-  const plainTextLength = description.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").length;
+  const plainTextLength = description.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim().length;
 
   if (loading) {
     return (
@@ -347,10 +345,10 @@ const WebOnlyEditor = ({ businessId }: WebOnlyEditorProps) => {
           content={description}
           onChange={handleDescriptionChange}
           placeholder="Décrivez l'offre web only…"
-          maxHeight="200px"
+          maxHeight="400px"
         />
-        <p className={`text-xs text-right ${plainTextLength > MAX_DESC_LENGTH * 0.9 ? "text-destructive" : "text-muted-foreground"}`}>
-          {plainTextLength} / {MAX_DESC_LENGTH}
+        <p className={`text-xs text-right ${plainTextLength > MAX_DESC_LENGTH ? "text-destructive font-bold" : plainTextLength > MAX_DESC_LENGTH * 0.9 ? "text-destructive" : "text-muted-foreground"}`}>
+          {plainTextLength} / {MAX_DESC_LENGTH}{plainTextLength > MAX_DESC_LENGTH && " ⚠ Limite dépassée"}
         </p>
       </div>
 
