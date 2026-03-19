@@ -387,6 +387,7 @@ const SearchPage = () => {
     setIsSubDesktop(mql.matches);
     return () => mql.removeEventListener("change", onChange);
   }, []);
+  const [showMobileMap, setShowMobileMap] = useState(false);
   const [allBusinesses, setAllBusinesses] = useState<Business[]>([]);
   const [totalCount, setTotalCount] = useState<number | null>(null);
   const [detectedSubcategory, setDetectedSubcategory] = useState<string | null>(null);
