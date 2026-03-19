@@ -34,6 +34,7 @@ interface WebOnlyBusiness {
 interface WebOnlyData {
   description: string | null;
   videos: string[] | null;
+  images: string[] | null;
 }
 
 const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
