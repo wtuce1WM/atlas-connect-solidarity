@@ -48,6 +48,7 @@ interface SearchInputProps {
 }
 
 const SearchInput = ({
+  variant = "floating",
   placeholder: customPlaceholder,
   defaultValue = "",
   value: controlledValue,
