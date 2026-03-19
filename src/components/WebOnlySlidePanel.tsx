@@ -265,10 +265,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
 
         {/* Share & Bookmark */}
         <div className="flex items-center justify-center gap-4 py-2">
-          <ShareButton
-            url={`${window.location.origin}/${business.slug}`}
-            title={business.name}
-          />
+          <ShareButton title={business.name} />
           <BookmarkButton businessId={business.id} />
         </div>
       </div>
