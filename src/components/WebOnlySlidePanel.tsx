@@ -213,7 +213,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
             {/* Web only description (rich text) */}
             {woDescription && (
               <div
-                className="text-sm text-white leading-relaxed max-h-40 overflow-y-auto prose prose-invert prose-sm max-w-none"
+                className="text-sm text-white leading-relaxed prose prose-invert prose-sm max-w-none"
                 dangerouslySetInnerHTML={{ __html: woDescription }}
               />
             )}
