@@ -227,8 +227,8 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
           )}
 
           {/* Centered content block */}
-          <div className="flex-1 flex items-center justify-center overflow-hidden">
-            <div className="w-[95%] md:w-[90%] lg:w-[70%] max-h-[60vh] md:max-h-none overflow-y-auto rounded-2xl bg-black/40 backdrop-blur-sm p-4 md:p-6 space-y-5 text-white pointer-events-auto">
+          <div className="flex-1 flex items-start md:items-center justify-center overflow-hidden">
+            <div className="w-[95%] md:w-[90%] lg:w-[70%] max-h-[70vh] md:max-h-none overflow-y-auto rounded-2xl bg-black/40 backdrop-blur-sm p-4 md:p-6 space-y-5 text-white pointer-events-auto">
               {/* Logo + name */}
               <div className="flex items-end gap-4">
                 {business.logo_url && (
@@ -257,22 +257,24 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
                   dangerouslySetInnerHTML={{ __html: woDescription }}
                 />
               )}
-
-              {/* CTA: Shop online */}
-              {shopUrl && (
-                <a
-                  href={shopUrl.startsWith("http") ? shopUrl : `https://${shopUrl}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-1.5 w-[85%] md:w-1/2 py-2 rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors mx-auto [&_*]:text-black"
-                >
-                  <ShoppingBag className="h-4 w-4" />
-                  {language === "en" ? "Visit Online Shop" : "Visiter la boutique en ligne"}
-                  <ExternalLink className="h-3.5 w-3.5 ml-0.5" />
-                </a>
-              )}
             </div>
           </div>
+
+          {/* CTA: outside content block on mobile, above video controls */}
+          {shopUrl && (
+            <div className="pb-2 md:pb-4 flex justify-center pointer-events-auto">
+              <a
+                href={shopUrl.startsWith("http") ? shopUrl : `https://${shopUrl}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-1.5 w-[85%] md:w-1/2 py-2 rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black"
+              >
+                <ShoppingBag className="h-4 w-4" />
+                {language === "en" ? "Visit Online Shop" : "Visiter la boutique en ligne"}
+                <ExternalLink className="h-3.5 w-3.5 ml-0.5" />
+              </a>
+            </div>
+          )}
         </div>
       </div>
     </div>
