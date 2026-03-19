@@ -208,7 +208,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-sm"
               >
-                <WhatsAppIcon className="h-4 w-4 text-green-600 shrink-0" />
+                <WhatsAppIcon className="h-4 w-4 text-primary shrink-0" />
                 <span>WhatsApp</span>
               </a>
             )}
