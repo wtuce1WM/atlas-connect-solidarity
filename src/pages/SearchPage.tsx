@@ -3853,6 +3853,40 @@ const SearchPage = () => {
       )}
 
 
+      {/* Mobile/Tablet Map Overlay — slide-in from right */}
+      {isSubDesktop && showMobileMap && (
+        <div className="fixed inset-0 z-[201] bg-background flex flex-col animate-slide-in-right lg:hidden">
+          {/* Header bar with close */}
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+            <span className="text-sm font-semibold text-foreground">
+              {language === "en" ? "Map" : language === "ar" ? "خريطة" : "Carte"}
+            </span>
+            <button
+              onClick={() => setShowMobileMap(false)}
+              className="w-8 h-8 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 transition-colors"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+          {/* Map */}
+          <div className="flex-1">
+            <PoiGoogleMap
+              pois={mapPoiItems}
+              selectedPoiId={hoveredResultId || compactPanelBusiness?.id || null}
+              onPoiClick={(poiId) => {
+                const biz = filteredBusinesses.find(b => b.id === poiId);
+                if (biz) {
+                  setShowMobileMap(false);
+                  openCompactPanel({ id: biz.id, name: biz.name } as AIBusinessData);
+                }
+              }}
+              center={mapCenterForResults}
+              subcategoryIconMap={subcategoryIconMap}
+            />
+          </div>
+        </div>
+      )}
+
       {/* Floating Search Bar */}
       <div className={`fixed bottom-0 left-0 right-0 py-3 px-4 transition-transform duration-300 ${isCompactPanelWebOnly && compactPanelBusiness ? "translate-y-full" : ""} ${isCompactPanelExpanded ? "z-[190]" : "z-[210]"}`}>
         <div className="max-w-2xl mx-auto">
