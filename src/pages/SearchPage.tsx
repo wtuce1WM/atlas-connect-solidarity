@@ -634,22 +634,18 @@ const SearchPage = () => {
    }, [searchQuery, urlT]);
 
    useEffect(() => {
-     const handleScroll = () => {
-       const tabBar = document.querySelector('[data-tab-bar]');
-       if (!tabBar) return;
-       const tabBarTop = tabBar.getBoundingClientRect().top + window.scrollY - 60;
-       // Once the user scrolls to the tab bar, lock it
-       if (!hasReachedTabBar && window.scrollY >= tabBarTop && tabBarTop > 0) {
-         setHasReachedTabBar(true);
-       }
-       // When locked, prevent scrolling above the tab bar
-       if (hasReachedTabBar && window.scrollY < tabBarTop) {
-         window.scrollTo({ top: tabBarTop, behavior: "auto" });
-       }
-     };
-     window.addEventListener("scroll", handleScroll, { passive: false });
-     return () => window.removeEventListener("scroll", handleScroll);
-   }, [hasReachedTabBar, searchQuery]);
+      const handleScroll = () => {
+        const tabBar = document.querySelector('[data-tab-bar]');
+        if (!tabBar) return;
+        const tabBarTop = tabBar.getBoundingClientRect().top + window.scrollY - 60;
+        // Once the user scrolls to the tab bar, mark it (no scroll lock)
+        if (!hasReachedTabBar && window.scrollY >= tabBarTop && tabBarTop > 0) {
+          setHasReachedTabBar(true);
+        }
+      };
+      window.addEventListener("scroll", handleScroll, { passive: true });
+      return () => window.removeEventListener("scroll", handleScroll);
+    }, [hasReachedTabBar, searchQuery]);
 
    // Measure sticky bar heights dynamically for perfect stacking
    const [stickyTops, setStickyTops] = useState({ cityBar: 104, serviceBar: 148 });
