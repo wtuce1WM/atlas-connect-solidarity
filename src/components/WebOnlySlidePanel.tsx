@@ -170,7 +170,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
 
         {/* Overlaid content – centered vertically, 70% width */}
         <div className="relative z-10 flex items-center justify-center min-h-full p-6">
-          <div className="w-[70%] rounded-2xl bg-black/40 backdrop-blur-sm p-6 space-y-5 overflow-hidden [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white">
+          <div className="w-[70%] rounded-2xl bg-black/40 backdrop-blur-sm p-6 space-y-5 [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white">
             {/* Video navigation dots */}
             {videos.length > 1 && (
               <div className="flex items-center justify-center gap-2">
