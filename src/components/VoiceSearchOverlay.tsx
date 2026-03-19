@@ -4,9 +4,10 @@ interface VoiceSearchOverlayProps {
   isOpen: boolean;
   liveTranscript: string;
   onClose: () => void;
+  onFinish?: () => void;
 }
 
-const VoiceSearchOverlay = ({ isOpen, liveTranscript, onClose }: VoiceSearchOverlayProps) => {
+const VoiceSearchOverlay = ({ isOpen, liveTranscript, onClose, onFinish }: VoiceSearchOverlayProps) => {
   if (!isOpen) return null;
 
   return (
@@ -41,7 +42,7 @@ const VoiceSearchOverlay = ({ isOpen, liveTranscript, onClose }: VoiceSearchOver
           
           {/* Main button */}
           <button
-            onClick={onClose}
+            onClick={liveTranscript && onFinish ? onFinish : onClose}
             className="relative w-20 h-20 rounded-full bg-destructive flex items-center justify-center shadow-lg shadow-destructive/30 transition-transform hover:scale-105"
           >
             <Mic className="h-8 w-8 text-white" />

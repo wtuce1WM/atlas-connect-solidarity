@@ -35,7 +35,7 @@ const HeroSection = () => {
   };
 
   const voiceLang = language === "ar" ? "ar-MA" : language === "en" ? "en-US" : "fr-FR";
-  const { status: voiceStatus, toggleRecording, liveTranscript } = useVoiceSearch({
+  const { status: voiceStatus, toggleRecording, finishRecording, liveTranscript } = useVoiceSearch({
     lang: voiceLang,
     onTranscript: (keywords, spokenText, detectedCategory, timeKeyword) => {
       const params = new URLSearchParams();
@@ -287,6 +287,7 @@ const HeroSection = () => {
         isOpen={voiceStatus === "recording" || voiceStatus === "processing"}
         liveTranscript={liveTranscript}
         onClose={() => toggleRecording()}
+        onFinish={() => finishRecording()}
       />
     </section>
   );

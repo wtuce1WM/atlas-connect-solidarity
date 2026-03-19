@@ -1059,7 +1059,7 @@ const SearchPage = () => {
     }
   }, [language, ttsSpeak]);
 
-  const { status: voiceStatus, toggleRecording, liveTranscript } = useVoiceSearch({
+  const { status: voiceStatus, toggleRecording, finishRecording, liveTranscript } = useVoiceSearch({
     onTranscript: (keywords, spoken, category, timeKeyword) => {
       isVoiceSearchRef.current = true;
       setInputValue(keywords);
@@ -3970,6 +3970,7 @@ const SearchPage = () => {
         isOpen={voiceStatus === "recording" || voiceStatus === "processing"}
         liveTranscript={liveTranscript}
         onClose={() => toggleRecording()}
+        onFinish={() => finishRecording()}
       />
 
       {/* Split view: Left AI text panel + Right business panel */}
