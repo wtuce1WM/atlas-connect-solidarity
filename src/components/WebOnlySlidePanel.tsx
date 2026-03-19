@@ -144,25 +144,22 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
 
       {/* Full-size video / image background with overlay content */}
       <div className="relative w-full h-full">
-        {/* Video / Image background */}
+        {/* Media background */}
         <div className="absolute inset-0">
-          {videoInfo ? (
+          {currentMedia?.kind === "video" && videoInfo ? (
             videoInfo.type === "file" ? (
               <video
-                key={currentVideo}
+                key={currentMedia.url}
                 src={videoInfo.embedUrl}
                 autoPlay
                 muted
                 loop
                 playsInline
                 className="w-full h-full object-cover"
-                onEnded={() => {
-                  if (videos.length > 1) setCurrentVideoIndex((i) => (i + 1) % videos.length);
-                }}
               />
             ) : (
               <iframe
-                key={currentVideo}
+                key={currentMedia.url}
                 src={videoInfo.embedUrl}
                 className="w-full h-full"
                 allow="autoplay; encrypted-media"
@@ -171,34 +168,44 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
                 style={{ border: 0 }}
               />
             )
-          ) : heroImage ? (
-            <img src={heroImage} alt={business.name} className="w-full h-full object-cover" />
+          ) : currentMedia?.kind === "image" ? (
+            <img src={currentMedia.url} alt={business.name} className="w-full h-full object-cover" />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-muted">
               <ShoppingBag className="h-16 w-16 text-muted-foreground/40" />
             </div>
           )}
-          {/* Dark gradient overlay for text legibility */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
         </div>
 
-        {/* Overlaid content – centered vertically, 70% width */}
+        {/* Left / Right arrows */}
+        {totalMedia > 1 && (
+          <>
+            <button
+              onClick={() => goMedia(-1)}
+              className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors"
+              aria-label="Previous"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+            <button
+              onClick={() => goMedia(1)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors"
+              aria-label="Next"
+            >
+              <ChevronRight className="h-5 w-5" />
+            </button>
+          </>
+        )}
+
+        {/* Overlaid content */}
         <div className="relative z-10 flex flex-col h-full p-6">
-          {/* Video navigation dots – top */}
-          {videos.length > 1 && (
+          {/* Media counter – top */}
+          {totalMedia > 1 && (
             <div className="flex items-center justify-center gap-2 pb-4">
-              {videos.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setCurrentVideoIndex(i)}
-                  className={`w-2.5 h-2.5 rounded-full transition-all ${
-                    i === currentVideoIndex % videos.length
-                      ? "bg-white scale-110"
-                      : "bg-white/40 hover:bg-white/60"
-                  }`}
-                  aria-label={`Video ${i + 1}`}
-                />
-              ))}
+              <span className="text-white/80 text-xs font-medium bg-black/30 rounded-full px-3 py-1">
+                {safeIndex + 1} / {totalMedia}
+              </span>
             </div>
           )}
 
