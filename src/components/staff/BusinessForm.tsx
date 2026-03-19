@@ -33,6 +33,7 @@ import BusinessLabelsEditor from "./BusinessLabelsEditor";
 import OpeningHoursEditor, { OpeningHours, DEFAULT_OPENING_HOURS } from "./OpeningHoursEditor";
 import VacationDatesEditor, { VacationPeriod } from "./VacationDatesEditor";
 import SocialPostsEditor from "./SocialPostsEditor";
+import WebOnlyEditor from "./WebOnlyEditor";
 import {
   FacebookIcon,
   InstagramIcon,
@@ -3454,7 +3455,16 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           </div>
         </div>
 
-        {/* Dialog création rapide */}
+        {/* Web Only section — visible only when both engagements are present */}
+        {(() => {
+          const engs: string[] = (formData as any).engagements || [];
+          const hasWebOnly = engs.some(e => e.toLowerCase() === "logistique:web only");
+          const hasCommandeEnLigne = engs.some(e => e.toLowerCase() === "logistique:commandez en ligne et recevez votre colis chez vous");
+          return hasWebOnly && hasCommandeEnLigne && business?.id ? (
+            <WebOnlyEditor businessId={business.id} />
+          ) : null;
+        })()}
+
         <Dialog open={!!quickAddDialog} onOpenChange={(open) => !open && setQuickAddDialog(null)}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
