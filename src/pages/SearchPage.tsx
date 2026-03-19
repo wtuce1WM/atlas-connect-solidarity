@@ -3564,7 +3564,6 @@ const SearchPage = () => {
                             onClick={(e) => e.stopPropagation()}
                           >
                             <div className="flex flex-col gap-2 px-4 w-full max-w-[200px]">
-                            <div className="flex flex-col gap-2 px-4 w-full max-w-[200px]">
                               <a
                                 href={webOnlyUrl!.startsWith("http") ? webOnlyUrl! : `https://${webOnlyUrl}`}
                                 target="_blank"
