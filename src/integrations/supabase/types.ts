@@ -2231,6 +2231,33 @@ export type Database = {
           },
         ]
       }
+      search_history: {
+        Row: {
+          category: string | null
+          city: string | null
+          created_at: string
+          id: string
+          query: string
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          city?: string | null
+          created_at?: string
+          id?: string
+          query: string
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          city?: string | null
+          created_at?: string
+          id?: string
+          query?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       search_intent_words: {
         Row: {
           category_name: string
