@@ -3831,7 +3831,7 @@ const SearchPage = () => {
               selectedPoiId={hoveredResultId || compactPanelBusiness?.id || null}
               onPoiClick={(poiId) => {
                 const biz = filteredBusinesses.find(b => b.id === poiId);
-                if (biz) setCompactPanelBusiness({ id: biz.id, name: biz.name } as AIBusinessData);
+                if (biz) openCompactPanel({ id: biz.id, name: biz.name } as AIBusinessData);
               }}
               center={mapCenterForResults}
               subcategoryIconMap={subcategoryIconMap}
