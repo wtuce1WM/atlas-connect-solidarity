@@ -1146,7 +1146,7 @@ const SearchPage = () => {
 
   // Detect if we have a known city or neighborhood for the split map layout
   const effectiveCityForMap = (selectedCity && selectedCity !== "all") ? selectedCity : detectedCity;
-  const hasKnownLocation = !isMobile && !!(effectiveCityForMap || detectedNeighborhood);
+  const hasKnownLocation = !isMobile && !isSubDesktop && !!(effectiveCityForMap || detectedNeighborhood);
 
   const mapCenterForResults = useMemo(() => {
     if (neighborhoodCoords) return neighborhoodCoords;
@@ -3254,7 +3254,7 @@ const SearchPage = () => {
        >
         {/* Split layout wrapper: results left + map right when city/neighborhood known */}
         <div className={hasKnownLocation && !compactPanelBusiness ? "flex gap-0" : ""}>
-        <div className={`${hasKnownLocation && !compactPanelBusiness ? "w-1/2 overflow-visible" : "w-full"} mx-auto px-4 ${compactPanelBusiness ? "max-w-full" : hasKnownLocation ? "max-w-full" : "max-w-[80%]"}`}
+        <div className={`${hasKnownLocation && !compactPanelBusiness ? "w-1/2 overflow-visible" : "w-full"} mx-auto px-4 ${compactPanelBusiness ? "max-w-full" : hasKnownLocation ? "max-w-full" : "max-w-full lg:max-w-[80%]"}`}
         >
           {/* Filters: City + Geo toggle — on mobile shown before hero via order */}
           <div className={`${isCategoryFilterActive ? 'mb-3' : 'mb-8'} flex flex-wrap items-center gap-3 ${isMobile ? 'hidden' : ''}`}>
@@ -3522,7 +3522,7 @@ const SearchPage = () => {
                 </div>
               </div>
               {/* Fallback-style cards in 4-column grid */}
-              <div className={`grid gap-4 pt-8 sm:pt-8 pb-28 [overflow-anchor:none] ${compactPanelBusiness ? "grid-cols-1 sm:grid-cols-2" : hasKnownLocation ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1 sm:grid-cols-3 lg:grid-cols-4"}`}>
+              <div className={`grid gap-4 pt-8 sm:pt-8 pb-28 [overflow-anchor:none] ${compactPanelBusiness ? "grid-cols-1 sm:grid-cols-2" : hasKnownLocation ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"}`}>
                 {paginatedBusinesses.map((business, index) => {
                   const img = business.images?.[0] || business.logo_url;
                   const sources = collectRatingSources(business as any);
