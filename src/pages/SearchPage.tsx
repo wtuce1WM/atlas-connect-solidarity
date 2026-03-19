@@ -427,7 +427,14 @@ const SearchPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [urlQ, urlT]);
 
-  
+
+  // Fetch active easter eggs once
+  useEffect(() => {
+    supabase.from("easter_eggs").select("name, is_active").eq("is_active", true).then(({ data }) => {
+      if (data) setActiveEasterEggNames(new Set(data.map((e: any) => e.name)));
+    });
+  }, []);
+
   const categoryFromUrl = searchParams.get("category") || "";
   const [celebrityBusinesses, setCelebrityBusinesses] = useState<Business[]>([]);
   const [ttsIntroPhrase, setTtsIntroPhrase] = useState<string>("");
