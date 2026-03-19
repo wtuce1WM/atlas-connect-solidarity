@@ -259,7 +259,6 @@ const SearchInput = ({
               recentLabel={recentLabel}
               clearLabel={clearLabel}
             />
-            />
           ) : (
             <SearchSuggestionsDropdown
               suggestions={businessSuggestions}
