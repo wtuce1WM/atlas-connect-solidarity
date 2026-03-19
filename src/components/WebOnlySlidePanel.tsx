@@ -42,7 +42,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
   const [business, setBusiness] = useState<WebOnlyBusiness | null>(null);
   const [webOnlyData, setWebOnlyData] = useState<WebOnlyData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
+  const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
