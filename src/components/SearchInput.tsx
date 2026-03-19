@@ -245,7 +245,7 @@ const SearchInput = ({
           )}
         </div>
         {/* Mic + Search buttons below input */}
-        <div className="flex items-center justify-center gap-3">
+        <div className="flex items-center justify-center gap-6">
           {inlineMicButton}
           <button
             type="button"
