@@ -152,7 +152,6 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
                 key={currentMedia.url}
                 src={videoInfo.embedUrl}
                 autoPlay
-                muted
                 loop
                 playsInline
                 controls
@@ -201,8 +200,8 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
           </>
         )}
 
-        {/* Overlaid content */}
-        <div className={`relative z-10 flex flex-col h-full p-6 ${currentMedia?.kind === "video" ? "pointer-events-none" : ""}`}>
+        {/* Overlaid content — leave bottom 3rem free on mobile for video controls */}
+        <div className={`relative z-10 flex flex-col h-[calc(100%-3rem)] md:h-full p-6 ${currentMedia?.kind === "video" ? "pointer-events-none" : ""}`}>
           {/* Media counter + arrows on mobile */}
           {totalMedia > 1 && (
             <div className="flex items-center justify-center gap-3 pb-4 pointer-events-auto">
@@ -265,7 +264,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
 
         {/* CTA: outside the pointer-events-none overlay so it's always clickable */}
         {shopUrl && (
-          <div className="absolute bottom-0 left-0 right-0 z-20 pb-14 md:pb-4 flex justify-center">
+          <div className="absolute bottom-16 md:bottom-4 left-0 right-0 z-20 flex justify-center">
             <a
               href={shopUrl.startsWith("http") ? shopUrl : `https://${shopUrl}`}
               target="_blank"
