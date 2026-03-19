@@ -169,68 +169,71 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
         </div>
 
         {/* Overlaid content – centered vertically, 70% width */}
-        <div className="relative z-10 flex items-center justify-center h-full p-6">
-          <div className="w-[70%] rounded-2xl bg-black/40 backdrop-blur-sm p-6 space-y-5 text-white">
-            {/* Video navigation dots */}
-            {videos.length > 1 && (
-              <div className="flex items-center justify-center gap-2">
-                {videos.map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setCurrentVideoIndex(i)}
-                    className={`w-2.5 h-2.5 rounded-full transition-all ${
-                      i === currentVideoIndex % videos.length
-                        ? "bg-white scale-110"
-                        : "bg-white/40 hover:bg-white/60"
-                    }`}
-                    aria-label={`Video ${i + 1}`}
-                  />
-                ))}
-              </div>
-            )}
-
-            {/* Logo + name */}
-            <div className="flex items-end gap-4">
-              {business.logo_url && (
-                <div
-                  className="shrink-0 w-14 h-14 rounded-xl overflow-hidden border-2 border-white/20 shadow-lg"
-                  style={{ backgroundColor: business.logo_bg || "#fff" }}
-                >
-                  <img src={business.logo_url} alt="" className="w-full h-full object-contain p-1" />
-                </div>
-              )}
-              <div className="min-w-0">
-                <h2 className="text-xl font-bold truncate drop-shadow-lg">{business.name}</h2>
-                {business.city && (
-                  <p className="text-sm text-white/80 flex items-center gap-1 mt-0.5">
-                    <MapPin className="h-3.5 w-3.5" />
-                    {business.city}
-                  </p>
-                )}
-              </div>
+        <div className="relative z-10 flex flex-col h-full p-6">
+          {/* Video navigation dots – top */}
+          {videos.length > 1 && (
+            <div className="flex items-center justify-center gap-2 pb-4">
+              {videos.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrentVideoIndex(i)}
+                  className={`w-2.5 h-2.5 rounded-full transition-all ${
+                    i === currentVideoIndex % videos.length
+                      ? "bg-white scale-110"
+                      : "bg-white/40 hover:bg-white/60"
+                  }`}
+                  aria-label={`Video ${i + 1}`}
+                />
+              ))}
             </div>
+          )}
 
-            {/* Web only description (rich text) */}
-            {woDescription && (
-              <div
-                className="text-sm leading-relaxed prose prose-invert prose-sm max-w-none break-words [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white"
-                dangerouslySetInnerHTML={{ __html: woDescription }}
-              />
-            )}
+          {/* Centered content block */}
+          <div className="flex-1 flex items-center justify-center">
+            <div className="w-[70%] rounded-2xl bg-black/40 backdrop-blur-sm p-6 space-y-5 text-white">
+              {/* Logo + name */}
+              <div className="flex items-end gap-4">
+                {business.logo_url && (
+                  <div
+                    className="shrink-0 w-14 h-14 rounded-xl overflow-hidden border-2 border-white/20 shadow-lg"
+                    style={{ backgroundColor: business.logo_bg || "#fff" }}
+                  >
+                    <img src={business.logo_url} alt="" className="w-full h-full object-contain p-1" />
+                  </div>
+                )}
+                <div className="min-w-0">
+                  <h2 className="text-xl font-bold truncate drop-shadow-lg">{business.name}</h2>
+                  {business.city && (
+                    <p className="text-sm text-white/80 flex items-center gap-1 mt-0.5">
+                      <MapPin className="h-3.5 w-3.5" />
+                      {business.city}
+                    </p>
+                  )}
+                </div>
+              </div>
 
-            {/* CTA: Shop online */}
-            {shopUrl && (
-              <a
-                href={shopUrl.startsWith("http") ? shopUrl : `https://${shopUrl}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-1.5 w-1/2 py-2 rounded-lg bg-white text-black font-medium text-sm shadow-lg hover:bg-white/90 transition-colors mx-auto [&_*]:text-black"
-              >
-                <ShoppingBag className="h-4 w-4" />
-                {language === "en" ? "Visit Online Shop" : "Visiter la boutique en ligne"}
-                <ExternalLink className="h-3.5 w-3.5 ml-0.5" />
-              </a>
-            )}
+              {/* Web only description (rich text) */}
+              {woDescription && (
+                <div
+                  className="text-sm leading-relaxed prose prose-invert prose-sm max-w-none break-words [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white"
+                  dangerouslySetInnerHTML={{ __html: woDescription }}
+                />
+              )}
+
+              {/* CTA: Shop online */}
+              {shopUrl && (
+                <a
+                  href={shopUrl.startsWith("http") ? shopUrl : `https://${shopUrl}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-1.5 w-1/2 py-2 rounded-lg bg-white text-black font-medium text-sm shadow-lg hover:bg-white/90 transition-colors mx-auto [&_*]:text-black"
+                >
+                  <ShoppingBag className="h-4 w-4" />
+                  {language === "en" ? "Visit Online Shop" : "Visiter la boutique en ligne"}
+                  <ExternalLink className="h-3.5 w-3.5 ml-0.5" />
+                </a>
+              )}
+            </div>
           </div>
         </div>
       </div>
