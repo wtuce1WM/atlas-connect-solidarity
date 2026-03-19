@@ -187,7 +187,6 @@ const BusinessCard = ({
   const webOnlyUrl = business.online_shop_url || business.website || null;
   const isWebOnly = !!(
     hasEngagement("Commandez en ligne et recevez votre colis chez vous") &&
-    hasEngagement("Web only") &&
     webOnlyUrl
   );
   const businessImage = getBusinessImage(business);
