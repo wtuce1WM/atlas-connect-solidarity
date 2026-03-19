@@ -3563,7 +3563,7 @@ const SearchPage = () => {
                             className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/65 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                             onClick={(e) => e.stopPropagation()}
                           >
-                            <p className="text-white font-black text-3xl leading-none tracking-wide mb-4">WEB ONLY</p>
+                            <div className="flex flex-col gap-2 px-4 w-full max-w-[200px]">
                             <div className="flex flex-col gap-2 px-4 w-full max-w-[200px]">
                               <a
                                 href={webOnlyUrl!.startsWith("http") ? webOnlyUrl! : `https://${webOnlyUrl}`}
