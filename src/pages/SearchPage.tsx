@@ -4164,22 +4164,29 @@ const SearchPage = () => {
 
           {/* Right panel — business detail */}
           <div
-            className={`fixed top-0 left-0 right-0 bottom-0 z-[201] bg-background shadow-2xl overflow-hidden flex flex-col animate-slide-in-right lg:top-[53px] lg:left-auto lg:bottom-auto lg:border-l lg:border-border ${isCompactPanelExpanded ? "lg:w-full border-l-2 shadow-[-8px_0_30px_-5px_rgba(0,0,0,0.15)]" : "lg:w-1/2"}`}
+            className={`fixed top-0 left-0 right-0 bottom-0 z-[201] bg-background shadow-2xl overflow-hidden flex flex-col animate-slide-in-right lg:top-[53px] lg:left-auto lg:bottom-auto lg:border-l lg:border-border ${isCompactPanelExpanded && !isCompactPanelWebOnly ? "lg:w-full border-l-2 shadow-[-8px_0_30px_-5px_rgba(0,0,0,0.15)]" : "lg:w-1/2"}`}
             style={{ height: isSubDesktop ? undefined : "calc(100vh - 53px)" }}
           >
             <SlidePanelHeader
               onClose={() => { setCompactPanelBusiness(null); setIsCompactPanelExpanded(false); }}
-              isExpanded={isCompactPanelExpanded}
-              onToggleExpand={compactBusinessImageCount > 5 ? () => setIsCompactPanelExpanded(prev => !prev) : undefined}
+              isExpanded={isCompactPanelWebOnly ? undefined : isCompactPanelExpanded}
+              onToggleExpand={isCompactPanelWebOnly ? undefined : (compactBusinessImageCount > 5 ? () => setIsCompactPanelExpanded(prev => !prev) : undefined)}
             />
             <div className="flex-1 min-h-0">
-              <BusinessSlidePanel
-                businessId={compactPanelBusiness.id}
-                onClose={() => { setCompactPanelBusiness(null); setIsCompactPanelExpanded(false); }}
-                isExpanded={isCompactPanelExpanded}
-                onToggleExpand={() => setIsCompactPanelExpanded(prev => !prev)}
-                onImageCount={setCompactBusinessImageCount}
-              />
+              {isCompactPanelWebOnly ? (
+                <WebOnlySlidePanel
+                  businessId={compactPanelBusiness.id}
+                  onClose={() => { setCompactPanelBusiness(null); setIsCompactPanelExpanded(false); }}
+                />
+              ) : (
+                <BusinessSlidePanel
+                  businessId={compactPanelBusiness.id}
+                  onClose={() => { setCompactPanelBusiness(null); setIsCompactPanelExpanded(false); }}
+                  isExpanded={isCompactPanelExpanded}
+                  onToggleExpand={() => setIsCompactPanelExpanded(prev => !prev)}
+                  onImageCount={setCompactBusinessImageCount}
+                />
+              )}
             </div>
           </div>
         </>
