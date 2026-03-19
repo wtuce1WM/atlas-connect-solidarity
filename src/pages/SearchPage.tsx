@@ -3689,7 +3689,7 @@ const SearchPage = () => {
                       card,
                       <div
                         key="ai-suggestion-card"
-                        className={`overflow-hidden rounded-xl border-2 shadow-md relative aspect-square bg-gradient-to-br from-gold/5 via-background to-gold/10 flex flex-col transition-all ${
+                        className={`overflow-hidden rounded-xl border-2 shadow-md relative aspect-square bg-gradient-to-br from-gold/5 via-background to-gold/10 flex flex-col transition-colors transition-shadow ${
                           isAiReady
                             ? "border-gold/60 cursor-pointer hover:shadow-lg hover:border-gold"
                             : "border-gold/30"
