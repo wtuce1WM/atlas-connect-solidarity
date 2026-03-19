@@ -47,11 +47,11 @@ const MAX_GRID = 8;
 const TableGridPicker = ({ onSelect }: { onSelect: (rows: number, cols: number) => void }) => {
   const [hover, setHover] = useState({ r: 0, c: 0 });
   return (
-    <div>
-      <p className="text-xs text-muted-foreground mb-1 text-center">
+    <div className="select-none" style={{ width: MAX_GRID * 24 + (MAX_GRID - 1) * 3 }}>
+      <p className="text-xs text-muted-foreground mb-2 text-center">
         {hover.r > 0 ? `${hover.r} × ${hover.c}` : "Choisir la taille"}
       </p>
-      <div className="grid gap-[2px]" style={{ gridTemplateColumns: `repeat(${MAX_GRID}, 1fr)` }}>
+      <div className="grid gap-[3px]" style={{ gridTemplateColumns: `repeat(${MAX_GRID}, 24px)`, gridAutoRows: "24px" }}>
         {Array.from({ length: MAX_GRID * MAX_GRID }, (_, i) => {
           const r = Math.floor(i / MAX_GRID) + 1;
           const c = (i % MAX_GRID) + 1;
@@ -60,7 +60,7 @@ const TableGridPicker = ({ onSelect }: { onSelect: (rows: number, cols: number) 
             <button
               key={i}
               type="button"
-              className={`w-4 h-4 rounded-[2px] border transition-colors ${active ? "bg-primary border-primary" : "bg-muted border-border hover:border-muted-foreground/40"}`}
+              className={`w-6 h-6 rounded-[2px] border transition-colors ${active ? "bg-primary border-primary" : "bg-muted border-border hover:border-muted-foreground/40"}`}
               onMouseEnter={() => setHover({ r, c })}
               onClick={() => onSelect(r, c)}
             />
