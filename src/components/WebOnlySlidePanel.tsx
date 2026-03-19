@@ -280,7 +280,6 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
         )}
       </div>
     </div>
-  </div>
   );
 };
 
