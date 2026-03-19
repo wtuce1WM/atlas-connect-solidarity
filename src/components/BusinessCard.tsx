@@ -4,7 +4,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Phone, ShieldCheck, Star, Globe, Clock, Headphones, Loader2, Leaf, Truck, Accessibility } from "lucide-react";
+import { MapPin, Phone, ShieldCheck, Star, Globe, Clock, Headphones, Loader2, Leaf, Truck, Accessibility, Award } from "lucide-react";
 import logoWatermark from "@/assets/logoGOLDsimpleSML.webp";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import { collectRatingSources, computeWeightedRatingOn20, getTotalReviewCount as getTotalReviews } from "@/lib/ratingUtils";
@@ -489,15 +489,24 @@ const BusinessCard = ({
             )}
           </div>
 
-          {/* Engagements & Logistics badges */}
+          {/* Engagements, Certifications & Logistics badges */}
           {business.engagements && business.engagements.length > 0 && (() => {
             const engagementItems = business.engagements.filter(e => !e.startsWith("Logistique:") && !e.startsWith("Certification:"));
+            const certificationItems = business.engagements
+              .filter(e => e.startsWith("Certification:"))
+              .map(e => e.replace("Certification:", "").trim());
             const logisticsItems = business.engagements
               .filter(e => e.startsWith("Logistique:"))
               .map(e => e.replace("Logistique:", "").trim());
-            if (engagementItems.length === 0 && logisticsItems.length === 0) return null;
+            if (engagementItems.length === 0 && logisticsItems.length === 0 && certificationItems.length === 0) return null;
             return (
               <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                {certificationItems.map((cert, i) => (
+                  <Badge key={`cert-${i}`} variant="outline" className="text-[10px] gap-1 bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800">
+                    <Award className="h-3 w-3" />
+                    {cert}
+                  </Badge>
+                ))}
                 {engagementItems.map((eng, i) => (
                   <Badge key={`eng-${i}`} variant="outline" className="text-[10px] gap-1 bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800">
                     <Leaf className="h-3 w-3" />

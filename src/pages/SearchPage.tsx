@@ -29,7 +29,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { Loader2, Building2, ChevronLeft, ChevronRight, Search, Mic, Loader, MapPin, MapPinOff, X, Volume2, VolumeX, Clock, Map, Sparkles, SlidersHorizontal, ChevronDown, ChevronUp, RefreshCw, Compass, Maximize2, Minimize2, Star, Leaf, Truck, Accessibility, Package } from "lucide-react";
+import { Loader2, Building2, ChevronLeft, ChevronRight, Search, Mic, Loader, MapPin, MapPinOff, X, Volume2, VolumeX, Clock, Map, Sparkles, SlidersHorizontal, ChevronDown, ChevronUp, RefreshCw, Compass, Maximize2, Minimize2, Star, Leaf, Truck, Accessibility, Package, Award } from "lucide-react";
 import MoreFiltersPopup from "@/components/MoreFiltersPopup";
 import { lazy, Suspense } from "react";
 const BusinessMap = lazy(() => import("@/components/BusinessMap"));
@@ -3656,12 +3656,13 @@ const SearchPage = () => {
                               })()}
                             </div>
                           )}
-                          {/* Engagements & Logistics badges */}
+                          {/* Engagements, Certifications & Logistics badges */}
                           {(() => {
                             const engs = (business.engagements || []);
                             const standards = engs.filter(e => !e.startsWith("Logistique:") && !e.startsWith("Certification:"));
+                            const certifications = engs.filter(e => e.startsWith("Certification:")).map(e => e.replace("Certification:", "").trim());
                             const logistics = engs.filter(e => e.startsWith("Logistique:")).map(e => e.replace("Logistique:", "").trim());
-                            if (standards.length === 0 && logistics.length === 0) return null;
+                            if (standards.length === 0 && logistics.length === 0 && certifications.length === 0) return null;
                             const getLogIcon = (l: string) => {
                               const lower = l.toLowerCase();
                               if (lower.includes("livraison")) return Truck;
@@ -3670,6 +3671,11 @@ const SearchPage = () => {
                             };
                             return (
                               <div className="flex flex-wrap gap-1 mt-0.5">
+                                {certifications.map((c, i) => (
+                                  <span key={`c-${i}`} className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-medium bg-amber-500/30 text-amber-200 backdrop-blur-sm">
+                                    <Award className="h-2.5 w-2.5" />{c}
+                                  </span>
+                                ))}
                                 {standards.map((e, i) => (
                                   <span key={`e-${i}`} className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-medium bg-green-500/30 text-green-200 backdrop-blur-sm">
                                     <Leaf className="h-2.5 w-2.5" />{e}
