@@ -209,9 +209,11 @@ const RichTextToolbar = ({ editor }: RichTextToolbarProps) => {
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-2 space-y-1" align="start">
-          <Button type="button" variant="ghost" size="sm" className="w-full justify-start text-xs gap-2" onClick={insertTable}>
-            <Plus className="h-3 w-3" /> Insérer tableau 3×3
-          </Button>
+          {!editor.isActive("table") && (
+            <TableGridPicker onSelect={(rows, cols) => {
+              editor.chain().focus().insertTable({ rows, cols, withHeaderRow: true }).run();
+            }} />
+          )}
           {editor.isActive("table") && (
             <>
               <Button type="button" variant="ghost" size="sm" className="w-full justify-start text-xs gap-2" onClick={() => editor.chain().focus().addColumnAfter().run()}>
