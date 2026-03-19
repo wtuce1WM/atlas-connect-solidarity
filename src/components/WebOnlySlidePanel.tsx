@@ -129,7 +129,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
       )}
 
       {/* Full-size video / image background with overlay content */}
-      <div className="relative w-full min-h-full flex flex-col">
+      <div className="relative w-full h-full">
         {/* Video / Image background */}
         <div className="absolute inset-0">
           {videoInfo ? (
@@ -169,7 +169,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
         </div>
 
         {/* Overlaid content – centered vertically, 70% width */}
-        <div className="relative z-10 flex items-center justify-center min-h-full p-6">
+        <div className="relative z-10 flex items-center justify-center h-full p-6">
           <div className="w-[70%] rounded-2xl bg-black/40 backdrop-blur-sm p-6 space-y-5 text-white">
             {/* Video navigation dots */}
             {videos.length > 1 && (
