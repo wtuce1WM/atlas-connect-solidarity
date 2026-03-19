@@ -3098,7 +3098,7 @@ const SearchPage = () => {
                       return parseInline(
                         stickyAiText,
                         allBusinesses as unknown as AIBusinessData[],
-                        (b) => setCompactPanelBusiness(b),
+                        (b) => openCompactPanel(b),
                         "compact-ai",
                         isTTSActive
                           ? { wordIndex: 0, target: karaokeTarget, mode: "karaoke" as const }
