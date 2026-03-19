@@ -82,10 +82,26 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
 
   const shopUrl = business.online_shop_url || business.website;
   const videos = webOnlyData?.videos?.filter(Boolean) || [];
-  const heroImage = business.images?.[0] || null;
+  const woImages = webOnlyData?.images?.filter(Boolean) || [];
+  const images = woImages.length > 0 ? woImages : (business.images?.filter(Boolean) || []);
   const woDescription = webOnlyData?.description || null;
 
-  // Resolve video src: could be a YouTube/Vimeo URL or a direct file
+  // Build unified media list: videos first, then images
+  type MediaItem = { kind: "video"; url: string } | { kind: "image"; url: string };
+  const mediaItems: MediaItem[] = [
+    ...videos.map((v) => ({ kind: "video" as const, url: v })),
+    ...images.map((i) => ({ kind: "image" as const, url: i })),
+  ];
+  const totalMedia = mediaItems.length;
+  const safeIndex = totalMedia > 0 ? currentMediaIndex % totalMedia : 0;
+  const currentMedia = totalMedia > 0 ? mediaItems[safeIndex] : null;
+
+  const goMedia = useCallback((dir: 1 | -1) => {
+    if (totalMedia <= 1) return;
+    setCurrentMediaIndex((prev) => (prev + dir + totalMedia) % totalMedia);
+  }, [totalMedia]);
+
+  // Resolve video src
   const getVideoEmbed = (url: string) => {
     const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]+)/);
     if (ytMatch) {
@@ -98,8 +114,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
     return { type: "file" as const, embedUrl: url };
   };
 
-  const currentVideo = videos.length > 0 ? videos[currentVideoIndex % videos.length] : null;
-  const videoInfo = currentVideo ? getVideoEmbed(currentVideo) : null;
+  const videoInfo = currentMedia?.kind === "video" ? getVideoEmbed(currentMedia.url) : null;
 
   const toolbarPortal = document.getElementById("slide-panel-toolbar");
   const toolbarCenterPortal = document.getElementById("slide-panel-toolbar-center");
