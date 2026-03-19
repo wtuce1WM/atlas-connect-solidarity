@@ -3455,12 +3455,11 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           </div>
         </div>
 
-        {/* Web Only section — visible only when both engagements are present */}
+        {/* Web Only section — visible when "Commandez en ligne" engagement is present */}
         {(() => {
           const engs: string[] = (formData as any).engagements || [];
-          const hasWebOnly = engs.some(e => e.toLowerCase() === "logistique:web only");
           const hasCommandeEnLigne = engs.some(e => e.toLowerCase() === "logistique:commandez en ligne et recevez votre colis chez vous");
-          return hasWebOnly && hasCommandeEnLigne && business?.id ? (
+          return hasCommandeEnLigne && business?.id ? (
             <WebOnlyEditor businessId={business.id} />
           ) : null;
         })()}
