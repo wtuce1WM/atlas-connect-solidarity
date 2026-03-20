@@ -2378,7 +2378,7 @@ const SearchPage = () => {
                   <p className="text-sm font-medium text-foreground mb-3">
                     {language === "en" ? "Where are you looking?" : language === "ar" ? "أين تبحث؟" : "Où le cherchez-vous ?"}
                   </p>
-                  <div className="flex overflow-x-auto gap-2 scrollbar-hide">
+                  <div className="flex overflow-x-auto gap-2">
                     {citiesWithPriority.slice(0, 10).map(c => (
                       <button
                         key={c.name}
@@ -4289,7 +4289,7 @@ const SearchPage = () => {
                         <p className="text-base font-bold text-foreground mb-2">
                           {language === "en" ? "Where are you looking?" : language === "ar" ? "أين تبحث؟" : "Où le cherchez-vous ?"}
                         </p>
-                        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide mb-4">
+                        <div className="flex gap-2 overflow-x-auto pb-1 mb-4">
                           <button
                             onClick={() => handleCityChange("all")}
                             className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-bold transition-all whitespace-nowrap ${
