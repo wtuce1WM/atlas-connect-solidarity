@@ -198,6 +198,13 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
     },
   });
   const [business, setBusiness] = useState<FullBusiness | null>(null);
+  const isWebOnly = useMemo(() => {
+    const engs: string[] = (business as any)?.engagements || [];
+    return engs.some((e: string) => {
+      const n = e.toLowerCase().trim();
+      return n === "web only" || n === "logistique:web only" || n.endsWith(":web only");
+    });
+  }, [business]);
   const [gamme, setGamme] = useState<Gamme | null>(null);
   const [activeServiceNames, setActiveServiceNames] = useState<Set<string> | null>(null);
   const [isBookingOpen, setIsBookingOpen] = useState(false);
