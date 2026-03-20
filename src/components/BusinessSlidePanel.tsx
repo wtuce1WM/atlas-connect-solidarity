@@ -2092,7 +2092,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                   />
                   <div className="p-2 flex gap-2">
                     <button
-                      onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&destination=${dest}`, "_blank")}
+                      onClick={() => setShowDirectionsOverlay(true)}
                       className="flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-medium rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
                     >
                       <Navigation className="h-3.5 w-3.5" />
