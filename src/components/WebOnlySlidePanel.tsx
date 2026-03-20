@@ -64,6 +64,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
   const [showDirections, setShowDirections] = useState(false);
   const [directionsMode, setDirectionsMode] = useState<"walking" | "driving">("walking");
   const [userOrigin, setUserOrigin] = useState<string | null>(null);
+  const [showInfoCard, setShowInfoCard] = useState(true);
 
   useEffect(() => {
     if (!showDirections) return;
