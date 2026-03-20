@@ -1118,24 +1118,17 @@ const SearchPage = () => {
   });
   toggleRecordingRef.current = toggleRecording;
 
-  // Get cities available in results, sorted by priority score
-  // Show cities that are either the direct city of a result OR covered via zone_city_ids
+  // Get cities available in current results, sorted by city sort_order
+  // Keep only direct business cities to avoid showing empty city filters
   const availableCities = useMemo(() => {
-    // Collect direct cities
-    const coveredCityNames = new Set<string>();
-    const coveredCityIds = new Set<string>();
+    const directCityNames = new Set<string>();
 
     for (const b of allBusinesses) {
-      if (b.city) coveredCityNames.add(b.city);
-      if (b.zone_city_ids && b.is_visible_locale) {
-        for (const cid of b.zone_city_ids) {
-          coveredCityIds.add(cid);
-        }
-      }
+      if (b.city) directCityNames.add(b.city);
     }
 
     return citiesWithPriority
-      .filter(c => coveredCityNames.has(c.name) || (c.id && coveredCityIds.has(c.id)))
+      .filter(c => directCityNames.has(c.name))
       .sort((a, b) => a.priority - b.priority)
       .map(c => c.name);
   }, [allBusinesses, citiesWithPriority]);
