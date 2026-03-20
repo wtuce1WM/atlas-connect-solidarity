@@ -1353,6 +1353,11 @@ const SearchPage = () => {
     const effectiveCity = effectiveCityForMap || null;
     return filteredBusinesses
       .filter(b => {
+        const isWebOnly = (b.engagements || []).some((e) => {
+          const n = e.toLowerCase().trim();
+          return n === "web only" || n === "logistique:web only" || n.endsWith(":web only");
+        });
+        if (isWebOnly) return false;
         if (!b.latitude || !b.longitude) return false;
         if (b.latitude < 21 || b.latitude > 36.5 || b.longitude < -17.5 || b.longitude > -1) return false;
         if (center) {
@@ -1394,6 +1399,11 @@ const SearchPage = () => {
     };
     return filteredBusinesses
       .filter(b => {
+        const isWebOnly = (b.engagements || []).some((e) => {
+          const n = e.toLowerCase().trim();
+          return n === "web only" || n === "logistique:web only" || n.endsWith(":web only");
+        });
+        if (isWebOnly) return false;
         if (!b.latitude || !b.longitude) return false;
         if (b.latitude < 21 || b.latitude > 36.5 || b.longitude < -17.5 || b.longitude > -1) return false;
         if (center) {
