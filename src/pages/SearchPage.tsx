@@ -4160,7 +4160,7 @@ const SearchPage = () => {
       )}
 
       {/* Floating Search Bar */}
-      <div className={`fixed bottom-0 left-0 right-0 py-3 px-4 transition-transform duration-300 ${(isCompactPanelWebOnly && compactPanelBusiness) || showMobileMap ? "translate-y-full" : ""} ${isCompactPanelExpanded ? "z-[190]" : "z-[210]"}`}>
+      <div className={`fixed bottom-0 left-0 right-0 py-3 px-4 transition-transform duration-300 ${(isCompactPanelWebOnly && compactPanelBusiness) || (isSubDesktop && showMobileMap) ? "translate-y-full" : ""} ${isCompactPanelExpanded ? "z-[190]" : "z-[210]"}`}>
         <div className="max-w-2xl mx-auto">
           <SearchInput
             variant="floating"
