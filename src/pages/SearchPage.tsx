@@ -1118,20 +1118,54 @@ const SearchPage = () => {
   });
   toggleRecordingRef.current = toggleRecording;
 
-  // Get cities available in current results, sorted by city sort_order
+  // Get cities available in current result context (category/subcategory/service included)
   // Keep only direct business cities to avoid showing empty city filters
   const availableCities = useMemo(() => {
-    const directCityNames = new Set<string>();
+    let citySourceBusinesses: Business[] =
+      selectedServiceFilter && serviceFilterBusinesses.length > 0
+        ? [...serviceFilterBusinesses]
+        : selectedSubcategoryFilter && subcategoryFilterBusinesses.length > 0
+          ? [...subcategoryFilterBusinesses]
+          : [...allBusinesses];
 
-    for (const b of allBusinesses) {
+    if (selectedCategoryFilter) {
+      citySourceBusinesses = citySourceBusinesses.filter(
+        (b) => b.main_category === selectedCategoryFilter
+      );
+    }
+
+    if (selectedSubcategoryFilter) {
+      const subcategoryMatches = citySourceBusinesses.filter(
+        (b) => b.categories?.includes(selectedSubcategoryFilter)
+      );
+      if (subcategoryMatches.length > 0) citySourceBusinesses = subcategoryMatches;
+    }
+
+    if (selectedServiceFilter) {
+      const serviceMatches = citySourceBusinesses.filter(
+        (b) => b.services?.includes(selectedServiceFilter)
+      );
+      if (serviceMatches.length > 0) citySourceBusinesses = serviceMatches;
+    }
+
+    const directCityNames = new Set<string>();
+    for (const b of citySourceBusinesses) {
       if (b.city) directCityNames.add(b.city);
     }
 
     return citiesWithPriority
-      .filter(c => directCityNames.has(c.name))
+      .filter((c) => directCityNames.has(c.name))
       .sort((a, b) => a.priority - b.priority)
-      .map(c => c.name);
-  }, [allBusinesses, citiesWithPriority]);
+      .map((c) => c.name);
+  }, [
+    allBusinesses,
+    citiesWithPriority,
+    selectedCategoryFilter,
+    selectedSubcategoryFilter,
+    selectedServiceFilter,
+    serviceFilterBusinesses,
+    subcategoryFilterBusinesses,
+  ]);
 
   const getEffectiveRating = (b: typeof allBusinesses[0]): number | null => {
     if (b.rating) return Number(b.rating);
