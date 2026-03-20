@@ -26,6 +26,7 @@ interface WebOnlyBusiness {
   logo_bg: string | null;
   images: string[] | null;
   city: string | null;
+  neighborhood: string | null;
   website: string | null;
   whatsapp: string | null;
   online_shop_url: string | null;
@@ -51,7 +52,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
       const [bizRes, woRes] = await Promise.all([
         supabase
           .from("businesses")
-          .select("id, name, slug, logo_url, logo_bg, images, city, website, whatsapp, online_shop_url, google_maps_url")
+          .select("id, name, slug, logo_url, logo_bg, images, city, neighborhood, website, whatsapp, online_shop_url, google_maps_url")
           .eq("id", businessId)
           .eq("is_active", true)
           .maybeSingle(),
@@ -244,7 +245,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
                   {business.city && (
                     <p className="text-sm text-white/80 flex items-center gap-1 mt-0.5">
                       <MapPin className="h-3.5 w-3.5" />
-                      {business.city}
+                      {[business.city, business.neighborhood].filter(Boolean).join(", ")}
                     </p>
                   )}
                 </div>
