@@ -45,6 +45,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
   const [webOnlyData, setWebOnlyData] = useState<WebOnlyData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
+  const [descExpanded, setDescExpanded] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
