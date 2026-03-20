@@ -2501,9 +2501,9 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
                           setInternalBusinessId(hotel.businessId);
                           scrollContainerRef.current?.scrollTo({ top: 0 });
                           if (isExpanded) onToggleExpand?.();
-                          // On mobile/tablet, close fallback panel so BusinessSlidePanel is visible
+                          // On mobile/tablet, hide fallback panel so BusinessSlidePanel is visible (can be restored on close)
                           if (window.innerWidth < 1024) {
-                            setFallbackPanelData(null);
+                            setFallbackHiddenOnMobile(true);
                           }
                         }
                       }}
