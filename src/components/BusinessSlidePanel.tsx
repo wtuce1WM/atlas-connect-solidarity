@@ -2563,4 +2563,6 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
   );
 });
 
+BusinessSlidePanel.displayName = "BusinessSlidePanel";
+
 export default BusinessSlidePanel;
