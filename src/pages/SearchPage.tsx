@@ -726,12 +726,6 @@ const SearchPage = () => {
       const closeCompactPanel = useCallback(() => {
         setCompactPanelBusiness(null);
         setIsCompactPanelExpanded(false);
-        // Scroll to top of results list
-        if (resultsRef.current) {
-          resultsRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-        } else {
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        }
       }, []);
 
      const [hoveredResultId, setHoveredResultId] = useState<string | null>(null);
