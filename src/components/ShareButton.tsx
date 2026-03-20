@@ -92,24 +92,24 @@ const ShareButton = ({ title, variant = "gold", className = "" }: ShareButtonPro
       </button>
 
       {isOpen && (
-        <div className="absolute top-full right-0 mt-2 z-50 flex items-center gap-1 rounded-full bg-black/90 backdrop-blur-lg border border-white/10 px-3 py-2 shadow-xl animate-in fade-in-0 zoom-in-95">
+        <div className="absolute top-full right-0 mt-2 z-50 flex items-center gap-1 rounded-full bg-primary backdrop-blur-lg border border-primary-foreground/10 px-3 py-2 shadow-xl animate-in fade-in-0 zoom-in-95">
           {shareLinks.map((link) => (
             <a
               key={link.name}
               href={link.url}
               target="_blank"
               rel="noopener noreferrer"
-              className={`p-2 rounded-full text-white/70 transition-colors ${link.color}`}
+              className={`p-2 rounded-full text-primary-foreground/80 transition-colors ${link.color}`}
               title={link.name}
               onClick={() => setIsOpen(false)}
             >
               {link.icon}
             </a>
           ))}
-          <div className="w-px h-5 bg-white/20 mx-1" />
+          <div className="w-px h-5 bg-primary-foreground/20 mx-1" />
           <button
             onClick={handleCopy}
-            className="p-2 rounded-full text-white/70 hover:text-gold transition-colors"
+            className="p-2 rounded-full text-primary-foreground/80 hover:text-primary-foreground transition-colors"
             title="Copier le lien"
           >
             {copied ? <Check className="h-4 w-4 text-green-400" /> : <Copy className="h-4 w-4" />}
