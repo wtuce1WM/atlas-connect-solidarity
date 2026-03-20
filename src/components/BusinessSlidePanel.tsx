@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, useMemo, forwardRef } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo, forwardRef, useImperativeHandle } from "react";
 import { createPortal } from "react-dom";
 import { X, MapPin, Phone, Mail, Globe, Star, BadgeCheck, ChevronLeft, ChevronRight, Clock, Loader2, ExternalLink, CookingPot, Volume2, VolumeX, Maximize, Play, Pause, Headphones, Mic, Maximize2, Minimize2, Navigation, Box, BookOpen, BedDouble, Search, Route } from "lucide-react";
 import FullscreenLightbox from "@/components/FullscreenLightbox";
@@ -52,6 +52,11 @@ interface BusinessSlidePanelProps {
   leftPanelPortalRef?: React.RefObject<HTMLDivElement | null>;
   /** Called when business images are loaded, reports the count */
   onImageCount?: (count: number) => void;
+}
+
+export interface BusinessSlidePanelHandle {
+  /** Returns true if it handled the close internally (went back to fallback), false if parent should close */
+  requestClose: () => boolean;
 }
 
 interface FullBusiness {
@@ -160,9 +165,25 @@ const SkypeIcon = forwardRef<SVGSVGElement, { className?: string }>(function Sky
   );
 });
 
-const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpanded, onToggleExpand, liteApiData, leftPanelPortalRef, onImageCount }: BusinessSlidePanelProps) => {
+const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePanelProps>(({ businessId: externalBusinessId, onClose, isExpanded, onToggleExpand, liteApiData, leftPanelPortalRef, onImageCount }, ref) => {
   const [internalBusinessId, setInternalBusinessId] = useState(externalBusinessId);
   const businessId = internalBusinessId;
+  const [fallbackHiddenOnMobile, setFallbackHiddenOnMobile] = useState(false);
+  const fallbackDataRef = useRef<FallbackPanelData | null>(null);
+
+  // Expose requestClose for parent to intercept close and go back to fallback on mobile
+  useImperativeHandle(ref, () => ({
+    requestClose: () => {
+      if (fallbackHiddenOnMobile && fallbackDataRef.current && window.innerWidth < 1024) {
+        setInternalBusinessId(externalBusinessId);
+        setFallbackHiddenOnMobile(false);
+        scrollContainerRef.current?.scrollTo({ top: 0 });
+        return true;
+      }
+      return false;
+    },
+  }), [fallbackHiddenOnMobile, externalBusinessId]);
+
 
   // Sync when parent changes the business
   useEffect(() => {
@@ -218,6 +239,8 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
     backgroundImage?: string;
   } | null>(null);
   const [fallbackPanelData, setFallbackPanelData] = useState<FallbackPanelData | null>(null);
+  // Keep ref in sync for imperative close check
+  useEffect(() => { fallbackDataRef.current = fallbackPanelData; }, [fallbackPanelData]);
   const [selectedFallbackHotelId, setSelectedFallbackHotelId] = useState<string | null>(null);
   const [pressEntries, setPressEntries] = useState<{ name: string; logo_url: string; url: string; language: string }[]>([]);
   const [articlePreview, setArticlePreview] = useState<{ title: string; summary: string; screenshot: string; url: string; name: string; publishedDate?: string } | null>(null);
@@ -2403,7 +2426,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
       )}
 
       {/* Fallback hotels left panel – lives outside the overlay */}
-      {fallbackPanelData && createPortal(
+      {fallbackPanelData && !fallbackHiddenOnMobile && createPortal(
         <div className={leftPanelPortalRef?.current ? "absolute inset-0 z-10 flex" : "fixed inset-0 z-[220] lg:z-[200] flex flex-col justify-end lg:justify-start lg:right-auto lg:w-1/2"} style={leftPanelPortalRef?.current ? undefined : { top: "53px" }}>
           {/* Mobile/Tablet backdrop */}
           {!leftPanelPortalRef?.current && (
@@ -2478,9 +2501,9 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                           setInternalBusinessId(hotel.businessId);
                           scrollContainerRef.current?.scrollTo({ top: 0 });
                           if (isExpanded) onToggleExpand?.();
-                          // On mobile/tablet, close fallback panel so BusinessSlidePanel is visible
+                          // On mobile/tablet, hide fallback panel so BusinessSlidePanel is visible (can be restored on close)
                           if (window.innerWidth < 1024) {
-                            setFallbackPanelData(null);
+                            setFallbackHiddenOnMobile(true);
                           }
                         }
                       }}
@@ -2538,6 +2561,8 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
       )}
     </div>
   );
-};
+});
+
+BusinessSlidePanel.displayName = "BusinessSlidePanel";
 
 export default BusinessSlidePanel;

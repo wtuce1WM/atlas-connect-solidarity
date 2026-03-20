@@ -38,7 +38,7 @@ import DestinationSection, { type DestinationItem } from "@/components/Destinati
 import DestinationBusinessesPanel from "@/components/DestinationBusinessesPanel";
 import BusinessCard, { type BusinessCardData, type Gamme, type Badge, type SubcategoryRef, type BadgeSubcategoryRef } from "@/components/BusinessCard";
 import AISearchAnswer, { parseInline, type BusinessData as AIBusinessData } from "@/components/AISearchAnswer";
-import BusinessSlidePanel from "@/components/BusinessSlidePanel";
+import BusinessSlidePanel, { type BusinessSlidePanelHandle } from "@/components/BusinessSlidePanel";
 import WebOnlySlidePanel from "@/components/WebOnlySlidePanel";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
@@ -726,12 +726,20 @@ const SearchPage = () => {
         }
       }, [allBusinesses]);
 
+      const compactPanelRef = useRef<BusinessSlidePanelHandle>(null);
+
       const closeCompactPanel = useCallback(() => {
         hasInteractedWithCompactPanelRef.current = true;
         hasAutoAlignedResultsRef.current = true;
         setCompactPanelBusiness(null);
         setIsCompactPanelExpanded(false);
       }, []);
+
+      const handleCompactPanelClose = useCallback(() => {
+        // Let BSP handle close internally (go back to fallback) if applicable
+        if (compactPanelRef.current?.requestClose()) return;
+        closeCompactPanel();
+      }, [closeCompactPanel]);
 
      const [hoveredResultId, setHoveredResultId] = useState<string | null>(null);
      const [hoveredPoiId, setHoveredPoiId] = useState<string | null>(null);
@@ -4542,7 +4550,7 @@ const SearchPage = () => {
             style={{ height: isSubDesktop ? undefined : "calc(100vh - 53px)" }}
           >
             <SlidePanelHeader
-              onClose={closeCompactPanel}
+              onClose={handleCompactPanelClose}
               isExpanded={isCompactPanelWebOnly ? undefined : isCompactPanelExpanded}
               onToggleExpand={isCompactPanelWebOnly ? undefined : (compactBusinessImageCount > 5 ? () => setIsCompactPanelExpanded(prev => !prev) : undefined)}
             />
@@ -4554,6 +4562,7 @@ const SearchPage = () => {
                 />
               ) : (
                 <BusinessSlidePanel
+                  ref={compactPanelRef}
                   businessId={compactPanelBusiness.id}
                   onClose={closeCompactPanel}
                   isExpanded={isCompactPanelExpanded}
