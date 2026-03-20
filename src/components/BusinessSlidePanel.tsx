@@ -2478,6 +2478,10 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                           setInternalBusinessId(hotel.businessId);
                           scrollContainerRef.current?.scrollTo({ top: 0 });
                           if (isExpanded) onToggleExpand?.();
+                          // On mobile/tablet, close fallback panel so BusinessSlidePanel is visible
+                          if (window.innerWidth < 1024) {
+                            setFallbackPanelData(null);
+                          }
                         }
                       }}
                     >
