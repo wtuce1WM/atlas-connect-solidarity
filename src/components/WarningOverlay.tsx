@@ -1,5 +1,7 @@
+import { useEffect, useState } from "react";
 import { MapPin, AlertTriangle, X } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { supabase } from "@/integrations/supabase/client";
 
 interface CityOption {
   name: string;
