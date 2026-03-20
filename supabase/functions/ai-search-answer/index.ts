@@ -13,7 +13,7 @@ serve(async (req) => {
   }
 
   try {
-    const { query, spokenText, businesses = [], language = "fr", vary } = await req.json();
+    const { query, spokenText, businesses = [], language = "fr", vary, mode } = await req.json();
 
     if (!query) {
       return new Response(JSON.stringify({ answer: "" }), {
@@ -126,23 +126,30 @@ serve(async (req) => {
 - Propose à l'utilisateur d'affiner sa recherche ou de chercher avec d'autres mots-clés.`
       : `\n- Si la liste contient peu de résultats (1-2), complète ta réponse avec des conseils généraux sur la destination/thématique pour enrichir l'expérience.`;
 
+    // Build mode-specific prompt overrides for POI / Destinations tabs
+    const modeInstructions = mode === "poi"
+      ? `\n- MODE LIEUX D'INTÉRÊT : Présente les lieux d'intérêt (POI) fournis de façon vivante et enthousiaste. Décris chaque lieu en quelques mots (ambiance, histoire, ce qu'on peut y voir/faire). Cite jusqu'à 10 lieux par leur nom exact entouré de **doubles astérisques**.`
+      : mode === "destinations"
+      ? `\n- MODE DESTINATIONS : Présente les destinations fournies de façon inspirante et détaillée. Pour chaque destination, décris brièvement ce qui la rend unique (paysages, activités, culture). Cite jusqu'à 10 destinations par leur nom exact entouré de **doubles astérisques**.`
+      : '';
+
     const systemPrompt = `${persona}
 
 RÈGLES :
 - ${langInstructions}
 - Réponds en ${responseLength} phrases, de façon détaillée, chaleureuse et enthousiaste.
-- Utilise des émojis pertinents pour rendre la réponse vivante (🍽️ 🐟 🌊 ⭐ 🏨 ☕ 🎶 🌅 📍 👨‍🍳 💎 🔥 etc.).${hasResults ? `
+- Utilise des émojis pertinents pour rendre la réponse vivante (🍽️ 🐟 🌊 ⭐ 🏨 ☕ 🎶 🌅 📍 👨‍🍳 💎 🔥 etc.).${modeInstructions || (hasResults ? `
 - Base-toi UNIQUEMENT sur les établissements fournis ci-dessous. Ne mentionne JAMAIS d'établissement qui n'est pas dans la liste.
 - Cite jusqu'à 10 établissements de la liste par leur nom exact, en expliquant pourquoi ils correspondent à la recherche (ambiance, spécialités, vue, etc.).
-- Ne mentionne JAMAIS de note, score ou classement chiffré (pas de "/20", "/10", "étoiles", etc.).` : ''}${boostVerified && hasResults ? `\n- Les établissements marqués [CONFIANCE] sont des adresses de confiance. Privilégie-les dans ta réponse mais ne mentionne JAMAIS le mot "vérifié", "confiance", "[CONFIANCE]" ou tout badge similaire dans ta réponse.` : ''}${noResultsInstructions}
+- Ne mentionne JAMAIS de note, score ou classement chiffré (pas de "/20", "/10", "étoiles", etc.).` : '')}${boostVerified && hasResults && !mode ? `\n- Les établissements marqués [CONFIANCE] sont des adresses de confiance. Privilégie-les dans ta réponse mais ne mentionne JAMAIS le mot "vérifié", "confiance", "[CONFIANCE]" ou tout badge similaire dans ta réponse.` : ''}${!mode ? noResultsInstructions : ''}
 - Si la liste ne semble pas correspondre à la question, dis-le honnêtement.
-- Entoure chaque nom d'établissement de doubles astérisques, par exemple **Nom de l'établissement**.
+- Entoure chaque nom de doubles astérisques, par exemple **Nom**.
 - FORMATAGE : Utilise du markdown riche pour structurer ta réponse. Gras (**texte**), italique (*texte*), listes à puces (- item), listes numérotées (1. item), et sauts de paragraphe. Pas de titres (#). Structure bien ta réponse avec des paragraphes et des listes quand c'est pertinent.
 - Commence par une phrase d'accroche engageante liée à la recherche, puis laisse DEUX lignes vides avant de continuer avec les recommandations.
 - ${tone}
 - Commence par une accroche engageante liée à la recherche de l'utilisateur.${extraInstructions ? `\n- ${extraInstructions}` : ''}${spokenText ? `\n- CONTEXTE IMPORTANT : L'utilisateur a dit textuellement : "${spokenText}". Utilise ce contexte pour mieux comprendre son intention réelle et ne recommande QUE les établissements qui correspondent à cette intention. Si certains établissements de la liste ne correspondent pas au contexte (mauvaise ville, mauvais type), ignore-les.` : ''}${vary ? `\n- IMPORTANT : L'utilisateur demande une suggestion DIFFÉRENTE (tentative #${vary}). Change l'angle d'approche, l'ordre de présentation, le style d'accroche et mets en avant des établissements différents ou des aspects différents. Sois créatif et surprenant.` : ''}
 
-ÉTABLISSEMENTS TROUVÉS :
+${mode === "poi" ? "LIEUX D'INTÉRÊT" : mode === "destinations" ? "DESTINATIONS" : "ÉTABLISSEMENTS TROUVÉS"} :
 ${businessContext}${knowledgeContext ? `
 
 CONNAISSANCES COMPLÉMENTAIRES (si pertinent, intègre ces informations de manière naturelle pour enrichir tes recommandations — ne mets pas en avant un établissement uniquement parce qu'il a une entrée ici) :

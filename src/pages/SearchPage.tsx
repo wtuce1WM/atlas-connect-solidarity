@@ -442,6 +442,10 @@ const SearchPage = () => {
   const [celebrityBusinesses, setCelebrityBusinesses] = useState<Business[]>([]);
   const [ttsIntroPhrase, setTtsIntroPhrase] = useState<string>("");
   const [aiAnswerText, setAiAnswerText] = useState<string>("");
+  const [poiAiText, setPoiAiText] = useState<string>("");
+  const [destAiText, setDestAiText] = useState<string>("");
+  const [isPoiAiLoading, setIsPoiAiLoading] = useState(false);
+  const [isDestAiLoading, setIsDestAiLoading] = useState(false);
   const [stickyAiAnimationNonce, setStickyAiAnimationNonce] = useState(0);
   const [stickyAiVisibleWordIndex, setStickyAiVisibleWordIndex] = useState(-1);
   const handleAiAnswerReady = useCallback((answer: string) => {
@@ -749,6 +753,34 @@ const SearchPage = () => {
     const [overlaySelectedBusiness, setOverlaySelectedBusiness] = useState<AIBusinessData | null>(null);
     const [isOverlayPanelExpanded, setIsOverlayPanelExpanded] = useState(false);
     const overlayLeftPanelRef = useRef<HTMLDivElement>(null);
+   // Generate tab-specific AI text (POI or Destinations)
+   const fetchTabAiText = useCallback(async (mode: "poi" | "destinations", city: string | null, items: { name: string; city?: string | null }[]) => {
+     if (mode === "poi") { setIsPoiAiLoading(true); setPoiAiText(""); }
+     else { setIsDestAiLoading(true); setDestAiText(""); }
+     try {
+       const top10 = items.slice(0, 10);
+       const { data, error: fnError } = await supabase.functions.invoke("ai-search-answer", {
+         body: {
+           query: mode === "poi"
+             ? (language === "en" ? `Points of interest in ${city || "Morocco"}` : `Lieux d'intérêt à ${city || "au Maroc"}`)
+             : (language === "en" ? `Destinations in ${city || "Morocco"}` : `Destinations à ${city || "au Maroc"}`),
+           businesses: top10.map((b, i) => ({ name: b.name, city: b.city || city })),
+           language,
+           mode,
+         },
+       });
+       if (fnError) { console.error("Tab AI error:", fnError); return; }
+       if (data?.answer) {
+         if (mode === "poi") setPoiAiText(data.answer);
+         else setDestAiText(data.answer);
+       }
+     } catch (err) { console.error("Tab AI fetch error:", err); }
+     finally {
+       if (mode === "poi") setIsPoiAiLoading(false);
+       else setIsDestAiLoading(false);
+     }
+   }, [language]);
+
    // Reset panels, tab, and scroll when query changes
    useEffect(() => {
      setHasScrolledPastHeroAi(false);
@@ -2046,6 +2078,40 @@ const SearchPage = () => {
     <div className="min-h-screen bg-white">
       <Header />
 
+      {/* Shared LocationPickerDialog — accessible from all tabs */}
+      <LocationPickerDialog
+        open={locationDialogOpen}
+        onOpenChange={setLocationDialogOpen}
+        coords={geo.coords}
+        detectedCity={geo.confirmedAddress || geo.detectedCity}
+        isEnabled={geo.isEnabled}
+        isDetecting={geo.isDetecting}
+        onUseCurrentPosition={() => {
+          if (!geo.isEnabled) geo.accept();
+        }}
+        onConfirm={(confirmedCoords, address) => {
+          geo.setManualLocation(confirmedCoords, address);
+          if (citiesWithPriority.length > 0) {
+            let nearest: string | null = null;
+            let minDist = Infinity;
+            for (const city of citiesWithPriority) {
+              if (!city.latitude || !city.longitude) continue;
+              const R = 6371;
+              const dLat = ((city.latitude - confirmedCoords.lat) * Math.PI) / 180;
+              const dLon = ((city.longitude - confirmedCoords.lng) * Math.PI) / 180;
+              const a = Math.sin(dLat / 2) ** 2 + Math.cos((confirmedCoords.lat * Math.PI) / 180) * Math.cos((city.latitude * Math.PI) / 180) * Math.sin(dLon / 2) ** 2;
+              const dist = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+              if (dist < minDist) { minDist = dist; nearest = city.name; }
+            }
+            if (nearest && minDist <= 100) {
+              setSelectedCity(nearest);
+              setIsGeoCityAutoSelected(true);
+            }
+          }
+        }}
+        onDisableGeo={() => geo.decline()}
+      />
+
       {/* Hidden AISearchAnswer instance — generates AI text for Sticky 4 (overlay disabled) */}
       {searchQuery && !isLoading && filteredBusinesses.length > 0 && !aiAnswerText && (
         <div className="hidden">
@@ -2340,18 +2406,32 @@ const SearchPage = () => {
                 <span className="text-xs font-semibold text-gold uppercase tracking-wider">Suggestion IA</span>
               </div>
               <div className="text-xs sm:text-base text-foreground/80 leading-relaxed whitespace-pre-line">
-                {(!aiAnswerText || isAiRegenerating) ? (
-                  <div className="flex items-center gap-3 py-8 justify-center">
-                    <Loader2 className="h-6 w-6 animate-spin text-gold" />
-                    <span className="text-sm italic text-muted-foreground">
-                      {language === "en" ? "Generating suggestion…" : language === "ar" ? "جاري إنشاء الاقتراح…" : "Génération de la suggestion…"}
-                    </span>
-                  </div>
-                ) : (() => {
+                {(() => {
+                  const currentAiText = activeTab === "poi" ? poiAiText : activeTab === "destinations" ? destAiText : aiAnswerText;
+                  const isCurrentLoading = activeTab === "poi" ? isPoiAiLoading : activeTab === "destinations" ? isDestAiLoading : (!aiAnswerText || isAiRegenerating);
+                  if (isCurrentLoading) {
+                    return (
+                      <div className="flex items-center gap-3 py-8 justify-center">
+                        <Loader2 className="h-6 w-6 animate-spin text-gold" />
+                        <span className="text-sm italic text-muted-foreground">
+                          {language === "en" ? "Generating suggestion…" : language === "ar" ? "جاري إنشاء الاقتراح…" : "Génération de la suggestion…"}
+                        </span>
+                      </div>
+                    );
+                  }
+                  if (!currentAiText) {
+                    return (
+                      <div className="flex items-center gap-3 py-8 justify-center">
+                        <span className="text-sm italic text-muted-foreground">
+                          {language === "en" ? "No suggestion available" : "Aucune suggestion disponible"}
+                        </span>
+                      </div>
+                    );
+                  }
                   const isTTSActive = ttsStatus === "playing" && ttsSpokenWordIndex >= 0;
                   const karaokeTarget = isTTSActive ? ttsSpokenWordIndex - ttsIntroWordCountRef.current : -1;
                   return parseInline(
-                    aiAnswerText,
+                    currentAiText,
                     allBusinesses as unknown as AIBusinessData[],
                     (b: AIBusinessData) => {
                       setShowAiPopup(false);
@@ -2912,15 +2992,9 @@ const SearchPage = () => {
                     )}
                     <button
                       onClick={() => {
-                        aiPopupShownRef.current = false;
-                        if (selectedServiceFilter && lastAiServiceRef.current !== selectedServiceFilter) {
-                          setAiAnswerText("");
-                          setAiRegenerateKey(k => k + 1);
-                          lastAiServiceRef.current = selectedServiceFilter;
+                        if (!poiAiText && !isPoiAiLoading) {
+                          fetchTabAiText("poi", poiCity, allPois.map(p => ({ name: p.name, city: poiCity })));
                         }
-                        setWarningDismissed(true);
-                        setCompactPanelBusiness(null);
-                        setIsCompactPanelExpanded(false);
                         setShowAiPopup(true);
                       }}
                       className="shrink-0 w-9 h-9 rounded-full bg-gold text-black flex items-center justify-center hover:bg-gold/90 transition-colors shadow-md"
@@ -3070,15 +3144,9 @@ const SearchPage = () => {
                     )}
                     <button
                       onClick={() => {
-                        aiPopupShownRef.current = false;
-                        if (selectedServiceFilter && lastAiServiceRef.current !== selectedServiceFilter) {
-                          setAiAnswerText("");
-                          setAiRegenerateKey(k => k + 1);
-                          lastAiServiceRef.current = selectedServiceFilter;
+                        if (!destAiText && !isDestAiLoading) {
+                          fetchTabAiText("destinations", destCity, allDestItems.map(d => ({ name: language === "en" && d.name_en ? d.name_en : d.name_fr, city: destCity })));
                         }
-                        setWarningDismissed(true);
-                        setCompactPanelBusiness(null);
-                        setIsCompactPanelExpanded(false);
                         setShowAiPopup(true);
                       }}
                       className="shrink-0 w-9 h-9 rounded-full bg-gold text-black flex items-center justify-center hover:bg-gold/90 transition-colors shadow-md"
@@ -3680,39 +3748,6 @@ const SearchPage = () => {
                           : (language === "en" ? "Location" : "Position")
                         }
                       </button>
-                      <LocationPickerDialog
-                        open={locationDialogOpen}
-                        onOpenChange={setLocationDialogOpen}
-                        coords={geo.coords}
-                        detectedCity={geo.confirmedAddress || geo.detectedCity}
-                        isEnabled={geo.isEnabled}
-                        isDetecting={geo.isDetecting}
-                        onUseCurrentPosition={() => {
-                          if (!geo.isEnabled) geo.accept();
-                        }}
-                        onConfirm={(confirmedCoords, address) => {
-                          geo.setManualLocation(confirmedCoords, address);
-                          // Update city filter to match the manually picked location
-                          if (citiesWithPriority.length > 0) {
-                            let nearest: string | null = null;
-                            let minDist = Infinity;
-                            for (const city of citiesWithPriority) {
-                              if (!city.latitude || !city.longitude) continue;
-                              const R = 6371;
-                              const dLat = ((city.latitude - confirmedCoords.lat) * Math.PI) / 180;
-                              const dLon = ((city.longitude - confirmedCoords.lng) * Math.PI) / 180;
-                              const a = Math.sin(dLat / 2) ** 2 + Math.cos((confirmedCoords.lat * Math.PI) / 180) * Math.cos((city.latitude * Math.PI) / 180) * Math.sin(dLon / 2) ** 2;
-                              const dist = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-                              if (dist < minDist) { minDist = dist; nearest = city.name; }
-                            }
-                            if (nearest && minDist <= 100) {
-                              setSelectedCity(nearest);
-                              setIsGeoCityAutoSelected(true);
-                            }
-                          }
-                        }}
-                        onDisableGeo={() => geo.decline()}
-                      />
                     </>
                   )}
                 </div>
