@@ -924,6 +924,7 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
           onOpenFallbackPanel={(data) => {
             setFallbackPanelData(data);
             setSelectedFallbackHotelId(null);
+            setFallbackHiddenOnMobile(false);
             setAvailabilityOverlayCtx(null);
             setIsBookingOpen(false);
           }}
