@@ -3181,7 +3181,6 @@ const SearchPage = () => {
                     <span className="text-xs text-muted-foreground font-medium">
                       {language === "en" ? "Destinations" : language === "ar" ? "وجهات" : "Destinations"}
                       {destCity && <span className="ml-1">— {destCity}</span>}
-                      {allDestItems.length > 0 && <span className="ml-1">· {allDestItems.length} {language === "en" ? "results" : "résultats"}</span>}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
