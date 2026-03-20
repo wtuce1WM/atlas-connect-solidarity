@@ -2544,6 +2544,6 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
       )}
     </div>
   );
-};
+});
 
 export default BusinessSlidePanel;
