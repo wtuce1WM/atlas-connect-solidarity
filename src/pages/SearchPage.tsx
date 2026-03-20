@@ -3032,7 +3032,6 @@ const SearchPage = () => {
                     <span className="text-xs text-muted-foreground font-medium">
                       {language === "en" ? "Points of Interest" : language === "ar" ? "أماكن مهمة" : "Lieux d'intérêt"}
                       {poiCity && <span className="ml-1">— {poiCity}</span>}
-                      {allPois.length > 0 && <span className="ml-1">· {allPois.length} {language === "en" ? "results" : "résultats"}</span>}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
