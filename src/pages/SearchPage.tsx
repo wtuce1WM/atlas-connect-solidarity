@@ -3270,7 +3270,7 @@ const SearchPage = () => {
                 />
                 {allDestItems.length > 0 && (
                   <p className="text-xs text-muted-foreground font-medium mt-4 text-center">
-                    {allDestItems.length} {language === "en" ? "results" : "résultats"}
+                    {language === "en" ? "Destinations" : language === "ar" ? "وجهات" : "Destinations"}{destCity && ` — ${destCity}`} · {allDestItems.length} {language === "en" ? "results" : "résultats"}
                   </p>
                 )}
               </div>
