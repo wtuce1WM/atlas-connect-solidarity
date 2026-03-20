@@ -702,6 +702,7 @@ const SearchPage = () => {
       const [isCompactPanelWebOnly, setIsCompactPanelWebOnly] = useState(false);
 
       const openCompactPanel = useCallback((bizOrData: AIBusinessData | { id: string; name: string }, forceWebOnly?: boolean) => {
+        hasInteractedWithCompactPanelRef.current = true;
         const b = bizOrData as AIBusinessData;
         setCompactPanelBusiness(b);
         setIsCompactPanelExpanded(false);
@@ -726,7 +727,7 @@ const SearchPage = () => {
       }, [allBusinesses]);
 
       const closeCompactPanel = useCallback(() => {
-        // Prevent the one-shot auto-alignment from re-running after panel close
+        hasInteractedWithCompactPanelRef.current = true;
         hasAutoAlignedResultsRef.current = true;
         setCompactPanelBusiness(null);
         setIsCompactPanelExpanded(false);
