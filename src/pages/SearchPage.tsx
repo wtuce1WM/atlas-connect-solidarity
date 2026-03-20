@@ -3100,6 +3100,11 @@ const SearchPage = () => {
                   }))}
                   onHover={setHoveredPoiId}
                 />
+                {allPois.length > 0 && (
+                  <p className="text-xs text-muted-foreground font-medium mt-4 text-center">
+                    {allPois.length} {language === "en" ? "results" : "résultats"}
+                  </p>
+                )}
               </div>
             </section>
             {/* Sticky map for POI — shown when location known and no panel open */}
