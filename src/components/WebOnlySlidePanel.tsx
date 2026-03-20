@@ -296,7 +296,8 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
                   href={shopUrl.startsWith("http") ? shopUrl : `https://${shopUrl}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-1.5 w-[85%] md:w-1/2 py-2 rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black"
+                  className="flex items-center justify-center gap-1.5 w-[85%] md:w-1/2 py-2 rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal"
+                  style={{ fontFamily: "'Josefin Sans', sans-serif" }}
                 >
                   <ShoppingBag className="h-4 w-4" />
                   {language === "en" ? "Online Shop" : "Boutique en ligne"}
