@@ -169,6 +169,21 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
   const [internalBusinessId, setInternalBusinessId] = useState(externalBusinessId);
   const businessId = internalBusinessId;
   const [fallbackHiddenOnMobile, setFallbackHiddenOnMobile] = useState(false);
+  const fallbackDataRef = useRef<FallbackPanelData | null>(null);
+
+  // Expose requestClose for parent to intercept close and go back to fallback on mobile
+  useImperativeHandle(ref, () => ({
+    requestClose: () => {
+      if (fallbackHiddenOnMobile && fallbackDataRef.current && window.innerWidth < 1024) {
+        setInternalBusinessId(externalBusinessId);
+        setFallbackHiddenOnMobile(false);
+        scrollContainerRef.current?.scrollTo({ top: 0 });
+        return true;
+      }
+      return false;
+    },
+  }), [fallbackHiddenOnMobile, externalBusinessId]);
+
 
   // Sync when parent changes the business
   useEffect(() => {
