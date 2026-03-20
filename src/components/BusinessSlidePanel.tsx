@@ -2426,7 +2426,7 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
       )}
 
       {/* Fallback hotels left panel – lives outside the overlay */}
-      {fallbackPanelData && createPortal(
+      {fallbackPanelData && !fallbackHiddenOnMobile && createPortal(
         <div className={leftPanelPortalRef?.current ? "absolute inset-0 z-10 flex" : "fixed inset-0 z-[220] lg:z-[200] flex flex-col justify-end lg:justify-start lg:right-auto lg:w-1/2"} style={leftPanelPortalRef?.current ? undefined : { top: "53px" }}>
           {/* Mobile/Tablet backdrop */}
           {!leftPanelPortalRef?.current && (
