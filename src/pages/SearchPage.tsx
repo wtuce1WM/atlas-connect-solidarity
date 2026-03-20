@@ -724,8 +724,15 @@ const SearchPage = () => {
       }, [allBusinesses]);
 
       const closeCompactPanel = useCallback(() => {
+        const preservedScrollY = window.scrollY;
         setCompactPanelBusiness(null);
         setIsCompactPanelExpanded(false);
+
+        requestAnimationFrame(() => {
+          if (Math.abs(window.scrollY - preservedScrollY) > 2) {
+            window.scrollTo({ top: preservedScrollY, behavior: "auto" });
+          }
+        });
       }, []);
 
      const [hoveredResultId, setHoveredResultId] = useState<string | null>(null);
