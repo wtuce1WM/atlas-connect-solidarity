@@ -303,17 +303,14 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
                   <ExternalLink className="h-3.5 w-3.5 ml-0.5" />
                 </a>
               )}
-              {business.google_maps_url && (
-                <a
-                  href={business.google_maps_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-1.5 w-[85%] md:w-1/2 py-2 rounded-lg bg-primary text-primary-foreground font-medium text-xs md:text-sm shadow-lg hover:bg-primary/90 transition-colors [&_*]:text-primary-foreground"
+              {(business.google_maps_url || business.latitude) && (
+                <button
+                  onClick={() => setShowDirections(true)}
+                  className="flex items-center justify-center gap-1.5 w-[85%] md:w-1/2 py-2 rounded-lg bg-primary text-primary-foreground font-medium text-xs md:text-sm shadow-lg hover:bg-primary/90 transition-colors"
                 >
                   <MapPin className="h-4 w-4" />
                   {language === "en" ? "Visit Us" : "Visitez-nous"}
-                  <ExternalLink className="h-3.5 w-3.5 ml-0.5" />
-                </a>
+                </button>
               )}
             </div>
           )}
