@@ -2722,45 +2722,7 @@ const SearchPage = () => {
         </div>
       )}
 
-      {/* Mobile-only: geo + time badges at top */}
-      {isMobile && (
-        <div className="bg-background pt-20 pb-2 px-4 flex flex-wrap items-center gap-2">
-          <button
-            onClick={geo.toggle}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-              geo.isEnabled
-                ? "bg-gold/20 text-gold border border-gold/40"
-                : "bg-card text-muted-foreground border border-border hover:border-gold/30"
-            }`}
-          >
-            {geo.isDetecting ? (
-              <Loader className="h-3.5 w-3.5 animate-spin" />
-            ) : geo.isEnabled ? (
-              <MapPin className="h-3.5 w-3.5" />
-            ) : (
-              <MapPinOff className="h-3.5 w-3.5" />
-            )}
-            {geo.isDetecting
-              ? (language === "en" ? "Detecting..." : "Détection...")
-              : geo.isEnabled && geo.detectedCity
-              ? `📍 ${geo.detectedCity}`
-              : geo.isEnabled
-              ? (language === "en" ? "No city nearby" : "Aucune ville proche")
-              : (language === "en" ? "Location off" : "Position désactivée")
-            }
-          </button>
-          {activeTimeSlot && (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gold/20 border border-gold/40 text-gold text-xs font-medium">
-              <Clock className="h-3.5 w-3.5" />
-              {language === "en"
-                ? `Open ${activeTimeSlot.startHour}h–${activeTimeSlot.endHour}h first`
-                : language === "ar"
-                  ? `مفتوح ${activeTimeSlot.startHour}h–${activeTimeSlot.endHour}h أولاً`
-                  : `Ouverts ${activeTimeSlot.startHour}h–${activeTimeSlot.endHour}h en priorité`}
-            </span>
-          )}
-        </div>
-      )}
+      {/* Mobile-only: geo + time badges removed — geo button lives in sticky tab bars */}
 
       {/* Hero Section - DISABLED */}
       {false && (
