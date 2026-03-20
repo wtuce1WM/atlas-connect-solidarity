@@ -3662,9 +3662,9 @@ serve(async (req) => {
                 services: (b.services || []).slice(0, 5),
                 categories: (b.categories || []).slice(0, 3),
               }));
-              console.log(`Service OR debug - filtered businesses: ${JSON.stringify(debugSample)}`);
+              console.log(`Service AND debug - filtered businesses: ${JSON.stringify(debugSample)}`);
             }
-            console.log(`Service OR post-filter [${extendedCandidates.join(", ")}]: ${beforeCount} → ${businesses.length}`);
+            console.log(`Service AND post-filter [${extendedCandidates.join(", ")}]: ${beforeCount} → ${businesses.length}`);
             
             // When service filter gives 0 results, fallback to the original FTS results
             // (before post-filter). The service detection was a false positive — the FTS
