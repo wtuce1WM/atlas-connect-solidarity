@@ -54,6 +54,10 @@ const WarningOverlay = ({
 
   const rawCategories = [...new Set(allBusinesses.map(b => b.main_category).filter(Boolean))] as string[];
 
+  // Only show cities that have businesses in the current results
+  const businessCities = new Set(allBusinesses.map(b => b.city).filter(Boolean));
+  const availableCities = citiesWithPriority.filter(c => businessCities.has(c.name));
+
   // Fetch sort_order from categories table
   const [sortedCategories, setSortedCategories] = useState<string[]>(rawCategories);
   useEffect(() => {
