@@ -2379,11 +2379,11 @@ const SearchPage = () => {
                     {language === "en" ? "Where are you looking?" : language === "ar" ? "أين تبحث؟" : "Où le cherchez-vous ?"}
                   </p>
                   <div className="flex overflow-x-auto gap-2">
-                    {citiesWithPriority.slice(0, 10).map(c => (
+                    {availableCities.slice(0, 10).map((city) => (
                       <button
-                        key={c.name}
+                        key={city}
                         onClick={() => {
-                          setSelectedCity(c.name);
+                          setSelectedCity(city);
                           setIsGeoCityAutoSelected(false);
                           setOverlaySelectedBusiness(null);
                           // Regenerate AI text with the new city filter
@@ -2393,7 +2393,7 @@ const SearchPage = () => {
                         className="shrink-0 px-4 py-2 rounded-full border border-border bg-card text-sm text-foreground hover:border-gold/50 hover:bg-gold/10 transition-colors whitespace-nowrap"
                       >
                         <MapPin className="h-3.5 w-3.5 inline mr-1.5 text-muted-foreground" />
-                        {c.name}
+                        {city}
                       </button>
                     ))}
                   </div>
