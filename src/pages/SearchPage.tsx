@@ -3052,34 +3052,32 @@ const SearchPage = () => {
                     >
                       <Sparkles className="h-4 w-4" />
                     </button>
-                    {!isMobile && (
-                      <button
-                        onClick={() => setLocationDialogOpen(true)}
-                        className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                          geo.isEnabled
-                            ? "bg-gold/20 text-gold border border-gold/40"
-                            : "bg-card text-muted-foreground border border-border hover:border-gold/30"
-                        }`}
-                      >
-                        {geo.isDetecting ? (
-                          <Loader className="h-3 w-3 animate-spin" />
-                        ) : geo.isEnabled ? (
-                          <MapPin className="h-3 w-3" />
-                        ) : (
-                          <MapPinOff className="h-3 w-3" />
-                        )}
-                        {geo.isDetecting
-                          ? "…"
-                          : geo.isEnabled && (geo.detectedNeighborhood || geo.detectedCity)
-                          ? `📍 ${[geo.detectedNeighborhood, geo.detectedCity].filter(Boolean).join(", ")}`
-                          : geo.isEnabled && geo.confirmedAddress
-                          ? `📍 ${geo.confirmedAddress}`
-                          : geo.isEnabled
-                          ? (language === "en" ? "No city" : "Aucune ville")
-                          : (language === "en" ? "Location" : "Position")
-                        }
-                      </button>
-                    )}
+                    <button
+                      onClick={() => setLocationDialogOpen(true)}
+                      className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                        geo.isEnabled
+                          ? "bg-gold/20 text-gold border border-gold/40"
+                          : "bg-card text-muted-foreground border border-border hover:border-gold/30"
+                      }`}
+                    >
+                      {geo.isDetecting ? (
+                        <Loader className="h-3 w-3 animate-spin" />
+                      ) : geo.isEnabled ? (
+                        <MapPin className="h-3 w-3" />
+                      ) : (
+                        <MapPinOff className="h-3 w-3" />
+                      )}
+                      {geo.isDetecting
+                        ? "…"
+                        : geo.isEnabled && (geo.detectedNeighborhood || geo.detectedCity)
+                        ? `📍 ${[geo.detectedNeighborhood, geo.detectedCity].filter(Boolean).join(", ")}`
+                        : geo.isEnabled && geo.confirmedAddress
+                        ? `📍 ${geo.confirmedAddress}`
+                        : geo.isEnabled
+                        ? (language === "en" ? "No city" : "Aucune ville")
+                        : (language === "en" ? "Location" : "Position")
+                      }
+                    </button>
                   </div>
                 </div>
                 <PoiSection
@@ -3202,34 +3200,32 @@ const SearchPage = () => {
                     >
                       <Sparkles className="h-4 w-4" />
                     </button>
-                    {!isMobile && (
-                      <button
-                        onClick={() => setLocationDialogOpen(true)}
-                        className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                          geo.isEnabled
-                            ? "bg-gold/20 text-gold border border-gold/40"
-                            : "bg-card text-muted-foreground border border-border hover:border-gold/30"
-                        }`}
-                      >
-                        {geo.isDetecting ? (
-                          <Loader className="h-3 w-3 animate-spin" />
-                        ) : geo.isEnabled ? (
-                          <MapPin className="h-3 w-3" />
-                        ) : (
-                          <MapPinOff className="h-3 w-3" />
-                        )}
-                        {geo.isDetecting
-                          ? "…"
-                          : geo.isEnabled && (geo.detectedNeighborhood || geo.detectedCity)
-                          ? `📍 ${[geo.detectedNeighborhood, geo.detectedCity].filter(Boolean).join(", ")}`
-                          : geo.isEnabled && geo.confirmedAddress
-                          ? `📍 ${geo.confirmedAddress}`
-                          : geo.isEnabled
-                          ? (language === "en" ? "No city" : "Aucune ville")
-                          : (language === "en" ? "Location" : "Position")
-                        }
-                      </button>
-                    )}
+                    <button
+                      onClick={() => setLocationDialogOpen(true)}
+                      className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                        geo.isEnabled
+                          ? "bg-gold/20 text-gold border border-gold/40"
+                          : "bg-card text-muted-foreground border border-border hover:border-gold/30"
+                      }`}
+                    >
+                      {geo.isDetecting ? (
+                        <Loader className="h-3 w-3 animate-spin" />
+                      ) : geo.isEnabled ? (
+                        <MapPin className="h-3 w-3" />
+                      ) : (
+                        <MapPinOff className="h-3 w-3" />
+                      )}
+                      {geo.isDetecting
+                        ? "…"
+                        : geo.isEnabled && (geo.detectedNeighborhood || geo.detectedCity)
+                        ? `📍 ${[geo.detectedNeighborhood, geo.detectedCity].filter(Boolean).join(", ")}`
+                        : geo.isEnabled && geo.confirmedAddress
+                        ? `📍 ${geo.confirmedAddress}`
+                        : geo.isEnabled
+                        ? (language === "en" ? "No city" : "Aucune ville")
+                        : (language === "en" ? "Location" : "Position")
+                      }
+                    </button>
                   </div>
                 </div>
                 <DestinationSection
@@ -3767,36 +3763,32 @@ const SearchPage = () => {
                   >
                     <Sparkles className="h-4 w-4" />
                   </button>
-                  {!isMobile && (
-                    <>
-                      <button
-                        onClick={() => setLocationDialogOpen(true)}
-                        className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                          geo.isEnabled
-                            ? "bg-gold/20 text-gold border border-gold/40"
-                            : "bg-card text-muted-foreground border border-border hover:border-gold/30"
-                        }`}
-                      >
-                        {geo.isDetecting ? (
-                          <Loader className="h-3 w-3 animate-spin" />
-                        ) : geo.isEnabled ? (
-                          <MapPin className="h-3 w-3" />
-                        ) : (
-                          <MapPinOff className="h-3 w-3" />
-                        )}
-                        {geo.isDetecting
-                          ? "…"
-                          : geo.isEnabled && (geo.detectedNeighborhood || geo.detectedCity)
-                          ? `📍 ${[geo.detectedNeighborhood, geo.detectedCity].filter(Boolean).join(", ")}`
-                          : geo.isEnabled && geo.confirmedAddress
-                          ? `📍 ${geo.confirmedAddress}`
-                          : geo.isEnabled
-                          ? (language === "en" ? "No city" : "Aucune ville")
-                          : (language === "en" ? "Location" : "Position")
-                        }
-                      </button>
-                    </>
-                  )}
+                  <button
+                    onClick={() => setLocationDialogOpen(true)}
+                    className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                      geo.isEnabled
+                        ? "bg-gold/20 text-gold border border-gold/40"
+                        : "bg-card text-muted-foreground border border-border hover:border-gold/30"
+                    }`}
+                  >
+                    {geo.isDetecting ? (
+                      <Loader className="h-3 w-3 animate-spin" />
+                    ) : geo.isEnabled ? (
+                      <MapPin className="h-3 w-3" />
+                    ) : (
+                      <MapPinOff className="h-3 w-3" />
+                    )}
+                    {geo.isDetecting
+                      ? "…"
+                      : geo.isEnabled && (geo.detectedNeighborhood || geo.detectedCity)
+                      ? `📍 ${[geo.detectedNeighborhood, geo.detectedCity].filter(Boolean).join(", ")}`
+                      : geo.isEnabled && geo.confirmedAddress
+                      ? `📍 ${geo.confirmedAddress}`
+                      : geo.isEnabled
+                      ? (language === "en" ? "No city" : "Aucune ville")
+                      : (language === "en" ? "Location" : "Position")
+                    }
+                  </button>
                 </div>
               </div>
               {/* Fallback-style cards in 4-column grid */}
