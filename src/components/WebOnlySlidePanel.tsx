@@ -26,6 +26,7 @@ interface WebOnlyBusiness {
   logo_bg: string | null;
   images: string[] | null;
   city: string | null;
+  neighborhood: string | null;
   website: string | null;
   whatsapp: string | null;
   online_shop_url: string | null;
