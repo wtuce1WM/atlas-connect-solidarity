@@ -724,15 +724,10 @@ const SearchPage = () => {
       }, [allBusinesses]);
 
       const closeCompactPanel = useCallback(() => {
-        const preservedScrollY = window.scrollY;
+        // Prevent the one-shot auto-alignment from re-running after panel close
+        hasAutoAlignedResultsRef.current = true;
         setCompactPanelBusiness(null);
         setIsCompactPanelExpanded(false);
-
-        requestAnimationFrame(() => {
-          if (Math.abs(window.scrollY - preservedScrollY) > 2) {
-            window.scrollTo({ top: preservedScrollY, behavior: "auto" });
-          }
-        });
       }, []);
 
      const [hoveredResultId, setHoveredResultId] = useState<string | null>(null);
