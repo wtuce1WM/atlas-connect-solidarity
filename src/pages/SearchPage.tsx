@@ -2390,7 +2390,7 @@ const SearchPage = () => {
                           setAiAnswerText("");
                           setAiRegenerateKey(k => k + 1);
                         }}
-                        className="px-4 py-2 rounded-full border border-border bg-card text-sm text-foreground hover:border-gold/50 hover:bg-gold/10 transition-colors"
+                        className="shrink-0 px-4 py-2 rounded-full border border-border bg-card text-sm text-foreground hover:border-gold/50 hover:bg-gold/10 transition-colors whitespace-nowrap"
                       >
                         <MapPin className="h-3.5 w-3.5 inline mr-1.5 text-muted-foreground" />
                         {c.name}
