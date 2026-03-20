@@ -2427,22 +2427,18 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
 
       {/* Fallback hotels left panel – lives outside the overlay */}
       {fallbackPanelData && !fallbackHiddenOnMobile && createPortal(
-        <div className={leftPanelPortalRef?.current ? "absolute inset-0 z-10 flex" : "fixed inset-0 z-[220] lg:z-[200] flex flex-col justify-end lg:justify-start lg:right-auto lg:w-1/2 lg:top-[53px]"}>
-          {/* Mobile/Tablet backdrop */}
+        <div className={leftPanelPortalRef?.current ? "absolute inset-0 z-10 flex" : "fixed inset-0 z-[220] lg:z-[200] flex flex-col lg:justify-start lg:right-auto lg:w-1/2 lg:top-[53px]"}>
+          {/* Desktop backdrop only */}
           {!leftPanelPortalRef?.current && (
-            <div className="lg:hidden absolute inset-0 bg-black/40" onClick={() => setFallbackPanelData(null)} />
+            <div className="hidden lg:block absolute inset-0 bg-black/40" onClick={() => setFallbackPanelData(null)} />
           )}
           <div className="
             relative bg-black/90 backdrop-blur-md flex flex-col overflow-hidden
             w-full
-            h-full lg:h-full
-            rounded-t-2xl lg:rounded-none
-            animate-slide-up-from-bottom lg:animate-slide-in-left
+            h-full
+            lg:rounded-none
+            animate-fade-in lg:animate-slide-in-left
           ">
-            {/* Drag handle – mobile only */}
-            <div className="lg:hidden flex justify-center pt-2 pb-1 shrink-0">
-              <div className="w-10 h-1 rounded-full bg-white/30" />
-            </div>
             <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 shrink-0">
               <div>
                 <p className="text-sm font-bold text-white">
