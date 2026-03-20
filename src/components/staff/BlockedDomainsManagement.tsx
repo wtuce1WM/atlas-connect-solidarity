@@ -7,38 +7,21 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
 const KNOWN_BLOCKED_DOMAINS = [
+  // X-Frame-Options: DENY
   { domain: 'www.mandarinoriental.com', reason: 'X-Frame-Options: DENY' },
   { domain: 'www.riadelhara.com', reason: 'X-Frame-Options: DENY' },
   { domain: 'www.jetex.com', reason: 'X-Frame-Options: DENY' },
   { domain: 'www.selman-marrakech.com', reason: 'X-Frame-Options: DENY' },
   { domain: 'reservation.marrakech.maison-stella-cadente.com', reason: 'X-Frame-Options: DENY' },
+  { domain: 'www.sevenrooms.com', reason: 'X-Frame-Options: DENY' },
+  // X-Frame-Options: SAMEORIGIN
   { domain: 'permalink.fairmont.com', reason: 'X-Frame-Options: SAMEORIGIN' },
   { domain: 'www.lunajets.com', reason: 'X-Frame-Options: SAMEORIGIN' },
   { domain: 'www.essaouirakitesurfschool.com', reason: 'X-Frame-Options: SAMEORIGIN' },
   { domain: 'www.cenizaro.com', reason: 'X-Frame-Options: SAMEORIGIN' },
   { domain: 'linktr.ee', reason: 'X-Frame-Options: SAMEORIGIN' },
-  { domain: 'xaluca.com', reason: 'X-Frame-Options: SAMEORIGIN' },
   { domain: 'app.thebookingbutton.com', reason: 'X-Frame-Options: SAMEORIGIN' },
   { domain: 'resnexus.com', reason: 'X-Frame-Options: SAMEORIGIN' },
-  { domain: 'nomadmarrakech.com', reason: 'X-Frame-Options: SAMEORIGIN' },
-  { domain: 'lblassa.com', reason: 'X-Frame-Options: SAMEORIGIN' },
-  { domain: 'direct-book.com', reason: 'X-Frame-Options: SAMEORIGIN' },
-  { domain: 'www.lebarometre.net', reason: 'X-Frame-Options: SAMEORIGIN' },
-  { domain: 'www.essaouira-lodge.com', reason: 'X-Frame-Options: SAMEORIGIN' },
-  { domain: 'www.palaborepmarrakech.com', reason: 'X-Frame-Options: SAMEORIGIN' },
-  { domain: 'www.pestana.com', reason: 'X-Frame-Options: SAMEORIGIN' },
-  { domain: 'www.beachcomber.com', reason: 'X-Frame-Options: SAMEORIGIN' },
-  { domain: 'www.belmond.com', reason: 'X-Frame-Options: SAMEORIGIN' },
-  { domain: 'www.fourseasons.com', reason: 'X-Frame-Options: SAMEORIGIN' },
-  { domain: 'www.ritzcarlton.com', reason: 'X-Frame-Options: SAMEORIGIN' },
-  { domain: 'www.sofitel-marrakech.com', reason: 'X-Frame-Options: SAMEORIGIN' },
-  { domain: 'www.saintjamesmarrakech.com', reason: 'X-Frame-Options: SAMEORIGIN' },
-  { domain: 'www.kensington-marrakech.com', reason: 'X-Frame-Options: SAMEORIGIN' },
-  { domain: 'mamounia.com', reason: 'X-Frame-Options: SAMEORIGIN' },
-  { domain: 'www.nobuhotels.com', reason: 'X-Frame-Options: SAMEORIGIN' },
-  { domain: 'www.oberoihotels.com', reason: 'X-Frame-Options: SAMEORIGIN' },
-  { domain: 'www.widiane.net', reason: 'X-Frame-Options: SAMEORIGIN' },
-  { domain: 'www.cactusthiemann.com', reason: 'X-Frame-Options: SAMEORIGIN' },
   { domain: 'www.foundouk.com', reason: 'X-Frame-Options: SAMEORIGIN' },
   { domain: 'goodkarmatravels.jimdosite.com', reason: 'X-Frame-Options: SAMEORIGIN' },
   { domain: 'reservations.verticalbooking.com', reason: 'X-Frame-Options: SAMEORIGIN' },
@@ -46,10 +29,25 @@ const KNOWN_BLOCKED_DOMAINS = [
   { domain: 'fr.hotels.com', reason: 'X-Frame-Options: SAMEORIGIN' },
   { domain: 'www.riadtammam.com', reason: 'X-Frame-Options: SAMEORIGIN' },
   { domain: 'book-directonline.com', reason: 'X-Frame-Options: SAMEORIGIN' },
-  { domain: 'www.relaischateaux.com', reason: 'CSP frame-ancestors: self' },
+  { domain: 'mamounia.com', reason: 'X-Frame-Options: SAMEORIGIN' },
+  { domain: 'www.nobuhotels.com', reason: 'X-Frame-Options: SAMEORIGIN' },
+  { domain: 'www.oberoihotels.com', reason: 'X-Frame-Options: SAMEORIGIN' },
+  { domain: 'www.widiane.net', reason: 'X-Frame-Options: SAMEORIGIN' },
+  { domain: 'www.cactusthiemann.com', reason: 'X-Frame-Options: SAMEORIGIN' },
+  // CSP frame-ancestors
   { domain: 'www.onomohotels.com', reason: 'CSP frame-ancestors: self' },
+  { domain: 'www.dabadoc.com', reason: 'CSP frame-ancestors: self' },
   // HTTP errors / site en panne
   { domain: 'darbacha.com', reason: 'HTTP 500 (site en panne)' },
+  { domain: 'almoravidkoubba.com', reason: 'HTTP 500 (site en panne)' },
+  { domain: 'menaragardens.com', reason: 'HTTP 500 (site en panne)' },
+  // Connexion échouée (site injoignable)
+  { domain: 'www.opentable.co.uk', reason: 'Connexion échouée' },
+  { domain: 'dentistmarrakech.com', reason: 'Connexion échouée' },
+  { domain: 'www.simplebooking.it', reason: 'Connexion échouée' },
+  { domain: 'www.mazaganbeachresort.com', reason: 'Connexion échouée' },
+  { domain: 'omyoga.ma', reason: 'Connexion échouée' },
+  { domain: 'www.supratours.ma', reason: 'Connexion échouée' },
 ];
 
 type BusinessDomainRow = { businessName: string; domain: string; reason: string };

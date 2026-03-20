@@ -8,7 +8,7 @@ interface BookingOverlayProps {
 
 const IFRAME_LOAD_TIMEOUT_MS = 5000;
 
-// Blocked domains detected via check-iframe-blocked edge function (scan 20/03/2026)
+// Blocked domains detected via check-iframe-blocked edge function (scan 20/03/2026 – 44 bloqués)
 const KNOWN_BLOCKED_DOMAINS = [
   // X-Frame-Options: DENY
   'www.mandarinoriental.com',
@@ -16,34 +16,15 @@ const KNOWN_BLOCKED_DOMAINS = [
   'www.jetex.com',
   'www.selman-marrakech.com',
   'reservation.marrakech.maison-stella-cadente.com',
+  'www.sevenrooms.com',
   // X-Frame-Options: SAMEORIGIN
   'permalink.fairmont.com',
   'www.lunajets.com',
   'www.essaouirakitesurfschool.com',
   'www.cenizaro.com',
   'linktr.ee',
-  'xaluca.com',
   'app.thebookingbutton.com',
   'resnexus.com',
-  'nomadmarrakech.com',
-  'lblassa.com',
-  'direct-book.com',
-  'www.lebarometre.net',
-  'www.essaouira-lodge.com',
-  'www.palaborepmarrakech.com',
-  'www.pestana.com',
-  'www.beachcomber.com',
-  'www.belmond.com',
-  'www.fourseasons.com',
-  'www.ritzcarlton.com',
-  'www.sofitel-marrakech.com',
-  'www.saintjamesmarrakech.com',
-  'www.kensington-marrakech.com',
-  'mamounia.com',
-  'www.nobuhotels.com',
-  'www.oberoihotels.com',
-  'www.widiane.net',
-  'www.cactusthiemann.com',
   'www.foundouk.com',
   'goodkarmatravels.jimdosite.com',
   'reservations.verticalbooking.com',
@@ -51,11 +32,25 @@ const KNOWN_BLOCKED_DOMAINS = [
   'fr.hotels.com',
   'www.riadtammam.com',
   'book-directonline.com',
-  // CSP frame-ancestors: 'self'
-  'www.relaischateaux.com',
+  'mamounia.com',
+  'www.nobuhotels.com',
+  'www.oberoihotels.com',
+  'www.widiane.net',
+  'www.cactusthiemann.com',
+  // CSP frame-ancestors
   'www.onomohotels.com',
+  'www.dabadoc.com',
   // HTTP errors / site en panne
   'darbacha.com',
+  'almoravidkoubba.com',
+  'menaragardens.com',
+  // Connexion échouée (site injoignable)
+  'www.opentable.co.uk',
+  'dentistmarrakech.com',
+  'www.simplebooking.it',
+  'www.mazaganbeachresort.com',
+  'omyoga.ma',
+  'www.supratours.ma',
 ];
 
 function isDomainBlocked(url: string): boolean {
