@@ -26,9 +26,10 @@ interface MapBusinessInfoCardProps {
   business: MapBusinessInfo;
   onClose: () => void;
   hideDirections?: boolean;
+  hideClose?: boolean;
 }
 
-const MapBusinessInfoCard = ({ business, onClose, hideDirections }: MapBusinessInfoCardProps) => {
+const MapBusinessInfoCard = ({ business, onClose, hideDirections, hideClose }: MapBusinessInfoCardProps) => {
   const [showHours, setShowHours] = useState(false);
 
   // Compute weighted average rating
