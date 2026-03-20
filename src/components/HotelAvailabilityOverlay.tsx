@@ -64,6 +64,16 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
   const navigate = useNavigate();
   const { language } = useLanguage();
 
+  // Detect mobile/tablet (< 1024px) to render as portal above BusinessSlidePanel
+  const [isMobileTablet, setIsMobileTablet] = useState(false);
+  useEffect(() => {
+    const mql = window.matchMedia("(max-width: 1023px)");
+    const onChange = () => setIsMobileTablet(mql.matches);
+    mql.addEventListener("change", onChange);
+    setIsMobileTablet(mql.matches);
+    return () => mql.removeEventListener("change", onChange);
+  }, []);
+
   const getDefaultDates = () => {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
