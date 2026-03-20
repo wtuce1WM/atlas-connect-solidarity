@@ -26,9 +26,10 @@ interface MapBusinessInfoCardProps {
   business: MapBusinessInfo;
   onClose: () => void;
   hideDirections?: boolean;
+  hideClose?: boolean;
 }
 
-const MapBusinessInfoCard = ({ business, onClose, hideDirections }: MapBusinessInfoCardProps) => {
+const MapBusinessInfoCard = ({ business, onClose, hideDirections, hideClose }: MapBusinessInfoCardProps) => {
   const [showHours, setShowHours] = useState(false);
 
   // Compute weighted average rating
@@ -51,12 +52,14 @@ const MapBusinessInfoCard = ({ business, onClose, hideDirections }: MapBusinessI
     <div className="absolute top-1 left-2 right-2 z-10 bg-white text-black px-4 py-3 rounded shadow-lg sm:top-2 sm:left-2 sm:right-auto sm:min-w-[320px] sm:rounded">
       <div className="flex items-start justify-between gap-2 mb-2">
         <span className="text-sm font-bold">{business.name}</span>
-        <button
-          onClick={onClose}
-          className="hover:bg-black/10 rounded p-1 flex-shrink-0"
-        >
-          <X className="h-4 w-4" />
-        </button>
+        {!hideClose && (
+          <button
+            onClick={onClose}
+            className="hover:bg-black/10 rounded p-1 flex-shrink-0"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
       </div>
 
       {ratingDisplay && (
