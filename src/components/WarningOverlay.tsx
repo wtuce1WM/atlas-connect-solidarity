@@ -9,9 +9,16 @@ interface CityOption {
   [key: string]: any;
 }
 
+const normalizeText = (value: string): string =>
+  value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+
 interface WarningOverlayProps {
   /** All businesses from current search — used to extract available categories and cities */
-  allBusinesses: { main_category: string | null; city?: string | null }[];
+  allBusinesses: { main_category: string | null; categories?: string[] | null; city?: string | null }[];
   /** Sorted city list */
   citiesWithPriority: CityOption[];
   /** Currently selected city (or "all") */
@@ -52,11 +59,35 @@ const WarningOverlay = ({
   const hasCity = (selectedCity && selectedCity !== "all") || !!detectedCity;
   const hasCategory = !!selectedCategoryFilter || !!detectedSubcategory || !!detectedCategory;
 
-  const rawCategories = [...new Set(allBusinesses.map(b => b.main_category).filter(Boolean))] as string[];
+  const effectiveCategory = selectedCategoryFilter || detectedCategory;
+  const effectiveSubcategory = detectedSubcategory;
+
+  const scopedBusinesses = allBusinesses.filter((business) => {
+    if (effectiveCategory) {
+      if (!business.main_category || normalizeText(business.main_category) !== normalizeText(effectiveCategory)) {
+        return false;
+      }
+    }
+
+    if (effectiveSubcategory) {
+      const matchesSubcategory =
+        Array.isArray(business.categories) &&
+        business.categories.some((sub) => normalizeText(sub) === normalizeText(effectiveSubcategory));
+      if (!matchesSubcategory) return false;
+    }
+
+    return true;
+  });
+
+  const rawCategories = [...new Set(scopedBusinesses.map(b => b.main_category).filter(Boolean))] as string[];
 
   // Only show cities that have businesses in the current results
-  const businessCities = new Set(allBusinesses.map(b => b.city).filter(Boolean));
-  const availableCities = citiesWithPriority.filter(c => businessCities.has(c.name));
+  const businessCities = new Set(
+    scopedBusinesses
+      .map((b) => (b.city ? normalizeText(b.city) : null))
+      .filter(Boolean) as string[]
+  );
+  const availableCities = citiesWithPriority.filter((c) => businessCities.has(normalizeText(c.name)));
 
   // Fetch sort_order from categories table
   const [sortedCategories, setSortedCategories] = useState<string[]>(rawCategories);
