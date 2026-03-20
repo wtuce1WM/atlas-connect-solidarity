@@ -183,7 +183,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
       <div className="relative w-full h-full">
         {/* Media background */}
         <div className="absolute inset-0">
-          {currentMedia?.kind === "video" && videoInfo ? (
+          {currentMedia?.kind === "video" && videoInfo && !showDirections ? (
             videoInfo.type === "file" ? (
               <video
                 key={currentMedia.url}
