@@ -4550,7 +4550,7 @@ const SearchPage = () => {
               {isCompactPanelWebOnly ? (
                 <WebOnlySlidePanel
                   businessId={compactPanelBusiness.id}
-                  onClose={() => { setCompactPanelBusiness(null); setIsCompactPanelExpanded(false); }}
+                  onClose={closeCompactPanel}
                 />
               ) : (
                 <BusinessSlidePanel
