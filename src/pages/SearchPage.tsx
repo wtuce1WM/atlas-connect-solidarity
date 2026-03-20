@@ -3096,15 +3096,9 @@ const SearchPage = () => {
                     )}
                     <button
                       onClick={() => {
-                        aiPopupShownRef.current = false;
-                        if (selectedServiceFilter && lastAiServiceRef.current !== selectedServiceFilter) {
-                          setAiAnswerText("");
-                          setAiRegenerateKey(k => k + 1);
-                          lastAiServiceRef.current = selectedServiceFilter;
+                        if (!destAiText && !isDestAiLoading) {
+                          fetchTabAiText("destinations", destCity, allDestItems.map(d => ({ name: language === "en" && d.name_en ? d.name_en : d.name_fr, city: destCity })));
                         }
-                        setWarningDismissed(true);
-                        setCompactPanelBusiness(null);
-                        setIsCompactPanelExpanded(false);
                         setShowAiPopup(true);
                       }}
                       className="shrink-0 w-9 h-9 rounded-full bg-gold text-black flex items-center justify-center hover:bg-gold/90 transition-colors shadow-md"
