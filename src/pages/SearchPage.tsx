@@ -2234,9 +2234,9 @@ const SearchPage = () => {
                     if (detectedSubcategory && !selectedSubcategoryFilter && !selectedCategoryFilter) chips.push({ label: detectedSubcategory, color: "bg-muted text-muted-foreground" });
                     if (detectedCity && (!selectedCity || selectedCity === "all")) chips.push({ label: `📍 ${detectedCity}`, color: "bg-muted text-muted-foreground" });
                     return chips.length > 0 ? (
-                      <div className="flex flex-wrap justify-center gap-1.5 mt-2">
+                      <div className="flex overflow-x-auto justify-center gap-1.5 mt-2 scrollbar-hide">
                         {chips.map((c, i) => (
-                          <span key={i} className={`inline-block text-xs font-medium px-3 py-1 rounded-full ${c.color}`}>
+                          <span key={i} className={`inline-block text-xs font-medium px-3 py-1 rounded-full whitespace-nowrap ${c.color}`}>
                             {c.label}
                           </span>
                         ))}
@@ -2274,7 +2274,7 @@ const SearchPage = () => {
                         <p className="text-sm font-medium text-foreground mb-3">
                           {language === "en" ? "What are you looking for?" : language === "ar" ? "ماذا تبحث عنه؟" : "Que cherchez-vous ?"}
                         </p>
-                        <div className="flex flex-wrap justify-center gap-2">
+                        <div className="flex overflow-x-auto gap-2 scrollbar-hide">
                           {subcatList.map(sub => (
                             <button
                               key={sub.name}
@@ -2285,7 +2285,7 @@ const SearchPage = () => {
                                 setAiAnswerText("");
                                 setAiRegenerateKey(k => k + 1);
                               }}
-                              className="px-4 py-2 rounded-full border border-border bg-card text-sm text-foreground hover:border-gold/50 hover:bg-gold/10 transition-colors"
+                              className="shrink-0 px-4 py-2 rounded-full border border-border bg-card text-sm text-foreground hover:border-gold/50 hover:bg-gold/10 transition-colors whitespace-nowrap"
                             >
                               {sub.name}
                               <span className="ml-1.5 text-xs text-muted-foreground">{sub.count}</span>
@@ -2305,7 +2305,7 @@ const SearchPage = () => {
                       <p className="text-sm font-medium text-foreground mb-3">
                         {language === "en" ? "What are you looking for?" : language === "ar" ? "ماذا تبحث عنه؟" : "Que cherchez-vous ?"}
                       </p>
-                      <div className="flex flex-wrap justify-center gap-2">
+                      <div className="flex overflow-x-auto gap-2 scrollbar-hide">
                         {cats.slice(0, 8).map(cat => (
                           <button
                             key={cat}
@@ -2315,7 +2315,7 @@ const SearchPage = () => {
                               setAiAnswerText("");
                               setAiRegenerateKey(k => k + 1);
                             }}
-                            className="px-4 py-2 rounded-full border border-border bg-card text-sm text-foreground hover:border-gold/50 hover:bg-gold/10 transition-colors"
+                            className="shrink-0 px-4 py-2 rounded-full border border-border bg-card text-sm text-foreground hover:border-gold/50 hover:bg-gold/10 transition-colors whitespace-nowrap"
                           >
                             {cat}
                           </button>
@@ -2349,7 +2349,7 @@ const SearchPage = () => {
                     <p className="text-sm font-medium text-foreground mb-3">
                       {language === "en" ? "What type exactly?" : language === "ar" ? "أي نوع بالتحديد؟" : "Quel type précisément ?"}
                     </p>
-                    <div className="flex flex-wrap justify-center gap-2">
+                    <div className="flex overflow-x-auto gap-2 scrollbar-hide">
                       {subcatList.map(sub => (
                         <button
                           key={sub.name}
@@ -2360,7 +2360,7 @@ const SearchPage = () => {
                             setAiAnswerText("");
                             setAiRegenerateKey(k => k + 1);
                           }}
-                          className="px-4 py-2 rounded-full border border-border bg-card text-sm text-foreground hover:border-gold/50 hover:bg-gold/10 transition-colors"
+                          className="shrink-0 px-4 py-2 rounded-full border border-border bg-card text-sm text-foreground hover:border-gold/50 hover:bg-gold/10 transition-colors whitespace-nowrap"
                         >
                           {sub.name}
                           <span className="ml-1.5 text-xs text-muted-foreground">{sub.count}</span>
@@ -2378,7 +2378,7 @@ const SearchPage = () => {
                   <p className="text-sm font-medium text-foreground mb-3">
                     {language === "en" ? "Where are you looking?" : language === "ar" ? "أين تبحث؟" : "Où le cherchez-vous ?"}
                   </p>
-                  <div className="flex flex-wrap justify-center gap-2">
+                  <div className="flex overflow-x-auto gap-2 scrollbar-hide">
                     {citiesWithPriority.slice(0, 10).map(c => (
                       <button
                         key={c.name}
@@ -2390,7 +2390,7 @@ const SearchPage = () => {
                           setAiAnswerText("");
                           setAiRegenerateKey(k => k + 1);
                         }}
-                        className="px-4 py-2 rounded-full border border-border bg-card text-sm text-foreground hover:border-gold/50 hover:bg-gold/10 transition-colors"
+                        className="shrink-0 px-4 py-2 rounded-full border border-border bg-card text-sm text-foreground hover:border-gold/50 hover:bg-gold/10 transition-colors whitespace-nowrap"
                       >
                         <MapPin className="h-3.5 w-3.5 inline mr-1.5 text-muted-foreground" />
                         {c.name}
@@ -2411,7 +2411,7 @@ const SearchPage = () => {
                   <p className="text-xs font-medium text-muted-foreground mb-2 text-center">
                     {language === "en" ? "Filter by service" : language === "ar" ? "تصفية حسب الخدمة" : "Filtrer par service"}
                   </p>
-                  <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 justify-center flex-wrap">
+                  <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
                     {searchServiceFilters.map(sf => {
                       const isActive = selectedServiceFilter === sf.name;
                       return (
