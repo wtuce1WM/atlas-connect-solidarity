@@ -1121,6 +1121,9 @@ const SearchPage = () => {
   // Get cities available in current result context (category/subcategory/service included)
   // Keep only direct business cities to avoid showing empty city filters
   const availableCities = useMemo(() => {
+    const effectiveCategoryForCities = selectedCategoryFilter || detectedCategory;
+    const effectiveSubcategoryForCities = selectedSubcategoryFilter || detectedSubcategory;
+
     let citySourceBusinesses: Business[] =
       selectedServiceFilter && serviceFilterBusinesses.length > 0
         ? [...serviceFilterBusinesses]
@@ -1128,15 +1131,15 @@ const SearchPage = () => {
           ? [...subcategoryFilterBusinesses]
           : [...allBusinesses];
 
-    if (selectedCategoryFilter) {
+    if (effectiveCategoryForCities) {
       citySourceBusinesses = citySourceBusinesses.filter(
-        (b) => b.main_category === selectedCategoryFilter
+        (b) => b.main_category === effectiveCategoryForCities
       );
     }
 
-    if (selectedSubcategoryFilter) {
+    if (effectiveSubcategoryForCities) {
       const subcategoryMatches = citySourceBusinesses.filter(
-        (b) => b.categories?.includes(selectedSubcategoryFilter)
+        (b) => b.categories?.includes(effectiveSubcategoryForCities)
       );
       if (subcategoryMatches.length > 0) citySourceBusinesses = subcategoryMatches;
     }
@@ -1160,6 +1163,8 @@ const SearchPage = () => {
   }, [
     allBusinesses,
     citiesWithPriority,
+    detectedCategory,
+    detectedSubcategory,
     selectedCategoryFilter,
     selectedSubcategoryFilter,
     selectedServiceFilter,
