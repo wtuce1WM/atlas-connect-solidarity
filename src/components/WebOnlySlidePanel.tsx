@@ -167,12 +167,9 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
         </div>,
         toolbarCenterPortal
       )}
-      {/* Portal Share & Bookmark into right of fixed bar */}
+      {/* Portal Share into right of fixed bar */}
       {toolbarPortal && createPortal(
-        <>
-          <ShareButton title={business.name} variant="dark" className="toolbar-icon" />
-          <BookmarkButton businessId={business.id} variant="gold" />
-        </>,
+        <ShareButton title={business.name} variant="dark" className="toolbar-icon shrink-0" />,
         toolbarPortal
       )}
 
