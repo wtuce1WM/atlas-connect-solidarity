@@ -165,9 +165,10 @@ const SkypeIcon = forwardRef<SVGSVGElement, { className?: string }>(function Sky
   );
 });
 
-const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpanded, onToggleExpand, liteApiData, leftPanelPortalRef, onImageCount }: BusinessSlidePanelProps) => {
+const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePanelProps>(({ businessId: externalBusinessId, onClose, isExpanded, onToggleExpand, liteApiData, leftPanelPortalRef, onImageCount }, ref) => {
   const [internalBusinessId, setInternalBusinessId] = useState(externalBusinessId);
   const businessId = internalBusinessId;
+  const [fallbackHiddenOnMobile, setFallbackHiddenOnMobile] = useState(false);
 
   // Sync when parent changes the business
   useEffect(() => {
