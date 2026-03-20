@@ -3268,6 +3268,11 @@ const SearchPage = () => {
                   }}
                   onHover={setHoveredDestId}
                 />
+                {allDestItems.length > 0 && (
+                  <p className="text-xs text-muted-foreground font-medium mt-4 text-center">
+                    {allDestItems.length} {language === "en" ? "results" : "résultats"}
+                  </p>
+                )}
               </div>
             </section>
             {/* Sticky map for Destinations — shown when location known and no panel open */}
