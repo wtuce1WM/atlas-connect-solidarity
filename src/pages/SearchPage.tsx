@@ -4130,17 +4130,30 @@ const SearchPage = () => {
           {/* Map — full height */}
           <div className="w-full h-full">
             <PoiGoogleMap
-              pois={mobileMapPoiItems}
-              selectedPoiId={hoveredResultId || compactPanelBusiness?.id || null}
+              pois={activeTab === "poi" ? allPois : activeTab === "destinations" ? allDests : mobileMapPoiItems}
+              selectedPoiId={activeTab === "poi" ? (hoveredPoiId || null) : activeTab === "destinations" ? (hoveredDestId || null) : (hoveredResultId || compactPanelBusiness?.id || null)}
               onPoiClick={(poiId) => {
-                const biz = filteredBusinesses.find(b => b.id === poiId);
-                if (biz) {
+                if (activeTab === "poi") {
                   setShowMobileMap(false);
-                  openCompactPanel({ id: biz.id, name: biz.name } as AIBusinessData);
+                  setPoiMapBusiness(null);
+                  setPoiSelectedBusinessId(poiId);
+                } else if (activeTab === "destinations") {
+                  const dest = allDestItems.find(d => d.id === poiId);
+                  if (dest) {
+                    setShowMobileMap(false);
+                    setSelectedDestination(dest);
+                    setDestMapItem(null);
+                  }
+                } else {
+                  const biz = filteredBusinesses.find(b => b.id === poiId);
+                  if (biz) {
+                    setShowMobileMap(false);
+                    openCompactPanel({ id: biz.id, name: biz.name } as AIBusinessData);
+                  }
                 }
               }}
               center={mapCenterForResults}
-              subcategoryIconMap={subcategoryIconMap}
+              subcategoryIconMap={activeTab === "suggestions" ? subcategoryIconMap : undefined}
             />
           </div>
         </div>
