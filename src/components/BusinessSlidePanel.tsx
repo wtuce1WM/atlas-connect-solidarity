@@ -2039,7 +2039,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
           )}
 
           {/* Google Maps - map only */}
-          {business.google_maps_url && (() => {
+          {!isWebOnly && business.google_maps_url && (() => {
             const extractPlaceName = (url: string) => {
               const m = url.match(/\/place\/([^/@]+)/);
               return m ? decodeURIComponent(m[1].replace(/\+/g, ' ')) : null;
