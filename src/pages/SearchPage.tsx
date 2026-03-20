@@ -753,6 +753,34 @@ const SearchPage = () => {
     const [overlaySelectedBusiness, setOverlaySelectedBusiness] = useState<AIBusinessData | null>(null);
     const [isOverlayPanelExpanded, setIsOverlayPanelExpanded] = useState(false);
     const overlayLeftPanelRef = useRef<HTMLDivElement>(null);
+   // Generate tab-specific AI text (POI or Destinations)
+   const fetchTabAiText = useCallback(async (mode: "poi" | "destinations", city: string | null, items: { name: string; city?: string | null }[]) => {
+     if (mode === "poi") { setIsPoiAiLoading(true); setPoiAiText(""); }
+     else { setIsDestAiLoading(true); setDestAiText(""); }
+     try {
+       const top10 = items.slice(0, 10);
+       const { data, error: fnError } = await supabase.functions.invoke("ai-search-answer", {
+         body: {
+           query: mode === "poi"
+             ? (language === "en" ? `Points of interest in ${city || "Morocco"}` : `Lieux d'intérêt à ${city || "au Maroc"}`)
+             : (language === "en" ? `Destinations in ${city || "Morocco"}` : `Destinations à ${city || "au Maroc"}`),
+           businesses: top10.map((b, i) => ({ name: b.name, city: b.city || city })),
+           language,
+           mode,
+         },
+       });
+       if (fnError) { console.error("Tab AI error:", fnError); return; }
+       if (data?.answer) {
+         if (mode === "poi") setPoiAiText(data.answer);
+         else setDestAiText(data.answer);
+       }
+     } catch (err) { console.error("Tab AI fetch error:", err); }
+     finally {
+       if (mode === "poi") setIsPoiAiLoading(false);
+       else setIsDestAiLoading(false);
+     }
+   }, [language]);
+
    // Reset panels, tab, and scroll when query changes
    useEffect(() => {
      setHasScrolledPastHeroAi(false);
