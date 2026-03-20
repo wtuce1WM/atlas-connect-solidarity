@@ -2074,14 +2074,8 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                     <div className="flex items-start gap-2">
                       <MapPin className="h-4 w-4 flex-shrink-0 mt-0.5 text-primary" />
                       <span>
-                        <a href={`/city/${encodeURIComponent(business.city)}`} className="font-bold underline underline-offset-2 text-primary hover:text-foreground transition-colors">
-                          {business.city}
-                        </a>
-                        {business.neighborhood && (
-                          <>, <a href={`/neighborhood/${encodeURIComponent(business.neighborhood)}?city=${encodeURIComponent(business.city)}`} className="font-bold underline underline-offset-2 text-primary hover:text-foreground transition-colors">
-                            {business.neighborhood}
-                          </a></>
-                        )}
+                        {business.city}
+                        {business.neighborhood && <>, {business.neighborhood}</>}
                         {business.region && <>, {business.region}</>}
                       </span>
                     </div>
