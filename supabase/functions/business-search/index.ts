@@ -3670,7 +3670,7 @@ serve(async (req) => {
             // (before post-filter). The service detection was a false positive — the FTS
             // already found the right businesses via subcategory/business keywords.
             if (businesses.length === 0 && data && data.length > 0) {
-              console.log(`Service OR filter returned 0 results — reusing original ${data.length} FTS results (service detection was false positive)`);
+              console.log(`Service AND filter returned 0 results — reusing original ${data.length} FTS results (service detection was false positive)`);
               businesses = data.map((b: any) => ({
                 ...b,
                 distance_km: latitude && longitude && b.latitude && b.longitude
