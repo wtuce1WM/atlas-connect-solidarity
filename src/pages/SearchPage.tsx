@@ -2234,7 +2234,7 @@ const SearchPage = () => {
                     if (detectedSubcategory && !selectedSubcategoryFilter && !selectedCategoryFilter) chips.push({ label: detectedSubcategory, color: "bg-muted text-muted-foreground" });
                     if (detectedCity && (!selectedCity || selectedCity === "all")) chips.push({ label: `📍 ${detectedCity}`, color: "bg-muted text-muted-foreground" });
                     return chips.length > 0 ? (
-                      <div className="flex overflow-x-auto justify-center gap-1.5 mt-2 no-scrollbar">
+                      <div className="flex overflow-x-auto justify-center gap-1.5 mt-2 scrollbar-hide">
                         {chips.map((c, i) => (
                           <span key={i} className={`inline-block text-xs font-medium px-3 py-1 rounded-full whitespace-nowrap ${c.color}`}>
                             {c.label}
@@ -2274,7 +2274,7 @@ const SearchPage = () => {
                         <p className="text-sm font-medium text-foreground mb-3">
                           {language === "en" ? "What are you looking for?" : language === "ar" ? "ماذا تبحث عنه؟" : "Que cherchez-vous ?"}
                         </p>
-                        <div className="flex overflow-x-auto gap-2 no-scrollbar">
+                        <div className="flex overflow-x-auto gap-2 scrollbar-hide">
                           {subcatList.map(sub => (
                             <button
                               key={sub.name}
@@ -2305,7 +2305,7 @@ const SearchPage = () => {
                       <p className="text-sm font-medium text-foreground mb-3">
                         {language === "en" ? "What are you looking for?" : language === "ar" ? "ماذا تبحث عنه؟" : "Que cherchez-vous ?"}
                       </p>
-                      <div className="flex overflow-x-auto gap-2 no-scrollbar">
+                      <div className="flex overflow-x-auto gap-2 scrollbar-hide">
                         {cats.slice(0, 8).map(cat => (
                           <button
                             key={cat}
@@ -2349,7 +2349,7 @@ const SearchPage = () => {
                     <p className="text-sm font-medium text-foreground mb-3">
                       {language === "en" ? "What type exactly?" : language === "ar" ? "أي نوع بالتحديد؟" : "Quel type précisément ?"}
                     </p>
-                    <div className="flex overflow-x-auto gap-2 no-scrollbar">
+                    <div className="flex overflow-x-auto gap-2 scrollbar-hide">
                       {subcatList.map(sub => (
                         <button
                           key={sub.name}
@@ -2378,7 +2378,7 @@ const SearchPage = () => {
                   <p className="text-sm font-medium text-foreground mb-3">
                     {language === "en" ? "Where are you looking?" : language === "ar" ? "أين تبحث؟" : "Où le cherchez-vous ?"}
                   </p>
-                  <div className="flex overflow-x-auto gap-2 no-scrollbar">
+                  <div className="flex overflow-x-auto gap-2 scrollbar-hide">
                     {citiesWithPriority.slice(0, 10).map(c => (
                       <button
                         key={c.name}
@@ -2411,7 +2411,7 @@ const SearchPage = () => {
                   <p className="text-xs font-medium text-muted-foreground mb-2 text-center">
                     {language === "en" ? "Filter by service" : language === "ar" ? "تصفية حسب الخدمة" : "Filtrer par service"}
                   </p>
-                  <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+                  <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
                     {searchServiceFilters.map(sf => {
                       const isActive = selectedServiceFilter === sf.name;
                       return (
