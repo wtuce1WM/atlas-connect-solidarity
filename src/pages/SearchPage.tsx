@@ -2968,7 +2968,16 @@ const SearchPage = () => {
           <div className="mx-auto px-2 md:px-4 lg:max-w-[80%]">
             <Suspense fallback={<div className="flex justify-center py-16"><Loader2 className="h-8 w-8 animate-spin text-gold" /></div>}>
               <BusinessMap
-                businesses={filteredBusinesses.map((b) => ({
+                businesses={filteredBusinesses
+                  .filter((b) => {
+                    const engs: string[] = (b as any).engagements || [];
+                    const isWebOnly = engs.some((e: string) => {
+                      const n = e.toLowerCase().trim();
+                      return n === "web only" || n === "logistique:web only" || n.endsWith(":web only");
+                    });
+                    return !isWebOnly;
+                  })
+                  .map((b) => ({
                   id: b.id,
                   name: b.name,
                   city: b.city,
