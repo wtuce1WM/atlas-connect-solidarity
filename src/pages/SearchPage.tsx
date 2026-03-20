@@ -2971,10 +2971,13 @@ const SearchPage = () => {
                 businesses={filteredBusinesses
                   .filter((b) => {
                     const engs: string[] = (b as any).engagements || [];
-                    const isWebOnly = engs.some((e: string) => {
+                    const hasCommandeEnLigne = engs.some((e: string) => {
                       const n = e.toLowerCase().trim();
-                      return n === "web only" || n === "logistique:web only" || n.endsWith(":web only");
+                      const needle = "commandez en ligne et recevez votre colis chez vous";
+                      return n === needle || n === `logistique:${needle}` || n.endsWith(`:${needle}`);
                     });
+                    const webOnlyUrl = (b as any).online_shop_url || b.website || null;
+                    const isWebOnly = !!(hasCommandeEnLigne && webOnlyUrl);
                     return !isWebOnly;
                   })
                   .map((b) => ({
