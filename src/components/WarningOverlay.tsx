@@ -6,11 +6,12 @@ import { supabase } from "@/integrations/supabase/client";
 interface CityOption {
   name: string;
   priority: number;
+  [key: string]: any;
 }
 
 interface WarningOverlayProps {
-  /** All businesses from current search — used to extract available categories */
-  allBusinesses: { main_category: string | null }[];
+  /** All businesses from current search — used to extract available categories and cities */
+  allBusinesses: { main_category: string | null; city?: string | null }[];
   /** Sorted city list */
   citiesWithPriority: CityOption[];
   /** Currently selected city (or "all") */
@@ -52,6 +53,10 @@ const WarningOverlay = ({
   const hasCategory = !!selectedCategoryFilter || !!detectedSubcategory || !!detectedCategory;
 
   const rawCategories = [...new Set(allBusinesses.map(b => b.main_category).filter(Boolean))] as string[];
+
+  // Only show cities that have businesses in the current results
+  const businessCities = new Set(allBusinesses.map(b => b.city).filter(Boolean));
+  const availableCities = citiesWithPriority.filter(c => businessCities.has(c.name));
 
   // Fetch sort_order from categories table
   const [sortedCategories, setSortedCategories] = useState<string[]>(rawCategories);
@@ -144,7 +149,7 @@ const WarningOverlay = ({
                   {language === "en" ? "Where are you looking?" : language === "ar" ? "أين تبحث؟" : "Où le cherchez-vous ?"}
                 </p>
                 <div className="flex overflow-x-auto gap-2 pb-2 scrollbar-hide">
-                  {citiesWithPriority.slice(0, 10).map(c => (
+                  {availableCities.slice(0, 10).map(c => (
                     <button
                       key={c.name}
                       onClick={() => onSelectCity(c.name)}
