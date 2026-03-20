@@ -8,7 +8,7 @@ interface BookingOverlayProps {
 
 const IFRAME_LOAD_TIMEOUT_MS = 5000;
 
-// 31 blocked domains detected via check-iframe-blocked edge function (scan 20/03/2026)
+// Blocked domains detected via check-iframe-blocked edge function (scan 20/03/2026)
 const KNOWN_BLOCKED_DOMAINS = [
   // X-Frame-Options: DENY
   'www.mandarinoriental.com',
@@ -54,6 +54,8 @@ const KNOWN_BLOCKED_DOMAINS = [
   // CSP frame-ancestors: 'self'
   'www.relaischateaux.com',
   'www.onomohotels.com',
+  // HTTP errors / site en panne
+  'darbacha.com',
 ];
 
 function isDomainBlocked(url: string): boolean {

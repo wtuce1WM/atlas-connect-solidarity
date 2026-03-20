@@ -48,6 +48,8 @@ const KNOWN_BLOCKED_DOMAINS = [
   { domain: 'book-directonline.com', reason: 'X-Frame-Options: SAMEORIGIN' },
   { domain: 'www.relaischateaux.com', reason: 'CSP frame-ancestors: self' },
   { domain: 'www.onomohotels.com', reason: 'CSP frame-ancestors: self' },
+  // HTTP errors / site en panne
+  { domain: 'darbacha.com', reason: 'HTTP 500 (site en panne)' },
 ];
 
 type BusinessDomainRow = { businessName: string; domain: string; reason: string };

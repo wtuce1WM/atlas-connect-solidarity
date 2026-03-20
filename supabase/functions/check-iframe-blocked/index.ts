@@ -34,11 +34,10 @@ function isIframeBlocked(headers: Headers): { blocked: boolean; reason: string }
   return { blocked: false, reason: "" };
 }
 
-async function checkUrl(url: string): Promise<{ blocked: boolean; reason: string; error?: string }> {
+async function checkUrl(url: string): Promise<{ blocked: boolean; reason: string; error?: string; httpStatus?: number }> {
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 6000);
-    // Use HEAD first, faster
     const resp = await fetch(url, {
       method: "HEAD",
       redirect: "follow",
@@ -46,9 +45,17 @@ async function checkUrl(url: string): Promise<{ blocked: boolean; reason: string
       headers: { "User-Agent": "Mozilla/5.0 (compatible; iframe-check/1.0)" },
     });
     clearTimeout(timeout);
-    return isIframeBlocked(resp.headers);
+
+    // Flag server errors (5xx) — iframe will show an error page
+    if (resp.status >= 500) {
+      return { blocked: true, reason: `HTTP ${resp.status}`, httpStatus: resp.status };
+    }
+
+    const iframeCheck = isIframeBlocked(resp.headers);
+    return { ...iframeCheck, httpStatus: resp.status };
   } catch (err) {
-    return { blocked: false, reason: "", error: String(err) };
+    // Connection failures = iframe won't load
+    return { blocked: true, reason: `Connexion échouée`, error: String(err) };
   }
 }
 
