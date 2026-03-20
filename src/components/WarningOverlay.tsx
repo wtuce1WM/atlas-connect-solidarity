@@ -98,12 +98,12 @@ const WarningOverlay = ({
                 <p className="text-sm font-medium text-foreground mb-3">
                   {language === "en" ? "What are you looking for?" : language === "ar" ? "ماذا تبحث عنه؟" : "Que cherchez-vous ?"}
                 </p>
-                <div className="flex flex-wrap justify-center gap-2">
+                <div className="flex overflow-x-auto gap-2 pb-2">
                   {categories.slice(0, 8).map(cat => (
                     <button
                       key={cat}
                       onClick={() => onSelectCategory(cat)}
-                      className="px-4 py-2 rounded-full border border-border bg-card text-sm text-foreground hover:border-gold/50 hover:bg-gold/10 transition-colors"
+                      className="shrink-0 whitespace-nowrap px-4 py-2 rounded-full border border-border bg-card text-sm text-foreground hover:border-gold/50 hover:bg-gold/10 transition-colors"
                     >
                       {cat}
                     </button>
@@ -120,12 +120,12 @@ const WarningOverlay = ({
                 <p className="text-sm font-medium text-foreground mb-3">
                   {language === "en" ? "Where are you looking?" : language === "ar" ? "أين تبحث؟" : "Où le cherchez-vous ?"}
                 </p>
-                <div className="flex flex-wrap justify-center gap-2">
+                <div className="flex overflow-x-auto gap-2 pb-2">
                   {citiesWithPriority.slice(0, 10).map(c => (
                     <button
                       key={c.name}
                       onClick={() => onSelectCity(c.name)}
-                      className="px-4 py-2 rounded-full border border-border bg-card text-sm text-foreground hover:border-gold/50 hover:bg-gold/10 transition-colors"
+                      className="shrink-0 whitespace-nowrap px-4 py-2 rounded-full border border-border bg-card text-sm text-foreground hover:border-gold/50 hover:bg-gold/10 transition-colors"
                     >
                       <MapPin className="h-3.5 w-3.5 inline mr-1.5 text-muted-foreground" />
                       {c.name}
