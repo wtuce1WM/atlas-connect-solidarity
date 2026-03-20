@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
-import { ExternalLink, ShoppingBag, MapPin, ChevronLeft, ChevronRight } from "lucide-react";
+import { ExternalLink, ShoppingBag, MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import ShareButton from "@/components/ShareButton";
@@ -45,6 +45,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
   const [webOnlyData, setWebOnlyData] = useState<WebOnlyData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
+  const [descExpanded, setDescExpanded] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -230,7 +231,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
           {/* Centered content block */}
           <div className="flex-1 flex items-start md:items-center justify-center overflow-hidden min-h-0">
             <div className="w-[95%] md:w-[90%] lg:w-[70%] max-h-full md:max-h-none overflow-hidden rounded-2xl bg-black/40 backdrop-blur-sm p-4 md:p-6 flex flex-col gap-5 text-white pointer-events-auto">
-              {/* Logo + name */}
+              {/* Logo + name + toggle */}
               <div className="flex items-end gap-4">
                 {business.logo_url && (
                   <div
@@ -240,7 +241,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
                     <img src={business.logo_url} alt="" className="w-full h-full object-contain p-1" />
                   </div>
                 )}
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <h2 className="text-xl font-bold truncate drop-shadow-lg">{business.name}</h2>
                   {business.city && (
                     <p className="text-sm text-white/80 flex items-center gap-1 mt-0.5">
@@ -249,10 +250,19 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
                     </p>
                   )}
                 </div>
+                {woDescription && (
+                  <button
+                    onClick={() => setDescExpanded((p) => !p)}
+                    className="shrink-0 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
+                    aria-label={descExpanded ? "Replier" : "Déplier"}
+                  >
+                    {descExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+                  </button>
+                )}
               </div>
 
-              {/* Web only description (rich text) */}
-              {woDescription && (
+              {/* Web only description (rich text) — collapsible */}
+              {woDescription && descExpanded && (
                 <div
                   className="flex-1 min-h-0 overflow-y-auto md:overflow-visible pr-1 text-sm leading-relaxed prose prose-invert prose-sm max-w-none break-words [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white"
                   dangerouslySetInnerHTML={{ __html: woDescription }}
