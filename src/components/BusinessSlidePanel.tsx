@@ -1587,7 +1587,13 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                 )}
                 {business.reserve_now_url && (
                   <button
-                    onClick={() => { setForceBookingOverlay(true); }}
+                    onClick={() => {
+                      if (/^https?:\/\/(api\.)?whatsapp\.com/i.test(business.reserve_now_url!)) {
+                        window.open(business.reserve_now_url!, "_blank", "noopener,noreferrer");
+                      } else {
+                        setForceBookingOverlay(true);
+                      }
+                    }}
                     className="text-sm hover:text-foreground transition-colors flex items-center gap-2 text-left"
                   >
                     <ExternalLink className="h-4 w-4 shrink-0 text-foreground/60" />
