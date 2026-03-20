@@ -78,6 +78,12 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
     }
   }, [showDirections]);
 
+  // Reset directions overlay when switching business
+  useEffect(() => {
+    setShowDirections(false);
+    setCurrentMediaIndex(0);
+  }, [businessId]);
+
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
