@@ -1132,32 +1132,37 @@ const SearchPage = () => {
           : [...allBusinesses];
 
     if (effectiveCategoryForCities) {
+      const targetCategory = normalizeText(effectiveCategoryForCities);
       citySourceBusinesses = citySourceBusinesses.filter(
-        (b) => b.main_category === effectiveCategoryForCities
+        (b) => !!b.main_category && normalizeText(b.main_category) === targetCategory
       );
     }
 
     if (effectiveSubcategoryForCities) {
-      const subcategoryMatches = citySourceBusinesses.filter(
-        (b) => b.categories?.includes(effectiveSubcategoryForCities)
+      const targetSubcategory = normalizeText(effectiveSubcategoryForCities);
+      citySourceBusinesses = citySourceBusinesses.filter(
+        (b) =>
+          Array.isArray(b.categories) &&
+          b.categories.some((cat) => normalizeText(cat) === targetSubcategory)
       );
-      if (subcategoryMatches.length > 0) citySourceBusinesses = subcategoryMatches;
     }
 
     if (selectedServiceFilter) {
-      const serviceMatches = citySourceBusinesses.filter(
-        (b) => b.services?.includes(selectedServiceFilter)
+      const targetService = normalizeText(selectedServiceFilter);
+      citySourceBusinesses = citySourceBusinesses.filter(
+        (b) =>
+          Array.isArray(b.services) &&
+          b.services.some((service) => normalizeText(service) === targetService)
       );
-      if (serviceMatches.length > 0) citySourceBusinesses = serviceMatches;
     }
 
     const directCityNames = new Set<string>();
     for (const b of citySourceBusinesses) {
-      if (b.city) directCityNames.add(b.city);
+      if (b.city) directCityNames.add(normalizeText(b.city));
     }
 
     return citiesWithPriority
-      .filter((c) => directCityNames.has(c.name))
+      .filter((c) => directCityNames.has(normalizeText(c.name)))
       .sort((a, b) => a.priority - b.priority)
       .map((c) => c.name);
   }, [
