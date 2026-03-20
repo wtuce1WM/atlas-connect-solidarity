@@ -4555,7 +4555,7 @@ const SearchPage = () => {
               ) : (
                 <BusinessSlidePanel
                   businessId={compactPanelBusiness.id}
-                  onClose={() => { setCompactPanelBusiness(null); setIsCompactPanelExpanded(false); }}
+                  onClose={closeCompactPanel}
                   isExpanded={isCompactPanelExpanded}
                   onToggleExpand={() => setIsCompactPanelExpanded(prev => !prev)}
                   onImageCount={setCompactBusinessImageCount}
