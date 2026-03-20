@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 interface CityOption {
   name: string;
   priority: number;
+  [key: string]: any;
 }
 
 interface WarningOverlayProps {
