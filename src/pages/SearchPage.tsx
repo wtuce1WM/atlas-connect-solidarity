@@ -3252,11 +3252,11 @@ const SearchPage = () => {
                       setDestMapItem(null);
                     }
                   }}
-                  onMapClick={(dest) => {
-                    setDestMapItem(dest);
-                    setSelectedDestination(null);
-                    setAllDests(prev => prev);
-                  }}
+                   onMapClick={hasKnownLocation ? (dest) => { setHoveredDestId(dest.id); } : (dest) => {
+                     setDestMapItem(dest);
+                     setSelectedDestination(null);
+                     setAllDests(prev => prev);
+                   }}
                   onDestinationsLoaded={(dests) => {
                     setAllDestItems(dests);
                     setAllDests(dests.map(d => ({
