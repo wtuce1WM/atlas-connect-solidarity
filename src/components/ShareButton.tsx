@@ -92,7 +92,7 @@ const ShareButton = ({ title, variant = "gold", className = "" }: ShareButtonPro
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-50 flex items-center gap-1 rounded-full bg-black/90 backdrop-blur-lg border border-white/10 px-3 py-2 shadow-xl animate-in fade-in-0 zoom-in-95">
+        <div className="absolute top-full right-0 mt-2 z-50 flex items-center gap-1 rounded-full bg-black/90 backdrop-blur-lg border border-white/10 px-3 py-2 shadow-xl animate-in fade-in-0 zoom-in-95">
           {shareLinks.map((link) => (
             <a
               key={link.name}
