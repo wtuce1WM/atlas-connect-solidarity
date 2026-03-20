@@ -1734,8 +1734,13 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                   ) : (
                     <button
                       onClick={() => {
-                        setIsBookingOpen(true);
-                        setForceBookingOverlay(true);
+                        const url = business.reserve_now_url || bookingUrl || "";
+                        if (/^https?:\/\/(api\.)?whatsapp\.com/i.test(url)) {
+                          window.open(url, "_blank", "noopener,noreferrer");
+                        } else {
+                          setIsBookingOpen(true);
+                          setForceBookingOverlay(true);
+                        }
                       }}
                       className="flex items-center justify-center gap-2 w-[60%] py-3 rounded-xl bg-gold text-gold-foreground font-semibold text-sm hover:bg-gold/90 transition-colors"
                     >
