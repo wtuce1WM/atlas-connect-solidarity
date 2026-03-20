@@ -260,19 +260,33 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
             </div>
           </div>
 
-          {/* CTA: right below the text block */}
-          {shopUrl && (
-            <div className="shrink-0 py-3 flex justify-center pointer-events-auto">
-              <a
-                href={shopUrl.startsWith("http") ? shopUrl : `https://${shopUrl}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-1.5 w-[85%] md:w-1/2 py-2 rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black"
-              >
-                <ShoppingBag className="h-4 w-4" />
-                {language === "en" ? "Visit Online Shop" : "Visiter la boutique en ligne"}
-                <ExternalLink className="h-3.5 w-3.5 ml-0.5" />
-              </a>
+          {/* CTAs: right below the text block */}
+          {(shopUrl || business.google_maps_url) && (
+            <div className="shrink-0 py-2 flex flex-col items-center gap-2 pointer-events-auto">
+              {shopUrl && (
+                <a
+                  href={shopUrl.startsWith("http") ? shopUrl : `https://${shopUrl}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-1.5 w-[85%] md:w-1/2 py-2 rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black"
+                >
+                  <ShoppingBag className="h-4 w-4" />
+                  {language === "en" ? "Visit Online Shop" : "Visiter la boutique en ligne"}
+                  <ExternalLink className="h-3.5 w-3.5 ml-0.5" />
+                </a>
+              )}
+              {business.google_maps_url && (
+                <a
+                  href={business.google_maps_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-1.5 w-[85%] md:w-1/2 py-2 rounded-lg bg-primary text-primary-foreground font-medium text-xs md:text-sm shadow-lg hover:bg-primary/90 transition-colors [&_*]:text-primary-foreground"
+                >
+                  <MapPin className="h-4 w-4" />
+                  {language === "en" ? "Visit Us" : "Visitez-nous"}
+                  <ExternalLink className="h-3.5 w-3.5 ml-0.5" />
+                </a>
+              )}
             </div>
           )}
         </div>
