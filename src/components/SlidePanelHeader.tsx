@@ -32,6 +32,7 @@ const SlidePanelHeader = ({
     <div className="shrink-0 flex items-center px-4 py-2 bg-card border-b border-border z-40">
       <div className="flex items-center gap-3 shrink-0 relative z-10">
         <button
+          type="button"
           onClick={onClose}
           className={`h-9 w-9 flex items-center justify-center rounded-full ${closeClass}`}
           title="Fermer"
@@ -40,6 +41,7 @@ const SlidePanelHeader = ({
           <X className="h-4 w-4" />
         </button>
         <button
+          type="button"
           onClick={onToggleExpand}
           className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground/80 text-background shadow-md hover:bg-foreground transition-colors"
           title={isExpanded ? "Réduire" : "Agrandir"}
