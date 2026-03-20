@@ -3094,7 +3094,7 @@ const SearchPage = () => {
                   language={language}
                   onBusinessClick={(bizId) => { setPoiMapBusiness(null); setPoiSelectedBusinessId(bizId); }}
                   columns={hasKnownLocation ? 2 : undefined}
-                  onMapClick={(biz) => { setPoiSelectedBusinessId(null); setPoiMapBusiness({ id: biz.id, name: biz.name, latitude: biz.latitude, longitude: biz.longitude, address: biz.address, google_maps_url: biz.google_maps_url }); }}
+                  onMapClick={hasKnownLocation ? (biz) => { setHoveredPoiId(biz.id); } : (biz) => { setPoiSelectedBusinessId(null); setPoiMapBusiness({ id: biz.id, name: biz.name, latitude: biz.latitude, longitude: biz.longitude, address: biz.address, google_maps_url: biz.google_maps_url }); }}
                   onPoisLoaded={(loadedPois) => setAllPois(loadedPois.map(p => {
                     const sources = collectRatingSources(p);
                     const avgOn20 = p.rating ?? computeWeightedRatingOn20(sources);
