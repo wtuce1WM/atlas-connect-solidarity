@@ -245,7 +245,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
                   {business.city && (
                     <p className="text-sm text-white/80 flex items-center gap-1 mt-0.5">
                       <MapPin className="h-3.5 w-3.5" />
-                      {business.city}
+                      {[business.city, business.neighborhood].filter(Boolean).join(", ")}
                     </p>
                   )}
                 </div>
