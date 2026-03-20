@@ -2182,38 +2182,82 @@ const SearchPage = () => {
                 {language === "en" ? "See results" : language === "ar" ? "عرض النتائج" : "Voir les résultats"}
                 <ChevronRight className="h-4 w-4" />
               </button>
-              <p className="text-muted-foreground text-sm">
-                {language === "en" ? "Search results for" : language === "ar" ? "نتائج البحث عن" : "Résultats de recherche pour"}
-              </p>
-              <p className="text-lg md:text-xl font-bold text-foreground mt-1">
-                «&nbsp;{(spokenText || searchQuery)}&nbsp;»
-              </p>
-              {/* Active filters as chips — most recently selected first */}
-              {(() => {
-                const chips: { label: string; color: string }[] = [];
-                if (selectedCity && selectedCity !== "all") chips.push({ label: `📍 ${selectedCity}`, color: "bg-secondary/15 text-secondary" });
-                if (selectedCategoryFilter) chips.push({ label: selectedCategoryFilter, color: "bg-primary/15 text-primary" });
-                if (selectedSubcategoryFilter) chips.push({ label: selectedSubcategoryFilter, color: "bg-primary/15 text-primary" });
-                if (selectedServiceFilter) chips.push({ label: selectedServiceFilter, color: "bg-gold/15 text-gold" });
-                if (detectedSubcategory && !selectedSubcategoryFilter && !selectedCategoryFilter) chips.push({ label: detectedSubcategory, color: "bg-muted text-muted-foreground" });
-                if (detectedCity && (!selectedCity || selectedCity === "all")) chips.push({ label: `📍 ${detectedCity}`, color: "bg-muted text-muted-foreground" });
-                return chips.length > 0 ? (
-                  <div className="flex flex-wrap justify-center gap-1.5 mt-2">
-                    {chips.map((c, i) => (
-                      <span key={i} className={`inline-block text-xs font-medium px-3 py-1 rounded-full ${c.color}`}>
-                        {c.label}
-                      </span>
-                    ))}
-                  </div>
-                ) : null;
-              })()}
-              <p className="text-gold font-semibold mt-2">
-                {filteredBusinesses.length} {language === "en" ? "establishments found" : language === "ar" ? "مؤسسة وجدت" : "établissements trouvés"}
-              </p>
+              {activeTab === "poi" ? (
+                <>
+                  <p className="text-muted-foreground text-sm">
+                    {language === "en" ? "Points of interest" : language === "ar" ? "نقاط الاهتمام" : "Lieux d'intérêt"}
+                  </p>
+                  <p className="text-lg md:text-xl font-bold text-foreground mt-1">
+                    «&nbsp;{(spokenText || searchQuery)}&nbsp;»
+                  </p>
+                  {(() => {
+                    const effCity = selectedCity && selectedCity !== "all" ? selectedCity : detectedCity;
+                    return effCity ? (
+                      <div className="flex flex-wrap justify-center gap-1.5 mt-2">
+                        <span className="inline-block text-xs font-medium px-3 py-1 rounded-full bg-secondary/15 text-secondary">📍 {effCity}</span>
+                      </div>
+                    ) : null;
+                  })()}
+                  <p className="text-gold font-semibold mt-2">
+                    {allPois.length} {language === "en" ? "points of interest" : "lieux d'intérêt"}
+                  </p>
+                </>
+              ) : activeTab === "destinations" ? (
+                <>
+                  <p className="text-muted-foreground text-sm">
+                    {language === "en" ? "Destinations" : language === "ar" ? "الوجهات" : "Destinations"}
+                  </p>
+                  <p className="text-lg md:text-xl font-bold text-foreground mt-1">
+                    «&nbsp;{(spokenText || searchQuery)}&nbsp;»
+                  </p>
+                  {(() => {
+                    const effCity = selectedCity && selectedCity !== "all" ? selectedCity : detectedCity;
+                    return effCity ? (
+                      <div className="flex flex-wrap justify-center gap-1.5 mt-2">
+                        <span className="inline-block text-xs font-medium px-3 py-1 rounded-full bg-secondary/15 text-secondary">📍 {effCity}</span>
+                      </div>
+                    ) : null;
+                  })()}
+                  <p className="text-gold font-semibold mt-2">
+                    {allDestItems.length} {language === "en" ? "destinations" : "destinations"}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="text-muted-foreground text-sm">
+                    {language === "en" ? "Search results for" : language === "ar" ? "نتائج البحث عن" : "Résultats de recherche pour"}
+                  </p>
+                  <p className="text-lg md:text-xl font-bold text-foreground mt-1">
+                    «&nbsp;{(spokenText || searchQuery)}&nbsp;»
+                  </p>
+                  {/* Active filters as chips — most recently selected first */}
+                  {(() => {
+                    const chips: { label: string; color: string }[] = [];
+                    if (selectedCity && selectedCity !== "all") chips.push({ label: `📍 ${selectedCity}`, color: "bg-secondary/15 text-secondary" });
+                    if (selectedCategoryFilter) chips.push({ label: selectedCategoryFilter, color: "bg-primary/15 text-primary" });
+                    if (selectedSubcategoryFilter) chips.push({ label: selectedSubcategoryFilter, color: "bg-primary/15 text-primary" });
+                    if (selectedServiceFilter) chips.push({ label: selectedServiceFilter, color: "bg-gold/15 text-gold" });
+                    if (detectedSubcategory && !selectedSubcategoryFilter && !selectedCategoryFilter) chips.push({ label: detectedSubcategory, color: "bg-muted text-muted-foreground" });
+                    if (detectedCity && (!selectedCity || selectedCity === "all")) chips.push({ label: `📍 ${detectedCity}`, color: "bg-muted text-muted-foreground" });
+                    return chips.length > 0 ? (
+                      <div className="flex flex-wrap justify-center gap-1.5 mt-2">
+                        {chips.map((c, i) => (
+                          <span key={i} className={`inline-block text-xs font-medium px-3 py-1 rounded-full ${c.color}`}>
+                            {c.label}
+                          </span>
+                        ))}
+                      </div>
+                    ) : null;
+                  })()}
+                  <p className="text-gold font-semibold mt-2">
+                    {filteredBusinesses.length} {language === "en" ? "establishments found" : language === "ar" ? "مؤسسة وجدت" : "établissements trouvés"}
+                  </p>
+                </>
+              )}
             </div>
 
-            {/* Disambiguation prompts — show subcategories when only 1 category, else show categories */}
-            {!selectedCategoryFilter && !selectedSubcategoryFilter && !detectedSubcategory && (() => {
+            {/* Disambiguation prompts — only for Results tab */}
+            {activeTab === "suggestions" && !selectedCategoryFilter && !selectedSubcategoryFilter && !detectedSubcategory && (() => {
               const cats = [...new Set(allBusinesses.map(b => b.main_category).filter(Boolean))] as string[];
               // If only 1 category, show subcategories directly
               if (cats.length === 1) {
@@ -2290,8 +2334,8 @@ const SearchPage = () => {
               return null;
             })()}
 
-            {/* Subcategory disambiguation — when category is known but subcategory is not */}
-            {!selectedSubcategoryFilter && !detectedSubcategory && (selectedCategoryFilter || detectedCategory) && (() => {
+            {/* Subcategory disambiguation — only for Results tab */}
+            {activeTab === "suggestions" && !selectedSubcategoryFilter && !detectedSubcategory && (selectedCategoryFilter || detectedCategory) && (() => {
               const effectiveCat = selectedCategoryFilter || detectedCategory;
               const subCounts: Record<string, number> = {};
               for (const b of allBusinesses) {
@@ -2334,7 +2378,7 @@ const SearchPage = () => {
               );
             })()}
 
-            {(!selectedCity || selectedCity === "all") && !detectedCity && (
+            {activeTab === "suggestions" && (!selectedCity || selectedCity === "all") && !detectedCity && (
               <div className="pb-4">
                 <div className="max-w-3xl mx-auto text-center">
                   <p className="text-sm font-medium text-foreground mb-3">
@@ -2363,8 +2407,8 @@ const SearchPage = () => {
               </div>
             )}
 
-            {/* Service filters when subcategory is known */}
-            {(() => {
+            {/* Service filters when subcategory is known — only for Results tab */}
+            {activeTab === "suggestions" && (() => {
               const effectiveSub = selectedSubcategoryFilter || detectedSubcategory;
               const effectiveCity = (selectedCity && selectedCity !== "all") ? selectedCity : detectedCity;
               if (!effectiveSub || !effectiveCity || searchServiceFilters.length === 0) return null;
@@ -2430,13 +2474,32 @@ const SearchPage = () => {
                   }
                   const isTTSActive = ttsStatus === "playing" && ttsSpokenWordIndex >= 0;
                   const karaokeTarget = isTTSActive ? ttsSpokenWordIndex - ttsIntroWordCountRef.current : -1;
+                  // Build data source for link matching based on active tab
+                  const linkDataSource: AIBusinessData[] = activeTab === "poi"
+                    ? allPois.map(p => ({ id: p.id, name: p.name, city: p.city || "", main_category: null, categories: null, hook_fr: null, rating: p.rating ?? null, wtuce_status: null, images: p.images ?? null, neighborhood: p.neighborhood ?? null }))
+                    : activeTab === "destinations"
+                    ? allDestItems.map(d => ({ id: d.id, name: language === "en" && d.name_en ? d.name_en : d.name_fr, city: "", main_category: null, categories: null, hook_fr: d.hook, rating: null, wtuce_status: null, images: d.images ?? (d.image_url ? [d.image_url] : null) }))
+                    : allBusinesses as unknown as AIBusinessData[];
                   return parseInline(
                     currentAiText,
-                    allBusinesses as unknown as AIBusinessData[],
+                    linkDataSource,
                     (b: AIBusinessData) => {
-                      setShowAiPopup(false);
-                      setOverlaySelectedBusiness(null);
-                      openCompactPanel(b);
+                      if (activeTab === "poi") {
+                        // For POI, close overlay and open POI business panel
+                        setShowAiPopup(false);
+                        setOverlaySelectedBusiness(null);
+                        openCompactPanel(b);
+                      } else if (activeTab === "destinations") {
+                        // For destinations, close overlay and navigate to destination
+                        setShowAiPopup(false);
+                        setOverlaySelectedBusiness(null);
+                        const dest = allDestItems.find(d => d.id === b.id);
+                        if (dest) setSelectedDestination(dest);
+                      } else {
+                        setShowAiPopup(false);
+                        setOverlaySelectedBusiness(null);
+                        openCompactPanel(b);
+                      }
                     },
                     "ai-popup",
                     isTTSActive
