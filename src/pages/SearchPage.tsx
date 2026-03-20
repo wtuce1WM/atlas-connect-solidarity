@@ -442,6 +442,10 @@ const SearchPage = () => {
   const [celebrityBusinesses, setCelebrityBusinesses] = useState<Business[]>([]);
   const [ttsIntroPhrase, setTtsIntroPhrase] = useState<string>("");
   const [aiAnswerText, setAiAnswerText] = useState<string>("");
+  const [poiAiText, setPoiAiText] = useState<string>("");
+  const [destAiText, setDestAiText] = useState<string>("");
+  const [isPoiAiLoading, setIsPoiAiLoading] = useState(false);
+  const [isDestAiLoading, setIsDestAiLoading] = useState(false);
   const [stickyAiAnimationNonce, setStickyAiAnimationNonce] = useState(0);
   const [stickyAiVisibleWordIndex, setStickyAiVisibleWordIndex] = useState(-1);
   const handleAiAnswerReady = useCallback((answer: string) => {
