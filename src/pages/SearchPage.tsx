@@ -3700,39 +3700,6 @@ const SearchPage = () => {
                           : (language === "en" ? "Location" : "Position")
                         }
                       </button>
-                      <LocationPickerDialog
-                        open={locationDialogOpen}
-                        onOpenChange={setLocationDialogOpen}
-                        coords={geo.coords}
-                        detectedCity={geo.confirmedAddress || geo.detectedCity}
-                        isEnabled={geo.isEnabled}
-                        isDetecting={geo.isDetecting}
-                        onUseCurrentPosition={() => {
-                          if (!geo.isEnabled) geo.accept();
-                        }}
-                        onConfirm={(confirmedCoords, address) => {
-                          geo.setManualLocation(confirmedCoords, address);
-                          // Update city filter to match the manually picked location
-                          if (citiesWithPriority.length > 0) {
-                            let nearest: string | null = null;
-                            let minDist = Infinity;
-                            for (const city of citiesWithPriority) {
-                              if (!city.latitude || !city.longitude) continue;
-                              const R = 6371;
-                              const dLat = ((city.latitude - confirmedCoords.lat) * Math.PI) / 180;
-                              const dLon = ((city.longitude - confirmedCoords.lng) * Math.PI) / 180;
-                              const a = Math.sin(dLat / 2) ** 2 + Math.cos((confirmedCoords.lat * Math.PI) / 180) * Math.cos((city.latitude * Math.PI) / 180) * Math.sin(dLon / 2) ** 2;
-                              const dist = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-                              if (dist < minDist) { minDist = dist; nearest = city.name; }
-                            }
-                            if (nearest && minDist <= 100) {
-                              setSelectedCity(nearest);
-                              setIsGeoCityAutoSelected(true);
-                            }
-                          }
-                        }}
-                        onDisableGeo={() => geo.decline()}
-                      />
                     </>
                   )}
                 </div>
