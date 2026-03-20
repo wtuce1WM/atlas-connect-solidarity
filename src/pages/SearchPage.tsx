@@ -2592,7 +2592,7 @@ const SearchPage = () => {
 
           {/* Right panel: Business detail */}
           {overlaySelectedBusiness && (
-            <div className={`h-full flex flex-col bg-background animate-in slide-in-from-right duration-300 transition-all ${isOverlayPanelExpanded ? "w-[80%]" : "w-1/2"}`}>
+            <div className={`h-full flex flex-col bg-background animate-in slide-in-from-right duration-300 transition-[width] ease-out ${isOverlayPanelExpanded ? "w-full" : "w-1/2"}`}>
               <SlidePanelHeader
                 onClose={() => { setOverlaySelectedBusiness(null); setIsOverlayPanelExpanded(false); }}
                 isExpanded={isOverlayPanelExpanded}
