@@ -2407,8 +2407,8 @@ const SearchPage = () => {
               </div>
             )}
 
-            {/* Service filters when subcategory is known */}
-            {(() => {
+            {/* Service filters when subcategory is known — only for Results tab */}
+            {activeTab === "suggestions" && (() => {
               const effectiveSub = selectedSubcategoryFilter || detectedSubcategory;
               const effectiveCity = (selectedCity && selectedCity !== "all") ? selectedCity : detectedCity;
               if (!effectiveSub || !effectiveCity || searchServiceFilters.length === 0) return null;
