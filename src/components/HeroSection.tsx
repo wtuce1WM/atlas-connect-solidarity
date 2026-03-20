@@ -210,10 +210,7 @@ const HeroSection = () => {
             voiceControl={{ status: voiceStatus, toggleRecording, liveTranscript }}
           />
 
-          {/* Resume last search chip */}
-          <div className="mt-4">
-            <ResumeLastSearch />
-          </div>
+          {/* Resume last search chip — disabled on homepage */}
         </div>
 
         {/* Restaurant Guru-style location selector — disabled
