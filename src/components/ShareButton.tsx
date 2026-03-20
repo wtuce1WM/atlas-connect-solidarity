@@ -106,10 +106,10 @@ const ShareButton = ({ title, variant = "gold", className = "" }: ShareButtonPro
               {link.icon}
             </a>
           ))}
-          <div className="w-px h-5 bg-white/20 mx-1" />
+          <div className="w-px h-5 bg-primary-foreground/20 mx-1" />
           <button
             onClick={handleCopy}
-            className="p-2 rounded-full text-white/70 hover:text-gold transition-colors"
+            className="p-2 rounded-full text-primary-foreground/80 hover:text-primary-foreground transition-colors"
             title="Copier le lien"
           >
             {copied ? <Check className="h-4 w-4 text-green-400" /> : <Copy className="h-4 w-4" />}
