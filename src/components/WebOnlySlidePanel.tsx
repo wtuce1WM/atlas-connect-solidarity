@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
-import { ExternalLink, ShoppingBag, MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown } from "lucide-react";
+import { ExternalLink, ShoppingBag, MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import ShareButton from "@/components/ShareButton";
@@ -27,6 +27,9 @@ interface WebOnlyBusiness {
   images: string[] | null;
   city: string | null;
   neighborhood: string | null;
+  address: string | null;
+  latitude: number | null;
+  longitude: number | null;
   website: string | null;
   whatsapp: string | null;
   online_shop_url: string | null;
@@ -46,6 +49,20 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
   const [descExpanded, setDescExpanded] = useState(true);
+  const [showDirections, setShowDirections] = useState(false);
+  const [directionsMode, setDirectionsMode] = useState<"walking" | "driving">("walking");
+  const [userOrigin, setUserOrigin] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!showDirections) return;
+    setUserOrigin(null);
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => setUserOrigin(`${pos.coords.latitude},${pos.coords.longitude}`),
+        () => {}
+      );
+    }
+  }, [showDirections]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -53,7 +70,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
       const [bizRes, woRes] = await Promise.all([
         supabase
           .from("businesses")
-          .select("id, name, slug, logo_url, logo_bg, images, city, neighborhood, website, whatsapp, online_shop_url, google_maps_url")
+          .select("id, name, slug, logo_url, logo_bg, images, city, neighborhood, address, latitude, longitude, website, whatsapp, online_shop_url, google_maps_url")
           .eq("id", businessId)
           .eq("is_active", true)
           .maybeSingle(),
@@ -286,22 +303,74 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
                   <ExternalLink className="h-3.5 w-3.5 ml-0.5" />
                 </a>
               )}
-              {business.google_maps_url && (
-                <a
-                  href={business.google_maps_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-1.5 w-[85%] md:w-1/2 py-2 rounded-lg bg-primary text-primary-foreground font-medium text-xs md:text-sm shadow-lg hover:bg-primary/90 transition-colors [&_*]:text-primary-foreground"
+              {(business.google_maps_url || business.latitude) && (
+                <button
+                  onClick={() => setShowDirections(true)}
+                  className="flex items-center justify-center gap-1.5 w-[85%] md:w-1/2 py-2 rounded-lg bg-primary text-primary-foreground font-medium text-xs md:text-sm shadow-lg hover:bg-primary/90 transition-colors"
                 >
                   <MapPin className="h-4 w-4" />
                   {language === "en" ? "Visit Us" : "Visitez-nous"}
-                  <ExternalLink className="h-3.5 w-3.5 ml-0.5" />
-                </a>
+                </button>
               )}
             </div>
           )}
         </div>
       </div>
+
+      {/* Directions Overlay — slide-in from right */}
+      {showDirections && business && (() => {
+        const dest = business.latitude && business.longitude
+          ? `${business.latitude},${business.longitude}`
+          : encodeURIComponent(business.address || business.name);
+        const destRaw = business.latitude && business.longitude
+          ? `${business.latitude},${business.longitude}`
+          : business.address || business.name;
+        return (
+          <div className="absolute inset-0 z-[60] bg-background flex flex-col animate-slide-in-right">
+            <div className="flex items-center justify-between px-3 py-2 border-b bg-background">
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-semibold truncate">Itinéraire — {business.name}</span>
+                <div className="flex items-center bg-muted rounded-full p-0.5">
+                  <button
+                    onClick={() => setDirectionsMode("walking")}
+                    className={`px-2.5 py-1 text-xs font-medium rounded-full transition-colors ${directionsMode === "walking" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+                  >
+                    🚶 À pied
+                  </button>
+                  <button
+                    onClick={() => setDirectionsMode("driving")}
+                    className={`px-2.5 py-1 text-xs font-medium rounded-full transition-colors ${directionsMode === "driving" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+                  >
+                    🚗 Voiture
+                  </button>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <a href={`https://www.google.com/maps/dir/?api=1&destination=${dest}`} target="_blank" rel="noopener noreferrer" className="p-1 rounded-full hover:bg-muted transition-colors" title="Google Maps">
+                  <img src="https://www.google.com/favicon.ico" alt="Google Maps" className="h-5 w-5" />
+                </a>
+                <a href={business.latitude && business.longitude ? `https://waze.com/ul?ll=${business.latitude},${business.longitude}&navigate=yes` : `https://waze.com/ul?q=${encodeURIComponent(destRaw)}&navigate=yes`} target="_blank" rel="noopener noreferrer" className="p-1 rounded-full hover:bg-muted transition-colors" title="Waze">
+                  <img src="https://www.waze.com/favicon.ico" alt="Waze" className="h-5 w-5" />
+                </a>
+                <a href={business.latitude && business.longitude ? `https://maps.apple.com/?daddr=${business.latitude},${business.longitude}&dirflg=d` : `https://maps.apple.com/?daddr=${encodeURIComponent(destRaw)}&dirflg=d`} target="_blank" rel="noopener noreferrer" className="p-1 rounded-full hover:bg-muted transition-colors" title="Apple Plans">
+                  <img src="https://www.apple.com/favicon.ico" alt="Apple Plans" className="h-5 w-5" />
+                </a>
+                <button onClick={() => setShowDirections(false)} className="p-1 rounded-full hover:bg-muted transition-colors" title="Fermer">
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+            <iframe
+              src={`https://www.google.com/maps/embed/v1/directions?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&origin=${userOrigin || "My+location"}&destination=${dest}&mode=${directionsMode}`}
+              className="flex-1 w-full border-0"
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              title={`Itinéraire vers ${business.name}`}
+            />
+          </div>
+        );
+      })()}
     </div>
   );
 };
