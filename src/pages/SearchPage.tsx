@@ -2187,9 +2187,6 @@ const SearchPage = () => {
                   <p className="text-muted-foreground text-sm">
                     {language === "en" ? "Points of interest" : language === "ar" ? "نقاط الاهتمام" : "Lieux d'intérêt"}
                   </p>
-                  <p className="text-lg md:text-xl font-bold text-foreground mt-1">
-                    «&nbsp;{(spokenText || searchQuery)}&nbsp;»
-                  </p>
                   {(() => {
                     const effCity = selectedCity && selectedCity !== "all" ? selectedCity : detectedCity;
                     return effCity ? (
