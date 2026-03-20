@@ -4241,20 +4241,46 @@ const SearchPage = () => {
               </button>
             </div>
             <div className="flex-1 min-h-0 overflow-y-auto px-6 py-5">
-              <div className="mb-4 text-center">
-                <p className="text-muted-foreground text-sm">
-                  {language === "en" ? "Search results for" : language === "ar" ? "نتائج البحث عن" : "Résultats de recherche pour"}
-                </p>
-                <p className="text-lg font-bold text-foreground mt-1">
-                  « {searchQuery} »
-                </p>
-                <p className="text-muted-foreground text-sm mt-1">
-                  {language === "en"
-                    ? `10 recommended establishments out of ${filteredBusinesses.length} found`
-                    : language === "ar"
-                    ? `10 مؤسسات موصى بها من أصل ${filteredBusinesses.length} وجدت`
-                    : `10 établissements recommandés sur ${filteredBusinesses.length} établissements trouvés`}
-                </p>
+               <div className="mb-4 text-center">
+                {activeTab === "poi" ? (
+                  <>
+                    <p className="text-muted-foreground text-sm">
+                      {language === "en" ? "Points of interest" : language === "ar" ? "أماكن الاهتمام" : "Lieux d'intérêt"}
+                    </p>
+                    <p className="text-muted-foreground text-sm mt-1">
+                      {language === "en"
+                        ? `10 recommended places out of ${allPois.length} found`
+                        : `10 lieux recommandés sur ${allPois.length} lieux trouvés`}
+                    </p>
+                  </>
+                ) : activeTab === "destinations" ? (
+                  <>
+                    <p className="text-muted-foreground text-sm">
+                      {language === "en" ? "Destinations" : language === "ar" ? "الوجهات" : "Destinations"}
+                    </p>
+                    <p className="text-muted-foreground text-sm mt-1">
+                      {language === "en"
+                        ? `10 recommended destinations out of ${allDestItems.length} found`
+                        : `10 destinations recommandées sur ${allDestItems.length} destinations trouvées`}
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-muted-foreground text-sm">
+                      {language === "en" ? "Search results for" : language === "ar" ? "نتائج البحث عن" : "Résultats de recherche pour"}
+                    </p>
+                    <p className="text-lg font-bold text-foreground mt-1">
+                      « {searchQuery} »
+                    </p>
+                    <p className="text-muted-foreground text-sm mt-1">
+                      {language === "en"
+                        ? `10 recommended establishments out of ${filteredBusinesses.length} found`
+                        : language === "ar"
+                        ? `10 مؤسسات موصى بها من أصل ${filteredBusinesses.length} وجدت`
+                        : `10 établissements recommandés sur ${filteredBusinesses.length} établissements trouvés`}
+                    </p>
+                  </>
+                )}
               </div>
               {(() => {
                 // Determine what filters to show based on search context
