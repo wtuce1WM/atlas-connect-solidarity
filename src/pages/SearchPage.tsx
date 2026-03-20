@@ -2256,8 +2256,8 @@ const SearchPage = () => {
               )}
             </div>
 
-            {/* Disambiguation prompts — show subcategories when only 1 category, else show categories */}
-            {!selectedCategoryFilter && !selectedSubcategoryFilter && !detectedSubcategory && (() => {
+            {/* Disambiguation prompts — only for Results tab */}
+            {activeTab === "suggestions" && !selectedCategoryFilter && !selectedSubcategoryFilter && !detectedSubcategory && (() => {
               const cats = [...new Set(allBusinesses.map(b => b.main_category).filter(Boolean))] as string[];
               // If only 1 category, show subcategories directly
               if (cats.length === 1) {
