@@ -358,13 +358,13 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
               {/* External nav icons — right */}
               <div className="shrink-0 flex items-center gap-2">
                 <a href={`https://www.google.com/maps/dir/?api=1&destination=${dest}`} target="_blank" rel="noopener noreferrer" className="p-1 rounded-full hover:bg-muted transition-colors" title="Google Maps">
-                  <img src="https://www.google.com/favicon.ico" alt="Google Maps" className="h-5 w-5" />
+                  <img src="https://www.gstatic.com/images/branding/product/1x/maps_48dp.png" alt="Google Maps" className="h-6 w-6 object-contain" />
                 </a>
                 <a href={business.latitude && business.longitude ? `https://waze.com/ul?ll=${business.latitude},${business.longitude}&navigate=yes` : `https://waze.com/ul?q=${encodeURIComponent(destRaw)}&navigate=yes`} target="_blank" rel="noopener noreferrer" className="p-1 rounded-full hover:bg-muted transition-colors" title="Waze">
-                  <img src="https://www.waze.com/favicon.ico" alt="Waze" className="h-5 w-5" />
+                  <img src="https://www.waze.com/favicon.ico" alt="Waze" className="h-6 w-6 object-contain" />
                 </a>
                 <a href={business.latitude && business.longitude ? `https://maps.apple.com/?daddr=${business.latitude},${business.longitude}&dirflg=d` : `https://maps.apple.com/?daddr=${encodeURIComponent(destRaw)}&dirflg=d`} target="_blank" rel="noopener noreferrer" className="p-1 rounded-full hover:bg-muted transition-colors" title="Apple Plans">
-                  <img src="https://www.apple.com/favicon.ico" alt="Apple Plans" className="h-5 w-5" />
+                  <img src="https://www.apple.com/favicon.ico" alt="Apple Plans" className="h-6 w-6 object-contain" />
                 </a>
               </div>
             </div>
