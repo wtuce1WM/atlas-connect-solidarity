@@ -905,6 +905,11 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
       )}
     </div>
   );
+
+  if (isMobileTablet) {
+    return createPortal(overlayContent, document.body);
+  }
+  return overlayContent;
 };
 
 export default HotelAvailabilityOverlay;
