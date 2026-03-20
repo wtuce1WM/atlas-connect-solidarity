@@ -2474,13 +2474,32 @@ const SearchPage = () => {
                   }
                   const isTTSActive = ttsStatus === "playing" && ttsSpokenWordIndex >= 0;
                   const karaokeTarget = isTTSActive ? ttsSpokenWordIndex - ttsIntroWordCountRef.current : -1;
+                  // Build data source for link matching based on active tab
+                  const linkDataSource: AIBusinessData[] = activeTab === "poi"
+                    ? allPois.map(p => ({ id: p.id, name: p.name, city: p.city || "", main_category: null, categories: null, hook_fr: null, rating: p.rating ?? null, wtuce_status: null, images: p.images ?? null, neighborhood: p.neighborhood ?? null }))
+                    : activeTab === "destinations"
+                    ? allDestItems.map(d => ({ id: d.id, name: language === "en" && d.name_en ? d.name_en : d.name_fr, city: "", main_category: null, categories: null, hook_fr: d.hook, rating: null, wtuce_status: null, images: d.images ?? (d.image_url ? [d.image_url] : null) }))
+                    : allBusinesses as unknown as AIBusinessData[];
                   return parseInline(
                     currentAiText,
-                    allBusinesses as unknown as AIBusinessData[],
+                    linkDataSource,
                     (b: AIBusinessData) => {
-                      setShowAiPopup(false);
-                      setOverlaySelectedBusiness(null);
-                      openCompactPanel(b);
+                      if (activeTab === "poi") {
+                        // For POI, close overlay and open POI business panel
+                        setShowAiPopup(false);
+                        setOverlaySelectedBusiness(null);
+                        openCompactPanel(b);
+                      } else if (activeTab === "destinations") {
+                        // For destinations, close overlay and navigate to destination
+                        setShowAiPopup(false);
+                        setOverlaySelectedBusiness(null);
+                        const dest = allDestItems.find(d => d.id === b.id);
+                        if (dest) setSelectedDestination(dest);
+                      } else {
+                        setShowAiPopup(false);
+                        setOverlaySelectedBusiness(null);
+                        openCompactPanel(b);
+                      }
                     },
                     "ai-popup",
                     isTTSActive
