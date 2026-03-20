@@ -25,9 +25,10 @@ export interface MapBusinessInfo {
 interface MapBusinessInfoCardProps {
   business: MapBusinessInfo;
   onClose: () => void;
+  hideDirections?: boolean;
 }
 
-const MapBusinessInfoCard = ({ business, onClose }: MapBusinessInfoCardProps) => {
+const MapBusinessInfoCard = ({ business, onClose, hideDirections }: MapBusinessInfoCardProps) => {
   const [showHours, setShowHours] = useState(false);
 
   // Compute weighted average rating
@@ -152,15 +153,17 @@ const MapBusinessInfoCard = ({ business, onClose }: MapBusinessInfoCardProps) =>
             )}
           </div>
         )}
-        <a
-          href={directionsUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-1 mt-2 pt-2 border-t border-gray-200 text-primary font-bold hover:text-primary/80 transition-colors"
-        >
-          <Navigation className="h-3 w-3 flex-shrink-0" />
-          Itinéraire
-        </a>
+        {!hideDirections && (
+          <a
+            href={directionsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1 mt-2 pt-2 border-t border-gray-200 text-primary font-bold hover:text-primary/80 transition-colors"
+          >
+            <Navigation className="h-3 w-3 flex-shrink-0" />
+            Itinéraire
+          </a>
+        )}
       </div>
     </div>
   );

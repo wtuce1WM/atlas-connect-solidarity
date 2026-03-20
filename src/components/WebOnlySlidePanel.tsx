@@ -394,6 +394,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
                 <MapBusinessInfoCard
                   business={business}
                   onClose={() => setShowInfoCard(false)}
+                  hideDirections
                 />
               )}
               {!showInfoCard && (
