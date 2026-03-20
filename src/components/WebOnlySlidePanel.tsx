@@ -381,14 +381,31 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
                 </a>
               </div>
             </div>
-            <iframe
-              src={`https://www.google.com/maps/embed/v1/directions?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&origin=${userOrigin || "My+location"}&destination=${dest}&mode=${directionsMode}`}
-              className="flex-1 w-full border-0"
-              allowFullScreen
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              title={`Itinéraire vers ${business.name}`}
-            />
+            <div className="flex-1 relative min-h-0">
+              <iframe
+                src={`https://www.google.com/maps/embed/v1/directions?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&origin=${userOrigin || "My+location"}&destination=${dest}&mode=${directionsMode}`}
+                className="absolute inset-0 w-full h-full border-0"
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title={`Itinéraire vers ${business.name}`}
+              />
+              {showInfoCard && (
+                <MapBusinessInfoCard
+                  business={business}
+                  onClose={() => setShowInfoCard(false)}
+                />
+              )}
+              {!showInfoCard && (
+                <button
+                  onClick={() => setShowInfoCard(true)}
+                  className="absolute top-2 left-2 z-10 h-8 w-8 flex items-center justify-center rounded-full bg-foreground text-background shadow-lg hover:opacity-90 transition-opacity"
+                  title="Infos établissement"
+                >
+                  <Info className="h-4 w-4" />
+                </button>
+              )}
+            </div>
           </div>
         );
       })()}
