@@ -3028,14 +3028,12 @@ const SearchPage = () => {
               <div className={`mx-auto px-4 ${(poiSelectedBusinessId || poiMapBusiness || hasKnownLocation) ? "max-w-full" : "max-w-[80%]"}`}>
                 {/* Sticky bar for POI — mirrors STICKY 5 */}
                 <div className="sticky z-[19] bg-white flex items-center justify-between py-2 mb-2 border-b border-border/40" style={{ top: `${Math.max(stickyStackPadding || 0, 104)}px` }}>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold text-foreground">
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs text-muted-foreground font-medium">
                       {language === "en" ? "Points of Interest" : language === "ar" ? "أماكن مهمة" : "Lieux d'intérêt"}
-                      {poiCity && <span className="text-muted-foreground font-normal ml-1">— {poiCity}</span>}
+                      {poiCity && <span className="ml-1">— {poiCity}</span>}
+                      {allPois.length > 0 && <span className="ml-1">· {allPois.length} {language === "en" ? "results" : "résultats"}</span>}
                     </span>
-                    {allPois.length > 0 && (
-                      <span className="text-xs text-muted-foreground">{allPois.length} {language === "en" ? "results" : "résultats"}</span>
-                    )}
                   </div>
                   <div className="flex items-center gap-2">
                     {isSubDesktop && (
