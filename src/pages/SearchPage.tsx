@@ -3032,7 +3032,6 @@ const SearchPage = () => {
                     <span className="text-xs text-muted-foreground font-medium">
                       {language === "en" ? "Points of Interest" : language === "ar" ? "أماكن مهمة" : "Lieux d'intérêt"}
                       {poiCity && <span className="ml-1">— {poiCity}</span>}
-                      {allPois.length > 0 && <span className="ml-1">· {allPois.length} {language === "en" ? "results" : "résultats"}</span>}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
@@ -3101,6 +3100,11 @@ const SearchPage = () => {
                   }))}
                   onHover={setHoveredPoiId}
                 />
+                {allPois.length > 0 && (
+                  <p className="text-xs text-muted-foreground font-medium mt-4 text-center">
+                    {allPois.length} {language === "en" ? "results" : "résultats"}
+                  </p>
+                )}
               </div>
             </section>
             {/* Sticky map for POI — shown when location known and no panel open */}
@@ -3182,7 +3186,6 @@ const SearchPage = () => {
                     <span className="text-xs text-muted-foreground font-medium">
                       {language === "en" ? "Destinations" : language === "ar" ? "وجهات" : "Destinations"}
                       {destCity && <span className="ml-1">— {destCity}</span>}
-                      {allDestItems.length > 0 && <span className="ml-1">· {allDestItems.length} {language === "en" ? "results" : "résultats"}</span>}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
@@ -3265,6 +3268,11 @@ const SearchPage = () => {
                   }}
                   onHover={setHoveredDestId}
                 />
+                {allDestItems.length > 0 && (
+                  <p className="text-xs text-muted-foreground font-medium mt-4 text-center">
+                    {allDestItems.length} {language === "en" ? "results" : "résultats"}
+                  </p>
+                )}
               </div>
             </section>
             {/* Sticky map for Destinations — shown when location known and no panel open */}
@@ -3738,11 +3746,6 @@ const SearchPage = () => {
               {/* Bar: Results count + AI suggestion + Geolocation — STICKY 5 */}
               <div ref={resultsBarRef} data-results-bar className="sticky z-[19] bg-white flex items-center justify-between py-2 mb-2 border-b border-border/40" style={{ top: `${Math.max(stickyStackPadding || 0, 104)}px` }}>
                 <div className="flex items-center gap-3">
-                  {filteredBusinesses.length > 0 && (
-                    <span className="text-xs text-muted-foreground font-medium">
-                      {t.showing} {startResult} {t.to} {endResult} {t.of} {filteredBusinesses.length} {t.results}
-                    </span>
-                  )}
                 </div>
                 <div className="flex items-center gap-2">
                   {isSubDesktop && (
@@ -4025,6 +4028,11 @@ const SearchPage = () => {
                   return card;
                 })}
               </div>
+              {filteredBusinesses.length > 0 && (
+                <p className="text-xs text-muted-foreground font-medium mt-4 text-center">
+                  {t.showing} {startResult} {t.to} {endResult} {t.of} {filteredBusinesses.length} {t.results}
+                </p>
+              )}
               {/* OLD grouped/paginated BusinessCard display:
               {groupedBusinesses ? (
                 <div className="space-y-10">
