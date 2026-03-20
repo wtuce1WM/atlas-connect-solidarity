@@ -271,7 +271,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
                   className="flex items-center justify-center gap-1.5 w-[85%] md:w-1/2 py-2 rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black"
                 >
                   <ShoppingBag className="h-4 w-4" />
-                  {language === "en" ? "Visit Online Shop" : "Visiter la boutique en ligne"}
+                  {language === "en" ? "Online Shop" : "Boutique en ligne"}
                   <ExternalLink className="h-3.5 w-3.5 ml-0.5" />
                 </a>
               )}
