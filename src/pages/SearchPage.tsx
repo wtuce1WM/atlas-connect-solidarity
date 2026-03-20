@@ -797,6 +797,7 @@ const SearchPage = () => {
      setHasScrolledPastHeroAi(false);
      aiPopupShownRef.current = false;
      hasAutoAlignedResultsRef.current = false;
+     hasInteractedWithCompactPanelRef.current = false;
      setActiveTab("suggestions");
      resetPanelStates();
      setOverlaySelectedBusiness(null);
