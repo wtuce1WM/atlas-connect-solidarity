@@ -51,7 +51,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
       const [bizRes, woRes] = await Promise.all([
         supabase
           .from("businesses")
-          .select("id, name, slug, logo_url, logo_bg, images, city, website, whatsapp, online_shop_url")
+          .select("id, name, slug, logo_url, logo_bg, images, city, website, whatsapp, online_shop_url, google_maps_url")
           .eq("id", businessId)
           .eq("is_active", true)
           .maybeSingle(),
