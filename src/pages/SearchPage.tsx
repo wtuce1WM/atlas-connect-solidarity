@@ -4257,7 +4257,7 @@ const SearchPage = () => {
                 <span className="text-sm font-semibold">{language === "en" ? "AI Summary" : "Résumé IA"}</span>
               </div>
               <button
-                onClick={() => { setCompactPanelBusiness(null); setIsCompactPanelExpanded(false); }}
+                onClick={() => closeCompactPanel()}
                 className="h-8 w-8 flex items-center justify-center rounded-full hover:bg-muted transition-colors"
                 title="Fermer"
               >
