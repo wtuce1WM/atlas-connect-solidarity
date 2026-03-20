@@ -3102,7 +3102,7 @@ const SearchPage = () => {
                 />
                 {allPois.length > 0 && (
                   <p className="text-xs text-muted-foreground font-medium mt-4 text-center">
-                    {allPois.length} {language === "en" ? "results" : "résultats"}
+                    {language === "en" ? "Points of Interest" : language === "ar" ? "أماكن مهمة" : "Lieux d'intérêt"}{poiCity && ` — ${poiCity}`} · {allPois.length} {language === "en" ? "results" : "résultats"}
                   </p>
                 )}
               </div>
@@ -3270,7 +3270,7 @@ const SearchPage = () => {
                 />
                 {allDestItems.length > 0 && (
                   <p className="text-xs text-muted-foreground font-medium mt-4 text-center">
-                    {allDestItems.length} {language === "en" ? "results" : "résultats"}
+                    {language === "en" ? "Destinations" : language === "ar" ? "وجهات" : "Destinations"}{destCity && ` — ${destCity}`} · {allDestItems.length} {language === "en" ? "results" : "résultats"}
                   </p>
                 )}
               </div>
