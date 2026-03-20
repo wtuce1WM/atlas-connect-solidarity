@@ -726,12 +726,20 @@ const SearchPage = () => {
         }
       }, [allBusinesses]);
 
+      const compactPanelRef = useRef<BusinessSlidePanelHandle>(null);
+
       const closeCompactPanel = useCallback(() => {
         hasInteractedWithCompactPanelRef.current = true;
         hasAutoAlignedResultsRef.current = true;
         setCompactPanelBusiness(null);
         setIsCompactPanelExpanded(false);
       }, []);
+
+      const handleCompactPanelClose = useCallback(() => {
+        // Let BSP handle close internally (go back to fallback) if applicable
+        if (compactPanelRef.current?.requestClose()) return;
+        closeCompactPanel();
+      }, [closeCompactPanel]);
 
      const [hoveredResultId, setHoveredResultId] = useState<string | null>(null);
      const [hoveredPoiId, setHoveredPoiId] = useState<string | null>(null);
