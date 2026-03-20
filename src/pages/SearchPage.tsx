@@ -538,6 +538,7 @@ const SearchPage = () => {
   useEffect(() => {
     if (showAiPopup || isLoading || activeTab !== "suggestions") return;
     if (hasAutoAlignedResultsRef.current) return;
+    if (hasInteractedWithCompactPanelRef.current) return;
     if (window.scrollY > 120) return;
 
     setIsAiSummaryExpanded(false);
