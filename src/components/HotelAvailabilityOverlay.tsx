@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { X, Loader2, Calendar, Users, BedDouble, Search, ArrowRight, Star, MapPin, Wifi, Coffee, Accessibility, Tag } from "lucide-react";
