@@ -14,6 +14,7 @@ const KNOWN_BLOCKED_DOMAINS = [
   { domain: 'www.selman-marrakech.com', reason: 'X-Frame-Options: DENY' },
   { domain: 'reservation.marrakech.maison-stella-cadente.com', reason: 'X-Frame-Options: DENY' },
   { domain: 'www.sevenrooms.com', reason: 'X-Frame-Options: DENY' },
+  { domain: 'tickets.jardinmajorelle.com', reason: 'X-Frame-Options: DENY' },
   // X-Frame-Options: SAMEORIGIN
   { domain: 'permalink.fairmont.com', reason: 'X-Frame-Options: SAMEORIGIN' },
   { domain: 'www.lunajets.com', reason: 'X-Frame-Options: SAMEORIGIN' },
@@ -34,9 +35,12 @@ const KNOWN_BLOCKED_DOMAINS = [
   { domain: 'www.oberoihotels.com', reason: 'X-Frame-Options: SAMEORIGIN' },
   { domain: 'www.widiane.net', reason: 'X-Frame-Options: SAMEORIGIN' },
   { domain: 'www.cactusthiemann.com', reason: 'X-Frame-Options: SAMEORIGIN' },
+  { domain: 'direct-book.com', reason: 'X-Frame-Options: SAMEORIGIN' },
+  { domain: 'xaluca.com', reason: 'X-Frame-Options: SAMEORIGIN' },
   // CSP frame-ancestors
   { domain: 'www.onomohotels.com', reason: 'CSP frame-ancestors: self' },
   { domain: 'www.dabadoc.com', reason: 'CSP frame-ancestors: self' },
+  { domain: 'www.relaischateaux.com', reason: 'CSP frame-ancestors: self' },
   // HTTP errors / site en panne
   { domain: 'darbacha.com', reason: 'HTTP 500 (site en panne)' },
   { domain: 'almoravidkoubba.com', reason: 'HTTP 500 (site en panne)' },
@@ -48,6 +52,8 @@ const KNOWN_BLOCKED_DOMAINS = [
   { domain: 'www.mazaganbeachresort.com', reason: 'Connexion échouée' },
   { domain: 'omyoga.ma', reason: 'Connexion échouée' },
   { domain: 'www.supratours.ma', reason: 'Connexion échouée' },
+  { domain: 'beautynow.ma', reason: 'Connexion échouée' },
+  { domain: 'www.lemapmarrakech.com', reason: 'Connexion échouée' },
 ];
 
 type BusinessDomainRow = { businessName: string; domain: string; reason: string };
