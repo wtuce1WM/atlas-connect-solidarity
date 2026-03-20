@@ -128,7 +128,7 @@ const BlockedDomainsManagement = () => {
 
         <div className="space-y-1">
           <p className="text-sm font-medium">Liste actuelle ({KNOWN_BLOCKED_DOMAINS.length} domaines) :</p>
-          <div className="max-h-48 overflow-auto border rounded-md">
+          <div className="overflow-auto border rounded-md">
             <table className="w-full text-xs">
               <thead className="bg-muted sticky top-0">
                 <tr>
