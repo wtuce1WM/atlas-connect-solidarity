@@ -99,7 +99,7 @@ const ShareButton = ({ title, variant = "gold", className = "" }: ShareButtonPro
               href={link.url}
               target="_blank"
               rel="noopener noreferrer"
-              className={`p-2 rounded-full text-white/70 transition-colors ${link.color}`}
+              className={`p-2 rounded-full text-primary-foreground/80 transition-colors ${link.color}`}
               title={link.name}
               onClick={() => setIsOpen(false)}
             >
