@@ -2234,7 +2234,7 @@ const SearchPage = () => {
                     if (detectedSubcategory && !selectedSubcategoryFilter && !selectedCategoryFilter) chips.push({ label: detectedSubcategory, color: "bg-muted text-muted-foreground" });
                     if (detectedCity && (!selectedCity || selectedCity === "all")) chips.push({ label: `📍 ${detectedCity}`, color: "bg-muted text-muted-foreground" });
                     return chips.length > 0 ? (
-                      <div className="flex flex-wrap justify-center gap-1.5 mt-2">
+                      <div className="flex overflow-x-auto justify-center gap-1.5 mt-2 no-scrollbar">
                         {chips.map((c, i) => (
                           <span key={i} className={`inline-block text-xs font-medium px-3 py-1 rounded-full ${c.color}`}>
                             {c.label}
