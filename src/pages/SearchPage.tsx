@@ -2274,7 +2274,7 @@ const SearchPage = () => {
                         <p className="text-sm font-medium text-foreground mb-3">
                           {language === "en" ? "What are you looking for?" : language === "ar" ? "ماذا تبحث عنه؟" : "Que cherchez-vous ?"}
                         </p>
-                        <div className="flex flex-wrap justify-center gap-2">
+                        <div className="flex overflow-x-auto gap-2 no-scrollbar">
                           {subcatList.map(sub => (
                             <button
                               key={sub.name}
