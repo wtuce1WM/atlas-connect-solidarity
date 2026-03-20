@@ -29,6 +29,7 @@ interface WebOnlyBusiness {
   website: string | null;
   whatsapp: string | null;
   online_shop_url: string | null;
+  google_maps_url: string | null;
 }
 
 interface WebOnlyData {
