@@ -239,6 +239,8 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
     backgroundImage?: string;
   } | null>(null);
   const [fallbackPanelData, setFallbackPanelData] = useState<FallbackPanelData | null>(null);
+  // Keep ref in sync for imperative close check
+  useEffect(() => { fallbackDataRef.current = fallbackPanelData; }, [fallbackPanelData]);
   const [selectedFallbackHotelId, setSelectedFallbackHotelId] = useState<string | null>(null);
   const [pressEntries, setPressEntries] = useState<{ name: string; logo_url: string; url: string; language: string }[]>([]);
   const [articlePreview, setArticlePreview] = useState<{ title: string; summary: string; screenshot: string; url: string; name: string; publishedDate?: string } | null>(null);
