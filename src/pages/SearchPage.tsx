@@ -483,6 +483,7 @@ const SearchPage = () => {
   // Track when user has scrolled down to the tab bar — lock scroll above it from that point
   const [hasReachedTabBar, setHasReachedTabBar] = useState(false);
   const hasAutoAlignedResultsRef = useRef(false);
+  const hasInteractedWithCompactPanelRef = useRef(false);
 
   // Keep AI summary expanded when filters change
   const hasAiSticky = !!aiAnswerText;
@@ -537,6 +538,7 @@ const SearchPage = () => {
   useEffect(() => {
     if (showAiPopup || isLoading || activeTab !== "suggestions") return;
     if (hasAutoAlignedResultsRef.current) return;
+    if (hasInteractedWithCompactPanelRef.current) return;
     if (window.scrollY > 120) return;
 
     setIsAiSummaryExpanded(false);
@@ -700,6 +702,7 @@ const SearchPage = () => {
       const [isCompactPanelWebOnly, setIsCompactPanelWebOnly] = useState(false);
 
       const openCompactPanel = useCallback((bizOrData: AIBusinessData | { id: string; name: string }, forceWebOnly?: boolean) => {
+        hasInteractedWithCompactPanelRef.current = true;
         const b = bizOrData as AIBusinessData;
         setCompactPanelBusiness(b);
         setIsCompactPanelExpanded(false);
@@ -724,7 +727,7 @@ const SearchPage = () => {
       }, [allBusinesses]);
 
       const closeCompactPanel = useCallback(() => {
-        // Prevent the one-shot auto-alignment from re-running after panel close
+        hasInteractedWithCompactPanelRef.current = true;
         hasAutoAlignedResultsRef.current = true;
         setCompactPanelBusiness(null);
         setIsCompactPanelExpanded(false);
@@ -794,6 +797,7 @@ const SearchPage = () => {
      setHasScrolledPastHeroAi(false);
      aiPopupShownRef.current = false;
      hasAutoAlignedResultsRef.current = false;
+     hasInteractedWithCompactPanelRef.current = false;
      setActiveTab("suggestions");
      resetPanelStates();
      setOverlaySelectedBusiness(null);
@@ -3579,7 +3583,7 @@ const SearchPage = () => {
       {activeTab === "suggestions" && (
       <section
          ref={resultsRef}
-         className={`bg-white pt-4 pb-6 lg:pb-4 transition-all duration-300 ${compactPanelBusiness ? "w-full lg:w-1/2" : "w-full"}`}
+         className={`bg-white pt-4 pb-6 lg:pb-4 transition-all duration-300 [overflow-anchor:none] ${compactPanelBusiness ? "w-full lg:w-1/2" : "w-full"}`}
        >
         {/* Split layout wrapper: results left + map right when city/neighborhood known */}
         <div className={hasKnownLocation && !compactPanelBusiness ? "flex gap-0" : ""}>
