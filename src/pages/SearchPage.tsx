@@ -2411,7 +2411,7 @@ const SearchPage = () => {
                   <p className="text-xs font-medium text-muted-foreground mb-2 text-center">
                     {language === "en" ? "Filter by service" : language === "ar" ? "تصفية حسب الخدمة" : "Filtrer par service"}
                   </p>
-                  <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 justify-center flex-wrap">
+                  <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
                     {searchServiceFilters.map(sf => {
                       const isActive = selectedServiceFilter === sf.name;
                       return (
