@@ -2082,14 +2082,21 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                   )}
                 </div>
                 <div className="rounded-lg overflow-hidden border border-border relative">
-                  <iframe
-                    src={mapUrl}
-                    className={`w-full border-0 ${isExpanded ? "h-[500px]" : "h-[350px]"}`}
-                    allowFullScreen
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                    title={`Carte de ${business.name}`}
-                  />
+                  <div className="relative">
+                    <iframe
+                      src={mapUrl}
+                      className={`w-full border-0 ${isExpanded ? "h-[500px]" : "h-[350px]"}`}
+                      allowFullScreen
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                      title={`Carte de ${business.name}`}
+                      style={{ pointerEvents: "none" }}
+                    />
+                    <div
+                      className="absolute inset-0 cursor-pointer"
+                      onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${dest}`, "_blank")}
+                    />
+                  </div>
                   <div className="p-2 flex gap-2">
                     <button
                       onClick={() => setShowDirectionsOverlay(true)}
