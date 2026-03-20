@@ -257,8 +257,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
       mapTypeControl: false,
       streetViewControl: false,
       fullscreenControl: false,
-      zoomControl: true,
-      zoomControlOptions: { position: gmaps.ControlPosition.RIGHT_CENTER },
+      zoomControl: false,
       gestureHandling: "greedy",
     });
     infoWindowRef.current = new gmaps.InfoWindow();
