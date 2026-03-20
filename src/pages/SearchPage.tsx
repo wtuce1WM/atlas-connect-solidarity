@@ -2204,9 +2204,6 @@ const SearchPage = () => {
                   <p className="text-muted-foreground text-sm">
                     {language === "en" ? "Destinations" : language === "ar" ? "الوجهات" : "Destinations"}
                   </p>
-                  <p className="text-lg md:text-xl font-bold text-foreground mt-1">
-                    «&nbsp;{(spokenText || searchQuery)}&nbsp;»
-                  </p>
                   {(() => {
                     const effCity = selectedCity && selectedCity !== "all" ? selectedCity : detectedCity;
                     return effCity ? (
