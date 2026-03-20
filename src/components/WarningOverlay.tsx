@@ -51,9 +51,6 @@ const WarningOverlay = ({
   const hasCity = (selectedCity && selectedCity !== "all") || !!detectedCity;
   const hasCategory = !!selectedCategoryFilter || !!detectedSubcategory || !!detectedCategory;
 
-  // Don't render if both are already known
-  if (hasCity && hasCategory) return null;
-
   const rawCategories = [...new Set(allBusinesses.map(b => b.main_category).filter(Boolean))] as string[];
 
   // Fetch sort_order from categories table
@@ -68,7 +65,6 @@ const WarningOverlay = ({
         .order("sort_order", { ascending: true });
       if (data) {
         const ordered = data.map(c => c.name_fr);
-        // Append any categories not found in the table
         const remaining = rawCategories.filter(c => !ordered.includes(c));
         setSortedCategories([...ordered, ...remaining]);
       }
@@ -77,6 +73,9 @@ const WarningOverlay = ({
   }, [rawCategories.join(",")]);
 
   const categories = sortedCategories;
+
+  // Don't render if both are already known
+  if (hasCity && hasCategory) return null;
 
   return (
     <div className="fixed inset-0 z-[200] flex flex-col bg-background/95 backdrop-blur-sm animate-in fade-in duration-200">
