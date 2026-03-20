@@ -4542,7 +4542,7 @@ const SearchPage = () => {
             style={{ height: isSubDesktop ? undefined : "calc(100vh - 53px)" }}
           >
             <SlidePanelHeader
-              onClose={() => { setCompactPanelBusiness(null); setIsCompactPanelExpanded(false); }}
+              onClose={closeCompactPanel}
               isExpanded={isCompactPanelWebOnly ? undefined : isCompactPanelExpanded}
               onToggleExpand={isCompactPanelWebOnly ? undefined : (compactBusinessImageCount > 5 ? () => setIsCompactPanelExpanded(prev => !prev) : undefined)}
             />
