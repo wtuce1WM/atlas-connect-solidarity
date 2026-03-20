@@ -54,6 +54,11 @@ interface BusinessSlidePanelProps {
   onImageCount?: (count: number) => void;
 }
 
+export interface BusinessSlidePanelHandle {
+  /** Returns true if it handled the close internally (went back to fallback), false if parent should close */
+  requestClose: () => boolean;
+}
+
 interface FullBusiness {
   id: string;
   name: string;
