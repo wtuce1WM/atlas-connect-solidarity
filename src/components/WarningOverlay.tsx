@@ -54,7 +54,29 @@ const WarningOverlay = ({
   // Don't render if both are already known
   if (hasCity && hasCategory) return null;
 
-  const categories = [...new Set(allBusinesses.map(b => b.main_category).filter(Boolean))] as string[];
+  const rawCategories = [...new Set(allBusinesses.map(b => b.main_category).filter(Boolean))] as string[];
+
+  // Fetch sort_order from categories table
+  const [sortedCategories, setSortedCategories] = useState<string[]>(rawCategories);
+  useEffect(() => {
+    if (rawCategories.length === 0) return;
+    const fetchOrder = async () => {
+      const { data } = await supabase
+        .from("categories")
+        .select("name_fr, sort_order")
+        .in("name_fr", rawCategories)
+        .order("sort_order", { ascending: true });
+      if (data) {
+        const ordered = data.map(c => c.name_fr);
+        // Append any categories not found in the table
+        const remaining = rawCategories.filter(c => !ordered.includes(c));
+        setSortedCategories([...ordered, ...remaining]);
+      }
+    };
+    fetchOrder();
+  }, [rawCategories.join(",")]);
+
+  const categories = sortedCategories;
 
   return (
     <div className="fixed inset-0 z-[200] flex flex-col bg-background/95 backdrop-blur-sm animate-in fade-in duration-200">
