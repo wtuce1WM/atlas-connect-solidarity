@@ -2360,7 +2360,7 @@ const SearchPage = () => {
                             setAiAnswerText("");
                             setAiRegenerateKey(k => k + 1);
                           }}
-                          className="px-4 py-2 rounded-full border border-border bg-card text-sm text-foreground hover:border-gold/50 hover:bg-gold/10 transition-colors"
+                          className="shrink-0 px-4 py-2 rounded-full border border-border bg-card text-sm text-foreground hover:border-gold/50 hover:bg-gold/10 transition-colors whitespace-nowrap"
                         >
                           {sub.name}
                           <span className="ml-1.5 text-xs text-muted-foreground">{sub.count}</span>
