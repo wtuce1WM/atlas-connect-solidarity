@@ -8,11 +8,14 @@ interface BookingOverlayProps {
 
 const IFRAME_LOAD_TIMEOUT_MS = 5000;
 
-// 30 blocked domains detected via check-iframe-blocked edge function (scan 04/03/2026)
+// 31 blocked domains detected via check-iframe-blocked edge function (scan 20/03/2026)
 const KNOWN_BLOCKED_DOMAINS = [
   // X-Frame-Options: DENY
   'www.mandarinoriental.com',
   'www.riadelhara.com',
+  'www.jetex.com',
+  'www.selman-marrakech.com',
+  'reservation.marrakech.maison-stella-cadente.com',
   // X-Frame-Options: SAMEORIGIN
   'permalink.fairmont.com',
   'www.lunajets.com',
@@ -36,7 +39,18 @@ const KNOWN_BLOCKED_DOMAINS = [
   'www.sofitel-marrakech.com',
   'www.saintjamesmarrakech.com',
   'www.kensington-marrakech.com',
-  'www.lamamouniamarrakech.com',
+  'mamounia.com',
+  'www.nobuhotels.com',
+  'www.oberoihotels.com',
+  'www.widiane.net',
+  'www.cactusthiemann.com',
+  'www.foundouk.com',
+  'goodkarmatravels.jimdosite.com',
+  'reservations.verticalbooking.com',
+  'rentaphone.ma',
+  'fr.hotels.com',
+  'www.riadtammam.com',
+  'book-directonline.com',
   // CSP frame-ancestors: 'self'
   'www.relaischateaux.com',
   'www.onomohotels.com',
