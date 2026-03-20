@@ -25,6 +25,7 @@ export interface MapBusinessInfo {
 interface MapBusinessInfoCardProps {
   business: MapBusinessInfo;
   onClose: () => void;
+  hideDirections?: boolean;
 }
 
 const MapBusinessInfoCard = ({ business, onClose }: MapBusinessInfoCardProps) => {
