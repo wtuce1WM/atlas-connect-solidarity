@@ -184,6 +184,13 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
     },
   }), [fallbackHiddenOnMobile, externalBusinessId]);
 
+  // Always close directions overlay when the displayed business changes (internal navigation)
+  useEffect(() => {
+    setShowDirectionsOverlay(false);
+    setDirectionsMode("walking");
+    setUserOrigin(null);
+  }, [businessId]);
+
 
   // Sync when parent changes the business
   useEffect(() => {
