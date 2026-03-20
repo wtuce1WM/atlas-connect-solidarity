@@ -1313,7 +1313,7 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                     </div>
                     {mediaCount > 1 && (
                       <button
-                        onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(0); setIsLightboxOpen(true); }}
+                        onClick={(e) => { e.stopPropagation(); onToggleExpand?.(); }}
                         className="hidden sm:block absolute bottom-2 left-2 px-3 py-1.5 rounded-lg bg-background/90 backdrop-blur-sm text-xs font-semibold text-foreground shadow-md hover:bg-background transition-colors"
                       >
                         {language === "en" ? `View all ${mediaCount} photos` : language === "ar" ? `عرض ${mediaCount} صور` : `Voir les ${mediaCount} photos`}
