@@ -2944,15 +2944,9 @@ const SearchPage = () => {
                     )}
                     <button
                       onClick={() => {
-                        aiPopupShownRef.current = false;
-                        if (selectedServiceFilter && lastAiServiceRef.current !== selectedServiceFilter) {
-                          setAiAnswerText("");
-                          setAiRegenerateKey(k => k + 1);
-                          lastAiServiceRef.current = selectedServiceFilter;
+                        if (!poiAiText && !isPoiAiLoading) {
+                          fetchTabAiText("poi", poiCity, allPois.map(p => ({ name: p.name, city: poiCity })));
                         }
-                        setWarningDismissed(true);
-                        setCompactPanelBusiness(null);
-                        setIsCompactPanelExpanded(false);
                         setShowAiPopup(true);
                       }}
                       className="shrink-0 w-9 h-9 rounded-full bg-gold text-black flex items-center justify-center hover:bg-gold/90 transition-colors shadow-md"
