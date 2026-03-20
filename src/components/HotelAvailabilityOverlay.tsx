@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { X, Loader2, Calendar, Users, BedDouble, Search, ArrowRight, Star, MapPin, Wifi, Coffee, Accessibility, Tag } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
@@ -62,6 +63,16 @@ interface HotelAvailabilityOverlayProps {
 const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, backgroundImage, onClose, onSelectBusiness, onOpenFallbackPanel }: HotelAvailabilityOverlayProps) => {
   const navigate = useNavigate();
   const { language } = useLanguage();
+
+  // Detect mobile/tablet (< 1024px) to render as portal above BusinessSlidePanel
+  const [isMobileTablet, setIsMobileTablet] = useState(false);
+  useEffect(() => {
+    const mql = window.matchMedia("(max-width: 1023px)");
+    const onChange = () => setIsMobileTablet(mql.matches);
+    mql.addEventListener("change", onChange);
+    setIsMobileTablet(mql.matches);
+    return () => mql.removeEventListener("change", onChange);
+  }, []);
 
   const getDefaultDates = () => {
     const tomorrow = new Date();
@@ -347,8 +358,8 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
 
   const currencies = ["EUR", "MAD", "USD"];
 
-  return (
-    <div className="absolute inset-0 z-[60] flex flex-col animate-fade-in overflow-hidden">
+  const overlayContent = (
+    <div className={`${isMobileTablet ? "fixed inset-0 z-[210]" : "absolute inset-0 z-[60]"} flex flex-col animate-fade-in overflow-hidden`}>
       {/* Background image */}
       {backgroundImage && (
         <div
@@ -894,6 +905,11 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
       )}
     </div>
   );
+
+  if (isMobileTablet) {
+    return createPortal(overlayContent, document.body);
+  }
+  return overlayContent;
 };
 
 export default HotelAvailabilityOverlay;
