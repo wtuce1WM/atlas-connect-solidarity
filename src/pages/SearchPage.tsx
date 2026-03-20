@@ -3583,7 +3583,7 @@ const SearchPage = () => {
       {activeTab === "suggestions" && (
       <section
          ref={resultsRef}
-         className={`bg-white pt-4 pb-6 lg:pb-4 transition-all duration-300 ${compactPanelBusiness ? "w-full lg:w-1/2" : "w-full"}`}
+         className={`bg-white pt-4 pb-6 lg:pb-4 transition-all duration-300 [overflow-anchor:none] ${compactPanelBusiness ? "w-full lg:w-1/2" : "w-full"}`}
        >
         {/* Split layout wrapper: results left + map right when city/neighborhood known */}
         <div className={hasKnownLocation && !compactPanelBusiness ? "flex gap-0" : ""}>
