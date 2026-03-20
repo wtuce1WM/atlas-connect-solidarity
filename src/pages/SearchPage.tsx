@@ -2406,18 +2406,32 @@ const SearchPage = () => {
                 <span className="text-xs font-semibold text-gold uppercase tracking-wider">Suggestion IA</span>
               </div>
               <div className="text-xs sm:text-base text-foreground/80 leading-relaxed whitespace-pre-line">
-                {(!aiAnswerText || isAiRegenerating) ? (
-                  <div className="flex items-center gap-3 py-8 justify-center">
-                    <Loader2 className="h-6 w-6 animate-spin text-gold" />
-                    <span className="text-sm italic text-muted-foreground">
-                      {language === "en" ? "Generating suggestion…" : language === "ar" ? "جاري إنشاء الاقتراح…" : "Génération de la suggestion…"}
-                    </span>
-                  </div>
-                ) : (() => {
+                {(() => {
+                  const currentAiText = activeTab === "poi" ? poiAiText : activeTab === "destinations" ? destAiText : aiAnswerText;
+                  const isCurrentLoading = activeTab === "poi" ? isPoiAiLoading : activeTab === "destinations" ? isDestAiLoading : (!aiAnswerText || isAiRegenerating);
+                  if (isCurrentLoading) {
+                    return (
+                      <div className="flex items-center gap-3 py-8 justify-center">
+                        <Loader2 className="h-6 w-6 animate-spin text-gold" />
+                        <span className="text-sm italic text-muted-foreground">
+                          {language === "en" ? "Generating suggestion…" : language === "ar" ? "جاري إنشاء الاقتراح…" : "Génération de la suggestion…"}
+                        </span>
+                      </div>
+                    );
+                  }
+                  if (!currentAiText) {
+                    return (
+                      <div className="flex items-center gap-3 py-8 justify-center">
+                        <span className="text-sm italic text-muted-foreground">
+                          {language === "en" ? "No suggestion available" : "Aucune suggestion disponible"}
+                        </span>
+                      </div>
+                    );
+                  }
                   const isTTSActive = ttsStatus === "playing" && ttsSpokenWordIndex >= 0;
                   const karaokeTarget = isTTSActive ? ttsSpokenWordIndex - ttsIntroWordCountRef.current : -1;
                   return parseInline(
-                    aiAnswerText,
+                    currentAiText,
                     allBusinesses as unknown as AIBusinessData[],
                     (b: AIBusinessData) => {
                       setShowAiPopup(false);
