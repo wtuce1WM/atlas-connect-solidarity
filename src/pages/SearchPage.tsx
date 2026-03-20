@@ -722,6 +722,18 @@ const SearchPage = () => {
           }
         }
       }, [allBusinesses]);
+
+      const closeCompactPanel = useCallback(() => {
+        setCompactPanelBusiness(null);
+        setIsCompactPanelExpanded(false);
+        // Scroll to top of results list
+        if (resultsRef.current) {
+          resultsRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+        } else {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+      }, []);
+
      const [hoveredResultId, setHoveredResultId] = useState<string | null>(null);
      const [hoveredPoiId, setHoveredPoiId] = useState<string | null>(null);
      const [hoveredDestId, setHoveredDestId] = useState<string | null>(null);
@@ -4245,7 +4257,7 @@ const SearchPage = () => {
                 <span className="text-sm font-semibold">{language === "en" ? "AI Summary" : "Résumé IA"}</span>
               </div>
               <button
-                onClick={() => { setCompactPanelBusiness(null); setIsCompactPanelExpanded(false); }}
+                onClick={() => closeCompactPanel()}
                 className="h-8 w-8 flex items-center justify-center rounded-full hover:bg-muted transition-colors"
                 title="Fermer"
               >
@@ -4530,7 +4542,7 @@ const SearchPage = () => {
             style={{ height: isSubDesktop ? undefined : "calc(100vh - 53px)" }}
           >
             <SlidePanelHeader
-              onClose={() => { setCompactPanelBusiness(null); setIsCompactPanelExpanded(false); }}
+              onClose={closeCompactPanel}
               isExpanded={isCompactPanelWebOnly ? undefined : isCompactPanelExpanded}
               onToggleExpand={isCompactPanelWebOnly ? undefined : (compactBusinessImageCount > 5 ? () => setIsCompactPanelExpanded(prev => !prev) : undefined)}
             />
@@ -4538,12 +4550,12 @@ const SearchPage = () => {
               {isCompactPanelWebOnly ? (
                 <WebOnlySlidePanel
                   businessId={compactPanelBusiness.id}
-                  onClose={() => { setCompactPanelBusiness(null); setIsCompactPanelExpanded(false); }}
+                  onClose={closeCompactPanel}
                 />
               ) : (
                 <BusinessSlidePanel
                   businessId={compactPanelBusiness.id}
-                  onClose={() => { setCompactPanelBusiness(null); setIsCompactPanelExpanded(false); }}
+                  onClose={closeCompactPanel}
                   isExpanded={isCompactPanelExpanded}
                   onToggleExpand={() => setIsCompactPanelExpanded(prev => !prev)}
                   onImageCount={setCompactBusinessImageCount}
