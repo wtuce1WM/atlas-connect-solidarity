@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { ShieldAlert, RefreshCw, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -50,10 +50,58 @@ const KNOWN_BLOCKED_DOMAINS = [
   { domain: 'www.onomohotels.com', reason: 'CSP frame-ancestors: self' },
 ];
 
+type BusinessDomainRow = { businessName: string; domain: string; reason: string };
+
+function extractDomain(url: string): string {
+  try { return new URL(url).hostname; } catch { return ""; }
+}
+
 const BlockedDomainsManagement = () => {
   const [results, setResults] = useState<any[] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [summary, setSummary] = useState<any>(null);
+  const [businessRows, setBusinessRows] = useState<BusinessDomainRow[]>([]);
+  const [loadingRows, setLoadingRows] = useState(true);
+
+  // Fetch businesses matching blocked domains on mount
+  useEffect(() => {
+    (async () => {
+      try {
+        const blockedSet = new Set(KNOWN_BLOCKED_DOMAINS.map(d => d.domain));
+        const reasonMap = new Map(KNOWN_BLOCKED_DOMAINS.map(d => [d.domain, d.reason]));
+
+        const fields = "name, reserve_now_url, booking_url, other_booking_url";
+        const [r1, r2, r3] = await Promise.all([
+          supabase.from("businesses").select(fields).eq("is_active", true).not("reserve_now_url", "is", null),
+          supabase.from("businesses").select(fields).eq("is_active", true).not("booking_url", "is", null),
+          supabase.from("businesses").select(fields).eq("is_active", true).not("other_booking_url", "is", null),
+        ]);
+
+        const allMap = new Map<string, any>();
+        for (const list of [r1.data || [], r2.data || [], r3.data || []]) {
+          for (const b of list) allMap.set(b.name + (b.reserve_now_url || "") + (b.booking_url || ""), b);
+        }
+
+        const rows: BusinessDomainRow[] = [];
+        for (const b of allMap.values()) {
+          const urls = [b.reserve_now_url, b.booking_url, b.other_booking_url].filter(Boolean);
+          for (const url of urls) {
+            const domain = extractDomain(url);
+            if (blockedSet.has(domain)) {
+              rows.push({ businessName: b.name, domain, reason: reasonMap.get(domain) || "" });
+            }
+          }
+        }
+
+        rows.sort((a, b) => a.businessName.localeCompare(b.businessName, "fr"));
+        setBusinessRows(rows);
+      } catch {
+        // fallback: show domain-only list
+      } finally {
+        setLoadingRows(false);
+      }
+    })();
+  }, []);
 
   const handleScan = useCallback(async () => {
     setIsLoading(true);
@@ -127,25 +175,35 @@ const BlockedDomainsManagement = () => {
         )}
 
         <div className="space-y-1">
-          <p className="text-sm font-medium">Liste actuelle ({KNOWN_BLOCKED_DOMAINS.length} domaines) :</p>
-          <div className="overflow-auto border rounded-md">
-            <table className="w-full text-xs">
-              <thead className="bg-muted sticky top-0">
-                <tr>
-                  <th className="text-left p-2">Domaine</th>
-                  <th className="text-left p-2">Raison du blocage</th>
-                </tr>
-              </thead>
-              <tbody>
-                {KNOWN_BLOCKED_DOMAINS.map((d, i) => (
-                  <tr key={i} className="border-t">
-                    <td className="p-2 font-mono">{d.domain}</td>
-                    <td className="p-2 text-muted-foreground">{d.reason}</td>
+          <p className="text-sm font-medium">
+            Liste actuelle ({KNOWN_BLOCKED_DOMAINS.length} domaines, {businessRows.length} établissements) :
+          </p>
+          {loadingRows ? (
+            <div className="flex items-center gap-2 text-xs text-muted-foreground py-2">
+              <Loader2 className="h-3 w-3 animate-spin" /> Chargement…
+            </div>
+          ) : (
+            <div className="overflow-auto border rounded-md">
+              <table className="w-full text-xs">
+                <thead className="bg-muted sticky top-0">
+                  <tr>
+                    <th className="text-left p-2">Établissement</th>
+                    <th className="text-left p-2">Domaine</th>
+                    <th className="text-left p-2">Raison du blocage</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {businessRows.map((row, i) => (
+                    <tr key={i} className="border-t">
+                      <td className="p-2 font-medium">{row.businessName}</td>
+                      <td className="p-2 font-mono text-muted-foreground">{row.domain}</td>
+                      <td className="p-2 text-muted-foreground">{row.reason}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
