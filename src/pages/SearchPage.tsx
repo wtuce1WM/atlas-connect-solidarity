@@ -2334,8 +2334,8 @@ const SearchPage = () => {
               return null;
             })()}
 
-            {/* Subcategory disambiguation — when category is known but subcategory is not */}
-            {!selectedSubcategoryFilter && !detectedSubcategory && (selectedCategoryFilter || detectedCategory) && (() => {
+            {/* Subcategory disambiguation — only for Results tab */}
+            {activeTab === "suggestions" && !selectedSubcategoryFilter && !detectedSubcategory && (selectedCategoryFilter || detectedCategory) && (() => {
               const effectiveCat = selectedCategoryFilter || detectedCategory;
               const subCounts: Record<string, number> = {};
               for (const b of allBusinesses) {
