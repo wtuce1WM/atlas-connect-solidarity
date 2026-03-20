@@ -1587,7 +1587,13 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                 )}
                 {business.reserve_now_url && (
                   <button
-                    onClick={() => { setForceBookingOverlay(true); }}
+                    onClick={() => {
+                      if (/^https?:\/\/(api\.)?whatsapp\.com/i.test(business.reserve_now_url!)) {
+                        window.open(business.reserve_now_url!, "_blank", "noopener,noreferrer");
+                      } else {
+                        setForceBookingOverlay(true);
+                      }
+                    }}
                     className="text-sm hover:text-foreground transition-colors flex items-center gap-2 text-left"
                   >
                     <ExternalLink className="h-4 w-4 shrink-0 text-foreground/60" />
@@ -1728,8 +1734,13 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                   ) : (
                     <button
                       onClick={() => {
-                        setIsBookingOpen(true);
-                        setForceBookingOverlay(true);
+                        const url = business.reserve_now_url || bookingUrl || "";
+                        if (/^https?:\/\/(api\.)?whatsapp\.com/i.test(url)) {
+                          window.open(url, "_blank", "noopener,noreferrer");
+                        } else {
+                          setIsBookingOpen(true);
+                          setForceBookingOverlay(true);
+                        }
                       }}
                       className="flex items-center justify-center gap-2 w-[60%] py-3 rounded-xl bg-gold text-gold-foreground font-semibold text-sm hover:bg-gold/90 transition-colors"
                     >
