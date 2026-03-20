@@ -483,6 +483,7 @@ const SearchPage = () => {
   // Track when user has scrolled down to the tab bar — lock scroll above it from that point
   const [hasReachedTabBar, setHasReachedTabBar] = useState(false);
   const hasAutoAlignedResultsRef = useRef(false);
+  const hasInteractedWithCompactPanelRef = useRef(false);
 
   // Keep AI summary expanded when filters change
   const hasAiSticky = !!aiAnswerText;
