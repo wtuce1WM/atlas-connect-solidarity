@@ -69,6 +69,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
   useEffect(() => {
     if (!showDirections) return;
     setUserOrigin(null);
+    setShowInfoCard(true);
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => setUserOrigin(`${pos.coords.latitude},${pos.coords.longitude}`),
