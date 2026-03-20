@@ -2074,31 +2074,32 @@ const BusinessSlidePanel = ({ businessId: externalBusinessId, onClose, isExpande
                     <div className="flex items-start gap-2">
                       <MapPin className="h-4 w-4 flex-shrink-0 mt-0.5 text-primary" />
                       <span>
-                        <a href={`/city/${encodeURIComponent(business.city)}`} className="font-bold underline underline-offset-2 text-primary hover:text-foreground transition-colors">
-                          {business.city}
-                        </a>
-                        {business.neighborhood && (
-                          <>, <a href={`/neighborhood/${encodeURIComponent(business.neighborhood)}?city=${encodeURIComponent(business.city)}`} className="font-bold underline underline-offset-2 text-primary hover:text-foreground transition-colors">
-                            {business.neighborhood}
-                          </a></>
-                        )}
+                        {business.city}
+                        {business.neighborhood && <>, {business.neighborhood}</>}
                         {business.region && <>, {business.region}</>}
                       </span>
                     </div>
                   )}
                 </div>
                 <div className="rounded-lg overflow-hidden border border-border relative">
-                  <iframe
-                    src={mapUrl}
-                    className={`w-full border-0 ${isExpanded ? "h-[500px]" : "h-[350px]"}`}
-                    allowFullScreen
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                    title={`Carte de ${business.name}`}
-                  />
+                  <div className="relative">
+                    <iframe
+                      src={mapUrl}
+                      className={`w-full border-0 ${isExpanded ? "h-[500px]" : "h-[350px]"}`}
+                      allowFullScreen
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                      title={`Carte de ${business.name}`}
+                      style={{ pointerEvents: "none" }}
+                    />
+                    <div
+                      className="absolute inset-0 cursor-pointer"
+                      onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${dest}`, "_blank")}
+                    />
+                  </div>
                   <div className="p-2 flex gap-2">
                     <button
-                      onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&destination=${dest}`, "_blank")}
+                      onClick={() => setShowDirectionsOverlay(true)}
                       className="flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-medium rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
                     >
                       <Navigation className="h-3.5 w-3.5" />
