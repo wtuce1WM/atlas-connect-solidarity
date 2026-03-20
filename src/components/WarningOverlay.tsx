@@ -98,7 +98,7 @@ const WarningOverlay = ({
                 <p className="text-sm font-medium text-foreground mb-3">
                   {language === "en" ? "What are you looking for?" : language === "ar" ? "ماذا تبحث عنه؟" : "Que cherchez-vous ?"}
                 </p>
-                <div className="flex overflow-x-auto gap-2 pb-2">
+                <div className="flex overflow-x-auto gap-2 pb-2 scrollbar-hide">
                   {categories.slice(0, 8).map(cat => (
                     <button
                       key={cat}
@@ -120,7 +120,7 @@ const WarningOverlay = ({
                 <p className="text-sm font-medium text-foreground mb-3">
                   {language === "en" ? "Where are you looking?" : language === "ar" ? "أين تبحث؟" : "Où le cherchez-vous ?"}
                 </p>
-                <div className="flex overflow-x-auto gap-2 pb-2">
+                <div className="flex overflow-x-auto gap-2 pb-2 scrollbar-hide">
                   {citiesWithPriority.slice(0, 10).map(c => (
                     <button
                       key={c.name}
