@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
-import { ExternalLink, ShoppingBag, MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X } from "lucide-react";
+import { ExternalLink, ShoppingBag, MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Info } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import MapBusinessInfoCard from "@/components/MapBusinessInfoCard";
 import { useLanguage } from "@/contexts/LanguageContext";
 import ShareButton from "@/components/ShareButton";
 import BookmarkButton from "@/components/BookmarkButton";
@@ -34,6 +35,17 @@ interface WebOnlyBusiness {
   whatsapp: string | null;
   online_shop_url: string | null;
   google_maps_url: string | null;
+  phone: string | null;
+  skype: string | null;
+  opening_hours: unknown;
+  show_opening_hours: boolean | null;
+  is_open_24h: boolean;
+  google_rating: number | null;
+  google_review_count: number | null;
+  tripadvisor_rating: number | null;
+  tripadvisor_review_count: number | null;
+  restaurant_guru_rating: number | null;
+  restaurant_guru_review_count: number | null;
 }
 
 interface WebOnlyData {
@@ -52,6 +64,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
   const [showDirections, setShowDirections] = useState(false);
   const [directionsMode, setDirectionsMode] = useState<"walking" | "driving">("walking");
   const [userOrigin, setUserOrigin] = useState<string | null>(null);
+  const [showInfoCard, setShowInfoCard] = useState(true);
 
   useEffect(() => {
     if (!showDirections) return;
@@ -70,7 +83,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
       const [bizRes, woRes] = await Promise.all([
         supabase
           .from("businesses")
-          .select("id, name, slug, logo_url, logo_bg, images, city, neighborhood, address, latitude, longitude, website, whatsapp, online_shop_url, google_maps_url")
+          .select("id, name, slug, logo_url, logo_bg, images, city, neighborhood, address, latitude, longitude, website, whatsapp, online_shop_url, google_maps_url, phone, skype, opening_hours, show_opening_hours, is_open_24h, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count")
           .eq("id", businessId)
           .eq("is_active", true)
           .maybeSingle(),
@@ -368,14 +381,31 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
                 </a>
               </div>
             </div>
-            <iframe
-              src={`https://www.google.com/maps/embed/v1/directions?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&origin=${userOrigin || "My+location"}&destination=${dest}&mode=${directionsMode}`}
-              className="flex-1 w-full border-0"
-              allowFullScreen
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              title={`Itinéraire vers ${business.name}`}
-            />
+            <div className="flex-1 relative min-h-0">
+              <iframe
+                src={`https://www.google.com/maps/embed/v1/directions?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&origin=${userOrigin || "My+location"}&destination=${dest}&mode=${directionsMode}`}
+                className="absolute inset-0 w-full h-full border-0"
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title={`Itinéraire vers ${business.name}`}
+              />
+              {showInfoCard && (
+                <MapBusinessInfoCard
+                  business={business}
+                  onClose={() => setShowInfoCard(false)}
+                />
+              )}
+              {!showInfoCard && (
+                <button
+                  onClick={() => setShowInfoCard(true)}
+                  className="absolute top-2 left-2 z-10 h-8 w-8 flex items-center justify-center rounded-full bg-foreground text-background shadow-lg hover:opacity-90 transition-opacity"
+                  title="Infos établissement"
+                >
+                  <Info className="h-4 w-4" />
+                </button>
+              )}
+            </div>
           </div>
         );
       })()}
