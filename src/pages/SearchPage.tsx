@@ -2236,7 +2236,7 @@ const SearchPage = () => {
                     return chips.length > 0 ? (
                       <div className="flex overflow-x-auto justify-center gap-1.5 mt-2 no-scrollbar">
                         {chips.map((c, i) => (
-                          <span key={i} className={`inline-block text-xs font-medium px-3 py-1 rounded-full ${c.color}`}>
+                          <span key={i} className={`inline-block text-xs font-medium px-3 py-1 rounded-full whitespace-nowrap ${c.color}`}>
                             {c.label}
                           </span>
                         ))}
