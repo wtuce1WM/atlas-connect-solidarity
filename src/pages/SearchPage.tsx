@@ -3179,10 +3179,6 @@ const SearchPage = () => {
                 {/* Sticky bar for Destinations — mirrors STICKY 5 */}
                 <div className="sticky z-[19] bg-white flex items-center justify-between py-2 mb-2 border-b border-border/40" style={{ top: `${Math.max(stickyStackPadding || 0, 104)}px` }}>
                   <div className="flex items-center gap-3">
-                    <span className="text-xs text-muted-foreground font-medium">
-                      {language === "en" ? "Destinations" : language === "ar" ? "وجهات" : "Destinations"}
-                      {destCity && <span className="ml-1">— {destCity}</span>}
-                    </span>
                   </div>
                   <div className="flex items-center gap-2">
                     {isSubDesktop && (
