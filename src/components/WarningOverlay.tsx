@@ -11,7 +11,7 @@ interface CityOption {
 
 interface WarningOverlayProps {
   /** All businesses from current search — used to extract available categories and cities */
-  allBusinesses: { main_category: string | null }[];
+  allBusinesses: { main_category: string | null; city?: string | null }[];
   /** Sorted city list */
   citiesWithPriority: CityOption[];
   /** Currently selected city (or "all") */
