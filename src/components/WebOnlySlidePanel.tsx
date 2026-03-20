@@ -264,7 +264,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
 
           {/* Centered content block */}
           <div className="flex-1 flex items-start justify-center overflow-hidden min-h-0">
-            <div className="w-[95%] md:w-[90%] lg:w-[70%] max-h-full md:max-h-none overflow-hidden rounded-2xl bg-black/40 backdrop-blur-sm p-4 md:p-6 flex flex-col gap-5 text-white pointer-events-auto">
+            <div className="w-[95%] md:w-[90%] lg:w-[70%] max-h-full overflow-hidden rounded-2xl bg-black/40 backdrop-blur-sm p-4 md:p-6 flex flex-col gap-5 text-white pointer-events-auto">
               {/* Logo + name + toggle */}
               <div className="flex items-end gap-4">
                 {business.logo_url && (
@@ -298,7 +298,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
               {/* Web only description (rich text) — collapsible */}
               {woDescription && descExpanded && (
                 <div
-                  className="flex-1 min-h-0 overflow-y-auto md:overflow-visible pr-1 text-sm leading-relaxed prose prose-invert prose-sm max-w-none break-words [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white"
+                  className="flex-1 min-h-0 overflow-y-auto pr-1 text-sm leading-relaxed prose prose-invert prose-sm max-w-none break-words [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white"
                   dangerouslySetInnerHTML={{ __html: woDescription }}
                 />
               )}
