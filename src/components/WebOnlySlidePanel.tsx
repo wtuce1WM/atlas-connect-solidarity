@@ -27,6 +27,9 @@ interface WebOnlyBusiness {
   images: string[] | null;
   city: string | null;
   neighborhood: string | null;
+  address: string | null;
+  latitude: number | null;
+  longitude: number | null;
   website: string | null;
   whatsapp: string | null;
   online_shop_url: string | null;
