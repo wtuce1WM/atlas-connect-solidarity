@@ -2900,15 +2900,63 @@ const SearchPage = () => {
                       <span className="text-xs text-muted-foreground">{allPois.length} {language === "en" ? "results" : "résultats"}</span>
                     )}
                   </div>
-                  {isSubDesktop && (
+                  <div className="flex items-center gap-2">
+                    {isSubDesktop && (
+                      <button
+                        onClick={() => setShowMobileMap(true)}
+                        className="lg:hidden inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-foreground text-background text-xs font-medium shadow-lg hover:bg-foreground/90 transition-colors"
+                      >
+                        <Map className="h-4 w-4" />
+                        {language === "en" ? "Map" : language === "ar" ? "خريطة" : "Carte"}
+                      </button>
+                    )}
                     <button
-                      onClick={() => setShowMobileMap(true)}
-                      className="lg:hidden inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-foreground text-background text-xs font-medium shadow-lg hover:bg-foreground/90 transition-colors"
+                      onClick={() => {
+                        aiPopupShownRef.current = false;
+                        if (selectedServiceFilter && lastAiServiceRef.current !== selectedServiceFilter) {
+                          setAiAnswerText("");
+                          setAiRegenerateKey(k => k + 1);
+                          lastAiServiceRef.current = selectedServiceFilter;
+                        }
+                        setWarningDismissed(true);
+                        setCompactPanelBusiness(null);
+                        setIsCompactPanelExpanded(false);
+                        setShowAiPopup(true);
+                      }}
+                      className="shrink-0 w-9 h-9 rounded-full bg-gold text-black flex items-center justify-center hover:bg-gold/90 transition-colors shadow-md"
+                      title={language === "en" ? "View AI suggestion" : "Voir la suggestion IA"}
                     >
-                      <Map className="h-4 w-4" />
-                      {language === "en" ? "Map" : language === "ar" ? "خريطة" : "Carte"}
+                      <Sparkles className="h-4 w-4" />
                     </button>
-                  )}
+                    {!isMobile && (
+                      <button
+                        onClick={() => setLocationDialogOpen(true)}
+                        className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                          geo.isEnabled
+                            ? "bg-gold/20 text-gold border border-gold/40"
+                            : "bg-card text-muted-foreground border border-border hover:border-gold/30"
+                        }`}
+                      >
+                        {geo.isDetecting ? (
+                          <Loader className="h-3 w-3 animate-spin" />
+                        ) : geo.isEnabled ? (
+                          <MapPin className="h-3 w-3" />
+                        ) : (
+                          <MapPinOff className="h-3 w-3" />
+                        )}
+                        {geo.isDetecting
+                          ? "…"
+                          : geo.isEnabled && (geo.detectedNeighborhood || geo.detectedCity)
+                          ? `📍 ${[geo.detectedNeighborhood, geo.detectedCity].filter(Boolean).join(", ")}`
+                          : geo.isEnabled && geo.confirmedAddress
+                          ? `📍 ${geo.confirmedAddress}`
+                          : geo.isEnabled
+                          ? (language === "en" ? "No city" : "Aucune ville")
+                          : (language === "en" ? "Location" : "Position")
+                        }
+                      </button>
+                    )}
+                  </div>
                 </div>
                 <PoiSection
                   city={poiCity}
