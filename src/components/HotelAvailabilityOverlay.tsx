@@ -358,8 +358,8 @@ const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, 
 
   const currencies = ["EUR", "MAD", "USD"];
 
-  return (
-    <div className="absolute inset-0 z-[60] flex flex-col animate-fade-in overflow-hidden">
+  const overlayContent = (
+    <div className={`${isMobileTablet ? "fixed inset-0 z-[210]" : "absolute inset-0 z-[60]"} flex flex-col animate-fade-in overflow-hidden`}>
       {/* Background image */}
       {backgroundImage && (
         <div
