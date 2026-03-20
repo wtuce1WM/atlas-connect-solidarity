@@ -316,6 +316,61 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
           )}
         </div>
       </div>
+
+      {/* Directions Overlay — slide-in from right */}
+      {showDirections && business && (() => {
+        const dest = business.latitude && business.longitude
+          ? `${business.latitude},${business.longitude}`
+          : encodeURIComponent(business.address || business.name);
+        const destRaw = business.latitude && business.longitude
+          ? `${business.latitude},${business.longitude}`
+          : business.address || business.name;
+        return (
+          <div className="absolute inset-0 z-[60] bg-background flex flex-col animate-slide-in-right">
+            <div className="flex items-center justify-between px-3 py-2 border-b bg-background">
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-semibold truncate">Itinéraire — {business.name}</span>
+                <div className="flex items-center bg-muted rounded-full p-0.5">
+                  <button
+                    onClick={() => setDirectionsMode("walking")}
+                    className={`px-2.5 py-1 text-xs font-medium rounded-full transition-colors ${directionsMode === "walking" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+                  >
+                    🚶 À pied
+                  </button>
+                  <button
+                    onClick={() => setDirectionsMode("driving")}
+                    className={`px-2.5 py-1 text-xs font-medium rounded-full transition-colors ${directionsMode === "driving" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+                  >
+                    🚗 Voiture
+                  </button>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <a href={`https://www.google.com/maps/dir/?api=1&destination=${dest}`} target="_blank" rel="noopener noreferrer" className="p-1 rounded-full hover:bg-muted transition-colors" title="Google Maps">
+                  <img src="https://www.google.com/favicon.ico" alt="Google Maps" className="h-5 w-5" />
+                </a>
+                <a href={business.latitude && business.longitude ? `https://waze.com/ul?ll=${business.latitude},${business.longitude}&navigate=yes` : `https://waze.com/ul?q=${encodeURIComponent(destRaw)}&navigate=yes`} target="_blank" rel="noopener noreferrer" className="p-1 rounded-full hover:bg-muted transition-colors" title="Waze">
+                  <img src="https://www.waze.com/favicon.ico" alt="Waze" className="h-5 w-5" />
+                </a>
+                <a href={business.latitude && business.longitude ? `https://maps.apple.com/?daddr=${business.latitude},${business.longitude}&dirflg=d` : `https://maps.apple.com/?daddr=${encodeURIComponent(destRaw)}&dirflg=d`} target="_blank" rel="noopener noreferrer" className="p-1 rounded-full hover:bg-muted transition-colors" title="Apple Plans">
+                  <img src="https://www.apple.com/favicon.ico" alt="Apple Plans" className="h-5 w-5" />
+                </a>
+                <button onClick={() => setShowDirections(false)} className="p-1 rounded-full hover:bg-muted transition-colors" title="Fermer">
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+            <iframe
+              src={`https://www.google.com/maps/embed/v1/directions?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&origin=${userOrigin || "My+location"}&destination=${dest}&mode=${directionsMode}`}
+              className="flex-1 w-full border-0"
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              title={`Itinéraire vers ${business.name}`}
+            />
+          </div>
+        );
+      })()}
     </div>
   );
 };
