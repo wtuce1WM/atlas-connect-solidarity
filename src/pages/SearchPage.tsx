@@ -3736,11 +3736,6 @@ const SearchPage = () => {
               {/* Bar: Results count + AI suggestion + Geolocation — STICKY 5 */}
               <div ref={resultsBarRef} data-results-bar className="sticky z-[19] bg-white flex items-center justify-between py-2 mb-2 border-b border-border/40" style={{ top: `${Math.max(stickyStackPadding || 0, 104)}px` }}>
                 <div className="flex items-center gap-3">
-                  {filteredBusinesses.length > 0 && (
-                    <span className="text-xs text-muted-foreground font-medium">
-                      {t.showing} {startResult} {t.to} {endResult} {t.of} {filteredBusinesses.length} {t.results}
-                    </span>
-                  )}
                 </div>
                 <div className="flex items-center gap-2">
                   {isSubDesktop && (
