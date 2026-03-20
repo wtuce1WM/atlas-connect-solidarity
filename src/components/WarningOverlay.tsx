@@ -1,5 +1,7 @@
+import { useEffect, useState } from "react";
 import { MapPin, AlertTriangle, X } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { supabase } from "@/integrations/supabase/client";
 
 interface CityOption {
   name: string;
@@ -49,10 +51,31 @@ const WarningOverlay = ({
   const hasCity = (selectedCity && selectedCity !== "all") || !!detectedCity;
   const hasCategory = !!selectedCategoryFilter || !!detectedSubcategory || !!detectedCategory;
 
+  const rawCategories = [...new Set(allBusinesses.map(b => b.main_category).filter(Boolean))] as string[];
+
+  // Fetch sort_order from categories table
+  const [sortedCategories, setSortedCategories] = useState<string[]>(rawCategories);
+  useEffect(() => {
+    if (rawCategories.length === 0) return;
+    const fetchOrder = async () => {
+      const { data } = await supabase
+        .from("categories")
+        .select("name_fr, sort_order")
+        .in("name_fr", rawCategories)
+        .order("sort_order", { ascending: true });
+      if (data) {
+        const ordered = data.map(c => c.name_fr);
+        const remaining = rawCategories.filter(c => !ordered.includes(c));
+        setSortedCategories([...ordered, ...remaining]);
+      }
+    };
+    fetchOrder();
+  }, [rawCategories.join(",")]);
+
+  const categories = sortedCategories;
+
   // Don't render if both are already known
   if (hasCity && hasCategory) return null;
-
-  const categories = [...new Set(allBusinesses.map(b => b.main_category).filter(Boolean))] as string[];
 
   return (
     <div className="fixed inset-0 z-[200] flex flex-col bg-background/95 backdrop-blur-sm animate-in fade-in duration-200">
