@@ -8,7 +8,7 @@ interface BookingOverlayProps {
 
 const IFRAME_LOAD_TIMEOUT_MS = 5000;
 
-// Blocked domains detected via check-iframe-blocked edge function (scan 20/03/2026 – 44 bloqués)
+// Blocked domains detected via check-iframe-blocked edge function (scan 20/03/2026 – 42 bloqués / 63 établissements)
 const KNOWN_BLOCKED_DOMAINS = [
   // X-Frame-Options: DENY
   'www.mandarinoriental.com',
@@ -17,6 +17,7 @@ const KNOWN_BLOCKED_DOMAINS = [
   'www.selman-marrakech.com',
   'reservation.marrakech.maison-stella-cadente.com',
   'www.sevenrooms.com',
+  'tickets.jardinmajorelle.com',
   // X-Frame-Options: SAMEORIGIN
   'permalink.fairmont.com',
   'www.lunajets.com',
@@ -37,9 +38,12 @@ const KNOWN_BLOCKED_DOMAINS = [
   'www.oberoihotels.com',
   'www.widiane.net',
   'www.cactusthiemann.com',
+  'direct-book.com',
+  'xaluca.com',
   // CSP frame-ancestors
   'www.onomohotels.com',
   'www.dabadoc.com',
+  'www.relaischateaux.com',
   // HTTP errors / site en panne
   'darbacha.com',
   'almoravidkoubba.com',
@@ -51,6 +55,8 @@ const KNOWN_BLOCKED_DOMAINS = [
   'www.mazaganbeachresort.com',
   'omyoga.ma',
   'www.supratours.ma',
+  'beautynow.ma',
+  'www.lemapmarrakech.com',
 ];
 
 function isDomainBlocked(url: string): boolean {
