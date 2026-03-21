@@ -961,6 +961,14 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
         <div className="absolute inset-0 z-[60] bg-background flex flex-col animate-fade-in">
           <div className="flex items-center justify-between px-3 py-2 border-b bg-background">
            <div className="flex items-center gap-3">
+             <button
+               onClick={() => setShowDirectionsOverlay(false)}
+               className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background border-2 border-white/20 shadow-2xl hover:opacity-90 transition-opacity shrink-0"
+               title="Fermer"
+               aria-label="Fermer l'itinéraire"
+             >
+               <X className="h-4 w-4" />
+             </button>
              <span className="text-sm font-semibold hidden md:inline">Itinéraire — {business.name}</span>
              <div className="flex items-center bg-muted rounded-full p-0.5">
                <button
@@ -985,7 +993,7 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
                 className="p-1 rounded-full hover:bg-muted transition-colors"
                 title="Google Maps"
               >
-                <img src="https://www.google.com/favicon.ico" alt="Google Maps" className="h-5 w-5" />
+                <img src="https://www.google.com/favicon.ico" alt="Google Maps" className="h-6 w-6" />
               </a>
               <a
                 href={business.latitude && business.longitude
@@ -997,7 +1005,7 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
                 className="p-1 rounded-full hover:bg-muted transition-colors"
                 title="Waze"
               >
-                <img src="https://www.waze.com/favicon.ico" alt="Waze" className="h-5 w-5" />
+                <img src="https://www.waze.com/favicon.ico" alt="Waze" className="h-6 w-6" />
               </a>
               <a
                 href={business.latitude && business.longitude
@@ -1009,15 +1017,8 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
                 className="p-1 rounded-full hover:bg-muted transition-colors"
                 title="Apple Plans"
               >
-                <img src="https://www.apple.com/favicon.ico" alt="Apple Plans" className="h-5 w-5" />
+                <img src="https://www.apple.com/favicon.ico" alt="Apple Plans" className="h-6 w-6" />
               </a>
-              <button
-                onClick={() => setShowDirectionsOverlay(false)}
-                className="p-1 rounded-full hover:bg-muted transition-colors"
-                title="Fermer"
-              >
-                <X className="h-5 w-5" />
-              </button>
             </div>
           </div>
           <iframe
