@@ -3317,6 +3317,7 @@ const SearchPage = () => {
                     }
                   }}
                   center={mapCenterForResults}
+                  fitToMarkers
                 />
               </div>
             )}
