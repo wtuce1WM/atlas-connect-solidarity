@@ -3279,9 +3279,11 @@ const SearchPage = () => {
                     <button
                       onClick={() => setLocationDialogOpen(true)}
                       className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                        geo.isEnabled
+                        geo.isEnabled && (geo.detectedNeighborhood || geo.detectedCity || geo.confirmedAddress)
                           ? "bg-gold/20 text-gold border border-gold/40"
-                          : "bg-card text-muted-foreground border border-border hover:border-gold/30"
+                          : geo.isEnabled
+                          ? "bg-[#C04F17] text-white border border-[#C04F17]"
+                          : "bg-[#C04F17] text-white border border-[#C04F17] hover:bg-[#C04F17]/90"
                       }`}
                     >
                       {geo.isDetecting ? (
@@ -3297,9 +3299,7 @@ const SearchPage = () => {
                         ? `📍 ${[geo.detectedNeighborhood, geo.detectedCity].filter(Boolean).join(", ")}`
                         : geo.isEnabled && geo.confirmedAddress
                         ? `📍 ${geo.confirmedAddress}`
-                        : geo.isEnabled
-                        ? (language === "en" ? "No city" : "Aucune ville")
-                        : (language === "en" ? "Location" : "Position")
+                        : (language === "en" ? "Location" : language === "ar" ? "الموقع" : "Localisation")
                       }
                     </button>
                   </div>
