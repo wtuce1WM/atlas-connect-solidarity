@@ -2123,16 +2123,6 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
                       <span>{business.address}</span>
                     </div>
                   )}
-                  {business.city && (
-                    <div className="flex items-start gap-2">
-                      <MapPin className="h-4 w-4 flex-shrink-0 mt-0.5 text-primary" />
-                      <span>
-                        {business.city}
-                        {business.neighborhood && <>, {business.neighborhood}</>}
-                        {business.region && <>, {business.region}</>}
-                      </span>
-                    </div>
-                  )}
                 </div>
                 <div className="rounded-lg overflow-hidden border border-border relative">
                   <div className="relative">
