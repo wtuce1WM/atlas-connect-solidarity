@@ -182,7 +182,7 @@ const DestinationSection = ({ city, language, onDestinationClick, columns, onMap
           );
         })}
       </div>
-    </div>
+    </>
   );
 };
 
