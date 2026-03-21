@@ -2048,15 +2048,17 @@ serve(async (req) => {
     // Flag hoisted outside block scope so it's accessible at response construction
     let serviceWasDetected = false;
 
-    if (!serviceShortcutActivated && !labelShortcutActivated) {
     // ── Pre-detect matching service(s) from query keywords ──
+    // Hoisted outside the if-block so they're accessible later (subcategory filtering, search config, response)
     let detectedService: string | null = null;
-    let detectedServices: string[] = []; // ALL fully-matched services (distinct concepts → AND)
-    let allCandidateServiceNames: string[] = []; // ALL candidate service names (synonyms → OR)
-    let allMatchedServiceNames: string[] = []; // FULL list of matching services before narrowing (for fallback)
-    let originalDetectedService: string | null = null; // Keep track even after fallback
+    let detectedServices: string[] = [];
+    let allCandidateServiceNames: string[] = [];
+    let allMatchedServiceNames: string[] = [];
+    let originalDetectedService: string | null = null;
     let serviceMatchWordsForInjection: string[] = [];
-    let serviceMatchWordsOuter: string[] = []; // All query words used in service detection (for cleanRemainder)
+    let serviceMatchWordsOuter: string[] = [];
+
+    if (!serviceShortcutActivated && !labelShortcutActivated) {
     let keywordMatchedSubcategories: string[] = []; // Subcategories of services matched via keywords
     let serviceKeywordsLookup: Map<string, string[]> = new Map(); // service name → keywords
     
