@@ -3118,7 +3118,7 @@ const SearchPage = () => {
                       </button>
                     )}
                   </div>
-                  {/* Center: AI suggestion */}
+                  {/* Center: AI suggestion — centered on tablet via absolute */}
                   <button
                     onClick={() => {
                       if (!poiAiText && !isPoiAiLoading) {
