@@ -81,9 +81,12 @@ const WarningOverlay = ({
 
   const rawCategories = [...new Set(scopedBusinesses.map(b => b.main_category).filter(Boolean))] as string[];
 
-  // Only show cities that have businesses in the current results
+  // For city suggestions, use all businesses (not category-scoped) when category is already known,
+  // because the backend already returned relevant results and re-filtering by main_category
+  // can exclude valid results (e.g. "Vie nocturne" businesses for a "Restauration" detected category)
+  const businessesForCities = hasCategory ? allBusinesses : scopedBusinesses;
   const businessCities = new Set(
-    scopedBusinesses
+    businessesForCities
       .map((b) => (b.city ? normalizeText(b.city) : null))
       .filter(Boolean) as string[]
   );
