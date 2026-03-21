@@ -398,11 +398,11 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
     }
   }, [selectedPoiId]);
 
-  // Keep city centered when a city center is provided
+  // Keep city centered when a city center is provided (skip in fitToMarkers mode)
   useEffect(() => {
-    if (!mapRef.current || !center) return;
+    if (!mapRef.current || !center || fitToMarkers) return;
     mapRef.current.setCenter(center);
-  }, [center]);
+  }, [center, fitToMarkers]);
 
   // Smooth pan + zoom to selected poi — speed & easing adapt to distance/zoom delta
   useEffect(() => {
