@@ -11,6 +11,8 @@ import { businessUrl } from "@/lib/businessUrl";
 interface MobileSearchOverlayProps {
   open: boolean;
   onClose: () => void;
+  /** Called when user taps a recently viewed business — parent should open the slide panel */
+  onBusinessSelect?: (businessId: string) => void;
 }
 
 const MobileSearchOverlay = ({ open, onClose }: MobileSearchOverlayProps) => {
