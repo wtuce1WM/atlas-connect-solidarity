@@ -1442,7 +1442,17 @@ serve(async (req) => {
     let conflictSubcategoryParentCategory: string | null = null;
     const categoryForConflictCheck = intentCategory || category || null;
     const allIntentCats = intentCategories.length > 0 ? intentCategories : (category ? [category] : []);
-    if (categoryForConflictCheck && detectedSubcategory) {
+    // Guard: if synonym paired filters are active and they cover the detected subcategory,
+    // do NOT let intent words override it (e.g. "dîner spectacle" → synonym covers "Spectacles",
+    // but intent "diner" would switch to "Restaurant" — we must keep "Spectacles").
+    const synonymCoversDetectedSubcat = detectedSubcategory && matchedSynonymFilters.length > 0 && (() => {
+      const normSub = stripAccentsGlobal(detectedSubcategory!.toLowerCase().replace(/-/g, " ").replace(/\s+/g, " ").trim());
+      return matchedSynonymFilters.some(f => f.subcategory_name && stripAccentsGlobal(f.subcategory_name.toLowerCase().replace(/-/g, " ").replace(/\s+/g, " ").trim()) === normSub);
+    })();
+    if (synonymCoversDetectedSubcat) {
+      console.log(`🛡️ Synonym paired filters cover detected subcategory "${detectedSubcategory}" — skipping intent-based re-evaluation`);
+    }
+    if (categoryForConflictCheck && detectedSubcategory && !synonymCoversDetectedSubcat) {
       const { data: subcatWithCat } = await supabase
         .from("subcategories")
         .select("name_fr, categories!inner(name_fr)")
