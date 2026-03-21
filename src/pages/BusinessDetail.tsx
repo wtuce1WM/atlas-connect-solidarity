@@ -230,6 +230,9 @@ const BusinessDetail = () => {
           opening_hours: data.opening_hours as OpeningHours | null,
           vacation_dates: (data.vacation_dates as unknown as VacationDate[]) || null,
         });
+
+        // Track recently viewed
+        window.dispatchEvent(new CustomEvent("track-business-view", { detail: { id: data.id, name: data.name, images: data.images, logo_url: data.logo_url, city: data.city, slug: (data as any).slug || data.id } }));
         
         const { data: labelsData } = await supabase
           .from("business_labels" as any)

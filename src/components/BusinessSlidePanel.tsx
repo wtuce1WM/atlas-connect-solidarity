@@ -550,6 +550,12 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
 
       setBusiness(data as any);
 
+      // Track recently viewed
+      try {
+        const { useRecentlyViewedBusinesses: _ } = await import("@/hooks/useRecentlyViewedBusinesses");
+      } catch {}
+      window.dispatchEvent(new CustomEvent("track-business-view", { detail: { id: data.id, name: data.name, images: data.images, logo_url: data.logo_url, city: data.city, slug: (data as any).slug || data.id } }));
+
       // Fetch active service names scoped to business subcategories
       if (data.services && data.services.length > 0) {
         const bizCategories: string[] = data.categories || [];
