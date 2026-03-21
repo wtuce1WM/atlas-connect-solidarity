@@ -65,7 +65,7 @@ const ServiceListItem = ({ service, currentBusinessId, city, hideLink }: Service
         )}
         <span className="first-letter:uppercase">{service.charAt(0).toUpperCase() + service.slice(1)}</span>
       </span>
-      {otherCount !== null && otherCount > 0 && (
+      {!hideLink && otherCount !== null && otherCount > 0 && (
         <Link
           to={`/service/${encodeURIComponent(service)}${city ? `?city=${encodeURIComponent(city)}` : ''}`}
           className="text-xs text-primary hover:underline ml-6"
