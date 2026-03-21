@@ -2779,7 +2779,7 @@ const SearchPage = () => {
             </button>
           </div>
           <div className="flex gap-2 mt-3 justify-end">
-            <Button variant="ghost" size="sm" onClick={geo.decline} className="text-muted-foreground">
+            <Button size="sm" onClick={geo.decline} className="bg-primary text-primary-foreground hover:bg-primary/90">
               {language === "en" ? "No thanks" : language === "ar" ? "لا شكرا" : "Non merci"}
             </Button>
             <Button size="sm" onClick={geo.accept} className="bg-gold text-black hover:bg-gold/90">
