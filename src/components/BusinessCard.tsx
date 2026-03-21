@@ -351,21 +351,6 @@ const BusinessCard = ({
               </p>
             </div>
           )}
-          {/* Web Only overlay */}
-          {isWebOnly && (
-            <a
-              href={webOnlyUrl!.startsWith('http') ? webOnlyUrl! : `https://${webOnlyUrl}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-              className="absolute inset-0 flex items-center justify-center bg-black/60 z-10 hover:bg-black/70 transition-colors"
-            >
-              <div className="text-center">
-                <span className="text-white text-2xl font-bold tracking-wide drop-shadow-lg">🌐 Web Only</span>
-                <p className="text-white/80 text-xs mt-1">Boutique en ligne →</p>
-              </div>
-            </a>
-          )}
         </div>
         
         <CardContent className="p-4 relative overflow-hidden">
