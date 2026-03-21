@@ -24,6 +24,8 @@ import { FacebookIcon, InstagramIcon, LinkedInIcon, YouTubeIcon, TikTokIcon, Twi
 import BookingOverlay from "@/components/BookingOverlay";
 import SocialEmbedsTab from "@/components/SocialEmbedsTab";
 import HotelAvailabilityOverlay, { type FallbackPanelData, type FallbackHotel } from "@/components/HotelAvailabilityOverlay";
+import MapBusinessInfoCard from "@/components/MapBusinessInfoCard";
+import { Info } from "lucide-react";
 
 
 const LANG_FLAGS: Record<string, string> = {
