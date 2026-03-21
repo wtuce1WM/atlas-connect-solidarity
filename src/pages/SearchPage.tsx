@@ -3286,7 +3286,7 @@ const SearchPage = () => {
                       }
                       setShowAiPopup(true);
                     }}
-                    className="shrink-0 w-9 h-9 rounded-full bg-gold text-black flex items-center justify-center hover:bg-gold/90 transition-colors shadow-md sm:absolute sm:left-1/2 sm:-translate-x-1/2 lg:static lg:translate-x-0"
+                    className="shrink-0 w-9 h-9 rounded-full bg-gold text-black flex items-center justify-center hover:bg-gold/90 transition-colors shadow-md sm:absolute sm:left-1/2 sm:-translate-x-1/2 lg:absolute lg:left-1/2 lg:-translate-x-1/2"
                     title={language === "en" ? "View AI suggestion" : "Voir la suggestion IA"}
                   >
                     <Sparkles className="h-4 w-4" />
