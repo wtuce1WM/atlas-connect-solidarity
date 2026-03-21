@@ -973,7 +973,7 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
              >
                <X className="h-4 w-4" />
              </button>
-             <span className="text-sm font-semibold hidden md:inline">Itinéraire — {business.name}</span>
+             
              <div className="flex items-center bg-muted rounded-full p-0.5">
                <button
                  onClick={() => setDirectionsMode("walking")}
