@@ -6,7 +6,7 @@ import { useSEO } from "@/hooks/useSEO";
 
 const Index = () => {
   useSEO({
-    title: "ONE WORLD MOROCCO – Les meilleures adresses au Maroc",
+    title: "ONE WORLD MOROCCO, première plateforme de e-commerce solidaire au Maroc",
     description: "Découvrez les meilleures adresses au Maroc : hôtels, restaurants, activités et services sélectionnés par ONE WORLD MOROCCO.",
     canonical: "/",
   });
