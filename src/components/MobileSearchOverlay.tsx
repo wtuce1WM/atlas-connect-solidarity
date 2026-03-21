@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePopularSearches } from "@/hooks/usePopularSearches";
 import { useSearchHistory } from "@/hooks/useSearchHistory";
@@ -13,12 +13,15 @@ interface MobileSearchOverlayProps {
   onClose: () => void;
   /** Called when user taps a recently viewed business — parent should open the slide panel */
   onBusinessSelect?: (businessId: string) => void;
+  /** Called when user submits a search — allows parent (SearchPage) to use setSearchParams instead of navigate */
+  onSearch?: (params: Record<string, string>) => void;
 }
 
-const MobileSearchOverlay = ({ open, onClose, onBusinessSelect }: MobileSearchOverlayProps) => {
+const MobileSearchOverlay = ({ open, onClose, onBusinessSelect, onSearch }: MobileSearchOverlayProps) => {
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
+  const location = useLocation();
   const { language } = useLanguage();
   const { toast } = useToast();
 
@@ -26,13 +29,24 @@ const MobileSearchOverlay = ({ open, onClose, onBusinessSelect }: MobileSearchOv
   const { history, deleteEntry, clearHistory } = useSearchHistory();
   const { recentBusinesses } = useRecentlyViewedBusinesses();
 
+  // Smart navigation: use onSearch callback if provided (avoids full page navigation),
+  // otherwise fall back to navigate
+  const smartNavigate = useCallback((params: Record<string, string>) => {
+    onClose();
+    if (onSearch) {
+      onSearch(params);
+    } else {
+      const sp = new URLSearchParams(params);
+      navigate(`/search?${sp.toString()}`);
+    }
+  }, [onClose, onSearch, navigate]);
+
   const voice = useVoiceSearch({
     onTranscript: (keywords, spoken, detectedCategory, timeKeyword) => {
-      const params = new URLSearchParams({ q: keywords, spoken });
-      if (detectedCategory) params.set("category", detectedCategory);
-      if (timeKeyword) params.set("timeKeyword", timeKeyword);
-      onClose();
-      navigate(`/search?${params.toString()}`);
+      const params: Record<string, string> = { q: keywords, spoken, _t: String(Date.now()) };
+      if (detectedCategory) params.category = detectedCategory;
+      if (timeKeyword) params.timeKeyword = timeKeyword;
+      smartNavigate(params);
     },
     onError: (message) => {
       toast({ title: language === "fr" ? "Erreur" : "Error", description: message, variant: "destructive" });
@@ -43,7 +57,6 @@ const MobileSearchOverlay = ({ open, onClose, onBusinessSelect }: MobileSearchOv
   useEffect(() => {
     if (open) {
       setQuery("");
-      // Small delay to ensure the overlay is rendered
       const t = setTimeout(() => inputRef.current?.focus(), 100);
       return () => clearTimeout(t);
     }
@@ -59,14 +72,12 @@ const MobileSearchOverlay = ({ open, onClose, onBusinessSelect }: MobileSearchOv
 
   const handleSubmit = useCallback(() => {
     if (!query.trim()) return;
-    onClose();
-    navigate(`/search?q=${encodeURIComponent(query.trim())}&_t=${Date.now()}`);
-  }, [query, navigate, onClose]);
+    smartNavigate({ q: query.trim(), _t: String(Date.now()) });
+  }, [query, smartNavigate]);
 
   const handleSelect = useCallback((text: string) => {
-    onClose();
-    navigate(`/search?q=${encodeURIComponent(text)}&_t=${Date.now()}`);
-  }, [navigate, onClose]);
+    smartNavigate({ q: text, _t: String(Date.now()) });
+  }, [smartNavigate]);
 
   if (!open) return null;
 
