@@ -7,6 +7,7 @@ interface ServiceListItemProps {
   service: string;
   currentBusinessId: string;
   city?: string;
+  hideLink?: boolean;
 }
 
 const ServiceListItem = ({ service, currentBusinessId, city }: ServiceListItemProps) => {
