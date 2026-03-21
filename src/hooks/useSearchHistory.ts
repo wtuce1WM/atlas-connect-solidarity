@@ -26,7 +26,9 @@ function getLocalHistory(): SearchHistoryEntry[] {
 function setLocalHistory(entries: SearchHistoryEntry[]) {
   try {
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(entries.slice(0, MAX_ENTRIES)));
-  } catch { /* quota exceeded – silently ignore */ }
+  } catch {
+    /* quota exceeded – silently ignore */
+  }
 }
 
 /**
@@ -37,29 +39,10 @@ function setLocalHistory(entries: SearchHistoryEntry[]) {
 export const useSearchHistory = () => {
   const [history, setHistory] = useState<SearchHistoryEntry[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
+  const [authReady, setAuthReady] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Track auth state
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUserId(session?.user?.id ?? null);
-    });
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUserId(session?.user?.id ?? null);
-    });
-    return () => subscription.unsubscribe();
-  }, []);
-
-  // Load history when userId changes
-  useEffect(() => {
-    if (userId) {
-      loadFromDb(userId);
-    } else {
-      setHistory(getLocalHistory());
-    }
-  }, [userId]);
-
-  const loadFromDb = async (uid: string) => {
+  const loadFromDb = useCallback(async (uid: string) => {
     setIsLoading(true);
     try {
       const { data, error } = await supabase
@@ -68,10 +51,46 @@ export const useSearchHistory = () => {
         .eq("user_id", uid)
         .order("created_at", { ascending: false })
         .limit(MAX_ENTRIES);
-      if (!error && data) setHistory(data);
-    } catch { /* silent */ }
-    setIsLoading(false);
-  };
+
+      if (error) {
+        setHistory(getLocalHistory());
+      } else if ((data?.length ?? 0) > 0) {
+        setHistory(data ?? []);
+      } else {
+        const localFallback = getLocalHistory();
+        setHistory(localFallback);
+      }
+    } catch {
+      setHistory(getLocalHistory());
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Track auth state
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUserId(session?.user?.id ?? null);
+      setAuthReady(true);
+    });
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUserId(session?.user?.id ?? null);
+      setAuthReady(true);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Load history when auth/user changes
+  useEffect(() => {
+    if (!authReady) return;
+    if (userId) {
+      loadFromDb(userId);
+    } else {
+      setHistory(getLocalHistory());
+    }
+  }, [authReady, userId, loadFromDb]);
 
   /** Save a search entry (deduplicates recent identical searches) */
   const saveSearch = useCallback(async (query: string, city?: string | null, category?: string | null) => {
@@ -98,15 +117,18 @@ export const useSearchHistory = () => {
     setHistory(updated);
 
     if (userId) {
-      // Save to DB
-      await supabase.from("search_history").insert({
+      const { error } = await supabase.from("search_history").insert({
         user_id: userId,
         query: trimmedQuery,
         city: city || null,
         category: category || null,
       });
+
+      // Fallback persistence if DB write fails
+      if (error) {
+        setLocalHistory(updated);
+      }
     } else {
-      // Save to localStorage
       setLocalHistory(updated);
     }
   }, [history, userId]);
@@ -116,41 +138,47 @@ export const useSearchHistory = () => {
     setHistory([]);
     if (userId) {
       await supabase.from("search_history").delete().eq("user_id", userId);
-    } else {
-      localStorage.removeItem(LOCAL_STORAGE_KEY);
     }
+    localStorage.removeItem(LOCAL_STORAGE_KEY);
   }, [userId]);
 
   /** Delete a single entry */
   const deleteEntry = useCallback(async (entryId: string) => {
     setHistory(prev => prev.filter(e => e.id !== entryId));
+
     if (userId) {
       await supabase.from("search_history").delete().eq("id", entryId);
-    } else {
-      const updated = getLocalHistory().filter(e => e.id !== entryId);
-      setLocalHistory(updated);
     }
+
+    const updated = getLocalHistory().filter(e => e.id !== entryId);
+    setLocalHistory(updated);
   }, [userId]);
 
   /** Migrate localStorage history to DB when user logs in */
   useEffect(() => {
     if (!userId) return;
+
     const local = getLocalHistory();
     if (local.length === 0) return;
 
-    // Migrate in background
-    const rows = local.map(e => ({
+    const rows = local.map((e) => ({
       user_id: userId,
       query: e.query,
       city: e.city || null,
       category: e.category || null,
       created_at: e.created_at,
     }));
-    supabase.from("search_history").insert(rows).then(() => {
+
+    const migrate = async () => {
+      const { error } = await supabase.from("search_history").insert(rows);
+      if (error) return;
+
       localStorage.removeItem(LOCAL_STORAGE_KEY);
-      loadFromDb(userId);
-    });
-  }, [userId]);
+      await loadFromDb(userId);
+    };
+
+    void migrate();
+  }, [userId, loadFromDb]);
 
   return { history, isLoading, saveSearch, clearHistory, deleteEntry };
 };
