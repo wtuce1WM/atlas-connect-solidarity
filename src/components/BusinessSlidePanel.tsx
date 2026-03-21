@@ -1404,7 +1404,7 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
                 </div>
               </div>
               {business.default_service && (
-                <Badge className="shrink-0 text-xs bg-gold text-black hover:bg-gold/90 border-gold">{business.default_service}</Badge>
+                <Badge className="hidden sm:inline-flex shrink-0 text-xs bg-gold text-black hover:bg-gold/90 border-gold">{business.default_service}</Badge>
               )}
               {/* Social media icons */}
               {(() => {
