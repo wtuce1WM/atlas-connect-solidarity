@@ -3810,7 +3810,8 @@ const SearchPage = () => {
           ) : !showCelebrityGuide && !showSosMedecin && !showPompiers && filteredBusinesses.length > 0 ? (
             <>
               {/* Bar: Results count + AI suggestion + Geolocation — STICKY 5 */}
-              <div ref={resultsBarRef} data-results-bar className="sticky z-[19] bg-white relative flex items-center justify-center py-2 mb-2 border-b border-border/40" style={{ top: `${Math.max(stickyStackPadding || 0, 104)}px` }}>
+              <div ref={resultsBarRef} data-results-bar className="sticky z-[19] bg-white flex items-center sm:justify-center justify-between px-4 sm:px-0 sm:relative py-2 mb-2 border-b border-border/40" style={{ top: `${Math.max(stickyStackPadding || 0, 104)}px` }}>
+                <div className="sm:hidden" />
                 <button
                   onClick={() => {
                     aiPopupShownRef.current = false;
@@ -3829,7 +3830,7 @@ const SearchPage = () => {
                 >
                   <Sparkles className="h-4 w-4" />
                 </button>
-                <div className="absolute right-4 flex items-center gap-2">
+                <div className="flex items-center gap-2 sm:absolute sm:right-4">
                   {isSubDesktop && (
                     <button
                       onClick={() => setShowMobileMap(true)}
