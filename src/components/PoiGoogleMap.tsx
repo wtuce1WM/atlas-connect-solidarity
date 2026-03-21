@@ -378,7 +378,8 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
       gmaps.event.addListenerOnce(map, "idle", () => {
         const z = map.getZoom();
         if (z && z > 16) map.setZoom(16);
-        if (center) map.setCenter(center);
+        // Only force city center when not in fitToMarkers mode
+        if (center && !(fitToMarkers && hasPoints)) map.setCenter(center);
         hasFittedRef.current = true;
       });
     }
