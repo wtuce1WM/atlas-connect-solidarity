@@ -2312,7 +2312,7 @@ const SearchPage = () => {
                       </div>
                     ) : null;
                   })()}
-                  <p className="text-gold font-semibold mt-2">
+                  <p className="text-primary font-semibold mt-2">
                     {filteredBusinesses.length} {language === "en" ? "establishments found" : language === "ar" ? "مؤسسة وجدت" : "établissements trouvés"}
                   </p>
                 </>
@@ -2509,8 +2509,8 @@ const SearchPage = () => {
 
             <div className="max-w-3xl mx-auto">
               <div className="flex items-center gap-2 mb-4">
-                <Sparkles className="h-4 w-4 text-gold" />
-                <span className="text-xs font-semibold text-gold uppercase tracking-wider">Suggestion IA</span>
+                <Sparkles className="h-4 w-4 text-primary" />
+                <span className="text-xs font-semibold text-primary uppercase tracking-wider">Suggestion IA</span>
               </div>
               <div className="text-xs sm:text-base text-foreground/80 leading-relaxed whitespace-pre-line">
                 {(() => {
@@ -2668,7 +2668,7 @@ const SearchPage = () => {
             <p className="text-xl md:text-2xl font-bold text-foreground mb-3">
               «&nbsp;{(spokenText || searchQuery)}{selectedCity && selectedCity !== "all" ? ` ${selectedCity}` : ""}&nbsp;»
             </p>
-            <p className="text-foreground font-semibold text-lg mb-5">
+            <p className="text-primary font-semibold text-lg mb-5">
               {filteredBusinesses.length} {language === "en" ? "establishments found" : language === "ar" ? "مؤسسة وجدت" : "établissements trouvés"}
             </p>
 
