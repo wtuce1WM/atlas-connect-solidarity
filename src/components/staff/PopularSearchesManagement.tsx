@@ -17,6 +17,7 @@ interface PopularSearch {
   query: string;
   is_active: boolean;
   sort_order: number;
+  extracted_keywords: string | null;
   created_at: string;
 }
 
@@ -39,13 +40,31 @@ const PopularSearchesManagement = () => {
 
   useEffect(() => { fetchItems(); }, [fetchItems]);
 
+  const extractKeywords = useCallback(async (text: string): Promise<string | null> => {
+    // Only extract if the query looks like natural language (5+ words, 2+ stop words)
+    const STOP = new Set(["je","tu","il","elle","nous","vous","un","une","des","le","la","les","du","de","d","à","au","aux","en","pour","par","avec","sans","sur","dans","qui","que","où","comment","est","sont","cherche","veux","trouve","me","te","se","ce","cette","ne","pas","plus","très","aussi","bien","comme","mais","ou","et"]);
+    const words = text.toLowerCase().split(/\s+/).filter(w => w.length > 0);
+    if (words.length < 5 || words.filter(w => STOP.has(w)).length < 2) return null;
+    try {
+      const { data, error } = await supabase.functions.invoke("voice-search-intent", {
+        body: { transcript: text },
+      });
+      if (error || !data?.keywords) return null;
+      return data.keywords !== text ? data.keywords : null;
+    } catch { return null; }
+  }, []);
+
   const addItem = useCallback(async () => {
     const text = newQuery.trim();
     if (!text) return;
     const maxOrder = items.length > 0 ? Math.max(...items.map(i => i.sort_order)) : 0;
+    
+    // Auto-extract keywords for NL queries
+    const keywords = await extractKeywords(text);
+    
     const { data, error } = await supabase
       .from("popular_searches")
-      .insert({ query: text, sort_order: maxOrder + 1 })
+      .insert({ query: text, sort_order: maxOrder + 1, extracted_keywords: keywords })
       .select()
       .single();
     if (error) {
@@ -54,8 +73,8 @@ const PopularSearchesManagement = () => {
     }
     setItems(prev => [...prev, data as PopularSearch]);
     setNewQuery("");
-    toast({ title: "Suggestion ajoutée" });
-  }, [newQuery, items]);
+    toast({ title: keywords ? `Suggestion ajoutée (mots-clés: ${keywords})` : "Suggestion ajoutée" });
+  }, [newQuery, items, extractKeywords]);
 
   const toggleActive = useCallback(async (id: string, is_active: boolean) => {
     const { error } = await supabase
@@ -141,7 +160,12 @@ const PopularSearchesManagement = () => {
                   className="shrink-0"
                 />
                 <Search className="h-4 w-4 text-muted-foreground shrink-0" />
-                <span className="text-sm flex-1 font-medium">{item.query}</span>
+                <div className="flex-1 min-w-0">
+                  <span className="text-sm font-medium block">{item.query}</span>
+                  {item.extracted_keywords && (
+                    <span className="text-xs text-muted-foreground">→ {item.extracted_keywords}</span>
+                  )}
+                </div>
                 <a
                   href={getSearchUrl(item.query)}
                   target="_blank"

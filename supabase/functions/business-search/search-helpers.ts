@@ -81,7 +81,7 @@ export function tagsMatchCandidate(candidate: string, tags: string[]): boolean {
 
 export function isNaturalLanguageQuery(query: string): boolean {
   const words = query.toLowerCase().split(/\s+/).filter(w => w.length > 0);
-  if (words.length < 4) return false;
+  if (words.length < 5) return false;
   const stopCount = words.filter(w => FRENCH_STOP_WORDS.has(w)).length;
   return stopCount >= 2;
 }

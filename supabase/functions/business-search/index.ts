@@ -259,7 +259,7 @@ const FRENCH_STOP_WORDS = new Set([
  */
 function isNaturalLanguageQuery(query: string): boolean {
   const words = query.toLowerCase().split(/\s+/).filter(w => w.length > 0);
-  if (words.length < 4) return false;
+  if (words.length < 5) return false;
   const stopCount = words.filter(w => FRENCH_STOP_WORDS.has(w)).length;
   return stopCount >= 2;
 }
@@ -636,17 +636,38 @@ serve(async (req) => {
     // ── Natural language detection: extract keywords via LLM if needed ──
     let effectiveQuery = query;
     if (query && isNaturalLanguageQuery(query)) {
-      console.log(`Natural language detected: "${query}" → extracting intent...`);
-      const extracted = await extractSearchIntent(query);
-      console.log(`Intent extracted: "${extracted}"`);
-      // If LLM extraction returned the same query (failed), strip stop words manually
-      if (extracted === query) {
-        effectiveQuery = query.split(/\s+/)
-          .filter(w => !FRENCH_STOP_WORDS.has(w.toLowerCase().replace(/['']/g, "")))
-          .join(" ");
-        console.log(`LLM extraction unchanged, stripped stop words: "${effectiveQuery}"`);
+      // Check if this query has pre-extracted keywords in popular_searches
+      let cachedKeywords: string | null = null;
+      try {
+        const { data: popRow } = await supabase
+          .from("popular_searches")
+          .select("extracted_keywords")
+          .ilike("query", query.trim())
+          .eq("is_active", true)
+          .not("extracted_keywords", "is", null)
+          .limit(1)
+          .maybeSingle();
+        if (popRow?.extracted_keywords) {
+          cachedKeywords = popRow.extracted_keywords;
+        }
+      } catch { /* ignore */ }
+
+      if (cachedKeywords) {
+        console.log(`Using cached keywords for "${query}": "${cachedKeywords}"`);
+        effectiveQuery = cachedKeywords;
       } else {
-        effectiveQuery = extracted;
+        console.log(`Natural language detected: "${query}" → extracting intent...`);
+        const extracted = await extractSearchIntent(query);
+        console.log(`Intent extracted: "${extracted}"`);
+        // If LLM extraction returned the same query (failed), strip stop words manually
+        if (extracted === query) {
+          effectiveQuery = query.split(/\s+/)
+            .filter(w => !FRENCH_STOP_WORDS.has(w.toLowerCase().replace(/['']/g, "")))
+            .join(" ");
+          console.log(`LLM extraction unchanged, stripped stop words: "${effectiveQuery}"`);
+        } else {
+          effectiveQuery = extracted;
+        }
       }
     }
     

@@ -2079,6 +2079,7 @@ export type Database = {
       popular_searches: {
         Row: {
           created_at: string
+          extracted_keywords: string | null
           id: string
           is_active: boolean
           query: string
@@ -2087,6 +2088,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          extracted_keywords?: string | null
           id?: string
           is_active?: boolean
           query: string
@@ -2095,6 +2097,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          extracted_keywords?: string | null
           id?: string
           is_active?: boolean
           query?: string
