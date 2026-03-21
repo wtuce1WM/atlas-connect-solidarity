@@ -1459,7 +1459,7 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
           </div>
         )}
 
-        <div className={`p-5 space-y-5 relative z-10 bg-background ${bookingUrl ? 'pr-10' : ''}`}>
+        <div className={`p-5 space-y-5 relative z-10 bg-white ${bookingUrl ? 'pr-10' : ''}`}>
           {/* Name + badges */}
           <div>
             <div className="flex items-start gap-3">
