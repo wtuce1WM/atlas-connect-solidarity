@@ -2026,7 +2026,7 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
                   {!showReviewComments ? (
                     <button
                       onClick={() => setShowReviewComments(true)}
-                      className="w-full py-2.5 px-4 rounded-xl border border-border text-sm font-medium text-foreground hover:bg-muted/50 transition-colors flex items-center justify-center gap-2"
+                      className="w-full py-2.5 px-4 rounded-xl border border-border bg-muted/30 text-sm font-medium text-foreground hover:bg-muted/50 transition-colors flex items-center justify-center gap-2"
                     >
                       <Star className="h-4 w-4 text-amber-400" />
                       {language === "en" ? "Read reviews" : language === "ar" ? "قراءة الآراء" : "Lire les avis"}
