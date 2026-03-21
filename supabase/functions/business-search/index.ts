@@ -849,11 +849,12 @@ serve(async (req) => {
             .eq("is_active", true)
             .not("keywords", "is", null);
           if (effectiveCity) {
-            kwBuilder = kwBuilder.ilike("city", effectiveCity);
+            kwBuilder = applyCityFilter(kwBuilder);
           }
           const { data: kwMatches } = await kwBuilder.limit(500);
           if (kwMatches && kwMatches.length > 0) {
             const kwPinned: string[] = [];
+            const kwPinnedNames: string[] = [];
             for (const b of kwMatches) {
               if (nameMatchedBusinessIds.includes(b.id)) continue;
               const bKeywords: string[] = b.keywords || [];
@@ -864,12 +865,13 @@ serve(async (req) => {
               });
               if (hasMatch) {
                 kwPinned.push(b.id);
+                kwPinnedNames.push(b.name);
               }
             }
             if (kwPinned.length > 0) {
               nameMatchedBusinessIds = [...nameMatchedBusinessIds, ...kwPinned];
               for (const id of kwPinned) keywordPinnedIds.add(id);
-              console.log(`Keyword match found for pinning: query "${nameSearchQuery}" matches ${kwPinned.length} business(es) via keywords`);
+              console.log(`Keyword match found for pinning: query "${nameSearchQuery}" matches [${kwPinnedNames.join(", ")}] via keywords`);
             }
           }
         }
