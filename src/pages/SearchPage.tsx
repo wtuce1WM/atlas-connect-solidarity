@@ -2232,52 +2232,60 @@ const SearchPage = () => {
         <div className="fixed inset-0 z-[9990] flex bg-background/95 backdrop-blur-sm animate-in fade-in duration-200">
           {/* Left panel: AI suggestion */}
           <div ref={overlayLeftPanelRef} className={`relative flex flex-col justify-center transition-all duration-500 ease-out ${overlaySelectedBusiness ? "w-1/2 border-r border-border" : "w-full"}`}>
-          {/* Top bar: speaker left, close right (mobile) */}
-          <div className="absolute top-4 left-4 sm:hidden z-10">
-            {(ttsStatus === "playing" || ttsStatus === "loading") ? (
-              <button
-                onClick={ttsStop}
-                className="p-2 rounded-full bg-black hover:bg-black/80 transition-colors"
-              >
-                {ttsStatus === "loading" ? <Loader className="h-5 w-5 text-white animate-spin" /> : <VolumeX className="h-5 w-5 text-white" />}
-              </button>
-            ) : (
-              <button
-                onClick={() => {
-                  const cleanText = aiAnswerText.replace(/\*{1,2}/g, "").replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "");
-                  const intro = ttsIntroPhrase ? `${ttsIntroPhrase}. ` : "";
-                  ttsIntroWordCountRef.current = intro.trim().split(/\s+/).filter(Boolean).length;
-                  voiceLoopRef.current = true;
-                  ttsSpeak(intro + cleanText + " … Vous pouvez me poser une autre question.", undefined, true);
-                }}
-                className="p-2 rounded-full bg-black hover:bg-black/80 transition-colors"
-                title={language === "en" ? "Listen" : language === "ar" ? "استمع" : "Écouter"}
-              >
-                <Volume2 className="h-5 w-5 text-white" />
-              </button>
-            )}
+          {/* Mobile sticky top bar: speaker + CTA + close */}
+          <div className="sticky top-0 left-0 right-0 sm:hidden flex items-center justify-between px-4 py-3 bg-background/95 backdrop-blur-sm z-10">
+            {/* Speaker left */}
+            <div>
+              {(ttsStatus === "playing" || ttsStatus === "loading") ? (
+                <button
+                  onClick={ttsStop}
+                  className="p-2 rounded-full bg-black hover:bg-black/80 transition-colors"
+                >
+                  {ttsStatus === "loading" ? <Loader className="h-5 w-5 text-white animate-spin" /> : <VolumeX className="h-5 w-5 text-white" />}
+                </button>
+              ) : (
+                <button
+                  onClick={() => {
+                    const cleanText = aiAnswerText.replace(/\*{1,2}/g, "").replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "");
+                    const intro = ttsIntroPhrase ? `${ttsIntroPhrase}. ` : "";
+                    ttsIntroWordCountRef.current = intro.trim().split(/\s+/).filter(Boolean).length;
+                    voiceLoopRef.current = true;
+                    ttsSpeak(intro + cleanText + " … Vous pouvez me poser une autre question.", undefined, true);
+                  }}
+                  className="p-2 rounded-full bg-black hover:bg-black/80 transition-colors"
+                  title={language === "en" ? "Listen" : language === "ar" ? "استمع" : "Écouter"}
+                >
+                  <Volume2 className="h-5 w-5 text-white" />
+                </button>
+              )}
+            </div>
+            {/* CTA center */}
+            <button
+              onClick={() => { setShowAiPopup(false); setOverlaySelectedBusiness(null); }}
+              className="inline-flex items-center px-5 py-2 rounded-full bg-gold text-black text-sm font-semibold hover:bg-gold/90 transition-colors uppercase whitespace-nowrap"
+            >
+              {language === "en" ? "See results" : language === "ar" ? "عرض النتائج" : "Voir les résultats"}
+            </button>
+            {/* Close right */}
+            <button
+              onClick={() => { setShowAiPopup(false); setOverlaySelectedBusiness(null); }}
+              className="p-2 rounded-full bg-black hover:bg-black/80 transition-colors"
+            >
+              <X className="h-5 w-5 text-white" />
+            </button>
           </div>
-          {/* Close button */}
+          {/* Desktop close button */}
           <button
             onClick={() => { setShowAiPopup(false); setOverlaySelectedBusiness(null); }}
-            className="absolute top-4 right-4 sm:top-6 sm:right-6 p-2 rounded-full bg-black hover:bg-black/80 transition-colors z-10"
+            className="absolute top-6 right-6 p-2 rounded-full bg-black hover:bg-black/80 transition-colors z-10 hidden sm:block"
           >
-            <X className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+            <X className="h-6 w-6 text-white" />
           </button>
 
           {/* AI text — scrollable center, wider */}
           <div className="flex-1 overflow-y-auto px-4 sm:px-6 pb-4">
             {/* Top section: query + count + top "Voir les résultats" */}
-            <div className="pt-14 pb-3 text-center">
-              {/* Mobile centered CTA */}
-              <div className="flex sm:hidden justify-center mb-4">
-                <button
-                  onClick={() => { setShowAiPopup(false); setOverlaySelectedBusiness(null); }}
-                  className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gold text-black text-sm font-semibold hover:bg-gold/90 transition-colors uppercase"
-                >
-                  {language === "en" ? "See results" : language === "ar" ? "عرض النتائج" : (<>Voir les<br /> résultats</>)}
-                </button>
-              </div>
+            <div className="pt-2 sm:pt-14 pb-3 text-center">
               {/* Desktop CTA */}
               <button
                 onClick={() => { setShowAiPopup(false); setOverlaySelectedBusiness(null); }}
