@@ -160,7 +160,12 @@ const PopularSearchesManagement = () => {
                   className="shrink-0"
                 />
                 <Search className="h-4 w-4 text-muted-foreground shrink-0" />
-                <span className="text-sm flex-1 font-medium">{item.query}</span>
+                <div className="flex-1 min-w-0">
+                  <span className="text-sm font-medium block">{item.query}</span>
+                  {item.extracted_keywords && (
+                    <span className="text-xs text-muted-foreground">→ {item.extracted_keywords}</span>
+                  )}
+                </div>
                 <a
                   href={getSearchUrl(item.query)}
                   target="_blank"
