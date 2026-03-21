@@ -374,7 +374,11 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
 
     if (hasPoints || center) {
       gmaps.event.trigger(map, "resize");
-      map.fitBounds(bounds, 40);
+      // Use generous padding when fitting to markers so labels aren't clipped
+      const padding = fitToMarkers
+        ? { top: 60, right: 60, bottom: 60, left: 100 }
+        : 40;
+      map.fitBounds(bounds, padding);
       gmaps.event.addListenerOnce(map, "idle", () => {
         const z = map.getZoom();
         if (z && z > 16) map.setZoom(16);
