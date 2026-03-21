@@ -4296,7 +4296,14 @@ const SearchPage = () => {
       </div>
 
       {/* Mobile fullscreen search overlay */}
-      <MobileSearchOverlay open={mobileSearchOverlayOpen} onClose={() => setMobileSearchOverlayOpen(false)} />
+      <MobileSearchOverlay
+        open={mobileSearchOverlayOpen}
+        onClose={() => setMobileSearchOverlayOpen(false)}
+        onBusinessSelect={(bizId) => {
+          setCompactPanelBusiness({ id: bizId, name: "" } as any);
+          setIsCompactPanelExpanded(false);
+        }}
+      />
 
 
       {/* Google-style voice search overlay */}
