@@ -42,6 +42,7 @@ import BusinessSlidePanel, { type BusinessSlidePanelHandle } from "@/components/
 import WebOnlySlidePanel from "@/components/WebOnlySlidePanel";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
+import MobileSearchOverlay from "@/components/MobileSearchOverlay";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { useTextToSpeech, preloadTTS } from "@/hooks/useTextToSpeech";
 import { useToast } from "@/hooks/use-toast";
