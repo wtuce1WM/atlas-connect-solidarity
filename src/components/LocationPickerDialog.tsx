@@ -117,8 +117,8 @@ const LocationPickerDialog = ({
       const map = new window.google.maps.Map(mapContainerRef.current, {
         center,
         zoom: 14,
-        disableDefaultUI: false,
-        zoomControl: true,
+        disableDefaultUI: true,
+        zoomControl: false,
         streetViewControl: false,
         mapTypeControl: false,
         fullscreenControl: false,
