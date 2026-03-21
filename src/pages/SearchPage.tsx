@@ -407,6 +407,8 @@ const SearchPage = () => {
   const [subcategories, setSubcategories] = useState<SubcategoryRef[]>([]);
   const [badgeSubcategories, setBadgeSubcategories] = useState<BadgeSubcategoryRef[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showLoadingScreen, setShowLoadingScreen] = useState(true);
+  const [loadingExiting, setLoadingExiting] = useState(false);
   const [activeEasterEggNames, setActiveEasterEggNames] = useState<Set<string>>(new Set());
   const [currentPage, setCurrentPage] = useState(1);
   const cityFromUrl = searchParams.get("city") || "";
