@@ -2248,7 +2248,7 @@ const SearchPage = () => {
                 onClick={() => { setShowAiPopup(false); setOverlaySelectedBusiness(null); }}
                 className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gold text-black text-sm font-semibold hover:bg-gold/90 transition-colors mb-4"
               >
-                {language === "en" ? "See results" : language === "ar" ? "عرض النتائج" : "Voir les résultats"}
+                {language === "en" ? "See results" : language === "ar" ? "عرض النتائج" : (<>Voir les<br className="sm:hidden" /> résultats</>)}
                 <ChevronRight className="h-4 w-4" />
               </button>
               {activeTab === "poi" ? (
