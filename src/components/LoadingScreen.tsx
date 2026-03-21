@@ -5,8 +5,7 @@ interface LoadingScreenProps {
   onExited?: () => void;
 }
 
-const LoadingScreen = ({ onExited }: LoadingScreenProps) => {
-  onExited?.();
+const LoadingScreen = (_props: LoadingScreenProps) => {
   return null;
 };
 
