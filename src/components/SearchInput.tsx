@@ -183,7 +183,7 @@ const SearchInput = ({
       type="button"
       onClick={handleSubmit}
       className="flex items-center justify-center w-14 h-14 rounded-xl shadow-lg transition-all hover:opacity-90 shrink-0"
-      style={{ backgroundColor: "#c0392b" }}
+      style={{ backgroundColor: "hsl(var(--primary))" }}
       title={buttonLabel}
     >
       <Search className="h-6 w-6 text-white" />
