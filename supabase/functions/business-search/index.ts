@@ -4266,7 +4266,7 @@ serve(async (req) => {
     }
     // Inject name-matched businesses that may have been filtered out by strict mode
     // Skip injection when a bundle is activated — bundles define precise intent, name matches would pollute results
-    console.log(`🔍 Pre-injection: nameMatchedBusinessIds=${nameMatchedBusinessIds.length}, bundleActivated=${bundleActivated}, businesses=${businesses.length}`);
+    
     if (nameMatchedBusinessIds.length > 0 && !bundleActivated) {
       const existingIds = new Set(businesses.map(b => b.id));
       const missingIds = nameMatchedBusinessIds.filter(id => !existingIds.has(id));
