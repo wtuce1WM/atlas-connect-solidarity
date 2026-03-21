@@ -1629,12 +1629,14 @@ const SearchPage = () => {
       supabase.from("subcategories").select("id, name_fr, sort_order, icon").order("sort_order", { ascending: true }),
       supabase.from("badge_subcategories").select("badge_id, subcategory_id"),
       supabase.from("staff_notes").select("content").eq("key", "tts_intro_phrase").maybeSingle(),
-    ]).then(([gammesRes, badgesRes, subcatsRes, badgeSubcatsRes, ttsIntroRes]) => {
+      supabase.from("cities").select("id, name_fr, sort_order, latitude, longitude").eq("is_active", true).order("sort_order", { ascending: true }),
+    ]).then(([gammesRes, badgesRes, subcatsRes, badgeSubcatsRes, ttsIntroRes, citiesRes]) => {
       if (gammesRes.data) setGammes(gammesRes.data);
       if (badgesRes.data) setBadges(badgesRes.data);
       if (subcatsRes.data) setSubcategories(subcatsRes.data);
       if (badgeSubcatsRes.data) setBadgeSubcategories(badgeSubcatsRes.data);
       if (ttsIntroRes.data?.content) setTtsIntroPhrase(ttsIntroRes.data.content);
+      if (citiesRes.data) setCitiesWithPriority(citiesRes.data.map(c => ({ name: c.name_fr, id: c.id, priority: c.sort_order || 0, latitude: c.latitude, longitude: c.longitude })));
     });
   }, []);
 
@@ -1666,21 +1668,6 @@ const SearchPage = () => {
       setPreciseMatch(false);
       setSearchMode(null);
       try {
-        // Fetch cities with sort_order
-        const { data: citiesData } = await supabase
-          .from("cities")
-          .select("id, name_fr, sort_order, latitude, longitude")
-          .eq("is_active", true)
-          .order("sort_order", { ascending: true });
-
-        if (fetchId !== latestFetchIdRef.current) return;
-
-        if (citiesData) {
-          setCitiesWithPriority(
-            citiesData.map(c => ({ name: c.name_fr, id: c.id, priority: c.sort_order || 0, latitude: c.latitude, longitude: c.longitude }))
-          );
-        }
-
         // Use edge function for full-text search
         const { data, error } = await supabase.functions.invoke<SearchResult>("business-search", {
           body: { 
