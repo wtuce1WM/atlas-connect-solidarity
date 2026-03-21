@@ -100,6 +100,17 @@ Journal des décisions d'architecture, règles métier et apprentissages issus d
 
 ---
 
+## ⚡ Performance SearchPage
+
+### Goulot d'étranglement identifié
+- `SearchPage.tsx` fait ~4600 lignes avec ~50 `useState`. Chaque `setState` re-traverse tout l'arbre React.
+- Sur mobile, le temps perçu = temps edge function (~1-1.5s) + cascade de re-renders + rendu DOM des cards + requêtes secondaires (AI answer, filtres) ≈ 2-3× le temps réseau seul.
+- **Solution identifiée (non implémentée)** : Découper SearchPage en sous-composants mémoïsés (`React.memo`) pour isoler les re-renders. C'est un refactoring majeur.
+- **Optimisation appliquée** : `SearchInput` (desktop) et `MobileSearchOverlay` (mobile) sont rendus conditionnellement via `isMobile` pour éviter le montage de hooks redondants sur chaque viewport.
+- **Optimisation appliquée** : `useIsMobile` initialisé de manière synchrone (lazy initializer sur `window.innerWidth`) pour éviter un double render au montage.
+
+---
+
 ## 🔊 Lecture d'articles (concept — pas encore implémenté)
 
 ### Flux proposé : "Lire un article de presse"
