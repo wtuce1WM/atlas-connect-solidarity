@@ -325,7 +325,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
               {business.latitude && business.longitude && (
                 <button
                   onClick={() => setShowDirections(true)}
-                  className="flex items-center justify-center gap-1.5 w-[85%] md:w-1/2 py-2 rounded-lg bg-white/20 backdrop-blur-sm text-white font-medium text-xs md:text-sm shadow-lg hover:bg-white/30 transition-colors border border-white/30 normal-case tracking-normal"
+                  className="flex items-center justify-center gap-1.5 w-[85%] md:w-1/2 py-2 rounded-lg bg-[#C4704B] text-white font-medium text-xs md:text-sm shadow-lg hover:bg-[#B0603E] transition-colors normal-case tracking-normal"
                   style={{ fontFamily: "'Josefin Sans', sans-serif" }}
                 >
                   <MapPin className="h-4 w-4" />
