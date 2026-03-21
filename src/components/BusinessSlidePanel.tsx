@@ -872,7 +872,7 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
 
   const bookingUrl = business.reserve_now_url || business.booking_url || business.other_booking_url || null;
   const hasLiteApiMapping = !!liteApiHotelId;
-  const showFloatingButton = (business.reserve_now_url || hasLiteApiMapping) && !isBookingOpen;
+  const showFloatingButton = (business.reserve_now_url || hasLiteApiMapping) && !isBookingOpen && !isExpanded;
   const floatingLabel = "RÉSERVER";
 
   return (
