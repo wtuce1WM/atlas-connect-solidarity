@@ -876,7 +876,7 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
   const floatingLabel = "RÉSERVER";
 
   return (
-    <div className="flex flex-col h-full relative">
+    <div className="flex flex-col h-full">
       {/* Floating vertical button */}
       {showFloatingButton && (
         <button
