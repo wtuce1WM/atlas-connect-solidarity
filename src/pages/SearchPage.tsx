@@ -2232,6 +2232,31 @@ const SearchPage = () => {
         <div className="fixed inset-0 z-[9990] flex bg-background/95 backdrop-blur-sm animate-in fade-in duration-200">
           {/* Left panel: AI suggestion */}
           <div ref={overlayLeftPanelRef} className={`relative flex flex-col justify-center transition-all duration-500 ease-out ${overlaySelectedBusiness ? "w-1/2 border-r border-border" : "w-full"}`}>
+          {/* Top bar: speaker left, close right (mobile) */}
+          <div className="absolute top-4 left-4 sm:hidden z-10">
+            {(ttsStatus === "playing" || ttsStatus === "loading") ? (
+              <button
+                onClick={ttsStop}
+                className="p-2 rounded-full bg-black hover:bg-black/80 transition-colors"
+              >
+                {ttsStatus === "loading" ? <Loader className="h-5 w-5 text-white animate-spin" /> : <VolumeX className="h-5 w-5 text-white" />}
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  const cleanText = aiAnswerText.replace(/\*{1,2}/g, "").replace(/^[-•]\s+/gm, "").replace(/^\d+[.)]\s+/gm, "");
+                  const intro = ttsIntroPhrase ? `${ttsIntroPhrase}. ` : "";
+                  ttsIntroWordCountRef.current = intro.trim().split(/\s+/).filter(Boolean).length;
+                  voiceLoopRef.current = true;
+                  ttsSpeak(intro + cleanText + " … Vous pouvez me poser une autre question.", undefined, true);
+                }}
+                className="p-2 rounded-full bg-black hover:bg-black/80 transition-colors"
+                title={language === "en" ? "Listen" : language === "ar" ? "استمع" : "Écouter"}
+              >
+                <Volume2 className="h-5 w-5 text-white" />
+              </button>
+            )}
+          </div>
           {/* Close button */}
           <button
             onClick={() => { setShowAiPopup(false); setOverlaySelectedBusiness(null); }}
