@@ -3268,7 +3268,7 @@ const SearchPage = () => {
                     </button>
                   </div>
                 </div>
-                <div className="pt-4" />
+                
                 <DestinationSection
                   city={destCity}
                   language={language}
