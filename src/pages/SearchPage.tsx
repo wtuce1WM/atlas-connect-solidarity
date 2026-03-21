@@ -1760,7 +1760,9 @@ const SearchPage = () => {
             const shouldSkipAutoFilter = data.synonymUsed || data.intentSubcategoryConflict || isHeuristicFallbackWithPrecise || isHeuristicFallback || (data.preciseMatch && !safeDetectedSubcategory) || isMultiCategoryResult;
             setSelectedCategoryFilter(shouldSkipAutoFilter ? null : parentCategory);
             setSelectedSubcategoryFilter(shouldSkipAutoFilter ? null : finalDetectedSubcategory);
-            setSelectedServiceFilter(null);
+            // Auto-select detected service filter so the direct DB subcategory fetch
+            // stays precise (e.g. "Céramique" within "Décoration" instead of all Décoration)
+            setSelectedServiceFilter(shouldSkipAutoFilter ? null : (data.detectedService || null));
 
             // When synonyms produced cross-category results, reset city filter to "all"
             // to avoid filtering out results that don't match a leftover city from a previous search
