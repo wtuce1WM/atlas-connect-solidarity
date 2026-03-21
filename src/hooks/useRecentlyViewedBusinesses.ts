@@ -12,6 +12,7 @@ export interface RecentlyViewedBusiness {
 const STORAGE_KEY = "recently_viewed_businesses";
 const MAX_ENTRIES = 10;
 const SYNC_EVENT = "recently-viewed-sync";
+const TRACK_EVENT = "track-business-view";
 
 function getStored(): RecentlyViewedBusiness[] {
   try {
@@ -28,39 +29,41 @@ function setStored(entries: RecentlyViewedBusiness[]) {
   } catch { /* quota */ }
 }
 
+function trackViewInternal(detail: { id: string; name: string; images?: string[] | null; logo_url?: string | null; city?: string | null; slug: string }) {
+  const current = getStored();
+  const image = detail.images?.[0] || detail.logo_url || null;
+  const entry: RecentlyViewedBusiness = {
+    id: detail.id,
+    name: detail.name,
+    image,
+    city: detail.city || null,
+    slug: detail.slug,
+    viewedAt: Date.now(),
+  };
+  const updated = [entry, ...current.filter((e) => e.id !== detail.id)].slice(0, MAX_ENTRIES);
+  setStored(updated);
+  window.dispatchEvent(new Event(SYNC_EVENT));
+}
+
+// Global listener — tracks views from any component dispatching "track-business-view"
+if (typeof window !== "undefined") {
+  let listenerAttached = false;
+  if (!listenerAttached) {
+    window.addEventListener(TRACK_EVENT, ((e: CustomEvent) => {
+      trackViewInternal(e.detail);
+    }) as EventListener);
+    listenerAttached = true;
+  }
+}
+
 export const useRecentlyViewedBusinesses = () => {
   const [businesses, setBusinesses] = useState<RecentlyViewedBusiness[]>(getStored);
 
-  // Sync across hook instances
   useEffect(() => {
     const handler = () => setBusinesses(getStored());
     window.addEventListener(SYNC_EVENT, handler);
     return () => window.removeEventListener(SYNC_EVENT, handler);
   }, []);
 
-  const trackView = useCallback((biz: {
-    id: string;
-    name: string;
-    images?: string[] | null;
-    logo_url?: string | null;
-    city?: string | null;
-    slug: string;
-  }) => {
-    const current = getStored();
-    const image = biz.images?.[0] || biz.logo_url || null;
-    const entry: RecentlyViewedBusiness = {
-      id: biz.id,
-      name: biz.name,
-      image,
-      city: biz.city || null,
-      slug: biz.slug,
-      viewedAt: Date.now(),
-    };
-    const updated = [entry, ...current.filter((e) => e.id !== biz.id)].slice(0, MAX_ENTRIES);
-    setStored(updated);
-    setBusinesses(updated);
-    window.dispatchEvent(new Event(SYNC_EVENT));
-  }, []);
-
-  return { recentBusinesses: businesses, trackView };
+  return { recentBusinesses: businesses };
 };
