@@ -179,6 +179,7 @@ interface SearchResult {
   detectedCity?: string | null;
   detectedNeighborhood?: string | null;
   detectedCategory?: string | null;
+  detectedService?: string | null;
   intentSubcategoryConflict?: boolean;
   searchMode?: string | null;
   bundleTimeSlots?: string[];
