@@ -22,6 +22,7 @@ const MobileSearchOverlay = ({ open, onClose }: MobileSearchOverlayProps) => {
 
   const { suggestions: popularSuggestions } = usePopularSearches(query, true);
   const { history, deleteEntry, clearHistory } = useSearchHistory();
+  const { recentBusinesses } = useRecentlyViewedBusinesses();
 
   const voice = useVoiceSearch({
     onTranscript: (keywords, spoken, detectedCategory, timeKeyword) => {
