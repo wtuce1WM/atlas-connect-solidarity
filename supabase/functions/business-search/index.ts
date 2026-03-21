@@ -4225,6 +4225,8 @@ serve(async (req) => {
       if (nameMatchData) {
         const qNorm = stripAccentsGlobal(effectiveQuery.toLowerCase().trim());
         const relevantIds = nameMatchData.filter((b: any) => {
+          // Never remove keyword-pinned businesses (they matched via keywords, not name)
+          if (keywordPinnedIds.has(b.id)) return true;
           // Never remove exact name matches (the query IS the business name)
           const bNameNorm = stripAccentsGlobal((b.name || "").toLowerCase().trim());
           if (bNameNorm === qNorm) return true;
