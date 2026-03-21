@@ -2303,12 +2303,11 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
                             )}
                             {(isOpen || !showHeader) && (
                               <div className={`px-4 pb-4 ${showHeader ? 'pt-0' : 'pt-4'}`}>
-                                {group.description && (
-                                  <div className="mb-3 text-sm leading-relaxed prose max-w-none text-muted-foreground prose-headings:text-foreground" dangerouslySetInnerHTML={{ __html: group.description }} />
-                                )}
-                                <ul className="space-y-2">
+                                <ul className="list-disc ml-4 space-y-1.5 marker:text-foreground">
                                   {group.services.map((service, index) => (
-                                    <ServiceListItem key={index} service={service} currentBusinessId={business.id} city={business.city} hideLink hideIcon />
+                                    <li key={index} className="text-sm">
+                                      <span>{service.charAt(0).toUpperCase() + service.slice(1)}</span>
+                                    </li>
                                   ))}
                                 </ul>
                               </div>
