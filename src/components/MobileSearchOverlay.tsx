@@ -3,10 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePopularSearches } from "@/hooks/usePopularSearches";
 import { useSearchHistory } from "@/hooks/useSearchHistory";
+import { useRecentlyViewedBusinesses } from "@/hooks/useRecentlyViewedBusinesses";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Search, Clock, X, Mic, MicOff, Loader, TrendingUp } from "lucide-react";
-
+import { ArrowLeft, Search, Clock, X, Mic, MicOff, Loader, TrendingUp, MapPin } from "lucide-react";
+import { businessUrl } from "@/lib/businessUrl";
 interface MobileSearchOverlayProps {
   open: boolean;
   onClose: () => void;
