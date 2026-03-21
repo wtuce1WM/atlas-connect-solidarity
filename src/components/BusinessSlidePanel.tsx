@@ -1487,7 +1487,7 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
               </div>
               <div className={`flex items-center gap-2 shrink-0 ${bookingUrl ? 'mr-14' : ''}`}>
                 {business.default_service && (
-                  <Badge className="text-xs bg-gold text-black hover:bg-gold/90 border-gold">{business.default_service}</Badge>
+                  <Badge className="hidden sm:inline-flex text-xs bg-gold text-black hover:bg-gold/90 border-gold">{business.default_service}</Badge>
                 )}
                 {voiceStatus === "recording" && (
                   <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-destructive/10 text-destructive text-xs font-medium animate-pulse">
