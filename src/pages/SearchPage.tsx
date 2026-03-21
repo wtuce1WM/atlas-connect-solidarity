@@ -4225,8 +4225,8 @@ const SearchPage = () => {
       {/* Floating Search Bar */}
       <div className={`fixed bottom-0 left-0 right-0 py-3 px-4 transition-transform duration-300 ${(isCompactPanelWebOnly && compactPanelBusiness) || (isSubDesktop && showMobileMap) ? "translate-y-full" : ""} ${isCompactPanelExpanded ? "z-[190]" : "z-[210]"}`}>
         <div className="max-w-2xl mx-auto">
-          {/* Desktop: normal inline SearchInput */}
-          <div className="hidden md:block">
+          {/* Desktop: normal inline SearchInput — only mounted on desktop to avoid duplicate hooks */}
+          {!isMobile && (
             <SearchInput
               variant="floating"
               value={inputValue}
@@ -4254,10 +4254,10 @@ const SearchPage = () => {
               }}
               voiceControl={{ status: voiceStatus, toggleRecording, liveTranscript }}
             />
-          </div>
+          )}
 
           {/* Mobile: fake input that opens fullscreen overlay */}
-          <div className="md:hidden">
+          {isMobile && (
             <button
               type="button"
               onClick={() => setMobileSearchOverlayOpen(true)}
@@ -4266,19 +4266,21 @@ const SearchPage = () => {
               <Search className="h-4 w-4 text-muted-foreground shrink-0" />
               <span className="text-sm text-muted-foreground truncate">{inputValue || (language === "fr" ? "Rechercher un établissement..." : language === "ar" ? "ابحث عن مؤسسة..." : "Search for a business...")}</span>
             </button>
-          </div>
+          )}
         </div>
       </div>
 
-      {/* Mobile fullscreen search overlay */}
-      <MobileSearchOverlay
-        open={mobileSearchOverlayOpen}
-        onClose={() => setMobileSearchOverlayOpen(false)}
-        onBusinessSelect={(bizId) => {
-          setCompactPanelBusiness({ id: bizId, name: "" } as any);
-          setIsCompactPanelExpanded(false);
-        }}
-      />
+      {/* Mobile fullscreen search overlay — only mounted on mobile to avoid duplicate hooks */}
+      {isMobile && (
+        <MobileSearchOverlay
+          open={mobileSearchOverlayOpen}
+          onClose={() => setMobileSearchOverlayOpen(false)}
+          onBusinessSelect={(bizId) => {
+            setCompactPanelBusiness({ id: bizId, name: "" } as any);
+            setIsCompactPanelExpanded(false);
+          }}
+        />
+      )}
 
 
       {/* Google-style voice search overlay */}
