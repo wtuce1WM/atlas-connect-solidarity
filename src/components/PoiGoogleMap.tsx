@@ -22,6 +22,8 @@ interface PoiGoogleMapProps {
   onPoiClick?: (poiId: string) => void;
   center?: { lat: number; lng: number };
   subcategoryIconMap?: Record<string, string>;
+  /** When true, fitBounds on markers instead of forcing center */
+  fitToMarkers?: boolean;
 }
 
 /* ── Google Maps loader (reuses shared singleton) ── */
