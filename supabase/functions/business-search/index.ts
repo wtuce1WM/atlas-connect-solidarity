@@ -868,6 +868,7 @@ serve(async (req) => {
             }
             if (kwPinned.length > 0) {
               nameMatchedBusinessIds = [...nameMatchedBusinessIds, ...kwPinned];
+              for (const id of kwPinned) keywordPinnedIds.add(id);
               console.log(`Keyword match found for pinning: query "${nameSearchQuery}" matches ${kwPinned.length} business(es) via keywords`);
             }
           }
