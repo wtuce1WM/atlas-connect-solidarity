@@ -1133,7 +1133,7 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
         toolbarPortal
       )}
       {/* Scrollable content */}
-      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto relative z-0">
+      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto relative z-0 bg-white">
         {/* EXPANDED MODE: Full media mosaic gallery */}
         {isExpanded ? (
           <div className="p-2" style={{ columns: "250px 3", columnGap: 6 }}>
