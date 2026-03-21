@@ -2167,6 +2167,9 @@ const SearchPage = () => {
 
   return (
     <div className="min-h-screen bg-white">
+      {showLoadingScreen && (
+        <LoadingScreen exiting={loadingExiting} onExited={handleLoadingExited} />
+      )}
       <Header />
 
       {/* Shared LocationPickerDialog — accessible from all tabs */}
