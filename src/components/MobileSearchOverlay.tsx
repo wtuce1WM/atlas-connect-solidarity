@@ -74,6 +74,7 @@ const MobileSearchOverlay = ({ open, onClose }: MobileSearchOverlayProps) => {
   const placeholderText = language === "fr" ? "Rechercher un établissement..." : language === "ar" ? "ابحث عن مؤسسة..." : "Search for a business...";
 
   const showRecent = (!query || query.trim().length < 2) && history.length > 0;
+  const showRecentlyViewed = (!query || query.trim().length < 2) && recentBusinesses.length > 0;
   const showPopular = popularSuggestions.length > 0;
 
   return (
