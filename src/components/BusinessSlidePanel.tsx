@@ -261,6 +261,7 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
   const [showDirectionsOverlay, setShowDirectionsOverlay] = useState(false);
   const [directionsMode, setDirectionsMode] = useState<"walking" | "driving">("walking");
   const [userOrigin, setUserOrigin] = useState<string | null>(null);
+  const [showInfoCard, setShowInfoCard] = useState(true);
 
   // Fetch user geolocation when directions overlay opens
   useEffect(() => {
