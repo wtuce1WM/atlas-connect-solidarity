@@ -3150,6 +3150,7 @@ const SearchPage = () => {
                     setPoiSelectedBusinessId(poiId);
                   }}
                   center={mapCenterForResults}
+                  fitToMarkers
                 />
               </div>
             )}
