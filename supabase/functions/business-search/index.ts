@@ -861,7 +861,8 @@ serve(async (req) => {
               // Check if any keyword contains the full query or vice versa
               const hasMatch = bKeywords.some((kw: string) => {
                 const kwNorm = stripAccentsGlobal(kw.toLowerCase().trim());
-                return kwNorm === kwQuery || kwNorm.includes(kwQuery) || kwQuery.includes(kwNorm);
+                if (!kwNorm) return false;
+                return kwNorm === kwQuery || kwNorm.includes(kwQuery);
               });
               if (hasMatch) {
                 kwPinned.push(b.id);
