@@ -3118,7 +3118,7 @@ const SearchPage = () => {
                     </button>
                   </div>
                 </div>
-                <div className="pt-8" />
+                <div className="pt-4" />
                 <PoiSection
                   city={poiCity}
                   language={language}
