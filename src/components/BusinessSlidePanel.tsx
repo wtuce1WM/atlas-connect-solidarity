@@ -1768,7 +1768,7 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
                         }
                         setIsBookingOpen(true);
                       }}
-                      className="flex items-center justify-center gap-2 w-[60%] py-3 rounded-xl bg-gold text-gold-foreground font-semibold text-sm hover:bg-gold/90 transition-colors"
+                      className="flex items-center justify-center gap-2 w-full sm:w-[60%] py-3 rounded-xl bg-gold text-gold-foreground font-semibold text-sm hover:bg-gold/90 transition-colors"
                     >
                       {language === "en" ? "Check availability" : language === "ar" ? "تحقق من التوفر" : "Vérifier la disponibilité"}
                       <Search className="h-3.5 w-3.5" />
