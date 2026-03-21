@@ -12,8 +12,8 @@ const RouteTransition = ({ children }: { children: React.ReactNode }) => {
     // Skip on initial mount and same-path navigations (e.g. query changes on search page)
     if (prevPath.current === location.pathname) return;
     
-    // Skip staff/affiliate pages
-    const skipPaths = ["/staff/login", "/staff/backoffice", "/affiliates", "/affiliates/dashboard"];
+    // Skip staff/affiliate pages and search page (SearchPage handles its own loading)
+    const skipPaths = ["/staff/login", "/staff/backoffice", "/affiliates", "/affiliates/dashboard", "/search"];
     if (skipPaths.includes(location.pathname)) {
       prevPath.current = location.pathname;
       return;
