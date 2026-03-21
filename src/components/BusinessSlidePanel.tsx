@@ -23,6 +23,8 @@ import { Separator } from "@/components/ui/separator";
 import { FacebookIcon, InstagramIcon, LinkedInIcon, YouTubeIcon, TikTokIcon, TwitterIcon, PinterestIcon, VimeoIcon } from "@/components/staff/SocialMediaIcons";
 import BookingOverlay from "@/components/BookingOverlay";
 import SocialEmbedsTab from "@/components/SocialEmbedsTab";
+import DynamicIcon from "@/components/DynamicIcon";
+import ServiceListItem from "@/components/ServiceListItem";
 import HotelAvailabilityOverlay, { type FallbackPanelData, type FallbackHotel } from "@/components/HotelAvailabilityOverlay";
 import MapBusinessInfoCard from "@/components/MapBusinessInfoCard";
 import { Info } from "lucide-react";
