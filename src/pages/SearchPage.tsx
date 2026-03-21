@@ -2668,7 +2668,7 @@ const SearchPage = () => {
             <p className="text-xl md:text-2xl font-bold text-foreground mb-3">
               «&nbsp;{(spokenText || searchQuery)}{selectedCity && selectedCity !== "all" ? ` ${selectedCity}` : ""}&nbsp;»
             </p>
-            <p className="text-foreground font-semibold text-lg mb-5">
+            <p className="text-primary font-semibold text-lg mb-5">
               {filteredBusinesses.length} {language === "en" ? "establishments found" : language === "ar" ? "مؤسسة وجدت" : "établissements trouvés"}
             </p>
 
