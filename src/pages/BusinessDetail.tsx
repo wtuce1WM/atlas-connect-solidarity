@@ -23,7 +23,6 @@ import ServiceListItem from "@/components/ServiceListItem";
 import DynamicIcon from "@/components/DynamicIcon";
 import { useValidatedImages, useValidatedUrl } from "@/hooks/useValidatedImages";
 import logoGold from "@/assets/logoGOLDsimple.webp";
-import LoadingScreen from "@/components/LoadingScreen";
 import relaisChateauxLogo from "@/assets/relais-chateaux-logo.png";
 import restaurantGuruLogo from "@/assets/restaurant-guru-logo.webp";
 import tripadvisorLogo from "@/assets/tripadvisor-logo.png";
@@ -470,7 +469,7 @@ const BusinessDetail = () => {
   }, [business?.id, business?.categories, business?.city]);
 
   if (isLoading) {
-    return <LoadingScreen />;
+    return null;
   }
 
   if (!business) {
