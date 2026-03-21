@@ -2312,7 +2312,7 @@ const SearchPage = () => {
                       </div>
                     ) : null;
                   })()}
-                  <p className="text-gold font-semibold mt-2">
+                  <p className="text-primary font-semibold mt-2">
                     {filteredBusinesses.length} {language === "en" ? "establishments found" : language === "ar" ? "مؤسسة وجدت" : "établissements trouvés"}
                   </p>
                 </>
