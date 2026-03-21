@@ -2199,7 +2199,7 @@ const SearchPage = () => {
       )}
 
       {/* Warning Overlay — forces user to pick city + category */}
-      {!isLoading && allBusinesses.length > 0 && !compactPanelBusiness && !showAiPopup && !warningDismissed && (
+      {!isLoading && !!disambiguationType && allBusinesses.length > 0 && !compactPanelBusiness && !showAiPopup && !warningDismissed && (
         <WarningOverlay
           allBusinesses={allBusinesses}
           citiesWithPriority={citiesWithPriority}
