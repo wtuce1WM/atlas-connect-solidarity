@@ -3150,6 +3150,7 @@ const SearchPage = () => {
                     setPoiSelectedBusinessId(poiId);
                   }}
                   center={mapCenterForResults}
+                  fitToMarkers
                 />
               </div>
             )}
@@ -3193,6 +3194,7 @@ const SearchPage = () => {
                       if (city?.latitude && city?.longitude) return { lat: city.latitude, lng: city.longitude };
                       return undefined;
                     })()}
+                    fitToMarkers
                     onPoiClick={(poiId) => {
                       const poi = allPois.find(p => p.id === poiId);
                       if (poi) setPoiMapBusiness({ id: poi.id, name: poi.name, latitude: poi.latitude, longitude: poi.longitude, address: null, google_maps_url: null });
@@ -3315,6 +3317,7 @@ const SearchPage = () => {
                     }
                   }}
                   center={mapCenterForResults}
+                  fitToMarkers
                 />
               </div>
             )}
@@ -3364,6 +3367,7 @@ const SearchPage = () => {
                       if (city?.latitude && city?.longitude) return { lat: city.latitude, lng: city.longitude };
                       return undefined;
                     })()}
+                    fitToMarkers
                     onPoiClick={(id) => {
                       const d = allDests.find(p => p.id === id);
                       if (d) {
@@ -4146,6 +4150,7 @@ const SearchPage = () => {
                 if (biz) openCompactPanel({ id: biz.id, name: biz.name } as AIBusinessData);
               }}
               center={mapCenterForResults}
+              fitToMarkers
               subcategoryIconMap={subcategoryIconMap}
             />
           </div>
