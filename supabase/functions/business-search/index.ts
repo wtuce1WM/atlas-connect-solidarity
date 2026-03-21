@@ -1682,7 +1682,12 @@ serve(async (req) => {
         console.log(`⚡ Synonym filters complete: ${businesses.length} results — skipping FTS chain`);
 
         // ── BADGE MERGE: if the synonym also has a badge_id, merge badge-matched businesses ──
+        // Only include badge-matched businesses that also have at least one required_service
+        // from the paired filters (prevents e.g. Leone Discoteca with "Live Show" badge but without the service)
         if (matchedSynonymBadgeId) {
+          const requiredServicesFromFilters = matchedSynonymFilters
+            .map(f => f.required_service)
+            .filter(Boolean) as string[];
           const existingBadgeIds = new Set(businesses.map(b => b.id));
           const { data: bbData } = await supabase
             .from("business_badges")
@@ -1697,13 +1702,25 @@ serve(async (req) => {
               if (effectiveCity) badgeBuilder = applyCityFilter(badgeBuilder);
               const { data: badgeBiz, error: badgeErr } = await badgeBuilder;
               if (!badgeErr && badgeBiz && badgeBiz.length > 0) {
-                const mapped = badgeBiz.map((b: any) => ({
+                // Post-filter: if paired filters specify required services, badge-merged businesses
+                // must also have at least one of those services
+                const filtered = requiredServicesFromFilters.length > 0
+                  ? badgeBiz.filter((b: any) => {
+                      const bizServices: string[] = (b.services || []);
+                      return requiredServicesFromFilters.some(rs => bizServices.includes(rs));
+                    })
+                  : badgeBiz;
+                const mapped = filtered.map((b: any) => ({
                   ...b,
                   distance_km: latitude && longitude && b.latitude && b.longitude
                     ? calculateDistance(latitude, longitude, b.latitude, b.longitude) : null,
                 }));
                 businesses = [...businesses, ...mapped];
-                console.log(`⚡ Badge merge (${matchedSynonymBadgeId}): +${mapped.length} businesses (total: ${businesses.length})`);
+                if (filtered.length < badgeBiz.length) {
+                  console.log(`⚡ Badge merge (${matchedSynonymBadgeId}): ${badgeBiz.length} badge matches → ${filtered.length} after service filter [${requiredServicesFromFilters.join(", ")}] (total: ${businesses.length})`);
+                } else {
+                  console.log(`⚡ Badge merge (${matchedSynonymBadgeId}): +${mapped.length} businesses (total: ${businesses.length})`);
+                }
               }
             }
           }
