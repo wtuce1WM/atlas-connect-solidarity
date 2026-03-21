@@ -2763,7 +2763,7 @@ const SearchPage = () => {
       {/* Geolocation consent banner */}
       {geo.showBanner && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 pointer-events-none">
-          <div className="max-w-lg w-full bg-card border border-gold/30 rounded-2xl shadow-2xl p-4 animate-in fade-in zoom-in-95 pointer-events-auto">
+          <div className="max-w-[calc(100%-2rem)] sm:max-w-lg w-full bg-card border border-gold/30 rounded-2xl shadow-2xl p-4 animate-in fade-in zoom-in-95 pointer-events-auto">
           <div className="flex items-start gap-3">
             <MapPin className="h-5 w-5 text-gold shrink-0 mt-0.5" />
             <div className="flex-1">
