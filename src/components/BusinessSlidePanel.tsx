@@ -1334,6 +1334,12 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
                     </button>
                   </div>
                 )}
+                {/* Default service badge on mobile — centered top of photo */}
+                {business.default_service && (
+                  <div className="sm:hidden absolute top-3 left-1/2 -translate-x-1/2 z-10">
+                    <Badge className="text-xs bg-gold text-black hover:bg-gold/90 border-gold shadow-md">{business.default_service}</Badge>
+                  </div>
+                )}
                 {isVerified && !isInstitution && (
                   <img src={logoGold} alt="WTUCE" className="absolute top-3 right-3 w-[4.5rem] h-[4.5rem] md:w-[7rem] md:h-[7rem] lg:w-[7.5rem] lg:h-[7.5rem] object-contain opacity-90 pointer-events-none drop-shadow-lg" />
                 )}
@@ -1505,7 +1511,7 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
 
           {/* Hook */}
           {hook && (
-            <p className="text-2xl italic leading-relaxed text-muted-foreground" style={{ fontFamily: "'Libre Baskerville', serif" }}>
+            <p className="text-lg sm:text-2xl italic leading-relaxed text-muted-foreground" style={{ fontFamily: "'Libre Baskerville', serif" }}>
               {hook}
             </p>
           )}
