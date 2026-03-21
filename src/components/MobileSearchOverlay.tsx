@@ -189,7 +189,7 @@ const MobileSearchOverlay = ({ open, onClose, onBusinessSelect }: MobileSearchOv
               {language === "fr" ? "Consultés récemment" : language === "ar" ? "تمت مشاهدتها مؤخرًا" : "Recently viewed"}
             </span>
             <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-              {recentBusinesses.slice(0, 5).map((biz) => (
+              {recentBusinesses.slice(0, 5).map((biz, i) => (
                 <button
                   key={biz.id}
                   type="button"
@@ -201,7 +201,8 @@ const MobileSearchOverlay = ({ open, onClose, onBusinessSelect }: MobileSearchOv
                       navigate(`/search?openBusiness=${biz.id}`);
                     }
                   }}
-                  className="flex flex-col items-center gap-1.5 shrink-0 w-[72px] group"
+                  className="flex flex-col items-center gap-1.5 shrink-0 w-[72px] group animate-slide-in-right"
+                  style={{ animationDelay: `${i * 80}ms`, animationFillMode: "backwards" }}
                 >
                   <div className="w-14 h-14 rounded-xl overflow-hidden bg-muted border border-border">
                     {biz.image ? (
