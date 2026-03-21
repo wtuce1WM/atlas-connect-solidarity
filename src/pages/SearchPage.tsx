@@ -3253,7 +3253,7 @@ const SearchPage = () => {
             <section className={`pb-6 lg:pb-12 bg-white dark:bg-zinc-900 transition-all duration-300 ${hasRightPanel ? "w-1/2" : hasKnownLocation ? "w-1/2" : "w-full"}`}>
               <div className={`mx-auto px-4 ${(hasRightPanel || hasKnownLocation) ? "max-w-full" : "max-w-[80%]"}`}>
                 {/* Sticky bar for Destinations — mirrors STICKY 5 */}
-                <div className="sticky z-[19] bg-white flex items-center justify-end py-2 mb-2 border-b border-border/40" style={{ top: `${Math.max(stickyStackPadding || 0, 104)}px` }}>
+                <div className="sticky z-[19] bg-white flex items-center justify-center py-2 mb-2 border-b border-border/40" style={{ top: `${Math.max(stickyStackPadding || 0, 104)}px` }}>
                   <div className="flex items-center gap-2">
                     {isSubDesktop && (
                       <button
