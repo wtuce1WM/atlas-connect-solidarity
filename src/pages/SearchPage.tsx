@@ -666,32 +666,34 @@ const SearchPage = () => {
 
    // Measure sticky bar heights dynamically for perfect stacking
    const [stickyTops, setStickyTops] = useState({ cityBar: 104, serviceBar: 148 });
-   const [stickyStackPadding, setStickyStackPadding] = useState(0);
-    useEffect(() => {
-      const measure = () => {
-        const tabBar = document.querySelector<HTMLElement>('[data-tab-bar]');
-        const tabH = tabBar ? tabBar.getBoundingClientRect().height : 44;
-        const cityBarTop = 60 + tabH;
-        setStickyTops(prev => {
-          if (prev.cityBar === cityBarTop && prev.serviceBar === cityBarTop) return prev;
-          return { cityBar: cityBarTop, serviceBar: cityBarTop };
-        });
+    const [stickyStackPadding, setStickyStackPadding] = useState(0);
+     useEffect(() => {
+       const measure = () => {
+         const tabBar = document.querySelector<HTMLElement>('[data-tab-bar]');
+         const tabH = tabBar ? tabBar.getBoundingClientRect().height : 44;
+         const cityBarTop = 60 + tabH;
+         setStickyTops(prev => {
+           if (prev.cityBar === cityBarTop && prev.serviceBar === cityBarTop) return prev;
+           return { cityBar: cityBarTop, serviceBar: cityBarTop };
+         });
 
-        // Measure the bottom of the last visible sticky bar to compute content padding
-        const subBar = document.querySelector<HTMLElement>('[data-subcategory-filter]');
-        const catBar = document.querySelector<HTMLElement>('[data-category-filter]');
-        const lastSticky = subBar || catBar || tabBar;
-        if (lastSticky) {
-          const computedTop = Number.parseFloat(window.getComputedStyle(lastSticky).top || '0');
-          const h = lastSticky.getBoundingClientRect().height;
-          const bottom = (Number.isFinite(computedTop) ? computedTop : 0) + h;
-          setStickyStackPadding(prev => prev === bottom ? prev : bottom);
-        }
-      };
-      const t1 = setTimeout(measure, 80);
-      window.addEventListener("resize", measure);
-      return () => { clearTimeout(t1); window.removeEventListener("resize", measure); };
-    }, [selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, selectedCity, activeTab, showAiPopup, isLoading]);
+         // Measure the bottom of the last visible sticky bar to compute content padding
+         const subBar = document.querySelector<HTMLElement>('[data-subcategory-filter]');
+         const catBar = document.querySelector<HTMLElement>('[data-category-filter]');
+         const lastSticky = subBar || catBar || tabBar;
+         if (lastSticky) {
+           const computedTop = Number.parseFloat(window.getComputedStyle(lastSticky).top || '0');
+           const h = lastSticky.getBoundingClientRect().height;
+           const bottom = (Number.isFinite(computedTop) ? computedTop : 0) + h;
+           setStickyStackPadding(prev => prev === bottom ? prev : bottom);
+         }
+       };
+       // Run immediately for fast first paint, then again after 80ms for stable measurement
+       measure();
+       const t1 = setTimeout(measure, 80);
+       window.addEventListener("resize", measure);
+       return () => { clearTimeout(t1); window.removeEventListener("resize", measure); };
+     }, [selectedCategoryFilter, selectedSubcategoryFilter, selectedServiceFilter, selectedCity, activeTab, showAiPopup, isLoading]);
 
    const [aiRegenerateKey, setAiRegenerateKey] = useState(0);
    const [isAiRegenerating, setIsAiRegenerating] = useState(false);
