@@ -3948,29 +3948,6 @@ const SearchPage = () => {
                           </div>
                         )}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-                        {isWebOnly && (
-                          <div
-                            className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/65 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <div className="flex flex-col gap-2 px-4 w-full max-w-[200px]">
-                              <a
-                                href={webOnlyUrl!.startsWith("http") ? webOnlyUrl! : `https://${webOnlyUrl}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-white text-black text-xs font-semibold hover:bg-white/90 transition-colors"
-                              >
-                                Boutique en ligne ↗
-                              </a>
-                              <button
-                                onClick={() => openCompactPanel({ id: business.id, name: business.name } as AIBusinessData, true)}
-                                className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg border border-white/50 text-white text-xs font-semibold hover:bg-white/15 transition-colors"
-                              >
-                                Voir la fiche
-                              </button>
-                            </div>
-                          </div>
-                        )}
                         {business.wtuce_status === "verified" && (
                           <div className="absolute top-2 right-2 z-[15]">
                             <img src={logoGold} alt="Vérifié" className="w-12 h-12 object-contain" />
