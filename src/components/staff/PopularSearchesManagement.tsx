@@ -17,6 +17,7 @@ interface PopularSearch {
   query: string;
   is_active: boolean;
   sort_order: number;
+  extracted_keywords: string | null;
   created_at: string;
 }
 
