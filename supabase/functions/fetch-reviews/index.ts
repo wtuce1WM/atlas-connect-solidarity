@@ -184,7 +184,16 @@ async function fetchGoogleReviews(businessName: string, city: string, googleMaps
   return { rating: null, count: null, reviews: [] };
 }
 
-async function fetchTripAdvisorReviews(businessName: string, city: string, tripadvisorLocationId: string | null, latitude: number | null, longitude: number | null): Promise<{ rating: number | null; count: number | null; locationId: string | null }> {
+function extractTripAdvisorLocationId(url: string | null): string | null {
+  if (!url) return null;
+  try {
+    const match = url.match(/-d(\d+)-/i);
+    if (match) return match[1];
+  } catch (_) { /* ignore */ }
+  return null;
+}
+
+async function fetchTripAdvisorReviews(businessName: string, city: string, tripadvisorLocationId: string | null, latitude: number | null, longitude: number | null, tripadvisorReviewUrl: string | null, tripadvisorUrl: string | null): Promise<{ rating: number | null; count: number | null; locationId: string | null }> {
   const apiKey = Deno.env.get('TRIPADVISOR_API_KEY');
   if (!apiKey) {
     console.error('TRIPADVISOR_API_KEY not configured');
@@ -192,9 +201,18 @@ async function fetchTripAdvisorReviews(businessName: string, city: string, tripa
   }
 
   try {
-    let locationId = tripadvisorLocationId;
+    // URL is the source of truth — extract location ID from it first
+    const urlLocationId = extractTripAdvisorLocationId(tripadvisorReviewUrl) || extractTripAdvisorLocationId(tripadvisorUrl);
+    let locationId = urlLocationId || tripadvisorLocationId;
 
-    // Search for location if no cached ID
+    if (urlLocationId && tripadvisorLocationId && urlLocationId !== tripadvisorLocationId) {
+      console.log(`TripAdvisor: URL location ID (${urlLocationId}) differs from cached (${tripadvisorLocationId}), using URL`);
+    }
+    if (locationId && !tripadvisorLocationId) {
+      console.log(`Extracted TripAdvisor location ID from URL: ${locationId}`);
+    }
+
+    // Search for location if still no ID
     if (!locationId) {
       const searchQuery = `${businessName} ${city}`;
       const searchUrl = new URL('https://api.content.tripadvisor.com/api/v1/location/search');
@@ -415,7 +433,7 @@ Deno.serve(async (req) => {
 
     const { data: business, error: fetchError } = await supabase
       .from('businesses')
-      .select('name, city, latitude, longitude, google_maps_url, google_reviews_url, tripadvisor_review_url, tripadvisor_location_id, restaurant_guru_url, getyourguide_url, viator_url')
+      .select('name, city, latitude, longitude, google_maps_url, google_reviews_url, tripadvisor_review_url, tripadvisor_url, tripadvisor_location_id, restaurant_guru_url, getyourguide_url, viator_url')
       .eq('id', business_id)
       .single();
 
@@ -443,7 +461,7 @@ Deno.serve(async (req) => {
     let tripadvisorLocationId: string | null = null;
     if (!google_only) {
       promises.push(
-        fetchTripAdvisorReviews(business.name, business.city || '', business.tripadvisor_location_id, business.latitude, business.longitude).then(r => {
+        fetchTripAdvisorReviews(business.name, business.city || '', business.tripadvisor_location_id, business.latitude, business.longitude, business.tripadvisor_review_url, business.tripadvisor_url).then(r => {
           results.tripadvisor_rating = r.rating;
           results.tripadvisor_review_count = r.count;
           tripadvisorLocationId = r.locationId;
