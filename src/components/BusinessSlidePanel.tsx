@@ -2291,8 +2291,8 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
                                   {group.icon && (
                                     <DynamicIcon name={group.icon} className="h-5 w-5 text-primary" />
                                   )}
-                                  <span className="font-semibold text-foreground">
-                                    {group.subcategoryName}
+                                  <span className="text-sm font-medium text-foreground capitalize">
+                                    {group.subcategoryName.toLowerCase()}
                                   </span>
                                   <span className="text-xs text-muted-foreground">
                                     ({group.services.length})
