@@ -4341,6 +4341,12 @@ serve(async (req) => {
           // Never remove exact name matches (the query IS the business name)
           const bNameNorm = stripAccentsGlobal((b.name || "").toLowerCase().trim());
           if (bNameNorm === qNorm) return true;
+          // Keep businesses whose name contains the detected subcategory term
+          // e.g. "Hotel Le Golf D'Essaouira" should stay for "golf" searches
+          if (detectedSubcategory) {
+            const subNorm = stripAccentsGlobal(detectedSubcategory.toLowerCase());
+            if (bNameNorm.includes(subNorm)) return true;
+          }
           const bCats = (b.categories || []).map((c: string) => c.toLowerCase());
           const bSvcs = (b.services || []).map((s: string) => s.toLowerCase());
           // Check if business has the detected subcategory in its categories
