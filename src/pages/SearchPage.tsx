@@ -4191,6 +4191,7 @@ const SearchPage = () => {
                 }
               }}
               center={mapCenterForResults}
+              fitToMarkers
               subcategoryIconMap={activeTab === "suggestions" ? subcategoryIconMap : undefined}
             />
           </div>
