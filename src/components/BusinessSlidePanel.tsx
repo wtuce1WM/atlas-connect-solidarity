@@ -963,32 +963,31 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
           : business.address || business.name;
         return (
         <div className="absolute inset-0 z-[60] bg-white flex flex-col animate-fade-in">
-          <div className="flex items-center justify-between px-4 py-2 border-b bg-white">
-           <div className="flex items-center gap-3">
-             <button
-               onClick={() => setShowDirectionsOverlay(false)}
-               className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background border-2 border-white/20 shadow-2xl hover:opacity-90 transition-opacity shrink-0"
-               title="Fermer"
-               aria-label="Fermer l'itinéraire"
-             >
-               <X className="h-4 w-4" />
-             </button>
-             
-             <div className="flex items-center bg-muted rounded-full p-0.5">
-               <button
-                 onClick={() => setDirectionsMode("walking")}
-                 className={`px-2.5 py-1 text-xs font-medium rounded-full transition-colors ${directionsMode === "walking" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
-               >
-                 🚶 À pied
-               </button>
-               <button
-                 onClick={() => setDirectionsMode("driving")}
-                 className={`px-2.5 py-1 text-xs font-medium rounded-full transition-colors ${directionsMode === "driving" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
-               >
-                 🚗 Voiture
-               </button>
-             </div>
-           </div>
+           <div className="flex items-center px-4 py-2 border-b bg-white">
+              <button
+                onClick={() => setShowDirectionsOverlay(false)}
+                className="shrink-0 h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background border-2 border-background/20 shadow-2xl hover:opacity-90 transition-opacity"
+                title="Fermer"
+                aria-label="Fermer l'itinéraire"
+              >
+                <X className="h-4 w-4" />
+              </button>
+              <div className="flex-1 flex items-center justify-center">
+                <div className="flex items-center bg-muted rounded-full p-0.5">
+                  <button
+                    onClick={() => setDirectionsMode("walking")}
+                    className={`px-2.5 py-1 text-xs font-medium rounded-full transition-colors ${directionsMode === "walking" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+                  >
+                    🚶 À pied
+                  </button>
+                  <button
+                    onClick={() => setDirectionsMode("driving")}
+                    className={`px-2.5 py-1 text-xs font-medium rounded-full transition-colors ${directionsMode === "driving" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+                  >
+                    🚗 Voiture
+                  </button>
+                </div>
+              </div>
             <div className="flex items-center gap-2">
                <a
                  href={`https://www.google.com/maps/dir/?api=1&destination=${dest}`}
