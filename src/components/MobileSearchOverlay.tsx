@@ -179,7 +179,39 @@ const MobileSearchOverlay = ({ open, onClose }: MobileSearchOverlayProps) => {
           </div>
         )}
 
-        {/* Popular / matching suggestions */}
+        {/* Recently viewed businesses */}
+        {showRecentlyViewed && (
+          <div className="mb-6">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1.5 mb-3">
+              <MapPin className="h-3.5 w-3.5" />
+              {language === "fr" ? "Consultés récemment" : language === "ar" ? "تمت مشاهدتها مؤخرًا" : "Recently viewed"}
+            </span>
+            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+              {recentBusinesses.slice(0, 5).map((biz) => (
+                <button
+                  key={biz.id}
+                  type="button"
+                  onClick={() => { onClose(); navigate(businessUrl(biz)); }}
+                  className="flex flex-col items-center gap-1.5 shrink-0 w-[72px] group"
+                >
+                  <div className="w-14 h-14 rounded-xl overflow-hidden bg-muted border border-border">
+                    {biz.image ? (
+                      <img src={biz.image} alt={biz.name} className="w-full h-full object-cover" loading="lazy" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                        <MapPin className="h-5 w-5" />
+                      </div>
+                    )}
+                  </div>
+                  <span className="text-[11px] leading-tight text-foreground text-center line-clamp-2 group-hover:underline">
+                    {biz.name}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {showPopular && (
           <div>
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1.5 mb-3">
