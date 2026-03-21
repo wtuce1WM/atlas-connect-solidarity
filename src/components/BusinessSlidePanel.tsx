@@ -2108,8 +2108,12 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
             const lat = coords?.lat ?? business.latitude ?? null;
             const lng = coords?.lng ?? business.longitude ?? null;
             const fallbackAddr = business.address || (business.neighborhood ? `${business.neighborhood}, ${business.city}` : `${business.city}, ${business.region}`);
-            const embedQuery = placeName || (business.name + (fallbackAddr ? `, ${fallbackAddr}` : lat && lng ? `, ${lat},${lng}` : ""));
-            const mapUrl = `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(embedQuery)}&zoom=17`;
+            const embedQuery = lat && lng
+              ? `${lat},${lng}`
+              : placeName || (business.name + (fallbackAddr ? `, ${fallbackAddr}` : ""));
+            const mapUrl = lat && lng
+              ? `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${lat},${lng}&zoom=17`
+              : `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(embedQuery)}&zoom=17`;
             const dest = lat && lng ? `${lat},${lng}` : encodeURIComponent(`${business.name}, ${fallbackAddr}`);
             
             return (
