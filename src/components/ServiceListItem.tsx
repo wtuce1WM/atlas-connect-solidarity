@@ -53,9 +53,9 @@ const ServiceListItem = ({ service, currentBusinessId, city, hideLink, hideIcon 
   }, [service, currentBusinessId]);
 
   return (
-    <li className="flex flex-col gap-1">
+    <li className={`flex flex-col gap-1 ${hideIcon ? 'list-disc ml-4' : ''}`}>
       <span className="flex items-center gap-2 text-sm">
-        {iconName ? (
+        {!hideIcon && (iconName ? (
           <DynamicIcon
             name={iconName}
             className="h-3.5 w-3.5 flex-shrink-0 text-primary"
@@ -63,7 +63,7 @@ const ServiceListItem = ({ service, currentBusinessId, city, hideLink, hideIcon 
           />
         ) : (
           <span className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
-        )}
+        ))}
         <span className="first-letter:uppercase">{service.charAt(0).toUpperCase() + service.slice(1)}</span>
       </span>
       {!hideLink && otherCount !== null && otherCount > 0 && (
