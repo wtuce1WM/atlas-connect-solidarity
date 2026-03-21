@@ -15,7 +15,7 @@ interface MobileSearchOverlayProps {
   onBusinessSelect?: (businessId: string) => void;
 }
 
-const MobileSearchOverlay = ({ open, onClose }: MobileSearchOverlayProps) => {
+const MobileSearchOverlay = ({ open, onClose, onBusinessSelect }: MobileSearchOverlayProps) => {
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
