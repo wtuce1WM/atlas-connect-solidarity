@@ -156,7 +156,7 @@ const PoiSection = ({ city, language, onBusinessClick, columns, onMapClick, onPo
           );
         })}
       </div>
-    </div>
+    </>
   );
 };
 
