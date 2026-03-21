@@ -2801,36 +2801,7 @@ const SearchPage = () => {
         </div>
       )}
 
-      {/* Geolocation consent banner */}
-      {geo.showBanner && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 pointer-events-none">
-          <div className="max-w-[calc(100%-2rem)] sm:max-w-lg w-full bg-card border border-gold/30 rounded-2xl shadow-2xl p-4 animate-in fade-in zoom-in-95 pointer-events-auto">
-          <div className="flex items-start gap-3">
-            <MapPin className="h-5 w-5 text-gold shrink-0 mt-0.5" />
-            <div className="flex-1">
-              <p className="text-sm font-medium text-foreground">
-                {language === "en" ? "Use your location to see nearby results?" : language === "ar" ? "استخدم موقعك لعرض النتائج القريبة؟" : "Utiliser votre position pour affiner les résultats ?"}
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                {language === "en" ? "You can change this anytime." : language === "ar" ? "يمكنك تغيير هذا في أي وقت." : "Vous pouvez changer ce choix à tout moment."}
-              </p>
-            </div>
-            <button onClick={geo.dismiss} className="text-muted-foreground hover:text-foreground">
-              <X className="h-4 w-4" />
-            </button>
-          </div>
-          <div className="flex gap-2 mt-3 justify-end">
-            <Button size="sm" onClick={geo.decline} className="bg-primary text-primary-foreground hover:bg-primary/90">
-              {language === "en" ? "No thanks" : language === "ar" ? "لا شكرا" : "Non merci"}
-            </Button>
-            <Button size="sm" onClick={geo.accept} className="bg-gold text-black hover:bg-gold/90">
-              <MapPin className="h-3.5 w-3.5 mr-1" />
-              {language === "en" ? "Enable" : language === "ar" ? "تفعيل" : "Activer"}
-            </Button>
-          </div>
-          </div>
-        </div>
-      )}
+      {/* Geolocation consent banner disabled to avoid fullscreen overlay UX */}
 
       {/* Mobile-only: geo + time badges removed — geo button lives in sticky tab bars */}
 
