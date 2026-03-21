@@ -602,8 +602,72 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
           activeNames = new Set((activeServices || []).map((s: any) => s.name_fr));
         }
         setActiveServiceNames(activeNames);
+
+        // Build grouped services by subcategory (matching BusinessDetail page)
+        const filteredServices = data.services.filter((s: string) => activeNames.has(s));
+        if (filteredServices.length > 0) {
+          const { data: svcRows } = await supabase
+            .from("services")
+            .select("name_fr, subcategory_id, subcategories(name_fr, description_fr, icon)")
+            .in("name_fr", filteredServices);
+
+          const groupMap = new Map<string, { description: string | null; icon: string | null; services: Set<string> }>();
+          const businessCats = new Set(data.categories || []);
+          const serviceToSubcat = new Map<string, { subcatName: string; description: string | null; icon: string | null }>();
+
+          if (svcRows) {
+            for (const row of svcRows as any[]) {
+              const subcatName = row.subcategories?.name_fr || null;
+              if (!subcatName) continue;
+              const existing = serviceToSubcat.get(row.name_fr);
+              if (!existing) {
+                serviceToSubcat.set(row.name_fr, { subcatName, description: row.subcategories?.description_fr || null, icon: row.subcategories?.icon || null });
+              } else if (!businessCats.has(existing.subcatName) && businessCats.has(subcatName)) {
+                serviceToSubcat.set(row.name_fr, { subcatName, description: row.subcategories?.description_fr || null, icon: row.subcategories?.icon || null });
+              }
+            }
+            for (const [svcName, info] of serviceToSubcat) {
+              if (!businessCats.has(info.subcatName)) continue;
+              if (!groupMap.has(info.subcatName)) {
+                groupMap.set(info.subcatName, { description: info.description, icon: info.icon, services: new Set() });
+              }
+              groupMap.get(info.subcatName)!.services.add(svcName);
+            }
+          }
+
+          const groups = Array.from(groupMap.entries()).map(([name, g]) => ({
+            subcategoryName: name,
+            description: g.description,
+            icon: g.icon,
+            services: Array.from(g.services).sort((a, b) => a.localeCompare(b, 'fr')),
+          }));
+          const businessCategories: string[] = data.categories || [];
+          const defaultSvc = data.default_service;
+          groups.sort((a, b) => {
+            if (defaultSvc) {
+              const aHas = a.services.includes(defaultSvc);
+              const bHas = b.services.includes(defaultSvc);
+              if (aHas && !bHas) return -1;
+              if (!aHas && bHas) return 1;
+            }
+            const aIdx = businessCategories.indexOf(a.subcategoryName);
+            const bIdx = businessCategories.indexOf(b.subcategoryName);
+            if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
+            if (aIdx !== -1) return -1;
+            if (bIdx !== -1) return 1;
+            return a.subcategoryName.localeCompare(b.subcategoryName, 'fr');
+          });
+
+          setGroupedServices(groups);
+          setOpenServiceGroups(groups.length === 1 ? new Set([groups[0].subcategoryName]) : new Set());
+        } else {
+          setGroupedServices([]);
+          setOpenServiceGroups(new Set());
+        }
       } else {
         setActiveServiceNames(null);
+        setGroupedServices([]);
+        setOpenServiceGroups(new Set());
       }
 
       // Fetch review texts – prefer reviews in the current UI language
