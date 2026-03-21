@@ -3836,9 +3836,9 @@ const SearchPage = () => {
           ) : !showCelebrityGuide && !showSosMedecin && !showPompiers && filteredBusinesses.length > 0 ? (
             <>
               {/* Bar: Results count + AI suggestion + Geolocation — STICKY 5 */}
-              <div ref={resultsBarRef} data-results-bar className="sticky z-[19] bg-white flex items-center justify-between px-4 lg:justify-center lg:px-0 lg:relative py-2 mb-2 border-b border-border/40" style={{ top: `${Math.max(stickyStackPadding || 0, 104)}px` }}>
+              <div ref={resultsBarRef} data-results-bar className="sticky z-[19] bg-white flex items-center justify-between px-4 sm:justify-center sm:px-0 sm:relative py-2 mb-2 border-b border-border/40" style={{ top: `${Math.max(stickyStackPadding || 0, 104)}px` }}>
                 {/* Left: Carte on tablet, empty spacer on mobile */}
-                <div className="flex items-center">
+                <div className="flex items-center sm:absolute sm:left-4">
                   {isSubDesktop && (
                     <button
                       onClick={() => setShowMobileMap(true)}
