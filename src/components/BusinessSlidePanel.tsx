@@ -2257,28 +2257,79 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
             );
           })()}
 
-          {/* Services – only show services that exist in the services table */}
+          {/* Services – grouped by subcategory with accordion */}
           {(() => {
             const filteredServices = business.services && activeServiceNames
               ? business.services.filter(s => activeServiceNames.has(s))
               : business.services || [];
-            const sorted = [...filteredServices].sort((a, b) => a.localeCompare(b, 'fr'));
-            return sorted.length > 0 ? (
+            if (filteredServices.length === 0) return null;
+            return (
               <>
                 <Separator />
                 <div ref={servicesSectionRef} className="space-y-3 scroll-mt-28">
                   <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Services</h3>
-                  <div className="flex flex-col items-center gap-1">
-                    {sorted.map(s => (
-                      <span key={s} className="text-base text-foreground">
-                        {s.charAt(0).toUpperCase() + s.slice(1)}
-                      </span>
-                    ))}
-                  </div>
+                  {groupedServices.length > 0 ? (
+                    <div className="space-y-3">
+                      {groupedServices.map((group) => {
+                        const isOpen = openServiceGroups.has(group.subcategoryName);
+                        const showHeader = groupedServices.length > 1 || group.description;
+                        return (
+                          <div key={group.subcategoryName} className="rounded-xl overflow-hidden bg-card border border-border">
+                            {showHeader && (
+                              <button
+                                onClick={() => {
+                                  setOpenServiceGroups(prev => {
+                                    const next = new Set(prev);
+                                    if (next.has(group.subcategoryName)) next.delete(group.subcategoryName);
+                                    else next.add(group.subcategoryName);
+                                    return next;
+                                  });
+                                }}
+                                className="w-full flex items-center justify-between px-4 py-3 text-left transition-colors hover:bg-muted/50"
+                              >
+                                <div className="flex items-center gap-2">
+                                  {group.icon && (
+                                    <DynamicIcon name={group.icon} className="h-5 w-5 text-primary" />
+                                  )}
+                                  <span className="font-semibold text-foreground">
+                                    {group.subcategoryName}
+                                  </span>
+                                  <span className="text-xs text-muted-foreground">
+                                    ({group.services.length})
+                                  </span>
+                                </div>
+                                <ChevronDown className={`h-4 w-4 transition-transform duration-200 text-muted-foreground ${isOpen ? 'rotate-180' : ''}`} />
+                              </button>
+                            )}
+                            {(isOpen || !showHeader) && (
+                              <div className={`px-4 pb-4 ${showHeader ? 'pt-0' : 'pt-4'}`}>
+                                {group.description && (
+                                  <div className="mb-3 text-sm leading-relaxed prose max-w-none text-muted-foreground prose-headings:text-foreground" dangerouslySetInnerHTML={{ __html: group.description }} />
+                                )}
+                                <ul className="space-y-2">
+                                  {group.services.map((service, index) => (
+                                    <ServiceListItem key={index} service={service} currentBusinessId={business.id} city={business.city} />
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-1">
+                      {[...filteredServices].sort((a, b) => a.localeCompare(b, 'fr')).map(s => (
+                        <span key={s} className="text-base text-foreground">
+                          {s.charAt(0).toUpperCase() + s.slice(1)}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <Separator />
               </>
-            ) : null;
+            );
           })()}
 
           {/* Presse – logos from knowledge base */}
