@@ -1511,7 +1511,7 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
 
           {/* Hook */}
           {hook && (
-            <p className="text-2xl italic leading-relaxed text-muted-foreground" style={{ fontFamily: "'Libre Baskerville', serif" }}>
+            <p className="text-lg sm:text-2xl italic leading-relaxed text-muted-foreground" style={{ fontFamily: "'Libre Baskerville', serif" }}>
               {hook}
             </p>
           )}
