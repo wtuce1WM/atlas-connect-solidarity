@@ -797,6 +797,7 @@ serve(async (req) => {
 
     // ── Check for exact business name match (for pinning, but don't skip subcategory detection) ──
     let nameMatchedBusinessIds: string[] = [];
+    const keywordPinnedIds = new Set<string>(); // IDs matched via keywords — exempt from relevance filtering
     let nameSearchQueryForDetection = "";
     if (effectiveQuery && effectiveQuery.split(/\s+/).length <= 6) {
       let nameSearchQuery = effectiveQuery;
@@ -833,6 +834,45 @@ serve(async (req) => {
           if (strongNameMatches.length > 0) {
             nameMatchedBusinessIds = strongNameMatches.map((b: any) => b.id);
             console.log(`Name match found for pinning: query "${nameSearchQuery}" matches [${strongNameMatches.map((b: any) => b.name).join(", ")}]`);
+          }
+        }
+
+        // ── Keyword-based pinning: find businesses whose keywords[] contain the full query ──
+        // This catches businesses like "Salam Boutique" with keyword "artisanat essaouira"
+        // when the synonym "artisanat" bypasses FTS and filters by service only
+        if (nameSearchQuery.length >= 3) {
+          const kwQuery = stripAccentsGlobal(nameSearchQuery.toLowerCase().trim());
+          // Search for businesses that have a keyword matching the full query string
+          let kwBuilder = supabase
+            .from("businesses")
+            .select("id, name, keywords")
+            .eq("is_active", true)
+            .not("keywords", "is", null);
+          if (effectiveCity) {
+            kwBuilder = applyCityFilter(kwBuilder);
+          }
+          const { data: kwMatches } = await kwBuilder.limit(500);
+          if (kwMatches && kwMatches.length > 0) {
+            const kwPinned: string[] = [];
+            const kwPinnedNames: string[] = [];
+            for (const b of kwMatches) {
+              if (nameMatchedBusinessIds.includes(b.id)) continue;
+              const bKeywords: string[] = b.keywords || [];
+              // Check if any keyword contains the full query or vice versa
+              const hasMatch = bKeywords.some((kw: string) => {
+                const kwNorm = stripAccentsGlobal(kw.toLowerCase().trim());
+                return kwNorm === kwQuery || kwNorm.includes(kwQuery) || kwQuery.includes(kwNorm);
+              });
+              if (hasMatch) {
+                kwPinned.push(b.id);
+                kwPinnedNames.push(b.name);
+              }
+            }
+            if (kwPinned.length > 0) {
+              nameMatchedBusinessIds = [...nameMatchedBusinessIds, ...kwPinned];
+              for (const id of kwPinned) keywordPinnedIds.add(id);
+              console.log(`Keyword match found for pinning: query "${nameSearchQuery}" matches [${kwPinnedNames.join(", ")}] via keywords`);
+            }
           }
         }
       }
@@ -1611,6 +1651,23 @@ serve(async (req) => {
       if (businesses.length > 0) {
         searchLevel = "exact";
         serviceShortcutActivated = true;
+
+        // ── KEYWORD PINNING INJECTION: merge businesses matched via keywords ──
+        if (keywordPinnedIds.size > 0) {
+          const existingIds = new Set(businesses.map(b => b.id));
+          const missingKwIds = [...keywordPinnedIds].filter(id => !existingIds.has(id));
+          if (missingKwIds.length > 0) {
+            const { data: kwBiz } = await supabase
+              .from("businesses").select("*")
+              .in("id", missingKwIds).eq("is_active", true);
+            if (kwBiz && kwBiz.length > 0) {
+              const mapped = kwBiz.map((b: any) => ({ ...b, distance_km: null }));
+              businesses = [...mapped, ...businesses];
+              console.log(`⚡ Keyword-pinned injection: +${mapped.length} [${mapped.map((b: any) => b.name).join(", ")}]`);
+            }
+          }
+        }
+
         console.log(`⚡ Synonym filters complete: ${businesses.length} results — skipping FTS chain`);
 
         // ── BADGE MERGE: if the synonym also has a badge_id, merge badge-matched businesses ──
@@ -4187,6 +4244,8 @@ serve(async (req) => {
       if (nameMatchData) {
         const qNorm = stripAccentsGlobal(effectiveQuery.toLowerCase().trim());
         const relevantIds = nameMatchData.filter((b: any) => {
+          // Never remove keyword-pinned businesses (they matched via keywords, not name)
+          if (keywordPinnedIds.has(b.id)) return true;
           // Never remove exact name matches (the query IS the business name)
           const bNameNorm = stripAccentsGlobal((b.name || "").toLowerCase().trim());
           if (bNameNorm === qNorm) return true;
@@ -4207,6 +4266,7 @@ serve(async (req) => {
     }
     // Inject name-matched businesses that may have been filtered out by strict mode
     // Skip injection when a bundle is activated — bundles define precise intent, name matches would pollute results
+    
     if (nameMatchedBusinessIds.length > 0 && !bundleActivated) {
       const existingIds = new Set(businesses.map(b => b.id));
       const missingIds = nameMatchedBusinessIds.filter(id => !existingIds.has(id));
