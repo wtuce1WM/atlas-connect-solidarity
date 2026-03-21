@@ -4630,6 +4630,7 @@ serve(async (req) => {
       detectedCity: effectiveCity || null,
       detectedNeighborhood: detectedNeighborhood || null,
       detectedCategory: intentCategory || null,
+      detectedService: detectedService || null,
       intentSubcategoryConflict,
       searchMode: serviceShortcutActivated ? "service_shortcut" : "broad", // TEST: Force broad — was: (typeof subcategorySearchConfig !== 'undefined' && subcategorySearchConfig?.search_mode) || null,
       bundleTimeSlots: (typeof bundleTimeSlots !== 'undefined' && bundleTimeSlots.length > 0) ? bundleTimeSlots : undefined,
