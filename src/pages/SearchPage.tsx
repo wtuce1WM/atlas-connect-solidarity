@@ -3836,7 +3836,7 @@ const SearchPage = () => {
                 </div>
               </div>
               {/* Fallback-style cards in 4-column grid */}
-              <div className={`grid gap-4 pt-8 sm:pt-8 pb-28 [overflow-anchor:none] ${compactPanelBusiness ? "grid-cols-1 sm:grid-cols-2" : hasKnownLocation ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"}`}>
+              <div className={`grid gap-4 pt-20 lg:pt-8 pb-28 [overflow-anchor:none] ${compactPanelBusiness ? "grid-cols-1 sm:grid-cols-2" : hasKnownLocation ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"}`}>
                 {paginatedBusinesses.map((business, index) => {
                   const img = business.images?.[0] || business.logo_url;
                   const sources = collectRatingSources(business as any);
