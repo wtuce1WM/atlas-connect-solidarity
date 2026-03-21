@@ -3265,8 +3265,20 @@ const SearchPage = () => {
             <section className={`pb-6 lg:pb-12 bg-white dark:bg-zinc-900 transition-all duration-300 ${hasRightPanel ? "w-1/2" : hasKnownLocation ? "w-1/2" : "w-full"}`}>
               <div className={`mx-auto px-4 ${(hasRightPanel || hasKnownLocation) ? "max-w-full" : "max-w-[80%]"}`}>
                 {/* Sticky bar for Destinations — mirrors STICKY 5 */}
-                <div className="sticky z-[19] bg-white flex items-center sm:justify-center justify-between px-4 sm:px-0 sm:relative py-2 mb-2 border-b border-border/40" style={{ top: `${Math.max(stickyStackPadding || 0, 104)}px` }}>
-                  <div className="sm:hidden" />
+                <div className="sticky z-[19] bg-white flex items-center justify-between px-4 lg:justify-center lg:px-0 lg:relative py-2 mb-2 border-b border-border/40" style={{ top: `${Math.max(stickyStackPadding || 0, 104)}px` }}>
+                  {/* Left: Carte on tablet, empty spacer on mobile */}
+                  <div className="flex items-center">
+                    {isSubDesktop && (
+                      <button
+                        onClick={() => setShowMobileMap(true)}
+                        className="hidden sm:inline-flex lg:hidden items-center gap-1 px-3 py-1.5 rounded-full bg-foreground text-background text-xs font-medium shadow-lg hover:bg-foreground/90 transition-colors"
+                      >
+                        <Map className="h-4 w-4" />
+                        {language === "en" ? "Map" : language === "ar" ? "خريطة" : "Carte"}
+                      </button>
+                    )}
+                  </div>
+                  {/* Center: AI suggestion */}
                   <button
                     onClick={() => {
                       if (!destAiText && !isDestAiLoading) {
@@ -3279,11 +3291,12 @@ const SearchPage = () => {
                   >
                     <Sparkles className="h-4 w-4" />
                   </button>
-                  <div className="flex items-center gap-2 sm:absolute sm:right-4">
+                  {/* Right: Carte (mobile only) + Localisation */}
+                  <div className="flex items-center gap-2 lg:absolute lg:right-4">
                     {isSubDesktop && (
                       <button
                         onClick={() => setShowMobileMap(true)}
-                        className="lg:hidden inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-foreground text-background text-xs font-medium shadow-lg hover:bg-foreground/90 transition-colors"
+                        className="sm:hidden inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-foreground text-background text-xs font-medium shadow-lg hover:bg-foreground/90 transition-colors"
                       >
                         <Map className="h-4 w-4" />
                         {language === "en" ? "Map" : language === "ar" ? "خريطة" : "Carte"}
