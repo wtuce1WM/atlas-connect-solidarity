@@ -1393,13 +1393,13 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
                     </>
                   )}
                   {openBadgeText && (
-                    <>
+                    <span className="hidden md:contents">
                       <span>·</span>
                       <span className={`inline-flex items-center gap-1 font-medium ${openBadgeIsOpen ? "text-emerald-600" : "text-muted-foreground"}`}>
                         <Clock className="h-3 w-3" />
                         {openBadgeText}
                       </span>
-                    </>
+                    </span>
                   )}
                 </div>
               </div>
