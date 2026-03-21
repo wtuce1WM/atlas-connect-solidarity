@@ -2508,10 +2508,6 @@ const SearchPage = () => {
             })()}
 
             <div className="max-w-3xl mx-auto">
-              <div className="flex items-center gap-2 mb-4">
-                <Sparkles className="h-4 w-4 text-primary" />
-                <span className="text-xs font-semibold text-primary uppercase tracking-wider">Suggestion IA</span>
-              </div>
               <div className="text-xs sm:text-base text-foreground/80 leading-relaxed whitespace-pre-line">
                 {(() => {
                   const currentAiText = activeTab === "poi" ? poiAiText : activeTab === "destinations" ? destAiText : aiAnswerText;
