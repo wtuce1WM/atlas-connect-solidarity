@@ -344,7 +344,7 @@ const LocationPickerDialog = ({
             {onDisableGeo && (
               <button
                 onClick={() => { onDisableGeo(); onOpenChange(false); }}
-                className="flex-1 flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-destructive text-white font-medium text-sm hover:bg-destructive/90 transition-colors"
+                className="flex-1 flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-primary text-primary-foreground font-medium text-sm hover:bg-primary/90 transition-colors"
               >
                 <X className="h-4 w-4" />
                 {language === "en" ? "Don't geolocate me" : language === "ar" ? "لا تحدد موقعي" : "Ne pas me géolocaliser"}
