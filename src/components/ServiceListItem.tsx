@@ -7,9 +7,10 @@ interface ServiceListItemProps {
   service: string;
   currentBusinessId: string;
   city?: string;
+  hideLink?: boolean;
 }
 
-const ServiceListItem = ({ service, currentBusinessId, city }: ServiceListItemProps) => {
+const ServiceListItem = ({ service, currentBusinessId, city, hideLink }: ServiceListItemProps) => {
   const [otherCount, setOtherCount] = useState<number | null>(null);
   const [iconName, setIconName] = useState<string | null>(null);
 
@@ -64,7 +65,7 @@ const ServiceListItem = ({ service, currentBusinessId, city }: ServiceListItemPr
         )}
         <span className="first-letter:uppercase">{service.charAt(0).toUpperCase() + service.slice(1)}</span>
       </span>
-      {otherCount !== null && otherCount > 0 && (
+      {!hideLink && otherCount !== null && otherCount > 0 && (
         <Link
           to={`/service/${encodeURIComponent(service)}${city ? `?city=${encodeURIComponent(city)}` : ''}`}
           className="text-xs text-primary hover:underline ml-6"
