@@ -3118,6 +3118,7 @@ const SearchPage = () => {
                     </button>
                   </div>
                 </div>
+                <div className="pt-8" />
                 <PoiSection
                   city={poiCity}
                   language={language}
