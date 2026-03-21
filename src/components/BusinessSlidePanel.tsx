@@ -239,6 +239,8 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
   }, [business]);
   const [gamme, setGamme] = useState<Gamme | null>(null);
   const [activeServiceNames, setActiveServiceNames] = useState<Set<string> | null>(null);
+  const [groupedServices, setGroupedServices] = useState<{ subcategoryName: string; description: string | null; icon: string | null; services: string[] }[]>([]);
+  const [openServiceGroups, setOpenServiceGroups] = useState<Set<string>>(new Set());
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [forceBookingOverlay, setForceBookingOverlay] = useState(false);
   const [liteApiHotelId, setLiteApiHotelId] = useState<string | null>(null);
