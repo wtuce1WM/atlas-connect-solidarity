@@ -3292,7 +3292,7 @@ const SearchPage = () => {
                     <Sparkles className="h-4 w-4" />
                   </button>
                   {/* Right: Carte (mobile only) + Localisation */}
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 lg:absolute lg:right-4">
                     {isSubDesktop && (
                       <button
                         onClick={() => setShowMobileMap(true)}
