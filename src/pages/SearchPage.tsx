@@ -3105,8 +3105,20 @@ const SearchPage = () => {
             <section className={`pb-6 lg:pb-12 bg-white dark:bg-zinc-900 transition-all duration-300 ${(poiSelectedBusinessId || poiMapBusiness) ? "w-1/2" : hasKnownLocation ? "w-1/2" : "w-full"}`}>
               <div className={`mx-auto px-4 ${(poiSelectedBusinessId || poiMapBusiness || hasKnownLocation) ? "max-w-full" : "max-w-[80%]"}`}>
                 {/* Sticky bar for POI — mirrors STICKY 5 */}
-                <div className="sticky z-[19] bg-white flex items-center justify-center py-2 mb-2 border-b border-border/40" style={{ top: `${Math.max(stickyStackPadding || 0, 104)}px` }}>
-                  <div className="flex items-center gap-2">
+                <div className="sticky z-[19] bg-white relative flex items-center justify-center py-2 mb-2 border-b border-border/40" style={{ top: `${Math.max(stickyStackPadding || 0, 104)}px` }}>
+                  <button
+                    onClick={() => {
+                      if (!poiAiText && !isPoiAiLoading) {
+                        fetchTabAiText("poi", poiCity, allPois.map(p => ({ name: p.name, city: poiCity })));
+                      }
+                      setShowAiPopup(true);
+                    }}
+                    className="shrink-0 w-9 h-9 rounded-full bg-gold text-black flex items-center justify-center hover:bg-gold/90 transition-colors shadow-md"
+                    title={language === "en" ? "View AI suggestion" : "Voir la suggestion IA"}
+                  >
+                    <Sparkles className="h-4 w-4" />
+                  </button>
+                  <div className="absolute right-4 flex items-center gap-2">
                     {isSubDesktop && (
                       <button
                         onClick={() => setShowMobileMap(true)}
@@ -3117,24 +3129,10 @@ const SearchPage = () => {
                       </button>
                     )}
                     <button
-                      onClick={() => {
-                        if (!poiAiText && !isPoiAiLoading) {
-                          fetchTabAiText("poi", poiCity, allPois.map(p => ({ name: p.name, city: poiCity })));
-                        }
-                        setShowAiPopup(true);
-                      }}
-                      className="shrink-0 w-9 h-9 rounded-full bg-gold text-black flex items-center justify-center hover:bg-gold/90 transition-colors shadow-md"
-                      title={language === "en" ? "View AI suggestion" : "Voir la suggestion IA"}
-                    >
-                      <Sparkles className="h-4 w-4" />
-                    </button>
-                    <button
                       onClick={() => setLocationDialogOpen(true)}
                       className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                         geo.isEnabled && (geo.detectedNeighborhood || geo.detectedCity || geo.confirmedAddress)
                           ? "bg-gold/20 text-gold border border-gold/40"
-                          : geo.isEnabled
-                          ? "bg-[#C04F17] text-white border border-[#C04F17]"
                           : "bg-[#C04F17] text-white border border-[#C04F17] hover:bg-[#C04F17]/90"
                       }`}
                     >
@@ -3253,8 +3251,20 @@ const SearchPage = () => {
             <section className={`pb-6 lg:pb-12 bg-white dark:bg-zinc-900 transition-all duration-300 ${hasRightPanel ? "w-1/2" : hasKnownLocation ? "w-1/2" : "w-full"}`}>
               <div className={`mx-auto px-4 ${(hasRightPanel || hasKnownLocation) ? "max-w-full" : "max-w-[80%]"}`}>
                 {/* Sticky bar for Destinations — mirrors STICKY 5 */}
-                <div className="sticky z-[19] bg-white flex items-center justify-center py-2 mb-2 border-b border-border/40" style={{ top: `${Math.max(stickyStackPadding || 0, 104)}px` }}>
-                  <div className="flex items-center gap-2">
+                <div className="sticky z-[19] bg-white relative flex items-center justify-center py-2 mb-2 border-b border-border/40" style={{ top: `${Math.max(stickyStackPadding || 0, 104)}px` }}>
+                  <button
+                    onClick={() => {
+                      if (!destAiText && !isDestAiLoading) {
+                        fetchTabAiText("destinations", destCity, allDestItems.map(d => ({ name: language === "en" && d.name_en ? d.name_en : d.name_fr, city: destCity })));
+                      }
+                      setShowAiPopup(true);
+                    }}
+                    className="shrink-0 w-9 h-9 rounded-full bg-gold text-black flex items-center justify-center hover:bg-gold/90 transition-colors shadow-md"
+                    title={language === "en" ? "View AI suggestion" : "Voir la suggestion IA"}
+                  >
+                    <Sparkles className="h-4 w-4" />
+                  </button>
+                  <div className="absolute right-4 flex items-center gap-2">
                     {isSubDesktop && (
                       <button
                         onClick={() => setShowMobileMap(true)}
@@ -3265,24 +3275,10 @@ const SearchPage = () => {
                       </button>
                     )}
                     <button
-                      onClick={() => {
-                        if (!destAiText && !isDestAiLoading) {
-                          fetchTabAiText("destinations", destCity, allDestItems.map(d => ({ name: language === "en" && d.name_en ? d.name_en : d.name_fr, city: destCity })));
-                        }
-                        setShowAiPopup(true);
-                      }}
-                      className="shrink-0 w-9 h-9 rounded-full bg-gold text-black flex items-center justify-center hover:bg-gold/90 transition-colors shadow-md"
-                      title={language === "en" ? "View AI suggestion" : "Voir la suggestion IA"}
-                    >
-                      <Sparkles className="h-4 w-4" />
-                    </button>
-                    <button
                       onClick={() => setLocationDialogOpen(true)}
                       className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                         geo.isEnabled && (geo.detectedNeighborhood || geo.detectedCity || geo.confirmedAddress)
                           ? "bg-gold/20 text-gold border border-gold/40"
-                          : geo.isEnabled
-                          ? "bg-[#C04F17] text-white border border-[#C04F17]"
                           : "bg-[#C04F17] text-white border border-[#C04F17] hover:bg-[#C04F17]/90"
                       }`}
                     >
@@ -3812,8 +3808,26 @@ const SearchPage = () => {
           ) : !showCelebrityGuide && !showSosMedecin && !showPompiers && filteredBusinesses.length > 0 ? (
             <>
               {/* Bar: Results count + AI suggestion + Geolocation — STICKY 5 */}
-              <div ref={resultsBarRef} data-results-bar className="sticky z-[19] bg-white flex items-center justify-center py-2 mb-2 border-b border-border/40" style={{ top: `${Math.max(stickyStackPadding || 0, 104)}px` }}>
-                <div className="flex items-center gap-2">
+              <div ref={resultsBarRef} data-results-bar className="sticky z-[19] bg-white relative flex items-center justify-center py-2 mb-2 border-b border-border/40" style={{ top: `${Math.max(stickyStackPadding || 0, 104)}px` }}>
+                <button
+                  onClick={() => {
+                    aiPopupShownRef.current = false;
+                    if (selectedServiceFilter && lastAiServiceRef.current !== selectedServiceFilter) {
+                      setAiAnswerText("");
+                      setAiRegenerateKey(k => k + 1);
+                      lastAiServiceRef.current = selectedServiceFilter;
+                    }
+                    setWarningDismissed(true);
+                    setCompactPanelBusiness(null);
+                    setIsCompactPanelExpanded(false);
+                    setShowAiPopup(true);
+                  }}
+                  className="shrink-0 w-9 h-9 rounded-full bg-gold text-black flex items-center justify-center hover:bg-gold/90 transition-colors shadow-md"
+                  title={language === "en" ? "View AI suggestion" : "Voir la suggestion IA"}
+                >
+                  <Sparkles className="h-4 w-4" />
+                </button>
+                <div className="absolute right-4 flex items-center gap-2">
                   {isSubDesktop && (
                     <button
                       onClick={() => setShowMobileMap(true)}
@@ -3824,30 +3838,10 @@ const SearchPage = () => {
                     </button>
                   )}
                   <button
-                    onClick={() => {
-                      aiPopupShownRef.current = false;
-                      if (selectedServiceFilter && lastAiServiceRef.current !== selectedServiceFilter) {
-                        setAiAnswerText("");
-                        setAiRegenerateKey(k => k + 1);
-                        lastAiServiceRef.current = selectedServiceFilter;
-                      }
-                      setWarningDismissed(true);
-                      setCompactPanelBusiness(null);
-                      setIsCompactPanelExpanded(false);
-                      setShowAiPopup(true);
-                    }}
-                    className="shrink-0 w-9 h-9 rounded-full bg-gold text-black flex items-center justify-center hover:bg-gold/90 transition-colors shadow-md"
-                    title={language === "en" ? "View AI suggestion" : "Voir la suggestion IA"}
-                  >
-                    <Sparkles className="h-4 w-4" />
-                  </button>
-                  <button
                     onClick={() => setLocationDialogOpen(true)}
                     className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                       geo.isEnabled && (geo.detectedNeighborhood || geo.detectedCity || geo.confirmedAddress)
                         ? "bg-gold/20 text-gold border border-gold/40"
-                        : geo.isEnabled
-                        ? "bg-[#C04F17] text-white border border-[#C04F17]"
                         : "bg-[#C04F17] text-white border border-[#C04F17] hover:bg-[#C04F17]/90"
                     }`}
                   >
