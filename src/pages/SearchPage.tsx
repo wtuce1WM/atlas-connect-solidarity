@@ -3270,6 +3270,7 @@ const SearchPage = () => {
                   </div>
                 </div>
                 
+                <div className="pt-8" />
                 <DestinationSection
                   city={destCity}
                   language={language}
