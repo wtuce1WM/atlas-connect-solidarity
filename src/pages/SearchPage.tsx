@@ -2149,9 +2149,21 @@ const SearchPage = () => {
   const showSosMedecin = activeEasterEggNames.has("SOS Médecin") && isSosMedecinQuery(spokenText || searchQuery);
   const showPompiers = activeEasterEggNames.has("Pompiers") && isPompiersQuery(spokenText || searchQuery);
 
-  if (isLoading) {
-    return <LoadingScreen />;
-  }
+  // Trigger fade-out animation when loading finishes
+  useEffect(() => {
+    if (!isLoading && showLoadingScreen) {
+      setLoadingExiting(true);
+    }
+    if (isLoading) {
+      setShowLoadingScreen(true);
+      setLoadingExiting(false);
+    }
+  }, [isLoading]);
+
+  const handleLoadingExited = useCallback(() => {
+    setShowLoadingScreen(false);
+    setLoadingExiting(false);
+  }, []);
 
   return (
     <div className="min-h-screen bg-white">
