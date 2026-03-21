@@ -1651,6 +1651,23 @@ serve(async (req) => {
       if (businesses.length > 0) {
         searchLevel = "exact";
         serviceShortcutActivated = true;
+
+        // ── KEYWORD PINNING INJECTION: merge businesses matched via keywords ──
+        if (keywordPinnedIds.size > 0) {
+          const existingIds = new Set(businesses.map(b => b.id));
+          const missingKwIds = [...keywordPinnedIds].filter(id => !existingIds.has(id));
+          if (missingKwIds.length > 0) {
+            const { data: kwBiz } = await supabase
+              .from("businesses").select("*")
+              .in("id", missingKwIds).eq("is_active", true);
+            if (kwBiz && kwBiz.length > 0) {
+              const mapped = kwBiz.map((b: any) => ({ ...b, distance_km: null }));
+              businesses = [...mapped, ...businesses];
+              console.log(`⚡ Keyword-pinned injection: +${mapped.length} [${mapped.map((b: any) => b.name).join(", ")}]`);
+            }
+          }
+        }
+
         console.log(`⚡ Synonym filters complete: ${businesses.length} results — skipping FTS chain`);
 
         // ── BADGE MERGE: if the synonym also has a badge_id, merge badge-matched businesses ──
