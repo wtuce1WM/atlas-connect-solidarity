@@ -3105,9 +3105,9 @@ const SearchPage = () => {
             <section className={`pb-6 lg:pb-12 bg-white dark:bg-zinc-900 transition-all duration-300 ${(poiSelectedBusinessId || poiMapBusiness) ? "w-1/2" : hasKnownLocation ? "w-1/2" : "w-full"}`}>
               <div className={`mx-auto px-4 ${(poiSelectedBusinessId || poiMapBusiness || hasKnownLocation) ? "max-w-full" : "max-w-[80%]"}`}>
                 {/* Sticky bar for POI — mirrors STICKY 5 */}
-                <div className="sticky z-[19] bg-white flex items-center justify-between px-4 lg:justify-center lg:px-0 lg:relative py-2 mb-2 border-b border-border/40" style={{ top: `${Math.max(stickyStackPadding || 0, 104)}px` }}>
+                <div className="sticky z-[19] bg-white flex items-center justify-between px-4 sm:justify-center sm:px-0 sm:relative py-2 mb-2 border-b border-border/40" style={{ top: `${Math.max(stickyStackPadding || 0, 104)}px` }}>
                   {/* Left: Carte on tablet, empty spacer on mobile */}
-                  <div className="flex items-center">
+                  <div className="flex items-center sm:absolute sm:left-4">
                     {isSubDesktop && (
                       <button
                         onClick={() => setShowMobileMap(true)}
@@ -3132,7 +3132,7 @@ const SearchPage = () => {
                     <Sparkles className="h-4 w-4" />
                   </button>
                   {/* Right: Carte (mobile only) + Localisation */}
-                  <div className="flex items-center gap-2 lg:absolute lg:right-4">
+                  <div className="flex items-center gap-2 sm:absolute sm:right-4">
                     {isSubDesktop && (
                       <button
                         onClick={() => setShowMobileMap(true)}
@@ -3265,9 +3265,9 @@ const SearchPage = () => {
             <section className={`pb-6 lg:pb-12 bg-white dark:bg-zinc-900 transition-all duration-300 ${hasRightPanel ? "w-1/2" : hasKnownLocation ? "w-1/2" : "w-full"}`}>
               <div className={`mx-auto px-4 ${(hasRightPanel || hasKnownLocation) ? "max-w-full" : "max-w-[80%]"}`}>
                 {/* Sticky bar for Destinations — mirrors STICKY 5 */}
-                <div className="sticky z-[19] bg-white flex items-center justify-between px-4 lg:justify-center lg:px-0 lg:relative py-2 mb-2 border-b border-border/40" style={{ top: `${Math.max(stickyStackPadding || 0, 104)}px` }}>
+                <div className="sticky z-[19] bg-white flex items-center justify-between px-4 sm:justify-center sm:px-0 sm:relative py-2 mb-2 border-b border-border/40" style={{ top: `${Math.max(stickyStackPadding || 0, 104)}px` }}>
                   {/* Left: Carte on tablet, empty spacer on mobile */}
-                  <div className="flex items-center">
+                  <div className="flex items-center sm:absolute sm:left-4">
                     {isSubDesktop && (
                       <button
                         onClick={() => setShowMobileMap(true)}
@@ -3292,7 +3292,7 @@ const SearchPage = () => {
                     <Sparkles className="h-4 w-4" />
                   </button>
                   {/* Right: Carte (mobile only) + Localisation */}
-                  <div className="flex items-center gap-2 lg:absolute lg:right-4">
+                  <div className="flex items-center gap-2 sm:absolute sm:right-4">
                     {isSubDesktop && (
                       <button
                         onClick={() => setShowMobileMap(true)}
@@ -3836,9 +3836,9 @@ const SearchPage = () => {
           ) : !showCelebrityGuide && !showSosMedecin && !showPompiers && filteredBusinesses.length > 0 ? (
             <>
               {/* Bar: Results count + AI suggestion + Geolocation — STICKY 5 */}
-              <div ref={resultsBarRef} data-results-bar className="sticky z-[19] bg-white flex items-center justify-between px-4 lg:justify-center lg:px-0 lg:relative py-2 mb-2 border-b border-border/40" style={{ top: `${Math.max(stickyStackPadding || 0, 104)}px` }}>
+              <div ref={resultsBarRef} data-results-bar className="sticky z-[19] bg-white flex items-center justify-between px-4 sm:justify-center sm:px-0 sm:relative py-2 mb-2 border-b border-border/40" style={{ top: `${Math.max(stickyStackPadding || 0, 104)}px` }}>
                 {/* Left: Carte on tablet, empty spacer on mobile */}
-                <div className="flex items-center">
+                <div className="flex items-center sm:absolute sm:left-4">
                   {isSubDesktop && (
                     <button
                       onClick={() => setShowMobileMap(true)}
@@ -3869,7 +3869,7 @@ const SearchPage = () => {
                   <Sparkles className="h-4 w-4" />
                 </button>
                 {/* Right: Carte (mobile only) + Localisation */}
-                <div className="flex items-center gap-2 lg:absolute lg:right-4">
+                <div className="flex items-center gap-2 sm:absolute sm:right-4">
                   {isSubDesktop && (
                     <button
                       onClick={() => setShowMobileMap(true)}
