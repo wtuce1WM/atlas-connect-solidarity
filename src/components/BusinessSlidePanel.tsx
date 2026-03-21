@@ -1133,7 +1133,7 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
         toolbarPortal
       )}
       {/* Scrollable content */}
-      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto relative z-0">
+      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto relative z-0 bg-white">
         {/* EXPANDED MODE: Full media mosaic gallery */}
         {isExpanded ? (
           <div className="p-2" style={{ columns: "250px 3", columnGap: 6 }}>
@@ -1380,7 +1380,7 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
 
         {/* Sticky sub-header: name, rating, logo, open badge */}
         {showStickyHeader && (
-          <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b border-border">
+          <div className="sticky top-0 z-20 bg-white border-b border-border">
             <div className="px-4 py-2.5 flex items-center gap-3">
               <div className="flex-1 min-w-0">
                 <h4 className="text-sm font-bold text-foreground truncate">{business.name}</h4>
@@ -1459,7 +1459,7 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
           </div>
         )}
 
-        <div className={`p-5 space-y-5 relative z-10 bg-background ${bookingUrl ? 'pr-10' : ''}`}>
+        <div className={`p-5 space-y-5 relative z-10 bg-white ${bookingUrl ? 'pr-10' : ''}`}>
           {/* Name + badges */}
           <div>
             <div className="flex items-start gap-3">
