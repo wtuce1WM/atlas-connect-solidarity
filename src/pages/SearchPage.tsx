@@ -2287,13 +2287,13 @@ const SearchPage = () => {
                 </>
               ) : (
                 <>
-                  <p className="text-muted-foreground text-sm hidden sm:block">
+                  <p className="text-muted-foreground text-sm">
                     {language === "en" ? "Search results for" : language === "ar" ? "نتائج البحث عن" : "Résultats de recherche pour"}
                   </p>
-                  <p className="text-lg md:text-xl font-bold text-foreground mt-1 hidden sm:block">
+                  <p className="text-lg md:text-xl font-bold text-foreground mt-1">
                     «&nbsp;{(spokenText || searchQuery)}&nbsp;»
                   </p>
-                  {/* Active filters as chips — most recently selected first */}
+                  {/* Active filters as chips — hidden on mobile */}
                   {(() => {
                     const chips: { label: string; color: string }[] = [];
                     if (selectedCity && selectedCity !== "all") chips.push({ label: `📍 ${selectedCity}`, color: "bg-secondary/15 text-secondary" });
@@ -2303,7 +2303,7 @@ const SearchPage = () => {
                     if (detectedSubcategory && !selectedSubcategoryFilter && !selectedCategoryFilter) chips.push({ label: detectedSubcategory, color: "bg-muted text-muted-foreground" });
                     if (detectedCity && (!selectedCity || selectedCity === "all")) chips.push({ label: `📍 ${detectedCity}`, color: "bg-muted text-muted-foreground" });
                     return chips.length > 0 ? (
-                      <div className="flex overflow-x-auto justify-center gap-1.5 mt-2 scrollbar-hide">
+                      <div className="hidden sm:flex overflow-x-auto justify-center gap-1.5 mt-2 scrollbar-hide">
                         {chips.map((c, i) => (
                           <span key={i} className={`inline-block text-xs font-medium px-3 py-1 rounded-full whitespace-nowrap ${c.color}`}>
                             {c.label}
