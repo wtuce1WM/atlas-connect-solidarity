@@ -1380,7 +1380,7 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
 
         {/* Sticky sub-header: name, rating, logo, open badge */}
         {showStickyHeader && (
-          <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b border-border">
+          <div className="sticky top-0 z-20 bg-white border-b border-border">
             <div className="px-4 py-2.5 flex items-center gap-3">
               <div className="flex-1 min-w-0">
                 <h4 className="text-sm font-bold text-foreground truncate">{business.name}</h4>
