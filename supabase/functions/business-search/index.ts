@@ -797,6 +797,7 @@ serve(async (req) => {
 
     // ── Check for exact business name match (for pinning, but don't skip subcategory detection) ──
     let nameMatchedBusinessIds: string[] = [];
+    const keywordPinnedIds = new Set<string>(); // IDs matched via keywords — exempt from relevance filtering
     let nameSearchQueryForDetection = "";
     if (effectiveQuery && effectiveQuery.split(/\s+/).length <= 6) {
       let nameSearchQuery = effectiveQuery;
