@@ -3808,8 +3808,26 @@ const SearchPage = () => {
           ) : !showCelebrityGuide && !showSosMedecin && !showPompiers && filteredBusinesses.length > 0 ? (
             <>
               {/* Bar: Results count + AI suggestion + Geolocation — STICKY 5 */}
-              <div ref={resultsBarRef} data-results-bar className="sticky z-[19] bg-white flex items-center justify-center py-2 mb-2 border-b border-border/40" style={{ top: `${Math.max(stickyStackPadding || 0, 104)}px` }}>
-                <div className="flex items-center gap-2">
+              <div ref={resultsBarRef} data-results-bar className="sticky z-[19] bg-white relative flex items-center justify-center py-2 mb-2 border-b border-border/40" style={{ top: `${Math.max(stickyStackPadding || 0, 104)}px` }}>
+                <button
+                  onClick={() => {
+                    aiPopupShownRef.current = false;
+                    if (selectedServiceFilter && lastAiServiceRef.current !== selectedServiceFilter) {
+                      setAiAnswerText("");
+                      setAiRegenerateKey(k => k + 1);
+                      lastAiServiceRef.current = selectedServiceFilter;
+                    }
+                    setWarningDismissed(true);
+                    setCompactPanelBusiness(null);
+                    setIsCompactPanelExpanded(false);
+                    setShowAiPopup(true);
+                  }}
+                  className="shrink-0 w-9 h-9 rounded-full bg-gold text-black flex items-center justify-center hover:bg-gold/90 transition-colors shadow-md"
+                  title={language === "en" ? "View AI suggestion" : "Voir la suggestion IA"}
+                >
+                  <Sparkles className="h-4 w-4" />
+                </button>
+                <div className="absolute right-4 flex items-center gap-2">
                   {isSubDesktop && (
                     <button
                       onClick={() => setShowMobileMap(true)}
@@ -3820,30 +3838,10 @@ const SearchPage = () => {
                     </button>
                   )}
                   <button
-                    onClick={() => {
-                      aiPopupShownRef.current = false;
-                      if (selectedServiceFilter && lastAiServiceRef.current !== selectedServiceFilter) {
-                        setAiAnswerText("");
-                        setAiRegenerateKey(k => k + 1);
-                        lastAiServiceRef.current = selectedServiceFilter;
-                      }
-                      setWarningDismissed(true);
-                      setCompactPanelBusiness(null);
-                      setIsCompactPanelExpanded(false);
-                      setShowAiPopup(true);
-                    }}
-                    className="shrink-0 w-9 h-9 rounded-full bg-gold text-black flex items-center justify-center hover:bg-gold/90 transition-colors shadow-md"
-                    title={language === "en" ? "View AI suggestion" : "Voir la suggestion IA"}
-                  >
-                    <Sparkles className="h-4 w-4" />
-                  </button>
-                  <button
                     onClick={() => setLocationDialogOpen(true)}
                     className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                       geo.isEnabled && (geo.detectedNeighborhood || geo.detectedCity || geo.confirmedAddress)
                         ? "bg-gold/20 text-gold border border-gold/40"
-                        : geo.isEnabled
-                        ? "bg-[#C04F17] text-white border border-[#C04F17]"
                         : "bg-[#C04F17] text-white border border-[#C04F17] hover:bg-[#C04F17]/90"
                     }`}
                   >
