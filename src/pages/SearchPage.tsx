@@ -3776,9 +3776,7 @@ const SearchPage = () => {
           ) : !showCelebrityGuide && !showSosMedecin && !showPompiers && filteredBusinesses.length > 0 ? (
             <>
               {/* Bar: Results count + AI suggestion + Geolocation — STICKY 5 */}
-              <div ref={resultsBarRef} data-results-bar className="sticky z-[19] bg-white flex items-center justify-between py-2 mb-2 border-b border-border/40" style={{ top: `${Math.max(stickyStackPadding || 0, 104)}px` }}>
-                <div className="flex items-center gap-3">
-                </div>
+              <div ref={resultsBarRef} data-results-bar className="sticky z-[19] bg-white flex items-center justify-end py-2 mb-2 border-b border-border/40" style={{ top: `${Math.max(stickyStackPadding || 0, 104)}px` }}>
                 <div className="flex items-center gap-2">
                   {isSubDesktop && (
                     <button
