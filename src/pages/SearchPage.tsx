@@ -433,6 +433,19 @@ const SearchPage = () => {
   }, [urlQ, urlT]);
 
 
+  // Handle openBusiness URL param (from FloatingSearchBar recently viewed)
+  useEffect(() => {
+    const openBizId = searchParams.get("openBusiness");
+    if (openBizId) {
+      setCompactPanelBusiness({ id: openBizId, name: "" } as any);
+      setIsCompactPanelExpanded(false);
+      // Clean up the param from URL
+      const next = new URLSearchParams(searchParams);
+      next.delete("openBusiness");
+      setSearchParams(next, { replace: true });
+    }
+  }, [searchParams]);
+
   // Fetch active easter eggs once
   useEffect(() => {
     supabase.from("easter_eggs").select("name, is_active").eq("is_active", true).then(({ data }) => {
