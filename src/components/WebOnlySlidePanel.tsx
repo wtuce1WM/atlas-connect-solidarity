@@ -346,8 +346,8 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
           ? `${business.latitude},${business.longitude}`
           : business.address || business.name;
         return (
-          <div className="absolute inset-0 z-[60] bg-background flex flex-col animate-slide-in-right">
-            <div className="shrink-0 flex items-center px-3 py-2 border-b bg-background">
+          <div className="absolute inset-0 z-[60] bg-white flex flex-col animate-slide-in-right">
+            <div className="shrink-0 flex items-center px-4 py-2 border-b bg-white">
               {/* Close button — left, dark style matching SlidePanelHeader */}
               <button
                 onClick={() => setShowDirections(false)}
