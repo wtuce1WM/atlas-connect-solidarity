@@ -9,7 +9,6 @@ import { extractTimeSlot, isOpenDuringSlot, getCurrentTimePeriod, type TimeSlot,
 import { isCurrentlyOpen as isCurrentlyOpenCheck } from "@/lib/formatOpeningHours";
 import zitounMaskImg from "@/assets/zitoun-mask.jpg";
 import logoGold from "@/assets/logoGOLDsimple.webp";
-import LoadingScreen from "@/components/LoadingScreen";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Header from "@/components/Header";
@@ -407,8 +406,6 @@ const SearchPage = () => {
   const [subcategories, setSubcategories] = useState<SubcategoryRef[]>([]);
   const [badgeSubcategories, setBadgeSubcategories] = useState<BadgeSubcategoryRef[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [showLoadingScreen, setShowLoadingScreen] = useState(true);
-  const [loadingExiting, setLoadingExiting] = useState(false);
   const [activeEasterEggNames, setActiveEasterEggNames] = useState<Set<string>>(new Set());
   const [currentPage, setCurrentPage] = useState(1);
   const cityFromUrl = searchParams.get("city") || "";
@@ -2149,27 +2146,8 @@ const SearchPage = () => {
   const showSosMedecin = activeEasterEggNames.has("SOS Médecin") && isSosMedecinQuery(spokenText || searchQuery);
   const showPompiers = activeEasterEggNames.has("Pompiers") && isPompiersQuery(spokenText || searchQuery);
 
-  // Trigger fade-out animation when loading finishes
-  useEffect(() => {
-    if (!isLoading && showLoadingScreen) {
-      setLoadingExiting(true);
-    }
-    if (isLoading) {
-      setShowLoadingScreen(true);
-      setLoadingExiting(false);
-    }
-  }, [isLoading]);
-
-  const handleLoadingExited = useCallback(() => {
-    setShowLoadingScreen(false);
-    setLoadingExiting(false);
-  }, []);
-
   return (
     <div className="min-h-screen bg-white">
-      {showLoadingScreen && (
-        <LoadingScreen exiting={loadingExiting} onExited={handleLoadingExited} />
-      )}
       <Header />
 
       {/* Shared LocationPickerDialog — accessible from all tabs */}
