@@ -1532,6 +1532,9 @@ serve(async (req) => {
             // Full conflict resolved: switch to better subcategory
             console.log(`Category-subcategory re-evaluation: switching from "${detectedSubcategory}" (${parentCatName}) to "${betterSubcat}" (${catsToSearch.join(", ")}) — better match for category`);
             detectedSubcategory = betterSubcat;
+            // Update parent category to the new target so downstream disambiguation works correctly
+            // (e.g. service validation can find the right "Décoration" when multiple exist)
+            subcategoryParentCategory = catsToSearch[0];
           } else if (betterSubcat && parentInIntentCats) {
             // Multi-intent: detected subcategory is valid for one intent, but there's also a match in another
             // Trigger merge so both subcategories appear in results
@@ -2469,12 +2472,23 @@ serve(async (req) => {
     // For neighborhood-driven queries, keep cross-subcategory services (same local intent can span multiple subcategories)
     if (detectedSubcategory && detectedServices.length > 0 && !detectedNeighborhood) {
       // Look up which subcategory the detected subcategory actually is
-      const { data: detectedSubcatRow } = await supabase
+      // IMPORTANT: when multiple subcategories share the same name (e.g. "Décoration" in Artisanat AND Commerce),
+      // disambiguate using the parent category context (subcategoryParentCategory or effectiveCategories)
+      let subcatLookupBuilder = supabase
         .from("subcategories")
-        .select("id, name_fr")
-        .eq("name_fr", detectedSubcategory)
-        .limit(1)
-        .single();
+        .select("id, name_fr, categories!inner(name_fr)")
+        .eq("name_fr", detectedSubcategory);
+      
+      // Disambiguate by parent category if available
+      const disambiguationCat = subcategoryParentCategory 
+        || (effectiveCategories.length === 1 ? effectiveCategories[0] : null);
+      if (disambiguationCat) {
+        subcatLookupBuilder = subcatLookupBuilder.eq("categories.name_fr", disambiguationCat);
+      }
+      
+      const { data: detectedSubcatRows } = await subcatLookupBuilder.limit(1);
+      const detectedSubcatRow = detectedSubcatRows?.[0] || null;
+      
       if (detectedSubcatRow) {
         // Get services that belong to this subcategory
         const { data: subcatServices } = await supabase
@@ -2486,7 +2500,7 @@ serve(async (req) => {
           const filteredDetected = detectedServices.filter(s => validServiceNames.has(s));
           if (filteredDetected.length !== detectedServices.length) {
             const removed = detectedServices.filter(s => !validServiceNames.has(s));
-            console.log(`Removed services not in subcategory "${detectedSubcategory}": [${removed.join(", ")}]`);
+            console.log(`Removed services not in subcategory "${detectedSubcategory}" (${(detectedSubcatRow as any).categories?.name_fr || "?"}): [${removed.join(", ")}]`);
             detectedServices = filteredDetected;
             detectedService = filteredDetected.length > 0 ? filteredDetected[0] : null;
             allCandidateServiceNames = filteredDetected;
