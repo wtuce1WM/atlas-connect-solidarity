@@ -1,0 +1,1 @@
+ALTER TABLE public.popular_searches ADD COLUMN extracted_keywords text DEFAULT NULL;
