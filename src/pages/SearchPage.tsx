@@ -1754,7 +1754,10 @@ const SearchPage = () => {
             const isHeuristicFallback = fallbackSubcategory && !safeDetectedSubcategory;
             // Skip auto-filter for synonyms, heuristic fallbacks, conflict-merges, or preciseMatch with heuristic
             // Conflict merge means backend intentionally returned cross-category results (e.g. Poisson + Poissonnerie)
-            const shouldSkipAutoFilter = data.synonymUsed || data.intentSubcategoryConflict || isHeuristicFallbackWithPrecise || isHeuristicFallback || (data.preciseMatch && !safeDetectedSubcategory);
+            // Also skip when results span multiple main_categories (cross-category service matches, e.g. "Céramique")
+            const resultMainCategories = new Set(businesses.map(b => b.main_category).filter(Boolean));
+            const isMultiCategoryResult = resultMainCategories.size > 1;
+            const shouldSkipAutoFilter = data.synonymUsed || data.intentSubcategoryConflict || isHeuristicFallbackWithPrecise || isHeuristicFallback || (data.preciseMatch && !safeDetectedSubcategory) || isMultiCategoryResult;
             setSelectedCategoryFilter(shouldSkipAutoFilter ? null : parentCategory);
             setSelectedSubcategoryFilter(shouldSkipAutoFilter ? null : finalDetectedSubcategory);
             setSelectedServiceFilter(null);
