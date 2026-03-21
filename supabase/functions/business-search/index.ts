@@ -835,6 +835,42 @@ serve(async (req) => {
             console.log(`Name match found for pinning: query "${nameSearchQuery}" matches [${strongNameMatches.map((b: any) => b.name).join(", ")}]`);
           }
         }
+
+        // ── Keyword-based pinning: find businesses whose keywords[] contain the full query ──
+        // This catches businesses like "Salam Boutique" with keyword "artisanat essaouira"
+        // when the synonym "artisanat" bypasses FTS and filters by service only
+        if (nameSearchQuery.length >= 3) {
+          const kwQuery = stripAccentsGlobal(nameSearchQuery.toLowerCase().trim());
+          // Search for businesses that have a keyword matching the full query string
+          let kwBuilder = supabase
+            .from("businesses")
+            .select("id, name, keywords")
+            .eq("is_active", true)
+            .not("keywords", "is", null);
+          if (effectiveCity) {
+            kwBuilder = kwBuilder.ilike("city", effectiveCity);
+          }
+          const { data: kwMatches } = await kwBuilder.limit(500);
+          if (kwMatches && kwMatches.length > 0) {
+            const kwPinned: string[] = [];
+            for (const b of kwMatches) {
+              if (nameMatchedBusinessIds.includes(b.id)) continue;
+              const bKeywords: string[] = b.keywords || [];
+              // Check if any keyword contains the full query or vice versa
+              const hasMatch = bKeywords.some((kw: string) => {
+                const kwNorm = stripAccentsGlobal(kw.toLowerCase().trim());
+                return kwNorm === kwQuery || kwNorm.includes(kwQuery) || kwQuery.includes(kwNorm);
+              });
+              if (hasMatch) {
+                kwPinned.push(b.id);
+              }
+            }
+            if (kwPinned.length > 0) {
+              nameMatchedBusinessIds = [...nameMatchedBusinessIds, ...kwPinned];
+              console.log(`Keyword match found for pinning: query "${nameSearchQuery}" matches ${kwPinned.length} business(es) via keywords`);
+            }
+          }
+        }
       }
     }
 
