@@ -990,50 +990,69 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
              </div>
            </div>
             <div className="flex items-center gap-2">
-              <a
-                href={`https://www.google.com/maps/dir/?api=1&destination=${dest}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-1 rounded-full hover:bg-muted transition-colors"
-                title="Google Maps"
-              >
-                <img src="https://www.google.com/favicon.ico" alt="Google Maps" className="h-6 w-6" />
-              </a>
-              <a
-                href={business.latitude && business.longitude
-                  ? `https://waze.com/ul?ll=${business.latitude},${business.longitude}&navigate=yes`
-                  : `https://waze.com/ul?q=${encodeURIComponent(destRaw)}&navigate=yes`
-                }
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-1 rounded-full hover:bg-muted transition-colors"
-                title="Waze"
-              >
-                <img src="https://www.waze.com/favicon.ico" alt="Waze" className="h-6 w-6" />
-              </a>
-              <a
-                href={business.latitude && business.longitude
-                  ? `https://maps.apple.com/?daddr=${business.latitude},${business.longitude}&dirflg=d`
-                  : `https://maps.apple.com/?daddr=${encodeURIComponent(destRaw)}&dirflg=d`
-                }
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-1 rounded-full hover:bg-muted transition-colors"
-                title="Apple Plans"
-              >
-                <img src="https://www.apple.com/favicon.ico" alt="Apple Plans" className="h-6 w-6" />
-              </a>
-            </div>
-          </div>
-          <iframe
-            src={`https://www.google.com/maps/embed/v1/directions?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&origin=${userOrigin || 'My+location'}&destination=${dest}&mode=${directionsMode}`}
-            className="flex-1 w-full border-0"
-            allowFullScreen
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-            title={`Itinéraire vers ${business.name}`}
-          />
-        </div>
+               <a
+                 href={`https://www.google.com/maps/dir/?api=1&destination=${dest}`}
+                 target="_blank"
+                 rel="noopener noreferrer"
+                 className="p-1 rounded-full hover:bg-muted transition-colors"
+                 title="Google Maps"
+               >
+                 <img src="https://www.gstatic.com/images/branding/product/1x/maps_48dp.png" alt="Google Maps" className="h-6 w-6 object-contain" />
+               </a>
+               <a
+                 href={business.latitude && business.longitude
+                   ? `https://waze.com/ul?ll=${business.latitude},${business.longitude}&navigate=yes`
+                   : `https://waze.com/ul?q=${encodeURIComponent(destRaw)}&navigate=yes`
+                 }
+                 target="_blank"
+                 rel="noopener noreferrer"
+                 className="p-1 rounded-full hover:bg-muted transition-colors"
+                 title="Waze"
+               >
+                 <img src="https://www.waze.com/favicon.ico" alt="Waze" className="h-6 w-6 object-contain" />
+               </a>
+               <a
+                 href={business.latitude && business.longitude
+                   ? `https://maps.apple.com/?daddr=${business.latitude},${business.longitude}&dirflg=d`
+                   : `https://maps.apple.com/?daddr=${encodeURIComponent(destRaw)}&dirflg=d`
+                 }
+                 target="_blank"
+                 rel="noopener noreferrer"
+                 className="p-1 rounded-full hover:bg-muted transition-colors"
+                 title="Apple Plans"
+               >
+                 <img src="https://www.apple.com/favicon.ico" alt="Apple Plans" className="h-7 w-7 object-contain" />
+               </a>
+             </div>
+           </div>
+           <div className="flex-1 relative min-h-0">
+             <iframe
+               src={`https://www.google.com/maps/embed/v1/directions?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&origin=${userOrigin || 'My+location'}&destination=${dest}&mode=${directionsMode}`}
+               className="absolute inset-0 w-full h-full border-0"
+               allowFullScreen
+               loading="lazy"
+               referrerPolicy="no-referrer-when-downgrade"
+               title={`Itinéraire vers ${business.name}`}
+             />
+             {showInfoCard && (
+               <MapBusinessInfoCard
+                 business={business}
+                 onClose={() => setShowInfoCard(false)}
+                 hideDirections
+                 hideClose
+               />
+             )}
+             {!showInfoCard && (
+               <button
+                 onClick={() => setShowInfoCard(true)}
+                 className="absolute top-2 left-2 z-10 h-8 w-8 flex items-center justify-center rounded-full bg-foreground text-background shadow-lg hover:opacity-90 transition-opacity"
+                 title="Infos établissement"
+               >
+                 <Info className="h-4 w-4" />
+               </button>
+             )}
+           </div>
+         </div>
         );
       })()}
       {/* Document Overlay (PDF, Flipbook or Website) */}
