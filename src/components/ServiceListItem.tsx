@@ -53,7 +53,7 @@ const ServiceListItem = ({ service, currentBusinessId, city, hideLink, hideIcon 
   }, [service, currentBusinessId]);
 
   return (
-    <li className={`flex flex-col gap-1 ${hideIcon ? 'list-disc ml-4' : ''}`}>
+    <li className={`flex flex-col gap-1 ${hideIcon ? 'list-disc ml-4 marker:text-foreground' : ''}`}>
       <span className="flex items-center gap-2 text-sm">
         {!hideIcon && (iconName ? (
           <DynamicIcon
