@@ -1532,6 +1532,9 @@ serve(async (req) => {
             // Full conflict resolved: switch to better subcategory
             console.log(`Category-subcategory re-evaluation: switching from "${detectedSubcategory}" (${parentCatName}) to "${betterSubcat}" (${catsToSearch.join(", ")}) — better match for category`);
             detectedSubcategory = betterSubcat;
+            // Update parent category to the new target so downstream disambiguation works correctly
+            // (e.g. service validation can find the right "Décoration" when multiple exist)
+            subcategoryParentCategory = catsToSearch[0];
           } else if (betterSubcat && parentInIntentCats) {
             // Multi-intent: detected subcategory is valid for one intent, but there's also a match in another
             // Trigger merge so both subcategories appear in results
