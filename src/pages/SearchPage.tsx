@@ -2232,23 +2232,31 @@ const SearchPage = () => {
         <div className="fixed inset-0 z-[9990] flex bg-background/95 backdrop-blur-sm animate-in fade-in duration-200">
           {/* Left panel: AI suggestion */}
           <div ref={overlayLeftPanelRef} className={`relative flex flex-col justify-center transition-all duration-500 ease-out ${overlaySelectedBusiness ? "w-1/2 border-r border-border" : "w-full"}`}>
-          {/* Close button */}
-          <button
-            onClick={() => { setShowAiPopup(false); setOverlaySelectedBusiness(null); }}
-            className="absolute top-4 right-4 sm:top-6 sm:right-6 p-2 rounded-full bg-black hover:bg-black/80 transition-colors z-10"
-          >
-            <X className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
-          </button>
+          {/* Top bar: CTA + close button on same line on mobile */}
+          <div className="absolute top-4 right-4 sm:top-6 sm:right-6 flex items-center gap-2 z-10">
+            <button
+              onClick={() => { setShowAiPopup(false); setOverlaySelectedBusiness(null); }}
+              className="inline-flex sm:hidden items-center px-4 py-2 rounded-full bg-gold text-black text-sm font-semibold hover:bg-gold/90 transition-colors"
+            >
+              {language === "en" ? "See results" : language === "ar" ? "عرض النتائج" : (<>Voir les<br className="sm:hidden" /> résultats</>)}
+            </button>
+            <button
+              onClick={() => { setShowAiPopup(false); setOverlaySelectedBusiness(null); }}
+              className="p-2 rounded-full bg-black hover:bg-black/80 transition-colors"
+            >
+              <X className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+            </button>
+          </div>
 
           {/* AI text — scrollable center, wider */}
           <div className="flex-1 overflow-y-auto px-4 sm:px-6 pb-4">
-            {/* Top section: query + count + top "Voir les résultats" */}
+            {/* Top section: query + count + top "Voir les résultats" (desktop only) */}
             <div className="pt-14 pb-3 text-center">
               <button
                 onClick={() => { setShowAiPopup(false); setOverlaySelectedBusiness(null); }}
-                className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gold text-black text-sm font-semibold hover:bg-gold/90 transition-colors mb-4"
+                className="hidden sm:inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gold text-black text-sm font-semibold hover:bg-gold/90 transition-colors mb-4"
               >
-                {language === "en" ? "See results" : language === "ar" ? "عرض النتائج" : (<>Voir les<br className="sm:hidden" /> résultats</>)}
+                {language === "en" ? "See results" : language === "ar" ? "عرض النتائج" : "Voir les résultats"}
               </button>
               {activeTab === "poi" ? (
                 <>
