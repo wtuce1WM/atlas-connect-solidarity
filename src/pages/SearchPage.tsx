@@ -3826,11 +3826,7 @@ const SearchPage = () => {
 
           {/* Category filter moved to sticky zones above */}
 
-          {isLoading ? (
-            <div className="flex items-center justify-center py-16">
-              <Loader2 className="h-12 w-12 animate-spin text-gold" />
-            </div>
-          ) : filteredBusinesses.length === 0 && !showZitounEasterEgg && !showCelebrityGuide && !showSosMedecin && !showPompiers ? (
+          {isLoading ? null : filteredBusinesses.length === 0 && !showZitounEasterEgg && !showCelebrityGuide && !showSosMedecin && !showPompiers ? (
             <div className="text-center py-16 relative">
               <Building2 className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
               <p className="text-xl text-muted-foreground mb-2">{t.noResults}</p>
