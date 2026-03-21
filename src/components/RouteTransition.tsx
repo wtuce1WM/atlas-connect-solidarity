@@ -9,15 +9,19 @@ const RouteTransition = ({ children }: { children: React.ReactNode }) => {
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
   useEffect(() => {
-    // Skip on initial mount and same-path navigations (e.g. query changes on search page)
-    if (prevPath.current === location.pathname) return;
-    
-    // Skip staff/affiliate pages and search page (SearchPage handles its own loading)
-    const skipPaths = ["/staff/login", "/staff/backoffice", "/affiliates", "/affiliates/dashboard", "/search"];
-    if (skipPaths.includes(location.pathname)) {
+    const skipPathPrefixes = ["/search", "/staff/login", "/staff/backoffice", "/affiliates", "/affiliates/dashboard"];
+    const shouldSkip = skipPathPrefixes.some((prefix) => location.pathname.startsWith(prefix));
+
+    // Always kill any pending transition loader on skipped pages
+    if (shouldSkip) {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      setShowLoading(false);
       prevPath.current = location.pathname;
       return;
     }
+
+    // Skip on initial mount and same-path navigations
+    if (prevPath.current === location.pathname) return;
 
     setShowLoading(true);
     prevPath.current = location.pathname;
@@ -33,7 +37,7 @@ const RouteTransition = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <>
-      {showLoading && <LoadingScreen />}
+      {showLoading && !location.pathname.startsWith("/search") && <LoadingScreen />}
       {children}
     </>
   );
