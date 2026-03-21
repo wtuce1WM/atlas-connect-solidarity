@@ -1668,21 +1668,6 @@ const SearchPage = () => {
       setPreciseMatch(false);
       setSearchMode(null);
       try {
-        // Fetch cities with sort_order
-        const { data: citiesData } = await supabase
-          .from("cities")
-          .select("id, name_fr, sort_order, latitude, longitude")
-          .eq("is_active", true)
-          .order("sort_order", { ascending: true });
-
-        if (fetchId !== latestFetchIdRef.current) return;
-
-        if (citiesData) {
-          setCitiesWithPriority(
-            citiesData.map(c => ({ name: c.name_fr, id: c.id, priority: c.sort_order || 0, latitude: c.latitude, longitude: c.longitude }))
-          );
-        }
-
         // Use edge function for full-text search
         const { data, error } = await supabase.functions.invoke<SearchResult>("business-search", {
           body: { 
