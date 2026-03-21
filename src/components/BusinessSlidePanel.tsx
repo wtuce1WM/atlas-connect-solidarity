@@ -2308,7 +2308,7 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
                                 )}
                                 <ul className="space-y-2">
                                   {group.services.map((service, index) => (
-                                    <ServiceListItem key={index} service={service} currentBusinessId={business.id} city={business.city} />
+                                    <ServiceListItem key={index} service={service} currentBusinessId={business.id} city={business.city} hideLink />
                                   ))}
                                 </ul>
                               </div>
