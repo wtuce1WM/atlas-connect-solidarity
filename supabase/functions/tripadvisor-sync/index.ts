@@ -59,8 +59,22 @@ async function searchLocation(name: string, city: string, lat: number | null, ln
     return null;
   }
 
-  const loc = data.data[0];
-  console.log(`Found TripAdvisor location: "${loc.name}" (ID: ${loc.location_id})`);
+  // Filter out geo results (cities, countries, regions) — we only want businesses
+  const validTypes = new Set(['restaurant', 'hotel', 'attraction', 'geoName']);
+  const candidates = data.data.filter((loc: any) => {
+    const cat = loc.address_obj?.category || '';
+    // Exclude pure geographic entries (cities, countries, etc.)
+    if (cat === 'geographic' || cat === 'geo') return false;
+    return true;
+  });
+
+  if (!candidates.length) {
+    console.log(`No non-geo TripAdvisor location found for: ${searchQuery}`);
+    return null;
+  }
+
+  const loc = candidates[0];
+  console.log(`Found TripAdvisor location: "${loc.name}" (ID: ${loc.location_id}, category: ${loc.address_obj?.category || 'unknown'})`);
   return { locationId: loc.location_id, name: loc.name };
 }
 
