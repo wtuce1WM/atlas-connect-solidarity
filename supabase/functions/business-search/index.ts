@@ -3202,6 +3202,53 @@ serve(async (req) => {
         console.log(`Service enrichment [${enrichmentServiceNames.join(", ")}] for subcategory "${detectedSubcategory}": ${businesses.length} total results`);
       }
 
+      // ── CROSS-CATEGORY SERVICE MERGE ──
+      // When the query word matched a subcategory name (e.g. "Céramique" → "Poterie / Céramique"),
+      // the word was excluded from service detection. But if it also matches a real service name,
+      // businesses with that service in OTHER categories are missing. Merge them here.
+      if (detectedSubcategory && detectedServices.length === 0 && effectiveQuery) {
+        const subcatWords = detectedSubcategory.toLowerCase().split(/[\s/]+/).filter(w => w.length > 2);
+        const queryWordsLower = effectiveQuery.toLowerCase().split(/\s+/).filter(w => w.length > 2 && !FRENCH_STOP_WORDS.has(w));
+        // Find query words that overlap with subcategory name words
+        const overlappingWords = queryWordsLower.filter(qw => 
+          subcatWords.some(sw => stripAccentsGlobal(sw) === stripAccentsGlobal(qw) || sw === qw)
+        );
+        if (overlappingWords.length > 0) {
+          // Check if any of these words match an actual service name
+          const { data: crossCatServices } = await supabase
+            .from("services")
+            .select("name_fr")
+            .or(overlappingWords.map(w => `name_fr.ilike.${w}`).join(","));
+          if (crossCatServices && crossCatServices.length > 0) {
+            const crossServiceNames = crossCatServices.map((s: any) => s.name_fr);
+            const existingIds = new Set(businesses.map(b => b.id));
+            let crossBuilder = supabase.from("businesses").select("*").eq("is_active", true)
+              .overlaps("services", crossServiceNames);
+            if (effectiveCity) crossBuilder = applyCityFilter(crossBuilder);
+            if (detectedNeighborhood) {
+              crossBuilder = crossBuilder.or(buildNeighborhoodOrClause(detectedNeighborhood, loadedNeighborhoods));
+            }
+            crossBuilder = crossBuilder
+              .order("wtuce_status", { ascending: true })
+              .order("google_rating", { ascending: false, nullsFirst: false })
+              .order("priority_score", { ascending: false })
+              .limit(limit);
+            const { data: crossData, error: crossError } = await crossBuilder;
+            if (!crossError && crossData && crossData.length > 0) {
+              const newResults = crossData
+                .filter((b: any) => !existingIds.has(b.id))
+                .map((b: any) => ({
+                  ...b,
+                  distance_km: latitude && longitude && b.latitude && b.longitude
+                    ? calculateDistance(latitude, longitude, b.latitude, b.longitude) : null,
+                }));
+              businesses = [...businesses, ...newResults];
+              console.log(`🔀 Cross-category service merge [${crossServiceNames.join(", ")}]: +${newResults.length} results (total: ${businesses.length})`);
+            }
+          }
+        }
+      }
+
       // (Alcohol-specific fallback removed — now handled generically by the service enrichment block above)
 
       // Append related subcategories (e.g. "Epicerie fine" after "Supermarché")
