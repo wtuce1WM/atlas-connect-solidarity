@@ -10,7 +10,7 @@ interface ServiceListItemProps {
   hideLink?: boolean;
 }
 
-const ServiceListItem = ({ service, currentBusinessId, city }: ServiceListItemProps) => {
+const ServiceListItem = ({ service, currentBusinessId, city, hideLink }: ServiceListItemProps) => {
   const [otherCount, setOtherCount] = useState<number | null>(null);
   const [iconName, setIconName] = useState<string | null>(null);
 
