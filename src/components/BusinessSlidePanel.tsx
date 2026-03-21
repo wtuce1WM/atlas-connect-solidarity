@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo, forwardRef, useImperativeHandle } from "react";
 import { createPortal } from "react-dom";
-import { X, MapPin, Phone, Mail, Globe, Star, BadgeCheck, ChevronLeft, ChevronRight, Clock, Loader2, ExternalLink, CookingPot, Volume2, VolumeX, Maximize, Play, Pause, Headphones, Mic, Maximize2, Minimize2, Navigation, Box, BookOpen, BedDouble, Search, Route } from "lucide-react";
+import { X, MapPin, Phone, Mail, Globe, Star, BadgeCheck, ChevronLeft, ChevronRight, ChevronDown, Clock, Loader2, ExternalLink, CookingPot, Volume2, VolumeX, Maximize, Play, Pause, Headphones, Mic, Maximize2, Minimize2, Navigation, Box, BookOpen, BedDouble, Search, Route } from "lucide-react";
 import FullscreenLightbox from "@/components/FullscreenLightbox";
 import type { MediaItem } from "@/components/FullscreenLightbox";
 import { supabase } from "@/integrations/supabase/client";
@@ -23,6 +23,8 @@ import { Separator } from "@/components/ui/separator";
 import { FacebookIcon, InstagramIcon, LinkedInIcon, YouTubeIcon, TikTokIcon, TwitterIcon, PinterestIcon, VimeoIcon } from "@/components/staff/SocialMediaIcons";
 import BookingOverlay from "@/components/BookingOverlay";
 import SocialEmbedsTab from "@/components/SocialEmbedsTab";
+import DynamicIcon from "@/components/DynamicIcon";
+import ServiceListItem from "@/components/ServiceListItem";
 import HotelAvailabilityOverlay, { type FallbackPanelData, type FallbackHotel } from "@/components/HotelAvailabilityOverlay";
 import MapBusinessInfoCard from "@/components/MapBusinessInfoCard";
 import { Info } from "lucide-react";
@@ -237,6 +239,8 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
   }, [business]);
   const [gamme, setGamme] = useState<Gamme | null>(null);
   const [activeServiceNames, setActiveServiceNames] = useState<Set<string> | null>(null);
+  const [groupedServices, setGroupedServices] = useState<{ subcategoryName: string; description: string | null; icon: string | null; services: string[] }[]>([]);
+  const [openServiceGroups, setOpenServiceGroups] = useState<Set<string>>(new Set());
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [forceBookingOverlay, setForceBookingOverlay] = useState(false);
   const [liteApiHotelId, setLiteApiHotelId] = useState<string | null>(null);
@@ -598,8 +602,72 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
           activeNames = new Set((activeServices || []).map((s: any) => s.name_fr));
         }
         setActiveServiceNames(activeNames);
+
+        // Build grouped services by subcategory (matching BusinessDetail page)
+        const filteredServices = data.services.filter((s: string) => activeNames.has(s));
+        if (filteredServices.length > 0) {
+          const { data: svcRows } = await supabase
+            .from("services")
+            .select("name_fr, subcategory_id, subcategories(name_fr, description_fr, icon)")
+            .in("name_fr", filteredServices);
+
+          const groupMap = new Map<string, { description: string | null; icon: string | null; services: Set<string> }>();
+          const businessCats = new Set(data.categories || []);
+          const serviceToSubcat = new Map<string, { subcatName: string; description: string | null; icon: string | null }>();
+
+          if (svcRows) {
+            for (const row of svcRows as any[]) {
+              const subcatName = row.subcategories?.name_fr || null;
+              if (!subcatName) continue;
+              const existing = serviceToSubcat.get(row.name_fr);
+              if (!existing) {
+                serviceToSubcat.set(row.name_fr, { subcatName, description: row.subcategories?.description_fr || null, icon: row.subcategories?.icon || null });
+              } else if (!businessCats.has(existing.subcatName) && businessCats.has(subcatName)) {
+                serviceToSubcat.set(row.name_fr, { subcatName, description: row.subcategories?.description_fr || null, icon: row.subcategories?.icon || null });
+              }
+            }
+            for (const [svcName, info] of serviceToSubcat) {
+              if (!businessCats.has(info.subcatName)) continue;
+              if (!groupMap.has(info.subcatName)) {
+                groupMap.set(info.subcatName, { description: info.description, icon: info.icon, services: new Set() });
+              }
+              groupMap.get(info.subcatName)!.services.add(svcName);
+            }
+          }
+
+          const groups = Array.from(groupMap.entries()).map(([name, g]) => ({
+            subcategoryName: name,
+            description: g.description,
+            icon: g.icon,
+            services: Array.from(g.services).sort((a, b) => a.localeCompare(b, 'fr')),
+          }));
+          const businessCategories: string[] = data.categories || [];
+          const defaultSvc = data.default_service;
+          groups.sort((a, b) => {
+            if (defaultSvc) {
+              const aHas = a.services.includes(defaultSvc);
+              const bHas = b.services.includes(defaultSvc);
+              if (aHas && !bHas) return -1;
+              if (!aHas && bHas) return 1;
+            }
+            const aIdx = businessCategories.indexOf(a.subcategoryName);
+            const bIdx = businessCategories.indexOf(b.subcategoryName);
+            if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
+            if (aIdx !== -1) return -1;
+            if (bIdx !== -1) return 1;
+            return a.subcategoryName.localeCompare(b.subcategoryName, 'fr');
+          });
+
+          setGroupedServices(groups);
+          setOpenServiceGroups(groups.length === 1 ? new Set([groups[0].subcategoryName]) : new Set());
+        } else {
+          setGroupedServices([]);
+          setOpenServiceGroups(new Set());
+        }
       } else {
         setActiveServiceNames(null);
+        setGroupedServices([]);
+        setOpenServiceGroups(new Set());
       }
 
       // Fetch review texts – prefer reviews in the current UI language
@@ -2189,28 +2257,79 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
             );
           })()}
 
-          {/* Services – only show services that exist in the services table */}
+          {/* Services – grouped by subcategory with accordion */}
           {(() => {
             const filteredServices = business.services && activeServiceNames
               ? business.services.filter(s => activeServiceNames.has(s))
               : business.services || [];
-            const sorted = [...filteredServices].sort((a, b) => a.localeCompare(b, 'fr'));
-            return sorted.length > 0 ? (
+            if (filteredServices.length === 0) return null;
+            return (
               <>
                 <Separator />
                 <div ref={servicesSectionRef} className="space-y-3 scroll-mt-28">
                   <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Services</h3>
-                  <div className="flex flex-col items-center gap-1">
-                    {sorted.map(s => (
-                      <span key={s} className="text-base text-foreground">
-                        {s.charAt(0).toUpperCase() + s.slice(1)}
-                      </span>
-                    ))}
-                  </div>
+                  {groupedServices.length > 0 ? (
+                    <div className="space-y-3">
+                      {groupedServices.map((group) => {
+                        const isOpen = openServiceGroups.has(group.subcategoryName);
+                        const showHeader = groupedServices.length > 1 || group.description;
+                        return (
+                          <div key={group.subcategoryName} className="rounded-xl overflow-hidden bg-card border border-border">
+                            {showHeader && (
+                              <button
+                                onClick={() => {
+                                  setOpenServiceGroups(prev => {
+                                    const next = new Set(prev);
+                                    if (next.has(group.subcategoryName)) next.delete(group.subcategoryName);
+                                    else next.add(group.subcategoryName);
+                                    return next;
+                                  });
+                                }}
+                                className="w-full flex items-center justify-between px-4 py-3 text-left transition-colors hover:bg-muted/50"
+                              >
+                                <div className="flex items-center gap-2">
+                                  {group.icon && (
+                                    <DynamicIcon name={group.icon} className="h-5 w-5 text-primary" />
+                                  )}
+                                  <span className="font-semibold text-foreground">
+                                    {group.subcategoryName}
+                                  </span>
+                                  <span className="text-xs text-muted-foreground">
+                                    ({group.services.length})
+                                  </span>
+                                </div>
+                                <ChevronDown className={`h-4 w-4 transition-transform duration-200 text-muted-foreground ${isOpen ? 'rotate-180' : ''}`} />
+                              </button>
+                            )}
+                            {(isOpen || !showHeader) && (
+                              <div className={`px-4 pb-4 ${showHeader ? 'pt-0' : 'pt-4'}`}>
+                                {group.description && (
+                                  <div className="mb-3 text-sm leading-relaxed prose max-w-none text-muted-foreground prose-headings:text-foreground" dangerouslySetInnerHTML={{ __html: group.description }} />
+                                )}
+                                <ul className="space-y-2">
+                                  {group.services.map((service, index) => (
+                                    <ServiceListItem key={index} service={service} currentBusinessId={business.id} city={business.city} />
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-1">
+                      {[...filteredServices].sort((a, b) => a.localeCompare(b, 'fr')).map(s => (
+                        <span key={s} className="text-base text-foreground">
+                          {s.charAt(0).toUpperCase() + s.slice(1)}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <Separator />
               </>
-            ) : null;
+            );
           })()}
 
           {/* Presse – logos from knowledge base */}
