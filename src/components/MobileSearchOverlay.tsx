@@ -11,9 +11,11 @@ import { businessUrl } from "@/lib/businessUrl";
 interface MobileSearchOverlayProps {
   open: boolean;
   onClose: () => void;
+  /** Called when user taps a recently viewed business — parent should open the slide panel */
+  onBusinessSelect?: (businessId: string) => void;
 }
 
-const MobileSearchOverlay = ({ open, onClose }: MobileSearchOverlayProps) => {
+const MobileSearchOverlay = ({ open, onClose, onBusinessSelect }: MobileSearchOverlayProps) => {
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
@@ -191,7 +193,14 @@ const MobileSearchOverlay = ({ open, onClose }: MobileSearchOverlayProps) => {
                 <button
                   key={biz.id}
                   type="button"
-                  onClick={() => { onClose(); navigate(businessUrl(biz)); }}
+                  onClick={() => {
+                    onClose();
+                    if (onBusinessSelect) {
+                      onBusinessSelect(biz.id);
+                    } else {
+                      navigate(`/search?openBusiness=${biz.id}`);
+                    }
+                  }}
                   className="flex flex-col items-center gap-1.5 shrink-0 w-[72px] group"
                 >
                   <div className="w-14 h-14 rounded-xl overflow-hidden bg-muted border border-border">
