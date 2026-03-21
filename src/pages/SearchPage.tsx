@@ -4279,6 +4279,20 @@ const SearchPage = () => {
             setCompactPanelBusiness({ id: bizId, name: "" } as any);
             setIsCompactPanelExpanded(false);
           }}
+          onSearch={(params) => {
+            // Use setSearchParams instead of navigate to avoid full page reload & preview loading overlay
+            setSelectedCategoryFilter(null);
+            setSelectedSubcategoryFilter(null);
+            setSelectedServiceFilter(null);
+            if (params.q) {
+              setSearchQuery(params.q);
+              setInputValue(params.q);
+            }
+            setActiveTab("suggestions");
+            setSelectedCity("all");
+            setIsGeoCityAutoSelected(false);
+            setSearchParams(params);
+          }}
         />
       )}
 
