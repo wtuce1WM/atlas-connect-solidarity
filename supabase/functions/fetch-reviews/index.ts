@@ -201,14 +201,15 @@ async function fetchTripAdvisorReviews(businessName: string, city: string, tripa
   }
 
   try {
-    let locationId = tripadvisorLocationId;
+    // URL is the source of truth — extract location ID from it first
+    const urlLocationId = extractTripAdvisorLocationId(tripadvisorReviewUrl) || extractTripAdvisorLocationId(tripadvisorUrl);
+    let locationId = urlLocationId || tripadvisorLocationId;
 
-    // Try to extract location ID from URLs if not cached
-    if (!locationId) {
-      locationId = extractTripAdvisorLocationId(tripadvisorReviewUrl) || extractTripAdvisorLocationId(tripadvisorUrl);
-      if (locationId) {
-        console.log(`Extracted TripAdvisor location ID from URL: ${locationId}`);
-      }
+    if (urlLocationId && tripadvisorLocationId && urlLocationId !== tripadvisorLocationId) {
+      console.log(`TripAdvisor: URL location ID (${urlLocationId}) differs from cached (${tripadvisorLocationId}), using URL`);
+    }
+    if (locationId && !tripadvisorLocationId) {
+      console.log(`Extracted TripAdvisor location ID from URL: ${locationId}`);
     }
 
     // Search for location if still no ID
