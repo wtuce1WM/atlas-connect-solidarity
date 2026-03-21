@@ -94,17 +94,18 @@ const BookingOverlay = ({ bookingUrl, onClose }: BookingOverlayProps) => {
   };
 
   return (
-    <div className="absolute inset-0 z-[60] bg-background flex flex-col animate-fade-in">
-      <div className="flex items-center justify-between px-3 py-2 border-b bg-background">
-        <span className="text-sm font-semibold">Réservation</span>
-        <div className="flex items-center gap-2">
+    <div className="absolute inset-0 z-[60] bg-white flex flex-col animate-fade-in">
+      <div className="flex items-center justify-between px-4 py-2 border-b bg-white">
+        <div className="flex items-center gap-3">
           <button
             onClick={onClose}
-            className="p-1 rounded-full hover:bg-muted transition-colors"
+            className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background border-2 border-white/20 shadow-2xl hover:opacity-90 transition-opacity shrink-0"
             title="Fermer"
+            aria-label="Fermer la réservation"
           >
-            <X className="h-5 w-5" />
+            <X className="h-4 w-4" />
           </button>
+          <span className="text-sm font-semibold">Réservation</span>
         </div>
       </div>
 
