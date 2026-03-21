@@ -3367,6 +3367,7 @@ const SearchPage = () => {
                       if (city?.latitude && city?.longitude) return { lat: city.latitude, lng: city.longitude };
                       return undefined;
                     })()}
+                    fitToMarkers
                     onPoiClick={(id) => {
                       const d = allDests.find(p => p.id === id);
                       if (d) {
