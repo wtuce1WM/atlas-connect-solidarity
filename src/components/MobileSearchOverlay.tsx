@@ -193,7 +193,14 @@ const MobileSearchOverlay = ({ open, onClose, onBusinessSelect }: MobileSearchOv
                 <button
                   key={biz.id}
                   type="button"
-                  onClick={() => { onClose(); navigate(businessUrl(biz)); }}
+                  onClick={() => {
+                    onClose();
+                    if (onBusinessSelect) {
+                      onBusinessSelect(biz.id);
+                    } else {
+                      navigate(`/search?openBusiness=${biz.id}`);
+                    }
+                  }}
                   className="flex flex-col items-center gap-1.5 shrink-0 w-[72px] group"
                 >
                   <div className="w-14 h-14 rounded-xl overflow-hidden bg-muted border border-border">
