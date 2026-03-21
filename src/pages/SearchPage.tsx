@@ -3105,7 +3105,7 @@ const SearchPage = () => {
             <section className={`pb-6 lg:pb-12 bg-white dark:bg-zinc-900 transition-all duration-300 ${(poiSelectedBusinessId || poiMapBusiness) ? "w-1/2" : hasKnownLocation ? "w-1/2" : "w-full"}`}>
               <div className={`mx-auto px-4 ${(poiSelectedBusinessId || poiMapBusiness || hasKnownLocation) ? "max-w-full" : "max-w-[80%]"}`}>
                 {/* Sticky bar for POI — mirrors STICKY 5 */}
-                <div className="sticky z-[19] bg-white flex items-center justify-end py-2 mb-2 border-b border-border/40" style={{ top: `${Math.max(stickyStackPadding || 0, 104)}px` }}>
+                <div className="sticky z-[19] bg-white flex items-center justify-center py-2 mb-2 border-b border-border/40" style={{ top: `${Math.max(stickyStackPadding || 0, 104)}px` }}>
                   <div className="flex items-center gap-2">
                     {isSubDesktop && (
                       <button
@@ -3131,9 +3131,11 @@ const SearchPage = () => {
                     <button
                       onClick={() => setLocationDialogOpen(true)}
                       className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                        geo.isEnabled
+                        geo.isEnabled && (geo.detectedNeighborhood || geo.detectedCity || geo.confirmedAddress)
                           ? "bg-gold/20 text-gold border border-gold/40"
-                          : "bg-card text-muted-foreground border border-border hover:border-gold/30"
+                          : geo.isEnabled
+                          ? "bg-[#C04F17] text-white border border-[#C04F17]"
+                          : "bg-[#C04F17] text-white border border-[#C04F17] hover:bg-[#C04F17]/90"
                       }`}
                     >
                       {geo.isDetecting ? (
@@ -3149,9 +3151,7 @@ const SearchPage = () => {
                         ? `📍 ${[geo.detectedNeighborhood, geo.detectedCity].filter(Boolean).join(", ")}`
                         : geo.isEnabled && geo.confirmedAddress
                         ? `📍 ${geo.confirmedAddress}`
-                        : geo.isEnabled
-                        ? (language === "en" ? "No city" : "Aucune ville")
-                        : (language === "en" ? "Location" : "Position")
+                        : (language === "en" ? "Location" : language === "ar" ? "الموقع" : "Localisation")
                       }
                     </button>
                   </div>
@@ -3253,7 +3253,7 @@ const SearchPage = () => {
             <section className={`pb-6 lg:pb-12 bg-white dark:bg-zinc-900 transition-all duration-300 ${hasRightPanel ? "w-1/2" : hasKnownLocation ? "w-1/2" : "w-full"}`}>
               <div className={`mx-auto px-4 ${(hasRightPanel || hasKnownLocation) ? "max-w-full" : "max-w-[80%]"}`}>
                 {/* Sticky bar for Destinations — mirrors STICKY 5 */}
-                <div className="sticky z-[19] bg-white flex items-center justify-end py-2 mb-2 border-b border-border/40" style={{ top: `${Math.max(stickyStackPadding || 0, 104)}px` }}>
+                <div className="sticky z-[19] bg-white flex items-center justify-center py-2 mb-2 border-b border-border/40" style={{ top: `${Math.max(stickyStackPadding || 0, 104)}px` }}>
                   <div className="flex items-center gap-2">
                     {isSubDesktop && (
                       <button
@@ -3279,9 +3279,11 @@ const SearchPage = () => {
                     <button
                       onClick={() => setLocationDialogOpen(true)}
                       className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                        geo.isEnabled
+                        geo.isEnabled && (geo.detectedNeighborhood || geo.detectedCity || geo.confirmedAddress)
                           ? "bg-gold/20 text-gold border border-gold/40"
-                          : "bg-card text-muted-foreground border border-border hover:border-gold/30"
+                          : geo.isEnabled
+                          ? "bg-[#C04F17] text-white border border-[#C04F17]"
+                          : "bg-[#C04F17] text-white border border-[#C04F17] hover:bg-[#C04F17]/90"
                       }`}
                     >
                       {geo.isDetecting ? (
@@ -3297,9 +3299,7 @@ const SearchPage = () => {
                         ? `📍 ${[geo.detectedNeighborhood, geo.detectedCity].filter(Boolean).join(", ")}`
                         : geo.isEnabled && geo.confirmedAddress
                         ? `📍 ${geo.confirmedAddress}`
-                        : geo.isEnabled
-                        ? (language === "en" ? "No city" : "Aucune ville")
-                        : (language === "en" ? "Location" : "Position")
+                        : (language === "en" ? "Location" : language === "ar" ? "الموقع" : "Localisation")
                       }
                     </button>
                   </div>
@@ -3812,7 +3812,7 @@ const SearchPage = () => {
           ) : !showCelebrityGuide && !showSosMedecin && !showPompiers && filteredBusinesses.length > 0 ? (
             <>
               {/* Bar: Results count + AI suggestion + Geolocation — STICKY 5 */}
-              <div ref={resultsBarRef} data-results-bar className="sticky z-[19] bg-white flex items-center justify-end py-2 mb-2 border-b border-border/40" style={{ top: `${Math.max(stickyStackPadding || 0, 104)}px` }}>
+              <div ref={resultsBarRef} data-results-bar className="sticky z-[19] bg-white flex items-center justify-center py-2 mb-2 border-b border-border/40" style={{ top: `${Math.max(stickyStackPadding || 0, 104)}px` }}>
                 <div className="flex items-center gap-2">
                   {isSubDesktop && (
                     <button
@@ -3844,9 +3844,11 @@ const SearchPage = () => {
                   <button
                     onClick={() => setLocationDialogOpen(true)}
                     className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                      geo.isEnabled
+                      geo.isEnabled && (geo.detectedNeighborhood || geo.detectedCity || geo.confirmedAddress)
                         ? "bg-gold/20 text-gold border border-gold/40"
-                        : "bg-card text-muted-foreground border border-border hover:border-gold/30"
+                        : geo.isEnabled
+                        ? "bg-[#C04F17] text-white border border-[#C04F17]"
+                        : "bg-[#C04F17] text-white border border-[#C04F17] hover:bg-[#C04F17]/90"
                     }`}
                   >
                     {geo.isDetecting ? (
@@ -3862,9 +3864,7 @@ const SearchPage = () => {
                       ? `📍 ${[geo.detectedNeighborhood, geo.detectedCity].filter(Boolean).join(", ")}`
                       : geo.isEnabled && geo.confirmedAddress
                       ? `📍 ${geo.confirmedAddress}`
-                      : geo.isEnabled
-                      ? (language === "en" ? "No city" : "Aucune ville")
-                      : (language === "en" ? "Location" : "Position")
+                      : (language === "en" ? "Location" : language === "ar" ? "الموقع" : "Localisation")
                     }
                   </button>
                 </div>
