@@ -29,7 +29,7 @@ const SlidePanelHeader = ({
       : "bg-foreground text-background border-2 border-background/20 shadow-2xl hover:opacity-90 transition-opacity";
 
   return (
-    <div className="shrink-0 flex items-center px-4 py-2 bg-card border-b border-border z-40">
+    <div className="shrink-0 flex items-center justify-between px-4 py-2 bg-card border-b border-border z-40 relative">
       <div className="flex items-center gap-3 shrink-0 relative z-10">
         <button
           type="button"
@@ -53,13 +53,15 @@ const SlidePanelHeader = ({
       </div>
       {centerContent ? (
         <>
-          <span className="flex-1 text-center font-semibold text-sm truncate">{centerContent}</span>
-          <div className="w-9" />
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <span className="font-semibold text-sm truncate pointer-events-auto">{centerContent}</span>
+          </div>
+          <div className="w-9 shrink-0" />
         </>
       ) : (
         <>
-          <div id={toolbarCenterId} className="flex-1 flex items-center justify-center gap-4" />
-          <div id={toolbarRightId} className="flex items-center gap-3 shrink-0" />
+          <div id={toolbarCenterId} className="absolute inset-0 flex items-center justify-center pointer-events-none [&>*]:pointer-events-auto" />
+          <div id={toolbarRightId} className="flex items-center gap-3 shrink-0 relative z-10" />
         </>
       )}
     </div>
