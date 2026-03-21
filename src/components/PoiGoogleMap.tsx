@@ -22,6 +22,8 @@ interface PoiGoogleMapProps {
   onPoiClick?: (poiId: string) => void;
   center?: { lat: number; lng: number };
   subcategoryIconMap?: Record<string, string>;
+  /** When true, fitBounds on markers instead of forcing center */
+  fitToMarkers?: boolean;
 }
 
 /* ── Google Maps loader (reuses shared singleton) ── */
@@ -195,7 +197,7 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
     }
   };
 
-const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIconMap }: PoiGoogleMapProps) => {
+const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIconMap, fitToMarkers }: PoiGoogleMapProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapShellRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
@@ -376,7 +378,8 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
       gmaps.event.addListenerOnce(map, "idle", () => {
         const z = map.getZoom();
         if (z && z > 16) map.setZoom(16);
-        if (center) map.setCenter(center);
+        // Only force city center when not in fitToMarkers mode
+        if (center && !(fitToMarkers && hasPoints)) map.setCenter(center);
         hasFittedRef.current = true;
       });
     }
@@ -395,11 +398,11 @@ const PoiGoogleMap = ({ pois, selectedPoiId, onPoiClick, center, subcategoryIcon
     }
   }, [selectedPoiId]);
 
-  // Keep city centered when a city center is provided
+  // Keep city centered when a city center is provided (skip in fitToMarkers mode)
   useEffect(() => {
-    if (!mapRef.current || !center) return;
+    if (!mapRef.current || !center || fitToMarkers) return;
     mapRef.current.setCenter(center);
-  }, [center]);
+  }, [center, fitToMarkers]);
 
   // Smooth pan + zoom to selected poi — speed & easing adapt to distance/zoom delta
   useEffect(() => {
