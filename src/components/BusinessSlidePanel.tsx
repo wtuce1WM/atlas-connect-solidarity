@@ -267,6 +267,7 @@ const BusinessSlidePanel = forwardRef<BusinessSlidePanelHandle, BusinessSlidePan
   useEffect(() => {
     if (!showDirectionsOverlay) return;
     setUserOrigin(null);
+    setShowInfoCard(true);
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => setUserOrigin(`${pos.coords.latitude},${pos.coords.longitude}`),
