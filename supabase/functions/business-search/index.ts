@@ -2059,7 +2059,6 @@ serve(async (req) => {
     let serviceMatchWordsOuter: string[] = [];
 
     if (!serviceShortcutActivated && !labelShortcutActivated) {
-    let serviceMatchWordsOuter: string[] = []; // All query words used in service detection (for cleanRemainder)
     let keywordMatchedSubcategories: string[] = []; // Subcategories of services matched via keywords
     let serviceKeywordsLookup: Map<string, string[]> = new Map(); // service name → keywords
     
