@@ -460,7 +460,7 @@ Deno.serve(async (req) => {
     let tripadvisorLocationId: string | null = null;
     if (!google_only) {
       promises.push(
-        fetchTripAdvisorReviews(business.name, business.city || '', business.tripadvisor_location_id, business.latitude, business.longitude).then(r => {
+        fetchTripAdvisorReviews(business.name, business.city || '', business.tripadvisor_location_id, business.latitude, business.longitude, business.tripadvisor_review_url, business.tripadvisor_url).then(r => {
           results.tripadvisor_rating = r.rating;
           results.tripadvisor_review_count = r.count;
           tripadvisorLocationId = r.locationId;
