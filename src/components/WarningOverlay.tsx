@@ -117,7 +117,7 @@ const WarningOverlay = ({
   if (hasCity && hasCategory) return null;
 
   return (
-    <div className="fixed inset-0 z-[200] flex flex-col bg-background/95 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[200] flex flex-col bg-background/20 backdrop-blur-sm animate-in fade-in duration-200">
       {/* Close button */}
       {onClose && (
         <button
