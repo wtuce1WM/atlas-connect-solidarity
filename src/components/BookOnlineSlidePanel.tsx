@@ -663,7 +663,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
             <div className="flex w-max gap-2">
               {/* Card 1: Texte Web only */}
               {woDescription && (
-                <div className="snap-start shrink-0 w-[40rem] h-[18em] md:h-[24em] rounded-2xl bg-black/40 backdrop-blur-sm p-4 pb-8 text-white overflow-y-auto animate-slide-in-left opacity-0 border border-white/10"
+                <div className="snap-start shrink-0 w-[40rem] h-[18em] md:h-[24em] rounded-2xl bg-black/40 backdrop-blur-sm p-4 pb-16 text-white overflow-y-auto animate-slide-in-left opacity-0 border border-white/10"
                     style={{ animationFillMode: 'forwards' }}
                   >
                     <div
@@ -686,7 +686,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                     >
                       {/* FRONT — Contact info */}
                       <div
-                        className="absolute inset-0 rounded-2xl bg-black/40 backdrop-blur-sm p-4 pb-8 text-white overflow-y-auto border border-white/10"
+                        className="absolute inset-0 rounded-2xl bg-black/40 backdrop-blur-sm p-4 pb-16 text-white overflow-y-auto border border-white/10"
                         style={{ backfaceVisibility: 'hidden' }}
                       >
                         <div className="space-y-2.5 text-sm">
@@ -825,7 +825,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                     >
                       {/* FRONT — Platform ratings */}
                       <div
-                        className="absolute inset-0 rounded-2xl bg-black/40 backdrop-blur-sm p-4 pb-8 text-white overflow-y-auto border border-white/10"
+                        className="absolute inset-0 rounded-2xl bg-black/40 backdrop-blur-sm p-4 pb-16 text-white overflow-y-auto border border-white/10"
                         style={{ backfaceVisibility: 'hidden' }}
                       >
                         <p className="text-[10px] font-semibold text-gold uppercase tracking-wider mb-2">
@@ -905,7 +905,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
 
                       {/* BACK — Translated review texts */}
                       <div
-                        className="absolute inset-0 rounded-2xl bg-black/40 backdrop-blur-sm p-4 pb-8 text-white overflow-y-auto border border-white/10"
+                        className="absolute inset-0 rounded-2xl bg-black/40 backdrop-blur-sm p-4 pb-16 text-white overflow-y-auto border border-white/10"
                         style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
                       >
                         <div className="flex items-center justify-between mb-3">
