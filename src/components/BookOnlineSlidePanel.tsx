@@ -356,7 +356,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                     </p>
                   ) : null}
                 </div>
-                {woDescription && (
+                {hasExpandableContent && (
                   <button
                     onClick={() => setDescExpanded((p) => !p)}
                     className="shrink-0 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
@@ -367,12 +367,52 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                 )}
               </div>
 
-              {/* Description — collapsible */}
-              {woDescription && descExpanded && (
-                <div
-                  className="min-h-0 max-h-[280px] md:max-h-[480px] overflow-y-auto pr-1 text-sm leading-relaxed prose prose-invert prose-sm max-w-none break-words [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white"
-                  dangerouslySetInnerHTML={{ __html: woDescription }}
-                />
+              {/* Description + opening hours — collapsible */}
+              {hasExpandableContent && descExpanded && (
+                <div className="min-h-0 max-h-[280px] md:max-h-[480px] overflow-y-auto pr-1 text-sm leading-relaxed">
+                  {woDescription && (
+                    <div
+                      className="prose prose-invert prose-sm max-w-none break-words [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white"
+                      dangerouslySetInnerHTML={{ __html: woDescription }}
+                    />
+                  )}
+                  {hasOpeningHours && business && (
+                    <div className={`${woDescription ? 'mt-4 pt-4 border-t border-white/20' : ''}`}>
+                      <p className="text-xs font-semibold text-white/60 uppercase tracking-wider mb-2">
+                        {language === "en" ? "Opening hours" : "Horaires"}
+                      </p>
+                      {business.is_open_24h ? (
+                        <p className="text-white/80">Ouvert 24h/24</p>
+                      ) : business.opening_hours ? (
+                        <div className="space-y-0.5">
+                          {(() => {
+                            const dayOrder = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+                            const dayNames: Record<string, string> = { monday: "Lun", tuesday: "Mar", wednesday: "Mer", thursday: "Jeu", friday: "Ven", saturday: "Sam", sunday: "Dim" };
+                            const displayOrder = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+                            const hours = business.opening_hours as Record<string, any>;
+                            const now = new Date();
+                            const todayKey = dayOrder[now.getDay()];
+                            return displayOrder.map(day => {
+                              const dh = hours[day];
+                              if (!dh) return null;
+                              const isToday = day === todayKey;
+                              return (
+                                <div key={day} className={`flex gap-3 text-sm ${isToday ? 'font-bold' : ''}`}>
+                                  <span className={`font-medium ${isToday ? 'text-white' : 'text-white/70'}`}>
+                                    {dayNames[day]}{isToday ? ' ●' : ''}
+                                  </span>
+                                  <span className="text-white/80">
+                                    {formatDayHoursDisplay(dh, { language })}
+                                  </span>
+                                </div>
+                              );
+                            });
+                          })()}
+                        </div>
+                      ) : null}
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           </div>
