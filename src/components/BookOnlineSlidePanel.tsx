@@ -6,6 +6,7 @@ import MapBusinessInfoCard from "@/components/MapBusinessInfoCard";
 import { useLanguage } from "@/contexts/LanguageContext";
 import ShareButton from "@/components/ShareButton";
 import { Skeleton } from "@/components/ui/skeleton";
+import BookingOverlay from "@/components/BookingOverlay";
 
 const WhatsAppIcon = ({ className = "h-5 w-5" }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -67,6 +68,8 @@ interface BookOnlineBusiness {
   tripadvisor_review_count: number | null;
   restaurant_guru_rating: number | null;
   restaurant_guru_review_count: number | null;
+  online_shop_force_external: boolean;
+  website_force_external: boolean;
 }
 
 interface WebOnlyData {
@@ -95,6 +98,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
   const [directionsMode, setDirectionsMode] = useState<"walking" | "driving">("walking");
   const [userOrigin, setUserOrigin] = useState<string | null>(null);
   const [showInfoCard, setShowInfoCard] = useState(true);
+  const [showBookingOverlay, setShowBookingOverlay] = useState(false);
 
   useEffect(() => {
     if (!showDirections) return;
@@ -120,7 +124,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
       const [bizRes, woRes, destLinksRes] = await Promise.all([
         supabase
           .from("businesses")
-          .select("id, name, slug, logo_url, logo_bg, images, city, neighborhood, address, latitude, longitude, website, whatsapp, online_shop_url, google_maps_url, phone, skype, languages, opening_hours, show_opening_hours, is_open_24h, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count")
+          .select("id, name, slug, logo_url, logo_bg, images, city, neighborhood, address, latitude, longitude, website, whatsapp, online_shop_url, google_maps_url, phone, skype, languages, opening_hours, show_opening_hours, is_open_24h, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, online_shop_force_external, website_force_external")
           .eq("id", businessId)
           .eq("is_active", true)
           .maybeSingle(),
@@ -370,19 +374,37 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
           {/* CTAs */}
           {(bookUrl || (business.latitude && business.longitude)) && (
             <div className="shrink-0 py-2 flex flex-col items-center gap-2 pointer-events-auto">
-              {bookUrl && (
-                <a
-                  href={bookUrl.startsWith("http") ? bookUrl : `https://${bookUrl}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-1.5 w-[85%] md:w-1/2 py-2 rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal"
-                  style={{ fontFamily: "'Josefin Sans', sans-serif" }}
-                >
-                  <CalendarCheck className="h-4 w-4" />
-                  {language === "en" ? "Book Online" : "Réservez en ligne"}
-                  <ExternalLink className="h-3.5 w-3.5 ml-0.5" />
-                </a>
-              )}
+              {bookUrl && (() => {
+                const fullUrl = bookUrl.startsWith("http") ? bookUrl : `https://${bookUrl}`;
+                const isShopUrl = !!business.online_shop_url;
+                const forceExternal = isShopUrl ? business.online_shop_force_external : business.website_force_external;
+                
+                if (forceExternal) {
+                  return (
+                    <a
+                      href={fullUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-1.5 w-[85%] md:w-1/2 py-2 rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal"
+                      style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+                    >
+                      <CalendarCheck className="h-4 w-4" />
+                      {language === "en" ? "Book Online" : "Réservez en ligne"}
+                      <ExternalLink className="h-3.5 w-3.5 ml-0.5" />
+                    </a>
+                  );
+                }
+                return (
+                  <button
+                    onClick={() => setShowBookingOverlay(true)}
+                    className="flex items-center justify-center gap-1.5 w-[85%] md:w-1/2 py-2 rounded-lg bg-white text-black font-medium text-xs md:text-sm shadow-lg hover:bg-white/90 transition-colors [&_*]:text-black normal-case tracking-normal"
+                    style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+                  >
+                    <CalendarCheck className="h-4 w-4" />
+                    {language === "en" ? "Book Online" : "Réservez en ligne"}
+                  </button>
+                );
+              })()}
               {business.latitude && business.longitude && (
                 <button
                   onClick={() => setShowDirections(true)}
@@ -397,6 +419,14 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
           )}
         </div>
       </div>
+
+      {/* Booking Overlay */}
+      {showBookingOverlay && bookUrl && (
+        <BookingOverlay
+          bookingUrl={bookUrl.startsWith("http") ? bookUrl : `https://${bookUrl}`}
+          onClose={() => setShowBookingOverlay(false)}
+        />
+      )}
 
       {/* Directions Overlay */}
       {showDirections && business && (() => {
