@@ -31,8 +31,7 @@ const PopularSearchesManagement = () => {
     const { data, error } = await supabase
       .from("popular_searches")
       .select("*")
-      .order("sort_order")
-      .order("query");
+      .order("query", { ascending: true });
     if (data) setItems(data as PopularSearch[]);
     if (error) toast({ title: "Erreur", description: error.message, variant: "destructive" });
     setIsLoading(false);
