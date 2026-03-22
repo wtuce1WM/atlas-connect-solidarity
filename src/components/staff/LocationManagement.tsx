@@ -194,7 +194,7 @@ const SortableDestVideo = ({ id, url, index, onRemove }: { id: string; url: stri
   );
 };
 
-
+const LocationManagement = () => {
   const [geocodingField, setGeocodingField] = useState<string | null>(null);
   const [batchGeocoding, setBatchGeocoding] = useState(false);
 
