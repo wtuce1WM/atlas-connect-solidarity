@@ -7,6 +7,7 @@ import GoogleMapEmbed from "@/components/GoogleMapEmbed";
 interface DestinationSlidePanelProps {
   destinationId: string;
   onClose: () => void;
+  slideFrom?: "right" | "bottom";
 }
 
 interface DestinationFull {
