@@ -454,84 +454,128 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
 
                 {/* Card 2: Contact */}
                 {(business.phone || business.whatsapp || business.email || business.website || business.address) && (
-                  <div className="snap-start shrink-0 w-[85%] md:w-[48%] rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white max-h-[24em] overflow-y-auto">
-                    {/* No title for contact card */}
-                    <div className="space-y-2.5 text-sm">
-                      {business.google_maps_url && (
-                        <a href={business.google_maps_url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center mb-1">
-                          <MapPin className="h-10 w-10 text-red-500 drop-shadow-lg hover:scale-110 transition-transform" />
-                        </a>
-                      )}
-                      {business.address && (
-                        <div className="flex items-start gap-2">
-                          <MapPin className="h-4 w-4 shrink-0 mt-0.5 text-white/60" />
-                          <span className="text-white/80">{business.address}</span>
-                        </div>
-                      )}
-                      {business.phone && (
-                        <a href={`tel:${business.phone}`} className="flex items-center gap-2 text-white/80 hover:text-white transition-colors">
-                          <Phone className="h-4 w-4 shrink-0 text-white/60" />
-                          {business.phone}
-                        </a>
-                      )}
-                      {business.whatsapp && (
-                        <a href={`https://wa.me/${business.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-[#25D366] hover:text-[#20bd5a] transition-colors">
-                          <WhatsAppIcon className="h-4 w-4 shrink-0" />
-                          WhatsApp
-                        </a>
-                      )}
-                      {business.email && (
-                        <a href={`mailto:${business.email}`} className="flex items-center gap-2 text-white/80 hover:text-white transition-colors">
-                          <Mail className="h-4 w-4 shrink-0 text-white/60" />
-                          Email
-                        </a>
-                      )}
-                      {business.website && (
-                        <a href={business.website.startsWith('http') ? business.website : `https://${business.website}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-white/80 hover:text-white transition-colors">
-                          <Globe className="h-4 w-4 shrink-0 text-white/60" />
-                          {language === "en" ? "Website" : "Site web"}
-                          <ExternalLink className="h-3 w-3" />
-                        </a>
-                      )}
-                      {hasOpeningHours && business && (
-                        <div className="mt-2 pt-2 border-t border-white/20">
-                          <p className="text-xs font-semibold text-gold uppercase tracking-wider mb-1.5">
-                            <Clock className="h-3 w-3 inline mr-1" />
-                            {language === "en" ? "Hours" : "Horaires"}
-                          </p>
-                          {business.is_open_24h ? (
-                            <p className="text-white/80 text-sm">Ouvert 24h/24</p>
-                          ) : business.opening_hours ? (
-                            <div className="space-y-0.5">
-                              {(() => {
-                                const dayOrder = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
-                                const dayNames: Record<string, string> = { monday: "Lun", tuesday: "Mar", wednesday: "Mer", thursday: "Jeu", friday: "Ven", saturday: "Sam", sunday: "Dim" };
-                                const displayOrder = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
-                                const hours = business.opening_hours as Record<string, any>;
-                                const now = new Date();
-                                const todayKey = dayOrder[now.getDay()];
-                                return displayOrder.map(day => {
-                                  const dh = hours[day];
-                                  if (!dh) return null;
-                                  const formatted = formatDayHoursDisplay(dh, { language });
-                                  if (!formatted || formatted.toLowerCase().includes('fermé') || formatted.toLowerCase().includes('closed')) return null;
-                                  const isToday = day === todayKey;
-                                  return (
-                                    <div key={day} className={`flex gap-3 text-xs ${isToday ? 'font-bold' : ''}`}>
-                                      <span className={`font-medium ${isToday ? 'text-white' : 'text-white/70'}`}>
-                                        {dayNames[day]}{isToday ? ' ●' : ''}
-                                      </span>
-                                      <span className="text-white/80">
-                                        {formatted}
-                                      </span>
-                                    </div>
-                                  );
-                                });
-                              })()}
+                  <div className="snap-start shrink-0 w-[85%] md:w-[48%] h-[24em]" style={{ perspective: '1000px' }}>
+                    <div
+                      className="relative w-full h-full transition-transform duration-500"
+                      style={{
+                        transformStyle: 'preserve-3d',
+                        transform: contactFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
+                      }}
+                    >
+                      {/* FRONT — Contact info */}
+                      <div
+                        className="absolute inset-0 rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white overflow-y-auto"
+                        style={{ backfaceVisibility: 'hidden' }}
+                      >
+                        <div className="space-y-2.5 text-sm">
+                          {business.google_maps_url && (
+                            <button
+                              onClick={() => setContactFlipped(true)}
+                              className="flex items-center justify-center w-full mb-1"
+                            >
+                              <MapPin className="h-10 w-10 text-destructive drop-shadow-lg hover:scale-110 transition-transform" />
+                            </button>
+                          )}
+                          {business.address && (
+                            <div className="flex items-start gap-2">
+                              <MapPin className="h-4 w-4 shrink-0 mt-0.5 text-white/60" />
+                              <span className="text-white/80">{business.address}</span>
                             </div>
-                          ) : null}
+                          )}
+                          {business.phone && (
+                            <a href={`tel:${business.phone}`} className="flex items-center gap-2 text-white/80 hover:text-white transition-colors">
+                              <Phone className="h-4 w-4 shrink-0 text-white/60" />
+                              {business.phone}
+                            </a>
+                          )}
+                          {business.whatsapp && (
+                            <a href={`https://wa.me/${business.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-[#25D366] hover:text-[#20bd5a] transition-colors">
+                              <WhatsAppIcon className="h-4 w-4 shrink-0" />
+                              WhatsApp
+                            </a>
+                          )}
+                          {business.email && (
+                            <a href={`mailto:${business.email}`} className="flex items-center gap-2 text-white/80 hover:text-white transition-colors">
+                              <Mail className="h-4 w-4 shrink-0 text-white/60" />
+                              Email
+                            </a>
+                          )}
+                          {business.website && (
+                            <a href={business.website.startsWith('http') ? business.website : `https://${business.website}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-white/80 hover:text-white transition-colors">
+                              <Globe className="h-4 w-4 shrink-0 text-white/60" />
+                              {language === "en" ? "Website" : "Site web"}
+                              <ExternalLink className="h-3 w-3" />
+                            </a>
+                          )}
+                          {hasOpeningHours && business && (
+                            <div className="mt-2 pt-2 border-t border-white/20">
+                              <p className="text-xs font-semibold text-gold uppercase tracking-wider mb-1.5">
+                                <Clock className="h-3 w-3 inline mr-1" />
+                                {language === "en" ? "Hours" : "Horaires"}
+                              </p>
+                              {business.is_open_24h ? (
+                                <p className="text-white/80 text-sm">Ouvert 24h/24</p>
+                              ) : business.opening_hours ? (
+                                <div className="space-y-0.5">
+                                  {(() => {
+                                    const dayOrder = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+                                    const dayNames: Record<string, string> = { monday: "Lun", tuesday: "Mar", wednesday: "Mer", thursday: "Jeu", friday: "Ven", saturday: "Sam", sunday: "Dim" };
+                                    const displayOrder = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+                                    const hours = business.opening_hours as Record<string, any>;
+                                    const now = new Date();
+                                    const todayKey = dayOrder[now.getDay()];
+                                    return displayOrder.map(day => {
+                                      const dh = hours[day];
+                                      if (!dh) return null;
+                                      const formatted = formatDayHoursDisplay(dh, { language });
+                                      if (!formatted || formatted.toLowerCase().includes('fermé') || formatted.toLowerCase().includes('closed')) return null;
+                                      const isToday = day === todayKey;
+                                      return (
+                                        <div key={day} className={`flex gap-3 text-xs ${isToday ? 'font-bold' : ''}`}>
+                                          <span className={`font-medium ${isToday ? 'text-white' : 'text-white/70'}`}>
+                                            {dayNames[day]}{isToday ? ' ●' : ''}
+                                          </span>
+                                          <span className="text-white/80">
+                                            {formatted}
+                                          </span>
+                                        </div>
+                                      );
+                                    });
+                                  })()}
+                                </div>
+                              ) : null}
+                            </div>
+                          )}
                         </div>
-                      )}
+                      </div>
+
+                      {/* BACK — Google Map */}
+                      <div
+                        className="absolute inset-0 rounded-2xl bg-black/40 backdrop-blur-sm overflow-hidden"
+                        style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+                      >
+                        <div className="flex items-center justify-between p-3 pb-1">
+                          <p className="text-[10px] font-semibold text-gold uppercase tracking-wider">
+                            {language === "en" ? "Location" : "Localisation"}
+                          </p>
+                          <button
+                            onClick={() => setContactFlipped(false)}
+                            className="text-xs text-white/50 hover:text-white transition-colors uppercase tracking-wider"
+                          >
+                            ← {language === "en" ? "Back" : "Retour"}
+                          </button>
+                        </div>
+                        {business.latitude && business.longitude && contactFlipped && (
+                          <iframe
+                            src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${business.latitude},${business.longitude}&zoom=15`}
+                            className="w-full border-0 pointer-events-none"
+                            style={{ height: 'calc(100% - 2.5rem)' }}
+                            allowFullScreen
+                            loading="lazy"
+                            referrerPolicy="no-referrer-when-downgrade"
+                          />
+                        )}
+                      </div>
                     </div>
                   </div>
                 )}
