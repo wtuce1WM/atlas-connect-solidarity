@@ -554,13 +554,10 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                         className="absolute inset-0 rounded-2xl bg-black/40 backdrop-blur-sm overflow-hidden"
                         style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
                       >
-                        <div className="absolute top-0 left-0 right-0 flex items-center justify-between p-3 pb-1 z-10">
-                          <p className="text-[10px] font-semibold text-gold uppercase tracking-wider drop-shadow-md">
-                            {language === "en" ? "Location" : "Localisation"}
-                          </p>
+                        <div className="absolute top-0 right-0 p-3 z-10">
                           <button
                             onClick={() => setContactFlipped(false)}
-                            className="text-xs text-white/50 hover:text-white transition-colors uppercase tracking-wider drop-shadow-md"
+                            className="text-xs text-black font-semibold hover:text-black/70 transition-colors uppercase tracking-wider drop-shadow-md"
                           >
                             ← {language === "en" ? "Back" : "Retour"}
                           </button>
