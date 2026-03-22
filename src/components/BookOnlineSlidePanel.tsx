@@ -100,6 +100,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
   const [userOrigin, setUserOrigin] = useState<string | null>(null);
   const [showInfoCard, setShowInfoCard] = useState(true);
   const [showBookingOverlay, setShowBookingOverlay] = useState(false);
+  const [selectedDestinationId, setSelectedDestinationId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!showDirections) return;
