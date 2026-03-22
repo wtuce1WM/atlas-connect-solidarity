@@ -117,7 +117,7 @@ const WarningOverlay = ({
   if (hasCity && hasCategory) return null;
 
   return (
-    <div className="fixed inset-0 z-[200] flex flex-col bg-background/20 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[200] flex flex-col bg-background/60 backdrop-blur-sm animate-in fade-in duration-200">
       {/* Close button */}
       {onClose && (
         <button
@@ -133,7 +133,7 @@ const WarningOverlay = ({
         <div className="max-w-3xl mx-auto pt-20 sm:pt-24">
           {/* Warning header */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold/15 text-gold mb-4">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#C04F17]/15 text-[#C04F17] mb-4">
               <AlertTriangle className="h-4 w-4" />
               <span className="text-xs font-semibold uppercase tracking-wider">
                 {language === "en" ? "Precision required" : language === "ar" ? "الدقة مطلوبة" : "Précision requise"}
@@ -160,7 +160,7 @@ const WarningOverlay = ({
                 <p className="text-sm font-medium text-foreground mb-3">
                   {language === "en" ? "What are you looking for?" : language === "ar" ? "ماذا تبحث عنه؟" : "Que cherchez-vous ?"}
                 </p>
-                <div className="flex overflow-x-auto gap-2 pb-2 scrollbar-hide">
+                <div className="flex flex-wrap justify-center gap-2 pb-2">
                   {categories.slice(0, 8).map(cat => (
                     <button
                       key={cat}
@@ -182,7 +182,7 @@ const WarningOverlay = ({
                 <p className="text-sm font-medium text-foreground mb-3">
                   {language === "en" ? "Where are you looking?" : language === "ar" ? "أين تبحث؟" : "Où le cherchez-vous ?"}
                 </p>
-                <div className="flex overflow-x-auto gap-2 pb-2 scrollbar-hide">
+                <div className="flex flex-wrap justify-center gap-2 pb-2">
                   {availableCities.slice(0, 10).map(c => (
                     <button
                       key={c.name}
