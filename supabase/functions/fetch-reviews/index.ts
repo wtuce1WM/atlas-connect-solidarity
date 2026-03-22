@@ -139,9 +139,13 @@ async function fetchGoogleReviews(businessName: string, city: string | null, goo
   const exactCoords = extractExactCoordsFromGoogleUrl(googleMapsUrl);
   const urlPlaceName = extractPlaceNameFromGoogleUrl(googleMapsUrl);
 
+  const cityStr = city || '';
+  const cityQuerySuffix = cityStr ? ` ${cityStr}` : '';
+
   if (urlPlaceName && exactCoords) {
-    console.log(`Strategy 1: URL place name "${urlPlaceName} ${city}" with restriction @${exactCoords.lat},${exactCoords.lng} (200m)`);
-    const place = await searchGooglePlace(`${urlPlaceName} ${city}`, exactCoords, 200.0, apiKey, true);
+    const q1 = `${urlPlaceName}${cityQuerySuffix}`;
+    console.log(`Strategy 1: URL place name "${q1}" with restriction @${exactCoords.lat},${exactCoords.lng} (200m)`);
+    const place = await searchGooglePlace(q1, exactCoords, 200.0, apiKey, true);
     if (place) {
       console.log(`Found: "${place.displayName}" - rating=${place.rating}, count=${place.count}`);
       const reviews = await fetchReviewsFromPlaceId(place.id, apiKey);
