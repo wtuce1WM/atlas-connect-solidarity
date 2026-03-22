@@ -265,9 +265,9 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
         <div className="absolute inset-0">
           {currentMedia?.kind === "video" && videoInfo && !showDirections ? (
             videoInfo.type === "file" ? (
-              <video key={currentMedia.url} src={videoInfo.embedUrl} autoPlay loop playsInline controls className="w-full h-full object-contain bg-black" />
+              <video ref={videoRef} key={currentMedia.url} src={videoInfo.embedUrl} autoPlay loop playsInline controls className="w-full h-full object-contain bg-black" />
             ) : (
-              <iframe key={currentMedia.url} src={videoInfo.embedUrl} className="w-full h-full" allow="autoplay; encrypted-media" allowFullScreen frameBorder="0" style={{ border: 0 }} />
+              <iframe ref={iframeRef} key={currentMedia.url} src={videoInfo.embedUrl} className="w-full h-full" allow="autoplay; encrypted-media" allowFullScreen frameBorder="0" style={{ border: 0 }} />
             )
           ) : currentMedia?.kind === "image" ? (
             <img src={currentMedia.url} alt={business.name} className="w-full h-full object-cover" />
