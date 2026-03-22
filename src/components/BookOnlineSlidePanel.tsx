@@ -354,7 +354,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
             </div>
           )}
           {/* Language flags + media counter — single row */}
-          <div className="flex items-center justify-between pb-4 pointer-events-auto">
+          <div className="relative flex items-center justify-center pb-4 pointer-events-auto">
             {/* Language flags — left */}
             {languages.length > 0 ? (
               <div className="flex items-center gap-1.5 bg-black/40 backdrop-blur-sm rounded-full py-1 px-2.5">
