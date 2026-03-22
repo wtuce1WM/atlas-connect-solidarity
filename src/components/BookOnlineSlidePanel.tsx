@@ -95,6 +95,9 @@ interface BookOnlineBusiness {
   tourradar_url: string | null;
   online_shop_force_external: boolean;
   website_force_external: boolean;
+  hook_fr: string | null;
+  hook_en: string | null;
+  hook_ar: string | null;
 }
 
 interface WebOnlyData {
@@ -137,6 +140,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
   const [isDragging, setIsDragging] = useState(false);
   const touchStartRef = useRef<{ y: number; time: number } | null>(null);
   const cardsHiddenRef = useRef(false);
+  const [showHook, setShowHook] = useState(false);
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
@@ -192,7 +196,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
       const [bizRes, woRes, destLinksRes] = await Promise.all([
         supabase
           .from("businesses")
-          .select("id, name, slug, logo_url, logo_bg, images, city, neighborhood, address, latitude, longitude, website, whatsapp, online_shop_url, google_maps_url, phone, skype, email, languages, opening_hours, show_opening_hours, is_open_24h, google_rating, google_review_count, google_reviews_url, tripadvisor_rating, tripadvisor_review_count, tripadvisor_url, tripadvisor_review_url, restaurant_guru_rating, restaurant_guru_review_count, restaurant_guru_url, trustpilot_rating, trustpilot_review_count, trustpilot_url, getyourguide_rating, getyourguide_review_count, getyourguide_url, viator_rating, viator_review_count, viator_url, avis_verifies_rating, avis_verifies_review_count, avis_verifies_url, tourradar_rating, tourradar_review_count, tourradar_url, online_shop_force_external, website_force_external")
+          .select("id, name, slug, logo_url, logo_bg, images, city, neighborhood, address, latitude, longitude, website, whatsapp, online_shop_url, google_maps_url, phone, skype, email, languages, opening_hours, show_opening_hours, is_open_24h, google_rating, google_review_count, google_reviews_url, tripadvisor_rating, tripadvisor_review_count, tripadvisor_url, tripadvisor_review_url, restaurant_guru_rating, restaurant_guru_review_count, restaurant_guru_url, trustpilot_rating, trustpilot_review_count, trustpilot_url, getyourguide_rating, getyourguide_review_count, getyourguide_url, viator_rating, viator_review_count, viator_url, avis_verifies_rating, avis_verifies_review_count, avis_verifies_url, tourradar_rating, tourradar_review_count, tourradar_url, online_shop_force_external, website_force_external, hook_fr, hook_en, hook_ar")
           .eq("id", businessId)
           .eq("is_active", true)
           .maybeSingle(),
@@ -258,6 +262,22 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
     const computed = computeWeightedRatingOn20(sources);
     return { avgOn20: computed, totalReviewCount: total };
   }, [business]);
+
+  // Hook text for current language
+  const hookText = useMemo(() => {
+    if (!business) return null;
+    if (language === "ar" && business.hook_ar) return business.hook_ar;
+    if (language === "en" && business.hook_en) return business.hook_en;
+    return business.hook_fr;
+  }, [business, language]);
+
+  // Alternate between info and hook every 5s
+  useEffect(() => {
+    if (!hookText) return;
+    setShowHook(false);
+    const interval = setInterval(() => setShowHook((v) => !v), 5000);
+    return () => clearInterval(interval);
+  }, [hookText, businessId]);
 
   type MediaItem = { kind: "video"; url: string } | { kind: "image"; url: string };
   const mediaItems: MediaItem[] = [
@@ -552,8 +572,18 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
           {/* Centered content block — same layout as WebOnlySlidePanel */}
           <div className="flex-1 flex flex-col items-center overflow-hidden min-h-0 gap-3 pointer-events-auto">
             {/* Block 1: Logo + name — always visible */}
-            <div className="w-[95%] md:w-[90%] shrink-0 rounded-2xl bg-black/40 backdrop-blur-sm px-4 py-3 md:px-6 md:py-4 text-white overflow-hidden">
-              <div className="flex items-center gap-4">
+            <div className="w-[95%] md:w-[90%] shrink-0 rounded-2xl bg-black/40 backdrop-blur-sm px-4 py-3 md:px-6 md:py-4 text-white overflow-hidden relative" style={{ minHeight: '4.5rem' }}>
+              {/* Info view: Logo + name + city */}
+              <div
+                className="flex items-center gap-4 transition-all duration-500 ease-in-out"
+                style={{
+                  opacity: showHook && hookText ? 0 : 1,
+                  transform: showHook && hookText ? 'translateY(-8px)' : 'translateY(0)',
+                  position: showHook && hookText ? 'absolute' : 'relative',
+                  inset: showHook && hookText ? '0.75rem 1rem' : undefined,
+                  pointerEvents: showHook && hookText ? 'none' : 'auto',
+                }}
+              >
                 {business.logo_url && (
                   <div
                     className="shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 border-white/20 shadow-lg hidden md:block"
@@ -576,19 +606,35 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                     </p>
                   ) : null}
                 </div>
-                {avgOn20 !== null && avgOn20 > 0 && (
-                  <div className="shrink-0 hidden md:flex flex-col items-center animate-slide-in-right">
-                    <div className="flex items-center gap-1">
-                      <Star className="h-4 w-4 text-gold fill-gold" />
-                      <span className="text-lg font-bold text-white">{avgOn20}</span>
-                      <span className="text-xs text-white/60">/20</span>
-                    </div>
-                    {totalReviewCount > 0 && (
-                      <span className="text-[10px] text-white/60">{totalReviewCount.toLocaleString("fr-FR")} avis</span>
-                    )}
-                  </div>
-                )}
               </div>
+              {/* Hook view */}
+              {hookText && (
+                <div
+                  className="flex items-center justify-center transition-all duration-500 ease-in-out"
+                  style={{
+                    opacity: showHook ? 1 : 0,
+                    transform: showHook ? 'translateY(0)' : 'translateY(8px)',
+                    position: showHook ? 'relative' : 'absolute',
+                    inset: showHook ? undefined : '0.75rem 1rem',
+                    pointerEvents: showHook ? 'auto' : 'none',
+                  }}
+                >
+                  <p className="text-sm md:text-base text-white/90 italic text-center leading-relaxed">{hookText}</p>
+                </div>
+              )}
+              {/* Rating — always visible, absolute right */}
+              {avgOn20 !== null && avgOn20 > 0 && (
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 shrink-0 hidden md:flex flex-col items-center">
+                  <div className="flex items-center gap-1">
+                    <Star className="h-4 w-4 text-gold fill-gold" />
+                    <span className="text-lg font-bold text-white">{avgOn20}</span>
+                    <span className="text-xs text-white/60">/20</span>
+                  </div>
+                  {totalReviewCount > 0 && (
+                    <span className="text-[10px] text-white/60">{totalReviewCount.toLocaleString("fr-FR")} avis</span>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Block 2: Horizontal card carousel */}
