@@ -557,7 +557,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                         <div className="absolute top-0 right-0 p-3 z-10">
                           <button
                             onClick={() => setContactFlipped(false)}
-                            className="text-xs text-black font-semibold hover:text-black/70 transition-colors uppercase tracking-wider drop-shadow-md"
+                            className="text-xs text-black font-bold hover:text-black/70 transition-colors uppercase tracking-wider drop-shadow-md"
                           >
                             ← {language === "en" ? "Back" : "Retour"}
                           </button>
