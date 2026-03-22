@@ -68,10 +68,28 @@ interface BookOnlineBusiness {
   is_open_24h: boolean;
   google_rating: number | null;
   google_review_count: number | null;
+  google_reviews_url: string | null;
   tripadvisor_rating: number | null;
   tripadvisor_review_count: number | null;
+  tripadvisor_url: string | null;
   restaurant_guru_rating: number | null;
   restaurant_guru_review_count: number | null;
+  restaurant_guru_url: string | null;
+  trustpilot_rating: number | null;
+  trustpilot_review_count: number | null;
+  trustpilot_url: string | null;
+  getyourguide_rating: number | null;
+  getyourguide_review_count: number | null;
+  getyourguide_url: string | null;
+  viator_rating: number | null;
+  viator_review_count: number | null;
+  viator_url: string | null;
+  avis_verifies_rating: number | null;
+  avis_verifies_review_count: number | null;
+  avis_verifies_url: string | null;
+  tourradar_rating: number | null;
+  tourradar_review_count: number | null;
+  tourradar_url: string | null;
   online_shop_force_external: boolean;
   website_force_external: boolean;
 }
