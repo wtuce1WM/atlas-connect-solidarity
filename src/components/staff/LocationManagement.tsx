@@ -35,7 +35,24 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Edit, Trash2, Globe, MapPin, Building, ExternalLink, ArrowLeft, Save, FileText, Home, ChevronDown, Compass, LocateFixed, Loader2, ImageIcon, X, Search, Map } from "lucide-react";
+import { Plus, Edit, Trash2, Globe, MapPin, Building, ExternalLink, ArrowLeft, Save, FileText, Home, ChevronDown, Compass, LocateFixed, Loader2, ImageIcon, X, Search, Map, Video, GripVertical } from "lucide-react";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import RichTextEditor from "./RichTextEditor";
 import LogoUploader from "./LogoUploader";
 import ImageUploader from "./ImageUploader";
@@ -112,6 +129,7 @@ interface Destination {
   keywords: string[] | null;
   is_searchable: boolean;
   internal_notes: string | null;
+  videos: string[] | null;
 }
 
 interface PointOfInterest {
@@ -134,6 +152,47 @@ interface PointOfInterest {
   image_url: string | null;
   keywords: string[] | null;
 }
+
+const MAX_DEST_VIDEOS = 5;
+
+const getYouTubeId = (url: string) => {
+  const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([a-zA-Z0-9_-]{11})/);
+  return m?.[1] ?? null;
+};
+
+const isDirectVideo = (url: string) => /\.(mp4|webm|mov|ogg)(\?|$)/i.test(url);
+
+const SortableDestVideo = ({ id, url, index, onRemove }: { id: string; url: string; index: number; onRemove: (i: number) => void }) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1, zIndex: isDragging ? 10 : undefined };
+  const ytId = getYouTubeId(url);
+  const direct = isDirectVideo(url);
+
+  return (
+    <div ref={setNodeRef} style={style} className="flex gap-3 bg-background rounded-lg border p-2 items-start group">
+      <button type="button" {...attributes} {...listeners} className="mt-1 shrink-0 cursor-grab text-muted-foreground hover:text-foreground">
+        <GripVertical className="h-4 w-4" />
+      </button>
+      <div className="shrink-0 w-32 h-20 rounded overflow-hidden bg-muted flex items-center justify-center">
+        {ytId ? (
+          <img src={`https://img.youtube.com/vi/${ytId}/mqdefault.jpg`} alt="YouTube thumbnail" className="w-full h-full object-cover" />
+        ) : direct ? (
+          <video src={url} muted className="w-full h-full object-cover" preload="metadata" />
+        ) : (
+          <Video className="h-6 w-6 text-muted-foreground" />
+        )}
+      </div>
+      <div className="flex-1 min-w-0">
+        <span className="text-xs truncate block">{url.length > 80 ? url.slice(0, 80) + "…" : url}</span>
+        {ytId && <span className="text-[10px] text-muted-foreground">YouTube</span>}
+        {direct && <span className="text-[10px] text-muted-foreground">Vidéo directe</span>}
+      </div>
+      <button type="button" onClick={() => onRemove(index)} className="h-5 w-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+        <X className="h-3 w-3" />
+      </button>
+    </div>
+  );
+};
 
 const LocationManagement = () => {
   const [geocodingField, setGeocodingField] = useState<string | null>(null);
@@ -200,8 +259,9 @@ const LocationManagement = () => {
     name_fr: "", name_en: "", name_ar: "", regions: [] as string[],
     latitude: "", longitude: "", wikipedia_fr: "", wikipedia_en: "", wikipedia_ar: "",
     hook: "", description: "", sort_order: 0, image_url: "", keywords: [] as string[],
-    is_searchable: false, images: [] as string[], internal_notes: "",
+    is_searchable: false, images: [] as string[], internal_notes: "", videos: [] as string[],
   });
+  const [destVideoUrlInput, setDestVideoUrlInput] = useState("");
   const [poiSectionOpen, setPoiSectionOpen] = useState(false);
   const [pois, setPois] = useState<PointOfInterest[]>([]);
   const [showPoiForm, setShowPoiForm] = useState(false);
@@ -239,6 +299,11 @@ const LocationManagement = () => {
   const [destinationRegionFilter, setDestinationRegionFilter] = useState<string>("all");
 
   const { toast } = useToast();
+
+  const destVideoSensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
 
   // Country form state
   const [countryForm, setCountryForm] = useState({
@@ -777,8 +842,9 @@ const LocationManagement = () => {
       name_fr: "", name_en: "", name_ar: "", regions: [],
       latitude: "", longitude: "", wikipedia_fr: "", wikipedia_en: "", wikipedia_ar: "",
       hook: "", description: "", sort_order: 0, image_url: "", keywords: [] as string[],
-      is_searchable: false, images: [] as string[], internal_notes: "",
+      is_searchable: false, images: [] as string[], internal_notes: "", videos: [] as string[],
     });
+    setDestVideoUrlInput("");
   };
 
   const openEditDestination = (d: Destination) => {
@@ -793,6 +859,7 @@ const LocationManagement = () => {
       is_searchable: (d as any).is_searchable ?? false,
       images: (d as any).images || [],
       internal_notes: d.internal_notes || "",
+      videos: d.videos || [],
     });
     setShowDestinationForm(true);
     setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 0);
@@ -832,6 +899,7 @@ const LocationManagement = () => {
       is_searchable: destinationForm.is_searchable,
       images: destinationForm.images.length > 0 ? destinationForm.images : [],
       internal_notes: destinationForm.internal_notes.trim().slice(0, 5000) || null,
+      videos: destinationForm.videos.length > 0 ? destinationForm.videos : [],
     };
     let error;
     if (editingDestination) {
@@ -2135,6 +2203,65 @@ const LocationManagement = () => {
                     maxImages={12}
                     businessId={editingDestination?.id || "destination"}
                   />
+                </CardContent>
+              </Card>
+
+              {/* Vidéos – sortable */}
+              <Card>
+                <CardHeader><CardTitle className="text-lg flex items-center gap-2"><Video className="h-5 w-5" /> Vidéos ({destinationForm.videos.length}/{MAX_DEST_VIDEOS}) — glisser pour réordonner</CardTitle></CardHeader>
+                <CardContent className="space-y-2">
+                  <DndContext sensors={destVideoSensors} collisionDetection={closestCenter} onDragEnd={(event: DragEndEvent) => {
+                    const { active, over } = event;
+                    if (!over || active.id === over.id) return;
+                    const oldIndex = destinationForm.videos.findIndex((_, i) => `dest-vid-${i}` === active.id);
+                    const newIndex = destinationForm.videos.findIndex((_, i) => `dest-vid-${i}` === over.id);
+                    if (oldIndex === -1 || newIndex === -1) return;
+                    const next = arrayMove(destinationForm.videos, oldIndex, newIndex);
+                    setDestinationForm(prev => ({ ...prev, videos: next }));
+                  }}>
+                    <SortableContext items={destinationForm.videos.map((_, i) => `dest-vid-${i}`)} strategy={verticalListSortingStrategy}>
+                      <div className="space-y-2">
+                        {destinationForm.videos.map((url, i) => (
+                          <SortableDestVideo
+                            key={`dest-vid-${i}`}
+                            id={`dest-vid-${i}`}
+                            url={url}
+                            index={i}
+                            onRemove={(idx) => setDestinationForm(prev => ({ ...prev, videos: prev.videos.filter((_, j) => j !== idx) }))}
+                          />
+                        ))}
+                      </div>
+                    </SortableContext>
+                  </DndContext>
+                  {destinationForm.videos.length < MAX_DEST_VIDEOS && (
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="https://youtube.com/watch?v=... ou URL vidéo"
+                        value={destVideoUrlInput}
+                        onChange={(e) => setDestVideoUrlInput(e.target.value)}
+                        className="flex-1 text-sm"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            const url = destVideoUrlInput.trim();
+                            if (url) {
+                              setDestinationForm(prev => ({ ...prev, videos: [...prev.videos, url] }));
+                              setDestVideoUrlInput("");
+                            }
+                          }
+                        }}
+                      />
+                      <Button type="button" size="sm" variant="outline" onClick={() => {
+                        const url = destVideoUrlInput.trim();
+                        if (url) {
+                          setDestinationForm(prev => ({ ...prev, videos: [...prev.videos, url] }));
+                          setDestVideoUrlInput("");
+                        }
+                      }} disabled={!destVideoUrlInput.trim()}>
+                        <Plus className="h-4 w-4 mr-1" />URL
+                      </Button>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 

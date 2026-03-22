@@ -1409,6 +1409,7 @@ export type Database = {
           region: string[] | null
           sort_order: number | null
           updated_at: string | null
+          videos: string[] | null
           wikipedia_ar: string | null
           wikipedia_en: string | null
           wikipedia_fr: string | null
@@ -1431,6 +1432,7 @@ export type Database = {
           region?: string[] | null
           sort_order?: number | null
           updated_at?: string | null
+          videos?: string[] | null
           wikipedia_ar?: string | null
           wikipedia_en?: string | null
           wikipedia_fr?: string | null
@@ -1453,6 +1455,7 @@ export type Database = {
           region?: string[] | null
           sort_order?: number | null
           updated_at?: string | null
+          videos?: string[] | null
           wikipedia_ar?: string | null
           wikipedia_en?: string | null
           wikipedia_fr?: string | null

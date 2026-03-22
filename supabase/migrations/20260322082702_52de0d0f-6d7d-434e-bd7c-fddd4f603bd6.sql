@@ -1,0 +1,1 @@
+ALTER TABLE public.destinations ADD COLUMN videos text[] DEFAULT '{}'::text[];
