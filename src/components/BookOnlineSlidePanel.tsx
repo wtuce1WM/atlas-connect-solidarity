@@ -143,9 +143,14 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
       if (destIds.length > 0) {
         const { data: destData } = await supabase
           .from("destinations")
-          .select("id, name_fr, name_en, image_url")
+          .select("id, name_fr, name_en, image_url, images")
           .in("id", destIds);
-        setDestinations((destData || []) as Destination[]);
+        const sorted = ((destData || []) as Destination[]).sort((a, b) => {
+          const nameA = (language === "en" && a.name_en ? a.name_en : a.name_fr).toLowerCase();
+          const nameB = (language === "en" && b.name_en ? b.name_en : b.name_fr).toLowerCase();
+          return nameA.localeCompare(nameB);
+        });
+        setDestinations(sorted);
       } else {
         setDestinations([]);
       }
