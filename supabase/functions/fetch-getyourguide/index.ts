@@ -101,9 +101,15 @@ Return all activities in an array. If no activities exist on this page, return a
     return null;
   }
 
-  const validActivities = extract.activities.filter(
-    (a: ActivityData) => a?.rating != null && a.rating > 0 && a?.review_count != null && a.review_count > 0,
-  );
+  const validActivities = extract.activities
+    .map((a: Record<string, unknown>) => {
+      const rating = parseRating(a?.rating);
+      const review_count = parseReviewCount(a?.review_count);
+      const title = typeof a?.title === 'string' ? a.title : undefined;
+      return { title, rating, review_count };
+    })
+    .filter((a) => a.rating != null && a.rating > 0 && a.review_count != null && a.review_count > 0)
+    .map((a) => ({ title: a.title, rating: a.rating as number, review_count: a.review_count as number }));
 
   console.log(`Page ${page}: found ${validActivities.length} valid activities (raw: ${extract.activities.length})`);
 
