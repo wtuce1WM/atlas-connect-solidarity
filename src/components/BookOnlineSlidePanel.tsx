@@ -425,8 +425,9 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
             touchStartRef.current = null;
           }}
         >
-          {/* Drag handle — swipe or click to toggle cards */}
-          <div className="flex justify-center mb-2 pointer-events-auto">
+          {/* Drag handle — swipe or click to toggle cards
+              When hidden, position in bottom-right corner so video controls stay accessible */}
+          <div className={`mb-2 pointer-events-auto ${cardsHidden ? "flex justify-end pr-2" : "flex justify-center"}`}>
             <button
               type="button"
               className="inline-flex items-center gap-2 rounded-full border border-border bg-background/85 px-3 py-1.5 text-foreground shadow-lg backdrop-blur-sm cursor-grab active:cursor-grabbing select-none hover:bg-background transition-colors"
