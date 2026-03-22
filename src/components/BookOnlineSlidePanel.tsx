@@ -191,6 +191,33 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
   }, [businessId]);
 
   useEffect(() => {
+    const rail = carouselRef.current;
+    if (!rail) return;
+
+    const centerFirstCard = () => {
+      const firstCard = rail.querySelector<HTMLElement>("[data-carousel-card]");
+      if (!firstCard) return;
+
+      const viewportWidth = rail.parentElement?.clientWidth ?? rail.clientWidth;
+      const firstCardWidth = firstCard.getBoundingClientRect().width;
+      const leftOffset = Math.max(0, (viewportWidth - firstCardWidth) / 2);
+
+      rail.style.paddingLeft = `${leftOffset}px`;
+      rail.scrollLeft = 0;
+    };
+
+    centerFirstCard();
+
+    const resizeObserver = new ResizeObserver(centerFirstCard);
+    resizeObserver.observe(rail);
+    if (rail.parentElement) {
+      resizeObserver.observe(rail.parentElement);
+    }
+
+    return () => resizeObserver.disconnect();
+  }, [woDescription, avgOn20, business]);
+
+  useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
       const [bizRes, woRes, destLinksRes] = await Promise.all([
@@ -643,10 +670,10 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
 
             {/* Block 2: Horizontal card carousel */}
             <div className="w-full shrink-0 self-start">
-              <div ref={carouselRef} className="w-[calc(100%+1rem)] -mr-4 md:w-[calc(100%+1.5rem)] md:-mr-6 flex gap-3 overflow-x-auto pl-[7.5%] md:pl-[27.5%] pb-1 scrollbar-hide snap-x snap-mandatory [&>*:last-child]:mr-0" style={{ scrollPaddingInlineEnd: 0 }}>
+              <div ref={carouselRef} className="w-[calc(100%+1rem)] -mr-4 md:w-[calc(100%+1.5rem)] md:-mr-6 flex gap-3 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory [&>*:last-child]:mr-0" style={{ scrollPaddingInlineEnd: 0 }}>
                 {/* Card 1: Texte */}
                 {woDescription && (
-                  <div className="snap-start shrink-0 w-[85%] md:w-[45%] rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white max-h-[18em] md:max-h-[24em] overflow-y-auto">
+                  <div data-carousel-card className="snap-start shrink-0 w-[85%] md:w-[45%] rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white max-h-[18em] md:max-h-[24em] overflow-y-auto">
                     {/* No title for text card */}
                     <div
                       className="prose prose-invert prose-sm max-w-none break-words text-sm leading-relaxed [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:text-[#C04F17]"
@@ -657,7 +684,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
 
                 {/* Card 2: Contact */}
                 {(business.phone || business.whatsapp || business.email || business.website || business.address) && (
-                  <div className="snap-start shrink-0 w-[85%] md:w-[45%] h-[18em] md:h-[24em]" style={{ perspective: '1000px' }}>
+                  <div data-carousel-card className="snap-start shrink-0 w-[85%] md:w-[45%] h-[18em] md:h-[24em]" style={{ perspective: '1000px' }}>
                     <div
                       className="relative w-full h-full transition-transform duration-500"
                       style={{
@@ -795,7 +822,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
 
                 {/* Card 3: Avis Clients — Flip card */}
                 {(avgOn20 !== null && avgOn20 > 0) && (
-                  <div className="snap-start shrink-0 w-[85%] md:w-[45%] h-[18em] md:h-[24em]" style={{ perspective: '1000px' }}>
+                  <div data-carousel-card className="snap-start shrink-0 w-[85%] md:w-[45%] h-[18em] md:h-[24em]" style={{ perspective: '1000px' }}>
                     <div
                       className="relative w-full h-full transition-transform duration-500"
                       style={{
