@@ -549,7 +549,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
               >
                 <ChevronDown className="h-3.5 w-3.5" />
                 <span className="text-[10px] font-semibold uppercase tracking-[0.08em]">Masquer</span>
-                <span className="h-1.5 w-8 rounded-full bg-foreground/60" />
+                <span className="hidden md:block h-1.5 w-8 rounded-full bg-foreground/60" />
               </button>
 
               {/* Media counter — absolute right */}
