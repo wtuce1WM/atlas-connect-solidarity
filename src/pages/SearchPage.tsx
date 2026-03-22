@@ -744,6 +744,7 @@ const SearchPage = () => {
             setIsCompactPanelWebOnly(!!(hasCommande && !hasReservation));
           } else {
             setIsCompactPanelWebOnly(false);
+            setIsCompactPanelBookOnline(false);
           }
         }
       }, [allBusinesses]);
