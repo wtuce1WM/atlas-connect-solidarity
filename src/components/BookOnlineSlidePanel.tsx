@@ -455,8 +455,8 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                   <div className="snap-start shrink-0 w-[85%] md:w-[48%] rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white max-h-[24em] overflow-y-auto">
                     {/* No title for contact card */}
                     <div className="space-y-2.5 text-sm">
-                      {business.google_maps_url && (
-                        <a href={business.google_maps_url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center mb-1">
+                      {(business.google_maps_url || (business.latitude && business.longitude)) && (
+                        <a href={business.google_maps_url || `https://www.google.com/maps/search/?api=1&query=${business.latitude},${business.longitude}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center mb-1">
                           <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Google_Maps_icon_%282020%29.svg/187px-Google_Maps_icon_%282020%29.svg.png" alt="Google Maps" className="h-10 w-10 drop-shadow-lg hover:scale-110 transition-transform" />
                         </a>
                       )}
