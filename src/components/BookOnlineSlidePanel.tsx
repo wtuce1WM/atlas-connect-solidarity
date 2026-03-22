@@ -420,6 +420,14 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
         </div>
       </div>
 
+      {/* Booking Overlay */}
+      {showBookingOverlay && bookUrl && (
+        <BookingOverlay
+          bookingUrl={bookUrl.startsWith("http") ? bookUrl : `https://${bookUrl}`}
+          onClose={() => setShowBookingOverlay(false)}
+        />
+      )}
+
       {/* Directions Overlay */}
       {showDirections && business && (() => {
         const dest = business.latitude && business.longitude
