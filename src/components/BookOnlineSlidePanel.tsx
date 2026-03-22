@@ -1,7 +1,8 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { createPortal } from "react-dom";
-import { ExternalLink, MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Info, CalendarCheck } from "lucide-react";
+import { ExternalLink, MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Info, CalendarCheck, Star } from "lucide-react";
 import { formatDayHours as formatDayHoursDisplay } from "@/lib/formatOpeningHours";
+import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
 import { supabase } from "@/integrations/supabase/client";
 import MapBusinessInfoCard from "@/components/MapBusinessInfoCard";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -200,6 +201,14 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
   const hasExpandableContent = !!(woDescription || hasOpeningHours);
   const languages = business?.languages?.filter(Boolean) || [];
 
+  const { avgOn20, totalReviewCount } = useMemo(() => {
+    if (!business) return { avgOn20: null, totalReviewCount: 0 };
+    const sources = collectRatingSources(business);
+    const total = sources.reduce((s, r) => s + r.count, 0);
+    const computed = computeWeightedRatingOn20(sources);
+    return { avgOn20: computed, totalReviewCount: total };
+  }, [business]);
+
   type MediaItem = { kind: "video"; url: string } | { kind: "image"; url: string };
   const mediaItems: MediaItem[] = [
     ...videos.map((v) => ({ kind: "video" as const, url: v })),
@@ -356,6 +365,18 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                     </p>
                   ) : null}
                 </div>
+                {avgOn20 !== null && avgOn20 > 0 && (
+                  <div className="shrink-0 flex flex-col items-center animate-slide-in-right">
+                    <div className="flex items-center gap-1">
+                      <Star className="h-4 w-4 text-gold fill-gold" />
+                      <span className="text-lg font-bold text-white">{avgOn20}</span>
+                      <span className="text-xs text-white/60">/20</span>
+                    </div>
+                    {totalReviewCount > 0 && (
+                      <span className="text-[10px] text-white/60">{totalReviewCount.toLocaleString("fr-FR")} avis</span>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
