@@ -208,7 +208,7 @@ const DestinationSlidePanel = ({ destinationId, onClose }: DestinationSlidePanel
             <div className="shrink-0 mt-3">
               <div className="flex gap-2 overflow-x-auto px-4 pb-1 scrollbar-hide">
                 {videos.map((videoUrl, index) => {
-                  const embed = getVideoEmbed(videoUrl);
+                  const info = getVideoInfo(videoUrl);
                   return (
                     <div
                       key={index}
@@ -218,16 +218,25 @@ const DestinationSlidePanel = ({ destinationId, onClose }: DestinationSlidePanel
                         window.open(videoUrl, "_blank");
                       }}
                     >
-                      {embed.type === "file" ? (
+                      {info.thumbnail ? (
+                        <div className="relative w-full h-24">
+                          <img src={info.thumbnail} alt={`Vidéo ${index + 1}`} className="w-full h-full object-cover" />
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                            <div className="w-10 h-10 rounded-full bg-black/50 flex items-center justify-center">
+                              <span className="text-white text-lg">▶</span>
+                            </div>
+                          </div>
+                        </div>
+                      ) : info.type === "file" ? (
                         <video
-                          src={embed.embedUrl}
+                          src={videoUrl}
                           className="w-full h-24 object-cover"
                           muted
                           playsInline
                           preload="metadata"
                         />
                       ) : (
-                        <div className="w-full h-24 bg-white/10 flex items-center justify-center relative">
+                        <div className="w-full h-24 bg-white/10 flex items-center justify-center">
                           <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
                             <span className="text-white text-lg">▶</span>
                           </div>
