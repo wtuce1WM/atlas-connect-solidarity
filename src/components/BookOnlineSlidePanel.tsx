@@ -133,7 +133,6 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
   const [reviewTexts, setReviewTexts] = useState<{ source: string; author_name: string | null; rating: number | null; text: string | null; language?: string | null }[]>([]);
   const [translatedReviewTexts, setTranslatedReviewTexts] = useState<string[] | null>(null);
   const [isTranslating, setIsTranslating] = useState(false);
-  const [carouselEdgeSpacer, setCarouselEdgeSpacer] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [cardsHidden, setCardsHidden] = useState(false);
@@ -144,7 +143,6 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
   const [showHook, setShowHook] = useState(false);
   
   const videoRef = useRef<HTMLVideoElement>(null);
-  const carouselRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const iframeSrcRef = useRef<string>("");
 
@@ -190,33 +188,6 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
     setTranslatedReviewTexts(null);
     setIsTranslating(false);
   }, [businessId]);
-
-  useEffect(() => {
-    const rail = carouselRef.current;
-    if (!rail) return;
-
-    const centerFirstCard = () => {
-      const firstCard = rail.querySelector<HTMLElement>("[data-carousel-card]");
-      if (!firstCard) return;
-
-      const viewportWidth = rail.clientWidth;
-      const firstCardWidth = firstCard.getBoundingClientRect().width;
-      const edgeSpacer = Math.max(0, (viewportWidth - firstCardWidth) / 2);
-
-      setCarouselEdgeSpacer((prev) => (Math.abs(prev - edgeSpacer) < 1 ? prev : edgeSpacer));
-      rail.scrollLeft = 0;
-    };
-
-    const rafId = requestAnimationFrame(centerFirstCard);
-
-    const resizeObserver = new ResizeObserver(centerFirstCard);
-    resizeObserver.observe(rail);
-
-    return () => {
-      cancelAnimationFrame(rafId);
-      resizeObserver.disconnect();
-    };
-  }, [businessId, business, webOnlyData]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -671,22 +642,22 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
 
             {/* Block 2: Horizontal card carousel */}
             <div className="w-full shrink-0 self-start">
-              <div ref={carouselRef} className="w-full flex gap-3 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory" style={{ scrollPaddingInline: 0 }}>
-                <div aria-hidden className="shrink-0" style={{ width: `${carouselEdgeSpacer}px` }} />
-                {/* Card 1: Texte */}
-                {woDescription && (
-                  <div data-carousel-card className="snap-center shrink-0 w-[85%] md:w-[45%] rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white max-h-[18em] md:max-h-[24em] overflow-y-auto">
+              <div className="w-full overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory" style={{ scrollPaddingInline: 0 }}>
+                <div className="flex w-max gap-3 px-[7.5%] md:px-[27.5%]">
+                  {/* Card 1: Texte */}
+                  {woDescription && (
+                    <div className="snap-center shrink-0 w-[85vw] md:w-[45vw] max-w-[85%] md:max-w-[45%] rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white max-h-[18em] md:max-h-[24em] overflow-y-auto">
                     {/* No title for text card */}
                     <div
                       className="prose prose-invert prose-sm max-w-none break-words text-sm leading-relaxed [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:text-[#C04F17]"
                       dangerouslySetInnerHTML={{ __html: woDescription }}
                     />
                   </div>
-                )}
+                  )}
 
-                {/* Card 2: Contact */}
-                {(business.phone || business.whatsapp || business.email || business.website || business.address) && (
-                  <div data-carousel-card className="snap-center shrink-0 w-[85%] md:w-[45%] h-[18em] md:h-[24em]" style={{ perspective: '1000px' }}>
+                  {/* Card 2: Contact */}
+                  {(business.phone || business.whatsapp || business.email || business.website || business.address) && (
+                    <div className="snap-center shrink-0 w-[85vw] md:w-[45vw] max-w-[85%] md:max-w-[45%] h-[18em] md:h-[24em]" style={{ perspective: '1000px' }}>
                     <div
                       className="relative w-full h-full transition-transform duration-500"
                       style={{
@@ -820,11 +791,11 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                       </div>
                     </div>
                   </div>
-                )}
+                  )}
 
-                {/* Card 3: Avis Clients — Flip card */}
-                {(avgOn20 !== null && avgOn20 > 0) && (
-                  <div data-carousel-card className="snap-center shrink-0 w-[85%] md:w-[45%] h-[18em] md:h-[24em]" style={{ perspective: '1000px' }}>
+                  {/* Card 3: Avis Clients — Flip card */}
+                  {(avgOn20 !== null && avgOn20 > 0) && (
+                    <div className="snap-center shrink-0 w-[85vw] md:w-[45vw] max-w-[85%] md:max-w-[45%] h-[18em] md:h-[24em]" style={{ perspective: '1000px' }}>
                     <div
                       className="relative w-full h-full transition-transform duration-500"
                       style={{
@@ -967,9 +938,8 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                       </div>
                     </div>
                   </div>
-                )}
-
-                <div aria-hidden className="shrink-0" style={{ width: `${carouselEdgeSpacer}px` }} />
+                  )}
+                </div>
               </div>
             </div>
           </div>
