@@ -3198,6 +3198,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 avis_verifies_review_count: fd.avis_verifies_review_count ? Number(fd.avis_verifies_review_count) : null,
                 trustpilot_rating: fd.trustpilot_rating ? Number(fd.trustpilot_rating) : null,
                 trustpilot_review_count: fd.trustpilot_review_count ? Number(fd.trustpilot_review_count) : null,
+                tourradar_rating: fd.tourradar_rating ? Number(fd.tourradar_rating) : null,
+                tourradar_review_count: fd.tourradar_review_count ? Number(fd.tourradar_review_count) : null,
               });
               if (sources.length === 0) return null;
               const totalCount = sources.reduce((sum, r) => sum + r.count, 0);
