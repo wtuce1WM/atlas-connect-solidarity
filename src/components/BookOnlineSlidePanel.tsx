@@ -6,6 +6,7 @@ import MapBusinessInfoCard from "@/components/MapBusinessInfoCard";
 import { useLanguage } from "@/contexts/LanguageContext";
 import ShareButton from "@/components/ShareButton";
 import { Skeleton } from "@/components/ui/skeleton";
+import BookingOverlay from "@/components/BookingOverlay";
 
 const WhatsAppIcon = ({ className = "h-5 w-5" }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
