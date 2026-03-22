@@ -296,7 +296,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
 
               {/* Web only description + opening hours — always show 4 lines, expandable */}
               {hasExpandableContent && (
-                <div className={`w-[95%] md:w-[90%] lg:w-[70%] rounded-2xl bg-black/40 backdrop-blur-sm p-4 md:p-6 text-white pointer-events-auto ${descExpanded ? 'max-h-[40%] overflow-y-auto' : 'overflow-hidden'}`}>
+                <div className={`w-[95%] md:w-[90%] lg:w-[70%] rounded-2xl bg-black/40 backdrop-blur-sm p-4 md:p-6 text-white pointer-events-auto ${descExpanded ? 'max-h-[40vh] overflow-y-auto' : 'overflow-hidden'}`}>
                   <div className={`text-sm leading-relaxed pr-1 ${!descExpanded ? 'max-h-[5.6em] overflow-hidden' : ''}`}>
                     {woDescription && (
                       <div className="relative">
