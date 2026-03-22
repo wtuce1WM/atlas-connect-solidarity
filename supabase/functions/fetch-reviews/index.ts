@@ -185,7 +185,7 @@ async function fetchGoogleReviews(businessName: string, city: string | null, goo
     }
   }
 
-  console.log(`No Google Place found for: ${businessName} ${city}`);
+  console.log(`No Google Place found for: ${businessName}${cityQuerySuffix}`);
   return { rating: null, count: null, reviews: [] };
 }
 
