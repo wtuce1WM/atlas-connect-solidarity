@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Navigation } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -31,6 +31,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
   const [descExpanded, setDescExpanded] = useState(true);
   const [showMap, setShowMap] = useState(false);
+  const [fullscreenVideo, setFullscreenVideo] = useState<string | null>(null);
 
   useEffect(() => {
     setCurrentMediaIndex(0);
@@ -133,7 +134,37 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
         </div>
       )}
 
-      {/* Full-size image background */}
+      {/* Fullscreen video overlay */}
+      {fullscreenVideo && (() => {
+        const fvInfo = getVideoInfo(fullscreenVideo);
+        let embedSrc = fullscreenVideo;
+        if (fvInfo.type === "youtube") {
+          embedSrc = `https://www.youtube.com/embed/${fvInfo.id}?autoplay=1&rel=0&controls=1&modestbranding=1`;
+        } else if (fvInfo.type === "vimeo") {
+          embedSrc = `https://player.vimeo.com/video/${fvInfo.id}?autoplay=1`;
+        }
+        return (
+          <div className="absolute inset-0 z-[76] bg-black flex flex-col animate-fade-in">
+            <div className="shrink-0 flex items-center px-3 py-2">
+              <button
+                onClick={() => setFullscreenVideo(null)}
+                className="shrink-0 h-9 w-9 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors"
+                aria-label="Fermer"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="flex-1 min-h-0">
+              {fvInfo.type === "file" ? (
+                <video src={fullscreenVideo} className="w-full h-full object-contain" autoPlay controls playsInline />
+              ) : (
+                <iframe src={embedSrc} className="w-full h-full" allow="autoplay; encrypted-media; fullscreen" allowFullScreen frameBorder="0" style={{ border: 0 }} />
+              )}
+            </div>
+          </div>
+        );
+      })()}
+
       <div className="relative w-full h-full">
         {/* Media background */}
         <div className="absolute inset-0">
@@ -216,9 +247,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
                       key={index}
                       className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer"
                       style={{ animationDelay: `${index * 120}ms`, animationFillMode: "forwards" }}
-                      onClick={() => {
-                        window.open(videoUrl, "_blank");
-                      }}
+                      onClick={() => setFullscreenVideo(videoUrl)}
                     >
                       {info.thumbnail ? (
                         <div className="relative w-full h-28">
