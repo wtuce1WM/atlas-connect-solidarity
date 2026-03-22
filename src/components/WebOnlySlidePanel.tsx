@@ -299,6 +299,17 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
             </div>
           )}
 
+          {/* Languages floating right — upper half */}
+          {languages.length > 0 && (
+            <div className="absolute right-1 top-1/2 -translate-y-1/2 md:right-3 md:top-[15%] md:translate-y-0 z-20 flex flex-col items-center gap-1.5 bg-black/40 backdrop-blur-sm rounded-full py-2 px-1.5">
+              {languages.map((lang, i) => (
+                <span key={i} className="text-base leading-none" title={lang}>
+                  {getLangFlag(lang)}
+                </span>
+              ))}
+            </div>
+          )}
+
           {/* Centered content block */}
           <div className="flex-1 flex flex-col items-center overflow-hidden min-h-0 gap-3">
               {/* Logo + name — always visible */}
