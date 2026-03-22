@@ -7,6 +7,7 @@ import GoogleMapEmbed from "@/components/GoogleMapEmbed";
 interface DestinationSlidePanelProps {
   destinationId: string;
   onClose: () => void;
+  slideFrom?: "right" | "bottom";
 }
 
 interface DestinationFull {
@@ -22,8 +23,9 @@ interface DestinationFull {
   longitude: number | null;
 }
 
-const DestinationSlidePanel = ({ destinationId, onClose }: DestinationSlidePanelProps) => {
+const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: DestinationSlidePanelProps) => {
   const { language } = useLanguage();
+  const slideAnim = slideFrom === "bottom" ? "animate-slide-up-from-bottom" : "animate-slide-in-right";
   const [destination, setDestination] = useState<DestinationFull | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
@@ -87,7 +89,7 @@ const DestinationSlidePanel = ({ destinationId, onClose }: DestinationSlidePanel
 
   if (isLoading) {
     return (
-      <div className="absolute inset-0 z-[70] bg-black flex items-center justify-center animate-slide-in-right">
+      <div className={`absolute inset-0 z-[70] bg-black flex items-center justify-center ${slideAnim}`}>
         <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin" />
       </div>
     );
@@ -96,7 +98,7 @@ const DestinationSlidePanel = ({ destinationId, onClose }: DestinationSlidePanel
   if (!destination) return null;
 
   return (
-    <div className="absolute inset-0 z-[70] bg-black overflow-hidden animate-slide-in-right">
+    <div className={`absolute inset-0 z-[70] bg-black overflow-hidden ${slideAnim}`}>
       {/* Close button */}
       <button
         onClick={onClose}

@@ -510,6 +510,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
         <DestinationSlidePanel
           destinationId={selectedDestinationId}
           onClose={() => setSelectedDestinationId(null)}
+          slideFrom="bottom"
         />
       )}
     </div>
