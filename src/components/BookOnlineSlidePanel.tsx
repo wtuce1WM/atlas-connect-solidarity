@@ -429,9 +429,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                 {/* Card 1: Texte */}
                 {(woDescription || hasOpeningHours) && (
                   <div className="snap-start shrink-0 w-[85%] md:w-[48%] rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white max-h-[18em] overflow-y-auto">
-                    <p className="text-[10px] font-semibold text-white/50 uppercase tracking-wider mb-2">
-                      {language === "en" ? "Description" : "Texte"}
-                    </p>
+                    {/* No title for text card */}
                     {woDescription && (
                       <div
                         className="prose prose-invert prose-sm max-w-none break-words text-sm leading-relaxed [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:text-[#C04F17]"
