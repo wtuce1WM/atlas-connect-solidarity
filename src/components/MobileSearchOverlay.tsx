@@ -200,7 +200,7 @@ const MobileSearchOverlay = ({ open, onClose, onBusinessSelect, onSearch }: Mobi
               {language === "fr" ? "Consultés récemment" : language === "ar" ? "تمت مشاهدتها مؤخرًا" : "Recently viewed"}
             </span>
             <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-              {recentBusinesses.slice(0, 5).map((biz, i) => (
+              {recentBusinesses.slice(0, 10).map((biz, i) => (
                 <button
                   key={biz.id}
                   type="button"
