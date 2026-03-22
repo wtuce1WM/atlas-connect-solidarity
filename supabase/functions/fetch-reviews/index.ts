@@ -170,8 +170,8 @@ async function fetchGoogleReviews(businessName: string, city: string | null, goo
 
   const simplifiedName = businessName.replace(/\s+by\s+.*/i, '').trim();
   const queries = [
-    `${businessName} ${city}`,
-    `${simplifiedName} ${city}`,
+    `${businessName}${cityQuerySuffix}`,
+    `${simplifiedName}${cityQuerySuffix}`,
   ];
 
   for (const q of queries) {
