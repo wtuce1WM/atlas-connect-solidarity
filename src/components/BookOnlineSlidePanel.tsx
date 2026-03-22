@@ -130,6 +130,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
   const [selectedDestinationId, setSelectedDestinationId] = useState<string | null>(null);
   const [reviewsFlipped, setReviewsFlipped] = useState(false);
   const [contactFlipped, setContactFlipped] = useState(false);
+  const [dupContactFlipped, setDupContactFlipped] = useState(false);
   const [reviewTexts, setReviewTexts] = useState<{ source: string; author_name: string | null; rating: number | null; text: string | null; language?: string | null }[]>([]);
   const [translatedReviewTexts, setTranslatedReviewTexts] = useState<string[] | null>(null);
   const [isTranslating, setIsTranslating] = useState(false);
