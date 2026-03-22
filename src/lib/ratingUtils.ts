@@ -27,6 +27,8 @@ export function collectRatingSources(business: {
   avis_verifies_review_count?: number | null;
   trustpilot_rating?: number | null;
   trustpilot_review_count?: number | null;
+  tourradar_rating?: number | null;
+  tourradar_review_count?: number | null;
 }): RatingSource[] {
   const sources: RatingSource[] = [];
   if (business.google_rating && business.google_review_count) {
@@ -49,6 +51,9 @@ export function collectRatingSources(business: {
   }
   if (business.trustpilot_rating && business.trustpilot_review_count) {
     sources.push({ rating: business.trustpilot_rating, count: business.trustpilot_review_count });
+  }
+  if (business.tourradar_rating && business.tourradar_review_count) {
+    sources.push({ rating: business.tourradar_rating, count: business.tourradar_review_count });
   }
   return sources;
 }
@@ -88,8 +93,9 @@ export function getTotalReviewCount(business: {
   viator_review_count?: number | null;
   avis_verifies_review_count?: number | null;
   trustpilot_review_count?: number | null;
+  tourradar_review_count?: number | null;
 }): number {
-  return (business.google_review_count || 0) + (business.tripadvisor_review_count || 0) + (business.restaurant_guru_review_count || 0) + (business.getyourguide_review_count || 0) + (business.viator_review_count || 0) + (business.avis_verifies_review_count || 0) + (business.trustpilot_review_count || 0);
+  return (business.google_review_count || 0) + (business.tripadvisor_review_count || 0) + (business.restaurant_guru_review_count || 0) + (business.getyourguide_review_count || 0) + (business.viator_review_count || 0) + (business.avis_verifies_review_count || 0) + (business.trustpilot_review_count || 0) + (business.tourradar_review_count || 0);
 }
 
 /**

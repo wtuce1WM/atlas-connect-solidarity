@@ -852,6 +852,9 @@ export type Database = {
           slug: string
           telegram: string | null
           tiktok_url: string | null
+          tourradar_rating: number | null
+          tourradar_review_count: number | null
+          tourradar_url: string | null
           tripadvisor_location_id: string | null
           tripadvisor_rating: number | null
           tripadvisor_review_count: number | null
@@ -980,6 +983,9 @@ export type Database = {
           slug: string
           telegram?: string | null
           tiktok_url?: string | null
+          tourradar_rating?: number | null
+          tourradar_review_count?: number | null
+          tourradar_url?: string | null
           tripadvisor_location_id?: string | null
           tripadvisor_rating?: number | null
           tripadvisor_review_count?: number | null
@@ -1108,6 +1114,9 @@ export type Database = {
           slug?: string
           telegram?: string | null
           tiktok_url?: string | null
+          tourradar_rating?: number | null
+          tourradar_review_count?: number | null
+          tourradar_url?: string | null
           tripadvisor_location_id?: string | null
           tripadvisor_rating?: number | null
           tripadvisor_review_count?: number | null
@@ -3474,6 +3483,9 @@ export type Database = {
               slug: string
               telegram: string | null
               tiktok_url: string | null
+              tourradar_rating: number | null
+              tourradar_review_count: number | null
+              tourradar_url: string | null
               tripadvisor_location_id: string | null
               tripadvisor_rating: number | null
               tripadvisor_review_count: number | null
@@ -3618,6 +3630,9 @@ export type Database = {
               slug: string
               telegram: string | null
               tiktok_url: string | null
+              tourradar_rating: number | null
+              tourradar_review_count: number | null
+              tourradar_url: string | null
               tripadvisor_location_id: string | null
               tripadvisor_rating: number | null
               tripadvisor_review_count: number | null

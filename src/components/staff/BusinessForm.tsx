@@ -546,6 +546,9 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     trustpilot_url: (business as any)?.trustpilot_url || "",
     trustpilot_rating: (business as any)?.trustpilot_rating ?? "",
     trustpilot_review_count: (business as any)?.trustpilot_review_count ?? "",
+    tourradar_url: (business as any)?.tourradar_url || "",
+    tourradar_rating: (business as any)?.tourradar_rating ?? "",
+    tourradar_review_count: (business as any)?.tourradar_review_count ?? "",
     tripadvisor_review_url: (business as any)?.tripadvisor_review_url || "",
     tripadvisor_rating: (business as any)?.tripadvisor_rating ?? "",
     tripadvisor_review_count: (business as any)?.tripadvisor_review_count ?? "",
@@ -1110,6 +1113,9 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       viator_url: (formData as any).viator_url || null,
       viator_rating: (formData as any).viator_rating !== "" ? parseFloat((formData as any).viator_rating) : null,
       viator_review_count: (formData as any).viator_review_count !== "" ? parseInt((formData as any).viator_review_count) : null,
+      tourradar_url: (formData as any).tourradar_url || null,
+      tourradar_rating: (formData as any).tourradar_rating !== "" ? parseFloat((formData as any).tourradar_rating) : null,
+      tourradar_review_count: (formData as any).tourradar_review_count !== "" ? parseInt((formData as any).tourradar_review_count) : null,
       tripadvisor_review_url: (formData as any).tripadvisor_review_url || null,
       tripadvisor_rating: (formData as any).tripadvisor_rating !== "" ? parseFloat((formData as any).tripadvisor_rating) : null,
       tripadvisor_review_count: (formData as any).tripadvisor_review_count !== "" ? parseInt((formData as any).tripadvisor_review_count) : null,
@@ -1408,6 +1414,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                     getyourguide_review_count: fd.getyourguide_review_count ? Number(fd.getyourguide_review_count) : null,
                     viator_rating: fd.viator_rating ? Number(fd.viator_rating) : null,
                     viator_review_count: fd.viator_review_count ? Number(fd.viator_review_count) : null,
+                    tourradar_rating: fd.tourradar_rating ? Number(fd.tourradar_rating) : null,
+                    tourradar_review_count: fd.tourradar_review_count ? Number(fd.tourradar_review_count) : null,
                   }));
                   if (avg !== null) {
                     display = `${avg}/20`;
@@ -3190,6 +3198,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 avis_verifies_review_count: fd.avis_verifies_review_count ? Number(fd.avis_verifies_review_count) : null,
                 trustpilot_rating: fd.trustpilot_rating ? Number(fd.trustpilot_rating) : null,
                 trustpilot_review_count: fd.trustpilot_review_count ? Number(fd.trustpilot_review_count) : null,
+                tourradar_rating: fd.tourradar_rating ? Number(fd.tourradar_rating) : null,
+                tourradar_review_count: fd.tourradar_review_count ? Number(fd.tourradar_review_count) : null,
               });
               if (sources.length === 0) return null;
               const totalCount = sources.reduce((sum, r) => sum + r.count, 0);
@@ -3214,6 +3224,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                       google_maps_url: formData.google_maps_url || null,
                       getyourguide_url: (formData as any).getyourguide_url || null,
                       viator_url: (formData as any).viator_url || null,
+                      tourradar_url: (formData as any).tourradar_url || null,
                     }).eq('id', business.id);
                     if (saveError) throw saveError;
 
@@ -3359,6 +3370,32 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               } catch (e: any) { toast({ title: "Erreur Trustpilot", description: e.message, variant: "destructive" }); }
             }}>📥 Fetch</Button>
             <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" title="Effacer Trustpilot" onClick={() => { handleChange("trustpilot_url" as any, ""); handleChange("trustpilot_rating" as any, ""); handleChange("trustpilot_review_count" as any, ""); }}>🗑️</Button>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-lg">🌍</span>
+            {(formData as any).tourradar_url ? <a href={(formData as any).tourradar_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 text-sm font-medium">TourRadar ↗</a> : <span className="text-sm font-medium">TourRadar</span>}
+            <Input value={(formData as any).tourradar_url} onChange={(e) => handleChange("tourradar_url" as any, e.target.value)} placeholder="https://www.tourradar.fr/o/..." className="flex-1" />
+            <Input type="number" step="0.1" min="0" max="5" value={(formData as any).tourradar_rating} onChange={(e) => handleChange("tourradar_rating" as any, e.target.value)} placeholder="Note" className="w-20" />
+            <span className="text-xs text-muted-foreground">/5</span>
+            <Input type="number" min="0" value={(formData as any).tourradar_review_count} onChange={(e) => handleChange("tourradar_review_count" as any, e.target.value)} placeholder="Nb" className="w-20" />
+            <span className="text-xs text-muted-foreground">avis</span>
+            <Button type="button" variant="outline" size="sm" className="h-8 text-xs" title="Récupérer depuis TourRadar" onClick={async () => {
+              const url = (formData as any).tourradar_url;
+              if (!url) { toast({ title: "URL TourRadar manquante", variant: "destructive" }); return; }
+              try {
+                toast({ title: "Récupération TourRadar en cours..." });
+                const { data, error } = await supabase.functions.invoke('fetch-tourradar', { body: { url } });
+                if (error) throw error;
+                const extract = data?.data?.data?.extract ?? data?.data?.extract ?? data?.extract;
+                if (!extract || extract.rating == null || extract.review_count == null) {
+                  throw new Error("Réponse TourRadar invalide (rating/review_count manquants)");
+                }
+                handleChange("tourradar_rating" as any, String(extract.rating));
+                handleChange("tourradar_review_count" as any, String(extract.review_count));
+                toast({ title: "TourRadar récupéré ✓", description: `Note: ${extract.rating}/5 — ${extract.review_count} avis${extract.tour_count ? ` (${extract.tour_count} circuits)` : ''}` });
+              } catch (e: any) { toast({ title: "Erreur TourRadar", description: e.message, variant: "destructive" }); }
+            }}>📥 Fetch</Button>
+            <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" title="Effacer TourRadar" onClick={() => { handleChange("tourradar_url" as any, ""); handleChange("tourradar_rating" as any, ""); handleChange("tourradar_review_count" as any, ""); }}>🗑️</Button>
           </div>
         </div>
 
