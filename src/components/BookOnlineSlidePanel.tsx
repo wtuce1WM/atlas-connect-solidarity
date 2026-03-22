@@ -409,7 +409,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
         {/* Languages + media counter — top left */}
 
         {cardsHidden && (
-          <div className="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 z-30 pointer-events-auto">
+          <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-30 pointer-events-auto">
             <button
               type="button"
               className="inline-flex items-center gap-2 rounded-full border border-border bg-background/85 px-3 py-1.5 text-foreground shadow-lg backdrop-blur-sm hover:bg-background transition-colors"
@@ -430,7 +430,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
 
         {/* Overlaid content — swipeable */}
         <div
-          className={`relative z-10 flex flex-col ${currentMedia?.kind === "video" ? "h-[calc(100%-3.5rem)] pointer-events-none" : "h-full"} p-4 md:p-6`}
+          className={`relative z-10 flex flex-col ${currentMedia?.kind === "video" ? "h-[calc(100%-3.5rem)] pointer-events-none" : "h-full"} p-4 md:p-6 ${cardsHidden ? "opacity-0 pointer-events-none" : "opacity-100"}`}
           style={{
             transform: isDragging
               ? `translateY(${dragOffsetY}px)`
