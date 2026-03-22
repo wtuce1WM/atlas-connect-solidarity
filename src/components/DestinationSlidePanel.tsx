@@ -23,7 +23,7 @@ interface DestinationFull {
   longitude: number | null;
 }
 
-const DestinationSlidePanel = ({ destinationId, onClose }: DestinationSlidePanelProps) => {
+const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: DestinationSlidePanelProps) => {
   const { language } = useLanguage();
   const [destination, setDestination] = useState<DestinationFull | null>(null);
   const [isLoading, setIsLoading] = useState(true);
