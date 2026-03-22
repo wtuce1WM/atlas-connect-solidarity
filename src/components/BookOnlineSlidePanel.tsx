@@ -726,22 +726,6 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                     </div>
                   </div>
                 )}
-
-                {/* Card 4: Localiser */}
-                {business.latitude && business.longitude && (
-                  <div className="snap-start shrink-0 w-[85%] md:w-[48%] rounded-2xl bg-black/40 backdrop-blur-sm p-0 text-white max-h-[24em] overflow-hidden">
-                    {/* No title for location card */}
-                    <div className="relative w-full h-[24em] overflow-hidden rounded-2xl">
-                      <iframe
-                        src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${business.latitude},${business.longitude}&zoom=15`}
-                        className="w-full h-full border-0 pointer-events-none"
-                        allowFullScreen
-                        loading="lazy"
-                        referrerPolicy="no-referrer-when-downgrade"
-                      />
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
           </div>
