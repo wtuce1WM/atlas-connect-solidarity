@@ -4624,8 +4624,13 @@ const SearchPage = () => {
               isExpanded={(isCompactPanelWebOnly || isCompactPanelBookOnline) ? undefined : isCompactPanelExpanded}
               onToggleExpand={(isCompactPanelWebOnly || isCompactPanelBookOnline) ? undefined : (compactBusinessImageCount > 5 ? () => setIsCompactPanelExpanded(prev => !prev) : undefined)}
             />
-            <div className={`flex-1 min-h-0 ${isCompactPanelWebOnly ? "overflow-hidden" : ""}`}>
-              {isCompactPanelWebOnly ? (
+            <div className={`flex-1 min-h-0 ${(isCompactPanelWebOnly || isCompactPanelBookOnline) ? "overflow-hidden" : ""}`}>
+              {isCompactPanelBookOnline ? (
+                <BookOnlineSlidePanel
+                  businessId={compactPanelBusiness.id}
+                  onClose={closeCompactPanel}
+                />
+              ) : isCompactPanelWebOnly ? (
                 <WebOnlySlidePanel
                   businessId={compactPanelBusiness.id}
                   onClose={closeCompactPanel}
