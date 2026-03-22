@@ -3370,6 +3370,32 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             }}>📥 Fetch</Button>
             <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" title="Effacer Trustpilot" onClick={() => { handleChange("trustpilot_url" as any, ""); handleChange("trustpilot_rating" as any, ""); handleChange("trustpilot_review_count" as any, ""); }}>🗑️</Button>
           </div>
+          <div className="flex items-center gap-2">
+            <span className="text-lg">🌍</span>
+            {(formData as any).tourradar_url ? <a href={(formData as any).tourradar_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 text-sm font-medium">TourRadar ↗</a> : <span className="text-sm font-medium">TourRadar</span>}
+            <Input value={(formData as any).tourradar_url} onChange={(e) => handleChange("tourradar_url" as any, e.target.value)} placeholder="https://www.tourradar.fr/o/..." className="flex-1" />
+            <Input type="number" step="0.1" min="0" max="5" value={(formData as any).tourradar_rating} onChange={(e) => handleChange("tourradar_rating" as any, e.target.value)} placeholder="Note" className="w-20" />
+            <span className="text-xs text-muted-foreground">/5</span>
+            <Input type="number" min="0" value={(formData as any).tourradar_review_count} onChange={(e) => handleChange("tourradar_review_count" as any, e.target.value)} placeholder="Nb" className="w-20" />
+            <span className="text-xs text-muted-foreground">avis</span>
+            <Button type="button" variant="outline" size="sm" className="h-8 text-xs" title="Récupérer depuis TourRadar" onClick={async () => {
+              const url = (formData as any).tourradar_url;
+              if (!url) { toast({ title: "URL TourRadar manquante", variant: "destructive" }); return; }
+              try {
+                toast({ title: "Récupération TourRadar en cours..." });
+                const { data, error } = await supabase.functions.invoke('fetch-tourradar', { body: { url } });
+                if (error) throw error;
+                const extract = data?.data?.data?.extract ?? data?.data?.extract ?? data?.extract;
+                if (!extract || extract.rating == null || extract.review_count == null) {
+                  throw new Error("Réponse TourRadar invalide (rating/review_count manquants)");
+                }
+                handleChange("tourradar_rating" as any, String(extract.rating));
+                handleChange("tourradar_review_count" as any, String(extract.review_count));
+                toast({ title: "TourRadar récupéré ✓", description: `Note: ${extract.rating}/5 — ${extract.review_count} avis${extract.tour_count ? ` (${extract.tour_count} circuits)` : ''}` });
+              } catch (e: any) { toast({ title: "Erreur TourRadar", description: e.message, variant: "destructive" }); }
+            }}>📥 Fetch</Button>
+            <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" title="Effacer TourRadar" onClick={() => { handleChange("tourradar_url" as any, ""); handleChange("tourradar_rating" as any, ""); handleChange("tourradar_review_count" as any, ""); }}>🗑️</Button>
+          </div>
         </div>
 
         {/* Engagements & Services */}
