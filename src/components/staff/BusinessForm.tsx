@@ -2459,7 +2459,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                         />
                       </div>
                       <div className="space-y-1">
-                        <Label className="text-sm font-medium">Description Destination — {(() => { const el = document.createElement('div'); el.innerHTML = (formData as any).destination_description || ''; return (el.textContent || '').replace(/\s+/g, ' ').trim().length; })()}/500</Label>
+                        <Label className="text-sm font-medium">Description Destination — {(() => { const el = document.createElement('div'); el.innerHTML = (formData as any).destination_description || ''; return (el.textContent || '').replace(/\s+/g, ' ').trim().length; })()} caractères</Label>
                         <RichTextEditor
                           content={(formData as any).destination_description || ""}
                           onChange={(val) => {
