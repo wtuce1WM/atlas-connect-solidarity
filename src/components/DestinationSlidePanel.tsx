@@ -205,22 +205,22 @@ const DestinationSlidePanel = ({ destinationId, onClose }: DestinationSlidePanel
 
           {/* Videos horizontal scroll */}
           {videos.length > 0 && (
-            <div className="shrink-0 mt-3">
-              <div className="flex gap-2 overflow-x-auto px-4 pb-1 scrollbar-hide">
+            <div className="shrink-0 mb-4">
+              <div className="flex gap-2.5 overflow-x-auto px-4 pb-1 scrollbar-hide">
                 {videos.map((videoUrl, index) => {
                   const info = getVideoInfo(videoUrl);
                   return (
                     <div
                       key={index}
-                      className="shrink-0 w-36 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer"
+                      className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer"
                       style={{ animationDelay: `${index * 120}ms`, animationFillMode: "forwards" }}
                       onClick={() => {
                         window.open(videoUrl, "_blank");
                       }}
                     >
                       {info.thumbnail ? (
-                        <div className="relative w-full h-24">
-                          <img src={info.thumbnail} alt={`Vidéo ${index + 1}`} className="w-full h-full object-cover" />
+                        <div className="relative w-full h-28">
+                          <img src={info.thumbnail} alt="" className="w-full h-full object-cover" />
                           <div className="absolute inset-0 flex items-center justify-center bg-black/20">
                             <div className="w-10 h-10 rounded-full bg-black/50 flex items-center justify-center">
                               <span className="text-white text-lg">▶</span>
@@ -230,21 +230,18 @@ const DestinationSlidePanel = ({ destinationId, onClose }: DestinationSlidePanel
                       ) : info.type === "file" ? (
                         <video
                           src={videoUrl}
-                          className="w-full h-24 object-cover"
+                          className="w-full h-28 object-cover"
                           muted
                           playsInline
                           preload="metadata"
                         />
                       ) : (
-                        <div className="w-full h-24 bg-white/10 flex items-center justify-center">
+                        <div className="w-full h-28 bg-white/10 flex items-center justify-center">
                           <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
                             <span className="text-white text-lg">▶</span>
                           </div>
                         </div>
                       )}
-                      <p className="text-xs font-medium text-white text-center py-1.5 px-1 truncate">
-                        Vidéo {index + 1}
-                      </p>
                     </div>
                   );
                 })}
