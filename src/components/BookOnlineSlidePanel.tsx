@@ -504,6 +504,14 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
           </div>
         );
       })()}
+
+      {/* Destination detail overlay */}
+      {selectedDestinationId && (
+        <DestinationSlidePanel
+          destinationId={selectedDestinationId}
+          onClose={() => setSelectedDestinationId(null)}
+        />
+      )}
     </div>
   );
 };
