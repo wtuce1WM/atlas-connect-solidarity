@@ -554,13 +554,13 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                         className="absolute inset-0 rounded-2xl bg-black/40 backdrop-blur-sm overflow-hidden"
                         style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
                       >
-                        <div className="flex items-center justify-between p-3 pb-1">
-                          <p className="text-[10px] font-semibold text-gold uppercase tracking-wider">
+                        <div className="absolute top-0 left-0 right-0 flex items-center justify-between p-3 pb-1 z-10">
+                          <p className="text-[10px] font-semibold text-gold uppercase tracking-wider drop-shadow-md">
                             {language === "en" ? "Location" : "Localisation"}
                           </p>
                           <button
                             onClick={() => setContactFlipped(false)}
-                            className="text-xs text-white/50 hover:text-white transition-colors uppercase tracking-wider"
+                            className="text-xs text-white/50 hover:text-white transition-colors uppercase tracking-wider drop-shadow-md"
                           >
                             ← {language === "en" ? "Back" : "Retour"}
                           </button>
@@ -568,8 +568,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                         {business.latitude && business.longitude && contactFlipped && (
                           <iframe
                             src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${business.latitude},${business.longitude}&zoom=15`}
-                            className="w-full border-0 pointer-events-none"
-                            style={{ height: 'calc(100% - 2.5rem)' }}
+                            className="w-full h-full border-0 pointer-events-none"
                             allowFullScreen
                             loading="lazy"
                             referrerPolicy="no-referrer-when-downgrade"
