@@ -140,6 +140,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
   const [isDragging, setIsDragging] = useState(false);
   const touchStartRef = useRef<{ y: number; time: number } | null>(null);
   const cardsHiddenRef = useRef(false);
+  const [showHook, setShowHook] = useState(false);
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
