@@ -3288,6 +3288,29 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             <span className="text-xs text-muted-foreground">avis</span>
             <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" title="Effacer Avis Vérifiés" onClick={() => { handleChange("avis_verifies_url" as any, ""); handleChange("avis_verifies_rating" as any, ""); handleChange("avis_verifies_review_count" as any, ""); }}>🗑️</Button>
           </div>
+          <div className="flex items-center gap-2">
+            <span className="text-lg">⭐</span>
+            {(formData as any).trustpilot_url ? <a href={(formData as any).trustpilot_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 text-sm font-medium">Trustpilot ↗</a> : <span className="text-sm font-medium">Trustpilot</span>}
+            <Input value={(formData as any).trustpilot_url} onChange={(e) => handleChange("trustpilot_url" as any, e.target.value)} placeholder="https://fr.trustpilot.com/review/..." className="flex-1" />
+            <Input type="number" step="0.1" min="0" max="5" value={(formData as any).trustpilot_rating} onChange={(e) => handleChange("trustpilot_rating" as any, e.target.value)} placeholder="Note" className="w-20" />
+            <span className="text-xs text-muted-foreground">/5</span>
+            <Input type="number" min="0" value={(formData as any).trustpilot_review_count} onChange={(e) => handleChange("trustpilot_review_count" as any, e.target.value)} placeholder="Nb" className="w-20" />
+            <span className="text-xs text-muted-foreground">avis</span>
+            <Button type="button" variant="outline" size="sm" className="h-8 text-xs" title="Récupérer depuis Trustpilot" onClick={async () => {
+              const url = (formData as any).trustpilot_url;
+              if (!url) { toast({ title: "URL Trustpilot manquante", variant: "destructive" }); return; }
+              try {
+                toast({ title: "Récupération Trustpilot en cours..." });
+                const { data, error } = await supabase.functions.invoke('test-trustpilot', { body: { url } });
+                if (error) throw error;
+                const extract = data?.data?.data?.extract;
+                if (extract?.rating != null) handleChange("trustpilot_rating" as any, String(extract.rating));
+                if (extract?.review_count != null) handleChange("trustpilot_review_count" as any, String(extract.review_count));
+                toast({ title: "Trustpilot récupéré ✓" });
+              } catch (e: any) { toast({ title: "Erreur Trustpilot", description: e.message, variant: "destructive" }); }
+            }}>📥 Fetch</Button>
+            <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" title="Effacer Trustpilot" onClick={() => { handleChange("trustpilot_url" as any, ""); handleChange("trustpilot_rating" as any, ""); handleChange("trustpilot_review_count" as any, ""); }}>🗑️</Button>
+          </div>
         </div>
 
         {/* Engagements & Services */}
