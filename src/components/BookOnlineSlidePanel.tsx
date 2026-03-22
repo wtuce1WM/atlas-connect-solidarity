@@ -273,7 +273,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
     if (ytMatch) {
       return {
         type: "youtube" as const,
-        embedUrl: `https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&mute=1&loop=1&playlist=${ytMatch[1]}&rel=0&controls=0&modestbranding=1&playsinline=1&iv_load_policy=3&cc_load_policy=0&disablekb=1&fs=0`,
+        embedUrl: `https://www.youtube-nocookie.com/embed/${ytMatch[1]}?autoplay=1&mute=1&loop=1&playlist=${ytMatch[1]}&rel=0&controls=0&modestbranding=1&playsinline=1&iv_load_policy=3&cc_load_policy=0&disablekb=1&fs=0&showinfo=0&autohide=1`,
       };
     }
     const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
@@ -344,7 +344,18 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
             videoInfo.type === "file" ? (
               <video ref={videoRef} key={currentMedia.url} src={videoInfo.embedUrl} autoPlay loop playsInline controls className="w-full h-full object-contain bg-black" />
             ) : (
-              <iframe ref={iframeRef} key={currentMedia.url} src={videoInfo.embedUrl} className="w-full h-full pointer-events-none" allow="autoplay; encrypted-media" allowFullScreen frameBorder="0" style={{ border: 0 }} />
+              <div className="w-full h-full overflow-hidden bg-black">
+                <iframe
+                  ref={iframeRef}
+                  key={currentMedia.url}
+                  src={videoInfo.embedUrl}
+                  className={videoInfo.type === "youtube" ? "w-full h-[calc(100%+96px)] -mt-12 pointer-events-none" : "w-full h-full pointer-events-none"}
+                  allow="autoplay; encrypted-media"
+                  allowFullScreen
+                  frameBorder="0"
+                  style={{ border: 0 }}
+                />
+              </div>
             )
           ) : currentMedia?.kind === "image" ? (
             <img src={currentMedia.url} alt={business.name} className="w-full h-full object-cover" />
