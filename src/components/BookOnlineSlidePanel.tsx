@@ -479,7 +479,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                 {/* Card 2: Contact */}
                 {(business.phone || business.whatsapp || business.email || business.website || business.address) && (
                   <div className="snap-start shrink-0 w-[85%] md:w-[48%] rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white max-h-[18em] overflow-y-auto">
-                    <p className="text-[10px] font-semibold text-white/50 uppercase tracking-wider mb-2">Contact</p>
+                    {/* No title for contact card */}
                     <div className="space-y-2.5 text-sm">
                       {business.address && (
                         <div className="flex items-start gap-2">
