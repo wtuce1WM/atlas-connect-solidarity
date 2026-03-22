@@ -262,7 +262,6 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
     return { avgOn20: computed, totalReviewCount: total };
   }, [business]);
 
-  const hasTextCard = !!woDescription;
   const hasContactCard = !!(business?.phone || business?.whatsapp || business?.email || business?.website || business?.address);
   const hasReviewsCard = avgOn20 !== null && avgOn20 > 0;
 
