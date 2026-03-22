@@ -122,7 +122,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
   const [showInfoCard, setShowInfoCard] = useState(true);
   const [showBookingOverlay, setShowBookingOverlay] = useState(false);
   const [selectedDestinationId, setSelectedDestinationId] = useState<string | null>(null);
-  const [reviewTexts, setReviewTexts] = useState<{ source: string; author_name: string | null; rating: number | null; text: string | null }[]>([]);
+  
   const videoRef = useRef<HTMLVideoElement>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
