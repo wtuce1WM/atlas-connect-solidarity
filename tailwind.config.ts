@@ -120,8 +120,8 @@ export default {
           "100%": { transform: "translateX(0)" },
         },
         "slide-up-from-bottom": {
-          "0%": { transform: "translateY(100%)", opacity: "0" },
-          "100%": { transform: "translateY(0)", opacity: "1" },
+          "0%": { transform: "translateY(100%)" },
+          "100%": { transform: "translateY(0)" },
         },
         "fade-in": {
           "0%": { opacity: "0", transform: "translateY(10px)" },
