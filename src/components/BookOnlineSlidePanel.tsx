@@ -596,69 +596,66 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
             </div>
           )}
 
-          {/* Centered content block — same layout as WebOnlySlidePanel */}
-          <div className="flex-1 flex flex-col items-center overflow-x-visible overflow-y-hidden min-h-0 gap-3 pointer-events-auto mt-3 md:mt-0">
-            {/* Block 1: Logo + name — always visible */}
-            <div className="w-full md:w-[90%] shrink-0 rounded-2xl bg-black/40 backdrop-blur-sm px-4 md:px-6 text-white overflow-hidden relative h-[5.5rem]">
-              {/* Info view: Logo + name + city */}
+          {/* Block 1: Logo + name — always visible */}
+          <div className="w-full shrink-0 rounded-2xl bg-black/40 backdrop-blur-sm px-4 md:px-6 text-white overflow-hidden relative h-[5.5rem] pointer-events-auto mt-3 md:mt-0">
+            {/* Info view: Logo + name + city */}
+            <div
+              className="absolute inset-0 flex items-center gap-4 px-4 md:px-6 transition-all duration-500 ease-in-out"
+              style={{
+                opacity: showHook && hookText ? 0 : 1,
+                transform: showHook && hookText ? 'translateY(-8px)' : 'translateY(0)',
+                pointerEvents: showHook && hookText ? 'none' : 'auto',
+              }}
+            >
+              {business.logo_url && (
+                <div
+                  className="shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 border-white/20 shadow-lg hidden md:block"
+                  style={{ backgroundColor: business.logo_bg || "#fff" }}
+                >
+                  <img src={business.logo_url} alt="" className="w-full h-full object-contain p-1" />
+                </div>
+              )}
+              <div className="min-w-0 flex-1">
+                <h2 className="text-xl font-bold truncate drop-shadow-lg">{business.name}</h2>
+                {(business.city || business.neighborhood) ? (
+                  <p className="text-xs md:text-sm text-white/80 flex items-center gap-1 mt-0.5">
+                    <MapPin className="h-3.5 w-3.5" />
+                    {[business.city, business.neighborhood].filter(Boolean).join(", ")}
+                  </p>
+                ) : business.address ? (
+                  <p className="text-xs md:text-sm text-white/80 flex items-center gap-1 mt-0.5">
+                    <MapPin className="h-3.5 w-3.5" />
+                    {business.address}
+                  </p>
+                ) : null}
+              </div>
+            </div>
+            {/* Hook view */}
+            {hookText && (
               <div
-                className="absolute inset-0 flex items-center gap-4 px-4 md:px-6 transition-all duration-500 ease-in-out"
+                className="absolute inset-0 flex items-center justify-center px-6 transition-all duration-500 ease-in-out"
                 style={{
-                  opacity: showHook && hookText ? 0 : 1,
-                  transform: showHook && hookText ? 'translateY(-8px)' : 'translateY(0)',
-                  pointerEvents: showHook && hookText ? 'none' : 'auto',
+                  opacity: showHook ? 1 : 0,
+                  transform: showHook ? 'translateY(0)' : 'translateY(8px)',
+                  pointerEvents: showHook ? 'auto' : 'none',
                 }}
               >
-                {business.logo_url && (
-                  <div
-                    className="shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 border-white/20 shadow-lg hidden md:block"
-                    style={{ backgroundColor: business.logo_bg || "#fff" }}
-                  >
-                    <img src={business.logo_url} alt="" className="w-full h-full object-contain p-1" />
-                  </div>
-                )}
-                <div className="min-w-0 flex-1">
-                  <h2 className="text-xl font-bold truncate drop-shadow-lg">{business.name}</h2>
-                  {(business.city || business.neighborhood) ? (
-                    <p className="text-xs md:text-sm text-white/80 flex items-center gap-1 mt-0.5">
-                      <MapPin className="h-3.5 w-3.5" />
-                      {[business.city, business.neighborhood].filter(Boolean).join(", ")}
-                    </p>
-                  ) : business.address ? (
-                    <p className="text-xs md:text-sm text-white/80 flex items-center gap-1 mt-0.5">
-                      <MapPin className="h-3.5 w-3.5" />
-                      {business.address}
-                    </p>
-                  ) : null}
-                </div>
+                <p className="text-base md:text-lg text-white/90 italic text-center leading-relaxed md:pr-28 lg:pr-20">{hookText}</p>
               </div>
-              {/* Hook view */}
-              {hookText && (
-                <div
-                  className="absolute inset-0 flex items-center justify-center px-6 transition-all duration-500 ease-in-out"
-                  style={{
-                    opacity: showHook ? 1 : 0,
-                    transform: showHook ? 'translateY(0)' : 'translateY(8px)',
-                    pointerEvents: showHook ? 'auto' : 'none',
-                  }}
-                >
-                  <p className="text-base md:text-lg text-white/90 italic text-center leading-relaxed md:pr-28 lg:pr-20">{hookText}</p>
+            )}
+            {/* Rating — always visible, absolute right */}
+            {avgOn20 !== null && avgOn20 > 0 && (
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 shrink-0 hidden md:flex flex-col items-center ml-4 pl-4 border-l border-white/20">
+                <div className="flex items-center gap-1">
+                  <Star className="h-4 w-4 text-gold fill-gold" />
+                  <span className="text-lg font-bold text-white">{avgOn20}</span>
+                  <span className="text-xs text-white/60">/20</span>
                 </div>
-              )}
-              {/* Rating — always visible, absolute right */}
-              {avgOn20 !== null && avgOn20 > 0 && (
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 shrink-0 hidden md:flex flex-col items-center ml-4 pl-4 border-l border-white/20">
-                  <div className="flex items-center gap-1">
-                    <Star className="h-4 w-4 text-gold fill-gold" />
-                    <span className="text-lg font-bold text-white">{avgOn20}</span>
-                    <span className="text-xs text-white/60">/20</span>
-                  </div>
-                  {totalReviewCount > 0 && (
-                    <span className="text-[10px] text-white/60">{totalReviewCount.toLocaleString("fr-FR")} avis</span>
-                  )}
-                </div>
-              )}
-            </div>
+                {totalReviewCount > 0 && (
+                  <span className="text-[10px] text-white/60">{totalReviewCount.toLocaleString("fr-FR")} avis</span>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Info Carousel — above destinations */}
