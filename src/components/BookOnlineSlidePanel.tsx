@@ -961,7 +961,6 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                   </div>
                 )}
                 <div className="shrink-0 w-4" aria-hidden="true" />
-              </div>
             </div>
           </div>
 
