@@ -68,6 +68,8 @@ interface BookOnlineBusiness {
   tripadvisor_review_count: number | null;
   restaurant_guru_rating: number | null;
   restaurant_guru_review_count: number | null;
+  online_shop_force_external: boolean;
+  website_force_external: boolean;
 }
 
 interface WebOnlyData {
