@@ -422,12 +422,35 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
             setDragOffsetY(0);
             touchStartRef.current = null;
           }}
+          onMouseDown={(e) => {
+            touchStartRef.current = { y: e.clientY, time: Date.now() };
+            setIsDragging(true);
+            const onMove = (ev: MouseEvent) => {
+              if (!touchStartRef.current) return;
+              const dy = ev.clientY - touchStartRef.current.y;
+              setDragOffsetY(cardsHidden ? Math.min(0, dy) : Math.max(0, dy));
+            };
+            const onUp = () => {
+              setIsDragging(false);
+              setDragOffsetY((prev) => {
+                const threshold = 60;
+                if (cardsHidden) {
+                  if (prev < -threshold) setCardsHidden(false);
+                } else {
+                  if (prev > threshold) setCardsHidden(true);
+                }
+                return 0;
+              });
+              touchStartRef.current = null;
+              window.removeEventListener('mousemove', onMove);
+              window.removeEventListener('mouseup', onUp);
+            };
+            window.addEventListener('mousemove', onMove);
+            window.addEventListener('mouseup', onUp);
+          }}
         >
           {/* Drag handle — swipe or click to toggle cards */}
-          <div
-            className="flex justify-center mb-2 pointer-events-auto cursor-grab active:cursor-grabbing"
-            onClick={() => setCardsHidden(prev => !prev)}
-          >
+          <div className="flex justify-center mb-2 pointer-events-auto cursor-grab active:cursor-grabbing">
             <div className="w-10 h-1 rounded-full bg-white/40" />
           </div>
 
