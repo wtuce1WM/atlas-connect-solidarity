@@ -821,6 +821,7 @@ export type Database = {
           menu_url: string | null
           name: string
           neighborhood: string | null
+          online_shop_force_external: boolean
           online_shop_url: string | null
           opening_hours: Json | null
           other_booking_name: string | null
@@ -839,6 +840,7 @@ export type Database = {
           priority_score: number | null
           rating: number | null
           region: string | null
+          reserve_now_force_external: boolean
           reserve_now_url: string | null
           restaurant_guru_rating: number | null
           restaurant_guru_review_count: number | null
@@ -868,6 +870,7 @@ export type Database = {
           video_1_url: string | null
           vimeo_url: string | null
           website: string | null
+          website_force_external: boolean
           whatsapp: string | null
           wtuce_status: Database["public"]["Enums"]["wtuce_status"] | null
           youtube_url: string | null
@@ -946,6 +949,7 @@ export type Database = {
           menu_url?: string | null
           name: string
           neighborhood?: string | null
+          online_shop_force_external?: boolean
           online_shop_url?: string | null
           opening_hours?: Json | null
           other_booking_name?: string | null
@@ -964,6 +968,7 @@ export type Database = {
           priority_score?: number | null
           rating?: number | null
           region?: string | null
+          reserve_now_force_external?: boolean
           reserve_now_url?: string | null
           restaurant_guru_rating?: number | null
           restaurant_guru_review_count?: number | null
@@ -993,6 +998,7 @@ export type Database = {
           video_1_url?: string | null
           vimeo_url?: string | null
           website?: string | null
+          website_force_external?: boolean
           whatsapp?: string | null
           wtuce_status?: Database["public"]["Enums"]["wtuce_status"] | null
           youtube_url?: string | null
@@ -1071,6 +1077,7 @@ export type Database = {
           menu_url?: string | null
           name?: string
           neighborhood?: string | null
+          online_shop_force_external?: boolean
           online_shop_url?: string | null
           opening_hours?: Json | null
           other_booking_name?: string | null
@@ -1089,6 +1096,7 @@ export type Database = {
           priority_score?: number | null
           rating?: number | null
           region?: string | null
+          reserve_now_force_external?: boolean
           reserve_now_url?: string | null
           restaurant_guru_rating?: number | null
           restaurant_guru_review_count?: number | null
@@ -1118,6 +1126,7 @@ export type Database = {
           video_1_url?: string | null
           vimeo_url?: string | null
           website?: string | null
+          website_force_external?: boolean
           whatsapp?: string | null
           wtuce_status?: Database["public"]["Enums"]["wtuce_status"] | null
           youtube_url?: string | null
@@ -3431,6 +3440,7 @@ export type Database = {
               menu_url: string | null
               name: string
               neighborhood: string | null
+              online_shop_force_external: boolean
               online_shop_url: string | null
               opening_hours: Json | null
               other_booking_name: string | null
@@ -3449,6 +3459,7 @@ export type Database = {
               priority_score: number | null
               rating: number | null
               region: string | null
+              reserve_now_force_external: boolean
               reserve_now_url: string | null
               restaurant_guru_rating: number | null
               restaurant_guru_review_count: number | null
@@ -3478,6 +3489,7 @@ export type Database = {
               video_1_url: string | null
               vimeo_url: string | null
               website: string | null
+              website_force_external: boolean
               whatsapp: string | null
               wtuce_status: Database["public"]["Enums"]["wtuce_status"] | null
               youtube_url: string | null
@@ -3572,6 +3584,7 @@ export type Database = {
               menu_url: string | null
               name: string
               neighborhood: string | null
+              online_shop_force_external: boolean
               online_shop_url: string | null
               opening_hours: Json | null
               other_booking_name: string | null
@@ -3590,6 +3603,7 @@ export type Database = {
               priority_score: number | null
               rating: number | null
               region: string | null
+              reserve_now_force_external: boolean
               reserve_now_url: string | null
               restaurant_guru_rating: number | null
               restaurant_guru_review_count: number | null
@@ -3619,6 +3633,7 @@ export type Database = {
               video_1_url: string | null
               vimeo_url: string | null
               website: string | null
+              website_force_external: boolean
               whatsapp: string | null
               wtuce_status: Database["public"]["Enums"]["wtuce_status"] | null
               youtube_url: string | null

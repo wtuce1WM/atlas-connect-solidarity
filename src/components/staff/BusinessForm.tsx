@@ -576,6 +576,9 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     poi_hook: (business as any)?.poi_hook || "",
     poi_description: (business as any)?.poi_description || "",
     is_poi: (business as any)?.is_poi ?? false,
+    website_force_external: (business as any)?.website_force_external ?? false,
+    reserve_now_force_external: (business as any)?.reserve_now_force_external ?? false,
+    online_shop_force_external: (business as any)?.online_shop_force_external ?? false,
   });
 
   // --- Business documents (menus & flipbooks) ---
@@ -1142,6 +1145,9 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       poi_hook: (formData as any).poi_hook?.trim().slice(0, 120) || null,
       poi_description: (formData as any).poi_description?.trim().slice(0, 500) || null,
       is_poi: (formData as any).is_poi ?? false,
+      website_force_external: (formData as any).website_force_external ?? false,
+      reserve_now_force_external: (formData as any).reserve_now_force_external ?? false,
+      online_shop_force_external: (formData as any).online_shop_force_external ?? false,
     };
 
     try {
@@ -2259,12 +2265,20 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             </div>
           </div>
           <div className="space-y-2">
-            {formData.website ? (
-              <Label htmlFor="website_top"><a href={formData.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">Site web ↗</a></Label>
-            ) : (
-              <Label htmlFor="website_top">Site web</Label>
-            )}
             <div className="flex items-center gap-2">
+              {formData.website ? (
+                <Label htmlFor="website_top"><a href={formData.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">Site web ↗</a></Label>
+              ) : (
+                <Label htmlFor="website_top">Site web</Label>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <Switch
+                checked={(formData as any).website_force_external}
+                onCheckedChange={(checked) => handleChange("website_force_external", checked)}
+                title="Ouvrir en lien externe"
+                className="shrink-0"
+              />
               <Input
                 id="website_top"
                 value={formData.website}
@@ -2278,6 +2292,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 </Button>
               )}
             </div>
+            {(formData as any).website_force_external && <span className="text-xs text-orange-600">⚡ Lien externe activé</span>}
             <BrokenUrlBadge url={formData.website} />
             {formData.website && (
               <button
@@ -2302,6 +2317,12 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               <Label htmlFor="reserve_now_url_top">Lien "Réserver maintenant"</Label>
             )}
             <div className="flex items-center gap-2">
+              <Switch
+                checked={(formData as any).reserve_now_force_external}
+                onCheckedChange={(checked) => handleChange("reserve_now_force_external", checked)}
+                title="Ouvrir en lien externe"
+                className="shrink-0"
+              />
               <Input
                 id="reserve_now_url_top"
                 value={formData.reserve_now_url}
@@ -2315,6 +2336,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 </Button>
               )}
             </div>
+            {(formData as any).reserve_now_force_external && <span className="text-xs text-orange-600">⚡ Lien externe activé</span>}
             <BrokenUrlBadge url={formData.reserve_now_url} />
           </div>
 
@@ -2325,6 +2347,12 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               <Label htmlFor="online_shop_url_top">Boutique en ligne</Label>
             )}
             <div className="flex items-center gap-2">
+              <Switch
+                checked={(formData as any).online_shop_force_external}
+                onCheckedChange={(checked) => handleChange("online_shop_force_external", checked)}
+                title="Ouvrir en lien externe"
+                className="shrink-0"
+              />
               <Input
                 id="online_shop_url_top"
                 value={formData.online_shop_url}
@@ -2338,6 +2366,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 </Button>
               )}
             </div>
+            {(formData as any).online_shop_force_external && <span className="text-xs text-orange-600">⚡ Lien externe activé</span>}
             <BrokenUrlBadge url={formData.online_shop_url} />
           </div>
         </div>
