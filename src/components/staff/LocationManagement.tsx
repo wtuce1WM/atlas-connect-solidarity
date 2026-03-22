@@ -853,6 +853,7 @@ const LocationManagement = () => {
       is_searchable: destinationForm.is_searchable,
       images: destinationForm.images.length > 0 ? destinationForm.images : [],
       internal_notes: destinationForm.internal_notes.trim().slice(0, 5000) || null,
+      videos: destinationForm.videos.length > 0 ? destinationForm.videos : [],
     };
     let error;
     if (editingDestination) {
