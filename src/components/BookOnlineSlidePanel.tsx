@@ -210,6 +210,30 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
       } else {
         setDestinations([]);
       }
+
+      // Fetch review texts for flip card
+      const langCode = language === "en" ? "en" : language === "ar" ? "ar" : "fr";
+      const { data: langReviews } = await supabase
+        .from("reviews" as any)
+        .select("source, author_name, rating, text")
+        .eq("business_id", businessId)
+        .eq("language", langCode)
+        .not("text", "is", null)
+        .order("rating", { ascending: false })
+        .limit(3);
+      if (langReviews && langReviews.length >= 2) {
+        setReviewTexts(langReviews as any[]);
+      } else {
+        const { data: allReviews } = await supabase
+          .from("reviews" as any)
+          .select("source, author_name, rating, text")
+          .eq("business_id", businessId)
+          .not("text", "is", null)
+          .order("rating", { ascending: false })
+          .limit(3);
+        setReviewTexts(allReviews ? (allReviews as any[]) : []);
+      }
+
       setIsLoading(false);
     };
     fetchData();
