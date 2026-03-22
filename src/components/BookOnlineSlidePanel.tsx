@@ -336,16 +336,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
           </>
         )}
 
-        {/* Languages floating right — upper half */}
-        {languages.length > 0 && (
-          <div className="absolute right-1 top-1/2 -translate-y-1/2 md:right-3 md:top-[15%] md:translate-y-0 z-20 flex flex-col items-center gap-1.5 bg-black/40 backdrop-blur-sm rounded-full py-2 px-1.5">
-            {languages.map((lang, i) => (
-              <span key={i} className="text-base leading-none" title={lang}>
-                {getLangFlag(lang)}
-              </span>
-            ))}
-          </div>
-        )}
+        {/* Languages + media counter — top left */}
 
         {/* Overlaid content */}
         <div className={`relative z-10 flex flex-col ${currentMedia?.kind === "video" ? "h-[calc(100%-3.5rem)] pointer-events-none" : "h-full"} p-4 md:p-6`}>
@@ -362,20 +353,33 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
               )}
             </div>
           )}
-          {/* Media counter + arrows on mobile */}
-          {totalMedia > 1 && (
-            <div className="flex items-center justify-center gap-3 pb-4 pointer-events-auto">
-              <button onClick={() => goMedia(-1)} className="md:hidden w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Previous">
-                <ChevronLeft className="h-4 w-4" />
-              </button>
-              <span className="text-white/80 text-xs font-medium bg-black/30 rounded-full px-3 py-1">
-                {safeIndex + 1} / {totalMedia}
-              </span>
-              <button onClick={() => goMedia(1)} className="md:hidden w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Next">
-                <ChevronRight className="h-4 w-4" />
-              </button>
-            </div>
-          )}
+          {/* Media counter + language flags — top row */}
+          <div className="flex items-center gap-2 pb-4 pointer-events-auto">
+            {/* Language flags */}
+            {languages.length > 0 && (
+              <div className="flex items-center gap-1 bg-black/40 backdrop-blur-sm rounded-full py-1 px-2">
+                {languages.map((lang, i) => (
+                  <span key={i} className="text-sm leading-none" title={lang}>
+                    {getLangFlag(lang)}
+                  </span>
+                ))}
+              </div>
+            )}
+            {/* Media counter + arrows */}
+            {totalMedia > 1 && (
+              <>
+                <button onClick={() => goMedia(-1)} className="md:hidden w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Previous">
+                  <ChevronLeft className="h-4 w-4" />
+                </button>
+                <span className="text-white/80 text-xs font-medium bg-black/30 rounded-full px-3 py-1">
+                  {safeIndex + 1} / {totalMedia}
+                </span>
+                <button onClick={() => goMedia(1)} className="md:hidden w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors" aria-label="Next">
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+              </>
+            )}
+          </div>
 
           {/* Centered content block — same layout as WebOnlySlidePanel */}
           <div className="flex-1 flex flex-col items-center overflow-hidden min-h-0 gap-3 pointer-events-auto">
