@@ -587,7 +587,29 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                         })()}
                         {reviewTexts.length > 0 && (
                           <button
-                            onClick={() => setReviewsFlipped(true)}
+                            onClick={async () => {
+                              setReviewsFlipped(true);
+                              // Translate if needed
+                              const targetLang = language === "en" ? "en" : language === "ar" ? "ar" : "fr";
+                              const needsTranslation = reviewTexts.some(r => r.language && r.language !== targetLang);
+                              if (needsTranslation && !translatedReviewTexts) {
+                                setIsTranslating(true);
+                                try {
+                                  const { data, error } = await supabase.functions.invoke("translate-reviews", {
+                                    body: {
+                                      reviews: reviewTexts.filter(r => r.text).map(r => ({ text: r.text })),
+                                      targetLanguage: targetLang,
+                                    },
+                                  });
+                                  if (!error && data?.translations?.length) {
+                                    setTranslatedReviewTexts(data.translations);
+                                  }
+                                } catch (e) {
+                                  console.error("Translation error:", e);
+                                }
+                                setIsTranslating(false);
+                              }
+                            }}
                             className="mt-3 w-full text-center text-xs text-gold hover:text-white transition-colors uppercase tracking-wider font-semibold py-1.5 border-t border-white/10"
                           >
                             <MessageCircle className="h-3 w-3 inline mr-1" />
@@ -612,22 +634,46 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                             ← {language === "en" ? "Back" : "Retour"}
                           </button>
                         </div>
-                        <div className="space-y-3">
-                          {reviewTexts.slice(0, 3).map((review, i) => (
-                            <div key={i} className="border-t border-white/10 pt-2">
-                              <div className="flex items-center gap-1.5 mb-1">
-                                <MessageCircle className="h-3 w-3 text-white/40" />
-                                <span className="text-xs font-medium text-white/70">{review.author_name || review.source}</span>
-                                {review.rating && (
-                                  <span className="text-xs text-gold ml-auto">{"★".repeat(Math.round(review.rating))}</span>
-                                )}
+                        {isTranslating ? (
+                          <div className="space-y-3">
+                            {[1, 2, 3].map(i => (
+                              <div key={i} className="border-t border-white/10 pt-2 space-y-1">
+                                <Skeleton className="h-3 w-24 bg-white/10" />
+                                <Skeleton className="h-3 w-full bg-white/10" />
+                                <Skeleton className="h-3 w-3/4 bg-white/10" />
                               </div>
-                              {review.text && (
-                                <p className="text-xs text-white/70 line-clamp-4">{review.text}</p>
-                              )}
-                            </div>
-                          ))}
-                        </div>
+                            ))}
+                            <p className="text-[10px] text-white/40 text-center mt-2">
+                              {language === "en" ? "Translating…" : "Traduction en cours…"}
+                            </p>
+                          </div>
+                        ) : (
+                          <div className="space-y-3">
+                            {reviewTexts.slice(0, 3).map((review, i) => {
+                              const displayText = translatedReviewTexts?.[i] || review.text;
+                              const wasTranslated = translatedReviewTexts?.[i] && translatedReviewTexts[i] !== review.text;
+                              return (
+                                <div key={i} className="border-t border-white/10 pt-2">
+                                  <div className="flex items-center gap-1.5 mb-1">
+                                    <MessageCircle className="h-3 w-3 text-white/40" />
+                                    <span className="text-xs font-medium text-white/70">{review.author_name || review.source}</span>
+                                    {review.rating && (
+                                      <span className="text-xs text-gold ml-auto">{"★".repeat(Math.round(review.rating))}</span>
+                                    )}
+                                  </div>
+                                  {displayText && (
+                                    <p className="text-xs text-white/70 line-clamp-4">{displayText}</p>
+                                  )}
+                                  {wasTranslated && (
+                                    <p className="text-[9px] text-white/30 mt-0.5 italic">
+                                      {language === "en" ? "Translated" : "Traduit"}
+                                    </p>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
