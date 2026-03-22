@@ -321,13 +321,13 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
           {totalMedia > 0 && (
             <button
               onClick={() => { setLightboxIndex(0); setIsLightboxOpen(true); }}
-              className="toolbar-icon shrink-0 text-white/80 hover:text-white transition-colors"
+              className="h-9 w-9 flex items-center justify-center rounded-full bg-foreground/80 text-background shadow-md hover:bg-foreground transition-colors"
               title="Voir tous les médias"
             >
-              <Maximize2 className="h-5 w-5" />
+              <Maximize2 className="h-4 w-4" />
             </button>
           )}
-          <ShareButton title={business.name} variant="dark" className="toolbar-icon shrink-0" />
+          <ShareButton title={business.name} variant="dark" className="shrink-0" />
         </div>,
         toolbarPortal
       )}
