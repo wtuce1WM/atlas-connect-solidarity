@@ -962,8 +962,12 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                   </div>
                 )}
                 <div className="shrink-0 w-4" aria-hidden="true" />
-                </div>
-              </div>
+            </div>
+          </div>
+
+          {/* Destinations horizontal scroll */}
+          {destinations.length > 0 && (
+            <div className="shrink-0 mt-3 pointer-events-auto">
               <p className="text-xs font-medium text-white/90 px-4 mb-1.5 rounded-lg mx-4 py-1.5 bg-black/40 backdrop-blur-sm border border-white/10 inline-block">
                 {business.name} vous emmène à :
               </p>
