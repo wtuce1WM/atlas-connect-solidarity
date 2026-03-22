@@ -73,16 +73,16 @@ const DestinationSlidePanel = ({ destinationId, onClose }: DestinationSlidePanel
     setCurrentMediaIndex((prev) => (prev + dir + totalMedia) % totalMedia);
   }, [totalMedia]);
 
-  const getVideoEmbed = (url: string) => {
+  const getVideoInfo = (url: string) => {
     const ytMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
     if (ytMatch) {
-      return { type: "youtube" as const, embedUrl: `https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&mute=1&loop=1&playlist=${ytMatch[1]}&rel=0&controls=1&modestbranding=1` };
+      return { type: "youtube" as const, id: ytMatch[1], thumbnail: `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg` };
     }
     const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
     if (vimeoMatch) {
-      return { type: "vimeo" as const, embedUrl: `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1&muted=1&loop=1` };
+      return { type: "vimeo" as const, id: vimeoMatch[1], thumbnail: `https://vumbnail.com/${vimeoMatch[1]}.jpg` };
     }
-    return { type: "file" as const, embedUrl: url };
+    return { type: "file" as const, id: null, thumbnail: null };
   };
 
   if (isLoading) {
@@ -208,7 +208,7 @@ const DestinationSlidePanel = ({ destinationId, onClose }: DestinationSlidePanel
             <div className="shrink-0 mt-3">
               <div className="flex gap-2 overflow-x-auto px-4 pb-1 scrollbar-hide">
                 {videos.map((videoUrl, index) => {
-                  const embed = getVideoEmbed(videoUrl);
+                  const info = getVideoInfo(videoUrl);
                   return (
                     <div
                       key={index}
@@ -218,16 +218,25 @@ const DestinationSlidePanel = ({ destinationId, onClose }: DestinationSlidePanel
                         window.open(videoUrl, "_blank");
                       }}
                     >
-                      {embed.type === "file" ? (
+                      {info.thumbnail ? (
+                        <div className="relative w-full h-24">
+                          <img src={info.thumbnail} alt={`Vidéo ${index + 1}`} className="w-full h-full object-cover" />
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                            <div className="w-10 h-10 rounded-full bg-black/50 flex items-center justify-center">
+                              <span className="text-white text-lg">▶</span>
+                            </div>
+                          </div>
+                        </div>
+                      ) : info.type === "file" ? (
                         <video
-                          src={embed.embedUrl}
+                          src={videoUrl}
                           className="w-full h-24 object-cover"
                           muted
                           playsInline
                           preload="metadata"
                         />
                       ) : (
-                        <div className="w-full h-24 bg-white/10 flex items-center justify-center relative">
+                        <div className="w-full h-24 bg-white/10 flex items-center justify-center">
                           <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
                             <span className="text-white text-lg">▶</span>
                           </div>
