@@ -89,7 +89,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
 
   if (isLoading) {
     return (
-      <div className="absolute inset-0 z-[70] bg-black flex items-center justify-center animate-slide-in-right">
+      <div className={`absolute inset-0 z-[70] bg-black flex items-center justify-center ${slideAnim}`}>
         <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin" />
       </div>
     );
