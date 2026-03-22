@@ -580,7 +580,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
           {/* Centered content block — same layout as WebOnlySlidePanel */}
           <div className="flex-1 flex flex-col items-center overflow-hidden min-h-0 gap-3 pointer-events-auto mt-3 md:mt-0">
             {/* Block 1: Logo + name — always visible */}
-            <div className="w-[95%] md:w-[90%] shrink-0 rounded-2xl bg-black/40 backdrop-blur-sm px-4 md:px-6 text-white overflow-hidden relative h-[5.5rem]">
+            <div className="w-full md:w-[90%] shrink-0 rounded-2xl bg-black/40 backdrop-blur-sm px-4 md:px-6 text-white overflow-hidden relative h-[5.5rem]">
               {/* Info view: Logo + name + city */}
               <div
                 className="absolute inset-0 flex items-center gap-4 px-4 md:px-6 transition-all duration-500 ease-in-out"
