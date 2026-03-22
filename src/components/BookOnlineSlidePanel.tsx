@@ -556,7 +556,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                 {/* Card 3: Avis Clients */}
                 {(avgOn20 !== null && avgOn20 > 0) && (
                   <div className="snap-start shrink-0 w-[85%] md:w-[48%] rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white max-h-[18em] overflow-y-auto">
-                    <p className="text-[10px] font-semibold text-white/50 uppercase tracking-wider mb-2">
+                    <p className="text-[10px] font-semibold text-primary uppercase tracking-wider mb-2">
                       {language === "en" ? "Reviews" : "Avis clients"}
                     </p>
                     <div className="flex items-center gap-2 mb-3">
