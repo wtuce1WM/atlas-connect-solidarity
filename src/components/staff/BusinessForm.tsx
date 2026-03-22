@@ -2317,6 +2317,12 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               <Label htmlFor="reserve_now_url_top">Lien "Réserver maintenant"</Label>
             )}
             <div className="flex items-center gap-2">
+              <Switch
+                checked={(formData as any).reserve_now_force_external}
+                onCheckedChange={(checked) => handleChange("reserve_now_force_external", checked)}
+                title="Ouvrir en lien externe"
+                className="shrink-0"
+              />
               <Input
                 id="reserve_now_url_top"
                 value={formData.reserve_now_url}
@@ -2330,6 +2336,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 </Button>
               )}
             </div>
+            {(formData as any).reserve_now_force_external && <span className="text-xs text-orange-600">⚡ Lien externe activé</span>}
             <BrokenUrlBadge url={formData.reserve_now_url} />
           </div>
 
