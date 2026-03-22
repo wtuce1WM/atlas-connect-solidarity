@@ -194,7 +194,13 @@ Deno.serve(async (req) => {
     const weightedSum = allActivities.reduce((sum, a) => sum + a.rating * a.review_count, 0);
     const weightedAvg = Math.round((weightedSum / totalReviews) * 100) / 100;
 
+    const topCounts = [...allActivities]
+      .sort((a, b) => b.review_count - a.review_count)
+      .slice(0, 8)
+      .map((a) => ({ title: a.title, rating: a.rating, review_count: a.review_count }));
+
     console.log(`FINAL: ${allActivities.length} activities, ${totalReviews} total reviews, weighted avg ${weightedAvg}/5`);
+    console.log(`TOP_COUNTS: ${JSON.stringify(topCounts)}`);
 
     const extract = {
       rating: weightedAvg,
