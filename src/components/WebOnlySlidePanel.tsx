@@ -267,10 +267,9 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
           )}
 
           {/* Centered content block */}
-          <div className="flex-1 flex items-start justify-center overflow-hidden min-h-0">
-            <div className="w-[95%] md:w-[90%] lg:w-[70%] max-h-full overflow-hidden rounded-2xl bg-black/40 backdrop-blur-sm p-4 md:p-6 flex flex-col gap-5 text-white pointer-events-auto">
-              {/* Logo + name + toggle */}
-              <div className="flex items-end gap-4">
+          <div className="flex-1 flex flex-col items-center overflow-hidden min-h-0 gap-3">
+              {/* Logo + name — always visible */}
+              <div className="w-[95%] md:w-[90%] lg:w-[70%] rounded-2xl bg-black/40 backdrop-blur-sm px-4 py-3 md:px-6 md:py-4 flex items-end gap-4 text-white pointer-events-auto shrink-0">
                 {business.logo_url && (
                   <div
                     className="shrink-0 w-14 h-14 rounded-xl overflow-hidden border-2 border-white/20 shadow-lg"
@@ -306,52 +305,53 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
 
               {/* Web only description + opening hours — collapsible */}
               {hasExpandableContent && descExpanded && (
-                <div className="flex-1 min-h-0 overflow-y-auto pr-1 text-sm leading-relaxed">
-                  {woDescription && (
-                    <div
-                      className="prose prose-invert prose-sm max-w-none break-words [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:text-[#C04F17]"
-                      dangerouslySetInnerHTML={{ __html: woDescription }}
-                    />
-                  )}
-                  {hasOpeningHours && business && (
-                    <div className={`${woDescription ? 'mt-4 pt-4 border-t border-white/20' : ''}`}>
-                      <p className="text-xs font-semibold text-white/60 uppercase tracking-wider mb-2">
-                        {language === "en" ? "Opening hours" : "Horaires"}
-                      </p>
-                      {business.is_open_24h ? (
-                        <p className="text-white/80">Ouvert 24h/24</p>
-                      ) : business.opening_hours ? (
-                        <div className="space-y-0.5">
-                          {(() => {
-                            const dayOrder = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
-                            const dayNames: Record<string, string> = { monday: "Lun", tuesday: "Mar", wednesday: "Mer", thursday: "Jeu", friday: "Ven", saturday: "Sam", sunday: "Dim" };
-                            const displayOrder = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
-                            const hours = business.opening_hours as Record<string, any>;
-                            const now = new Date();
-                            const todayKey = dayOrder[now.getDay()];
-                            return displayOrder.map(day => {
-                              const dh = hours[day];
-                              if (!dh) return null;
-                              const isToday = day === todayKey;
-                              return (
-                                <div key={day} className={`flex gap-3 text-sm ${isToday ? 'font-bold' : ''}`}>
-                                  <span className={`font-medium ${isToday ? 'text-white' : 'text-white/70'}`}>
-                                    {dayNames[day]}{isToday ? ' ●' : ''}
-                                  </span>
-                                  <span className="text-white/80">
-                                    {formatDayHoursDisplay(dh, { language })}
-                                  </span>
-                                </div>
-                              );
-                            });
-                          })()}
-                        </div>
-                      ) : null}
-                    </div>
-                  )}
+                <div className="w-[95%] md:w-[90%] lg:w-[70%] max-h-[40%] overflow-y-auto rounded-2xl bg-black/40 backdrop-blur-sm p-4 md:p-6 text-white pointer-events-auto">
+                  <div className="text-sm leading-relaxed pr-1">
+                    {woDescription && (
+                      <div
+                        className="prose prose-invert prose-sm max-w-none break-words [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white [&_ul]:list-disc [&_li::marker]:text-[#C04F17]"
+                        dangerouslySetInnerHTML={{ __html: woDescription }}
+                      />
+                    )}
+                    {hasOpeningHours && business && (
+                      <div className={`${woDescription ? 'mt-4 pt-4 border-t border-white/20' : ''}`}>
+                        <p className="text-xs font-semibold text-white/60 uppercase tracking-wider mb-2">
+                          {language === "en" ? "Opening hours" : "Horaires"}
+                        </p>
+                        {business.is_open_24h ? (
+                          <p className="text-white/80">Ouvert 24h/24</p>
+                        ) : business.opening_hours ? (
+                          <div className="space-y-0.5">
+                            {(() => {
+                              const dayOrder = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+                              const dayNames: Record<string, string> = { monday: "Lun", tuesday: "Mar", wednesday: "Mer", thursday: "Jeu", friday: "Ven", saturday: "Sam", sunday: "Dim" };
+                              const displayOrder = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+                              const hours = business.opening_hours as Record<string, any>;
+                              const now = new Date();
+                              const todayKey = dayOrder[now.getDay()];
+                              return displayOrder.map(day => {
+                                const dh = hours[day];
+                                if (!dh) return null;
+                                const isToday = day === todayKey;
+                                return (
+                                  <div key={day} className={`flex gap-3 text-sm ${isToday ? 'font-bold' : ''}`}>
+                                    <span className={`font-medium ${isToday ? 'text-white' : 'text-white/70'}`}>
+                                      {dayNames[day]}{isToday ? ' ●' : ''}
+                                    </span>
+                                    <span className="text-white/80">
+                                      {formatDayHoursDisplay(dh, { language })}
+                                    </span>
+                                  </div>
+                                );
+                              });
+                            })()}
+                          </div>
+                        ) : null}
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
-            </div>
           </div>
 
           {/* CTAs: right below the text block */}
