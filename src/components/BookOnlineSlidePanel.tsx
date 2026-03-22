@@ -409,7 +409,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
         {/* Languages + media counter — top left */}
 
         {cardsHidden && (
-          <div className="absolute top-16 left-1/2 -translate-x-1/2 z-30 pointer-events-auto">
+          <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-30 pointer-events-auto">
             <button
               type="button"
               className="inline-flex items-center gap-2 rounded-full border border-border bg-background/85 px-3 py-1.5 text-foreground shadow-lg backdrop-blur-sm hover:bg-background transition-colors"
@@ -435,7 +435,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
             transform: isDragging
               ? `translateY(${dragOffsetY}px)`
               : cardsHidden
-                ? 'translateY(calc(100% - 3rem))'
+                ? 'translateY(100%)'
                 : 'translateY(0)',
             transition: isDragging ? 'none' : 'transform 0.35s cubic-bezier(.4,0,.2,1)',
           }}
