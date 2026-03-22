@@ -244,7 +244,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
       <div className="relative w-full h-full">
         {/* Media background */}
         <div className="absolute inset-0">
-          {currentMedia?.kind === "video" && videoInfo && !showDirections ? (
+          {currentMedia?.kind === "video" && videoInfo && !showDirections && !selectedDestinationId ? (
             videoInfo.type === "file" ? (
               <video key={currentMedia.url} src={videoInfo.embedUrl} autoPlay loop playsInline controls className="w-full h-full object-contain bg-black" />
             ) : (
