@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
 import { ExternalLink, MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Info, CalendarCheck } from "lucide-react";
+import { formatDayHours as formatDayHoursDisplay } from "@/lib/formatOpeningHours";
 import { supabase } from "@/integrations/supabase/client";
 import MapBusinessInfoCard from "@/components/MapBusinessInfoCard";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -195,6 +196,8 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
   const woImages = webOnlyData?.images?.filter(Boolean) || [];
   const images = woImages.length > 0 ? woImages : (business?.images?.filter(Boolean) || []);
   const woDescription = webOnlyData?.description || null;
+  const hasOpeningHours = business?.show_opening_hours !== false && (business?.is_open_24h || business?.opening_hours);
+  const hasExpandableContent = !!(woDescription || hasOpeningHours);
   const languages = business?.languages?.filter(Boolean) || [];
 
   type MediaItem = { kind: "video"; url: string } | { kind: "image"; url: string };
@@ -341,14 +344,19 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                 )}
                 <div className="min-w-0 flex-1">
                   <h2 className="text-xl font-bold truncate drop-shadow-lg">{business.name}</h2>
-                  {business.city && (
+                  {(business.city || business.neighborhood) ? (
                     <p className="text-xs md:text-sm text-white/80 flex items-center gap-1 mt-0.5">
                       <MapPin className="h-3.5 w-3.5" />
                       {[business.city, business.neighborhood].filter(Boolean).join(", ")}
                     </p>
-                  )}
+                  ) : business.address ? (
+                    <p className="text-xs md:text-sm text-white/80 flex items-center gap-1 mt-0.5">
+                      <MapPin className="h-3.5 w-3.5" />
+                      {business.address}
+                    </p>
+                  ) : null}
                 </div>
-                {woDescription && (
+                {hasExpandableContent && (
                   <button
                     onClick={() => setDescExpanded((p) => !p)}
                     className="shrink-0 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
@@ -359,12 +367,52 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                 )}
               </div>
 
-              {/* Description — collapsible */}
-              {woDescription && descExpanded && (
-                <div
-                  className="min-h-0 max-h-[280px] md:max-h-[480px] overflow-y-auto pr-1 text-sm leading-relaxed prose prose-invert prose-sm max-w-none break-words [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white"
-                  dangerouslySetInnerHTML={{ __html: woDescription }}
-                />
+              {/* Description + opening hours — collapsible */}
+              {hasExpandableContent && descExpanded && (
+                <div className="min-h-0 max-h-[280px] md:max-h-[480px] overflow-y-auto pr-1 text-sm leading-relaxed">
+                  {woDescription && (
+                    <div
+                      className="prose prose-invert prose-sm max-w-none break-words [&_*]:!text-white [&_a]:!text-white/90 [&_a:hover]:!text-white"
+                      dangerouslySetInnerHTML={{ __html: woDescription }}
+                    />
+                  )}
+                  {hasOpeningHours && business && (
+                    <div className={`${woDescription ? 'mt-4 pt-4 border-t border-white/20' : ''}`}>
+                      <p className="text-xs font-semibold text-white/60 uppercase tracking-wider mb-2">
+                        {language === "en" ? "Opening hours" : "Horaires"}
+                      </p>
+                      {business.is_open_24h ? (
+                        <p className="text-white/80">Ouvert 24h/24</p>
+                      ) : business.opening_hours ? (
+                        <div className="space-y-0.5">
+                          {(() => {
+                            const dayOrder = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+                            const dayNames: Record<string, string> = { monday: "Lun", tuesday: "Mar", wednesday: "Mer", thursday: "Jeu", friday: "Ven", saturday: "Sam", sunday: "Dim" };
+                            const displayOrder = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+                            const hours = business.opening_hours as Record<string, any>;
+                            const now = new Date();
+                            const todayKey = dayOrder[now.getDay()];
+                            return displayOrder.map(day => {
+                              const dh = hours[day];
+                              if (!dh) return null;
+                              const isToday = day === todayKey;
+                              return (
+                                <div key={day} className={`flex gap-3 text-sm ${isToday ? 'font-bold' : ''}`}>
+                                  <span className={`font-medium ${isToday ? 'text-white' : 'text-white/70'}`}>
+                                    {dayNames[day]}{isToday ? ' ●' : ''}
+                                  </span>
+                                  <span className="text-white/80">
+                                    {formatDayHoursDisplay(dh, { language })}
+                                  </span>
+                                </div>
+                              );
+                            });
+                          })()}
+                        </div>
+                      ) : null}
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           </div>
