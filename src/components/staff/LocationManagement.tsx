@@ -813,6 +813,7 @@ const LocationManagement = () => {
       is_searchable: (d as any).is_searchable ?? false,
       images: (d as any).images || [],
       internal_notes: d.internal_notes || "",
+      videos: d.videos || [],
     });
     setShowDestinationForm(true);
     setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 0);
