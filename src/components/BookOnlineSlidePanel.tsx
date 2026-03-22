@@ -388,6 +388,26 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
 
         {/* Languages + media counter — top left */}
 
+        {cardsHidden && (
+          <div className="absolute top-16 left-1/2 -translate-x-1/2 z-30 pointer-events-auto">
+            <button
+              type="button"
+              className="inline-flex items-center gap-2 rounded-full border border-border bg-background/85 px-3 py-1.5 text-foreground shadow-lg backdrop-blur-sm hover:bg-background transition-colors"
+              title="Afficher les cartes"
+              aria-label="Afficher les cartes"
+              onClick={() => {
+                cardsHiddenRef.current = false;
+                setCardsHidden(false);
+                setDragOffsetY(0);
+              }}
+            >
+              <ChevronUp className="h-3.5 w-3.5" />
+              <span className="text-[10px] font-semibold uppercase tracking-[0.08em]">Afficher</span>
+              <span className="h-1.5 w-8 rounded-full bg-foreground/60" />
+            </button>
+          </div>
+        )}
+
         {/* Overlaid content — swipeable */}
         <div
           className={`relative z-10 flex flex-col ${currentMedia?.kind === "video" ? "h-[calc(100%-3.5rem)] pointer-events-none" : "h-full"} p-4 md:p-6`}
@@ -425,71 +445,67 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
             touchStartRef.current = null;
           }}
         >
-          {/* Drag handle — swipe or click to toggle cards
-              When hidden, position in bottom-right corner so video controls stay accessible */}
-          <div className="flex justify-center mb-2 pointer-events-auto">
-            <button
-              type="button"
-              className="inline-flex items-center gap-2 rounded-full border border-border bg-background/85 px-3 py-1.5 text-foreground shadow-lg backdrop-blur-sm cursor-grab active:cursor-grabbing select-none hover:bg-background transition-colors"
-              title={cardsHidden ? "Afficher les cartes" : "Masquer les cartes"}
-              aria-label={cardsHidden ? "Afficher les cartes" : "Masquer les cartes"}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
+          {!cardsHidden && (
+            <div className="flex justify-center mb-2 pointer-events-auto">
+              <button
+                type="button"
+                className="inline-flex items-center gap-2 rounded-full border border-border bg-background/85 px-3 py-1.5 text-foreground shadow-lg backdrop-blur-sm cursor-grab active:cursor-grabbing select-none hover:bg-background transition-colors"
+                title="Masquer les cartes"
+                aria-label="Masquer les cartes"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    cardsHiddenRef.current = true;
+                    setCardsHidden(true);
+                    setDragOffsetY(0);
+                  }
+                }}
+                onMouseDown={(e) => {
                   e.preventDefault();
-                  const next = !cardsHiddenRef.current;
-                  cardsHiddenRef.current = next;
-                  setCardsHidden(next);
-                  setDragOffsetY(0);
-                }
-              }}
-            onMouseDown={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              touchStartRef.current = { y: e.clientY, time: Date.now() };
-              setIsDragging(true);
-              let moved = false;
-              const onMove = (ev: MouseEvent) => {
-                if (!touchStartRef.current) return;
-                moved = true;
-                const dy = ev.clientY - touchStartRef.current.y;
-                setDragOffsetY(cardsHiddenRef.current ? Math.min(0, dy) : Math.max(0, dy));
-              };
-              const onUp = () => {
-                setIsDragging(false);
-                if (!moved) {
-                  const next = !cardsHiddenRef.current;
-                  cardsHiddenRef.current = next;
-                  setCardsHidden(next);
-                  setDragOffsetY(0);
-                } else {
-                  setDragOffsetY((prev) => {
-                    const threshold = 60;
-                    const hidden = cardsHiddenRef.current;
-                    if (hidden && prev < -threshold) {
-                      cardsHiddenRef.current = false;
-                      setCardsHidden(false);
-                    } else if (!hidden && prev > threshold) {
+                  e.stopPropagation();
+                  touchStartRef.current = { y: e.clientY, time: Date.now() };
+                  setIsDragging(true);
+                  let moved = false;
+                  const onMove = (ev: MouseEvent) => {
+                    if (!touchStartRef.current) return;
+                    moved = true;
+                    const dy = ev.clientY - touchStartRef.current.y;
+                    setDragOffsetY(cardsHiddenRef.current ? Math.min(0, dy) : Math.max(0, dy));
+                  };
+                  const onUp = () => {
+                    setIsDragging(false);
+                    if (!moved) {
                       cardsHiddenRef.current = true;
                       setCardsHidden(true);
+                      setDragOffsetY(0);
+                    } else {
+                      setDragOffsetY((prev) => {
+                        const threshold = 60;
+                        const hidden = cardsHiddenRef.current;
+                        if (hidden && prev < -threshold) {
+                          cardsHiddenRef.current = false;
+                          setCardsHidden(false);
+                        } else if (!hidden && prev > threshold) {
+                          cardsHiddenRef.current = true;
+                          setCardsHidden(true);
+                        }
+                        return 0;
+                      });
                     }
-                    return 0;
-                  });
-                }
-                touchStartRef.current = null;
-                window.removeEventListener('mousemove', onMove);
-                window.removeEventListener('mouseup', onUp);
-              };
-              window.addEventListener('mousemove', onMove);
-              window.addEventListener('mouseup', onUp);
-            }}
-            >
-              {cardsHidden ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
-              <span className="text-[10px] font-semibold uppercase tracking-[0.08em]">
-                {cardsHidden ? "Afficher" : "Masquer"}
-              </span>
-              <span className="h-1.5 w-8 rounded-full bg-foreground/60" />
-            </button>
-          </div>
+                    touchStartRef.current = null;
+                    window.removeEventListener('mousemove', onMove);
+                    window.removeEventListener('mouseup', onUp);
+                  };
+                  window.addEventListener('mousemove', onMove);
+                  window.addEventListener('mouseup', onUp);
+                }}
+              >
+                <ChevronDown className="h-3.5 w-3.5" />
+                <span className="text-[10px] font-semibold uppercase tracking-[0.08em]">Masquer</span>
+                <span className="h-1.5 w-8 rounded-full bg-foreground/60" />
+              </button>
+            </div>
+          )}
 
           {/* Mobile-only floating rating badge — top right under toolbar */}
           {avgOn20 !== null && avgOn20 > 0 && (
