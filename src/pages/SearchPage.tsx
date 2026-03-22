@@ -739,7 +739,9 @@ const SearchPage = () => {
             });
             const shopUrl = (found as any).online_shop_url || (found as any).website;
             const hasReservation = hasEng("Réservation en ligne obligatoire");
-            setIsCompactPanelWebOnly(!!(( hasEng("Commandez en ligne et recevez votre colis chez vous") && shopUrl) || hasReservation));
+            const hasCommande = hasEng("Commandez en ligne et recevez votre colis chez vous") && shopUrl;
+            setIsCompactPanelBookOnline(!!hasReservation);
+            setIsCompactPanelWebOnly(!!(hasCommande && !hasReservation));
           } else {
             setIsCompactPanelWebOnly(false);
           }
