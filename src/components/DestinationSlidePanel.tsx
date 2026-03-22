@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Navigation } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
-import GoogleMapEmbed from "@/components/GoogleMapEmbed";
+
 
 interface DestinationSlidePanelProps {
   destinationId: string;
