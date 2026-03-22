@@ -980,9 +980,9 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                       onClick={() => setSelectedDestinationId(dest.id)}
                     >
                       {destImg ? (
-                        <img src={destImg} alt={destName(dest)} className="w-full h-50 object-cover" />
+                        <img src={destImg} alt={destName(dest)} className="w-full h-[12.5rem] object-cover" />
                       ) : (
-                        <div className="w-full h-50 bg-white/10 flex items-center justify-center">
+                        <div className="w-full h-[12.5rem] bg-white/10 flex items-center justify-center">
                           <MapPin className="h-5 w-5 text-white/40" />
                         </div>
                       )}
