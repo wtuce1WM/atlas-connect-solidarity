@@ -664,11 +664,6 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                                   {displayText && (
                                     <p className="text-xs text-white/70 line-clamp-4">{displayText}</p>
                                   )}
-                                  {wasTranslated && (
-                                    <p className="text-[9px] text-white/30 mt-0.5 italic">
-                                      {language === "en" ? "Translated" : "Traduit"}
-                                    </p>
-                                  )}
                                 </div>
                               );
                             })}
