@@ -31,6 +31,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
   const [descExpanded, setDescExpanded] = useState(true);
   const [showMap, setShowMap] = useState(false);
+  const [fullscreenVideo, setFullscreenVideo] = useState<string | null>(null);
 
   useEffect(() => {
     setCurrentMediaIndex(0);
