@@ -316,7 +316,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
               <div className="w-[95%] md:w-[90%] rounded-2xl bg-black/40 backdrop-blur-sm px-4 py-3 md:px-6 md:py-4 flex items-end gap-4 text-white pointer-events-auto shrink-0 overflow-hidden">
                 {business.logo_url && (
                   <div
-                    className="shrink-0 w-14 h-14 rounded-xl overflow-hidden border-2 border-white/20 shadow-lg"
+                    className="shrink-0 w-14 h-14 rounded-xl overflow-hidden border-2 border-white/20 shadow-lg hidden md:block"
                     style={{ backgroundColor: business.logo_bg || "#fff" }}
                   >
                     <img src={business.logo_url} alt="" className="w-full h-full object-contain p-1" />
