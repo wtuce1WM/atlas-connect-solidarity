@@ -409,7 +409,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
         {/* Languages + media counter — top left */}
 
         {cardsHidden && (
-          <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-30 pointer-events-auto">
+          <div className="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 z-30 pointer-events-auto">
             <button
               type="button"
               className="inline-flex items-center gap-2 rounded-full border border-border bg-background/85 px-3 py-1.5 text-foreground shadow-lg backdrop-blur-sm hover:bg-background transition-colors"
