@@ -958,6 +958,31 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
           {/* Destinations horizontal scroll */}
           {destinations.length > 0 && (
             <div className="shrink-0 mt-3 pointer-events-auto">
+              {/* Duplicated destinations carousel — above the label */}
+              <div className="w-[calc(100%+1rem)] -mr-4 md:w-[calc(100%+1.5rem)] md:-mr-6 flex gap-2 overflow-x-auto pl-4 pr-0 pb-1 scrollbar-hide mb-2">
+                {destinations.map((dest, index) => {
+                  const destImg = dest.images?.filter(Boolean)?.[0] || dest.image_url;
+                  return (
+                    <div
+                      key={dest.id}
+                      className="shrink-0 w-36 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer hover:border-white/30 transition-colors"
+                      style={{ animationDelay: `${index * 120}ms`, animationFillMode: 'forwards' }}
+                      onClick={() => setSelectedDestinationId(dest.id)}
+                    >
+                      {destImg ? (
+                        <img src={destImg} alt={destName(dest)} className="w-full h-24 object-cover" />
+                      ) : (
+                        <div className="w-full h-24 bg-white/10 flex items-center justify-center">
+                          <MapPin className="h-5 w-5 text-white/40" />
+                        </div>
+                      )}
+                      <p className="text-xs font-medium text-white text-center py-1.5 px-1 truncate">
+                        {destName(dest)}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
               <p className="text-xs font-medium text-white/90 px-4 mb-1.5 rounded-lg mx-4 py-1.5 bg-black/40 backdrop-blur-sm border border-white/10 inline-block">
                 {business.name} vous emmène à :
               </p>
