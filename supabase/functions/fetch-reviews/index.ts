@@ -58,6 +58,22 @@ function extractPlaceNameFromGoogleUrl(url: string | null): string | null {
   return null;
 }
 
+/**
+ * Extract Google Place reference ID from URL.
+ * Patterns: 16s/g/XXXXX (Knowledge Graph ID) or ftid 0x...:0x...
+ */
+function extractGooglePlaceRef(url: string | null): string | null {
+  if (!url) return null;
+  try {
+    // Decode URL first
+    const decoded = decodeURIComponent(url);
+    // Pattern: /g/XXXXX (Google KG ID)
+    const kgMatch = decoded.match(/16s(\/g\/[A-Za-z0-9_-]+)/);
+    if (kgMatch) return kgMatch[1];
+  } catch (_) { /* ignore */ }
+  return null;
+}
+
 async function fetchReviewsFromPlaceId(placeId: string, apiKey: string): Promise<ReviewText[]> {
   const reviewTexts: ReviewText[] = [];
   try {
