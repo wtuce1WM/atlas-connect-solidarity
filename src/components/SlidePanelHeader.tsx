@@ -40,6 +40,7 @@ const SlidePanelHeader = ({
         >
           <X className="h-4 w-4" />
         </button>
+        <div id={toolbarLeftId} className="flex items-center gap-3" />
         <button
           type="button"
           onClick={onToggleExpand}
