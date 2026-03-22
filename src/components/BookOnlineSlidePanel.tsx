@@ -347,7 +347,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
           {destinations.length > 0 && (
             <div className="shrink-0 mt-3 pointer-events-auto">
               <div className="flex gap-2 overflow-x-auto px-4 pb-1 scrollbar-hide">
-                {destinations.map((dest) => {
+                {destinations.map((dest, index) => {
                   const destImg = dest.images?.filter(Boolean)?.[0] || dest.image_url;
                   return (
                     <div
