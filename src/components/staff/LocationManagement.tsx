@@ -300,6 +300,11 @@ const LocationManagement = () => {
 
   const { toast } = useToast();
 
+  const destVideoSensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+
   // Country form state
   const [countryForm, setCountryForm] = useState({
     name_fr: "",
