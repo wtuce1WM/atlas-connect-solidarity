@@ -278,7 +278,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
         <div className={`relative z-10 flex flex-col ${currentMedia?.kind === "video" ? "h-[calc(100%-3.5rem)] pointer-events-none" : "h-full"} p-4 md:p-6`}>
           {/* Mobile-only floating rating badge — top right under toolbar */}
           {avgOn20 !== null && avgOn20 > 0 && (
-            <div className="md:hidden absolute top-14 right-4 z-20 flex flex-col items-center bg-black/40 backdrop-blur-sm rounded-xl py-1.5 px-2.5 pointer-events-auto animate-slide-in-right">
+            <div className="md:hidden absolute top-2 right-4 z-20 flex flex-col items-center bg-black/40 backdrop-blur-sm rounded-xl py-1.5 px-2.5 pointer-events-auto animate-slide-in-right">
               <div className="flex items-center gap-1">
                 <Star className="h-3.5 w-3.5 text-gold fill-gold" />
                 <span className="text-base font-bold text-white">{avgOn20}</span>
