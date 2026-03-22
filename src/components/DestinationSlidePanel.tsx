@@ -247,14 +247,7 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
                       key={index}
                       className="shrink-0 w-44 rounded-xl overflow-hidden bg-black/40 backdrop-blur-sm border border-white/10 animate-slide-in-left opacity-0 cursor-pointer"
                       style={{ animationDelay: `${index * 120}ms`, animationFillMode: "forwards" }}
-                      onClick={() => {
-                        const info2 = getVideoInfo(videoUrl);
-                        if (info2.type === "youtube" || info2.type === "vimeo") {
-                          setFullscreenVideo(videoUrl);
-                        } else {
-                          setFullscreenVideo(videoUrl);
-                        }
-                      }}
+                      onClick={() => setFullscreenVideo(videoUrl)}
                     >
                       {info.thumbnail ? (
                         <div className="relative w-full h-28">
