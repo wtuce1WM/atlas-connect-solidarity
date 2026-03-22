@@ -3155,6 +3155,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 viator_review_count: fd.viator_review_count ? Number(fd.viator_review_count) : null,
                 avis_verifies_rating: fd.avis_verifies_rating ? Number(fd.avis_verifies_rating) : null,
                 avis_verifies_review_count: fd.avis_verifies_review_count ? Number(fd.avis_verifies_review_count) : null,
+                trustpilot_rating: fd.trustpilot_rating ? Number(fd.trustpilot_rating) : null,
+                trustpilot_review_count: fd.trustpilot_review_count ? Number(fd.trustpilot_review_count) : null,
               });
               if (sources.length === 0) return null;
               const totalCount = sources.reduce((sum, r) => sum + r.count, 0);
