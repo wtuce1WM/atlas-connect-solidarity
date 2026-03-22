@@ -16,6 +16,28 @@ const WhatsAppIcon = ({ className = "h-5 w-5" }: { className?: string }) => (
   </svg>
 );
 
+// Language flag mapping
+const LANG_FLAGS: Record<string, string> = {
+  français: "🇫🇷", french: "🇫🇷", fr: "🇫🇷",
+  anglais: "🇬🇧", english: "🇬🇧", en: "🇬🇧",
+  arabe: "🇲🇦", arabic: "🇲🇦", ar: "🇲🇦",
+  espagnol: "🇪🇸", spanish: "🇪🇸", es: "🇪🇸",
+  allemand: "🇩🇪", german: "🇩🇪", de: "🇩🇪",
+  italien: "🇮🇹", italian: "🇮🇹", it: "🇮🇹",
+  portugais: "🇵🇹", portuguese: "🇵🇹", pt: "🇵🇹",
+  néerlandais: "🇳🇱", dutch: "🇳🇱", nl: "🇳🇱",
+  russe: "🇷🇺", russian: "🇷🇺", ru: "🇷🇺",
+  chinois: "🇨🇳", chinese: "🇨🇳", zh: "🇨🇳",
+  japonais: "🇯🇵", japanese: "🇯🇵", ja: "🇯🇵",
+  turc: "🇹🇷", turkish: "🇹🇷", tr: "🇹🇷",
+  hindi: "🇮🇳", hi: "🇮🇳",
+};
+
+const getLangFlag = (lang: string) => {
+  const key = lang.toLowerCase().trim();
+  return LANG_FLAGS[key] || "🌐";
+};
+
 interface WebOnlySlidePanelProps {
   businessId: string;
   onClose: () => void;
@@ -39,6 +61,7 @@ interface WebOnlyBusiness {
   google_maps_url: string | null;
   phone: string | null;
   skype: string | null;
+  languages: string[] | null;
   opening_hours: unknown;
   show_opening_hours: boolean | null;
   is_open_24h: boolean;
@@ -93,7 +116,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
       const [bizRes, woRes] = await Promise.all([
         supabase
           .from("businesses")
-          .select("id, name, slug, logo_url, logo_bg, images, city, neighborhood, address, latitude, longitude, website, whatsapp, online_shop_url, google_maps_url, phone, skype, opening_hours, show_opening_hours, is_open_24h, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count")
+          .select("id, name, slug, logo_url, logo_bg, images, city, neighborhood, address, latitude, longitude, website, whatsapp, online_shop_url, google_maps_url, phone, skype, languages, opening_hours, show_opening_hours, is_open_24h, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count")
           .eq("id", businessId)
           .eq("is_active", true)
           .maybeSingle(),
@@ -118,6 +141,7 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
   const woDescription = webOnlyData?.description || null;
   const hasOpeningHours = business?.show_opening_hours !== false && (business?.is_open_24h || business?.opening_hours);
   const hasExpandableContent = !!(woDescription || hasOpeningHours);
+  const languages = business?.languages?.filter(Boolean) || [];
 
   const { avgOn20, totalReviewCount } = useMemo(() => {
     if (!business) return { avgOn20: null, totalReviewCount: 0 };
@@ -272,6 +296,17 @@ const WebOnlySlidePanel = ({ businessId, onClose }: WebOnlySlidePanelProps) => {
               >
                 <ChevronRight className="h-4 w-4" />
               </button>
+            </div>
+          )}
+
+          {/* Languages floating right — upper half */}
+          {languages.length > 0 && (
+            <div className="absolute right-1 top-1/2 -translate-y-1/2 md:right-3 md:top-[15%] md:translate-y-0 z-20 flex flex-col items-center gap-1.5 bg-black/40 backdrop-blur-sm rounded-full py-2 px-1.5">
+              {languages.map((lang, i) => (
+                <span key={i} className="text-base leading-none" title={lang}>
+                  {getLangFlag(lang)}
+                </span>
+              ))}
             </div>
           )}
 
