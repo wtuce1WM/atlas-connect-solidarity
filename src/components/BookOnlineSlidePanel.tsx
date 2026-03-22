@@ -511,6 +511,8 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                                 return displayOrder.map(day => {
                                   const dh = hours[day];
                                   if (!dh) return null;
+                                  const formatted = formatDayHoursDisplay(dh, { language });
+                                  if (!formatted || formatted.toLowerCase().includes('fermé') || formatted.toLowerCase().includes('closed')) return null;
                                   const isToday = day === todayKey;
                                   return (
                                     <div key={day} className={`flex gap-3 text-xs ${isToday ? 'font-bold' : ''}`}>
@@ -518,7 +520,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                                         {dayNames[day]}{isToday ? ' ●' : ''}
                                       </span>
                                       <span className="text-white/80">
-                                        {formatDayHoursDisplay(dh, { language })}
+                                        {formatted}
                                       </span>
                                     </div>
                                   );
