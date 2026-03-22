@@ -132,6 +132,10 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
   const [isTranslating, setIsTranslating] = useState(false);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [cardsHidden, setCardsHidden] = useState(false);
+  const [dragOffsetY, setDragOffsetY] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const touchStartRef = useRef<{ y: number; time: number } | null>(null);
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
@@ -383,8 +387,50 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
 
         {/* Languages + media counter — top left */}
 
-        {/* Overlaid content */}
-        <div className={`relative z-10 flex flex-col ${currentMedia?.kind === "video" ? "h-[calc(100%-3.5rem)] pointer-events-none" : "h-full"} p-4 md:p-6`}>
+        {/* Overlaid content — swipeable */}
+        <div
+          className={`relative z-10 flex flex-col ${currentMedia?.kind === "video" ? "h-[calc(100%-3.5rem)] pointer-events-none" : "h-full"} p-4 md:p-6`}
+          style={{
+            transform: isDragging
+              ? `translateY(${dragOffsetY}px)`
+              : cardsHidden
+                ? 'translateY(calc(100% - 3rem))'
+                : 'translateY(0)',
+            transition: isDragging ? 'none' : 'transform 0.35s cubic-bezier(.4,0,.2,1)',
+          }}
+          onTouchStart={(e) => {
+            touchStartRef.current = { y: e.touches[0].clientY, time: Date.now() };
+            setIsDragging(true);
+          }}
+          onTouchMove={(e) => {
+            if (!touchStartRef.current) return;
+            const dy = e.touches[0].clientY - touchStartRef.current.y;
+            if (cardsHidden) {
+              setDragOffsetY(Math.min(0, dy));
+            } else {
+              setDragOffsetY(Math.max(0, dy));
+            }
+          }}
+          onTouchEnd={() => {
+            setIsDragging(false);
+            const threshold = 60;
+            if (cardsHidden) {
+              if (dragOffsetY < -threshold) setCardsHidden(false);
+            } else {
+              if (dragOffsetY > threshold) setCardsHidden(true);
+            }
+            setDragOffsetY(0);
+            touchStartRef.current = null;
+          }}
+        >
+          {/* Drag handle — swipe or click to toggle cards */}
+          <div
+            className="flex justify-center mb-2 pointer-events-auto cursor-grab active:cursor-grabbing"
+            onClick={() => setCardsHidden(prev => !prev)}
+          >
+            <div className="w-10 h-1 rounded-full bg-white/40" />
+          </div>
+
           {/* Mobile-only floating rating badge — top right under toolbar */}
           {avgOn20 !== null && avgOn20 > 0 && (
             <div className="md:hidden absolute top-2 right-4 z-20 flex flex-col items-center bg-black/40 backdrop-blur-sm rounded-xl py-1.5 px-2.5 pointer-events-auto animate-slide-in-right">
