@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { MapPin, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, X, Navigation } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
-import GoogleMapEmbed from "@/components/GoogleMapEmbed";
+
 
 interface DestinationSlidePanelProps {
   destinationId: string;
@@ -30,13 +30,26 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
   const [isLoading, setIsLoading] = useState(true);
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
   const [descExpanded, setDescExpanded] = useState(true);
-  const [showMap, setShowMap] = useState(false);
+  const [showDirections, setShowDirections] = useState(false);
+  const [directionsMode, setDirectionsMode] = useState<"walking" | "driving">("walking");
+  const [userOrigin, setUserOrigin] = useState<string | null>(null);
   const [fullscreenVideo, setFullscreenVideo] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!showDirections) return;
+    setUserOrigin(null);
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => setUserOrigin(`${pos.coords.latitude},${pos.coords.longitude}`),
+        () => {}
+      );
+    }
+  }, [showDirections]);
 
   useEffect(() => {
     setCurrentMediaIndex(0);
     setDescExpanded(true);
-    setShowMap(false);
+    setShowDirections(false);
   }, [destinationId]);
 
   useEffect(() => {
@@ -111,30 +124,60 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
         </button>
       )}
 
-      {/* Map overlay */}
-      {showMap && destination.latitude && destination.longitude && (
-        <div className="absolute inset-0 z-[75] bg-white flex flex-col animate-slide-in-right">
-          <div className="shrink-0 flex items-center px-4 py-2 border-b bg-white">
-            <button
-              onClick={() => setShowMap(false)}
-              className="shrink-0 h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background border-2 border-background/20 shadow-2xl hover:opacity-90 transition-opacity"
-              aria-label="Retour"
-            >
-              <X className="h-4 w-4" />
-            </button>
-            <h3 className="flex-1 text-center text-sm font-semibold truncate px-4">{destName}</h3>
+      {/* Directions overlay */}
+      {showDirections && destination.latitude && destination.longitude && (() => {
+        const dest = `${destination.latitude},${destination.longitude}`;
+        return (
+          <div className="absolute inset-0 z-[75] bg-white flex flex-col animate-slide-in-right">
+            <div className="shrink-0 flex items-center px-4 py-2 border-b bg-white">
+              <button
+                onClick={() => setShowDirections(false)}
+                className="shrink-0 h-9 w-9 flex items-center justify-center rounded-full bg-foreground text-background border-2 border-background/20 shadow-2xl hover:opacity-90 transition-opacity"
+                aria-label="Fermer l'itinéraire"
+              >
+                <X className="h-4 w-4" />
+              </button>
+              <div className="flex-1 flex items-center justify-center">
+                <div className="flex items-center bg-muted rounded-full p-0.5">
+                  <button
+                    onClick={() => setDirectionsMode("walking")}
+                    className={`px-2.5 py-1 text-xs font-medium rounded-full transition-colors ${directionsMode === "walking" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+                  >
+                    🚶 {language === "en" ? "Walking" : "À pied"}
+                  </button>
+                  <button
+                    onClick={() => setDirectionsMode("driving")}
+                    className={`px-2.5 py-1 text-xs font-medium rounded-full transition-colors ${directionsMode === "driving" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+                  >
+                    🚗 {language === "en" ? "Driving" : "Voiture"}
+                  </button>
+                </div>
+              </div>
+              <div className="shrink-0 flex items-center gap-2">
+                <a href={`https://www.google.com/maps/dir/?api=1&destination=${dest}`} target="_blank" rel="noopener noreferrer" className="p-1 rounded-full hover:bg-muted transition-colors" title="Google Maps">
+                  <img src="https://www.gstatic.com/images/branding/product/1x/maps_48dp.png" alt="Google Maps" className="h-6 w-6 object-contain" />
+                </a>
+                <a href={`https://waze.com/ul?ll=${destination.latitude},${destination.longitude}&navigate=yes`} target="_blank" rel="noopener noreferrer" className="p-1 rounded-full hover:bg-muted transition-colors" title="Waze">
+                  <img src="https://www.waze.com/favicon.ico" alt="Waze" className="h-6 w-6 object-contain" />
+                </a>
+                <a href={`https://maps.apple.com/?daddr=${destination.latitude},${destination.longitude}&dirflg=d`} target="_blank" rel="noopener noreferrer" className="p-1 rounded-full hover:bg-muted transition-colors" title="Apple Plans">
+                  <img src="https://www.apple.com/favicon.ico" alt="Apple Plans" className="h-7 w-7 object-contain" />
+                </a>
+              </div>
+            </div>
+            <div className="flex-1 relative min-h-0">
+              <iframe
+                src={`https://www.google.com/maps/embed/v1/directions?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&origin=${userOrigin || "My+location"}&destination=${dest}&mode=${directionsMode}`}
+                className="absolute inset-0 w-full h-full border-0"
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title={`Itinéraire vers ${destName}`}
+              />
+            </div>
           </div>
-          <div className="flex-1 min-h-0">
-            <GoogleMapEmbed
-              address={destName}
-              businessName={destName}
-              latitude={destination.latitude}
-              longitude={destination.longitude}
-              fillHeight
-            />
-          </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Fullscreen video overlay */}
       {fullscreenVideo && (() => {
@@ -286,12 +329,12 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right" }: 
           {destination.latitude && destination.longitude && (
             <div className="shrink-0 py-2 flex flex-col items-center gap-2">
               <button
-                onClick={() => setShowMap(true)}
+                onClick={() => setShowDirections(true)}
                 className="flex items-center justify-center gap-1.5 w-[85%] md:w-1/2 py-2.5 rounded-lg text-white font-medium text-xs md:text-sm shadow-lg hover:opacity-90 transition-opacity normal-case tracking-normal"
                 style={{ fontFamily: "'Josefin Sans', sans-serif", backgroundColor: "#C04F17" }}
               >
                 <Navigation className="h-4 w-4" />
-                {language === "en" ? "Locate" : "Localiser"}
+                {language === "en" ? "Directions" : "Itinéraire"}
               </button>
             </div>
           )}
