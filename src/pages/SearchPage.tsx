@@ -736,7 +736,8 @@ const SearchPage = () => {
               return n === needle || n === `logistique:${needle}` || n.endsWith(`:${needle}`);
             });
             const shopUrl = (found as any).online_shop_url || (found as any).website;
-            setIsCompactPanelWebOnly(!!(hasEng("Commandez en ligne et recevez votre colis chez vous") && shopUrl));
+            const hasReservation = hasEng("Réservation en ligne obligatoire");
+            setIsCompactPanelWebOnly(!!(( hasEng("Commandez en ligne et recevez votre colis chez vous") && shopUrl) || hasReservation));
           } else {
             setIsCompactPanelWebOnly(false);
           }
