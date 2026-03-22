@@ -1147,9 +1147,9 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       logo_bg: (formData as any).logo_bg || "transparent",
       poissonnerie_details: formData.poissonnerie_details || null,
       destination_hook: (formData as any).destination_hook?.trim().slice(0, 120) || null,
-      destination_description: (formData as any).destination_description?.trim().slice(0, 500) || null,
+      destination_description: (formData as any).destination_description?.trim() || null,
       poi_hook: (formData as any).poi_hook?.trim().slice(0, 120) || null,
-      poi_description: (formData as any).poi_description?.trim().slice(0, 500) || null,
+      poi_description: (formData as any).poi_description?.trim() || null,
       is_poi: (formData as any).is_poi ?? false,
       website_force_external: (formData as any).website_force_external ?? false,
       reserve_now_force_external: (formData as any).reserve_now_force_external ?? false,
@@ -2459,7 +2459,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                         />
                       </div>
                       <div className="space-y-1">
-                        <Label className="text-sm font-medium">Description Destination — {(() => { const el = document.createElement('div'); el.innerHTML = (formData as any).destination_description || ''; return (el.textContent || '').replace(/\s+/g, ' ').trim().length; })()}/500</Label>
+                        <Label className="text-sm font-medium">Description Destination — {(() => { const el = document.createElement('div'); el.innerHTML = (formData as any).destination_description || ''; return (el.textContent || '').replace(/\s+/g, ' ').trim().length; })()} caractères</Label>
                         <RichTextEditor
                           content={(formData as any).destination_description || ""}
                           onChange={(val) => {
@@ -2537,7 +2537,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                         />
                       </div>
                       <div className="space-y-1">
-                        <Label className="text-sm font-medium">Description Points d'intérêt — {(() => { const el = document.createElement('div'); el.innerHTML = (formData as any).poi_description || ''; return (el.textContent || '').replace(/\s+/g, ' ').trim().length; })()}/500</Label>
+                        <Label className="text-sm font-medium">Description Points d'intérêt — {(() => { const el = document.createElement('div'); el.innerHTML = (formData as any).poi_description || ''; return (el.textContent || '').replace(/\s+/g, ' ').trim().length; })()} caractères</Label>
                         <RichTextEditor
                           content={(formData as any).poi_description || ""}
                           onChange={(val) => {
