@@ -168,6 +168,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
     setShowDirections(false);
     setCurrentMediaIndex(0);
     setDescExpanded(true);
+    setReviewsFlipped(false);
   }, [businessId]);
 
   useEffect(() => {
