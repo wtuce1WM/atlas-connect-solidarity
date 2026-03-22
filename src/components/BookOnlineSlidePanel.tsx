@@ -345,7 +345,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
               <div className="flex items-end gap-4">
                 {business.logo_url && (
                   <div
-                    className="shrink-0 w-14 h-14 rounded-xl overflow-hidden border-2 border-white/20 shadow-lg"
+                    className="shrink-0 w-14 h-14 rounded-xl overflow-hidden border-2 border-white/20 shadow-lg hidden md:block"
                     style={{ backgroundColor: business.logo_bg || "#fff" }}
                   >
                     <img src={business.logo_url} alt="" className="w-full h-full object-contain p-1" />
