@@ -16,6 +16,28 @@ const WhatsAppIcon = ({ className = "h-5 w-5" }: { className?: string }) => (
   </svg>
 );
 
+// Language flag mapping
+const LANG_FLAGS: Record<string, string> = {
+  français: "🇫🇷", french: "🇫🇷", fr: "🇫🇷",
+  anglais: "🇬🇧", english: "🇬🇧", en: "🇬🇧",
+  arabe: "🇲🇦", arabic: "🇲🇦", ar: "🇲🇦",
+  espagnol: "🇪🇸", spanish: "🇪🇸", es: "🇪🇸",
+  allemand: "🇩🇪", german: "🇩🇪", de: "🇩🇪",
+  italien: "🇮🇹", italian: "🇮🇹", it: "🇮🇹",
+  portugais: "🇵🇹", portuguese: "🇵🇹", pt: "🇵🇹",
+  néerlandais: "🇳🇱", dutch: "🇳🇱", nl: "🇳🇱",
+  russe: "🇷🇺", russian: "🇷🇺", ru: "🇷🇺",
+  chinois: "🇨🇳", chinese: "🇨🇳", zh: "🇨🇳",
+  japonais: "🇯🇵", japanese: "🇯🇵", ja: "🇯🇵",
+  turc: "🇹🇷", turkish: "🇹🇷", tr: "🇹🇷",
+  hindi: "🇮🇳", hi: "🇮🇳",
+};
+
+const getLangFlag = (lang: string) => {
+  const key = lang.toLowerCase().trim();
+  return LANG_FLAGS[key] || "🌐";
+};
+
 interface WebOnlySlidePanelProps {
   businessId: string;
   onClose: () => void;
