@@ -266,14 +266,18 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
   // Hook text for current language
   const hookText = useMemo(() => {
     if (!business) return null;
-    if (language === "ar" && business.hook_ar) return business.hook_ar;
-    if (language === "en" && business.hook_en) return business.hook_en;
-    return business.hook_fr;
+    const raw = language === "ar" && business.hook_ar ? business.hook_ar
+      : language === "en" && business.hook_en ? business.hook_en
+      : business.hook_fr;
+    return raw?.trim() || null;
   }, [business, language]);
 
   // Alternate between info and hook every 5s
   useEffect(() => {
-    if (!hookText) return;
+    if (!hookText) {
+      setShowHook(false);
+      return;
+    }
     setShowHook(false);
     const interval = setInterval(() => setShowHook((v) => !v), 5000);
     return () => clearInterval(interval);
