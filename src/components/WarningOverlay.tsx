@@ -182,7 +182,7 @@ const WarningOverlay = ({
                 <p className="text-sm font-medium text-foreground mb-3">
                   {language === "en" ? "Where are you looking?" : language === "ar" ? "أين تبحث؟" : "Où le cherchez-vous ?"}
                 </p>
-                <div className="flex overflow-x-auto gap-2 pb-2 scrollbar-hide">
+                <div className="flex flex-wrap justify-center gap-2 pb-2">
                   {availableCities.slice(0, 10).map(c => (
                     <button
                       key={c.name}
