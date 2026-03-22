@@ -382,7 +382,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
 
             {/* Block 2: Description + opening hours — 4 lines by default */}
             {hasExpandableContent && (
-              <div className={`w-[95%] md:w-[90%] rounded-2xl bg-black/40 backdrop-blur-sm p-4 md:p-6 text-white ${descExpanded ? 'max-h-[13vh] overflow-y-auto' : 'overflow-hidden'}`}>
+              <div className={`w-[95%] md:w-[90%] rounded-2xl bg-black/40 backdrop-blur-sm p-4 md:p-6 text-white ${descExpanded ? 'max-h-[10em] overflow-y-auto' : 'overflow-hidden'}`}>
                 <div className={`text-sm leading-relaxed pr-1 ${!descExpanded ? 'max-h-[3.4em] overflow-hidden' : ''}`}>
                   {woDescription && (
                     <>
