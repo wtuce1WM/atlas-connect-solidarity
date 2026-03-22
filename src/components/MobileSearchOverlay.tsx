@@ -168,7 +168,7 @@ const MobileSearchOverlay = ({ open, onClose, onBusinessSelect, onSearch }: Mobi
               </button>
             </div>
             <div className="space-y-0.5">
-              {history.slice(0, 5).map((entry) => (
+              {history.slice(0, 8).map((entry) => (
                 <div key={entry.id} className="group flex items-center rounded-lg hover:bg-muted/50 transition-colors">
                   <button
                     type="button"
