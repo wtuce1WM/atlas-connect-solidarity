@@ -3224,6 +3224,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                       google_maps_url: formData.google_maps_url || null,
                       getyourguide_url: (formData as any).getyourguide_url || null,
                       viator_url: (formData as any).viator_url || null,
+                      tourradar_url: (formData as any).tourradar_url || null,
                     }).eq('id', business.id);
                     if (saveError) throw saveError;
 
