@@ -136,6 +136,7 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
   const [dragOffsetY, setDragOffsetY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const touchStartRef = useRef<{ y: number; time: number } | null>(null);
+  const cardsHiddenRef = useRef(false);
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
@@ -405,21 +406,22 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
           onTouchMove={(e) => {
             if (!touchStartRef.current) return;
             const dy = e.touches[0].clientY - touchStartRef.current.y;
-            if (cardsHidden) {
-              setDragOffsetY(Math.min(0, dy));
-            } else {
-              setDragOffsetY(Math.max(0, dy));
-            }
+            setDragOffsetY(cardsHiddenRef.current ? Math.min(0, dy) : Math.max(0, dy));
           }}
           onTouchEnd={() => {
             setIsDragging(false);
-            const threshold = 60;
-            if (cardsHidden) {
-              if (dragOffsetY < -threshold) setCardsHidden(false);
-            } else {
-              if (dragOffsetY > threshold) setCardsHidden(true);
-            }
-            setDragOffsetY(0);
+            setDragOffsetY((prev) => {
+              const threshold = 60;
+              const hidden = cardsHiddenRef.current;
+              if (hidden && prev < -threshold) {
+                cardsHiddenRef.current = false;
+                setCardsHidden(false);
+              } else if (!hidden && prev > threshold) {
+                cardsHiddenRef.current = true;
+                setCardsHidden(true);
+              }
+              return 0;
+            });
             touchStartRef.current = null;
           }}
           onMouseDown={(e) => {
@@ -428,16 +430,19 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
             const onMove = (ev: MouseEvent) => {
               if (!touchStartRef.current) return;
               const dy = ev.clientY - touchStartRef.current.y;
-              setDragOffsetY(cardsHidden ? Math.min(0, dy) : Math.max(0, dy));
+              setDragOffsetY(cardsHiddenRef.current ? Math.min(0, dy) : Math.max(0, dy));
             };
             const onUp = () => {
               setIsDragging(false);
               setDragOffsetY((prev) => {
                 const threshold = 60;
-                if (cardsHidden) {
-                  if (prev < -threshold) setCardsHidden(false);
-                } else {
-                  if (prev > threshold) setCardsHidden(true);
+                const hidden = cardsHiddenRef.current;
+                if (hidden && prev < -threshold) {
+                  cardsHiddenRef.current = false;
+                  setCardsHidden(false);
+                } else if (!hidden && prev > threshold) {
+                  cardsHiddenRef.current = true;
+                  setCardsHidden(true);
                 }
                 return 0;
               });
@@ -450,7 +455,15 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
           }}
         >
           {/* Drag handle — swipe or click to toggle cards */}
-          <div className="flex justify-center mb-2 pointer-events-auto cursor-grab active:cursor-grabbing">
+          <div
+            className="flex justify-center mb-2 pointer-events-auto cursor-grab active:cursor-grabbing"
+            onClick={(e) => {
+              e.stopPropagation();
+              const next = !cardsHiddenRef.current;
+              cardsHiddenRef.current = next;
+              setCardsHidden(next);
+            }}
+          >
             <div className="w-10 h-1 rounded-full bg-white/40" />
           </div>
 
