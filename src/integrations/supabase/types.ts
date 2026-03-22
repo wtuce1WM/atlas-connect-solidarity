@@ -756,6 +756,9 @@ export type Database = {
           ai_review_summary: Json | null
           airbnb_url: string | null
           avg_price_range: Json | null
+          avis_verifies_rating: number | null
+          avis_verifies_review_count: number | null
+          avis_verifies_url: string | null
           badge_id: string | null
           booking_url: string | null
           business_type: string | null
@@ -875,6 +878,9 @@ export type Database = {
           ai_review_summary?: Json | null
           airbnb_url?: string | null
           avg_price_range?: Json | null
+          avis_verifies_rating?: number | null
+          avis_verifies_review_count?: number | null
+          avis_verifies_url?: string | null
           badge_id?: string | null
           booking_url?: string | null
           business_type?: string | null
@@ -994,6 +1000,9 @@ export type Database = {
           ai_review_summary?: Json | null
           airbnb_url?: string | null
           avg_price_range?: Json | null
+          avis_verifies_rating?: number | null
+          avis_verifies_review_count?: number | null
+          avis_verifies_url?: string | null
           badge_id?: string | null
           booking_url?: string | null
           business_type?: string | null
@@ -3348,6 +3357,9 @@ export type Database = {
               ai_review_summary: Json | null
               airbnb_url: string | null
               avg_price_range: Json | null
+              avis_verifies_rating: number | null
+              avis_verifies_review_count: number | null
+              avis_verifies_url: string | null
               badge_id: string | null
               booking_url: string | null
               business_type: string | null
@@ -3483,6 +3495,9 @@ export type Database = {
               ai_review_summary: Json | null
               airbnb_url: string | null
               avg_price_range: Json | null
+              avis_verifies_rating: number | null
+              avis_verifies_review_count: number | null
+              avis_verifies_url: string | null
               badge_id: string | null
               booking_url: string | null
               business_type: string | null
