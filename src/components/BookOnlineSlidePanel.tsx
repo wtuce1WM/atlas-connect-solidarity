@@ -662,12 +662,9 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
 
           </div>
 
-          {/* Destinations horizontal scroll */}
-          {destinations.length > 0 && (
-            <div className="shrink-0 mt-3 pointer-events-auto">
-              {/* Duplicated destinations carousel — above the label */}
-               <div className="w-[calc(100%_+_1rem)] -mr-4 md:w-[calc(100%_+_1.5rem)] md:-mr-6 overflow-x-auto pl-4 pr-0 pb-1 scrollbar-hide snap-x snap-mandatory mb-2">
-                <div className="flex w-max gap-2">
+          {/* Info Carousel — above destinations */}
+          <div className="w-[calc(100%_+_1rem)] -mr-4 md:w-[calc(100%_+_1.5rem)] md:-mr-6 overflow-x-auto pl-4 pr-0 pb-1 scrollbar-hide snap-x snap-mandatory mt-3 pointer-events-auto">
+            <div className="flex w-max gap-2">
                 {/* Card 1: Texte Web only */}
                 {woDescription && (
                   <div className="snap-start shrink-0 w-[40rem] h-[18em] md:h-[24em] rounded-2xl bg-black/40 backdrop-blur-sm p-4 text-white overflow-y-auto animate-slide-in-left opacity-0 border border-white/10"
@@ -965,8 +962,12 @@ const BookOnlineSlidePanel = ({ businessId, onClose }: BookOnlineSlidePanelProps
                   </div>
                 )}
                 <div className="shrink-0 w-4" aria-hidden="true" />
-                </div>
-              </div>
+            </div>
+          </div>
+
+          {/* Destinations horizontal scroll */}
+          {destinations.length > 0 && (
+            <div className="shrink-0 mt-3 pointer-events-auto">
               <p className="text-xs font-medium text-white/90 px-4 mb-1.5 rounded-lg mx-4 py-1.5 bg-black/40 backdrop-blur-sm border border-white/10 inline-block">
                 {business.name} vous emmène à :
               </p>
