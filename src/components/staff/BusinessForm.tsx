@@ -2265,12 +2265,20 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             </div>
           </div>
           <div className="space-y-2">
-            {formData.website ? (
-              <Label htmlFor="website_top"><a href={formData.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">Site web ↗</a></Label>
-            ) : (
-              <Label htmlFor="website_top">Site web</Label>
-            )}
             <div className="flex items-center gap-2">
+              {formData.website ? (
+                <Label htmlFor="website_top"><a href={formData.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">Site web ↗</a></Label>
+              ) : (
+                <Label htmlFor="website_top">Site web</Label>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <Switch
+                checked={(formData as any).website_force_external}
+                onCheckedChange={(checked) => handleChange("website_force_external", checked)}
+                title="Ouvrir en lien externe"
+                className="shrink-0"
+              />
               <Input
                 id="website_top"
                 value={formData.website}
@@ -2284,6 +2292,7 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 </Button>
               )}
             </div>
+            {(formData as any).website_force_external && <span className="text-xs text-orange-600">⚡ Lien externe activé</span>}
             <BrokenUrlBadge url={formData.website} />
             {formData.website && (
               <button
