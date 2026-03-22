@@ -3266,6 +3266,19 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             <span className="text-xs text-muted-foreground">/5</span>
             <Input type="number" min="0" value={(formData as any).getyourguide_review_count} onChange={(e) => handleChange("getyourguide_review_count" as any, e.target.value)} placeholder="Nb" className="w-20" />
             <span className="text-xs text-muted-foreground">avis</span>
+            <Button type="button" variant="outline" size="sm" className="h-8 text-xs" title="Récupérer depuis GetYourGuide" onClick={async () => {
+              const url = (formData as any).getyourguide_url;
+              if (!url) { toast({ title: "URL GetYourGuide manquante", variant: "destructive" }); return; }
+              try {
+                toast({ title: "Récupération GetYourGuide en cours..." });
+                const { data, error } = await supabase.functions.invoke('fetch-getyourguide', { body: { url } });
+                if (error) throw error;
+                const extract = data?.data?.data?.extract;
+                if (extract?.rating != null) handleChange("getyourguide_rating" as any, String(extract.rating));
+                if (extract?.review_count != null) handleChange("getyourguide_review_count" as any, String(extract.review_count));
+                toast({ title: "GetYourGuide récupéré ✓", description: `Note: ${extract?.rating}/5 — ${extract?.review_count} avis${extract?.activity_count ? ` (${extract.activity_count} activités)` : ''}` });
+              } catch (e: any) { toast({ title: "Erreur GetYourGuide", description: e.message, variant: "destructive" }); }
+            }}>📥 Fetch</Button>
             <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" title="Effacer GetYourGuide" onClick={() => { handleChange("getyourguide_url" as any, ""); handleChange("getyourguide_rating" as any, ""); handleChange("getyourguide_review_count" as any, ""); }}>🗑️</Button>
           </div>
           <div className="flex items-center gap-2">
